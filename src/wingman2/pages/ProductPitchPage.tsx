@@ -23,6 +23,7 @@ import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, Product
 import { ReportProblemButton } from "../components/ReportProblemButton";
 import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
+import { ProductApplicationVisuals } from "../components/ProductApplicationVisuals";
 import { validateUsbPath, usbValidationIsRequired } from "../logic/usbPathValidator";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
@@ -202,7 +203,7 @@ function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
   const useful = cleanUsefulList(items, max);
 
   return (
-    <ul className="grid gap-2 text-sm leading-6 wm-ui-copy">
+    <ul className="wm-product-pitch-list grid gap-2 text-sm leading-6 wm-ui-copy">
       {useful.map((item, index) => (
         <li key={`${item}-${index}`} className="rounded-2xl border px-3 py-2 wm-ui-card">
           {item}
@@ -228,7 +229,7 @@ function WorkCard({
   tone?: "standard" | "caution";
 }) {
   return (
-    <section className="wm-ui-card rounded-lg border p-5 wm-ui-section" data-ui-tone={tone}>
+    <section className="wm-product-pitch-work-card wm-ui-card rounded-lg border p-5 wm-ui-section" data-ui-tone={tone}>
       <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} ${tone === "caution" ? "text-amber-200" : "text-cyan-300"}`}>
         {title}
       </h3>
@@ -663,8 +664,8 @@ function OverviewTab({
     .map((benefit) => conciseSalesCopy(benefit, 18));
 
   return (
-    <div className="grid gap-3">
-      <section className="wm-ui-section rounded-lg border p-5 wm-ui-card">
+    <div className="wm-product-pitch-overview grid gap-3">
+      <section className="wm-product-pitch-outcome wm-ui-section rounded-lg border p-5 wm-ui-card">
         <p className={`${PRODUCT_PITCH_KICKER_CLASS} wm-ui-kicker`}>Sales quick view</p>
         <h2 className="mt-1 text-xl font-extrabold wm-ui-title">The customer outcome</h2>
         <p className="mt-2 max-w-4xl text-base font-bold leading-6 wm-ui-copy">
@@ -672,7 +673,9 @@ function OverviewTab({
         </p>
       </section>
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      <ProductApplicationVisuals sku={product.sku} />
+
+      <div className="wm-product-pitch-overview__cards grid gap-3 lg:grid-cols-3">
         <WorkCard title="Why it matters">
           <p className="wm-ui-copy">{conciseSalesCopy(guidance.customerProblem, 24)}</p>
         </WorkCard>
@@ -686,14 +689,14 @@ function OverviewTab({
         </WorkCard>
       </div>
 
-      <section className="wm-ui-section rounded-lg border p-5 wm-ui-card">
+      <section className="wm-product-pitch-talk-track wm-ui-section rounded-lg border p-5 wm-ui-card">
         <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Say it like this</p>
         <p className="mt-2 max-w-5xl text-base leading-6 wm-ui-copy">
           “{conciseSalesCopy(guidance.customerSafeWording, 36)}”
         </p>
       </section>
 
-      <details className="wm-ui-card rounded-lg border p-5">
+      <details className="wm-product-pitch-technical wm-ui-card rounded-lg border p-5">
         <summary className="cursor-pointer font-extrabold">
           Technical and quote detail
         </summary>
@@ -1046,9 +1049,12 @@ function ProductWorkspace({
 
   return (
     <main data-product-pitch-view="workspace" className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-identity p-5`}>
+        <div className="wm-product-pitch-identity__layout">
+          <div className="wm-product-pitch-identity__media" aria-hidden={!imageUrl}>
+            {imageUrl ? <img src={imageUrl} alt="" /> : <span>{product.sku.slice(0, 2)}</span>}
+          </div>
+          <div className="wm-product-pitch-identity__copy">
             <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
             <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-cyan-200`}>{product.sku}</h1>
             <GovernedDataBadge tier={product.technicalData?.sourceTier} label={product.technicalData?.statusLabel} />
@@ -1059,7 +1065,7 @@ function ProductWorkspace({
             <p className="mt-3 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.headline}</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="wm-product-pitch-identity__actions">
             <button className={["wm-ui-button wm-ui-button-secondary", `${PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS} transition hover:bg-cyan-200`].filter(Boolean).join(" ")}
               type="button"
               onClick={() => openProductCheatSheet(product, narrative, imageUrl)}
@@ -1152,7 +1158,7 @@ function ProductWorkspace({
 
       <ProductPitchSafetyPanel />
 
-      <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`} aria-label="Product information views">
+      <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-tabs p-4`} aria-label="Product information views">
         <div className="flex flex-wrap gap-2" role="tablist">
           <TabButton label="Purpose & Position" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
           <TabButton label="Features" active={activeTab === "features"} onClick={() => setActiveTab("features")} />
@@ -1180,9 +1186,9 @@ function ProductPitchSafetyPanel() {
   return (
     <details className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
       <summary className="cursor-pointer list-none">
-        <span className="wm-ui-kicker">Design status</span>
-        <strong id="product-pitch-safety-title" className="ml-3 wm-card-title">Sales guidance — confirm before quote</strong>
-        <span className="ml-3 text-sm wm-copy">Open the review rules</span>
+        <span className="wm-product-pitch-safety-panel__icon" aria-hidden="true">!</span>
+        <span><span className="wm-ui-kicker">Before quoting</span><strong id="product-pitch-safety-title" className="wm-card-title">Confirm the application and signal path</strong></span>
+        <span className="text-sm wm-copy">Review checks</span>
       </summary>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         <p className="wm-copy"><strong>Qualify:</strong> Confirm application, signal path, endpoint count, USB, audio, control and distance.</p>

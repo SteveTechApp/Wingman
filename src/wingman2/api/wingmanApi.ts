@@ -357,6 +357,13 @@ export type LiveResearchReviewActionResponse = {
   error?: string;
 };
 
+export function submitLiveResearchReview(result: CompetitorMatchResponse) {
+  return postWingmanJson<LiveResearchReviewActionResponse & { staged?: boolean }>(
+    "/api/governance/live-research/submit",
+    { result },
+  );
+}
+
 export function fetchLiveResearchReviewQueue(status = "") {
   const query = status
     ? `?status=${encodeURIComponent(status)}`

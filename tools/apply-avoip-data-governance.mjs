@@ -8,6 +8,7 @@ const runGenerated = args.has("--generated") || (!args.has("--sources") && !args
 const checkOnly = args.has("--check");
 
 const registryPath = path.join(root, "data", "governance", "avoip-technology-registry.json");
+const technicalProfilesPath = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
 const wyrestormCsvPath = path.join(root, "data-sources", "wyrestorm", "products.csv");
 const wyrestormEnrichmentPath = path.join(root, "data-sources", "wyrestorm", "enrichment.json");
 const competitorDirectory = path.join(root, "data-sources", "competitors");
@@ -21,7 +22,12 @@ function fail(message) {
 
 if (!fs.existsSync(registryPath)) fail(`Missing registry: ${registryPath}`);
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+const governedTechnicalProfiles = readJson(technicalProfilesPath, { profiles: [] });
+const governedTechnicalProfilesBySku = new Map(
+  (governedTechnicalProfiles.profiles ?? []).map((profile) => [normaliseSku(profile.sku), profile]),
+);
 const allowedNetworkSpeeds = new Set(registry.policy?.networkSpeedValues ?? ["1GbE", "10GbE"]);
+const nonAvoipSkus = new Set((registry.policy?.nonAvoipSkus ?? []).map(normaliseSku));
 
 function clean(value) {
   return String(value ?? "").trim();
@@ -185,6 +191,7 @@ function recordText(record) {
 }
 
 function isAvoip(record) {
+  if (nonAvoipSkus.has(normaliseSku(record.sku ?? record.model ?? record.id))) return false;
   const identity = [
     record.sku,
     record.model,
@@ -199,6 +206,216 @@ function isAvoip(record) {
     record.technology,
   ].map(clean).join(" ").toLowerCase();
   return /\bavoip\b|av[ -]?over[ -]?ip|networkhd|sdvoe|omni-?stream|dm-?nvx|\bnav\b|zyper|vinx/.test(identity);
+}
+
+function removeStaleAvoipFields(record) {
+  delete record.avoip;
+  if (record.specs && typeof record.specs === "object") {
+    delete record.specs.avoipChip;
+    delete record.specs.avoipChipStatus;
+    delete record.specs.avoipCodec;
+  }
+  if (record.sourceCatalog && typeof record.sourceCatalog === "object") {
+    delete record.sourceCatalog.avoipChip;
+    delete record.sourceCatalog.avoipChipStatus;
+    delete record.sourceCatalog.avoipCodec;
+    if (/managed AV network/i.test(clean(record.sourceCatalog.networkRequirement))) {
+      record.sourceCatalog.networkRequirement = "1GbE control / integration network";
+    }
+  }
+  if (record.technicalProfile && typeof record.technicalProfile === "object") {
+    delete record.technicalProfile.avoip;
+  }
+}
+
+function applyGovernedTechnicalProfile(record, sku) {
+  const governed = governedTechnicalProfilesBySku.get(sku);
+  if (!governed || !/^verified(?:-with-warning)?$/i.test(clean(governed.status))) return false;
+
+  const ports = (governed.ports ?? []).map((port) => ({
+    ...port,
+    evidence: port.detail || port.connector,
+  }));
+  const io = { ports };
+  for (const category of ["video", "audio", "usb", "network", "control", "power", "storage", "other"]) {
+    const categoryPorts = ports.filter((port) => (port.category || "other") === category);
+    if (categoryPorts.length) io[category] = categoryPorts;
+  }
+
+  const current = record.technicalProfile && typeof record.technicalProfile === "object"
+    ? record.technicalProfile
+    : {};
+  record.technicalProfile = {
+    ...current,
+    io,
+    video: {
+      ...(current.video ?? {}),
+      present: (governed.video ?? []).length > 0 || ports.some((port) => port.category === "video"),
+      maxResolutions: governed.video ?? [],
+      ...(governed.maxResolution ? { maximum: governed.maxResolution } : {}),
+      ...(governed.hdmi || governed.videoStandards
+        ? { standards: [...(governed.hdmi ?? []), ...(governed.videoStandards ?? [])] }
+        : {}),
+      ...(governed.maximumPixelClockMhz
+        ? { bandwidth: [`${governed.maximumPixelClockMhz}MHz maximum pixel clock`] }
+        : {}),
+      ...(governed.outputVideoEncoding ? { outputEncoding: governed.outputVideoEncoding } : {}),
+    },
+    audio: {
+      ...(current.audio ?? {}),
+      present: (governed.audio ?? []).length > 0 || ports.some((port) => port.category === "audio"),
+      formats: governed.audio ?? [],
+    },
+    usb: {
+      ...(current.usb ?? {}),
+      present: (governed.usb ?? []).length > 0 || ports.some((port) => port.category === "usb"),
+      evidence: governed.usb ?? [],
+    },
+    network: {
+      ...(current.network ?? {}),
+      present: (governed.network ?? []).length > 0 || ports.some((port) => port.category === "network"),
+      evidence: governed.network ?? [],
+    },
+    control: {
+      ...(current.control ?? {}),
+      present: (governed.control ?? []).length > 0 || ports.some((port) => port.category === "control"),
+      protocols: governed.control ?? [],
+    },
+    power: {
+      ...(current.power ?? {}),
+      evidence: governed.power ?? [],
+    },
+    governedSpecification: governed,
+  };
+
+  record.connectors = unique(ports.map((port) => port.connector));
+  record.sourceCatalog = {
+    ...(record.sourceCatalog ?? {}),
+    inputs: ports.filter((port) => port.direction === "input" && port.category === "video").map(portLabel),
+    outputs: ports.filter((port) => port.direction === "output" && port.category === "video").map(portLabel),
+    resolutionBandwidth: (governed.video ?? []).join("; "),
+    usb: (governed.usb ?? []).join("; "),
+    audio: (governed.audio ?? []).join("; "),
+    control: (governed.control ?? []).join("; "),
+    networkRequirement: (governed.network ?? []).join("; "),
+    dependencies: governed.dependencies ?? [],
+    compatibleFamilies: governed.compatibleFamilies ?? [],
+    quoteWarnings: [...(governed.checks ?? []), ...(governed.warnings ?? [])].join(" "),
+  };
+  return true;
+}
+
+function applyNonAvoipGovernance(record, sku) {
+  removeStaleAvoipFields(record);
+  const governed = governedTechnicalProfilesBySku.get(sku);
+  if (!governed) return;
+
+  applyGovernedTechnicalProfile(record, sku);
+  const ports = record.technicalProfile.io.ports;
+
+  record.family = "Video Processing";
+  record.technologyType = "Video Processing";
+  record.hardwareType = "Video Processing";
+  record.productClassification = {
+    taxonomyVersion: "wyrestorm-product-manager-v1",
+    primaryCategory: "Video Processing",
+    category: "Multiview processor",
+    subCategory: "Standalone HDMI multiview switcher",
+    productType: "4-input HDMI multiview processor",
+    productSubType: "4K60 multiview with local HDMI inputs",
+    systemRole: "Multiview composition and source switching",
+    applicationRole: "Combine up to four local HDMI sources on one HDMI output",
+    transportClass: ["HDMI", "1GbE control"],
+    signalDomains: ["Video", "Audio", "Control", "Network"],
+    subClassifications: ["multiview-processor", "local-hdmi", "standalone-processor"],
+    classificationPath: ["Video Processing", "Multiview processor", "Standalone HDMI multiview switcher", "4-input HDMI multiview processor", "4K60 multiview with local HDMI inputs"],
+    confidence: 0.99,
+    productRole: "primary-hardware",
+    catalogVisibility: "default",
+  };
+  record.classificationPath = record.productClassification.classificationPath;
+  record.subClassifications = record.productClassification.subClassifications;
+  record.technicalProfile = {
+    ...(record.technicalProfile ?? {}),
+    signalDomains: record.productClassification.signalDomains,
+    transports: governed.transport ?? ["Local HDMI"],
+    io: record.technicalProfile.io,
+    video: {
+      present: true,
+      maxResolutions: governed.video ?? [],
+      standards: [...(governed.hdmi ?? []), ...(governed.videoStandards ?? [])],
+      bandwidth: [`${governed.maximumPixelClockMhz}MHz maximum pixel clock`],
+      processing: ["Multiview", "Automatic output downscaling"],
+      outputEncoding: governed.outputVideoEncoding,
+    },
+    audio: {
+      present: true,
+      formats: governed.audio ?? [],
+      processing: ["Analog audio de-embed"],
+    },
+    network: {
+      present: true,
+      linkSpeeds: ["1GbE"],
+      protocols: ["Web interface", "NetworkHD Touch integration"],
+      purpose: "Control and integration only; not AV transport",
+    },
+    control: {
+      present: true,
+      protocols: governed.control ?? [],
+    },
+    power: {
+      poe: false,
+      powerDelivery: false,
+      evidence: governed.power ?? [],
+    },
+    governedSpecification: governed,
+  };
+  record.connectors = unique(ports.map((port) => port.connector));
+  const falseArchitecture = /^(?:AVoIP|NetworkHD 100|AVoIP multiview processor|NetworkHD AV over IP)$/i;
+  const falseDistributedClaim = /Distributed AV routing, video wall, multiview or AVoIP transport/i;
+  for (const field of ["features", "featureTags", "tags", "capabilities", "searchTerms"]) {
+    if (!Array.isArray(record[field])) continue;
+    record[field] = record[field].filter((value) =>
+      !falseArchitecture.test(clean(value)) && !falseDistributedClaim.test(clean(value)),
+    );
+  }
+  record.salesLanguage = {
+    voiceVersion: "wingman-sales-language-v1",
+    headline: "NHD-0401-MV: four local HDMI sources composed on one display",
+    plainEnglishSummary: "Use this when the customer needs to view up to four local HDMI sources together on one HDMI output.",
+    customerValue: "It creates a clear multiview display without requiring the unit itself to decode NetworkHD streams.",
+    realWorldApplication: "Monitoring, teaching, hospitality, production preview and control-room overview displays.",
+    salespersonCue: "Position it as a local-HDMI multiview processor; add external NetworkHD decoders when the sources arrive from a NetworkHD system.",
+    talkTrack: [
+      "Six pre-loaded layouts provide picture-in-picture, dual, master and quad-style presentation choices.",
+      "The HDMI output can downscale automatically to match the connected display.",
+      "The 1GbE connection supports control and integration; it is not a NetworkHD video-stream input.",
+    ],
+    discoveryPrompts: [
+      "Which sources must be visible simultaneously?",
+      "Can all four sources reach the processor as local HDMI signals?",
+      "Which layout and output resolution does the display or downstream processor require?",
+      "Will any sources require external NetworkHD decoders or HDMI extension?",
+    ],
+    positioningNotes: [
+      "Use for a composed multiview output rather than general many-to-many routing.",
+    ],
+    avoidPositioningAs: [
+      "Do not describe it as a NetworkHD encoder, decoder or direct AVoIP stream processor.",
+    ],
+    marketApplications: ["Standalone HDMI multiview", "NetworkHD monitoring with external decoders"],
+  };
+  record.sourceCatalog = {
+    ...(record.sourceCatalog ?? {}),
+    inputs: ports.filter((port) => port.direction === "input").map(portLabel),
+    outputs: ports.filter((port) => port.direction === "output").map(portLabel),
+    resolutionBandwidth: (governed.video ?? []).join("; "),
+    audio: (governed.audio ?? []).join("; "),
+    control: (governed.control ?? []).join("; "),
+    networkRequirement: "1GbE control / integration network; no NetworkHD AV stream input",
+    dependencies: governed.dependencies ?? [],
+    compatibleFamilies: governed.compatibleFamilies ?? [],
+  };
 }
 
 function findRule(vendor, sku, text = "") {
@@ -333,12 +550,16 @@ function normaliseWyrestormEnrichment() {
   let touched = 0;
   for (const product of records) {
     const sku = normaliseSku(product.sku ?? product.id);
-    if (!isAvoip(product)) continue;
-    const technology = technologyFor(product, "WyreStorm", sku);
-    if (!technology.rule && !technology.networkSpeed) continue;
-    touched += 1;
+    if (nonAvoipSkus.has(sku)) {
+      applyNonAvoipGovernance(product, sku);
+      continue;
+    }
+    if (isAvoip(product)) {
+      const technology = technologyFor(product, "WyreStorm", sku);
+      if (technology.rule || technology.networkSpeed) {
+        touched += 1;
 
-    product.avoip = {
+        product.avoip = {
       networkSpeed: technology.networkSpeed ?? null,
       networkRequirement: technology.networkSpeed ? `${technology.networkSpeed} managed AV network` : "Unconfirmed",
       chipset: technology.chipset ?? null,
@@ -370,8 +591,11 @@ function normaliseWyrestormEnrichment() {
       : { present: true };
     if (technology.networkSpeed) product.technicalProfile.network.linkSpeeds = [technology.networkSpeed];
 
-    const exact = registry.exactPortProfiles?.[sku];
-    if (exact) applyExactPortProfile(product, exact);
+        const exact = registry.exactPortProfiles?.[sku];
+        if (exact) applyExactPortProfile(product, exact);
+      }
+    }
+    applyGovernedTechnicalProfile(product, sku);
   }
 
   writeIfChanged(wyrestormEnrichmentPath, stableJson(records), "WyreStorm enrichment AVoIP data");

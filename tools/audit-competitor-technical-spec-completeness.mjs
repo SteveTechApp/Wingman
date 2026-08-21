@@ -71,6 +71,7 @@ const totals = {
   missingAudio: 0,
   missingFeatures: 0,
   missingMaxResolution: 0,
+  resolutionNotApplicable: 0,
   noResolutionEvidence: 0,
   hdmiMentionedNoVersion: 0,
   hdbasetMentionedNoClassOrVersion: 0,
@@ -105,11 +106,19 @@ for (const product of products) {
       : 0;
   if (!featureCount) totals.missingFeatures += 1;
 
-  const hasMaxResolution = Boolean(clean(product.video?.maxResolution));
-  if (!hasMaxResolution) totals.missingMaxResolution += 1;
+  const hasMaxResolution = Boolean(
+    clean(product.video?.maxResolution) ||
+    clean(product.specs?.video?.maxResolution) ||
+    clean(product.specs?.video?.maxInputResolution) ||
+    clean(product.specs?.video?.maxOutputResolution),
+  );
+  const resolutionNotApplicable = /\b(usb extender|usb extension|control processor|control system|audio processor|audio interface|microphone|speaker|amplifier)\b/i.test(text)
+    && !/\b(hdmi|hdbase[-\s]?t|displayport|dvi|sdi|vga|video|camera)\b/i.test(text);
+  if (!hasMaxResolution && resolutionNotApplicable) totals.resolutionNotApplicable += 1;
+  else if (!hasMaxResolution) totals.missingMaxResolution += 1;
 
   const hasResolutionEvidence = /\b(4k|8k|1080p|720p|3840x2160|4096x2160|1920x1080|2160p)\b/i.test(text);
-  if (!hasResolutionEvidence) totals.noResolutionEvidence += 1;
+  if (!hasResolutionEvidence && !resolutionNotApplicable) totals.noResolutionEvidence += 1;
 
   const structuredHdmi = clean(product.video?.hdmi) || clean(product.specs?.video?.hdmi);
   const mentionsHdmi = /\bhdmi\b/i.test(text);
@@ -160,6 +169,7 @@ for (const product of products) {
     hasAudio,
     featureCount,
     hasMaxResolution,
+    resolutionNotApplicable,
     hasResolutionEvidence,
     mentionsHdmi,
     hasHdmiVersion,

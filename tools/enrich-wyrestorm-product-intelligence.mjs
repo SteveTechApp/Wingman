@@ -669,6 +669,28 @@ function baseClassification(product, text) {
     });
   }
 
+  // NetworkHD branding does not necessarily mean that a product transports
+  // video over the network. This unit has four local HDMI inputs; its RJ45 is
+  // for control/integration. Keep this architectural exception ahead of the
+  // broad NHD family rule so refreshes cannot turn it into an AVoIP endpoint.
+  if (sku === "NHD-0401-MV") {
+    return make({
+      primaryCategory: "Video Processing",
+      category: "Multiview processor",
+      subCategory: "Standalone HDMI multiview switcher",
+      productType: "4-input HDMI multiview processor",
+      productSubType: "4K60 multiview with local HDMI inputs",
+      systemRole: "Multiview composition and source switching",
+      applicationRole: "Combine up to four local HDMI sources on one HDMI output",
+      transportClass: ["HDMI", "1GbE control"],
+      signalDomains: ["Video", "Audio", "Control", "Network"],
+      subClassifications: ["multiview-processor", "local-hdmi", "standalone-processor"],
+      confidence: 0.99,
+      productRole: "primary-hardware",
+      catalogVisibility: "default",
+    });
+  }
+
   if (/^NHD-/.test(sku)) {
     const series = sku.includes("600") || includesAny(text, ["networkhd 600", "10g"]) ? "NetworkHD 600" : sku.includes("500") || includesAny(text, ["networkhd 500"]) ? "NetworkHD 500" : "NetworkHD 100";
     // The endpoint role is decided from the SKU suffix and the product NAME,
@@ -1203,14 +1225,28 @@ function portCategory(connector, raw) {
 function extractPorts(lines) {
   const ports = [];
   let direction = "";
+  let portHeading = "";
+  let inBoxContents = false;
 
   for (const line of lines) {
+    if (/^in the box$/i.test(line)) {
+      inBoxContents = true;
+      portHeading = "";
+      continue;
+    }
+    if (inBoxContents) continue;
+
     if (/^inputs?$/i.test(line)) {
       direction = "input";
       continue;
     }
     if (/^outputs?$/i.test(line)) {
       direction = "output";
+      continue;
+    }
+
+    if (/^(?:hdmi|network|lan|ethernet|rs-?232|ir|usb|audio)$/i.test(line)) {
+      portHeading = line;
       continue;
     }
 
@@ -1226,12 +1262,13 @@ function extractPorts(lines) {
       // made normaliseConnector see doubled text for non-family connectors (e.g.
       // "1x EXP-MX-0402-H2 Matrix" became "EXP-MX-0402-H2 Matrix 1x EXP-MX-0402-H2
       // Matrix"). The line itself already carries the connector phrase.
-      const connector = normaliseConnector(line);
+      const contextualLine = portHeading ? `${portHeading} ${line}` : line;
+      const connector = normaliseConnector(contextualLine);
       ports.push({
         count,
         connector,
         direction: explicitDirection || "unspecified",
-        category: portCategory(connector, line),
+        category: portCategory(connector, contextualLine),
         evidence: line,
       });
     }

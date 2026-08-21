@@ -86,6 +86,13 @@ function dedupeConnector(raw) {
 
 function isAccessoryText(text, sku) {
   const value = lower(text);
+  // A line that explicitly describes an included cable, remote, mounting
+  // piece, power brick or companion unit is box content even when that item
+  // name contains a connector term such as HDMI, USB or IR. Power-category
+  // device inlets are handled before this helper and remain functional ports.
+  if (/\b(?:cables?|remote(?: control)?|power suppl(?:y|ies)|power adapters?|mounting brackets?|rack brackets?|wall brackets?|receiver units?|transmitter units?)\b/i.test(value)) {
+    return true;
+  }
   if (CONNECTOR_SIGNAL.test(value)) return false;
   if (sku && value.includes(lower(sku))) return true;
   if (BOX_CONTENT.test(value)) return true;
@@ -113,6 +120,11 @@ function uniqueBySig(items) {
 
 function cleanProductIo(product, stats) {
   const profile = product?.technicalProfile;
+  // Verified governed profiles have already separated functional connectors
+  // from included accessories. Re-parsing those rows with text heuristics can
+  // only weaken the reviewed data (for example by treating a DC input or a
+  // bundled terminal connector as an accessory), so preserve them verbatim.
+  if (profile?.governedSpecification) return;
   const io = profile?.io && typeof profile.io === "object" ? profile.io : null;
   if (!io) return;
 

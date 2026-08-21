@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { COMPETITOR_LIVE_LOOKUP_DB_FILE as LIVE_LOOKUP_DB_FILE } from "../catalog/files.mjs";
 import { normaliseProductTechnology } from "./technology-normalizer.mjs";
 
@@ -86,7 +87,36 @@ const ALLOWED_VENDOR_HOSTS = new Set([
   "exertis.co.uk",
   "www.exertis.co.uk",
   "bhphotovideo.com",
-  "www.bhphotovideo.com"
+  "www.bhphotovideo.com",
+  "av-iq.com",
+  "www.av-iq.com",
+  "fullcompass.com",
+  "www.fullcompass.com",
+  "projectorcentral.com",
+  "www.projectorcentral.com",
+  "touchboards.com",
+  "www.touchboards.com",
+  "cdw.com",
+  "www.cdw.com",
+  "connection.com",
+  "www.connection.com",
+  "manualslib.com",
+  "www.manualslib.com",
+  "device.report",
+  "www.device.report",
+  "hdbaset.org",
+  "www.hdbaset.org",
+  "products.hdbaset.org",
+  "fccid.io",
+  "www.fccid.io",
+  "creationnetworks.net",
+  "www.creationnetworks.net",
+  "manualzz.com",
+  "www.manualzz.com",
+  "aa-iot.com",
+  "www.aa-iot.com",
+  "manuals.plus",
+  "www.manuals.plus"
 ]);
 
 for (const host of String(process.env.LOOKUP_ALLOWED_SOURCE_HOSTS || "")
@@ -451,8 +481,12 @@ function buildTrustedReferenceSourceUrls(manufacturer, model) {
     // AVITdirect contains useful reseller/source catalogue records across video products.
     `https://avitdirect.co.uk/search?q=${encodeURIComponent(searchPhrase)}`,
     `https://avitdirect.co.uk/search?q=${encodeURIComponent(sku)}`,
-    "https://avitdirect.co.uk/collections/video",
-    "https://avitdirect.co.uk/collections/video-distribution",
+
+    // Search high-signal public catalogues and document repositories before
+    // community sources. The search engine result is discovery evidence only;
+    // extracted specifications must come from an allowed destination page.
+    `https://www.bing.com/search?q=${encodeURIComponent(`"${searchPhrase}" (site:av-iq.com OR site:fullcompass.com OR site:bhphotovideo.com OR site:markertek.com)`)}`,
+    `https://www.bing.com/search?q=${encodeURIComponent(`"${searchPhrase}" (site:manualslib.com OR site:device.report OR site:hdbaset.org OR site:fccid.io)`)}`,
 
     // General search discovery sources. These are information discovery sources, not competitor vendors.
     `https://www.bing.com/search?q=${encodeURIComponent(`${searchPhrase} datasheet product page specifications`)}`,
@@ -539,7 +573,12 @@ function extractCandidateLinks(html, currentUrl, adapter, model) {
   const links = [];
 
   for (const href of extractHrefValues(html)) {
-    const unwrapped = unwrapSearchRedirect(href);
+    let absoluteHref = href;
+    try {
+      absoluteHref = new URL(href, currentUrl).toString();
+    } catch {
+    }
+    const unwrapped = unwrapSearchRedirect(absoluteHref);
     const normalized = normalizeHttpsUrl(unwrapped, currentUrl);
     if (!normalized) continue;
 
@@ -577,6 +616,8 @@ function scorePage({ url, title, text, model, kind }) {
   if (normalise(title).includes(sku)) score += 20;
   if (/\b4k\b|\b8k\b|\bhdbaset\b|\bav over ip\b|\bencoder\b|\bdecoder\b|\bmatrix\b|\bswitcher\b|\busb\b|\bmultiview\b|\bvideo wall\b/.test(blob)) score += 20;
   if (blob.includes("datasheet") || blob.includes("specification") || blob.includes("specifications")) score += 12;
+  if (/\b(?:av-iq|fullcompass|markertek|bhphotovideo|midwich|exertis|proav)\b/i.test(url)) score += 8;
+  if (/\b(?:manualslib|device\.report|hdbaset\.org|fccid\.io)\b/i.test(url)) score += 10;
 
   // Community and encyclopaedia sources are useful supporting evidence, but should not outrank
   // manufacturer product pages, datasheets or distributor product pages for exact specification matching.
@@ -589,6 +630,24 @@ function scorePage({ url, title, text, model, kind }) {
   if (blob.includes("search results")) score -= 10;
 
   return score;
+}
+
+function sourceAuthority(url, kind = "") {
+  let host = "";
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    host = normalise(url).split("/")[0];
+  }
+  if (/reddit\.com/.test(host) || kind === "community-reference-source") return { type: "community", tier: 4 };
+  if (/wikipedia\.org/.test(host) || kind === "encyclopedia-reference-source") return { type: "encyclopedia", tier: 4 };
+  if (/bing\.com|duckduckgo\.com/.test(host) || /search/i.test(kind)) return { type: "discovery-only", tier: 5 };
+  if (/hdbaset\.org|fccid\.io/.test(host)) return { type: "standards-or-certification", tier: 1 };
+  if (/manualslib\.com|manuals\.plus|manualzz\.com|device\.report|aa-iot\.com/.test(host)) return { type: "document-repository", tier: 2 };
+  if (/av-iq\.com|fullcompass\.com|markertek\.com|bhphotovideo\.com|midwich\.com|exertis\.co\.uk|proav\.co\.uk|creationnetworks\.net|touchboards\.com|cdw\.com|connection\.com|avitdirect\.co\.uk/.test(host)) {
+    return { type: "distributor-or-reseller", tier: 2 };
+  }
+  return { type: "manufacturer-or-product-document", tier: 1 };
 }
 
 function extractSentences(text) {
@@ -648,6 +707,18 @@ function summarizeText(html, text, model) {
   return tidy(text).slice(0, 520);
 }
 
+async function flattenPdfToText(buffer) {
+  const document = await getDocument({ data: new Uint8Array(buffer), useWorkerFetch: false, isEvalSupported: false }).promise;
+  const pages = [];
+  const pageLimit = Math.min(document.numPages, 30);
+  for (let pageNumber = 1; pageNumber <= pageLimit; pageNumber += 1) {
+    const page = await document.getPage(pageNumber);
+    const content = await page.getTextContent();
+    pages.push(content.items.map((item) => tidy(item.str)).filter(Boolean).join(" "));
+  }
+  return pages.join("\n").replace(/\s+/g, " ").trim();
+}
+
 async function fetchCandidatePage(item, adapter, model) {
   const startedAt = Date.now();
 
@@ -668,7 +739,12 @@ async function fetchCandidatePage(item, adapter, model) {
       };
     }
 
-    if (!contentType.includes("text") && !contentType.includes("html") && !contentType.includes("xml")) {
+    // Some document URLs return an HTML bot/challenge or redirect page while
+    // retaining a .pdf suffix. Trust the response MIME type when it explicitly
+    // says HTML; otherwise use the suffix as a fallback for generic binary MIME.
+    const isPdf = contentType.includes("application/pdf") ||
+      (/\.pdf(?:$|[?#])/i.test(item.url) && !contentType.includes("html") && !contentType.includes("text"));
+    if (!isPdf && !contentType.includes("text") && !contentType.includes("html") && !contentType.includes("xml")) {
       return {
         ok: false,
         url: item.url,
@@ -679,9 +755,9 @@ async function fetchCandidatePage(item, adapter, model) {
       };
     }
 
-    const html = await response.text();
-    const text = flattenHtmlToText(html);
-    const title = extractTitle(html, model);
+    const html = isPdf ? "" : await response.text();
+    const text = isPdf ? await flattenPdfToText(await response.arrayBuffer()) : flattenHtmlToText(html);
+    const title = isPdf ? `${model} technical document` : extractTitle(html, model);
 
     if (isBlockedVendorPage(text, html)) {
       return {
@@ -730,14 +806,25 @@ async function saveLookupRecord(key, record) {
 
 function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts }) {
   const successful = pages.filter((page) => page.ok).sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
-  const best = successful[0];
-  const aggregateText = successful.map((page) => page.text).join(" ").replace(/\s+/g, " ").trim();
-  const bestHtml = best?.html || "";
-  const bestText = best?.text || aggregateText;
-  const title = tidy(best?.title || model);
+  const modelKey = normalizeId(model);
+  const specificationPages = successful.filter((page) => {
+    const exactModel = !modelKey || normalizeId(`${page.url} ${page.title} ${page.text}`).includes(modelKey);
+    const technicalSignal = /\b(?:inputs?|outputs?|resolution|hdmi\s*\d|hdcp\s*\d|hdbase[-\s]?t|usb\s*\d|bandwidth|datasheet|technical specifications?)\b/i.test(page.text || "");
+    const discoveryOnly =
+      /bing\.com|duckduckgo\.com|reddit\.com|wikipedia\.org/i.test(page.url) ||
+      /search/i.test(page.kind || "") ||
+      /[/?&](?:s|q|query|term|search)=/i.test(page.url);
+    return exactModel && technicalSignal && String(page.text || "").length >= 500 && !discoveryOnly && Number(page.score || 0) >= 45;
+  });
+  const evidencePages = specificationPages;
+  const bestEvidence = evidencePages[0];
+  const aggregateText = evidencePages.map((page) => page.text).join(" ").replace(/\s+/g, " ").trim();
+  const bestHtml = bestEvidence?.html || "";
+  const bestText = bestEvidence?.text || aggregateText;
+  const title = tidy(bestEvidence?.title || model);
   const summary = summarizeText(bestHtml, bestText, model);
   const keySpecs = extractKeySpecs(aggregateText || bestText);
-  const sourceUrls = uniqueStrings(successful.map((page) => page.url));
+  const sourceUrls = uniqueStrings(evidencePages.map((page) => page.url));
   const technologyProfile = normaliseProductTechnology({
     manufacturer,
     model,
@@ -746,15 +833,15 @@ function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts })
     summary,
     rawText: aggregateText || bestText,
     features: keySpecs,
-    sourceUrl: best?.url || productUrl || sourceUrls[0] || "",
+    sourceUrl: bestEvidence?.url || productUrl || sourceUrls[0] || "",
   });
 
   return {
-    ok: Boolean(best),
+    ok: Boolean(bestEvidence),
     manufacturer,
     model,
     productUrl,
-    resolvedUrl: best?.url || productUrl || "",
+    resolvedUrl: bestEvidence?.url || productUrl || "",
     title,
     summary,
     keySpecs,
@@ -762,6 +849,7 @@ function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts })
     sources: attempts.map((attempt) => ({
       url: attempt.url,
       label: attempt.kind,
+      ...sourceAuthority(attempt.url, attempt.kind),
       status: attempt.ok ? "ok" : attempt.error || `HTTP ${attempt.status || 0}`,
       score: Number(attempt.score || 0),
     })),
@@ -825,7 +913,11 @@ export async function resolveCompetitorLiveLookup(payload = {}) {
       for (const discovered of attempt.discoveredLinks || []) {
         if (seen.has(discovered)) continue;
         seen.add(discovered);
-        queue.push({ url: discovered, kind: "discovered-vendor-link" });
+        // Search results are useful only if we actually visit their destination.
+        // Put exact-SKU discoveries immediately after the current attempt instead
+        // of behind the long tail of generic fallback searches, which otherwise
+        // exhausts MAX_FETCH_ATTEMPTS before a product page is reached.
+        queue.splice(cursor, 0, { url: discovered, kind: "discovered-product-link" });
       }
     }
   }
@@ -852,3 +944,12 @@ export async function resolveCompetitorLiveLookup(payload = {}) {
     error: "No usable live source could be resolved.",
   };
 }
+
+// Narrowly exposed for deterministic contract tests. These helpers contain no
+// network or persistence behaviour; keeping their tests close to the lookup
+// boundary prevents discovery/search pages from becoming product evidence.
+export const __liveLookupTest = Object.freeze({
+  extractCandidateLinks,
+  normalizeAllowedProductUrl,
+  sourceAuthority,
+});

@@ -7,7 +7,10 @@
       "10GbE"
     ],
     "chipsetRule": "Record a physical AVoIP chipset only when an official manufacturer source names it. Codec or ecosystem names such as JPEG2000 and SDVoE must not be stored as chipsets.",
-    "unknownChipsetValue": null
+    "unknownChipsetValue": null,
+    "nonAvoipSkus": [
+      "NHD-0401-MV"
+    ]
   },
   "rules": [
     {
@@ -18,15 +21,6 @@
       "chipset": null,
       "chipsetStatus": "not-publicly-confirmed",
       "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
-    },
-    {
-      "vendor": "WyreStorm",
-      "skuPattern": "^NHD-0401-MV$",
-      "networkSpeed": "1GbE",
-      "codec": "NetworkHD 500 JPEG2000 stream processing",
-      "chipset": null,
-      "chipsetStatus": "not-publicly-confirmed",
-      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-0401-mv/"
     },
     {
       "vendor": "WyreStorm",

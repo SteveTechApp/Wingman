@@ -61,6 +61,7 @@ import {
   handleLiveResearchReviewApprovePost,
   handleLiveResearchReviewQueueGet,
   handleLiveResearchReviewRejectPost,
+  handleLiveResearchReviewSubmitPost,
 } from "./intelligence/live-research-review.mjs";
 let createSupabaseClient = null;
 try {
@@ -2414,6 +2415,14 @@ const ROUTES = [
   },
 
   // --- Live competitor research governance ---
+  {
+    method: "POST",
+    path: "/api/governance/live-research/submit",
+    permission: "canViewDiagnostics",
+    deniedMessage: "Submitting live competitor research requires an authenticated Wingman workspace session.",
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleLiveResearchReviewSubmitPost(req, res, url, { sendJson, parseJsonBody }),
+  },
   {
     method: "GET",
     path: "/api/governance/live-research/queue",

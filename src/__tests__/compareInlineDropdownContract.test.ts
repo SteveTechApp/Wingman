@@ -30,7 +30,9 @@ describe("Compare inline dropdown contract", () => {
     expect(css).toContain('data-wingman-inline-combobox="manufacturer"');
     expect(css).toContain("width: min(440px, 100%)");
     expect(css).toContain('data-wingman-inline-combobox="sku"');
-    expect(css).toContain("width: min(560px, 100%)");
+    expect(css).toContain("width: 100%");
+    expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
+    expect(css).toContain("max-height: min(520px, 58vh)");
     expect(css).toContain("max-height: min(300px, 38vh)");
     expect(css).toContain("overflow-y: auto");
   });
