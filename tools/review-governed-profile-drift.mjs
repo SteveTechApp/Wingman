@@ -86,8 +86,14 @@ function storeBySku(store) {
 }
 
 function normalizeResolutionList(storeEntry) {
-  const list = storeEntry?.technicalProfile?.video?.maxResolutions;
-  return Array.isArray(list) ? list : [];
+  const video = storeEntry?.technicalProfile?.video;
+  const list = Array.isArray(video?.maxResolutions) ? video.maxResolutions : [];
+  const maximum = text(video?.maximum);
+  // `maximum` is the governed overall product capability. `maxResolutions`
+  // also contains path-specific evidence (for example a camera whose USB/IP
+  // paths are 1080p30 while its HDMI/product maximum is 1080p60). Compare
+  // against both so a lower-bandwidth path cannot incorrectly cap the product.
+  return maximum ? [maximum, ...list] : list;
 }
 
 export function maxResolutionDrift(profile, storeEntry) {

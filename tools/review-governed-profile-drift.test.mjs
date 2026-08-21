@@ -6,6 +6,10 @@ function storeWithResolution(...maxResolutions) {
   return { technicalProfile: { video: { maxResolutions } } };
 }
 
+function storeWithMaximum(maximum, ...maxResolutions) {
+  return { technicalProfile: { video: { maximum, maxResolutions } } };
+}
+
 describe("governed profile resolution drift", () => {
   it.each([
     ["3840x2160p @60Hz", "4K60-3840"],
@@ -29,6 +33,15 @@ describe("governed profile resolution drift", () => {
       maxResolutionDrift(
         { sku: "MX-0402-MST", maxResolution: "4K60 4:4:4" },
         storeWithResolution("Maximum standard 16:9 format: 3840x2160p at 60Hz, 4:4:4 8-bit"),
+      ),
+    ).toMatchObject({ status: "agree" });
+  });
+
+  it("uses the overall maximum without treating a lower-bandwidth path as the product cap", () => {
+    expect(
+      maxResolutionDrift(
+        { sku: "CAM-210-PTZ", maxResolution: "1920x1080p @60Hz" },
+        storeWithMaximum("1920x1080p @60Hz", "USB 3.0: 1920x1080p @30Hz"),
       ),
     ).toMatchObject({ status: "agree" });
   });
