@@ -5400,6 +5400,11 @@ function ComparePageNew() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.body.classList.add("compare-workspace-open");
+    return () => document.body.classList.remove("compare-workspace-open");
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
 
     loadProductIntelligenceIndex()
