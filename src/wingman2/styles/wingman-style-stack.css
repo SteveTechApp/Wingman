@@ -17729,61 +17729,6 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
   height: auto !important;
 }
 
-/*
-  The product image is supporting evidence, not the page itself. Keep the
-  identity, positioning statement and actions together above the fold even
-  when the indexed image contains a large native canvas.
-*/
-[data-product-pitch-view="workspace"]
-  .wm-product-pitch-identity__layout {
-  display: grid !important;
-  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr) !important;
-  grid-template-areas:
-    "media copy"
-    "media actions" !important;
-  align-items: center !important;
-  gap: 0.875rem 1.25rem !important;
-}
-
-[data-product-pitch-view="workspace"]
-  .wm-product-pitch-identity__media {
-  grid-area: media !important;
-  display: grid !important;
-  place-items: center !important;
-  width: 100% !important;
-  min-height: 190px !important;
-  max-height: 230px !important;
-  overflow: hidden !important;
-  border: 1px solid var(--pitch-line) !important;
-  border-radius: 1rem !important;
-  background: radial-gradient(circle at 50% 70%, rgba(65, 179, 216, 0.2), rgba(3, 15, 27, 0.72) 68%) !important;
-}
-
-[data-product-pitch-view="workspace"]
-  .wm-product-pitch-identity__media img {
-  display: block !important;
-  width: 100% !important;
-  height: 220px !important;
-  max-height: 220px !important;
-  object-fit: contain !important;
-}
-
-[data-product-pitch-view="workspace"]
-  .wm-product-pitch-identity__copy {
-  grid-area: copy !important;
-  align-self: end !important;
-}
-
-[data-product-pitch-view="workspace"]
-  .wm-product-pitch-identity__actions {
-  grid-area: actions !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  align-self: start !important;
-}
-
 [data-product-pitch-view="workspace"]
   .wm-product-pitch-safety-panel {
   display: block !important;
@@ -17795,33 +17740,6 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
   height: auto !important;
   padding: 0 !important;
   overflow: visible !important;
-}
-
-[data-product-pitch-view="workspace"]
-  .wm-product-pitch-safety-panel > summary {
-  display: grid !important;
-  grid-template-columns: 2rem minmax(0, 1fr) auto !important;
-  align-items: center !important;
-  gap: 0.75rem !important;
-  padding: 0.875rem 1rem !important;
-}
-
-[data-product-pitch-view="workspace"]
-  .wm-product-pitch-safety-panel > summary :is(strong, span) {
-  display: block !important;
-  min-width: 0 !important;
-}
-
-[data-product-pitch-view="workspace"]
-  .wm-product-pitch-safety-panel__icon {
-  display: grid !important;
-  width: 2rem !important;
-  height: 2rem !important;
-  place-items: center !important;
-  border-radius: 999px !important;
-  background: rgba(251, 191, 36, 0.16) !important;
-  color: #fcd34d !important;
-  font-weight: 900 !important;
 }
 
 [data-product-pitch-view="workspace"]
@@ -17898,36 +17816,6 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
     grid-template-columns: minmax(0, 1fr) !important;
   }
 
-  [data-product-pitch-view="workspace"]
-    .wm-product-pitch-identity__layout {
-    grid-template-columns: minmax(150px, 220px) minmax(0, 1fr) !important;
-  }
-
-  [data-product-pitch-view="workspace"]
-    .wm-product-pitch-identity__media,
-  [data-product-pitch-view="workspace"]
-    .wm-product-pitch-identity__media img {
-    min-height: 150px !important;
-    height: 170px !important;
-    max-height: 170px !important;
-  }
-}
-
-@media (max-width: 640px) {
-  [data-product-pitch-view="workspace"]
-    .wm-product-pitch-identity__layout {
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-areas: "media" "copy" "actions" !important;
-  }
-
-  [data-product-pitch-view="workspace"]
-    .wm-product-pitch-identity__media,
-  [data-product-pitch-view="workspace"]
-    .wm-product-pitch-identity__media img {
-    min-height: 130px !important;
-    height: 150px !important;
-    max-height: 150px !important;
-  }
 }
 
 /* WINGMAN PRODUCT PITCH VIEWPORT FILL END */
