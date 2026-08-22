@@ -11,6 +11,7 @@
     "audit:competitor-intelligence": "node tools/audit-competitor-intelligence.mjs",
     "audit:story-coverage": "node tools/audit-product-story-coverage.mjs",
     "audit:style-drift": "node tools/audit-wingman-style-drift.mjs",
+    "audit:workflow-clarity": "node tools/audit-wingman-workflow-clarity.mjs",
     "lifecycle:reconcile": "node tools/reconcile-wyrestorm-lifecycle.mjs",
     "audit:data-sources": "node tools/audit-wingman-data-sources.mjs",
     "audit:engine-routing": "node tools/audit-wingman-engine-routing.mjs",
