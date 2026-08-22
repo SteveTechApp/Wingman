@@ -756,6 +756,7 @@ export type ProductIntelligenceIndexEntry = {
     category?: unknown;
     subCategory?: unknown;
     productType?: unknown;
+    transportClass?: unknown;
   };
   subClassifications?: unknown;
   productRole?: unknown;
@@ -937,6 +938,40 @@ function roleFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntry): stri
   return null;
 }
 
+// Transport is an architectural fact, so prefer the governed product taxonomy
+// and structured technical profile over free-text feature tags. Marketing-page
+// parsing has historically leaked unrelated labels (for example NDI from a
+// generic page sentence) into `technologies`; allowing those tags to define
+// transport made an HDBaseT extender render as "NDI / HDMI".
+function transportFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntry): string | null {
+  const classification = entry.productClassification;
+  const classified = stringListFrom(classification?.transportClass);
+  const technical = entry.technicalProfile as {
+    transports?: unknown;
+    governedSpecification?: { transport?: unknown };
+  } | undefined;
+  const governed = stringListFrom(technical?.governedSpecification?.transport);
+  const structured = stringListFrom(technical?.transports);
+  const evidence = [...governed, ...classified, ...structured].join(" / ");
+  const productClass = productClassFromRealCatalogTaxonomy(entry);
+
+  // Purpose/classification is authoritative when noisy legacy arrays contain
+  // a contradictory protocol token. An Extension-family HDBaseT endpoint can
+  // carry HDMI locally, but it cannot become an NDI transport product merely
+  // because a stale enrichment label says NDI.
+  if (productClass === "HDBaseT extender") return "HDBaseT";
+  if (/\bHDBaseT\b/i.test(evidence)) return "HDBaseT";
+  if (/\b(?:AV[- ]over[- ]IP|AVoIP|NetworkHD)\b/i.test(evidence)) return /10\s*GbE/i.test(evidence) ? "10GbE AVoIP" : "1GbE AVoIP";
+  if (/\b(?:NDI)\b/i.test(evidence)) return "NDI / HDMI";
+  if (/\bDante\b|\bAES67\b/i.test(evidence)) return "Dante / AES67 / network audio";
+  if (/\bWireless\b|\bWi-?Fi\b/i.test(evidence)) return "Wi-Fi / Ethernet";
+  if (/\bUSB\b/i.test(evidence) && !/\bHDMI\b/i.test(evidence)) return "USB";
+
+  if (productClass === "HDMI splitter") return "HDMI distribution";
+  if (["Matrix", "Video wall", "Multiview"].includes(productClass ?? "")) return "HDMI / processing";
+  return null;
+}
+
 export function mapRealCatalogEntryToCompareCandidate(entry: ProductIntelligenceIndexEntry): WyreStormProduct | null {
   const sku = String(entry.sku ?? "").trim();
   if (!sku) return null;
@@ -953,7 +988,7 @@ export function mapRealCatalogEntryToCompareCandidate(entry: ProductIntelligence
     family,
     productClass,
     role: roleFromRealCatalogTaxonomy(entry) ?? roleFromTags(tags),
-    transport: transportFromTags(tags),
+    transport: transportFromRealCatalogTaxonomy(entry) ?? transportFromTags(tags),
     tags,
     caveat: "Confirm the current specification and required accessories against the datasheet before quoting.",
   };

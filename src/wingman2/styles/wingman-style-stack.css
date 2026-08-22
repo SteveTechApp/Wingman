@@ -17698,7 +17698,7 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
   safety panel, tabs and tab content from sharing or collapsing into a single
   constrained viewport row.
 */
-main.wm-product-pitch-page[data-product-pitch-view="workspace"] {
+[data-product-pitch-view="workspace"] {
   display: grid !important;
   grid-template-rows: none !important;
   grid-auto-rows: max-content !important;
@@ -17718,14 +17718,14 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"] {
   color: var(--pitch-ink);
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"] > * {
+[data-product-pitch-view="workspace"] > * {
   position: relative !important;
   min-width: 0 !important;
   min-height: 0 !important;
   height: auto !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   .wm-product-pitch-safety-panel {
   display: block !important;
   grid-template-rows: none !important;
@@ -17738,7 +17738,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   overflow: visible !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   .wm-product-pitch-safety-grid {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -17748,7 +17748,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   height: auto !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   .wm-product-pitch-safety-item {
   display: grid !important;
   align-content: start !important;
@@ -17759,7 +17759,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   overflow: visible !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   [data-product-pitch-tabs] {
   position: relative !important;
   z-index: 2 !important;
@@ -17770,7 +17770,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   overflow: visible !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   [data-product-pitch-tabs] > div {
   display: flex !important;
   flex-wrap: wrap !important;
@@ -17779,7 +17779,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   min-height: 0 !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   :is(section, article, aside, details) {
   max-height: none !important;
 }
@@ -17807,10 +17807,11 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
     grid-template-columns: minmax(0, 1fr) !important;
   }
 
-  main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+  [data-product-pitch-view="workspace"]
     .wm-product-pitch-safety-grid {
     grid-template-columns: minmax(0, 1fr) !important;
   }
+
 }
 
 /* WINGMAN PRODUCT PITCH VIEWPORT FILL END */
