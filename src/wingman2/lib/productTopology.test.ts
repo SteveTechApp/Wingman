@@ -149,6 +149,41 @@ describe("product topology", () => {
     expect(decoderSvg).toContain(">HDMI<");
   });
 
+  it("draws matrix kits as independent routed paths through their receiver layer", () => {
+    const matrix = product({
+      sku: "MXV-0404-H2A-KIT",
+      name: "4x4 HDBaseT matrix kit with four receivers included",
+      family: "MXV",
+      category: "Matrix",
+      productType: "4x4 HDBaseT matrix kit",
+      description: "Four HDMI inputs, four HDBaseT outputs, PoH and audio de-embed",
+      ioSummary: ["4 x HDMI input", "4 x RJ45 HDBaseT output"],
+      video: ["4K60 4:4:4 over HDBaseT"],
+      audio: ["Audio de-embed"],
+      control: ["LAN", "RS-232", "IR"],
+      power: ["PoH on HDBaseT outputs"],
+    });
+    const profile = buildProductTopologyProfile(matrix, narrative);
+    const svg = buildRoomSchematicSvg({ sku: matrix.sku, profile });
+
+    expect(profile.matrixArchitecture).toMatchObject({
+      inputCount: 4,
+      outputCount: 4,
+      receiverCount: 4,
+      inputTransport: "HDMI",
+      outputTransport: "HDBaseT",
+      audioBreakout: true,
+      powerOverLink: true,
+    });
+    expect(svg).toContain("4 × 4 ROUTED SIGNAL ARCHITECTURE");
+    expect(svg).toContain('data-connection="input-4"');
+    expect(svg).toContain('data-connection="output-4"');
+    expect(svg).toContain("Receiver 4");
+    expect(svg).toContain("Independent zone");
+    expect(svg).toContain("AUDIO DE-EMBED");
+    expect(svg).not.toContain("Several AV sources");
+  });
+
   it("withholds unknown topology instead of inventing a generic signal chain", () => {
     const profile = buildProductTopologyProfile(
       product({
