@@ -95,7 +95,7 @@ describe("Compare rendered workflow - minimum card surface", () => {
   it("renders suggested matrix matches as compact selectors that update the main card", async () => {
     renderPage();
     runCompare("Blustream", "C44-KIT");
-    const selector = await screen.findByLabelText("Other technically plausible matrix options");
+    const selector = await screen.findByLabelText("Suggested other matches");
     const choices = within(selector).getAllByRole("button", { name: /Compare with/i });
     expect(choices.length).toBeGreaterThan(0);
     expect(selector.querySelector(".compare-native-option-card")).toBeNull();
