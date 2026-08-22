@@ -36,6 +36,9 @@ type WyrestormProductWithProfile = WyrestormProduct & {
     power?: {
       evidence?: string[];
     };
+    evidence?: {
+      technicalLines?: string[];
+    };
     io?: {
       ports?: TechnicalPort[];
       video?: TechnicalPort[];
@@ -265,10 +268,10 @@ function isLikelyAccessoryOrFalsePort(port: TechnicalPort): boolean {
 function isVideoTransportPort(port: TechnicalPort): boolean {
   const value = portText(port);
   if (isLikelyAccessoryOrFalsePort(port)) return false;
-  if (safeText(port.category).toLowerCase() !== "video" && !/\bhdmi|hdbaset|sdi|displayport|usb-c\b/.test(value)) {
+  if (safeText(port.category).toLowerCase() !== "video" && !/\bhdmi|hdbaset|sdi|displayport|usb-c|vga|dvi|composite|component\b/.test(value)) {
     return false;
   }
-  return /\bhdmi|hdbaset|displayport|dp\b|sdi|usb-c\b/.test(value);
+  return /\bhdmi|hdbaset|displayport|dp\b|sdi|usb-c|vga|dvi|composite|component\b/.test(value);
 }
 
 function isNonRoutedVideoOutputPort(port: TechnicalPort): boolean {
@@ -300,6 +303,73 @@ function countPorts(ports: TechnicalPort[], direction: "input" | "output"): numb
   return total > 0 ? total : undefined;
 }
 
+function videoPortsFromTechnicalLines(product: WyrestormProduct): TechnicalPort[] {
+  const lines = technicalProfile(product)?.evidence?.technicalLines ?? [];
+  const ports: TechnicalPort[] = [];
+  let direction: "input" | "output" | undefined;
+
+  for (const rawLine of lines) {
+    const line = safeText(rawLine);
+    if (/^inputs?$/i.test(line)) {
+      direction = "input";
+      continue;
+    }
+    if (/^outputs?$/i.test(line)) {
+      direction = "output";
+      continue;
+    }
+    if (/^(video encoding|audio formats?|video resolution|supported standards?|maximum pixel clock|communication|power|additional features)$/i.test(line)) {
+      direction = undefined;
+      continue;
+    }
+    if (!direction) continue;
+
+    const match = line.match(/^(\d+)\s*x\s+(.+)$/i);
+    if (!match || !/hdmi|hdbaset|hdbt|display\s*port|displayport|usb-?c|vga|dvi|sdi/i.test(match[2])) continue;
+
+    const detail = match[2].trim();
+    const connector = /hdbaset|hdbt/i.test(detail)
+      ? "HDBaseT"
+      : /display\s*port|displayport/i.test(detail)
+        ? "DisplayPort"
+        : /usb-?c/i.test(detail)
+          ? "USB-C"
+          : /vga/i.test(detail)
+            ? "VGA"
+            : /dvi/i.test(detail)
+              ? "DVI"
+              : /sdi/i.test(detail)
+                ? "SDI"
+                : "HDMI";
+    ports.push({ count: Number(match[1]), connector, direction, category: "video", detail, evidence: line });
+  }
+
+  return ports;
+}
+
+function technicalPorts(product: WyrestormProduct): TechnicalPort[] {
+  const profile = technicalProfile(product);
+  const structured = [
+    ...(profile?.io?.ports ?? []),
+    ...(profile?.io?.video ?? []),
+    ...(profile?.io?.audio ?? []),
+    ...(profile?.io?.usb ?? []),
+    ...(profile?.io?.network ?? []),
+    ...(profile?.io?.control ?? []),
+  ];
+  const evidencedVideo = videoPortsFromTechnicalLines(product);
+
+  if (!evidencedVideo.length) return structured;
+
+  // Section-labelled official specification lines are more reliable than a
+  // flattened port array when upstream parsing has lost its Inputs/Outputs
+  // headings. Retain non-video structured ports for USB, audio and control.
+  return [
+    ...evidencedVideo,
+    ...structured.filter((port) => !isVideoTransportPort(port)),
+  ];
+}
+
 function structuredIo(product: WyrestormProduct, blob: string): {
   inputCount?: number;
   outputCount?: number;
@@ -307,11 +377,7 @@ function structuredIo(product: WyrestormProduct, blob: string): {
   warnings: string[];
   usedStructuredPorts: boolean;
 } {
-  const profile = technicalProfile(product);
-  const allPorts = [
-    ...(profile?.io?.video ?? []),
-    ...(profile?.io?.ports ?? []),
-  ];
+  const allPorts = technicalPorts(product);
   const videoPorts = uniqueTechnicalPorts(allPorts);
   const dropped = videoPorts.filter((port) => isLikelyAccessoryOrFalsePort(port)).length;
   let inputCount = countPorts(videoPorts, "input");
@@ -402,15 +468,7 @@ function detectFeatures(blob: string): Record<string, boolean> {
 }
 
 function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: number): CompareSpecFacts {
-  const profile = technicalProfile(product);
-  const allPorts = uniqueTechnicalPorts([
-    ...(profile?.io?.ports ?? []),
-    ...(profile?.io?.video ?? []),
-    ...(profile?.io?.audio ?? []),
-    ...(profile?.io?.usb ?? []),
-    ...(profile?.io?.network ?? []),
-    ...(profile?.io?.control ?? []),
-  ]);
+  const allPorts = uniqueTechnicalPorts(technicalPorts(product));
   const specs: CompareSpecFacts = {};
   const usbStandardMatch = blob.match(/\busb\s*(1\.1|2\.0|3(?:\.0|\.1|\.2)?|4(?:\.0)?)\b/i);
 
@@ -431,6 +489,15 @@ function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: nu
     (port, value) => /\bhdmi\b/.test(value) && isNonRoutedVideoOutputPort(port),
     "output",
   );
+
+  specs.displayPortInputs = countCategoryPorts(allPorts, (_port, value) => !/usb-?c/.test(value) && /displayport|display\s*port|\bdp\b/.test(value), "input");
+  specs.displayPortOutputs = countCategoryPorts(allPorts, (_port, value) => !/usb-?c/.test(value) && /displayport|display\s*port|\bdp\b/.test(value), "output");
+  specs.vgaInputs = countCategoryPorts(allPorts, (_port, value) => /\bvga\b/.test(value), "input");
+  specs.vgaOutputs = countCategoryPorts(allPorts, (_port, value) => /\bvga\b/.test(value), "output");
+  specs.dviInputs = countCategoryPorts(allPorts, (_port, value) => /\bdvi\b/.test(value), "input");
+  specs.dviOutputs = countCategoryPorts(allPorts, (_port, value) => /\bdvi\b/.test(value), "output");
+  specs.sdiInputs = countCategoryPorts(allPorts, (_port, value) => /\bsdi\b/.test(value), "input");
+  specs.sdiOutputs = countCategoryPorts(allPorts, (_port, value) => /\bsdi\b/.test(value), "output");
 
   specs.usbHostPorts = countCategoryPorts(
     allPorts,

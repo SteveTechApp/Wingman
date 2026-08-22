@@ -3605,16 +3605,28 @@ function competitorOutputSummary(profile: CompetitorProfile): string {
     specs ? { ...specs, hdmiOutputs: displayHdmiOutputs || undefined, hdmiLoopOutputs: undefined } : undefined,
     "output",
   );
-  const physicalOutputs = joinCommercialFactParts([
+  const count = profile.resolvedSpec?.outputCount;
+  const explicitVideoOutputCount = displayHdmiOutputs +
+    (specs?.displayPortOutputs ?? 0) +
+    (specs?.dviOutputs ?? 0) +
+    (specs?.vgaOutputs ?? 0) +
+    (specs?.sdiOutputs ?? 0);
+  const inferredHdbasetOutputs = profile.resolvedSpec?.features?.hdbtOutput && count && count > explicitVideoOutputCount
+    ? count - explicitVideoOutputCount
+    : 0;
+  const typedOutputs = joinCommercialFactParts([
     explicit,
+    inferredHdbasetOutputs ? commercialPortLabel(inferredHdbasetOutputs, "HDBaseT output", "HDBaseT outputs") : "",
+  ]);
+  const physicalOutputs = joinCommercialFactParts([
+    typedOutputs,
     loopOutputs ? `${loopOutputs}x local HDMI loop output${loopOutputs === 1 ? "" : "s"} (non-routed)` : "",
   ]);
-  const count = profile.resolvedSpec?.outputCount;
   const routedArchitecture = profile.productClass === "Matrix" || profile.productClass === "Presentation switcher";
 
   if (routedArchitecture && count) {
     const routed = commercialPortLabel(count, "routed display output", "routed display outputs");
-    return explicit ? `${routed} (${explicit})` : routed;
+    return typedOutputs ? `${routed} (${typedOutputs})` : routed;
   }
 
   if (physicalOutputs) {
@@ -3664,6 +3676,19 @@ function wyrestormOutputSummary(
   knownProfile?: KnownWyrestormCompareProfile,
 ): string {
   const explicit = explicitPortSummary(profile.specs, "output");
+  const explicitOutputCount = (profile.specs?.hdmiOutputs ?? 0) +
+    (profile.specs?.displayPortOutputs ?? 0) +
+    (profile.specs?.dviOutputs ?? 0) +
+    (profile.specs?.vgaOutputs ?? 0) +
+    (profile.specs?.sdiOutputs ?? 0);
+  const hdbasetOutputCount = /hdbaset/i.test(`${candidate.product.transport} ${candidate.product.name}`) &&
+    profile.outputCount && profile.outputCount > explicitOutputCount
+      ? profile.outputCount - explicitOutputCount
+      : 0;
+  const typedOutputs = joinCommercialFactParts([
+    explicit,
+    hdbasetOutputCount ? commercialPortLabel(hdbasetOutputCount, "HDBaseT output", "HDBaseT outputs") : "",
+  ]);
   const extras = joinCommercialFactParts([
     knownProfile?.mirroredOutputCount
       ? `${knownProfile.mirroredOutputCount}x mirrored ${knownProfile.mirroredOutputTypes.join(" / ")} output${knownProfile.mirroredOutputCount === 1 ? "" : "s"}`
@@ -3679,7 +3704,7 @@ function wyrestormOutputSummary(
   ].join(" "));
 
   if (isPointToPointExtender) {
-    const displayOutput = explicit || "1x receiver-side HDMI display output";
+    const displayOutput = typedOutputs || "1x receiver-side HDMI display output";
     return joinCommercialFactParts([displayOutput, extras]);
   }
 
@@ -3689,8 +3714,8 @@ function wyrestormOutputSummary(
     return joinCommercialFactParts([routed, extras]);
   }
 
-  if (explicit) {
-    return joinCommercialFactParts([explicit, extras]);
+  if (typedOutputs) {
+    return joinCommercialFactParts([typedOutputs, extras]);
   }
 
   const headlineParts = wyrestormHeadlineIo(candidate, profile.inputCount, profile.outputCount).split(",").slice(1).join(",").trim();
@@ -4665,6 +4690,8 @@ function BestCandidateCard({
 }
 
 function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
+  const summary = buildWyrestormSummary(candidate);
+  const comparisonFacts = new Map(summary.comparisonFacts.map((fact) => [fact.label, fact.value]));
   const optionTier = weakestLinkTier([
     candidate.governedTier,
     // The option card surfaces exactly three WyreStorm facts; any of them
@@ -4706,8 +4733,9 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
 
       <div className="compare-product-info-card__facts" aria-label="Product information">
         <span><small>Product type</small><strong>{candidate.product.productClass}</strong></span>
+        <span><small>Inputs</small><strong>{comparisonFacts.get("Inputs") || "Needs verification"}</strong></span>
+        <span><small>Outputs</small><strong>{comparisonFacts.get("Outputs") || "Needs verification"}</strong></span>
         <span><small>Connection</small><strong>{candidate.product.transport}</strong></span>
-        <span><small>Position</small><strong>{candidate.outcomeLabel}</strong></span>
         <span><small>Data status</small><strong><GovernanceBadge tier={optionTier} label={candidate.governedLabel} /></strong></span>
       </div>
 
@@ -4852,16 +4880,30 @@ function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
     : competitorProfile.resolvedSpec?.inputCount && competitorProfile.resolvedSpec?.outputCount
       ? `No current WyreStorm candidate satisfies the confirmed ${competitorProfile.resolvedSpec.inputCount}x${competitorProfile.resolvedSpec.outputCount} routed I/O requirement without an input or output capacity shortfall.`
     : competitor.warning || "The available evidence does not support a safe WyreStorm equivalent.";
+  const closestOnly = Boolean(candidate && status === "no-match");
+  const visibleHeading = closestOnly ? "No direct equivalent — closest option shown" : statusMeta.heading;
+  const visibleGuidance = closestOnly
+    ? "This product performs a similar job, but it has confirmed differences. Use the comparison below to decide whether those differences matter in this project."
+    : reason;
+  const importantDifferences = candidate
+    ? uniqueText([...candidate.mismatches, ...candidate.gaps, ...candidate.blockers], 4)
+        .map((item) => commercializeCompareCopy(item))
+    : [];
+  const rowTone = (result: string): "aligned" | "different" | "check" => {
+    if (/align|same|covers|required count|present|match/i.test(result)) return "aligned";
+    if (/too few|differs|missing|role differs|not/i.test(result)) return "different";
+    return "check";
+  };
 
   return (
     <section className="compare-compact-result wm-ui-section wm-ui-card" aria-label="Compare product cards">
       <CompareReportedStatusRail status={status} />
-      <header className="compare-compact-result__headline"><div><h2 className="wm-ui-title">{statusMeta.heading}</h2><p className="wm-ui-copy">{reason}</p></div></header>
+      <header className="compare-compact-result__headline"><div><h2 className="wm-ui-title">{visibleHeading}</h2><p className="wm-ui-copy">{visibleGuidance}</p></div></header>
       <div className="compare-compact-result__products">
         <article className="compare-compact-result__product wm-ui-card" aria-label="Competitor product card">
           <span>Competitor product</span><strong>{competitor.heading}</strong><small>{competitor.detail}</small>
           <dl className="compare-product-info-card__facts">
-            {rows.map((row) => <div key={`c-${row.label}`}><small>{row.label}</small><strong>{row.competitor || "Needs verification"}</strong></div>)}
+            {rows.map((row) => <div key={`c-${row.label}`} data-compare-result={rowTone(row.result)}><small>{row.label}</small><strong>{row.competitor || "Needs verification"}</strong></div>)}
           </dl>
         </article>
         <span className="compare-compact-result__arrow" aria-hidden="true">→</span>
@@ -4870,11 +4912,17 @@ function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
           {candidate && wyrestorm ? <>
             <strong>{candidate.product.sku}</strong><small>{candidate.product.name}</small>
             <dl className="compare-product-info-card__facts">
-              {rows.map((row) => <div key={`w-${row.label}`}><small>{row.label}</small><strong>{row.wyrestorm || "Needs verification"}</strong></div>)}
+              {rows.map((row) => <div key={`w-${row.label}`} data-compare-result={rowTone(row.result)}><small>{row.label}</small><strong>{row.wyrestorm || "Needs verification"}</strong><em>{row.result}</em></div>)}
             </dl>
           </> : <><strong>No suitable match</strong><small>Confirm the competitor specification or add evidence before positioning an alternative.</small></>}
         </article>
       </div>
+      {closestOnly && importantDifferences.length ? (
+        <section className="compare-compact-result__warnings wm-ui-card" aria-label="Why this is not a direct match">
+          <strong>Why this is not a direct match</strong>
+          <ul>{importantDifferences.map((difference) => <li key={difference}>{difference}</li>)}</ul>
+        </section>
+      ) : null}
     </section>
   );
 }
@@ -5621,12 +5669,14 @@ function ComparePageNew() {
     [rigorousResult, governedDecision, profile],
   );
   const viableCandidates = verdictResult.viable;
+  const nearMatchCandidates = verdictResult.nearMatches;
   const heuristicLead = verdictResult.heuristicLead;
   const best = viableCandidates[0] ?? null;
-  const localDisplayedCandidate = viableCandidates[candidateIndex] ?? best;
+  const displayedPool = viableCandidates.length ? viableCandidates : nearMatchCandidates;
+  const localDisplayedCandidate = displayedPool[candidateIndex] ?? displayedPool[0] ?? null;
   useEffect(() => {
-    if (candidateIndex >= viableCandidates.length) setCandidateIndex(0);
-  }, [candidateIndex, viableCandidates.length]);
+    if (candidateIndex >= displayedPool.length) setCandidateIndex(0);
+  }, [candidateIndex, displayedPool.length]);
   useEffect(() => {
     if (!hasCompared || workflowStep !== "options" || !best?.product.sku) {
       return;
@@ -5654,7 +5704,7 @@ function ComparePageNew() {
   }, [best?.product.sku, hasCompared, workflowStep]);
   const alternativeCandidates = best
     ? viableCandidates.filter((candidate) => candidate.product.sku !== best.product.sku)
-    : [];
+    : nearMatchCandidates.filter((candidate) => candidate.product.sku !== localDisplayedCandidate?.product.sku);
   const matrixCandidatePool = best?.product.productClass === "Matrix"
     ? alternativeCandidates.filter((candidate) => candidate.product.productClass === "Matrix")
     : [];
@@ -6070,7 +6120,7 @@ function ComparePageNew() {
               />
               {activeCandidate ? <>
                 <BestCandidateCard candidate={activeCandidate} competitor={competitorSummary} competitorProfile={profile} onCopySummary={() => { void copySummary(); }} />
-                {alternativeCandidates.length && matrixAlternatives.length === 0 ? <section className="compare-native-options wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options</h3><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
+                {alternativeCandidates.length && matrixAlternatives.length === 0 ? <section className="compare-native-options wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options with known differences</h3><p className="wm-ui-copy">Compare the connection mix and capacity before choosing one. These are alternatives, not claimed one-box equivalents.</p><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
                 <CompareShowdown brand={effectiveBrand} competitorSku={competitorInput} active={hasCompared} view="proof" selectedWyrestormSku={activeCandidate.product.sku} onSelectedWyrestormSkuChange={(sku) => { const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase()); if (index >= 0) setCandidateIndex(index); }} />
               </> : null}
               {requestLiveLookup &&
