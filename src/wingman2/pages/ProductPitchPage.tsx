@@ -1050,48 +1050,48 @@ function ProductWorkspace({
   return (
     <main data-product-pitch-view="workspace" className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-identity p-5`}>
-        <div className="wm-product-pitch-identity__layout">
-          <div className="wm-product-pitch-identity__media" aria-hidden={!imageUrl}>
-            {imageUrl ? <img src={imageUrl} alt="" /> : <span>{product.sku.slice(0, 2)}</span>}
+        <div className="grid items-center gap-5 md:grid-cols-3">
+          <div className="grid h-52 place-items-center overflow-hidden rounded-2xl border wm-ui-card" aria-hidden={!imageUrl}>
+            {imageUrl ? <img className="h-48 w-full object-contain" src={imageUrl} alt="" /> : <span>{product.sku.slice(0, 2)}</span>}
           </div>
-          <div className="wm-product-pitch-identity__copy">
-            <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
-            <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-cyan-200`}>{product.sku}</h1>
-            <GovernedDataBadge tier={product.technicalData?.sourceTier} label={product.technicalData?.statusLabel} />
-            {product.technicalData?.reviewerTrail ? (
-              <GovernedReviewerTrail trail={product.technicalData.reviewerTrail} />
-            ) : null}
-            <h2 className={`mt-1 ${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>{product.name}</h2>
-            <p className="mt-3 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.headline}</p>
-          </div>
-
-          <div className="wm-product-pitch-identity__actions">
-            <button className={["wm-ui-button wm-ui-button-secondary", `${PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS} transition hover:bg-cyan-200`].filter(Boolean).join(" ")}
-              type="button"
-              onClick={() => openProductCheatSheet(product, narrative, imageUrl)}
-
-            >
-              Print cheat-sheet
-            </button>
-            <ReportProblemButton sku={product.sku} productName={product.name} />
-            <AdminProductRecordEditor
-              product={{
-                sku: product.sku,
-                name: product.name,
-                family: product.family,
-                category: product.category,
-                summary: product.summary,
-              }}
-              onSaved={() => window.location.reload()}
-              onRemoved={backToSelection}
-            />
-            <button
-              type="button"
-              onClick={backToSelection}
-              className={PRODUCT_PITCH_SMALL_SECONDARY_BUTTON_CLASS}
-            >
-              Change product
-            </button>
+          <div className="grid gap-3 md:col-span-2">
+            <div>
+              <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
+              <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-cyan-200`}>{product.sku}</h1>
+              <GovernedDataBadge tier={product.technicalData?.sourceTier} label={product.technicalData?.statusLabel} />
+              {product.technicalData?.reviewerTrail ? (
+                <GovernedReviewerTrail trail={product.technicalData.reviewerTrail} />
+              ) : null}
+              <h2 className={`mt-1 ${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>{product.name}</h2>
+              <p className="mt-3 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.headline}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button className={["wm-ui-button wm-ui-button-secondary", `${PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS} transition hover:bg-cyan-200`].filter(Boolean).join(" ")}
+                type="button"
+                onClick={() => openProductCheatSheet(product, narrative, imageUrl)}
+              >
+                Print cheat-sheet
+              </button>
+              <ReportProblemButton sku={product.sku} productName={product.name} />
+              <AdminProductRecordEditor
+                product={{
+                  sku: product.sku,
+                  name: product.name,
+                  family: product.family,
+                  category: product.category,
+                  summary: product.summary,
+                }}
+                onSaved={() => window.location.reload()}
+                onRemoved={backToSelection}
+              />
+              <button
+                type="button"
+                onClick={backToSelection}
+                className={PRODUCT_PITCH_SMALL_SECONDARY_BUTTON_CLASS}
+              >
+                Change product
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -1185,9 +1185,9 @@ function ProductWorkspace({
 function ProductPitchSafetyPanel() {
   return (
     <details className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
-      <summary className="cursor-pointer list-none">
-        <span className="wm-product-pitch-safety-panel__icon" aria-hidden="true">!</span>
-        <span><span className="wm-ui-kicker">Before quoting</span><strong id="product-pitch-safety-title" className="wm-card-title">Confirm the application and signal path</strong></span>
+      <summary className="grid cursor-pointer list-none grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-400/15 font-black text-amber-300" aria-hidden="true">!</span>
+        <span className="min-w-0"><span className="block wm-ui-kicker">Before quoting</span><strong id="product-pitch-safety-title" className="block wm-card-title">Confirm the application and signal path</strong></span>
         <span className="text-sm wm-copy">Review checks</span>
       </summary>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
