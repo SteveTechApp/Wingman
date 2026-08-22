@@ -45,6 +45,7 @@ const atlonaPath = path.join(root, "data-sources", "competitors", "atlona.csv");
 const profilesPath = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
 const enginePath = path.join(root, "src", "wingman2", "lib", "compareSpecEngine.ts");
 const showdownPath = path.join(root, "src", "wingman2", "components", "compare", "CompareShowdown.tsx");
+const battleCardPath = path.join(root, "src", "wingman2", "components", "compare", "BattleCard.tsx");
 
 const csvLines = fs.readFileSync(atlonaPath, "utf8").split(/\r?\n/).filter(Boolean);
 const headers = parseCsvLine(csvLines[0]);
@@ -86,6 +87,7 @@ if (apo) {
 
 const engine = fs.readFileSync(enginePath, "utf8");
 const showdown = fs.readFileSync(showdownPath, "utf8");
+const battleCard = fs.readFileSync(battleCardPath, "utf8");
 
 check(engine.includes("Product purpose outranks transport"),
   "Presentation product purpose outranks HDBaseT transport");
@@ -93,10 +95,10 @@ check(engine.includes("Routed input capacity unverified"),
   "Routed input capacity fails closed");
 check(engine.includes('compareCapabilityLists("audio"'),
   "Audio compares actual capability descriptions rather than option counts");
-check(showdown.includes("function buildAlignedStats"),
-  "Battle cards use an aligned comparison-stat builder");
-check(showdown.includes("const paired = buildAlignedStats(match);"),
-  "Both battle cards are rendered from the same verdict rows");
+check(battleCard.includes("function buildBattleCardLayout") && battleCard.includes("counterpart?: SpecSheet"),
+  "Battle cards use a counterpart-aware dynamic layout builder");
+check(showdown.includes("counterpart={match.sheet}") && showdown.includes("counterpart={result.competitor}"),
+  "Both battle cards align their semantic groups from the opposing sheet");
 check(!showdown.includes("buildBattleStats(result.competitor"),
   "Competitor battle-card data is not built independently");
 check(!showdown.includes("buildBattleStats(match.sheet"),
