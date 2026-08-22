@@ -768,21 +768,22 @@ function FeaturesTab({
   const featureBenefits = cleanUsefulList(guidance.featureBenefits, 6);
 
   return (
-    <div className="grid gap-4">
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
+    <div className="wm-product-pitch-features">
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-section-intro p-5`}>
+        <p className="wm-ui-kicker">Customer conversation</p>
         <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Features that matter</h2>
         <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
           Use these points in a customer conversation. Open Technical overview only when exact values are needed.
         </p>
       </section>
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="wm-product-pitch-features__grid">
         {featureBenefits.map((feature) => (
           <WorkCard title={conciseSalesCopy(feature, 8)} key={feature}>
             <p className="wm-ui-copy">{conciseSalesCopy(feature, 24)}</p>
           </WorkCard>
         ))}
       </div>
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="wm-product-pitch-features__context">
         <WorkCard title="Use it here"><p className="wm-ui-copy">{guidance.scenarioFit}</p></WorkCard>
         <WorkCard title="Confirm before promising" tone="caution"><p className="wm-ui-copy">{guidance.confirmationQuestion}</p></WorkCard>
       </div>
@@ -794,27 +795,31 @@ function CompetitorsTab({ product }: { product: ProductSpec }) {
   const landscape = useMemo(() => getCompetitorLandscape(product), [product]);
 
   return (
-    <div className="grid gap-4">
+    <div className="wm-product-pitch-competitors">
+      <div className="wm-product-pitch-competitors__context">
       <WorkCard title="Market context">
         <p className="wm-ui-copy">{landscape.note}</p>
       </WorkCard>
+      </div>
 
       {landscape.entries.length ? (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="wm-product-pitch-competitors__grid">
           {landscape.entries.map((entry) => (
+            <div className="wm-product-pitch-competitor" key={`${entry.brand}-${entry.sku}`}>
             <WorkCard title={`${entry.brand} ${entry.sku}`} key={`${entry.brand}-${entry.sku}`}>
-              <div className="grid gap-2">
-                {entry.category ? <p className="wm-ui-copy"><strong>Category:</strong> {entry.category}</p> : null}
+              <div className="wm-product-pitch-competitor__body">
+                {entry.category ? <p className="wm-product-pitch-competitor__category">{entry.category}</p> : null}
                 {entry.summary ? <p className="wm-ui-copy">{entry.summary}</p> : null}
                 {entry.knownLimitations ? (
-                  <p className="wm-ui-copy"><strong>Known limitation:</strong> {entry.knownLimitations}</p>
+                  <p className="wm-product-pitch-competitor__limitation"><strong>Known limitation:</strong> {entry.knownLimitations}</p>
                 ) : null}
                 {entry.wingmanEquivalent ? (
-                  <p className="wm-ui-copy"><strong>Logged WyreStorm equivalent:</strong> {entry.wingmanEquivalent}</p>
+                  <p className="wm-product-pitch-competitor__equivalent"><span>WyreStorm equivalent</span><strong>{entry.wingmanEquivalent}</strong></p>
                 ) : null}
-                <p className="wm-ui-copy text-xs opacity-80">Evidence confidence: {entry.confidence}</p>
+                <p className="wm-product-pitch-competitor__confidence">{entry.confidence} confidence</p>
               </div>
             </WorkCard>
+            </div>
           ))}
         </div>
       ) : null}
@@ -863,7 +868,7 @@ function SpecTable({ product }: { product: ProductSpec }) {
         const isUnconfirmed = items.length === 0;
 
         return (
-          <div key={label} className="wm-product-spec-group min-w-0 rounded-2xl border p-4 wm-ui-card">
+          <div key={label} data-spec-group={label.toLowerCase().replace(/[^a-z0-9]+/g, "-")} className="wm-product-spec-group min-w-0 rounded-2xl border p-4 wm-ui-card">
             <dt className="mb-2 wm-ui-kicker text-cyan-300">{label}</dt>
             <dd>
               <ul className={`grid gap-2 ${isUnconfirmed ? "is-unconfirmed italic opacity-70" : ""}`}>
@@ -886,8 +891,9 @@ function SpecTab({ product }: { product: ProductSpec }) {
     : null;
 
   return (
-    <div className="grid gap-4">
-      <section className="rounded-3xl border p-5 wm-ui-section wm-ui-card">
+    <div className="wm-product-pitch-spec">
+      <section className="wm-product-pitch-section-intro rounded-3xl border p-5 wm-ui-section wm-ui-card">
+        <p className="wm-ui-kicker">Governed product record</p>
         <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>Technical specification view</h2>
         <p className="mt-2 text-sm leading-6 wm-ui-copy">
           Use this tab to confirm details. It is separated from the sales view so the salesperson is not forced to interpret technical data during a live conversation.
@@ -895,7 +901,7 @@ function SpecTab({ product }: { product: ProductSpec }) {
       </section>
 
       {product.technicalData && !product.technicalData.compareReady ? (
-        <section className="rounded-3xl border p-5 wm-ui-section wm-ui-card">
+        <section className="wm-product-pitch-spec__notice rounded-3xl border p-5 wm-ui-section wm-ui-card">
           <h3 className={PRODUCT_PITCH_CARD_TITLE_CLASS}>Technical data review required</h3>
           <p className="mt-2 text-sm leading-6 wm-ui-copy">
             This SKU does not yet have enough verified structured data for automatic
@@ -960,24 +966,27 @@ function DesignTab({ product, narrative }: { product: ProductSpec; narrative: Pr
   ] as const;
 
   return (
-    <div className="grid gap-4">
-      <div className="grid gap-3 lg:grid-cols-3">
+    <div className="wm-product-pitch-design">
+      <div className="wm-product-pitch-design__summary">
         <WorkCard title="Role in the design"><p className="wm-ui-copy">{narrative.whereItSits}</p></WorkCard>
         <WorkCard title="Likely location"><p className="wm-ui-copy">{likelyLocation(product)}</p></WorkCard>
         <WorkCard title="Application position"><p className="wm-ui-copy">{narrative.familyFit}</p></WorkCard>
       </div>
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-design__connectivity p-5`}>
+        <p className="wm-ui-kicker">Signal path</p>
         <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Connectivity and cable planning</h2>
         <p className="mt-2 text-sm wm-ui-copy">Confirmed product-record information only. Cable lengths, connector gender and endpoint quantities still need room discovery.</p>
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="wm-product-pitch-design__groups">
           {groups.map(([title, values]) => (
             <WorkCard title={title} key={title}><DisplayList items={cleanUsefulList([...values], 6)} max={6} /></WorkCard>
           ))}
         </div>
       </section>
-      <WorkCard title="Checks before it is put on a quote" tone="caution">
-        <DisplayList items={product.checks} max={8} />
-      </WorkCard>
+      <div className="wm-product-pitch-design__checks">
+        <WorkCard title="Checks before it is put on a quote" tone="caution">
+          <DisplayList items={product.checks} max={8} />
+        </WorkCard>
+      </div>
     </div>
   );
 }
@@ -992,19 +1001,20 @@ function WorkflowTab({ product, narrative }: { product: ProductSpec; narrative: 
   ];
 
   return (
-    <div className="grid gap-4">
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
+    <div className="wm-product-pitch-workflow">
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-workflow__intro p-5`}>
+        <p className="wm-ui-kicker">Handoff workflow</p>
         <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Move from product discussion to a customer response</h2>
-        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">These are live workflow actions. The selected SKU, sales context and visual brief are passed into the next stage.</p>
+        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">Keep {product.sku} and the room context together as the opportunity moves from discovery to the customer response.</p>
       </section>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="wm-product-pitch-workflow__steps">
         {steps.map((step) => (
-          <section className={`${PRODUCT_PITCH_PANEL_CLASS} flex flex-col p-5`} key={step.number}>
-            <div className="flex items-start gap-3">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cyan-300 font-extrabold text-slate-950">{step.number}</span>
-              <div><h3 className={PRODUCT_PITCH_CARD_TITLE_CLASS}>{step.title}</h3><p className="mt-2 text-sm leading-6 wm-ui-copy">{step.copy}</p></div>
+          <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-workflow__step`} key={step.number} data-step={step.number}>
+            <div className="wm-product-pitch-workflow__step-head">
+              <span className="wm-product-pitch-workflow__number">{step.number}</span>
+              <div><h3>{step.title}</h3><p className="wm-ui-copy">{step.copy}</p></div>
             </div>
-            <Link to={step.to} onClick={saveHandoff} className={`mt-5 self-start ${PRODUCT_PITCH_FORWARD_BUTTON_CLASS}`}>{step.action}</Link>
+            <Link to={step.to} onClick={saveHandoff} className={`wm-product-pitch-workflow__action ${PRODUCT_PITCH_FORWARD_BUTTON_CLASS}`}>{step.action}<span aria-hidden="true">→</span></Link>
           </section>
         ))}
       </div>
