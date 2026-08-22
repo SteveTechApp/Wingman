@@ -38,10 +38,10 @@ import { getCompetitorLandscape } from "../lib/competitorLandscape";
 
 function useProductPitchDensityClass() {
   useEffect(() => {
-    document.body.classList.add("wm-product-pitch-page-open");
+    document.body.classList.add("product-pitch-workspace-open");
 
     return () => {
-      document.body.classList.remove("wm-product-pitch-page-open");
+      document.body.classList.remove("product-pitch-workspace-open");
     };
   }, []);
 }
