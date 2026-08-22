@@ -435,8 +435,6 @@ export function CompareShowdown({
     ) : null;
   }
 
-  const paired = buildAlignedStats(match);
-
   return (
     <section className="wm-showdown wm-ui-card" aria-live="polite">
       {view !== "proof" ? <header className="wm-showdown__header">
@@ -483,7 +481,7 @@ export function CompareShowdown({
       {view !== "proof" ? <div className="wm-showdown__face-off">
         <BattleCard
           sheet={result.competitor}
-          stats={paired.competitor}
+          counterpart={match.sheet}
           accent="competitor"
           bestFor={bestForLabel(result.competitor)}
           footnote={result.verified ? "Verified from manufacturer documentation" : "Competitor evidence requires datasheet verification"}
@@ -491,7 +489,7 @@ export function CompareShowdown({
         <div className="wm-showdown__vs" aria-hidden="true">VS</div>
         <BattleCard
           sheet={match.sheet}
-          stats={paired.wyrestorm}
+          counterpart={result.competitor}
           accent="wyrestorm"
           bestFor={bestForLabel(match.sheet)}
           footnote={wyrestormFootnote(match.sheet)}
