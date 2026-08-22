@@ -91,6 +91,8 @@ export type ScoredCandidate = {
 export type CompareVerdictResult = {
   /** Verdict-ranked, eligibility-filtered candidates (NO MATCH excluded). */
   viable: ScoredCandidate[];
+  /** Same-job products with explicit shortfalls; never direct equivalents. */
+  nearMatches: ScoredCandidate[];
   /** Raw engine lead before filtering - the honest no-match render fallback. */
   heuristicLead: ScoredCandidate | null;
 };
@@ -289,8 +291,55 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
         product: candidate.product,
       }).eligibility !== "blocked",
   );
+  const sameComparisonJob = (product: WyreStormProduct): boolean => {
+    if (product.productClass === profile.productClass) return true;
+
+    const requestedJob = `${profile.productClass} ${profile.role} ${profile.rawText}`.toLowerCase();
+    const candidateJob = `${product.productClass} ${product.role} ${product.family} ${product.name}`.toLowerCase();
+    const presentationRequest = /presentation|multi[- ]?format|room core|switcher/.test(requestedJob);
+
+    return presentationRequest && /presentation|room core/.test(candidateJob);
+  };
+  const failedEngineCandidates = ordered.filter((candidate) =>
+    candidate.verdict === "NO MATCH" && sameComparisonJob(candidate.product),
+  );
+  const recalledSameJobCandidates = viable.length
+    ? []
+    : params.products
+        .filter((product) => params.isSelectable(product) && sameComparisonJob(product))
+        .map((product) => {
+          const scored = params.scoreProduct(profile, product);
+          return {
+            ...scored,
+            verdict: "NO MATCH" as const,
+            outcomeLabel: "Closest same-job option with known differences",
+          };
+        });
+  const seenNearMatchSkus = new Set<string>();
+  const nearMatchPenalty = (candidate: ScoredCandidate): number => {
+    const differences = [...candidate.mismatches, ...candidate.gaps, ...candidate.blockers].join(" ");
+    const missingOutput = /does not cover.*output|missing.*output/i.test(differences) ? 240 : 0;
+    const missingInput = /does not cover.*input|missing.*input/i.test(differences) ? 80 : 0;
+    const wrongClass = /product class is .* but .* candidate is/i.test(differences) ? 120 : 0;
+    const capacityShortfall = /too few|provides \d+ (?:inputs|outputs).*needs \d+/i.test(differences) ? 40 : 0;
+    return missingOutput + missingInput + wrongClass + capacityShortfall + candidate.blockers.length * 8;
+  };
+  const nearMatches = [...failedEngineCandidates, ...recalledSameJobCandidates]
+    .filter((candidate) => {
+      const sku = candidate.product.sku.toUpperCase();
+      if (seenNearMatchSkus.has(sku)) return false;
+      seenNearMatchSkus.add(sku);
+
+      // A blocked capacity or connector check is exactly the information this
+      // list must expose. These products remain NO MATCH results and cannot be
+      // promoted to the direct-equivalent path.
+      return true;
+    })
+    .sort((a, b) => nearMatchPenalty(a) - nearMatchPenalty(b) || semanticRank(b) - semanticRank(a))
+    .slice(0, 8);
   return {
     viable,
+    nearMatches,
     heuristicLead: engineCandidates[0] ?? null,
   };
 }

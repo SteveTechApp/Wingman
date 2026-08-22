@@ -63,14 +63,13 @@ describe("Compare rendered workflow - minimum card surface", () => {
     runCompare("Blustream", "MFP112");
     const cards = await screen.findByLabelText("Compare product cards");
     const competitor = within(cards).getByLabelText("Competitor product card");
-    const alternative = within(cards).getByLabelText("No WyreStorm product match");
+    const alternative = within(cards).getByLabelText("WyreStorm product card");
 
     expect(competitor.textContent).toContain("Presentation switcher");
     expect(competitor.textContent).toContain("11x routed source inputs");
     expect(competitor.textContent).toContain("2x routed display outputs");
-    expect(alternative.textContent).toContain("No suitable match");
-    expect(cards.textContent).toContain("11x2 routed I/O requirement");
-    expect(alternative.textContent).not.toContain("SW-510-TX");
+    expect(cards.textContent).toContain("No direct equivalent");
+    expect(screen.getByLabelText("Why this is not a direct match").textContent).toMatch(/11 inputs|needs 11|too few/i);
     expect(alternative.textContent).not.toMatch(/MXV-0808-H2A-KIT|MX-0808-KIT-V2/);
   });
 

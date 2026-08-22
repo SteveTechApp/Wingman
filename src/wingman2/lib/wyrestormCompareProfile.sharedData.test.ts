@@ -53,4 +53,44 @@ describe("shared governed WyreStorm Compare profile", () => {
       earc: true,
     });
   });
+
+  it("recovers typed input and output ports from section-labelled specification evidence", () => {
+    const profile = buildWyrestormCompareProfile({
+      sku: "TEST-PRESENTATION",
+      name: "4-input presentation switcher",
+      family: "Presentation / Room Core",
+      category: "Presentation switcher",
+      role: "Presentation switcher",
+      technicalProfile: {
+        io: {
+          // Simulates an upstream flattened record that lost every input and
+          // incorrectly retained only one output family.
+          ports: [{ count: 2, connector: "HDBaseT", direction: "output", category: "video" }],
+        },
+        evidence: {
+          technicalLines: [
+            "Inputs",
+            "1x HDMI In: 19-pin Type A",
+            "1x USB-C IN: DP Alt Mode",
+            "1x DisplayPort In: DisplayPort 1.3",
+            "1x VGA In: 15-pin VGA",
+            "Outputs",
+            "1x HDMI Out: 19-pin Type A",
+            "1x HDBT Out: RJ45",
+            "Video Encoding",
+          ],
+        },
+      },
+    } as never);
+
+    expect(profile.inputCount).toBe(4);
+    expect(profile.outputCount).toBe(2);
+    expect(profile.specs).toMatchObject({
+      hdmiInputs: 1,
+      hdmiOutputs: 1,
+      usbCPorts: 1,
+      displayPortInputs: 1,
+      vgaInputs: 1,
+    });
+  });
 });
