@@ -57,7 +57,11 @@
     }
   ],
   "approvedUnreachableSources": [
+    "src/wingman2/components/AVSignalFlowDiagram.tsx",
+    "src/wingman2/components/GuruCallNotesInterpreter.tsx",
+    "src/wingman2/components/RoomSchematicDiagram.tsx",
     "src/wingman2/lib/competitorMatchDecisionSnapshot.ts",
+    "src/wingman2/lib/scenarioValidation.ts",
     "src/wingman2/lib/testHelpers/governedProfilesHarness.ts"
   ]
 }

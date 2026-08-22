@@ -8708,8 +8708,6 @@ html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
   .templates-native-hero,
   .response-pack-native-hero
 ) > :where(
-  .wm-info-pills,
-  .wm-info-pill-row,
   .wm-page-pills,
   .wm-page-pill-row,
   .wm-page-shortcuts,
@@ -8737,8 +8735,6 @@ html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
   .templates-native-hero,
   .response-pack-native-hero
 ) > :where(
-  .wm-info-pills,
-  .wm-info-pill-row,
   .wm-page-pills,
   .wm-page-pill-row,
   .wm-page-shortcuts,

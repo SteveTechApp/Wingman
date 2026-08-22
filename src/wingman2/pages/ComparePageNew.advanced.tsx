@@ -3076,8 +3076,12 @@ function weakestLinkCardTier(
 }
 
 function displayCompareValue(value: string | undefined): string {
-  const cleaned = commercializeCompareCopy(safeCompareValue(value));
-  return cleaned || "Needs verification";
+  const cleaned = commercializeCompareCopy(safeCompareValue(value))
+    .replace(/\s*[-–—]\s*verify (?:against (?:the )?)?datasheet.*$/i, "")
+    .replace(/\s+(?:direction\s+)?from (?:the )?(?:\d{4}\s+)?(?:catalog|local product intelligence).*$/i, "")
+    .replace(/^verify (?:against (?:the )?)?datasheet$/i, "")
+    .trim();
+  return cleaned || "Not verified";
 }
 
 type CompareIoSnapshot = {
@@ -4761,6 +4765,26 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
   );
 }
 
+function CandidateThumbnailSelector({ candidate, selected, onSelect }: {
+  candidate: ScoredCandidate;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`compare-candidate-thumbnail${selected ? " is-selected" : ""}`}
+      aria-pressed={selected}
+      aria-label={`Compare with ${candidate.product.sku}`}
+      onClick={onSelect}
+    >
+      <span>{candidate.product.family}</span>
+      <strong>{candidate.product.sku}</strong>
+      <small>{candidate.product.productClass} · {candidate.verdict}</small>
+    </button>
+  );
+}
+
 
 function governedEndpointRole(profile: CompetitorProfile): CompareEndpointRole {
   const role = `${profile.role} ${profile.productClass}`.toLowerCase();
@@ -4847,6 +4871,75 @@ function compareDecisionButtonClass(
   return `compare-decision-button compare-decision-button--${tone} is-selected`;
 }
 
+type PrimaryBattleCardSide = "competitor" | "wyrestorm";
+
+function primaryBattleCardFamily(productClass: string): string {
+  const value = productClass.toLowerCase();
+  if (/matrix|switcher|classroom/.test(value)) return "Switcher / matrix";
+  if (/av-over-ip|avoip|networkhd|encoder|decoder|transceiver/.test(value)) return "AV-over-IP endpoint";
+  if (/hdbaset|extender/.test(value)) return "Extender / HDBaseT";
+  if (/distribution|splitter|\bda\b/.test(value)) return "Distribution";
+  if (/wireless|\buc\b|byom/.test(value)) return "Wireless / UC";
+  if (/multiview|video wall|processor/.test(value)) return "Video processing";
+  return "Specialist device";
+}
+
+const PRIMARY_BATTLE_GROUPS = [
+  { key: "connections", label: "Connections", fields: ["Inputs", "Outputs", "Other video I/O", "USB", "Control / network"] },
+  { key: "capabilities", label: "Capabilities", fields: ["HDMI / HDCP", "Network class"] },
+  { key: "performance", label: "Performance", fields: ["HDBaseT class / reach", "Max resolution", "Transport", "Signal direction"] },
+] as const;
+
+function PrimaryBattleCard({
+  side,
+  eyebrow,
+  heading,
+  detail,
+  productClass,
+  rows,
+}: {
+  side: PrimaryBattleCardSide;
+  eyebrow: string;
+  heading: string;
+  detail: string;
+  productClass: string;
+  rows: CompareCoreFact[];
+}) {
+  const valueFor = (row: CompareCoreFact): string => row[side] || "Needs verification";
+  const visibleGroups = PRIMARY_BATTLE_GROUPS.map((group) => ({
+    ...group,
+    rows: group.fields
+      .map((field) => rows.find((row) => row.label === field))
+      .filter((row): row is CompareCoreFact => Boolean(row)),
+  })).filter((group) => group.rows.length > 0);
+
+  return (
+    <article className={`compare-compact-result__product compare-primary-battle-card compare-primary-battle-card--${side} wm-ui-card${side === "wyrestorm" ? " compare-compact-result__product--wyrestorm" : ""}`} aria-label={side === "competitor" ? "Competitor product card" : "WyreStorm product card"}>
+      <header className="compare-primary-battle-card__header">
+        <span>{eyebrow}</span>
+        <strong>{heading}</strong>
+        <small>{detail}</small>
+        <p>{primaryBattleCardFamily(productClass)} · {productClass}</p>
+      </header>
+      <div className="compare-primary-battle-card__sections">
+        {visibleGroups.map((group) => (
+          <section className={`compare-primary-battle-card__section compare-primary-battle-card__section--${group.key}`} key={group.key} aria-label={group.label}>
+            <h3>{group.label}</h3>
+            <dl>
+              {group.rows.map((row) => (
+                <div key={row.label} data-evidence-state={/needs verification|not verified/i.test(valueFor(row)) ? "unverified" : "verified"}>
+                  <dt>{row.label}</dt>
+                  <dd>{valueFor(row)}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 // WINGMAN_MINIMUM_COMPARE_CARDS_V2
 function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
   competitor: CompetitorSummary;
@@ -4889,33 +4982,16 @@ function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
     ? uniqueText([...candidate.mismatches, ...candidate.gaps, ...candidate.blockers], 4)
         .map((item) => commercializeCompareCopy(item))
     : [];
-  const rowTone = (result: string): "aligned" | "different" | "check" => {
-    if (/align|same|covers|required count|present|match/i.test(result)) return "aligned";
-    if (/too few|differs|missing|role differs|not/i.test(result)) return "different";
-    return "check";
-  };
-
   return (
     <section className="compare-compact-result wm-ui-section wm-ui-card" aria-label="Compare product cards">
       <CompareReportedStatusRail status={status} />
       <header className="compare-compact-result__headline"><div><h2 className="wm-ui-title">{visibleHeading}</h2><p className="wm-ui-copy">{visibleGuidance}</p></div></header>
       <div className="compare-compact-result__products">
-        <article className="compare-compact-result__product wm-ui-card" aria-label="Competitor product card">
-          <span>Competitor product</span><strong>{competitor.heading}</strong><small>{competitor.detail}</small>
-          <dl className="compare-product-info-card__facts">
-            {rows.map((row) => <div key={`c-${row.label}`} data-compare-result={rowTone(row.result)}><small>{row.label}</small><strong>{row.competitor || "Needs verification"}</strong></div>)}
-          </dl>
-        </article>
+        <PrimaryBattleCard side="competitor" eyebrow="Competitor product" heading={competitor.heading} detail={competitor.detail} productClass={competitor.recognisedClass} rows={rows} />
         <span className="compare-compact-result__arrow" aria-hidden="true">→</span>
-        <article className="compare-compact-result__product compare-compact-result__product--wyrestorm wm-ui-card" aria-label={candidate ? "WyreStorm product card" : "No WyreStorm product match"}>
-          <span>WyreStorm alternative</span>
-          {candidate && wyrestorm ? <>
-            <strong>{candidate.product.sku}</strong><small>{candidate.product.name}</small>
-            <dl className="compare-product-info-card__facts">
-              {rows.map((row) => <div key={`w-${row.label}`} data-compare-result={rowTone(row.result)}><small>{row.label}</small><strong>{row.wyrestorm || "Needs verification"}</strong><em>{row.result}</em></div>)}
-            </dl>
-          </> : <><strong>No suitable match</strong><small>Confirm the competitor specification or add evidence before positioning an alternative.</small></>}
-        </article>
+        {candidate && wyrestorm
+          ? <PrimaryBattleCard side="wyrestorm" eyebrow="WyreStorm alternative" heading={candidate.product.sku} detail={candidate.product.name} productClass={wyrestorm.productType} rows={rows} />
+          : <article className="compare-compact-result__product compare-compact-result__product--wyrestorm wm-ui-card" aria-label="No WyreStorm product match"><span>WyreStorm alternative</span><strong>No suitable match</strong><small>Confirm the competitor specification or add evidence before positioning an alternative.</small></article>}
       </div>
       {closestOnly && importantDifferences.length ? (
         <section className="compare-compact-result__warnings wm-ui-card" aria-label="Why this is not a direct match">
@@ -5399,6 +5475,11 @@ function ComparePageNew() {
   // Verified battle cards are supplemental evidence. The governed Compare
   // runtime remains authoritative for recommendation, project save and proposal handoff.
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.body.classList.add("compare-workspace-open");
+    return () => document.body.classList.remove("compare-workspace-open");
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -6101,9 +6182,8 @@ function ComparePageNew() {
             {activeCandidate ? <section className="wm-ui-card wm-ui-section" aria-label="Compare result actions"><div className="compare-native-action-row wm-ui-action-row">
               <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
               <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
-              <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>New comparison</button>
             </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}</section> : null}
-            {matrixAlternatives.length ? <section className="compare-native-options wm-ui-card" aria-label="Other technically plausible matrix options"><h2 className="wm-ui-title">Other technically plausible matrix options</h2><p className="wm-ui-copy">These variants satisfy the confirmed matrix direction but differ on scaling, video-wall processing, distance or receiver architecture that the competitor evidence may not resolve.</p><div className="compare-native-option-grid wm-ui-card">{matrixAlternatives.map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
+            {matrixAlternatives.length ? <section className="compare-native-options compare-candidate-selector wm-ui-card" aria-label="Suggested other matches"><div><h2 className="wm-ui-title">Suggested other matches</h2><p className="wm-ui-copy">Select a thumbnail to compare that option in the main cards.</p></div><div className="compare-candidate-selector__grid">{matrixAlternatives.map((candidate) => <CandidateThumbnailSelector key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} selected={activeCandidate?.product.sku === candidate.product.sku} onSelect={() => { const index = viableCandidates.findIndex((option) => option.product.sku === candidate.product.sku); if (index >= 0) setCandidateIndex(index); }} />)}</div></section> : null}
             <details className="compare-native-summary wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
               <CompetitorSearchCard
                 brand={effectiveBrand}
@@ -6136,7 +6216,7 @@ function ComparePageNew() {
                 <GovernedDecisionPanel key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`} profile={profile} candidate={activeCandidate ?? heuristicLead ?? null} existingDecision={displayedDecision} onSaved={() => setDecisionRevision((revision) => revision + 1)} />
               )}
               <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence"} sourceUrl={sourceUrl} />
-              {requestLiveLookup && liveResearchStatus === "error" ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun primaryCriteria={primarySearchCriteria} /> : null}
+              {requestLiveLookup && liveResearchStatus === "error" ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} primaryCriteria={primarySearchCriteria} /> : null}
             </div></details>
           </> : null}
         </section>

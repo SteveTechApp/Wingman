@@ -72,8 +72,8 @@ describe("compare page typed-SKU honesty render", () => {
       expect(cards.textContent).toContain("MX-0404-HDMI");
     });
     expect(cards.textContent).not.toContain("MX-0404-KIT");
-    expect(await screen.findByRole("heading", { name: "Other technically plausible matrix options" })).not.toBeNull();
-    const matrixOptions = screen.getByLabelText("Other technically plausible matrix options");
+    expect(await screen.findByRole("heading", { name: "Suggested other matches" })).not.toBeNull();
+    const matrixOptions = screen.getByLabelText("Suggested other matches");
     expect(matrixOptions.textContent).toContain("MX-0404-SCL");
     expect(matrixOptions.textContent).not.toContain("MX-0804-EDC");
     expect(matrixOptions.textContent).not.toContain("MX-0808-SCL");

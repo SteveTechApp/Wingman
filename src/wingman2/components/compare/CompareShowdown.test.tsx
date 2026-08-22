@@ -41,6 +41,12 @@ function sheet(sku: string, brand = "WyreStorm"): SpecSheet {
     controlOptions: [],
     distanceM: 100,
     poe: "PoE",
+    connections: {
+      videoInputs: [{ type: "HDMI", count: 1 }], videoOutputs: [{ type: "HDMI", count: 1 }],
+      usb: [{ type: "USB-A", count: 2 }], network: [{ type: "LAN", count: 1 }],
+      audioInputs: [], audioOutputs: [], control: [],
+    },
+    capabilities: { wirelessCasting: null, byom: null, multiview: null, scaling: null, videoWall: null, kvm: true },
     citations: [],
   };
 }
@@ -90,7 +96,7 @@ describe("CompareShowdown selected candidate synchronisation", () => {
     expect(screen.queryByRole("article", { name: "WyreStorm WS-OPTION-2 product card" })).toBeNull();
   });
 
-  it("explains each spec row in plain language on the Side-by-side cards", async () => {
+  it("uses corresponding connection groups on both Side-by-side cards", async () => {
     vi.mocked(runSpecShowdown).mockResolvedValueOnce({
       coverage: "found",
       verified: true,
@@ -130,15 +136,12 @@ describe("CompareShowdown selected candidate synchronisation", () => {
     const wyrestormCard = await screen.findByRole("article", { name: "WyreStorm WS-OPTION-1 product card" });
     const competitorCard = screen.getByRole("article", { name: "Competitor COMP-1 product card" });
 
-    // Every aligned stat row carries a plain-language hint (what the field
-    // means) and a matters note (whether the difference matters) on BOTH cards,
-    // so the pair reads as one verdict rather than two opaque stat dumps.
     for (const card of [wyrestormCard, competitorCard]) {
-      expect(card.querySelectorAll(".wm-battle-card__stat-hint").length).toBeGreaterThan(0);
-      expect(card.querySelectorAll(".wm-battle-card__stat-matters").length).toBeGreaterThan(0);
-      expect(card.textContent).toMatch(/how the product moves the signal/i);
-      expect(card.textContent).toMatch(/the same on both sides/i);
-      expect(card.textContent).toMatch(/they differ/i);
+      expect(card.textContent).toContain("Video inputs");
+      expect(card.textContent).toContain("Video outputs");
+      expect(card.textContent).toContain("USB / peripherals");
+      expect(card.querySelectorAll(".wm-battle-card__stat-hint")).toHaveLength(0);
+      expect(card.querySelectorAll(".wm-battle-card__stat-matters")).toHaveLength(0);
     }
   });
 
