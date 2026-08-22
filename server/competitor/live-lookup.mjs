@@ -707,8 +707,15 @@ function summarizeText(html, text, model) {
   return tidy(text).slice(0, 520);
 }
 
-async function flattenPdfToText(buffer) {
+async function extractPdfDocument(buffer) {
   const document = await getDocument({ data: new Uint8Array(buffer), useWorkerFetch: false, isEvalSupported: false }).promise;
+  let metadataTitle = "";
+  try {
+    const metadata = await document.getMetadata();
+    metadataTitle = tidy(metadata?.info?.Title || metadata?.metadata?.get?.("dc:title") || "");
+  } catch {
+    // A missing or malformed metadata dictionary must not prevent text extraction.
+  }
   const pages = [];
   const pageLimit = Math.min(document.numPages, 30);
   for (let pageNumber = 1; pageNumber <= pageLimit; pageNumber += 1) {
@@ -716,7 +723,10 @@ async function flattenPdfToText(buffer) {
     const content = await page.getTextContent();
     pages.push(content.items.map((item) => tidy(item.str)).filter(Boolean).join(" "));
   }
-  return pages.join("\n").replace(/\s+/g, " ").trim();
+  return {
+    text: pages.join("\n").replace(/\s+/g, " ").trim(),
+    metadataTitle,
+  };
 }
 
 async function fetchCandidatePage(item, adapter, model) {
@@ -756,8 +766,10 @@ async function fetchCandidatePage(item, adapter, model) {
     }
 
     const html = isPdf ? "" : await response.text();
-    const text = isPdf ? await flattenPdfToText(await response.arrayBuffer()) : flattenHtmlToText(html);
-    const title = isPdf ? `${model} technical document` : extractTitle(html, model);
+    const pdf = isPdf ? await extractPdfDocument(await response.arrayBuffer()) : null;
+    const text = isPdf ? pdf.text : flattenHtmlToText(html);
+    const identityTitle = isPdf ? pdf.metadataTitle : extractTitle(html, "");
+    const title = identityTitle || (isPdf ? "Technical document" : tidy(model));
 
     if (isBlockedVendorPage(text, html)) {
       return {
@@ -771,7 +783,7 @@ async function fetchCandidatePage(item, adapter, model) {
       };
     }
 
-    const score = scorePage({ url: item.url, title, text, model, kind: item.kind });
+    const score = scorePage({ url: item.url, title: identityTitle, text, model, kind: item.kind });
     const discoveredLinks = extractCandidateLinks(html, item.url, adapter, model);
 
     return {
@@ -780,6 +792,7 @@ async function fetchCandidatePage(item, adapter, model) {
       kind: item.kind,
       status,
       title,
+      identityTitle,
       html,
       text,
       score,
@@ -808,7 +821,9 @@ function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts })
   const successful = pages.filter((page) => page.ok).sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
   const modelKey = normalizeId(model);
   const specificationPages = successful.filter((page) => {
-    const exactModel = !modelKey || normalizeId(`${page.url} ${page.title} ${page.text}`).includes(modelKey);
+    // `page.title` may be a harmless display fallback. Identity must come from
+    // the source URL, actual HTML/PDF metadata, or extracted source text.
+    const exactModel = !modelKey || normalizeId(`${page.url} ${page.identityTitle || ""} ${page.text}`).includes(modelKey);
     const technicalSignal = /\b(?:inputs?|outputs?|resolution|hdmi\s*\d|hdcp\s*\d|hdbase[-\s]?t|usb\s*\d|bandwidth|datasheet|technical specifications?)\b/i.test(page.text || "");
     const discoveryOnly =
       /bing\.com|duckduckgo\.com|reddit\.com|wikipedia\.org/i.test(page.url) ||
@@ -949,6 +964,7 @@ export async function resolveCompetitorLiveLookup(payload = {}) {
 // network or persistence behaviour; keeping their tests close to the lookup
 // boundary prevents discovery/search pages from becoming product evidence.
 export const __liveLookupTest = Object.freeze({
+  buildReturnRecord,
   extractCandidateLinks,
   normalizeAllowedProductUrl,
   sourceAuthority,
