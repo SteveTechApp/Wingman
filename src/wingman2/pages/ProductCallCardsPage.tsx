@@ -13,6 +13,7 @@ import {
   useProjectStore,
 } from "../data/projectStore";
 import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
+import { hydrateProductSpecWithTechnicalData } from "../lib/governedProductTechnicalData";
 import {
   classifyProductCallCard,
   PRODUCT_CALL_CARD_HEADINGS,
@@ -99,7 +100,17 @@ function narrativeForSeed(seed: ProductSeed): ProductNarrative | null {
     0,
   );
 
-  return spec ? buildProductNarrative(spec) : null;
+  if (!spec) {
+    return null;
+  }
+
+  // Governed-first: the seed carries the product-intelligence technicalProfile
+  // (and sourceCatalog), so hydrate the spec before building narrative copy.
+  // Without this the generated pitch claims are drawn from marketing tags that
+  // can contradict the verified spec (e.g. "Video Wall"/"Processing" tags on a
+  // presentation switcher). The hydration is a no-op for data-less fallback
+  // seeds (missing tier), so curated fallback copy is untouched.
+  return buildProductNarrative(hydrateProductSpecWithTechnicalData(spec, seed));
 }
 
 type ProductSeed = {

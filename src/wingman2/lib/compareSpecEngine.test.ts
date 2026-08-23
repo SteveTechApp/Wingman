@@ -71,6 +71,9 @@ describe("normalizeCompetitor", () => {
     expect(sheet.transport).toBe("avoip-1g");
     expect(sheet.resolutionRank).toBeGreaterThanOrEqual(4);
     expect(sheet.hdmiIn).toBe(2);
+    expect(sheet.connections?.videoInputs).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: expect.stringMatching(/HDMI/i), count: 2 }),
+    ]));
     expect(sheet.citations.length).toBeGreaterThan(0);
     expect(sheet.citations[0].url).toContain("crestron");
   });

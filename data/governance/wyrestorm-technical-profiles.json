@@ -1,6 +1,6 @@
 {
-  "version": 8,
-  "updatedAt": "2026-08-21",
+  "version": 9,
+  "updatedAt": "2026-08-23",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -438,7 +438,7 @@
           "connector": "24V DC",
           "direction": "input",
           "category": "power",
-          "detail": "24V DC 5A external power supply"
+          "detail": "24V DC power input (5A PSU required)"
         }
       ],
       "video": [
@@ -601,7 +601,7 @@
         "USB-C",
         "Presentation / UC"
       ],
-      "maxResolution": "4K resolution at 60Hz, as well as USB 2",
+      "maxResolution": "4K60 (3840x2160p @60Hz)",
       "ports": [],
       "video": [
         "4K resolution at 60Hz, as well as USB 2",
@@ -780,6 +780,13 @@
           "direction": "input",
           "category": "audio",
           "detail": "Features 4 x MEMS microphones in a Beamforming array with Acoustic Echo Cancellation, Automatic Gain Control and Automatic Noise Suppression, ensuring you can be heard loud and clear in every meeting up to 8 meters away. The stereo speakers with bass enhancement provide crisp audio delivery, even in the largest rooms."
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / Ethernet",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1x LAN: 8-pin RJ-45 (control and network)"
         }
       ],
       "video": [
@@ -819,9 +826,7 @@
       ],
       "network": [
         "LAN",
-        "x 8-pin RJ45",
-        "APO-MIC-EXT - USB to Ethernet cable for use with the APO-COM-MIC add-on microphone allows point-to-point extension up to 60m over Cat6 cable to the APO-COM-MIC . (Sold separately)",
-        "5Gbps"
+        "x 8-pin RJ45"
       ],
       "control": [
         "CEC",
@@ -1258,7 +1263,7 @@
         "USB-C",
         "Camera / capture"
       ],
-      "maxResolution": "1080p60 Camera with with USB 3",
+      "maxResolution": "1080p60 (1920x1080p @60fps)",
       "ports": [
         {
           "count": 1,
@@ -1816,6 +1821,34 @@
       "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [
         {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX: 1x HDMI in (4K60)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "RX: 1x HDMI out (4K60)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "bidirectional",
+          "category": "video",
+          "detail": "100m/328ft HDBaseT link (PoC)"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "Bidirectional RS-232"
+        },
+        {
           "count": 2,
           "connector": "Analog audio",
           "direction": "unspecified",
@@ -1858,7 +1891,6 @@
       ],
       "usb": [],
       "network": [
-        "This feature lets you extend a 4K video signal up to 100 meters (328 feet) over a single Cat6a/7 ethernet cable. It's the perfect solution for large venues, multiple rooms, or any setup where the source and display are far apart.",
         "PoH",
         "PoC"
       ],
@@ -1912,21 +1944,49 @@
         "NetworkHD AV over IP",
         "Extension"
       ],
-      "maxResolution": "4K60 AVX Extender with eARC - WyreStorm 100m 4K",
+      "maxResolution": "4K60 4:4:4 (18Gbps; 4K HDR @60Hz, eARC)",
       "ports": [
         {
           "count": 1,
-          "connector": "IR",
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX: 1x HDMI in (4K60 HDR)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
           "direction": "output",
+          "category": "video",
+          "detail": "RX: 1x HDMI out (4K60 HDR, eARC)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "bidirectional",
+          "category": "video",
+          "detail": "100m/328ft AVX/HDBaseT link"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / Ethernet",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1x Ethernet: 8-pin RJ-45 Female (1Gbps passthrough)"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x IR Receiver"
+          "detail": "Bidirectional RS-232"
         },
         {
           "count": 1,
           "connector": "IR",
-          "direction": "output",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x IR Emitter"
+          "detail": "1x IR Emitter + 1x IR Receiver"
         }
       ],
       "video": [
@@ -1955,13 +2015,7 @@
       ],
       "usb": [],
       "network": [
-        "HDMI | HDCP 2.2 | EDID | Audio | 1-way PoC (TX powers RX) | Bidirectional IR/RS-232/Ethernet | CEC",
-        "Ethernet",
         "1x Ethernet: 8-pin RJ-45 Female | Bidirectional over AVX (Transmitter and Receiver)",
-        "Control signal passthrough via bidirectional IR, 2-way RS-232 and Gigabit LAN",
-        "Extend 18Gbps A/V signals up to 100 meters with the EX-100-H2-EARC. This extender uses AVX technology, a similar transmission that is found inside our powerful NetworkHD 600 series, to send 4K HDR and Dolby Vision content at 60Hz. Compatible with eARC, you can transmit audio signals such as Dolby TrueHD/Atmos and DTS-HD MA 7.1 signals from a smart TV back to an eARC enabled AVR or soundbar. Flexible control passthrough options including IR, RS-232 and LAN allow you control a display and get devices connected over long distances.",
-        "Passthrough signals such as IR and RS-232 from a control system to control your display or other AV equipment. The ethernet passthrough supports full 1Gbps speeds for extending internet or LAN connections.",
-        "NetworkHD",
         "PoE",
         "PoC"
       ],
@@ -2065,9 +2119,7 @@
         "5Gbps"
       ],
       "network": [
-        "RX: 4x USB 3.2 Type A, 1x RJ45 Input",
         "TX: 1x RJ45 Output",
-        "5Gbps",
         "PoH"
       ],
       "control": [],
@@ -2125,59 +2177,59 @@
       "ports": [
         {
           "count": 1,
-          "connector": "USB",
+          "connector": "HDMI",
           "direction": "input",
-          "category": "usb",
-          "detail": "TX: 1x HDMI IN, 1x HDBT OUT, 1x RS232, 1x AUDIO IN, 1x AUDIO OUT, 1x USB HOST, 1x DC 12V IN"
+          "category": "video",
+          "detail": "TX: 1x HDMI in"
         },
         {
           "count": 1,
-          "connector": "USB",
-          "direction": "input",
-          "category": "usb",
-          "detail": "RX: 1x HDBT IN, 1x HDMI OUT, 1x RS232, 2x AUDIO OUT (One for De-embed and another one for Pass-through), 4x USB DEVICE, 1x DC 12V IN"
-        },
-        {
-          "count": 2,
-          "connector": "USB",
-          "direction": "input",
-          "category": "usb",
-          "detail": "RX: 1x HDBT IN, 1x HDMI OUT, 1x RS232, 2x AUDIO OUT (One for De-embed and another one for Pass-through), 4x USB DEVICE, 1x DC 12V IN"
-        },
-        {
-          "count": 4,
-          "connector": "USB",
-          "direction": "input",
-          "category": "usb",
-          "detail": "RX: 1x HDBT IN, 1x HDMI OUT, 1x RS232, 2x AUDIO OUT (One for De-embed and another one for Pass-through), 4x USB DEVICE, 1x DC 12V IN"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "input",
-          "category": "usb",
-          "detail": "TX: 1x USB Host"
-        },
-        {
-          "count": 4,
-          "connector": "USB",
-          "direction": "input",
-          "category": "usb",
-          "detail": "RX: 4x USB 3.2 Type A1 x RJ45 Input"
-        },
-        {
-          "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "HDMI",
           "direction": "output",
-          "category": "network",
-          "detail": "TX: 1x RJ45 Female"
+          "category": "video",
+          "detail": "RX: 1x HDMI out"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "bidirectional",
+          "category": "video",
+          "detail": "HDBaseT link (PoH)"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "1x RS-232 (TX and RX)"
+        },
+        {
+          "count": 1,
+          "connector": "USB",
+          "direction": "input",
+          "category": "usb",
+          "detail": "TX: 1x USB host"
+        },
+        {
+          "count": 4,
+          "connector": "USB",
+          "direction": "output",
+          "category": "usb",
+          "detail": "RX: 4x USB device"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio",
+          "direction": "input",
+          "category": "audio",
+          "detail": "TX: 1x audio in"
         },
         {
           "count": 2,
           "connector": "Analog audio",
           "direction": "output",
           "category": "audio",
-          "detail": "2x 3-pin 3.5mm Phoenix Connectors"
+          "detail": "RX: 2x audio out (de-embed + pass-through)"
         }
       ],
       "video": [
@@ -2209,7 +2261,6 @@
         "KVM / HID"
       ],
       "network": [
-        "RX: 4x USB 3.2 Type A1 x RJ45 Input",
         "TX: 1x RJ45 Female",
         "PoH"
       ],
@@ -2264,8 +2315,43 @@
         "USB 2.0",
         "Extension"
       ],
-      "maxResolution": "8K EX-100-KVM-8K 100m HDMI 2",
+      "maxResolution": "8K30 (7680x4320p @30Hz); 4K120 (4096x2160p @120Hz)",
       "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX: 1x HDMI 2.1 in (8K30/4K120)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "RX: 1x HDMI 2.1 out (8K30/4K120)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "bidirectional",
+          "category": "video",
+          "detail": "100m/328ft HDBaseT link"
+        },
+        {
+          "count": 1,
+          "connector": "USB",
+          "direction": "bidirectional",
+          "category": "usb",
+          "detail": "USB 2.0 KVM extension"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 passthrough"
+        },
         {
           "count": 2,
           "connector": "Analog audio",
@@ -2313,8 +2399,7 @@
       ],
       "usb": [
         "USB 2.0",
-        "KVM / HID",
-        "40Gbps"
+        "KVM / HID"
       ],
       "network": [
         "PoC"
@@ -2369,8 +2454,51 @@
         "USB routing / switching",
         "Extension"
       ],
-      "maxResolution": "4K 30Hz KVM Extender over IP",
-      "ports": [],
+      "maxResolution": "4K30 (3840x2160p @30Hz)",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "Encoder: 1x HDMI in (4K@30Hz)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "Decoder: 1x HDMI out (4K@30Hz)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / Ethernet",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "Encoder + decoder: 1x LAN (8-pin RJ-45) each, 1G network"
+        },
+        {
+          "count": 1,
+          "connector": "USB",
+          "direction": "input",
+          "category": "usb",
+          "detail": "Encoder: 1x USB host (USB 2.0)"
+        },
+        {
+          "count": 2,
+          "connector": "USB",
+          "direction": "output",
+          "category": "usb",
+          "detail": "Decoder: 2x USB 2.0 device / hub"
+        },
+        {
+          "count": 1,
+          "connector": "DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "DC 12V 1A"
+        }
+      ],
       "video": [
         "4K 30Hz KVM Extender over IP",
         "4K KVM over IP extender to control computers an",
@@ -2403,16 +2531,8 @@
       ],
       "network": [
         "1x LAN: 8-pin RJ-45 Female",
-        "Unlimited distance transmission over 1G network",
-        "Pin DIP switch setting for up to 16 extenders sets to work in the same network.",
-        "The inclusion of USB 2.0 over IP functionality allows for easy extension of USB devices over the network. Additionally, the integrated USB hub supports direct connection of multiple peripherals, streamlining workstation setups and enhancing user convenience in diverse settings, from office environments to interactive kiosks.",
-        "For transmission, the EX-100-KVM-IP supports point-to-point connections over a 1G network. Transmission distances vary based on the cabling type and SFP or fiber module used. Supported distances include 35m (115ft), 40m (131ft), 70m (230ft), 100m (328ft), and up to 300m (984ft). For exact distance mappings and cabling requirements, refer to the product specifications and documentation.",
-        "The EX-100-KVM-IP uses a pin DIP switch to allow up to sixteen extender sets on the same network.",
-        "Mount units with the included brackets, connect the HDMI source to the encoder and the HDMI display to the decoder, link the encoder/decoder to a 1G network via RJ-45, connect 12V power, and attach USB peripherals. It’s plug-and-play with zero configuration; use DIP switches for multi-unit setups.",
-        "Units use compressed IP over a 1G network and interoperate automatically. For advanced network setups or static addressing procedures, consult the product documentation and WyreStorm support resources online.",
-        "Maximum length depends on the transmission medium: the EX-100-KVM-IP supports unlimited distance over a 1G network. （Supports point-to-point over 1G network with distances up to 300m depending on cabling and SFP/fiber modules.）",
-        "Listed point-to-point transmission distances include 100m (328ft), 70m (230ft), 40m (131ft), 35m (115ft), and 300m (984ft), depending on cabling and SFP/fiber options. Consult specs and documentation for mappings and cabling guidance.",
-        "1G"
+        "1G",
+        "USB 2.0 over IP"
       ],
       "control": [
         "EDID"
@@ -2467,6 +2587,20 @@
       "ports": [
         {
           "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX: 1x HDMI in (4K60)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "RX: 1x HDMI out (4K60)"
+        },
+        {
+          "count": 1,
           "connector": "USB",
           "direction": "input",
           "category": "usb",
@@ -2485,13 +2619,6 @@
           "direction": "output",
           "category": "network",
           "detail": "TX: 1x RJ45 Female"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x EX-100-USB3 (1 TX & 1 RX included)"
         }
       ],
       "video": [
@@ -2516,9 +2643,7 @@
         "5Gbps"
       ],
       "network": [
-        "RX: 4x USB 3.2 Type A1 x RJ45 Input",
         "TX: 1x RJ45 Female",
-        "5Gbps",
         "PoH"
       ],
       "control": [],
@@ -2552,7 +2677,8 @@
       "verifiedAt": "2026-08-16T10:23:16.119Z",
       "confirmedFields": [
         "routed-io"
-      ]
+      ],
+      "maxResolution": "4K60 4:4:4 (3840x2160p @60Hz); USB 3.2 Gen 1 (5Gbps); 100m/328ft"
     },
     {
       "sku": "EX-35-8K",
@@ -2566,21 +2692,56 @@
         "HDMI 2.1 / 8K",
         "Extension"
       ],
-      "maxResolution": "8K EX-35-8K 35m HDMI 2",
+      "maxResolution": "8K60 (7680x4320p @60Hz); 4K120; HDMI 2.1 FRL 40Gbps",
       "ports": [
         {
-          "count": 2,
-          "connector": "Analog audio",
-          "direction": "unspecified",
-          "category": "audio",
-          "detail": "2x 3-pin Phoenix Terminal"
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX: 1x HDMI 2.1 in (8K60, FRL 40Gbps)"
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "RX: 1x HDMI 2.1 out (8K60, FRL 40Gbps)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "bidirectional",
+          "category": "video",
+          "detail": "35m/115ft HDBaseT link (PoH)"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 passthrough"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "Bidirectional IR"
+        },
+        {
+          "count": 2,
+          "connector": "Analog audio",
           "direction": "output",
           "category": "audio",
-          "detail": "1x 5-pin Phoenix Terminal (balanced audio out)"
+          "detail": "2x 3-pin Phoenix (audio de-embed)"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio",
+          "direction": "output",
+          "category": "audio",
+          "detail": "1x 5-pin Phoenix (balanced audio out)"
         }
       ],
       "video": [
@@ -2615,9 +2776,7 @@
         "DTS 5.1",
         "DTS-HD Master Audio and DTS"
       ],
-      "usb": [
-        "40Gbps"
-      ],
+      "usb": [],
       "network": [
         "PoH",
         "PoC"
@@ -2737,52 +2896,51 @@
       "transport": [
         "HDBaseT",
         "HDMI",
-        "USB 3.x",
         "Extension"
       ],
-      "maxResolution": "4K60 HDBaseT Extender - WyreStorm 35m 4K60 HDBa",
+      "maxResolution": "4K60 4:4:4 (3840x2160p @60Hz; 1080p up to 70m/230ft)",
       "ports": [
         {
           "count": 1,
-          "connector": "HDBaseT",
-          "direction": "output",
+          "connector": "HDMI",
+          "direction": "input",
           "category": "video",
-          "detail": "1x IR TX 3.5mm (1/8in) Mono | Bidirectional over HDBaseT"
+          "detail": "TX: 1x HDMI in (4K60 4:4:4)"
         },
         {
           "count": 1,
-          "connector": "HDBaseT",
+          "connector": "HDMI",
           "direction": "output",
           "category": "video",
-          "detail": "1x IR RX 3.5mm (1/8in) Stereo | Bidirectional over HDBaseT"
+          "detail": "RX: 1x HDMI out (4K60 4:4:4)"
         },
         {
           "count": 1,
-          "connector": "HDBaseT",
-          "direction": "output",
+          "connector": "RJ45 / HDBaseT",
+          "direction": "bidirectional",
           "category": "video",
-          "detail": "1x 3-pin Screw Down Phoenix Connector | Bidirectional over HDBaseT"
+          "detail": "35m/115ft HDBaseT link (PoH)"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "1x 3-pin Screw-Down Phoenix (RS-232)"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "1x IR Emitter + 1x IR Receiver (bidirectional)"
         },
         {
           "count": 2,
           "connector": "Analog audio",
           "direction": "output",
           "category": "audio",
-          "detail": "2x 3-pin Screw Down Phoenix Connectors"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Emitter"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Receiver"
+          "detail": "2x 3-pin Screw-Down Phoenix (audio de-embed)"
         }
       ],
       "video": [
@@ -2815,12 +2973,8 @@
         "Dolby Vision up to 30Hz",
         "DTS-X and Dolby Atmos Switchable RS-232 function mode on transmitter and receiver for firmware update Threaded bushings allow use of both standard and locking DC power plugs Visual LED indication for power"
       ],
-      "usb": [
-        "USB 3.x",
-        "10Gbps"
-      ],
+      "usb": [],
       "network": [
-        "10Gbps",
         "PoH"
       ],
       "control": [
@@ -2985,7 +3139,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "1080p UTP Extender - WyreStorm 40m 1080p UTP Exten",
+      "maxResolution": "1080p60 (1920x1080p @60Hz)",
       "ports": [
         {
           "count": 1,
@@ -3408,7 +3562,7 @@
           "connector": "RJ45 / Ethernet",
           "direction": "output",
           "category": "network",
-          "detail": "TX: 1x 1x UTP out (RJ45)"
+          "detail": "TX: 1x UTP out (RJ45)"
         },
         {
           "count": 4,
@@ -3490,45 +3644,45 @@
       "ports": [
         {
           "count": 2,
-          "connector": "USB",
+          "connector": "HDMI",
           "direction": "input",
-          "category": "usb",
-          "detail": "Transmitter: 2x HDMI IN, 1x USB Host (Type-B)"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "input",
-          "category": "usb",
-          "detail": "Transmitter: 2x HDMI IN, 1x USB Host (Type-B)"
-        },
-        {
-          "count": 1,
-          "connector": "RJ45 / Ethernet",
-          "direction": "input",
-          "category": "network",
-          "detail": "Receiver: 1x UTP Input (RJ45)"
-        },
-        {
-          "count": 1,
-          "connector": "RJ45 / Ethernet",
-          "direction": "output",
-          "category": "network",
-          "detail": "Transmitter: 1x UTP out (RJ45)"
+          "category": "video",
+          "detail": "Transmitter: 2x HDMI in"
         },
         {
           "count": 2,
-          "connector": "USB",
+          "connector": "HDMI",
           "direction": "output",
+          "category": "video",
+          "detail": "Receiver: 2x HDMI out"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "input",
+          "category": "video",
+          "detail": "Receiver: 1x UTP in (RJ45)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "output",
+          "category": "video",
+          "detail": "Transmitter: 1x UTP out (RJ45)"
+        },
+        {
+          "count": 1,
+          "connector": "USB",
+          "direction": "input",
           "category": "usb",
-          "detail": "Receiver: 2x HDMI OUT, 4x USB 2.0 Type-A out"
+          "detail": "Transmitter: 1x USB host (Type-B)"
         },
         {
           "count": 4,
           "connector": "USB",
           "direction": "output",
           "category": "usb",
-          "detail": "Receiver: 2x HDMI OUT, 4x USB 2.0 Type-A out"
+          "detail": "Receiver: 4x USB 2.0 Type-A out"
         }
       ],
       "video": [
@@ -3869,17 +4023,38 @@
       "ports": [
         {
           "count": 1,
-          "connector": "IR",
-          "direction": "unspecified",
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX: 1x HDMI in (4K60 4:4:4)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "RX: 1x HDMI out (4K60 4:4:4)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "bidirectional",
+          "category": "video",
+          "detail": "70m/230ft HDBaseT link (PoC)"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x IR Receiver"
+          "detail": "RS-232 passthrough"
         },
         {
           "count": 1,
           "connector": "IR",
-          "direction": "unspecified",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x IR Transmitter"
+          "detail": "1x IR Emitter + 1x IR Receiver"
         }
       ],
       "video": [
@@ -4174,7 +4349,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "1080p)",
+      "maxResolution": "5K (5120x2880p); 4K60 4:4:4; up to 10km over single-mode fiber",
       "ports": [
         {
           "count": 1,
@@ -4230,9 +4405,7 @@
       "network": [
         "RX: 1x 10G FIBER (SFP+)",
         "TX: 1x 10G FIBER (SFP+)",
-        "AVP Upgrader (Demo Tool) via Ethernet switch",
         "2x 10G SFP+ Single-Mode Optical Transceiver",
-        "Utilizing the included 10G SFP+ single-mode optical transceivers, the extender is capable of sending the full-fidelity signal up to 10 kilometers (10KM) over fiber, far exceeding the distance limitations of copper HDMI cables.",
         "10G"
       ],
       "control": [
@@ -4281,24 +4454,44 @@
         "HDBaseT",
         "Fiber",
         "HDMI",
-        "USB 3.x",
         "Extension"
       ],
       "maxResolution": "3840x2160p @60Hz 4:4:4",
       "ports": [
         {
           "count": 1,
-          "connector": "IR",
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX: 1x HDMI in (4K60 4:4:4)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
           "direction": "output",
+          "category": "video",
+          "detail": "RX: 1x HDMI out (4K60 4:4:4)"
+        },
+        {
+          "count": 1,
+          "connector": "SFP+ Fiber LC",
+          "direction": "bidirectional",
+          "category": "video",
+          "detail": "1x OM3 SFP+ fiber link (up to 300m)"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x IR Emitter"
+          "detail": "RS-232 passthrough"
         },
         {
           "count": 1,
           "connector": "IR",
-          "direction": "output",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x IR Receiver (30KHz ~ 50KHz)"
+          "detail": "1x IR Emitter + 1x IR Receiver"
         },
         {
           "count": 2,
@@ -4328,13 +4521,10 @@
         "Dolby TrueHD and DTS-HD Master Audio Video Resolutions",
         "Dolby Vision up to 30Hz"
       ],
-      "usb": [
-        "USB 3.x",
-        "10Gbps"
-      ],
+      "usb": [],
       "network": [
         "1x OM3: SFP+ Fiber LC Connection",
-        "10Gbps"
+        "PoH"
       ],
       "control": [
         "RS-232",
@@ -4721,41 +4911,89 @@
     {
       "sku": "EXP-SW-0201-8K",
       "status": "verified",
-      "productClass": "HDBASET",
-      "role": "Source switching",
-      "productType": "Room source switcher",
+      "productClass": "SWITCHER",
+      "role": "HDMI switcher",
+      "productType": "Essentials 2x1 8K60 HDMI 2.1 switcher with audio de-embed and ARC",
       "transport": [
-        "HDMI",
-        "HDMI 2.1 / 8K",
-        "Presentation switcher"
+        "Local HDMI (HDMI 2.1, up to 40Gbps FRL)"
       ],
-      "maxResolution": "8K 8K60Hz 4:4:4 2x1 HDMI Switcher 8K60Hz 4:4:4",
-      "ports": [],
+      "maxResolution": "7680x4320p @60Hz 4:2:0 10bit (8K60); 4096x2160p @120Hz 4:4:4 10bit (4K120); up to 10240x4320 @120Hz with DSC 1.2a",
+      "ports": [
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI 2.1, 40Gbps FRL / 18Gbps TMDS"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDMI 2.1 output"
+        },
+        {
+          "count": 1,
+          "connector": "S/PDIF",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Audio de-embed from HDMI or ARC, up to 5.1"
+        },
+        {
+          "count": 1,
+          "connector": "IR sensor",
+          "direction": "input",
+          "category": "control",
+          "detail": "Front-panel IR"
+        },
+        {
+          "count": 1,
+          "connector": "Push button",
+          "direction": "input",
+          "category": "control",
+          "detail": "Front-panel source select"
+        }
+      ],
       "video": [
-        "8K 8K60Hz 4:4:4 2x1 HDMI Switcher 8K60Hz 4:4:4",
-        "8K60Hz 4:4:4 2x1 HDMI Switcher",
+        "8K60 4:4:4",
+        "8K 8K60Hz 4:4:4 2x1 HDMI Switcher",
         "HDMI",
         "Dolby Vision",
         "HDR",
         "EDID management"
       ],
       "audio": [
-        "Dolby Vision"
+        "S/PDIF audio de-embed from HDMI or ARC",
+        "Dolby Vision",
+        "PCM",
+        "DTS-X",
+        "Dolby Atmos"
       ],
       "usb": [],
       "network": [],
       "control": [
-        "EDID"
+        "EDID",
+        "CEC",
+        "IR"
       ],
       "power": [],
       "physical": [],
-      "dependencies": [],
+      "dependencies": [
+        "HDMI output only - no HDBaseT; a remote display needs an HDMI 2.1-rated extender",
+        "8K / HDMI 2.1 end-to-end requires HDMI 2.1 cabling and a 2.1 display; use S/PDIF de-embed or ARC to feed a non-2.1 audio system"
+      ],
       "compatibleFamilies": [],
       "checks": [
-        "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
-        "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+        "HDMI-only switcher (single HDMI output, no HDBaseT). Do NOT pair a bare HDBaseT receiver with it - for a remote display add an HDMI 2.1-rated extender.",
+        "8K60 output is 4:2:0 10bit; full 4:4:4 10bit tops out at 4K120. Confirm the exact 8K chroma/refresh the display needs.",
+        "10K@120Hz is via DSC 1.2a (an HDMI 2.1-approved compression), not native uncompressed.",
+        "Two HDMI inputs, one HDMI output. RS-232 is only on the 4x1 (EXP-SW-0401-8K) model."
       ],
-      "warnings": [],
+      "warnings": [
+        "8K60 output is 4:2:0 10bit, not 4:4:4. The full-bandwidth 4:4:4 ceiling is 4K120.",
+        "HDMI output only - in a distributed design an HDMI 2.1-rated extender must be added; the switcher alone will not reach a remote zone."
+      ],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
@@ -4777,7 +5015,9 @@
       "verifiedAt": "2026-08-16T10:23:16.222Z",
       "confirmedFields": [
         "max-resolution"
-      ]
+      ],
+      "inputCount": 2,
+      "outputCount": 1
     },
     {
       "sku": "EXP-SW-0401-8K",
@@ -5024,7 +5264,7 @@
       "transport": [
         "Camera / capture"
       ],
-      "maxResolution": "4K Autofocus AI Webcam w/ Auto Framing & Presen",
+      "maxResolution": "4K30 (3840x2160p @30fps)",
       "ports": [],
       "video": [
         "4K Autofocus AI Webcam w/ Auto Framing & Presen",
@@ -5104,8 +5344,16 @@
         "USB 3.x",
         "Camera / capture"
       ],
-      "maxResolution": "4K Wide Angle Webcam - High-Quality Video for S",
-      "ports": [],
+      "maxResolution": "4K30 (3840x2160p @30fps)",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "USB",
+          "direction": "input",
+          "category": "usb",
+          "detail": "USB 3.0 host connection (webcam)"
+        }
+      ],
       "video": [
         "4K Wide Angle Webcam - High-Quality Video for S",
         "4K Wide Angle Webcam offers crystal-clear video",
@@ -5377,9 +5625,7 @@
         "USB-C",
         "10Gbps"
       ],
-      "network": [
-        "10Gbps"
-      ],
+      "network": [],
       "control": [],
       "power": [],
       "physical": [],
@@ -5557,7 +5803,15 @@
         "USB 3.x",
         "UC / conferencing"
       ],
-      "ports": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "USB-A",
+          "direction": "bidirectional",
+          "category": "usb",
+          "detail": "USB 3.0 Type A"
+        }
+      ],
       "video": [],
       "audio": [],
       "usb": [
@@ -5599,7 +5853,15 @@
         "USB-C",
         "UC / conferencing"
       ],
-      "ports": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "bidirectional",
+          "category": "usb",
+          "detail": "USB 3.2 Type C"
+        }
+      ],
       "video": [],
       "audio": [],
       "usb": [
@@ -5705,7 +5967,7 @@
           "connector": "20V DC",
           "direction": "input",
           "category": "power",
-          "detail": "20V external power supply"
+          "detail": "20V DC power input"
         }
       ],
       "video": [
@@ -11740,7 +12002,36 @@
         "Extension"
       ],
       "maxResolution": "3840x2160p @60Hz 4:2:0",
-      "ports": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDBaseT In: 8-pin RJ-45 Female (Class B, PoH)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDMI Out: 19-pin Type A"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "Bidirectional IR"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        }
+      ],
       "video": [
         "4K HDBaseT Receiver - WyreStorm 35m 4K HDBaseT",
         "4K HDR transmissions up to 35 meters from a com",
@@ -12499,31 +12790,44 @@
       "transport": [
         "HDBaseT",
         "HDMI",
-        "USB 3.x",
         "Extension"
       ],
       "maxResolution": "4K RXV-35-4K 35m 4K60 HDBaseT Receiver for MXV",
       "ports": [
         {
           "count": 1,
-          "connector": "HDBaseT",
+          "connector": "RJ45 / HDBaseT",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDBaseT In: 8-pin RJ-45 Female (Class B)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
           "direction": "output",
           "category": "video",
-          "detail": "1x IR RX 3.5mm (1/8in) TRS Stereo | 1x IR TX: 3.5mm (1/8in) TS Mono | Bidirectional over HDBaseT"
+          "detail": "1x HDMI Out: 19-pin Type A"
         },
         {
           "count": 1,
           "connector": "IR",
-          "direction": "output",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x IR Emitter"
+          "detail": "Bidirectional IR"
         },
         {
           "count": 1,
-          "connector": "IR",
-          "direction": "output",
+          "connector": "RS-232",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x IR Receiver"
+          "detail": "RS-232 passthrough"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Analog 2ch audio de-embed"
         }
       ],
       "video": [
@@ -12558,12 +12862,8 @@
         "Dolby Vision",
         "Dolby Vision supported up to 30Hz"
       ],
-      "usb": [
-        "USB 3.x",
-        "10Gbps"
-      ],
+      "usb": [],
       "network": [
-        "10Gbps",
         "PoH"
       ],
       "control": [
@@ -12728,8 +13028,44 @@
         "HDBaseT",
         "Extension"
       ],
-      "maxResolution": "4K-ARC RXV-70-4K-ARC 70m 4K60 HDBaseT Receiver",
-      "ports": [],
+      "maxResolution": "4K60 4:2:0 (3840x2160p @60Hz 4:2:0; 70m/230ft Class A)",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDBaseT In: 8-pin RJ-45 Female (Class A)"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDMI Out: 19-pin Type A (ARC return)"
+        },
+        {
+          "count": 1,
+          "connector": "S/PDIF",
+          "direction": "input",
+          "category": "audio",
+          "detail": "1x S/PDIF In: TOSLINK"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "Bidirectional IR"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        }
+      ],
       "video": [
         "4K-ARC RXV-70-4K-ARC 70m 4K60 HDBaseT Receiver",
         "4K60 HDBaseT Receiver with ARC - WyreStorm With",
@@ -13520,33 +13856,16 @@
     },
     {
       "sku": "SW-0X01-8K",
-      "status": "verified-with-warning",
-      "productClass": "PRESENTATION",
-      "role": "Room presentation and source switching core",
-      "productType": "Room source switcher",
+      "status": "review-required",
+      "productClass": "SWITCHER",
+      "role": "Range / family page covering the EXP-SW-0201-8K (2x1) and EXP-SW-0401-8K (4x1) 8K HDMI switchers",
+      "productType": "Range page - not an exact saleable lead-story SKU",
       "transport": [
         "HDMI",
-        "HDMI 2.1 / 8K",
-        "USB 3.x",
-        "Presentation switching"
+        "HDMI 2.1 / 8K"
       ],
-      "maxResolution": "8K EXP-SW-0X01-8K WyreStorm Essentials 8K60 HDM",
-      "ports": [
-        {
-          "count": 1,
-          "connector": "HDMI",
-          "direction": "output",
-          "category": "video",
-          "detail": "1x HDMI"
-        },
-        {
-          "count": 1,
-          "connector": "Analog audio",
-          "direction": "output",
-          "category": "audio",
-          "detail": "1x 3-Pin Phoenix Connector (EXP-SW-0401-8K)"
-        }
-      ],
+      "maxResolution": "7680x4320p @60Hz 4:2:0 10bit (8K60) family range; exact I/O varies by variant (see EXP-SW-0201-8K / EXP-SW-0401-8K)",
+      "ports": [],
       "video": [
         "8K EXP-SW-0X01-8K WyreStorm Essentials 8K60 HDM",
         "8K60 HDMI Switcher - WyreStorm Our plug-and-pla",
@@ -13571,16 +13890,9 @@
         "DTS-X",
         "Dolby Atmos Maximum Sampling Rate 192KHz Maximum Audio Channels 32 COMMUNICATION"
       ],
-      "usb": [
-        "USB 3.x",
-        "10Gbps",
-        "40Gbps"
-      ],
-      "network": [
-        "10Gbps"
-      ],
+      "usb": [],
+      "network": [],
       "control": [
-        "RS-232",
         "IR",
         "CEC",
         "EDID"
@@ -13590,17 +13902,20 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
-        "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+        "SW-0X01-8K is the shared family page for the EXP-SW-0201-8K (2x1) and EXP-SW-0401-8K (4x1) 8K60 HDMI 2.1 switchers - quote the exact variant SKU, never this range page.",
+        "The 2x1 (EXP-SW-0201-8K) has two HDMI inputs and no RS-232; the 4x1 (EXP-SW-0401-8K) has four HDMI inputs and RS-232.",
+        "Both variants are HDMI-output only - no HDBaseT. A remote display needs an HDMI 2.1-rated extender."
       ],
-      "warnings": [],
+      "warnings": [
+        "Range page: the shared product URL does not carry a single I/O spec. Use the variant-specific governed profiles for I/O, ports and checks."
+      ],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (93 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
+          "note": "Shared EXP-SW-0X01-8K family page (0X = number of HDMI inputs). This is a range page, not an exact saleable SKU; the saleable variants are EXP-SW-0201-8K (2x1) and EXP-SW-0401-8K (4x1). Demoted from verified-with-warning to review-required in the 2026-08 split so the family page can never be quoted as a product."
         }
       ]
     },
@@ -13777,13 +14092,47 @@
         "USB-C video input",
         "KVM / USB extension",
         "USB 2.0",
-        "USB 3.x",
         "USB routing / switching",
         "USB-C power delivery",
         "Presentation switching"
       ],
       "maxResolution": "4K60Hz HDBaseT 3",
       "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDMI in (19-pin Type A, 4K60 4:4:4)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDBaseT 3.0 out (8-pin RJ45, 100m)"
+        },
+        {
+          "count": 1,
+          "connector": "USB-B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "1x USB Type-B host"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio",
+          "direction": "input",
+          "category": "audio",
+          "detail": "3.5mm (1/8in) line in"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "Bidirectional RS-232"
+        },
         {
           "count": 1,
           "connector": "USB-C",
@@ -13817,16 +14166,12 @@
       "usb": [
         "USB2.0",
         "USB 2.0",
-        "USB 3.x",
         "USB-C",
         "USB host",
-        "KVM / HID",
-        "5Gbps"
+        "KVM / HID"
       ],
       "network": [
         "1 x HDBT: 8-pin RJ45",
-        "API",
-        "5Gbps",
         "PoH"
       ],
       "control": [
@@ -13889,32 +14234,67 @@
         "KVM / USB extension",
         "USB 2.0",
         "USB routing / switching",
-        "Presentation switching"
+        "Presentation switching",
+        "HDBaseT Class C with PAM16 encoding, 10.2Gbps"
       ],
-      "maxResolution": "4K HDBaseT Receiver with USB - WyreStorm 35m 4K",
-      "ports": [],
+      "maxResolution": "4K60 4:2:0 (3840x2160p @60Hz 4:2:0)",
+      "ports": [
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "2x HDMI in (4K60 4:2:0)"
+        },
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x USB-C in (Alt Mode video)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDBaseT out (8-pin RJ45)"
+        },
+        {
+          "count": 1,
+          "connector": "USB",
+          "direction": "bidirectional",
+          "category": "usb",
+          "detail": "1x USB host port (KVM to selected source)"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "Bidirectional IR"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        }
+      ],
       "video": [
-        "4K HDBaseT Receiver with USB - WyreStorm 35m 4K",
-        "4K video, USB 2",
-        "3840x2160p @30Hz 10bit HDR 4:2:0 3840x2160p @60Hz 8bit 4:2:0",
-        "1920x1080p @60Hz 12bit Supported Standards DCI",
-        "4K UHD content and sources HD Multichannel audi",
         "HDMI",
+        "HDBaseT",
         "HDCP 2.2",
-        "HDCP",
-        "Dolby Vision",
         "HDR",
-        "10.2Gbps",
-        "35m",
-        "35m/115ft",
-        "EDID management"
+        "EDID management",
+        "3840x2160p @60Hz 4:2:0",
+        "3840x2160p @30Hz 10bit HDR 4:2:0",
+        "1920x1080p @60Hz"
       ],
       "audio": [
-        "PCM",
-        "DTS-X and Dolby Atmos Audio Out",
-        "Dolby Vision",
-        "Dolby Vision at 30Hz HDCP 22 encryption technology ensuring compatibility with the latest 4K UHD content and sources HD Multichannel audio up to DTS",
-        "Dolby Atmos via HDMI 2160p 4"
+        "2ch PCM over HDBaseT (family)",
+        "Max sampling 192KHz, max 32 channels"
       ],
       "usb": [
         "USB 2.0",
@@ -13922,7 +14302,7 @@
         "KVM / HID"
       ],
       "network": [
-        "1x HDBT In: 8-pin RJ45",
+        "1x HDBT Out: 8-pin RJ45",
         "PoH"
       ],
       "control": [
@@ -13936,7 +14316,8 @@
       "compatibleFamilies": [],
       "checks": [
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
-        "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+        "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue.",
+        "Confirm the HDBaseT class and reach of the exact regional variant (SW-130-TX-UK / SW-130-TX-US) before quotation."
       ],
       "warnings": [],
       "evidence": [
@@ -14243,17 +14624,23 @@
         "DisplayPort",
         "USB-C video input",
         "USB 2.0",
-        "USB 3.x",
         "USB routing / switching",
         "HDBaseT extender"
       ],
-      "maxResolution": "4K60Hz 4:2:0 HDBaseT TM Switcher Synergy TM 4-i",
+      "maxResolution": "4K60 4:2:0 (3840x2160p @60Hz 4:2:0)",
       "ports": [
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "4x HDMI in (4K60 4:2:0)"
+        },
         {
           "count": 1,
           "connector": "RS-232",
           "direction": "output",
-          "category": "audio",
+          "category": "control",
           "detail": "1x RS-232 (Control): 3-pin Phoenix | 1x RS-232 (Passthrough): 3-pin Phoenix"
         },
         {
@@ -14304,10 +14691,7 @@
       ],
       "usb": [
         "USB 2.0",
-        "USB 3.1",
         "USB2.0",
-        "USB 3.x",
-        "USB-C",
         "USB-B",
         "USB-A",
         "USB host",
@@ -14375,13 +14759,27 @@
         "USB routing / switching",
         "HDBaseT extender"
       ],
-      "maxResolution": "4K60Hz 4:2:0 HDBaseT TM Switching Receiver Syne",
+      "maxResolution": "4K60 4:2:0 (3840x2160p @60Hz 4:2:0)",
       "ports": [
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "2x local HDMI in"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDMI out"
+        },
         {
           "count": 1,
           "connector": "RS-232",
           "direction": "output",
-          "category": "audio",
+          "category": "control",
           "detail": "1x RS-232 (Control): 3-pin Phoenix | 1x RS-232 (Passthrough): 3-pin Phoenix"
         },
         {
@@ -14514,6 +14912,20 @@
       "ports": [
         {
           "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDMI in (4K30)"
+        },
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
+        },
+        {
+          "count": 1,
           "connector": "USB-C",
           "direction": "input",
           "category": "usb",
@@ -14572,7 +14984,7 @@
           "count": 1,
           "connector": "RS-232",
           "direction": "output",
-          "category": "audio",
+          "category": "control",
           "detail": "1x 4-Pin Phoenix connector for RS232"
         },
         {
@@ -15401,12 +15813,25 @@
         "USB-C video input",
         "KVM / USB extension",
         "USB 2.0",
-        "USB 3.x",
         "USB-C",
         "Extension"
       ],
       "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDMI in (4K60)"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / HDBaseT",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDBaseT out (RJ45 Female)"
+        },
         {
           "count": 1,
           "connector": "USB",
@@ -15425,7 +15850,7 @@
           "count": 1,
           "connector": "RS-232",
           "direction": "output",
-          "category": "audio",
+          "category": "control",
           "detail": "1x 3-pin Phoenix (Passthrough RS-232 + Update Port)"
         },
         {
@@ -15465,15 +15890,11 @@
       ],
       "usb": [
         "USB 2.0",
-        "USB 3.2",
-        "USB 3.x",
         "USB C",
-        "KVM / HID",
-        "5Gbps"
+        "KVM / HID"
       ],
       "network": [
         "1x HDBT Out: RJ45 Female",
-        "5Gbps",
         "PoH"
       ],
       "control": [

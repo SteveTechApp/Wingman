@@ -149,6 +149,9 @@ export function SupportPage() {
           Wingman build <strong>{buildLabel}</strong>
         </p>
         <p>Quote this when reporting a problem so the issue can be traced to the exact build.</p>
+        <p className="wm-support-landing__legal">
+          <Link to="/wingman/terms">Terms &amp; legal disclaimer</Link>
+        </p>
       </section>
     </main>
   );

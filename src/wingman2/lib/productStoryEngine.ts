@@ -496,6 +496,41 @@ function productKind(product: ProductSpec, role: ProductRole): string {
   }
 }
 
+// Governed evidence gate for copy. Only a spec whose technical data resolved
+// from the governed profile (human-verified) or an official structured profile
+// carries spec authority; inferred/missing tiers keep the legacy keyword/tag
+// behaviour because there is no verified spec for the copy to defer to.
+function governedSpecAuthority(
+  product: ProductSpec,
+): { tier: "verified-profile" | "official-structured"; maxResolution?: string } | null {
+  const tier = product.technicalData?.sourceTier;
+  if (tier !== "verified-profile" && tier !== "official-structured") return null;
+  return { tier, maxResolution: product.technicalData?.maxResolution };
+}
+
+// Coarse resolution-class ladder used ONLY to cap claims against a governed
+// maximum resolution (never to assert one that is not evidenced). Deliberately
+// coarse: "4K" and "4K60" share a class, so a governed 4K30 profile never
+// wrongly suppresses a genuine 4K60 token - only claims above the class (e.g.
+// 8K on a 4K product, 4K on a 1080p product) are dropped.
+function resolutionRank(token: string): number {
+  const value = token.toLowerCase();
+  if (/\b8k\b|8k60|4320/.test(value)) return 8;
+  if (/\b4k\b|4k60|4k30|2160|uhd/.test(value)) return 4;
+  if (/\b1080(?:p\d*)?\b|1920x1080/.test(value)) return 2;
+  return 0;
+}
+
+function capTokensToGovernedResolution(tokens: string[], maxResolution?: string): string[] {
+  if (!maxResolution) return tokens;
+  const cap = resolutionRank(maxResolution);
+  if (cap <= 0) return tokens;
+  return tokens.filter((token) => {
+    const rank = resolutionRank(token);
+    return rank === 0 || rank <= cap;
+  });
+}
+
 // Discrete AV capability phrases. Lets a marketing-sentence description
 // ("...1080p PTZ camera with AI tracking, USB 3.0...") still yield real headline
 // features, not one long unusable string.
@@ -562,11 +597,21 @@ function cleanFeatureToken(item: string): string {
 // description is a spec list, not a sentence, so its tokens are trustworthy too.
 function structuredFeaturePool(product: ProductSpec): string[] {
   const tags = product.capabilityTags ?? [];
-  const structuredText = [...tags, ...product.video, ...product.audio, ...product.keyFeatures].join(" | ");
+  // Governed-first: when the spec resolved from a verified/official governed
+  // profile, the pool is built ONLY from the governed spec fields (ports, USB,
+  // formats) plus a pipe-delimited per-SKU description. `capabilityTags` and
+  // `keyFeatures` are a family-level tag vocabulary (a 4K presentation switcher
+  // carries "Video Wall"/"Unified Comms"/"Processing" tags), and must not drive
+  // pitch claims once real spec evidence exists. Without governed evidence the
+  // tags remain the only signal and are kept, as before.
+  const specFields = governedSpecAuthority(product)
+    ? [...product.video, ...product.audio, ...product.usb, ...product.ioSummary]
+    : [...tags, ...product.video, ...product.audio, ...product.keyFeatures];
+  const structuredText = specFields.join(" | ");
   const extracted = capabilitiesFromText(structuredText);
   const pipeTokens = product.description.includes("|") ? product.description.split(FEATURE_SPLITTER) : [];
 
-  return [...extracted, ...pipeTokens, ...tags, ...product.video, ...product.audio, ...product.keyFeatures];
+  return [...extracted, ...pipeTokens, ...specFields];
 }
 
 // `verifiedOnly` restricts extraction to structured spec fields and drops
@@ -580,15 +625,18 @@ function headlineFeatures(product: ProductSpec, limit = 6, opts: { verifiedOnly?
   const pool = [...structuredFeaturePool(product), ...prosePool];
 
   return cleanUsefulList(
-    pool
-      .map(cleanFeatureToken)
-      .filter(
-        (item) =>
-          item.length >= 3 &&
-          item.length <= 48 &&
-          !BARE_GENERIC_FEATURE.test(item) &&
-          !/not yet|must be confirmed|not applicable|not confirmed/i.test(item),
-      ),
+    capTokensToGovernedResolution(
+      pool
+        .map(cleanFeatureToken)
+        .filter(
+          (item) =>
+            item.length >= 3 &&
+            item.length <= 48 &&
+            !BARE_GENERIC_FEATURE.test(item) &&
+            !/not yet|must be confirmed|not applicable|not confirmed/i.test(item),
+        ),
+      governedSpecAuthority(product)?.maxResolution,
+    ),
     limit,
   );
 }
@@ -632,19 +680,22 @@ function featureBenefit(token: string): string | null {
 }
 
 // Benefit claims must be per-SKU accurate, so they are extracted ONLY from the
-// resolved technical spec fields (video / audio) and a pipe-delimited spec
+// resolved technical spec fields (video / audio / USB) and a pipe-delimited spec
 // description - NOT from capabilityTags, which is a broad family-level tag soup
 // (e.g. a 4K30 encoder carries "8K"/"Video Wall"/"USB-C power delivery" tags for
-// the NetworkHD family, none of which are that encoder's own capability). PoC /
-// USB-C *power* is stripped so it is never mis-sold as a USB-C data/video input
-// ("walk up and connect").
+// the NetworkHD family, none of which are that encoder's own capability). USB is
+// included so USB-version claims come from the governed port list, never from
+// marketing tags. PoC / USB-C *power* is stripped so it is never mis-sold as a
+// USB-C data/video input ("walk up and connect"). When a governed maximum
+// resolution exists, tokens claiming a higher resolution class are capped out.
 function benefitCapabilityTokens(product: ProductSpec): string[] {
-  const structured = [...product.video, ...product.audio].join(" | ");
+  const structured = [...product.video, ...product.audio, ...product.usb].join(" | ");
   const pipeDescription = product.description.includes("|") ? product.description : "";
   const text = `${structured} | ${pipeDescription}`
     .replace(/USB-?C\s*(?:power delivery|power|pd)\b/gi, " ")
     .replace(/\bPo[CH]\b/gi, " ");
-  return capabilitiesFromText(text).filter((token) => !/not yet|not confirmed|not applicable/i.test(token));
+  const tokens = capabilitiesFromText(text).filter((token) => !/not yet|not confirmed|not applicable/i.test(token));
+  return capTokensToGovernedResolution(tokens, governedSpecAuthority(product)?.maxResolution);
 }
 
 function collectFeatureBenefits(product: ProductSpec, limit: number): Array<{ token: string; benefit: string }> {

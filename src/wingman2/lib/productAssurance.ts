@@ -1,6 +1,11 @@
 import governedTechnicalProfiles from "../../../data/governance/wyrestorm-technical-profiles.json";
-import type { StoredProductSelection } from "../data/projectStore";
+import type { StoredProductSelection, StoredRecommendationFeedback } from "../data/projectStore";
 import { resolveProductLifecycle } from "./wyrestormProductLifecycle";
+import { buildProductChainAssurance } from "./productChainValidation";
+import { buildRegionalSkuAssurance } from "./regionalSkuGovernance";
+import { buildPowerBudgetAssurance } from "./powerBudget";
+import { buildFeedbackInformedGuidance } from "./feedbackInformedGuidance";
+import { buildNetworkInfrastructureAssurance } from "./networkInfrastructureAssurance";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -55,6 +60,12 @@ type AssuranceContext = {
   products: StoredProductSelection[];
   requirementText?: string;
   discoveryPercent?: number;
+  /** The captured project topology (routes, distances, transports). */
+  topology?: unknown;
+  /** The rep's market/region from the Wingman profile. */
+  region?: string;
+  /** Feedback entries from other projects, used for the learning loop. */
+  feedback?: StoredRecommendationFeedback[];
 };
 
 function record(value: unknown): UnknownRecord {
@@ -260,6 +271,44 @@ export function buildDesignAssuranceLedger(context: AssuranceContext): DesignAss
       message: "Remote power is required, but its standard, direction and budget are not proven by the selected profiles.",
     });
   }
+
+  // Cross-product chain validation: TX/RX pairing, NetworkHD generation
+  // mixing, USB generation mismatch, signal-capability and distance-vs-reach
+  // checks. This is the "what do the selected products do to each other"
+  // layer that single-product profiles cannot see.
+  items.push(...buildProductChainAssurance({
+    products: context.products,
+    topology: context.topology,
+    requirementText: context.requirementText,
+  }));
+
+  // Regional SKU gating: family/range base SKUs must become real regional
+  // variants, and the variant must match the rep's market.
+  items.push(...buildRegionalSkuAssurance({
+    products: context.products,
+    region: context.region,
+  }));
+
+  // Power budget: proven consumption figures, silent profiles, and remote
+  // power (PoE/PoH) proof.
+  items.push(...buildPowerBudgetAssurance({
+    products: context.products,
+    requirementText: context.requirementText,
+  }));
+
+  // Feedback loop: surface what the field previously said about each SKU.
+  items.push(...buildFeedbackInformedGuidance({
+    products: context.products,
+    feedback: context.feedback,
+  }));
+
+  // Network infrastructure: AV-over-IP endpoints make the customer's network
+  // part of the signal path (IGMP, VLAN, bandwidth, 10GbE for NetworkHD 600).
+  items.push(...buildNetworkInfrastructureAssurance({
+    products: context.products,
+    topology: context.topology,
+    requirementText: context.requirementText,
+  }));
 
   items.push(...verticalAssuranceItems(context.requirementText ?? ""));
   const deduped = Array.from(new Map(items.map((item) => [item.id, item])).values());

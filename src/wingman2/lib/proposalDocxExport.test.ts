@@ -61,6 +61,23 @@ describe("proposal DOCX export", () => {
     expect(text).toContain("Next Steps");
   });
 
+  it("carries the best-efforts disclaimer in the DOCX body", async () => {
+    const wizard = createProposalWizardDefaults({
+      projectId: "government-control-room", projectName: proposal.title, preparedBy: "Solutions Team",
+      executiveSummary: proposal.summary, architectureNarrative: "NetworkHD 600 10G AV-over-IP architecture.",
+    });
+
+    const buffer = await Packer.toBuffer(buildProposalDocx(proposal, bom, wizard));
+    const zip = await JSZip.loadAsync(buffer);
+    const documentXml = await zip.file("word/document.xml")!.async("string");
+    const text = documentXml.replace(/<[^>]+>/g, " ");
+
+    expect(text).toContain("Best-Efforts Disclaimer");
+    expect(text).toContain("best-efforts basis");
+    expect(text).toContain("verified against the current WyreStorm documentation");
+    expect(text).toContain("accepts no liability");
+  });
+
   it("marks missing equipment prices as a commercial hold", async () => {
     const wizard = createProposalWizardDefaults({
       projectId: "draft", projectName: proposal.title, preparedBy: "Solutions Team",

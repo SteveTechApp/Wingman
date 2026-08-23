@@ -81,17 +81,56 @@ describe("Compare rendered workflow - minimum card surface", () => {
 
     expect(cards.textContent).toContain("HDBaseT class / reach");
     expect(cards.textContent).toMatch(/HDBaseT 3(?:\.0)?/i);
-    expect(within(cards).getByLabelText("WyreStorm product card").textContent).not.toContain("EX-70-H2");
+    const competitorCard = within(cards).getByLabelText("Competitor product card");
+    const wyrestormCard = within(cards).getByLabelText("WyreStorm product card");
+    for (const card of [competitorCard, wyrestormCard]) {
+      expect(within(card).getByRole("region", { name: "Connections" })).toBeInTheDocument();
+      expect(within(card).getByRole("region", { name: "Performance" })).toBeInTheDocument();
+    }
+    expect(competitorCard.textContent).toContain("Extender / HDBaseT");
+    expect(wyrestormCard.textContent).toMatch(/Switcher \/ matrix|Extender \/ HDBaseT/);
+    expect(wyrestormCard.textContent).not.toContain("EX-70-H2");
   });
 
-  it("keeps the three core result actions", async () => {
+  it("renders suggested matrix matches as compact selectors that update the main card", async () => {
+    renderPage();
+    runCompare("Blustream", "C44-KIT");
+    const selector = await screen.findByLabelText("Suggested other matches");
+    const choices = within(selector).getAllByRole("button", { name: /Compare with/i });
+    expect(choices.length).toBeGreaterThan(0);
+    expect(selector.querySelector(".compare-native-option-card")).toBeNull();
+
+    const selectedSku = choices[0].getAttribute("aria-label")?.replace("Compare with ", "") ?? "";
+    fireEvent.click(choices[0]);
+
+    expect(await screen.findByLabelText(`Main WyreStorm match: ${selectedSku}`)).toBeInTheDocument();
+    expect(within(screen.getByLabelText("WyreStorm product card")).getByText(selectedSku)).toBeInTheDocument();
+    expect(choices[0]).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("keeps project and product actions together with one page-level reset", async () => {
     renderPage();
     runCompare("Crestron", "DM-NVX-350");
     await screen.findByLabelText("WyreStorm product card");
     const actions = screen.getByLabelText("Compare result actions");
     expect(within(actions).getByRole("button", { name: /Add to project/i })).toBeInTheDocument();
     expect(within(actions).getByRole("link", { name: "Product details" })).toBeInTheDocument();
-    expect(within(actions).getByRole("button", { name: "New comparison" })).toBeInTheDocument();
+    expect(within(actions).queryByRole("button", { name: "New comparison" })).toBeNull();
+    expect(screen.getByRole("button", { name: "New comparison" })).toBeInTheDocument();
+  });
+
+  it("keeps internal datasheet instructions and generic caveats off the summary cards", async () => {
+    renderPage();
+    runCompare("Blustream", "C44-KIT");
+    const cards = await screen.findByLabelText("Compare product cards");
+
+    expect(cards.textContent).not.toMatch(/verify (?:against (?:the )?)?datasheet/i);
+    expect(cards.textContent).not.toContain("Before quoting");
+    expect(cards.textContent).not.toContain("Main caveat");
+    expect(cards.textContent).not.toContain("must line up");
+    expect(within(cards).getAllByRole("region").map((region) => region.getAttribute("aria-label"))).toEqual(
+      expect.arrayContaining(["Connections", "Performance"]),
+    );
   });
 
   it("still saves the selected direction to the project", async () => {

@@ -1,8 +1,18 @@
 {
-  "updatedAt": "2026-08-16T16:30:00.000Z",
+  "updatedAt": "2026-08-23T17:45:00.000Z",
   "tolerancePct": 1,
   "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
   "exceptions": [
+    {
+      "date": "2026-08-23",
+      "limits": [
+        "initial:js",
+        "total:js",
+        "total:css",
+        "source:style-stack-css"
+      ],
+      "reason": "Reviewed exception for the world-class pre-sales advisory upgrades: power strategy in exported DOCX/HTML (+5 KB CSS, +4 KB JS), chain-blocker export gate (+1 KB JS), cross-product compatibility validation (+8 KB JS), regional SKU governance (+4 KB JS), network infrastructure assurance (+3 KB JS), power budget module (+2 KB JS), feedback-informed guidance (+5 KB JS), feedback consolidation panel (+6 KB JS), assurance blockers on Recommendations page (+3 KB JS), needs-site-survey flag (+2 KB CSS), best-efforts T&Cs page (+2 KB JS), and governed spec evidence (+1 KB JS). Growth is distributed across lazy-loaded page chunks and utility modules; the initial:js increase reflects the new assurance/power modules imported by the proposal wizard which is already lazy. Remaining weight is the target of the Phase 2/5/8 extraction programme (see docs/SIZE_BUDGETS.md)."
+    },
     {
       "date": "2026-08-16",
       "limits": [
@@ -26,13 +36,13 @@
     "chunk:compare-engine": 660061,
     "chunk:competitor-registry": 1285840,
     "chunk:project-workflow": 117846,
-    "initial:js": 494935,
-    "total:js": 5555290,
-    "total:css": 947967,
+    "initial:js": 521523,
+    "total:js": 5627845,
+    "total:css": 979497,
     "source:compare-advanced": 293297,
     "source:discovery-page": 61956,
     "source:product-call-cards": 73117,
     "source:project-detail": 62989,
-    "source:style-stack-css": 726357
+    "source:style-stack-css": 734497
   }
 }

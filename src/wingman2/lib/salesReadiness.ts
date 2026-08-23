@@ -1,4 +1,4 @@
-import type { StoredCompareRun, StoredIngestAnalysis, StoredProductSelection } from "../data/projectStore";
+import type { StoredCompareRun, StoredIngestAnalysis, StoredProductSelection, StoredRecommendationFeedback } from "../data/projectStore";
 import {
   buildGovernedDependencies,
   governedDependencyToBomRow,
@@ -45,6 +45,12 @@ export type SalesReadinessInput = {
   assumptions: string[];
   ingest?: StoredIngestAnalysis;
   compareRun?: StoredCompareRun | null;
+  /** The captured project topology, used for chain validation. */
+  topology?: unknown;
+  /** The rep's market/region from the Wingman profile. */
+  region?: string;
+  /** Feedback from other projects, used for the learning loop. */
+  feedback?: StoredRecommendationFeedback[];
 };
 
 export type SalesReadinessPackage = {
@@ -200,6 +206,9 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
     products: input.products,
     requirementText,
     discoveryPercent: input.discovery.discoveryPercent ?? 0,
+    topology: input.topology,
+    region: input.region,
+    feedback: input.feedback,
   });
   const governedDependencies = buildGovernedDependencies(input);
   const evidence = [

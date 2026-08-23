@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-21T09:19:26.310Z",
+  "updatedAt": "2026-08-23T12:02:57.719Z",
   "decisions": [
     {
       "id": "airtame-Airtame 2-APO-VX20-UC",
@@ -51,8 +51,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.753Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.192Z",
+      "updatedAt": "2026-08-23T11:19:31.192Z"
     },
     {
       "id": "airtame-Airtame 3-review-required",
@@ -99,8 +99,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.753Z",
-      "updatedAt": "2026-08-16T07:49:08.753Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "airtame-Airtame Hub-SW-620-TX-W",
@@ -147,12 +147,12 @@
           "SW-220-TX-W"
         ],
         "rating": 100,
-        "comparableFields": 4,
+        "comparableFields": 5,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.753Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-DGX1600-ENC-MX-1616-SCL",
@@ -204,13 +204,13 @@
         "topSkus": [
           "MX-1616-SCL"
         ],
-        "rating": 75,
-        "comparableFields": 8,
+        "rating": 60,
+        "comparableFields": 5,
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.753Z",
-      "updatedAt": "2026-08-16T12:01:17.801Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-DGX6400-ENC-review-required",
@@ -256,8 +256,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.753Z",
-      "updatedAt": "2026-08-16T07:49:08.753Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-DVX-2265-4K-MX-0808-SCL",
@@ -293,16 +293,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.amx.com/en-US/site_elements/amx-data-sheet-dvx-2265-4k",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.812Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AMX DVX-2265-4K datasheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "MX-0808-SCL",
@@ -316,8 +307,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.753Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-DXL-RX-4K60-EXF-300-H2",
@@ -353,31 +344,22 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.amx.com/en-US/site_elements/data-sheet-dxl-rx-4k60",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.820Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AMX DXL-RX-4K60 datasheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "EXF-300-H2",
         "topSkus": [
           "EXF-300-H2",
           "EX-100-KVM-8K",
-          "RX-700"
+          "EX-35-H2"
         ],
         "rating": 100,
-        "comparableFields": 7,
+        "comparableFields": 8,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.753Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-DXL-TX-4K60-TX-35-IW-KVM",
@@ -436,8 +418,8 @@
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.753Z",
-      "updatedAt": "2026-08-16T12:01:17.830Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-MUSE Automator-review-required",
@@ -484,8 +466,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.754Z",
-      "updatedAt": "2026-08-16T07:49:08.754Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-NMX-DEC-N2322-NHD-500-RX",
@@ -522,16 +504,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.amx.com/en/products/nmx-dec-n2322",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.838Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AMX NMX-DEC-N2322 product page (SKU in page title, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "NHD-500-RX",
@@ -545,8 +518,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.754Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-NMX-DEC-N2422A-NHD-500-RX",
@@ -582,16 +555,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.amx.com/en-US/site_elements/amx-data-sheet-nmx-dec-n2422a",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.847Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AMX NMX-DEC-N2422A datasheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "NHD-500-RX",
@@ -605,8 +569,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.754Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-NMX-ENC-N2312-NHD-500-TX",
@@ -643,16 +607,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.amx.com/en/products/nmx-enc-n2312",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.854Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AMX NMX-ENC-N2312 product page (SKU in page title, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "NHD-500-TX",
@@ -666,8 +621,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.754Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.193Z",
+      "updatedAt": "2026-08-23T11:19:31.193Z"
     },
     {
       "id": "amx-NMX-ENC-N2412A-NHD-500-TX",
@@ -703,16 +658,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.amx.com/en-US/site_elements/data-sheet-nmx-enc-n2412a",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.862Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AMX NMX-ENC-N2412A datasheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "NHD-500-TX",
@@ -726,8 +672,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.255Z",
+      "updatedAt": "2026-08-23T11:19:31.255Z"
     },
     {
       "id": "amx-NX-1200-review-required",
@@ -773,8 +719,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-16T07:49:08.811Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "amx-NX-2200-review-required",
@@ -820,8 +766,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-16T07:49:08.811Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-AVA-EX100CE-BP-KIT-EX-40-KVM-5K",
@@ -865,15 +811,15 @@
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "EX-100-IW-USBC"
+          "TX-35-IWC-KVM"
         ],
         "rating": 100,
         "comparableFields": 7,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-AVA-EX70C-BP-KIT-EX-40-KVM-5K",
@@ -924,8 +870,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-16T07:49:08.811Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-AVA-EX70C-KIT-EX-40-KVM-5K",
@@ -976,8 +922,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-16T07:49:08.811Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-HDDA-2-EXP-SP-0102-8K",
@@ -1028,8 +974,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-HDDA-4-EXP-SP-0104-H2",
@@ -1080,8 +1026,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-HDDA-8-SP-0108-SCL",
@@ -1130,8 +1076,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-HDR-H2H-44MA-MX-0808-SCL",
@@ -1167,16 +1113,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://hallresearch.com/product/at-hdr-h2h-44ma/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.868Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Atlona/Hall Research product page (canonical via atlona.com redirect; content indexed by search engines)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "MX-0808-SCL",
@@ -1190,8 +1127,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-HDR-H2H-88MA-MX-0808-H2A-MK2",
@@ -1227,16 +1164,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://hallresearch.com/product/at-hdr-h2h-88ma/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.878Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Atlona/Hall Research product page (canonical via atlona.com redirect; content indexed by search engines)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "MX-0808-H2A-MK2",
@@ -1250,8 +1178,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-HDR-SW-52ED-MX-0808-KIT-V2",
@@ -1288,16 +1216,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://hallresearch.com/product/at-hdr-sw-52ed/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.885Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Atlona/Hall Research product page (canonical via atlona.com redirect; content indexed by search engines)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "MX-0808-KIT-V2",
@@ -1311,8 +1230,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.811Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.256Z",
+      "updatedAt": "2026-08-23T11:19:31.256Z"
     },
     {
       "id": "atlona-AT-JUNO-451-EXP-SW-0401-H2",
@@ -1363,8 +1282,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OCS-900N-review-required",
@@ -1410,8 +1329,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-16T07:49:08.866Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OME-CS31-SA-review-required",
@@ -1458,8 +1377,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-16T13:17:49.237Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OME-EX-KIT-EX-40-KVM-5K",
@@ -1518,8 +1437,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-16T12:01:17.892Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OME-MS42-SW-640L-TX-W",
@@ -1527,7 +1446,7 @@
       "competitorSku": "AT-OME-MS42",
       "fingerprint": {
         "productClass": "Switcher",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hybrid",
         "codec": null,
         "maxResolution": "4K60",
@@ -1564,13 +1483,13 @@
           "MX-0403-H3-MST",
           "MX-0402-MST"
         ],
-        "rating": 100,
-        "comparableFields": 6,
-        "gapFields": 0,
+        "rating": 78,
+        "comparableFields": 9,
+        "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-16T13:04:48.862Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OME-MS52W-review-required",
@@ -1616,8 +1535,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-16T07:49:08.866Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OME-PS62-review-required",
@@ -1663,8 +1582,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-16T07:49:08.866Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OME-SW32-MX-0402-MST",
@@ -1713,8 +1632,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-16T07:49:08.866Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OME-TX11-WP-TX-35-IW-KVM",
@@ -1764,8 +1683,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-16T07:49:08.866Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OMNI-111-NHD-610-TX",
@@ -1801,16 +1720,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://hallresearch.com/product/at-omni-111/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.899Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Atlona/Hall Research product page (canonical via atlona.com redirect; content indexed by search engines)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "NHD-610-TX",
@@ -1824,8 +1734,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OMNI-112-NHD-610-TX",
@@ -1862,16 +1772,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://hallresearch.com/product/at-omni-112/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.908Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Atlona/Hall Research product page (canonical via atlona.com redirect; content indexed by search engines)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "NHD-610-TX",
@@ -1885,8 +1786,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OMNI-121-NHD-500-RX",
@@ -1922,16 +1823,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://hallresearch.com/product/at-omni-121/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.917Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Atlona/Hall Research product page (canonical via atlona.com redirect; content indexed by search engines)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "NHD-500-RX",
@@ -1945,8 +1837,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.866Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.316Z",
+      "updatedAt": "2026-08-23T11:19:31.316Z"
     },
     {
       "id": "atlona-AT-OMNI-122-NHD-610-RX",
@@ -1983,16 +1875,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://hallresearch.com/product/at-omni-122/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.923Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Atlona/Hall Research product page (canonical via atlona.com redirect; content indexed by search engines)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "NHD-610-RX",
@@ -2006,8 +1889,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.920Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-OMNI-311-review-required",
@@ -2053,8 +1936,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-16T07:49:08.921Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-OMNI-324-review-required",
@@ -2100,8 +1983,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-16T07:49:08.921Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-UHD-EX-100CE-KIT-EX-40-KVM-5K",
@@ -2151,8 +2034,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-UHD-PRO3-88M-MX-0808-KIT-V2",
@@ -2188,16 +2071,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://hallresearch.com/product/at-uhd-pro3-88m/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.931Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Atlona/Hall Research product page (canonical via atlona.com redirect; content indexed by search engines)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "MX-0808-KIT-V2",
@@ -2211,8 +2085,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-UHD-SW-510W-MX-0403-H3-MST",
@@ -2263,8 +2137,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-VGW-HW-review-required",
@@ -2310,8 +2184,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-16T07:49:08.921Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-VKP-8E-review-required",
@@ -2357,8 +2231,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-16T07:49:08.921Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-VTP-700VL-review-required",
@@ -2404,8 +2278,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-16T07:49:08.921Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "atlona-AT-VTPG-1000VL-review-required",
@@ -2451,8 +2325,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-16T07:49:08.921Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "avpro-edge-AC-DA12-AUHD-GEN2-EXP-SP-0102-8K",
@@ -2503,8 +2377,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "avpro-edge-AC-EX40-444-KIT-EX-40-KVM-5K",
@@ -2547,15 +2421,15 @@
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "EX-100-IW-USBC"
+          "TX-35-IWC-KVM"
         ],
         "rating": 100,
         "comparableFields": 9,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.921Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.373Z",
+      "updatedAt": "2026-08-23T11:19:31.373Z"
     },
     {
       "id": "avpro-edge-AC-EX70-444-KIT-EX-40-KVM-5K",
@@ -2591,31 +2465,22 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.avproglobal.com/products/ac-ex70-444-kit",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.938Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AVPro Edge product page (JSON-LD product name '70M 18Gbps HDBaseT Extender Kit' matches, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "EX-40-KVM-5K",
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "TX-35-IW"
+          "TX-35-IWC-KVM"
         ],
         "rating": 100,
         "comparableFields": 8,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "avpro-edge-AC-MX-42X-MX-0808-SCL",
@@ -2651,16 +2516,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.avproglobal.com/products/ac-mx-42x",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.946Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AVPro Edge product page (JSON-LD product name '40Gbps 8K 4x2 HDMI Matrix Switcher' matches, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "MX-0808-SCL",
@@ -2674,8 +2530,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "avpro-edge-AC-MX-44HDBT-MX-0808-KIT-V2",
@@ -2711,16 +2567,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.avproglobal.com/products/ac-mx-44hdbt",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T12:01:17.953Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official AVPro Edge product page (JSON-LD product name '18Gbps 4x4 HDMI/HDBaseT Matrix Switch' matches, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "MX-0808-KIT-V2",
@@ -2734,8 +2581,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "avpro-edge-AC-MX-88-MX-0808-H2A-MK2",
@@ -2785,8 +2632,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "avpro-edge-MXNet-10G-TCVR-NHD-610-TX",
@@ -2836,8 +2683,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "avpro-edge-MXNet-1G-D-NHD-610-RX",
@@ -2887,8 +2734,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "avpro-edge-MXNet-1G-E-NHD-610-TX",
@@ -2938,8 +2785,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "barco-C-10-APO-VX20-UC",
@@ -2947,7 +2794,7 @@
       "competitorSku": "C-10",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hybrid",
         "codec": null,
         "maxResolution": "4K UHD @30Hz 4:4:4",
@@ -2976,16 +2823,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/45c38ffba94824fb/original/ClickShare-C-10-en-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.937Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare C-10 spec sheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -2999,8 +2837,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "barco-C-5-APO-VX20-UC",
@@ -3008,7 +2846,7 @@
       "competitorSku": "C-5",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hdmi",
         "codec": null,
         "maxResolution": "4K UHD @30Hz 4:4:4",
@@ -3037,16 +2875,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/531d289aaa651a77/original/ClickShare-C-5-en-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.927Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare C-5 spec sheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3060,8 +2889,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "barco-CLICKSHARE-BAR-PRO-APO-VX20-UC",
@@ -3098,31 +2927,22 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/5845718ef172a597/original/ClickShare-Bar-Pro-en-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:18:31.355Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare Bar Pro spec sheet (PDF) from the catalogue's curated evidenceSource."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
         "topSkus": [
           "APO-VX20-UC",
           "SW-220-TX-W",
-          "SW-640L-TX-W"
+          "SW-620-TX-W"
         ],
         "rating": 100,
         "comparableFields": 6,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "barco-CLICKSHARE-C-10-APO-VX20-UC",
@@ -3130,7 +2950,7 @@
       "competitorSku": "CLICKSHARE-C-10",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "unknown",
         "codec": null,
         "maxResolution": "4K UHD @30Hz 4:4:4",
@@ -3159,16 +2979,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/45c38ffba94824fb/original/ClickShare-C-10-en-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:18:31.349Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare C-10 spec sheet (PDF, verified live) - same evidence as the base C-10 approval."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3182,8 +2993,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "barco-CLICKSHARE-CX-20-APO-VX20-UC",
@@ -3220,31 +3031,22 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/22e6bb4ca5a1d52/original/ClickShare-CX-20-po-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:18:31.334Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare CX-20 spec sheet (PDF, verified live) - same evidence as the base CX-20 approval."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
         "topSkus": [
           "APO-VX20-UC",
-          "SW-220-TX-W",
-          "SW-640L-TX-W"
+          "SW-620-TX-W",
+          "SW-220-TX-W"
         ],
         "rating": 100,
         "comparableFields": 6,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:08.977Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.433Z",
+      "updatedAt": "2026-08-23T11:19:31.433Z"
     },
     {
       "id": "barco-CLICKSHARE-CX-30-APO-VX20-UC",
@@ -3281,31 +3083,22 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-30",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:18:31.343Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare CX-30 product page; barco.com blocks direct fetches (403 to bot UA) - canonical manufacturer page, indexed by search engines. Same evidence as the base CX-30 approval."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
         "topSkus": [
           "APO-VX20-UC",
-          "SW-220-TX-W",
-          "SW-640L-TX-W"
+          "SW-620-TX-W",
+          "SW-220-TX-W"
         ],
         "rating": 100,
         "comparableFields": 6,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.044Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "barco-CS-100-APO-VX20-UC",
@@ -3313,7 +3106,7 @@
       "competitorSku": "CS-100",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hybrid",
         "codec": null,
         "maxResolution": "HD/4K (Button-dependent)",
@@ -3341,16 +3134,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/20ea67ff340e53a0/original/ClickShare-CS-100-en-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.944Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare CS-100 spec sheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3364,8 +3148,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.044Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "barco-CS-100 Huddle-APO-VX20-UC",
@@ -3373,7 +3157,7 @@
       "competitorSku": "CS-100 Huddle",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hdmi",
         "codec": null,
         "maxResolution": "HD/4K (Button-dependent)",
@@ -3401,16 +3185,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/5d861a3a807c8ee9/original/ClickShare-CS-100-Huddle-en-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.950Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare CS-100 Huddle spec sheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3424,8 +3199,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "barco-CX-20-APO-VX20-UC",
@@ -3462,16 +3237,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/22e6bb4ca5a1d52/original/ClickShare-CX-20-po-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.956Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare CX-20 spec sheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3485,8 +3251,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "barco-CX-20 Gen2-APO-VX20-UC",
@@ -3494,7 +3260,7 @@
       "competitorSku": "CX-20 Gen2",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hybrid",
         "codec": null,
         "maxResolution": "4K UHD @30Hz 4:4:4",
@@ -3523,16 +3289,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.barco.com/en/support/docs/r5900114",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.961Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco CX-20 Gen2 user guide page; barco.com blocks direct fetches (403 to bot UA) - canonical manufacturer page, indexed by search engines."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3546,8 +3303,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "barco-CX-30-APO-VX20-UC",
@@ -3555,7 +3312,7 @@
       "competitorSku": "CX-30",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hdmi",
         "codec": null,
         "maxResolution": "4K UHD @30Hz 4:4:4",
@@ -3584,16 +3341,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-30",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.967Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare CX-30 product page; barco.com blocks direct fetches (403 to bot UA) - canonical manufacturer page, indexed by search engines."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3607,8 +3355,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "barco-CX-30 Gen2-APO-VX20-UC",
@@ -3616,7 +3364,7 @@
       "competitorSku": "CX-30 Gen2",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hybrid",
         "codec": null,
         "maxResolution": "4K UHD @30Hz 4:4:4",
@@ -3645,16 +3393,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://www.barco.com/en/support/docs/r5900112",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.973Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco CX-30 Gen2 user guide page; barco.com blocks direct fetches (403 to bot UA) - canonical manufacturer page, indexed by search engines."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3668,8 +3407,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "barco-CX-50-APO-VX20-UC",
@@ -3677,7 +3416,7 @@
       "competitorSku": "CX-50",
       "fingerprint": {
         "productClass": "WIRELESS_PRESENTATION",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hdmi",
         "codec": null,
         "maxResolution": "4K UHD @30Hz (out) / 1080p30 (in) 4:4:4",
@@ -3713,15 +3452,15 @@
         "topSkus": [
           "APO-VX20-UC",
           "SW-220-TX-W",
-          "SW-640L-TX-W"
+          "SW-620-TX-W"
         ],
         "rating": 100,
         "comparableFields": 9,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "barco-CX-50 Gen2-APO-VX20-UC",
@@ -3729,7 +3468,7 @@
       "competitorSku": "CX-50 Gen2",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hybrid",
         "codec": null,
         "maxResolution": "4K UHD @60Hz (out) / 4K UHD @30Hz (in) 4:2:0",
@@ -3758,16 +3497,7 @@
       "importantDifferences": [],
       "dependencies": [],
       "quoteBlockers": [],
-      "evidence": [
-        {
-          "sourceUrl": "https://assets.barco.com/m/518065e8b1d1a737/original/ClickShare-CX-50-2nd-generation-po-Spec-sheet.pdf",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T13:07:35.979Z",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve",
-          "note": "Official Barco ClickShare CX-50 2nd generation spec sheet (PDF, verified live)."
-        }
-      ],
+      "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
         "wyrestormSku": "APO-VX20-UC",
@@ -3781,8 +3511,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "binary-B-260-444-HDR-SP14-EXP-SP-0104-H2",
@@ -3833,8 +3563,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "binary-B-260-444-HDR-SP18-SP-0108-SCL",
@@ -3883,8 +3613,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "binary-B-260-HDMI-CTRL-review-required",
@@ -3930,8 +3660,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.045Z",
-      "updatedAt": "2026-08-16T07:49:09.045Z"
+      "createdAt": "2026-08-23T11:19:31.492Z",
+      "updatedAt": "2026-08-23T11:19:31.492Z"
     },
     {
       "id": "binary-B-660-EXT-444-100A-TX-35-IW-KVM",
@@ -3973,16 +3703,16 @@
         "wyrestormSku": "TX-35-IW-KVM",
         "topSkus": [
           "TX-35-IW-KVM",
-          "TX-35-IW",
-          "TX-35-IWC-KVM"
+          "TX-35-IWC-KVM",
+          "TX-35-IW"
         ],
         "rating": 63,
         "comparableFields": 8,
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-16T07:49:09.125Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "binary-B-660-MTRX-4x4-MX-0808-SCL",
@@ -4032,8 +3762,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "binary-B-660-MTRX-8x8-MX-0808-H2A-MK2",
@@ -4083,8 +3813,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "birddog-MAKI ULTRA-CAM-0402-BRG",
@@ -4129,13 +3859,13 @@
           "CAM-210-PTZ",
           "CAM-420-PTZ"
         ],
-        "rating": 67,
-        "comparableFields": 3,
-        "gapFields": 1,
+        "rating": 50,
+        "comparableFields": 4,
+        "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-16T07:49:09.125Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "birddog-P100-FOCUS-200-PRO",
@@ -4185,8 +3915,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-16T07:49:09.125Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "birddog-P200-FOCUS-200-PRO",
@@ -4236,8 +3966,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "birddog-P400-FOCUS-200-PRO",
@@ -4287,8 +4017,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "birddog-P4K-FOCUS-200-PRO",
@@ -4339,8 +4069,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "birddog-X1 30x-CAM-210-PTZ",
@@ -4391,8 +4121,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "black-box-MCXG2DC01-NHD-610-RX",
@@ -4443,8 +4173,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "black-box-MCXG2DF01-NHD-610-RX",
@@ -4495,8 +4225,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "black-box-MCXG2EC01-NHD-610-TX",
@@ -4547,8 +4277,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.125Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.556Z",
+      "updatedAt": "2026-08-23T11:19:31.556Z"
     },
     {
       "id": "black-box-MCXG2EF01-NHD-610-TX",
@@ -4599,8 +4329,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "black-box-MCXG2TD11-NHD-610-TX",
@@ -4651,8 +4381,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-ACM210-review-required",
@@ -4698,8 +4428,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-16T07:49:09.206Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-C44-KIT-MX-0808-KIT-V2",
@@ -4749,8 +4479,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-C88CS-MX-0808-KIT-V2",
@@ -4800,8 +4530,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-HEX150CS-KIT-EX-40-KVM-5K",
@@ -4845,15 +4575,15 @@
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "TX-35-IW"
+          "TX-35-IWC-KVM"
         ],
         "rating": 100,
         "comparableFields": 7,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-HEX18G-KIT-EX-40-KVM-5K",
@@ -4897,15 +4627,15 @@
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "TX-35-IW"
+          "TX-35-IWC-KVM"
         ],
         "rating": 86,
         "comparableFields": 7,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-HMX44-18G-KIT-MX-0808-KIT-V2",
@@ -4955,8 +4685,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-HMX88-18G-KIT-MX-0808-KIT-V2",
@@ -5007,8 +4737,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-IP200UHD-RX-NHD-500-RX",
@@ -5058,8 +4788,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-IP200UHD-TX-NHD-500-TX",
@@ -5109,8 +4839,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-IP250UHD-RX-NHD-500-RX",
@@ -5160,8 +4890,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.206Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.619Z",
+      "updatedAt": "2026-08-23T11:19:31.619Z"
     },
     {
       "id": "blustream-IP250UHD-TX-NHD-610-TX",
@@ -5212,8 +4942,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-IP300UHD-RX-NHD-500-RX",
@@ -5263,8 +4993,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-IP300UHD-TX-NHD-610-TX",
@@ -5314,8 +5044,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-IP350UHD-RX-NHD-500-RX",
@@ -5365,8 +5095,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-IP350UHD-TX-NHD-610-TX",
@@ -5416,8 +5146,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-IP510UHD-TZ-NHD-610-TX",
@@ -5468,8 +5198,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-MX44VW-MX-0808-SCL",
@@ -5520,8 +5250,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-PLA88CS-MX-0808-KIT-V2",
@@ -5571,8 +5301,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-SP14CS-EXP-SP-0104-H2",
@@ -5623,8 +5353,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-SP18CS-SP-0108-SCL",
@@ -5673,8 +5403,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-SW41AB-V2-EXP-SW-0401-H2",
@@ -5724,8 +5454,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-UEX3C-KIT-EX-100-IW-USBC",
@@ -5775,8 +5505,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.276Z",
-      "updatedAt": "2026-08-16T07:49:09.276Z"
+      "createdAt": "2026-08-23T11:19:31.680Z",
+      "updatedAt": "2026-08-23T11:19:31.680Z"
     },
     {
       "id": "blustream-WMF-USBC-D-APO-DG2",
@@ -5784,7 +5514,7 @@
       "competitorSku": "WMF-USBC-D",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hybrid",
         "codec": null,
         "maxResolution": "4K30",
@@ -5820,16 +5550,16 @@
           "APO-DG2",
           "APO-DG-DOCK"
         ],
-        "rating": 67,
-        "comparableFields": 6,
+        "rating": 60,
+        "comparableFields": 5,
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-16T13:04:48.862Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
-      "id": "blustream-WMF72-SW-640L-TX-W",
+      "id": "blustream-WMF72-SW-620-TX-W",
       "competitorManufacturer": "Blustream",
       "competitorSku": "WMF72",
       "fingerprint": {
@@ -5853,7 +5583,7 @@
           "Official Blustream WMF72 launch page. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Blustream WMF products are multiformat collaboration switchers with wired and wireless presentation workflows. | Compare WMF products against collaboration switchers and wireless presentation appliances, not generic matrices. | Official competitor family guidance applied during canonical sync. | Verified via official Blustream WMF72 page: HDMI/USB-C/AirPlay/Miracast/Chromecast in, dual HDMI out, multiview up to 5 sources, dual GbE, 2.4/5GHz WiFi hotspot, 24V/5A."
         ]
       },
-      "wyrestormSku": "SW-640L-TX-W",
+      "wyrestormSku": "SW-620-TX-W",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -5865,19 +5595,19 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "SW-640L-TX-W",
+        "wyrestormSku": "SW-620-TX-W",
         "topSkus": [
+          "SW-620-TX-W",
           "SW-640L-TX-W",
-          "MX-0403-H3-MST",
-          "MX-0402-MST"
+          "MX-0403-H3-MST"
         ],
-        "rating": 100,
-        "comparableFields": 7,
-        "gapFields": 0,
+        "rating": 89,
+        "comparableFields": 9,
+        "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-16T13:04:48.862Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-AM-3200-WF-I-APO-VX20-UC",
@@ -5885,7 +5615,7 @@
       "competitorSku": "AM-3200-WF-I",
       "fingerprint": {
         "productClass": "UC",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "unknown",
         "codec": null,
         "maxResolution": "4K30 (AirMedia Connect) / 1080p60 (HDMI in)",
@@ -5919,16 +5649,16 @@
         "wyrestormSku": "APO-VX20-UC",
         "topSkus": [
           "APO-VX20-UC",
-          "SW-220-TX-W",
-          "SW-640L-TX-W"
+          "SW-620-TX-W",
+          "SW-220-TX-W"
         ],
         "rating": 100,
         "comparableFields": 5,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-AM-TX3-100-APO-DG2",
@@ -5972,13 +5702,13 @@
           "APO-DG2",
           "APO-DG-DOCK"
         ],
-        "rating": 67,
-        "comparableFields": 6,
+        "rating": 60,
+        "comparableFields": 5,
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-16T07:49:09.352Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-DA4-4K-C-EXP-SP-0102-8K",
@@ -6029,8 +5759,8 @@
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-MD8X8-MX-0808-KIT-V2",
@@ -6080,8 +5810,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-MD8X8-CPU3-MX-0808-SCL",
@@ -6132,8 +5862,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-NVX-350-NHD-610-RX",
@@ -6181,8 +5911,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-NVX-351-NHD-610-RX",
@@ -6232,8 +5962,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-NVX-360-NHD-610-TX",
@@ -6283,8 +6013,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-NVX-363-NHD-500-RX",
@@ -6334,8 +6064,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-NVX-384-NHD-610-TX",
@@ -6386,8 +6116,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.352Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.740Z",
+      "updatedAt": "2026-08-23T11:19:31.740Z"
     },
     {
       "id": "crestron-DM-NVX-D30-NHD-500-RX",
@@ -6437,8 +6167,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-DM-NVX-DIR2-review-required",
@@ -6484,8 +6214,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-16T07:49:09.418Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-DM-NVX-E30-NHD-610-TX",
@@ -6535,8 +6265,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-DMPS3-4K-350-C-MX-1616-SCL",
@@ -6580,13 +6310,13 @@
           "MX-1616-SCL",
           "MX-1007-HYB"
         ],
-        "rating": 78,
-        "comparableFields": 9,
-        "gapFields": 2,
+        "rating": 57,
+        "comparableFields": 7,
+        "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-16T07:49:09.418Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-HD-DA2-4KZ-E-EXP-SP-0102-8K",
@@ -6636,11 +6366,11 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
-      "id": "crestron-HD-MD2X1-8K-EXP-SW-0401-H2",
+      "id": "crestron-HD-MD2X1-8K-EXP-SW-0201-8K",
       "competitorManufacturer": "Crestron",
       "competitorSku": "HD-MD2X1-8K",
       "fingerprint": {
@@ -6665,7 +6395,7 @@
           "Single local HDMI output; no extension or independent multi-output routing. Exact regional power accessory should be checked before quoting."
         ]
       },
-      "wyrestormSku": "EXP-SW-0401-H2",
+      "wyrestormSku": "EXP-SW-0201-8K",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -6677,19 +6407,19 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SW-0401-H2",
+        "wyrestormSku": "EXP-SW-0201-8K",
         "topSkus": [
+          "EXP-SW-0201-8K",
           "EXP-SW-0401-H2",
-          "MX-0402-MST",
-          "EXP-SW-0401-8K"
+          "MX-0402-MST"
         ],
-        "rating": 89,
+        "rating": 100,
         "comparableFields": 9,
-        "gapFields": 1,
+        "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-HD-MD4X2-4KZ-E-MX-0808-SCL",
@@ -6739,8 +6469,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-HD-MD8X8-4KZ-E-MX-0808-H2A-MK2",
@@ -6791,8 +6521,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-HD-PS622-review-required",
@@ -6838,11 +6568,11 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-16T07:49:09.418Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
-      "id": "crestron-HD-RX-4K-510-C-E-EX-100-KVM-8K",
+      "id": "crestron-HD-RX-4K-510-C-E-RXV-35-4K",
       "competitorManufacturer": "Crestron",
       "competitorSku": "HD-RX-4K-510-C-E",
       "fingerprint": {
@@ -6866,7 +6596,7 @@
           "| 2026-08-15 batch review: evidence-complete row promoted to approved."
         ]
       },
-      "wyrestormSku": "EX-100-KVM-8K",
+      "wyrestormSku": "RXV-35-4K",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -6878,19 +6608,19 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EX-100-KVM-8K",
+        "wyrestormSku": "RXV-35-4K",
         "topSkus": [
-          "EX-100-KVM-8K",
-          "EX-100-KVM-IP",
-          "EX-35-8K"
+          "RXV-35-4K",
+          "EX-35-H2-ARC",
+          "RX-70-4K-ARC"
         ],
         "rating": 100,
-        "comparableFields": 5,
+        "comparableFields": 6,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-HD-TX-4KZ-211-2G-TX-35-IW-KVM",
@@ -6940,8 +6670,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-16T07:49:09.418Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "crestron-UC-SB1-CAM-FLEX-APO-VX20-UC-V2",
@@ -6990,8 +6720,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.418Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.801Z",
+      "updatedAt": "2026-08-23T11:19:31.801Z"
     },
     {
       "id": "cyp-AVX-101C-KIT-NHD-500-TX",
@@ -7042,8 +6772,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-EL-42M-PIP-MX-0808-SCL",
@@ -7094,8 +6824,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-EL-44M-VW-MX-0808-SCL",
@@ -7146,8 +6876,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-EL-8100V-review-required",
@@ -7194,8 +6924,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-16T07:49:09.491Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-INX-HDMI-MX-0808-SCL",
@@ -7246,8 +6976,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-IP-7000C-TX-NHD-610-TX",
@@ -7298,8 +7028,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-IP-7000RX-NHD-610-RX",
@@ -7350,8 +7080,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-IP-CS7-NHD-CTL-PRO-V2",
@@ -7400,8 +7130,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-16T07:49:09.491Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-MODX-1616-MX-1616-SCL",
@@ -7445,13 +7175,13 @@
         "topSkus": [
           "MX-1616-SCL"
         ],
-        "rating": 100,
-        "comparableFields": 9,
-        "gapFields": 0,
+        "rating": 67,
+        "comparableFields": 6,
+        "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-16T07:49:09.491Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-OR-32SDMI-MX-0808-SCL",
@@ -7502,8 +7232,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-OR-32USBC-4K22-MX-0808-SCL",
@@ -7553,8 +7283,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-OR-44-4K22-MX-0808-SCL",
@@ -7604,8 +7334,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.491Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.861Z",
+      "updatedAt": "2026-08-23T11:19:31.861Z"
     },
     {
       "id": "cyp-OR-88U-4K22-MX-0812-SCL",
@@ -7656,8 +7386,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "cyp-OUTX-HDMI-MX-0808-SCL",
@@ -7708,11 +7438,11 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
-      "id": "cyp-PUV-2608TX-SW-640L-TX-W",
+      "id": "cyp-PUV-2608TX-SW-510-TX",
       "competitorManufacturer": "CYP",
       "competitorSku": "PUV-2608TX",
       "fingerprint": {
@@ -7737,8 +7467,8 @@
           "Requires a compatible PUV-2600 receiver and supports one active USB host at a time."
         ]
       },
-      "wyrestormSku": "SW-640L-TX-W",
-      "decisionType": "architecture-alternative",
+      "wyrestormSku": "SW-510-TX",
+      "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
       "reviewedAt": null,
@@ -7748,18 +7478,19 @@
       "quoteBlockers": [],
       "evidence": [],
       "engineSnapshot": {
-        "decisionType": "architecture-alternative",
-        "wyrestormSku": "SW-640L-TX-W",
+        "decisionType": "closest-technical-match",
+        "wyrestormSku": "SW-510-TX",
         "topSkus": [
+          "SW-510-TX",
           "SW-640L-TX-W"
         ],
-        "rating": 86,
-        "comparableFields": 7,
+        "rating": 90,
+        "comparableFields": 10,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-16T07:49:09.567Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "cyp-PUV-3090TX-UEA-TX-35-IW-KVM",
@@ -7810,8 +7541,8 @@
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-16T07:49:09.567Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "cyp-PUV-44XPL-AVLC-KIT-MX-0808-KIT-V2",
@@ -7861,8 +7592,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-16T07:49:09.567Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "cyp-QU-4-8K23-EXP-SP-0104-H2",
@@ -7913,8 +7644,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "datapath-Fx4-review-required",
@@ -7961,8 +7692,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-16T07:49:09.567Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "datapath-Fx4-HDR-review-required",
@@ -8009,8 +7740,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-16T07:49:09.567Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "datapath-IQS4-review-required",
@@ -8057,8 +7788,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-16T07:49:09.567Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "extron-DA2 HD 4K PLUS-EXP-SP-0102-8K",
@@ -8109,8 +7840,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "extron-DA2 HD 8K L-EXP-SP-0102-8K",
@@ -8161,8 +7892,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "extron-DA4 HD 4K PLUS-EXP-SP-0104-H2",
@@ -8213,8 +7944,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.567Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.923Z",
+      "updatedAt": "2026-08-23T11:19:31.923Z"
     },
     {
       "id": "extron-DA4 HD 8K L-EXP-SP-0104-H2",
@@ -8265,8 +7996,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.640Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-DA6 HD 4K PLUS-SP-0108-SCL",
@@ -8315,8 +8046,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.640Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-DA6 HD 8K L-SP-0108-SCL",
@@ -8365,8 +8096,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.640Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-DTP CROSSPOINT 84-MX-0808-SCL",
@@ -8416,8 +8147,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.640Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-DTP CROSSPOINT 84 4K-MX-0808-KIT-V2",
@@ -8467,11 +8198,11 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.641Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
-      "id": "extron-DTP T USW 233-SW-640L-TX-W",
+      "id": "extron-DTP T USW 233-SW-510-TX",
       "competitorManufacturer": "Extron",
       "competitorSku": "DTP T USW 233",
       "fingerprint": {
@@ -8495,8 +8226,8 @@
           "competitor-compare.seed.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | DTP T USW products are presentation switcher transmitters that combine local source selection with DTP extension. | Compare DTP T USW products against presentation switcher transmitters and edge extenders, not fixed matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | Verified via official Extron DTP T USW 233 product/spec pages: 2 HDMI + 1 RGBHV/component in, DTP out to 70m/230ft, half-rack enclosure."
         ]
       },
-      "wyrestormSku": "SW-640L-TX-W",
-      "decisionType": "architecture-alternative",
+      "wyrestormSku": "SW-510-TX",
+      "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
       "reviewedAt": null,
@@ -8506,18 +8237,19 @@
       "quoteBlockers": [],
       "evidence": [],
       "engineSnapshot": {
-        "decisionType": "architecture-alternative",
-        "wyrestormSku": "SW-640L-TX-W",
+        "decisionType": "closest-technical-match",
+        "wyrestormSku": "SW-510-TX",
         "topSkus": [
+          "SW-510-TX",
           "SW-640L-TX-W"
         ],
-        "rating": 86,
-        "comparableFields": 7,
-        "gapFields": 1,
+        "rating": 100,
+        "comparableFields": 9,
+        "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.641Z",
-      "updatedAt": "2026-08-16T07:49:09.641Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T12:02:57.719Z"
     },
     {
       "id": "extron-DTP2 R 211-EXF-300-H2",
@@ -8560,15 +8292,15 @@
         "topSkus": [
           "EXF-300-H2",
           "EX-100-KVM-8K",
-          "EX-35-8K"
+          "EX-35-H2"
         ],
         "rating": 100,
-        "comparableFields": 8,
+        "comparableFields": 9,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.641Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-DTP2 T 211-TX-35-IW",
@@ -8618,8 +8350,8 @@
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.641Z",
-      "updatedAt": "2026-08-16T07:49:09.641Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-DTP3 CROSSPOINT 42-MX-0808-KIT-V2",
@@ -8669,8 +8401,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.641Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-DTP3 T 202-TX-35-IW-KVM",
@@ -8712,16 +8444,16 @@
         "wyrestormSku": "TX-35-IW-KVM",
         "topSkus": [
           "TX-35-IW-KVM",
-          "TX-35-IW",
-          "TX-35-IWC-KVM"
+          "TX-35-IWC-KVM",
+          "TX-35-IW"
         ],
         "rating": 75,
         "comparableFields": 8,
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.641Z",
-      "updatedAt": "2026-08-16T07:49:09.641Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-DTP3-T-203-EX-40-KVM-5K",
@@ -8763,16 +8495,16 @@
         "wyrestormSku": "EX-40-KVM-5K",
         "topSkus": [
           "EX-40-KVM-5K",
-          "TX-35-IWC-KVM",
-          "TX-35-IW-KVM"
+          "TX-35-IW-KVM",
+          "TX-35-IWC-KVM"
         ],
         "rating": 89,
         "comparableFields": 9,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.641Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-FOX3 SR 201-EX-100-KVM-8K",
@@ -8815,16 +8547,16 @@
         "wyrestormSku": "EX-100-KVM-8K",
         "topSkus": [
           "EX-100-KVM-8K",
-          "EX-35-8K",
-          "EX-35-H2"
+          "EX-35-H2",
+          "EXF-300-H2"
         ],
-        "rating": 80,
-        "comparableFields": 5,
+        "rating": 83,
+        "comparableFields": 6,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.641Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:31.981Z",
+      "updatedAt": "2026-08-23T11:19:31.981Z"
     },
     {
       "id": "extron-FOX3 T 201-TX-35-IW-KVM",
@@ -8867,16 +8599,16 @@
         "wyrestormSku": "TX-35-IW-KVM",
         "topSkus": [
           "TX-35-IW-KVM",
-          "TX-35-IW",
-          "TX-35-IWC-KVM"
+          "TX-35-IWC-KVM",
+          "TX-35-IW"
         ],
         "rating": 57,
         "comparableFields": 7,
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-16T07:49:09.712Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-IN1608-review-required",
@@ -8922,8 +8654,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-16T07:49:09.712Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-IN1608 XI-review-required",
@@ -8969,8 +8701,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-16T07:49:09.712Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-IN1804-MX-0402-MST",
@@ -9020,8 +8752,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-16T07:49:09.712Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-IN1806-review-required",
@@ -9068,8 +8800,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-16T07:49:09.712Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-IN1808-review-required",
@@ -9115,8 +8847,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-16T07:49:09.712Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-MGP 641 XI-SW-0206-VW",
@@ -9165,8 +8897,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-NAV 10E 501-NHD-610-TX",
@@ -9216,8 +8948,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-NAV 10SD 501-NHD-610-RX",
@@ -9267,8 +8999,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-NAV D 121-NHD-500-RX",
@@ -9318,8 +9050,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-NAV E 101-NHD-500-TX",
@@ -9369,8 +9101,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-NAV E 501-NHD-610-TX",
@@ -9420,8 +9152,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.712Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.042Z",
+      "updatedAt": "2026-08-23T11:19:32.042Z"
     },
     {
       "id": "extron-NAV SD 501-NHD-610-RX",
@@ -9471,8 +9203,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.779Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "extron-NAV-E-121-NHD-610-TX",
@@ -9522,8 +9254,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.779Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "extron-NAV-SD-121-NHD-500-RX",
@@ -9573,8 +9305,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.779Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "extron-SHARELINK-PRO-1100-APO-VX20-UC",
@@ -9582,7 +9314,7 @@
       "competitorSku": "SHARELINK-PRO-1100",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "hdmi",
         "codec": null,
         "maxResolution": "4K",
@@ -9624,8 +9356,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.779Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "extron-XTP II CROSSPOINT 1600-MX-1616-SCL",
@@ -9669,13 +9401,13 @@
         "topSkus": [
           "MX-1616-SCL"
         ],
-        "rating": 80,
+        "rating": 60,
         "comparableFields": 5,
-        "gapFields": 1,
+        "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.779Z",
-      "updatedAt": "2026-08-16T07:49:09.779Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "hdanywhere-MHUB44100A-MX-0808-SCL",
@@ -9726,8 +9458,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.779Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "hdanywhere-MHUB66100A-MX-0808-SCL",
@@ -9778,8 +9510,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.779Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "hdanywhere-MHUBPRO24440-MX-0808-SCL",
@@ -9830,8 +9562,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.779Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "hdanywhere-MHUBPRO288100-MX-0808-H2A-MK2",
@@ -9882,8 +9614,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.780Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "hdanywhere-MHUBS161616100A-MX-1616-SCL",
@@ -9927,13 +9659,13 @@
         "topSkus": [
           "MX-1616-SCL"
         ],
-        "rating": 63,
-        "comparableFields": 8,
+        "rating": 50,
+        "comparableFields": 6,
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.780Z",
-      "updatedAt": "2026-08-16T07:49:09.780Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "hdanywhere-MHUBS888100A-MX-0808-H2A-MK2",
@@ -9984,8 +9716,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.780Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "hdanywhere-MHUBU41140-MX-0808-SCL",
@@ -10036,8 +9768,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.780Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.104Z",
+      "updatedAt": "2026-08-23T11:19:32.104Z"
     },
     {
       "id": "hdanywhere-XTND2K150-EX-40-KVM-5K",
@@ -10088,8 +9820,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-XTND2K30-TX-35-IW",
@@ -10140,8 +9872,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-XTND4K100EARCUSB-EX-40-KVM-5K",
@@ -10185,15 +9917,15 @@
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "EX-100-IW-USBC"
+          "TX-35-IWC-KVM"
         ],
         "rating": 86,
         "comparableFields": 7,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-XTND4K100TPC2-EX-40-KVM-5K",
@@ -10244,8 +9976,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-XTND4K14140TPC-review-required",
@@ -10292,8 +10024,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-XTND4K40ARCTPC-EX-40-KVM-5K",
@@ -10344,8 +10076,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-XTND4K40TPC-EX-40-KVM-5K",
@@ -10396,8 +10128,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-XTNDA100EARC-EX-40-KVM-5K",
@@ -10441,15 +10173,15 @@
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "EX-100-IW-USBC"
+          "TX-35-IWC-KVM"
         ],
         "rating": 100,
         "comparableFields": 5,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-XTNDA300-EX-40-KVM-5K",
@@ -10500,8 +10232,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-ZP1-review-required",
@@ -10548,8 +10280,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "hdanywhere-ZP5-review-required",
@@ -10596,8 +10328,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.162Z",
+      "updatedAt": "2026-08-23T11:19:32.162Z"
     },
     {
       "id": "just-add-power-MC-QX-review-required",
@@ -10644,8 +10376,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.852Z",
-      "updatedAt": "2026-08-16T07:49:09.852Z"
+      "createdAt": "2026-08-23T11:19:32.163Z",
+      "updatedAt": "2026-08-23T11:19:32.163Z"
     },
     {
       "id": "just-add-power-MC-RX1-NHD-500-RX",
@@ -10696,8 +10428,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-MC-RX2-NHD-610-RX",
@@ -10748,8 +10480,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-MC-TX1-NHD-610-TX",
@@ -10800,8 +10532,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-MC-TX2-NHD-610-TX",
@@ -10852,8 +10584,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-MC-TX3-NHD-610-TX",
@@ -10904,8 +10636,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-MC-TXWP1-NHD-610-TX",
@@ -10956,8 +10688,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-UL-508POE-NHD-500-RX",
@@ -11008,8 +10740,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-UL-518AVP-NHD-610-RX",
@@ -11060,8 +10792,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-UL-717WP2-NHD-500-TX",
@@ -11112,8 +10844,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-UL-747POE-NHD-610-TX",
@@ -11164,8 +10896,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "just-add-power-UL-759A-NHD-500-TX",
@@ -11216,8 +10948,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "kramer-KDS-USB2-EX-40-KVM-5K",
@@ -11267,8 +10999,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:09.946Z",
-      "updatedAt": "2026-08-16T07:49:09.946Z"
+      "createdAt": "2026-08-23T11:19:32.222Z",
+      "updatedAt": "2026-08-23T11:19:32.222Z"
     },
     {
       "id": "kramer-TP-580T-TX-35-IW",
@@ -11318,8 +11050,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-16T07:49:10.026Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VIA-GO2-APO-VX20-UC",
@@ -11327,7 +11059,7 @@
       "competitorSku": "VIA-GO2",
       "fingerprint": {
         "productClass": "Wireless Presentation",
-        "endpointRole": "switcher",
+        "endpointRole": "receiver",
         "transportClass": "unknown",
         "codec": null,
         "maxResolution": "4K30",
@@ -11369,8 +11101,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VM-4H2-EXP-SP-0104-H2",
@@ -11421,8 +11153,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VM-4HDT-EXP-SP-0102-8K",
@@ -11468,13 +11200,13 @@
           "EXP-SP-0102-H2",
           "EXP-SP-0104-H2"
         ],
-        "rating": 80,
-        "comparableFields": 5,
-        "gapFields": 1,
+        "rating": 50,
+        "comparableFields": 6,
+        "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-16T07:49:10.026Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VP-440X-review-required",
@@ -11520,8 +11252,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-16T07:49:10.026Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VP-551X-review-required",
@@ -11567,8 +11299,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-16T07:49:10.026Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VP-554X-review-required",
@@ -11614,8 +11346,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-16T07:49:10.026Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VS-1616DN-MX-1616-SCL",
@@ -11659,13 +11391,13 @@
         "topSkus": [
           "MX-1616-SCL"
         ],
-        "rating": 67,
-        "comparableFields": 9,
+        "rating": 50,
+        "comparableFields": 6,
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-16T07:49:10.026Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VS-42H2-MX-0808-SCL",
@@ -11716,8 +11448,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VS-44DT-MX-0808-KIT-V2",
@@ -11768,8 +11500,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VS-44H2A-MX-0808-SCL",
@@ -11819,8 +11551,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VS-66H2-MX-0808-SCL",
@@ -11871,8 +11603,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.026Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.285Z",
+      "updatedAt": "2026-08-23T11:19:32.285Z"
     },
     {
       "id": "kramer-VS-88H2A-MX-0808-H2A-MK2",
@@ -11922,8 +11654,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-DA2-HDMI-EXP-SP-0102-8K",
@@ -11973,8 +11705,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-DA4-HDMI20-C-EXP-SP-0104-H2",
@@ -12025,8 +11757,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-MMX4x2-HDMI-MX-0808-SCL",
@@ -12076,8 +11808,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-MMX6x2-HT200-MX-0808-KIT-V2",
@@ -12127,8 +11859,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-MMX6x2-HT210-MX-0808-KIT-V2",
@@ -12178,8 +11910,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-MMX8x4-HT400MC-MX-0808-KIT-V2",
@@ -12229,8 +11961,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-MMX8x4-HT420M-MX-0808-KIT-V2",
@@ -12280,8 +12012,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-MMX8x8-HDMI-4K-A-MX-0808-SCL",
@@ -12331,8 +12063,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-TAURUS UCX-4x2-HC30-MX-0403-H3-MST",
@@ -12376,13 +12108,13 @@
           "MX-0403-H3-MST",
           "MX-0402-MST"
         ],
-        "rating": 88,
-        "comparableFields": 8,
+        "rating": 90,
+        "comparableFields": 10,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-16T07:49:10.096Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-UBEX-PRO20-HDMI-F100-NHD-610-RX",
@@ -12432,8 +12164,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-UBEX-PRO20-HDMI-F110-NHD-610-RX",
@@ -12483,8 +12215,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.096Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.345Z",
+      "updatedAt": "2026-08-23T11:19:32.345Z"
     },
     {
       "id": "lightware-UBEX-PRO20-HDMI-R100-NHD-610-RX",
@@ -12535,11 +12267,11 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
-      "id": "lightware-UCX-1x1-C40-EXP-SW-0401-H2",
+      "id": "lightware-UCX-1x1-C40-EXP-SW-0201-8K",
       "competitorManufacturer": "Lightware",
       "competitorSku": "UCX-1x1-C40",
       "fingerprint": {
@@ -12564,7 +12296,7 @@
           "Docking-station architecture rather than a multi-source matrix; exact peripheral port count should be verified."
         ]
       },
-      "wyrestormSku": "EXP-SW-0401-H2",
+      "wyrestormSku": "EXP-SW-0201-8K",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -12576,19 +12308,19 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SW-0401-H2",
+        "wyrestormSku": "EXP-SW-0201-8K",
         "topSkus": [
+          "EXP-SW-0201-8K",
           "EXP-SW-0401-H2",
-          "MX-0402-MST",
-          "EXP-SW-0401-8K"
+          "MX-0402-MST"
         ],
         "rating": 88,
         "comparableFields": 8,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "lightware-UCX-2x2-H40-MX-0402-MST",
@@ -12639,8 +12371,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-16T07:49:10.170Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "lightware-UCX-4x2-HC40-MX-0402-MST",
@@ -12689,8 +12421,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-16T07:49:10.170Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "lightware-UCX-4X3-HCM40-MX-0403-H3-MST",
@@ -12733,13 +12465,13 @@
         "topSkus": [
           "MX-0403-H3-MST"
         ],
-        "rating": 86,
-        "comparableFields": 7,
-        "gapFields": 1,
+        "rating": 78,
+        "comparableFields": 9,
+        "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-16T07:49:10.170Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "lightware-VINX-120-HDMI-ENC-NHD-500-TX",
@@ -12789,8 +12521,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "logitech-Rally Bar-APO-VX20-UC-V2",
@@ -12839,8 +12571,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "logitech-Rally Bar Mini-APO-VX20-UC-V2",
@@ -12889,8 +12621,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "marshall-CV420-30X-IP-CAM-0402-BRG",
@@ -12935,13 +12667,13 @@
           "CAM-210-PTZ",
           "CAM-420-PTZ"
         ],
-        "rating": 80,
-        "comparableFields": 5,
-        "gapFields": 1,
+        "rating": 67,
+        "comparableFields": 6,
+        "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-16T07:49:10.170Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "marshall-CV630-IP-FOCUS-200-PRO",
@@ -12991,8 +12723,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "marshall-CV630-NDI-FOCUS-200-PRO",
@@ -13043,8 +12775,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "marshall-CV730-BHN-FOCUS-200-PRO",
@@ -13095,8 +12827,8 @@
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.170Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.405Z",
+      "updatedAt": "2026-08-23T11:19:32.405Z"
     },
     {
       "id": "marshall-CV730-NDI-FOCUS-200-PRO",
@@ -13146,8 +12878,8 @@
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "mersive-Solstice Active Learning-review-required",
@@ -13194,8 +12926,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-16T07:49:10.243Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "mersive-Solstice Pod Gen3-SW-620-TX-W",
@@ -13242,12 +12974,12 @@
           "SW-220-TX-W"
         ],
         "rating": 100,
-        "comparableFields": 5,
+        "comparableFields": 6,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "poly-Poly Studio X32-APO-VX20-UC-V2",
@@ -13296,8 +13028,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "poly-Poly Studio X52-APO-VX20-UC-V2",
@@ -13346,8 +13078,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "poly-Poly Studio X72-APO-VX20-UC-V2",
@@ -13396,8 +13128,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "sony-BRC-X1000-FOCUS-200-PRO",
@@ -13447,8 +13179,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "sony-BRC-X400-FOCUS-200-PRO",
@@ -13498,8 +13230,8 @@
         "gapFields": 3,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "sony-EVI-H100V-FOCUS-200-PRO",
@@ -13549,8 +13281,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "sony-SRG-300H-CAM-210-PTZ",
@@ -13600,8 +13332,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.243Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "sony-SRG-300SE-FOCUS-200-PRO",
@@ -13651,8 +13383,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.244Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "sony-SRG-A12-FOCUS-200-PRO",
@@ -13703,8 +13435,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.244Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.467Z",
+      "updatedAt": "2026-08-23T11:19:32.467Z"
     },
     {
       "id": "sony-SRG-A40-FOCUS-200-PRO",
@@ -13755,8 +13487,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sony-SRG-X120-FOCUS-200-PRO",
@@ -13806,8 +13538,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sony-SRG-XP1-CAM-0402-BRG",
@@ -13852,13 +13584,13 @@
           "CAM-210-PTZ",
           "CAM-420-PTZ"
         ],
-        "rating": 80,
-        "comparableFields": 5,
-        "gapFields": 1,
+        "rating": 67,
+        "comparableFields": 6,
+        "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-16T07:49:10.309Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sy-electronics-APOLLO-41-SW-0206-VW",
@@ -13908,8 +13640,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sy-electronics-APOLLO-42-MX-0808-SCL",
@@ -13960,8 +13692,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sy-electronics-HDBT-231-100-SW-0401-H2",
@@ -14005,13 +13737,13 @@
         "topSkus": [
           "SW-0401-H2"
         ],
-        "rating": 80,
-        "comparableFields": 5,
+        "rating": 83,
+        "comparableFields": 6,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-16T07:49:10.309Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sy-electronics-HDS14-18G-EXP-SP-0104-H2",
@@ -14062,8 +13794,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sy-electronics-HDX60-18G-EX-40-KVM-5K",
@@ -14114,8 +13846,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sy-electronics-HDX80-4K-EX-40-KVM-5K",
@@ -14158,15 +13890,15 @@
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "TX-35-IW"
+          "TX-35-IWC-KVM"
         ],
         "rating": 86,
         "comparableFields": 7,
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sy-electronics-HS18-18G-SP-0108-SCL",
@@ -14215,8 +13947,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.526Z",
+      "updatedAt": "2026-08-23T11:19:32.526Z"
     },
     {
       "id": "sy-electronics-MFT62-review-required",
@@ -14263,8 +13995,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-16T07:49:10.309Z"
+      "createdAt": "2026-08-23T11:19:32.527Z",
+      "updatedAt": "2026-08-23T11:19:32.527Z"
     },
     {
       "id": "sy-electronics-MSU-44-18G-MX-0808-SCL",
@@ -14315,8 +14047,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.309Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.527Z",
+      "updatedAt": "2026-08-23T11:19:32.527Z"
     },
     {
       "id": "sy-electronics-MSU-88-18G-MX-0808-H2A-MK2",
@@ -14367,8 +14099,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "sy-electronics-MUHDBT-44P-MX-0808-KIT-V2",
@@ -14419,8 +14151,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "sy-electronics-SLIM-70-PRO-EX-40-KVM-5K",
@@ -14464,15 +14196,15 @@
         "topSkus": [
           "EX-40-KVM-5K",
           "TX-35-IW-KVM",
-          "TX-35-IW"
+          "TX-35-IWC-KVM"
         ],
         "rating": 100,
         "comparableFields": 6,
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-16T07:49:10.380Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "sy-electronics-WIZARD-4-APO-VX20-UC",
@@ -14523,8 +14255,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "sy-electronics-XCALIBUR-11U-EX-40-KVM-5K",
@@ -14574,8 +14306,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-16T07:49:10.380Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "sy-electronics-XCALIBUR-14-review-required",
@@ -14622,8 +14354,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-16T07:49:10.380Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "sy-electronics-XCALIBUR-44-MX-0808-SCL",
@@ -14674,8 +14406,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "sy-electronics-XCALIBUR-88-MX-0808-H2A-MK2",
@@ -14726,8 +14458,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "turtle-av-BOARDROOM BUDDIES-EX-40-KVM-5K",
@@ -14778,8 +14510,8 @@
         "gapFields": 2,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "turtle-av-CHAZY 4K MULTIVIEW-review-required",
@@ -14826,8 +14558,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-16T07:49:10.380Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "visionary-D5200-NHD-610-RX",
@@ -14877,8 +14609,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "visionary-E5200-NHD-500-TX",
@@ -14929,8 +14661,8 @@
         "gapFields": 1,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.380Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.585Z",
+      "updatedAt": "2026-08-23T11:19:32.585Z"
     },
     {
       "id": "zeevee-ZUHD60-1E-NHD-500-TX",
@@ -14981,8 +14713,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.449Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZUHD60-2D-NHD-500-RX",
@@ -15033,8 +14765,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZUHD60-2EMP-NHD-500-TX",
@@ -15084,8 +14816,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZY-4K-DEC-NHD-500-RX",
@@ -15135,8 +14867,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZY-4K-ENC-NHD-500-TX",
@@ -15186,8 +14918,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZyPer4K Decoder-NHD-610-RX",
@@ -15237,8 +14969,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZyPer4K Encoder-NHD-610-TX",
@@ -15288,8 +15020,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZyPerUHD Decoder-NHD-500-RX",
@@ -15339,8 +15071,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZyPerUHD Encoder-NHD-500-TX",
@@ -15390,8 +15122,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZyPerUHD60 Decoder-NHD-500-RX",
@@ -15441,8 +15173,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     },
     {
       "id": "zeevee-ZyPerUHD60 Encoder-NHD-500-TX",
@@ -15492,8 +15224,8 @@
         "gapFields": 0,
         "verified": false
       },
-      "createdAt": "2026-08-16T07:49:10.450Z",
-      "updatedAt": "2026-08-21T09:19:26.310Z"
+      "createdAt": "2026-08-23T11:19:32.642Z",
+      "updatedAt": "2026-08-23T11:19:32.642Z"
     }
   ]
 }

@@ -91,6 +91,34 @@ export type ReviewerEvidence = {
   reviewedOn: string;
 };
 
+export type ConnectionItem = {
+  type: string;
+  count: number;
+  detail?: string;
+};
+
+export type SpecConnections = {
+  videoInputs: ConnectionItem[];
+  videoOutputs: ConnectionItem[];
+  usb: ConnectionItem[];
+  network: ConnectionItem[];
+  audioInputs: ConnectionItem[];
+  audioOutputs: ConnectionItem[];
+  control: ConnectionItem[];
+};
+
+/** null = not verified; false = explicitly unsupported; string = irrelevant to this product. */
+export type CapabilityState = true | false | null | "not-applicable";
+
+export type SpecCapabilities = {
+  wirelessCasting: CapabilityState;
+  byom: CapabilityState;
+  multiview: CapabilityState;
+  scaling: CapabilityState;
+  videoWall: CapabilityState;
+  kvm: CapabilityState;
+};
+
 export type SpecSheet = {
   sku: string;
   brand: string;
@@ -117,6 +145,8 @@ export type SpecSheet = {
   controlOptions: string[];
   distanceM: number | null;
   poe: string;
+  connections?: SpecConnections;
+  capabilities?: SpecCapabilities;
   inputSummary?: string;
   routedOutputSummary?: string;
   mirroredOutputSummary?: string;
@@ -409,6 +439,59 @@ function countPorts(list: unknown, match: RegExp): number | null {
   return seen ? total : null;
 }
 
+const emptyConnections = (): SpecConnections => ({
+  videoInputs: [], videoOutputs: [], usb: [], network: [],
+  audioInputs: [], audioOutputs: [], control: [],
+});
+
+const emptyCapabilities = (): SpecCapabilities => ({
+  wirelessCasting: null, byom: null, multiview: null,
+  scaling: null, videoWall: null, kvm: null,
+});
+
+function connectionItems(list: unknown): ConnectionItem[] {
+  if (!Array.isArray(list)) return [];
+  return (list as Array<Record<string, unknown>>)
+    .map((port) => ({
+      type: text(port.type || port.connector),
+      count: num(port.count) ?? 0,
+      detail: text(port.detail) || undefined,
+    }))
+    .filter((port) => port.type && port.count > 0);
+}
+
+function explicitCapability(source: string, positive: RegExp, negative: RegExp): CapabilityState {
+  if (negative.test(source)) return false;
+  if (positive.test(source)) return true;
+  return null;
+}
+
+function capabilitiesFromEvidence(values: unknown[]): SpecCapabilities {
+  const source = values.map(text).filter(Boolean).join(" ");
+  return {
+    wirelessCasting: explicitCapability(source, /wireless (?:screen )?(?:casting|presentation)|airplay|miracast|google cast/i, /no (?:wireless )?(?:casting|presentation)|without wireless/i),
+    byom: explicitCapability(source, /\bbyom\b|bring your own meeting/i, /no \bbyom\b|without \bbyom\b/i),
+    multiview: explicitCapability(source, /multi[- ]?view|multiple (?:sources|windows).*(?:screen|display)/i, /no multi[- ]?view|without multi[- ]?view/i),
+    scaling: explicitCapability(source, /\bscal(?:er|ing)\b/i, /no (?:video )?scal(?:er|ing)|without (?:video )?scal(?:er|ing)/i),
+    videoWall: explicitCapability(source, /video wall/i, /no video wall|without video wall/i),
+    kvm: explicitCapability(source, /\bkvm\b|keyboard.*mouse/i, /no \bkvm\b|without \bkvm\b/i),
+  };
+}
+
+function capabilitiesFromFeatureRecord(record: Record<string, unknown>): SpecCapabilities {
+  const result = emptyCapabilities();
+  const aliases: Record<keyof SpecCapabilities, string[]> = {
+    wirelessCasting: ["wirelessCasting", "wirelessPresentation"], byom: ["byom"],
+    multiview: ["multiview", "multiView"], scaling: ["scaling", "scaler"],
+    videoWall: ["videoWall", "videoWallProcessing"], kvm: ["kvm", "usbKvm"],
+  };
+  for (const [capability, names] of Object.entries(aliases) as Array<[keyof SpecCapabilities, string[]]>) {
+    const value = names.map((name) => record[name]).find((candidate) => typeof candidate === "boolean");
+    if (typeof value === "boolean") result[capability] = value;
+  }
+  return result;
+}
+
 export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
   const category = text(entry.category);
   const technology = text(entry.technology);
@@ -498,6 +581,19 @@ export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
           ? "inferred"
           : undefined;
 
+  const connections = emptyConnections();
+  connections.videoInputs = connectionItems(entry.inputs);
+  connections.videoOutputs = connectionItems(entry.outputs);
+  const structuredConnectionItems = [...connections.videoInputs, ...connections.videoOutputs];
+  connections.usb = structuredConnectionItems.filter((item) => /usb/i.test(item.type));
+  connections.network = structuredConnectionItems.filter((item) => /ethernet|rj-?45|\blan\b|\bgbe\b/i.test(item.type));
+  connections.videoInputs = connections.videoInputs.filter((item) => !/usb(?!-c)|ethernet|rj-?45|\blan\b/i.test(item.type));
+  connections.videoOutputs = connections.videoOutputs.filter((item) => !/usb(?!-c)|ethernet|rj-?45|\blan\b/i.test(item.type));
+  const capabilities = capabilitiesFromEvidence([
+    ...(Array.isArray(entry.features) ? entry.features as unknown[] : []),
+    specs.capabilities,
+  ]);
+
   return {
     sku: text(entry.sku),
     brand: text(entry.brand),
@@ -524,6 +620,8 @@ export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
     controlOptions: uniq(Array.isArray(entry.control) ? (entry.control as unknown[]).map(text) : []),
     distanceM: distance,
     poe: poeMatch ? poeMatch[0].toUpperCase() : "",
+    connections,
+    capabilities,
     verificationStatus,
     citations,
   };
@@ -641,6 +739,24 @@ function wsRole(entry: WsEntry): SpecRole {
 }
 
 type WsPort = { count?: unknown; connector?: unknown; direction?: unknown; category?: unknown };
+
+function connectionsFromPorts(ports: Array<WsPort & { detail?: unknown }>): SpecConnections {
+  const result = emptyConnections();
+  for (const port of ports) {
+    const item = connectionItems([port])[0];
+    if (!item) continue;
+    const direction = text(port.direction).toLowerCase();
+    const category = text(port.category).toLowerCase();
+    if (category === "video" && direction === "input") result.videoInputs.push(item);
+    else if (category === "video" && direction === "output") result.videoOutputs.push(item);
+    else if (category === "usb") result.usb.push(item);
+    else if (category === "network") result.network.push(item);
+    else if (category === "audio" && direction === "input") result.audioInputs.push(item);
+    else if (category === "audio" && direction === "output") result.audioOutputs.push(item);
+    else if (category === "control") result.control.push(item);
+  }
+  return result;
+}
 
 function wsCountPorts(ports: WsPort[], direction: "input" | "output", match: RegExp): number | null {
   let total = 0;
@@ -805,6 +921,7 @@ function normalizeGovernedBattleCard(entry: WsEntry): SpecSheet | null {
   const mirroredOutputCount = num(governedValue(features, "mirroredOutputCount")) ?? 0;
   const loopOutputCount = num(governedValue(features, "loopOutputCount")) ?? 0;
   const status = text(profile.status).toLowerCase();
+  const capabilities = capabilitiesFromFeatureRecord(features);
 
   return {
     sku,
@@ -845,6 +962,8 @@ function normalizeGovernedBattleCard(entry: WsEntry): SpecSheet | null {
     poe: /\bpoe\b|\bpoh\b/i.test(powerText) && !/\bno\s+(?:poe|poh)\b/i.test(powerText)
       ? "PoE/PoH"
       : "",
+    connections: connectionsFromPorts(ports),
+    capabilities,
     inputSummary: governedPortSummary(ports, "input", "video"),
     routedOutputSummary: governedPortSummary(ports, "output", "video"),
     mirroredOutputSummary: mirroredOutputCount > 0
@@ -970,6 +1089,20 @@ export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
   );
 
   const poe = /poh|poe/i.test(JSON.stringify(tp.power ?? "")) ? "PoE/PoH" : "";
+  const connections = connectionsFromPorts(ports);
+  const inferredCapabilities = capabilitiesFromEvidence([
+    ...(Array.isArray(tp.features) ? tp.features as unknown[] : []),
+    ...standards,
+    text(entry.summary),
+  ]);
+  const explicitCapabilities = tp.features && typeof tp.features === "object" && !Array.isArray(tp.features)
+    ? capabilitiesFromFeatureRecord(tp.features as Record<string, unknown>)
+    : emptyCapabilities();
+  const capabilities = Object.fromEntries(
+    (Object.keys(inferredCapabilities) as Array<keyof SpecCapabilities>).map((name) => [
+      name, explicitCapabilities[name] ?? inferredCapabilities[name],
+    ]),
+  ) as SpecCapabilities;
 
   const officialUrl = text(sourceQuality.officialProductUrl);
   const guidePages = Array.isArray(sourceQuality.productGuidePages)
@@ -1015,6 +1148,8 @@ export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
     controlOptions,
     distanceM,
     poe,
+    connections,
+    capabilities,
     verificationStatus,
     citations,
     reviewerEvidence,

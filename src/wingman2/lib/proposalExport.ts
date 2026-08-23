@@ -1,4 +1,5 @@
 import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
+import { powerBudgetSummary, type PowerBudgetSummary } from "./powerBudget";
 import {
   buildCableSchedule,
   buildSchematicNodes,
@@ -232,7 +233,41 @@ export function buildBomCsv(rows: BomRow[]) {
   return lines.join("\r\n");
 }
 
-export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
+function buildPowerStrategyHtml(products: StoredProductSelection[]): string {
+  const summaries = powerBudgetSummary(products);
+  if (!summaries.length) return "<p>No products have been selected, so a power budget cannot be calculated.</p>";
+
+  const rows = summaries
+    .map((s) => {
+      const wattsStr = s.watts !== null ? `${s.watts}W` : "Not proven";
+      const totalStr = s.totalWatts !== null ? `${s.totalWatts}W` : "—";
+      const powerDetail = s.powerLines.length ? s.powerLines.join("; ") : "No power data in governed profile";
+      return `<tr><td>${escapeHtml(s.sku)}</td><td>${s.quantity}</td><td>${escapeHtml(wattsStr)}</td><td>${escapeHtml(totalStr)}</td><td style="font-size:11px;color:#64748b;">${escapeHtml(powerDetail)}</td></tr>`;
+    })
+    .join("");
+
+  const knownTotals = summaries.filter((s) => s.totalWatts !== null) as (PowerBudgetSummary & { totalWatts: number })[];
+  const totalWatts = knownTotals.reduce((sum, s) => sum + s.totalWatts, 0);
+  const poeProducts = summaries.filter((s) => s.powerLines.some((line) => /poe|poh|power over ethernet|power over hdbt|802\.3/i.test(line)));
+
+  let summaryHtml = `<p style="margin-top:10px;font-size:13px;">`;
+  if (knownTotals.length > 0) {
+    summaryHtml += `<strong>Stated maximum consumption:</strong> approximately ${Math.round(totalWatts)}W across ${knownTotals.length} product${knownTotals.length > 1 ? "s" : ""} with proven figures.`;
+  } else {
+    summaryHtml += `No products in the current BOM have a proven power-consumption figure in their governed profile. Confirm PSU / power-source requirements before quoting.`;
+  }
+  if (poeProducts.length) {
+    summaryHtml += ` ${poeProducts.length} product${poeProducts.length > 1 ? "s" : ""} (${poeProducts.map((s) => s.sku).join(", ")}) ${poeProducts.length > 1 ? "require" : "requires"} PoE/PoH — confirm the injector or switch PoE budget covers the total.`;
+  }
+  summaryHtml += `</p>`;
+
+  return `<table>
+    <thead><tr><th>SKU</th><th>Qty</th><th>Per-unit max</th><th>Total max</th><th>Power data (governed profile)</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>${summaryHtml}`;
+}
+
+export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
   const preparedBy = proposal.preparedBy || "";
   const companyName = proposal.companyName || "WyreStorm Wingman";
   const contactLine = [proposal.contactEmail, proposal.contactPhone].filter(Boolean).join(" | ");
@@ -344,6 +379,10 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   </table>
   <p style="margin-top:8px;font-size:12px;color:#475569;"><strong>Evidence basis:</strong> ${bomRows.length ? escapeHtml(bomRows.map((row) => `${row.sku}: ${row.evidence}`).join(" | ")) : "No product evidence captured yet."}</p>
 
+  <h2>Power Strategy</h2>
+  <p>The power budget below is derived from the governed technical profiles for each selected product. Figures are stated-maximum consumption per the published profile and must be verified against the current datasheet before order.</p>
+  ${buildPowerStrategyHtml(products)}
+
   <h2>Options</h2>
   <ul>${
     optionalRows.length
@@ -427,12 +466,17 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
         : "<li>Confirm discovery assumptions, validate the architecture and approve the final product list before issue.</li>"
     }</ul>
   </section>
+
+  <section class="notice" data-wingman-best-efforts-disclaimer="true">
+    <h2>Best-efforts disclaimer</h2>
+    <p>This document has been prepared on a best-efforts basis to support your sales and design process. Product specifications, compatibility, lifecycle status, regional availability, pricing and lead times must be verified against the current WyreStorm documentation, datasheet or order desk before this document is used as a quotation, order or statement of capability. Competitor information is approximate and provided only to start a comparison conversation. Wingman provides no warranty and accepts no liability for any errors, omissions or reliance on the content of this document.</p>
+  </section>
 </body>
 </html>`;
 }
 
-export function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
-  saveTextFile(`${fileBaseName(proposal.title)}.proposal.html`, buildProposalHtml(proposal, bomRows), "text/html;charset=utf-8");
+export function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
+  saveTextFile(`${fileBaseName(proposal.title)}.proposal.html`, buildProposalHtml(proposal, bomRows, products), "text/html;charset=utf-8");
 }
 
 export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[]) {
@@ -445,7 +489,7 @@ export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[])
  * every major OS/browser. Avoids pulling in a client-side PDF-generation
  * library purely to duplicate what the HTML export already renders.
  */
-export function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[]) {
+export function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
   if (typeof window === "undefined") return;
 
   const printWindow = window.open("", "_blank");
@@ -455,7 +499,7 @@ export function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomR
   }
 
   printWindow.document.open();
-  printWindow.document.write(buildProposalHtml(proposal, bomRows));
+  printWindow.document.write(buildProposalHtml(proposal, bomRows, products));
   printWindow.document.close();
   printWindow.onload = () => {
     printWindow.focus();

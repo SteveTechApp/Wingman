@@ -214,5 +214,14 @@
     "navLabel": "Proposal Visuals",
     "pageFile": "ProposalVisualsPage.tsx",
     "summary": "Create governed block diagrams, technical schematics and room concepts."
+  },
+  {
+    "key": "terms",
+    "path": "/wingman/terms",
+    "segment": "terms",
+    "label": "Terms & Legal",
+    "navLabel": "Terms & Legal",
+    "pageFile": "TermsPage.tsx",
+    "summary": "Terms and legal disclaimer covering best-efforts guidance, verification responsibility and limitation of liability."
   }
 ]
