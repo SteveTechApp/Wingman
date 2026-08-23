@@ -21,6 +21,12 @@ import {
 import { selectWingmanProducts } from "../lib/productSelectorEngine";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
+import {
+  classifyWingmanProduct,
+  type WingmanProductLike,
+  type WingmanSpecEvidence,
+} from "../lib/productClassification";
+import { GovernedSpecEvidence } from "../components/GovernedSpecEvidence";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { GovernedDataBadge } from "../components/GovernedDataBadge";
 import { GovernedReviewerTrail } from "../components/GovernedReviewerTrail";
@@ -174,6 +180,12 @@ function createTestingCatalogFilterState(): CatalogFilterState {
 
 export function CatalogBrowserPage() {
   const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
+  // applyCatalogOverrides flattens records to the display shape and drops
+  // technicalProfile, so the raw index records are kept alongside for
+  // governed classification - the evidence chips and data tier must come from
+  // the same governed-first facts the Recommendations page uses, not the
+  // keyword-only fallback.
+  const [rawBySku, setRawBySku] = useState<Map<string, Record<string, unknown>>>(new Map());
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [state, setState] = useState<CatalogFilterState>(createTestingCatalogFilterState);
@@ -190,20 +202,34 @@ export function CatalogBrowserPage() {
   const governedTiers = useMemo(() => {
     const tiers = new Map<string, string>();
     const trails = new Map<string, GovernedReviewerTrailData>();
+    const evidence = new Map<string, WingmanSpecEvidence>();
     for (const product of catalog) {
-      const resolved = resolveProductTechnicalData(product);
-      tiers.set(normaliseSkuKey(product.sku), resolved.sourceTier);
-      if (resolved.reviewerTrail) trails.set(normaliseSkuKey(product.sku), resolved.reviewerTrail);
+      const key = normaliseSkuKey(product.sku);
+      const raw = rawBySku.get(key) ?? (product as unknown as Record<string, unknown>);
+      const resolved = resolveProductTechnicalData(raw);
+      tiers.set(key, resolved.sourceTier);
+      if (resolved.reviewerTrail) trails.set(key, resolved.reviewerTrail);
+      // The same governed-first classifier the selector gates on, so the
+      // I/O / USB / reach chips a rep sees are exactly the facts that passed.
+      evidence.set(key, classifyWingmanProduct(raw as WingmanProductLike).specEvidence);
     }
-    return { tiers, trails };
-  }, [catalog]);
+    return { tiers, trails, evidence };
+  }, [catalog, rawBySku]);
 
   useEffect(() => {
     let cancelled = false;
     loadProductIntelligenceIndex()
       .then((data) => {
         if (cancelled) return;
-        setCatalog(applyCatalogOverrides(extractRawProducts(data)).map(withBusinessLifecycle));
+        const rawRecords = extractRawProducts(data);
+        setCatalog(applyCatalogOverrides(rawRecords).map(withBusinessLifecycle));
+        const rawMap = new Map<string, Record<string, unknown>>();
+        for (const raw of rawRecords) {
+          const record = raw as Record<string, unknown>;
+          const sku = normaliseSkuKey(String(record.sku ?? record.model ?? "").trim());
+          if (sku) rawMap.set(sku, record);
+        }
+        setRawBySku(rawMap);
         setLoaded(true);
       })
       .catch((error) => {
@@ -430,6 +456,7 @@ export function CatalogBrowserPage() {
           const reasons = getCatalogMatchReasons(product, state);
           const eol = product.lifecycle.excludeFromNewRecommendations;
           const reviewerTrail = governedTiers.trails.get(normaliseSkuKey(product.sku));
+          const specEvidence = governedTiers.evidence.get(normaliseSkuKey(product.sku));
           return (
             <article key={product.id} className="wm-catalog-product-card">
               <Link
@@ -456,6 +483,14 @@ export function CatalogBrowserPage() {
                   </div>
                 ) : null}
                 <p className="wm-ui-copy wm-catalog-reasons">{reasons.join("  ·  ")}</p>
+                {specEvidence && (specEvidence.io || specEvidence.usb || specEvidence.reach) ? (
+                  <div className="mt-1.5">
+                    <GovernedSpecEvidence
+                      evidence={specEvidence}
+                      ariaLabel={`${product.sku} governed spec evidence`}
+                    />
+                  </div>
+                ) : null}
                 {eol ? <p className="wm-ui-copy wm-catalog-suppressed">Suppressed from new recommendations</p> : null}
               </Link>
               {reviewerTrail ? <GovernedReviewerTrail trail={reviewerTrail} /> : null}

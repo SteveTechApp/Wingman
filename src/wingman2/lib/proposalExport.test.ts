@@ -105,6 +105,24 @@ describe("proposal safety standard", () => {
     expect(html).toContain("<strong>Option:</strong>");
   });
 
+  it("carries the best-efforts disclaimer in the HTML body", () => {
+    const proposal: StoredProjectProposal = {
+      title: "Disclaimer proposal",
+      summary: "Confirmed requirement.",
+      sections: [],
+      products: [],
+      assumptions: [],
+      updatedAt: "2026-06-28T00:00:00.000Z",
+    };
+
+    const html = buildProposalHtml(proposal, []);
+    expect(html).toContain('data-wingman-best-efforts-disclaimer="true"');
+    expect(html).toContain("Best-efforts disclaimer");
+    expect(html).toContain("best-efforts basis");
+    expect(html).toContain("verified against the current WyreStorm documentation");
+    expect(html).toContain("accepts no liability");
+  });
+
   it("lists BY-OTHERS rows as explicit exclusions from the WyreStorm scope", () => {
     const proposal: StoredProjectProposal = {
       title: "Exclusions proposal",
@@ -131,5 +149,80 @@ describe("proposal safety standard", () => {
 
     expect(html).toContain("Specifically excluded from this WyreStorm equipment schedule, provided by others");
     expect(html).toContain("BY-OTHERS-NETWORK-INFRASTRUCTURE");
+  });
+});
+
+describe("power strategy section", () => {
+  it("includes a Power Strategy heading when products are provided", () => {
+    const products: StoredProductSelection[] = [
+      { sku: "AMP-2120-DNT", title: "AMP-2120-DNT amplifier", quantity: 1 },
+    ];
+    const proposal: StoredProjectProposal = {
+      title: "Power proposal",
+      summary: "Test power section.",
+      sections: [],
+      products,
+      assumptions: [],
+      updatedAt: "2026-08-23T00:00:00.000Z",
+    };
+    const html = buildProposalHtml(proposal, [], products);
+    expect(html).toContain("<h2>Power Strategy</h2>");
+    expect(html).toContain("AMP-2120-DNT");
+    expect(html).toContain("governed technical profiles");
+  });
+
+  it("renders per-SKU wattage and total from governed profiles", () => {
+    const products: StoredProductSelection[] = [
+      { sku: "AMP-2120-DNT", title: "AMP-2120-DNT amplifier", quantity: 1 },
+      { sku: "AMP-2120-DNT", title: "AMP-2120-DNT amplifier", quantity: 2 },
+    ];
+    const proposal: StoredProjectProposal = {
+      title: "Multi-unit power",
+      summary: "Test summed power.",
+      sections: [],
+      products,
+      assumptions: [],
+      updatedAt: "2026-08-23T00:00:00.000Z",
+    };
+    const html = buildProposalHtml(proposal, [], products);
+    expect(html).toContain("Per-unit max");
+    expect(html).toContain("Total max");
+    // AMP-2120-DNT has "Max 120W" via 24V DC 5A (120W)
+    expect(html).toContain("120W");
+    // 3 units × 120W = 360W total
+    expect(html).toContain("360W");
+    expect(html).toContain("approximately");
+  });
+
+  it("shows PoE audit when products use PoE/PoH", () => {
+    const products: StoredProductSelection[] = [
+      { sku: "AMP-2120-DNT", title: "AMP-2120-DNT amplifier", quantity: 1 },
+    ];
+    const proposal: StoredProjectProposal = {
+      title: "PoE proposal",
+      summary: "Test PoE audit.",
+      sections: [],
+      products,
+      assumptions: [],
+      updatedAt: "2026-08-23T00:00:00.000Z",
+    };
+    const html = buildProposalHtml(proposal, [], products);
+    expect(html).toContain("PoE/PoH");
+    expect(html).toContain("injector or switch PoE budget");
+  });
+
+  it("omits the power section when no products are selected", () => {
+    const proposal: StoredProjectProposal = {
+      title: "Empty proposal",
+      summary: "No products.",
+      sections: [],
+      products: [],
+      assumptions: [],
+      updatedAt: "2026-08-23T00:00:00.000Z",
+    };
+    const html = buildProposalHtml(proposal, []);
+    // Power Strategy heading should still appear but with a fallback message
+    expect(html).toContain("<h2>Power Strategy</h2>");
+    expect(html).toContain("No products have been selected");
   });
 });

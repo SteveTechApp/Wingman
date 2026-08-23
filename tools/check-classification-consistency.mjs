@@ -73,6 +73,38 @@ const RULES = [
   },
 ];
 
+// Range/family pages (SW-0X01-8K - the "0X" is a variable input-count
+// placeholder - and SW-130-TX, the bare family reference for the -UK/-US
+// variants) are not saleable products. The index generator forces them to
+// review-required with every spec claim stripped; this rule hard-fails if a
+// committed index ever regresses and presents a range page as a product with
+// its own I/O, features or connectors (the SW-0X01-8K USB 3.x / FRL and
+// SW-130-TX RX-500 camera defects).
+function isRangeFamilyPage(product) {
+  const sku = String(product?.sku ?? "").toUpperCase();
+  if (/\b0X\d/i.test(sku)) return true;
+  const text = lower(`${product?.name ?? ""} ${product?.title ?? ""} ${product?.description ?? ""} ${product?.summary ?? ""}`);
+  return /(\(family\)|family reference|range page|range reference|family page|not an orderable sku|shared family page|range placeholder|family\/range reference)/i.test(text);
+}
+
+function rangePageSpecClaims(product) {
+  const claims = [];
+  const profile = product?.technicalProfile;
+  const ports = Array.isArray(profile?.io?.ports) ? profile.io.ports : [];
+  const features = Array.isArray(product?.features) ? product.features : [];
+  const connectors = Array.isArray(product?.connectors) ? product.connectors : [];
+  if (ports.length) claims.push(`${ports.length} port(s)`);
+  if (features.length) claims.push(`${features.length} feature(s)`);
+  if (connectors.length) claims.push(`${connectors.length} connector(s)`);
+  if (String(product?.commercialRole ?? "") !== "review-required") {
+    claims.push(`commercialRole=${String(product?.commercialRole ?? "")}`);
+  }
+  if (String(product?.lifecycleStatus ?? "") !== "review") {
+    claims.push(`lifecycleStatus=${String(product?.lifecycleStatus ?? "")}`);
+  }
+  return claims;
+}
+
 async function main() {
   const payload = JSON.parse(await fs.readFile(indexPath, "utf8"));
   const products = extractProducts(payload);
@@ -96,6 +128,11 @@ async function main() {
       if (!rule.violated(tokens)) continue;
 
       violations.push(`${rule.id}: ${rule.describe(product.sku)} tokens=[${[...tokens].join(", ")}]`);
+    }
+
+    const rangeClaims = isRangeFamilyPage(product) ? rangePageSpecClaims(product) : [];
+    if (rangeClaims.length) {
+      violations.push(`range-page-carries-spec-claims: ${product.sku} is a range/family page but presents ${rangeClaims.join(", ")} - range pages are review-required with no spec claims of their own.`);
     }
   }
 

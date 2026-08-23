@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { FeedbackConsolidationPanel } from "../components/FeedbackConsolidationPanel";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
@@ -300,6 +301,8 @@ export function ProjectsPage() {
             </div>
           )}
         </SectionCard>
+
+        <FeedbackConsolidationPanel />
       </div>
     </div>
   );

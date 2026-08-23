@@ -28,6 +28,10 @@ vi.mock("../data/projectStore", () => ({
   useProjectStore: useProjectStoreMock,
 }));
 
+vi.mock("../lib/feedbackInformedGuidance", () => ({
+  collectCrossProjectFeedback: vi.fn(() => []),
+}));
+
 import { ProjectsPage } from "./ProjectsPage";
 
 function renderProjects(projects: StoredProject[]) {

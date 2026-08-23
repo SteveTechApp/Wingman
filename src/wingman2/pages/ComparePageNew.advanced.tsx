@@ -28,6 +28,7 @@ import {
 } from "../lib/compareVerdictPipeline";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { VerifyBeforeQuoteNote } from "../components/VerifyBeforeQuoteNote";
 import {
   saveCompareRunToProject,
   saveProductSelectionToCurrentProject,
@@ -6138,7 +6139,7 @@ function ComparePageNew() {
             {activeCandidate ? <section className="wm-ui-card wm-ui-section" aria-label="Compare result actions"><div className="compare-native-action-row wm-ui-action-row">
               <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
               <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
-            </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}</section> : null}
+            </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}<div className="compare-native-action-row wm-ui-action-row"><VerifyBeforeQuoteNote /></div></section> : null}
             {matrixAlternatives.length ? <section className="compare-native-options compare-candidate-selector wm-ui-card" aria-label="Suggested other matches"><div><h2 className="wm-ui-title">Suggested other matches</h2><p className="wm-ui-copy">Select a thumbnail to compare that option in the main cards.</p></div><div className="compare-candidate-selector__grid">{matrixAlternatives.map((candidate) => <CandidateThumbnailSelector key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} selected={activeCandidate?.product.sku === candidate.product.sku} onSelect={() => { const index = viableCandidates.findIndex((option) => option.product.sku === candidate.product.sku); if (index >= 0) setCandidateIndex(index); }} />)}</div></section> : null}
             <details className="compare-native-summary wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
               <CompetitorSearchCard

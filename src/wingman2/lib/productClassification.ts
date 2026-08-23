@@ -72,6 +72,25 @@ export type WingmanProductLike = {
   technicalProfile?: unknown;
 };
 
+export type WingmanSpecEvidenceSource = "governed" | "inferred";
+
+/**
+ * Compact governed-spec facts a rep can read at a glance: the verified I/O
+ * count, USB version and signal reach behind a recommendation, plus whether
+ * those facts came from the curated technicalProfile (`governed`) or were
+ * inferred from catalogue text (`inferred`). Surfaces on the Recommendations
+ * and Catalog pages answer "why did this product pass the gates" with the
+ * actual spec evidence, not just the pass/fail verdict.
+ */
+export type WingmanSpecEvidence = {
+  io: string | null;
+  usb: string | null;
+  reach: string | null;
+  connectors: string[];
+  transport: WingmanTransportClass[];
+  source: WingmanSpecEvidenceSource;
+};
+
 export type WingmanProductProfile = {
   sku: string;
   productClass: WingmanProductClass;
@@ -83,6 +102,8 @@ export type WingmanProductProfile = {
   outputCount: number | null;
   connectors: string[];
   transport: WingmanTransportClass[];
+  /** Governed-spec summary surfaced next to recommendations (I/O, USB, reach). */
+  specEvidence: WingmanSpecEvidence;
   features: {
     mst: boolean;
     wirelessCasting: boolean;
@@ -112,6 +133,8 @@ export type WingmanProductProfile = {
   validProductPaths: string[];
   invalidProductPaths: string[];
   searchBlob: string;
+  /** Longest verified signal reach in metres (headline figure from the governed technicalProfile), null when not evidenced. */
+  distanceMeters: number | null;
 };
 
 function clean(value: unknown) {
@@ -171,8 +194,19 @@ function numberFromSkuSegment(segment: string) {
 function inferIoFromSku(sku: string, text: string, productClass: WingmanProductClass) {
   const normalisedSku = sku.toUpperCase();
 
+  // Cable/accessory/point-to-point SKUs encode length or item counts
+  // (CAB-HAOC-15 is a 15m cable, EX-35-H2 reaches 35m) rather than I/O, so
+  // their digit runs are never port figures - the class fallback below is
+  // authoritative for them.
+  const nonPortDigitClasses = new Set<WingmanProductClass>([
+    "cable",
+    "accessory",
+    "signal-extender-kit",
+    "transmitter",
+    "receiver",
+  ]);
   const explicit = normalisedSku.match(/(?:^|[-_])(\d{2,4})(?:[-_]|$)/);
-  if (explicit) {
+  if (explicit && !nonPortDigitClasses.has(productClass)) {
     const digits = explicit[1];
 
     if (digits.length === 2) {
@@ -262,6 +296,190 @@ function inferFeatures(text: string, sku: string) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Governed technicalProfile reading.
+//
+// Canonical rows (and the generated runtime index) carry a curated
+// technicalProfile: per-port structured I/O, USB versions, transports and
+// processing evidence extracted from official WyreStorm product pages. When
+// that evidence exists it wins over the free-text keyword matchers, because
+// marketing tags routinely mention OTHER products' capabilities in a
+// compatibility sense ("compatible with HDBaseT", "feeds a video wall") that
+// the structured profile does not share. The keyword matchers remain the
+// fallback for rows without governed evidence.
+// ---------------------------------------------------------------------------
+
+type TechnicalProfileLike = {
+  io?: {
+    ports?: Array<{
+      count?: unknown;
+      connector?: unknown;
+      direction?: unknown;
+      category?: unknown;
+    }>;
+  };
+  usb?: {
+    versions?: unknown[];
+    roles?: unknown[];
+  };
+  transports?: unknown[];
+  video?: {
+    distance?: unknown[];
+    processing?: unknown[];
+  };
+  features?: Array<{ id?: unknown }>;
+};
+
+function technicalProfile(product: WingmanProductLike): TechnicalProfileLike | null {
+  const raw = (product as { technicalProfile?: unknown }).technicalProfile;
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as TechnicalProfileLike;
+  }
+  return null;
+}
+
+function techFeatureIds(tp: TechnicalProfileLike | null): Set<string> {
+  const ids = new Set<string>();
+  if (!tp || !Array.isArray(tp.features)) return ids;
+  for (const feature of tp.features) {
+    const id = clean(feature?.id).toLowerCase();
+    if (id) ids.add(id);
+  }
+  return ids;
+}
+
+/** Map a governed port connector string to the classifier's connector vocabulary. */
+function connectorFamily(value: unknown): string {
+  const low = normalise(value);
+  if (!low) return "";
+  if (low.startsWith("hdmi")) return "HDMI";
+  if (low.startsWith("usb")) {
+    if (low.includes("usb-c") || low.includes("usb c") || low.includes("type c")) return "USB-C";
+    if (low.includes("type a") || low.includes("usb-a")) return "USB-A";
+    if (low.includes("type b") || low.includes("usb-b")) return "USB-B";
+    return "";
+  }
+  if (/hdbaset|hdbt/.test(low)) return "HDBaseT";
+  if (/rj\s*45|\blan\b|\bethernet\b|\bnetwork\b/.test(low)) return "RJ45 / network";
+  if (/fibre|fiber|sfp/.test(low)) return "Fibre";
+  if (/dante|aes67/.test(low)) return "Dante / AES67";
+  if (/rs\s*232/.test(low)) return "RS-232";
+  if (/^ir\b/.test(low)) return "IR";
+  if (/mic|microphone/.test(low)) return "Mic";
+  if (/spdif|toslink|digital audio/.test(low)) return "Audio digital";
+  if (/trs|analog|line out|audio/.test(low)) return "Audio analogue";
+  return "";
+}
+
+/** Video input/output counts + connector families from the structured port list. */
+function governedIoCounts(tp: TechnicalProfileLike | null) {
+  const ports = Array.isArray(tp?.io?.ports) ? tp.io.ports : [];
+  const connectorSet = new Set<string>();
+  if (!ports.length) return { inputs: null, outputs: null, connectors: [] };
+
+  let inputs = 0;
+  let outputs = 0;
+
+  for (const port of ports) {
+    const family = connectorFamily(port.connector);
+    if (family) connectorSet.add(family);
+
+    const category = clean(port.category).toLowerCase();
+    if (category !== "video") continue;
+
+    const count = Number(port.count || 0);
+    if (!Number.isFinite(count) || count <= 0) continue;
+
+    const direction = clean(port.direction).toLowerCase();
+    if (direction === "input") inputs += Math.round(count);
+    if (direction === "output") outputs += Math.round(count);
+  }
+
+  return {
+    inputs: inputs > 0 ? inputs : null,
+    outputs: outputs > 0 ? outputs : null,
+    connectors: Array.from(connectorSet),
+  };
+}
+
+/** Feature flags evidenced by the governed profile; only flags WITH evidence are set. */
+function governedFeatureFlags(tp: TechnicalProfileLike | null): Partial<WingmanProductProfile["features"]> {
+  if (!tp) return {};
+
+  const ids = techFeatureIds(tp);
+  const usb = tp.usb && typeof tp.usb === "object" ? tp.usb : null;
+  const usbVersions = Array.isArray(usb?.versions) ? usb.versions.map(clean) : [];
+  const usbRoles = Array.isArray(usb?.roles) ? usb.roles.map(clean) : [];
+  const versionText = usbVersions.join(" ").toLowerCase();
+  const roleText = usbRoles.join(" ").toLowerCase();
+  const transportText = Array.isArray(tp.transports) ? tp.transports.map(clean).join(" ").toLowerCase() : "";
+  const processingText = Array.isArray(tp.video?.processing) ? tp.video.processing.map(clean).join(" ").toLowerCase() : "";
+
+  const flags: Partial<WingmanProductProfile["features"]> = {};
+
+  if (usbVersions.length) {
+    flags.usb2 = /2\.\d|\busb 2\b/.test(versionText);
+    flags.usb3 = /3\.\d|3\.x|\busb 3\b/.test(versionText);
+  }
+  if (usbRoles.length) {
+    flags.kvm = /kvm|hid/.test(roleText);
+  }
+  if (transportText) {
+    flags.hdbaset = /hdbaset|hdbt/.test(transportText);
+    flags.hdbaset3 = /hdbaset\s*3|hdbt\s*3/.test(transportText);
+    flags.network1g = /1g\b|1gbe|gigabit|networkhd 100|networkhd 500/.test(transportText);
+    flags.network10g = /10g\b|10gbe|sfp/.test(transportText);
+    flags.wirelessCasting = /wireless|wi-?fi/.test(transportText);
+    flags.dante = /dante|aes67/.test(transportText);
+  }
+  if (processingText) {
+    flags.multiview = /multiview|multi-?view/.test(processingText);
+    flags.seamless = /seamless/.test(processingText);
+    flags.scaling = /scal/.test(processingText);
+    flags.videoWall = /video\s*wall/.test(processingText);
+  }
+
+  const idFlags: Array<[string, keyof WingmanProductProfile["features"]]> = [
+    ["usb-30", "usb3"],
+    ["usb-20", "usb2"],
+    ["kvm", "kvm"],
+    ["hdbaset-3", "hdbaset3"],
+    ["hdbaset", "hdbaset"],
+    ["multiview", "multiview"],
+    ["seamless-switching", "seamless"],
+    ["scaling", "scaling"],
+    ["video-wall", "videoWall"],
+    ["wireless-presentation", "wirelessCasting"],
+    ["wireless-conferencing", "wirelessCasting"],
+    ["dante", "dante"],
+    ["aes67", "dante"],
+    ["audio-breakout", "audioDeEmbed"],
+    ["ip-control", "ipControl"],
+    ["rs232", "rs232"],
+    ["ir", "ir"],
+    ["relay", "relay"],
+    ["sfp", "network10g"],
+  ];
+  for (const [id, flag] of idFlags) {
+    if (ids.has(id)) flags[flag] = true;
+  }
+
+  return flags;
+}
+
+/** Headline reach in metres: the first numeric distance entry on the governed profile. */
+function governedDistanceMeters(tp: TechnicalProfileLike | null): number | null {
+  const distance = Array.isArray(tp?.video?.distance) ? tp.video.distance : [];
+  for (const entry of distance) {
+    const match = String(entry ?? "").match(/(\d+(?:\.\d+)?)\s*m/i);
+    if (match) {
+      const metres = Number(match[1]);
+      if (Number.isFinite(metres) && metres > 0) return metres;
+    }
+  }
+  return null;
+}
+
 // Two-pass classification: WyreStorm's SKU prefixes are an authoritative, unambiguous
 // product-family signal, but the free-text spec blob (tags/description/applications)
 // routinely mentions OTHER product categories in a compatibility or bundled-inclusion
@@ -309,10 +527,20 @@ function inferProductClassBySkuPrefix(sku: string, text: string): WingmanProduct
   if (startsAny(sku, ["TX-"])) return "transmitter";
 
   if (startsAny(sku, ["SW-"])) {
-    if (sku.includes("-VW") || includesAny(text, ["video wall", "videowall", "wall processor"])) return "video-wall-processor";
-    if (sku.includes("-MV") || includesAny(text, ["multiview", "multi-view", "multi view"])) return "multiview-processor";
-    if (sku.endsWith("-W") || includesAny(text, ["wireless presentation", "wireless casting", "airplay", "miracast"])) return "wireless-presentation";
+    // Suffix rules only for the wall/multiview processors: -VW / -MV are
+    // unambiguous product identities. The free-text "video wall"/"multiview"
+    // hints are deliberately NOT consulted here - marketing tags routinely
+    // carry "Video Wall | Processing" as an APPLICATION of a plain room
+    // switcher, which previously mislabeled SW-620-TX-W / SW-640L-TX-W as wall
+    // processors and emptied every presentation-room recommendation.
+    if (sku.includes("-VW") || includesAny(text, ["wall processor"])) return "video-wall-processor";
+    if (sku.includes("-MV")) return "multiview-processor";
+    // Presentation switcher beats the "-W" wireless suffix: SW-640L-TX-W,
+    // SW-620-TX-W and friends are wireless-capable presentation switchers (the
+    // governed profiles classify them presentation-switcher), not bare casting
+    // dongles. The wireless-casting flag itself is still driven by -W / evidence.
     if (includesAny(text, ["presentation switcher", "usb-c", "usb c", "byod", "byom", "conference room"])) return "presentation-switcher";
+    if (sku.endsWith("-W") || includesAny(text, ["wireless presentation", "wireless casting", "airplay", "miracast"])) return "wireless-presentation";
     return "hdmi-switcher";
   }
 
@@ -443,8 +671,28 @@ export function classifyWingmanProduct(product: WingmanProductLike): WingmanProd
   const searchBlob = getText(product);
   const text = normalise(searchBlob);
   const productClass = inferProductClass(product);
-  const features = inferFeatures(text, sku.toUpperCase());
-  const io = inferIoFromSku(sku, text, productClass);
+  const tp = technicalProfile(product);
+  const governedIo = governedIoCounts(tp);
+  const keywordIo = inferIoFromSku(sku, text, productClass);
+  const features = { ...inferFeatures(text, sku.toUpperCase()), ...governedFeatureFlags(tp) };
+  let inputCount = governedIo.inputs ?? keywordIo.inputs;
+  let outputCount = governedIo.outputs ?? keywordIo.outputs;
+  // A point-to-point extender/transmitter/receiver is single-channel by
+  // definition: it moves ONE source to ONE display. A governed profile that
+  // lists several "video" outputs for one is counting control signals carried
+  // over the link (IR TX/RX, phoenix) as ports, which would surface a
+  // misleading "3 out" on a 1-in/1-out product. Cap the routed counts at 1.
+  if (DISTANCE_GATED_PRODUCT_CLASSES.has(productClass)) {
+    if (inputCount != null) inputCount = Math.min(inputCount, 1);
+    if (outputCount != null) outputCount = Math.min(outputCount, 1);
+  }
+  const connectors = unique([...governedIo.connectors, ...inferConnectors(text, sku.toUpperCase())]);
+  const transport = inferTransport(productClass, text, features);
+  const distanceMeters = governedDistanceMeters(tp);
+  const ioParts = [
+    inputCount != null ? `${inputCount} in` : null,
+    outputCount != null ? `${outputCount} out` : null,
+  ].filter((part): part is string => Boolean(part));
 
   return {
     sku,
@@ -453,15 +701,26 @@ export function classifyWingmanProduct(product: WingmanProductLike): WingmanProd
     salesType: productClassToSalesType(productClass),
     technologyType: productClassToTechnologyType(productClass),
     family: clean(product.family || product.primarySystemFamily || product.category || productClassToTechnologyType(productClass)),
-    inputCount: io.inputs,
-    outputCount: io.outputs,
-    connectors: inferConnectors(text, sku.toUpperCase()),
-    transport: inferTransport(productClass, text, features),
+    // Structured port counts win when the governed profile evidences them;
+    // SKU-digit parsing and free-text remain the fallback.
+    inputCount,
+    outputCount,
+    connectors,
+    transport,
+    specEvidence: {
+      io: ioParts.length ? ioParts.join(" / ") : null,
+      usb: features.usb3 ? "USB 3.x" : features.usb2 ? "USB 2.0" : null,
+      reach: distanceMeters != null ? `${distanceMeters}m` : null,
+      connectors,
+      transport,
+      source: tp ? "governed" : "inferred",
+    },
     features,
     visibility: inferVisibility(productClass),
     validProductPaths: inferValidPaths(productClass, features),
     invalidProductPaths: [],
     searchBlob,
+    distanceMeters,
   };
 }
 
@@ -660,6 +919,89 @@ function supportsControlNeed(profile: WingmanProductProfile, requested: string |
   return true;
 }
 
+// Distance is a hard selector criterion only for point-to-point transport
+// classes where reach IS the product's identity (HDBaseT extenders and
+// transmitters/receivers). Other classes are skipped: a matrix's "distance"
+// is its local rack, a camera's is its lens reach - neither selects a product.
+// Products WITHOUT verified reach evidence fail open rather than being
+// rejected on missing data; only a verified reach below the requested run
+// rejects.
+export const DISTANCE_GATED_PRODUCT_CLASSES = new Set<WingmanProductClass>([
+  "signal-extender-kit",
+  "transmitter",
+  "receiver",
+]);
+
+export function distanceBucketMinMeters(requested: string | undefined) {
+  switch (requested) {
+    case "Local <5m": return 0;
+    case "Short 5-10m": return 5;
+    case "Medium 10-35m": return 10;
+    case "Long 35-70m": return 35;
+    case "Very long 70-100m": return 70;
+    default: return null;
+  }
+}
+
+/** Non-empty when the product's verified reach cannot cover the requested run. */
+export function distanceGateReason(profile: WingmanProductProfile, requested: string | undefined): string {
+  if (!requested || needIsNeutral(requested)) return "";
+  if (!DISTANCE_GATED_PRODUCT_CLASSES.has(profile.productClass)) return "";
+  const requestedMin = distanceBucketMinMeters(requested);
+  if (requestedMin == null || profile.distanceMeters == null) return "";
+  if (profile.distanceMeters >= requestedMin) return "";
+  return `Verified reach (${profile.distanceMeters}m) is below the requested ${requested} run.`;
+}
+
+/**
+ * Positive evidence lines for a requirement the product actually satisfied.
+ * Mirrors the exact predicates in isWingmanProductEligibleForFinderNeed so a
+ * claim is only made when the gate genuinely evaluated that dimension (fixed
+ * I/O classes, non-neutral USB need, distance-gated point-to-point classes),
+ * and the caller is expected to have already confirmed eligibility.
+ */
+export function matchedGateReasons(profile: WingmanProductProfile, need: WingmanFinderNeedLike): string[] {
+  const reasons: string[] = [];
+
+  if (FIXED_PORT_PRODUCT_CLASSES.has(profile.productClass)) {
+    const requestedInputs = need.inputs;
+    const minInputs = requestedInputs ? minCountForNeed(requestedInputs) : null;
+    if (minInputs != null && profile.inputCount != null && profile.inputCount >= minInputs) {
+      reasons.push(`I/O gate passed: ${profile.inputCount} inputs cover the ${requestedInputs} source brief.`);
+    }
+    const requestedOutputs = need.outputs;
+    const minOutputs = requestedOutputs ? minCountForNeed(requestedOutputs) : null;
+    if (minOutputs != null && profile.outputCount != null && profile.outputCount >= minOutputs) {
+      reasons.push(`I/O gate passed: ${profile.outputCount} outputs cover the ${requestedOutputs} display brief.`);
+    }
+  }
+
+  if (!needIsNeutral(need.usb) && need.usb !== "No USB" && supportsUsbNeed(profile, need.usb)) {
+    if (need.usb === "USB 3.x required" && profile.features.usb3) {
+      reasons.push("USB gate passed: USB 3.x is evidenced on this product.");
+    } else if (need.usb === "USB 2.0 enough" && (profile.features.usb2 || profile.features.usb3 || profile.transport.includes("usb"))) {
+      reasons.push("USB gate passed: USB connectivity is evidenced on this product.");
+    } else if (need.usb === "KVM / HID") {
+      reasons.push(
+        profile.features.kvm
+          ? "USB gate passed: KVM / HID routing is evidenced on this product."
+          : "USB gate passed: USB routing is evidenced on this product.",
+      );
+    } else {
+      reasons.push(`USB gate passed for the "${need.usb}" requirement.`);
+    }
+  }
+
+  if (!needIsNeutral(need.distance) && DISTANCE_GATED_PRODUCT_CLASSES.has(profile.productClass)) {
+    const requestedMin = distanceBucketMinMeters(need.distance);
+    if (requestedMin != null && profile.distanceMeters != null && profile.distanceMeters >= requestedMin) {
+      reasons.push(`Reach gate passed: ${profile.distanceMeters}m reach covers the ${need.distance} run.`);
+    }
+  }
+
+  return reasons;
+}
+
 export function isWingmanProductEligibleForFinderNeed(product: WingmanProductLike, need: WingmanFinderNeedLike) {
   const profile = classifyWingmanProduct(product);
   const allowedClasses = resolveAllowedClasses(need);
@@ -705,6 +1047,10 @@ export function isWingmanProductEligibleForFinderNeed(product: WingmanProductLik
   }
 
   if (!supportsControlNeed(profile, need.control)) {
+    return false;
+  }
+
+  if (!needIsNeutral(need.distance) && distanceGateReason(profile, need.distance)) {
     return false;
   }
 

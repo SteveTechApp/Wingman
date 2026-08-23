@@ -67,6 +67,27 @@ describe("compare page minimum verdict surface", () => {
     expect(technicalDetails?.open).toBe(false);
   });
 
+  it("surfaces the verify-before-quote responsibility alongside the result actions", async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[
+          "/wingman/compare?brand=Barco&sku=CLICKSHARE-CX-30&context=Wireless+presentation+system",
+        ]}
+      >
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    await screen.findByLabelText("Compare product cards");
+    await screen.findByText("Technical evidence & review");
+
+    const note = document.querySelector("[data-wingman-verify-before-quote]");
+    expect(note).not.toBeNull();
+    expect(note?.textContent).toContain("best-efforts");
+    expect(note?.textContent).toContain("Verify specifications");
+    expect(note?.querySelector("a")?.getAttribute("href")).toBe("/wingman/terms");
+  });
+
   it("answers honestly on the no-match path and exposes evidence as the next step", async () => {
     render(
       <MemoryRouter

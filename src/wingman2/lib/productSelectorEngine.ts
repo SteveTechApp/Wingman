@@ -1,7 +1,9 @@
 import { isSkuAdminBlocked } from "./adminProductOverrides";
 import {
   classifyWingmanProduct,
+  distanceGateReason,
   isWingmanProductEligibleForFinderNeed,
+  matchedGateReasons,
   wingmanHardwareTypePriority,
   type WingmanFinderNeedLike,
   type WingmanProductLike,
@@ -293,6 +295,9 @@ function extraCompatibilityRejections(product: WingmanProductLike, profile: Wing
     reasons.push("Multiview processing evidence is not present on this product.");
   }
 
+  const distanceReason = distanceGateReason(profile, request.distance);
+  if (distanceReason) reasons.push(distanceReason);
+
   return reasons;
 }
 
@@ -426,6 +431,14 @@ function buildDecision<TProduct extends WingmanProductLike>(product: TProduct, r
     status === "partial" ||
     (status === "dependency" && Boolean(request.includeDependencies || request.includeAccessories)) ||
     (status === "browse-only" && browseAllowed);
+
+  // Positive evidence: when the request actually specified I/O, USB or reach
+  // dimensions and the product cleared them, say so. Reps see WHY the product
+  // passed the gates, not just that it did. Mirrors the eligibility predicates
+  // one-for-one, so a claim is never made for a gate that did not run.
+  if (eligible && hasNeed) {
+    reasons.push(...matchedGateReasons(profile, request));
+  }
 
   const decision: ProductSelectorDecision<TProduct> = {
     sku: canonical,

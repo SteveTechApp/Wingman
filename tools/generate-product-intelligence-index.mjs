@@ -160,6 +160,84 @@ function buildTextBlob(product) {
   ].map(asString).join(" ");
 }
 
+// Range/family pages (e.g. SW-0X01-8K - the "0X" is a variable input-count
+// placeholder shared by the 2x1 and 4x1 variants; SW-130-TX - the bare family
+// reference for the -UK/-US regional variants) are NOT saleable products.
+// They must never present variant-specific spec claims as their own: the
+// SW-0X01-8K profile once carried a USB 3.x claim that was actually the HDMI
+// 2.1 FRL line, and SW-130-TX carried an RX-500 receiver's camera facts.
+// Detection is by SKU placeholder token and explicit family/range wording in
+// the name or description, so it keeps working even if the source record's
+// lifecycle/role fields regress to active. See also
+// check-classification-consistency.mjs which hard-fails regeneration if a
+// detected range page carries spec claims.
+function isRangeFamilyPage(sku, name, description, summary) {
+  const skuUpper = asString(sku).toUpperCase();
+  // WyreStorm "0X" placeholder SKUs (0X = variable input count):
+  if (/\b0X\d/i.test(skuUpper)) return true;
+  const text = [name, description, summary].map(asString).join(" ");
+  return /(\(family\)|family reference|range page|range reference|family page|not an orderable sku|shared family page|range placeholder|family\/range reference)/i.test(text);
+}
+
+// A range/family page carries no spec claims of its own: the stub keeps only
+// provenance (sourceQuality) plus a review-required marker, and drops every
+// I/O, video, USB, network, audio and control field the enrichment carried.
+function rangeFamilyProfileStub(source) {
+  const current = source && typeof source === "object" ? source : {};
+  const stub = {
+    profileVersion: asString(current.profileVersion) || "wyrestorm-product-manager-v1",
+    sourceQuality: current.sourceQuality,
+    governedSpecification: {
+      status: "review-required",
+      productClass: asString(current.governedSpecification?.productClass),
+      note: "Range/family page - no single product spec of its own; quote the exact variant SKU.",
+    },
+  };
+  return stub;
+}
+
+// Source-catalog carries captured spec lines (inputs/outputs/resolution). A
+// range/family page keeps only the provenance and warning fields.
+function rangeFamilySourceCatalog(source) {
+  if (!source || typeof source !== "object") return undefined;
+  const keep = [
+    "quoteWarnings",
+    "evidenceSource",
+    "lastReviewed",
+    "reviewer",
+    "lifecycleReason",
+  ];
+  const output = {};
+  for (const key of keep) {
+    if (source[key] !== undefined && source[key] !== null && source[key] !== "") output[key] = source[key];
+  }
+  return Object.keys(output).length ? output : undefined;
+}
+
+// dataMaintenance carries readiness-gate claims ("21 features captured",
+// "2 port/connector items captured") that are themselves spec claims on a
+// range page. Keep the maintenance envelope but drop the captured-count
+// gates and mark the page review-required.
+function rangeFamilyDataMaintenance(source) {
+  if (!source || typeof source !== "object") return undefined;
+  const { readinessGates, ...rest } = source;
+  const gates = readinessGates && typeof readinessGates === "object" ? { ...readinessGates } : {};
+  delete gates.technicalProfile;
+  delete gates.portsAndIo;
+  return {
+    ...rest,
+    status: "review-required",
+    readinessGates: {
+      ...gates,
+      rangePage: {
+        status: "review-required",
+        label: "Range/family page",
+        detail: "Not a saleable SKU - quote the exact variant.",
+      },
+    },
+  };
+}
+
 function classifyFamily(product, text) {
   const sku = asString(product.sku).toUpperCase();
 
@@ -425,29 +503,40 @@ function normalizeProduct(item, index, sourceFile) {
     description ||
     cleanText(item?.overview);
 
-  const technologies = asArray(item?.technologies);
-  const connectors = asArray(item?.connectors);
+  // A range/family page is force-demoted to review-required with its spec
+  // claims stripped, no matter what the source record says. Compute the flag
+  // before any spec field is built so classification, tags and search terms
+  // all derive from the stripped product.
+  const rangeFamilyPage = isRangeFamilyPage(sku, name, description, summary);
 
-  const features = Array.isArray(item?.features)
-    ? item.features
-        .map((feature) =>
-          typeof feature === "string"
-            ? feature.trim()
-            : asString(feature?.name || feature?.label || feature)
-        )
-        .filter(Boolean)
-    : [];
+  const technologies = rangeFamilyPage ? [] : asArray(item?.technologies);
+  const connectors = rangeFamilyPage ? [] : asArray(item?.connectors);
 
-  const applications = asArray(item?.applications);
+  const features = rangeFamilyPage
+    ? []
+    : Array.isArray(item?.features)
+      ? item.features
+          .map((feature) =>
+            typeof feature === "string"
+              ? feature.trim()
+              : asString(feature?.name || feature?.label || feature)
+          )
+          .filter(Boolean)
+      : [];
+
+  const applications = rangeFamilyPage ? [] : asArray(item?.applications);
   const rawProductClassification = item?.productClassification && typeof item.productClassification === "object"
     ? item.productClassification
     : null;
   const productClassification = applyClassificationCorrection(item?.sku, rawProductClassification);
-  const technicalProfile = item?.technicalProfile && typeof item.technicalProfile === "object"
-    ? item.technicalProfile
-    : null;
-  const salesLanguage =
-    item?.salesLanguage && typeof item.salesLanguage === "object"
+  const technicalProfile = rangeFamilyPage
+    ? rangeFamilyProfileStub(item?.technicalProfile)
+    : item?.technicalProfile && typeof item.technicalProfile === "object"
+      ? item.technicalProfile
+      : null;
+  const salesLanguage = rangeFamilyPage
+    ? null
+    : item?.salesLanguage && typeof item.salesLanguage === "object"
       ? item.salesLanguage
       : technicalProfile?.salesLanguage && typeof technicalProfile.salesLanguage === "object"
         ? technicalProfile.salesLanguage
@@ -482,18 +571,23 @@ function normalizeProduct(item, index, sourceFile) {
     mirroredInputCount: item?.mirroredInputCount,
     mirroredOutputCount: item?.mirroredOutputCount,
   };
-  const routedIoFields = Object.fromEntries(
-    Object.entries(routedIo).filter(([, value]) => value !== undefined && value !== null && value !== ""),
-  );
+  // A range/family page must not carry routing/I-O claims either.
+  const routedIoFields = rangeFamilyPage
+    ? {}
+    : Object.fromEntries(
+        Object.entries(routedIo).filter(([, value]) => value !== undefined && value !== null && value !== ""),
+      );
 
-  const tags = unique([
-    ...(Array.isArray(item?.tags) ? item.tags : []),
-    ...(Array.isArray(item?.featureTags) ? item.featureTags : []),
-    ...(Array.isArray(item?.applicationTags) ? item.applicationTags : []),
-    ...classificationPath,
-    ...subClassifications,
-    ...profileFeatureLabels,
-  ]);
+  const tags = rangeFamilyPage
+    ? unique([...classificationPath, ...subClassifications, "review-required", "range-family-page"])
+    : unique([
+        ...(Array.isArray(item?.tags) ? item.tags : []),
+        ...(Array.isArray(item?.featureTags) ? item.featureTags : []),
+        ...(Array.isArray(item?.applicationTags) ? item.applicationTags : []),
+        ...classificationPath,
+        ...subClassifications,
+        ...profileFeatureLabels,
+      ]);
 
   const provisionalProduct = {
     id: sku || `generated-${index + 1}`,
@@ -519,6 +613,16 @@ function normalizeProduct(item, index, sourceFile) {
   };
 
   const granularity = classifyProductGranularity(provisionalProduct);
+
+  // Range/family pages are forced to review-required regardless of what the
+  // source record's productRole/catalogVisibility claimed.
+  if (rangeFamilyPage) {
+    granularity.commercialRole = "review-required";
+    granularity.finderVisibility = "default";
+    granularity.bomRole = "request-only";
+    granularity.dependencyType = "review-required";
+    granularity.showWhenRequestedBy = [];
+  }
 
   const searchTerms = unique([
     brand,
@@ -570,11 +674,11 @@ function normalizeProduct(item, index, sourceFile) {
     dependencyType: granularity.dependencyType,
     primarySystemFamily: granularity.primarySystemFamily,
     showWhenRequestedBy: granularity.showWhenRequestedBy,
-    productRole: asString(item?.productRole),
-    catalogVisibility: asString(item?.catalogVisibility),
-    lifecycleStatus: asString(item?.lifecycleStatus || item?.lifecycle || item?.productLifecycle),
+    productRole: rangeFamilyPage ? "review-required" : asString(item?.productRole),
+    catalogVisibility: rangeFamilyPage ? "default" : asString(item?.catalogVisibility),
+    lifecycleStatus: rangeFamilyPage ? "review" : asString(item?.lifecycleStatus || item?.lifecycle || item?.productLifecycle),
     doNotSpec: item?.doNotSpec === true,
-    dataMaintenance: item?.dataMaintenance,
+    dataMaintenance: rangeFamilyPage ? rangeFamilyDataMaintenance(item?.dataMaintenance) : item?.dataMaintenance,
     technologyType: asString(item?.technologyType),
     hardwareType: asString(item?.hardwareType),
     productClassification,
@@ -582,7 +686,7 @@ function normalizeProduct(item, index, sourceFile) {
     subClassifications,
     ...routedIoFields,
     technicalProfile,
-    sourceCatalog: item?.sourceCatalog,
+    sourceCatalog: rangeFamilyPage ? rangeFamilySourceCatalog(item?.sourceCatalog) : item?.sourceCatalog,
     salesLanguage,
     source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),
   };

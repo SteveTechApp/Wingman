@@ -1257,33 +1257,79 @@ function computeProfileCompleteness(profile) {
   return coveragePercent(checks.length, present);
 }
 
-function scorePortFamily(competitorValue, wyrestormValue, label, warnings, strengths) {
-  const left = Number(competitorValue || 0);
-  const right = Number(wyrestormValue || 0);
+// I/O families are scored PER CONNECTOR, never summed. Summing different
+// connector classes (e.g. HDMI-in + USB-C-in as a single "input" count) let a
+// USB-C BYOD wallplate match an HDMI-only box as long as the totals agreed - a
+// functional gap dressed up as a port-count match. Each family present on at
+// least one side is scored on its own counts, and a family the competitor has
+// but the candidate lacks is a connector gap, never a "counts align" strength.
+const IO_FAMILIES = [
+  { key: "hdmiIn", label: "HDMI input" },
+  { key: "usbC", label: "USB-C input" },
+  { key: "hdmiOut", label: "HDMI output" },
+  { key: "hdbt", label: "HDBaseT path" },
+  { key: "usbHost", label: "USB host" },
+  { key: "usbDevice", label: "USB device" },
+  { key: "lan", label: "LAN" },
+];
 
-  if (left <= 0 && right <= 0) {
-    warnings.push(`${label} counts are missing on both products.`);
-    return 0;
+function scoreIoFamilies(competitor, wyrestorm, warnings, strengths) {
+  const connectorGaps = [];
+  let comparable = 0;
+  let total = 0;
+
+  for (const family of IO_FAMILIES) {
+    const left = Number(competitor?.ports?.[family.key] || 0);
+    const right = Number(wyrestorm?.ports?.[family.key] || 0);
+
+    if (left <= 0 && right <= 0) continue;
+
+    comparable += 1;
+
+    if (left <= 0 || right <= 0) {
+      if (left <= 0) {
+        // The candidate adds a connector class the competitor lacks - a
+        // potential advantage for the customer, not a gap.
+        strengths.push(
+          `WyreStorm adds ${family.label.toLowerCase()} the competitor lacks (${left} vs ${right}) - potential advantage; confirm the customer needs it.`,
+        );
+        total += 80;
+      } else {
+        // The competitor has this connector class; the candidate does not.
+        // This is a real functional difference, so it scores 0, surfaces as a
+        // warning, and caps the verdict below DIRECT MATCH / High.
+        connectorGaps.push({
+          key: family.key,
+          label: family.label,
+          competitor: left,
+          wyrestorm: right,
+        });
+        warnings.push(
+          `${family.label} counts are a connector-level gap: ${left} on the competitor vs ${right} on the WyreStorm candidate. A missing connector type is not a port-count match.`,
+        );
+        total += 0;
+      }
+      continue;
+    }
+
+    const delta = Math.abs(left - right);
+    if (delta === 0) {
+      strengths.push(`${family.label} counts align exactly.`);
+      total += 100;
+    } else if (delta === 1) {
+      warnings.push(`${family.label} counts differ by one port (${left} vs ${right}).`);
+      total += 70;
+    } else {
+      warnings.push(`${family.label} counts diverge materially (${left} vs ${right}).`);
+      total += Math.max(0, 100 - delta * 30);
+    }
   }
 
-  if (left <= 0 || right <= 0) {
-    warnings.push(`${label} counts are incomplete, so this dimension still needs review.`);
-    return 25;
-  }
-
-  const delta = Math.abs(left - right);
-  if (delta === 0) {
-    strengths.push(`${label} counts align exactly.`);
-    return 100;
-  }
-
-  if (delta === 1) {
-    warnings.push(`${label} counts differ by one port.`);
-    return 70;
-  }
-
-  warnings.push(`${label} counts diverge materially (${left} vs ${right}).`);
-  return Math.max(0, 100 - delta * 30);
+  return {
+    ioScore: comparable > 0 ? Math.round(total / comparable) : 0,
+    comparable,
+    connectorGaps,
+  };
 }
 
 function scoreVideoDimension(competitorValue, wyrestormValue, label, rankFn, warnings, strengths) {
@@ -1331,6 +1377,10 @@ function buildNextActions(blockers, warnings, competitor, wyrestorm) {
 
   if (warnings.some((item) => item.toLowerCase().includes("counts"))) {
     actions.push("Verify input and output counts from the source page before saving this fit downstream.");
+  }
+
+  if (warnings.some((item) => item.toLowerCase().includes("connector-level gap"))) {
+    actions.push("Confirm whether the missing connector type is required by the customer before treating this as an equivalent - a connector gap is not a port-count match.");
   }
 
   if (warnings.some((item) => item.toLowerCase().includes("captured"))) {
@@ -1517,21 +1567,9 @@ function scoreProfiles(competitor, wyrestorm, options = {}) {
     }
   }
 
-  const inputScore = scorePortFamily(
-    Number(competitor.ports.hdmiIn || 0) + Number(competitor.ports.usbC || 0),
-    Number(wyrestorm.ports.hdmiIn || 0) + Number(wyrestorm.ports.usbC || 0),
-    "Input",
-    warnings,
-    strengths,
-  );
-  const outputScore = scorePortFamily(
-    Number(competitor.ports.hdmiOut || 0) + Number(competitor.ports.hdbt || 0),
-    Number(wyrestorm.ports.hdmiOut || 0) + Number(wyrestorm.ports.hdbt || 0),
-    "Output",
-    warnings,
-    strengths,
-  );
-  const ioScore = Math.round((inputScore + outputScore) / 2);
+  const ioFamilyResult = scoreIoFamilies(competitor, wyrestorm, warnings, strengths);
+  const ioScore = ioFamilyResult.ioScore;
+  const connectorGaps = ioFamilyResult.connectorGaps;
 
   const resolutionScore = scoreVideoDimension(
     competitor.video?.maxResolution,
@@ -1592,6 +1630,10 @@ function scoreProfiles(competitor, wyrestorm, options = {}) {
   );
 
   if (blockers.length > 0) confidenceScore = Math.min(confidenceScore, 45);
+  // A connector the competitor has but the candidate lacks is a functional
+  // difference the rep must explain - it caps confidence below High so the
+  // verdict cannot read as a confirmed direct equivalent.
+  if (connectorGaps.length > 0) confidenceScore = Math.min(confidenceScore, 79);
 
   const confidence =
     confidenceScore >= 82 ? "High" :
@@ -1600,13 +1642,14 @@ function scoreProfiles(competitor, wyrestorm, options = {}) {
 
   const readinessStatus =
     blockers.length > 0 ? "blocked" :
+    connectorGaps.length > 0 ? "review" :
     confidenceScore >= 78 && evidenceCoverage >= 70 && profileCompleteness >= 65 && ioCoverage >= 35 ? "ready" :
     "review";
 
   const reviewRequired = readinessStatus !== "ready";
   const matchType =
     readinessStatus === "blocked" ? "INCOMPATIBLE" :
-    total >= 85 && confidenceScore >= 80 ? "DIRECT MATCH" :
+    total >= 85 && confidenceScore >= 80 && connectorGaps.length === 0 ? "DIRECT MATCH" :
     total >= 70 ? "CLOSE MATCH" :
     total >= 55 ? "ALTERNATIVE" :
     "REVIEW REQUIRED";
@@ -1625,6 +1668,9 @@ function scoreProfiles(competitor, wyrestorm, options = {}) {
   reasons.push(`Evidence coverage: ${evidenceCoverage}%`);
   reasons.push(`I/O coverage: ${ioCoverage}%`);
   reasons.push(`Feature coverage: ${featureCoverage}%`);
+  if (connectorGaps.length > 0) {
+    reasons.push(`Connector gaps: ${connectorGaps.map((gap) => `${gap.label} missing on the WyreStorm candidate`).join(", ")}`);
+  }
 
   const nextActions = buildNextActions(blockers, warnings, competitor, wyrestorm);
   const readinessSummary =
@@ -1650,6 +1696,7 @@ function scoreProfiles(competitor, wyrestorm, options = {}) {
       profileCompleteness,
       ioCoverage,
       featureCoverage,
+      connectorGapCount: connectorGaps.length,
       total: Math.max(0, Math.min(100, total)),
       reasons,
     },

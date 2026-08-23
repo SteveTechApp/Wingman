@@ -13,6 +13,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { NeedsSiteSurveyFlag } from "./NeedsSiteSurveyFlag";
+import { VerifyBeforeQuoteNote } from "./VerifyBeforeQuoteNote";
 import {
   saveProjectProposalToProject,
   saveRecommendationFeedback,
@@ -21,6 +23,10 @@ import {
   type StoredProjectProposal,
   type StoredRecommendationFeedback,
 } from "../data/projectStore";
+import {
+  normaliseProjectTopology,
+  projectTopologySurveyState,
+} from "../lib/projectTopology";
 import { useWingmanProfile, type WingmanProfile } from "../data/wingmanProfile";
 import {
   exportBomCsv,
@@ -240,7 +246,7 @@ function TextAreaField(props: {
 }
 
 export function ProposalCompletionWizard() {
-  const { activeProject: project } = useProjectStore();
+  const { activeProject: project, projects } = useProjectStore();
   const { profile } = useWingmanProfile();
 
   if (!project) {
@@ -262,6 +268,7 @@ export function ProposalCompletionWizard() {
   return (
     <ProposalCompletionWizardContent
       project={project}
+      projects={projects}
       profile={profile}
     />
   );
@@ -269,9 +276,11 @@ export function ProposalCompletionWizard() {
 
 function ProposalCompletionWizardContent({
   project,
+  projects,
   profile,
 }: {
   project: StoredProject;
+  projects: StoredProject[];
   profile: WingmanProfile;
 }) {
   const discovery = useMemo(() => readDiscovery(project), [project]);
@@ -304,6 +313,14 @@ function ProposalCompletionWizardContent({
     [familyScores, project.productSelections, project.proposal?.products],
   );
 
+  // The feedback loop: every project's saved feedback feeds the readiness
+  // package so a lesson learned on one opportunity (wrong-fit SKU, missing
+  // accessory) informs the next proposal that selects the same product.
+  const crossProjectFeedback = useMemo(
+    () => projects.flatMap((item) => item.feedback ?? []),
+    [projects],
+  );
+
   const salesReadiness = useMemo(
     () =>
       buildSalesReadinessPackage({
@@ -315,11 +332,17 @@ function ProposalCompletionWizardContent({
             : assumptions,
         ingest: project.ingest,
         compareRun: project.compareRuns?.[0] ?? null,
+        topology: project.discoveryBrief?.topology,
+        region: profile.region,
+        feedback: crossProjectFeedback,
       }),
     [
       assumptions,
+      crossProjectFeedback,
       discoveryWithCompletion,
+      profile.region,
       project.compareRuns,
+      project.discoveryBrief?.topology,
       project.ingest,
       project.proposal,
       selectedProducts,
@@ -419,19 +442,18 @@ function ProposalCompletionWizardContent({
   const [feedbackRating, setFeedbackRating] = useState<StoredRecommendationFeedback["rating"] | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
+  // Reload the draft ONLY when the discovery source data actually changed.
+  // `defaults` recomputes whenever the project store round-trips (the 250 ms
+  // proposal autosave), so comparing its identity would wipe a user's typed
+  // Step-1 overrides on every keystroke. The fingerprint string covers every
+  // discovery/profile/project field that feeds the defaults, so a changed
+  // fingerprint is the only condition that requires a refresh.
   useEffect(() => {
-    setDraft((current) => {
-      const sourceFieldsAreCurrent =
-        current.customerName === defaults.customerName &&
-        current.contactName === defaults.contactName &&
-        current.projectName === defaults.projectName &&
-        current.proposalReference === defaults.proposalReference &&
-        current.proposalDate === defaults.proposalDate &&
-        current.preparedBy === defaults.preparedBy;
-      return current.discoveryFingerprint === defaults.discoveryFingerprint && sourceFieldsAreCurrent
+    setDraft((current) =>
+      current.discoveryFingerprint === defaults.discoveryFingerprint
         ? current
-        : loadProposalWizardDraft(project.id, defaults);
-    });
+        : loadProposalWizardDraft(project.id, defaults),
+    );
   }, [defaults, project.id]);
 
   const baseBomRows = salesReadiness.bomRows.length
@@ -507,6 +529,13 @@ function ProposalCompletionWizardContent({
       salesReadiness.assurance.blockers.length,
     ],
   );
+
+  const chainBlockers = useMemo(() => {
+    return salesReadiness.assurance.blockers.filter((item) =>
+      item.id.startsWith("chain-") ||
+      item.domain === "physical"
+    );
+  }, [salesReadiness.assurance.blockers]);
 
   const typeConfig = getProposalDocumentTypeConfig(
     draft.documentType,
@@ -626,6 +655,72 @@ function ProposalCompletionWizardContent({
     setExportMessage("");
   }
 
+  const topologyInfraValue = useMemo(() => {
+    const topology = normaliseProjectTopology(project.discoveryBrief?.topology);
+    if (topology.connections.length === 0) {
+      return [discovery.distance, discovery.network]
+        .filter(Boolean)
+        .join(" - ") || "Not confirmed";
+    }
+
+    const hasUsbService = (services: string[]) =>
+      services.some((s) => ["usb-2", "usb-3", "usb-kvm"].includes(s));
+
+    // Extract exact figures from the route-planned connections.
+    const videoConnections = topology.connections.filter(
+      (c) => !hasUsbService(c.services) && c.id !== "planning-exception-path",
+    );
+    const usbConnections = topology.connections.filter(
+      (c) => hasUsbService(c.services),
+    );
+    const exceptionConnection = topology.connections.find(
+      (c) => c.id === "planning-exception-path",
+    );
+
+    const videoMetres = videoConnections
+      .filter((c) => c.lengthMetres !== undefined && c.lengthMetres > 0)
+      .map((c) => c.lengthMetres as number);
+    const usbMetres = usbConnections
+      .filter((c) => c.lengthMetres !== undefined && c.lengthMetres > 0)
+      .map((c) => c.lengthMetres as number);
+    const exceptionMetres =
+      exceptionConnection?.lengthMetres !== undefined &&
+      exceptionConnection.lengthMetres > 0
+        ? exceptionConnection.lengthMetres
+        : undefined;
+
+    const parts: string[] = [];
+    if (videoMetres.length > 0) {
+      const maxVideo = Math.max(...videoMetres);
+      parts.push(`${maxVideo} m video`);
+    }
+    if (usbMetres.length > 0) {
+      parts.push(`${Math.max(...usbMetres)} m USB`);
+    }
+    if (exceptionMetres !== undefined) {
+      parts.push(`${exceptionMetres} m exception`);
+    }
+
+    if (parts.length === 0) {
+      // No exact figures from the route planner yet — show the discovery text.
+      return [discovery.distance, discovery.network]
+        .filter(Boolean)
+        .join(" - ") || "Not confirmed";
+    }
+
+    const networkPart = discovery.network ? ` | Network: ${discovery.network}` : "";
+    return `${parts.join(" | ")}${networkPart}`;
+  }, [
+    discovery.distance,
+    discovery.network,
+    project.discoveryBrief?.topology,
+  ]);
+
+  const topologySurvey = useMemo(
+    () => projectTopologySurveyState(project.discoveryBrief?.topology),
+    [project.discoveryBrief?.topology],
+  );
+
   const requirementRows = [
     { label: "Application", value: discovery.projectTitle, question: "opportunity" },
     { label: "Room / system scale", value: discovery.roomSize, question: "scale" },
@@ -644,17 +739,22 @@ function ProposalCompletionWizardContent({
     { label: "Budget sensitivity", value: discovery.budget, question: "budget" },
     {
       label: "Infrastructure",
-      value: [discovery.distance, discovery.network]
-        .filter(Boolean)
-        .join(" - ") || "Not confirmed",
+      value: topologyInfraValue,
       question: "locations-connections",
     },
   ];
 
+  function blockExportReason(): string | null {
+    if (chainBlockers.length === 0) return null;
+    const names = chainBlockers.map((b) => b.sku ? `${b.sku} — ${b.message}` : b.message);
+    return `Export blocked — resolve these chain issues first:\n${names.join("; ")}`;
+  }
+
   async function exportDocx() {
     if (readiness.score < 100) {
+      const reason = blockExportReason();
       setExportMessage(
-        "Complete the remaining wizard items before exporting the final DOCX.",
+        reason ?? "Complete the remaining wizard items before exporting the final DOCX.",
       );
       return;
     }
@@ -681,14 +781,15 @@ function ProposalCompletionWizardContent({
 
   function exportHtml() {
     if (readiness.score < 100) {
+      const reason = blockExportReason();
       setExportMessage(
-        "Complete the remaining wizard items before exporting HTML.",
+        reason ?? "Complete the remaining wizard items before exporting HTML.",
       );
       return;
     }
 
     try {
-      exportProposalHtml(proposal, bomRows);
+      exportProposalHtml(proposal, bomRows, selectedProducts);
       setExportMessage("HTML export generated.");
     } catch (error) {
       setExportMessage(
@@ -701,8 +802,9 @@ function ProposalCompletionWizardContent({
 
   function exportCsv() {
     if (readiness.score < 100) {
+      const reason = blockExportReason();
       setExportMessage(
-        "Complete the remaining wizard items before exporting the BOM CSV.",
+        reason ?? "Complete the remaining wizard items before exporting the BOM CSV.",
       );
       return;
     }
@@ -721,14 +823,15 @@ function ProposalCompletionWizardContent({
 
   function exportPdf() {
     if (readiness.score < 100) {
+      const reason = blockExportReason();
       setExportMessage(
-        "Complete the remaining wizard items before exporting a PDF.",
+        reason ?? "Complete the remaining wizard items before exporting a PDF.",
       );
       return;
     }
 
     try {
-      exportProposalPdf(proposal, bomRows);
+      exportProposalPdf(proposal, bomRows, selectedProducts);
       setExportMessage(
         "Opened the print dialog - choose \"Save as PDF\" as the destination.",
       );
@@ -745,7 +848,15 @@ function ProposalCompletionWizardContent({
     rating: StoredRecommendationFeedback["rating"],
     label: string,
   ) {
-    saveRecommendationFeedback({ scope: "proposal", rating, label });
+    // Attach the lead BOM SKU so the feedback loop can aggregate lessons per
+    // product across projects (wrong-fit / missing-accessory history follows
+    // the SKU into the next proposal that selects it).
+    const leadSku = bomRows[0]?.sku;
+    saveRecommendationFeedback(
+      leadSku
+        ? { scope: "proposal", rating, label, sku: leadSku }
+        : { scope: "proposal", rating, label },
+    );
     setFeedbackRating(rating);
     setFeedbackMessage("Thanks - this helps improve future recommendations.");
   }
@@ -922,6 +1033,8 @@ function ProposalCompletionWizardContent({
                   </Link>
                 ))}
               </div>
+
+              <NeedsSiteSurveyFlag reasons={topologySurvey.reasons} />
 
               <div className="wm-proposal-form-grid">
                 <TextAreaField
@@ -1257,6 +1370,9 @@ function ProposalCompletionWizardContent({
                   ) : (
                     <p>Selected core products have passed lifecycle and governed-profile release checks.</p>
                   )}
+                  {topologySurvey.needsSurvey ? (
+                    <NeedsSiteSurveyFlag reasons={topologySurvey.reasons} />
+                  ) : null}
                 </section>
 
                 <section>
@@ -1289,6 +1405,8 @@ function ProposalCompletionWizardContent({
                   validation items and customer-facing product statements.
                 </span>
               </label>
+
+              <VerifyBeforeQuoteNote className="wm-proposal-verify-note" />
 
               <div className="wm-proposal-export-actions">
                 <button

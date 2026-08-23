@@ -175,8 +175,12 @@ describe("app-wide missing-tier copy consistency sweep", () => {
     expect(document.body.textContent ?? "").not.toContain(LEGACY_COPY);
   });
 
-  it("catalog renders the canonical label on unprofiled accessory cards", async () => {
-    indexForSweep = index;
+  it("catalog renders the canonical label on unprofiled cards", async () => {
+    // The full index carries official-page data for every product, so a
+    // genuinely data-less record is injected (technicalProfile AND
+    // sourceCatalog stripped) to exercise the missing-tier path on the
+    // Catalog surface.
+    indexForSweep = indexWithNoData("APO-COM-MIC");
 
     render(
       <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
@@ -191,12 +195,13 @@ describe("app-wide missing-tier copy consistency sweep", () => {
       { timeout: 5000 },
     );
 
-    // The catalogue contains real unprofiled accessories, so the canonical
-    // missing-tier badge must actually render on the Catalog surface.
-    const canonicalBadges = Array.from(
-      document.querySelectorAll(".wm-catalog-product-card .compare-native-governance-badge"),
-    ).filter((badge) => badge.textContent === CANONICAL_COPY);
-    expect(canonicalBadges.length).toBeGreaterThan(0);
+    // A stripped card must render the canonical missing-tier badge - and the
+    // real APO-COM-MIC card must NOT claim it (it resolves official data).
+    const card = Array.from(document.querySelectorAll(".wm-catalog-product-card")).find(
+      (element) => element.querySelector(".wm-catalog-product-sku")?.textContent === "APO-COM-MIC",
+    );
+    expect(card, "stripped APO-COM-MIC card renders").toBeDefined();
+    expect(card?.querySelector(".compare-native-governance-badge")?.textContent).toBe(CANONICAL_COPY);
     expect(document.body.textContent ?? "").not.toContain(LEGACY_COPY);
   });
 
