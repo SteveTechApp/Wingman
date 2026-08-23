@@ -13896,6 +13896,50 @@ main.wingman-app-main > .wingman-page-host,
   color: var(--wm-text-soft) !important;
 }
 
+.wingman-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.wingman-sidebar > .wingman-brand {
+  flex: 0 0 auto !important;
+}
+
+.wingman-sidebar > .wingman-nav {
+  flex: 1 1 auto !important;
+}
+
+.wingman-sidebar-footer {
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+  padding: 0.75rem 0.75rem 0.25rem !important;
+  border-top: 1px solid color-mix(in srgb, var(--wm-heading-2) 16%, transparent) !important;
+}
+
+.wingman-sidebar-footer-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 2rem !important;
+  padding: 0.4rem 0.5rem !important;
+  border-radius: 10px !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+  transition: color 160ms ease, background 160ms ease !important;
+}
+
+.wingman-sidebar-footer-link:hover,
+.wingman-sidebar-footer-link:focus-visible {
+  background: color-mix(in srgb, var(--wm-heading-2) 8%, transparent) !important;
+  color: var(--wm-text) !important;
+  outline: none !important;
+}
+
+.wingman-sidebar-footer-link-active {
+  color: var(--wm-text) !important;
+}
+
 @media (max-width: 980px) {
   .wingman-mobile-nav-button {
     display: inline-flex !important;
@@ -13904,6 +13948,94 @@ main.wingman-app-main > .wingman-page-host,
   .wingman-nav-tooltip {
     display: none !important;
   }
+}
+
+.wm-verify-before-quote {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+  margin: 0 !important;
+  padding: 0.7rem 0.85rem !important;
+  border: 1px solid color-mix(in srgb, var(--wm-heading-2) 20%, transparent) !important;
+  border-radius: 12px !important;
+  background: color-mix(in srgb, var(--wm-heading-2) 6%, transparent) !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+}
+
+.wm-verify-before-quote__icon {
+  flex: 0 0 auto !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  margin-top: 0.1rem !important;
+  color: var(--wm-primary) !important;
+}
+
+.wm-verify-before-quote__link {
+  color: var(--wm-text) !important;
+  font-weight: 700 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+}
+
+.wm-verify-before-quote__link:hover,
+.wm-verify-before-quote__link:focus-visible {
+  color: var(--wm-primary) !important;
+  outline: none !important;
+}
+
+.wm-needs-survey-flag {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+  margin: 0 !important;
+  padding: 0.7rem 0.85rem !important;
+  border: 1px solid color-mix(in srgb, #fbbf24 35%, transparent) !important;
+  border-radius: 12px !important;
+  background: color-mix(in srgb, #fbbf24 7%, transparent) !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+}
+
+.wm-needs-survey-flag__icon {
+  flex: 0 0 auto !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  margin-top: 0.1rem !important;
+  color: #fbbf24 !important;
+}
+
+.wm-needs-survey-flag__body {
+  display: grid !important;
+  gap: 0.2rem !important;
+}
+
+.wm-needs-survey-flag__body strong {
+  color: var(--wm-heading-2) !important;
+  font-size: 0.84rem !important;
+}
+
+.wm-needs-survey-flag__body ul {
+  margin: 0 !important;
+  padding-left: 1.1rem !important;
+  display: grid !important;
+  gap: 0.15rem !important;
+}
+
+.wm-needs-survey-flag__link {
+  color: var(--wm-text) !important;
+  font-weight: 700 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+  width: fit-content !important;
+}
+
+.wm-needs-survey-flag__link:hover,
+.wm-needs-survey-flag__link:focus-visible {
+  color: #fbbf24 !important;
+  outline: none !important;
 }
 
 /* ==========================================================================

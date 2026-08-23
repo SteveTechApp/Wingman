@@ -356,6 +356,11 @@ export function AppShell({ children }: AppShellProps) {
           {canManageData ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink></> : null}
         </nav>
 
+        <div className="wingman-sidebar-footer">
+          <NavLink to={routeCatalogByKey.terms.path} title="Terms & legal disclaimer" aria-label="Terms and legal disclaimer" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
+            Terms &amp; legal
+          </NavLink>
+        </div>
       </aside>
 
       <button

@@ -25,7 +25,8 @@
     "proposal",
     "proposalVisuals",
     "support",
-    "profile"
+    "profile",
+    "terms"
   ],
   "retiredRouteKeys": [
     "finder",
