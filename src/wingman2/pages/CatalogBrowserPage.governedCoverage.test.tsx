@@ -5,6 +5,8 @@ import index from "../../../public/product-intelligence-index.json";
 import governedProfiles from "../../../data/governance/wyrestorm-technical-profiles.json";
 import { specCriticalFieldLabel } from "../lib/governedConfirmationBacklog";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
+import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
+import { governedBadgeMeta } from "../components/GovernedDataBadge";
 import { CatalogBrowserPage } from "./CatalogBrowserPage";
 
 // The real product-intelligence index drives the same catalogue build and
@@ -40,6 +42,15 @@ const humanVerifiedSkus = new Set(
     .filter((profile) => profile.status === "verified" && Boolean(profile.verifiedBy?.trim()))
     .map((profile) => normaliseSkuKey(profile.sku)),
 );
+
+// The page resolves tiers from the RAW index records (applyCatalogOverrides
+// flattens technicalProfile away), so the expected tier for a non-registry
+// card is whatever the same governed resolver derives from the raw record.
+const rawRecordsBySku = new Map<string, unknown>();
+for (const product of (index as { products?: unknown[] }).products ?? []) {
+  const record = product as { sku?: string };
+  if (record.sku) rawRecordsBySku.set(normaliseSkuKey(record.sku), product);
+}
 
 // The trail's field pill must equal exactly the reviewer's confirmed set, so
 // the expected pill is derived per SKU from the same governed data the page
@@ -94,7 +105,12 @@ describe("catalog browser governed-coverage render", () => {
         }
         governedCards += 1;
       } else {
-        expect(badge?.textContent, `${sku} badge`).toContain("Technical data not resolved");
+        // Registry-free cards must still show the exact tier the governed
+        // resolver derives from the raw index record: official-page data
+        // renders official-structured, nothing resolving renders the
+        // canonical missing copy - and neither may claim the verified tier.
+        const expected = governedBadgeMeta(resolveProductTechnicalData(rawRecordsBySku.get(sku) ?? {}).sourceTier).text;
+        expect(badge?.textContent, `${sku} badge`).toContain(expected);
         expect(badge?.className, `${sku} badge class`).not.toContain("is-verified");
       }
     }

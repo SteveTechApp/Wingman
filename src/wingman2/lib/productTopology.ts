@@ -36,6 +36,18 @@ export type ProductTopologyBranch = ProductTopologyEndpoint & {
   target?: "product" | "source" | "output";
 };
 
+export type ProductTopologyMatrixArchitecture = {
+  inputCount: number;
+  outputCount: number;
+  inputTransport: string;
+  outputTransport: string;
+  receiverCount: number;
+  receiverLabel: string;
+  controlInterfaces: string[];
+  audioBreakout: boolean;
+  powerOverLink: boolean;
+};
+
 export type ProductTopologyProfile = {
   sku: string;
   archetype: string;
@@ -64,7 +76,38 @@ export type ProductTopologyProfile = {
   checks: string[];
   warnings: string[];
   evidence: string[];
+  matrixArchitecture?: ProductTopologyMatrixArchitecture;
 };
+
+function firstMatrixSize(text: string): [number, number] | null {
+  const match = text.match(/\b(\d{1,2})\s*[x×]\s*(\d{1,2})\b/i);
+  return match ? [Number(match[1]), Number(match[2])] : null;
+}
+
+function buildMatrixArchitecture(product: ProductSpec, text: string): ProductTopologyMatrixArchitecture {
+  const size = firstMatrixSize(text) ?? [1, 1];
+  const receiverMatch = text.match(/\b(?:with|includes?|supplied (?:complete )?with)\s+(?:all\s+)?(?:the\s+)?(?:four|4|eight|8|two|2|six|6)?\s*receivers?\b/i);
+  const wordCount: Record<string, number> = { two: 2, four: 4, six: 6, eight: 8 };
+  const receiverCountText = receiverMatch?.[0].match(/\b(two|four|six|eight|\d+)\b/i)?.[1]?.toLowerCase();
+  const receiverCount = receiverMatch
+    ? receiverCountText ? (wordCount[receiverCountText] ?? Number(receiverCountText)) : size[1]
+    : 0;
+  const controlText = product.control.join(" | ");
+  const controlInterfaces = ["LAN", "RS-232", "IR", "CEC"]
+    .filter((value) => new RegExp(value.replace("-", "[- ]?"), "i").test(controlText || text));
+
+  return {
+    inputCount: Math.max(1, Math.min(size[0], 16)),
+    outputCount: Math.max(1, Math.min(size[1], 16)),
+    inputTransport: /hdmi/i.test(product.ioSummary.join(" ") || text) ? "HDMI" : "AV input",
+    outputTransport: /hdbaset/i.test([...product.ioSummary, ...product.video].join(" ") || text) ? "HDBaseT" : "HDMI / AV",
+    receiverCount: Number.isFinite(receiverCount) ? Math.max(0, Math.min(receiverCount, 16)) : 0,
+    receiverLabel: /scal/i.test(text) ? "HDBaseT receiver / scaler" : "HDBaseT receiver",
+    controlInterfaces,
+    audioBreakout: /audio (?:de-?embed|breakout|extract)/i.test(text),
+    powerOverLink: /\b(?:poh|power over hdbaset)\b/i.test(text),
+  };
+}
 
 function normaliseSku(value: string): string {
   return String(value || "").trim().toUpperCase().replace(/\s+/g, "");
@@ -796,6 +839,7 @@ export function buildProductTopologyProfile(
   }
 
   if (text.includes("matrix")) {
+    const matrixArchitecture = buildMatrixArchitecture(product, text);
     return {
       sku: product.sku,
       archetype: "matrix-switcher",
@@ -835,6 +879,7 @@ export function buildProductTopologyProfile(
       ],
       warnings: [],
       evidence: ["Product name/type identifies matrix routing."],
+      matrixArchitecture,
     };
   }
 

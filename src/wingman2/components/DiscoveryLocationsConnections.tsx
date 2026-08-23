@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   PROJECT_CONNECTION_SERVICE_OPTIONS,
   PROJECT_TRANSPORT_OPTIONS,
+  ROUTE_PLANNING_MARKER,
   generateProjectTopologyFromDiscovery,
   normaliseProjectTopology,
   projectTopologyMissingInformation,
@@ -62,12 +63,16 @@ type ExceptionMode = "none" | "yes" | "unknown";
 
 type RoutePlanningState = {
   equipmentPosition: EquipmentPosition;
+  equipmentName: string;
   videoDistance: DistanceBand;
+  videoDistanceMetres?: number;
   routeType: RouteType;
   usbDistance: UsbDistance;
+  usbDistanceMetres?: number;
   exceptionMode: ExceptionMode;
   exceptionName: string;
   exceptionDistance: DistanceBand;
+  exceptionDistanceMetres?: number;
 };
 
 type Choice<T extends string> = {
@@ -80,7 +85,7 @@ type DistanceChoice = Choice<DistanceBand> & {
   metres?: number;
 };
 
-const PLANNING_MARKER = "wingman-route-planner:";
+const PLANNING_MARKER = ROUTE_PLANNING_MARKER;
 
 const EQUIPMENT_OPTIONS: Array<Choice<EquipmentPosition>> = [
   { value: "display-wall", label: "At the display", help: "Equipment is mounted behind or beside the main display." },
@@ -182,6 +187,7 @@ function deriveDefaultPlan(blob: string): RoutePlanningState {
 
   return {
     equipmentPosition,
+    equipmentName: "",
     videoDistance,
     routeType,
     usbDistance: usbNeeded ? (videoDistance === "nearby" ? "under-5m" : "across-room") : "not-required",
@@ -231,6 +237,16 @@ function routeAllowance(value: RouteType): number {
 }
 
 function plannedVideoMetres(plan: RoutePlanningState): number | undefined {
+  // An exact cable length typed by the rep overrides the band estimate. It is
+  // the actual cable figure, so no routing allowance is applied on top.
+  if (
+    plan.videoDistanceMetres !== undefined &&
+    Number.isFinite(plan.videoDistanceMetres) &&
+    plan.videoDistanceMetres > 0
+  ) {
+    return Math.round(plan.videoDistanceMetres);
+  }
+
   const base = distanceChoice(plan.videoDistance).metres;
   if (base === undefined) return undefined;
   if (base <= 3) return base;
@@ -238,11 +254,27 @@ function plannedVideoMetres(plan: RoutePlanningState): number | undefined {
 }
 
 function plannedUsbMetres(plan: RoutePlanningState): number | undefined {
+  // An exact USB cable length typed by the rep overrides the band estimate.
+  if (
+    plan.usbDistanceMetres !== undefined &&
+    Number.isFinite(plan.usbDistanceMetres) &&
+    plan.usbDistanceMetres > 0
+  ) {
+    return Math.round(plan.usbDistanceMetres);
+  }
   return USB_OPTIONS.find((option) => option.value === plan.usbDistance)?.metres;
 }
 
 function exceptionMetres(plan: RoutePlanningState): number | undefined {
   if (plan.exceptionMode !== "yes") return undefined;
+  // An exact exception length typed by the rep overrides the band estimate.
+  if (
+    plan.exceptionDistanceMetres !== undefined &&
+    Number.isFinite(plan.exceptionDistanceMetres) &&
+    plan.exceptionDistanceMetres > 0
+  ) {
+    return Math.round(plan.exceptionDistanceMetres);
+  }
   return distanceChoice(plan.exceptionDistance).metres;
 }
 
@@ -300,7 +332,7 @@ function normaliseEquipmentLocation(
 
   const equipmentLocation: ProjectLocation = {
     id: existingEquipment?.id ?? "planning-equipment-position",
-    name: equipmentDefinition.name,
+    name: plan.equipmentName.trim() || equipmentDefinition.name,
     type: equipmentDefinition.type,
     roomId: existingEquipment?.roomId,
     buildingId: existingEquipment?.buildingId,
@@ -405,7 +437,9 @@ export default function DiscoveryLocationsConnections({
     const usbMetres = plannedUsbMetres(nextPlan);
     const planningReason = videoMetres === undefined
       ? "Distance not yet known - site survey required"
-      : `${distanceLabel(nextPlan.videoDistance)} via ${routeTypeLabel(nextPlan.routeType)}; planning allowance ${videoMetres} m`;
+      : nextPlan.videoDistanceMetres !== undefined && nextPlan.videoDistanceMetres > 0
+        ? `Exact cable length entered during discovery: ${videoMetres} m`
+        : `${distanceLabel(nextPlan.videoDistance)} via ${routeTypeLabel(nextPlan.routeType)}; planning allowance ${videoMetres} m`;
 
     let connections = base.connections.map((connection) => {
       if (connection.lengthMode === "confirmed") return connection;
@@ -686,10 +720,49 @@ export default function DiscoveryLocationsConnections({
               </button>
             ))}
           </div>
+
+          {plan.equipmentPosition !== "unknown" ? (
+            <div className="wm-route-exception-fields">
+              <label>
+                Name this equipment location (optional)
+                <input
+                  className="wm-ui-input"
+                  value={plan.equipmentName}
+                  onChange={(event) => updatePlan({ equipmentName: event.target.value })}
+                  placeholder="e.g. Credenza beside the display"
+                />
+                <small>The name appears on the captured topology instead of the generic position label.</small>
+              </label>
+            </div>
+          ) : null}
         </fieldset> : null}
 
         {activePlanningStep === 1 ? <fieldset className="wm-route-planner-step">
           <legend><span>2</span> What is the longest video route?</legend>
+          <div className="wm-route-exception-fields">
+            <label>
+              Enter exact cable length (metres, optional)
+              <input
+                className="wm-ui-input"
+                type="number"
+                min={0}
+                step={1}
+                value={plan.videoDistanceMetres ?? ""}
+                onChange={(event) => {
+                  const raw = event.target.value.trim();
+                  const parsed = raw === "" ? undefined : Number(raw);
+                  updatePlan({
+                    videoDistanceMetres:
+                      parsed !== undefined && Number.isFinite(parsed) && parsed > 0
+                        ? parsed
+                        : undefined,
+                  });
+                }}
+                placeholder="e.g. 35"
+              />
+              <small>Overrides the band estimate below. The figure you enter is used as the planning cable length.</small>
+            </label>
+          </div>
           <div className="wm-route-choice-grid wm-route-distance-grid">
             {DISTANCE_OPTIONS.map((option) => (
               <button
@@ -706,7 +779,7 @@ export default function DiscoveryLocationsConnections({
           </div>
 
           <div className="wm-route-distance-visual" aria-label="Selected planning route">
-            <span>{EQUIPMENT_LOCATION_MAP[plan.equipmentPosition].name}</span>
+            <span>{plan.equipmentName.trim() || EQUIPMENT_LOCATION_MAP[plan.equipmentPosition].name}</span>
             <div><i /><strong>{videoMetres === undefined ? "Survey required" : `${videoMetres} m planning allowance`}</strong><i /></div>
             <span>Main display / endpoint</span>
           </div>
@@ -736,6 +809,30 @@ export default function DiscoveryLocationsConnections({
             <p className="wm-route-planner-intro">
               This appears because cameras, speakerphones, touch, conferencing or another USB workflow was captured earlier.
             </p>
+            <div className="wm-route-exception-fields">
+              <label>
+                Enter exact USB cable length (metres, optional)
+                <input
+                  className="wm-ui-input"
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={plan.usbDistanceMetres ?? ""}
+                  onChange={(event) => {
+                    const raw = event.target.value.trim();
+                    const parsed = raw === "" ? undefined : Number(raw);
+                    updatePlan({
+                      usbDistanceMetres:
+                        parsed !== undefined && Number.isFinite(parsed) && parsed > 0
+                          ? parsed
+                          : undefined,
+                    });
+                  }}
+                  placeholder="e.g. 7"
+                />
+                <small>Overrides the band estimate below. The figure you enter is used as the USB host-to-device planning length.</small>
+              </label>
+            </div>
             <div className="wm-route-choice-grid">
               {USB_OPTIONS.map((option) => (
                 <button
@@ -796,6 +893,28 @@ export default function DiscoveryLocationsConnections({
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
+              </label>
+              <label>
+                Enter exact length (metres, optional)
+                <input
+                  className="wm-ui-input"
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={plan.exceptionDistanceMetres ?? ""}
+                  onChange={(event) => {
+                    const raw = event.target.value.trim();
+                    const parsed = raw === "" ? undefined : Number(raw);
+                    updatePlan({
+                      exceptionDistanceMetres:
+                        parsed !== undefined && Number.isFinite(parsed) && parsed > 0
+                          ? parsed
+                          : undefined,
+                    });
+                  }}
+                  placeholder="e.g. 60"
+                />
+                <small>Overrides the approximate distance for this exception route.</small>
               </label>
             </div>
           ) : null}

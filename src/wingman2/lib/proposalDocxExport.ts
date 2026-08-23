@@ -3,7 +3,8 @@ import {
   ImageRun, PageBreak, PageNumber, Packer, Paragraph, ShadingType, Table, TableCell,
   TableLayoutType, TableRow, TextRun, WidthType,
 } from "docx";
-import type { StoredProjectProposal } from "../data/projectStore";
+import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
+import { powerBudgetSummary } from "./powerBudget";
 import type { SalesBomRow } from "./salesReadiness";
 import { getProposalDocumentTypeConfig, linesFromText, type ProposalWizardDraft } from "./proposalWizard";
 
@@ -146,6 +147,41 @@ function architectureTable(diagram: string) {
   ]);
 }
 
+function powerStrategyTable(products: StoredProductSelection[]): { table: Table; totalWatts: number; poeSkus: string[] } {
+  const summaries = powerBudgetSummary(products);
+  const widths = [2200, 900, 1600, 1600, 3060];
+  const header = new TableRow({ tableHeader: true, children: ["SKU", "Qty", "Per-unit max", "Total max", "Power data (governed profile)"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) });
+  const rows = summaries.map((s) => new TableRow({ children: [
+    cell(s.sku, widths[0]),
+    cell(String(s.quantity), widths[1], { align: AlignmentType.RIGHT }),
+    cell(s.watts !== null ? `${s.watts}W` : "Not proven", widths[2], { align: AlignmentType.RIGHT }),
+    cell(s.totalWatts !== null ? `${s.totalWatts}W` : "—", widths[3], { align: AlignmentType.RIGHT }),
+    cell(s.powerLines.length ? s.powerLines.join("; ") : "No power data in governed profile", widths[4]),
+  ] }));
+  const knownTotals = summaries.filter((s) => s.totalWatts !== null) as Array<import("./powerBudget").PowerBudgetSummary & { totalWatts: number }>;
+  const totalWatts = knownTotals.reduce((sum, s) => sum + s.totalWatts, 0);
+  const poeSkus = summaries.filter((s) => s.powerLines.some((line) => /poe|poh|power over ethernet|power over hdbt|802\.3/i.test(line))).map((s) => s.sku);
+  return { table: fixedTable(widths, [header, ...rows]), totalWatts, poeSkus };
+}
+
+function powerStrategyContent(products: StoredProductSelection[]): Array<Paragraph | Table> {
+  if (!products.length) return [paragraph("No products have been selected, so a power budget cannot be calculated.", { colour: MUTED })];
+  const { table, totalWatts, poeSkus } = powerStrategyTable(products);
+  const lines: Array<Paragraph | Table> = [
+    paragraph("The power budget below is derived from the governed technical profiles for each selected product. Figures are stated-maximum consumption per the published profile and must be verified against the current datasheet before order.", { justified: true }),
+    table,
+  ];
+  if (totalWatts > 0) {
+    lines.push(paragraph(`Stated maximum consumption: approximately ${Math.round(totalWatts)}W across the products with proven figures. Confirm the local power strategy (circuits, rack PSUs, PoE/PoH injector budgets) covers the full BOM before quoting.`, { colour: NAVY }));
+  } else {
+    lines.push(paragraph("No products in the current BOM have a proven power-consumption figure in their governed profile. Confirm PSU / power-source requirements before quoting.", { colour: MUTED }));
+  }
+  if (poeSkus.length) {
+    lines.push(paragraph(`PoE/PoH requirement: ${poeSkus.join(", ")} — confirm the injector or switch PoE budget covers the total before order.`, { colour: NAVY }));
+  }
+  return lines;
+}
+
 function productSpecificationContent(proposal: StoredProjectProposal): Array<Paragraph | Table> {
   const specifications = proposal.applicationProposal?.productSpecifications ?? [];
   if (!specifications.length) return [paragraph("Product specifications will be added after the final WyreStorm equipment selection is approved.", { colour: MUTED })];
@@ -265,11 +301,15 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     architectureTable(application?.architectureDiagram || ""),
   ]);
   addSection(children, "WyreStorm Product Specifications", productSpecificationContent(proposal));
+  addSection(children, "Power Strategy", powerStrategyContent(proposal.products));
   if (application?.acceptanceCriteria.length) addSection(children, "Testing and Acceptance Criteria", application.acceptanceCriteria.map(bullet));
   addSection(children, "Timeline and Phases", [paragraph("The programme below is indicative and begins only after design approval, commercial acceptance, stock confirmation and site readiness.", { colour: MUTED }), pipeTable(wizard.implementationTimeline, ["Phase", "Activity", "Indicative timing", "Dependency / output"], [1250, 2500, 1500, 4110])]);
   addSection(children, "Responsibilities and Dependencies", [heading("Responsibilities", 2), ...bulletLines(wizard.responsibilities, "Responsibilities are to be agreed."), heading("Dependencies", 2), ...bulletLines(wizard.dependencies, "Dependencies are to be confirmed.")]);
   addSection(children, "Assumptions, Risks and Exclusions", [heading("Assumptions", 2), ...bulletLines(wizard.assumptions, "Final assumptions are to be confirmed."), heading("Open risks and validation", 2), ...(risks.length ? risks : ["Validate datasheets, lifecycle, accessories, firmware, regional suitability and site dependencies before order."]).map(bullet)]);
   addSection(children, "Next Steps", [...bulletLines(wizard.nextSteps, "Confirm the final design, equipment schedule, responsibilities and commercial quotation."), paragraph(`Quotation validity: ${wizard.validityDays} days from the proposal date, subject to stock and written confirmation.`, { colour: MUTED })]);
+  addSection(children, "Best-Efforts Disclaimer", [
+    paragraph("This document has been prepared on a best-efforts basis to support your sales and design process. Product specifications, compatibility, lifecycle status, regional availability, pricing and lead times must be verified against the current WyreStorm documentation, datasheet or order desk before this document is used as a quotation, order or statement of capability. Competitor information is approximate and provided only to start a comparison conversation. Wingman provides no warranty and accepts no liability for any errors, omissions or reliance on the content of this document.", { justified: true, colour: MUTED }),
+  ]);
 
   return new Document({
     creator: wizard.preparedBy || company, title: `${wizard.projectName || proposal.title} - ${config.label}`, subject: "WyreStorm audio visual proposal",

@@ -204,5 +204,13 @@
       "Allow glossary terms to be surfaced inline from Recommendations, Proposal, and Sales Strategy pages.",
       "Add product-manager approval metadata for glossary copy revisions."
     ]
+  },
+  {
+    "routeKey": "terms",
+    "status": "wired",
+    "summary": "Terms and legal disclaimer sets out the best-efforts nature of Wingman guidance, the salesperson's verification responsibility before anything is quoted, and the limitation of liability covering errors or omissions in product data.",
+    "needed": [
+      "Surface the verification responsibility inline on Recommendations, Compare and Proposal output, not only on the Terms page."
+    ]
   }
 ]

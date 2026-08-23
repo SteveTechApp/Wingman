@@ -269,11 +269,91 @@ function buildReviewRequiredSvg(input: RoomSchematicInput): string {
   </svg>`;
 }
 
+function buildMatrixSchematicSvg(input: RoomSchematicInput): string {
+  const profile = input.profile;
+  const architecture = profile.matrixArchitecture!;
+  const inputs = Math.min(architecture.inputCount, 6);
+  const outputs = Math.min(architecture.outputCount, 6);
+  const rows = Math.max(inputs, outputs);
+  const rowGap = rows > 4 ? 48 : 62;
+  const firstY = 196;
+  const matrixY = firstY - 68;
+  const matrixH = (rows - 1) * rowGap + 98;
+  const controls = architecture.controlInterfaces.length
+    ? architecture.controlInterfaces.join(" · ")
+    : "Front panel / control system";
+  const receiverLayer = architecture.receiverCount > 0;
+
+  const sourceRows = Array.from({ length: inputs }, (_, index) => {
+    const y = firstY + index * rowGap;
+    return `<g data-connection="input-${index + 1}">
+      <rect x="48" y="${y - 18}" width="154" height="36" rx="7" fill="#ffffff" stroke="#2563eb"/>
+      <circle cx="66" cy="${y}" r="9" fill="#dbeafe"/><text x="66" y="${y + 3.5}" text-anchor="middle" font-size="9" font-weight="800" fill="#1d4ed8">${index + 1}</text>
+      <text x="82" y="${y - 2}" font-size="10.5" font-weight="700" fill="#0f172a">Source ${index + 1}</text>
+      <text x="82" y="${y + 11}" font-size="8.8" fill="#64748b">${escapeXml(architecture.inputTransport)} output</text>
+      <line x1="202" y1="${y}" x2="296" y2="${y}" stroke="#2563eb" stroke-width="2.2" marker-end="url(#wm-arrow-video)"/>
+      <text x="254" y="${y - 7}" text-anchor="middle" font-size="8.4" fill="#1d4ed8">${escapeXml(architecture.inputTransport)} IN ${index + 1}</text>
+    </g>`;
+  }).join("");
+
+  const outputRows = Array.from({ length: outputs }, (_, index) => {
+    const y = firstY + index * rowGap;
+    const receiver = receiverLayer
+      ? `<rect x="566" y="${y - 18}" width="132" height="36" rx="7" fill="#ecfdf5" stroke="#0e9f6e"/>
+         <text x="632" y="${y - 2}" text-anchor="middle" font-size="9.6" font-weight="750" fill="#065f46">Receiver ${index + 1}</text>
+         <text x="632" y="${y + 11}" text-anchor="middle" font-size="8.2" fill="#047857">HDBaseT → HDMI</text>`
+      : "";
+    const linkEnd = receiverLayer ? 554 : 734;
+    const displayStart = receiverLayer ? 698 : 552;
+    return `<g data-connection="output-${index + 1}">
+      <line x1="500" y1="${y - 3}" x2="${linkEnd}" y2="${y - 3}" stroke="#0e9f6e" stroke-width="3" marker-end="url(#wm-arrow-network)"/>
+      ${architecture.powerOverLink ? `<line x1="504" y1="${y + 7}" x2="${linkEnd - 4}" y2="${y + 7}" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="5 4"/>` : ""}
+      ${receiver}
+      <line x1="${displayStart}" y1="${y}" x2="736" y2="${y}" stroke="#2563eb" stroke-width="2.2" marker-end="url(#wm-arrow-video)"/>
+      <rect x="746" y="${y - 18}" width="126" height="36" rx="7" fill="#ffffff" stroke="#2563eb"/>
+      <rect x="760" y="${y - 9}" width="20" height="14" rx="2" fill="#dbeafe" stroke="#2563eb"/><line x1="766" y1="${y + 8}" x2="774" y2="${y + 8}" stroke="#2563eb"/>
+      <text x="790" y="${y - 2}" font-size="10.2" font-weight="700" fill="#0f172a">Display ${index + 1}</text>
+      <text x="790" y="${y + 11}" font-size="8.4" fill="#64748b">Independent zone</text>
+    </g>`;
+  }).join("");
+
+  const crosspoints = Array.from({ length: outputs }, (_, outputIndex) =>
+    Array.from({ length: inputs }, (_, inputIndex) => {
+      const x = 340 + inputIndex * (132 / Math.max(inputs - 1, 1));
+      const y = firstY + outputIndex * rowGap;
+      return `<circle cx="${x}" cy="${y}" r="3.4" fill="${inputIndex === outputIndex ? "#0891b2" : "#cbd5e1"}"/>`;
+    }).join(""),
+  ).join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 610" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" role="img" aria-label="${architecture.inputCount} by ${architecture.outputCount} connection schematic for ${escapeXml(input.sku)}">
+    <defs>${markerDefinitions()}</defs>
+    <rect width="920" height="610" fill="#f8fafc"/>
+    <rect x="22" y="20" width="876" height="526" rx="18" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+    <text x="46" y="49" font-size="11" font-weight="800" letter-spacing=".9" fill="#0891b2">${architecture.inputCount} × ${architecture.outputCount} ROUTED SIGNAL ARCHITECTURE</text>
+    <text x="46" y="68" font-size="9.5" fill="#64748b">Each output can select any input independently. Receiver and transport layers are shown explicitly.</text>
+    <rect x="304" y="74" width="198" height="38" rx="8" fill="#f5f3ff" stroke="#7c3aed"/>
+    <text x="320" y="89" font-size="8.5" font-weight="800" fill="#6d28d9">CONTROL</text><text x="320" y="103" font-size="9" fill="#334155">${escapeXml(controls)}</text>
+    <line x1="403" y1="112" x2="403" y2="${matrixY - 10}" stroke="#7c3aed" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#wm-arrow-control)"/>
+    <rect x="306" y="${matrixY}" width="194" height="${matrixH}" rx="12" fill="#ecfeff" stroke="#0891b2" stroke-width="2.4"/>
+    <rect x="306" y="${matrixY}" width="194" height="42" rx="12" fill="#0891b2"/><rect x="306" y="${matrixY + 30}" width="194" height="12" fill="#0891b2"/>
+    <text x="322" y="${matrixY + 18}" font-size="9" font-weight="800" fill="#cffafe">MATRIX ROUTING CORE</text><text x="322" y="${matrixY + 34}" font-size="12.5" font-weight="800" fill="#ffffff">${escapeXml(input.sku)}</text>
+    <text x="403" y="${matrixY + 55}" text-anchor="middle" font-size="7.8" font-weight="700" letter-spacing=".35" fill="#64748b">ANY INPUT → ANY OUTPUT</text><line x1="336" y1="${matrixY + 62}" x2="470" y2="${matrixY + 62}" stroke="#cbd5e1" stroke-width="1"/>
+    ${crosspoints}${sourceRows}${outputRows}
+    ${architecture.audioBreakout ? `<rect x="306" y="${matrixY + matrixH + 16}" width="194" height="38" rx="7" fill="#fdf2f8" stroke="#db2777"/><text x="322" y="${matrixY + matrixH + 31}" font-size="9" font-weight="800" fill="#be185d">AUDIO DE-EMBED</text><text x="322" y="${matrixY + matrixH + 45}" font-size="8.6" fill="#64748b">Zone audio to amplifier / DSP</text>` : ""}
+    <g transform="translate(48 570)"><line x1="0" y1="0" x2="26" y2="0" stroke="#2563eb" stroke-width="3"/><text x="34" y="4" font-size="9.5" fill="#334155">HDMI video</text><line x1="132" y1="0" x2="158" y2="0" stroke="#0e9f6e" stroke-width="3"/><text x="166" y="4" font-size="9.5" fill="#334155">HDBaseT link</text>${architecture.powerOverLink ? `<line x1="286" y1="0" x2="312" y2="0" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 4"/><text x="320" y="4" font-size="9.5" fill="#334155">PoH power</text>` : ""}<line x1="420" y1="0" x2="446" y2="0" stroke="#7c3aed" stroke-width="2" stroke-dasharray="7 5"/><text x="454" y="4" font-size="9.5" fill="#334155">Control</text></g>
+    <text x="872" y="590" text-anchor="end" font-size="9" fill="#64748b">Topology: ${escapeXml(confidenceLabel(profile))}</text>
+  </svg>`;
+}
+
 export function buildRoomSchematicSvg(input: RoomSchematicInput): string {
   const profile = input.profile;
 
   if (!profile.renderable) {
     return buildReviewRequiredSvg(input);
+  }
+
+  if (profile.mode === "matrix" && profile.matrixArchitecture) {
+    return buildMatrixSchematicSvg(input);
   }
 
   const product = { x: 360, y: 230, w: 200, h: 116 };

@@ -234,22 +234,40 @@ function profileFor(product) {
   const sku = normaliseSku(product.sku);
   const text = `${sku} ${product.family || ""} ${product.category || ""} ${product.name || ""} ${product.description || ""} ${(product.tags || []).join(" ")}`.toLowerCase();
 
+  // SKU-family prefixes are the governed identity: classify by the SKU prefix
+  // BEFORE text heuristics, so stale helper copy or tags ("supporting
+  // accessory", "USB 3.x", "NDI", an "AVoIP" mention inside a competitor
+  // sentence) can never demote a hardware family to accessory/uc/networkhd.
+  // This is the SW-0X01-8K call-card defect class.
   if (/^(CAB|CBL)-/.test(sku)) return "cable";
-  if (/^(ACC|RMK|PSU|BRK|MNT)-/.test(sku) || /\baccessory\b|\bmount\b|bracket/.test(text)) return "accessory";
-  if (sku.startsWith("AMP-") || text.includes("amplifier")) return "audio";
-  if (sku.startsWith("APO-") || text.includes("usb") || text.includes("uc") || text.includes("byod") || text.includes("byom")) return "uc";
-  if (sku.startsWith("NHD-") || text.includes("networkhd") || text.includes("av-over-ip") || text.includes("avoip")) return "networkhd";
-  if (sku === "NHD-0401-MV" || text.includes("multiview") || text.includes("multi-view")) return "multiview";
-  if (sku.startsWith("SW-0204-VW") || sku.startsWith("SW-0206-VW") || text.includes("video wall") || text.includes("videowall")) return "videoWall";
-  if (sku.startsWith("MX-") || sku.startsWith("MXV-") || text.includes("matrix")) return "matrix";
-  if (sku.startsWith("SW-") || text.includes("presentation") || text.includes("switcher")) return "presentation";
-  if (sku.startsWith("EX-") || sku.startsWith("TX-") || sku.startsWith("RX-") || text.includes("hdbaset") || text.includes("extender")) return "extender";
-  if (sku.includes("-BRG") || text.includes("bridge")) return "cameraBridge";
-  if (sku.startsWith("CAM-") || text.includes("camera") || text.includes("ptz") || text.includes("ndi")) return "camera";
-  if (sku.startsWith("SYN-") || text.includes("control") || text.includes("touch")) return "control";
+  if (/^(ACC|RMK|PSU|BRK|MNT)-/.test(sku)) return "accessory";
+  if (sku.startsWith("AMP-")) return "audio";
+  if (sku.startsWith("APO-")) return "uc";
+  if (sku.startsWith("NHD-")) return "networkhd";
+  if (sku === "NHD-0401-MV") return "multiview";
+  if (sku.startsWith("SW-0204-VW") || sku.startsWith("SW-0206-VW")) return "videoWall";
+  if (sku.startsWith("MX-") || sku.startsWith("MXV-")) return "matrix";
+  if (sku.startsWith("SW-")) return "presentation";
+  if (sku.startsWith("EX-") || sku.startsWith("TX-") || sku.startsWith("RX-")) return "extender";
+  if (sku.includes("-BRG")) return "cameraBridge";
+  if (sku.startsWith("CAM-")) return "camera";
+  if (sku.startsWith("SYN-")) return "control";
+
+  // Text heuristics only for SKUs without a governing family prefix.
+  if (/\baccessory\b|\bmount\b|bracket/.test(text)) return "accessory";
+  if (text.includes("amplifier")) return "audio";
+  if (text.includes("usb") || /\buc\b/.test(text) || text.includes("byod") || text.includes("byom")) return "uc";
+  if (text.includes("networkhd") || text.includes("av-over-ip") || text.includes("avoip")) return "networkhd";
+  if (text.includes("multiview") || text.includes("multi-view")) return "multiview";
+  if (text.includes("video wall") || text.includes("videowall")) return "videoWall";
+  if (text.includes("matrix")) return "matrix";
+  if (text.includes("presentation") || text.includes("switcher")) return "presentation";
+  if (text.includes("hdbaset") || text.includes("extender")) return "extender";
+  if (text.includes("bridge")) return "cameraBridge";
+  if (text.includes("camera") || text.includes("ptz") || text.includes("ndi")) return "camera";
+  if (text.includes("control") || text.includes("touch")) return "control";
   if (/\bcable\b|active optical|displayport|fibre/.test(text)) return "cable";
   if (text.includes("audio")) return "audio";
-  if (text.includes("accessory")) return "accessory";
 
   return "general";
 }
@@ -688,8 +706,19 @@ const raw = await fs.readFile(jsonPath, "utf8");
 const payload = JSON.parse(raw);
 const products = Array.isArray(payload) ? payload : Array.isArray(payload.products) ? payload.products : [];
 
-if (products.length === 0) {
-  throw new Error("No products found in product-call-card-products.json");
+const skuFilterArg = process.argv.find((arg) => arg.startsWith("--skus="));
+const skuFilter = skuFilterArg
+  ? new Set(skuFilterArg.slice("--skus=".length).split(",").map((sku) => normaliseSku(sku)).filter(Boolean))
+  : null;
+const scopedProducts = skuFilter ? products.filter((product) => skuFilter.has(normaliseSku(product.sku))) : products;
+
+if (scopedProducts.length === 0) {
+  throw new Error(skuFilter ? "No call-card records matched the --skus filter." : "No products found in product-call-card-products.json");
+}
+
+if (skuFilter && scopedProducts.length !== skuFilter.size) {
+  const missing = [...skuFilter].filter((sku) => !scopedProducts.some((product) => normaliseSku(product.sku) === sku));
+  console.warn(`[call-card-repair] --skus filter: ${scopedProducts.length} matched, ${missing.length} SKUs had no record: ${missing.join(", ")}`);
 }
 
 const audit = [];
@@ -700,21 +729,28 @@ const sourceCounts = {
   "profile-fallback": 0,
 };
 
-const repairedProducts = products.map((product) => {
+const repairedProducts = scopedProducts.map((product) => {
   const repaired = buildRepair(product);
   audit.push(repaired.audit);
   sourceCounts[repaired.audit.source] += 1;
   return repaired.product;
 });
 
+const repairedBySku = new Map(repairedProducts.map((product) => [normaliseSku(product.sku), product]));
+// Merge repaired records back into the full list so a scoped run only touches
+// the requested SKUs and never drops the rest of the catalogue.
+const fullProducts = skuFilter
+  ? products.map((product) => repairedBySku.get(normaliseSku(product.sku)) ?? product)
+  : repairedProducts;
+
 const output = Array.isArray(payload)
-  ? repairedProducts
+  ? fullProducts
   : {
       ...payload,
       practicalCopyRepairGeneratedAt: new Date().toISOString(),
       practicalCopyRepairRule:
         "Product helper text must explain role, workflow, dependencies and quote checks in practical sales-engineer language.",
-      products: repairedProducts,
+      products: fullProducts,
     };
 
 await fs.writeFile(jsonPath, JSON.stringify(output, null, 2), "utf8");

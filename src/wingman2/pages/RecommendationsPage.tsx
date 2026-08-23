@@ -27,6 +27,13 @@ import {
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
 import { readClassificationFacts } from "../lib/productStoryEngine";
+import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
+import { normaliseSkuKey } from "../lib/skuAliasResolver";
+import { GovernedDataBadge } from "../components/GovernedDataBadge";
+import { GovernedSpecEvidence } from "../components/GovernedSpecEvidence";
+import { VerifyBeforeQuoteNote } from "../components/VerifyBeforeQuoteNote";
+import { useWingmanProfile } from "../data/wingmanProfile";
+import { buildDesignAssuranceLedger } from "../lib/productAssurance";
 
 type RecommendationDecision = Awaited<
   ReturnType<typeof loadWingmanProductSelectorDecisions>
@@ -234,6 +241,7 @@ function quoteStatusLabel(brief: StoredDiscoveryBrief | null) {
 
 export function RecommendationsPage() {
   const { activeProject } = useProjectStore();
+  const { profile } = useWingmanProfile();
   const [brief, setBrief] = useState<StoredDiscoveryBrief | null>(null);
   const [need, setNeed] = useState<Partial<FinderNeedDraft>>({});
   const [decisions, setDecisions] = useState<RecommendationDecision[]>([]);
@@ -297,6 +305,17 @@ export function RecommendationsPage() {
         .slice(0, 12),
     [decisions],
   );
+
+  // Data tier behind each match card, resolved from the same governed engine
+  // the Compare, Pitch and Catalog surfaces use, so the badge on every
+  // recommendation tells the same story (verified vs official vs inferred).
+  const governedTiers = useMemo(() => {
+    const tiers = new Map<string, string>();
+    for (const decision of decisions) {
+      tiers.set(normaliseSkuKey(decision.sku), resolveProductTechnicalData(decision.product).sourceTier);
+    }
+    return tiers;
+  }, [decisions]);
 
   // A room brief describes a system, not a product. Decompose it into the slots
   // the system needs and resolve each one, so a Discovery that captured four
@@ -417,7 +436,34 @@ export function RecommendationsPage() {
     );
   }
 
-  const roomModel = brief?.roomModel ?? {};
+  const roomModel = useMemo(() => brief?.roomModel ?? {}, [brief]);
+
+  // Run the full assurance ledger against the active project's product
+  // selections so chain, regional, power, network and feedback checks surface
+  // at selection time — not only at proposal export.
+  const assurance = useMemo(() => {
+    const products = activeProject?.productSelections ?? [];
+    if (!products.length) return null;
+    const requirementText = [
+      need.technicalRequirement,
+      need.productPath,
+      need.distance,
+      need.resolution,
+      need.usb,
+      roomModel.outcome,
+      roomModel.application,
+      roomModel.summary,
+    ].filter(Boolean).join(" ");
+    return buildDesignAssuranceLedger({
+      products,
+      requirementText,
+      discoveryPercent: brief?.capturedPercent ?? (brief ? 100 : 0),
+      topology: activeProject?.discoveryBrief?.topology,
+      region: profile.region,
+      feedback: activeProject?.feedback,
+    });
+  }, [activeProject, brief, need, roomModel, profile.region]);
+
   const missingInformation = brief?.missingInformation ?? [];
   const requirementSummary = [
     need.technicalRequirement,
@@ -870,6 +916,20 @@ export function RecommendationsPage() {
                       </div>
                     </dl>
 
+                    {decision.profile.specEvidence.io ||
+                    decision.profile.specEvidence.usb ||
+                    decision.profile.specEvidence.reach ? (
+                      <div className="mt-4 rounded-xl border border-slate-700/60 bg-slate-900/40 p-3">
+                        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                          <strong className="text-xs font-black uppercase tracking-wide text-slate-400">
+                            Why it passed the gates
+                          </strong>
+                          <GovernedDataBadge tier={governedTiers.get(normaliseSkuKey(decision.sku))} />
+                        </div>
+                        <GovernedSpecEvidence evidence={decision.profile.specEvidence} />
+                      </div>
+                    ) : null}
+
                     {decision.reasons.length ? (
                       <ul className="mt-4 grid gap-1 text-sm">
                         {decision.reasons.slice(0, 3).map((reason) => (
@@ -918,6 +978,48 @@ export function RecommendationsPage() {
           </SectionCard>
           </details>
 
+          {assurance && (assurance.blockers.length || assurance.warnings.length) ? (
+            <section className="wm-rec-assurance wm-ui-card rounded-2xl border p-5">
+              <header className="mb-4">
+                <p className="wm-ui-kicker">System assurance checks</p>
+                <h2 className="wm-ui-title text-xl font-black">Technical release gates</h2>
+                <p className="wm-ui-copy text-sm">These checks run against the products already in the active project and surface issues the selector alone cannot see.</p>
+              </header>
+              {assurance.blockers.length ? (
+                <div className="mb-4 rounded-xl border border-red-500/40 bg-red-950/40 p-4">
+                  <strong className="text-sm font-black text-red-400">Must resolve before quoting</strong>
+                  <ul className="mt-2 grid gap-2 text-sm">
+                    {assurance.blockers.map((item) => (
+                      <li key={item.id} className="flex items-start gap-2">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" aria-hidden="true" />
+                        <span>
+                          {item.sku ? <strong>{item.sku}: </strong> : null}
+                          {item.message}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {assurance.warnings.length ? (
+                <div className="rounded-xl border border-amber-500/40 bg-amber-950/40 p-4">
+                  <strong className="text-sm font-black text-amber-400">Validate before quoting</strong>
+                  <ul className="mt-2 grid gap-2 text-sm">
+                    {assurance.warnings.map((item) => (
+                      <li key={item.id} className="flex items-start gap-2">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" aria-hidden="true" />
+                        <span>
+                          {item.sku ? <strong>{item.sku}: </strong> : null}
+                          {item.message}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
           {message ? (
             <div className="wm-ui-card mt-4 rounded-xl border p-4 font-bold">
               {message}
@@ -942,6 +1044,8 @@ export function RecommendationsPage() {
               Continue to response pack
             </Link>
           </div>
+
+          <VerifyBeforeQuoteNote className="mt-4" />
         </>
       ) : null}
     </main>

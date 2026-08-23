@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { ProjectTopology } from "../lib/projectTopology";
+import { normaliseProjectTopology, type ProjectTopology } from "../lib/projectTopology";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   normalizeMultiSkuCompetitorAnalysis,
@@ -645,9 +645,13 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
   const record = objectRecord(value);
   if (!record) return undefined;
 
+  const topology = normaliseProjectTopology(record.topology);
+  const hasTopology = topology.locations.length > 0 || topology.connections.length > 0;
+
   return {
     savedAt: stringValue(record.savedAt, undefined),
     roomModel: objectRecord(record.roomModel) ?? undefined,
+    topology: hasTopology ? topology : undefined,
     inference: objectRecord(record.inference) ?? undefined,
     capturedPercent: Number.isFinite(Number(record.capturedPercent)) ? Number(record.capturedPercent) : undefined,
     returnRoute: stringValue(record.returnRoute, undefined),
