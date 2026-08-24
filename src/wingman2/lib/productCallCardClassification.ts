@@ -1,19 +1,30 @@
+// Simplified from 10 granular headings to 7 practical groups.
+// Sales reps think in workflows ("I need a presentation room"), not in
+// product-line taxonomy ("DA / Splitters" vs "Extender Kits").
 export const PRODUCT_CALL_CARD_HEADINGS = [
   "All",
-  "Audio",
-  "Extender Kits",
-  "DA / Splitters",
-  "Presentation Switchers",
-  "Matrix Switchers",
-  "Wireless Casting",
-  "Unified Comms",
-  "AVoIP",
-  "Video Wall",
-  "Control",
+  "Presentation & UC",
+  "AVoIP & Networked",
+  "Matrix & Routing",
+  "Extenders & Distribution",
+  "Video & Processing",
+  "Control & Audio",
 ] as const;
 
 export type ProductCallCardHeading = (typeof PRODUCT_CALL_CARD_HEADINGS)[number];
-export type ClassifiedProductCallCardHeading = Exclude<ProductCallCardHeading, "All">;
+type GroupedProductCallCardHeading = Exclude<ProductCallCardHeading, "All">;
+type GranularProductCallCardHeading =
+  | "Audio"
+  | "Extender Kits"
+  | "DA / Splitters"
+  | "Presentation Switchers"
+  | "Matrix Switchers"
+  | "Wireless Casting"
+  | "Unified Comms"
+  | "AVoIP"
+  | "Video Wall"
+  | "Control";
+export type ClassifiedProductCallCardHeading = GroupedProductCallCardHeading | GranularProductCallCardHeading;
 
 export type ProductCallCardClassificationInput = {
   sku?: unknown;
@@ -130,7 +141,7 @@ export function classifyProductCallCard(
 
   const text = productCallCardHeadingSignalText(product);
   const identityText = productCallCardIdentityText(product);
-  const headings = new Set<ClassifiedProductCallCardHeading>();
+  const headings = new Set<GranularProductCallCardHeading>();
 
   const unifiedComms = hasAny(text, [
     /\bunified comm(?:s|unications?)\b/,
@@ -245,11 +256,34 @@ export function classifyProductCallCard(
   if (
     /^SYN-TOUCH/.test(sku) ||
     /^NHD-(?:000-)?CTL/.test(sku) ||
-    hasAny(text, [/\btouch panel\b/, /\btouchpad controller\b/, /\bcontrol interface\b/]) ||
-    (/\bcontroller\b/.test(text) && hasAny(text, [/\bcontrol\b/, /\bnetworkhd\b/, /\bnhd\b/]))
+    hasAny(identityText, [/\btouch panel\b/, /\btouchpad controller\b/, /\bcontrol interface\b/]) ||
+    (/\bcontroller\b/.test(identityText) && hasAny(identityText, [/\bcontrol\b/, /\bnetworkhd\b/, /\bnhd\b/]))
   ) {
     headings.add("Control");
   }
 
-  return [...headings];
+  return mapToGroupedHeadings([...headings]);
+}
+
+// Map granular product-line headings to the simplified grouped headings.
+// Sales reps think in workflows, not product taxonomy.
+const GRANULAR_TO_GROUPED: Record<GranularProductCallCardHeading, GroupedProductCallCardHeading> = {
+  "Audio": "Control & Audio",
+  "Extender Kits": "Extenders & Distribution",
+  "DA / Splitters": "Extenders & Distribution",
+  "Presentation Switchers": "Presentation & UC",
+  "Matrix Switchers": "Matrix & Routing",
+  "Wireless Casting": "Presentation & UC",
+  "Unified Comms": "Presentation & UC",
+  "AVoIP": "AVoIP & Networked",
+  "Video Wall": "Video & Processing",
+  "Control": "Control & Audio",
+};
+
+function mapToGroupedHeadings(headings: GranularProductCallCardHeading[]): GroupedProductCallCardHeading[] {
+  const grouped = new Set<GroupedProductCallCardHeading>();
+  for (const heading of headings) {
+    grouped.add(GRANULAR_TO_GROUPED[heading] ?? heading);
+  }
+  return [...grouped];
 }
