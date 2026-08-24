@@ -225,4 +225,27 @@ describe("resolveCompareVerdictCandidates", () => {
     expect(result.heuristicLead?.product.sku).toBe("NHD-500-TX");
     expect(result.heuristicLead?.verdict).toBe("NO MATCH");
   });
+
+  it("retains a same-class NO MATCH as an explicitly labelled near match", () => {
+    const sameClassProfile = { ...PROFILE, productClass: "Matrix" };
+    const result = resolveCompareVerdictCandidates({
+      engineMatches: [makeMatch("MX-0402-MST", "NO MATCH", 42)],
+      products: ACTIVE_SKUS.map(product),
+      governedDecision: null,
+      profile: sameClassProfile,
+      toCandidate,
+      scoreProduct: (_profile, candidate) => ({
+        product: candidate,
+        score: 50,
+        verdict: "PARTIAL MATCH",
+        matched: [], checks: [], gaps: [], partialMatches: [], mismatches: [],
+        unknowns: [], blockers: [], dependencies: [], outcomeLabel: "catalogue",
+      }),
+      isSelectable: (candidate) => Boolean(candidate?.sku),
+    });
+
+    expect(result.viable).toEqual([]);
+    expect(result.nearMatches.map((candidate) => candidate.product.sku)).toContain("MX-0402-MST");
+    expect(result.nearMatches.find((candidate) => candidate.product.sku === "MX-0402-MST")?.verdict).toBe("NO MATCH");
+  });
 });

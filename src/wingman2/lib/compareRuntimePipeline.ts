@@ -172,6 +172,14 @@ function inferWirelessSourceCount(inputText: string, result: unknown): number | 
   const record = result as WirelessRuntimeRecord | undefined;
   const competitor = record?.competitor as WirelessRuntimeRecord | undefined;
 
+  const features = competitor?.features as Record<string, unknown> | undefined;
+  if (features?.multiview === true) {
+    // Multiview room cores must accept several concurrent wired/wireless
+    // presenters even when their structured physical-video input count is
+    // lower. Keep them on the larger presentation-switcher path.
+    return Math.max(typeof competitor?.inputCount === "number" ? competitor.inputCount : 0, 4);
+  }
+
   if (typeof competitor?.inputCount === "number") {
     return competitor.inputCount;
   }
@@ -316,9 +324,10 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
   // this case - the room-based reordering must not override it.
   const castingAccessoryCompetitor = isExplicitRuntimeCastingAccessory(`${inputText} ${competitorText}`);
 
+  const sourceCount = inferWirelessSourceCount(inputText, result);
   const recommendation = recommendWirelessCastingSkus({
     roomType: inputText,
-    sourceCount: inferWirelessSourceCount(inputText, result),
+    sourceCount,
     deskConnection: /desk|table|lectern|cubby|in-desk/i.test(inputText),
     connectionLocation: inputText,
   });
@@ -338,9 +347,12 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
   const wirelessMatches = castingAccessoryCompetitor
     ? record.matches
     : (Array.isArray(record.matches)
-        ? record.matches.filter(
-            (match: WirelessRuntimeRecord) => runtimeSkuKey(match) !== "APODG2",
-          )
+        ? record.matches.filter((match: WirelessRuntimeRecord) => {
+            const sku = runtimeSkuKey(match);
+            if (sku === "APODG2") return false;
+            if (typeof sourceCount === "number" && sourceCount >= 4 && sku === "SW620TXW") return false;
+            return true;
+          })
         : record.matches);
 
   const ranked = prioritiseRuntimeSkus(
