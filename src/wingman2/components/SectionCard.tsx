@@ -6,9 +6,10 @@ type SectionCardProps = {
   subtitle?: string;
   children: ReactNode;
   rightSlot?: ReactNode;
+  showHelp?: boolean;
 };
 
-export function SectionCard({ title, subtitle, children, rightSlot }: SectionCardProps) {
+export function SectionCard({ title, subtitle, children, rightSlot, showHelp = true }: SectionCardProps) {
   return (
     <section className="wingman-section-card wingman-surface" data-wm-card-level="standard">
       <header className="wingman-section-card-header">
@@ -19,7 +20,7 @@ export function SectionCard({ title, subtitle, children, rightSlot }: SectionCar
               <h2>{title}</h2>
               {subtitle ? <p>{subtitle}</p> : null}
             </div>
-            {subtitle ? (
+            {subtitle && showHelp ? (
               <details className="wingman-section-help">
                 <summary aria-label={`About ${title}`}>
                   <HelpCircle className="h-4 w-4" />

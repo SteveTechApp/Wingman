@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CheckCircle2, LayoutTemplate, Pencil, Save, ShieldCheck, Trash2, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Pencil, Save, Trash2, X } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -12,7 +12,6 @@ import {
   type StoredCompareRun,
   type StoredProject,
   type StoredRequirementRecord,
-  type StoredRequirementStatus,
   useProjectStore,
 } from "../data/projectStore";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
@@ -20,8 +19,10 @@ import { saveProjectAsRoomTemplate } from "../lib/customRoomTemplates";
 import { getProjectRequirementRecords, requirementReadiness } from "../lib/projectRequirements";
 import { getProductFamilyRankingReason } from "../lib/productFamilyShortlistRanking";
 import { repTierLabelFromRun } from "../lib/repScript";
+import { RequirementsAccordion } from "./project/RequirementsAccordion";
+import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePanel";
 
-const statusOptions: StoredRequirementStatus[] = ["confirmed", "review", "unknown"];
+// Editable requirements are rendered through the extracted accordion below.
 
 // Deep link into the Compare page's typed-SKU flow with the stored competitor,
 // so the trace's Open action re-runs the re-check instead of landing on a cold
@@ -33,12 +34,6 @@ function compareDeepLink(compareRun: StoredCompareRun) {
   if (sku) params.set("sku", sku);
   const query = params.toString();
   return query ? `${routeCatalogByKey.compare.path}?${query}` : routeCatalogByKey.compare.path;
-}
-
-function statusLabel(status: StoredRequirementStatus) {
-  if (status === "confirmed") return "Confirmed";
-  if (status === "unknown") return "Unknown";
-  return "Needs review";
 }
 
 function projectStatusLabel(status: StoredProject["status"]) {
@@ -953,198 +948,150 @@ export function ProjectDetailPage() {
 
         {showSupportingDetails ? (
         <>
-        <SectionCard
-          title="Opportunity record"
-          subtitle="This is the editable project layer between raw discovery and recommendation output."
-          rightSlot={
-            <div className="flex flex-wrap gap-3">
-              <Link
-                to={routeCatalogByKey.projects.path}
-                className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition wm-ui-card wm-ui-copy"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Projects
-              </Link>
+        {/* Compact project stats bar */}
+        <section className="rounded-2xl border p-4 wm-ui-card">
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Project info */}
+            <div className="flex items-center gap-3">
+              <div className="text-center">
+                <p className="text-2xl font-black wm-ui-copy">{readiness.score}%</p>
+                <p className="text-[10px] uppercase tracking-wider wm-ui-kicker">Ready</p>
+              </div>
+              <div className="h-8 w-px wm-ui-card" />
+              <div className="flex items-center gap-2">
+                <StatusChip label={projectStatusLabel(project.status)} variant={project.status} />
+                <span className="text-xs wm-ui-copy">{project.owner}</span>
+              </div>
+            </div>
+
+            {/* Quick stats */}
+            <div className="flex items-center gap-3 text-xs">
+              <span className="flex items-center gap-1">
+                <span className="font-bold wm-ui-copy">{readiness.confirmed}</span>
+                <span className="wm-ui-copy">confirmed</span>
+              </span>
+              {readiness.review > 0 && (
+                <span className="flex items-center gap-1">
+                  <span className="font-bold wm-ui-copy">{readiness.review}</span>
+                  <span className="wm-ui-copy">review</span>
+                </span>
+              )}
+              {readiness.unknown > 0 && (
+                <span className="flex items-center gap-1">
+                  <span className="font-bold wm-ui-copy">{readiness.unknown}</span>
+                  <span className="wm-ui-copy">unknown</span>
+                </span>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="ml-auto flex items-center gap-2">
               <button
                 type="button"
                 onClick={saveRequirements}
-                className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition wm-ui-button wm-ui-button-primary wm-ui-card wm-ui-copy"
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold wm-ui-button wm-ui-button-primary"
               >
-                <Save className="h-4 w-4" />
-                Save requirements
+                <Save className="h-3 w-3" />
+                Save
               </button>
-              <button
-                type="button"
-                onClick={saveCurrentProjectAsTemplate}
-                className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition wm-ui-button wm-ui-button-secondary wm-ui-card wm-ui-copy"
+              <Link
+                to={routeCatalogByKey.projects.path}
+                className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary"
               >
-                <LayoutTemplate className="h-4 w-4" />
-                Save as template
-              </button>
-            </div>
-          }
-        >
-          <div className="grid gap-4 lg:grid-cols-4">
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Owner</p>
-              <p className="mt-2 font-semibold text-[#edf6ff] wm-ui-copy">{project.owner}</p>
-            </div>
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Stage</p>
-              <p className="mt-2 font-semibold text-[#edf6ff] wm-ui-copy">{project.stage}</p>
-            </div>
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Status</p>
-              <div className="mt-2">
-                <StatusChip
-                  label={projectStatusLabel(project.status)}
-                  variant={project.status}
-                />
-              </div>
-            </div>
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Sync</p>
-              <p className="mt-2 text-sm font-semibold text-[#edf6ff] wm-ui-copy">{syncStatus.message}</p>
+                <ArrowLeft className="h-3 w-3" />
+                Projects
+              </Link>
             </div>
           </div>
-
-          <div className="mt-5 grid gap-4 lg:grid-cols-4">
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Requirement readiness</p>
-              <p className="mt-2 text-4xl font-black wm-ui-copy">{readiness.score}%</p>
-            </div>
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Confirmed</p>
-              <p className="mt-2 text-2xl font-black text-[#edf6ff] wm-ui-copy">{readiness.confirmed}</p>
-            </div>
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Needs review</p>
-              <p className="mt-2 text-2xl font-black wm-ui-copy">{readiness.review}</p>
-            </div>
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Unknown</p>
-              <p className="mt-2 text-2xl font-black wm-ui-copy">{readiness.unknown}</p>
-            </div>
-          </div>
-
           {message ? (
-            <p className="mt-4 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold wm-ui-copy wm-ui-card">
-              <CheckCircle2 className="h-4 w-4" />
+            <p className="mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs wm-ui-card wm-ui-copy">
+              <CheckCircle2 className="h-3.5 w-3.5" />
               {message}
             </p>
           ) : null}
-        </SectionCard>
+        </section>
 
+        {/* Compact command cards - always visible */}
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {commandCards.map((card) => (
+            <div key={card.label} className="rounded-xl border p-3 wm-ui-card">
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] wm-ui-kicker">{card.label}</p>
+              <p className="mt-1.5 text-sm font-bold line-clamp-1 wm-ui-copy">{card.value}</p>
+              <p className="mt-1 text-xs line-clamp-2 wm-ui-copy">{card.detail}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* Collapsible detailed view */}
         <SectionCard
-          title="Opportunity command centre"
-          subtitle="Single view of the live project record: discovery status, product direction, compare evidence, proposal readiness, missing information, and next workflow handoff."
+          title="Opportunity details"
+          subtitle="Discovery status, product direction, blockers, and workflow handoff."
         >
-          <div className="grid gap-4 lg:grid-cols-4">
-            {commandCards.map((card) => (
-              <div key={card.label} className="rounded-2xl border p-4 wm-ui-card">
-                <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">{card.label}</p>
-                <p className="mt-2 text-lg font-black text-[#edf6ff] wm-ui-copy">{card.value}</p>
-                <p className="mt-2 text-sm leading-6 text-[#cfe6f7] wm-ui-copy">{card.detail}</p>
-              </div>
-            ))}
-          </div>
-
+          {/* Product family decision */}
           {leadingProductFamilyScore ? (
-            <div className="mt-5 rounded-2xl border p-5 wm-ui-card">
-              <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
+            <div className="mb-4 rounded-xl border p-4 wm-ui-card">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Product-family decision</p>
-                  <p className="mt-2 text-2xl font-black text-[#edf6ff] wm-ui-copy">{leadingProductFamilyScore.family}</p>
-                  <p className="mt-1 text-sm font-semibold text-[#9ffcf4] wm-ui-copy">{leadingProductFamilyScore.score}/100 confidence</p>
-                </div>
-                <div className="grid gap-3 lg:grid-cols-2">
-                  <div className="rounded-2xl border p-4 wm-ui-card">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Why this family is leading</p>
-                    <div className="mt-3 grid gap-2 text-sm leading-6 text-[#cfe6f7] wm-ui-copy">
-                      {leadingProductFamilyScore.reasons.slice(0, 3).map((reason) => (
-                        <p key={reason} className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                          {reason}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border p-4 wm-ui-card">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Checks before SKU selection</p>
-                    <div className="mt-3 grid gap-2 text-sm leading-6 text-[#cfe6f7] wm-ui-copy">
-                      {leadingProductFamilyScore.cautions.length ? (
-                        leadingProductFamilyScore.cautions.slice(0, 3).map((caution) => (
-                          <p key={caution} className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                            {caution}
-                          </p>
-                        ))
-                      ) : (
-                        <p className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                          No family-level cautions captured. Continue to datasheet, dependency, regional and stock validation.
-                        </p>
-                      )}
-                    </div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] wm-ui-kicker">Leading product family</p>
+                  <div className="mt-1 flex items-center gap-3">
+                    <span className="text-lg font-black wm-ui-copy">{leadingProductFamilyScore.family}</span>
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold wm-ui-card wm-ui-copy">
+                      {leadingProductFamilyScore.score}/100
+                    </span>
                   </div>
                 </div>
+                {productFamilyScores.length > 1 ? (
+                  <div className="flex gap-2">
+                    {productFamilyScores.slice(1, 3).map((score) => (
+                      <span key={score.family} className="rounded-full border px-2 py-0.5 text-[10px] wm-ui-card wm-ui-copy">
+                        {score.family} {score.score}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-
-              {productFamilyScores.length > 1 ? (
-                <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                  {productFamilyScores.slice(1, 5).map((score) => (
-                    <div key={score.family} className="rounded-2xl border p-4 wm-ui-card">
-                      <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">{score.family}</p>
-                      <p className="mt-2 text-xl font-black text-[#edf6ff] wm-ui-copy">{score.score}/100</p>
-                      <p className="mt-2 text-xs leading-5 text-[#cfe6f7] wm-ui-copy">{score.reasons[0] || "Alternative family path retained for review."}</p>
-                    </div>
-                  ))}
-                </div>
+              {leadingProductFamilyScore.reasons[0] ? (
+                <p className="mt-2 text-xs line-clamp-1 wm-ui-copy">{leadingProductFamilyScore.reasons[0]}</p>
               ) : null}
             </div>
           ) : null}
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-sm font-black text-[#edf6ff] wm-ui-copy">Missing information / review blockers</p>
-              <div className="mt-3 grid gap-2 text-sm text-[#cfe6f7] wm-ui-copy">
-                {missingInformation.length ? (
-                  missingInformation.slice(0, 8).map((item) => (
-                    <p key={item} className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                      {item}
-                    </p>
-                  ))
-                ) : (
-                  <p className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                    No current blockers captured. Still check datasheets, stock, regional suitability, and final system dependencies before quoting.
-                  </p>
-                )}
+          {/* Missing information */}
+          {missingInformation.length > 0 ? (
+            <div className="mb-4">
+              <p className="mb-2 text-xs font-bold wm-ui-copy">⚠ {missingInformation.length} items need attention</p>
+              <div className="flex flex-wrap gap-1.5">
+                {missingInformation.slice(0, 4).map((item) => (
+                  <span key={item} className="rounded-full px-2.5 py-1 text-[10px] line-clamp-1 wm-ui-card wm-ui-copy">
+                    {item}
+                  </span>
+                ))}
+                {missingInformation.length > 4 ? (
+                  <span className="rounded-full px-2.5 py-1 text-[10px] wm-ui-card wm-ui-copy">
+                    +{missingInformation.length - 4} more
+                  </span>
+                ) : null}
               </div>
             </div>
+          ) : null}
 
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-sm font-black text-[#edf6ff] wm-ui-copy">Workflow handoff</p>
-              <p className="mt-2 text-sm leading-6 text-[#cfe6f7] wm-ui-copy">
-                Continue from this project record rather than starting each page cold.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link to={routeCatalogByKey.discovery.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
-                  Discovery
-                </Link>
-                <Link to={routeCatalogByKey.recommendations.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
-                  Finder
-                </Link>
-                <Link to={routeCatalogByKey.compare.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
-                  Compare
-                </Link>
-                <Link to={routeCatalogByKey.productPitch.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
-                  Product Positioning
-                </Link>
-                <Link to={visualStudioLink} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#9ffcf4] wm-ui-card wm-ui-copy">
-                  Visual Studio
-                </Link>
-                <Link to={routeCatalogByKey.proposal.path} className="rounded-full px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">
-                  Proposal
-                </Link>
-              </div>
-            </div>
+          {/* Workflow handoff */}
+          <div className="flex flex-wrap gap-2">
+            <Link to={routeCatalogByKey.discovery.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
+              Discovery
+            </Link>
+            <Link to={routeCatalogByKey.recommendations.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
+              Finder
+            </Link>
+            <Link to={routeCatalogByKey.compare.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
+              Compare
+            </Link>
+            <Link to={routeCatalogByKey.productPitch.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
+              Products
+            </Link>
+            <Link to={routeCatalogByKey.proposal.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-primary">
+              Proposal
+            </Link>
           </div>
         </SectionCard>
 
@@ -1225,170 +1172,25 @@ export function ProjectDetailPage() {
         </SectionCard>
 
         <SectionCard
-          title="Editable requirements"
-          subtitle="Confirm known requirements, mark weak assumptions for review, and keep unknowns visible rather than guessing."
+          title="Requirements"
+          subtitle="Confirmed requirements grouped by category. Edit inline or mark for review."
         >
           <span id="project-requirements" className="wm-project-detail-anchor" aria-hidden="true" />
-          <div className="grid gap-3">
-            {requirements.map((requirement) => (
-              <div key={requirement.id} className="rounded-2xl border p-4 wm-ui-card">
-                <div className="grid gap-3 lg:grid-cols-[180px_1fr_160px]">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">
-                      {requirement.category}
-                    </p>
-                    <p className="mt-2 font-black text-[#edf6ff] wm-ui-copy">{requirement.label}</p>
-                    <p className="mt-1 text-xs wm-ui-copy">{requirement.source}</p>
-                  </div>
-
-                  <label className="grid gap-1">
-                    <span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Requirement value</span>
-                    <textarea className={["wm-ui-input", "min-h-20 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 py-3 text-sm leading-6 text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-4 focus:ring-amber-100"].filter(Boolean).join(" ")}
-                      value={requirement.value}
-                      onChange={(event) => updateRequirement(requirement.id, { value: event.target.value })}
-
-                    />
-                    <span className="text-xs leading-5 wm-ui-copy">{requirement.whyItMatters}</span>
-                  </label>
-
-                  <label className="grid content-start gap-1">
-                    <span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Status</span>
-                    <select className={["wm-ui-input", "rounded-2xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-semibold text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-4 focus:ring-amber-100"].filter(Boolean).join(" ")}
-                      value={requirement.status}
-                      onChange={(event) =>
-                        updateRequirement(requirement.id, { status: event.target.value as StoredRequirementStatus })
-                      }
-
-                    >
-                      {statusOptions.map((status) => (
-                        <option key={status} value={status}>
-                          {statusLabel(status)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-              </div>
-            ))}
-          </div>
+          <RequirementsAccordion
+            requirements={requirements}
+            onUpdate={updateRequirement}
+          />
         </SectionCard>
 
         <SectionCard
           title="Recommendation evidence"
-          subtitle="Use this to see what Wingman will carry forward into Finder, Compare, and Proposal."
+          subtitle="What Wingman carries forward into Finder, Compare, and Proposal."
         >
-          <div className="grid gap-4 lg:grid-cols-3">
-            {recommendationEvidence ? (
-              <div className="rounded-2xl border p-4 wm-ui-card">
-                <p className="text-sm font-black wm-ui-copy">Quote safety</p>
-                <p className="mt-2 text-lg font-black wm-ui-copy">
-                  {recommendationEvidence.quoteSafetyStatus === "quote-ready"
-                    ? "Quote-ready draft"
-                    : recommendationEvidence.quoteSafetyStatus === "validate-before-quote"
-                      ? "Validate before quote"
-                      : "Do not quote yet"}
-                </p>
-                <p className="mt-2 text-sm leading-6 wm-ui-copy">{recommendationEvidence.quoteSafetyMessage}</p>
-                <p className="mt-2 text-xs leading-5 wm-ui-copy">{recommendationEvidence.nextBestQuestion}</p>
-              </div>
-            ) : null}
-
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-sm font-black text-[#edf6ff] wm-ui-copy">Product-family scores</p>
-              <div className="mt-3 space-y-2 text-sm text-[#cfe6f7] wm-ui-copy">
-                {productFamilyScores.length ? (
-                  productFamilyScores.slice(0, 4).map((score) => (
-                    <div key={score.family} className="rounded-xl border p-3 wm-ui-card">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-black text-[#edf6ff]">{score.family}</span>
-                        <span className="rounded-full border px-2 py-1 text-xs font-black text-[#9ffcf4] wm-ui-card">{score.score}/100</span>
-                      </div>
-                      <p className="mt-2 text-xs leading-5 wm-ui-copy">{score.reasons[0] || "Family retained for review."}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="wm-ui-copy">No product-family score has been stored yet. Rebuild recommendation evidence from Finder or Discovery.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-sm font-black text-[#edf6ff] wm-ui-copy">Selected products</p>
-              <div className="mt-3 space-y-2 text-sm wm-ui-copy">
-                {project.productSelections?.length ? (
-                  project.productSelections.map((product) => (
-                    <p key={product.sku} className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                      <span className="font-black text-[#edf6ff]">{product.sku}</span> {product.title || product.family || ""}
-                    </p>
-                  ))
-                ) : (
-                  <p className="wm-ui-copy">No products selected yet.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-sm font-black text-[#edf6ff] wm-ui-copy">Evidence used</p>
-              <div className="mt-3 space-y-2 text-sm wm-ui-copy">
-                {recommendationEvidence?.evidenceUsed.length ? (
-                  recommendationEvidence.evidenceUsed.slice(0, 5).map((item) => (
-                    <p key={item} className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                      {item}
-                    </p>
-                  ))
-                ) : (
-                  <p className="wm-ui-copy">No structured recommendation evidence has been captured yet.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-sm font-black text-[#edf6ff] wm-ui-copy">Governed dependencies</p>
-              <div className="mt-3 space-y-2 text-sm wm-ui-copy">
-                {recommendationEvidence?.requiredDependencies.length ? (
-                  recommendationEvidence.requiredDependencies.slice(0, 4).map((dependency) => (
-                    <p key={dependency} className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                      <span className="inline-flex items-center gap-2 font-black">
-                        <ShieldCheck className="h-4 w-4" />
-                        Required
-                      </span>
-                      <span className="mt-1 block text-xs">{dependency}</span>
-                    </p>
-                  ))
-                ) : project.proposal?.governedDependencies?.length ? (
-                  project.proposal.governedDependencies.slice(0, 4).map((dependency) => (
-                    <p key={dependency.id} className="rounded-xl border p-3 wm-ui-copy wm-ui-card">
-                      <span className="inline-flex items-center gap-2 font-black">
-                        <ShieldCheck className="h-4 w-4" />
-                        {dependency.label}
-                      </span>
-                      <span className="mt-1 block text-xs">{dependency.validationQuestion}</span>
-                    </p>
-                  ))
-                ) : (
-                  <p className="wm-ui-copy">No governed dependency rows have been generated yet.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="text-sm font-black text-[#edf6ff] wm-ui-copy">Next actions</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Link to={routeCatalogByKey.discovery.path} className="rounded-full border px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">
-                  Discovery
-                </Link>
-                <Link to={routeCatalogByKey.recommendations.path} className="rounded-full border px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">
-                  Finder
-                </Link>
-                <Link to={routeCatalogByKey.compare.path} className="rounded-full border px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">
-                  Compare
-                </Link>
-                <Link to={routeCatalogByKey.proposal.path} className="rounded-full px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">
-                  Proposal
-                </Link>
-              </div>
-            </div>
-          </div>
+          <RecommendationEvidencePanel
+            evidence={recommendationEvidence}
+            productFamilyScores={productFamilyScores}
+            selectedProducts={selectedProducts}
+          />
         </SectionCard>
         </>
         ) : null}

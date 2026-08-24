@@ -24,6 +24,7 @@ import {
 import {
   buildSystemDesign,
   productMatchesSlot,
+  ucAllInOneCoverage,
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
 import { readClassificationFacts } from "../lib/productStoryEngine";
@@ -197,6 +198,7 @@ function buildSlotRequest(): ProductSelectorRequest {
 type SystemSlotResult = {
   slot: SystemSlot;
   candidates: RecommendationDecision[];
+  ucCovered?: boolean;
 };
 
 function decisionClassification(decision: RecommendationDecision) {
@@ -337,18 +339,40 @@ export function RecommendationsPage() {
   const design = useMemo(() => buildSystemDesign(systemBrief), [systemBrief]);
 
   const systemSlots = useMemo<SystemSlotResult[]>(
-    () =>
-      design.slots.map((slot) => ({
+    () => {
+      // Step 1: build raw slots with candidates.
+      const raw = design.slots.map((slot) => ({
         slot,
         candidates: slot.supply === "external" ? [] : slotPool
-          // A slot is a line on a quote. Anything the selector rejected -
-          // discontinued, do-not-spec, superseded, admin-blocked or gated out
-          // by the requirement - must never reach it, or a retired SKU gets
-          // quoted inside an otherwise plausible-looking system.
           .filter((decision) => decision.eligible)
           .filter((decision) => productMatchesSlot(decisionClassification(decision), slot))
           .slice(0, 4),
-      })),
+      }));
+
+      // Step 2: detect UC all-in-ones among each slot's lead candidate.  When
+      // a video bar (camera + video-bar) or speakerphone is selected for one
+      // slot, it already covers camera/microphone/speaker roles.  Suppress the
+      // redundant slots so the system does not recommend three separate
+      // products for what one UC device handles.
+      const coveredByUc = new Set<string>();
+      for (const entry of raw) {
+        const lead = entry.candidates[0];
+        if (!lead) continue;
+        const coverage = ucAllInOneCoverage(decisionClassification(lead));
+        if (coverage) {
+          for (const slotKind of coverage) coveredByUc.add(slotKind);
+        }
+      }
+
+      if (coveredByUc.size === 0) return raw;
+
+      return raw.map((entry) => {
+        if (coveredByUc.has(entry.slot.kind)) {
+          return { ...entry, candidates: [], ucCovered: true };
+        }
+        return entry;
+      });
+    },
     [design, slotPool],
   );
 
@@ -788,11 +812,11 @@ export function RecommendationsPage() {
               </div>
 
               <div className="wm-rec-slot-list">
-                {systemSlots.map(({ slot, candidates }, index) => {
+                {systemSlots.map(({ slot, candidates, ucCovered }, index) => {
                   const lead = candidates[0];
                   const alternatives = candidates.slice(1);
                   return (
-                    <article className={`wm-rec-slot${slot.supply === "external" ? " is-external" : ""}${!lead && slot.supply === "wyrestorm" ? " is-unresolved" : ""}`} key={slot.kind}>
+                    <article className={`wm-rec-slot${slot.supply === "external" ? " is-external" : ""}${!lead && slot.supply === "wyrestorm" && !ucCovered ? " is-unresolved" : ""}${ucCovered ? " is-uc-covered" : ""}`} key={slot.kind}>
                       <div className="wm-rec-slot-index">{index + 1}</div>
                       <div className="wm-rec-slot-copy">
                         <div className="wm-rec-slot-title-row">
@@ -826,6 +850,11 @@ export function RecommendationsPage() {
                             <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => addSlotToProject(slot, lead)}>
                               Add role
                             </button>
+                          </div>
+                        ) : ucCovered ? (
+                          <div className="wm-rec-uc-covered">
+                            <Check size={20} aria-hidden="true" />
+                            <div><strong>Covered by UC all-in-one</strong><span>This role is built into the selected UC video bar or speakerphone. No separate product is needed.</span></div>
                           </div>
                         ) : (
                           <div className="wm-rec-unresolved">

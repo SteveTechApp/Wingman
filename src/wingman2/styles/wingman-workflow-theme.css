@@ -1303,6 +1303,33 @@ html[data-wingman-route="recommendations"] .wm-rec-unresolved {
   border-color: color-mix(in srgb, #f8c96b 30%, var(--wm-ref-border));
 }
 
+.wm-rec-uc-covered {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 13px 14px;
+  background: color-mix(in srgb, #34d399 6%, var(--wm-ref-panel));
+  border: 1px solid color-mix(in srgb, #34d399 28%, var(--wm-ref-border));
+  border-radius: 11px;
+  color: #34d399;
+}
+
+.wm-rec-uc-covered > div {
+  display: grid;
+  gap: 2px;
+}
+
+.wm-rec-uc-covered span {
+  color: var(--wm-ref-muted);
+  font-size: 0.65rem;
+}
+
+.wm-rec-uc-covered strong {
+  color: var(--wm-ref-text);
+  font-size: 0.82rem;
+}
+
 .wm-rec-slot-evidence {
   display: flex;
   gap: 7px;

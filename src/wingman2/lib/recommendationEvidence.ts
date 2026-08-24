@@ -662,6 +662,29 @@ function topProductFamily(scores: RecommendationProductFamilyScore[]) {
   return scores[0]?.family ?? "Core review";
 }
 
+// Items that are considered resolved when the room model carries a non-empty value.
+// This set is used to filter stale missing-information items from the Discovery brief,
+// inference snapshot, and AV decision module — so completed fields don't reappear.
+function liveResolvedItems(input: RecommendationEvidenceInput): Set<string> {
+  const roomModel = roomModelFrom(input);
+  const resolved = new Set<string>();
+  if (!valueIsMissing(roomModel.sourceCount)) resolved.add("Source count and source connector types");
+  if (!valueIsMissing(roomModel.displayCount)) resolved.add("Display/output count and display behaviour");
+  if (!valueIsMissing(roomModel.resolutionRequirement ?? roomModel.signalStandard)) resolved.add("Resolution, HDR, HDCP and EDID requirement");
+  if (!valueIsMissing(roomModel.distanceInfrastructureNotes ?? roomModel.longestRun ?? roomModel.cableRun)) resolved.add("Installed cable distance and infrastructure path");
+  if (!valueIsMissing(roomModel.usbTransport ?? roomModel.usbOwnership)) resolved.add("USB host ownership, peripheral location and transport bandwidth");
+  if (!valueIsMissing(roomModel.networkAvailability ?? roomModel.network)) resolved.add("Network availability, managed switch suitability and AV VLAN approach");
+  // Wireless presentation: resolved when the room model carries a non-empty value.
+  if (!valueIsMissing(roomModel.wirelessPresentationOperation)) resolved.add("Confirm how should wireless presentation operate");
+  // The second USB item from avDecisionEvidence
+  if (!valueIsMissing(roomModel.usbTransport ?? roomModel.usbOwnership)) resolved.add("USB host ownership, peripheral location, USB version, bandwidth and direction of travel");
+  // Wireless casting protocols: resolved when wireless presentation is confirmed.
+  if (!valueIsMissing(roomModel.wirelessPresentationOperation)) resolved.add("Required wireless casting protocols, corporate Wi-Fi/network policy, guest access model and simultaneous presenter behaviour");
+  // Cable validation: always a validation gate, not a missing-data item.
+  resolved.add("Validate estimated cable lengths against the installed route before final quoting");
+  return resolved;
+}
+
 function addMissingInformation(input: RecommendationEvidenceInput, output: Set<string>) {
   const roomModel = roomModelFrom(input);
   const requirementText = combinedRequirementText(input);
@@ -669,9 +692,8 @@ function addMissingInformation(input: RecommendationEvidenceInput, output: Set<s
   const combined = `${requirementText} ${productBlob}`;
   const discovery = discoveryFrom(input);
 
-  list(discovery?.missingInformation).forEach((item) => output.add(item));
-  list(inferenceFrom(input).missing).forEach((item) => output.add(item));
-
+  // Live checks: these evaluate the CURRENT room model state and are the
+  // source of truth for whether data is genuinely missing.
   if (valueIsMissing(roomModel.sourceCount)) output.add("Source count and source connector types");
   if (valueIsMissing(roomModel.displayCount)) output.add("Display/output count and display behaviour");
   if (valueIsMissing(roomModel.resolutionRequirement ?? roomModel.signalStandard)) output.add("Resolution, HDR, HDCP and EDID requirement");
@@ -689,7 +711,25 @@ function addMissingInformation(input: RecommendationEvidenceInput, output: Set<s
     output.add("Wall layout, source behaviour, canvas/preset needs and processor path");
   }
 
-  architectureDecision(input).missingInformation.forEach((item) => output.add(item));
+  // Stale discovery/inference missing items: the Discovery brief stores a
+  // snapshot of what was missing when the brief was saved.  If the user has
+  // since filled in the data, the room model now carries the answer but the
+  // stale snapshot still claims it is missing.  Filter out any stale item
+  // that the live checks above already resolved — only genuinely new or
+  // unresolved items from the brief survive.
+  const liveResolved = liveResolvedItems(input);
+
+  list(discovery?.missingInformation).forEach((item) => {
+    if (!liveResolved.has(item)) output.add(item);
+  });
+  list(inferenceFrom(input).missing).forEach((item) => {
+    if (!liveResolved.has(item)) output.add(item);
+  });
+
+  // Architecture decision missing items should also respect live-resolved fields
+  architectureDecision(input).missingInformation.forEach((item) => {
+    if (!liveResolved.has(item)) output.add(item);
+  });
 }
 
 function requiredDependencies(input: RecommendationEvidenceInput) {
@@ -940,6 +980,8 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
   const architecture = architectureDecision(input);
   const familyScores = productFamilyScores(input);
 
+  const liveResolved = liveResolvedItems(input);
+
   const avDecision = buildAvDecisionEvidence({
     source: input.source,
     requirementText: combinedRequirementText(input),
@@ -950,6 +992,14 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     missingInformation: missing,
     dependencies,
   });
+
+  // Filter avDecision missing items through liveResolved — the AV decision module
+  // adds items based on text analysis, but if the room model already carries the
+  // answer (e.g. USB ownership is populated, wireless presentation is confirmed),
+  // those items should not reappear as stale warnings.
+  const filteredAvDecisionMissing = avDecision.missingInformation.filter(
+    (item) => !liveResolved.has(item),
+  );
 
   const status = quoteSafetyStatus(input, missing, dependencies, avDecision.blockerCount);
 
@@ -978,7 +1028,7 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     ]),
     productFamilyScores: familyScores,
     quoteChecks,
-    missingInformation: unique([...missing, ...avDecision.missingInformation]),
+    missingInformation: unique([...missing, ...filteredAvDecisionMissing]),
     requiredDependencies: unique([...dependencies, ...avDecision.requiredDependencies]),
     optionalUpgrades: optionalUpgrades(input),
     alternatives: unique([...alternatives(input), ...avDecision.alternatives]),

@@ -47,6 +47,7 @@ import type {
 } from "./discovery/discoveryTypes";
 import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
+import { DiscoveryQuickStartEntry } from "./discovery/discoveryQuickStartPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
@@ -1356,6 +1357,8 @@ return (
           <span>{answeredCount} / {discoveryQuestions.length} captured</span>
         </div>
       </header>
+
+      {answeredCount === 0 ? <DiscoveryQuickStartEntry onAnswers={setAnswers} /> : null}
 
       <DiscoveryClientDetailsPanel
         clientName={clientName}

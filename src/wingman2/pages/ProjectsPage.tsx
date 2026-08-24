@@ -111,6 +111,7 @@ export function ProjectsPage() {
         <SectionCard
           title="Active projects"
           subtitle="Use this table to reopen active opportunities, copy useful examples, or remove stale project lines."
+          showHelp={false}
         >
           <div className="wm-projects-store-toolbar">
               <StatusChip
@@ -252,6 +253,7 @@ export function ProjectsPage() {
         <SectionCard
           title="Proposal-ready drafts"
           subtitle="Draft copy/delete actions also persist using the same project store."
+          showHelp={false}
         >
           {proposalDrafts.length ? (
             <div className="wm-project-draft-grid">
