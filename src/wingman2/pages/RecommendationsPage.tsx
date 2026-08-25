@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, PencilLine, RefreshCw, Route, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, PencilLine, Plus, RefreshCw, Route, ShieldCheck, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -24,6 +24,7 @@ import {
 import {
   buildSystemDesign,
   productMatchesSlot,
+  ucAllInOneCoverage,
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
 import { readClassificationFacts } from "../lib/productStoryEngine";
@@ -32,8 +33,12 @@ import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { GovernedDataBadge } from "../components/GovernedDataBadge";
 import { GovernedSpecEvidence } from "../components/GovernedSpecEvidence";
 import { VerifyBeforeQuoteNote } from "../components/VerifyBeforeQuoteNote";
+import { ProductAssuranceBadge } from "../components/ProductAssuranceBadge";
 import { useWingmanProfile } from "../data/wingmanProfile";
-import { buildDesignAssuranceLedger } from "../lib/productAssurance";
+import { buildDesignAssuranceLedger, getProductAssurance } from "../lib/productAssurance";
+import { suggestComplementaryProducts } from "../lib/systemBundler";
+import { generateSuggestedKits, detectMissingAccessories, type SuggestedKit, type MissingAccessory } from "../lib/suggestedKit";
+import { collectCompetitorBrandLosses } from "../lib/feedbackInformedGuidance";
 
 type RecommendationDecision = Awaited<
   ReturnType<typeof loadWingmanProductSelectorDecisions>
@@ -197,6 +202,7 @@ function buildSlotRequest(): ProductSelectorRequest {
 type SystemSlotResult = {
   slot: SystemSlot;
   candidates: RecommendationDecision[];
+  ucCovered?: boolean;
 };
 
 function decisionClassification(decision: RecommendationDecision) {
@@ -337,18 +343,40 @@ export function RecommendationsPage() {
   const design = useMemo(() => buildSystemDesign(systemBrief), [systemBrief]);
 
   const systemSlots = useMemo<SystemSlotResult[]>(
-    () =>
-      design.slots.map((slot) => ({
+    () => {
+      // Step 1: build raw slots with candidates.
+      const raw = design.slots.map((slot) => ({
         slot,
         candidates: slot.supply === "external" ? [] : slotPool
-          // A slot is a line on a quote. Anything the selector rejected -
-          // discontinued, do-not-spec, superseded, admin-blocked or gated out
-          // by the requirement - must never reach it, or a retired SKU gets
-          // quoted inside an otherwise plausible-looking system.
           .filter((decision) => decision.eligible)
           .filter((decision) => productMatchesSlot(decisionClassification(decision), slot))
           .slice(0, 4),
-      })),
+      }));
+
+      // Step 2: detect UC all-in-ones among each slot's lead candidate.  When
+      // a video bar (camera + video-bar) or speakerphone is selected for one
+      // slot, it already covers camera/microphone/speaker roles.  Suppress the
+      // redundant slots so the system does not recommend three separate
+      // products for what one UC device handles.
+      const coveredByUc = new Set<string>();
+      for (const entry of raw) {
+        const lead = entry.candidates[0];
+        if (!lead) continue;
+        const coverage = ucAllInOneCoverage(decisionClassification(lead));
+        if (coverage) {
+          for (const slotKind of coverage) coveredByUc.add(slotKind);
+        }
+      }
+
+      if (coveredByUc.size === 0) return raw;
+
+      return raw.map((entry) => {
+        if (coveredByUc.has(entry.slot.kind)) {
+          return { ...entry, candidates: [], ucCovered: true };
+        }
+        return entry;
+      });
+    },
     [design, slotPool],
   );
 
@@ -463,6 +491,34 @@ export function RecommendationsPage() {
       feedback: activeProject?.feedback,
     });
   }, [activeProject, brief, need, roomModel, profile.region]);
+
+  // Detect missing complementary products (TX/RX pairs, UC completeness, etc.)
+  const bundleSuggestions = useMemo(() => {
+    const products = activeProject?.productSelections ?? [];
+    if (!products.length) return [];
+    const requirementText = [
+      need.technicalRequirement,
+      roomModel.outcome,
+      roomModel.application,
+      roomModel.summary,
+    ].filter(Boolean).join(" ");
+    return suggestComplementaryProducts(products, requirementText);
+  }, [activeProject, need, roomModel]);
+
+  // Generate suggested kits based on room model
+  const suggestedKits = useMemo(() => {
+    const products = activeProject?.productSelections ?? [];
+    return generateSuggestedKits(products, brief);
+  }, [activeProject, brief]);
+
+  // Detect missing accessories
+  const missingAccessories = useMemo(() => {
+    const products = activeProject?.productSelections ?? [];
+    return detectMissingAccessories(products, brief);
+  }, [activeProject, brief]);
+
+  // Collect competitor brand losses from deal outcomes for battle card priority
+  const brandLosses = useMemo(() => collectCompetitorBrandLosses(), []);
 
   const missingInformation = brief?.missingInformation ?? [];
   const requirementSummary = [
@@ -788,11 +844,11 @@ export function RecommendationsPage() {
               </div>
 
               <div className="wm-rec-slot-list">
-                {systemSlots.map(({ slot, candidates }, index) => {
+                {systemSlots.map(({ slot, candidates, ucCovered }, index) => {
                   const lead = candidates[0];
                   const alternatives = candidates.slice(1);
                   return (
-                    <article className={`wm-rec-slot${slot.supply === "external" ? " is-external" : ""}${!lead && slot.supply === "wyrestorm" ? " is-unresolved" : ""}`} key={slot.kind}>
+                    <article className={`wm-rec-slot${slot.supply === "external" ? " is-external" : ""}${!lead && slot.supply === "wyrestorm" && !ucCovered ? " is-unresolved" : ""}${ucCovered ? " is-uc-covered" : ""}`} key={slot.kind}>
                       <div className="wm-rec-slot-index">{index + 1}</div>
                       <div className="wm-rec-slot-copy">
                         <div className="wm-rec-slot-title-row">
@@ -826,6 +882,11 @@ export function RecommendationsPage() {
                             <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => addSlotToProject(slot, lead)}>
                               Add role
                             </button>
+                          </div>
+                        ) : ucCovered ? (
+                          <div className="wm-rec-uc-covered">
+                            <Check size={20} aria-hidden="true" />
+                            <div><strong>Covered by UC all-in-one</strong><span>This role is built into the selected UC video bar or speakerphone. No separate product is needed.</span></div>
                           </div>
                         ) : (
                           <div className="wm-rec-unresolved">
@@ -949,6 +1010,15 @@ export function RecommendationsPage() {
                       </div>
                     ) : null}
 
+                    {/* Per-SKU assurance badge */}
+                    <ProductAssuranceBadge
+                      sku={decision.sku}
+                      productAssurance={getProductAssurance(decision.sku)}
+                      assuranceItems={assurance?.items ?? []}
+                      compact={false}
+                      maxWarnings={2}
+                    />
+
                     <div className="mt-5 flex flex-wrap gap-3">
                       <button
                         className="wm-ui-button wm-ui-button-primary rounded-xl px-4 py-3 font-black"
@@ -977,6 +1047,228 @@ export function RecommendationsPage() {
             )}
           </SectionCard>
           </details>
+
+          {/* Missing Accessories Alerts */}
+          {missingAccessories.length > 0 && (
+            <section className="wm-rec-missing-accessories wm-ui-card rounded-2xl border p-5">
+              <header className="mb-4">
+                <p className="wm-ui-kicker">Before you quote</p>
+                <h2 className="wm-ui-title text-xl font-black">Missing accessories detected</h2>
+                <p className="wm-ui-copy text-sm">These items are missing from the BOM and may block a complete quote.</p>
+              </header>
+              <div>
+                {missingAccessories.map((accessory) => (
+                  <div
+                    key={accessory.sku + accessory.category}
+                    className={`wm-missing-accessory wm-missing-accessory--${accessory.severity}`}
+                  >
+                    <div className="wm-missing-accessory__icon">
+                      {accessory.severity === "blocker" ? (
+                        <XCircle className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </div>
+                    <div className="wm-missing-accessory__content">
+                      <p className="wm-missing-accessory__title">
+                        {accessory.sku} — {accessory.name}
+                      </p>
+                      <p className="wm-missing-accessory__reason">{accessory.reason}</p>
+                      {accessory.pairedWith && (
+                        <p className="wm-missing-accessory__paired">Paired with: {accessory.pairedWith}</p>
+                      )}
+                    </div>
+                    {accessory.sku !== "SPEAKER-REQ" && accessory.sku !== "NETWORK-INFRA" && accessory.sku !== "CABLE-INFRA" && (
+                      <button
+                        type="button"
+                        className="wm-ui-button wm-ui-button-primary shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold"
+                        onClick={() => {
+                          if (!activeProject) return;
+                          saveProductSelectionToCurrentProject({
+                            sku: accessory.sku,
+                            title: accessory.name,
+                            source: "missing-accessory-detection",
+                            evidence: [accessory.reason],
+                          });
+                          setMessage(`Added ${accessory.sku} to the project.`);
+                        }}
+                      >
+                        <Plus className="mr-1 inline h-3 w-3" aria-hidden="true" />
+                        Add
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Suggested Kits */}
+          {suggestedKits.length > 0 && (
+            <section className="wm-rec-suggested-kits wm-ui-card rounded-2xl border p-5">
+              <header className="mb-4">
+                <p className="wm-ui-kicker">Suggested kits</p>
+                <h2 className="wm-ui-title text-xl font-black">Complete system bundles</h2>
+                <p className="wm-ui-copy text-sm">Based on your room model, these product bundles would complete the system. Add all products in a kit with one click.</p>
+              </header>
+              <div className="wm-suggested-kit-grid">
+                {suggestedKits.map((kit) => (
+                  <div key={kit.id} className="wm-suggested-kit">
+                    <div className="wm-suggested-kit__header">
+                      <div className="wm-suggested-kit__title">
+                        <div className="wm-suggested-kit__icon">
+                          <PackageCheck className="h-4 w-4" aria-hidden="true" />
+                        </div>
+                        <h3 className="wm-suggested-kit__name">{kit.name}</h3>
+                      </div>
+                      <span className={`wm-suggested-kit__severity wm-suggested-kit__severity--${kit.severity}`}>
+                        {kit.severity}
+                      </span>
+                    </div>
+                    <p className="wm-suggested-kit__description">{kit.description}</p>
+                    <div className="wm-suggested-kit__products">
+                      {kit.products.map((product) => (
+                        <div key={product.sku} className="wm-suggested-kit__product">
+                          <span className="wm-suggested-kit__product-qty">{product.quantity}×</span>
+                          <div className="wm-suggested-kit__product-info">
+                            <p className="wm-suggested-kit__product-name">
+                              {product.sku} — {product.name}
+                            </p>
+                            <p className="wm-suggested-kit__product-role">{product.role}</p>
+                            <p className="wm-suggested-kit__product-reason">{product.reason}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="wm-suggested-kit__actions">
+                      <button
+                        type="button"
+                        className="wm-ui-button wm-ui-button-primary rounded-xl px-4 py-2 font-bold"
+                        onClick={() => {
+                          if (!activeProject) return;
+                          kit.products.forEach((product) => {
+                            if (product.sku !== "CABLE-INFRA" && product.sku !== "NETWORK-INFRA") {
+                              saveProductSelectionToCurrentProject({
+                                sku: product.sku,
+                                title: product.name,
+                                source: `suggested-kit-${kit.id}`,
+                                evidence: [product.reason],
+                              });
+                            }
+                          });
+                          setMessage(`Added ${kit.name} kit to the project (${kit.totalProducts} products).`);
+                        }}
+                      >
+                        <Plus className="mr-1 inline h-4 w-4" aria-hidden="true" />
+                        Add entire kit
+                      </button>
+                    </div>
+                    <div className="wm-suggested-kit__based-on">
+                      <strong>Based on:</strong> {kit.basedOn.join(" · ")}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {bundleSuggestions.length > 0 && (
+            <section className="wm-rec-bundle wm-ui-card rounded-2xl border p-5">
+              <header className="mb-4">
+                <p className="wm-ui-kicker">Complete this system</p>
+                <h2 className="wm-ui-title text-xl font-black">Missing accessories &amp; companions</h2>
+                <p className="wm-ui-copy text-sm">These products are commonly paired with what you have selected. Add them before quoting to avoid incomplete systems.</p>
+              </header>
+              <ul className="grid gap-3">
+                {bundleSuggestions.map((suggestion) => (
+                  <li key={suggestion.sku + suggestion.pairedWith} className={`flex items-start gap-3 rounded-xl border p-3 ${
+                    suggestion.severity === "blocker"
+                      ? "border-red-500/40 bg-red-950/30"
+                      : "border-amber-500/30 bg-amber-950/20"
+                  }`}>
+                    <div className="mt-0.5 shrink-0">
+                      {suggestion.severity === "blocker" ? (
+                        <AlertTriangle className="h-4 w-4 text-red-400" aria-hidden="true" />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4 text-amber-400" aria-hidden="true" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold">
+                        <span className={suggestion.severity === "blocker" ? "text-red-300" : "text-amber-300"}>{suggestion.sku}</span>
+                        {" "}&middot;{" "}{suggestion.name}
+                      </p>
+                      <p className="mt-1 text-xs opacity-80">{suggestion.reason}</p>
+                      {suggestion.pairedWith && (
+                        <p className="mt-0.5 text-xs opacity-50">Paired with: {suggestion.pairedWith}</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="wm-ui-button wm-ui-button-primary shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold"
+                      onClick={() => {
+                        if (!activeProject || suggestion.sku === "speakers" || suggestion.sku === "receivers") return;
+                        saveProductSelectionToCurrentProject({
+                          sku: suggestion.sku,
+                          title: suggestion.name,
+                          source: "system-bundler",
+                          evidence: [suggestion.reason],
+                        });
+                        setMessage(`Added ${suggestion.sku} to the project.`);
+                      }}
+                    >
+                      <Plus className="mr-1 inline h-3 w-3" aria-hidden="true" />
+                      Add
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {brandLosses.length > 0 && (
+            <section className="wm-rec-brand-losses wm-ui-card rounded-2xl border p-5">
+              <header className="mb-4">
+                <p className="wm-ui-kicker">Competitive landscape</p>
+                <h2 className="wm-ui-title text-xl font-black">Brands winning and losing against WyreStorm</h2>
+                <p className="wm-ui-copy text-sm">These patterns are extracted from deal outcomes across your projects. Brands with the most losses are shown first — check the battle cards for objection handling.</p>
+              </header>
+              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {brandLosses.slice(0, 9).map((brand) => (
+                  <li key={brand.brand} className="rounded-xl border border-slate-700/60 bg-slate-900/40 p-3">
+                    <div className="flex items-center justify-between">
+                      <strong className="font-black">{brand.brand}</strong>
+                      <div className="flex gap-1.5">
+                        {brand.lossCount > 0 && (
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/40 text-red-400">
+                            {brand.lossCount} lost
+                          </span>
+                        )}
+                        {brand.winCount > 0 && (
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-green-900/40 text-green-400">
+                            {brand.winCount} won
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {brand.whySnippets.length > 0 && (
+                      <p className="mt-2 text-xs opacity-70 line-clamp-2">
+                        {brand.whySnippets[0]}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4">
+                <Link
+                  className="wm-ui-button wm-ui-button-secondary rounded-xl px-4 py-2 text-sm font-bold"
+                  to={routeCatalogByKey.battleCards?.path ?? "/wingman/battle-cards"}
+                >
+                  Open battle cards for objection handling
+                </Link>
+              </div>
+            </section>
+          )}
 
           {assurance && (assurance.blockers.length || assurance.warnings.length) ? (
             <section className="wm-rec-assurance wm-ui-card rounded-2xl border p-5">

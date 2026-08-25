@@ -4,6 +4,8 @@ import { FeedbackConsolidationPanel } from "./FeedbackConsolidationPanel";
 
 vi.mock("../lib/feedbackInformedGuidance", () => ({
   collectCrossProjectFeedback: vi.fn(),
+  collectDealOutcomes: vi.fn().mockReturnValue([]),
+  collectDealOutcomePatterns: vi.fn().mockReturnValue([]),
 }));
 
 import { collectCrossProjectFeedback } from "../lib/feedbackInformedGuidance";

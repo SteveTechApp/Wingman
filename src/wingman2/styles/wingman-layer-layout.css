@@ -1,0 +1,322 @@
+/* ==========================================================================
+   Wingman Design System — Layer 3: Layout
+   App shell, sidebar, topbar, page containers, grid systems, responsive.
+   Load this THIRD, after reset.
+   ========================================================================== */
+
+
+.wm-layout,
+.wm-app-layout,
+.wingman-layout {
+  display: grid;
+  grid-template-columns: var(--wm-sidebar) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.wm-sidebar,
+.wingman-sidebar,
+.wm-layout > aside[aria-label="Sidebar"],
+.wm-app-layout > aside[aria-label="Sidebar"],
+.wingman-layout > aside[aria-label="Sidebar"] {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 18px 14px;
+  overflow-y: auto;
+  background:
+    linear-gradient(180deg, rgba(10, 21, 36, 0.96), rgba(5, 11, 20, 0.96));
+  border-right: 1px solid var(--wm-border);
+}
+
+.wm-main,
+.wingman-main,
+main {
+  min-width: 0;
+}
+
+.wm-topbar,
+.wingman-topbar,
+header.wm-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--wm-header);
+  padding: 12px 24px;
+  background: rgba(5, 11, 20, 0.82);
+  border-bottom: 1px solid var(--wm-border);
+  backdrop-filter: blur(16px);
+}
+
+.wm-page,
+.wingman-page,
+.wm-page-shell {
+  width: min(100%, var(--wm-content-max));
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.wm-page-compact {
+  padding: 16px;
+}
+
+.wm-page-header,
+.wingman-page-header {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.wm-page-title,
+.wingman-page-title {
+  margin: 0;
+  color: var(--wm-heading);
+  font-size: clamp(1.5rem, 1.2vw + 1.1rem, 2.25rem);
+  font-weight: 760;
+}
+
+.wm-page-description,
+.wingman-page-description {
+  max-width: 880px;
+  margin: 0;
+  color: var(--wm-text-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Cards and panels
+   -------------------------------------------------------------------------- */
+
+.wm-card,
+.wm-panel,
+.wm-section,
+.wm-container,
+.wingman-card,
+.wingman-panel,
+.card,
+.panel {
+  color: var(--wm-text);
+  background:
+    linear-gradient(180deg, rgba(16, 31, 52, 0.96), rgba(8, 18, 32, 0.96));
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-lg);
+  box-shadow: var(--wm-shadow-sm);
+}
+
+.wm-card,
+.wingman-card,
+.card {
+  padding: 18px;
+}
+
+.wm-panel,
+.wm-section,
+.wingman-panel,
+.panel {
+  padding: 20px;
+}
+
+.wm-card:hover,
+.wingman-card:hover {
+  border-color: var(--wm-border-strong);
+}
+
+.wm-card-header,
+.wm-panel-header,
+.wm-section-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.wm-card-title,
+.wm-panel-title,
+.wm-section-title {
+  margin: 0;
+  color: var(--wm-heading);
+  font-size: 1rem;
+  font-weight: 720;
+}
+
+.wm-card-copy,
+.wm-panel-copy,
+.wm-section-copy {
+  margin: 4px 0 0;
+  color: var(--wm-text-soft);
+}
+
+.wm-empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  padding: 28px;
+  color: var(--wm-muted);
+  text-align: center;
+  border: 1px dashed rgba(125, 211, 252, 0.22);
+  border-radius: var(--wm-radius-lg);
+  background: rgba(15, 23, 42, 0.36);
+}
+
+/* --------------------------------------------------------------------------
+   Grids
+   -------------------------------------------------------------------------- */
+
+.wm-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.wm-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.wm-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.wm-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.wm-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+  gap: 18px;
+}
+
+.wm-kpi-grid,
+.wm-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+
+
+@media (max-width: 1180px) {
+  .wm-layout,
+  .wm-app-layout,
+  .wingman-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-sidebar,
+.wingman-sidebar,
+.wm-layout > aside[aria-label="Sidebar"],
+.wm-app-layout > aside[aria-label="Sidebar"],
+.wingman-layout > aside[aria-label="Sidebar"] {
+    position: relative;
+    height: auto;
+  }
+
+  .wm-dashboard-grid,
+  .wm-compare-page .wm-compare-layout,
+  .wm-compare-layout,
+  .wm-pitch-layout,
+  .wm-proposal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-kpi-grid,
+  .wm-metric-grid,
+  .wm-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-page,
+  .wingman-page,
+  .wm-page-shell {
+    padding: 14px;
+  }
+
+  .wm-topbar,
+  .wingman-topbar,
+  header.wm-header {
+    padding: 10px 14px;
+  }
+
+  .wm-grid-2,
+  .wm-grid-3,
+  .wm-grid-4,
+  .wm-kpi-grid,
+  .wm-metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-compare-row {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-card-header,
+  .wm-panel-header,
+  .wm-section-header,
+  .wm-row-between {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   Motion preference
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behaviour: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   App mount and layout stabilisation patch
+   -------------------------------------------------------------------------- */
+
+#root > * {
+  min-height: 100vh;
+}
+
+body:has(#root:empty) {
+  background: #050b14;
+}
+
+.wm-layout > main,
+.wm-app-layout > main,
+.wingman-layout > main {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Do not accidentally force every sidebar-shaped aside into full app chrome */
+aside:not(.wm-sidebar):not(.wingman-sidebar) {
+  max-width: 100%;
+}
+
+/* Sidebar content should not vanish on dark background */
+.wm-sidebar *,
+.wingman-sidebar *,
+.wm-layout > aside[aria-label="Sidebar"] *,
+.wm-app-layout > aside[aria-label="Sidebar"] *,
+.wingman-layout > aside[aria-label="Sidebar"] * {
+  color: inherit;
+}
+

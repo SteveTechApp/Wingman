@@ -69,14 +69,14 @@ describe("template workflow wiring", () => {
     renderTemplateRoutes("/wingman/templates/government-control-room-networkhd600");
 
     fireEvent.click(screen.getByRole("tab", { name: "Equipment" }));
-    fireEvent.click(screen.getByRole("button", { name: /Optional/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Optional equipment group" }));
 
     const fibreRow = screen.getByText("NHD-600-TRXF").closest("article");
     expect(fibreRow).not.toBeNull();
     fireEvent.click(within(fibreRow!).getByRole("checkbox", { name: "Include NHD-600-TRXF" }));
 
     expect(screen.getByText("NHD-600-TRXF")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Third-party scope/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Third-party scope equipment group" }));
     expect(screen.queryByText("NHD-600-TRXF")).not.toBeInTheDocument();
   });
 });

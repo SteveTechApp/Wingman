@@ -15,6 +15,9 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { NeedsSiteSurveyFlag } from "./NeedsSiteSurveyFlag";
 import { VerifyBeforeQuoteNote } from "./VerifyBeforeQuoteNote";
+import { ProposalVersionHistory } from "./ProposalVersionHistory";
+import { CrmSharePanel } from "./CrmSharePanel";
+import { SiteSurveyChecklist } from "./SiteSurveyChecklist";
 import {
   saveProjectProposalToProject,
   saveRecommendationFeedback,
@@ -34,6 +37,10 @@ import {
   exportProposalPdf,
 } from "../lib/proposalExport";
 import { exportProposalDocx } from "../lib/proposalDocxExport";
+import {
+  validateProposalExport,
+  type ExportValidationResult,
+} from "../lib/proposalExportValidation";
 import {
   computeProposalReadiness,
   createProposalWizardDefaults,
@@ -441,6 +448,7 @@ function ProposalCompletionWizardContent({
   const [exportMessage, setExportMessage] = useState("");
   const [feedbackRating, setFeedbackRating] = useState<StoredRecommendationFeedback["rating"] | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [showValidationDetails, setShowValidationDetails] = useState(false);
 
   // Reload the draft ONLY when the discovery source data actually changed.
   // `defaults` recomputes whenever the project store round-trips (the 250 ms
@@ -536,6 +544,15 @@ function ProposalCompletionWizardContent({
       item.domain === "physical"
     );
   }, [salesReadiness.assurance.blockers]);
+
+  const exportValidation = useMemo<ExportValidationResult>(() =>
+    validateProposalExport({
+      products: selectedProducts,
+      bomRows,
+      topology: project.discoveryBrief?.topology,
+    }),
+    [bomRows, project.discoveryBrief?.topology, selectedProducts],
+  );
 
   const typeConfig = getProposalDocumentTypeConfig(
     draft.documentType,
@@ -750,12 +767,34 @@ function ProposalCompletionWizardContent({
     return `Export blocked — resolve these chain issues first:\n${names.join("; ")}`;
   }
 
+  function getExportBlockReason(): string | null {
+    // First check chain blockers from assurance
+    const chainReason = blockExportReason();
+    if (chainReason) return chainReason;
+
+    // Then check export validation blockers
+    if (exportValidation.blockers.length > 0) {
+      const names = exportValidation.blockers.map((b) =>
+        b.sku ? `${b.sku}: ${b.message}` : b.message
+      );
+      return `Export blocked — resolve these issues first:\n${names.join("; ")}`;
+    }
+
+    return null;
+  }
+
   async function exportDocx() {
     if (readiness.score < 100) {
-      const reason = blockExportReason();
+      const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting the final DOCX.",
       );
+      return;
+    }
+
+    if (!exportValidation.allowed) {
+      const reason = getExportBlockReason();
+      setExportMessage(reason ?? "Resolve validation issues before exporting.");
       return;
     }
 
@@ -781,10 +820,16 @@ function ProposalCompletionWizardContent({
 
   function exportHtml() {
     if (readiness.score < 100) {
-      const reason = blockExportReason();
+      const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting HTML.",
       );
+      return;
+    }
+
+    if (!exportValidation.allowed) {
+      const reason = getExportBlockReason();
+      setExportMessage(reason ?? "Resolve validation issues before exporting.");
       return;
     }
 
@@ -802,10 +847,16 @@ function ProposalCompletionWizardContent({
 
   function exportCsv() {
     if (readiness.score < 100) {
-      const reason = blockExportReason();
+      const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting the BOM CSV.",
       );
+      return;
+    }
+
+    if (!exportValidation.allowed) {
+      const reason = getExportBlockReason();
+      setExportMessage(reason ?? "Resolve validation issues before exporting.");
       return;
     }
 
@@ -823,10 +874,16 @@ function ProposalCompletionWizardContent({
 
   function exportPdf() {
     if (readiness.score < 100) {
-      const reason = blockExportReason();
+      const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting a PDF.",
       );
+      return;
+    }
+
+    if (!exportValidation.allowed) {
+      const reason = getExportBlockReason();
+      setExportMessage(reason ?? "Resolve validation issues before exporting.");
       return;
     }
 
@@ -1408,6 +1465,71 @@ function ProposalCompletionWizardContent({
 
               <VerifyBeforeQuoteNote className="wm-proposal-verify-note" />
 
+              <ProposalVersionHistory
+                versions={project.proposalVersions ?? []}
+                currentProposal={proposal}
+                onRestore={() => {
+                  /* Force re-render after restore */
+                  window.location.reload();
+                }}
+              />
+
+              {/* Export validation gate */}
+              {(exportValidation.blockers.length > 0 || exportValidation.warnings.length > 0) && (
+                <div className="wm-proposal-validation-gate">
+                  <div className="wm-proposal-validation-header">
+                    <h3>Export Validation</h3>
+                    <button
+                      type="button"
+                      className="wm-proposal-validation-toggle"
+                      onClick={() => setShowValidationDetails(!showValidationDetails)}
+                    >
+                      {showValidationDetails ? "Hide details" : "Show details"}
+                    </button>
+                  </div>
+
+                  {exportValidation.blockers.length > 0 && (
+                    <div className="wm-proposal-validation-blockers">
+                      <p className="wm-proposal-validation-summary">
+                        <strong>{exportValidation.blockers.length} blocker(s) must be resolved before export</strong>
+                      </p>
+                      {showValidationDetails && (
+                        <ul>
+                          {exportValidation.blockers.map((blocker) => (
+                            <li key={blocker.id} className="wm-proposal-validation-item wm-proposal-validation-item--blocker">
+                              <span className="wm-proposal-validation-domain">{blocker.domain}</span>
+                              {blocker.sku && <span className="wm-proposal-validation-sku">{blocker.sku}</span>}
+                              <span className="wm-proposal-validation-message">{blocker.message}</span>
+                              <span className="wm-proposal-validation-fix">Fix: {blocker.fix}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+
+                  {exportValidation.warnings.length > 0 && (
+                    <div className="wm-proposal-validation-warnings">
+                      <p className="wm-proposal-validation-summary">
+                        <strong>{exportValidation.warnings.length} warning(s) — review before issue</strong>
+                      </p>
+                      {showValidationDetails && (
+                        <ul>
+                          {exportValidation.warnings.map((warning) => (
+                            <li key={warning.id} className="wm-proposal-validation-item wm-proposal-validation-item--warning">
+                              <span className="wm-proposal-validation-domain">{warning.domain}</span>
+                              {warning.sku && <span className="wm-proposal-validation-sku">{warning.sku}</span>}
+                              <span className="wm-proposal-validation-message">{warning.message}</span>
+                              <span className="wm-proposal-validation-fix">Fix: {warning.fix}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="wm-proposal-export-actions">
                 <button
                   type="button"
@@ -1452,6 +1574,16 @@ function ProposalCompletionWizardContent({
                   {exportMessage}
                 </p>
               ) : null}
+
+              <div className="wm-proposal-crm-section">
+                <h3>Push to CRM</h3>
+                <p className="wm-proposal-crm-intro">
+                  Send this proposal to your CRM to create or update the opportunity record.
+                </p>
+                <CrmSharePanel project={project} />
+              </div>
+
+              <SiteSurveyChecklist project={project} />
 
               <div className="wm-proposal-recommendation-feedback">
                 <h3>Recommendation feedback</h3>

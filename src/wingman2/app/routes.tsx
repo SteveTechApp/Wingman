@@ -38,11 +38,14 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   glossary: lazy(fromNamedExport(() => import("../pages/GlossaryPage"), "GlossaryPage")),
   callCards: lazy(fromNamedExport(() => import("../pages/CallCardsPage"), "CallCardsPage")),
   productCallCards: lazy(() => import("../pages/ProductCallCardsPage")),
+  battleCards: lazy(() => import("../pages/BattleCardsPage")),
   ingest: lazy(fromNamedExport(() => import("../pages/IngestPage"), "IngestPage")),
   proposal: lazy(fromNamedExport(() => import("../pages/ProposalPage"), "ProposalPage")),
   support: lazy(fromNamedExport(() => import("../pages/SupportPage"), "SupportPage")),
   profile: lazy(() => import("../pages/ProfilePage")),
   proposalVisuals: lazy(() => import("../pages/ProposalVisualsPage")),
+  quoteSafetyDashboard: lazy(() => import("../pages/QuoteSafetyDashboardPage")),
+  analyticsDashboard: lazy(() => import("../pages/AnalyticsDashboardPage")),
   terms: lazy(fromNamedExport(() => import("../pages/TermsPage"), "TermsPage")),
 };
 

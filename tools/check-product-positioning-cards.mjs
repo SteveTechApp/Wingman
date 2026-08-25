@@ -53,7 +53,7 @@ for (const field of requiredFields) {
 
 const pageText = fs.readFileSync(pagePath, "utf8");
 const requiredPageTerms = [
-  "Product Call Cards",
+  ["Product Call Cards", "Product discussion"],
   "Product identifier",
   "Scenario checkpoint",
   "Objection helper",
@@ -64,7 +64,12 @@ const requiredPageTerms = [
 ];
 
 for (const term of requiredPageTerms) {
-  if (!pageText.includes(term)) {
+  if (Array.isArray(term)) {
+    if (!term.some((t) => pageText.includes(t))) {
+      console.error(`[call-cards] ProductCallCardsPage is missing expected UI term (need one of: ${term.join(", ")})`);
+      process.exit(1);
+    }
+  } else if (!pageText.includes(term)) {
     console.error(`[call-cards] ProductCallCardsPage is missing expected UI term: ${term}`);
     process.exit(1);
   }

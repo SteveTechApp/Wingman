@@ -212,5 +212,32 @@
     "needed": [
       "Surface the verification responsibility inline on Recommendations, Compare and Proposal output, not only on the Terms page."
     ]
+  },
+  {
+    "routeKey": "battleCards",
+    "status": "wired",
+    "summary": "Battle Cards surfaces competitor intelligence, WyreStorm equivalents, migration talking points, objection handling, and win/loss-driven brand escalation for active competitive threats.",
+    "needed": [
+      "Add rep-editable competitor differentiation notes per deal context.",
+      "Wire escalation thresholds to configurable per-team settings."
+    ]
+  },
+  {
+    "routeKey": "quoteSafetyDashboard",
+    "status": "wired",
+    "summary": "Quote Safety Dashboard shows all projects with blocker counts, days-since-update, and safety tiers so managers can spot at-risk quotes before they ship.",
+    "needed": [
+      "Add email digest for projects crossing into amber/red tier.",
+      "Filter by rep, market vertical, or project age."
+    ]
+  },
+  {
+    "routeKey": "analyticsDashboard",
+    "status": "wired",
+    "summary": "Analytics Dashboard visualises feature usage, product quote frequency, win rates and proposal export trends from local project data.",
+    "needed": [
+      "Wire backend aggregation for cross-workspace analytics.",
+      "Add date-range filtering and trend comparison periods."
+    ]
   }
 ]

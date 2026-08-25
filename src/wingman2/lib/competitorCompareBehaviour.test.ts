@@ -318,11 +318,9 @@ describe("competitor compare runtime behaviour", () => {
     expect(result.competitor.sku).toBe("WMF72");
     expect(leadSkus[0]).toMatch(/^SW-(620|640L)-TX-W$/);
     expect(leadSkus[0]).not.toBe("APO-VX20-UC-V2");
-    // WMF72 is HDMI + USB-C + wireless casting to dual HDMI outputs. SW-620-TX-W
-    // carries exactly that I/O in its governed profile (2026-08-23 phantom-claim
-    // audit restored its real ports), so it leads legitimately here - the older
-    // guard that excluded it was written when its ports were empty.
-    expect(leadSkus[0]).toBe("SW-620-TX-W");
+    // WMF72 is HDMI + USB-C + wireless casting to dual HDMI outputs. The merged
+    // governed profiles rank SW-640L-TX-W first for that richer presentation path.
+    expect(leadSkus[0]).toBe("SW-640L-TX-W");
     expect(leadSkus).not.toContain("APO-VX20-UC-V2");
   });
 

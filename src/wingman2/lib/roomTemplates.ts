@@ -167,6 +167,15 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "Executive rooms commonly need a controllable front-of-room camera.",
         notes: "Confirm platform certification requirements and camera field of view.",
       },
+      ...completeDesignPlaceholders("corp-boardroom", [
+        byOthersRow(
+          "corp-boardroom",
+          "uc-compute",
+          "Teams/Zoom room compute appliance, scheduling panel, and platform licences",
+          "UC platform and compute by others",
+          "Replace with the certified MTR/Zoom appliance, scheduling panel, licences, and account provisioning owned by customer IT.",
+        ),
+      ]),
     ],
     designNotes: [
       { label: "Displays", description: "Main and confidence displays by others, sized for table length and content type." },
@@ -554,6 +563,22 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "Hybrid events may need a camera feed for streaming or overflow.",
         notes: "Confirm camera control and platform requirements.",
       },
+      ...completeDesignPlaceholders("ballroom", [
+        byOthersRow(
+          "ballroom",
+          "voting-microphone-system",
+          "Ballroom discussion, microphone, and event management system",
+          "Event audio/discussion by others",
+          "Replace with the chosen microphone/discussion platform and confirm its AV and control interfaces.",
+        ),
+        byOthersRow(
+          "ballroom",
+          "streaming-recording",
+          "Streaming encoder, recording platform, and event broadcast integration",
+          "Streaming/recording platform by others",
+          "Replace with the approved streaming/recording platform and confirm the clean feed and metadata handoff.",
+        ),
+      ]),
     ],
     designNotes: [
       { label: "Displays/projectors", description: "Projectors, displays, screens, lifts, and mounts by others." },
@@ -697,6 +722,22 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "Rack mounting is commonly required for centralized endpoint hardware.",
         notes: "Confirm rack layout and endpoint mounting positions.",
       },
+      ...completeDesignPlaceholders("govt-control", [
+        byOthersRow(
+          "govt-control",
+          "10g-network-switch",
+          "10G managed AV network switch, VLAN, multicast, and security configuration",
+          "Required 10G AV network infrastructure",
+          "Specify the 10G switch model(s), port count, VLAN plan, multicast configuration, security hardening, and commissioning access.",
+        ),
+        byOthersRow(
+          "govt-control",
+          "control-ui",
+          "Operator control UI, touch panel, or third-party control integration",
+          "Control system by others",
+          "Replace with the selected control processor, UI, and preset design for incident/normal/secure modes.",
+        ),
+      ]),
     ],
     designNotes: [
       { label: "Video wall", description: "Display wall, mounts, power, wall controller needs, and calibration by others unless a WyreStorm wall processor is selected." },
@@ -959,7 +1000,7 @@ const coreRoomTemplates: RoomTemplate[] = [
         type: "Optional",
         status: "optional",
         evidence: "A bridge/mixer is only required once a second (rear/audience) camera is added — a single front camera can feed the room UC core directly with no bridge. This row tracks with cam420rear, not with the base template.",
-        notes: "Add this alongside cam420rear (the optional second camera) — do not add on its own with only one camera. Validate camera inputs, USB host location, platform compatibility, and whether an NDI bridge variant is required.",
+        notes: "CRITICAL: This bridge requires BOTH cam420front AND cam420rear — do not add with only one camera. The bridge needs at least 2 camera inputs to justify its cost. Validate camera inputs, USB host location, platform compatibility, and whether an NDI bridge variant is required.",
       },
       {
         id: "apocommic",
@@ -1171,8 +1212,8 @@ const coreRoomTemplates: RoomTemplate[] = [
         qty: 1,
         type: "Validate",
         status: "validate",
-        evidence: "Hybrid classrooms may need audio integration with a Dante-capable teaching audio system.",
-        notes: "Confirm loudspeaker load, DSP requirement, microphone system, and Dante network ownership.",
+        evidence: "Hybrid classrooms may need audio integration with a Dante-capable teaching audio system. This amplifier provides the Dante-to-speaker path; loudspeakers and microphones are separate BY-OTHERS items.",
+        notes: "Confirm loudspeaker impedance/load, DSP requirement, microphone system, and Dante network ownership. If the BY-OTHERS speakers-amplification row also selects an amplifier, remove one to avoid redundant amplification.",
       },
       {
         id: "cam210ndi",
@@ -1529,6 +1570,15 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "A 64-endpoint estate-wide NetworkHD 500 deployment requires a resilient managed switch stack — the design notes already call out 'switch stack' and 'resilience' as requirements, so this must be a tracked BOM line, not just prose.",
         notes: "Specify the switch stack topology, VLAN plan, PoE budget, multicast configuration, redundancy/failover approach, and commissioning responsibility across zones.",
       },
+      ...completeDesignPlaceholders("casino", [
+        byOthersRow(
+          "casino",
+          "audio-zones",
+          "Venue audio zones, DSP, amplifiers, speakers, and audio-follow-video configuration",
+          "Audio system by others",
+          "Replace with the venue audio DSP, speaker zoning, amplifiers, and audio-follow-video or fixed-zone behaviour.",
+        ),
+      ]),
     ],
     designNotes: [
       { label: "Operational zones", description: "Separate gaming floor, sports lounge, VIP, signage, private event, and operations areas." },
@@ -1618,6 +1668,22 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "The LED wall processor receives the WyreStorm output but is normally selected with the LED display system.",
         notes: "Validate input resolution, EDID, scaling, refresh rate, and content canvas behaviour.",
       },
+      ...completeDesignPlaceholders("bingo-club", [
+        byOthersRow(
+          "bingo-club",
+          "led-wall-displays",
+          "LED wall displays, mounting structure, and calibration",
+          "LED wall hardware by others",
+          "Replace with the selected LED wall technology, pixel pitch, mounting, power, and calibration.",
+        ),
+        byOthersRow(
+          "bingo-club",
+          "audio-venue",
+          "Venue audio system, speakers, amplifiers, and bingo caller audio",
+          "Audio system by others",
+          "Replace with the venue audio DSP, speakers, amplifiers, and bingo caller audio integration.",
+        ),
+      ]),
     ],
     designNotes: [
       { label: "Multiview definition", description: "Confirm exactly which sources need to appear together on the LED wall and whether layouts are fixed or operator selectable." },
@@ -1718,6 +1784,15 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "The design notes already call for 'structured switch topology' and 'fibre uplinks' for this stadium-scale estate — this must be a tracked BOM line, not just prose, given 76 endpoints across concourse and VIP zones.",
         notes: "Specify switch topology, fibre backbone/uplink counts between concourse and VIP telecom rooms, VLAN plan, multicast configuration, and resilience strategy.",
       },
+      ...completeDesignPlaceholders("stadium", [
+        byOthersRow(
+          "stadium",
+          "audio-zones",
+          "Concourse and VIP audio zones, speakers, and audio-follow-video configuration",
+          "Audio system by others",
+          "Replace with the venue audio DSP, speaker zoning, amplifiers, and audio-follow-video or fixed-zone behaviour.",
+        ),
+      ]),
     ],
     designNotes: [
       { label: "Zone model", description: "Separate concourse, hospitality, VIP, sponsor, wayfinding, and operations zones." },
@@ -1896,6 +1971,15 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "NetworkHD 600 requires suitable 10G switching infrastructure.",
         notes: "Validate switch capacity, topology, fibre/copper runs, VLANs, multicast, resilience, and commissioning access.",
       },
+      ...completeDesignPlaceholders("situation-room", [
+        byOthersRow(
+          "situation-room",
+          "control-ui",
+          "Operator control UI, touch panel, or third-party control integration",
+          "Control system by others",
+          "Replace with the selected control processor, UI, and preset design for briefing/incident/monitor/secure modes.",
+        ),
+      ]),
     ],
     designNotes: [
       { label: "Performance", description: "Use NetworkHD 600 where lossless, zero-latency, and high-performance routing are core requirements." },
@@ -2324,15 +2408,18 @@ const libraryRoomTemplates: RoomTemplate[] = [
         evidence: "A controllable camera captures close-up demonstrations; its HDMI output feeds an NHD-120-TX encoder directly.",
         notes: "Confirm mounting over the demonstration bench and whether a fixed close-up or PTZ view is needed.",
       },
-      ...completeDesignPlaceholders("stem-lab", [
-        byOthersRow(
-          "stem-lab",
-          "bench-displays-protection",
-          "Student bench displays, protective enclosures, and lab-safe mounting",
-          "Lab display hardware by others",
-          "Replace with the chosen bench displays, splash/impact protection, and lab-compliant mounting.",
-        ),
-      ]),
+      {
+        id: "stem-bench-displays",
+        sku: "BY-OTHERS-STEM-BENCH-DISPLAYS",
+        description: "Student bench displays, protective enclosures, and lab-safe mounting",
+        role: "REQUIRED - Lab display hardware by others",
+        qty: 8,
+        type: "Required",
+        status: "included",
+        evidence: "The entire template value proposition depends on distributing content to student bench displays. These are not optional.",
+        notes: "Replace with the chosen bench displays, splash/impact protection, and lab-compliant mounting. Quantity should match the decoder count.",
+      },
+      ...completeDesignPlaceholders("stem-lab"),
     ],
     designNotes: [
       { label: "Sightlines", description: "Bench displays remove crowding at the front bench and improve visibility of fine detail." },

@@ -7,6 +7,7 @@ const repoRoot = process.cwd();
 const files = {
   component: path.join(repoRoot, "src", "wingman2", "components", "AVSignalFlowDiagram.tsx"),
   css: path.join(repoRoot, "src", "wingman2", "styles", "wingman-style-stack.css"),
+  cssOverrides: path.join(repoRoot, "src", "wingman2", "styles", "wingman-route-overrides.css"),
   packageJson: path.join(repoRoot, "package.json"),
 };
 
@@ -28,7 +29,7 @@ function requireMarker(label, source, marker) {
 }
 
 const component = read(files.component);
-const css = read(files.css);
+const css = read(files.css) + read(files.cssOverrides);
 const packageJson = JSON.parse(read(files.packageJson) || "{}");
 
 [
@@ -43,7 +44,7 @@ const packageJson = JSON.parse(read(files.packageJson) || "{}");
   "WINGMAN OPTIONAL VISUAL SUPPORT START",
   ".wm-av-flow-shell[data-wingman-optional-visual-support=\"true\"]",
   "WINGMAN OPTIONAL VISUAL SUPPORT END",
-].forEach((marker) => requireMarker("wingman-style-stack.css", css, marker));
+].forEach((marker) => requireMarker("wingman-style-stack.css + route-overrides", css, marker));
 
 const activeImports = css
   .split(/\r?\n/)

@@ -8,6 +8,7 @@ import {
   createProjectForProductSelection,
   getCurrentWorkflowProject,
   readProjectStore,
+  saveDiscoveryBriefToProject,
   saveProductSelectionToProject,
   setActiveProjectId,
   useProjectStore,
@@ -45,6 +46,17 @@ import { cleanText, unique } from "../lib/productCallCardText";
 import { renderGuruGlossaryLinks } from "../components/guruGlossaryLinks";
 import type { ProductCard } from "../lib/productCallCardTypes";
 import { buildProductSalesHelperCopy } from "../lib/productSalesHelperCopy";
+import {
+  recordProductView,
+  recordProductUse,
+  getRecentlyViewed,
+  getFrequentlyUsed,
+} from "../lib/productCallCardHistory";
+import {
+  getQuestionNotes,
+  saveQuestionNotes,
+  allNotesAsText,
+} from "../lib/productCallCardNotes";
 
 function readStoredSalesConversationToneId(): SalesConversationToneId {
   if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
@@ -143,21 +155,14 @@ type ProductPayload = {
 
 
 
-type ProductPanelId = "whatItIs" | "whatItDoes" | "howToSell" | "competitors" | "specification";
+// Simplified from 5 tabs to 3 focused panels.
+type ProductPanelId = "overview" | "salesGuide" | "technical";
 
-type ProductGalleryItem = {
-  id: string;
-  title: string;
-  label: string;
-  kind: "device" | "system" | "connection";
-  imageUrl?: string;
-};
+
 const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: string }> = [
-  { id: "whatItIs", label: "What it does", hint: "Plain-English role" },
-  { id: "whatItDoes", label: "How it fits here", hint: "Fit and risks" },
-  { id: "howToSell", label: "What to say", hint: "Talk track" },
-  { id: "competitors", label: "Competitors", hint: "Brand SKUs" },
-  { id: "specification", label: "Technical detail", hint: "If needed" },
+  { id: "overview", label: "Overview", hint: "What & when" },
+  { id: "salesGuide", label: "Sales guide", hint: "What to say" },
+  { id: "technical", label: "Technical", hint: "Specs & checks" },
 ];
 
 const PAGE_SIZE = 14;
@@ -278,36 +283,7 @@ const FALLBACK_PRODUCTS: ProductSeed[] = Object.keys(CURATED).map((sku) => ({
   tags: CURATED[sku].tags,
 }));
 
-const QUICK_FINDERS = [
-  "All",
-  "0-9",
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-];
+
 
 
 
@@ -848,10 +824,13 @@ export default function ProductCallCardsPage() {
   const [activeQuickFinder, setActiveQuickFinder] = useState("All");
   const [selectedSku, setSelectedSku] = useState(pathSku);
   const [pageIndex, setPageIndex] = useState(0);
-  const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("whatItIs");
-  const [activeGalleryItem, setActiveGalleryItem] = useState<ProductGalleryItem | null>(null);
+  const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("overview");
   const [projectTargetOpen, setProjectTargetOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareSkus, setCompareSkus] = useState<string[]>([]);
+  const [recentSkus, setRecentSkus] = useState<string[]>(() => getRecentlyViewed());
+  const [frequentSkus, setFrequentSkus] = useState<string[]>(() => getFrequentlyUsed());
   const glossaryHighlightsEnabled = useGlossaryHighlightsEnabled();
   const renderWithGuruLinks = (text: string, _product?: ProductCard) =>
     renderGuruGlossaryLinks(text, glossaryHighlightsEnabled);
@@ -1119,6 +1098,26 @@ export default function ProductCallCardsPage() {
     ];
   }, [selectedPositioningCard, selectedProduct]);
 
+  const [questionNotes, setQuestionNotes] = useState<string[]>([]);
+  const notesSku = selectedProduct?.sku ?? "";
+
+  useEffect(() => {
+    if (notesSku) {
+      setQuestionNotes(getQuestionNotes(notesSku));
+    } else {
+      setQuestionNotes([]);
+    }
+  }, [notesSku]);
+
+  function updateNote(index: number, value: string): void {
+    setQuestionNotes((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      if (notesSku) saveQuestionNotes(notesSku, next);
+      return next;
+    });
+  }
+
   const salesHelperCopy = useMemo(
     () => (selectedProduct ? buildProductSalesHelperCopy(selectedProduct, knownApplication, productChecks) : null),
     [knownApplication, productChecks, selectedProduct],
@@ -1160,14 +1159,30 @@ export default function ProductCallCardsPage() {
 
     return rows;
   }, [selectedProduct]);
+  const compareProducts = useMemo(
+    () => compareSkus.map((sku) => products.find((p) => p.sku === sku)).filter((p): p is ProductCard => p != null),
+    [compareSkus, products],
+  );
+
+  function toggleCompare(sku: string): void {
+    setCompareSkus((prev) => {
+      if (prev.includes(sku)) {
+        return prev.filter((s) => s !== sku);
+      }
+      if (prev.length >= 3) {
+        return prev;
+      }
+      return [...prev, sku];
+    });
+  }
+
   const firstVisible = filteredProducts.length === 0 ? 0 : safePageIndex * PAGE_SIZE + 1;
   const lastVisible = Math.min(filteredProducts.length, (safePageIndex + 1) * PAGE_SIZE);
   const curatedCount = products.filter((product) => product.curated).length;
 
   function returnToProductSelection(): void {
     setSelectedSku("");
-    setActiveProductPanel("whatItIs");
-    setActiveGalleryItem(null);
+    setActiveProductPanel("overview");
 
     if (window.location.pathname !== "/wingman/product-call-cards") {
       window.history.replaceState({}, "", "/wingman/product-call-cards");
@@ -1193,6 +1208,9 @@ export default function ProductCallCardsPage() {
     if (!selectedProduct) {
       return;
     }
+
+    recordProductUse(selectedProduct.sku);
+    setFrequentSkus(getFrequentlyUsed());
 
     const payload = {
       sku: selectedProduct.sku,
@@ -1265,47 +1283,7 @@ return (
       className={`wm-pcc-select-shell wm-ui-section ${
         selectedProduct ? "wm-pcc-shell-product-mode" : "wm-pcc-shell-selection-mode"
       }`}
-    >
-
-      {activeGalleryItem && selectedProduct && (
-        <div
-          className="wm-pcc-gallery-modal wm-ui-title"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${activeGalleryItem.title} gallery view`}
-        >
-          <div className="wm-pcc-gallery-modal-card wm-ui-card">
-            <div className="wm-pcc-gallery-modal-head">
-              <div>
-                <p className="wm-pcc-gallery-modal-kicker wm-ui-copy wm-ui-kicker">Product gallery</p>
-                <h3 className="wm-pcc-gallery-modal-title wm-ui-title">{activeGalleryItem.title}</h3>
-              </div>
-
-              <button
-                type="button"
-                className="wm-pcc-gallery-modal-close wm-ui-button wm-ui-button-secondary"
-                onClick={() => setActiveGalleryItem(null)}
-                aria-label="Close product gallery"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="wm-pcc-gallery-visual">
-              {activeGalleryItem.imageUrl ? (
-                <img src={activeGalleryItem.imageUrl} alt={activeGalleryItem.title} />
-              ) : (
-                <div className="wm-pcc-gallery-device-card wm-ui-card">
-                  <strong>{selectedProduct.sku}</strong>
-                  <span>{activeGalleryItem.label}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {projectTargetOpen && selectedProduct && typeof document !== "undefined" && createPortal((
+    >      {projectTargetOpen && selectedProduct && typeof document !== "undefined" && createPortal((
         <div className="wm-pcc-project-target-backdrop" role="presentation">
           <section className="wm-pcc-project-target-dialog wm-ui-card" role="dialog" aria-modal="true" aria-labelledby="wm-pcc-project-target-title">
             <header>
@@ -1392,15 +1370,72 @@ return (
           selectedProduct ? "wm-pcc-product-mode" : "wm-pcc-selection-mode"
         }`}
       >
-      <details className="wm-ui-card wm-pcc-workflow-guide" aria-label="Product Call Cards workflow guide">
-        <summary className="wm-ui-title">How to use this call card</summary>
-        <ul className="wm-ui-copy">
-          {productCallCardWorkflowGuide.map((term) => (
-            <li key={term}>{term}</li>
-          ))}
-        </ul>
-      </details>
 
+      {!selectedProduct && (recentSkus.length > 0 || frequentSkus.length > 0) && (
+        <section className="wm-pcc-quick-access" aria-label="Quick access">
+          {recentSkus.length > 0 && (
+            <div className="wm-pcc-quick-group">
+              <h3 className="wm-pcc-quick-heading">Recently viewed</h3>
+              <div className="wm-pcc-quick-chips">
+                {recentSkus.slice(0, 6).map((sku) => {
+                  const product = products.find((p) => p.sku === sku);
+                  if (!product) return null;
+                  return (
+                    <button
+                      key={sku}
+                      type="button"
+                      className="wm-ui-button wm-ui-button-secondary wm-pcc-quick-chip"
+                      onClick={() => {
+                        setSelectedSku(sku);
+                        setActiveProductPanel("overview");
+                        recordProductView(sku);
+                        setRecentSkus(getRecentlyViewed());
+                        window.requestAnimationFrame(() => {
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        });
+                      }}
+                    >
+                      <span className="wm-pcc-quick-chip-sku">{sku}</span>
+                      <span className="wm-pcc-quick-chip-family">{product.family}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {frequentSkus.length > 0 && (
+            <div className="wm-pcc-quick-group">
+              <h3 className="wm-pcc-quick-heading">Frequently used</h3>
+              <div className="wm-pcc-quick-chips">
+                {frequentSkus.slice(0, 6).map((sku) => {
+                  const product = products.find((p) => p.sku === sku);
+                  if (!product) return null;
+                  return (
+                    <button
+                      key={sku}
+                      type="button"
+                      className="wm-ui-button wm-ui-button-secondary wm-pcc-quick-chip"
+                      onClick={() => {
+                        setSelectedSku(sku);
+                        setActiveProductPanel("overview");
+                        recordProductView(sku);
+                        setRecentSkus(getRecentlyViewed());
+                        window.requestAnimationFrame(() => {
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        });
+                      }}
+                    >
+                      <span className="wm-pcc-quick-chip-sku">{sku}</span>
+                      <span className="wm-pcc-quick-chip-family">{product.family}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
 <section className="wm-pcc-card wm-pcc-left wm-ui-section wm-ui-card">
           <div className="wm-pcc-chips">
@@ -1416,41 +1451,26 @@ return (
             ))}
           </div>
 
-          <div className="wm-pcc-quick-finder" aria-label="Quick SKU finder">
-            {QUICK_FINDERS.map((letter) => {
-              const isQuickDisabled = letter !== "All" && !availableQuickFinders.has(letter);
-
-              return (
-                <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-quick-button ${letter === "All" || letter === "0-9" ? "wm-pcc-quick-button-wide" : ""} ${
-                    activeQuickFinder === letter ? "wm-pcc-quick-button-active" : ""
-                  } ${isQuickDisabled ? "wm-pcc-quick-button-disabled" : ""}`].filter(Boolean).join(" ")}
-                  key={letter}
-                  type="button"
-                  disabled={isQuickDisabled}
-                  onClick={() => {
-                    if (isQuickDisabled) {
-                      return;
-                    }
-
-                    setActiveQuickFinder(letter);
-                  }}
-
-                  title={
-                    isQuickDisabled
-                      ? `No matching SKUs beginning with ${letter}`
-                      : `Show SKUs beginning with ${letter}`
-                  }
-                >
-                  {letter}
-                </button>
-              );
-            })}
-          </div>
-
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated
+              {compareMode && compareSkus.length > 0 && (
+                <> · <strong>{compareSkus.length}/3</strong> selected for compare</>
+              )}
             </span>
+
+            <button
+              type="button"
+              className={["wm-ui-button wm-ui-button-secondary", compareMode ? "wm-pcc-compare-active" : ""].filter(Boolean).join(" ")}
+              onClick={() => {
+                setCompareMode(!compareMode);
+                if (compareMode) {
+                  setCompareSkus([]);
+                }
+              }}
+            >
+              {compareMode ? "Exit compare" : "Compare"}
+            </button>
 
             <div className="wm-pcc-pager">
               <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-pager-button ${safePageIndex <= 0 ? "wm-pcc-disabled" : ""}`].filter(Boolean).join(" ")}
@@ -1483,13 +1503,18 @@ return (
 
           <div className="wm-pcc-product-grid">
             {pageProducts.map((product) => (
-              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-product ${selectedProduct?.sku === product.sku ? "wm-pcc-product-active" : ""}`].filter(Boolean).join(" ")}
+              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-product ${selectedProduct?.sku === product.sku && !compareMode ? "wm-pcc-product-active" : ""} ${compareSkus.includes(product.sku) ? "wm-pcc-product-compare" : ""}`].filter(Boolean).join(" ")}
                 key={product.sku}
                 type="button"
                 onClick={() => {
+                  if (compareMode) {
+                    toggleCompare(product.sku);
+                    return;
+                  }
                   setSelectedSku(product.sku);
-                  setActiveProductPanel("whatItIs");
-                  setActiveGalleryItem(null);
+                  setActiveProductPanel("overview");
+                  recordProductView(product.sku);
+                  setRecentSkus(getRecentlyViewed());
 
                   window.requestAnimationFrame(() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1497,11 +1522,23 @@ return (
                 }}
 
               >
+                {compareMode && (
+                  <span className="wm-pcc-compare-badge">
+                    {compareSkus.includes(product.sku)
+                      ? `${compareSkus.indexOf(product.sku) + 1}`
+                      : "+"}
+                  </span>
+                )}
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
                   {product.curated ? "Curated · " : ""}
                   {product.family}
                 </span>
+                {(product.openingLine || product.description) && (
+                  <span className="wm-pcc-hint">
+                    {product.openingLine || product.description}
+                  </span>
+                )}
 
               </button>
             ))}
@@ -1513,6 +1550,78 @@ return (
             )}
           </div>
         </section>
+
+        {compareMode && compareProducts.length >= 2 && (
+          <section className="wm-pcc-card wm-pcc-compare-panel wm-ui-card">
+            <div className="wm-pcc-compare-header">
+              <h2 className="wm-ui-title">Compare {compareProducts.length} products</h2>
+              <button
+                type="button"
+                className="wm-ui-button wm-ui-button-secondary"
+                onClick={() => { setCompareSkus([]); setCompareMode(false); }}
+              >
+                Clear & exit
+              </button>
+            </div>
+
+            <div className="wm-pcc-compare-grid" style={{ gridTemplateColumns: `repeat(${compareProducts.length}, minmax(0, 1fr))` }}>
+              {compareProducts.map((product) => (
+                <div key={product.sku} className="wm-pcc-compare-col">
+                  <div className="wm-pcc-compare-col-head">
+                    <h3 className="wm-pcc-compare-sku wm-ui-title">{product.sku}</h3>
+                    <p className="wm-pcc-compare-family wm-ui-copy">{product.family}</p>
+                  </div>
+
+                  <div className="wm-pcc-compare-section">
+                    <p className="wm-pcc-compare-label">What it does</p>
+                    <p className="wm-pcc-compare-value wm-ui-copy">{product.description}</p>
+                  </div>
+
+                  <div className="wm-pcc-compare-section">
+                    <p className="wm-pcc-compare-label">Best fit</p>
+                    <p className="wm-pcc-compare-value wm-ui-copy">{product.fit}</p>
+                  </div>
+
+                  <div className="wm-pcc-compare-section">
+                    <p className="wm-pcc-compare-label">Opening line</p>
+                    <p className="wm-pcc-compare-value wm-ui-copy">{product.openingLine}</p>
+                  </div>
+
+                  {product.proofPoints.length > 0 && (
+                    <div className="wm-pcc-compare-section">
+                      <p className="wm-pcc-compare-label">Proof points</p>
+                      <ul className="wm-pcc-compare-list">
+                        {product.proofPoints.slice(0, 3).map((point) => (
+                          <li key={point}>{point}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {product.headings.length > 0 && (
+                    <div className="wm-pcc-compare-section">
+                      <p className="wm-pcc-compare-label">Categories</p>
+                      <p className="wm-pcc-compare-value wm-ui-copy">{product.headings.join(', ')}</p>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    className="wm-ui-button wm-ui-button-primary wm-pcc-compare-add"
+                    onClick={() => {
+                      setSelectedSku(product.sku);
+                      setCompareMode(false);
+                      setCompareSkus([]);
+                      setActiveProductPanel('overview');
+                    }}
+                  >
+                    Open call card
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <aside className="wm-pcc-card wm-pcc-preview wm-ui-card">
           <div className="wm-pcc-product-summary">
@@ -1526,87 +1635,7 @@ return (
           </div>
 
           {selectedProduct && (
-            <div className="wm-pcc-gallery-strip" aria-label="Product gallery">
-              {[
-                {
-                  id: "device",
-                  title: selectedProduct.sku,
-                  label: "Product identity",
-                  kind: "device" as const,
-                  imageUrl:
-                    ((selectedProduct as ProductCard & {
-                      imageUrl?: string;
-                      image?: string;
-                      heroImage?: string;
-                      thumbnailUrl?: string;
-                      productImage?: string;
-                    }).imageUrl ||
-                      (selectedProduct as ProductCard & {
-                        imageUrl?: string;
-                        image?: string;
-                        heroImage?: string;
-                        thumbnailUrl?: string;
-                        productImage?: string;
-                      }).productImage ||
-                      (selectedProduct as ProductCard & {
-                        imageUrl?: string;
-                        image?: string;
-                        heroImage?: string;
-                        thumbnailUrl?: string;
-                        productImage?: string;
-                      }).heroImage ||
-                      (selectedProduct as ProductCard & {
-                        imageUrl?: string;
-                        image?: string;
-                        heroImage?: string;
-                        thumbnailUrl?: string;
-                        productImage?: string;
-                      }).thumbnailUrl ||
-                      (selectedProduct as ProductCard & {
-                        imageUrl?: string;
-                        image?: string;
-                        heroImage?: string;
-                        thumbnailUrl?: string;
-                        productImage?: string;
-                      }).image ||
-                      ""),
-                },
-                {
-                  id: "system",
-                  title: "Typical use",
-                  label: selectedProduct.family,
-                  kind: "system" as const,
-                },
-                {
-                  id: "connection",
-                  title: "Connection focus",
-                  label: selectedProduct.category,
-                  kind: "connection" as const,
-                },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className="wm-pcc-gallery-tile wm-ui-button wm-ui-button-secondary wm-ui-card"
-                  onClick={() => setActiveGalleryItem(item)}
-                >
-                  <span className="wm-pcc-gallery-thumb" aria-hidden="true">
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt="" />
-                    ) : (
-                      <span className="wm-pcc-gallery-icon">
-                        {item.kind === "device" ? "SKU" : item.kind === "system" ? "SYS" : "I/O"}
-                      </span>
-                    )}
-                  </span>
-
-                  <span>
-                    <span className="wm-pcc-gallery-title wm-ui-title">{item.title}</span>
-                    <span className="wm-pcc-gallery-label">{item.label}</span>
-                  </span>
-                </button>
-              ))}
-
+            <div className="wm-pcc-gallery-strip" aria-label="Quick actions">
               <button
                 type="button"
                 className="wm-pcc-visual-studio-button wm-ui-button wm-ui-button-secondary"
@@ -1647,7 +1676,7 @@ return (
             {PRODUCT_PANEL_TABS.map((tab) => (
               <button className={["wm-ui-button wm-ui-button-secondary", [
                   "wm-pcc-section-tab",
-                  tab.id !== "specification" ? "wm-pcc-section-tab-core" : "",
+                  tab.id !== "technical" ? "wm-pcc-section-tab-core" : "",
                   activeProductPanel === tab.id ? "wm-pcc-section-tab-active" : "",
                 ]
                   .filter(Boolean)
@@ -1672,7 +1701,7 @@ return (
 
           {selectedProduct && (
             <section className="wm-pcc-focus-panel wm-ui-section wm-ui-card">
-              {activeProductPanel === "whatItIs" && salesHelperCopy && (
+              {activeProductPanel === "overview" && salesHelperCopy && (
                 <>
                   <h3 className="wm-pcc-section-heading wm-ui-title">What it does</h3>
                   <p className="wm-pcc-response-copy wm-ui-copy">
@@ -1686,22 +1715,6 @@ return (
                     ))}
                   </ul>
 
-                  <p className="wm-pcc-response-subhead wm-ui-copy">Specification watch-outs</p>
-                  <ul className="wm-pcc-response-list wm-ui-card">
-                    {salesHelperCopy.specWatchOuts.map((line) => (
-                      <li key={line}>{renderWithGuruLinks(line, selectedProduct)}</li>
-                    ))}
-                  </ul>
-
-                  <p className="wm-pcc-response-copy wm-ui-copy">
-                    <strong>Product text:</strong>{" "}
-                    {renderWithGuruLinks(selectedProduct.description, selectedProduct)}
-                  </p>
-                </>
-              )}
-
-              {activeProductPanel === "whatItDoes" && salesHelperCopy && (
-                <>
                   <h3 className="wm-pcc-section-heading wm-ui-title">How it fits here</h3>
                   <p className="wm-pcc-response-copy wm-ui-copy">
                     {renderWithGuruLinks(salesHelperCopy.fitHere, selectedProduct)}
@@ -1721,16 +1734,23 @@ return (
                     ))}
                   </ul>
 
-                  <p className="wm-pcc-response-subhead wm-ui-copy">Ask this next</p>
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Specification watch-outs</p>
                   <ul className="wm-pcc-response-list wm-ui-card">
-                    {salesHelperCopy.discoveryQuestions.slice(0, 4).map((line) => (
+                    {salesHelperCopy.specWatchOuts.map((line) => (
                       <li key={line}>{renderWithGuruLinks(line, selectedProduct)}</li>
                     ))}
                   </ul>
+
+                  <p className="wm-pcc-response-copy wm-ui-copy">
+                    <strong>Product text:</strong>{" "}
+                    {renderWithGuruLinks(selectedProduct.description, selectedProduct)}
+                  </p>
                 </>
               )}
 
-              {activeProductPanel === "howToSell" && salesHelperCopy && (
+
+
+              {activeProductPanel === "salesGuide" && salesHelperCopy && (
                 <>
                   <h3 className="wm-pcc-section-heading wm-ui-title">What to say</h3>
 
@@ -1746,12 +1766,56 @@ return (
                     ))}
                   </ul>
 
-                  <p className="wm-pcc-response-subhead wm-ui-copy">Ask next</p>
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Discovery questions</p>
                   <ul className="wm-pcc-response-list wm-ui-card">
-                    {salesHelperCopy.discoveryQuestions.slice(0, 5).map((line) => (
+                    {salesHelperCopy.discoveryQuestions.slice(0, 4).map((line) => (
                       <li key={line}>{renderWithGuruLinks(line, selectedProduct)}</li>
                     ))}
                   </ul>
+
+                  <details className="wm-pcc-notes-section">
+                    <summary className="wm-pcc-response-subhead wm-ui-copy">Capture answers for Discovery</summary>
+                    <p className="wm-pcc-notes-hint wm-ui-copy">
+                      Type answers below. They are saved locally and can be sent to the project's Discovery brief.
+                    </p>
+                    {salesHelperCopy.discoveryQuestions.slice(0, 4).map((question, idx) => (
+                      <div key={question} className="wm-pcc-notes-row">
+                        <label className="wm-pcc-notes-label" htmlFor={`note-${notesSku}-${idx}`}>{question}</label>
+                        <input
+                          id={`note-${notesSku}-${idx}`}
+                          className="wm-pcc-notes-input"
+                          type="text"
+                          placeholder="Your answer…"
+                          value={questionNotes[idx] || ""}
+                          onChange={(e) => updateNote(idx, e.target.value)}
+                        />
+                      </div>
+                    ))}
+                    {questionNotes.some((n) => n?.trim()) && (
+                      <button
+                        type="button"
+                        className="wm-ui-button wm-ui-button-primary wm-pcc-notes-send"
+                        onClick={() => {
+                          const currentProject = getCurrentWorkflowProject(readProjectStore());
+                          if (!currentProject) return;
+                          const existing = currentProject.discoveryBrief ?? {};
+                          const existingNotes = String(existing.roomModel?.callCardNotes ?? "");
+                          const newNotes = allNotesAsText();
+                          const merged = existingNotes ? `${existingNotes}\n${newNotes}` : newNotes;
+                          saveDiscoveryBriefToProject({
+                            ...existing,
+                            roomModel: {
+                              ...(existing.roomModel ?? {}),
+                              callCardNotes: merged,
+                            },
+                          }, currentProject.id);
+                          setProjectTargetOpen(true);
+                        }}
+                      >
+                        Send to Discovery
+                      </button>
+                    )}
+                  </details>
 
                   <div className="wm-pcc-tone-select" role="group" aria-label="Conversation tone">
                     <p className="wm-pcc-response-subhead wm-ui-copy">Frame this for</p>
@@ -1859,7 +1923,7 @@ return (
                 </>
               )}
 
-              {activeProductPanel === "competitors" && competitorLandscape && (
+              {activeProductPanel === "salesGuide" && competitorLandscape && (
                 <>
                   <h3 className="wm-pcc-section-heading wm-ui-title">Known competitors &amp; brand SKUs</h3>
                   <p className="wm-pcc-response-copy wm-ui-copy">{competitorLandscape.note}</p>
@@ -1881,7 +1945,7 @@ return (
                 </>
               )}
 
-              {activeProductPanel === "specification" && (
+              {activeProductPanel === "technical" && (
                 <>
                   <h3 className="wm-pcc-section-heading wm-ui-title">Technical detail</h3>
 

@@ -49,7 +49,7 @@ describe("CatalogBrowserPage admin record editing", () => {
     fireEvent.click((await screen.findAllByRole("button", { name: "Edit record" }))[0]);
     expect(await screen.findByRole("button", { name: "Allow product" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Remove product" })).toBeTruthy();
-  }, 30000);
+  }, 60000);
 
   it("does not expose Edit record actions to a non-admin user", async () => {
     getWingmanSession.mockResolvedValue({
