@@ -15,7 +15,7 @@ describe("proposal visual template handoff", () => {
 
   it("applies the React Flow canvas foundation to the consolidated route", () => {
     expect(styles).toContain('html[data-wingman-route="proposalVisuals"]');
-    expect(styles).toContain("position: absolute !important");
-    expect(styles).toContain("height: 100% !important");
+    expect(styles).toContain("position: absolute");
+    expect(styles).toContain("height: 100%");
   });
 });

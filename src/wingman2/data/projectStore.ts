@@ -33,9 +33,12 @@ export type StoredProject = {
   ingest?: StoredIngestAnalysis;
   compareRuns?: StoredCompareRun[];
   proposal?: StoredProjectProposal;
+  proposalVersions?: StoredProposalVersion[];
   requirements?: StoredRequirementRecord[];
   recommendationEvidence?: StoredRecommendationEvidence;
   feedback?: StoredRecommendationFeedback[];
+  dealOutcome?: "won" | "lost" | "deferred" | "";
+  dealOutcomeWhy?: string;
   workflow?: StoredWorkflowState;
   videowall?: StoredVideowallSummary;
   evidenceFoundation?: ProjectEvidenceFoundation;
@@ -137,6 +140,15 @@ export type StoredProjectProposal = {
   contactEmail?: string;
   contactPhone?: string;
   updatedAt: string;
+};
+
+/** A snapshot of the proposal at a point in time, for version history. */
+export type StoredProposalVersion = {
+  id: string;
+  versionNumber: number;
+  savedAt: string;
+  label: string;
+  proposal: StoredProjectProposal;
 };
 
 export type StoredGovernedDependency = {
@@ -2099,6 +2111,35 @@ export function saveProjectProposalToProject(proposal: StoredProjectProposal) {
     updatedAt: timestamp,
   };
 
+  // Snapshot the current proposal as a version before overwriting
+  let proposalVersions = existing?.proposalVersions ?? [];
+  if (existing?.proposal && hasProposalChanged(existing.proposal, proposal)) {
+    const versionNumber = proposalVersions.length + 1;
+    // Auto-generate a descriptive label from the product diff
+    const prevSkuSet = new Set((existing.proposal.products ?? []).map((p) => String(p.sku ?? "").toUpperCase()));
+    const nextSkuSet = new Set((proposal.products ?? []).map((p) => String(p.sku ?? "").toUpperCase()));
+    const added = [...nextSkuSet].filter((s) => !prevSkuSet.has(s));
+    const removed = [...prevSkuSet].filter((s) => !nextSkuSet.has(s));
+    const labelParts: string[] = [];
+    if (added.length) labelParts.push(`Added ${added.join(", ")}`);
+    if (removed.length) labelParts.push(`Removed ${removed.join(", ")}`);
+    if (!labelParts.length && existing.proposal.title !== proposal.title) labelParts.push("Title changed");
+    if (!labelParts.length && existing.proposal.summary !== proposal.summary) labelParts.push("Summary updated");
+    const autoLabel = labelParts.length > 0
+      ? `v${versionNumber} — ${labelParts.slice(0, 2).join("; ")}`
+      : `v${versionNumber}`;
+    proposalVersions = [
+      ...proposalVersions,
+      {
+        id: createId("proposal-version"),
+        versionNumber,
+        savedAt: timestamp,
+        label: autoLabel,
+        proposal: existing.proposal,
+      },
+    ];
+  }
+
   const project = existing
     ? {
         ...existing,
@@ -2108,6 +2149,7 @@ export function saveProjectProposalToProject(proposal: StoredProjectProposal) {
         resumeTo: routeCatalogByKey.proposal.path,
         updatedAt: timestamp,
         proposal,
+        proposalVersions,
         workflow,
       }
     : createWorkflowProject({
@@ -2120,6 +2162,36 @@ export function saveProjectProposalToProject(proposal: StoredProjectProposal) {
       });
 
   return upsertStoredProject(project);
+}
+
+/**
+ * Detect whether the proposal content has meaningfully changed.
+ * Compares title, summary, products, assumptions and sections to avoid
+ * creating trivial version snapshots on every keystroke.
+ */
+function hasProposalChanged(prev: StoredProjectProposal, next: StoredProjectProposal): boolean {
+  if (prev.title !== next.title) return true;
+  if (prev.summary !== next.summary) return true;
+  if (prev.assumptions.join("\n") !== next.assumptions.join("\n")) return true;
+  if (prev.sections.join("\n") !== next.sections.join("\n")) return true;
+  const prevSkus = prev.products.map((p) => `${p.sku}:${p.quantity ?? 1}`).sort().join(",");
+  const nextSkus = next.products.map((p) => `${p.sku}:${p.quantity ?? 1}`).sort().join(",");
+  return prevSkus !== nextSkus;
+}
+
+/** Restore a proposal from a saved version snapshot. */
+export function restoreProposalVersion(versionId: string): boolean {
+  const snapshot = readProjectStore();
+  const existing = getCurrentWorkflowProject(snapshot);
+  if (!existing?.proposalVersions) return false;
+  const version = existing.proposalVersions.find((v) => v.id === versionId);
+  if (!version) return false;
+  upsertStoredProject({
+    ...existing,
+    proposal: version.proposal,
+    updatedAt: nowIso(),
+  });
+  return true;
 }
 
 export function saveProposalVisualAsset(
@@ -2162,6 +2234,21 @@ export function saveProposalVisualAsset(
     };
   });
   return project && saved ? (saved as ProposalVisualAsset) : null;
+}
+
+export function saveDealOutcome(
+  projectId: string,
+  outcome: "won" | "lost" | "deferred" | "",
+  why?: string,
+): void {
+  const timestamp = nowIso();
+  updateStoredProject(projectId, (project) => ({
+    ...project,
+    updated: "Just now",
+    updatedAt: timestamp,
+    dealOutcome: outcome,
+    dealOutcomeWhy: why ?? project.dealOutcomeWhy ?? "",
+  }));
 }
 
 export function saveProjectRequirementsToProject(projectId: string, requirements: StoredRequirementRecord[]) {

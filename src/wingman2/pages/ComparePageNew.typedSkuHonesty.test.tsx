@@ -79,6 +79,26 @@ describe("compare page typed-SKU honesty render", () => {
     expect(matrixOptions.textContent).not.toContain("MX-0808-SCL");
   });
 
+  it("shows explainable presentation-switcher alternatives when no direct MFT62 equivalent exists", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/compare?brand=SY%20Electronics&sku=MFT62"]}>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    const cards = await screen.findByLabelText("Compare product cards");
+    await waitFor(() => {
+      expect(cards.textContent).toContain("No direct equivalent");
+    });
+    expect(cards.textContent).toContain("4x HDMI inputs");
+    expect(cards.textContent).toContain("1x DisplayPort input");
+    expect(cards.textContent).toContain("1x VGA input");
+    expect(cards.textContent).toContain("1x HDMI output");
+    expect(cards.textContent).toContain("1x HDBaseT output");
+    expect(cards.textContent).toMatch(/SW-510-TX|SW-640L-TX-W|MX-0403-H3-MST/);
+    expect(screen.getByLabelText("Why this is not a direct match").textContent).toMatch(/fewer|missing|DisplayPort|VGA/i);
+  });
+
   it("researches a genuinely unknown SKU and surfaces a verify-only WyreStorm direction", async () => {
     runCompetitorMatchMock.mockResolvedValue({
       ok: true,

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 describe("Visual Studio layout guard", () => {
   it("keeps Visual Studio readable at browser zoom with a usable React Flow canvas", () => {
-    const css = readFileSync(join(process.cwd(), "src/wingman2/styles/wingman-style-stack.css"), "utf8");
+    const css = readFileSync(join(process.cwd(), "src/wingman2/styles/wingman-route-overrides.css"), "utf8");
 
     expect(css).toContain("Wingman Visual Studio compact layout repair start");
     expect(css).toContain(".wm-vs-layout");

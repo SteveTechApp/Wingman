@@ -444,3 +444,42 @@ export function productMatchesSlot(
   const primary = classification.primaryCategory?.trim() ?? "";
   return Boolean(slot.match.primaryCategory?.includes(primary));
 }
+
+/**
+ * Detect UC all-in-one products that cover multiple system roles (camera,
+ * microphone, speaker) in a single device.  When a product's classification
+ * signals it is a complete UC room endpoint — a video bar or speakerphone
+ * with built-in camera, microphone and speaker — assigning it to one slot
+ * should suppress the separate camera, microphone and room-audio slots to
+ * avoid recommending redundant equipment.
+ *
+ * Detection uses three governed signals:
+ *  1. subClassifications include both "camera" and "video-bar" (video bar),
+ *     OR both "speakerphone" and a UC primary category (speakerphone)
+ *  2. primaryCategory is "Unified Communications"
+ *  3. systemRole contains UC-oriented phrasing
+ */
+export function ucAllInOneCoverage(
+  classification: ProductClassificationFacts | undefined,
+): Set<string> | null {
+  if (!classification) return null;
+
+  const tokens = new Set((classification.subClassifications ?? []).map((t) => t.trim().toLowerCase()));
+  const primary = (classification.primaryCategory ?? "").toLowerCase();
+  const systemRole = (classification.systemRole ?? "").toLowerCase();
+  const isUc = primary.includes("unified communications") || /\buc\b/.test(systemRole);
+
+  if (!isUc) return null;
+
+  // A video bar (camera + video-bar tokens) covers camera, microphone and audio.
+  if (tokens.has("camera") && tokens.has("video-bar")) {
+    return new Set(["camera", "microphone", "room-audio"]);
+  }
+
+  // A speakerphone covers microphone and audio.  It does NOT cover camera.
+  if (tokens.has("speakerphone") || tokens.has("uc-peripheral-hub")) {
+    return new Set(["microphone", "room-audio"]);
+  }
+
+  return null;
+}

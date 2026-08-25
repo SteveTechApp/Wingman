@@ -414,7 +414,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
     bom: [
       {
         id: "restaurant-mx0808",
-        sku: "MX-0808-HDBT-H2-KIT",
+        sku: "MX-0808-KIT-V2",
         description: "8x8 HDBaseT matrix kit",
         role: "Central source-to-display routing",
         qty: 1,

@@ -2,11 +2,18 @@
 
 ## Current rule
 
-The app uses one consolidated style stack:
+The app uses a layered CSS cascade (2026-08-25):
 
-- `wingman-style-stack.css`
+- `wingman-layer-tokens.css` — Design tokens (CSS custom properties)
+- `wingman-layer-reset.css` — Reset & base elements
+- `wingman-layer-layout.css` — App shell, sidebar, grid, responsive
+- `wingman-layer-components.css` — Cards, buttons, forms, nav, tables, etc.
+- `wingman-route-overrides.css` — Route/page-specific overrides (legacy)
+- `wingman-reference-theme.css` — Post-process polish
+- `wingman-workflow-theme.css` — Workflow/route theme overrides
+- `wingman-polish-navigation.css` — Navigation polish
 
-The retired split stylesheets and legacy override folders have been archived out of the repo. Do not reintroduce page-level CSS imports.
+The legacy `wingman-style-stack.css` is now a compatibility shim; do not add new rules there.
 
 ## Current Rule
 

@@ -9,6 +9,7 @@ import {
   type WingmanProductLike,
   type WingmanProductProfile,
 } from "./productClassification";
+import { aggregateSkuFeedback, collectDealOutcomes } from "./feedbackInformedGuidance";
 import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
 import { extractRawProducts } from "./productStoryEngine";
 import { normaliseSkuKey, resolveWyrestormSkuAlias } from "./skuAliasResolver";
@@ -301,6 +302,29 @@ function extraCompatibilityRejections(product: WingmanProductLike, profile: Wing
   return reasons;
 }
 
+/**
+ * Cache for per-SKU deal outcome counts. Populated lazily on first scoring
+ * call and cleared between selectWingmanProducts batches.
+ */
+let dealOutcomeCache: Map<string, { wins: number; losses: number }> | null = null;
+
+function ensureDealOutcomeCache(): Map<string, { wins: number; losses: number }> {
+  if (dealOutcomeCache) return dealOutcomeCache;
+  const map = new Map<string, { wins: number; losses: number }>();
+  for (const outcome of collectDealOutcomes()) {
+    for (const sku of outcome.productSkus) {
+      const key = normaliseSkuKey(sku);
+      if (!key) continue;
+      const existing = map.get(key) ?? { wins: 0, losses: 0 };
+      if (outcome.outcome === "won") existing.wins += 1;
+      if (outcome.outcome === "lost") existing.losses += 1;
+      map.set(key, existing);
+    }
+  }
+  dealOutcomeCache = map;
+  return map;
+}
+
 function scoreProduct(product: WingmanProductLike, profile: WingmanProductProfile, request: ProductSelectorRequest, warnings: string[]) {
   let score = 0;
   const sku = normaliseSku(productSku(product));
@@ -316,6 +340,15 @@ function scoreProduct(product: WingmanProductLike, profile: WingmanProductProfil
   if (compactQuery && normaliseSkuKey(sku) === compactQuery) score += 250;
   if (compactQuery && normaliseSkuKey(sku).startsWith(compactQuery)) score += 120;
   if (normalise(productName(product)).includes(normalise(request.query))) score += 30;
+
+  // Deal outcome feedback loop: boost products that have won deals,
+  // penalise those that have been in lost deals.
+  const outcomes = ensureDealOutcomeCache();
+  const dealData = outcomes.get(normaliseSkuKey(sku));
+  if (dealData) {
+    score += dealData.wins * 25; // Each win boosts by 25 points
+    score -= dealData.losses * 15; // Each loss penalises by 15 points
+  }
 
   return score;
 }

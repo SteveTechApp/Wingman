@@ -35,7 +35,14 @@ const allowed = new Set([
 
 const expectedMainCssImports = [
   "@xyflow/react/dist/style.css",
-  "./wingman2/styles/wingman-style-stack.css",
+  // Layered design system (2026-08-25) — tokens → reset → layout → components
+  "./wingman2/styles/wingman-layer-tokens.css",
+  "./wingman2/styles/wingman-layer-reset.css",
+  "./wingman2/styles/wingman-layer-layout.css",
+  "./wingman2/styles/wingman-layer-components.css",
+  // Route/page-specific overrides
+  "./wingman2/styles/wingman-route-overrides.css",
+  // Companion theme files
   "./wingman2/styles/wingman-reference-theme.css",
   "./wingman2/styles/wingman-workflow-theme.css",
   "./wingman2/styles/wingman-polish-navigation.css",

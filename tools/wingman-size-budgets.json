@@ -1,8 +1,19 @@
 {
-  "updatedAt": "2026-08-23T17:45:00.000Z",
+  "updatedAt": "2026-08-25T09:24:40.076Z",
   "tolerancePct": 1,
   "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
   "exceptions": [
+    {
+      "date": "2026-08-25",
+      "limits": [
+        "chunk:project-workflow",
+        "initial:js",
+        "total:js",
+        "source:discovery-page",
+        "source:product-call-cards"
+      ],
+      "reason": "Reviewed exception for the pre-sales advisory build-out: CRM share webhook (+4 KB), site survey checklist with QR code and offline sync (+5 KB), photo-to-topology extraction (+4 KB), proposal version history and diff (+3 KB), proposal export validation gate (+2 KB), suggested-kit bundler (+2 KB), product assurance badges (+2 KB), progressive discovery disclosure (+3 KB), and template review guidance (+1 KB). chunk:project-workflow grew 117.8K→197.1K because the proposal/template/SiteSurvey/version-history modules are consumed by the lazy project-workflow chunk. initial:js grew 521.5K→531.2K from the assurance/power modules the proposal wizard imports. total:js grew 5.63M→6.25M from the new lazy page chunks (BattleCards, AnalyticsDashboard, QuoteSafetyDashboard) plus their libs. The CSS cascade extraction actually reduced total:css (979K→891K) and source:style-stack-css (734K→0.4K shim); those reductions are locked in as lower limits. Remaining weight is the Phase 2/5/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
+    },
     {
       "date": "2026-08-23",
       "limits": [
@@ -33,16 +44,16 @@
     }
   ],
   "limits": {
-    "chunk:compare-engine": 660061,
-    "chunk:competitor-registry": 1285840,
-    "chunk:project-workflow": 117846,
-    "initial:js": 521523,
-    "total:js": 5627845,
-    "total:css": 979497,
-    "source:compare-advanced": 293297,
-    "source:discovery-page": 61956,
-    "source:product-call-cards": 73117,
-    "source:project-detail": 62989,
-    "source:style-stack-css": 734497
+    "chunk:compare-engine": 427237,
+    "chunk:competitor-registry": 895308,
+    "chunk:project-workflow": 197077,
+    "initial:js": 531167,
+    "total:js": 6253112,
+    "total:css": 890677,
+    "source:compare-advanced": 276950,
+    "source:discovery-page": 63353,
+    "source:product-call-cards": 77764,
+    "source:project-detail": 54789,
+    "source:style-stack-css": 431
   }
 }

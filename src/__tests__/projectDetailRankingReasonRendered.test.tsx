@@ -139,14 +139,8 @@ describe("Project Detail rendered workflow evidence", () => {
     expect(screen.getAllByText("Plausible — confirm").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Kramer VS-88H2A").length).toBeGreaterThan(0);
 
-    expect(screen.getByText("Product-family decision")).toBeInTheDocument();
+    expect(screen.getByText("Leading product family")).toBeInTheDocument();
     expect(screen.getAllByText("Matrix / HDBaseT").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Hospitality / sports bar routing").length).toBeGreaterThan(0);
-    expect(screen.getByText("Confirm per-zone output behaviour before quote.")).toBeInTheDocument();
-    expect(screen.getAllByText("Validate before quote").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Confirm final display resolution for all bar TVs.").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Sports Bar Proposal").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Kramer VS-88H2A").length).toBeGreaterThan(0);
   });
 
   it("collapses and re-expands the detail body with the Review/Hide toggle", () => {

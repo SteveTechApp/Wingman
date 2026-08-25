@@ -117,10 +117,10 @@ describe("proposal safety standard", () => {
 
     const html = buildProposalHtml(proposal, []);
     expect(html).toContain('data-wingman-best-efforts-disclaimer="true"');
-    expect(html).toContain("Best-efforts disclaimer");
+    expect(html).toContain("Best-Efforts Disclaimer");
     expect(html).toContain("best-efforts basis");
-    expect(html).toContain("verified against the current WyreStorm documentation");
-    expect(html).toContain("accepts no liability");
+    expect(html).toContain("independently verified against the current official WyreStorm documentation");
+    expect(html).toContain("not be liable");
   });
 
   it("lists BY-OTHERS rows as explicit exclusions from the WyreStorm scope", () => {

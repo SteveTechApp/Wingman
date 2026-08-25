@@ -136,3 +136,4 @@ archive/
 
 # --- Vite oddities ---
 vite.config.ts.timestamp-*
+test-results

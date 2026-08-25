@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Check, CheckCircle2, ChevronRight, Download, FileText,
   LayoutTemplate, Minus, MoreHorizontal, Pencil, Plus, RotateCcw, Save, X,
+  Sparkles, AlertTriangle, HelpCircle,
 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -23,6 +24,15 @@ const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
 type Tab = (typeof tabs)[number];
 const equipmentGroups = ["Required", "Requires validation", "Optional", "Third-party scope"] as const;
 type EquipmentGroup = (typeof equipmentGroups)[number];
+
+/** Step-by-step guidance shown at the top of the Equipment tab */
+const STEPS = [
+  { label: "Required", desc: "Core products are included. Check quantities match the room." },
+  { label: "Validate", desc: "Site-specific items — confirm against the real room before quoting." },
+  { label: "Optional", desc: "Add only when the room needs them. Remove extras to keep the BOM tight." },
+  { label: "Third-party", desc: "Design scope for others — review but don't include in the WyreStorm quote." },
+  { label: "Proposal", desc: "Ready to go. Continue to proposal when the equipment list is finalised." },
+];
 
 const groupCaptions: Record<string, string> = {
   Required: "Core WyreStorm products.",
@@ -245,7 +255,7 @@ export function TemplateReviewPage() {
           {tabs.map((tab, index) => <button key={tab} ref={(node) => { tabRefs.current[index] = node; }} type="button" role="tab" id={`template-tab-${tab}`} aria-selected={activeTab === tab} aria-controls={`template-panel-${tab}`} tabIndex={activeTab === tab ? 0 : -1} onClick={() => { setActiveTab(tab); if (tab === "Equipment") setEquipmentGroup("Required"); }} onKeyDown={(event) => onTabKeyDown(event, index)}>{tab}{tab === "Equipment" && dirty ? <i aria-label="Unsaved changes" /> : null}</button>)}
         </div>
         {activeTab === "Equipment" ? <nav className="wm-equipment-scope-switcher" aria-label="Equipment scope">
-          {equipmentGroups.slice(1).map((group) => <button type="button" key={group} className={equipmentGroup === group ? "is-active" : ""} aria-pressed={equipmentGroup === group} onClick={() => setEquipmentGroup(group)}><span>{group}</span><small>{groupedRows.find((item) => item.name === group)?.rows.length ?? 0}</small></button>)}
+          {equipmentGroups.slice(1).map((group) => <button type="button" key={group} aria-label={`${group} equipment group`} className={equipmentGroup === group ? "is-active" : ""} aria-pressed={equipmentGroup === group} onClick={() => setEquipmentGroup(group)}><span>{group}</span><small>{groupedRows.find((item) => item.name === group)?.rows.length ?? 0}</small></button>)}
         </nav> : null}
       </div>
 
@@ -279,6 +289,30 @@ export function TemplateReviewPage() {
 
         {activeTab === "Equipment" ? <div className="wm-equipment-workspace">
           <div className="wm-template-section-heading"><div><span>Equipment schedule</span><h2>Editable WyreStorm BOM</h2></div><span className="wm-status is-assumed">Edit quantities and scope</span></div>
+          <div className="wm-template-steps" aria-label="Template configuration steps">
+            {STEPS.map((step, index) => {
+              const isActive = equipmentGroup === step.label ||
+                (step.label === "Required" && equipmentGroup === "Required") ||
+                (step.label === "Validate" && equipmentGroup === "Requires validation");
+              const stepGroup = step.label === "Validate" ? "Requires validation" : step.label;
+              return (
+                <button
+                  key={step.label}
+                  type="button"
+                  aria-label={`Step ${index + 1}: ${step.label}`}
+                  className={`wm-template-step ${isActive ? "is-active" : ""} ${index < STEPS.length - 1 ? "has-connector" : ""}`}
+                  onClick={() => {
+                    setEquipmentGroup(stepGroup as EquipmentGroup);
+                    if (step.label === "Proposal") setActiveTab("Proposal");
+                  }}
+                >
+                  <span className="wm-template-step-num">{index + 1}</span>
+                  <span className="wm-template-step-label">{step.label}</span>
+                  <span className="wm-template-step-desc">{step.desc}</span>
+                </button>
+              );
+            })}
+          </div>
           <div className="wm-equipment-summary">{Object.entries(counts).map(([label, count]) => <div key={label}><strong>{count}</strong><span>{label}</span></div>)}</div>
           <div className="wm-equipment-toolbar">
             <div className="wm-equipment-toolbar-cluster"><div className="wm-category-filters" aria-label="Equipment category filters">{categories.slice(0, 6).map((category) => <button type="button" key={category} className={filter === category ? "is-active" : ""} onClick={() => setFilter(category)}>{category}</button>)}</div></div>

@@ -8,7 +8,7 @@ const drawerSource = readFileSync(
 );
 
 const cssSource = readFileSync(
-  resolve(process.cwd(), "src/wingman2/styles/wingman-style-stack.css"),
+  resolve(process.cwd(), "src/wingman2/styles/wingman-route-overrides.css"),
   "utf8",
 );
 
@@ -32,7 +32,7 @@ describe("Guru structured conversation UI", () => {
     expect(drawerSource).toContain('className="wingman-guru-composer"');
     expect(drawerSource).toContain("Enter to send - Shift+Enter for a new line");
     expect(cssSource).toContain("flex: 1 1 auto");
-    expect(cssSource).toContain("overflow-y: auto !important");
+    expect(cssSource).toContain("overflow-y: auto");
   });
 
   it("prevents duplicate compare seed prompts", () => {

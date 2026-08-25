@@ -22,37 +22,33 @@ function headingsFor(sku: string) {
 }
 
 describe("Product Call Cards classification", () => {
-  it("uses the governed major product headings", () => {
+  it("uses the simplified grouped product headings", () => {
     expect(PRODUCT_CALL_CARD_HEADINGS).toEqual([
       "All",
-      "Audio",
-      "Extender Kits",
-      "DA / Splitters",
-      "Presentation Switchers",
-      "Matrix Switchers",
-      "Wireless Casting",
-      "Unified Comms",
-      "AVoIP",
-      "Video Wall",
-      "Control",
+      "Presentation & UC",
+      "AVoIP & Networked",
+      "Matrix & Routing",
+      "Extenders & Distribution",
+      "Video & Processing",
+      "Control & Audio",
     ]);
   });
 
-  it("classifies representative products from the real product index", () => {
-    expect(headingsFor("AMP-2120")).toContain("Audio");
-    expect(headingsFor("AMP-260-DNT")).toContain("Audio");
-    expect(headingsFor("EXP-MX-0808-KIT")).toContain("Extender Kits");
-    expect(headingsFor("SP-0104-H2")).toContain("DA / Splitters");
-    expect(headingsFor("SW-0401-H2")).toContain("Presentation Switchers");
-    expect(headingsFor("MX-0402-MST")).toEqual(expect.arrayContaining(["Presentation Switchers", "Matrix Switchers"]));
-    expect(headingsFor("APO-DG2-PRO")).toContain("Wireless Casting");
-    expect(headingsFor("APO-VX20-UC-V2")).toContain("Unified Comms");
-    expect(headingsFor("CAM-210-NDI-PTZ")).toContain("Unified Comms");
-    expect(headingsFor("NHD-0401-MV")).toEqual(expect.arrayContaining(["AVoIP", "Video Wall"]));
-    expect(headingsFor("SW-0204-VW")).toContain("Video Wall");
-    expect(headingsFor("SW-0206-VW")).toContain("Video Wall");
-    expect(headingsFor("NHD-CTL-PRO")).toEqual(expect.arrayContaining(["AVoIP", "Control"]));
-    expect(headingsFor("SYN-TOUCH10")).toContain("Control");
+  it("classifies representative products from the real product index into grouped headings", () => {
+    expect(headingsFor("AMP-2120")).toContain("Control & Audio");
+    expect(headingsFor("AMP-260-DNT")).toContain("Control & Audio");
+    expect(headingsFor("EXP-MX-0808-KIT")).toContain("Extenders & Distribution");
+    expect(headingsFor("SP-0104-H2")).toContain("Extenders & Distribution");
+    expect(headingsFor("SW-0401-H2")).toContain("Presentation & UC");
+    expect(headingsFor("MX-0402-MST")).toEqual(expect.arrayContaining(["Presentation & UC", "Matrix & Routing"]));
+    expect(headingsFor("APO-DG2-PRO")).toContain("Presentation & UC");
+    expect(headingsFor("APO-VX20-UC-V2")).toContain("Presentation & UC");
+    expect(headingsFor("CAM-210-NDI-PTZ")).toContain("Presentation & UC");
+    expect(headingsFor("NHD-0401-MV")).toEqual(expect.arrayContaining(["AVoIP & Networked", "Video & Processing"]));
+    expect(headingsFor("SW-0204-VW")).toContain("Video & Processing");
+    expect(headingsFor("SW-0206-VW")).toContain("Video & Processing");
+    expect(headingsFor("NHD-CTL-PRO")).toEqual(expect.arrayContaining(["AVoIP & Networked", "Control & Audio"]));
+    expect(headingsFor("SYN-TOUCH10")).toContain("Control & Audio");
   });
 
   it("allows genuinely relevant products in more than one heading", () => {
@@ -64,7 +60,7 @@ describe("Product Call Cards classification", () => {
       summary: "Fixed I/O matrix supplied as a transmitter and receiver kit.",
     });
 
-    expect(headings).toEqual(expect.arrayContaining(["Extender Kits", "Matrix Switchers"]));
+    expect(headings).toEqual(expect.arrayContaining(["Extenders & Distribution", "Matrix & Routing"]));
   });
 
   it("keeps AVoIP exclusive to NHD SKUs", () => {
@@ -97,7 +93,7 @@ describe("Product Call Cards classification", () => {
         sku: "NHD-500-TX",
         name: "NetworkHD 500 encoder",
       }),
-    ).toContain("AVoIP");
+    ).toContain("AVoIP & Networked");
   });
 });
 
@@ -111,7 +107,7 @@ describe("Product Call Cards strict filter boundaries", () => {
         applications: ["AV-over-IP, BYOD and video-wall workflows"],
         summary: "Can be used with NetworkHD and presentation switchers.",
       }),
-    ).toEqual(["Unified Comms"]);
+    ).toEqual(["Presentation & UC"]);
 
     expect(
       classifyProductCallCard({
@@ -119,7 +115,7 @@ describe("Product Call Cards strict filter boundaries", () => {
         name: "NetworkHD 500 encoder with Dante support",
         description: "Includes Dante audio integration.",
       }),
-    ).toEqual(["AVoIP"]);
+    ).toEqual(["AVoIP & Networked"]);
 
     expect(
       classifyProductCallCard({
@@ -127,7 +123,7 @@ describe("Product Call Cards strict filter boundaries", () => {
         name: "Hybrid matrix switcher",
         summary: "Can be considered alongside AVoIP and wireless casting.",
       }),
-    ).toEqual(["Matrix Switchers"]);
+    ).toEqual(["Matrix & Routing"]);
   });
 
   it("keeps representative products in their governed groups", () => {
@@ -136,7 +132,7 @@ describe("Product Call Cards strict filter boundaries", () => {
         sku: "AMP-260-DNT",
         name: "Network amplifier",
       }),
-    ).toContain("Audio");
+    ).toContain("Control & Audio");
 
     expect(
       classifyProductCallCard({
@@ -144,7 +140,7 @@ describe("Product Call Cards strict filter boundaries", () => {
         name: "8x8 HDBaseT matrix kit",
       }),
     ).toEqual(
-      expect.arrayContaining(["Extender Kits", "Matrix Switchers"]),
+      expect.arrayContaining(["Extenders & Distribution", "Matrix & Routing"]),
     );
 
     expect(
@@ -152,21 +148,21 @@ describe("Product Call Cards strict filter boundaries", () => {
         sku: "SP-0104-H2",
         name: "1x4 HDMI splitter",
       }),
-    ).toContain("DA / Splitters");
+    ).toContain("Extenders & Distribution");
 
     expect(
       classifyProductCallCard({
         sku: "SW-0401-H2",
         name: "Presentation switcher",
       }),
-    ).toContain("Presentation Switchers");
+    ).toContain("Presentation & UC");
 
     expect(
       classifyProductCallCard({
         sku: "APO-DG2",
         name: "Wireless casting dongle",
       }),
-    ).toEqual(["Wireless Casting"]);
+    ).toEqual(["Presentation & UC"]);
 
     expect(
       classifyProductCallCard({
@@ -174,7 +170,7 @@ describe("Product Call Cards strict filter boundaries", () => {
         name: "Video bar for conference rooms",
       }),
     ).toEqual(
-      expect.arrayContaining(["Unified Comms", "Wireless Casting"]),
+      expect.arrayContaining(["Presentation & UC"]),
     );
 
     expect(
@@ -182,20 +178,20 @@ describe("Product Call Cards strict filter boundaries", () => {
         sku: "NHD-0401-MV",
         name: "NetworkHD multiview processor",
       }),
-    ).toEqual(expect.arrayContaining(["AVoIP", "Video Wall"]));
+    ).toEqual(expect.arrayContaining(["AVoIP & Networked", "Video & Processing"]));
 
     expect(
       classifyProductCallCard({
         sku: "NHD-CTL-PRO-V2",
         name: "NetworkHD controller",
       }),
-    ).toEqual(expect.arrayContaining(["AVoIP", "Control"]));
+    ).toEqual(expect.arrayContaining(["AVoIP & Networked", "Control & Audio"]));
   });
 
-  it("keeps every AVoIP result inside the NHD family", () => {
+  it("keeps every AVoIP & Networked result inside the NHD family", () => {
     const avoipSkus = productIndex.products
       .filter((product) =>
-        classifyProductCallCard(product).includes("AVoIP"),
+        classifyProductCallCard(product).includes("AVoIP & Networked"),
       )
       .map((product) => product.sku);
 
@@ -210,51 +206,32 @@ describe("Product Call Cards strict filter boundaries", () => {
       const sku = String(product.sku || "").toUpperCase();
       const headings = classifyProductCallCard(product);
 
-      if (headings.includes("Audio")) {
-        expect(
-          /^AMP-/.test(sku) ||
-            /audio amplifier|network amplifier|dante amplifier|dsp amplifier|audio processor|audio converter|audio breakout|audio extractor|audio de-?embed(?:der|ding)?/i.test(
-              [
-                product.name,
-                product.title,
-                product.family,
-                product.category,
-                product.productType,
-                product.role,
-                product.productRole,
-              ]
-                .filter(Boolean)
-                .join(" "),
-            ),
-        ).toBe(true);
+      // Control & Audio should only contain audio or control products
+      if (headings.includes("Control & Audio")) {
+        const identityFields = [
+          product.name,
+          product.title,
+          product.family,
+          product.category,
+          product.productType,
+          product.role,
+          product.productRole,
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        const isAudioOrControl = /^AMP-|^SYN-|^NHD-(?:000-)?CTL|^NHD-TOUCH|^NHD-100$|^TS-280|^NETWORKHDTOUCH/.test(sku) ||
+            /audio amplifier|network amplifier|dante amplifier|dsp amplifier|audio processor|audio converter|audio breakout|audio extractor|audio de-?embed(?:der|ding)?|touch panel|touchpad controller|control interface|system-controller|companion control app|touchscreen|control app/i.test(
+              identityFields,
+            );
+        expect(isAudioOrControl, `Unexpected Control & Audio product: ${sku}`).toBe(true);
       }
 
-      if (headings.includes("Matrix Switchers")) {
+      // Matrix & Routing should only contain matrix products
+      if (headings.includes("Matrix & Routing")) {
         expect(
           /^(?:EXP-)?MX(?:V)?-/.test(sku) ||
             /matrix switcher|seamless matrix|fixed i\/o matrix|routing matrix/i.test(
-              [
-                product.name,
-                product.title,
-                product.family,
-                product.category,
-                product.productType,
-                product.role,
-                product.productRole,
-              ]
-                .filter(Boolean)
-                .join(" "),
-            ),
-        ).toBe(true);
-      }
-
-      if (headings.includes("Wireless Casting")) {
-        expect(
-          ["APO-VX20-UC-V2", "HALO-VX10-V2"].includes(sku) ||
-            ["APO-VX20-UC-V2", "HALO-VX10-V2"].includes(sku) ||
-            /^APO-DG/.test(sku) ||
-            (/-W$/.test(sku) && /^(?:EXP-)?(?:SW|MX|MXV)-/.test(sku)) ||
-            /wireless casting dongle|wireless presentation dongle|wireless presentation receiver|wireless casting receiver/i.test(
               [
                 product.name,
                 product.title,
@@ -283,7 +260,7 @@ describe("Product Call Cards current wireless products", () => {
         productType: "Video bar / UC switcher",
       }),
     ).toEqual(
-      expect.arrayContaining(["Unified Comms", "Wireless Casting"]),
+      expect.arrayContaining(["Presentation & UC"]),
     );
 
     expect(
@@ -293,7 +270,7 @@ describe("Product Call Cards current wireless products", () => {
         productType: "Video bar",
       }),
     ).toEqual(
-      expect.arrayContaining(["Unified Comms", "Wireless Casting"]),
+      expect.arrayContaining(["Presentation & UC"]),
     );
   });
 

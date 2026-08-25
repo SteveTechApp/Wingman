@@ -4,6 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const pagesDir = path.join(root, "src", "wingman2", "pages");
 const styleStackPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
+const routeOverridesPath = path.join(root, "src", "wingman2", "styles", "wingman-route-overrides.css");
 const layoutIndexPath = path.join(root, "src", "wingman2", "components", "layout", "index.ts");
 
 function fail(message) {
@@ -24,9 +25,11 @@ if (!fs.existsSync(layoutIndexPath)) {
 }
 
 const styleStack = fs.readFileSync(styleStackPath, "utf8");
+const routeOverrides = fs.existsSync(routeOverridesPath) ? fs.readFileSync(routeOverridesPath, "utf8") : "";
+const combinedCss = styleStack + routeOverrides;
 
-if (!styleStack.includes(".wingman-page-host") || !styleStack.includes(".wingman-section-card")) {
-  fail("Shared page frame/card rules are missing from wingman-style-stack.css.");
+if (!combinedCss.includes(".wingman-page-host") || !combinedCss.includes(".wingman-section-card")) {
+  fail("Shared page frame/card rules are missing from wingman style layers.");
 }
 
 const pageFiles = fs

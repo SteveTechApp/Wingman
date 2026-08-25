@@ -3,6 +3,7 @@ import {
   Bot,
   BookOpen,
   Boxes,
+  BarChart3,
   ClipboardList,
   FileText,
   FileUp,
@@ -17,6 +18,7 @@ import {
   Settings,
   Shield,
   Workflow,
+  Swords,
 } from "lucide-react";
 import routeManifest from "./route-manifest.json";
 
@@ -45,6 +47,9 @@ export type WingmanRouteKey =
   |  "support"
   | "profile"
   | "proposalVisuals"
+  | "battleCards"
+  | "quoteSafetyDashboard"
+  | "analyticsDashboard"
   | "terms";
 
 type RouteManifestEntry = {
@@ -85,8 +90,11 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   proposal: FileText,
   support: LifeBuoy,
   profile: Settings,
-  proposalVisuals: Workflow,
+  battleCards: Swords,
+  quoteSafetyDashboard: Shield,
+  analyticsDashboard: BarChart3,
   terms: Shield,
+  proposalVisuals: Workflow,
 };
 
 const manifest = routeManifest as RouteManifestEntry[];

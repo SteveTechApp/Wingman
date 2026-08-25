@@ -269,12 +269,18 @@ function buildPowerStrategyHtml(products: StoredProductSelection[]): string {
 
 export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
   const preparedBy = proposal.preparedBy || "";
-  const companyName = proposal.companyName || "WyreStorm Wingman";
+  const companyName = proposal.companyName || "WyreStorm";
   const contactLine = [proposal.contactEmail, proposal.contactPhone].filter(Boolean).join(" | ");
-  const footer = proposal.proposalFooter || "Prepared using WyreStorm Wingman.";
+  const footer = proposal.proposalFooter || "";
   const logoHtml = proposal.companyLogoDataUrl
-    ? `<img src="${escapeHtml(proposal.companyLogoDataUrl)}" alt="${escapeHtml(companyName)} logo" style="max-height:64px;max-width:220px;object-fit:contain;margin-bottom:16px;" />`
-    : "";
+    ? `<img src="${escapeHtml(proposal.companyLogoDataUrl)}" alt="${escapeHtml(companyName)} logo" style="max-height:64px;max-width:220px;object-fit:contain;" />`
+    : `<div class="wm-brand-logo">
+        <svg width="140" height="32" viewBox="0 0 140 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="4" width="24" height="24" rx="4" fill="#0ea5e9"/>
+          <path d="M6 16l4-6h4l-4 6 4 6h-4l-4-6z" fill="white"/>
+          <text x="32" y="22" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#0f172a">WyreStorm</text>
+        </svg>
+      </div>`;
   const visualBlocks = proposal.visualBlocks ?? [];
   const productFamilyScores = proposal.productFamilyScores ?? [];
   const leadingProductFamilyScore = productFamilyScores[0] ?? null;
@@ -296,34 +302,198 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   const risksAndDependencies = [...(proposal.governanceWarnings ?? []), ...(proposal.validationNotes ?? [])];
   const governedDependencies = proposal.governedDependencies ?? [];
 
+  const currentDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const proposalRef = `WYR-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+
   return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${escapeHtml(proposal.title)} | WyreStorm Wingman Proposal</title>
+  <title>${escapeHtml(proposal.title)} | WyreStorm Proposal</title>
   <style>
-    body { font-family: Arial, sans-serif; color: var(--wm-sweep-text) !important; margin: 40px; line-height: 1.55; }
-    h1 { font-size: 34px; margin: 0 0 8px; }
-    h2 { font-size: 20px; margin-top: 32px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; }
-    h3 { font-size: 15px; margin-top: 18px; }
-    p { max-width: 820px; }
+    :root {
+      --wyrestorm-primary: #0ea5e9;
+      --wyrestorm-primary-dark: #0284c7;
+      --wyrestorm-secondary: #0f172a;
+      --wyrestorm-accent: #06b6d4;
+      --wyrestorm-text: #1e293b;
+      --wyrestorm-text-muted: #64748b;
+      --wyrestorm-border: #e2e8f0;
+      --wyrestorm-bg: #ffffff;
+      --wyrestorm-card-bg: #f8fafc;
+      --wyrestorm-success: #10b981;
+      --wyrestorm-warning: #f59e0b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; 
+      color: var(--wyrestorm-text); 
+      line-height: 1.6; 
+      background: var(--wyrestorm-bg);
+    }
+    .wm-proposal-container { max-width: 900px; margin: 0 auto; padding: 40px; }
+    
+    /* Header */
+    .wm-proposal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 24px;
+      border-bottom: 3px solid var(--wyrestorm-primary);
+      margin-bottom: 32px;
+    }
+    .wm-brand-logo { display: flex; align-items: center; }
+    .wm-proposal-meta {
+      text-align: right;
+      font-size: 12px;
+      color: var(--wyrestorm-text-muted);
+    }
+    .wm-proposal-meta strong { display: block; color: var(--wyrestorm-text); }
+    
+    /* Title section */
+    .wm-proposal-title-section { margin-bottom: 32px; }
+    h1 { 
+      font-size: 28px; 
+      font-weight: 700; 
+      color: var(--wyrestorm-secondary); 
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    .wm-proposal-subtitle {
+      font-size: 14px;
+      color: var(--wyrestorm-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Section headings */
+    h2 { 
+      font-size: 18px; 
+      font-weight: 700;
+      color: var(--wyrestorm-secondary);
+      margin-top: 36px; 
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--wyrestorm-border);
+    }
+    h3 { 
+      font-size: 14px; 
+      font-weight: 600;
+      color: var(--wyrestorm-text);
+      margin-top: 20px; 
+      margin-bottom: 8px;
+    }
+    p { max-width: 820px; margin-bottom: 12px; }
+    
+    /* Tables */
     table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
-    th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; vertical-align: top; }
-    th { background: var(--wm-sweep-card) !important; }
-    .meta { color: #475569; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
-    .notice { background: #fff7ed; border: 1px solid #fed7aa; padding: 12px; margin-top: 18px; }
+    th, td { border: 1px solid var(--wyrestorm-border); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { 
+      background: var(--wyrestorm-secondary) !important; 
+      color: white !important;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    tr:nth-child(even) { background: var(--wyrestorm-card-bg); }
+    
+    /* Meta and labels */
+    .meta { color: var(--wyrestorm-text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .label { font-weight: 600; color: var(--wyrestorm-secondary); }
+    
+    /* Notice boxes */
+    .notice { 
+      background: #fef3c7; 
+      border: 1px solid #fcd34d; 
+      border-left: 4px solid var(--wyrestorm-warning);
+      padding: 16px; 
+      margin-top: 24px; 
+      border-radius: 4px;
+    }
+    .notice-success { 
+      background: #d1fae5; 
+      border: 1px solid #6ee7b7; 
+      border-left: 4px solid var(--wyrestorm-success);
+    }
+    
+    /* Disclaimer */
+    .wm-disclaimer {
+      background: var(--wyrestorm-card-bg);
+      border: 1px solid var(--wyrestorm-border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 40px;
+      margin-bottom: 24px;
+    }
+    .wm-disclaimer h2 {
+      font-size: 14px;
+      color: var(--wyrestorm-text-muted);
+      border-bottom: none;
+      margin-bottom: 12px;
+      margin-top: 0;
+    }
+    .wm-disclaimer p {
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--wyrestorm-text-muted);
+      max-width: 100%;
+    }
+    
+    /* Footer */
+    .wm-proposal-footer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 2px solid var(--wyrestorm-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .wm-footer-brand {
+      font-size: 11px;
+      color: var(--wyrestorm-text-muted);
+    }
+    .wm-footer-contact {
+      font-size: 11px;
+      color: var(--wyrestorm-text-muted);
+      text-align: right;
+    }
+    
+    /* Visual grid */
     .visual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
-    .visual-card { border: 1px solid #cbd5e1; padding: 12px; background: var(--wm-sweep-card) !important; }
+    .visual-card { border: 1px solid var(--wyrestorm-border); padding: 12px; background: var(--wyrestorm-card-bg) !important; border-radius: 6px; }
     .visual-card strong, .visual-card span { display: block; }
-    .visual-card span { margin-top: 8px; color: #0369a1; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .visual-card span { margin-top: 8px; color: var(--wyrestorm-primary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    
+    /* Print styles */
+    @media print {
+      body { font-size: 11pt; }
+      .wm-proposal-container { padding: 20px; }
+      h1 { font-size: 24pt; }
+      h2 { font-size: 14pt; }
+      table { font-size: 10pt; }
+    }
   </style>
 </head>
 <body>
-  ${logoHtml}
-  <p class="meta">${escapeHtml(companyName)} proposal draft${preparedBy ? ` | Prepared by ${escapeHtml(preparedBy)}` : ""}</p>
-  <h1>${escapeHtml(proposal.title)}</h1>
-  ${contactLine ? `<p class="meta">${escapeHtml(contactLine)}</p>` : ""}
+  <div class="wm-proposal-container">
+    <div class="wm-proposal-header">
+      <div class="wm-brand-logo">${logoHtml}</div>
+      <div class="wm-proposal-meta">
+        <strong>Proposal Reference: ${proposalRef}</strong>
+        <div>Date: ${currentDate}</div>
+        ${preparedBy ? `<div>Prepared by: ${escapeHtml(preparedBy)}</div>` : ""}
+        <div>Document: Draft Proposal</div>
+      </div>
+    </div>
+
+    <div class="wm-proposal-title-section">
+      <h1>${escapeHtml(proposal.title)}</h1>
+      <div class="wm-proposal-subtitle">${escapeHtml(companyName)} | Technical Proposal</div>
+    </div>
+
+    ${contactLine ? `<p class="meta">${escapeHtml(contactLine)}</p>` : ""}
 
   <h2>Executive Summary</h2>
   <p>${escapeHtml(proposal.summary)}</p>
@@ -417,9 +587,35 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <h2>Implementation and Next Steps</h2>
   <ul>${proposal.repGuidance?.length ? proposal.repGuidance.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>Confirm discovery assumptions and validate the final design before issue.</li>"}</ul>
 
-  <div class="notice">${escapeHtml(readinessNotice)}</div>
+  <div class="notice ${hasCoreProducts ? 'notice-success' : ''}">${escapeHtml(readinessNotice)}</div>
   <div class="notice">Competitor products are excluded from this proposal and equipment schedule unless a comparison-only output is explicitly requested.</div>
-  <p class="meta">${escapeHtml(footer)}</p>
+
+  <section class="wm-disclaimer" data-wingman-best-efforts-disclaimer="true">
+    <h2>Important Notice & Best-Efforts Disclaimer</h2>
+    <p>This proposal has been prepared on a best-efforts basis using WyreStorm Wingman to support your sales and design process. The information contained herein is provided for planning purposes only and does not constitute a binding quotation, order confirmation, or statement of capability.</p>
+    <p><strong>Product Specifications:</strong> All product specifications, features, compatibility information, lifecycle status, regional availability, pricing, and lead times are indicative and must be independently verified against the current official WyreStorm documentation, datasheets, or by contacting the WyreStorm order desk before this document is used for any commercial purpose.</p>
+    <p><strong>Third-Party Products:</strong> References to competitor or third-party products are approximate and provided solely for comparative context. WyreStorm makes no claims regarding the accuracy of third-party specifications.</p>
+    <p><strong>Technical Validation:</strong> System designs, power budgets, cable schedules, and equipment selections shown in this proposal are based on available product data and assumptions stated within. Final designs must be validated by a qualified AV integrator or pre-sales engineer before installation.</p>
+    <p><strong>Limitation of Liability:</strong> WyreStorm Technologies Ltd provides this document "as is" without warranty of any kind, either expressed or implied. WyreStorm shall not be liable for any errors, omissions, or damages arising from the use of or reliance on the information contained in this document.</p>
+    <p style="margin-top: 12px; font-style: italic;">For the most current product information, please visit <strong>wyrestorm.com</strong> or contact your regional WyreStorm sales representative.</p>
+  </section>
+
+  <div class="wm-proposal-footer">
+    <div class="wm-footer-brand">
+      <svg width="100" height="24" viewBox="0 0 100 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="2" width="18" height="18" rx="3" fill="#0ea5e9"/>
+        <path d="M4.5 12l3-4.5h3l-3 4.5 3 4.5h-3l-3-4.5z" fill="white"/>
+        <text x="24" y="16" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#0f172a">WyreStorm</text>
+      </svg>
+      <p style="font-size: 10px; color: #94a3b8; margin-top: 4px;">Professional AV Solutions</p>
+    </div>
+    <div class="wm-footer-contact">
+      ${contactLine ? `<p>${escapeHtml(contactLine)}</p>` : ""}
+      <p>wyrestorm.com</p>
+      <p style="font-size: 10px; color: #94a3b8; margin-top: 4px;">${escapeHtml(footer || 'Prepared using WyreStorm Wingman')}</p>
+    </div>
+  </div>
+
   <section data-wingman-proposal-safety-sections="true">
     <h2>Confirmed Requirement</h2>
     <p>${escapeHtml(proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
@@ -467,10 +663,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
     }</ul>
   </section>
 
-  <section class="notice" data-wingman-best-efforts-disclaimer="true">
-    <h2>Best-efforts disclaimer</h2>
-    <p>This document has been prepared on a best-efforts basis to support your sales and design process. Product specifications, compatibility, lifecycle status, regional availability, pricing and lead times must be verified against the current WyreStorm documentation, datasheet or order desk before this document is used as a quotation, order or statement of capability. Competitor information is approximate and provided only to start a comparison conversation. Wingman provides no warranty and accepts no liability for any errors, omissions or reliance on the content of this document.</p>
-  </section>
+  </div><!-- .wm-proposal-container -->
 </body>
 </html>`;
 }
