@@ -33,7 +33,7 @@ function displayPath(...segments) {
 
 const manifest = JSON.parse(read("src/wingman2/app/route-manifest.json") || "[]");
 const appShell = read("src/wingman2/layout/AppShell.tsx");
-const css = read("src/wingman2/styles/wingman-style-stack.css");
+const css = read("src/wingman2/styles/wingman-style-stack.css") + read("src/wingman2/styles/wingman-route-overrides.css");
 
 for (const marker of [
   'data-wingman-page-header="true"',

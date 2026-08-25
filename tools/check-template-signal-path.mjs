@@ -170,7 +170,176 @@ if (failures.length) {
   process.exit(1);
 }
 
+// ── Guard 2: Orphaned display endpoints (receivers with no source endpoints) ──
+// If a template has display endpoints (NHD-*-RX, RX*, RX3*) it must also have
+// source endpoints (NHD-*-TX, TX*, SW-*TX) or be a transceiver-only design.
+const displayEndpointPattern = /^RX3?-|^NHD-\d+-RX$/i;
+const sourceEndpointPattern = /^.*TX(-|$)|^NHD-\d+-TX|SW-\d+-TX/i;
+const transceiverPattern = /TRX$/i;
+// Hybrid matrices with HDBaseT outputs can drive receivers directly
+const hybridMatrixPattern = /^MX-\d+-HYB$/i;
+
+const orphanFailures = [];
+for (const template of templates) {
+  const body = lines.slice(template.start, template.end).join("\n");
+  const skus = [...new Set([...body.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))]
+    .filter((sku) => !sku.startsWith("BY-OTHERS"));
+
+  const displayEndpoints = skus.filter((sku) => displayEndpointPattern.test(sku));
+  if (displayEndpoints.length === 0) continue;
+
+  const sourceEndpoints = skus.filter((sku) => sourceEndpointPattern.test(sku));
+  const transceivers = skus.filter((sku) => transceiverPattern.test(sku));
+  const hybridMatrices = skus.filter((sku) => hybridMatrixPattern.test(sku));
+
+  // If there are transceivers (NHD-600-TRX), they serve as both source and display
+  if (transceivers.length > 0) continue;
+
+  // If there are hybrid matrices with HDBaseT outputs, they can drive receivers
+  if (hybridMatrices.length > 0) continue;
+
+  if (sourceEndpoints.length === 0) {
+    orphanFailures.push(
+      `"${template.name}" has display endpoint(s) ${displayEndpoints.join(", ")} ` +
+      `but no source endpoint. Every display needs a source to show content. ` +
+      `Template SKUs: ${skus.join(", ")}.`
+    );
+  }
+}
+
+if (orphanFailures.length) {
+  console.error("\n[template-signal-path] Orphaned display endpoint check failed:");
+  for (const entry of orphanFailures) console.error(`  - ${entry}`);
+  console.error(
+    "\nA room template with display endpoints (receivers/decoders) must also have source " +
+    "endpoints (transmitters/encoders) to feed them content."
+  );
+  process.exit(1);
+}
+
+// ── Guard 3: NetworkHD templates must include a controller ──
+// Any template using NHD-*-TX, NHD-*-RX, or NHD-*-TRX endpoints must include
+// NHD-CTL-PRO-V2 (or a BY-OTHERS controller placeholder).
+const nhdEndpointPattern = /^NHD-\d+-(TX|RX|TRX|IW-TX)/i;
+const controllerPattern = /CTL-PRO|BY-OTHERS.*control/i;
+
+const controllerFailures = [];
+for (const template of templates) {
+  const body = lines.slice(template.start, template.end).join("\n");
+  const skus = [...new Set([...body.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))];
+
+  const nhdEndpoints = skus.filter((sku) => nhdEndpointPattern.test(sku));
+  if (nhdEndpoints.length === 0) continue;
+
+  const hasController = skus.some((sku) => controllerPattern.test(sku));
+  if (!hasController) {
+    controllerFailures.push(
+      `"${template.name}" has NetworkHD endpoints (${nhdEndpoints.slice(0, 3).join(", ")}${nhdEndpoints.length > 3 ? "..." : ""}) ` +
+      `but no NHD-CTL-PRO-V2 controller or BY-OTHERS control placeholder. ` +
+      `NetworkHD systems require a controller for routing and presets.`
+    );
+  }
+}
+
+if (controllerFailures.length) {
+  console.error("\n[template-signal-path] NetworkHD controller check failed:");
+  for (const entry of controllerFailures) console.error(`  - ${entry}`);
+  console.error(
+    "\nEvery NetworkHD template must include NHD-CTL-PRO-V2 or a BY-OTHERS control " +
+    "placeholder row, because NetworkHD systems require a controller for routing."
+  );
+  process.exit(1);
+}
+
+// ── Guard 4: Source/display ratio warning ──
+// If a template has significantly more display endpoints than source endpoints
+// and no multiview processor, the design may starve displays of unique content.
+// This is a WARNING, not a hard failure — many legitimate designs (signage,
+// overflow, retail) intentionally show the same source on multiple displays.
+const multiviewPattern = /NHD-150-RX|NHD-0401-MV/i;
+const ratioWarnings = [];
+
+for (const template of templates) {
+  const body = lines.slice(template.start, template.end).join("\n");
+
+  // Extract SKU+qty pairs (not deduplicated) to count total endpoint quantities
+  const bomRows = [...body.matchAll(/sku: "([A-Z0-9-]+)"[\s\S]*?qty: (\d+)/g)].map((m) => ({
+    sku: m[1],
+    qty: parseInt(m[2], 10),
+  })).filter((row) => !row.sku.startsWith("BY-OTHERS"));
+
+  // Skip transceiver-only designs (NHD-600-TRX) — each TRX serves dual roles
+  if (bomRows.some((row) => transceiverPattern.test(row.sku))) continue;
+
+  const totalDisplays = bomRows
+    .filter((row) => displayEndpointPattern.test(row.sku) && !multiviewPattern.test(row.sku))
+    .reduce((sum, row) => sum + row.qty, 0);
+  if (totalDisplays === 0) continue;
+
+  const totalSources = bomRows
+    .filter((row) => sourceEndpointPattern.test(row.sku))
+    .reduce((sum, row) => sum + row.qty, 0);
+
+  const hasMultiview = bomRows.some((row) => multiviewPattern.test(row.sku));
+
+  const ratio = totalSources > 0 ? totalDisplays / totalSources : totalDisplays;
+
+  if (ratio > 2 && !hasMultiview) {
+    ratioWarnings.push(
+      `"${template.name}" has ${totalDisplays} display endpoint(s) but only ${totalSources} source endpoint(s)` +
+      ` (${ratio.toFixed(1)}:1 ratio) with no multiview processor. ` +
+      `Most displays will show the same content. If this is intentional (signage/overflow), ` +
+      `add a comment in the template's assumptions array.`
+    );
+  }
+}
+
+if (ratioWarnings.length) {
+  console.log(`\n[template-signal-path] ${ratioWarnings.length} source/display ratio warning(s):`);
+  for (const entry of ratioWarnings) console.log(`  ⚠ ${entry}`);
+}
+
+// ── Guard 5: SKUs missing from governed profiles and product catalogue ──
+// Every WyreStorm SKU in a template BOM must exist in either the governed
+// technical profiles or the product catalogue. A SKU absent from both is a
+// phantom — it will resolve to nothing at recommendation time, silently
+// downgrade the template to placeholder-quality output, or surface an
+// incorrect product in the exported proposal. Accessories and BY-OTHERS rows
+// are exempt.
+const phantomFailures = [];
+for (const template of templates) {
+  const body = lines.slice(template.start, template.end).join("\n");
+  const skus = [...new Set([...body.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))]
+    .filter((sku) => !sku.startsWith("BY-OTHERS") && !sku.startsWith("CAB-"));
+
+  const missingSkus = [];
+  for (const sku of skus) {
+    const inProfile = profiles.has(sku);
+    const inCatalogue = products.has(sku);
+    if (!inProfile && !inCatalogue) missingSkus.push(sku);
+  }
+
+  if (missingSkus.length > 0) {
+    phantomFailures.push(
+      `"${template.name}" references SKU(s) not found in governed profiles or product catalogue: ` +
+      `${missingSkus.join(", ")}. These are phantom entries — they resolve to nothing at ` +
+      `recommendation time. Replace with the correct current SKU or remove the row.`
+    );
+  }
+}
+
+if (phantomFailures.length) {
+  console.error("\n[template-signal-path] Phantom SKU check failed:");
+  for (const entry of phantomFailures) console.error(`  - ${entry}`);
+  console.error(
+    "\nEvery WyreStorm SKU in a template BOM must exist in the governed technical profiles or " +
+    "the product catalogue. SKUs absent from both will silently produce incorrect proposals."
+  );
+  process.exit(1);
+}
+
 console.log(
-  `[template-signal-path] Verified HDBaseT signal paths across ${templates.length} room templates` +
-    `${known.length ? ` (${known.length} known incomplete, tracked above)` : ""}.`,
+  `[template-signal-path] Verified HDBaseT signal paths, orphaned displays, controller presence, source/display ratios, and SKU catalogue coverage across ${templates.length} room templates` +
+    `${known.length ? ` (${known.length} known incomplete, tracked above)` : ""}` +
+    `${ratioWarnings.length ? ` (${ratioWarnings.length} ratio warnings)` : ""}.`,
 );

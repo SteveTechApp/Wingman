@@ -15,6 +15,10 @@ const cssPath = resolve(
   root,
   "src/wingman2/styles/wingman-style-stack.css",
 );
+const cssOverridesPath = resolve(
+  root,
+  "src/wingman2/styles/wingman-route-overrides.css",
+);
 
 const failures = [];
 
@@ -29,7 +33,7 @@ function readRequired(filePath, label) {
 
 const proposal = readRequired(proposalPath, "Proposal Visuals page");
 const canvas = readRequired(canvasPath, "native Visual Studio canvas");
-const css = readRequired(cssPath, "Wingman style stack");
+const css = readRequired(cssPath, "Wingman style stack") + readRequired(cssOverridesPath, "Wingman route overrides");
 
 const requiredProposalMarkers = [
   'data-wingman-proposal-visuals="true"',

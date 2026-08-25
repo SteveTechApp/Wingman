@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { AlertTriangle, Check, Cloud, Copy, LayoutTemplate, RotateCcw, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { FeedbackConsolidationPanel } from "../components/FeedbackConsolidationPanel";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
+import { useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
+import { createProjectFromTemplate } from "../lib/projectFromTemplate";
 
 const PROJECTS_PILL_BUTTON_CLASS =
   "rounded-lg border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-bold text-[#edf6ff] transition";
@@ -45,6 +47,7 @@ function compareConfidenceVariant(confidence: string): StatusChipVariant {
 }
 
 export function ProjectsPage() {
+  const navigate = useNavigate();
   const {
     projects,
     proposalDrafts,
@@ -56,10 +59,12 @@ export function ProjectsPage() {
     deleteProposalDraft,
     resetStore,
   } = useProjectStore();
+  const customTemplates = useCustomRoomTemplates();
 
   const [confirmDeleteProjectId, setConfirmDeleteProjectId] = useState<string | null>(null);
   const [confirmDeleteDraftId, setConfirmDeleteDraftId] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
 
   function handleDeleteProjectClick(projectId: string) {
     if (confirmDeleteProjectId === projectId) {
@@ -104,8 +109,63 @@ export function ProjectsPage() {
           <Link to={routeCatalogByKey.proposal.path} className="wm-ui-button wm-ui-button-secondary">
             Open proposal
           </Link>
+          <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setTemplatePickerOpen(true)}>
+            <LayoutTemplate className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
+            From template
+          </button>
         </div>
       </div>
+
+      {templatePickerOpen && (
+        <div className="wm-template-picker-backdrop" role="presentation" onClick={() => setTemplatePickerOpen(false)}>
+          <section className="wm-template-picker-dialog wm-ui-card" role="dialog" aria-modal="true" aria-labelledby="template-picker-title" onClick={(e) => e.stopPropagation()}>
+            <header className="flex items-center justify-between mb-4">
+              <div>
+                <p className="wm-ui-kicker">Create from template</p>
+                <h2 id="template-picker-title" className="wm-ui-title text-lg font-black">Choose a room template</h2>
+                <p className="text-xs opacity-60">Select a template to pre-fill discovery answers and product selections in a new project.</p>
+              </div>
+              <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setTemplatePickerOpen(false)} aria-label="Close">
+                ×
+              </button>
+            </header>
+
+            {customTemplates.length === 0 ? (
+              <p className="text-sm opacity-60 py-4 text-center">No custom templates saved yet. Save a project as a template first.</p>
+            ) : (
+              <div className="grid gap-2 max-h-80 overflow-y-auto">
+                {customTemplates.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    className="wm-template-picker-item text-left rounded-xl border border-[#29465e] bg-[#0d2133] p-3 transition hover:border-cyan-400/40"
+                    onClick={() => {
+                      const projectId = createProjectFromTemplate(template);
+                      setTemplatePickerOpen(false);
+                      navigate(`${routeCatalogByKey.projects.path}/${projectId}`);
+                    }}
+                  >
+                    <p className="font-bold text-sm">{template.name}</p>
+                    <p className="text-xs opacity-60 mt-0.5">
+                      {template.vertical} · {template.application}
+                      {template.bom?.length ? ` · ${template.bom.length} products` : ""}
+                    </p>
+                    {template.summary && (
+                      <p className="text-xs opacity-40 mt-1 line-clamp-2">{template.summary}</p>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-4 flex justify-end">
+              <Link to={routeCatalogByKey.templates.path} className="text-xs text-cyan-400 hover:underline">
+                Manage templates →
+              </Link>
+            </div>
+          </section>
+        </div>
+      )}
 
       <div className="wm-projects-sections">
         <SectionCard
@@ -169,9 +229,9 @@ export function ProjectsPage() {
                     const compareConfidence = latestCompareConfidence(project);
                     return (
                     <tr key={project.id} className="border-t wm-ui-card">
-                      <td className="px-4 py-3 font-semibold text-[#edf6ff]">{project.name}</td>
-                      <td className="px-4 py-3 text-[#edf6ff]">{project.owner}</td>
-                      <td className="px-4 py-3 text-[#edf6ff]">
+                      <td className="px-4 py-3 font-semibold text-[#edf6ff]" data-label="Project">{project.name}</td>
+                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Owner">{project.owner}</td>
+                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Stage">
                         <div className="flex flex-col items-start gap-1">
                           <span>{project.stage}</span>
                           {compareConfidence ? (
@@ -184,14 +244,14 @@ export function ProjectsPage() {
                           ) : null}
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" data-label="Status">
                         <StatusChip
                           label={projectStatusLabel(project.status)}
                           variant={project.status}
                         />
                       </td>
-                      <td className="px-4 py-3 text-[#edf6ff]">{project.updated}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Updated">{project.updated}</td>
+                      <td className="px-4 py-3" data-label="Actions">
                         <div className="wm-project-row-actions">
                           <Link
                             to={`${routeCatalogByKey.projects.path}/${project.id}`}

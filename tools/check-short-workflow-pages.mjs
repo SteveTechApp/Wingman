@@ -8,7 +8,7 @@ const files = {
   guruDrawer: path.join(repoRoot, "src", "wingman2", "components", "WingmanGuruDrawer.tsx"),
   callInterpreter: path.join(repoRoot, "src", "wingman2", "components", "GuruCallNotesInterpreter.tsx"),
   discovery: path.join(repoRoot, "src", "wingman2", "pages", "DiscoveryPage.tsx"),
-  css: path.join(repoRoot, "src", "wingman2", "styles", "wingman-style-stack.css"),
+  css: path.join(repoRoot, "src", "wingman2", "styles", "wingman-route-overrides.css"),
   packageJson: path.join(repoRoot, "package.json"),
 };
 
@@ -71,7 +71,7 @@ const packageJson = JSON.parse(read(files.packageJson) || "{}");
   ".wm-guided-support-details",
   ".wingman-guru-call-interpreter",
   "WINGMAN SHORT WORKFLOW PAGES END",
-].forEach((marker) => requireMarker("wingman-style-stack.css", css, marker));
+].forEach((marker) => requireMarker("wingman-route-overrides.css", css, marker));
 
 const activeImports = css
   .split(/\r?\n/)
@@ -79,7 +79,7 @@ const activeImports = css
   .filter((line) => line.startsWith("@import"));
 
 if (activeImports.length) {
-  errors.push("wingman-style-stack.css must not contain active @import lines.");
+  errors.push("wingman-route-overrides.css must not contain active @import lines.");
 }
 
 if (!packageJson.scripts?.["check:short-workflow-pages"]) {

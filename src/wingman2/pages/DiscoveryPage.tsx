@@ -51,6 +51,7 @@ import { DiscoveryQuickStartEntry } from "./discovery/discoveryQuickStartPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
+import { DiscoveryProgressiveDisclosure, applySmartDefaults, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import {
   getDiscoverySpeechRecognition,
   type DiscoverySpeechRecognitionEventLike,
@@ -219,6 +220,8 @@ export function DiscoveryPage() {
   const [siteName, setSiteName] = useState(() => draftField("siteName"));
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
+  // Progressive disclosure mode: quick (3 questions) or standard (all questions)
+  const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("standard");
   const navigate = useNavigate();
   const existingDiscoveryPortalTarget =
     typeof document !== "undefined"
@@ -642,6 +645,15 @@ export function DiscoveryPage() {
 
   function moveNext(): void {
     setActiveIndex((index) => Math.min(discoveryQuestions.length - 1, index + 1));
+  }
+
+  // Apply smart defaults based on application type
+  function handleApplySmartDefaults(): void {
+    const applicationType = wmDiscoveryAnswerToText(answers.opportunity);
+    if (applicationType) {
+      const updatedAnswers = applySmartDefaults(answers, applicationType);
+      setAnswers(updatedAnswers);
+    }
   }
 
   function handleSelectAnswer(value: string): void {
@@ -1406,6 +1418,22 @@ return (
           onSave={saveDiscoveryToProject}
         />
       ) : (
+      <>
+      {/* Progressive disclosure: mode toggle and smart defaults */}
+      {!isReviewingAnswers && !editQuestionId && answeredCount === 0 && (
+        <DiscoveryProgressiveDisclosure
+          questions={discoveryQuestions}
+          activeIndex={activeIndex}
+          answers={answers}
+          onAnswersChange={setAnswers}
+          onActiveIndexChange={setActiveIndex}
+          mode={progressiveMode}
+          onModeChange={setProgressiveMode}
+          isReviewingAnswers={isReviewingAnswers}
+          showModeToggle={answeredCount < 3}
+        />
+      )}
+
       <div className="wm-discovery-question-layout">
         <section
           className="wm-discovery-question-card wm-ui-section wm-ui-card"
@@ -1569,6 +1597,7 @@ return (
           )}
         </aside>
       </div>
+      </>
       )}
 
       {discoveryMode !== "standard" ? (

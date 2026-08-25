@@ -33,7 +33,7 @@ function loadImage(file: File): Promise<HTMLImageElement> {
   });
 }
 
-async function downscaleImageToBase64(file: File): Promise<{ base64Data: string; mimeType: string }> {
+export async function downscaleImageToBase64(file: File): Promise<{ base64Data: string; mimeType: string }> {
   const image = await loadImage(file);
   const scale = Math.min(1, MAX_DIMENSION / Math.max(image.width, image.height));
   const width = Math.max(1, Math.round(image.width * scale));

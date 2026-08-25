@@ -171,6 +171,15 @@
     "summary": "SKU-specific product facts, use cases and customer wording."
   },
   {
+    "key": "battleCards",
+    "path": "/wingman/battle-cards",
+    "segment": "battle-cards",
+    "label": "Battle Cards",
+    "navLabel": "Battle Cards",
+    "pageFile": "BattleCardsPage.tsx",
+    "summary": "Competitor equivalents, differentiators and objection handling."
+  },
+  {
     "key": "ingest",
     "path": "/wingman/ingest",
     "segment": "ingest",
@@ -223,5 +232,23 @@
     "navLabel": "Terms & Legal",
     "pageFile": "TermsPage.tsx",
     "summary": "Terms and legal disclaimer covering best-efforts guidance, verification responsibility and limitation of liability."
+  },
+  {
+    "key": "quoteSafetyDashboard",
+    "path": "/wingman/quote-safety",
+    "segment": "quote-safety",
+    "label": "Quote Safety",
+    "navLabel": "Quote Safety",
+    "pageFile": "QuoteSafetyDashboardPage.tsx",
+    "summary": "Portfolio view of all projects with blocker counts, staleness and readiness to quote."
+  },
+  {
+    "key": "analyticsDashboard",
+    "path": "/wingman/analytics",
+    "segment": "analytics",
+    "label": "Analytics",
+    "navLabel": "Analytics",
+    "pageFile": "AnalyticsDashboardPage.tsx",
+    "summary": "Feature usage patterns, product quote frequency, and win rates from your projects."
   }
 ]

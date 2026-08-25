@@ -52,7 +52,7 @@ html,
 body,
 #root {
   min-height: 100%;
-  background: var(--wm-ref-bg) !important;
+  background: var(--wm-ref-bg);
 }
 
 body {
@@ -60,7 +60,7 @@ body {
   background:
     radial-gradient(70rem 22rem at 68% 0%, rgba(26, 163, 212, 0.16), transparent 64%),
     radial-gradient(44rem 28rem at 82% 18%, rgba(24, 217, 194, 0.1), transparent 62%),
-    linear-gradient(135deg, #020713 0%, #04101e 48%, #061426 100%) !important;
+    linear-gradient(135deg, #020713 0%, #04101e 48%, #061426 100%);
 }
 
 /* --------------------------------------------------------------------------
@@ -69,14 +69,14 @@ body {
 
 .wingman-shell,
 .wingman-authority-shell {
-  position: relative !important;
-  display: flex !important;
-  width: 100% !important;
-  max-width: none !important;
-  min-height: 100vh !important;
-  overflow: hidden !important;
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  overflow: hidden;
   isolation: isolate;
-  background: transparent !important;
+  background: transparent;
 }
 
 .wingman-shell::before,
@@ -108,135 +108,135 @@ body {
 .wingman-shell > .wingman-sidebar,
 .wingman-authority-shell > .wingman-sidebar,
 .wingman-sidebar {
-  position: relative !important;
-  top: auto !important;
-  z-index: 90 !important;
-  flex: 0 0 var(--wm-ref-sidebar-width) !important;
-  width: var(--wm-ref-sidebar-width) !important;
-  min-width: var(--wm-ref-sidebar-width) !important;
-  max-width: var(--wm-ref-sidebar-width) !important;
-  height: 100vh !important;
-  padding: 24px 16px 18px !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  background: linear-gradient(180deg, rgba(2, 9, 20, 0.99), rgba(2, 8, 18, 0.97)) !important;
-  border: 0 !important;
-  border-right: 1px solid rgba(115, 178, 214, 0.2) !important;
+  position: relative;
+  top: auto;
+  z-index: 90;
+  flex: 0 0 var(--wm-ref-sidebar-width);
+  width: var(--wm-ref-sidebar-width);
+  min-width: var(--wm-ref-sidebar-width);
+  max-width: var(--wm-ref-sidebar-width);
+  height: 100vh;
+  padding: 24px 16px 18px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(2, 9, 20, 0.99), rgba(2, 8, 18, 0.97));
+  border: 0;
+  border-right: 1px solid rgba(115, 178, 214, 0.2);
   box-shadow: 16px 0 40px rgba(0, 0, 0, 0.12);
 }
 
 .wingman-brand {
-  display: flex !important;
-  min-height: 66px !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  margin: 0 8px 20px !important;
-  padding: 0 !important;
+  display: flex;
+  min-height: 66px;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 8px 20px;
+  padding: 0;
 }
 
 .wingman-brand-image {
-  width: 168px !important;
-  height: auto !important;
-  max-height: 60px !important;
-  object-fit: contain !important;
-  object-position: left center !important;
+  width: 168px;
+  height: auto;
+  max-height: 60px;
+  object-fit: contain;
+  object-position: left center;
 }
 
 .wingman-nav {
-  display: grid !important;
-  gap: 7px !important;
+  display: grid;
+  gap: 7px;
 }
 
 .wingman-nav-link {
   position: relative;
-  display: flex !important;
-  min-height: 44px !important;
-  align-items: center !important;
-  gap: 12px !important;
-  padding: 10px 13px !important;
-  color: #c9d5e2 !important;
-  font-size: 0.93rem !important;
-  font-weight: 620 !important;
-  text-decoration: none !important;
-  background: transparent !important;
-  border: 1px solid transparent !important;
-  border-radius: 10px !important;
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 13px;
+  color: #c9d5e2;
+  font-size: 0.93rem;
+  font-weight: 620;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
   transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
 .wingman-nav-link:hover {
-  color: var(--wm-ref-text) !important;
-  background: rgba(20, 57, 78, 0.52) !important;
-  border-color: rgba(69, 178, 199, 0.22) !important;
+  color: var(--wm-ref-text);
+  background: rgba(20, 57, 78, 0.52);
+  border-color: rgba(69, 178, 199, 0.22);
   transform: translateX(2px);
 }
 
 .wingman-nav-link-active,
 .wingman-nav-link[aria-current="page"] {
-  color: var(--wm-ref-text) !important;
-  background: linear-gradient(90deg, rgba(15, 74, 89, 0.74), rgba(10, 35, 52, 0.86)) !important;
-  border-color: rgba(34, 202, 190, 0.24) !important;
+  color: var(--wm-ref-text);
+  background: linear-gradient(90deg, rgba(15, 74, 89, 0.74), rgba(10, 35, 52, 0.86));
+  border-color: rgba(34, 202, 190, 0.24);
   box-shadow: inset 3px 0 0 var(--wm-ref-aqua);
 }
 
 .wingman-nav-icon {
-  width: 19px !important;
-  height: 19px !important;
+  width: 19px;
+  height: 19px;
   flex: 0 0 auto;
-  color: #d8e6f2 !important;
+  color: #d8e6f2;
   stroke-width: 1.8;
 }
 
 .wingman-nav-link-active .wingman-nav-icon,
 .wingman-nav-link[aria-current="page"] .wingman-nav-icon {
-  color: var(--wm-ref-aqua) !important;
+  color: var(--wm-ref-aqua);
 }
 
 .wingman-nav-tooltip {
-  display: none !important;
+  display: none;
 }
 
 .wingman-workspace {
-  display: grid !important;
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  height: 100vh !important;
-  grid-template-rows: auto minmax(0, 1fr) !important;
-  overflow: hidden !important;
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100vh;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
 }
 
 .wingman-topbar {
-  position: relative !important;
-  top: auto !important;
-  z-index: 60 !important;
-  display: flex !important;
-  min-height: 70px !important;
-  align-items: center !important;
-  gap: 16px !important;
-  padding: 16px 38px 8px !important;
-  background: linear-gradient(180deg, rgba(3, 9, 20, 0.74), rgba(3, 9, 20, 0)) !important;
-  border: 0 !important;
-  backdrop-filter: none !important;
+  position: relative;
+  top: auto;
+  z-index: 60;
+  display: flex;
+  min-height: 70px;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 38px 8px;
+  background: linear-gradient(180deg, rgba(3, 9, 20, 0.74), rgba(3, 9, 20, 0));
+  border: 0;
+  backdrop-filter: none;
 }
 
 .wingman-topbar-title {
-  display: grid !important;
-  flex: 1 1 auto !important;
-  gap: 2px !important;
+  display: grid;
+  flex: 1 1 auto;
+  gap: 2px;
   min-width: 0;
 }
 
 .wingman-topbar-page-label {
-  color: var(--wm-ref-text) !important;
-  font-size: 1rem !important;
-  font-weight: 720 !important;
+  color: var(--wm-ref-text);
+  font-size: 1rem;
+  font-weight: 720;
 }
 
 .wingman-topbar-page-summary {
   max-width: 780px;
   overflow: hidden;
-  color: var(--wm-ref-muted) !important;
-  font-size: 0.78rem !important;
+  color: var(--wm-ref-muted);
+  font-size: 0.78rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -246,60 +246,60 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 }
 
 .wingman-new-project-button {
-  display: inline-flex !important;
-  min-height: 42px !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 9px !important;
-  padding: 10px 16px !important;
-  color: var(--wm-ref-text) !important;
-  font-weight: 680 !important;
-  background: linear-gradient(135deg, rgba(10, 59, 71, 0.94), rgba(8, 30, 47, 0.94)) !important;
-  border: 1px solid var(--wm-ref-aqua) !important;
-  border-radius: 9px !important;
-  box-shadow: 0 0 24px rgba(24, 217, 194, 0.12) !important;
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 16px;
+  color: var(--wm-ref-text);
+  font-weight: 680;
+  background: linear-gradient(135deg, rgba(10, 59, 71, 0.94), rgba(8, 30, 47, 0.94));
+  border: 1px solid var(--wm-ref-aqua);
+  border-radius: 9px;
+  box-shadow: 0 0 24px rgba(24, 217, 194, 0.12);
 }
 
 .wingman-new-project-button:hover {
-  background: linear-gradient(135deg, rgba(12, 91, 91, 0.98), rgba(8, 42, 58, 0.98)) !important;
-  box-shadow: 0 0 30px rgba(24, 217, 194, 0.2) !important;
+  background: linear-gradient(135deg, rgba(12, 91, 91, 0.98), rgba(8, 42, 58, 0.98));
+  box-shadow: 0 0 30px rgba(24, 217, 194, 0.2);
 }
 
 .wingman-mobile-nav-button {
-  color: var(--wm-ref-text) !important;
-  background: var(--wm-ref-panel) !important;
-  border: 1px solid var(--wm-ref-border) !important;
+  color: var(--wm-ref-text);
+  background: var(--wm-ref-panel);
+  border: 1px solid var(--wm-ref-border);
 }
 
 .wingman-app-main {
-  flex: 1 1 auto !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  height: auto !important;
-  min-height: 0 !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  background: transparent !important;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: transparent;
   scrollbar-color: rgba(69, 197, 205, 0.48) rgba(5, 14, 25, 0.5);
   scrollbar-width: thin;
 }
 
 .wingman-app-main > .wingman-page-host {
-  width: 100% !important;
-  max-width: none !important;
-  min-height: 100% !important;
-  padding: 8px 38px 46px !important;
-  overflow: visible !important;
+  width: 100%;
+  max-width: none;
+  min-height: 100%;
+  padding: 8px 38px 46px;
+  overflow: visible;
 }
 
 .wingman-app-main > .wingman-page-host > .wm-page,
 .wingman-app-main > .wingman-page-host > .wingman-page,
 .wingman-app-main > .wingman-page-host > main {
-  width: min(100%, var(--wm-ref-page-max)) !important;
-  max-width: var(--wm-ref-page-max) !important;
-  min-height: 0 !important;
-  margin: 0 auto !important;
-  padding: 0 !important;
+  width: min(100%, var(--wm-ref-page-max));
+  max-width: var(--wm-ref-page-max);
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -313,21 +313,21 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 .wingman-page-host .wm-page-title,
 .wingman-page-host .wm-section-title,
 .wingman-page-host .wm-card-title {
-  color: var(--wm-ref-text) !important;
-  letter-spacing: -0.025em !important;
+  color: var(--wm-ref-text);
+  letter-spacing: -0.025em;
 }
 
 .wingman-page-host h1,
 .wingman-page-host .wm-page-title {
-  font-size: clamp(1.8rem, 2.2vw, 2.65rem) !important;
-  line-height: 1.05 !important;
-  font-weight: 760 !important;
+  font-size: clamp(1.8rem, 2.2vw, 2.65rem);
+  line-height: 1.05;
+  font-weight: 760;
 }
 
 .wingman-page-host h2,
 .wingman-page-host .wm-section-title {
-  font-size: clamp(1.05rem, 1.15vw, 1.35rem) !important;
-  font-weight: 720 !important;
+  font-size: clamp(1.05rem, 1.15vw, 1.35rem);
+  font-weight: 720;
 }
 
 .wingman-page-host p,
@@ -335,7 +335,7 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 .wingman-page-host .wm-page-description,
 .wingman-page-host .wm-card-copy,
 .wingman-page-host .wm-section-copy {
-  color: var(--wm-ref-copy) !important;
+  color: var(--wm-ref-copy);
 }
 
 .wingman-page-host small,
@@ -343,14 +343,14 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 .wingman-page-host .wm-meta,
 .wingman-page-host .wm-caption,
 .wingman-page-host .wm-page-description {
-  color: var(--wm-ref-muted) !important;
+  color: var(--wm-ref-muted);
 }
 
 .wingman-page-host .wm-page-header,
 .wingman-page-host .wingman-page-header {
-  display: grid !important;
-  gap: 7px !important;
-  margin: 0 0 22px !important;
+  display: grid;
+  gap: 7px;
+  margin: 0 0 22px;
 }
 
 .wingman-page-host :where(
@@ -365,11 +365,11 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   .panel,
   [data-wm-card-level]
 ) {
-  color: var(--wm-ref-text) !important;
-  background: linear-gradient(145deg, rgba(13, 31, 52, 0.92), rgba(7, 18, 32, 0.92)) !important;
-  border: 1px solid var(--wm-ref-border) !important;
-  border-radius: var(--wm-ref-radius) !important;
-  box-shadow: var(--wm-ref-shadow-soft) !important;
+  color: var(--wm-ref-text);
+  background: linear-gradient(145deg, rgba(13, 31, 52, 0.92), rgba(7, 18, 32, 0.92));
+  border: 1px solid var(--wm-ref-border);
+  border-radius: var(--wm-ref-radius);
+  box-shadow: var(--wm-ref-shadow-soft);
 }
 
 .wingman-page-host :where(
@@ -378,132 +378,132 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   .wingman-card,
   [data-wm-card-level]
 ):hover {
-  border-color: rgba(74, 209, 211, 0.42) !important;
-  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.26) !important;
+  border-color: rgba(74, 209, 211, 0.42);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.26);
 }
 
 .wingman-page-host :where(.bg-white, .bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-gray-100) {
-  color: var(--wm-ref-text) !important;
-  background: var(--wm-ref-panel) !important;
+  color: var(--wm-ref-text);
+  background: var(--wm-ref-panel);
 }
 
 .wingman-page-host :where(.text-slate-900, .text-gray-900, .text-black) {
-  color: var(--wm-ref-text) !important;
+  color: var(--wm-ref-text);
 }
 
 .wingman-page-host :where(.text-slate-600, .text-slate-500, .text-gray-600, .text-gray-500) {
-  color: var(--wm-ref-muted) !important;
+  color: var(--wm-ref-muted);
 }
 
 .wingman-page-host :where(.border-slate-200, .border-slate-300, .border-gray-200, .border-gray-300) {
-  border-color: var(--wm-ref-border) !important;
+  border-color: var(--wm-ref-border);
 }
 
 .wingman-page-host :where(.wm-button, .wm-btn, .button, button[class*="wm-button"]) {
-  min-height: 40px !important;
-  gap: 8px !important;
-  padding: 9px 14px !important;
-  color: var(--wm-ref-text) !important;
-  font-weight: 660 !important;
-  background: rgba(9, 24, 40, 0.92) !important;
-  border: 1px solid var(--wm-ref-border) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
+  min-height: 40px;
+  gap: 8px;
+  padding: 9px 14px;
+  color: var(--wm-ref-text);
+  font-weight: 660;
+  background: rgba(9, 24, 40, 0.92);
+  border: 1px solid var(--wm-ref-border);
+  border-radius: 9px;
+  box-shadow: none;
 }
 
 .wingman-page-host :where(.wm-button, .wm-btn, .button, button[class*="wm-button"]):hover {
-  color: var(--wm-ref-text) !important;
-  background: rgba(15, 53, 68, 0.9) !important;
-  border-color: rgba(45, 212, 191, 0.5) !important;
+  color: var(--wm-ref-text);
+  background: rgba(15, 53, 68, 0.9);
+  border-color: rgba(45, 212, 191, 0.5);
 }
 
 .wingman-page-host :where(.wm-button-primary, .wm-btn-primary, .button-primary, .btn-primary) {
-  background: linear-gradient(135deg, #0f887d, #16b6a5) !important;
-  border-color: rgba(91, 244, 222, 0.62) !important;
+  background: linear-gradient(135deg, #0f887d, #16b6a5);
+  border-color: rgba(91, 244, 222, 0.62);
 }
 
 .wingman-page-host :where(input, select, textarea, .wm-input, .wm-select, .wm-textarea) {
-  color: var(--wm-ref-text) !important;
-  background: rgba(2, 10, 20, 0.76) !important;
-  border: 1px solid rgba(121, 176, 207, 0.28) !important;
-  border-radius: 9px !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+  color: var(--wm-ref-text);
+  background: rgba(2, 10, 20, 0.76);
+  border: 1px solid rgba(121, 176, 207, 0.28);
+  border-radius: 9px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .wingman-page-host :where(input, select, textarea, .wm-input, .wm-select, .wm-textarea):focus {
-  border-color: var(--wm-ref-aqua) !important;
-  box-shadow: 0 0 0 3px rgba(24, 217, 194, 0.12) !important;
+  border-color: var(--wm-ref-aqua);
+  box-shadow: 0 0 0 3px rgba(24, 217, 194, 0.12);
 }
 
 .wingman-page-host :where(.wm-tab, .wm-step, [role="tab"]) {
-  color: var(--wm-ref-copy) !important;
-  background: rgba(7, 20, 35, 0.88) !important;
-  border: 1px solid var(--wm-ref-border) !important;
-  border-radius: 9px !important;
+  color: var(--wm-ref-copy);
+  background: rgba(7, 20, 35, 0.88);
+  border: 1px solid var(--wm-ref-border);
+  border-radius: 9px;
 }
 
 .wingman-page-host :where(.wm-tab.active, .wm-step.active, .wm-tab[aria-selected="true"], .wm-step[aria-current="step"], [role="tab"][aria-selected="true"]) {
-  color: var(--wm-ref-text) !important;
-  background: rgba(14, 94, 93, 0.34) !important;
-  border-color: rgba(45, 212, 191, 0.5) !important;
+  color: var(--wm-ref-text);
+  background: rgba(14, 94, 93, 0.34);
+  border-color: rgba(45, 212, 191, 0.5);
 }
 
 .wingman-page-host :where(.wm-status-chip, .wm-status, .wm-badge, .wm-chip) {
-  min-height: 24px !important;
-  padding: 4px 9px !important;
-  color: #dce8f3 !important;
-  font-size: 0.72rem !important;
-  font-weight: 680 !important;
-  background: rgba(7, 19, 33, 0.9) !important;
-  border: 1px solid var(--wm-ref-border) !important;
-  border-radius: 999px !important;
+  min-height: 24px;
+  padding: 4px 9px;
+  color: #dce8f3;
+  font-size: 0.72rem;
+  font-weight: 680;
+  background: rgba(7, 19, 33, 0.9);
+  border: 1px solid var(--wm-ref-border);
+  border-radius: 999px;
 }
 
 .wingman-page-host .wm-status-on-track,
 .wingman-page-host .wm-status-ready,
 .wingman-page-host .wm-status-success {
-  color: #b8ffeb !important;
-  background: rgba(14, 119, 101, 0.26) !important;
-  border-color: rgba(36, 214, 163, 0.4) !important;
+  color: #b8ffeb;
+  background: rgba(14, 119, 101, 0.26);
+  border-color: rgba(36, 214, 163, 0.4);
 }
 
 .wingman-page-host .wm-status-progress {
-  color: #d7c9ff !important;
-  background: rgba(85, 55, 164, 0.28) !important;
-  border-color: rgba(155, 114, 255, 0.38) !important;
+  color: #d7c9ff;
+  background: rgba(85, 55, 164, 0.28);
+  border-color: rgba(155, 114, 255, 0.38);
 }
 
 .wingman-page-host .wm-status-warning,
 .wingman-page-host .wm-status-review {
-  color: #ffe1a7 !important;
-  background: rgba(157, 94, 8, 0.24) !important;
-  border-color: rgba(245, 165, 36, 0.4) !important;
+  color: #ffe1a7;
+  background: rgba(157, 94, 8, 0.24);
+  border-color: rgba(245, 165, 36, 0.4);
 }
 
 .wingman-page-host :where(.wm-table-wrap, .table-wrap) {
-  overflow: auto !important;
-  background: rgba(5, 16, 29, 0.72) !important;
-  border: 1px solid var(--wm-ref-border) !important;
-  border-radius: var(--wm-ref-radius-small) !important;
+  overflow: auto;
+  background: rgba(5, 16, 29, 0.72);
+  border: 1px solid var(--wm-ref-border);
+  border-radius: var(--wm-ref-radius-small);
 }
 
 .wingman-page-host table {
-  color: var(--wm-ref-copy) !important;
-  background: transparent !important;
+  color: var(--wm-ref-copy);
+  background: transparent;
 }
 
 .wingman-page-host table th {
-  color: #d9faff !important;
-  background: rgba(13, 34, 55, 0.94) !important;
-  border-color: var(--wm-ref-border) !important;
+  color: #d9faff;
+  background: rgba(13, 34, 55, 0.94);
+  border-color: var(--wm-ref-border);
 }
 
 .wingman-page-host table td {
-  border-color: rgba(120, 190, 228, 0.13) !important;
+  border-color: rgba(120, 190, 228, 0.13);
 }
 
 .wingman-page-host table tr:hover td {
-  background: rgba(24, 217, 194, 0.045) !important;
+  background: rgba(24, 217, 194, 0.045);
 }
 
 [data-wm-accent="discovery"] { --wm-reference-accent: var(--wm-ref-aqua); --wm-reference-accent-rgb: 24, 217, 194; }
@@ -533,8 +533,8 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
    and reintroducing the CSS Grid row-sizing bug this file works around
    elsewhere (see the hero align-self note below). Force flex to win. */
 .wm-reference-dashboard.wm-reference-dashboard {
-  display: flex !important;
-  flex-direction: column !important;
+  display: flex;
+  flex-direction: column;
 }
 
 .wm-reference-dashboard-layout {
@@ -612,8 +612,8 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 
 .wm-reference-section-heading h2 {
   margin: 0;
-  color: var(--wm-ref-text) !important;
-  font-size: 1.2rem !important;
+  color: var(--wm-ref-text);
+  font-size: 1.2rem;
 }
 
 .wm-reference-section-heading a,
@@ -621,10 +621,10 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  color: var(--wm-ref-aqua) !important;
+  color: var(--wm-ref-aqua);
   font-size: 0.83rem;
   font-weight: 660;
-  text-decoration: none !important;
+  text-decoration: none;
 }
 
 .wm-reference-section-heading svg,
@@ -644,8 +644,8 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   min-height: 168px;
   gap: 13px;
   padding: 18px;
-  color: var(--wm-ref-text) !important;
-  text-decoration: none !important;
+  color: var(--wm-ref-text);
+  text-decoration: none;
   background: linear-gradient(145deg, rgba(12, 28, 48, 0.92), rgba(7, 18, 32, 0.92));
   border: 1px solid var(--wm-ref-border);
   border-radius: var(--wm-ref-radius-small);
@@ -653,8 +653,8 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 }
 
 .wm-reference-project-card:hover {
-  color: var(--wm-ref-text) !important;
-  text-decoration: none !important;
+  color: var(--wm-ref-text);
+  text-decoration: none;
   border-color: rgba(45, 212, 191, 0.4);
   transform: translateY(-2px);
 }
@@ -715,7 +715,7 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 
 .wm-reference-project-name small {
   overflow: hidden;
-  color: var(--wm-ref-muted) !important;
+  color: var(--wm-ref-muted);
   font-size: 0.74rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -766,9 +766,9 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   gap: 10px;
   align-items: center;
   padding: 15px;
-  color: var(--wm-ref-text) !important;
+  color: var(--wm-ref-text);
   text-align: left;
-  text-decoration: none !important;
+  text-decoration: none;
   background: linear-gradient(145deg, rgba(11, 27, 47, 0.9), rgba(7, 17, 30, 0.9));
   border: 1px solid var(--wm-ref-border);
   border-radius: var(--wm-ref-radius-small);
@@ -781,8 +781,8 @@ button.wm-reference-quick-card {
 }
 
 .wm-reference-quick-card:hover {
-  color: var(--wm-ref-text) !important;
-  text-decoration: none !important;
+  color: var(--wm-ref-text);
+  text-decoration: none;
   border-color: rgba(var(--wm-reference-accent-rgb), 0.52);
 }
 
@@ -811,7 +811,7 @@ button.wm-reference-quick-card {
 
 .wm-reference-quick-card small {
   overflow: hidden;
-  color: var(--wm-ref-muted) !important;
+  color: var(--wm-ref-muted);
   font-size: 0.72rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -848,8 +848,8 @@ button.wm-reference-quick-card {
 
 .wm-reference-rail-title h2 {
   margin: 0;
-  color: var(--wm-ref-text) !important;
-  font-size: 0.91rem !important;
+  color: var(--wm-ref-text);
+  font-size: 0.91rem;
 }
 
 .wm-reference-focus-list {
@@ -863,8 +863,8 @@ button.wm-reference-quick-card {
   gap: 10px;
   align-items: start;
   padding: 8px 0;
-  color: var(--wm-ref-text) !important;
-  text-decoration: none !important;
+  color: var(--wm-ref-text);
+  text-decoration: none;
 }
 
 .wm-reference-focus-marker {
@@ -898,7 +898,7 @@ button.wm-reference-quick-card {
 
 .wm-reference-focus-list small {
   overflow: hidden;
-  color: var(--wm-ref-muted) !important;
+  color: var(--wm-ref-muted);
   font-size: 0.69rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -912,7 +912,7 @@ button.wm-reference-quick-card {
 .wm-reference-spotlight-card p,
 .wm-reference-news-card p {
   margin: 0;
-  color: var(--wm-ref-copy) !important;
+  color: var(--wm-ref-copy);
   font-size: 0.8rem;
   line-height: 1.55;
 }
@@ -937,28 +937,28 @@ button.wm-reference-quick-card {
    -------------------------------------------------------------------------- */
 
 .wingman-guru-fab {
-  width: 78px !important;
-  height: 78px !important;
-  padding: 0 !important;
-  overflow: visible !important;
-  cursor: grab !important;
+  width: 78px;
+  height: 78px;
+  padding: 0;
+  overflow: visible;
+  cursor: grab;
   touch-action: none;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 999px !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: none;
 }
 
 .wingman-guru-fab:active,
 .wingman-guru-fab[data-dragging="true"] {
-  cursor: grabbing !important;
+  cursor: grabbing;
 }
 
 .wingman-guru-fab-image {
   position: relative;
   z-index: 3;
-  width: 68px !important;
-  height: 68px !important;
+  width: 68px;
+  height: 68px;
   object-fit: contain;
   user-select: none;
   filter: drop-shadow(0 10px 17px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 12px rgba(24, 217, 194, 0.42));
@@ -1053,9 +1053,9 @@ button.wm-reference-quick-card {
   .wingman-shell > .wingman-sidebar,
   .wingman-authority-shell > .wingman-sidebar,
   .wingman-sidebar {
-    position: fixed !important;
-    left: 0 !important;
-    top: 0 !important;
+    position: fixed;
+    left: 0;
+    top: 0;
     transform: translateX(-102%);
     transition: transform 180ms ease;
   }
@@ -1078,17 +1078,17 @@ button.wm-reference-quick-card {
   }
 
   .wingman-topbar {
-    padding-inline: 18px !important;
+    padding-inline: 18px;
   }
 
   .wingman-app-main > .wingman-page-host {
-    padding: 8px 18px 34px !important;
+    padding: 8px 18px 34px;
   }
 }
 
 @media (max-width: 760px) {
   .wingman-topbar-page-summary {
-    display: none !important;
+    display: none;
   }
 
   .wingman-new-project-button span {
@@ -1114,59 +1114,59 @@ button.wm-reference-quick-card {
   .wingman-guru-fab-image,
   .wingman-guru-fab-glow,
   .wingman-guru-fab-sweep {
-    animation: none !important;
+    animation: none;
   }
 }
 /* WINGMAN_GURU_GLOBAL_DRAG_START */
 .wingman-shell > button.wingman-guru-fab[data-wingman-guru-floating-active="true"],
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"] {
-  position: fixed !important;
-  inset: auto !important;
-  left: var(--wingman-guru-left) !important;
-  top: var(--wingman-guru-top) !important;
-  right: auto !important;
-  bottom: auto !important;
-  display: block !important;
-  width: 78px !important;
-  height: 78px !important;
-  min-width: 78px !important;
-  min-height: 78px !important;
-  max-width: 78px !important;
-  max-height: 78px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  transform: none !important;
-  translate: none !important;
-  z-index: 2147483000 !important;
-  overflow: visible !important;
-  pointer-events: auto !important;
-  touch-action: none !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  cursor: grab !important;
-  contain: none !important;
+  position: fixed;
+  inset: auto;
+  left: var(--wingman-guru-left);
+  top: var(--wingman-guru-top);
+  right: auto;
+  bottom: auto;
+  display: block;
+  width: 78px;
+  height: 78px;
+  min-width: 78px;
+  min-height: 78px;
+  max-width: 78px;
+  max-height: 78px;
+  margin: 0;
+  padding: 0;
+  transform: none;
+  translate: none;
+  z-index: 2147483000;
+  overflow: visible;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  contain: none;
 }
 
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"][data-dragging="true"] {
-  cursor: grabbing !important;
+  cursor: grabbing;
 }
 
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"] > .wingman-guru-fab-motion {
-  position: absolute !important;
-  inset: 0 !important;
-  display: grid !important;
-  width: 100% !important;
-  height: 100% !important;
-  place-items: center !important;
-  pointer-events: none !important;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  pointer-events: none;
 }
 
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"] *,
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"] img {
-  pointer-events: none !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  -webkit-user-drag: none !important;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 /* WINGMAN_GURU_GLOBAL_DRAG_END */
 /* WINGMAN_SINGLE_GURU_BADGE_START */
@@ -1176,9 +1176,9 @@ button.wingman-guru-fab[data-wingman-guru-floating-active="true"] img {
 */
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"]::after,
 .wingman-guru-fab[data-wingman-guru-floating-active="true"]::after {
-  display: none !important;
-  content: none !important;
-  background: none !important;
+  display: none;
+  content: none;
+  background: none;
 }
 
 /* The Guru PNG already contains its own circular badge and outer teal ring.
@@ -1186,38 +1186,38 @@ button.wingman-guru-fab[data-wingman-guru-floating-active="true"]::after,
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
   .wingman-guru-fab-sweep,
 .wingman-guru-fab .wingman-guru-fab-sweep {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  animation: none !important;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  animation: none;
 }
 
 /* Keep one restrained halo behind the existing PNG rather than a second ring. */
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
   .wingman-guru-fab-glow,
 .wingman-guru-fab .wingman-guru-fab-glow {
-  inset: 10px !important;
-  z-index: 1 !important;
-  opacity: 0.42 !important;
+  inset: 10px;
+  z-index: 1;
+  opacity: 0.42;
   background:
     radial-gradient(
       circle,
       rgba(24, 217, 194, 0.28),
       rgba(24, 217, 194, 0.08) 48%,
       transparent 72%
-    ) !important;
-  filter: blur(8px) !important;
-  animation: wm-reference-guru-pulse 3.2s ease-in-out infinite !important;
+    );
+  filter: blur(8px);
+  animation: wm-reference-guru-pulse 3.2s ease-in-out infinite;
 }
 
 /* Keep the PNG clearly above the remaining glow. */
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
   .wingman-guru-fab-image,
 .wingman-guru-fab .wingman-guru-fab-image {
-  position: relative !important;
-  z-index: 3 !important;
-  animation: none !important;
-  transform: none !important;
+  position: relative;
+  z-index: 3;
+  animation: none;
+  transform: none;
 }
 /* WINGMAN_SINGLE_GURU_BADGE_END */
 
@@ -1256,14 +1256,14 @@ button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
   line-height: 1.4;
 }
 .wm-dashboard-coverage-strip__link {
-  color: var(--wm-ref-aqua) !important;
+  color: var(--wm-ref-aqua);
   font-size: 0.8rem;
   font-weight: 700;
-  text-decoration: none !important;
+  text-decoration: none;
   white-space: nowrap;
 }
 .wm-dashboard-coverage-strip__link:hover {
-  text-decoration: underline !important;
+  text-decoration: underline;
 }
 
 /* Governed-profile confirmation backlog card on the dashboard. */

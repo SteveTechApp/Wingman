@@ -180,7 +180,7 @@ describe("app-wide missing-tier copy consistency sweep", () => {
     // genuinely data-less record is injected (technicalProfile AND
     // sourceCatalog stripped) to exercise the missing-tier path on the
     // Catalog surface.
-    indexForSweep = indexWithNoData("APO-COM-MIC");
+    indexForSweep = indexWithNoData("APO-MIC-EXT");
 
     render(
       <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
@@ -198,9 +198,9 @@ describe("app-wide missing-tier copy consistency sweep", () => {
     // A stripped card must render the canonical missing-tier badge - and the
     // real APO-COM-MIC card must NOT claim it (it resolves official data).
     const card = Array.from(document.querySelectorAll(".wm-catalog-product-card")).find(
-      (element) => element.querySelector(".wm-catalog-product-sku")?.textContent === "APO-COM-MIC",
+      (element) => element.querySelector(".wm-catalog-product-sku")?.textContent === "APO-MIC-EXT",
     );
-    expect(card, "stripped APO-COM-MIC card renders").toBeDefined();
+    expect(card, "stripped APO-MIC-EXT card renders").toBeDefined();
     expect(card?.querySelector(".compare-native-governance-badge")?.textContent).toBe(CANONICAL_COPY);
     expect(document.body.textContent ?? "").not.toContain(LEGACY_COPY);
   });

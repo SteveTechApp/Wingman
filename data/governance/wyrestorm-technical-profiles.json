@@ -1,6 +1,6 @@
 {
-  "version": 9,
-  "updatedAt": "2026-08-23",
+  "version": 10,
+  "updatedAt": "2026-08-25",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -15932,6 +15932,242 @@
       "confirmedFields": [
         "max-resolution",
         "routed-io"
+      ]
+    },
+    {
+      "sku": "APO-VX20-MNT",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "mounting accessory",
+      "productType": "Display mount for Apollo VX20 video bars",
+      "transport": ["Mechanical mounting"],
+      "ports": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [
+        "Wall or display mount bracket for the Apollo VX20-UC / VX20-UC-V2 video bar"
+      ],
+      "dependencies": [
+        "Requires an Apollo VX20-UC or VX20-UC-V2 video bar",
+        "Mounting surface must support the combined weight of mount + video bar"
+      ],
+      "compatibleFamilies": [
+        "Apollo"
+      ],
+      "checks": [
+        "Lifecycle status is do-not-spec in the product catalogue — confirm with product owner whether this mount is actively sold or superseded before quoting.",
+        "Confirm the mounting surface and display size compatibility before installation."
+      ],
+      "warnings": [
+        "Product catalogue marks this SKU as do-not-spec. Verify whether a successor mount exists."
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page-canonical-capture",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-mnt/",
+          "reviewedOn": "2026-08-25",
+          "reviewer": "Wingman minimal profile for template guard compliance",
+          "note": "Minimal profile created from product catalogue metadata. Lifecycle is do-not-spec; confirm product-owner decision before active use."
+        }
+      ]
+    },
+    {
+      "sku": "IDB-300",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "in-desk cable management",
+      "productType": "Dual-channel cable box for in-desk connectivity",
+      "transport": ["Cable management"],
+      "ports": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [
+        "Dual-channel in-desk cable retractor / cable management box",
+        "Retractable cables for source connection at a meeting table or desk"
+      ],
+      "dependencies": [
+        "Requires appropriate AV cables (HDMI, USB-C) to be specified for the channels",
+        "Desk cut-out dimensions must be confirmed before ordering"
+      ],
+      "compatibleFamilies": [],
+      "checks": [
+        "Lifecycle status is do-not-spec in the product catalogue — confirm with product owner whether this accessory is actively sold or superseded.",
+        "Confirm desk cut-out size and cable channel configuration before specifying."
+      ],
+      "warnings": [
+        "Product catalogue marks this SKU as do-not-spec. Verify whether a successor product exists."
+      ],
+      "evidence": [
+        {
+          "sourceType": "product-intelligence-index",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-300/",
+          "reviewedOn": "2026-08-25",
+          "reviewer": "Wingman minimal profile for template guard compliance",
+          "note": "Minimal profile from product intelligence index. Lifecycle is do-not-spec; confirm product-owner decision."
+        }
+      ]
+    },
+    {
+      "sku": "NHD-RACK-1U",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "rack mount",
+      "productType": "1U 2-slot rack mount for NetworkHD 100/500/600 series",
+      "transport": ["Rack mounting"],
+      "ports": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [
+        "1U rack-mount tray holding 2 NetworkHD endpoints",
+        "Fits standard 19-inch equipment rack"
+      ],
+      "dependencies": [
+        "Requires NetworkHD 100, 500, or 600 series endpoints to mount",
+        "NHD-000-RACK4 (4-slot) may be the active successor — verify with product owner"
+      ],
+      "compatibleFamilies": [
+        "NetworkHD"
+      ],
+      "checks": [
+        "Lifecycle status is discontinued in the product catalogue — NHD-000-RACK4 may be the replacement but must be confirmed, not assumed.",
+        "Confirm NHD-000-RACK4 slot count and compatibility before quoting as a substitute."
+      ],
+      "warnings": [
+        "Product catalogue marks this SKU as discontinued. Do not spec for new designs; verify the NHD-000-RACK4 replacement with WyreStorm."
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page-canonical-capture",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-rack-1u/",
+          "reviewedOn": "2026-08-25",
+          "reviewer": "Wingman minimal profile for template guard compliance",
+          "note": "Minimal profile created from product catalogue metadata. SKU is discontinued; NHD-000-RACK4 is the probable successor."
+        }
+      ]
+    },
+    {
+      "sku": "APO-COM-MIC",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "add-on microphone",
+      "productType": "Add-on USB companion microphone for Apollo video bars",
+      "transport": [
+        "USB"
+      ],
+      "ports": [],
+      "video": [],
+      "audio": [
+        "360-degree omnidirectional pickup",
+        "Cascade up to 5 microphones for expanded room coverage",
+        "Pickup range up to 5m (16ft) per unit"
+      ],
+      "usb": [
+        "USB connection to Apollo video bar"
+      ],
+      "network": [],
+      "control": [],
+      "power": [
+        "Powered through USB connection to the Apollo bar"
+      ],
+      "physical": [
+        "Tabletop or ceiling-mountable companion microphone"
+      ],
+      "dependencies": [
+        "Requires an Apollo VX20-UC, VX20-UC-V2, or compatible Apollo series video bar",
+        "Uses APO-MIC-EXT cable for extension up to 60m over Cat6 (sold separately)",
+        "Up to 5 APO-COM-MIC units can be cascaded"
+      ],
+      "compatibleFamilies": [
+        "Apollo"
+      ],
+      "features": {
+        "microphone": true,
+        "cascade": true,
+        "omnidirectional": true
+      },
+      "checks": [
+        "Confirm the Apollo bar firmware supports APO-COM-MIC cascade before quoting multi-mic installations.",
+        "The APO-MIC-EXT extension cable is sold separately — include in the BOM if the mic is not on the table with the bar."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page-canonical-capture",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-com-mic/",
+          "reviewedOn": "2026-08-25",
+          "reviewer": "Wingman minimal profile for template guard compliance",
+          "note": "Minimal profile from product catalogue metadata and Apollo VX20-UC profile cross-reference."
+        }
+      ]
+    },
+    {
+      "sku": "CAB-HAOC-20",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "20m Active Optical HDMI Cable, 4K HDR 4:4:4/60",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "4K60 4:4:4 HDR",
+      "ports": [],
+      "video": [
+        "4K UHD (3840x2160) @60Hz, 4:4:4 chroma",
+        "HDR support",
+        "HDMI 2.0b",
+        "HDCP 2.2"
+      ],
+      "audio": [
+        "ARC (Audio Return Channel)",
+        "eARC compatible"
+      ],
+      "usb": [],
+      "network": [],
+      "control": [
+        "CEC",
+        "ALLM (Auto Low Latency Mode)",
+        "VRR (Variable Refresh Rate)"
+      ],
+      "power": [],
+      "physical": [
+        "20m (65.6ft) active optical HDMI cable",
+        "Plug-and-play, no external power required"
+      ],
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "features": {
+        "aoc": true,
+        "hdr": true,
+        "arc": true,
+        "cec": true,
+        "allm": true,
+        "vrr": true
+      },
+      "checks": [
+        "Confirm the 20m length covers the cable run; shorter AOC lengths are available if the run is under 10m.",
+        "AOC is directional — confirm source and display ends are connected correctly."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page-canonical-capture",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-20/",
+          "reviewedOn": "2026-08-25",
+          "reviewer": "Wingman minimal profile for template guard compliance",
+          "note": "Minimal profile from product catalogue metadata. 4K60 HDR AOC cable."
+        }
       ]
     }
   ]

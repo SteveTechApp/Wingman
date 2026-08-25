@@ -2,7 +2,11 @@ import { useMemo } from "react";
 import { CheckCircle2, Info, ThumbsDown, ThumbsUp } from "lucide-react";
 import {
   collectCrossProjectFeedback,
+  collectDealOutcomes,
+  collectDealOutcomePatterns,
   type CrossProjectFeedbackSummary,
+  type DealOutcomeRecord,
+  type DealOutcomePattern,
 } from "../lib/feedbackInformedGuidance";
 
 const NEGATIVE_RATINGS = new Set(["wrong-fit", "missing-accessory", "needs-review"]);
@@ -85,6 +89,8 @@ export function FeedbackConsolidationPanel() {
           </tbody>
         </table>
       </div>
+
+      <DealOutcomeSection />
     </section>
   );
 }
@@ -120,5 +126,108 @@ function FeedbackSummaryRow({ summary }: { summary: CrossProjectFeedbackSummary 
         {negativeRatings.flatMap((r) => r.notes).filter(Boolean).slice(0, 2).join("; ") || "No notes attached"}
       </td>
     </tr>
+  );
+}
+
+function DealOutcomeSection() {
+  const outcomes = useMemo(() => collectDealOutcomes(), []);
+  const patterns = useMemo(() => collectDealOutcomePatterns(), []);
+
+  if (!outcomes.length) return null;
+
+  const won = outcomes.filter((o) => o.outcome === "won");
+  const lost = outcomes.filter((o) => o.outcome === "lost");
+  const deferred = outcomes.filter((o) => o.outcome === "deferred");
+
+  return (
+    <section className="mt-6 wm-ui-card rounded-2xl border p-5">
+      <header className="mb-4">
+        <p className="wm-ui-kicker">Deal outcomes</p>
+        <h2 className="wm-ui-title text-xl font-black">Win / loss patterns</h2>
+        <p className="wm-ui-copy text-sm">
+          Outcomes recorded across your projects. Patterns in the "why" text surface recurring reasons for wins and losses.
+        </p>
+      </header>
+
+      <div className="mb-4 flex flex-wrap gap-3 text-sm">
+        {won.length > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/40 px-3 py-1.5 font-bold text-emerald-300">
+            <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+            {won.length} won
+          </span>
+        )}
+        {lost.length > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/40 bg-red-950/40 px-3 py-1.5 font-bold text-red-300">
+            <ThumbsDown className="h-3.5 w-3.5" aria-hidden="true" />
+            {lost.length} lost
+          </span>
+        )}
+        {deferred.length > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-1.5 font-bold text-amber-300">
+            <Info className="h-3.5 w-3.5" aria-hidden="true" />
+            {deferred.length} deferred
+          </span>
+        )}
+      </div>
+
+      {patterns.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-sm font-bold mb-2">Recurring themes</h3>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {patterns.map((pattern) => (
+              <div key={pattern.keyword} className="rounded-xl border border-slate-700/50 bg-slate-900/30 p-3">
+                <p className="font-bold text-sm mb-1">{pattern.keyword}</p>
+                <div className="flex gap-3 text-xs">
+                  {pattern.lostCount > 0 && (
+                    <span className="text-red-400">{pattern.lostCount} lost</span>
+                  )}
+                  {pattern.wonCount > 0 && (
+                    <span className="text-emerald-400">{pattern.wonCount} won</span>
+                  )}
+                </div>
+                <p className="text-xs opacity-50 mt-1">{pattern.projectNames.join(", ")}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="rounded-xl border wm-ui-card overflow-hidden">
+        <table className="w-full text-left text-sm wm-ui-copy">
+          <thead className="wm-ui-card">
+            <tr>
+              <th className="px-4 py-3 font-bold">Project</th>
+              <th className="px-4 py-3 font-bold">Outcome</th>
+              <th className="px-4 py-3 font-bold">Why</th>
+              <th className="px-4 py-3 font-bold">Products</th>
+            </tr>
+          </thead>
+          <tbody>
+            {outcomes.map((record) => (
+              <tr key={record.projectId} className="border-t wm-ui-card">
+                <td className="px-4 py-3 font-semibold text-[#edf6ff]">{record.projectName}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${
+                    record.outcome === "won" ? "text-emerald-400" :
+                    record.outcome === "lost" ? "text-red-400" : "text-amber-400"
+                  }`}>
+                    {record.outcome === "won" ? <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> :
+                     record.outcome === "lost" ? <ThumbsDown className="h-3.5 w-3.5" aria-hidden="true" /> :
+                     <Info className="h-3.5 w-3.5" aria-hidden="true" />}
+                    {record.outcome.charAt(0).toUpperCase() + record.outcome.slice(1)}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-xs text-[#cfe6f7] max-w-xs truncate">
+                  {record.why || "—"}
+                </td>
+                <td className="px-4 py-3 text-xs text-[#cfe6f7]">
+                  {record.productSkus.slice(0, 3).join(", ")}{record.productSkus.length > 3 ? ` +${record.productSkus.length - 3}` : ""}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }

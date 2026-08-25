@@ -19,6 +19,40 @@ const serverHost = String(process.env.VITE_SERVER_HOST || process.env.WINGMAN_UI
 const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || process.env.VITE_WINGMAN_UI_PORT || 3000);
 const uiPort = Number.isFinite(parsedUiPort) ? parsedUiPort : 3000;
 
+/**
+ * Replace __SW_VERSION__ in public/sw.js with a build-time timestamp so the
+ * service worker cache names change on every deploy and old caches are purged.
+ */
+function wingmanServiceWorkerVersion(): Plugin {
+  return {
+    name: "wingman-sw-version",
+    generateBundle() {
+      // The service worker is copied as-is to the output; we patch it here.
+      const version = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      for (const [key, asset] of Object.entries(this.getModuleInfo("") ?? {})) {
+        void key; void asset;
+      }
+    },
+    // Use transformIndexFile is not available; instead we use a simple
+    // writeBundle hook to patch the sw.js file in the dist output.
+    writeBundle: {
+      order: "post",
+      async handler() {
+        const { readFile, writeFile } = await import("node:fs/promises");
+        const swPath = path.resolve(__dirname, "dist/sw.js");
+        try {
+          let content = await readFile(swPath, "utf-8");
+          const version = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+          content = content.replace(/"__SW_VERSION__"/g, `"${version}"`);
+          await writeFile(swPath, content, "utf-8");
+        } catch {
+          // sw.js may not exist in dev builds — ignore.
+        }
+      },
+    },
+  };
+}
+
 function wingmanChunkBudget(): Plugin {
   const reviewKb = Number(process.env.WM_CHUNK_REVIEW_KB ?? 500);
   const failKb = Number(process.env.WM_CHUNK_FAIL_KB ?? 850);
@@ -64,7 +98,7 @@ function wingmanChunkBudget(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), wingmanChunkBudget()],
+  plugins: [react(), wingmanServiceWorkerVersion(), wingmanChunkBudget()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
