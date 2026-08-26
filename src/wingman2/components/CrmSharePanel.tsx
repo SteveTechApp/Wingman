@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ExternalLink, Copy, Check, Building2, Send, Settings, History, AlertCircle, Loader2 } from "lucide-react";
+import { ExternalLink, Copy, Check, Building2, Send, Settings, History, AlertCircle, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import type { StoredProject } from "../data/projectStore";
 import {
   getWebhookUrl,
@@ -119,7 +119,9 @@ export function CrmSharePanel({ project }: { project: StoredProject }) {
   const [webhookError, setWebhookError] = useState("");
   const [webhookHistory, setWebhookHistory] = useState<CrmWebhookHistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
   const [showCurl, setShowCurl] = useState(false);
+  const [showPayload, setShowPayload] = useState(false);
 
   useEffect(() => {
     setWebhookUrlState(getWebhookUrl());
@@ -127,6 +129,22 @@ export function CrmSharePanel({ project }: { project: StoredProject }) {
   }, []);
 
   const data = extractCrmData(project);
+
+  // The same Q&A trail the webhook sends, formatted for pasting into a CRM
+  // note field — so a manual paste captures the conversation too.
+  const conversation = project.discoveryBrief?.discoveryConversation ?? [];
+  const conversationLines: string[] = [];
+  if (conversation.length === 0) {
+    conversationLines.push("No discovery conversation captured.");
+  } else {
+    for (const item of conversation) {
+      conversationLines.push(`Q: ${item.question}`);
+      conversationLines.push(`A: ${item.answer}`);
+      if (item.note) conversationLines.push(`   Customer said: ${item.note}`);
+      if (item.confirmed) conversationLines.push("   Confirmed with customer");
+      conversationLines.push("");
+    }
+  }
 
   const clipboardText = [
     `Opportunity: ${data.name}`,
@@ -140,7 +158,12 @@ export function CrmSharePanel({ project }: { project: StoredProject }) {
     "",
     "Room Details:",
     data.description,
-  ].join("\n");
+    "",
+    "Discovery conversation:",
+    ...conversationLines,
+  ]
+    .join("\n")
+    .replace(/\n+$/, "");
 
   async function handleCopy() {
     try {
@@ -177,6 +200,7 @@ export function CrmSharePanel({ project }: { project: StoredProject }) {
         status: result.ok ? "success" : "error",
         httpStatus: result.status,
         errorMessage: result.ok ? undefined : `HTTP ${result.status} ${result.statusText}`,
+        discoveryConversation: payload.discoveryConversation,
       };
 
       recordWebhookHistory(historyEntry);
@@ -201,6 +225,7 @@ export function CrmSharePanel({ project }: { project: StoredProject }) {
         sentAt: new Date().toISOString(),
         status: "error",
         errorMessage: message,
+        discoveryConversation: payload.discoveryConversation,
       };
       recordWebhookHistory(historyEntry);
       setWebhookHistory(getWebhookHistory());
@@ -338,6 +363,33 @@ export function CrmSharePanel({ project }: { project: StoredProject }) {
               </button>
             </div>
 
+            {/* Payload preview — the exact JSON that will be sent */}
+            <div>
+              <button
+                type="button"
+                className="text-[10px] text-white/40 hover:text-white/60 flex items-center gap-1"
+                onClick={() => setShowPayload(!showPayload)}
+                aria-expanded={showPayload}
+              >
+                {showPayload ? "Hide" : "View"} payload — exact JSON sent to your endpoint
+              </button>
+              {showPayload && (
+                <div className="mt-2">
+                  <p className="text-[10px] text-white/40 mb-1">
+                    Includes the discovery conversation trail (
+                    {(payload.discoveryConversation ?? []).length} rows), room model,
+                    products and proposal details.
+                  </p>
+                  <pre
+                    className="wm-crm-webhook-curl text-[10px] overflow-x-auto max-h-72 overflow-y-auto"
+                    data-testid="crm-webhook-payload"
+                  >
+                    {JSON.stringify(payload, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+
             {/* Error display */}
             {webhookStatus === "error" && webhookError && (
               <div className="wm-crm-webhook-error">
@@ -371,21 +423,74 @@ export function CrmSharePanel({ project }: { project: StoredProject }) {
                 ) : (
                   <div className="space-y-1">
                     {webhookHistory.slice(0, 5).map((entry) => (
-                      <div key={entry.id} className="wm-crm-webhook-history-entry">
-                        <span
-                          className={`inline-block w-2 h-2 rounded-full ${
-                            entry.status === "success" ? "bg-emerald-400" : "bg-red-400"
-                          }`}
-                        />
-                        <span className="text-[10px] text-white/70 truncate flex-1">
-                          {entry.projectName}
-                        </span>
-                        <span className="text-[10px] text-white/40">
-                          {entry.httpStatus ?? "ERR"}
-                        </span>
-                        <span className="text-[10px] text-white/30">
-                          {new Date(entry.sentAt).toLocaleTimeString()}
-                        </span>
+                      <div key={entry.id}>
+                        <div className="wm-crm-webhook-history-entry">
+                          <span
+                            className={`inline-block w-2 h-2 rounded-full ${
+                              entry.status === "success" ? "bg-emerald-400" : "bg-red-400"
+                            }`}
+                          />
+                          <span className="text-[10px] text-white/70 truncate flex-1">
+                            {entry.projectName}
+                          </span>
+                          <span className="text-[10px] text-white/40">
+                            {entry.httpStatus ?? "ERR"}
+                          </span>
+                          <span className="text-[10px] text-white/30">
+                            {new Date(entry.sentAt).toLocaleTimeString()}
+                          </span>
+                          <button
+                            type="button"
+                            className="text-white/40 hover:text-white/70"
+                            onClick={() =>
+                              setExpandedHistoryId(
+                                expandedHistoryId === entry.id ? null : entry.id,
+                              )
+                            }
+                            aria-expanded={expandedHistoryId === entry.id}
+                            aria-label={`View conversation sent to CRM for ${entry.projectName}`}
+                            title="View the discovery conversation that was sent"
+                          >
+                            {expandedHistoryId === entry.id ? (
+                              <ChevronUp size={12} aria-hidden="true" />
+                            ) : (
+                              <ChevronDown size={12} aria-hidden="true" />
+                            )}
+                          </button>
+                        </div>
+                        {expandedHistoryId === entry.id && (
+                          <div
+                            className="wm-crm-webhook-history-conversation"
+                            data-testid={`crm-history-conversation-${entry.id}`}
+                          >
+                            {(entry.discoveryConversation ?? []).length === 0 ? (
+                              <p className="text-[10px] text-white/40">
+                                No discovery conversation captured for this send.
+                              </p>
+                            ) : (
+                              <ul className="space-y-1.5">
+                                {entry.discoveryConversation?.map((item, index) => (
+                                  <li key={index} className="text-[10px]">
+                                    <span className="text-white/60">{item.question}</span>
+                                    <span className="text-white/80 block mt-0.5">
+                                      {item.answer}
+                                    </span>
+                                    {item.note ? (
+                                      <span className="text-white/40 block italic">
+                                        “{item.note}”
+                                      </span>
+                                    ) : null}
+                                    {item.confirmed ? (
+                                      <span className="inline-block mt-0.5 text-[9px] text-emerald-400">
+                                        ✓ Confirmed with customer
+                                      </span>
+                                    ) : null}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

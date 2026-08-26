@@ -7,6 +7,8 @@ import {
   setDeviceVerified,
   setLocationNotes,
   getSurveyProgress,
+  getInstallChecked,
+  setInstallChecked,
   clearProjectEdits,
   buildCableComparisons,
   buildComparisonSummary,
@@ -135,6 +137,54 @@ describe("siteSurveyStorage", () => {
     it("returns 0% for empty project", () => {
       const progress = getSurveyProgress("empty-project");
       expect(progress.completionPercent).toBe(0);
+    });
+
+    it("includes installation-detail confirmations when install item ids are supplied", () => {
+      setInstallChecked("proj-1", ["display-mount-height", "cable-containment"]);
+      setCableConfirmed("proj-1", "cable-1", true);
+
+      const progress = getSurveyProgress("proj-1", [
+        "display-mount-height",
+        "cable-containment",
+        "power-at-position",
+      ]);
+      expect(progress.totalInstallItems).toBe(3);
+      expect(progress.confirmedInstallItems).toBe(2);
+      // 1 cable + 2 install items completed out of 1 cable + 3 install items
+      expect(progress.completionPercent).toBe(75);
+    });
+
+    it("counts unchecked install items against survey progress", () => {
+      // No confirmations at all: every supplied install item stays open.
+      const progress = getSurveyProgress("fresh-project", [
+        "display-mount-height",
+        "cable-containment",
+        "power-at-position",
+        "mounting-hardware",
+      ]);
+      expect(progress.totalInstallItems).toBe(4);
+      expect(progress.confirmedInstallItems).toBe(0);
+      expect(progress.completionPercent).toBe(0);
+    });
+
+    it("reports no install items when none are supplied (backwards compatible)", () => {
+      const progress = getSurveyProgress("proj-1");
+      expect(progress.totalInstallItems).toBe(0);
+      expect(progress.confirmedInstallItems).toBe(0);
+    });
+  });
+
+  describe("install-detail confirmation", () => {
+    it("round-trips the checked install item ids", () => {
+      setInstallChecked("proj-1", ["display-mount-height", "cable-containment"]);
+      expect(getInstallChecked("proj-1")).toEqual([
+        "display-mount-height",
+        "cable-containment",
+      ]);
+    });
+
+    it("returns an empty list for an untouched project", () => {
+      expect(getInstallChecked("untouched-project")).toEqual([]);
     });
   });
 

@@ -175,13 +175,24 @@ export function setLocationNotes(projectId: string, locationId: string, notes: s
    Summary helpers
    ────────────────────────────────────────────── */
 
-export function getSurveyProgress(projectId: string): {
+export type SurveyProgress = {
   totalCables: number;
   confirmedCables: number;
   totalDevices: number;
   verifiedDevices: number;
+  totalInstallItems: number;
+  confirmedInstallItems: number;
   completionPercent: number;
-} {
+};
+
+/**
+ * Survey progress across cable, device and (when the caller supplies the
+ * checklist's install item ids) installation-detail confirmations. Install
+ * items are tracked under their own key (see getInstallChecked); once the
+ * caller passes the full list, unchecked install items count against the
+ * completion percentage exactly like an unconfirmed cable does.
+ */
+export function getSurveyProgress(projectId: string, installItemIds?: string[]): SurveyProgress {
   const edits = getProjectEdits(projectId);
   const cableEntries = Object.values(edits.cableEdits);
   const deviceEntries = Object.values(edits.deviceEdits);
@@ -189,8 +200,12 @@ export function getSurveyProgress(projectId: string): {
   const confirmedCables = cableEntries.filter((c) => c.confirmed).length;
   const verifiedDevices = deviceEntries.filter((d) => d.verified).length;
 
-  const totalItems = cableEntries.length + deviceEntries.length;
-  const completedItems = confirmedCables + verifiedDevices;
+  const checkedInstall = new Set(getInstallChecked(projectId));
+  const installIds = installItemIds ?? [];
+  const confirmedInstallItems = installIds.filter((id) => checkedInstall.has(id)).length;
+
+  const totalItems = cableEntries.length + deviceEntries.length + installIds.length;
+  const completedItems = confirmedCables + verifiedDevices + confirmedInstallItems;
   const completionPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
   return {
@@ -198,6 +213,8 @@ export function getSurveyProgress(projectId: string): {
     confirmedCables,
     totalDevices: deviceEntries.length,
     verifiedDevices,
+    totalInstallItems: installIds.length,
+    confirmedInstallItems,
     completionPercent,
   };
 }
@@ -211,6 +228,42 @@ export function clearProjectEdits(projectId: string): void {
   const all = readAllEdits();
   delete all[projectId];
   writeAllEdits(all);
+}
+
+/* ──────────────────────────────────────────────
+   Installation-detail confirmation
+   ──────────────────────────────────────────────
+
+   The site-survey Installation Details checkboxes (mounting height, power at
+   position, containment, rack position, …) are confirmed on site, not during
+   discovery. They live under their own per-project key and dispatch the same
+   wingman:survey-edited event as cable/device edits, so the proposal's
+   needs-site-survey flag refreshes when a checkbox is toggled.
+   ────────────────────────────────────────────── */
+
+const INSTALL_CHECKED_KEY_PREFIX = "wingman:survey-install-checked:";
+
+export function getInstallChecked(projectId: string): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(`${INSTALL_CHECKED_KEY_PREFIX}${projectId}`);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function setInstallChecked(projectId: string, itemIds: string[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      `${INSTALL_CHECKED_KEY_PREFIX}${projectId}`,
+      JSON.stringify(itemIds),
+    );
+    window.dispatchEvent(new CustomEvent("wingman:survey-edited"));
+  } catch {
+    // Storage full or unavailable — silent fail
+  }
 }
 
 /* ──────────────────────────────────────────────

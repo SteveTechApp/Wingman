@@ -1,4 +1,4 @@
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Check, CheckCircle2, ChevronRight, Download, FileText,
@@ -7,6 +7,11 @@ import {
 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
+// The static reference diagrams are small, but keep them behind the lazy route
+// chunk so the template page itself never pays for them.
+const ExcalidrawBlockSchematic = lazy(() =>
+  import("../components/ExcalidrawBlockSchematic"),
+);
 import { TemplateSchematic } from "../components/TemplateSchematic";
 import { upsertStoredProject, type StoredProductSelection, type StoredProject, type StoredProjectProposal } from "../data/projectStore";
 import { exportBomCsv } from "../lib/proposalExport";
@@ -136,6 +141,7 @@ export function TemplateReviewPage() {
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
   const [filter, setFilter] = useState("All");
   const [equipmentGroup, setEquipmentGroup] = useState<EquipmentGroup>("Required");
+  const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated">("excalidraw");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
@@ -285,7 +291,21 @@ export function TemplateReviewPage() {
           </aside>
         </div> : null}
 
-        {activeTab === "Connectivity" ? <TemplateSchematic template={template} rows={selectedRows} /> : null}
+        {activeTab === "Connectivity" ? (
+          <div className="wm-template-connectivity">
+            <div className="wm-connectivity-view-switcher" role="tablist" aria-label="Block schematic view">
+              <button type="button" role="tab" aria-selected={connectivityView === "excalidraw"} className={connectivityView === "excalidraw" ? "is-active" : ""} onClick={() => setConnectivityView("excalidraw")}>Reference block schematic</button>
+              <button type="button" role="tab" aria-selected={connectivityView === "generated"} className={connectivityView === "generated" ? "is-active" : ""} onClick={() => setConnectivityView("generated")}>Generated for this template</button>
+            </div>
+            {connectivityView === "excalidraw" ? (
+              <Suspense fallback={<div className="wm-excalidraw-empty"><p>Loading block schematic…</p></div>}>
+                <ExcalidrawBlockSchematic />
+              </Suspense>
+            ) : (
+              <TemplateSchematic template={template} rows={selectedRows} />
+            )}
+          </div>
+        ) : null}
 
         {activeTab === "Equipment" ? <div className="wm-equipment-workspace">
           <div className="wm-template-section-heading"><div><span>Equipment schedule</span><h2>Editable WyreStorm BOM</h2></div><span className="wm-status is-assumed">Edit quantities and scope</span></div>

@@ -35,4 +35,6 @@ export type DiscoverySummaryItem = {
   label: string;
   answer: string;
   note: string;
+  /** True when the rep verified this answer with the customer. */
+  confirmed?: boolean;
 };

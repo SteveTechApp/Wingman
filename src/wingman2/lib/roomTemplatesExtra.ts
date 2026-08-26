@@ -397,7 +397,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
       { label: "Serviceability", description: "Hotel rooms need robust cable access, clear support handoff and easy reset behaviour." },
     ],
     assumptions: ["One room display path", "Guest laptop workflow", "Simple UC requirement", "Audio expansion by others if needed"],
-    validationItems: ["Room size", "Laptop connection method", "Hotel wireless policy", "Display location", "USB/camera expectation"],
+    validationItems: ["Room size", "Laptop connection method", "Hotel wireless policy", "Display location (site survey checklist)", "USB/camera expectation"],
     upgradePaths: ["Add APO-COM-MIC for larger tables", "Use NetworkHD 100/500 where meeting rooms share central sources", "Add PTZ camera for larger training/event rooms"],
   },
   {
@@ -868,7 +868,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
       { label: "Usability", description: "Clinicians need a simple room workflow; avoid complex source selection." },
     ],
     assumptions: ["One clinical display", "One video consultation platform", "Local UC only", "Clinical PC by others"],
-    validationItems: ["Approved platform", "Privacy policy", "Mounting/infection control", "Audio pickup", "Clinical PC location"],
+    validationItems: ["Approved platform", "Privacy policy", "Mounting and infection-control requirements (site survey checklist)", "Audio pickup", "Clinical PC location"],
     upgradePaths: ["Add PTZ camera for larger consultation/training rooms", "Move to NetworkHD 500 where rooms require routed observation/review displays", "Add separate USB extension where the host PC is remote"],
   },
   {

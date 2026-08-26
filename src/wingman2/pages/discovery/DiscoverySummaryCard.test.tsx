@@ -78,4 +78,30 @@ describe("DiscoverySummaryCard", () => {
     expect(screen.getByRole("button", { name: "Review video wall" })).toBeTruthy();
     expect(screen.queryByText("Video wall configuration required")).toBeNull();
   });
+
+  it("lets the rep confirm a captured decision with the customer", () => {
+    const onToggle = vi.fn();
+    render(
+      <DiscoverySummaryCard
+        items={[
+          { id: "opportunity", label: "Application", answer: "Meeting room / boardroom", note: "The exec boardroom.", confirmed: true },
+          { id: "scale", label: "Room / system scale", answer: "Single large room", note: "" },
+        ]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        onToggleConfirmed={onToggle}
+      />,
+    );
+
+    // Confirmed row shows the settled badge; open row offers the confirm action.
+    const confirmedButton = screen.getByRole("button", { name: "Confirmed" });
+    expect(confirmedButton.getAttribute("aria-pressed")).toBe("true");
+    const openButton = screen.getByRole("button", { name: "Confirm with customer" });
+    expect(openButton.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.click(openButton);
+    expect(onToggle).toHaveBeenCalledWith("scale");
+  });
 });

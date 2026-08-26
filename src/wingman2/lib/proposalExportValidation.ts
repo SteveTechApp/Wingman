@@ -6,7 +6,11 @@
  * generation. Non-blocking warnings are also returned for informational
  * purposes.
  */
-import type { StoredProductSelection, StoredProjectProposal } from "../data/projectStore";
+import type {
+  DiscoveryConversationItem,
+  StoredProductSelection,
+  StoredProjectProposal,
+} from "../data/projectStore";
 import type { SalesBomRow } from "./salesReadiness";
 import { powerBudgetSummary } from "./powerBudget";
 import { resolveProductTechnicalData } from "./governedProductTechnicalData";
@@ -15,7 +19,7 @@ import { resolveProductTechnicalData } from "./governedProductTechnicalData";
 
 export type ExportValidationBlocker = {
   id: string;
-  domain: "reach" | "power" | "chain" | "lifecycle";
+  domain: "reach" | "power" | "chain" | "lifecycle" | "discovery";
   severity: "blocker" | "warning";
   sku?: string;
   message: string;
@@ -311,22 +315,91 @@ function validateLifecycle(products: StoredProductSelection[]): ExportValidation
   return blockers;
 }
 
+// ─── Discovery Conversation Validation ────────────────────────────────────────
+
+// Rows kept "as a note only" in the guided interview never map to a governed
+// answer — the exact string buildDiscoveryConversation writes when no option
+// was selected. Those captures cannot be presented as a settled requirement,
+// so they block export until the rep records a governed answer.
+const NOTE_ONLY_ANSWER = "Captured note only";
+
+function validateDiscoveryConversation(
+  conversation?: DiscoveryConversationItem[],
+): ExportValidationBlocker[] {
+  const blockers: ExportValidationBlocker[] = [];
+  const rows = conversation ?? [];
+  if (rows.length === 0) return blockers;
+
+  // Block on note-only captures that were never confirmed to a governed
+  // answer — the customer wording is captured, but the requirement itself is
+  // still open and cannot be quoted against.
+  for (const row of rows) {
+    if (row.answer === NOTE_ONLY_ANSWER) {
+      blockers.push({
+        id: `discovery-note-only-${row.stepId}`,
+        domain: "discovery",
+        severity: "blocker",
+        message: `Discovery row “${row.question}” was captured as a note only and never confirmed to a governed answer.`,
+        fix: "Reopen the question in Discovery and select the closest governed option, or remove the note if it does not map to a question.",
+      });
+    }
+  }
+
+  // Review pass: every other open row (answered but not yet confirmed with
+  // the customer) surfaces as a warning so the pre-export review sees the
+  // whole open trail, not just the hard blockers.
+  const openRows = rows.filter(
+    (row) => row.answer !== NOTE_ONLY_ANSWER && row.confirmed !== true,
+  );
+  if (openRows.length > 0) {
+    blockers.push({
+      id: "discovery-open-rows",
+      domain: "discovery",
+      severity: "warning",
+      message: `${openRows.length} discovery conversation row${openRows.length === 1 ? "" : "s"} ${openRows.length === 1 ? "is" : "are"} still marked “to be confirmed” with the customer.`,
+      fix: "Review the open rows in Discovery and confirm each with the customer before sign-off.",
+    });
+  }
+
+  // Low-confidence pass: rows captured from a partial keyword-only match are
+  // recorded as "verify before quote" in the exports and surface here as a
+  // warning so the pre-export review sees that an answer may have been a
+  // guess, not a settled customer requirement.
+  const lowRows = rows.filter(
+    (row) => row.answer !== NOTE_ONLY_ANSWER && row.confidence === "low",
+  );
+  if (lowRows.length > 0) {
+    blockers.push({
+      id: "discovery-low-confidence",
+      domain: "discovery",
+      severity: "warning",
+      message: `${lowRows.length} discovery answer${lowRows.length === 1 ? " was" : "s were"} captured from a low-confidence (partial) match — verify before quote.`,
+      fix: "Re-verify the low-confidence rows with the customer in Discovery before sign-off so no guess reaches the quote.",
+    });
+  }
+
+  return blockers;
+}
+
 // ─── Main Validation Function ─────────────────────────────────────────────────
 
 export function validateProposalExport({
   products,
   bomRows,
   topology,
+  discoveryConversation,
 }: {
   products: StoredProductSelection[];
   bomRows: SalesBomRow[];
   topology?: { connections: Array<{ lengthMetres?: number; services?: string[] }> };
+  discoveryConversation?: DiscoveryConversationItem[];
 }): ExportValidationResult {
   const allBlockers: ExportValidationBlocker[] = [
     ...validateReach(products, topology),
     ...validatePowerBudget(products),
     ...validateChainCompleteness(products, bomRows),
     ...validateLifecycle(products),
+    ...validateDiscoveryConversation(discoveryConversation),
   ];
 
   const blockers = allBlockers.filter((b) => b.severity === "blocker");

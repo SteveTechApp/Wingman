@@ -77,6 +77,39 @@ describe("DashboardPage", () => {
     expect(recentProjects.getByLabelText("Discovery: 42%")).not.toBeNull();
   });
 
+  it("shows the interview resume position and jumps straight back into the interview", () => {
+    upsertStoredProject({
+      id: "acme-hq-boardroom",
+      name: "Acme HQ Boardroom",
+      owner: "Steve",
+      stage: "Discovery",
+      status: "recommended",
+      updated: "Just now",
+      resumeTo: routeCatalogByKey.discovery.path,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      discoveryBrief: {
+        capturedPercent: 42,
+        nextBestQuestion: "Confirm the USB host requirement",
+        discoveryConversation: [
+          { stepId: "opportunity", question: "What type of opportunity is this?", answer: "Meeting room / boardroom", note: "" },
+          { stepId: "scale", question: "What is the room scale?", answer: "Single large room", note: "" },
+        ],
+      } as never,
+    });
+
+    const recentProjects = renderDashboard();
+
+    const resumeLine = recentProjects.getByTestId("dashboard-resume-position");
+    expect(resumeLine.textContent).toContain("Resume interview");
+    expect(resumeLine.textContent).toContain("Confirm the USB host requirement");
+    expect(resumeLine.textContent).toContain("2 answered");
+
+    const card = recentProjects.getByText("Acme HQ Boardroom").closest("a");
+    expect(card!.getAttribute("href")).toContain("resume=project");
+    expect(card!.getAttribute("href")).toContain("interview=1");
+  });
+
   it("sets the clicked project as the active project", () => {
     upsertStoredProject({
       id: "acme-hq-boardroom",

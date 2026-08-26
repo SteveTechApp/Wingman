@@ -78,6 +78,63 @@ describe("proposal DOCX export", () => {
     expect(text).toContain("accepts no liability");
   });
 
+  it("carries the discovery Q&A trail into the DOCX body", async () => {
+    const wizard = createProposalWizardDefaults({
+      projectId: "government-control-room", projectName: proposal.title, preparedBy: "Solutions Team",
+      executiveSummary: proposal.summary, architectureNarrative: "NetworkHD 600 10G AV-over-IP architecture.",
+    });
+    const withConversation: StoredProjectProposal = {
+      ...proposal,
+      discoveryConversation: [
+        { stepId: "opportunity", question: "What type of opportunity is this?", answer: "Meeting room / boardroom", note: "A boardroom for the exec team.", confirmed: true, confidence: "high", confidenceScore: 12 },
+        { stepId: "sources", question: "How many source positions are likely?", answer: "2-4 sources", note: "Two laptops at the table.", confidence: "low", confidenceScore: 1 },
+      ],
+    };
+
+    const buffer = await Packer.toBuffer(buildProposalDocx(withConversation, bom, wizard));
+    const zip = await JSZip.loadAsync(buffer);
+    const documentXml = await zip.file("word/document.xml")!.async("string");
+    const text = documentXml.replace(/<[^>]+>/g, " ");
+
+    expect(text).toContain("Discovery Conversation");
+    expect(text).toContain("What type of opportunity is this?");
+    expect(text).toContain("Meeting room / boardroom");
+    expect(text).toContain("A boardroom for the exec team.");
+    expect(text).toContain("Two laptops at the table.");
+    expect(text).toContain("Customer wording");
+    expect(text).toContain("Capture confidence");
+    // The trust level (and the score behind it) for each you-said → matched
+    // pair is visible — low rows carry the "verify before quote" flag.
+    expect(text).toContain("High confidence (12)");
+    expect(text).toContain("Low confidence — verify before quote (1)");
+  });
+
+  it("marks confirmed rows settled and open rows 'to be confirmed' in the DOCX", async () => {
+    const wizard = createProposalWizardDefaults({
+      projectId: "government-control-room", projectName: proposal.title, preparedBy: "Solutions Team",
+      executiveSummary: proposal.summary, architectureNarrative: "NetworkHD 600 10G AV-over-IP architecture.",
+    });
+    const withConversation: StoredProjectProposal = {
+      ...proposal,
+      discoveryConversation: [
+        { stepId: "opportunity", question: "What type of opportunity is this?", answer: "Meeting room / boardroom", note: "", confirmed: true },
+        { stepId: "sources", question: "How many source positions are likely?", answer: "2-4 sources", note: "", confirmed: false },
+      ],
+    };
+
+    const buffer = await Packer.toBuffer(buildProposalDocx(withConversation, bom, wizard));
+    const zip = await JSZip.loadAsync(buffer);
+    const documentXml = await zip.file("word/document.xml")!.async("string");
+    const text = documentXml.replace(/<[^>]+>/g, " ");
+
+    expect(text).toContain("Confirmed with customer");
+    expect(text).toContain("To be confirmed");
+    expect(text).toContain("Status");
+    // Rows recorded before confidence existed render an honest placeholder.
+    expect(text).toContain("—");
+    expect(text).toContain("must be re-verified with the customer before quoting");
+  });
+
   it("marks missing equipment prices as a commercial hold", async () => {
     const wizard = createProposalWizardDefaults({
       projectId: "draft", projectName: proposal.title, preparedBy: "Solutions Team",

@@ -17,12 +17,14 @@ import {
 } from "../data/projectStore";
 import { CrmSharePanel } from "../components/CrmSharePanel";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
+import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
 import { saveProjectAsRoomTemplate } from "../lib/customRoomTemplates";
 import { getProjectRequirementRecords, requirementReadiness } from "../lib/projectRequirements";
 import { getProductFamilyRankingReason } from "../lib/productFamilyShortlistRanking";
 import { repTierLabelFromRun } from "../lib/repScript";
 import { RequirementsAccordion } from "./project/RequirementsAccordion";
 import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePanel";
+import { DiscoveryConversationReview } from "../components/DiscoveryConversationReview";
 
 // Editable requirements are rendered through the extracted accordion below.
 
@@ -362,6 +364,8 @@ export function ProjectDetailPage() {
   );
   const latestCompareRun = project?.compareRuns?.[0] ?? null;
   const proposal = project?.proposal ?? null;
+  const discoveryResume = discoveryResumeInfo(project?.discoveryBrief);
+  const discoveryResumeInterview = Boolean(discoveryResume && discoveryResume.hasContent && !discoveryResume.complete);
 
   const missingInformation = useMemo(() => {
     const evidenceMissing = recommendationEvidence?.missingInformation ?? [];
@@ -437,20 +441,24 @@ export function ProjectDetailPage() {
     const items: ProjectEvidenceTimelineItem[] = [];
 
     if (project.discoveryBrief) {
+      const resume = discoveryResumeInfo(project.discoveryBrief);
+      const resumeInterview = Boolean(resume && resume.hasContent && !resume.complete);
       items.push({
         id: "discovery-brief",
         label: "Discovery brief",
         source: "Discovery",
-        status:
-          typeof project.discoveryBrief.capturedPercent === "number"
+        status: resumeInterview
+          ? `${resume!.answeredCount} answers · ${resume!.percent ?? 0}% captured`
+          : typeof project.discoveryBrief.capturedPercent === "number"
             ? `${project.discoveryBrief.capturedPercent}% captured`
             : "Captured",
-        detail:
-          project.discoveryBrief.nextBestQuestion ||
-          project.discoveryBrief.missingInformation?.[0] ||
-          "Discovery information exists for this opportunity.",
+        detail: resumeInterview
+          ? `Resume the guided interview — next: ${resume!.nextQuestion || `open question ${resume!.answeredCount + 1}`}.`
+          : project.discoveryBrief.nextBestQuestion ||
+            project.discoveryBrief.missingInformation?.[0] ||
+            "Discovery information exists for this opportunity.",
         timestamp: formatProjectTimestamp(project.discoveryBrief.savedAt),
-        route: routeCatalogByKey.discovery.path,
+        route: resumeInterview ? discoveryResumeUrl() : routeCatalogByKey.discovery.path,
       });
     }
 
@@ -1172,9 +1180,15 @@ export function ProjectDetailPage() {
 
           {/* Workflow handoff */}
           <div className="flex flex-wrap gap-2">
-            <Link to={routeCatalogByKey.discovery.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
-              Discovery
-            </Link>
+            {discoveryResumeInterview ? (
+              <Link to={discoveryResumeUrl()} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
+                Resume interview
+              </Link>
+            ) : (
+              <Link to={routeCatalogByKey.discovery.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
+                Discovery
+              </Link>
+            )}
             <Link to={routeCatalogByKey.recommendations.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
               Finder
             </Link>
@@ -1264,6 +1278,16 @@ export function ProjectDetailPage() {
               No saved discovery, product, compare, ingest, or proposal evidence is attached to this project yet. Start with Discovery or Finder before treating this opportunity as ready for proposal.
             </div>
           )}
+        </SectionCard>
+
+        <SectionCard
+          title="Discovery conversation"
+          subtitle="The questions asked, the governed answers, and the customer's own wording — audit the trail and jump into Discovery to correct any row before it reaches a proposal."
+        >
+          <span id="project-discovery-conversation" className="wm-project-detail-anchor" aria-hidden="true" />
+          <DiscoveryConversationReview
+            items={project?.discoveryBrief?.discoveryConversation ?? []}
+          />
         </SectionCard>
 
         <SectionCard

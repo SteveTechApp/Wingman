@@ -7,6 +7,10 @@ import {
   inferSchematicArchitecture,
 } from "./roomSchematicEngine";
 import type { SalesBomRow } from "./salesReadiness";
+import {
+  CAPTURE_CONFIDENCE_EXPLAINER,
+  captureConfidenceCell,
+} from "./discoveryConversationDisplay";
 
 export type BomRow = SalesBomRow;
 
@@ -146,6 +150,28 @@ function buildBenefitsHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   items.push("Final commercial and operational benefit statements should be confirmed against the customer's specific business or KPI outcome before proposal issue.");
 
   return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function buildDiscoveryConversationHtml(proposal: StoredProjectProposal): string {
+  const items = proposal.discoveryConversation ?? [];
+  if (!items.length) return "";
+
+  const rows = items
+    .map(
+      (item) =>
+        `<tr><td>${escapeHtml(item.question)}</td><td>${escapeHtml(item.answer)}</td><td>${escapeHtml(item.note || "—")}</td><td>${item.confirmed ? "Confirmed with customer" : "To be confirmed"}</td><td>${escapeHtml(captureConfidenceCell(item.confidence, item.confidenceScore))}</td></tr>`,
+    )
+    .join("");
+
+  return `
+  <h2>Discovery Conversation</h2>
+  <p>The recommendation in this document is based on the discovery conversation captured below: the question asked, the closest governed answer, and the customer's own wording where recorded. Rows marked "Confirmed with customer" were verified with the customer during discovery; rows marked "To be confirmed" are still open and must be verified before final design sign-off. Nothing here is presented as a settled fact that was not said during discovery.</p>
+  <table>
+    <thead><tr><th>Question asked</th><th>Governed answer</th><th>Customer wording</th><th>Status</th><th>Capture confidence</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <p style="font-size:12px;">${escapeHtml(CAPTURE_CONFIDENCE_EXPLAINER)}</p>
+  <p style="font-size:12px;">Where a row is a note-only capture, the answer was still open at the time of writing and must be confirmed before final design sign-off.</p>`;
 }
 
 function buildExclusionsHtml(bomRows: BomRow[]) {
@@ -506,6 +532,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <h2>Customer Requirement</h2>
   <p><strong>Confirmed requirement:</strong> ${escapeHtml(proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
   ${proposal.outputPurpose ? `<p><strong>Sales motion:</strong> ${escapeHtml(proposal.outputPurpose.motion)}</p>` : ""}
+  ${buildDiscoveryConversationHtml(proposal)}
 
   <h2>Recommended Solution</h2>
   ${
