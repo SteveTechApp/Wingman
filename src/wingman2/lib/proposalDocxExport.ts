@@ -7,24 +7,28 @@ import type { StoredProjectProposal, StoredProductSelection } from "../data/proj
 import { powerBudgetSummary } from "./powerBudget";
 import type { SalesBomRow } from "./salesReadiness";
 import { getProposalDocumentTypeConfig, linesFromText, type ProposalWizardDraft } from "./proposalWizard";
+import {
+  CAPTURE_CONFIDENCE_EXPLAINER,
+  captureConfidenceCell,
+} from "./discoveryConversationDisplay";
 
-const NAVY = "08223A";
-const AQUA = "16B8B0";
-const BLUE = "2E74B5";
-const TEXT = "172B3A";
-const MUTED = "5E7280";
-const PALE = "F4F6F9";
-const BORDER = "CBD5E1";
-const TABLE_WIDTH = 9360;
+export const NAVY = "08223A";
+export const AQUA = "16B8B0";
+export const BLUE = "2E74B5";
+export const TEXT = "172B3A";
+export const MUTED = "5E7280";
+export const PALE = "F4F6F9";
+export const BORDER = "CBD5E1";
+export const TABLE_WIDTH = 9360;
 
 type ProposalImageAsset = { data: Uint8Array; type: "jpg" | "png"; title: string };
 type ProposalDocxAssets = { logo?: ProposalImageAsset; room?: ProposalImageAsset; schematic?: ProposalImageAsset };
 
-function fileBaseName(title: string) {
-  return String(title || "wingman-proposal").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "wingman-proposal";
+export function fileBaseName(title: string, fallback = "wingman-proposal") {
+  return String(title || fallback).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || fallback;
 }
 
-function paragraph(text: string, options: { bold?: boolean; size?: number; colour?: string; alignment?: (typeof AlignmentType)[keyof typeof AlignmentType]; after?: number; justified?: boolean } = {}) {
+export function paragraph(text: string, options: { bold?: boolean; size?: number; colour?: string; alignment?: (typeof AlignmentType)[keyof typeof AlignmentType]; after?: number; justified?: boolean } = {}) {
   return new Paragraph({
     alignment: options.justified ? AlignmentType.JUSTIFIED : options.alignment,
     spacing: { after: options.after ?? 160, line: 320 },
@@ -32,7 +36,7 @@ function paragraph(text: string, options: { bold?: boolean; size?: number; colou
   });
 }
 
-function heading(text: string, level: 1 | 2 = 1) {
+export function heading(text: string, level: 1 | 2 = 1) {
   return new Paragraph({
     heading: level === 1 ? HeadingLevel.HEADING_1 : HeadingLevel.HEADING_2,
     keepNext: true,
@@ -41,7 +45,7 @@ function heading(text: string, level: 1 | 2 = 1) {
   });
 }
 
-function bullet(text: string) {
+export function bullet(text: string) {
   return new Paragraph({
     numbering: { reference: "proposal-bullets", level: 0 },
     spacing: { after: 80, line: 290 },
@@ -54,7 +58,7 @@ function bulletLines(value: string, fallback: string) {
   return (values.length ? values : [fallback]).map(bullet);
 }
 
-function cell(text: string, width: number, options: { bold?: boolean; fill?: string; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) {
+export function cell(text: string, width: number, options: { bold?: boolean; fill?: string; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) {
   return new TableCell({
     width: { size: width, type: WidthType.DXA },
     margins: { top: 80, bottom: 80, left: 120, right: 120 },
@@ -67,14 +71,18 @@ function cell(text: string, width: number, options: { bold?: boolean; fill?: str
   });
 }
 
-const borders = {
+export const borders = {
   top: { style: BorderStyle.SINGLE, size: 4, color: BORDER }, bottom: { style: BorderStyle.SINGLE, size: 4, color: BORDER },
   left: { style: BorderStyle.SINGLE, size: 4, color: BORDER }, right: { style: BorderStyle.SINGLE, size: 4, color: BORDER },
   insideHorizontal: { style: BorderStyle.SINGLE, size: 3, color: BORDER }, insideVertical: { style: BorderStyle.SINGLE, size: 3, color: BORDER },
 };
 
-function fixedTable(widths: number[], rows: TableRow[]) {
+export function fixedTable(widths: number[], rows: TableRow[]) {
   return new Table({ width: { size: TABLE_WIDTH, type: WidthType.DXA }, layout: TableLayoutType.FIXED, columnWidths: widths, borders, rows });
+}
+
+export function addSection(children: Array<Paragraph | Table>, title: string, content: Array<Paragraph | Table>) {
+  children.push(heading(title), ...content);
 }
 
 function money(value: number, currency: ProposalWizardDraft["currency"]) {
@@ -107,10 +115,6 @@ function pipeTable(value: string, headers: string[], widths: number[]) {
     new TableRow({ tableHeader: true, children: headers.map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
     ...(rows.length ? rows : [["To be confirmed"]]).map((parts) => new TableRow({ children: widths.map((width, index) => cell(parts[index] || "TBC", width)) })),
   ]);
-}
-
-function addSection(children: Array<Paragraph | Table>, title: string, content: Array<Paragraph | Table>) {
-  children.push(heading(title), ...content);
 }
 
 function imageParagraph(asset: ProposalImageAsset, width: number, height: number) {
@@ -180,6 +184,30 @@ function powerStrategyContent(products: StoredProductSelection[]): Array<Paragra
     lines.push(paragraph(`PoE/PoH requirement: ${poeSkus.join(", ")} — confirm the injector or switch PoE budget covers the total before order.`, { colour: NAVY }));
   }
   return lines;
+}
+
+function discoveryConversationContent(proposal: StoredProjectProposal): Array<Paragraph | Table> {
+  const items = proposal.discoveryConversation ?? [];
+  if (!items.length) {
+    return [paragraph("The discovery conversation behind this requirement has not been captured yet. Confirm the room, source, display, distance, USB, audio and control answers with the customer before issue.", { colour: MUTED })];
+  }
+  const widths = [2300, 2300, 2700, 1400, 1260];
+  const table = fixedTable(widths, [
+    new TableRow({ tableHeader: true, children: ["Question asked", "Governed answer", "Customer wording", "Status", "Capture confidence"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+    ...items.map((item) => new TableRow({ children: [
+      cell(item.question, widths[0]),
+      cell(item.answer, widths[1]),
+      cell(item.note || "—", widths[2]),
+      cell(item.confirmed ? "Confirmed with customer" : "To be confirmed", widths[3]),
+      cell(captureConfidenceCell(item.confidence, item.confidenceScore), widths[4]),
+    ] })),
+  ]);
+  return [
+    paragraph("The recommendation in this document is based on the discovery conversation below. Each row records the question asked, the closest governed answer, and the customer's own wording where captured. Rows marked \"Confirmed with customer\" were verified with the customer during discovery; rows marked \"To be confirmed\" are still open and must be verified before final design sign-off. Nothing here is presented as a settled fact that was not said during discovery.", { justified: true }),
+    paragraph(CAPTURE_CONFIDENCE_EXPLAINER, { size: 18, colour: MUTED, justified: true }),
+    table,
+    paragraph("Where a row is a note-only capture, the answer was still open at the time of writing and must be confirmed before final design sign-off.", { size: 18, colour: MUTED }),
+  ];
 }
 
 function productSpecificationContent(proposal: StoredProjectProposal): Array<Paragraph | Table> {
@@ -287,6 +315,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     ...application.benefits.map((benefit) => bullet(`${benefit.title}: ${benefit.detail}`)),
   ]);
   addSection(children, "Client Objectives and Current Challenge", [paragraph(wizard.customerObjectives || proposal.summary || "The client objectives require confirmation.", { justified: true })]);
+  addSection(children, "Discovery Conversation", discoveryConversationContent(proposal));
   addSection(children, "Proposed Solution and Business Value", [paragraph(wizard.proposedSolution || "The proposed solution requires confirmation.", { justified: true }), bullet("A supportable architecture aligned to the stated operational requirement."), bullet("A controlled route from design approval to quotation, delivery and acceptance."), bullet("Clear ownership of equipment, services, dependencies and by-others scope.")]);
   addSection(children, "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is quoted."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
   addSection(children, "Equipment and Pricing", [paragraph(equipment.complete ? `The equipment total is ${money(equipment.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.` : "COMMERCIAL HOLD: one or more equipment prices are missing. This draft must not be issued as an exact quotation until every TBC value is resolved.", { bold: true, colour: equipment.complete ? NAVY : "9B1C1C" }), equipment.table, paragraph("Pricing covers only the listed equipment. Services, third-party equipment, freight, taxes and by-others work are excluded unless expressly priced below.", { size: 18, colour: MUTED })]);

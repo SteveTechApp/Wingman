@@ -97,7 +97,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Power and mounting", description: "Local display power, cable containment, and wall reinforcement by installer." },
     ],
     assumptions: ["Single display", "Local room UC", "No matrix routing", "No ceiling microphone system unless added"],
-    validationItems: ["Display mounting height", "USB-C laptop charging expectations", "Wireless presentation policy", "Acoustic suitability"],
+    validationItems: ["Display mounting height (site survey checklist)", "USB-C laptop charging expectations", "Wireless presentation policy", "Acoustic suitability (site survey checklist)"],
     upgradePaths: ["Add APO-COM-MIC for larger table pickup", "Add APO-DG-DOCK for managed dongle storage", "Move to a NetworkHD 500 design if room routing expands"],
   },
   {
@@ -383,7 +383,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Network", description: "Store network must support AV-over-IP bandwidth, multicast behaviour, VLAN policy, and PoE budget." },
     ],
     assumptions: ["Two signage sources", "Eight display zones", "Preset routing", "No USB transport"],
-    validationItems: ["Exact display count", "Source/player count", "Network readiness", "Mounting and local power", "Content management ownership"],
+    validationItems: ["Exact display count", "Source/player count", "Network readiness", "Mounting and local power (site survey checklist)", "Content management ownership"],
     upgradePaths: ["Use NHD-150-RX for multiview signage monitoring", "Move to NetworkHD 500 for higher-quality 4K60 paths", "Add dedicated wall processors for fixed LCD walls"],
   },
   {
@@ -943,7 +943,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Control", description: "Residential control processor, handheld remote, or app control by others." },
     ],
     assumptions: ["Four HDMI sources", "Two display paths", "Fixed local routing", "No USB transport"],
-    validationItems: ["Source bandwidth", "ARC/eARC expectations", "Projector distance", "Control integration", "HDR/HDCP requirements"],
+    validationItems: ["Source bandwidth", "ARC/eARC expectations", "Projector position and throw distance (site survey checklist)", "Control integration", "HDR/HDCP requirements"],
     upgradePaths: ["Use an 8x8 seamless matrix for more sources/displays", "Move to HDBaseT or AV-over-IP where sources are distributed", "Add dedicated audio de-embedding where AVR handoff requires it"],
   },
   {
@@ -1078,7 +1078,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Cabling", description: "Use certified category cable and avoid routing near mains or noisy electrical services." },
     ],
     assumptions: ["One teacher/presenter input point", "One projector/display output", "HDBaseT transport", "Audio system by others unless added"],
-    validationItems: ["Cable distance", "Projector input", "USB requirement", "Audio handoff", "Control requirement", "Wall plate position"],
+    validationItems: ["Cable distance", "Projector input", "USB requirement", "Audio handoff", "Control requirement", "Wall plate position (site survey checklist)"],
     upgradePaths: ["Add PTZ camera for assemblies or hybrid events", "Move to NetworkHD 100/500 where multiple displays or overflow areas are required", "Add a room control panel for projector and screen operation"],
   },
   {
@@ -1323,7 +1323,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Display locations", description: "Confirm power, mounting, cable access, ventilation, and service access behind each display." },
     ],
     assumptions: ["Six group/teaching displays", "One teacher station", "NetworkHD 600 10G AV-over-IP", "Teacher-driven control presets"],
-    validationItems: ["10G switch design", "Display count", "Local input requirement at each display", "Teacher control UI", "Cable infrastructure", "Endpoint service access"],
+    validationItems: ["10G switch design", "Display count", "Local input requirement at each display", "Teacher control UI", "Cable containment and routes (site survey checklist)", "Endpoint service access"],
     upgradePaths: ["Add more NHD-600-TRX endpoints for additional group displays", "Add multiview/monitoring where support staff need source preview", "Use NetworkHD 500 where 10G/lossless performance is not required"],
   },
   {
@@ -1587,7 +1587,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Content rights", description: "Live sport, gaming, advertising, and event sources may have different operational and licensing constraints." },
     ],
     assumptions: ["Sixteen source endpoints", "Forty-eight display endpoints", "Multiple venue zones", "Managed AV network"],
-    validationItems: ["Security/network policy", "Display estate count", "Source rights", "Control permissions", "Resilience requirements", "Rack locations"],
+    validationItems: ["Security/network policy", "Display estate count", "Source rights", "Control permissions", "Resilience requirements", "Rack location and rack space (site survey checklist)"],
     upgradePaths: ["Use NetworkHD 600 for ultra-critical zero-latency paths", "Add NHD-0401-MV processors for more monitoring positions", "Split the design into phases by venue zone"],
   },
   {
@@ -1988,7 +1988,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Network resilience", description: "Critical rooms may require resilient switching, UPS, redundant paths, and formal failover behaviour." },
     ],
     assumptions: ["Eight critical sources", "Twelve display endpoints", "10G AV network", "Preset-based secure control"],
-    validationItems: ["10G network design", "Source sensitivity", "Endpoint count", "Control permissions", "Resilience/failover", "Rack and power strategy"],
+    validationItems: ["10G network design", "Source sensitivity", "Endpoint count", "Control permissions", "Resilience/failover", "Rack and power strategy (site survey checklist)"],
     upgradePaths: ["Add more NHD-600-TRX endpoints for additional sources or displays", "Integrate with third-party control for secure workflows", "Create phased deployment for briefing room, operations room, and incident room areas"],
   }
 ];
@@ -2256,7 +2256,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
       { label: "Safeguarding", description: "Panel filtering, safeguarding, and MIS/network policy sit with the school and IT provider." },
     ],
     assumptions: ["One teacher input point", "One interactive flat panel", "HDBaseT transport", "Panel audio unless soundfield is added"],
-    validationItems: ["Cable distance (RX-500 vs RX-700)", "Panel size and touch return", "USB requirement", "Soundfield/assistive audio", "Wall plate position"],
+    validationItems: ["Cable distance (RX-500 vs RX-700)", "Panel size and touch return", "USB requirement", "Soundfield/assistive audio (site survey checklist)", "Wall plate position (site survey checklist)"],
     upgradePaths: ["Add a soundfield system for whole-class audio", "Add a visualiser/document camera input", "Move to NetworkHD 100 where content routes between multiple classrooms or halls"],
   },
   {
@@ -2427,7 +2427,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
       { label: "Modes", description: "Define Demonstration, Bench-Camera, Freeze, and Blank modes for teaching control." },
     ],
     assumptions: ["Two sources", "Eight bench displays", "Cost-effective routed distribution", "Lab-safe display hardware by others"],
-    validationItems: ["Bench display count", "Camera mounting", "Lab safety requirements", "Control method", "Network readiness"],
+    validationItems: ["Bench display count", "Camera mounting (site survey checklist)", "Lab safety requirements", "Control method", "Network readiness"],
     upgradePaths: ["Move to NetworkHD 500 for 4K60 4:4:4 fine-detail imaging", "Add a microscope/visualiser source", "Add NHD-150-RX for a teacher multi-bench overview"],
   },
   {
@@ -3075,7 +3075,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
       { label: "Control", description: "A residential/commercial control system usually drives source selection and room scenes." },
     ],
     assumptions: ["Four HDMI sources", "One projector plus AVR path", "Fixed local routing", "Audio and control by others"],
-    validationItems: ["Source count and bandwidth", "Projector distance", "HDR/HDCP requirements", "ARC/eARC handling", "Control integration"],
+    validationItems: ["Source count and bandwidth", "Projector position and throw distance (site survey checklist)", "HDR/HDCP requirements", "ARC/eARC handling", "Control integration"],
     upgradePaths: ["Use a larger seamless matrix for more sources/zones", "Move to HDBaseT or AV-over-IP for multi-room distribution", "Add dedicated audio de-embedding where the AVR handoff requires it"],
   },
   {

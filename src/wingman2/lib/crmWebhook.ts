@@ -7,6 +7,9 @@
  * room details, and CRM metadata.
  */
 
+import type { DiscoveryConversationItem } from "../data/projectStore";
+import { buildDiscoveryBriefHtml } from "./discoveryBriefExport";
+
 const CRM_WEBHOOK_URL_KEY = "wingman-crm-webhook-url";
 const CRM_WEBHOOK_HISTORY_KEY = "wingman-crm-webhook-history";
 
@@ -20,6 +23,17 @@ export type CrmWebhookHistoryEntry = {
   status: "success" | "error";
   errorMessage?: string;
   httpStatus?: number;
+  /**
+   * The discovery Q&A trail exactly as it was included in the sent payload,
+   * so reps can verify what conversation reached the CRM for this send.
+   */
+  discoveryConversation?: DiscoveryConversationItem[];
+  /**
+   * The exact payload that was POSTed on this send, so a later “Resend” can
+   * re-submit the identical body (including generatedAt) to the current
+   * webhook URL without rebuilding from the possibly-changed project.
+   */
+  payload?: CrmWebhookPayload;
 };
 
 export type CrmWebhookPayload = {
@@ -39,6 +53,8 @@ export type CrmWebhookPayload = {
   dealOutcomeWhy?: string;
   /** Room model summary from discovery */
   roomModel?: Record<string, unknown>;
+  /** Discovery Q&A trail (question, governed answer, customer wording, confirmed status) */
+  discoveryConversation?: DiscoveryConversationItem[];
   /** Selected products with SKU, title, quantity */
   products: Array<{
     sku: string;
@@ -61,6 +77,17 @@ export type CrmWebhookPayload = {
     qty: number;
     notes?: string;
   }>;
+  /**
+   * Base64-encoded discovery brief HTML (full Q&A trail) attached so the CRM
+   * receives the conversation document alongside the structured fields — the
+   * same document the rep can download via "Export discovery brief".
+   */
+  discoveryBriefAttachment?: {
+    filename: string;
+    mimeType: string;
+    /** Base64 (UTF-8) encoded HTML content. */
+    content: string;
+  };
   /** Timestamp when this payload was generated */
   generatedAt: string;
   /** Wingman version marker */
@@ -93,7 +120,10 @@ export function buildWebhookPayload(project: {
   stage: string;
   dealOutcome?: string;
   dealOutcomeWhy?: string;
-  discoveryBrief?: { roomModel?: Record<string, unknown> };
+  discoveryBrief?: {
+    roomModel?: Record<string, unknown>;
+    discoveryConversation?: DiscoveryConversationItem[];
+  };
   productSelections?: Array<{
     sku: string;
     title?: string;
@@ -106,6 +136,8 @@ export function buildWebhookPayload(project: {
   proposal?: {
     title?: string;
     summary?: string;
+    preparedBy?: string;
+    companyName?: string;
     bomRows?: Array<{
       sku: string;
       description: string;
@@ -119,7 +151,7 @@ export function buildWebhookPayload(project: {
   const getString = (key: string) =>
     typeof roomModel[key] === "string" ? String(roomModel[key]) : "";
 
-  return {
+  const payload: CrmWebhookPayload = {
     projectId: project.id,
     projectName: project.name || "Untitled Opportunity",
     customer: getString("clientName") || project.owner || "",
@@ -128,6 +160,7 @@ export function buildWebhookPayload(project: {
     dealOutcome: project.dealOutcome || undefined,
     dealOutcomeWhy: project.dealOutcomeWhy || undefined,
     roomModel: roomModel as Record<string, unknown>,
+    discoveryConversation: project.discoveryBrief?.discoveryConversation,
     products: (project.productSelections ?? []).map((p) => ({
       sku: p.sku,
       title: p.title,
@@ -149,6 +182,47 @@ export function buildWebhookPayload(project: {
     generatedAt: new Date().toISOString(),
     source: "wingman",
   };
+
+  // Attach the discovery brief HTML (full Q&A trail) when a conversation
+  // exists, so the CRM receives the same document the rep can export — a
+  // base64 attachment is the standard webhook delivery shape for ZoHo/
+  // Salesforce-style endpoints.
+  const brief = project.discoveryBrief;
+  const conversation = brief?.discoveryConversation;
+  if (brief && conversation && conversation.length > 0) {
+    const html = buildDiscoveryBriefHtml(brief, {
+      projectName: project.name || "Untitled Opportunity",
+      preparedBy: project.proposal?.preparedBy,
+      companyName: project.proposal?.companyName,
+    });
+    payload.discoveryBriefAttachment = {
+      filename: briefAttachmentFilename(project.name || "project", project.id),
+      mimeType: "text/html;charset=utf-8",
+      content: toBase64Utf8(html),
+    };
+  }
+
+  return payload;
+}
+
+function toBase64Utf8(value: string): string {
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(value, "utf8").toString("base64");
+  }
+  // Browser: btoa only handles Latin-1, so encode UTF-8 bytes first.
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+function briefAttachmentFilename(projectName: string, projectId: string): string {
+  const slug = String(projectName || "wingman-project")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  return `wingman-discovery-brief-${slug || projectId}.html`;
 }
 
 /**
@@ -191,6 +265,27 @@ export async function sendWebhook(payload: CrmWebhookPayload): Promise<{
     status: response.status,
     statusText: response.statusText,
   };
+}
+
+/**
+ * Re-POST an earlier recorded payload to the currently configured webhook URL.
+ *
+ * Resend deliberately submits the *exact* body that was recorded for that
+ * send (including its generatedAt and any attachment), rather than rebuilding
+ * from the live project — so reps can push an unchanged snapshot to the CRM
+ * regardless of edits made since. Throws if the entry carries no stored
+ * payload or no webhook URL is configured.
+ */
+export async function resendHistoryEntry(entry: CrmWebhookHistoryEntry): Promise<{
+  ok: boolean;
+  status: number;
+  statusText: string;
+}> {
+  if (!entry.payload) {
+    throw new Error("This send was recorded without a payload snapshot and cannot be resent.");
+  }
+  // Reuse the exact recorded body, not a fresh build.
+  return sendWebhook(entry.payload);
 }
 
 /**

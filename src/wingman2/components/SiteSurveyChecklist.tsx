@@ -33,6 +33,8 @@ import {
 } from "../lib/siteSurveyChecklist";
 import {
   getProjectEdits,
+  getInstallChecked,
+  setInstallChecked,
   setCableLength,
   setCableConfirmed,
   setCableNotes,
@@ -66,6 +68,9 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
   const [online, setOnline] = useState(isOnline());
   const [showNotes, setShowNotes] = useState(false);
   const [comparisonMode, setComparisonMode] = useState(false);
+  const [installChecked, setInstallCheckedState] = useState<Set<string>>(
+    () => new Set(getInstallChecked(project.id)),
+  );
   const [syncStatus, setSyncStatus] = useState<SurveySyncStatus>({
     state: "idle",
     message: "Not synced",
@@ -78,7 +83,15 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
     [project, productSelections],
   );
 
-  const progress = useMemo(() => getSurveyProgress(project.id), [project.id, edits]);
+  const installItemIds = useMemo(
+    () => (checklist.installItems ?? []).map((item) => item.id),
+    [checklist],
+  );
+
+  const progress = useMemo(
+    () => getSurveyProgress(project.id, installItemIds),
+    [project.id, edits, installChecked, installItemIds],
+  );
 
   // Comparison mode data
   const comparisons = useMemo(
@@ -135,6 +148,16 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
   const refreshEdits = useCallback(() => {
     setEdits(getProjectEdits(project.id));
   }, [project.id]);
+
+  function toggleInstallItem(id: string) {
+    setInstallCheckedState((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      setInstallChecked(project.id, [...next]);
+      return next;
+    });
+  }
 
   function toggleLocation(id: string) {
     setExpandedLocations((prev) => {
@@ -345,6 +368,9 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
           <span className="text-[10px] text-white/50">
             {progress.verifiedDevices} devices verified
           </span>
+          <span className="text-[10px] text-white/50">
+            {progress.confirmedInstallItems}/{progress.totalInstallItems} install details confirmed
+          </span>
         </div>
       </div>
 
@@ -437,6 +463,29 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
               onDeviceVerified={handleDeviceVerifiedChange}
               onLocationNotes={handleLocationNotesChange}
             />
+          ))}
+        </div>
+      </div>
+
+      {/* Installation details — confirmed on site, not during discovery */}
+      <div className="wm-survey-section" data-testid="survey-install-details">
+        <h3 className="wm-survey-section-title">Installation Details</h3>
+        <p className="text-xs text-white/50 mb-2">
+          Confirmed on site — these do not change the WyreStorm hardware selection but are required before installation.
+        </p>
+        <div className="wm-survey-install-list">
+          {(checklist.installItems ?? []).map((item) => (
+            <label key={item.id} className="wm-survey-install-item">
+              <input
+                type="checkbox"
+                checked={installChecked.has(item.id)}
+                onChange={() => toggleInstallItem(item.id)}
+              />
+              <span>
+                <strong>{item.label}</strong>
+                <small>{item.appliesTo ?? "All positions"} — {item.hint}</small>
+              </span>
+            </label>
           ))}
         </div>
       </div>

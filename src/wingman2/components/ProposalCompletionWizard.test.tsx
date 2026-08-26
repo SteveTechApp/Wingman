@@ -5,9 +5,11 @@ import {
   readProjectStore,
   setActiveProjectId,
   upsertStoredProject,
+  type StoredDiscoveryBrief,
 } from "../data/projectStore";
 import { ProposalCompletionWizard } from "./ProposalCompletionWizard";
 import { createProposalWizardDefaults, saveProposalWizardDraft } from "../lib/proposalWizard";
+import { setInstallChecked } from "../lib/siteSurveyStorage";
 
 function renderWizard() {
   render(
@@ -69,6 +71,45 @@ describe("ProposalCompletionWizard", () => {
       const button = screen.getByRole("button", { name: new RegExp(name) });
       expect(button.hasAttribute("disabled")).toBe(true);
     }
+  });
+
+  it("keeps the discovery brief export available before the wizard is complete", () => {
+    // Without a discovery conversation there is nothing to hand off, so the
+    // button stays disabled even though the brief export is not gated on
+    // wizard readiness.
+    seedActiveProject();
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: /Review and export/ }));
+    expect(screen.getByRole("button", { name: /Export discovery brief/i }).hasAttribute("disabled")).toBe(true);
+  });
+
+  it("enables the discovery brief export once a conversation exists, ahead of full readiness", () => {
+    seedActiveProject();
+    const currentProject = readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!;
+    upsertStoredProject({
+      ...currentProject,
+      discoveryBrief: {
+        capturedPercent: 88,
+        roomModel: { application: "Meeting room / boardroom" },
+        discoveryConversation: [
+          {
+            stepId: "opportunity",
+            question: "What type of opportunity is this?",
+            answer: "Meeting room / boardroom",
+            note: "",
+            confirmed: true,
+          },
+        ],
+      },
+    });
+
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: /Review and export/ }));
+
+    const briefButton = screen.getByRole("button", { name: /Export discovery brief/i });
+    expect(briefButton.hasAttribute("disabled")).toBe(false);
+    // The formal exports are still gated on readiness — the brief is not.
+    expect(screen.getByRole("button", { name: /Export formatted DOCX/ }).hasAttribute("disabled")).toBe(true);
   });
 
   it("records recommendation feedback against the active project", () => {
@@ -164,6 +205,65 @@ describe("ProposalCompletionWizard", () => {
       .toBe("/wingman/discovery?edit=opportunity");
     expect(screen.getByRole("link", { name: "Edit Sources in Discovery" }).getAttribute("href"))
       .toBe("/wingman/discovery?edit=sources");
+  });
+
+  it("shows the Discovery Conversation Q&A trail on the requirements review step", () => {
+    seedActiveProject();
+    const currentProject = readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!;
+    upsertStoredProject({
+      ...currentProject,
+      discoveryBrief: {
+        capturedPercent: 88,
+        roomModel: {
+          application: "Meeting room / boardroom",
+          roomType: "Meeting room / boardroom",
+          outcome: "Meeting room for two local sources and two independently routed displays.",
+          scale: "Single large room",
+          sourceCount: "2-4 sources",
+          displayCount: "2 displays / outputs",
+          displayBehaviour: "Different content by display or zone",
+        },
+        discoveryConversation: [
+          {
+            stepId: "opportunity",
+            question: "What type of opportunity is this?",
+            answer: "Meeting room / boardroom",
+            note: "The exec boardroom on the top floor.",
+            confirmed: true,
+          },
+          {
+            stepId: "scale",
+            question: "What is the approximate room or system scale?",
+            answer: "Single large room",
+            note: "",
+          },
+        ],
+      },
+    });
+
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: /Requirements review/ }));
+
+    // The trail renders the governed answer AND the customer's own wording.
+    expect(screen.getByText("Discovery Conversation")).toBeTruthy();
+    expect(screen.getByText("The exec boardroom on the top floor.")).toBeTruthy();
+    // "Single large room" also appears in the requirements grid above, so the
+    // conversation trail assertion is scoped to the review section.
+    const review = screen.getByTestId("discovery-conversation-review-section");
+    expect(review.textContent).toContain("Single large room");
+    // Confirmed rows show the settled tone; open rows keep "to be confirmed".
+    expect(review.textContent).toContain("Confirmed with customer");
+    expect(review.textContent).toContain("Single large room — to be confirmed");
+
+    // Each row routes back to the exact discovery question that produced it.
+    expect(
+      screen.getByRole("link", { name: 'Edit "What type of opportunity is this?" in Discovery' })
+        .getAttribute("href"),
+    ).toBe("/wingman/discovery?edit=opportunity");
+    expect(
+      screen.getByRole("link", { name: 'Edit "What is the approximate room or system scale?" in Discovery' })
+        .getAttribute("href"),
+    ).toBe("/wingman/discovery?edit=scale");
   });
 
   it("surfaces the verify-before-quote responsibility on the review and export step", () => {
@@ -267,63 +367,200 @@ describe("ProposalCompletionWizard", () => {
       .toContain("/wingman/discovery?edit=locations-connections");
   });
 
-  it("hides the survey flag when topology routes carry exact figures", () => {
+// The 5 installation-detail items generated for the exact-figures topology
+// (room-rack present, no projector, no network-dependent route).
+const INSTALL_ITEM_IDS = [
+  "display-mount-height",
+  "cable-containment",
+  "power-at-position",
+  "mounting-hardware",
+  "rack-position",
+];
+
+function exactFiguresBrief(): StoredDiscoveryBrief {
+  return {
+    capturedPercent: 88,
+    roomModel: {
+      application: "Meeting room / boardroom",
+      scale: "Single large room",
+      longestRun: "Across a large room",
+    },
+    topology: {
+      schemaVersion: 1,
+      mode: "simple",
+      locations: [
+        { id: "planning-equipment-position", name: "Equipment", type: "room-rack", notes: "wingman-route-planner:{\"equipmentPosition\":\"room-rack\",\"videoDistance\":\"typical-room\",\"routeType\":\"ceiling-perimeter\",\"usbDistance\":\"across-room\",\"exceptionMode\":\"none\",\"videoDistanceMetres\":42,\"usbDistanceMetres\":7}" },
+        { id: "loc-disp", name: "Display", type: "display-wall" },
+      ],
+      devices: [
+        { id: "dev-src", name: "Source", category: "source", locationId: "planning-equipment-position", quantity: 1, thirdParty: true, status: "assumed" },
+        { id: "dev-disp", name: "Display", category: "display", locationId: "loc-disp", quantity: 1, thirdParty: true, status: "assumed" },
+      ],
+      connections: [
+        {
+          id: "planning-video-path",
+          fromDeviceId: "dev-src",
+          toDeviceId: "dev-disp",
+          services: ["video", "embedded-audio"],
+          transport: "hdbaset-3",
+          lengthMode: "estimated",
+          lengthMetres: 42,
+          estimateReason: "Exact cable length entered during discovery: 42 m",
+          status: "assumed",
+        },
+        {
+          id: "planning-usb-path",
+          fromDeviceId: "dev-src",
+          toDeviceId: "dev-disp",
+          services: ["usb-2"],
+          transport: "usb-extender",
+          lengthMode: "estimated",
+          lengthMetres: 7,
+          estimateReason: "USB host-to-device planning distance 7 m",
+          status: "assumed",
+        },
+      ],
+      generatedFromDiscovery: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  };
+}
+
+  it("hides the survey flag when routes are exact and installation details are confirmed", () => {
+    seedActiveProject();
+    upsertStoredProject({
+      ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
+      discoveryBrief: exactFiguresBrief(),
+    });
+
+    // Exact cable figures clear the route reasons; the flag then only stays
+    // visible while the on-site Installation Details checkboxes are open.
+    setInstallChecked("acme-hq-boardroom", INSTALL_ITEM_IDS);
+
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: /Requirements review/ }));
+
+    expect(document.querySelector("[data-wingman-needs-site-survey]")).toBeNull();
+  });
+
+  it("keeps the survey flag when routes are exact but installation details are unconfirmed", () => {
+    seedActiveProject();
+    upsertStoredProject({
+      ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
+      discoveryBrief: exactFiguresBrief(),
+    });
+
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: /Requirements review/ }));
+
+    const flag = document.querySelector("[data-wingman-needs-site-survey]");
+    expect(flag).not.toBeNull();
+    expect(flag?.textContent).toContain("Needs site survey");
+    expect(flag?.textContent).toContain("Installation details");
+  });
+
+  it("clears the survey flag live once all installation details are confirmed", async () => {
+    seedActiveProject();
+    upsertStoredProject({
+      ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
+      discoveryBrief: exactFiguresBrief(),
+    });
+
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: /Requirements review/ }));
+    expect(document.querySelector("[data-wingman-needs-site-survey]")).not.toBeNull();
+
+    // Confirming every on-site checkbox dispatches the shared survey-edited
+    // event, which must re-evaluate the flag without a reload.
+    setInstallChecked("acme-hq-boardroom", INSTALL_ITEM_IDS);
+
+    await waitFor(() => {
+      expect(document.querySelector("[data-wingman-needs-site-survey]")).toBeNull();
+    });
+  });
+
+  it("blocks export when a discovery conversation row is a note-only capture", () => {
     seedActiveProject();
     upsertStoredProject({
       ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
       discoveryBrief: {
-        capturedPercent: 88,
-        roomModel: {
-          application: "Meeting room / boardroom",
-          scale: "Single large room",
-          longestRun: "Across a large room",
-        },
-        topology: {
-          schemaVersion: 1,
-          mode: "simple",
-          locations: [
-            { id: "planning-equipment-position", name: "Equipment", type: "room-rack", notes: "wingman-route-planner:{\"equipmentPosition\":\"room-rack\",\"videoDistance\":\"typical-room\",\"routeType\":\"ceiling-perimeter\",\"usbDistance\":\"across-room\",\"exceptionMode\":\"none\",\"videoDistanceMetres\":42,\"usbDistanceMetres\":7}" },
-            { id: "loc-disp", name: "Display", type: "display-wall" },
-          ],
-          devices: [
-            { id: "dev-src", name: "Source", category: "source", locationId: "planning-equipment-position", quantity: 1, thirdParty: true, status: "assumed" },
-            { id: "dev-disp", name: "Display", category: "display", locationId: "loc-disp", quantity: 1, thirdParty: true, status: "assumed" },
-          ],
-          connections: [
-            {
-              id: "planning-video-path",
-              fromDeviceId: "dev-src",
-              toDeviceId: "dev-disp",
-              services: ["video", "embedded-audio"],
-              transport: "hdbaset-3",
-              lengthMode: "estimated",
-              lengthMetres: 42,
-              estimateReason: "Exact cable length entered during discovery: 42 m",
-              status: "assumed",
-            },
-            {
-              id: "planning-usb-path",
-              fromDeviceId: "dev-src",
-              toDeviceId: "dev-disp",
-              services: ["usb-2"],
-              transport: "usb-extender",
-              lengthMode: "estimated",
-              lengthMetres: 7,
-              estimateReason: "USB host-to-device planning distance 7 m",
-              status: "assumed",
-            },
-          ],
-          generatedFromDiscovery: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
+        capturedPercent: 50,
+        roomModel: {},
+        discoveryConversation: [
+          {
+            stepId: "scale",
+            question: "What is the approximate room or system scale?",
+            answer: "Captured note only",
+            note: "The big exec room at the end of the corridor.",
+          },
+        ],
+      },
+    });
+
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: /Review and export/ }));
+
+    // The gate summary is visible immediately; expand to see the blocker detail.
+    expect(
+      screen.getByText(/1 blocker\(s\) must be resolved before export/),
+    ).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Show details/ }));
+
+    // The note-only capture surfaces with the question named and the discovery
+    // domain, so the rep knows which row to reopen.
+    expect(
+      screen.getByText(/captured as a note only and never confirmed to a governed answer/),
+    ).not.toBeNull();
+    expect(
+      screen.getByText(/What is the approximate room or system scale\?/),
+    ).not.toBeNull();
+    expect(screen.getByText("discovery")).not.toBeNull();
+  });
+
+  it("shows install-detail confirmations in the on-site progress summary", () => {
+    seedActiveProject();
+    upsertStoredProject({
+      ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
+      discoveryBrief: exactFiguresBrief(),
+    });
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: /Review and export/ }));
+
+    // The exact-figures topology has a rack, so the checklist generates 5
+    // installation-detail items — all still open at a glance.
+    expect(screen.getByText("0/5 install details confirmed")).not.toBeNull();
+
+    // Confirming one item updates the progress summary without a reload.
+    fireEvent.click(screen.getByLabelText(/Display mounting height/));
+    expect(screen.getByText("1/5 install details confirmed")).not.toBeNull();
+  });
+
+  it("highlights low-confidence discovery rows on the requirements review step", () => {
+    seedActiveProject();
+    upsertStoredProject({
+      ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
+      discoveryBrief: {
+        capturedPercent: 50,
+        roomModel: {},
+        discoveryConversation: [
+          {
+            stepId: "scale",
+            question: "What is the approximate room or system scale?",
+            answer: "Single large room",
+            note: "",
+            confidence: "low",
+          },
+        ],
       },
     });
 
     renderWizard();
     fireEvent.click(screen.getByRole("button", { name: /Requirements review/ }));
 
-    expect(document.querySelector("[data-wingman-needs-site-survey]")).toBeNull();
+    // The capture chip's low-confidence tier rides through to the in-app
+    // review so the rep re-verifies the row before export.
+    expect(screen.getByText("Low confidence — verify before quote")).not.toBeNull();
   });
 
   it("shows exact topology cable lengths in the Step 2 Infrastructure row", () => {

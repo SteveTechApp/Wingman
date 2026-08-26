@@ -17,4 +17,14 @@ describe("existing Discovery resume warning", () => {
     expect(source).not.toMatch(/<main[^>]+className="[^"]*wingman-page-host/);
     expect(source).toContain('className="wm-discovery-capture-page wm-ui-page"');
   });
+
+  it("auto-starts the guided interview from the dashboard resume link", () => {
+    const source = readFileSync(join(process.cwd(), "src/wingman2/pages/DiscoveryPage.tsx"), "utf8");
+
+    // The dashboard/project-card resume links land on `?resume=project&interview=1`;
+    // the page must open straight into the interview and treat the visit as intentional
+    // (no existing-discovery warning), so the interview resumes at the first open question.
+    expect(source).toContain('searchParams.get("interview") === "1"');
+    expect(source).toContain('useState(\n    () => searchParams.get("interview") === "1",\n  )');
+  });
 });

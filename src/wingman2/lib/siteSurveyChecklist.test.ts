@@ -31,6 +31,17 @@ describe("buildSiteSurveyChecklist", () => {
     expect(checklist.cables).toEqual([]);
     expect(checklist.totalDevices).toBe(0);
     expect(checklist.totalCables).toBe(0);
+
+    // Install-detail items are present even without topology — they are
+    // survey confirmations, not discovery questions.
+    const installIds = (checklist.installItems ?? []).map((item) => item.id);
+    expect(installIds).toContain("display-mount-height");
+    expect(installIds).toContain("cable-containment");
+    expect(installIds).toContain("power-at-position");
+
+    const html = generateSiteSurveyHtml(checklist);
+    expect(html).toContain("Installation Details");
+    expect(html).toContain("Display mounting height and position");
   });
 
   it("builds checklist from topology with locations and devices", () => {
@@ -119,6 +130,45 @@ describe("buildSiteSurveyChecklist", () => {
     const tableLoc = checklist.locations.find((l) => l.type === "table");
     expect(tableLoc).toBeDefined();
     expect(tableLoc!.devices).toHaveLength(2); // Laptop + TX
+
+    // Installation details follow the topology: the fixture has a room rack
+    // and an AV-over-IP / ethernet connection, so rack and network items are
+    // included, while the projector item stays out.
+    const installIds = (checklist.installItems ?? []).map((item) => item.id);
+    expect(installIds).toContain("display-mount-height");
+    expect(installIds).toContain("rack-position");
+    expect(installIds).toContain("network-point");
+    expect(installIds).not.toContain("projector-position");
+
+    const html = generateSiteSurveyHtml(checklist);
+    expect(html).toContain("Installation Details");
+    expect(html).toContain("Equipment rack position and rack space");
+  });
+
+  it("adds the projector install item when a projector device exists", () => {
+    const project = makeProject({
+      discoveryBrief: {
+        topology: {
+          schemaVersion: 1,
+          mode: "advanced",
+          locations: [{ id: "loc-1", name: "Projector position", type: "projector-position" }],
+          devices: [
+            { id: "dev-1", name: "Projector", category: "Display", locationId: "loc-1", quantity: 1, thirdParty: true, status: "assumed" },
+          ],
+          connections: [],
+          generatedFromDiscovery: true,
+          createdAt: "2026-01-01T00:00:00Z",
+          updatedAt: "2026-01-01T00:00:00Z",
+        },
+      },
+    });
+
+    const checklist = buildSiteSurveyChecklist(project);
+    const installIds = (checklist.installItems ?? []).map((item) => item.id);
+    expect(installIds).toContain("projector-position");
+
+    const html = generateSiteSurveyHtml(checklist);
+    expect(html).toContain("Projector position and mounting");
   });
 
   it("extracts customer and site from room model", () => {

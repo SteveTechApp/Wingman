@@ -5,8 +5,9 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 /**
  * Visible "needs site survey" flag shown on the proposal when any topology
  * route is still band-estimated rather than an exact figure (or has no
- * recorded length). Renders the specific reasons so the rep knows exactly
- * which cable route must be measured before final quoting.
+ * recorded length), or when the site-survey Installation Details checkboxes
+ * are still unconfirmed. Renders the specific reasons so the rep knows
+ * exactly what must be measured/confirmed on site before final quoting.
  */
 export function NeedsSiteSurveyFlag({
   reasons,
@@ -26,8 +27,7 @@ export function NeedsSiteSurveyFlag({
       <div className="wm-needs-survey-flag__body">
         <strong>Needs site survey</strong>
         <span>
-          Confirm the exact cable run before final quoting — these routes are
-          still band-estimated:
+          Confirm these items on site before final quoting:
         </span>
         <ul>
           {reasons.map((reason) => (
