@@ -62,6 +62,21 @@ export type SurveyPortSummary = {
   locations: string[];
 };
 
+/**
+ * One installation-detail item confirmed on site. These are deliberately NOT
+ * discovery questions: they do not change the WyreStorm hardware selection
+ * (unlike reach, USB generation and transport), so they belong to the site
+ * survey, not the pre-sales brief.
+ */
+export type SurveyInstallItem = {
+  id: string;
+  label: string;
+  /** Location or device the item applies to, when derivable from topology. */
+  appliesTo?: string;
+  /** Guidance for the surveyor — what exactly to confirm. */
+  hint: string;
+};
+
 export type SurveyChecklist = {
   projectId: string;
   projectName: string;
@@ -71,6 +86,8 @@ export type SurveyChecklist = {
   locations: SurveyLocation[];
   cables: SurveyCable[];
   portSummary: SurveyPortSummary[];
+  /** Optional so pre-existing stored/legacy checklist data keeps loading. */
+  installItems?: SurveyInstallItem[];
   totalDevices: number;
   totalCables: number;
   estimatedCableMetres: number;
@@ -281,6 +298,64 @@ export function buildSiteSurveyChecklist(
   // Third-party device count
   const thirdPartyDevices = topology.devices.filter((d) => d.thirdParty).length;
 
+  // Installation details — confirmed on site, not during discovery. Only the
+  // presence of projector / rack / network equipment changes the list.
+  const hasProjector = topology.devices.some((device) => /projector/i.test(device.name));
+  const hasRack = topology.locations.some(
+    (loc) => loc.type === "room-rack" || loc.type === "central-rack",
+  );
+  const networkDependent = topology.connections.some(
+    (conn) =>
+      conn.transport === "ip-av-vlan" ||
+      conn.transport === "shared-ip-network" ||
+      conn.transport === "point-to-point-network" ||
+      conn.services.includes("ethernet"),
+  );
+
+  const installItems: SurveyInstallItem[] = [
+    {
+      id: "display-mount-height",
+      label: "Display mounting height and position",
+      hint: "Confirm centre-line height, tilt and the wall position for each display.",
+    },
+    {
+      id: "cable-containment",
+      label: "Cable containment and route",
+      hint: "Confirm trunking, floor boxes, ceiling runs and access points for each cable.",
+    },
+    {
+      id: "power-at-position",
+      label: "Power outlet at each equipment position",
+      hint: "Confirm the circuit, outlet type and whether the local PSU budget covers the equipment there.",
+    },
+    {
+      id: "mounting-hardware",
+      label: "Mounting hardware and fixing surface",
+      hint: "Confirm brackets, rack units and whether the wall/ceiling surface supports the equipment.",
+    },
+    ...(hasProjector
+      ? [{
+          id: "projector-position",
+          label: "Projector position and mounting",
+          hint: "Confirm throw distance, mount type, lens shift and power at the projector position.",
+        } as SurveyInstallItem]
+      : []),
+    ...(hasRack
+      ? [{
+          id: "rack-position",
+          label: "Equipment rack position and rack space",
+          hint: "Confirm rack location, rack-unit allocation and ventilation for each rack.",
+        } as SurveyInstallItem]
+      : []),
+    ...(networkDependent
+      ? [{
+          id: "network-point",
+          label: "Network point at each equipment position",
+          hint: "Confirm the physical drop, switch port and VLAN assignment with IT.",
+        } as SurveyInstallItem]
+      : []),
+  ];
+
   return {
     projectId: project.id,
     projectName: project.name || "Untitled Project",
@@ -290,6 +365,7 @@ export function buildSiteSurveyChecklist(
     locations,
     cables,
     portSummary,
+    installItems,
     totalDevices: topology.devices.length,
     totalCables: topology.connections.length,
     estimatedCableMetres,
@@ -479,6 +555,26 @@ export function generateSiteSurveyHtml(checklist: SurveyChecklist): string {
       <div class="summary-label">Length TBC</div>
     </div>
   </div>
+
+  <!-- Installation Details -->
+  <h2>Installation Details</h2>
+  <p style="font-size:9pt;color:#555;margin-bottom:8pt;">These items are confirmed on site during the survey, not during discovery — they do not change the WyreStorm hardware selection but are required before installation.</p>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Applies to</th><th>Guidance</th><th class="no-print" style="width:70pt">Confirmed</th></tr>
+    </thead>
+    <tbody>
+      ${(checklist.installItems ?? []).map((item) => `
+        <tr>
+          <td>${escapeHtml(item.label)}</td>
+          <td>${escapeHtml(item.appliesTo ?? "All positions")}</td>
+          <td style="font-size:8.5pt;color:#555;">${escapeHtml(item.hint)}</td>
+          <td class="no-print"><span class="checkbox"></span></td>
+        </tr>
+      `).join("")}
+      ${(checklist.installItems ?? []).length === 0 ? '<tr><td colspan="4" style="text-align:center;color:#999;">No installation-detail items generated — add a topology to plan the survey.</td></tr>' : ""}
+    </tbody>
+  </table>
 
   <!-- Surveyor Notes -->
   <h2>Surveyor Notes</h2>

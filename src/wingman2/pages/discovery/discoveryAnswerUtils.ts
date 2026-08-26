@@ -7,9 +7,11 @@
 import type {
   DiscoveryAnswers,
   DiscoveryAnswerValue,
+  DiscoveryNotes,
   DiscoveryQuestion,
   DiscoveryQuestionView,
 } from "./discoveryTypes";
+import type { DiscoveryConversationItem } from "../../data/projectStore";
 
 export function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): DiscoveryQuestionView {
   if (step.id === "audio") {
@@ -256,6 +258,38 @@ export function wmDiscoveryAnswerIncludes(
   return value === expectedValue;
 }
 // WINGMAN_DISCOVERY_MULTISELECT_RUNTIME_END
+
+// The discovery Q&A trail: every captured step records the question asked, the
+// closest governed answer, and the customer's own wording. Carried into the
+// brief and from there into exported proposals so customers can see the
+// conversation behind the design. Works for the standard flow and the guided
+// interview alike. `confirmed` records which steps the rep verified with the
+// customer — only those rows are presented as settled facts in exports.
+export function buildDiscoveryConversation(
+  questions: DiscoveryQuestion[],
+  answers: DiscoveryAnswers,
+  notes: DiscoveryNotes,
+  application = "",
+  confirmed: Record<string, boolean> = {},
+  confidenceByStep: Record<string, "high" | "matched" | "low"> = {},
+  confidenceScoresByStep: Record<string, number> = {},
+): DiscoveryConversationItem[] {
+  return questions
+    .filter(
+      (step) => wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]?.trim()),
+    )
+    .map((step) => ({
+      stepId: step.id,
+      question: step.question,
+      answer: wmDiscoveryHasAnswer(answers[step.id])
+        ? getOptionLabel(step, answers[step.id], application)
+        : "Captured note only",
+      note: notes[step.id]?.trim() ?? "",
+      confirmed: confirmed[step.id] === true,
+      confidence: confidenceByStep[step.id],
+      confidenceScore: confidenceScoresByStep[step.id],
+    }));
+}
 
 // WINGMAN_DISCOVERY_UNIFIED_COMMS_VISIBILITY_START
 export function wmDiscoveryIsUnifiedCommsDetailQuestion(

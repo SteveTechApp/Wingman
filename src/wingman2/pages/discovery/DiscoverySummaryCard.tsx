@@ -14,6 +14,8 @@ type DiscoverySummaryCardProps = {
   videoWallRequired?: boolean;
   videoWallConfigured?: boolean;
   onConfigureVideoWall?: () => void;
+  /** Toggle a row between "confirmed with customer" and open. */
+  onToggleConfirmed?: (stepId: string) => void;
   compact?: boolean;
 };
 
@@ -26,6 +28,7 @@ export function DiscoverySummaryCard({
   videoWallRequired = false,
   videoWallConfigured = false,
   onConfigureVideoWall,
+  onToggleConfirmed,
   compact = false,
 }: DiscoverySummaryCardProps) {
   const [expanded, setExpanded] = useState(false);
@@ -47,9 +50,24 @@ export function DiscoverySummaryCard({
       <div className="wm-discovery-summary-grid wm-ui-card wm-ui-copy">
         {visibleItems.map((item) => (
           <article className="wm-ui-card" key={item.id}>
-            <strong>{item.label}</strong>
-            <span>{item.answer}</span>
-            {item.note && <p className="wm-ui-copy">{item.note}</p>}
+            <div className="wm-discovery-summary-row">
+              <div className="wm-discovery-summary-row-copy">
+                <strong>{item.label}</strong>
+                <span>{item.answer}</span>
+                {item.note && <p className="wm-ui-copy">{item.note}</p>}
+              </div>
+              {onToggleConfirmed && (
+                <button
+                  className={`wm-discovery-confirm-toggle${item.confirmed ? " is-confirmed" : ""}`}
+                  type="button"
+                  aria-pressed={item.confirmed === true}
+                  onClick={() => onToggleConfirmed(item.id)}
+                  title={item.confirmed ? "Confirmed with customer — click to reopen" : "Not confirmed with customer — click to confirm"}
+                >
+                  {item.confirmed ? "Confirmed" : "Confirm with customer"}
+                </button>
+              )}
+            </div>
           </article>
         ))}
       </div>

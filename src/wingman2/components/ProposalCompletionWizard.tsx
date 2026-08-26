@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { NeedsSiteSurveyFlag } from "./NeedsSiteSurveyFlag";
+import { DiscoveryConversationReview } from "./DiscoveryConversationReview";
 import { VerifyBeforeQuoteNote } from "./VerifyBeforeQuoteNote";
 import { ProposalVersionHistory } from "./ProposalVersionHistory";
 import { CrmSharePanel } from "./CrmSharePanel";
@@ -30,6 +31,8 @@ import {
   normaliseProjectTopology,
   projectTopologySurveyState,
 } from "../lib/projectTopology";
+import { buildSiteSurveyChecklist } from "../lib/siteSurveyChecklist";
+import { getInstallChecked } from "../lib/siteSurveyStorage";
 import { useWingmanProfile, type WingmanProfile } from "../data/wingmanProfile";
 import {
   exportBomCsv,
@@ -37,6 +40,7 @@ import {
   exportProposalPdf,
 } from "../lib/proposalExport";
 import { exportProposalDocx } from "../lib/proposalDocxExport";
+import { exportProposalDiscoveryBriefDocx } from "../lib/discoveryBriefDocxExport";
 import {
   validateProposalExport,
   type ExportValidationResult,
@@ -328,6 +332,22 @@ function ProposalCompletionWizardContent({
     [projects],
   );
 
+  // Site-survey edits (cable lengths, install checkboxes) live in localStorage
+  // and are written by SiteSurveyChecklist / siteSurveyStorage. Tick on the
+  // shared survey-edited event and cross-tab storage events so the
+  // needs-site-survey flag below reflects the latest on-site confirmation
+  // state instead of going stale after a checkbox is toggled.
+  const [surveyTick, setSurveyTick] = useState(0);
+  useEffect(() => {
+    const refresh = () => setSurveyTick((tick) => tick + 1);
+    window.addEventListener("wingman:survey-edited", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("wingman:survey-edited", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
+
   const salesReadiness = useMemo(
     () =>
       buildSalesReadinessPackage({
@@ -550,8 +570,14 @@ function ProposalCompletionWizardContent({
       products: selectedProducts,
       bomRows,
       topology: project.discoveryBrief?.topology,
+      discoveryConversation: project.discoveryBrief?.discoveryConversation,
     }),
-    [bomRows, project.discoveryBrief?.topology, selectedProducts],
+    [
+      bomRows,
+      project.discoveryBrief?.topology,
+      project.discoveryBrief?.discoveryConversation,
+      selectedProducts,
+    ],
   );
 
   const typeConfig = getProposalDocumentTypeConfig(
@@ -614,6 +640,8 @@ function ProposalCompletionWizardContent({
         profile.companyLogoDataUrl,
       contactEmail: profile.email,
       contactPhone: profile.phone,
+      discoveryConversation:
+        project.discoveryBrief?.discoveryConversation ?? [],
       updatedAt: new Date().toISOString(),
     }),
     [
@@ -630,6 +658,7 @@ function ProposalCompletionWizardContent({
       profile.email,
       profile.phone,
       profile.proposalFooter,
+      project.discoveryBrief?.discoveryConversation,
       project.discoveryBrief?.recommendationEvidence?.evidenceUsed,
       project.name,
       applicationProposal,
@@ -733,10 +762,32 @@ function ProposalCompletionWizardContent({
     project.discoveryBrief?.topology,
   ]);
 
-  const topologySurvey = useMemo(
-    () => projectTopologySurveyState(project.discoveryBrief?.topology),
-    [project.discoveryBrief?.topology],
-  );
+  const topologySurvey = useMemo(() => {
+    const base = projectTopologySurveyState(project.discoveryBrief?.topology);
+    const reasons = [...base.reasons];
+
+    // Installation details are confirmed on site (mounting height, power at
+    // position, containment, rack space, …). A project with a planned topology
+    // stays "needs survey" until those checkboxes are confirmed — exact cable
+    // figures alone are not enough for a credible quote. Projects with no
+    // topology at all are skipped: there is no design to survey yet.
+    const topology = project.discoveryBrief?.topology;
+    if ((topology?.connections?.length ?? 0) > 0) {
+      const installItems =
+        buildSiteSurveyChecklist(project, project.productSelections).installItems ?? [];
+      if (installItems.length > 0) {
+        const checked = new Set(getInstallChecked(project.id));
+        const unconfirmed = installItems.filter((item) => !checked.has(item.id));
+        if (unconfirmed.length > 0) {
+          reasons.push(
+            `Installation details still need on-site confirmation — ${unconfirmed.length} of ${installItems.length} items unchecked (mounting, power, containment, rack position).`,
+          );
+        }
+      }
+    }
+
+    return { needsSurvey: reasons.length > 0, reasons };
+  }, [project, surveyTick]);
 
   const requirementRows = [
     { label: "Application", value: discovery.projectTitle, question: "opportunity" },
@@ -868,6 +919,21 @@ function ProposalCompletionWizardContent({
         error instanceof Error
           ? `BOM CSV export failed: ${error.message}`
           : "BOM CSV export failed.",
+      );
+    }
+  }
+
+  function exportDiscoveryBrief() {
+    // The discovery brief is a pre-design hand-off record, not a final
+    // quotation — it stays available even when the wizard is incomplete.
+    try {
+      void exportProposalDiscoveryBriefDocx(proposal);
+      setExportMessage("Discovery brief DOCX generated — share it before design sign-off.");
+    } catch (error) {
+      setExportMessage(
+        error instanceof Error
+          ? `Discovery brief export failed: ${error.message}`
+          : "Discovery brief export failed.",
       );
     }
   }
@@ -1090,6 +1156,10 @@ function ProposalCompletionWizardContent({
                   </Link>
                 ))}
               </div>
+
+              <DiscoveryConversationReview
+                items={project.discoveryBrief?.discoveryConversation ?? []}
+              />
 
               <NeedsSiteSurveyFlag reasons={topologySurvey.reasons} />
 
@@ -1566,6 +1636,16 @@ function ProposalCompletionWizardContent({
                 >
                   <Table2 aria-hidden="true" />
                   Export BOM CSV
+                </button>
+
+                <button
+                  type="button"
+                  title="Pre-design hand-off: available before the wizard is complete"
+                  disabled={(proposal.discoveryConversation ?? []).length === 0}
+                  onClick={exportDiscoveryBrief}
+                >
+                  <FileText aria-hidden="true" />
+                  Export discovery brief
                 </button>
               </div>
 

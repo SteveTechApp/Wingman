@@ -18,6 +18,7 @@ import {
   type WingmanWorkspaceSession,
 } from "../api/wingmanApi";
 import { governedDecisionLabel } from "../lib/governedCompareRuntime";
+import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
 import type { CompetitorMatchDecision } from "../lib/competitorMatchDecisionLedger";
 import {
   governedConfirmationBacklog,
@@ -819,11 +820,13 @@ export function DashboardPage() {
             <div className="wm-reference-project-grid">
               {recentProjects.map((project) => {
                 const progress = projectProgress(project);
+                const resume = discoveryResumeInfo(project.discoveryBrief);
+                const resumeInterview = resume && resume.hasContent && !resume.complete;
 
                 return (
                   <Link
                     key={project.id}
-                    to={`${routeCatalogByKey.projects.path}/${project.id}`}
+                    to={resumeInterview ? discoveryResumeUrl() : `${routeCatalogByKey.projects.path}/${project.id}`}
                     onClick={() => setActiveProjectId(project.id)}
                     className="wm-reference-project-card"
                     data-wm-status={project.status}
@@ -847,7 +850,15 @@ export function DashboardPage() {
                         <strong>{progress.value}%</strong>
                       </div>
                     ) : null}
-                    <div className="wm-reference-project-next">{nextStepFor(project.stage)}</div>
+                    <div className="wm-reference-project-next">
+                      {resumeInterview ? (
+                        <span className="wm-reference-project-resume" data-testid="dashboard-resume-position">
+                          Resume interview — next: {resume!.nextQuestion || `open question ${resume!.answeredCount + 1}`} · {resume!.answeredCount} answered
+                        </span>
+                      ) : (
+                        nextStepFor(project.stage)
+                      )}
+                    </div>
                   </Link>
                 );
               })}

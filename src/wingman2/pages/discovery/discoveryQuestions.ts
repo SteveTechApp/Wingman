@@ -809,8 +809,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     shortLabel: "Positions & distance",
     section: "Room layout & cabling",
     question: "Where is the equipment, and how far must signals travel?",
-    prompt: "Choose broad room positions, the longest video route and the likely cable path. Exact measurements can be confirmed during the site survey.",
-    why: "Wingman can use simple distance bands to identify when direct cables, HDBaseT, fibre, AV-over-IP or separate USB extension should be considered.",
+    prompt: "Choose broad room positions, the longest video route and the likely cable path. Only capture what affects the hardware choice — exact measurements, display mounting height, cable containment and rack positions are confirmed during the site survey, not here.",
+    why: "Wingman can use simple distance bands to identify when direct cables, HDBaseT, fibre, AV-over-IP or separate USB extension should be considered. Installation specifics that do not change the hardware belong to the site survey.",
     required: true,
     capturePlaceholder: "Example: Sources in a local rack, displays across a large room, ceiling route approximately 25–50m, USB camera at the front wall.",
     options: [

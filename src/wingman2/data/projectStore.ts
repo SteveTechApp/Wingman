@@ -45,6 +45,34 @@ export type StoredProject = {
   visualAssets?: ProposalVisualAsset[];
 };
 
+// One row of the discovery Q&A trail carried into the brief and, from there,
+// into exported proposals so customers can see the conversation behind the
+// design: the question asked, the closest governed answer, and the customer's
+// own captured wording (which may differ from the governed label).
+// `confirmed` records whether the rep verified this answer with the customer;
+// only confirmed rows are presented as settled facts in exported documents.
+// Optional so pre-existing stored rows (and test fixtures) keep loading.
+export type DiscoveryConversationItem = {
+  stepId: string;
+  question: string;
+  answer: string;
+  note: string;
+  confirmed?: boolean;
+  /**
+   * Capture confidence carried from the suggestion chip: "high" (score >= 5),
+   * "matched" (score 3-4), or "low" (partial keyword-only hit). Low rows are
+   * flagged for re-verification before export.
+   */
+  confidence?: "high" | "matched" | "low";
+  /**
+   * The raw interpretation match score behind the tier: 1 for a weak
+   * keyword-only hit up to 5+ for a strong curated-phrase or exclusive
+   * negative. Recorded so exports can show the trust level behind each
+   * you-said → matched pair. Deliberate option picks are stamped high (10).
+   */
+  confidenceScore?: number;
+};
+
 export type StoredDiscoveryBrief = {
   savedAt?: string;
   roomModel?: Record<string, unknown>;
@@ -54,9 +82,12 @@ export type StoredDiscoveryBrief = {
   returnRoute?: string;
   missingInformation?: string[];
   nextBestQuestion?: string;
+  /** Zero-based question index the guided interview's review mode was left on, so re-entering review resumes there instead of question one. */
+  reviewPosition?: number;
   quoteSafetyStatus?: StoredQuoteSafetyStatus;
   recommendationEvidence?: StoredRecommendationEvidence;
   structuredEvidence?: DiscoveryEvidence;
+  discoveryConversation?: DiscoveryConversationItem[];
 };
 
 export type StoredProductSelection = {
@@ -139,6 +170,7 @@ export type StoredProjectProposal = {
   companyLogoDataUrl?: string;
   contactEmail?: string;
   contactPhone?: string;
+  discoveryConversation?: DiscoveryConversationItem[];
   updatedAt: string;
 };
 
@@ -653,6 +685,39 @@ function normalizeRecommendationEvidence(value: unknown): StoredRecommendationEv
   };
 }
 
+function normalizeDiscoveryConversation(value: unknown): DiscoveryConversationItem[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+
+  const items = value
+    .map((item): DiscoveryConversationItem | null => {
+      const record = objectRecord(item);
+      if (!record) return null;
+      const question = stringValue(record.question);
+      const answer = stringValue(record.answer);
+      if (!question && !answer) return null;
+      const confidence = record.confidence;
+      const scoreValue = record.confidenceScore;
+      return {
+        stepId: stringValue(record.stepId, ""),
+        question,
+        answer: answer || "Captured note only",
+        note: stringValue(record.note, ""),
+        confirmed: record.confirmed === true,
+        confidence:
+          confidence === "high" || confidence === "matched" || confidence === "low"
+            ? confidence
+            : undefined,
+        confidenceScore:
+          typeof scoreValue === "number" && Number.isFinite(scoreValue)
+            ? scoreValue
+            : undefined,
+      };
+    })
+    .filter((item): item is DiscoveryConversationItem => Boolean(item));
+
+  return items.length ? items : undefined;
+}
+
 function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefined {
   const record = objectRecord(value);
   if (!record) return undefined;
@@ -669,8 +734,10 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
     returnRoute: stringValue(record.returnRoute, undefined),
     missingInformation: stringArray(record.missingInformation),
     nextBestQuestion: stringValue(record.nextBestQuestion, undefined),
+    reviewPosition: Number.isFinite(Number(record.reviewPosition)) ? Math.max(0, Math.floor(Number(record.reviewPosition))) : undefined,
     quoteSafetyStatus: normalizeQuoteSafetyStatus(record.quoteSafetyStatus),
     recommendationEvidence: normalizeRecommendationEvidence(record.recommendationEvidence),
+    discoveryConversation: normalizeDiscoveryConversation(record.discoveryConversation),
   };
 }
 
@@ -784,6 +851,7 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
     companyLogoDataUrl: stringValue(record.companyLogoDataUrl, undefined),
     contactEmail: stringValue(record.contactEmail, undefined),
     contactPhone: stringValue(record.contactPhone, undefined),
+    discoveryConversation: normalizeDiscoveryConversation(record.discoveryConversation),
     updatedAt: stringValue(record.updatedAt, nowIso()),
   };
 }

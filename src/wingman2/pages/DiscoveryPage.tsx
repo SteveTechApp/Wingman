@@ -16,6 +16,7 @@ import {
   writeLatestDiscoverySnapshot,
 } from "../data/workflowHandoff";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
+import { exportDiscoveryBriefHtml } from "../lib/discoveryBriefExport";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
 import {
   clearDiscoveryHandoff,
@@ -47,17 +48,19 @@ import type {
 } from "./discovery/discoveryTypes";
 import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
-import { DiscoveryQuickStartEntry } from "./discovery/discoveryQuickStartPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
 import { DiscoveryProgressiveDisclosure, applySmartDefaults, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
+import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
+import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
 import {
   getDiscoverySpeechRecognition,
   type DiscoverySpeechRecognitionEventLike,
   type DiscoverySpeechRecognitionLike,
 } from "./discovery/discoverySpeechRecognition";
 import {
+  buildDiscoveryConversation,
   getAvoipDirection,
   getAvoipNextQuestion,
   getAvoipSeriesHint,
@@ -136,6 +139,7 @@ export function DiscoveryPage() {
   const hasIntentionalDiscoveryEntry =
     Boolean(editQuestionId) ||
     searchParams.get("resume") === "project" ||
+    searchParams.get("interview") === "1" ||
     Boolean(readDiscoveryHandoff()) ||
     hasSessionDiscoveryHandoff ||
     hasExplicitResumeIntent;
@@ -197,6 +201,22 @@ export function DiscoveryPage() {
   const [notes, setNotes] = useState<DiscoveryNotes>(
     () => (draftState.notes as DiscoveryNotes | undefined) ?? {},
   );
+  // stepId -> true when the rep verified the answer with the customer (settled in exports).
+  const [confirmedSteps, setConfirmedSteps] = useState<Record<string, boolean>>(
+    () => (draftState.confirmed as Record<string, boolean> | undefined) ?? {},
+  );
+  // stepId -> capture confidence (high / matched / low) carried from the
+  // suggestion chip and guided-interview match, so the conversation trail can
+  // flag low-confidence rows for re-verification before export.
+  const [confidenceByStep, setConfidenceByStep] = useState<Record<string, "high" | "matched" | "low">>(
+    () => (draftState.confidence as Record<string, "high" | "matched" | "low"> | undefined) ?? {},
+  );
+  // stepId -> raw interpretation score that produced the tier. Carried into
+  // the trail (DiscoveryConversationItem.confidenceScore) so exports show the
+  // trust level behind each you-said → matched pair.
+  const [confidenceScoresByStep, setConfidenceScoresByStep] = useState<
+    Record<string, number>
+  >({});
   const [topology, setTopology] = useState<ProjectTopology>(() => {
     const stored = readDiscoveryTopology();
     return projectTopologyHasContent(stored) ? stored : createBlankProjectTopology();
@@ -222,6 +242,25 @@ export function DiscoveryPage() {
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   // Progressive disclosure mode: quick (3 questions) or standard (all questions)
   const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("standard");
+  // `?interview=1` (used by the dashboard / project-card resume links) opens
+  // straight into the guided interview, which resumes at the first open question.
+  const [interviewActive, setInterviewActive] = useState(
+    () => searchParams.get("interview") === "1",
+  );
+  // Which review walk the interview starts with: the whole conversation, or
+  // only the questions still marked "to be confirmed" (`?review=open`).
+  const [reviewScope, setReviewScope] = useState<"all" | "open">(
+    () => (searchParams.get("review") === "open" ? "open" : "all"),
+  );
+  // Persisted zero-based review position: leaving mid-review and re-entering
+  // lands back on the same question instead of question one. Stored on the
+  // brief so it survives navigation and page reloads per project.
+  const [reviewPosition, setReviewPosition] = useState<number | undefined>(() => {
+    const stored = discoveryDraft?.brief?.reviewPosition;
+    return typeof stored === "number" && Number.isFinite(stored)
+      ? Math.max(0, Math.floor(stored))
+      : undefined;
+  });
   const navigate = useNavigate();
   const existingDiscoveryPortalTarget =
     typeof document !== "undefined"
@@ -400,9 +439,10 @@ export function DiscoveryPage() {
           label: step.shortLabel,
           answer: wmDiscoveryHasAnswer(answers[step.id]) ? getOptionLabel(step, answers[step.id], selectedApplication) : "Captured note only",
           note: supportingDetails,
+          confirmed: confirmedSteps[step.id] === true,
         };
       });
-  }, [answers, notes, selectedApplication, discoveryQuestions, opportunityDescription, topology]);
+  }, [answers, notes, selectedApplication, discoveryQuestions, opportunityDescription, topology, confirmedSteps]);
 
   useEffect(() => {
     if (answeredCount === 0 && Object.keys(notes).length === 0) {
@@ -413,7 +453,7 @@ export function DiscoveryPage() {
       writeLatestDiscoverySnapshot({
         ...(discoveryOwnershipRef.current ?? {}),
         activeStepIndex: activeIndex,
-        state: { answers, notes, clientName, contactName, siteName, budgetLevel, timeline },
+        state: { answers, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
         brief: buildDiscoveryBrief(),
         savedAt: "",
       });
@@ -421,7 +461,7 @@ export function DiscoveryPage() {
 
     return () => window.clearTimeout(timeout);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answeredCount, activeIndex, answers, notes, clientName, contactName, siteName, budgetLevel, timeline]);
+  }, [answeredCount, activeIndex, answers, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition]);
 
   useEffect(() => {
     setActiveIndex((current) => Math.min(current, Math.max(discoveryQuestions.length - 1, 0)));
@@ -784,6 +824,24 @@ export function DiscoveryPage() {
     }));
     setSavedMessage("");
   }
+  function confirmCaptureSuggestion(values: string[], confidence?: "high" | "matched" | "low"): void {
+    if (!values.length) return;
+    if (confidence) {
+      setConfidenceByStep((previous) => ({ ...previous, [currentStep.id]: confidence }));
+    }
+    // The capture chip has the interpretation score — a deliberate option pick
+    // is high-confidence, so stamp a clearly-high score of 10 for it.
+    if (confidence === "high") {
+      setConfidenceScoresByStep((previous) => ({ ...previous, [currentStep.id]: 10 }));
+    }
+    if (wmDiscoveryIsMultiSelectStep(currentStep)) {
+      setAnswers((previous) => ({ ...previous, [currentStep.id]: values }));
+      setSavedMessage("");
+      return;
+    }
+    handleSelectAnswer(values[0]);
+  }
+
   function saveCaptureAsAnswer(): void {
     const cleanNote = currentNote.trim();
 
@@ -873,6 +931,10 @@ export function DiscoveryPage() {
     setMicError("");
     setAnswers({});
     setNotes({});
+    setConfidenceByStep({});
+    setConfidenceScoresByStep({});
+    setReviewPosition(undefined);
+    setReviewScope("all");
     clearDiscoveryTopology();
     setTopology(createBlankProjectTopology());
     setActiveIndex(0);
@@ -1165,6 +1227,7 @@ export function DiscoveryPage() {
       returnRoute: routeCatalogByKey.discovery.path,
       missingInformation,
       nextBestQuestion,
+      reviewPosition,
     };
     // WINGMAN_DISCOVERY_SOURCE_UC_EVIDENCE_ROOM_MODEL
     brief.roomModel = {
@@ -1190,6 +1253,7 @@ export function DiscoveryPage() {
       nextBestQuestion: recommendationEvidence.nextBestQuestion ?? strategy.askNext,
       quoteSafetyStatus: recommendationEvidence.quoteSafetyStatus,
       recommendationEvidence,
+      discoveryConversation: buildDiscoveryConversation(discoveryQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep),
     };
   }
 
@@ -1370,7 +1434,7 @@ return (
         </div>
       </header>
 
-      {answeredCount === 0 ? <DiscoveryQuickStartEntry onAnswers={setAnswers} /> : null}
+      {!interviewActive && discoveryMode === "standard" ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={discoveryQuestions.length} openCount={discoveryQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
       <DiscoveryClientDetailsPanel
         clientName={clientName}
@@ -1403,7 +1467,9 @@ return (
         </section>
       ) : null}
 
-      {showCompletionPanel ? (
+      {interviewActive ? (
+        <DiscoveryGuidedInterview questions={discoveryQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} />
+      ) : showCompletionPanel ? (
         <DiscoveryCompletionPanel
           panelRef={completionPanelRef}
           answerCount={discoveryQuestions.length}
@@ -1416,6 +1482,11 @@ return (
             setIsReviewingAnswers(true);
           }}
           onSave={saveDiscoveryToProject}
+          onExportBrief={() =>
+            exportDiscoveryBriefHtml(buildDiscoveryBrief(), {
+              projectName: existingDiscoveryName,
+            })
+          }
         />
       ) : (
       <>
@@ -1541,6 +1612,9 @@ return (
               videoWallRequired={requiresVideoWallConfiguration}
               videoWallConfigured={videoWallConfigured}
               onConfigureVideoWall={openVideoWallConfiguration}
+              onToggleConfirmed={(stepId) =>
+                setConfirmedSteps((previous) => ({ ...previous, [stepId]: previous[stepId] !== true }))
+              }
               compact
             />
           )}
@@ -1569,6 +1643,8 @@ return (
             placeholder={currentStepView.capturePlaceholder}
             rows={9}
           />
+
+          <DiscoveryCaptureSuggestion step={currentStep} view={currentStepView} note={currentNote} onConfirm={confirmCaptureSuggestion} />
 
           <div className="wm-discovery-capture-actions">
             <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveCaptureAsAnswer} disabled={!currentNote.trim()}>

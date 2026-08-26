@@ -46,6 +46,73 @@ describe("BOM export rows", () => {
   });
 });
 
+describe("discovery conversation in proposal HTML", () => {
+  it("renders the discovery Q&A trail when captured", () => {
+    const proposal: StoredProjectProposal = {
+      title: "Conversation-backed proposal",
+      summary: "Meeting room for the exec team.",
+      sections: [],
+      products: [],
+      assumptions: [],
+      updatedAt: "2026-08-26T00:00:00.000Z",
+      discoveryConversation: [
+        { stepId: "opportunity", question: "What type of opportunity is this?", answer: "Meeting room / boardroom", note: "A boardroom for the exec team.", confirmed: true, confidence: "high", confidenceScore: 12 },
+        { stepId: "uc-camera", question: "What camera types are required?", answer: "USB PTZ camera", note: "A usb ptz camera at the front.", confidence: "low", confidenceScore: 1 },
+      ],
+    };
+
+    const html = buildProposalHtml(proposal, []);
+    expect(html).toContain("Discovery Conversation");
+    expect(html).toContain("What type of opportunity is this?");
+    expect(html).toContain("Meeting room / boardroom");
+    expect(html).toContain("A boardroom for the exec team.");
+    expect(html).toContain("USB PTZ camera");
+    expect(html).toContain("A usb ptz camera at the front.");
+    expect(html).toContain("<th>Capture confidence</th>");
+    // The trust level (and the score behind it) for each you-said → matched
+    // pair is visible — low rows carry the "verify before quote" flag.
+    expect(html).toContain("High confidence (12)");
+    expect(html).toContain("Low confidence — verify before quote (1)");
+  });
+
+  it("marks confirmed rows settled and open rows 'to be confirmed' in the HTML", () => {
+    const proposal: StoredProjectProposal = {
+      title: "Conversation-backed proposal",
+      summary: "Meeting room for the exec team.",
+      sections: [],
+      products: [],
+      assumptions: [],
+      updatedAt: "2026-08-26T00:00:00.000Z",
+      discoveryConversation: [
+        { stepId: "opportunity", question: "What type of opportunity is this?", answer: "Meeting room / boardroom", note: "", confirmed: true },
+        { stepId: "sources", question: "How many source positions are likely?", answer: "2-4 sources", note: "", confirmed: false },
+      ],
+    };
+
+    const html = buildProposalHtml(proposal, []);
+    expect(html).toContain("Confirmed with customer");
+    expect(html).toContain("To be confirmed");
+    expect(html).toContain("<th>Status</th>");
+    expect(html).toContain("<th>Capture confidence</th>");
+    // Rows recorded before confidence existed render an honest placeholder.
+    expect(html).toContain("<td>—</td>");
+    expect(html).toContain("must be re-verified with the customer before quoting");
+  });
+
+  it("omits the section entirely when no conversation was captured", () => {
+    const proposal: StoredProjectProposal = {
+      title: "Plain proposal",
+      summary: "Room requirement.",
+      sections: [],
+      products: [],
+      assumptions: [],
+      updatedAt: "2026-08-26T00:00:00.000Z",
+    };
+    const html = buildProposalHtml(proposal, []);
+    expect(html).not.toContain("Discovery Conversation");
+  });
+});
+
 describe("proposal safety standard", () => {
   it("separates every required customer-safe output section", () => {
     const proposal: StoredProjectProposal = {

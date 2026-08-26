@@ -2639,7 +2639,9 @@ html[data-wingman-route] .wm-vs-list li + li {
 .wm-schematic-block:focus-visible rect:nth-child(2) { stroke: #4af5e6; stroke-width: 2; }
 .wm-schematic-block.is-selected rect:nth-child(2) { filter: brightness(1.15); }
 
-.wm-equipment-workspace { overflow: hidden; }
+/* Block schematic view switcher + Excalidraw reference diagram */
+.wm-connectivity-view-switcher { grid-column: 1 / -1; display: flex; gap: 6px; padding: 6px; border: 1px solid var(--tr-border); border-radius: 12px; background: var(--tr-panel-strong); }.wm-connectivity-view-switcher button { flex: 1 1 0; padding: 8px 12px; border-radius: 8px; color: var(--tr-muted); font-size: .7rem; font-weight: 750; cursor: pointer; transition: all .15s; }.wm-connectivity-view-switcher button.is-active { color: var(--tr-panel-strong); background: var(--tr-border); }
+.wm-excalidraw-wrap { grid-column: 1 / -1; padding: 14px; border-radius: 8px; background: var(--tr-panel); }.wm-excalidraw-sheet { overflow: auto; max-height: 620px; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,.28); }.wm-excalidraw-svg { display: block; width: 100%; height: auto; min-width: 760px; }.wm-excalidraw-note { margin: 10px 2px 0; color: var(--tr-muted); font-size: .68rem; line-height: 1.5; }.wm-excalidraw-empty { display: grid; min-height: 200px; place-items: center; color: var(--tr-muted); font-size: .78rem; }
 /* Step-by-step guidance banner */
 .wm-template-steps { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--tr-border); overflow-x: auto; scrollbar-width: none; }
 .wm-template-steps::-webkit-scrollbar { display: none; }
@@ -27377,6 +27379,43 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.wm-survey-install-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wm-survey-install-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(2, 14, 25, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  color: #e2f2ff;
+}
+
+.wm-survey-install-item input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: #16b6a5;
+}
+
+.wm-survey-install-item strong {
+  display: block;
+  font-size: 12px;
+  color: #e2f2ff;
+}
+
+.wm-survey-install-item small {
+  display: block;
+  margin-top: 2px;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: rgba(148, 163, 184, 0.8);
 }
 
 .wm-survey-location-card {

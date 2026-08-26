@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { ArrowRight, Check, ClipboardCheck, FileText, Save } from "lucide-react";
+import { ArrowRight, Check, ClipboardCheck, FileText, Save, FileDown } from "lucide-react";
 
 type DiscoveryCompletionPanelProps = {
   panelRef: RefObject<HTMLElement>;
@@ -10,6 +10,7 @@ type DiscoveryCompletionPanelProps = {
   onMoveForward: (target: "recommendations" | "proposal") => void;
   onReviewAnswers: () => void;
   onSave: () => void;
+  onExportBrief?: () => void;
 };
 
 export function DiscoveryCompletionPanel({
@@ -21,6 +22,7 @@ export function DiscoveryCompletionPanel({
   onMoveForward,
   onReviewAnswers,
   onSave,
+  onExportBrief,
 }: DiscoveryCompletionPanelProps) {
   return (
     <section
@@ -81,6 +83,13 @@ export function DiscoveryCompletionPanel({
             <span><strong>Save to project</strong><small>Keep this discovery on file</small></span>
             <ArrowRight size={16} aria-hidden="true" />
           </button>
+          {onExportBrief && (
+            <button type="button" onClick={onExportBrief} data-testid="discovery-brief-export">
+              <FileDown size={20} aria-hidden="true" />
+              <span><strong>Export discovery brief</strong><small>Print-friendly hand-off before sign-off</small></span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
 

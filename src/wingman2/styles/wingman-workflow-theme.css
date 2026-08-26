@@ -2019,6 +2019,131 @@ html[data-wingman-route="proposal"] .wm-proposal-evidence-details summary {
   cursor: pointer;
 }
 
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review {
+  margin-top: 16px;
+  padding: 13px;
+  background: rgba(6, 17, 30, 0.7);
+  border: 1px solid var(--wm-ref-border);
+  border-radius: 9px;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading h3,
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading p {
+  margin: 0;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading h3 {
+  color: var(--wm-ref-text);
+  font-size: 0.85rem;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading p {
+  margin-top: 2px;
+  color: var(--wm-ref-muted);
+  font-size: 0.7rem;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__icon {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--wm-ref-aqua);
+  width: 16px;
+  height: 16px;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__empty {
+  margin: 10px 0 0;
+  color: var(--wm-ref-muted);
+  font-size: 0.72rem;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__list li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(7, 20, 35, 0.76);
+  border: 1px solid var(--wm-ref-border);
+  border-radius: 9px;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__row {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__question {
+  color: var(--wm-ref-aqua);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__answer {
+  color: var(--wm-ref-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__note {
+  overflow-wrap: anywhere;
+  color: var(--wm-ref-copy);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__status {
+  flex: 0 0 auto;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__status.is-confirmed {
+  color: var(--wm-ref-green);
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__status.is-open {
+  color: var(--wm-ref-amber);
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__answer.is-open {
+  color: var(--wm-ref-copy);
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__edit {
+  flex: 0 0 auto;
+  color: var(--wm-ref-aqua);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__edit:hover,
+html[data-wingman-route="proposal"] .wm-discovery-conversation-review__edit:focus-visible {
+  color: var(--wm-ref-aqua);
+  text-decoration: underline;
+  outline: none;
+}
+
 html[data-wingman-route="proposal"] .wm-proposal-bom-heading {
   display: flex;
   align-items: flex-end;
