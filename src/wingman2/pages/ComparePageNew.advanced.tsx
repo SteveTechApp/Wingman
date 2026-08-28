@@ -2213,16 +2213,49 @@ function exactLimitedDataWarning(profile: CompetitorProfile): string {
 function compareSignalDirection(profile: CompetitorProfile): string {
   const role = (profile.role || "").toLowerCase();
   const identity = `${profile.rawText} ${profile.resolvedSpec?.title ?? ""}`.toLowerCase();
+  const productClass = (profile.productClass || "").toLowerCase();
+  const transport = (profile.transport || "").toLowerCase();
+
+  // Extender kits: point-to-point
   if (
     role.includes("extender kit") ||
     role.includes("extension kit") ||
     (/extender|extension/.test(identity) && /\bkit\b|\bset\b/.test(identity))
   ) return "Point-to-point source-to-display extension";
+
+  // Encoder/decoder direction from role
   if (role.includes("encoder") || role.includes("transmitter")) return "Source-side / encoder path";
   if (role.includes("decoder") || role.includes("receiver")) return "Display-side / decoder path";
   if (role.includes("transceiver")) return "Bidirectional / transceiver path";
-  if (role.includes("switcher") || role.includes("matrix")) return "Room core / switching path";
+
+  // Matrix / switcher: derive from I/O topology
+  if (role.includes("switcher") || role.includes("matrix") || productClass.includes("matrix")) {
+    // A matrix with HDBaseT outputs routes signals from local sources to remote displays
+    if (transport.includes("hdbaset") || /hdbt|hdbase/.test(identity)) {
+      return "Local source-to-remote display switching";
+    }
+    // A pure HDMI matrix routes within the same rack/room
+    if (transport.includes("hdmi") || /\bhdmi\b/.test(identity)) {
+      return "Local source-to-display switching";
+    }
+    // Mixed transport matrix
+    return "Room core / switching path";
+  }
+
+  // Distribution amplifier: implicit 1:N fan-out
+  if (productClass.includes("distribution") || role.includes("splitter")) {
+    return "One-to-many distribution";
+  }
+
   if (role.includes("processor")) return "Processing path";
+
+  // AVoIP: derive from role
+  if (productClass.includes("avoip") || /networkhd|avoip|nhd-/.test(identity)) {
+    if (role.includes("encoder") || role.includes("transmitter")) return "Source-side encoder to network";
+    if (role.includes("decoder") || role.includes("receiver")) return "Network to display decoder";
+    return "Networked AV transport";
+  }
+
   return "Signal direction needs confirmation";
 }
 
