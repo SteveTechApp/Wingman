@@ -44,6 +44,7 @@ export function DiscoveryClientDetailsPanel({
           <input
             className="wm-ui-input"
             type="text"
+            autoComplete="off"
             value={clientName}
             onChange={(event) => onClientNameChange(event.target.value)}
             placeholder="e.g. Northfield Council"
@@ -54,6 +55,7 @@ export function DiscoveryClientDetailsPanel({
           <input
             className="wm-ui-input"
             type="text"
+            autoComplete="off"
             value={contactName}
             onChange={(event) => onContactNameChange(event.target.value)}
             placeholder="e.g. Priya Shah, Facilities"
@@ -64,6 +66,7 @@ export function DiscoveryClientDetailsPanel({
           <input
             className="wm-ui-input"
             type="text"
+            autoComplete="off"
             value={siteName}
             onChange={(event) => onSiteNameChange(event.target.value)}
             placeholder="e.g. Main chamber, Level 2"

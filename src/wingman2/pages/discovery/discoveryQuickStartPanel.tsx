@@ -18,7 +18,17 @@ import type { DiscoveryAnswers } from "./discoveryTypes";
 export function DiscoveryQuickStartEntry({ onAnswers }: { onAnswers: (answers: DiscoveryAnswers) => void }) {
   const [open, setOpen] = useState(false);
   if (open) return <div className="wm-discovery-question-layout"><DiscoveryQuickStart onSelect={(type) => { onAnswers(applySmartDefaults(type, {})); setOpen(false); }} onSkip={() => setOpen(false)} /></div>;
-  return <div className="mx-auto mb-4 max-w-3xl"><button type="button" onClick={() => setOpen(true)} className="w-full rounded-xl border border-cyan-500/30 bg-cyan-900/20 px-4 py-3 text-left transition hover:bg-cyan-900/30"><div className="flex items-center gap-3"><span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500 text-sm font-bold text-cyan-950">⚡</span><div><p className="text-sm font-bold text-cyan-300">Quick Start available</p><p className="text-xs text-[#8fb8d0]">Pre-fill common settings for meeting rooms, classrooms and more</p></div></div></button></div>;
+  return (
+    <div className="wm-qs-entry">
+      <button type="button" onClick={() => setOpen(true)} className="wm-qs-entry__button">
+        <span className="wm-qs-entry__icon" aria-hidden="true">&#9889;</span>
+        <div>
+          <p className="wm-qs-entry__title">Quick Start available</p>
+          <p className="wm-qs-entry__subtitle">Pre-fill common settings for meeting rooms, classrooms and more</p>
+        </div>
+      </button>
+    </div>
+  );
 }
 
 type DiscoveryQuickStartProps = {
@@ -51,24 +61,24 @@ export function DiscoveryQuickStart({
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <section className="wm-qs">
       {/* Header */}
-      <div className="mb-8 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-900/40 px-4 py-2 text-sm font-bold text-cyan-300">
-          <Zap className="h-4 w-4" />
+      <div className="wm-qs__header">
+        <div className="wm-qs__badge">
+          <Zap className="wm-qs__badge-icon" />
           Quick Start
         </div>
-        <h2 className="text-2xl font-black text-[#edf6ff]">
+        <h2 className="wm-qs__title">
           What type of room is this?
         </h2>
-        <p className="mt-2 text-sm text-[#8fb8d0]">
+        <p className="wm-qs__subtitle">
           Select a room type to pre-fill common settings. You can always adjust
           details later.
         </p>
       </div>
 
       {/* Room type grid */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="wm-qs__grid">
         {roomTypeOrder.map((roomType) => {
           const config = quickStartConfigs[roomType];
           const isSelected = selectedType === roomType;
@@ -79,27 +89,21 @@ export function DiscoveryQuickStart({
               key={roomType}
               type="button"
               onClick={() => setSelectedType(roomType)}
-              className={`group relative rounded-2xl border-2 p-4 text-left transition-all ${
-                isSelected
-                  ? "border-cyan-400 bg-cyan-900/30 shadow-lg shadow-cyan-900/20"
-                  : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.15] hover:bg-white/[0.04]"
-              }`}
+              className={`wm-qs-card${isSelected ? " wm-qs-card--selected" : ""}`}
             >
               {/* Selection indicator */}
               {isSelected ? (
-                <div className="absolute right-3 top-3">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-400">
-                    <Check className="h-3.5 w-3.5 text-cyan-900" />
-                  </div>
+                <div className="wm-qs-card__check">
+                  <Check className="wm-qs-card__check-icon" />
                 </div>
               ) : null}
 
               {/* Icon and label */}
-              <div className="mb-3 flex items-center gap-3">
-                <span className="text-2xl">{config.icon}</span>
-                <div>
-                  <p className="font-bold text-[#edf6ff]">{config.label}</p>
-                  <p className="text-xs text-[#8fb8d0]">
+              <div className="wm-qs-card__head">
+                <span className="wm-qs-card__icon">{config.icon}</span>
+                <div className="wm-qs-card__text">
+                  <p className="wm-qs-card__label">{config.label}</p>
+                  <p className="wm-qs-card__description">
                     {config.description}
                   </p>
                 </div>
@@ -107,11 +111,11 @@ export function DiscoveryQuickStart({
 
               {/* Summary chips */}
               {summary.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="wm-qs-card__chips">
                   {summary.map((item) => (
                     <span
                       key={item}
-                      className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-[#cfe6f7]"
+                      className="wm-qs-chip"
                     >
                       {item}
                     </span>
@@ -120,8 +124,8 @@ export function DiscoveryQuickStart({
               ) : null}
 
               {/* Question count */}
-              <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#6a97b0]">
-                <Clock className="h-3 w-3" />
+              <div className="wm-qs-card__count">
+                <Clock className="wm-qs-card__count-icon" />
                 ~{config.estimatedQuestions} questions
                 {roomType === "custom" ? " (full workflow)" : ""}
               </div>
@@ -131,13 +135,13 @@ export function DiscoveryQuickStart({
       </div>
 
       {/* Actions */}
-      <div className="mt-8 flex items-center justify-between">
+      <div className="wm-qs__actions">
         <button
           type="button"
           onClick={onSkip}
-          className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] px-5 py-2.5 text-sm font-semibold text-[#8fb8d0] transition hover:border-white/[0.2] hover:text-[#cfe6f7]"
+          className="wm-qs__skip"
         >
-          <HelpCircle className="h-4 w-4" />
+          <HelpCircle className="wm-qs__skip-icon" />
           Skip to full Discovery
         </button>
 
@@ -145,27 +149,23 @@ export function DiscoveryQuickStart({
           type="button"
           onClick={handleContinue}
           disabled={!selectedType}
-          className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition ${
-            selectedType
-              ? "bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
-              : "cursor-not-allowed bg-white/[0.06] text-[#6a97b0]"
-          }`}
+          className={`wm-qs__continue${selectedType ? " wm-qs__continue--active" : ""}`}
         >
           Continue
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="wm-qs__continue-icon" />
         </button>
       </div>
 
       {/* Help text */}
       {selectedType && selectedType !== "custom" ? (
-        <div className="mt-6 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-          <div className="flex items-start gap-3">
-            <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
+        <div className="wm-qs__help">
+          <div className="wm-qs__help-inner">
+            <ChevronRight className="wm-qs__help-chevron" />
             <div>
-              <p className="text-sm font-semibold text-[#edf6ff]">
+              <p className="wm-qs__help-title">
                 What happens next?
               </p>
-              <p className="mt-1 text-xs leading-5 text-[#8fb8d0]">
+              <p className="wm-qs__help-text">
                 Wingman will pre-fill common settings for a{" "}
                 {quickStartConfigs[selectedType].label.toLowerCase()}. You'll
                 answer a few essential questions, then can review and adjust any
@@ -175,6 +175,6 @@ export function DiscoveryQuickStart({
           </div>
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

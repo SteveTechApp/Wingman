@@ -16,6 +16,7 @@ import {
   writeLatestDiscoverySnapshot,
 } from "../data/workflowHandoff";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
+import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
 import { exportDiscoveryBriefHtml } from "../lib/discoveryBriefExport";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
 import {
@@ -370,6 +371,10 @@ export function DiscoveryPage() {
   const completionPercent = Math.round((answeredCount / discoveryQuestions.length) * 100);
   const isFirstStep = activeIndex === 0;
   const isLastStep = activeIndex === discoveryQuestions.length - 1;
+  const decisionIntegrity = useMemo(
+    () => evaluateDiscoveryDecisionIntegrity(discoveryQuestions, answers, notes),
+    [answers, discoveryQuestions, notes],
+  );
   const isDiscoveryComplete = discoveryQuestions.length > 0 && answeredCount === discoveryQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
 
@@ -1225,8 +1230,11 @@ export function DiscoveryPage() {
       },
       capturedPercent: completionPercent,
       returnRoute: routeCatalogByKey.discovery.path,
-      missingInformation,
-      nextBestQuestion,
+      missingInformation: Array.from(new Set([
+        ...missingInformation,
+        ...decisionIntegrity.issues.map((issue) => issue.followUpQuestion),
+      ])),
+      nextBestQuestion: decisionIntegrity.issues[0]?.followUpQuestion ?? nextBestQuestion,
       reviewPosition,
     };
     // WINGMAN_DISCOVERY_SOURCE_UC_EVIDENCE_ROOM_MODEL
@@ -1250,8 +1258,8 @@ export function DiscoveryPage() {
     return {
       ...brief,
       missingInformation: recommendationEvidence.missingInformation,
-      nextBestQuestion: recommendationEvidence.nextBestQuestion ?? strategy.askNext,
-      quoteSafetyStatus: recommendationEvidence.quoteSafetyStatus,
+      nextBestQuestion: decisionIntegrity.issues[0]?.followUpQuestion ?? recommendationEvidence.nextBestQuestion ?? strategy.askNext,
+      quoteSafetyStatus: decisionIntegrity.canProceedToRecommendation ? recommendationEvidence.quoteSafetyStatus : "do-not-quote-yet",
       recommendationEvidence,
       discoveryConversation: buildDiscoveryConversation(discoveryQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep),
     };
@@ -1318,6 +1326,11 @@ export function DiscoveryPage() {
   }
 
   function moveForward(target: "recommendations" | "proposal"): void {
+    if (!decisionIntegrity.canProceedToRecommendation) {
+      setSavedMessage(`Resolve ${decisionIntegrity.issues.length} discovery check${decisionIntegrity.issues.length === 1 ? "" : "s"} before continuing.`);
+      setIsReviewingAnswers(true);
+      return;
+    }
     saveDiscoveryToOwningProject();
     if (target === "recommendations" && videoWallConfigurationPending) {
       navigate(routeCatalogByKey.videowall.path);
@@ -1490,8 +1503,8 @@ return (
         />
       ) : (
       <>
-      {/* Progressive disclosure: mode toggle and smart defaults */}
-      {!isReviewingAnswers && !editQuestionId && answeredCount === 0 && (
+      {/* Progressive disclosure: mode toggle, smart defaults, and step banner */}
+      {!isReviewingAnswers && !editQuestionId && (
         <DiscoveryProgressiveDisclosure
           questions={discoveryQuestions}
           activeIndex={activeIndex}
@@ -1502,6 +1515,7 @@ return (
           onModeChange={setProgressiveMode}
           isReviewingAnswers={isReviewingAnswers}
           showModeToggle={answeredCount < 3}
+          showBatchControls={answeredCount === 0}
         />
       )}
 

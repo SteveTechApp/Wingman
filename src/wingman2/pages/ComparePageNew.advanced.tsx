@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PackageSearch, Scale } from "lucide-react";
+import { Check, Copy, PackageSearch, Scale } from "lucide-react";
 import {
   isBannedNetworkHdSku,
   mapCompetitorToNetworkHdAvoip,
@@ -31,8 +31,12 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { VerifyBeforeQuoteNote } from "../components/VerifyBeforeQuoteNote";
 import {
   saveCompareRunToProject,
+  deleteCompareRunFromProject,
+  readProjectStore,
+  type StoredCompareRun,
   saveProductSelectionToCurrentProject,
   saveRecommendationEvidenceToProject,
+  updateStoredProject,
   type StoredProductSelection,
 } from "../data/projectStore";
 import { findUcCompetitorProduct, UC_COMPETITOR_PRODUCTS } from "../data/ucCompetitorProducts";
@@ -77,6 +81,9 @@ import {
 } from "../lib/liveCompetitorResearch";
 import { CompareShowdown } from "../components/compare/CompareShowdown";
 import { GovernedDataBadge as GovernanceBadge, weakestLinkTier } from "../components/GovernedDataBadge";
+import { SavedComparisonHistory } from "./compare/SavedComparisonHistory";
+import { useCompareHistoryView } from "./compare/useCompareHistoryView";
+import { buildCompareHistoryCsv, buildCompareHistoryText, compareHistoryDiff, filterAndSortCompareHistory, savedHistoryRuns, type CompareHistoryView } from "../lib/compareHistory";
 
 /**
  * Keyword-heuristic recommendations are RETIRED (fail-closed policy).
@@ -4537,6 +4544,7 @@ function BestCandidateCard({
   competitorProfile: CompetitorProfile;
   onCopySummary: () => void;
 }) {
+  const [copied, setCopied] = useState(false);
   const wyrestorm = buildWyrestormSummary(candidate);
   const coreFacts = buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate);
   const badgeTier = weakestLinkCardTier(coreFacts, candidate.governedTier);
@@ -4629,9 +4637,14 @@ function BestCandidateCard({
         <button
           className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
           type="button"
-          onClick={onCopySummary}
+          onClick={() => {
+            onCopySummary();
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+          }}
+          aria-label="Copy comparison result"
         >
-          Copy result
+          {copied ? <><Check size={14} aria-hidden="true" /> Copied</> : <><Copy size={14} aria-hidden="true" /> Copy result</>}
         </button>
         <ProductMoreLink sku={candidate.product.sku} />
       </div>
@@ -5441,7 +5454,7 @@ function LiveResearchStatusCard({
 }
 function ComparePageNew() {
   const bestMatchRef = useRef<HTMLDivElement | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const inboundBrand = String(searchParams.get("brand") ?? "").trim();
   const inboundSku = String(searchParams.get("sku") ?? "").trim().toUpperCase();
   const inboundContext = String(searchParams.get("context") ?? "").trim();
@@ -5456,7 +5469,42 @@ function ComparePageNew() {
   const [customSkuStore, setCustomSkuStore] = useState<string[]>([]);
   const [customManufacturerStore, setCustomManufacturerStore] = useState<string[]>([]);
   const [committedSku, setCommittedSku] = useState<string | null>(null);
+  const [restoredComparison, setRestoredComparison] = useState<StoredCompareRun | null>(null);
+  const [restoreMessage, setRestoreMessage] = useState("");
+  const [pendingDeleteRun, setPendingDeleteRun] = useState<StoredCompareRun | null>(null);
+  const historyView = useCompareHistoryView();
+  const historyFilter = historyView.view.filter;
+  const historySort = historyView.view.sort;
+  const historySearch = historyView.view.search;
+  const setHistorySearch = historyView.setSearch;
+  const setHistoryFilter = historyView.setFilter;
+  const setHistorySort = historyView.setSort;
+  const [historyLinkCopied, setHistoryLinkCopied] = useState(false);
+  const [historyLinkError, setHistoryLinkError] = useState("");
+  const [historyTextCopied, setHistoryTextCopied] = useState(false);
+  const [historyExportOpen, setHistoryExportOpen] = useState(false);
+  const [historyExportStatus, setHistoryExportStatus] = useState("");
+  const [lastExport, setLastExport] = useState<{ type: string; at: string } | null>(() => {
+    try {
+      const stored = window.localStorage.getItem("wingman.compare.last-export.v1");
+      return stored ? JSON.parse(stored) as { type: string; at: string } : null;
+    } catch {
+      return null;
+    }
+  });
+  const [sharedViewBannerVisible, setSharedViewBannerVisible] = useState(Boolean(searchParams.get("historySearch") || searchParams.get("historyFilter") || searchParams.get("historySort")));
+  const skipResultFocusRef = useRef(false);
+  const deleteDialogRef = useRef<HTMLButtonElement | null>(null);
+  const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const historySearchRef = useRef<HTMLInputElement | null>(null);
+  const historyExportRef = useRef<HTMLDivElement | null>(null);
+  const historyExportButtonRef = useRef<HTMLButtonElement | null>(null);
+  const historyExportItemsRef = useRef<HTMLButtonElement[]>([]);
   const [catalogVersion, setCatalogVersion] = useState(0);
+
+  useEffect(() => {
+    if (lastExport) window.localStorage.setItem("wingman.compare.last-export.v1", JSON.stringify(lastExport));
+  }, [lastExport]);
   const [decisionRevision, setDecisionRevision] = useState(0);
   // Ledger-approved decisions fetched from the governed server; merged over
   // the per-browser localStorage ledger so a queue approval promotes into the
@@ -5476,6 +5524,45 @@ function ComparePageNew() {
   // Verified battle cards are supplemental evidence. The governed Compare
   // runtime remains authoritative for recommendation, project save and proposal handoff.
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const store = readProjectStore();
+    const project = store.projects.find((item) => item.id === store.activeProjectId);
+    if (project) updateStoredProject(project.id, (current) => ({ ...current, compareHistoryView: { search: historySearch, filter: historyFilter, sort: historySort } }));
+    const next = new URLSearchParams(searchParams);
+    if (historySearch) next.set("historySearch", historySearch); else next.delete("historySearch");
+    if (historyFilter !== "all") next.set("historyFilter", historyFilter); else next.delete("historyFilter");
+    if (historySort !== "newest") next.set("historySort", historySort); else next.delete("historySort");
+    setSearchParams(next, { replace: true });
+  }, [historyFilter, historySearch, historySort]);
+
+  useEffect(() => {
+    if (!historyExportOpen) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (historyExportRef.current && !historyExportRef.current.contains(event.target as Node)) setHistoryExportOpen(false);
+    };
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+  }, [historyExportOpen]);
+
+  useEffect(() => {
+    const handleHistoryShortcuts = (event: KeyboardEvent) => {
+      if (pendingDeleteRun || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
+      if (event.key === "/") {
+        event.preventDefault();
+        historySearchRef.current?.focus();
+      } else if (event.key.toLowerCase() === "r" && event.shiftKey) {
+        setHistorySearch("");
+        setHistoryFilter("all");
+        setHistorySort("newest");
+      } else if (event.key.toLowerCase() === "o" && event.shiftKey) {
+        const newest = savedComparisonRuns()[0];
+        if (newest) reopenSavedComparison(newest);
+      }
+    };
+    window.addEventListener("keydown", handleHistoryShortcuts);
+    return () => window.removeEventListener("keydown", handleHistoryShortcuts);
+  }, [pendingDeleteRun]);
 
   useEffect(() => {
     document.body.classList.add("compare-workspace-open");
@@ -5760,6 +5847,10 @@ function ComparePageNew() {
     if (candidateIndex >= displayedPool.length) setCandidateIndex(0);
   }, [candidateIndex, displayedPool.length]);
   useEffect(() => {
+    if (skipResultFocusRef.current) {
+      skipResultFocusRef.current = false;
+      return;
+    }
     if (!hasCompared || workflowStep !== "options" || !best?.product.sku) {
       return;
     }
@@ -6107,10 +6198,206 @@ function ComparePageNew() {
     setLiveResearchStatus("idle");
     setLiveResearchResult(null);
     setLiveResearchError("");
+    setRestoredComparison(null);
   }
 
   async function copySummary(): Promise<void> {
     await navigator.clipboard.writeText(summary);
+  }
+
+  function saveComparisonHistory(): void {
+    if (!displayedCandidate) return;
+
+    saveCompareRunToProject({
+      competitorBrand: effectiveBrand,
+      competitorSku: competitorInput || undefined,
+      wyrestormSku: displayedCandidate.product.sku,
+      wyrestormTitle: displayedCandidate.product.name,
+      mode: "saved-history",
+      summary,
+      matchScore: Math.round(displayedCandidate.score),
+      matchType: displayedCandidate.verdict,
+      confidence: compareVerdictTier(compareReportedStatus(displayedCandidate, competitorSummary)).label,
+      evidence: displayedCandidate.matched,
+      warnings: displayedCandidate.checks,
+      source: "Compare saved history",
+    });
+    setCommittedSku(displayedCandidate.product.sku);
+    setRestoredComparison(null);
+  }
+
+  function savedComparisonRuns() {
+    const store = readProjectStore();
+    const project = store.projects.find((item) => item.id === store.activeProjectId);
+    return savedHistoryRuns(project?.compareRuns ?? []);
+  }
+
+  function savedComparisonCount(): number {
+    return savedComparisonRuns().length;
+  }
+
+  function exportVisibleHistory(): void {
+    const rows = visibleSavedComparisonRuns();
+    const csv = buildCompareHistoryCsv(rows);
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "wingman-saved-comparisons.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+    setHistoryExportStatus(`Exported ${rows.length} saved comparison${rows.length === 1 ? "" : "s"} as CSV.`);
+    setLastExport({ type: "CSV", at: new Date().toLocaleTimeString() });
+    window.setTimeout(() => setHistoryExportStatus(""), 3000);
+  }
+
+  function clearExportHistory(): void {
+    setLastExport(null);
+    window.localStorage.removeItem("wingman.compare.last-export.v1");
+    setHistoryExportStatus("Export history cleared.");
+    window.setTimeout(() => setHistoryExportStatus(""), 3000);
+  }
+
+  async function copyHistoryText(): Promise<void> {
+    const rows = visibleSavedComparisonRuns();
+    const text = buildCompareHistoryText(rows, { search: historySearch, filter: historyFilter, sort: historySort });
+    try {
+      await navigator.clipboard?.writeText(text);
+      setHistoryTextCopied(true);
+      setHistoryExportStatus(`Copied ${rows.length} saved comparison${rows.length === 1 ? "" : "s"} as text.`);
+      setLastExport({ type: "Text", at: new Date().toLocaleTimeString() });
+      window.setTimeout(() => setHistoryExportStatus(""), 3000);
+      window.setTimeout(() => setHistoryTextCopied(false), 2000);
+    } catch {
+      setHistoryTextCopied(false);
+    }
+  }
+
+  async function copyHistoryLink(): Promise<void> {
+    try {
+      await navigator.clipboard?.writeText(window.location.href);
+      setHistoryLinkError("");
+      setHistoryLinkCopied(true);
+      setHistoryExportStatus("Copied the shareable saved-history link.");
+      setLastExport({ type: "Link", at: new Date().toLocaleTimeString() });
+      window.setTimeout(() => setHistoryExportStatus(""), 3000);
+      window.setTimeout(() => setHistoryLinkCopied(false), 2000);
+    } catch {
+      setHistoryLinkCopied(false);
+      setHistoryLinkError("Copy was unavailable. Use the browser address bar to share this view.");
+    }
+  }
+
+  function savedHistorySummary() {
+    const runs = savedComparisonRuns();
+    const count = (type: string) => runs.filter((run) => (run.matchType || "Review") === type).length;
+    return {
+      total: runs.length,
+      good: count("GOOD MATCH"),
+      verify: count("VERIFY"),
+      noMatch: count("NO MATCH"),
+      latest: runs[0],
+    };
+  }
+
+  function visibleSavedComparisonRuns(): StoredCompareRun[] {
+    const view: CompareHistoryView = { search: historySearch, filter: historyFilter, sort: historySort };
+    return filterAndSortCompareHistory(savedComparisonRuns(), view);
+  }
+
+  function legacyVisibleSavedComparisonRuns(): StoredCompareRun[] {
+    const query = historySearch.trim().toLowerCase();
+    const filtered = savedComparisonRuns().filter((run) => {
+      const matchesVerdict = historyFilter === "all" || (run.matchType || "Review") === historyFilter;
+      const searchable = `${run.competitorBrand || ""} ${run.competitorSku || ""} ${run.wyrestormSku || ""}`.toLowerCase();
+      return matchesVerdict && (!query || searchable.includes(query));
+    });
+    return [...filtered].sort((left, right) => {
+      if (historySort === "score") return (right.matchScore ?? -1) - (left.matchScore ?? -1);
+      if (historySort === "confidence") return String(left.confidence || "").localeCompare(String(right.confidence || ""));
+      return Date.parse(right.createdAt || "") - Date.parse(left.createdAt || "");
+    });
+  }
+
+  function savedComparisonDiff(run: StoredCompareRun): string[] {
+    return compareHistoryDiff(run, savedComparisonRuns());
+  }
+
+  function legacySavedComparisonDiff(run: StoredCompareRun): string[] {
+    const prior = savedComparisonRuns()
+      .filter((candidate) => candidate.competitorBrand === run.competitorBrand && candidate.competitorSku === run.competitorSku && (candidate.version ?? 1) < (run.version ?? 1))
+      .sort((left, right) => (right.version ?? 1) - (left.version ?? 1))[0];
+    if (!prior) return [];
+    const changes: string[] = [];
+    if (prior.wyrestormSku !== run.wyrestormSku) changes.push(`Direction changed from ${prior.wyrestormSku || "unspecified"} to ${run.wyrestormSku || "unspecified"}.`);
+    if (prior.matchType !== run.matchType) changes.push(`Verdict changed from ${prior.matchType || "review"} to ${run.matchType || "review"}.`);
+    if (prior.confidence !== run.confidence) changes.push(`Confidence changed from ${prior.confidence || "unrecorded"} to ${run.confidence || "unrecorded"}.`);
+    if ((prior.evidence?.length ?? 0) !== (run.evidence?.length ?? 0)) changes.push(`Evidence count changed from ${prior.evidence?.length ?? 0} to ${run.evidence?.length ?? 0}.`);
+    if ((prior.warnings?.length ?? 0) !== (run.warnings?.length ?? 0)) changes.push(`Quote-check count changed from ${prior.warnings?.length ?? 0} to ${run.warnings?.length ?? 0}.`);
+    return changes;
+  }
+
+  function reopenSavedComparison(run: NonNullable<ReturnType<typeof savedComparisonRuns>>[number]): void {
+    setRestoredComparison(run);
+    setRestoreMessage("");
+    setSelectedBrand(run.competitorBrand || "CUSTOM");
+    setCompetitorInput(run.competitorSku || "");
+    setHasCompared(true);
+    setWorkflowStep("options");
+    setResultTab("overview");
+    setCandidateIndex(0);
+    setCompareStage("results");
+    setState("results");
+  }
+
+  function restoreSavedSnapshot(run: StoredCompareRun): void {
+    setRestoredComparison(run);
+    setSelectedBrand(run.competitorBrand || "CUSTOM");
+    setCompetitorInput(run.competitorSku || "");
+    setHasCompared(true);
+    setWorkflowStep("options");
+    setResultTab("overview");
+    setCandidateIndex(0);
+    setCompareStage("results");
+    setState("results");
+    setRestoreMessage(`Restored snapshot v${run.version ?? 1}. Saved history was not changed.`);
+  }
+
+  useEffect(() => {
+    if (!pendingDeleteRun) return;
+    deleteDialogRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeDeleteDialog();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      event.preventDefault();
+      const target = document.activeElement === deleteDialogRef.current ? document.querySelector<HTMLButtonElement>("[aria-label='Close delete dialog']") : deleteDialogRef.current;
+      target?.focus();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pendingDeleteRun]);
+
+  function closeDeleteDialog(): void {
+    skipResultFocusRef.current = true;
+    const trigger = deleteTriggerRef.current;
+    setPendingDeleteRun(null);
+    window.setTimeout(() => {
+      if (trigger && document.body.contains(trigger)) trigger.focus();
+    }, 0);
+  }
+
+  function deleteSavedComparison(runId: string): void {
+    skipResultFocusRef.current = true;
+    deleteCompareRunFromProject(runId);
+    if (restoredComparison?.id === runId) setRestoredComparison(null);
+    const trigger = deleteTriggerRef.current;
+    setPendingDeleteRun(null);
+    window.setTimeout(() => {
+      if (trigger && document.body.contains(trigger)) trigger.focus();
+    }, 0);
+    setCatalogVersion((version) => version + 1);
   }
 
   handleRetryWithSourceUrl("");
@@ -6182,8 +6469,11 @@ function ComparePageNew() {
             ) : null}
             {activeCandidate ? <section className="wm-ui-card wm-ui-section" aria-label="Compare result actions"><div className="compare-native-action-row wm-ui-action-row">
               <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
+              <button type="button" className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" onClick={saveComparisonHistory} aria-label="Save comparison to history">Save comparison</button>
               <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
-            </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}<div className="compare-native-action-row wm-ui-action-row"><VerifyBeforeQuoteNote /></div></section> : null}
+            </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}<p className="compare-native-muted wm-ui-copy">{savedComparisonCount()} saved comparison{savedComparisonCount() === 1 ? "" : "s"} in the current project.</p>{restoreMessage ? <p className="compare-native-muted wm-ui-copy" role="status">{restoreMessage}</p> : null}{restoredComparison ? <section className="compare-native-summary wm-ui-card wm-ui-copy" aria-label="Saved comparison snapshot"><details open><summary>Saved snapshot</summary><div className="mt-4"><p className="compare-native-muted wm-ui-copy" role="status">Saved {new Date(restoredComparison.createdAt).toLocaleString()} · Snapshot v{restoredComparison.version ?? 1}. The main result above is recalculated from current product data.</p><dl className="compare-native-core-matrix"><div><dt>Competitor</dt><dd>{restoredComparison.competitorBrand || "Not specified"} {restoredComparison.competitorSku || ""}</dd></div><div><dt>WyreStorm direction</dt><dd>{restoredComparison.wyrestormSku || "Not specified"}{restoredComparison.wyrestormTitle ? ` — ${restoredComparison.wyrestormTitle}` : ""}</dd></div><div><dt>Verdict</dt><dd>{restoredComparison.matchType || "Review"}</dd></div><div><dt>Confidence</dt><dd>{restoredComparison.confidence || "Not recorded"}</dd></div></dl>{restoredComparison.summary ? <><strong>Saved summary</strong><pre className="compare-native-summary__pre">{restoredComparison.summary}</pre></> : null}{restoredComparison.evidence?.length ? <><strong>Saved evidence</strong><ul>{restoredComparison.evidence.map((item) => <li key={`saved-evidence-${item}`}>{item}</li>)}</ul></> : null}{restoredComparison.warnings?.length ? <><strong>Saved quote checks</strong><ul>{restoredComparison.warnings.map((item) => <li key={`saved-warning-${item}`}>{item}</li>)}</ul></> : null}</div></details></section> : null}<div className="compare-native-action-row wm-ui-action-row"><VerifyBeforeQuoteNote /></div></section> : null}
+            {savedComparisonRuns().length ? <SavedComparisonHistory runs={savedComparisonRuns()} view={historyView.view} onSearch={setHistorySearch} onFilter={setHistoryFilter} onSort={setHistorySort} onReopen={reopenSavedComparison} onRestore={restoreSavedSnapshot} onDelete={(run) => deleteSavedComparison(run.id)} fromSharedUrl={historyView.fromSharedUrl} /> : null}
+            {pendingDeleteRun ? <div className="wm-data-editor-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeDeleteDialog(); }}><section className="wm-ui-card wm-ui-section" role="dialog" aria-modal="true" aria-labelledby="compare-delete-snapshot-title"><button type="button" className="wm-ui-button wm-ui-button-secondary" aria-label="Close delete dialog" onClick={closeDeleteDialog}>Close</button><h2 id="compare-delete-snapshot-title" className="wm-ui-title">Delete saved snapshot?</h2><p className="wm-ui-copy">Delete snapshot v{pendingDeleteRun.version ?? 1} for {pendingDeleteRun.competitorBrand || "this competitor"} {pendingDeleteRun.competitorSku || ""}? This cannot be undone.</p><div className="compare-native-action-row"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={closeDeleteDialog}>Cancel</button><button ref={deleteDialogRef} type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => deleteSavedComparison(pendingDeleteRun.id)}>Delete snapshot</button></div></section></div> : null}
             {matrixAlternatives.length ? <section className="compare-native-options compare-candidate-selector wm-ui-card" aria-label="Suggested other matches"><div><h2 className="wm-ui-title">Suggested other matches</h2><p className="wm-ui-copy">Select a thumbnail to compare that option in the main cards.</p></div><div className="compare-candidate-selector__grid">{matrixAlternatives.map((candidate) => <CandidateThumbnailSelector key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} selected={activeCandidate?.product.sku === candidate.product.sku} onSelect={() => { const index = viableCandidates.findIndex((option) => option.product.sku === candidate.product.sku); if (index >= 0) setCandidateIndex(index); }} />)}</div></section> : null}
             <details className="compare-native-summary wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
               <CompetitorSearchCard
