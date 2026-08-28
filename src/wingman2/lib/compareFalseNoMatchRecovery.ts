@@ -166,10 +166,19 @@ export function recoverFalseNoMatchCandidates<T extends AnyRecord>(
     }
 
     const wyrestorm = buildWyrestormCompareProfile(product as any);
+    // Derive the base confidence from the eligibility fitPenalty instead of
+    // using a fixed score. A direct candidate with fitPenalty 0 scores 80;
+    // one with fitPenalty 30 scores 50. This lets transport-matching and
+    // correctly-sized candidates rank higher in recovery than loosely related
+    // architecture alternatives.
+    const fitPenalty = eligibility.fitPenalty ?? 0;
+    const derivedScore = eligibility.eligibility === "direct"
+      ? Math.max(40, Math.min(90, 80 - fitPenalty))
+      : Math.max(35, Math.min(75, 65 - fitPenalty));
     const baseDecision = classifyCompetitorCompareDecision({
       competitor,
       wyrestorm,
-      score: eligibility.eligibility === "direct" ? 70 : 62,
+      score: derivedScore,
       evidence: eligibility.reasons,
     });
 
