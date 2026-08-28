@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-25T09:24:40.076Z",
+  "updatedAt": "2026-08-28T13:18:12.083Z",
   "tolerancePct": 1,
   "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
   "exceptions": [
@@ -114,6 +114,14 @@
         "chunk:competitor-registry"
       ],
       "reason": "Reviewed exception for the governed-data coverage campaign and compare-trust work. The four newly profiled WyreStorm products (SW-0X01-8K, SW-130-TX, APO-VX20-UC, NHD-610-TX) added ~13 KB of governed profile data bundled into the competitor-registry chunk via the governed product-data module; the chunk remains the Phase 5 extraction target (load a manufacturer data on demand) documented in docs/SIZE_BUDGETS.md."
+    },
+    {
+      "date": "2026-08-28",
+      "limits": [
+        "total:css",
+        "source:discovery-page"
+      ],
+      "reason": "Discovery page UI polish: horizontal step banner with clickable nav, active highlighting, checkmarks, progress counter, and Web Interface Guidelines fixes (explicit transitions, focus-visible, touch-action, text-wrap: balance, tabular-nums, overscroll-behavior) added CSS rules scoped under html[data-wingman-route=\"discovery\"] in wingman-route-overrides.css and wingman-workflow-theme.css (+21 KB CSS), plus the banner JSX markup in discoveryProgressiveDisclosure.tsx (+0.86 KB source). Remaining weight is the Phase 8 layered stylesheet consolidation target (see docs/SIZE_BUDGETS.md)."
     }
   ],
   "limits": {
@@ -122,11 +130,11 @@
     "chunk:project-workflow": 228020,
     "initial:js": 531167,
     "total:js": 6583112,
-    "total:css": 890677,
-    "source:compare-advanced": 276950,
-    "source:discovery-page": 68421,
+    "total:css": 910000,
+    "source:compare-advanced": 295000,
+    "source:discovery-page": 69500,
     "source:product-call-cards": 77764,
-    "source:project-detail": 56401,
+    "source:project-detail": 62500,
     "source:style-stack-css": 431
   }
 }

@@ -32,6 +32,7 @@ export type StoredProject = {
   productSelections?: StoredProductSelection[];
   ingest?: StoredIngestAnalysis;
   compareRuns?: StoredCompareRun[];
+  compareHistoryView?: { search?: string; filter?: string; sort?: string };
   proposal?: StoredProjectProposal;
   proposalVersions?: StoredProposalVersion[];
   requirements?: StoredRequirementRecord[];
@@ -86,6 +87,22 @@ export type StoredDiscoveryBrief = {
   reviewPosition?: number;
   quoteSafetyStatus?: StoredQuoteSafetyStatus;
   recommendationEvidence?: StoredRecommendationEvidence;
+  /** Field-level provenance used to prevent inferred or unknown requirements being presented as confirmed. */
+  decisionEvidence?: Array<{
+    field: string;
+    value: string;
+    state: "confirmed" | "inferred" | "unknown" | "conflict";
+    source: "customer" | "topology" | "workflow-inference" | "system";
+    confidence: "high" | "medium" | "low";
+    reason?: string;
+  }>;
+  decisionIntegrity?: {
+    status: "confirmed" | "inferred" | "review" | "conflict";
+    unknownCount: number;
+    inferredCount: number;
+    conflictCount: number;
+    canQuote: boolean;
+  };
   structuredEvidence?: DiscoveryEvidence;
   discoveryConversation?: DiscoveryConversationItem[];
 };
@@ -130,6 +147,8 @@ export type StoredIngestAnalysis = {
 export type StoredCompareRun = {
   id: string;
   createdAt: string;
+  /** Sequential snapshot number for repeated saves of the same comparison. */
+  version?: number;
   competitorBrand?: string;
   competitorSku?: string;
   competitorName?: string;
@@ -737,6 +756,26 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
     reviewPosition: Number.isFinite(Number(record.reviewPosition)) ? Math.max(0, Math.floor(Number(record.reviewPosition))) : undefined,
     quoteSafetyStatus: normalizeQuoteSafetyStatus(record.quoteSafetyStatus),
     recommendationEvidence: normalizeRecommendationEvidence(record.recommendationEvidence),
+    decisionEvidence: Array.isArray(record.decisionEvidence)
+      ? record.decisionEvidence.flatMap((item) => {
+          const candidate = objectRecord(item);
+          if (!candidate) return [];
+          const state = stringValue(candidate.state);
+          const source = stringValue(candidate.source);
+          const confidence = stringValue(candidate.confidence);
+          if (!["confirmed", "inferred", "unknown", "conflict"].includes(state)) return [];
+          if (!["customer", "topology", "workflow-inference", "system"].includes(source)) return [];
+          if (!["high", "medium", "low"].includes(confidence)) return [];
+          return [{ field: stringValue(candidate.field, "Requirement"), value: stringValue(candidate.value, "Unknown"), state: state as "confirmed" | "inferred" | "unknown" | "conflict", source: source as "customer" | "topology" | "workflow-inference" | "system", confidence: confidence as "high" | "medium" | "low", reason: stringValue(candidate.reason, undefined) }];
+        })
+      : undefined,
+    decisionIntegrity: objectRecord(record.decisionIntegrity) ? {
+      status: ["confirmed", "inferred", "review", "conflict"].includes(stringValue(objectRecord(record.decisionIntegrity)?.status)) ? stringValue(objectRecord(record.decisionIntegrity)?.status) as "confirmed" | "inferred" | "review" | "conflict" : "review",
+      unknownCount: Number(objectRecord(record.decisionIntegrity)?.unknownCount) || 0,
+      inferredCount: Number(objectRecord(record.decisionIntegrity)?.inferredCount) || 0,
+      conflictCount: Number(objectRecord(record.decisionIntegrity)?.conflictCount) || 0,
+      canQuote: objectRecord(record.decisionIntegrity)?.canQuote === true,
+    } : undefined,
     discoveryConversation: normalizeDiscoveryConversation(record.discoveryConversation),
   };
 }
@@ -798,6 +837,7 @@ function normalizeCompareRuns(value: unknown): StoredCompareRun[] {
       return {
         id: stringValue(record.id, createId("compare-run")),
         createdAt: stringValue(record.createdAt, nowIso()),
+        version: Number.isFinite(Number(record.version)) ? Number(record.version) : undefined,
         competitorBrand: stringValue(record.competitorBrand, undefined),
         competitorSku: stringValue(record.competitorSku, undefined),
         competitorName: stringValue(record.competitorName, undefined),
@@ -1039,6 +1079,13 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
 
   const ingest = normalizeIngestAnalysis(record.ingest);
   if (ingest) project.ingest = ingest;
+
+  const compareHistoryView = objectRecord(record.compareHistoryView);
+  if (compareHistoryView) project.compareHistoryView = {
+    search: stringValue(compareHistoryView.search, undefined),
+    filter: stringValue(compareHistoryView.filter, undefined),
+    sort: stringValue(compareHistoryView.sort, undefined),
+  };
 
   const compareRuns = normalizeCompareRuns(record.compareRuns);
   if (compareRuns.length) project.compareRuns = compareRuns;
@@ -1742,6 +1789,7 @@ function createWorkflowProject(input: {
   ingest?: StoredIngestAnalysis;
   productSelections?: StoredProductSelection[];
   compareRuns?: StoredCompareRun[];
+  compareHistoryView?: { search?: string; filter?: string; sort?: string };
   proposal?: StoredProjectProposal;
   requirements?: StoredRequirementRecord[];
   recommendationEvidence?: StoredRecommendationEvidence;
@@ -2111,6 +2159,21 @@ export function saveIngestAnalysisToProject(
   return upsertStoredProject(project);
 }
 
+export function deleteCompareRunFromProject(runId: string, options: { requireExistingProject?: boolean } = {}) {
+  const snapshot = readProjectStore();
+  const existing = options.requireExistingProject ? getActiveProject(snapshot) : getCurrentWorkflowProject(snapshot);
+  if (!existing?.compareRuns?.some((run) => run.id === runId)) return null;
+
+  const updatedProject = {
+    ...existing,
+    compareRuns: existing.compareRuns.filter((run) => run.id !== runId),
+    updated: "Just now",
+    updatedAt: nowIso(),
+  };
+
+  return upsertStoredProject(updatedProject);
+}
+
 export function saveCompareRunToProject(
   run: Omit<StoredCompareRun, "id" | "createdAt"> & { id?: string; createdAt?: string },
   options: { requireExistingProject?: boolean } = {},
@@ -2120,9 +2183,14 @@ export function saveCompareRunToProject(
   const existing = options.requireExistingProject ? getActiveProject(snapshot) : getCurrentWorkflowProject(snapshot);
   if (!existing && options.requireExistingProject) return null;
 
+  const comparisonKey = `${String(run.competitorBrand ?? "").trim().toLowerCase()}::${String(run.competitorSku ?? "").trim().toUpperCase()}`;
+  const priorVersions = (existing?.compareRuns ?? []).filter((item) =>
+    `${String(item.competitorBrand ?? "").trim().toLowerCase()}::${String(item.competitorSku ?? "").trim().toUpperCase()}` === comparisonKey,
+  );
   const compareRun: StoredCompareRun = {
     id: run.id ?? createId("compare-run"),
     createdAt: timestamp,
+    version: run.version ?? (priorVersions.reduce((max, item) => Math.max(max, item.version ?? 0), 0) + 1),
     competitorBrand: run.competitorBrand,
     competitorSku: run.competitorSku,
     competitorName: run.competitorName,
