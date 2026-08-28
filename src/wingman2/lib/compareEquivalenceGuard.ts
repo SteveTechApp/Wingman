@@ -174,7 +174,18 @@ export function applyCompareEquivalenceGuards(result: RigorousCompareResult): Ri
       continue;
     }
 
-    if (decisionConfidence(match) < LOW_CONFIDENCE_DIRECT_MATCH_FLOOR) {
+    // Adapt the confidence floor based on structural signal strength.
+    // A candidate with same class + role + transport is structurally sound
+    // even when data completeness drags the confidence number down. Let it
+    // through at 30 instead of 45; a candidate with weak signals stays at 45.
+    const decision = match.decision;
+    const matchedList = Array.isArray(decision?.matches) ? decision.matches : [];
+    const hasStrongSignals = matchedList.some((m: string) =>
+      /same (technology|transport|role)|compatible role/i.test(m)
+    );
+    const effectiveFloor = hasStrongSignals ? 30 : LOW_CONFIDENCE_DIRECT_MATCH_FLOOR;
+
+    if (decisionConfidence(match) < effectiveFloor) {
       newlyRejected.push(makeGuardedNoMatch(match, [], [], "low-confidence"));
       continue;
     }

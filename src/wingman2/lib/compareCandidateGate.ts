@@ -257,7 +257,10 @@ function allowedClassPair(competitorClass: CompareCompetitorClass, candidateClas
   // HDBaseT and extender are transport-adjacent classes.
   if (competitorClass === "HDBASET") return candidateClass === "HDBASET" || candidateClass === "EXTENDER";
   if (competitorClass === "EXTENDER") return candidateClass === "EXTENDER" || candidateClass === "HDBASET";
-  if (competitorClass === "MATRIX") return candidateClass === "MATRIX";
+  // MATRIX accepts HDBASET: an HDBaseT matrix is still a matrix — the
+  // transport mismatch penalty is handled downstream by the eligibility
+  // engine's matrixFitPenalty, not here in the gate.
+  if (competitorClass === "MATRIX") return candidateClass === "MATRIX" || candidateClass === "HDBASET";
   if (competitorClass === "DISTRIBUTION") return candidateClass === "DISTRIBUTION";
   // PRESENTATION accepts WIRELESS_PRESENTATION: WyreStorm SW-* switchers cover both.
   if (competitorClass === "PRESENTATION") return candidateClass === "PRESENTATION" || candidateClass === "WIRELESS_PRESENTATION";
