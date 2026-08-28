@@ -1,26 +1,27 @@
 {
-  "updatedAt": "2026-08-26T00:00:00.000Z",
-  "rule": "Current totals become the maximum allowed style-drift counts. Future changes must not increase these counts.",   "exceptions": [
+  "updatedAt": "2026-08-28T00:00:00.000Z",
+  "rule": "Current totals become the maximum allowed style-drift counts. Future changes must not increase these counts.",
+  "exceptions": [
     {
       "date": "2026-08-26",
       "metrics": [
         "hex"
       ],
-        "reason": "Review-mode section stepper: the new 'Jump to section' chip row reuses the existing interview palette — #0b1824 section background, #8fb8d0 label + inactive chip text, #cfe6f7 chip hover (all already used dozens of times in the same component), adding 4 occurrences (1860 to 1864). No new colours were introduced. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
+      "reason": "Review-mode section stepper: the new 'Jump to section' chip row reuses the existing interview palette — #0b1824 section background, #8fb8d0 label + inactive chip text, #cfe6f7 chip hover (all already used dozens of times in the same component), adding 4 occurrences (1860 to 1864). No new colours were introduced. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
     },
     {
       "date": "2026-08-26",
       "metrics": [
         "hex"
       ],
-        "reason": "Focused re-verify review mode: the new 'Re-verify open questions' entry card (rail) reuses the existing interview subtitle colour #8fb8d0 (already used dozens of times in the same component and entry card), adding 1 occurrence (1859 to 1860). No new colours were introduced — the amber accents use Tailwind classes, not hex. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
+      "reason": "Focused re-verify review mode: the new 'Re-verify open questions' entry card (rail) reuses the existing interview subtitle colour #8fb8d0 (already used dozens of times in the same component and entry card), adding 1 occurrence (1859 to 1860). No new colours were introduced — the amber accents use Tailwind classes, not hex. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
     },
     {
       "date": "2026-08-26",
       "metrics": [
         "hex"
       ],
-        "reason": "Spoken-language toggle + voice preview in the guided interview header: the new 'Speak in' select (label text #8fb8d0, selected value #cfe6f7, option background #0b1824) and 'Preview voice' button (text #8fb8d0 / hover #cfe6f7) reuse the existing interview palette — already used dozens of times in the same component — adding 5 occurrences (1854 to 1859). No new colours were introduced. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
+      "reason": "Spoken-language toggle + voice preview in the guided interview header: the new 'Speak in' select (label text #8fb8d0, selected value #cfe6f7, option background #0b1824) and 'Preview voice' button (text #8fb8d0 / hover #cfe6f7) reuse the existing interview palette — already used dozens of times in the same component — adding 5 occurrences (1854 to 1859). No new colours were introduced. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
     },
     {
       "date": "2026-08-26",
@@ -91,6 +92,13 @@
         "hex"
       ],
       "reason": "Guided interview (voice Q&A) Discovery mode: DiscoveryGuidedInterview.tsx adds 45 inline Tailwind hex classes for the interview cards, progress bar, live transcript bubble, interpretation chips, notes trail and summary panel; DiscoveryCaptureSuggestion.tsx (the capture-box auto-classification chip) adds a further 3 (total 1830 to 1833). The five colors are the existing Wingman dark-theme palette (#0b1824, #edf6ff, #8fb8d0, #cfe6f7, #6a97b0) used identically across the rest of the Discovery UI (e.g. the Quick Start panel), so the new UI stays visually consistent; the counts sit with the site-survey exception as inline Tailwind classes on the new components only."
+    },
+    {
+      "date": "2026-08-28",
+      "metrics": [
+        "pageSections"
+      ],
+      "reason": "Discovery page UI polish: horizontal step banner with clickable nav, active highlighting, completed-step checkmarks, progress counter, and Web Interface Guidelines fixes (explicit transitions, focus-visible outlines, touch-action, text-wrap: balance, tabular-nums, overscroll-behavior, section semantics, aria-hidden, aria-live). All scoped under html[data-wingman-route=\"discovery\"] in wingman-route-overrides.css and wingman-workflow-theme.css. Consolidation into the layered stylesheet remains the planned reduction (Phase 8 of docs/SIZE_BUDGETS.md)."
     }
   ],
   "totals": {
@@ -98,7 +106,7 @@
     "rgb": 2725,
     "inlineStyle": 60,
     "arbitraryTailwind": 288,
-    "pageSections": 2670,
+    "pageSections": 2761,
     "legacyPills": 4
   }
 }

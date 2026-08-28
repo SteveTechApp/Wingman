@@ -7,7 +7,7 @@
  * 3. Quick mode toggle for simple rooms
  * 4. Progress indicators showing batch completion
  */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -148,6 +148,8 @@ type DiscoveryProgressiveDisclosureProps = {
   isReviewingAnswers: boolean;
   /** Whether to show the quick mode toggle */
   showModeToggle?: boolean;
+  /** Whether to show batch controls (mode toggle, dots, nav) — hides after first answers */
+  showBatchControls?: boolean;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -162,8 +164,20 @@ export function DiscoveryProgressiveDisclosure({
   onModeChange,
   isReviewingAnswers,
   showModeToggle = true,
+  showBatchControls = true,
 }: DiscoveryProgressiveDisclosureProps) {
   const [showSmartDefaultsBanner, setShowSmartDefaultsBanner] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll the banner so the clicked step snaps into view
+  const handleStepClick = useCallback((globalIndex: number) => {
+    onActiveIndexChange(globalIndex);
+    // Scroll the banner to show the clicked item
+    requestAnimationFrame(() => {
+      const item = bannerRef.current?.querySelector(`[data-question-index="${globalIndex}"]`);
+      item?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    });
+  }, [onActiveIndexChange]);
 
   // Get the current batch of questions
   const currentBatch = useMemo(() => {
@@ -213,7 +227,7 @@ export function DiscoveryProgressiveDisclosure({
   return (
     <div className="wm-discovery-progressive-disclosure" data-wingman-progressive-disclosure="true">
       {/* Mode Toggle */}
-      {showModeToggle && !isReviewingAnswers && (
+      {showBatchControls && showModeToggle && !isReviewingAnswers && (
         <div className="wm-discovery-mode-toggle" data-wingman-mode-toggle="true">
           <button
             type="button"
@@ -242,7 +256,7 @@ export function DiscoveryProgressiveDisclosure({
       )}
 
       {/* Smart Defaults Banner */}
-      {selectedApplication && !defaultsApplied && !isReviewingAnswers && (
+      {showBatchControls && selectedApplication && !defaultsApplied && !isReviewingAnswers && (
         <div className="wm-discovery-smart-defaults-banner" data-wingman-smart-defaults="true">
           <div className="wm-discovery-smart-defaults-content">
             <span className="wm-discovery-smart-defaults-icon" aria-hidden="true">✨</span>
@@ -274,7 +288,7 @@ export function DiscoveryProgressiveDisclosure({
       )}
 
       {/* Batch Progress Indicator */}
-      {mode === "standard" && !isReviewingAnswers && (
+      {showBatchControls && mode === "standard" && !isReviewingAnswers && (
         <div className="wm-discovery-batch-progress" data-wingman-batch-progress="true">
           <div className="wm-discovery-batch-dots">
             {Array.from({ length: totalBatches }, (_, i) => (
@@ -298,66 +312,118 @@ export function DiscoveryProgressiveDisclosure({
         </div>
       )}
 
-      {/* Batch Navigation */}
-      {mode === "standard" && !isReviewingAnswers && (
-        <div className="wm-discovery-batch-navigation" data-wingman-batch-nav="true">
-          <button
-            type="button"
-            className="wm-ui-button wm-ui-button-secondary"
-            onClick={goToPreviousBatch}
-            disabled={isFirstBatch}
-          >
-            ← Previous batch
-          </button>
-          <button
-            type="button"
-            className="wm-ui-button wm-ui-button-secondary"
-            onClick={goToNextBatch}
-            disabled={isLastBatch}
-          >
-            Next batch →
-          </button>
-        </div>
-      )}
+
 
       {/* Questions in Current Batch */}
       <div className="wm-discovery-question-batch" data-wingman-question-batch="true">
-        {currentBatch.questions.map((question, index) => (
-          <div
-            key={question.id}
-            className="wm-discovery-batch-question"
-            data-question-id={question.id}
-            data-question-index={activeIndex + index}
-          >
-            {/* Question header */}
-            <div className="wm-discovery-batch-question-header">
-              <span className="wm-discovery-batch-question-number">
-                {activeIndex + index + 1}
+        {/* Horizontal step banner with inline nav + progress counter */}
+        <div className="wm-discovery-batch-step-banner-wrap">
+        <div ref={bannerRef} className="wm-discovery-batch-step-banner" role="list" aria-label="Discovery questions in this batch">
+          {showBatchControls && mode === "standard" && !isReviewingAnswers && (
+            <button
+              type="button"
+              className="wm-discovery-batch-step-banner__nav"
+              onClick={goToPreviousBatch}
+              disabled={isFirstBatch}
+              aria-label="Previous batch"
+            >
+              ← Prev
+            </button>
+          )}
+          {currentBatch.questions.map((question, index) => {
+            const globalIndex = activeIndex + index;
+            const isActive = globalIndex === activeIndex;
+            const answer = answers[question.id];
+            const isAnswered = Array.isArray(answer) ? answer.length > 0 : !!answer;
+            const bannerClass = [
+              "wm-discovery-batch-step-banner__button",
+              isActive ? "is-active" : "",
+              isAnswered ? "is-answered" : "",
+            ].filter(Boolean).join(" ");
+            return (
+              <span key={question.id} className="wm-discovery-batch-step-banner__item" role="listitem">
+                <button
+                  type="button"
+                  className={bannerClass}
+                  onClick={() => handleStepClick(globalIndex)}
+                  aria-current={isActive ? "step" : undefined}
+                  aria-label={`Question ${globalIndex + 1}: ${question.question}${isAnswered ? " (answered)" : ""}`}
+                >
+                  <span className="wm-discovery-batch-step-banner__number" aria-hidden="true">
+                    {isAnswered ? (
+                      <span className="wm-discovery-batch-step-banner__check" aria-hidden="true">✓</span>
+                    ) : (
+                      globalIndex + 1
+                    )}
+                  </span>
+                  <span className="wm-discovery-batch-step-banner__text">
+                    <span className="wm-discovery-batch-step-banner__section">
+                      {question.section}
+                      {question.required ? "" : " · Optional"}
+                    </span>
+                    <span className="wm-discovery-batch-step-banner__title">
+                      {question.question}
+                    </span>
+                  </span>
+                </button>
+                {index < currentBatch.questions.length - 1 && (
+                  <span className="wm-discovery-batch-step-banner__chevron" aria-hidden="true">
+                    »
+                  </span>
+                )}
               </span>
-              <div>
-                <span className="wm-discovery-batch-question-section">
-                  {question.section}
-                  {question.required ? "" : " · Optional"}
-                </span>
-                <h3 className="wm-discovery-batch-question-title">
-                  {question.question}
-                </h3>
-                <p className="wm-discovery-batch-question-prompt">
-                  {question.prompt}
-                </p>
+            );
+          })}
+          {showBatchControls && mode === "standard" && !isReviewingAnswers && (
+            <button
+              type="button"
+              className="wm-discovery-batch-step-banner__nav"
+              onClick={goToNextBatch}
+              disabled={isLastBatch}
+              aria-label="Next batch"
+            >
+              Next →
+            </button>
+          )}
+          {/* Batch progress counter — inside scrollable banner at the end */}
+          {(() => {
+            const batchAnswered = currentBatch.questions.filter((q) => {
+              const a = answers[q.id];
+              return Array.isArray(a) ? a.length > 0 : !!a;
+            }).length;
+            const batchTotal = currentBatch.questions.length;
+            return (
+              <span className="wm-discovery-batch-step-banner__progress" role="status" aria-live="polite" aria-label={`${batchAnswered} of ${batchTotal} questions answered`}>
+                <span className="wm-discovery-batch-step-banner__progress-done">{batchAnswered}</span>
+                <span className="wm-discovery-batch-step-banner__progress-sep">/</span>
+                <span className="wm-discovery-batch-step-banner__progress-total">{batchTotal}</span>
+              </span>
+            );
+          })()}
+        </div>
+        </div>
+
+        {/* Active question content — full card with options */}
+        {currentBatch.questions.map((question, index) => {
+          const globalIndex = activeIndex + index;
+          if (globalIndex !== activeIndex) return null;
+          return (
+            <div
+              key={question.id}
+              className="wm-discovery-batch-question"
+              data-question-id={question.id}
+              data-question-index={globalIndex}
+            >
+              <div className="wm-discovery-batch-question-content" data-question-content={question.id}>
+                {/* Options will be injected here by the parent component */}
               </div>
             </div>
-
-            {/* Question content slot — the actual options are rendered by the parent */}
-            <div className="wm-discovery-batch-question-content" data-question-content={question.id}>
-              {/* Options will be injected here by the parent component */}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Quick Mode Summary */}
-      {mode === "quick" && (
+      {showBatchControls && mode === "quick" && (
         <div className="wm-discovery-quick-summary" data-wingman-quick-summary="true">
           <p>
             <strong>Quick mode:</strong> Answer the 3 questions above to get a product direction.
