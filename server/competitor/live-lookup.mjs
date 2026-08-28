@@ -176,7 +176,7 @@ function assertAllowedCompetitorLookupUrl(rawUrl) {
 }
 /* COMPETITOR-LIVE-LOOKUP-ALLOWLIST-GUARD-END */
 const DEFAULT_TIMEOUT_MS = Math.max(3500, Number(process.env.LOOKUP_TIMEOUT_MS || 9000));
-const LIVE_DB_TTL_MS = Math.max(60_000, Number(process.env.LOOKUP_LIVE_DB_TTL_MS || 90 * 24 * 60 * 60 * 1000));
+const LIVE_DB_TTL_MS = Math.max(60_000, Number(process.env.LOOKUP_LIVE_DB_TTL_MS || 30 * 24 * 60 * 60 * 1000));
 const MAX_FETCH_ATTEMPTS = Math.max(3, Number(process.env.LOOKUP_LIVE_MAX_ATTEMPTS || 14));
 
 
@@ -217,67 +217,93 @@ const BRAND_ADAPTERS = {
   },
   lightware: {
     hosts: ["lightware.com", "www.lightware.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.lightware.com/en/products/${encodeURIComponent(String(sku).toLowerCase())}`,
+    ],
     searchUrls: (sku) => [`https://lightware.com/search?q=${encodeURIComponent(sku)}`],
   },
   zeevee: {
     hosts: ["zeevee.com", "www.zeevee.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.zeevee.com/products/${encodeURIComponent(String(sku).toLowerCase())}`,
+    ],
     searchUrls: (sku) => [`https://www.zeevee.com/?s=${encodeURIComponent(sku)}`],
   },
   barco: {
     hosts: ["barco.com", "www.barco.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.barco.com/en/products/${encodeURIComponent(String(sku).toLowerCase())}`,
+    ],
     searchUrls: (sku) => [`https://www.barco.com/en/search?query=${encodeURIComponent(sku)}`],
   },
   amx: {
     hosts: ["amx.com", "www.amx.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.amx.com/en/search?keyword=${encodeURIComponent(sku)}`,
+    ],
     searchUrls: (sku) => [`https://www.amx.com/en/search?keyword=${encodeURIComponent(sku)}`],
   },
   cyp: {
     hosts: ["cypeurope.com", "www.cypeurope.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.cypeurope.com/product/${encodeURIComponent(String(sku).toLowerCase())}/`,
+    ],
     searchUrls: (sku) => [`https://cypeurope.com/?s=${encodeURIComponent(sku)}`],
   },
   syelectronics: {
     hosts: ["sy.co.uk", "www.sy.co.uk"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.sy.co.uk/product/${encodeURIComponent(String(sku).toLowerCase())}/`,
+    ],
     searchUrls: (sku) => [`https://www.sy.co.uk/?s=${encodeURIComponent(sku)}`],
   },
   justaddpower: {
     hosts: ["justaddpower.com", "www.justaddpower.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.justaddpower.com/products/${encodeURIComponent(String(sku).toLowerCase())}`,
+    ],
     searchUrls: (sku) => [`https://www.justaddpower.com/search?q=${encodeURIComponent(sku)}`],
   },
   hdanywhere: {
     hosts: ["hdanywhere.com", "www.hdanywhere.com", "support.hdanywhere.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.hdanywhere.com/product/${encodeURIComponent(String(sku).toLowerCase())}/`,
+    ],
     searchUrls: (sku) => [`https://www.hdanywhere.com/?s=${encodeURIComponent(sku)}`],
   },
   turtleav: {
     hosts: ["turtleav.com", "www.turtleav.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.turtleav.com/product/${encodeURIComponent(String(sku).toLowerCase())}/`,
+    ],
     searchUrls: (sku) => [`https://turtleav.com/?s=${encodeURIComponent(sku)}`],
   },
   blackbox: {
     hosts: ["blackbox.com", "www.blackbox.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.blackbox.com/en-us/search?text=${encodeURIComponent(sku)}`,
+    ],
     searchUrls: (sku) => [`https://www.blackbox.com/en-us/search?text=${encodeURIComponent(sku)}`],
   },
   datapath: {
     hosts: ["datapath.co.uk", "www.datapath.co.uk"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.datapath.co.uk/product/${encodeURIComponent(String(sku).toLowerCase())}`,
+    ],
     searchUrls: (sku) => [`https://www.datapath.co.uk/?s=${encodeURIComponent(sku)}`],
   },
   matroxvideo: {
-    hosts: ["matrox.com", "www.matrox.com"],
-    productUrls: () => [],
+    hosts: ["matrox.com", "www.matrox.com", "video.matrox.com"],
+    productUrls: (sku) => [
+      `https://video.matrox.com/en/products/${encodeURIComponent(String(sku).toLowerCase())}`,
+    ],
     searchUrls: (sku) => [`https://video.matrox.com/en/search?keys=${encodeURIComponent(sku)}`],
   },
   qsys: {
     hosts: ["qsys.com", "www.qsys.com"],
-    productUrls: () => [],
+    productUrls: (sku) => [
+      `https://www.qsys.com/ecosystem/product/${encodeURIComponent(String(sku).toLowerCase())}/`,
+    ],
     searchUrls: (sku) => [`https://www.qsys.com/search/?q=${encodeURIComponent(sku)}`],
   },
 };
@@ -365,6 +391,9 @@ function asCachedPayload(record, cacheType) {
     keySpecs: Array.isArray(record?.keySpecs) ? record.keySpecs : [],
     technologyProfile: record?.technologyProfile && typeof record.technologyProfile === "object"
       ? record.technologyProfile
+      : null,
+    structuredSpecs: record?.structuredSpecs && typeof record.structuredSpecs === "object"
+      ? record.structuredSpecs
       : null,
     sources: Array.isArray(record?.sources) ? record.sources : [],
     sourceUrls: Array.isArray(record?.sourceUrls) ? record.sourceUrls : [],
@@ -695,6 +724,82 @@ function extractKeySpecs(text) {
   return specs;
 }
 
+/**
+ * Extract structured spec fields from raw product text.
+ * Returns an object with I/O counts, resolution, transport, role, and
+ * confidence scores for each extracted field.
+ */
+function extractStructuredSpecs(text, manufacturer = "", model = "") {
+  const lower = (text || "").toLowerCase();
+  const blob = `${manufacturer} ${model} ${text}`.toLowerCase();
+  const result = {
+    inputCount: null,
+    outputCount: null,
+    maxResolution: "",
+    resolutionRank: 0,
+    chroma: "",
+    transport: "",
+    role: "",
+    confidence: {},
+  };
+
+  // Input/output counts — look for patterns like "8x8", "4 inputs", "2 HDMI outputs"
+  const matrixMatch = blob.match(/\b(\d{1,2})\s*[x×]\s*(\d{1,2})\b/);
+  if (matrixMatch) {
+    result.inputCount = Number(matrixMatch[1]);
+    result.outputCount = Number(matrixMatch[2]);
+    result.confidence.ioCount = "high";
+  } else {
+    const inMatch = blob.match(/\b(\d{1,2})\s*(?:routed\s+)?(?:hdmi\s+)?(?:source\s+)?input/i);
+    const outMatch = blob.match(/\b(\d{1,2})\s*(?:routed\s+)?(?:hdmi\s+|hdbaset\s+|display\s+)?output/i);
+    if (inMatch) { result.inputCount = Number(inMatch[1]); result.confidence.inputCount = "medium"; }
+    if (outMatch) { result.outputCount = Number(outMatch[1]); result.confidence.outputCount = "medium"; }
+  }
+
+  // Resolution
+  const resPatterns = [
+    { re: /\b8k\b|7680.*4320/i, rank: 7, label: "8K" },
+    { re: /4k\s*@?\s*120|2160p.*120/i, rank: 6, label: "4K120" },
+    { re: /4k\s*60\s*4\s*:\s*4\s*:\s*4|4k60.*4:4:4/i, rank: 5, label: "4K60 4:4:4" },
+    { re: /4k\s*60|2160p.*60|3840.*2160.*60/i, rank: 4, label: "4K60" },
+    { re: /4k\s*30|2160p.*30|\b4k\b|uhd/i, rank: 3, label: "4K" },
+    { re: /1080p|1920.*1080|full\s*hd/i, rank: 2, label: "1080p" },
+    { re: /720p|1280.*720/i, rank: 1, label: "720p" },
+  ];
+  for (const { re, rank, label } of resPatterns) {
+    if (re.test(blob)) {
+      result.maxResolution = label;
+      result.resolutionRank = rank;
+      result.confidence.resolution = "high";
+      break;
+    }
+  }
+
+  // Chroma
+  if (/4\s*:\s*4\s*:\s*4|444/i.test(blob)) { result.chroma = "4:4:4"; result.confidence.chroma = "high"; }
+  else if (/4\s*:\s*2\s*:\s*2|422/i.test(blob)) { result.chroma = "4:2:2"; result.confidence.chroma = "high"; }
+  else if (/4\s*:\s*2\s*:\s*0|420/i.test(blob)) { result.chroma = "4:2:0"; result.confidence.chroma = "high"; }
+
+  // Transport
+  if (/hdbase[-\s]?t|hdbt/i.test(blob)) { result.transport = "HDBaseT"; result.confidence.transport = "high"; }
+  else if (/av\s*over\s*ip|avoip|sdvoe|networkhd|1gbe|10gbe/i.test(blob)) { result.transport = "AVoIP"; result.confidence.transport = "high"; }
+  else if (/\bhdmi\b/i.test(blob) && !/hdbase|network|wireless/i.test(blob)) { result.transport = "HDMI"; result.confidence.transport = "medium"; }
+  else if (/wireless|casting|wifi/i.test(blob)) { result.transport = "Wireless"; result.confidence.transport = "medium"; }
+
+  // Role
+  if (/\bencoder\b|\btransmitter\b|\bsource\s*side/i.test(blob) && !/\bdecoder\b|\breceiver\b/i.test(blob)) { result.role = "encoder"; result.confidence.role = "high"; }
+  else if (/\bdecoder\b|\breceiver\b|\bdisplay\s*side/i.test(blob) && !/\bencoder\b|\btransmitter\b/i.test(blob)) { result.role = "decoder"; result.confidence.role = "high"; }
+  else if (/\btransceiver\b|\bbidirectional/i.test(blob)) { result.role = "transceiver"; result.confidence.role = "high"; }
+  else if (/\bmatrix\b/i.test(blob)) { result.role = "matrix"; result.confidence.role = "medium"; }
+  else if (/\bswitcher\b|\bswitch\b/i.test(blob)) { result.role = "switcher"; result.confidence.role = "medium"; }
+  else if (/\bextender\b|\bextension\b/i.test(blob)) { result.role = "extender"; result.confidence.role = "medium"; }
+  else if (/\bsplitter\b|\bdistribution/i.test(blob)) { result.role = "splitter"; result.confidence.role = "medium"; }
+  else if (/\bvideo\s*wall/i.test(blob)) { result.role = "video-wall"; result.confidence.role = "medium"; }
+  else if (/\bmultiview/i.test(blob)) { result.role = "multiview"; result.confidence.role = "medium"; }
+
+  return result;
+}
+
 function summarizeText(html, text, model) {
   const meta = extractMetaDescription(html);
   if (meta) return meta.slice(0, 520);
@@ -851,6 +956,11 @@ function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts })
     sourceUrl: bestEvidence?.url || productUrl || sourceUrls[0] || "",
   });
 
+  // Extract structured spec fields from the aggregated text.
+  // These give the compare engine actionable I/O counts, resolution, transport
+  // and role data instead of forcing it to re-parse raw text.
+  const structuredSpecs = extractStructuredSpecs(aggregateText || bestText, manufacturer, model);
+
   return {
     ok: Boolean(bestEvidence),
     manufacturer,
@@ -861,6 +971,7 @@ function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts })
     summary,
     keySpecs,
     technologyProfile,
+    structuredSpecs,
     sources: attempts.map((attempt) => ({
       url: attempt.url,
       label: attempt.kind,
