@@ -761,6 +761,40 @@ function productHasNetworkHdEndpointRole(sku: string, text: string): boolean {
     /\b(tx|rx|trx|encoder|decoder|transceiver|transmitter|receiver)\b/i.test(value);
 }
 
+/** Extract transport text from the product record's structured data. */
+function candidateProductTransportText(product: unknown): string {
+  if (!product || typeof product !== "object" || Array.isArray(product)) return "";
+  const record = product as LooseRecord;
+
+  // 1. Structured transport array on the governed technical profile
+  const transports = record.transport ?? record.technologies;
+  if (Array.isArray(transports) && transports.length > 0) {
+    return transports.map((t: unknown) => String(t ?? "")).join(" ");
+  }
+
+  // 2. Product class / product type labels
+  const productType = String(record.productType ?? record.productClass ?? "");
+  if (productType) return productType;
+
+  // 3. WyreStorm compare profile (if already built)
+  const profile = record.wyrestorm ?? record;
+  const profileTransport = profile.transport;
+  if (Array.isArray(profileTransport) && profileTransport.length > 0) {
+    return profileTransport.map((t: unknown) => String(t ?? "")).join(" ");
+  }
+
+  // 4. Technical profile transport
+  const techProfile = record.technicalProfile;
+  if (techProfile && typeof techProfile === "object") {
+    const techTransports = (techProfile as LooseRecord).transport;
+    if (Array.isArray(techTransports) && techTransports.length > 0) {
+      return techTransports.map((t: unknown) => String(t ?? "")).join(" ");
+    }
+  }
+
+  return "";
+}
+
 function matrixFitPenalty(competitorText: string, sku: string, text: string, product?: unknown): number {
   const required = extractMatrixSizeFromText(competitorText);
   const offered = extractCandidateMatrixSize(product) ?? extractMatrixSizeFromText(`${sku} ${text}`);
@@ -792,7 +826,17 @@ function matrixFitPenalty(competitorText: string, sku: string, text: string, pro
   const candidate = normalise(`${sku} ${text}`);
   const requiresRemoteTransport = /\b(hdbaset|hdbt|tps|category cable|cat\s*[56][a-z]?|receiver(?:s| kit)?|rx kit)\b/i.test(requirement);
   const requiresLocalHdmi = /\bhdmi\b/i.test(requirement) && !requiresRemoteTransport;
-  const offersRemoteTransport = /\b(hdbaset|hdbt|receiver(?:s| kit)?|rx kit)\b/i.test(candidate) || /(?:H2A|HDBT)/.test(skuKey(sku));
+
+  // Determine the candidate's actual output transport. Structured transport
+  // data on the product record is authoritative — the SKU regex is a fallback
+  // only. The H2A family prefix appears on both HDBaseT matrices (MXV-*) and
+  // pure HDMI matrices (MX-0808-H2A-MK2), so matching H2A in the SKU alone
+  // falsely flags local-HDMI products as offering remote transport.
+  const candidateProductTransport = candidateProductTransportText(product);
+  const offersRemoteTransport =
+    (candidateProductTransport && /\b(hdbaset|hdbt|receiver(?:s| kit)?|rx kit)\b/i.test(candidateProductTransport))
+    || /\b(hdbaset|hdbt|receiver(?:s| kit)?|rx kit)\b/i.test(candidate)
+    || /(?:HDBT)/.test(skuKey(sku));
   const offersLocalHdmiOnly = /\bhdmi\b/i.test(candidate) && !offersRemoteTransport;
   const addsUnrequestedScaling = /\b(seamless|scaling|scaler)\b/i.test(candidate) || /SCL/.test(skuKey(sku));
 
@@ -800,6 +844,15 @@ function matrixFitPenalty(competitorText: string, sku: string, text: string, pro
     penalty += 120;
   } else if (requiresLocalHdmi && offersRemoteTransport) {
     penalty += 120;
+  } else if (requiresLocalHdmi && offersLocalHdmiOnly) {
+    // Pure HDMI candidate matches a local-HDMI competitor: small tiebreaker
+    // so it ranks above HDBaseT / remote-transport candidates when penalties
+    // are otherwise equal. Kept small enough to avoid promoting NO-MATCH
+    // candidates past the viability threshold.
+    penalty -= 5;
+  } else if (requiresRemoteTransport && offersRemoteTransport) {
+    // HDBaseT candidate matches an HDBaseT competitor: small tiebreaker.
+    penalty -= 5;
   }
 
   if (!/\b(seamless|scaling|scaler)\b/i.test(requirement) && addsUnrequestedScaling) {

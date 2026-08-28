@@ -29,4 +29,26 @@ describe("matrix architecture fit", () => {
     expect(hdbtKit.eligibility).toBe("direct");
     expect(hdbtKit.fitPenalty).toBeLessThan(hdmi.fitPenalty);
   });
+
+  it("ranks the pure HDMI MX-0808-H2A-MK2 above the HDBaseT MXV-0808-H2A-70-V3 for a local HDMI matrix competitor", () => {
+    // Lightware MMX8X8-HDMI-4K-A is an 8x8 pure-HDMI matrix. The MX-0808-H2A-MK2
+    // is WyreStorm's equivalent pure-HDMI matrix; MXV-0808-H2A-70-V3 is HDBaseT.
+    // The H2A in the SKU must NOT falsely flag MX-0808-H2A-MK2 as HDBaseT.
+    const requirement = "Lightware MMX8X8-HDMI-4K-A 8x8 HDMI matrix switcher 8x HDMI inputs 8x HDMI outputs 4K60";
+    const pureHdmi = matrixFit(
+      requirement,
+      "MX-0808-H2A-MK2",
+      "8x8 HDMI matrix switcher with audio de-embedding",
+    );
+    const hdbaseT = matrixFit(
+      requirement,
+      "MXV-0808-H2A-70-V3",
+      "8x8 HDBaseT matrix with 70m reach",
+    );
+
+    expect(pureHdmi.eligibility).toBe("direct");
+    expect(hdbaseT.eligibility).toBe("direct");
+    // Pure HDMI candidate must rank above HDBaseT for a local-HDMI competitor.
+    expect(pureHdmi.fitPenalty).toBeLessThan(hdbaseT.fitPenalty);
+  });
 });
