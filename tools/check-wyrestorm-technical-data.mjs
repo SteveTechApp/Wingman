@@ -128,7 +128,10 @@ for (const [index, profile] of payload.profiles.entries()) {
     errors.push(`${sku || prefix} claims verified status without a human verifiedBy - machine data must stay at verified-with-warning.`);
   }
 
-  if (!nonEmptyArray(profile?.transport)) errors.push(`${sku || prefix} must define transport.`);
+  // Accessories (PSU, rack, SFP, blanking plates) don't carry a transport signal.
+  const isAccessory = String(profile?.productClass ?? "").toUpperCase() === "ACCESSORY"
+    || /^(PSU|NHD-RACK|SR-)/i.test(sku);
+  if (!nonEmptyArray(profile?.transport) && !isAccessory) errors.push(`${sku || prefix} must define transport.`);
   if (!Array.isArray(profile?.ports)) errors.push(`${sku || prefix} ports must be an array.`);
   if (!Array.isArray(profile?.dependencies)) errors.push(`${sku || prefix} dependencies must be an array.`);
   if (!nonEmptyArray(profile?.evidence)) errors.push(`${sku || prefix} must have at least one evidence record.`);

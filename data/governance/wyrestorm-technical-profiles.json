@@ -16502,7 +16502,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4K60Hz 4x2 Multiview Presentation Switcher | 4K60Hz 4:4:4 | 2 HDMI & 2 USB-C Inputs | 2 HDMI Outputs | Dual NetworkHD Output | Seamless Switching | Dual Annotation Capability | Audio De-embed | USB 3.0 | Relay | RS-232 | Sygma Cloud Management",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-0402n-ink",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16576,7 +16579,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4K60Hz Decoder | 4K60Hz 4:4:4 | 1GbE | PoE+ | SFP&2x RJ45 | Dolby Vision & HDR | Video Wall | Audio De-embed | Dante AV-A Ready/AES67 | ARC/eARC | S/PDIF | USB 2.0 | IR & RS232 Routing | CEC",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-rx v2",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16593,7 +16599,9 @@
       "productClass": "ACCESSORY",
       "role": "accessory",
       "productType": "1U/2 Slot Rack Mount for NHD-140-TX &NHD-124-TX Quad Encoder",
-      "transport": [],
+      "transport": [
+        "mounting"
+      ],
       "physical": [
         "rack-mount"
       ],
@@ -16607,7 +16615,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "1U/2 Slot Rack Mount for NHD-140-TX &NHD-124-TX Quad Encoder",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-140-rack-1u",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16630,7 +16641,9 @@
       "productClass": "ACCESSORY",
       "role": "accessory",
       "productType": "Blanking Plate for NHD-000-RACK4",
-      "transport": [],
+      "transport": [
+        "mounting"
+      ],
       "physical": [
         "rack-mount"
       ],
@@ -16644,7 +16657,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Blanking Plate for NHD-000-RACK4",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-rack4-blk",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16667,7 +16683,9 @@
       "productClass": "ACCESSORY",
       "role": "SFP module",
       "productType": "Short Range",
-      "transport": [],
+      "transport": [
+        "network"
+      ],
       "network": [
         "SFP"
       ],
@@ -16682,7 +16700,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Short Range | 1 Gigabit | Multi Mode | SFP module",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/sr-1g-mm-sfp",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16705,7 +16726,9 @@
       "productClass": "ACCESSORY",
       "role": "SFP+ module",
       "productType": "Short Range",
-      "transport": [],
+      "transport": [
+        "network"
+      ],
       "network": [
         "SFP"
       ],
@@ -16720,7 +16743,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Short Range | 10 Gigabit | Multi Mode| SFP Plus module",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/sr-10g-mm-sfpp",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16774,7 +16800,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4K30Hz 2x2 Wireless Presentation Switcher | 4K30Hz 4:4:4 | 2 HDMI Inputs | 2 HDMI Outputs | Seamless Switching | Multiview | USB-B Ethernet | Audio De-embed | USB 3.0 |  Airplay & Miracast | Wireless Casting & Conferencing (work with APO-DG2 & APO-DG2-PRO) | Sygma Cloud Management",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-620l-tx-w",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16841,7 +16870,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4K60Hz 6x2 Wireless Presentation Switcher | 4K60Hz 4:4:4 | 2 USB-C & 4 HDMI Inputs | 2 HDMI Outputs | Seamless Switching | MST | Multiview | Dual USB-C 60W Charging | USB-C Ethernet | Audio De-embed | USB 3.0 | Relay | RS-232| Airplay & Miracast | Wireless Casting & Conferencing (work with APO-DG2 & APO-DG2-PRO) | Sygma Cloud Management",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-660-tx-w",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16877,7 +16909,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Apollo 4K USB-C(DP Alt mode) dongle | Wireless casting and Wireless Conferencing( without APP)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg2-pro",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16918,7 +16953,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Apollo 1080p USB-C(DP Alt mode) dongle | Wireless Casting",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg1",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16955,7 +16993,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Compact In-Desk Connectivity | HDMI & USB-C Passthrough | USB Charging | Multi-Standard Mains Outlet",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-200-ms",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -16993,7 +17034,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Flip Up In-Desk Connectivity | 2 HDMI & USB-C Passthrough | USB Charging | RJ-45 | Multi-Standard Mains Outlet",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17030,7 +17074,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Under Desk Cable Management 'SPINE' for IDB Series (Adjustable up to 36\")",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-cbl-spine",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17067,7 +17114,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-sch",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17104,7 +17154,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-uk",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17142,7 +17195,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Flip Up In-Desk Connectivity | USB Charging| Multi-Standard Mains Outlet | customized ports",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17179,7 +17235,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "RJ45 CAT6 | Passthrough coupling socket | Front RJ45 female | Back RJ45 female | Unshielded",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-rj45-c",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17216,7 +17275,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "HDMI | Passthrough coupling socket | Front HDMI female | Back HDMI female",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-hdmi-c",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17254,7 +17316,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Carrier Keystone 2 ports | 45mm X 45mm | Black color",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-k2-c",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17291,7 +17356,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "HALO Companion Mic | Mini USB Connection | Mounting on table | Work with HALO-VX10 v2",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/halo-com-mic",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17329,7 +17397,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Mini-USB to Ethernet Adaptor | Work with APO-VX20-UC/APO-VX20-UC v2/COM-MIC-HUB",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-mic-ext",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17367,7 +17438,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Apollo Video Bar and COM-MIC-HUB Companion Add-on Mic | RJ45 Connection | Ceiling/Table Mount | Work with APO-VX20-UC/APO-VX20-UC v2/ COM-MIC-HUB",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-sky-mic",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17408,7 +17482,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "15m/49ft | USB-C to C Active Optical Cable | 5Gbps Superspeed | 5K60Hz | 4K60 Alt Mode | 60W PD | Screw-Lock Connector",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-usbc-15",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17454,7 +17531,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4K60Hz HDMI 2.0 Audio Extractor with Passthrough | 4K60Hz 4:4:4 | HDMI to S/PDIF or RCA | Dolby Vision & HDR",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-con-aud-h2",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17510,7 +17590,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Analog Audio Input to Dante/AES67 Output Adapter | 2-Channel | PoE | Adjustable Input Gain",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/con-anlg-dnt",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17565,7 +17648,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Dante/AES67 Input to Analog Audio Output Adapter | 2-Channel | PoE | Adjustable Output Level",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/con-dnt-anlg",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17620,7 +17706,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "USB to Dante /AES67 & Dante /AES67 to USB Audio Adapter | PoE | 2x2-Channel",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/con-usbc-dnt",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17675,7 +17764,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Analog XLR Audio Input to Dante/AES67 Output Adapter | 2-Channel | 48V Phantom Power | PoE | Adjustable Input Gain",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/con-xlr-dnt",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17730,7 +17822,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Dante/AES67 Input to Analog XLR Audio Output Adapter | 2-Channel | PoE | Adjustable Output Level",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/con-dnt-xlr",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17777,7 +17872,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Digital Audio Processor | 8x Analog Input & 8x Dante/AES67 Input | 8x Analog Output & 8x Dante/AES67  Output | 1x1 USB Audio | Matrix Mixer | AEC | NHS | ANS | AGC | Ducker | EQ | Delay | 8xGPIO | LAN & RS232 Control | Preset",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/dsp-88-dnt",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17822,7 +17920,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4K60Hz HDMI Scaling Output Card for MX-1616-SCL | 4K60Hz 4:4:4 | HDR | Audio De-embed(4K: 100m/328ft)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdmi",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17870,7 +17971,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4K60H HDBaseT Scaling  Output Card for MX-1616-SCL | 4K60Hz 4:2:0 | HDR | PoH | Audio De-Embed (4K: 100m/328ft)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdbt",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17913,7 +18017,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Free iPad & Android Control App for NetworkHD 100, 200, 400, 500 and 600 Series",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/networkhd touch™",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -17962,7 +18069,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Synergy 10.1” All-In-One Touchpad IP Controller | PoE  | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10 v3",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18010,7 +18120,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Synergy 10.1” Touchpad for Synergy Flow Series | PoE | Work with Synergy Flow Series | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-tp10-b",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18064,7 +18177,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Synergy Control Hub | 6x IR | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-ir-06",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18117,7 +18233,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Synergy Control Hub | 4x Relay | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rl-04",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18170,7 +18289,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Synergy Control Hub | RS-232 | RS-422 | RS-485 | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rs-03",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18223,7 +18345,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Synergy Control Hub | 10x GPIO | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-io-10",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18283,7 +18408,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Synergy Control Flow System | Central Controller | Node-Red | 2x RS-232 | RS-422 | RS-485 | 2x IR | 4x GPIO | 2x Relay | Low Code Programming | Sygma Cloud Management | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-fl10",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18337,7 +18465,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "Synergy 12-button Keypad Controller with Knob | EU & UK backbox | RS-232 | GPIO | RELAY | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-key12-uk-eu",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18378,7 +18509,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "1080p60Hz KVM Extender | UTP | USB 2.0 | Bi-directional PoC (1080p:80m/262ft)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-80-kvm",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18430,7 +18564,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "HDMI 2.0 4K60Hz KVM Extender | UTP | 4K60Hz 4:4:4 | USB 2.0 | RS232 passthrough | Audio De-embed | Bi-Directional PoC (40m/131ft)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-40-kvm-h2",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18484,7 +18621,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4k60Hz KVM Extender | HDBaseT | 4K60Hz 4:4:4 | Loop-Out | USB 2.0 | Audio De-Embed | RS232 & 2-way IR Passthrough | 1-way PoH (Rx->Tx) (100m/328ft) /Long-Reach (150m/492ft)",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-h2",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18530,7 +18670,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "10m/32.8ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL3",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-10",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18578,7 +18721,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "15m/49ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL4",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-15",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18627,7 +18773,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "10m/32.8ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-10",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18676,7 +18825,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-15",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18724,7 +18876,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "15m/49ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR | Detachable Head",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-15-c",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18772,7 +18927,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "20m/65.6ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR | Detachable Head",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-20-c",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18820,7 +18978,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "30m/98ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR | Detachable Head",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-30-c",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18868,7 +19029,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "0.5m/1.5ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-0.5",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18916,7 +19080,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "1m/3.2ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-1.0",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -18964,7 +19131,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "2m/6.5ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-2.0",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19012,7 +19182,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "3m/9.8ft HDMI 2.0 Cable| 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-3.0",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19060,7 +19233,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "5m/16.4ft HDMI 2.0 Cable| 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-5.0",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19109,7 +19285,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "0.5m/1.5ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-0.5",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19158,7 +19337,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "1m/3.2ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-1.0",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19207,7 +19389,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "2m/6.5ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-2.0",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19256,7 +19441,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "3m/9.8ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-3.0",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19305,7 +19493,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-uaoc-15-c",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19356,7 +19547,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps(10Gbps/Lane) | 5K60Hz | 4K120Hz Alt Mode | USB3.2 Gen 2x2 |100w PD",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-1m",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19407,7 +19601,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps(10Gbps/Lane) | 5K60Hz | 4K120Hz Alt Mode | USB3.2 Gen 2x2 | 100w PD",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-2m",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19458,7 +19655,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "5m/16.4ft USB-C to C MicroCoax cable | 10Gbps (5Gbps/Lane) | 5K60Hz | 4K60Hz Alt Mode | USB 3.2 Gen 1x2 | 60W PD",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-5m",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19512,7 +19712,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "10m/32.8ft | USB-C to C Active Optical Cable | 10Gbps(5Gbps/Lane) | DP2.1+USB2.0 or DP1.4+USB3.2 Gen2x2 | 5K60Hz | 4K120Hz Alt Mode| Adaptive 2/4 Lane | 60W PD",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-uaoc-usbc-10",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19532,7 +19735,9 @@
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "20V 6A Power Supply Unit for SW-120-TX3 & NHD-510-TX",
-      "transport": [],
+      "transport": [
+        "power"
+      ],
       "features": {
         "hdr": false
       },
@@ -19543,7 +19748,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "20V 6A Power Supply Unit for SW-120-TX3 & NHD-510-TX",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-box",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19567,7 +19775,9 @@
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "20V 6A Power Supply Unit for SW-120-TX3-US/UK & NHD-500-IW-TX",
-      "transport": [],
+      "transport": [
+        "power"
+      ],
       "features": {
         "hdr": false
       },
@@ -19578,7 +19788,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "20V 6A Power Supply Unit for SW-120-TX3-US/UK & NHD-500-IW-TX",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-wp",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19602,7 +19815,9 @@
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "12V 1A Power Supply *Utilized by most of NetworkHD*",
-      "transport": [],
+      "transport": [
+        "power"
+      ],
       "ports": [
         {
           "count": 1,
@@ -19622,7 +19837,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "12V 1A Power Supply *Utilized by most of NetworkHD*",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-1a",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19645,7 +19863,9 @@
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "12V 2A Power Supply *Utilized by most of NetworkHD*",
-      "transport": [],
+      "transport": [
+        "power"
+      ],
       "ports": [
         {
           "count": 1,
@@ -19665,7 +19885,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "12V 2A Power Supply *Utilized by most of NetworkHD*",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-2a",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19688,7 +19911,9 @@
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "12V 3A Power Supply *Utilized by most of NetworkHD*",
-      "transport": [],
+      "transport": [
+        "power"
+      ],
       "ports": [
         {
           "count": 1,
@@ -19708,7 +19933,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "12V 3A Power Supply *Utilized by most of NetworkHD*",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-3a",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",
@@ -19731,7 +19959,9 @@
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "18V 1A Power Supply *Utilized by most of WyreStorm Extender Solutions*",
-      "transport": [],
+      "transport": [
+        "power"
+      ],
       "features": {
         "hdr": false
       },
@@ -19742,7 +19972,10 @@
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "18V 1A Power Supply *Utilized by most of WyreStorm Extender Solutions*",
-          "checkedAt": "2026-08-29T07:14:40.282Z"
+          "checkedAt": "2026-08-29T07:14:40.282Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-18v-1a",
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team"
         }
       ],
       "verifiedBy": "auto-import",

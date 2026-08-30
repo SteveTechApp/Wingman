@@ -28779,3 +28779,14 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* Equipment drawer: replace-placeholder fields for BY-OTHERS rows */
+.wm-drawer-fields { margin: 18px 0; padding: 14px; border: 1px solid rgba(83,224,255,.18); border-radius: 10px; background: rgba(8,28,47,.7); }
+.wm-drawer-fields h4 { margin: 0 0 12px; font-size: .78rem; color: #4af5e6; text-transform: uppercase; letter-spacing: .5px; }
+.wm-drawer-fields label { display: grid; gap: 6px; margin-bottom: 14px; color: var(--tr-muted); font-size: .72rem; }
+.wm-drawer-fields label input,
+.wm-drawer-fields label select { border: 1px solid var(--tr-border); border-radius: 8px; padding: 9px; color: #fff; background: #0d2133; font-size: .82rem; }
+.wm-drawer-fields label select { cursor: pointer; }
+.wm-drawer-resolved { margin-top: 8px; padding: 10px 12px; border-radius: 8px; background: rgba(74,245,230,.08); border: 1px solid rgba(74,245,230,.2); }
+.wm-drawer-resolved strong { color: #4af5e6; font-size: .85rem; }
+.wm-drawer-resolved small { color: var(--tr-muted); font-size: .72rem; }
