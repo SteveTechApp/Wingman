@@ -7782,3 +7782,269 @@ html[data-wingman-ui-mode="guided"] .wingman-sidebar:hover .wingman-brand-image 
 html[data-wingman-ui-mode="guided"] .wingman-sidebar:hover .wingman-nav {
   padding: 8px 10px;
 }
+
+/* ── Native Template Schematic ────────────────────────────────────── */
+
+.wm-native-schematic {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wm-native-schematic-svg-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(83, 224, 255, 0.18);
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(8, 28, 47, 0.96), rgba(5, 18, 32, 0.96));
+  padding: 12px;
+}
+
+.wm-native-schematic-svg {
+  width: 100%;
+  height: auto;
+  min-height: 300px;
+  display: block;
+}
+
+.wm-native-schematic-col-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  fill: rgba(83, 224, 255, 0.55);
+}
+
+.wm-native-schematic-sku {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #e2e8f0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.wm-native-schematic-subtitle {
+  font-size: 9px;
+  fill: rgba(148, 163, 184, 0.85);
+}
+
+.wm-native-schematic-conn-label {
+  font-size: 9px;
+  fill: rgba(148, 163, 184, 0.7);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.wm-native-schematic-node {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.wm-native-schematic-node:hover {
+  opacity: 0.9;
+}
+
+.wm-native-schematic-node.is-optional {
+  opacity: 0.7;
+}
+
+.wm-native-schematic-edge {
+  cursor: pointer;
+}
+
+.wm-native-schematic-edge:hover path {
+  stroke-width: 2.5;
+}
+
+/* Warnings / blockers / hints banners */
+.wm-native-schematic-blockers,
+.wm-native-schematic-warnings,
+.wm-native-schematic-hints {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.wm-native-schematic-blockers {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.wm-native-schematic-blockers svg {
+  flex-shrink: 0;
+  color: #ef4444;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.wm-native-schematic-blockers strong {
+  color: #f87171;
+}
+
+.wm-native-schematic-blockers ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+.wm-native-schematic-warnings {
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  color: #fcd34d;
+}
+
+.wm-native-schematic-warnings svg {
+  flex-shrink: 0;
+  color: #fbbf24;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.wm-native-schematic-warnings ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.wm-native-schematic-hints {
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  color: #6ee7b7;
+}
+
+.wm-native-schematic-hints svg {
+  flex-shrink: 0;
+  color: #34d399;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.wm-native-schematic-hints ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+/* Detail panel */
+.wm-native-schematic-detail {
+  padding: 12px 16px;
+  border: 1px solid rgba(83, 224, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(8, 28, 47, 0.92);
+}
+
+.wm-native-schematic-detail h3 {
+  margin: 6px 0 4px;
+  font-size: 14px;
+  color: #e2e8f0;
+}
+
+.wm-native-schematic-detail p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: rgba(148, 163, 184, 0.85);
+}
+
+.wm-native-schematic-detail dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+
+.wm-native-schematic-detail dt {
+  color: rgba(148, 163, 184, 0.6);
+  font-weight: 500;
+}
+
+.wm-native-schematic-detail dd {
+  color: #e2e8f0;
+  margin: 0;
+}
+
+/* Assumptions */
+.wm-native-schematic-assumptions {
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  font-size: 12px;
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.wm-native-schematic-assumptions strong {
+  color: rgba(148, 163, 184, 0.6);
+}
+
+.wm-native-schematic-assumptions ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+/* ── Native Schematic Cable Schedule ──────────────────────────────── */
+.wm-native-schematic-cable-schedule {
+  border: 1px solid rgba(83, 224, 255, 0.18);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.wm-native-schematic-cable-schedule summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  background: rgba(8, 28, 47, 0.6);
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.wm-native-schematic-cable-schedule summary small {
+  font-weight: 400;
+  color: rgba(148, 163, 184, 0.7);
+  font-size: 11px;
+}
+.wm-native-schematic-cable-help {
+  padding: 8px 14px;
+  font-size: 11px;
+  color: rgba(148, 163, 184, 0.7);
+  background: rgba(8, 28, 47, 0.4);
+  border-top: 1px solid rgba(83, 224, 255, 0.1);
+  border-bottom: 1px solid rgba(83, 224, 255, 0.1);
+}
+.wm-native-schematic-cable-table-wrap {
+  overflow-x: auto;
+}
+.wm-native-schematic-cable-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.wm-native-schematic-cable-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(83, 224, 255, 0.6);
+  border-bottom: 1px solid rgba(83, 224, 255, 0.15);
+  background: rgba(8, 28, 47, 0.5);
+}
+.wm-native-schematic-cable-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(83, 224, 255, 0.08);
+  color: rgba(226, 232, 240, 0.85);
+  vertical-align: top;
+}
+.wm-native-schematic-cable-table tr:hover td {
+  background: rgba(83, 224, 255, 0.04);
+}
+.wm-native-schematic-cable-table td:first-child {
+  font-weight: 500;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+.wm-native-schematic-cable-table td:nth-child(4) {
+  font-size: 11px;
+  color: rgba(148, 163, 184, 0.75);
+}

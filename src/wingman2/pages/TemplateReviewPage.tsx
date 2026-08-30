@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Check, CheckCircle2, ChevronRight, Download, FileText,
   LayoutTemplate, Minus, MoreHorizontal, Pencil, Plus, RotateCcw, Save, X,
-  Sparkles, AlertTriangle, HelpCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -13,6 +13,9 @@ const ExcalidrawBlockSchematic = lazy(() =>
   import("../components/ExcalidrawBlockSchematic"),
 );
 import { TemplateSchematic } from "../components/TemplateSchematic";
+import { NativeTemplateSchematic } from "../components/NativeTemplateSchematic";
+import VisualStudioCanvas from "../components/VisualStudioCanvas";
+import { buildTemplateVisualDiagram } from "../lib/schematic/templateVisualDiagram";
 import { upsertStoredProject, type StoredProductSelection, type StoredProject, type StoredProjectProposal } from "../data/projectStore";
 import { exportBomCsv } from "../lib/proposalExport";
 import { exportProposalDocx } from "../lib/proposalDocxExport";
@@ -23,6 +26,7 @@ import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/ro
 import type { SalesBomRow } from "../lib/salesReadiness";
 import { compileTemplateApplicationProposal } from "../lib/proposalCompiler";
 import { loadTemplateDraft } from "../lib/solutionTemplates";
+import { validateProposalExport, type ExportValidationResult } from "../lib/proposalExportValidation";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
 const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
@@ -71,6 +75,8 @@ function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
 function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): StoredProjectProposal {
   const bomRows = templateBomRows(template, rows);
   const products = templateProducts(rows);
+  // readinessScore is now calculated by the component via validateProposalExport.
+  // This fallback is only used inside buildTemplateProposal where the real score isn't available yet.
   const readinessScore = template.validationItems.length > 4 ? 78 : 84;
   const coach = buildWingmanCoachState({
     source: "proposal-template", audience: "dealer",
@@ -141,7 +147,7 @@ export function TemplateReviewPage() {
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
   const [filter, setFilter] = useState("All");
   const [equipmentGroup, setEquipmentGroup] = useState<EquipmentGroup>("Required");
-  const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated">("excalidraw");
+  const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated" | "native" | "visual-studio">("excalidraw");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
@@ -151,10 +157,28 @@ export function TemplateReviewPage() {
     }
   }, [selectedTemplate]);
 
+  // Derived values computed BEFORE the early return (React hooks rules).
+  const template = selectedTemplate;
+  const bomRows = template ? templateBomRows(template, selectedRows) : [];
+  const products = templateProducts(selectedRows);
+
+  // Run the proposal export validator — same checks the main wizard uses.
+  const exportValidation: ExportValidationResult = useMemo(
+    () => validateProposalExport({ products, bomRows }),
+    [products, bomRows],
+  );
+
+  // Real readiness score: start from 100%, deduct for blockers and warnings
+  const readinessScore = useMemo(() => {
+    const base = 100;
+    const blockerDeduction = exportValidation.blockers.length * 15;
+    const warningDeduction = exportValidation.warnings.length * 5;
+    const validationDeduction = template ? template.validationItems.length * 3 : 0;
+    return Math.max(0, Math.min(100, base - blockerDeduction - warningDeduction - validationDeduction));
+  }, [exportValidation, template]);
+
   if (!selectedTemplate) return <div data-wingman-template-detail-page="true" className="pb-10"><PageHero eyebrow="Room templates" title="Template not found." purpose="The selected room design template could not be found." nextMove="Go back to the template library and pick a room design to review." actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]} /></div>;
 
-  const template = selectedTemplate;
-  const bomRows = templateBomRows(template, selectedRows);
   const counts = {
     Required: selectedRows.filter((row) => row.type === "Required" && row.status !== "excluded").length,
     Validate: selectedRows.filter((row) => row.type === "Validate" && row.status !== "excluded").length,
@@ -281,8 +305,8 @@ export function TemplateReviewPage() {
             </div>
           </section>
           <aside className="wm-template-readiness">
-            <div><span>Template readiness</span><strong>{template.validationItems.length > 4 ? "78" : "84"}%</strong></div>
-            <div className="wm-readiness-bar"><i style={{ width: `${template.validationItems.length > 4 ? 78 : 84}%` }} /></div>
+            <div><span>Template readiness</span><strong>{readinessScore}%</strong></div>
+            <div className="wm-readiness-bar"><i style={{ width: `${readinessScore}%` }} /></div>
             <div className="wm-count-strip"><div><strong>{counts.Required}</strong><span>Required</span></div><div><strong>{counts.Validate}</strong><span>Validate</span></div><div><strong>{counts.Optional}</strong><span>Optional</span></div></div>
             <h3>Priority validation</h3>
             <ol>{template.validationItems.slice(0, 3).map((item) => <li key={item}><span>?</span>{item}</li>)}</ol>
@@ -296,11 +320,17 @@ export function TemplateReviewPage() {
             <div className="wm-connectivity-view-switcher" role="tablist" aria-label="Block schematic view">
               <button type="button" role="tab" aria-selected={connectivityView === "excalidraw"} className={connectivityView === "excalidraw" ? "is-active" : ""} onClick={() => setConnectivityView("excalidraw")}>Reference block schematic</button>
               <button type="button" role="tab" aria-selected={connectivityView === "generated"} className={connectivityView === "generated" ? "is-active" : ""} onClick={() => setConnectivityView("generated")}>Generated for this template</button>
+              <button type="button" role="tab" aria-selected={connectivityView === "native"} className={connectivityView === "native" ? "is-active" : ""} onClick={() => setConnectivityView("native")}>Topology-aware schematic</button>
+              <button type="button" role="tab" aria-selected={connectivityView === "visual-studio"} className={connectivityView === "visual-studio" ? "is-active" : ""} onClick={() => setConnectivityView("visual-studio")}>Visual Studio canvas</button>
             </div>
             {connectivityView === "excalidraw" ? (
               <Suspense fallback={<div className="wm-excalidraw-empty"><p>Loading block schematic…</p></div>}>
                 <ExcalidrawBlockSchematic />
               </Suspense>
+            ) : connectivityView === "native" ? (
+              <NativeTemplateSchematic template={template} rows={selectedRows} />
+            ) : connectivityView === "visual-studio" ? (
+              <VisualStudioCanvas model={buildTemplateVisualDiagram(template, selectedRows)} mode="technical" />
             ) : (
               <TemplateSchematic template={template} rows={selectedRows} />
             )}
@@ -358,11 +388,37 @@ export function TemplateReviewPage() {
         </div> : null}
 
         {activeTab === "Proposal" ? <div className="wm-proposal-handoff">
-          <section><span className="wm-status is-validate">{template.validationItems.length} unresolved</span><h2>Proposal is ready with assumptions</h2><p>The equipment schedule can move forward, but the following points remain unverified and will be labelled as assumptions.</p><div className="wm-proposal-readiness"><strong>{template.validationItems.length > 4 ? "78" : "84"}%</strong><span>Proposal readiness</span></div></section>
+          <section><span className="wm-status is-validate">{template.validationItems.length} unresolved</span><h2>{exportValidation.allowed ? "Proposal is ready with assumptions" : "Export blocked — resolve blockers first"}</h2><p>{exportValidation.allowed ? "The equipment schedule can move forward, but the following points remain unverified and will be labelled as assumptions." : "The proposal export validator has found issues that must be resolved before this template can be exported."}</p><div className="wm-proposal-readiness"><strong>{readinessScore}%</strong><span>Proposal readiness</span></div></section>
+          {exportValidation.blockers.length > 0 && (
+            <section className="wm-template-validation-blockers">
+              <h3><AlertTriangle /> Export blockers ({exportValidation.blockers.length})</h3>
+              <ul>
+                {exportValidation.blockers.map((blocker) => (
+                  <li key={blocker.id} className="wm-validation-blocker">
+                    <strong>{blocker.domain}</strong>: {blocker.message}
+                    <span className="wm-validation-fix">{blocker.fix}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {exportValidation.warnings.length > 0 && (
+            <section className="wm-template-validation-warnings">
+              <h3>Warnings ({exportValidation.warnings.length})</h3>
+              <ul>
+                {exportValidation.warnings.map((warning) => (
+                  <li key={warning.id} className="wm-validation-warning">
+                    <strong>{warning.domain}</strong>: {warning.message}
+                    <span className="wm-validation-fix">{warning.fix}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <section><h3>Unresolved assumptions</h3><ul>{template.validationItems.map((item) => <li key={item}><span>Validate</span>{item}</li>)}</ul></section>
           <aside>
-            <button className="wm-button is-primary is-full" type="button" onClick={createProposal}><FileText /> Create proposal</button>
-            <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateProposal}><Download /> Export proposal</button>
+            <button className="wm-button is-primary is-full" type="button" onClick={createProposal} disabled={!exportValidation.allowed} title={exportValidation.allowed ? "Create proposal" : `Export blocked: ${exportValidation.blockers.length} blocker(s) must be resolved first`}><FileText /> Create proposal</button>
+            <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateProposal} disabled={!exportValidation.allowed} title={exportValidation.allowed ? "Export proposal" : `Export blocked: ${exportValidation.blockers.length} blocker(s) must be resolved first`}><Download /> Export proposal</button>
             <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateBom}><Download /> Export equipment schedule</button>
             <button className="wm-button is-secondary is-full" type="button" onClick={saveTemplateProject}><Save /> Save as project</button>
             <button className="wm-button is-secondary is-full" type="button" onClick={saveTemplateDesign}><LayoutTemplate /> Save as template</button>
