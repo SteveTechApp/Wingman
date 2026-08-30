@@ -572,17 +572,37 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
 export async function exportProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft) {
   if (typeof window === "undefined") return;
 
-  // Build the native schematic from the proposal's products for topology-aware
-  // connectivity in the DOCX, replacing the legacy sequential-arrow diagram.
+  // Build the native schematic from the proposal's products and BOM rows.
+  // Use BOM row roles to infer source/display/encoder/decoder for a richer
+  // topology than SKU names alone.
   let nativeSchematicDataUrl: string | undefined;
   try {
+    const products = proposal.products ?? [];
+    const bomBySku = new Map<string, typeof bomRows[0]>();
+    for (const r of bomRows) bomBySku.set(r.sku.toUpperCase(), r);
+    // Derive role from BOM rows when available, falling back to SKU classification.
+    const roleOf = (p: typeof products[0]): string => {
+      const bom = bomBySku.get((p.sku || "").toUpperCase());
+      return (bom?.role || p.title || "").toLowerCase();
+    };
+    const isSource = (p: typeof products[0]): boolean => {
+      const r = roleOf(p);
+      return /encoder|source|input|transmit/i.test(r) || /tx\b/i.test(p.sku || "");
+    };
+    const isDisplay = (p: typeof products[0]): boolean => {
+      const r = roleOf(p);
+      return /decoder|display|output|receive|screen|monitor/i.test(r) || /rx\b/i.test(p.sku || "");
+    };
+    const toNode = (p: typeof products[0]) => ({
+      sku: p.sku || "", label: p.title || p.sku || "", quantity: p.quantity || 1,
+    });
+    const sources = products.filter(isSource).map(toNode);
+    const displays = products.filter(isDisplay).map(toNode);
+    const remaining = products.filter((p) => !isSource(p) && !isDisplay(p)).map(toNode);
     const schematicModel = buildWingmanSchematic({
       title: wizard.projectName || proposal.title || "System schematic",
-      products: (proposal.products ?? []).map((p) => ({
-        sku: p.sku || "",
-        label: p.title || p.sku || "",
-        quantity: p.quantity || 1,
-      })),
+      sources: sources.length > 0 ? sources : remaining.slice(0, 1),
+      displays: displays.length > 0 ? displays : remaining.slice(-1),
     });
     nativeSchematicDataUrl = createNativeSchematicDataUrl(schematicModel);
   } catch {
