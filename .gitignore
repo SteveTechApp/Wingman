@@ -137,3 +137,6 @@ archive/
 # --- Vite oddities ---
 vite.config.ts.timestamp-*
 test-results
+
+# --- Commercial pricing (sensitive, server-side only) ---
+data/governance/wyrestorm-pricing.json

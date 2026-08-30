@@ -16,6 +16,7 @@ import type {
   SchematicProjectBrief,
 } from "./schematicTypes";
 import { normaliseSku, productNodeKind } from "./schematicProductRules";
+import { resolveProductTechnicalData } from "../governedProductTechnicalData";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
 
@@ -53,7 +54,10 @@ function inferSources(
     } else if (kind === "av-over-ip-transceiver") {
       encoderCapacity += row.qty; // each TRX = 1 source slot
     } else if (kind === "switcher" || kind === "matrix") {
-      encoderCapacity += row.qty; // each switcher input = 1 source slot
+      // Use governed I/O port count for matrices — an 8×8 matrix has 8 inputs,
+      // not 1 (the chassis quantity).
+      const tech = resolveProductTechnicalData({ sku: row.sku });
+      encoderCapacity += (tech.inputCount ?? row.qty); // each matrix input = 1 source slot
     }
   }
 
@@ -119,7 +123,8 @@ function inferDisplays(
       if (row.sku.startsWith("BY-OTHERS")) continue;
       const kind = productNodeKind({ sku: row.sku });
       if (kind === "matrix" || kind === "switcher") {
-        decoderCapacity += row.qty;
+        const tech = resolveProductTechnicalData({ sku: row.sku });
+        decoderCapacity += (tech.outputCount ?? row.qty);
       }
     }
   }

@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Search, ChevronDown, ChevronRight, ExternalLink, CheckCircle, AlertTriangle, RotateCcw, Download } from "lucide-react";
 import governedTechnicalProfiles from "../../../../data/governance/wyrestorm-technical-profiles.json";
-import wyrestormPricing from "../../../../data/governance/wyrestorm-pricing.json";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -40,18 +39,7 @@ interface GovernedProfile {
   verifiedAt?: string;
 }
 
-interface PricingEntry {
-  sku: string;
-  description?: string;
-  category?: string;
-  subcategory?: string;
-  distributorPrice?: number | null;
-  dealerPrice?: number | null;
-  msrp?: number | null;
-  currency?: string;
-  warranty?: string;
-  note?: string;
-}
+
 
 /* ------------------------------------------------------------------ */
 /*  Data                                                               */
@@ -60,13 +48,7 @@ interface PricingEntry {
 const allProfiles: GovernedProfile[] =
   (governedTechnicalProfiles as { profiles?: GovernedProfile[] }).profiles ?? [];
 
-const allPricing: PricingEntry[] =
-  (wyrestormPricing as { products?: PricingEntry[] }).products ?? [];
 
-const pricingMap = new Map<string, PricingEntry>();
-for (const p of allPricing) {
-  pricingMap.set(p.sku.toUpperCase(), p);
-}
 
 /* ------------------------------------------------------------------ */
 /*  Derived constants                                                  */
@@ -101,11 +83,6 @@ function statusClass(status?: string): string {
   if (status === "verified") return "is-confirmed";
   if (status === "verified-with-warning") return "is-validate";
   return "is-pending";
-}
-
-function formatPrice(value: number | null | undefined): string {
-  if (value == null) return "—";
-  return `£${value.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
 function inputCount(profile: GovernedProfile): number {
@@ -192,12 +169,7 @@ export function GovernedProfileBrowser() {
   const [selectedSkus, setSelectedSkus] = useState<Set<string>>(new Set());
   const [profiles, setProfiles] = useState<GovernedProfile[]>(allProfiles);
 
-  /** Rebuild the pricing map from the live profile list so UI reflects mutations. */
-  const livePricing = useMemo(() => {
-    const map = new Map<string, PricingEntry>();
-    for (const p of allPricing) map.set(p.sku.toUpperCase(), p);
-    return map;
-  }, []);
+
 
   const filtered = useMemo(() => {
     let list = profiles;
@@ -205,7 +177,6 @@ export function GovernedProfileBrowser() {
     if (query) {
       const q = query.toLowerCase();
       list = list.filter((p) => {
-        const price = pricingMap.get(p.sku.toUpperCase());
         const blob = [
           p.sku,
           p.role,
@@ -214,8 +185,6 @@ export function GovernedProfileBrowser() {
           ...(p.transport ?? []),
           ...(p.video ?? []),
           ...(p.audio ?? []),
-          price?.description ?? "",
-          price?.subcategory ?? "",
         ]
           .join(" ")
           .toLowerCase();
@@ -431,18 +400,16 @@ export function GovernedProfileBrowser() {
                 <th>Transport</th>
                 <th>I/O</th>
                 <th>Resolution</th>
-                <th>Pricing</th>
+                <th>Evidence</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((profile) => {
-                const price = livePricing.get(profile.sku.toUpperCase());
                 const isExpanded = expandedSku === profile.sku;
                 return (
                   <ProfileRow
                     key={profile.sku}
                     profile={profile}
-                    price={price}
                     isExpanded={isExpanded}
                     isSelected={selectedSkus.has(profile.sku)}
                     onToggle={() =>
@@ -473,14 +440,12 @@ export function GovernedProfileBrowser() {
 
 function ProfileRow({
   profile,
-  price,
   isExpanded,
   isSelected,
   onToggle,
   onSelect,
 }: {
   profile: GovernedProfile;
-  price: PricingEntry | undefined;
   isExpanded: boolean;
   isSelected: boolean;
   onToggle: () => void;
@@ -535,14 +500,7 @@ function ProfileRow({
           <small>{profile.maxResolution || "—"}</small>
         </td>
         <td onClick={onToggle}>
-          {price?.msrp != null ? (
-            <>
-              <strong>{formatPrice(price.msrp)}</strong>
-              <small>MSRP</small>
-            </>
-          ) : (
-            <small>—</small>
-          )}
+          <small>{profile.status || "—"}</small>
         </td>
       </tr>
       {isExpanded ? (
@@ -562,36 +520,10 @@ function ProfileRow({
                   <h4>Resolution</h4>
                   <p>{profile.maxResolution || "—"}</p>
                 </div>
-                <div>
-                  <h4>Warranty</h4>
-                  <p>{price?.warranty || "—"}</p>
-                </div>
-                {price?.distributorPrice != null ? (
-                  <div>
-                    <h4>Distributor price</h4>
-                    <p>{formatPrice(price.distributorPrice)}</p>
-                  </div>
-                ) : null}
-                {price?.dealerPrice != null ? (
-                  <div>
-                    <h4>Dealer price</h4>
-                    <p>{formatPrice(price.dealerPrice)}</p>
-                  </div>
-                ) : null}
-                {price?.msrp != null ? (
-                  <div>
-                    <h4>MSRP</h4>
-                    <p>{formatPrice(price.msrp)}</p>
-                  </div>
-                ) : null}
+
               </div>
 
-              {price?.description ? (
-                <div className="wm-governed-detail-desc">
-                  <h4>Description</h4>
-                  <p>{price.description}</p>
-                </div>
-              ) : null}
+
 
               {profile.ports && profile.ports.length > 0 ? (
                 <div className="wm-governed-detail-ports">
@@ -674,12 +606,7 @@ function ProfileRow({
                 </div>
               ) : null}
 
-              {price?.note ? (
-                <div className="wm-governed-detail-note">
-                  <h4>Note</h4>
-                  <p>{price.note}</p>
-                </div>
-              ) : null}
+
             </div>
           </td>
         </tr>

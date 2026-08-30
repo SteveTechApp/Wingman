@@ -147,7 +147,7 @@ export function TemplateReviewPage() {
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
   const [filter, setFilter] = useState("All");
   const [equipmentGroup, setEquipmentGroup] = useState<EquipmentGroup>("Required");
-  const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated" | "native" | "visual-studio">("excalidraw");
+  const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated" | "native" | "visual-studio">("native");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
