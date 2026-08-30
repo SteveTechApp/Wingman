@@ -3,6 +3,7 @@ import { Navigate, useLocation, useRoutes } from "react-router-dom";
 
 import { VoiceAnswerCaptureOverlay } from "../components/VoiceAnswerCaptureOverlay";
 import { OfflineBanner } from "../components/OfflineBanner";
+import { UiModeProvider } from "../data/uiMode";
 import { trackFeatureEvent } from "../lib/featureAnalytics";
 
 import { wingmanRoutes } from "./routes";
@@ -21,10 +22,10 @@ export default function WingmanApp() {
   ]);
 
   return (
-    <>
+    <UiModeProvider>
       <OfflineBanner />
       {routes}
       <VoiceAnswerCaptureOverlay />
-    </>
+    </UiModeProvider>
   );
 }
