@@ -28642,4 +28642,140 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
   }
 }
 
+/* ── Escalation Banner (Basic → Expert trigger) ────────────────────── */
+.wm-discovery-escalation-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  margin-bottom: 8px;
+}
+.wm-discovery-escalation-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+}
+.wm-discovery-escalation-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.wm-discovery-escalation-content strong {
+  color: #fcd34d;
+  font-size: 13px;
+}
+.wm-discovery-escalation-content p {
+  margin: 2px 0 0;
+  color: rgba(252, 211, 77, 0.8);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.wm-discovery-escalation-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.wm-discovery-escalation-actions button {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.12);
+  color: #fcd34d;
+  transition: background 0.15s;
+}
+.wm-discovery-escalation-actions button:hover {
+  background: rgba(251, 191, 36, 0.2);
+}
+.wm-discovery-escalation-actions button:first-child {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: rgba(251, 191, 36, 0.5);
+}
 
+/* ── Template Validation Blockers/Warnings ────────────────────────── */
+.wm-template-validation-blockers,
+.wm-template-validation-warnings {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+.wm-template-validation-blockers {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.wm-template-validation-blockers h3 {
+  color: #f87171;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+.wm-template-validation-blockers ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wm-template-validation-blockers li {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.1);
+  font-size: 12px;
+  color: #fca5a5;
+}
+.wm-template-validation-blockers li:last-child {
+  border-bottom: none;
+}
+.wm-template-validation-blockers li strong {
+  color: #f87171;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+.wm-template-validation-warnings {
+  background: rgba(251, 191, 36, 0.06);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+.wm-template-validation-warnings h3 {
+  color: #fcd34d;
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+.wm-template-validation-warnings ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wm-template-validation-warnings li {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(251, 191, 36, 0.1);
+  font-size: 12px;
+  color: #fde68a;
+}
+.wm-template-validation-warnings li:last-child {
+  border-bottom: none;
+}
+.wm-template-validation-warnings li strong {
+  color: #fcd34d;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+.wm-validation-fix {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(148, 163, 184, 0.7);
+  font-style: italic;
+}
+.wm-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
