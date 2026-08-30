@@ -129,6 +129,8 @@ describe("Project Detail rendered workflow evidence", () => {
 
     expect(mockSetActiveProjectId).toHaveBeenCalledWith("project-1");
     expect(screen.getAllByText("MX-0808-KIT").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
     fireEvent.click(screen.getByRole("button", { name: /Review .* project blockers?/ }));
     expect(screen.getByRole("region", { name: "Proposal blocker walkthrough" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Open full Discovery|Open Finder|Open Compare|Open Proposal/ })).toBeInTheDocument();
@@ -152,6 +154,8 @@ describe("Project Detail rendered workflow evidence", () => {
       </MemoryRouter>,
     );
 
+    expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
     expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Hide project detail" }));
     expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();

@@ -433,69 +433,6 @@ function makeMatch(candidate: PreferredCandidate, product: AnyRecord): AnyRecord
   };
 }
 
-/**
- * Built-in profiles for competitors that need hand-tuned overrides.
- * These are the fallback when the JSON data file doesn't contain a match.
- */
-const BUILTIN_PROFILES: KnownCompareProfile[] = [
-  C88CS_PROFILE,
-  LIGHTWARE_MMX4X2_PROFILE,
-  AVPRO_ACMX44HDBT_PROFILE,
-  AVPRO_ACEX40_MATRIX_INTENT_PROFILE,
-];
-
-/**
- * JSON-sourced profiles loaded from data/governance/known-compare-profiles.json.
- * These are parsed at import time and merged with the built-in profiles.
- * To add a new known profile, add an entry to the JSON file — no code changes needed.
- */
-let jsonProfilesLoaded = false;
-const jsonProfiles: KnownCompareProfile[] = [];
-
-function loadJsonProfiles(): void {
-  if (jsonProfilesLoaded) return;
-  jsonProfilesLoaded = true;
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const data = require("../../../data/governance/known-compare-profiles.json");
-    const raw = data?.default ?? data;
-    const list = Array.isArray(raw?.profiles) ? raw.profiles : [];
-    for (const rawEntry of list) {
-      const entry = rawEntry as Record<string, unknown>;
-      const blockedPatterns = Array.isArray(entry.blockedCandidatePatterns)
-        ? (entry.blockedCandidatePatterns as string[]).map((p: string) => new RegExp(p, "i"))
-        : [];
-      const matchPatterns = Array.isArray(entry.matchPatterns) ? (entry.matchPatterns as string[]) : [];
-      jsonProfiles.push({
-        brand: String(entry.brand ?? ""),
-        sku: String(entry.sku ?? ""),
-        productClass: String(entry.productClass ?? ""),
-        domainTag: String(entry.domainTag ?? ""),
-        matrixSize: String(entry.matrixSize ?? ""),
-        inputCount: Number(entry.inputCount ?? 0),
-        outputCount: Number(entry.outputCount ?? 0),
-        inputTypes: Array.isArray(entry.inputTypes) ? (entry.inputTypes as string[]) : [],
-        outputTypes: Array.isArray(entry.outputTypes) ? (entry.outputTypes as string[]) : [],
-        transport: String(entry.transport ?? ""),
-        technology: String(entry.technology ?? ""),
-        systemRole: String(entry.systemRole ?? ""),
-        resolution: String(entry.resolution ?? ""),
-        chroma: String(entry.chroma ?? ""),
-        readiness: String(entry.readiness ?? "sku-only") as KnownCompareProfile["readiness"],
-        assumptions: Array.isArray(entry.assumptions) ? (entry.assumptions as string[]) : [],
-        preferredCandidates: Array.isArray(entry.preferredCandidates) ? entry.preferredCandidates : [],
-        blockedCandidatePatterns: blockedPatterns,
-        architectureAlternativeFamilies: Array.isArray(entry.architectureAlternativeFamilies) ? (entry.architectureAlternativeFamilies as string[]) : [],
-        safeProfileSummary: String(entry.safeProfileSummary ?? ""),
-        profileText: String(entry.safeProfileSummary ?? entry.productClass ?? ""),
-        matchPatterns,
-      } as KnownCompareProfile & { matchPatterns: string[] });
-    }
-  } catch {
-    // JSON file not available (e.g. test environment) — use built-in profiles only.
-  }
-}
-
 export function findKnownCompareProfile(input: string, brand?: string): KnownCompareProfile | undefined {
   const text = `${brand ?? ""} ${input ?? ""}`.toUpperCase();
   const compactText = text.replace(/[^A-Z0-9]+/g, "");
@@ -517,21 +454,6 @@ export function findKnownCompareProfile(input: string, brand?: string): KnownCom
   }
   if (compactText.includes("ACEX40444KIT")) {
     return AVPRO_ACEX40_MATRIX_INTENT_PROFILE;
-  }
-
-  // 2. Check JSON-sourced profiles (data-driven, no code changes needed)
-  loadJsonProfiles();
-  for (const profile of jsonProfiles) {
-    const matchPatterns = (profile as KnownCompareProfile & { matchPatterns?: string[] }).matchPatterns ?? [];
-    for (const pattern of matchPatterns) {
-      try {
-        if (new RegExp(pattern, "i").test(text)) {
-          return profile;
-        }
-      } catch {
-        // Invalid regex pattern — skip
-      }
-    }
   }
 
   return undefined;

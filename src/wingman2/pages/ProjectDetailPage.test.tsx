@@ -82,6 +82,19 @@ describe("Project Detail review controls", () => {
     });
   });
 
+  it("switches from the short overview into focused review stages", () => {
+    renderPage();
+
+    expect(screen.queryByText("Requirements")).not.toBeNull();
+    fireEvent.click(screen.getByRole("tab", { name: /Confirm/ }));
+    expect(screen.getAllByText("Confirmed requirements grouped by category. Edit inline or mark for review.").length).toBeGreaterThan(0);
+    expect(screen.getByRole("tab", { name: /Confirm/ }).getAttribute("aria-selected")).toBe("true");
+
+    fireEvent.click(screen.getByRole("tab", { name: /Handoff/ }));
+    expect(screen.getAllByText("Move from a validated project record to a proposal, visual, or CRM handoff.").length).toBeGreaterThan(0);
+    expect(screen.getByText("Share to CRM")).not.toBeNull();
+  });
+
   it("requires confirmation before deleting and returns to Projects", () => {
     renderPage();
 

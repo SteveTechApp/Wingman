@@ -1,6 +1,6 @@
 {
   "version": 10,
-  "updatedAt": "2026-08-25",
+  "updatedAt": "2026-08-29T07:14:40.282Z",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -229,7 +229,14 @@
       "confirmedFields": [
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "AMP-260-DNT",
@@ -584,7 +591,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "APO-DG-HDMI",
@@ -634,7 +642,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "APO-DG2",
@@ -849,7 +858,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "APO-VX20-UC-V2",
@@ -1120,7 +1130,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "CAM-0402-NDI-BRG",
@@ -1245,7 +1262,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "CAM-210-NDI-PTZ",
@@ -4667,7 +4691,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "EXP-SP-0102-8K",
@@ -4747,7 +4778,14 @@
       "confirmedFields": [
         "max-resolution",
         "routed-io"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "EXP-SP-0102-H2",
@@ -4826,7 +4864,14 @@
       "confirmedFields": [
         "max-resolution",
         "routed-io"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "EXP-SP-0104-H2",
@@ -4906,7 +4951,14 @@
       "confirmedFields": [
         "max-resolution",
         "routed-io"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "EXP-SW-0201-8K",
@@ -5127,7 +5179,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "EXP-SW-0401-H2",
@@ -5253,7 +5312,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "FOCUS-180A",
@@ -5293,7 +5353,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "FOCUS-200",
@@ -5331,7 +5392,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "FOCUS-200-PRO",
@@ -5383,7 +5445,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "FOCUS-210",
@@ -5421,7 +5484,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "HALO-30",
@@ -5460,7 +5524,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "HALO-60",
@@ -5502,7 +5567,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "HALO-80",
@@ -5644,7 +5710,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "HALO-VX10-V2",
@@ -5685,7 +5752,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "IDB-300-BTN",
@@ -5839,7 +5907,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "IDB-USBC-C",
@@ -5889,7 +5958,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "MX-0402-MST",
@@ -6386,7 +6456,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MX-0404-KIT",
@@ -6506,7 +6583,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MX-0404-SCL",
@@ -6618,7 +6702,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MX-0804-EDC",
@@ -6782,7 +6873,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MX-0808-H2A-MK2",
@@ -7401,7 +7499,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MX-0812-SCL",
@@ -7535,7 +7640,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MX-1007-HYB",
@@ -7862,7 +7974,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MXV-0404-H2A-KIT",
@@ -7967,7 +8086,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MXV-0404-H2A-KIT-V2",
@@ -8097,7 +8223,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MXV-0808-H2A-70-V3",
@@ -8224,7 +8357,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MXV-0808-H2A-KIT",
@@ -8345,7 +8485,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "MXV-0808-H2A-MK2",
@@ -8818,7 +8965,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-120-RX",
@@ -9671,7 +9825,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-500-E-RX",
@@ -9753,7 +9914,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-500-E-TX",
@@ -9842,7 +10010,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-500-IW-TX-V2",
@@ -9945,7 +10120,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-500-RX",
@@ -10651,7 +10833,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-600-E-RX",
@@ -10732,7 +10921,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-600-E-TX",
@@ -10820,7 +11016,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-600-E-TXRX",
@@ -11649,7 +11852,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "NHD-610-TX-V2",
@@ -11783,7 +11987,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "NHD-CTL-PRO-V2",
@@ -11989,7 +12200,14 @@
       "confirmedFields": [
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "RX-35-POH",
@@ -12779,7 +12997,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "RXV-35-4K",
@@ -13421,7 +13646,14 @@
       "confirmedFields": [
         "max-resolution",
         "routed-io"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "SP-0108-SCL",
@@ -13515,7 +13747,14 @@
       "confirmedFields": [
         "max-resolution",
         "routed-io"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "SW-0204-VW",
@@ -13613,7 +13852,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "SW-0206-VW",
@@ -13917,7 +14163,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Shared EXP-SW-0X01-8K family page (0X = number of HDMI inputs). This is a range page, not an exact saleable SKU; the saleable variants are EXP-SW-0201-8K (2x1) and EXP-SW-0401-8K (4x1). Demoted from verified-with-warning to review-required in the 2026-08 split so the family page can never be quoted as a product."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "SW-120-TX3",
@@ -14328,7 +14575,8 @@
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (63 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "SW-130-TX-UK",
@@ -15217,7 +15465,14 @@
         "max-resolution",
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "SYN-CTL-HUB",
@@ -15428,7 +15683,14 @@
       "confirmedFields": [
         "routed-io",
         "power"
-      ]
+      ],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
     },
     {
       "sku": "SYN-TOUCH10-V2",
@@ -15940,7 +16202,9 @@
       "productClass": "ACCESSORY",
       "role": "mounting accessory",
       "productType": "Display mount for Apollo VX20 video bars",
-      "transport": ["Mechanical mounting"],
+      "transport": [
+        "Mechanical mounting"
+      ],
       "ports": [],
       "video": [],
       "audio": [],
@@ -15973,7 +16237,8 @@
           "reviewer": "Wingman minimal profile for template guard compliance",
           "note": "Minimal profile created from product catalogue metadata. Lifecycle is do-not-spec; confirm product-owner decision before active use."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "IDB-300",
@@ -15981,7 +16246,9 @@
       "productClass": "ACCESSORY",
       "role": "in-desk cable management",
       "productType": "Dual-channel cable box for in-desk connectivity",
-      "transport": ["Cable management"],
+      "transport": [
+        "Cable management"
+      ],
       "ports": [],
       "video": [],
       "audio": [],
@@ -16013,7 +16280,8 @@
           "reviewer": "Wingman minimal profile for template guard compliance",
           "note": "Minimal profile from product intelligence index. Lifecycle is do-not-spec; confirm product-owner decision."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "NHD-RACK-1U",
@@ -16021,7 +16289,9 @@
       "productClass": "ACCESSORY",
       "role": "rack mount",
       "productType": "1U 2-slot rack mount for NetworkHD 100/500/600 series",
-      "transport": ["Rack mounting"],
+      "transport": [
+        "Rack mounting"
+      ],
       "ports": [],
       "video": [],
       "audio": [],
@@ -16055,7 +16325,8 @@
           "reviewer": "Wingman minimal profile for template guard compliance",
           "note": "Minimal profile created from product catalogue metadata. SKU is discontinued; NHD-000-RACK4 is the probable successor."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "APO-COM-MIC",
@@ -16110,7 +16381,8 @@
           "reviewer": "Wingman minimal profile for template guard compliance",
           "note": "Minimal profile from product catalogue metadata and Apollo VX20-UC profile cross-reference."
         }
-      ]
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "CAB-HAOC-20",
@@ -16168,7 +16440,3325 @@
           "reviewer": "Wingman minimal profile for template guard compliance",
           "note": "Minimal profile from product catalogue metadata. 4K60 HDR AOC cable."
         }
-      ]
+      ],
+      "confirmedFields": []
+    },
+    {
+      "sku": "SW-0402N-INK",
+      "status": "review-required",
+      "productClass": "MULTIVIEW",
+      "role": "multiview processor",
+      "productType": "4K60Hz 4x2 Multiview Presentation Switcher",
+      "transport": [
+        "1GbE AV network"
+      ],
+      "maxResolution": "4K60Hz",
+      "routedInputs": 2,
+      "inputCount": 2,
+      "ports": [
+        {
+          "count": 2,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "video",
+          "detail": "2x USB-C inputs"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "video": [
+        "4K60Hz 4:4:4"
+      ],
+      "audio": [
+        "Audio De-embed"
+      ],
+      "usb": [
+        "USB 3.0"
+      ],
+      "network": [
+        "Sygma Cloud"
+      ],
+      "control": [
+        "RS-232",
+        "Relay"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "cec": false,
+        "dante": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "4K60Hz 4x2 Multiview Presentation Switcher | 4K60Hz 4:4:4 | 2 HDMI & 2 USB-C Inputs | 2 HDMI Outputs | Dual NetworkHD Output | Seamless Switching | Dual Annotation Capability | Audio De-embed | USB 3.0 | Relay | RS-232 | Sygma Cloud Management",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "NHD-500-RX v2",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "Dante adapter",
+      "productType": "4K60Hz Decoder",
+      "transport": [
+        "Dante",
+        "AES67"
+      ],
+      "maxResolution": "4K60Hz",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "video": [
+        "4K60Hz 4:4:4 Dolby Vision"
+      ],
+      "audio": [
+        "ARC",
+        "eARC",
+        "Dante",
+        "AES67",
+        "S/PDIF",
+        "Audio De-embed"
+      ],
+      "usb": [
+        "USB 2.0"
+      ],
+      "network": [
+        "1GbE",
+        "SFP"
+      ],
+      "control": [
+        "RS-232",
+        "IR",
+        "CEC"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": true,
+        "cec": true,
+        "poe": true,
+        "dante": true,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "4K60Hz Decoder | 4K60Hz 4:4:4 | 1GbE | PoE+ | SFP&2x RJ45 | Dolby Vision & HDR | Video Wall | Audio De-embed | Dante AV-A Ready/AES67 | ARC/eARC | S/PDIF | USB 2.0 | IR & RS232 Routing | CEC",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "physical": []
+    },
+    {
+      "sku": "NHD-140-RACK-1U",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "accessory",
+      "productType": "1U/2 Slot Rack Mount for NHD-140-TX &NHD-124-TX Quad Encoder",
+      "transport": [],
+      "physical": [
+        "rack-mount"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "1U/2 Slot Rack Mount for NHD-140-TX &NHD-124-TX Quad Encoder",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "ports": []
+    },
+    {
+      "sku": "NHD-RACK4-BLK",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "accessory",
+      "productType": "Blanking Plate for NHD-000-RACK4",
+      "transport": [],
+      "physical": [
+        "rack-mount"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Blanking Plate for NHD-000-RACK4",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "ports": []
+    },
+    {
+      "sku": "SR-1G-MM-SFP",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "SFP module",
+      "productType": "Short Range",
+      "transport": [],
+      "network": [
+        "SFP"
+      ],
+      "features": {
+        "hdr": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Short Range | 1 Gigabit | Multi Mode | SFP module",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "SR-10G-MM-SFPP",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "SFP+ module",
+      "productType": "Short Range",
+      "transport": [],
+      "network": [
+        "SFP"
+      ],
+      "features": {
+        "hdr": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Short Range | 10 Gigabit | Multi Mode| SFP Plus module",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "SW-620L-TX-W",
+      "status": "review-required",
+      "productClass": "WIRELESS_PRESENTATION",
+      "role": "wireless dongle",
+      "productType": "4K30Hz 2x2 Wireless Presentation Switcher",
+      "transport": [
+        "USB-C",
+        "Wi-Fi"
+      ],
+      "maxResolution": "4K60Hz",
+      "video": [
+        "4K60Hz 4:4:4"
+      ],
+      "audio": [
+        "Audio De-embed"
+      ],
+      "usb": [
+        "USB 3.0"
+      ],
+      "network": [
+        "Sygma Cloud"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "dante": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "4K30Hz 2x2 Wireless Presentation Switcher | 4K30Hz 4:4:4 | 2 HDMI Inputs | 2 HDMI Outputs | Seamless Switching | Multiview | USB-B Ethernet | Audio De-embed | USB 3.0 |  Airplay & Miracast | Wireless Casting & Conferencing (work with APO-DG2 & APO-DG2-PRO) | Sygma Cloud Management",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "SW-660-TX-W",
+      "status": "review-required",
+      "productClass": "WIRELESS_PRESENTATION",
+      "role": "wireless dongle",
+      "productType": "4K60Hz 6x2 Wireless Presentation Switcher",
+      "transport": [
+        "USB-C",
+        "Wi-Fi"
+      ],
+      "maxResolution": "4K60Hz",
+      "routedInputs": 2,
+      "inputCount": 2,
+      "ports": [
+        {
+          "count": 2,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "video",
+          "detail": "2x USB-C inputs"
+        }
+      ],
+      "video": [
+        "4K60Hz 4:4:4"
+      ],
+      "audio": [
+        "Audio De-embed"
+      ],
+      "usb": [
+        "USB 3.0"
+      ],
+      "network": [
+        "Sygma Cloud"
+      ],
+      "control": [
+        "RS-232",
+        "Relay"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "cec": false,
+        "dante": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "4K60Hz 6x2 Wireless Presentation Switcher | 4K60Hz 4:4:4 | 2 USB-C & 4 HDMI Inputs | 2 HDMI Outputs | Seamless Switching | MST | Multiview | Dual USB-C 60W Charging | USB-C Ethernet | Audio De-embed | USB 3.0 | Relay | RS-232| Airplay & Miracast | Wireless Casting & Conferencing (work with APO-DG2 & APO-DG2-PRO) | Sygma Cloud Management",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "APO-DG2-PRO",
+      "status": "review-required",
+      "productClass": "WIRELESS_PRESENTATION",
+      "role": "wireless dongle",
+      "productType": "Apollo 4K USB-C(DP Alt mode) dongle",
+      "transport": [
+        "USB-C",
+        "Wi-Fi"
+      ],
+      "maxResolution": "4K60Hz",
+      "video": [
+        "4K60Hz"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Apollo 4K USB-C(DP Alt mode) dongle | Wireless casting and Wireless Conferencing( without APP)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "APO-DG1",
+      "status": "review-required",
+      "productClass": "WIRELESS_PRESENTATION",
+      "role": "wireless dongle",
+      "productType": "Apollo 1080p USB-C(DP Alt mode) dongle",
+      "transport": [
+        "USB-C",
+        "Wi-Fi"
+      ],
+      "maxResolution": "1080p60Hz",
+      "video": [
+        "1080p60Hz"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Apollo 1080p USB-C(DP Alt mode) dongle | Wireless Casting",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-200-MS",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "in-desk connectivity",
+      "productType": "Compact In-Desk Connectivity",
+      "transport": [
+        "HDMI",
+        "USB-C"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Compact In-Desk Connectivity | HDMI & USB-C Passthrough | USB Charging | Multi-Standard Mains Outlet",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-400-MS",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "in-desk connectivity",
+      "productType": "Flip Up In-Desk Connectivity",
+      "transport": [
+        "HDMI",
+        "USB-C"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Flip Up In-Desk Connectivity | 2 HDMI & USB-C Passthrough | USB Charging | RJ-45 | Multi-Standard Mains Outlet",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-CBL-SPINE",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "Under Desk Cable Management 'SPINE' for IDB Series (Adjustable up to 36\")",
+      "transport": [
+        "HDMI"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Under Desk Cable Management 'SPINE' for IDB Series (Adjustable up to 36\")",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-PWR-SCH",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug)",
+      "transport": [
+        "HDMI"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-PWR-UK",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug)",
+      "transport": [
+        "HDMI"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-400-MS-C",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "in-desk connectivity",
+      "productType": "Flip Up In-Desk Connectivity",
+      "transport": [
+        "HDMI",
+        "USB-C"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Flip Up In-Desk Connectivity | USB Charging| Multi-Standard Mains Outlet | customized ports",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-RJ45-C",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "RJ45 passthrough coupling",
+      "productType": "RJ45 CAT6",
+      "transport": [
+        "Ethernet"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "RJ45 CAT6 | Passthrough coupling socket | Front RJ45 female | Back RJ45 female | Unshielded",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-HDMI-C",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "HDMI passthrough coupling",
+      "productType": "HDMI",
+      "transport": [
+        "HDMI"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "HDMI | Passthrough coupling socket | Front HDMI female | Back HDMI female",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "IDB-K2-C",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "in-desk connectivity",
+      "productType": "Carrier Keystone 2 ports",
+      "transport": [
+        "HDMI",
+        "USB-C"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Carrier Keystone 2 ports | 45mm X 45mm | Black color",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "HALO-COM-MIC",
+      "status": "review-required",
+      "productClass": "UC",
+      "role": "companion microphone",
+      "productType": "HALO Companion Mic",
+      "transport": [
+        "USB"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "HALO Companion Mic | Mini USB Connection | Mounting on table | Work with HALO-VX10 v2",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "APO-MIC-EXT",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "USB to Ethernet adapter",
+      "productType": "Mini-USB to Ethernet Adaptor",
+      "transport": [
+        "USB",
+        "Ethernet"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Mini-USB to Ethernet Adaptor | Work with APO-VX20-UC/APO-VX20-UC v2/COM-MIC-HUB",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "APO-SKY-MIC",
+      "status": "review-required",
+      "productClass": "UC",
+      "role": "video bar",
+      "productType": "Apollo Video Bar and COM-MIC-HUB Companion Add-on Mic",
+      "transport": [
+        "HDMI",
+        "USB-C"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Apollo Video Bar and COM-MIC-HUB Companion Add-on Mic | RJ45 Connection | Ceiling/Table Mount | Work with APO-VX20-UC/APO-VX20-UC v2/ COM-MIC-HUB",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-USBC-15",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "USB-C cable",
+      "productType": "15m/49ft",
+      "transport": [
+        "USB-C"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "15m/49ft | USB-C to C Active Optical Cable | 5Gbps Superspeed | 5K60Hz | 4K60 Alt Mode | 60W PD | Screw-Lock Connector",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-CON-AUD-H2",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "audio extractor",
+      "productType": "4K60Hz HDMI 2.0 Audio Extractor with Passthrough",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "4K60Hz",
+      "video": [
+        "4K60Hz 4:4:4 Dolby Vision"
+      ],
+      "audio": [
+        "S/PDIF"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": false,
+        "earc": false,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "4K60Hz HDMI 2.0 Audio Extractor with Passthrough | 4K60Hz 4:4:4 | HDMI to S/PDIF or RCA | Dolby Vision & HDR",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CON-ANLG-DNT",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "Dante adapter",
+      "productType": "Analog Audio Input to Dante/AES67 Output Adapter",
+      "transport": [
+        "Dante",
+        "AES67"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "audio": [
+        "Dante",
+        "AES67"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "poe": true,
+        "dante": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Analog Audio Input to Dante/AES67 Output Adapter | 2-Channel | PoE | Adjustable Input Gain",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
+    },
+    {
+      "sku": "CON-DNT-ANLG",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "Dante adapter",
+      "productType": "Dante/AES67 Input to Analog Audio Output Adapter",
+      "transport": [
+        "Dante",
+        "AES67"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "audio": [
+        "Dante",
+        "AES67"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "poe": true,
+        "dante": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Dante/AES67 Input to Analog Audio Output Adapter | 2-Channel | PoE | Adjustable Output Level",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
+    },
+    {
+      "sku": "CON-USBC-DNT",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "Dante adapter",
+      "productType": "USB to Dante /AES67 & Dante /AES67 to USB Audio Adapter",
+      "transport": [
+        "Dante",
+        "AES67"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "audio": [
+        "Dante",
+        "AES67"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "poe": true,
+        "dante": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "USB to Dante /AES67 & Dante /AES67 to USB Audio Adapter | PoE | 2x2-Channel",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
+    },
+    {
+      "sku": "CON-XLR-DNT",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "Dante adapter",
+      "productType": "Analog XLR Audio Input to Dante/AES67 Output Adapter",
+      "transport": [
+        "Dante",
+        "AES67"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "audio": [
+        "Dante",
+        "AES67"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "poe": true,
+        "dante": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Analog XLR Audio Input to Dante/AES67 Output Adapter | 2-Channel | 48V Phantom Power | PoE | Adjustable Input Gain",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
+    },
+    {
+      "sku": "CON-DNT-XLR",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "Dante adapter",
+      "productType": "Dante/AES67 Input to Analog XLR Audio Output Adapter",
+      "transport": [
+        "Dante",
+        "AES67"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "audio": [
+        "Dante",
+        "AES67"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "poe": true,
+        "dante": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Dante/AES67 Input to Analog XLR Audio Output Adapter | 2-Channel | PoE | Adjustable Output Level",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
+    },
+    {
+      "sku": "DSP-88-DNT",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "audio DSP",
+      "productType": "Digital Audio Processor",
+      "transport": [
+        "Dante",
+        "Analog audio"
+      ],
+      "audio": [
+        "Dante",
+        "AES67"
+      ],
+      "control": [
+        "RS-232",
+        "GPIO"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "cec": false,
+        "dante": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Digital Audio Processor | 8x Analog Input & 8x Dante/AES67 Input | 8x Analog Output & 8x Dante/AES67  Output | 1x1 USB Audio | Matrix Mixer | AEC | NHS | ANS | AGC | Ducker | EQ | Delay | 8xGPIO | LAN & RS232 Control | Preset",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "TX-SCL-HDMI",
+      "status": "review-required",
+      "productClass": "MATRIX",
+      "role": "seamless matrix switcher",
+      "productType": "4K60Hz HDMI Scaling Output Card for MX-1616-SCL",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "4K60Hz",
+      "video": [
+        "4K60Hz 4:4:4 HDR10"
+      ],
+      "audio": [
+        "Audio De-embed"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": false,
+        "earc": false,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "4K60Hz HDMI Scaling Output Card for MX-1616-SCL | 4K60Hz 4:4:4 | HDR | Audio De-embed(4K: 100m/328ft)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "TX-SCL-HDBT",
+      "status": "review-required",
+      "productClass": "HDBASET",
+      "role": "HDBaseT matrix switcher",
+      "productType": "4K60H HDBaseT Scaling  Output Card for MX-1616-SCL",
+      "transport": [
+        "HDBaseT"
+      ],
+      "maxResolution": "4K60Hz",
+      "video": [
+        "4K60Hz 4:2:0 HDR10"
+      ],
+      "audio": [
+        "Audio De-embed"
+      ],
+      "power": [
+        "PoH"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": false,
+        "earc": false,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "4K60H HDBaseT Scaling  Output Card for MX-1616-SCL | 4K60Hz 4:2:0 | HDR | PoH | Audio De-Embed (4K: 100m/328ft)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "NetworkHD Touch™",
+      "status": "review-required",
+      "productClass": "AVOIP",
+      "role": "AVoIP component",
+      "productType": "Free iPad & Android Control App for NetworkHD 100, 200, 400, 500 and 600 Series",
+      "transport": [
+        "1GbE AV network"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Free iPad & Android Control App for NetworkHD 100, 200, 400, 500 and 600 Series",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "SYN-TOUCH10 v3",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "touchpad controller",
+      "productType": "Synergy 10.1” All-In-One Touchpad IP Controller",
+      "transport": [
+        "Ethernet"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "poe": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Synergy 10.1” All-In-One Touchpad IP Controller | PoE  | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
+    },
+    {
+      "sku": "SYN-TP10-B",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "touchpad controller",
+      "productType": "Synergy 10.1” Touchpad for Synergy Flow Series",
+      "transport": [
+        "Ethernet"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "poe": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Synergy 10.1” Touchpad for Synergy Flow Series | PoE | Work with Synergy Flow Series | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "physical": []
+    },
+    {
+      "sku": "SYN-CTL-HUB-IR-06",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "control hub",
+      "productType": "Synergy Control Hub",
+      "transport": [
+        "Ethernet",
+        "RS-232",
+        "IR"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "control": [
+        "IR"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "cec": false,
+        "poe": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Synergy Control Hub | 6x IR | PoE",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "physical": []
+    },
+    {
+      "sku": "SYN-CTL-HUB-RL-04",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "control hub",
+      "productType": "Synergy Control Hub",
+      "transport": [
+        "Ethernet",
+        "RS-232",
+        "IR"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "control": [
+        "Relay"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "cec": false,
+        "poe": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Synergy Control Hub | 4x Relay | PoE",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "physical": []
+    },
+    {
+      "sku": "SYN-CTL-HUB-RS-03",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "control hub",
+      "productType": "Synergy Control Hub",
+      "transport": [
+        "Ethernet",
+        "RS-232",
+        "IR"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "control": [
+        "RS-232"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "cec": false,
+        "poe": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Synergy Control Hub | RS-232 | RS-422 | RS-485 | PoE",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "physical": []
+    },
+    {
+      "sku": "SYN-CTL-HUB-IO-10",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "control hub",
+      "productType": "Synergy Control Hub",
+      "transport": [
+        "Ethernet",
+        "RS-232",
+        "IR"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "control": [
+        "GPIO"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "cec": false,
+        "poe": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Synergy Control Hub | 10x GPIO | PoE",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "physical": []
+    },
+    {
+      "sku": "SYN-CTL-FL10",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "control hub",
+      "productType": "Synergy Control Flow System",
+      "transport": [
+        "Ethernet",
+        "RS-232",
+        "IR"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "network": [
+        "Sygma Cloud"
+      ],
+      "control": [
+        "RS-232",
+        "IR",
+        "GPIO",
+        "Relay"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "cec": false,
+        "poe": true,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Synergy Control Flow System | Central Controller | Node-Red | 2x RS-232 | RS-422 | RS-485 | 2x IR | 4x GPIO | 2x Relay | Low Code Programming | Sygma Cloud Management | PoE",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "physical": []
+    },
+    {
+      "sku": "SYN-KEY12-UK-EU",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "control hub",
+      "productType": "Synergy 12-button Keypad Controller with Knob",
+      "transport": [
+        "Ethernet",
+        "RS-232",
+        "IR"
+      ],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "control": [
+        "RS-232",
+        "GPIO",
+        "Relay"
+      ],
+      "power": [
+        "PoE"
+      ],
+      "features": {
+        "hdr": false,
+        "cec": false,
+        "poe": true
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "Synergy 12-button Keypad Controller with Knob | EU & UK backbox | RS-232 | GPIO | RELAY | PoE",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "physical": []
+    },
+    {
+      "sku": "EX-80-KVM",
+      "status": "review-required",
+      "productClass": "HDBASET",
+      "role": "KVM extender",
+      "productType": "1080p60Hz KVM Extender",
+      "transport": [
+        "HDBaseT"
+      ],
+      "maxResolution": "1080p60Hz",
+      "video": [
+        "1080p60Hz"
+      ],
+      "usb": [
+        "USB 2.0"
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "1080p60Hz KVM Extender | UTP | USB 2.0 | Bi-directional PoC (1080p:80m/262ft)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "audio": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EX-40-KVM-H2",
+      "status": "review-required",
+      "productClass": "HDBASET",
+      "role": "KVM extender",
+      "productType": "HDMI 2.0 4K60Hz KVM Extender",
+      "transport": [
+        "HDBaseT"
+      ],
+      "maxResolution": "4K60Hz",
+      "video": [
+        "4K60Hz 4:4:4"
+      ],
+      "audio": [
+        "Audio De-embed"
+      ],
+      "usb": [
+        "USB 2.0"
+      ],
+      "control": [
+        "RS-232"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "cec": false,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "HDMI 2.0 4K60Hz KVM Extender | UTP | 4K60Hz 4:4:4 | USB 2.0 | RS232 passthrough | Audio De-embed | Bi-Directional PoC (40m/131ft)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EX-100-KVM-H2",
+      "status": "review-required",
+      "productClass": "HDBASET",
+      "role": "KVM extender",
+      "productType": "4k60Hz KVM Extender",
+      "transport": [
+        "HDBaseT"
+      ],
+      "maxResolution": "4K60Hz",
+      "video": [
+        "4K60Hz 4:4:4"
+      ],
+      "audio": [
+        "Audio De-embed"
+      ],
+      "usb": [
+        "USB 2.0"
+      ],
+      "control": [
+        "RS-232",
+        "IR"
+      ],
+      "power": [
+        "PoH"
+      ],
+      "features": {
+        "hdr": false,
+        "arc": false,
+        "earc": false,
+        "cec": false,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "4k60Hz KVM Extender | HDBaseT | 4K60Hz 4:4:4 | Loop-Out | USB 2.0 | Audio De-Embed | RS232 & 2-way IR Passthrough | 1-way PoH (Rx->Tx) (100m/328ft) /Long-Reach (150m/492ft)",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "network": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-HAOC-10",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "10m/32.8ft HDMI 2.0 AOC",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "10m/32.8ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL3",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-HAOC-15",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "15m/49ft HDMI 2.0 AOC",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "15m/49ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL4",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-HAOC-FRL-10",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "10m/32.8ft HDMI 2.1 AOC",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "8K60Hz",
+      "video": [
+        "8K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC",
+        "eARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": true,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "10m/32.8ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-HAOC-FRL-15",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "15m/49ft HDMI 2.1 AOC",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "8K60Hz",
+      "video": [
+        "8K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC",
+        "eARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": true,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-HAOC-15-C",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "15m/49ft HDMI 2.0 AOC",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "15m/49ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR | Detachable Head",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-HAOC-20-C",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "20m/65.6ft HDMI 2.0 AOC",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "20m/65.6ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR | Detachable Head",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-HAOC-30-C",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "30m/98ft HDMI 2.0 AOC",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "30m/98ft HDMI 2.0 AOC | 24Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR | Detachable Head",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-4KUHD-0.5",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "0.5m/1.5ft HDMI 2.0 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "0.5m/1.5ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-4KUHD-1.0",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "1m/3.2ft HDMI 2.0 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "1m/3.2ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-4KUHD-2.0",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "2m/6.5ft HDMI 2.0 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "2m/6.5ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-4KUHD-3.0",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "3m/9.8ft HDMI 2.0 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "3m/9.8ft HDMI 2.0 Cable| 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-4KUHD-5.0",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "5m/16.4ft HDMI 2.0 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "5K60Hz",
+      "video": [
+        "5K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": false,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "5m/16.4ft HDMI 2.0 Cable| 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-8KUHD-0.5",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "0.5m/1.5ft HDMI 2.1 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "8K60Hz",
+      "video": [
+        "8K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC",
+        "eARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": true,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "0.5m/1.5ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-8KUHD-1.0",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "1m/3.2ft HDMI 2.1 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "8K60Hz",
+      "video": [
+        "8K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC",
+        "eARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": true,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "1m/3.2ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-8KUHD-2.0",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "2m/6.5ft HDMI 2.1 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "8K60Hz",
+      "video": [
+        "8K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC",
+        "eARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": true,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "2m/6.5ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-8KUHD-3.0",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "HDMI cable",
+      "productType": "3m/9.8ft HDMI 2.1 Cable",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "8K60Hz",
+      "video": [
+        "8K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC",
+        "eARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": true,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "3m/9.8ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "CAB-UAOC-15-C",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "active optical cable",
+      "productType": "15m/49ft HDMI 2.1 AOC",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "8K60Hz",
+      "video": [
+        "8K60Hz Dolby Vision"
+      ],
+      "audio": [
+        "ARC",
+        "eARC"
+      ],
+      "control": [
+        "CEC"
+      ],
+      "features": {
+        "hdr": true,
+        "arc": true,
+        "earc": true,
+        "cec": true,
+        "dante": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "usb": [],
+      "network": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "EXP-CAB-USBC-1M",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "USB-C cable",
+      "productType": "1m/3.2ft USB-C to C Cable",
+      "transport": [
+        "USB-C"
+      ],
+      "maxResolution": "5K60Hz",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "10GbE network"
+        }
+      ],
+      "video": [
+        "5K60Hz"
+      ],
+      "network": [
+        "10GbE"
+      ],
+      "features": {
+        "hdr": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps(10Gbps/Lane) | 5K60Hz | 4K120Hz Alt Mode | USB3.2 Gen 2x2 |100w PD",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "audio": [],
+      "usb": [],
+      "control": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "EXP-CAB-USBC-2M",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "USB-C cable",
+      "productType": "2m/6.5ft USB-C to C Cable",
+      "transport": [
+        "USB-C"
+      ],
+      "maxResolution": "5K60Hz",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "10GbE network"
+        }
+      ],
+      "video": [
+        "5K60Hz"
+      ],
+      "network": [
+        "10GbE"
+      ],
+      "features": {
+        "hdr": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps(10Gbps/Lane) | 5K60Hz | 4K120Hz Alt Mode | USB3.2 Gen 2x2 | 100w PD",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "audio": [],
+      "usb": [],
+      "control": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "EXP-CAB-USBC-5M",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "USB-C cable",
+      "productType": "5m/16.4ft USB-C to C MicroCoax cable",
+      "transport": [
+        "USB-C"
+      ],
+      "maxResolution": "5K60Hz",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "10GbE network"
+        }
+      ],
+      "video": [
+        "5K60Hz"
+      ],
+      "network": [
+        "10GbE"
+      ],
+      "features": {
+        "hdr": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "5m/16.4ft USB-C to C MicroCoax cable | 10Gbps (5Gbps/Lane) | 5K60Hz | 4K60Hz Alt Mode | USB 3.2 Gen 1x2 | 60W PD",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "audio": [],
+      "usb": [],
+      "control": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "CAB-UAOC-USBC-10",
+      "status": "review-required",
+      "productClass": "CABLE",
+      "role": "USB-C cable",
+      "productType": "10m/32.8ft",
+      "transport": [
+        "USB-C"
+      ],
+      "maxResolution": "5K60Hz",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "10GbE network"
+        }
+      ],
+      "video": [
+        "5K60Hz"
+      ],
+      "usb": [
+        "USB 2.0"
+      ],
+      "network": [
+        "10GbE"
+      ],
+      "features": {
+        "hdr": false,
+        "ndi": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "10m/32.8ft | USB-C to C Active Optical Cable | 10Gbps(5Gbps/Lane) | DP2.1+USB2.0 or DP1.4+USB3.2 Gen2x2 | 5K60Hz | 4K120Hz Alt Mode| Adaptive 2/4 Lane | 60W PD",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "audio": [],
+      "control": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "PSU-20V-6A-BOX",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "power supply / accessory",
+      "productType": "20V 6A Power Supply Unit for SW-120-TX3 & NHD-510-TX",
+      "transport": [],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "20V 6A Power Supply Unit for SW-120-TX3 & NHD-510-TX",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "PSU-20V-6A-WP",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "power supply / accessory",
+      "productType": "20V 6A Power Supply Unit for SW-120-TX3-US/UK & NHD-500-IW-TX",
+      "transport": [],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "20V 6A Power Supply Unit for SW-120-TX3-US/UK & NHD-500-IW-TX",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
+    },
+    {
+      "sku": "PSU-12V-1A",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "power supply / accessory",
+      "productType": "12V 1A Power Supply *Utilized by most of NetworkHD*",
+      "transport": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "12V 1A Power Supply *Utilized by most of NetworkHD*",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "PSU-12V-2A",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "power supply / accessory",
+      "productType": "12V 2A Power Supply *Utilized by most of NetworkHD*",
+      "transport": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "12V 2A Power Supply *Utilized by most of NetworkHD*",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "PSU-12V-3A",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "power supply / accessory",
+      "productType": "12V 3A Power Supply *Utilized by most of NetworkHD*",
+      "transport": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1GbE network"
+        }
+      ],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "12V 3A Power Supply *Utilized by most of NetworkHD*",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": []
+    },
+    {
+      "sku": "PSU-18V-1A",
+      "status": "review-required",
+      "productClass": "ACCESSORY",
+      "role": "power supply / accessory",
+      "productType": "18V 1A Power Supply *Utilized by most of WyreStorm Extender Solutions*",
+      "transport": [],
+      "features": {
+        "hdr": false
+      },
+      "checks": [],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "pricelist-q3-2026",
+          "url": "",
+          "excerpt": "18V 1A Power Supply *Utilized by most of WyreStorm Extender Solutions*",
+          "checkedAt": "2026-08-29T07:14:40.282Z"
+        }
+      ],
+      "verifiedBy": "auto-import",
+      "verifiedAt": "2026-08-29T07:14:40.282Z",
+      "confirmedFields": [],
+      "createdAt": "2026-08-29T07:14:40.282Z",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "video": [],
+      "audio": [],
+      "usb": [],
+      "network": [],
+      "control": [],
+      "power": [],
+      "physical": [],
+      "ports": []
     }
   ]
 }

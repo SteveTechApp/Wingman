@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import index from "../../../public/product-intelligence-index.json";
@@ -32,12 +32,29 @@ beforeEach(() => {
 });
 
 describe("recommendations governed spec evidence", () => {
+  it("keeps the initial review compact until a stage is selected", async () => {
+    render(
+      <MemoryRouter>
+        <RecommendationsPage />
+      </MemoryRouter>,
+    );
+
+    const overviewTab = await screen.findByRole("tab", { name: /Overview/ });
+    expect(overviewTab.getAttribute("aria-selected")).toBe("true");
+    expect(screen.queryByText("Proposed system architecture")).toBeNull();
+    expect(screen.queryByText("Additional governed product matches")).toBeNull();
+    expect(screen.queryByText("Missing accessories detected")).toBeNull();
+  });
+
   it("shows the governed I/O, USB and reach facts and the gate-pass reasons on match cards", async () => {
     render(
       <MemoryRouter>
         <RecommendationsPage />
       </MemoryRouter>,
     );
+
+    await screen.findByRole("tab", { name: /Validate/ });
+    fireEvent.click(screen.getByRole("tab", { name: /Validate/ }));
 
     const skuHeading = await screen.findByText("SW-640L-TX-W", undefined, { timeout: 8000 });
     const card = skuHeading.closest("article");
@@ -63,6 +80,7 @@ describe("recommendations governed spec evidence", () => {
       </MemoryRouter>,
     );
 
+    fireEvent.click(await screen.findByRole("tab", { name: /Validate/ }));
     await screen.findByText("SW-640L-TX-W", undefined, { timeout: 8000 });
 
     const note = document.querySelector("[data-wingman-verify-before-quote]");

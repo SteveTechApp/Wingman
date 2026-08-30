@@ -45,6 +45,19 @@ type RecommendationDecision = Awaited<
 >[number];
 
 type LoadState = "loading" | "ready" | "missing" | "error";
+type RecommendationStage = "overview" | "resolve" | "build" | "validate" | "handoff";
+
+const recommendationStages: Array<{
+  id: RecommendationStage;
+  label: string;
+  description: string;
+}> = [
+  { id: "overview", label: "Overview", description: "See the matching basis and current quote position." },
+  { id: "resolve", label: "Resolve", description: "Complete the details that affect recommendation safety." },
+  { id: "build", label: "Build", description: "Review the proposed roles, products and quantities." },
+  { id: "validate", label: "Validate", description: "Check accessories, dependencies and release gates." },
+  { id: "handoff", label: "Handoff", description: "Add the system to the project or continue to response pack." },
+];
 
 type MissingDetailDefinition = {
   group: string;
@@ -256,6 +269,7 @@ export function RecommendationsPage() {
   const [message, setMessage] = useState("");
   const [editingCheck, setEditingCheck] = useState("");
   const [detailAnswers, setDetailAnswers] = useState<Record<string, string>>({});
+  const [stage, setStage] = useState<RecommendationStage>("overview");
 
   useEffect(() => {
     let cancelled = false;
@@ -575,6 +589,16 @@ export function RecommendationsPage() {
       });
   }
 
+  function openStage(nextStage: RecommendationStage) {
+    setStage(nextStage);
+    window.requestAnimationFrame(() => {
+      const content = document.querySelector(".wm-rec-stage-content");
+      if (content && typeof content.scrollIntoView === "function") {
+        content.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  }
+
   function saveMissingDetail(item: string) {
     if (!brief) return;
     const definition = missingDetailDefinition(item);
@@ -643,6 +667,31 @@ export function RecommendationsPage() {
         nextMove="Review the proposed architecture, confirm unresolved checks, then add the complete system to the active project."
       />
 
+      {brief && loadState === "ready" ? (
+        <nav className="wm-rec-stage-picker" aria-label="Recommendation stages">
+          <div className="wm-rec-stage-picker__intro">
+            <span className="wm-ui-kicker">Recommendation review</span>
+            <strong>Move through the design in five focused steps.</strong>
+          </div>
+          <div className="wm-rec-stage-picker__tabs" role="tablist" aria-label="Recommendation review steps">
+            {recommendationStages.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={stage === item.id}
+                className={stage === item.id ? "is-active" : ""}
+                onClick={() => openStage(item.id)}
+              >
+                <span>{index + 1}</span>
+                <strong>{item.label}</strong>
+                <small>{item.description}</small>
+              </button>
+            ))}
+          </div>
+        </nav>
+      ) : null}
+
       {loadState === "missing" ? (
         <SectionCard
           title="Complete Discovery first"
@@ -702,16 +751,13 @@ export function RecommendationsPage() {
 
       {brief && loadState === "ready" ? (
         <>
+          <div className="wm-rec-stage-content" data-recommendation-stage={stage}>
+          {stage === "overview" ? (
+          <>
           <div className="wm-rec-context-card">
           <SectionCard
             title="Requirement used for matching"
-            subtitle={text(
-              roomModel.summary,
-              text(
-                roomModel.outcome,
-                "The current saved Discovery brief was converted into governed selector requirements.",
-              ),
-            )}
+            subtitle="The saved Discovery brief is the source for this recommendation. Review the compact decision summary here, then open a stage when you need the supporting record."
           >
             <div className="wm-rec-requirement-grid">
               <article className="wm-rec-requirement">
@@ -723,7 +769,7 @@ export function RecommendationsPage() {
               <article className="wm-rec-requirement">
                 <span className="wm-ui-kicker">Matching basis</span>
                 <strong className="mt-2 block">
-                  {requirementSummary.join(" · ") || "General product direction"}
+                  {requirementSummary.slice(0, 3).join(" · ") || "General product direction"}
                 </strong>
               </article>
               <article className="wm-rec-requirement">
@@ -756,8 +802,26 @@ export function RecommendationsPage() {
           </SectionCard>
           </div>
 
-          {missingInformation.length ? (
-            <div className="wm-rec-checks-card">
+          <section className="wm-rec-overview-system wm-ui-card" aria-labelledby="wm-rec-overview-system-title">
+            <div>
+              <p className="wm-ui-kicker">System snapshot</p>
+              <h2 id="wm-rec-overview-system-title">{design.slots.length} roles, {systemUnitCount} units, one complete design</h2>
+              <p>Wingman has separated the brief into signal, room and control roles. Review unresolved inputs before selecting products.</p>
+            </div>
+            <div className="wm-rec-overview-system__stats">
+              <strong>{resolvedSystemSlots.length}/{requiredSystemSlots.length}</strong>
+              <span>required roles resolved</span>
+            </div>
+            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => openStage(unfilledSlots.length ? "resolve" : "build")}>
+              {unfilledSlots.length ? "Resolve open checks" : "Review proposed system"}
+              <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          </section>
+          </>
+          ) : null}
+
+          {stage === "resolve" ? (
+          <div className="wm-rec-checks-card">
             <SectionCard
               title="Checks still required"
               subtitle="These points remain visible because an estimated recommendation must not be presented as a confirmed design."
@@ -812,8 +876,13 @@ export function RecommendationsPage() {
             </SectionCard>
             </div>
           ) : null}
+          {stage === "resolve" && !missingInformation.length ? (
+            <SectionCard title="Discovery details are complete" subtitle="No unresolved Discovery checks are blocking the current recommendation.">
+              <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => openStage("build")}>Review proposed system <ArrowRight size={16} aria-hidden="true" /></button>
+            </SectionCard>
+          ) : null}
 
-          {design.slots.length ? (
+          {stage === "build" && design.slots.length ? (
             <section className="wm-rec-system wm-ui-card" aria-labelledby="wm-rec-system-title">
               <header className="wm-rec-system-header">
                 <div className="wm-rec-system-heading">
@@ -930,6 +999,7 @@ export function RecommendationsPage() {
             </section>
           ) : null}
 
+          {stage === "validate" ? (
           <details className="wm-rec-advanced-matches">
             <summary>Advanced: explore all matching products</summary>
           <SectionCard
@@ -1047,9 +1117,10 @@ export function RecommendationsPage() {
             )}
           </SectionCard>
           </details>
+          ) : null}
 
           {/* Missing Accessories Alerts */}
-          {missingAccessories.length > 0 && (
+          {stage === "validate" && missingAccessories.length > 0 && (
             <section className="wm-rec-missing-accessories wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">Before you quote</p>
@@ -1104,7 +1175,7 @@ export function RecommendationsPage() {
           )}
 
           {/* Suggested Kits */}
-          {suggestedKits.length > 0 && (
+          {stage === "handoff" && suggestedKits.length > 0 && (
             <section className="wm-rec-suggested-kits wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">Suggested kits</p>
@@ -1172,7 +1243,7 @@ export function RecommendationsPage() {
             </section>
           )}
 
-          {bundleSuggestions.length > 0 && (
+          {stage === "validate" && bundleSuggestions.length > 0 && (
             <section className="wm-rec-bundle wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">Complete this system</p>
@@ -1226,7 +1297,7 @@ export function RecommendationsPage() {
             </section>
           )}
 
-          {brandLosses.length > 0 && (
+          {stage === "handoff" && brandLosses.length > 0 && (
             <section className="wm-rec-brand-losses wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">Competitive landscape</p>
@@ -1270,7 +1341,7 @@ export function RecommendationsPage() {
             </section>
           )}
 
-          {assurance && (assurance.blockers.length || assurance.warnings.length) ? (
+          {stage === "validate" && assurance && (assurance.blockers.length || assurance.warnings.length) ? (
             <section className="wm-rec-assurance wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">System assurance checks</p>
@@ -1312,12 +1383,31 @@ export function RecommendationsPage() {
             </section>
           ) : null}
 
+          {stage === "handoff" ? (
+            <section className="wm-rec-handoff" aria-labelledby="wm-rec-handoff-title">
+              <div>
+                <p className="wm-ui-kicker">Ready for the next workflow</p>
+                <h2 id="wm-rec-handoff-title">Carry the reviewed design into the active project.</h2>
+                <p>{unfilledSlots.length ? "Some roles still need review, so keep the design in validation before quoting." : "The role structure is ready to become a project selection. Add the system, then continue to the response pack."}</p>
+              </div>
+              <div className="wm-rec-handoff__actions">
+                <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => openStage("build")}>
+                  <Boxes size={16} aria-hidden="true" /> Review system
+                </button>
+                <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={addWholeSystemToProject}>
+                  <PackageCheck size={16} aria-hidden="true" /> Add complete system
+                </button>
+              </div>
+            </section>
+          ) : null}
+
           {message ? (
-            <div className="wm-ui-card mt-4 rounded-xl border p-4 font-bold">
+            <div className="wm-ui-card mt-4 rounded-xl border p-4 font-bold" role="status">
               {message}
             </div>
           ) : null}
 
+          {stage === "handoff" ? (
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
               className="wm-ui-button wm-ui-button-secondary rounded-xl px-4 py-3 font-black"
@@ -1336,8 +1426,10 @@ export function RecommendationsPage() {
               Continue to response pack
             </Link>
           </div>
+          ) : null}
 
           <VerifyBeforeQuoteNote className="mt-4" />
+          </div>
         </>
       ) : null}
     </main>

@@ -291,8 +291,14 @@ header.wm-header {
    App mount and layout stabilisation patch
    -------------------------------------------------------------------------- */
 
-#root > * {
+#root > :not(.wm-offline-banner) {
   min-height: 100vh;
+}
+
+@media (min-width: 981px) {
+  .wm-topbar--compact-context {
+    display: none !important;
+  }
 }
 
 body:has(#root:empty) {
@@ -319,4 +325,3 @@ aside:not(.wm-sidebar):not(.wingman-sidebar) {
 .wingman-layout > aside[aria-label="Sidebar"] * {
   color: inherit;
 }
-

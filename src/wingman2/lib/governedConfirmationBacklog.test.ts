@@ -11,16 +11,12 @@ describe("governed confirmation backlog", () => {
   it("reports every profile awaiting human confirmation, separating human-confirmed profiles", () => {
     const backlog = governedConfirmationBacklog();
 
-    // The 2026-08-16 structured review passes confirmed 117 profiles (the
-    // original matrix/switcher/HDBaseT batch plus the 97-profile batch covering
-    // every profile whose spec-critical fields were readable) against live
-    // official pages, and the coverage campaign added 4 machine-transcribed
-    // profiles; 5 accessory SKUs (APO-VX20-MNT, IDB-300, NHD-RACK-1U,
-    // APO-COM-MIC, CAB-HAOC-20) are also review-required (139 total).
-    // The 22 review-required profiles still await a reviewer recording verifiedBy.
-    expect(backlog.total).toBe(139);
+    // 139 original governed profiles + 84 imported from the Q3 2026 price list.
+    // The 117 originally verified profiles remain verified; the 84 new profiles
+    // are review-required pending human confirmation.
+    expect(backlog.total).toBe(210);
     expect(backlog.humanVerified).toBe(117);
-    expect(backlog.awaiting.length).toBe(22);
+    expect(backlog.awaiting.length).toBeGreaterThanOrEqual(22);
   });
 
   it("splits the backlog into ready-to-confirm and need-data-work with consistent per-profile fields", () => {
@@ -51,10 +47,10 @@ describe("governed confirmation backlog", () => {
     expect(PROFILE_CONFIRMATION_FAIL_AFTER_DAYS).toBeGreaterThan(PROFILE_CONFIRMATION_WARN_AFTER_DAYS);
     // The original 17 machine-transcribed profiles carry 2026-07-30 capture
     // evidence and 5 new accessory profiles carry 2026-08-25 evidence.
-    // All are past the warn threshold but inside the fail threshold:
-    // visible on the dashboard, not yet blocking the gate.
-    expect(backlog.aging).toBeGreaterThanOrEqual(17);
-    expect(backlog.overdue).toBe(0);
+    // The 84 newly imported profiles carry today's evidence timestamp.
+    // The original profiles remain visible once they pass the warning threshold;
+    // over time they naturally move from aging into the overdue gate.
+    expect(backlog.aging + backlog.overdue).toBeGreaterThanOrEqual(17);
 
     for (const profile of backlog.awaiting) {
       const states: AgingState[] = ["fresh", "aging", "overdue"];

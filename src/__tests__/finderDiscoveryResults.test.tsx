@@ -53,7 +53,10 @@ describe("Recommendations Discovery handoff", () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findAllByRole("button", { name: "Add to project" })).not.toHaveLength(0);
+    expect(await screen.findByRole("tab", { name: /Build/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Add to project" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: /Build/ }));
+    expect(await screen.findAllByRole("button", { name: "Add role" })).not.toHaveLength(0);
     expect(screen.queryByText("No eligible product passed the current compatibility gates.")).not.toBeInTheDocument();
   });
 
@@ -87,9 +90,11 @@ describe("Recommendations Discovery handoff", () => {
       </MemoryRouter>,
     );
 
+    fireEvent.click(await screen.findByRole("tab", { name: /Validate/ }));
     expect((await screen.findAllByText("NHD-600-TRX")).length).toBeGreaterThan(0);
     expect(screen.queryByText("No eligible product passed the current compatibility gates.")).not.toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("tab", { name: /Build/ }));
     fireEvent.click(screen.getByRole("button", { name: "Add complete system to project" }));
 
     const snapshot = readProjectStore();

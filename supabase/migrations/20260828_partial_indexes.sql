@@ -14,6 +14,8 @@ IMMUTABLE
 AS $$
   SELECT NOW()
 $$;
+-- NOTE: Deployed indexes use static date boundaries (below) because Supabase
+-- SQL Editor had a session-caching bug that refused IMMUTABLE function lookups.
 
 -- 1. Active sessions by workspace (auth context)
 DROP INDEX IF EXISTS idx_wingman_sessions_workspace_active;
@@ -43,13 +45,13 @@ CREATE INDEX idx_wingman_invitations_workspace_pending
 DROP INDEX IF EXISTS idx_wingman_audit_workspace_recent;
 CREATE INDEX idx_wingman_audit_workspace_recent
     ON wingman_audit_events (workspace_id, created_at DESC)
-    WHERE created_at > wingman_now_immutable() - INTERVAL '90 days';
+    WHERE created_at > '2026-05-28T00:00:00Z'::timestamptz;
 
 -- 6. Active telemetry events by workspace (error history)
 DROP INDEX IF EXISTS idx_wingman_telemetry_workspace_recent;
 CREATE INDEX idx_wingman_telemetry_workspace_recent
     ON wingman_telemetry_events (workspace_id, timestamp DESC)
-    WHERE timestamp > wingman_now_immutable() - INTERVAL '30 days';
+    WHERE timestamp > '2026-07-29T00:00:00Z'::timestamptz;
 
 -- ANALYZE
 ANALYZE wingman_sessions;

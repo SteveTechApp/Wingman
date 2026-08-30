@@ -111,8 +111,10 @@ function canDriveHdbaset(sku) {
   return false;
 }
 
-// Split roomTemplates.ts into templates by top-level object boundaries.
-const source = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8");
+// Split roomTemplates.ts + roomTemplatesExtra.ts into templates by top-level object boundaries.
+const sourceCore = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8");
+const sourceExtra = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplatesExtra.ts"), "utf8");
+const source = sourceCore + "\n" + sourceExtra;
 const lines = source.split(/\r?\n/);
 const templates = [];
 let currentName = null;
