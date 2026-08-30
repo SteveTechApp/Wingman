@@ -1,4 +1,4 @@
-import { lazy, Suspense, type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Check, CheckCircle2, ChevronRight, Download, FileText,
@@ -15,6 +15,7 @@ const ExcalidrawBlockSchematic = lazy(() =>
 import { TemplateSchematic } from "../components/TemplateSchematic";
 import { NativeTemplateSchematic } from "../components/NativeTemplateSchematic";
 import VisualStudioCanvas from "../components/VisualStudioCanvas";
+import { InDeskConnectivityWizard } from "../components/InDeskConnectivityWizard";
 import { buildTemplateVisualDiagram } from "../lib/schematic/templateVisualDiagram";
 import { upsertStoredProject, type StoredProductSelection, type StoredProject, type StoredProjectProposal } from "../data/projectStore";
 import { exportBomCsv } from "../lib/proposalExport";
@@ -27,6 +28,7 @@ import type { SalesBomRow } from "../lib/salesReadiness";
 import { compileTemplateApplicationProposal } from "../lib/proposalCompiler";
 import { loadTemplateDraft } from "../lib/solutionTemplates";
 import { validateProposalExport, type ExportValidationResult } from "../lib/proposalExportValidation";
+import { searchProducts, type ProductSearchResult } from "../lib/productSearch";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
 const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
@@ -145,6 +147,9 @@ export function TemplateReviewPage() {
   const [savedProjectPath, setSavedProjectPath] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
+  const [modelSearchResults, setModelSearchResults] = useState<ProductSearchResult[]>([]);
+  const [modelSearchQuery, setModelSearchQuery] = useState("");
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [filter, setFilter] = useState("All");
   const [equipmentGroup, setEquipmentGroup] = useState<EquipmentGroup>("Required");
   const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated" | "native" | "visual-studio">("native");
@@ -201,6 +206,26 @@ export function TemplateReviewPage() {
   function updateRowField(rowId: string, field: string, value: string) {
     mutateRows((current) => current.map((row) => row.id !== rowId ? row : { ...row, [field]: value }));
   }
+
+  /* Product search for BY-OTHERS replacement */
+  const handleModelSearch = useCallback((query: string, rowId: string) => {
+    setModelSearchQuery(query);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (query.length < 2) { setModelSearchResults([]); return; }
+    searchTimerRef.current = setTimeout(async () => {
+      const results = await searchProducts(query, 6);
+      setModelSearchResults(results);
+    }, 250);
+  }, []);
+
+  function selectSearchResult(rowId: string, result: ProductSearchResult) {
+    updateRowField(rowId, "manufacturer", result.brand || "WyreStorm");
+    updateRowField(rowId, "model", result.sku);
+    setDetailRow((prev) => prev && prev.id === rowId ? { ...prev, manufacturer: result.brand || "WyreStorm", model: result.sku } : prev);
+    setModelSearchResults([]);
+    setModelSearchQuery("");
+  }
+
   function toggleRow(rowId: string) {
     mutateRows((current) => current.map((row) => {
       if (row.id !== rowId) return row;
@@ -438,7 +463,21 @@ export function TemplateReviewPage() {
           <div className="wm-drawer-fields">
             <h4>Replace placeholder</h4>
             <label>Manufacturer<input type="text" value={detailRow.manufacturer ?? ""} placeholder="e.g. Crestron, Extron" onChange={(event) => { updateRowField(detailRow.id, "manufacturer", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, manufacturer: event.target.value } : prev); }} /></label>
-            <label>Model<input type="text" value={detailRow.model ?? ""} placeholder="e.g. DM-NVX-363" onChange={(event) => { updateRowField(detailRow.id, "model", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, model: event.target.value } : prev); }} /></label>
+            <label className="wm-drawer-model-field">Model<input type="text" value={detailRow.model ?? ""} placeholder="Type SKU or product name to search catalogue..." onChange={(event) => { updateRowField(detailRow.id, "model", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, model: event.target.value } : prev); handleModelSearch(event.target.value, detailRow.id); }} /></label>
+            {modelSearchResults.length > 0 && detailRow.id && (
+              <div className="wm-drawer-search-results" role="listbox" aria-label="Product catalogue search results">
+                {modelSearchResults.map((result) => (
+                  <button key={result.sku} type="button" className="wm-drawer-search-result" role="option" onClick={() => selectSearchResult(detailRow.id, result)}>
+                    <span className="wm-drawer-search-sku">{result.sku}</span>
+                    <span className="wm-drawer-search-name">{result.name}</span>
+                    <span className="wm-drawer-search-meta">{result.category} — {result.lifecycleStatus}</span>
+                    {result.connectors.length > 0 && (
+                      <span className="wm-drawer-search-connectors">{result.connectors.slice(0, 4).join(', ')}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
             <label>Owner<select value={detailRow.owner ?? "integrator"} onChange={(event) => { updateRowField(detailRow.id, "owner", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, owner: event.target.value } : prev); }}>
               <option value="customer">Customer supply</option>
               <option value="integrator">Integrator supply</option>
@@ -451,6 +490,16 @@ export function TemplateReviewPage() {
               </div>
             )}
           </div>
+        )}
+        {(detailRow.description?.toLowerCase().includes("in-desk") || detailRow.role?.toLowerCase().includes("in-desk")) && (
+          <InDeskConnectivityWizard
+            selectedSku={detailRow.model}
+            onSelect={(sku) => {
+              updateRowField(detailRow.id, "manufacturer", "WyreStorm");
+              updateRowField(detailRow.id, "model", sku);
+              setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, manufacturer: "WyreStorm", model: sku } : prev);
+            }}
+          />
         )}
         <button className="wm-button is-primary is-full" type="button" onClick={() => setDetailRow(null)}>Done</button>
       </aside></div> : null}
