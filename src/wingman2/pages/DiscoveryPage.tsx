@@ -241,8 +241,8 @@ export function DiscoveryPage() {
   const [siteName, setSiteName] = useState(() => draftField("siteName"));
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
-  // Progressive disclosure mode: quick (3 questions) or standard (all questions)
-  const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("standard");
+  // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
+  const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("expert");
   // `?interview=1` (used by the dashboard / project-card resume links) opens
   // straight into the guided interview, which resumes at the first open question.
   const [interviewActive, setInterviewActive] = useState(
@@ -371,9 +371,17 @@ export function DiscoveryPage() {
   const completionPercent = Math.round((answeredCount / discoveryQuestions.length) * 100);
   const isFirstStep = activeIndex === 0;
   const isLastStep = activeIndex === discoveryQuestions.length - 1;
+  // In Basic mode, only the 6 essential questions are required — all others
+  // receive smart defaults. The integrity gate must only check questions that
+  // are actually visible and required in the current mode.
+  const integrityQuestions = useMemo(() => {
+    if (progressiveMode === "expert") return discoveryQuestions;
+    const BASIC_IDS = new Set(["opportunity", "scale", "sources", "displays", "display-behaviour", "uc-purpose"]);
+    return discoveryQuestions.filter((q) => BASIC_IDS.has(q.id));
+  }, [discoveryQuestions, progressiveMode]);
   const decisionIntegrity = useMemo(
-    () => evaluateDiscoveryDecisionIntegrity(discoveryQuestions, answers, notes),
-    [answers, discoveryQuestions, notes],
+    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes),
+    [answers, integrityQuestions, notes],
   );
   const isDiscoveryComplete = discoveryQuestions.length > 0 && answeredCount === discoveryQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
