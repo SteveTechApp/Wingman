@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Database, Menu, Plus, X } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { UiModeToggle } from "../components/UiModeToggle";
+import { useUiMode } from "../data/uiMode";
 
 import {
   consolidatedPrimaryNavKeys,
@@ -231,7 +233,9 @@ export function AppShell({ children }: AppShellProps) {
         : undefined,
     };
   }, [activeRoute?.key, activeSummary]);
+  const { isGuided } = useUiMode();
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
+  const guidedNav = useMemo(() => primaryNav.filter((r) => r.key === "dashboard"), [primaryNav]);
   const canManageData =
   import.meta.env.DEV ||
   Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
@@ -308,6 +312,8 @@ export function AppShell({ children }: AppShellProps) {
 
       : activeRoute?.key ?? "dashboard";
 
+  const isProjectDetailPage = /^\/wingman\/projects\/[^/]+\/?$/.test(location.pathname);
+
   useEffect(() => {
     document.documentElement.dataset.wingmanRoute = wingmanPageKey;
 
@@ -333,8 +339,8 @@ export function AppShell({ children }: AppShellProps) {
           />
         </div>
 
-        <nav className="wingman-nav" aria-label="Wingman navigation">
-          {primaryNav.map(({ path, navLabel, icon: Icon, summary, key }) => (
+        <nav className={`wingman-nav ${isGuided ? "wingman-nav--guided" : ""}`} aria-label="Wingman navigation">
+          {(isGuided ? guidedNav : primaryNav).map(({ path, navLabel, icon: Icon, summary, key }) => (
             <NavLink
               key={path}
               to={path}
@@ -353,10 +359,11 @@ export function AppShell({ children }: AppShellProps) {
               </span>
             </NavLink>
           ))}
-          {canManageData ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink></> : null}
+          {canManageData && !isGuided ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink></> : null}
         </nav>
 
         <div className="wingman-sidebar-footer">
+          <UiModeToggle />
           <NavLink to={routeCatalogByKey.terms.path} title="Terms & legal disclaimer" aria-label="Terms and legal disclaimer" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
             Terms &amp; legal
           </NavLink>
@@ -373,7 +380,9 @@ export function AppShell({ children }: AppShellProps) {
       />
 
       <div className="wingman-workspace">
-        <header className="wingman-topbar wm-balanced-topbar">
+        <header
+          className={`wingman-topbar wm-balanced-topbar ${isProjectDetailPage ? "wm-topbar--compact-context" : ""}`}
+        >
           <button
             type="button"
             className="wingman-mobile-nav-button"
@@ -439,4 +448,3 @@ export function AppShell({ children }: AppShellProps) {
 }
 
 export default AppShell;
-

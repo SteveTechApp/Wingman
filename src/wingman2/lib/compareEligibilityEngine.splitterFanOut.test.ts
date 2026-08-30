@@ -33,8 +33,8 @@ describe("distribution-amplifier fan-out right-sizing", () => {
 
     expect(four.eligibility).toBe("direct");
     expect(eight.eligibility).toBe("direct");
-    // Exact fan-out is a clean 0-penalty fit; the 1:8 is over-provisioned.
-    expect(four.fitPenalty).toBe(0);
+    // Exact fan-out with matching HDMI transport earns a small tiebreaker bonus.
+    expect(four.fitPenalty).toBe(-5);
     expect(four.fitPenalty).toBeLessThan(eight.fitPenalty);
   });
 
@@ -47,7 +47,7 @@ describe("distribution-amplifier fan-out right-sizing", () => {
     const four = fit("1x8 HDMI splitter with smart scaling", "SP-0104-H2");
 
     expect(eight.eligibility).toBe("direct");
-    expect(eight.fitPenalty).toBe(0);
+    expect(eight.fitPenalty).toBe(-5);
     // Too few outputs is a hard undersize penalty, ranking the 1:4 well below.
     expect(eight.fitPenalty).toBeLessThan(four.fitPenalty);
   });
@@ -56,7 +56,7 @@ describe("distribution-amplifier fan-out right-sizing", () => {
     const essentialsFour = fit("1x4 HDMI splitter", "EXP-SP-0104-H2");
     const essentialsTwo = fit("1x4 HDMI splitter", "EXP-SP-0102-H2");
 
-    expect(essentialsFour.fitPenalty).toBe(0);
+    expect(essentialsFour.fitPenalty).toBe(-5);
     // A 1:2 for a 1:4 need is undersized, so it is penalised far more.
     expect(essentialsTwo.fitPenalty).toBeGreaterThan(essentialsFour.fitPenalty);
   });
@@ -79,6 +79,6 @@ describe("distribution-amplifier fan-out right-sizing", () => {
     });
 
     expect(result.eligibility).toBe("direct");
-    expect(result.fitPenalty).toBe(0);
+    expect(result.fitPenalty).toBe(-5);
   });
 });

@@ -3,6 +3,7 @@ import type { ProductClassificationFacts } from "./productRoleResolution";
 export type CompareCompetitorClass =
   | "AVOIP"
   | "HDBASET"
+  | "EXTENDER"
   | "MATRIX"
   | "DISTRIBUTION"
   | "PRESENTATION"
@@ -41,6 +42,8 @@ const TAXONOMY_CLASS_PRIORITY: Array<{ compareClass: CompareCompetitorClass; tok
   { compareClass: "AVOIP", tokens: ["avoip", "encoder", "decoder", "transceiver", "sdvoe", "networkhd-100", "networkhd-500", "networkhd-600", "avoip-infrastructure", "networkhd-control"] },
   { compareClass: "CAMERA", tokens: ["camera", "ptz"] },
   { compareClass: "AUDIO", tokens: ["amplifier", "dsp", "microphone", "speakerphone"] },
+  { compareClass: "MULTIVIEW", tokens: ["multiview", "multi-view"] },
+  { compareClass: "VIDEO_WALL", tokens: ["video-wall", "videowall"] },
   { compareClass: "MATRIX", tokens: ["matrix"] },
   { compareClass: "HDBASET", tokens: ["extender", "hdbaset", "transmitter", "receiver"] },
   { compareClass: "WIRELESS_PRESENTATION", tokens: ["wireless-dongle"] },
@@ -242,18 +245,31 @@ function candidateEndpointRole(candidate: CompareCandidateGateInput): EndpointRo
   return /^EX-/i.test(clean(candidate.sku)) ? "kit" : "unknown";
 }
 
+/**
+ * Determine whether a WyreStorm candidate class is compatible with a
+ * competitor class. Kept symmetric and in sync with compareSpecEngine.ts
+ * CLASS_COMPATIBILITY and competitorMatchEngine.ts TECH_CLASS_COMPATIBILITY.
+ */
 function allowedClassPair(competitorClass: CompareCompetitorClass, candidateClass: CompareCompetitorClass): boolean {
   if (competitorClass === "UNKNOWN") return candidateClass !== "AUDIO" && candidateClass !== "CONTROL";
   if (competitorClass === candidateClass) return true;
 
-  if (competitorClass === "HDBASET") return candidateClass === "HDBASET";
-  if (competitorClass === "MATRIX") return candidateClass === "MATRIX";
+  // HDBaseT and extender are transport-adjacent classes.
+  if (competitorClass === "HDBASET") return candidateClass === "HDBASET" || candidateClass === "EXTENDER";
+  if (competitorClass === "EXTENDER") return candidateClass === "EXTENDER" || candidateClass === "HDBASET";
+  // MATRIX accepts HDBASET: an HDBaseT matrix is still a matrix — the
+  // transport mismatch penalty is handled downstream by the eligibility
+  // engine's matrixFitPenalty, not here in the gate.
+  if (competitorClass === "MATRIX") return candidateClass === "MATRIX" || candidateClass === "HDBASET";
   if (competitorClass === "DISTRIBUTION") return candidateClass === "DISTRIBUTION";
-  if (competitorClass === "PRESENTATION") return candidateClass === "PRESENTATION";
+  // PRESENTATION accepts WIRELESS_PRESENTATION: WyreStorm SW-* switchers cover both.
+  if (competitorClass === "PRESENTATION") return candidateClass === "PRESENTATION" || candidateClass === "WIRELESS_PRESENTATION";
   if (competitorClass === "AVOIP") return candidateClass === "AVOIP";
-  if (competitorClass === "VIDEO_WALL") return candidateClass === "VIDEO_WALL";
-  if (competitorClass === "MULTIVIEW") return candidateClass === "MULTIVIEW";
+  if (competitorClass === "VIDEO_WALL") return candidateClass === "VIDEO_WALL" || candidateClass === "AVOIP" || candidateClass === "MULTIVIEW";
+  if (competitorClass === "MULTIVIEW") return candidateClass === "MULTIVIEW" || candidateClass === "VIDEO_WALL";
   if (competitorClass === "CAMERA") return candidateClass === "CAMERA";
+  // WIRELESS_PRESENTATION accepts PRESENTATION: wireless competitors may be
+  // answered by a wired presentation switcher with casting support.
   if (competitorClass === "WIRELESS_PRESENTATION") return candidateClass === "WIRELESS_PRESENTATION" || candidateClass === "PRESENTATION";
   if (competitorClass === "USB_EXTENSION") return candidateClass === "USB_EXTENSION";
   if (competitorClass === "CONTROL") return candidateClass === "CONTROL";

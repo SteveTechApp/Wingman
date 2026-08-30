@@ -21,7 +21,7 @@ describe("free-text capture suggestions reach the discovery conversation trail",
     // The brief must build the trail from BOTH the governed answers and the
     // notes store, so a chip-confirmed capture records the customer's own
     // wording next to the auto-classified answer.
-    expect(source).toContain("discoveryConversation: buildDiscoveryConversation(discoveryQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep)");
+    expect(source).toContain("discoveryConversation: buildDiscoveryConversation(modeQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep)");
     expect(source).toContain('buildDiscoveryConversation,\n');
   });
 });

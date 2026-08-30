@@ -269,8 +269,8 @@ function validateChainCompleteness(
     });
   }
 
-  // Check for missing dependencies (governed)
-  const tbcRows = bomRows.filter((row) => row.sku?.startsWith("TBC-") || row.type === "Validate");
+  // Check for missing dependencies — TBC SKU rows block; Validate (BY-OTHERS) rows warn.
+  const tbcRows = bomRows.filter((row) => row.sku?.startsWith("TBC-"));
   if (tbcRows.length > 0) {
     blockers.push({
       id: "chain-tbc-dependencies",
@@ -278,6 +278,16 @@ function validateChainCompleteness(
       severity: "blocker",
       message: `${tbcRows.length} BOM row(s) are still placeholders (TBC). Resolve these before export.`,
       fix: "Replace TBC placeholders with actual products or confirm they are by-others.",
+    });
+  }
+  const byOthersRows = bomRows.filter((row) => row.type === "Validate" && !row.sku?.startsWith("TBC-"));
+  if (byOthersRows.length > 0) {
+    blockers.push({
+      id: "chain-by-others-scope",
+      domain: "chain",
+      severity: "warning",
+      message: `${byOthersRows.length} BY-OTHERS item(s) included in scope. Confirm supply responsibility before issuing.`,
+      fix: "Confirm by-others items with the customer or their integrator.",
     });
   }
 

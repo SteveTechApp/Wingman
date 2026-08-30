@@ -52,19 +52,21 @@ vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockImplementation(() => Promise.resolve(indexForSweep)),
 }));
 
-// Remove the two matrix profiles the sweep drives to the missing tier, and
-// mark every remaining profile human-confirmed (`verifiedBy`) so the compare
-// surface's "other cards keep their verified badge" contract tests the real
-// verified path - machine-transcribed profiles would render at the
+// Remove the matrix profiles AND APO-MIC-EXT (which the catalog sweep strips
+// of index data) so they resolve as unprofiled and render the missing-tier
+// badge.  Mark every remaining profile human-confirmed (`verifiedBy`) so the
+// compare surface's "other cards keep their verified badge" contract tests the
+// real verified path - machine-transcribed profiles would render at the
 // official-structured tier, not verified (see governedProfilesHarness.ts).
 vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () => {
   const actual = (await vi.importActual(
     "../../../data/governance/wyrestorm-technical-profiles.json",
   )) as { default: { profiles: Array<{ sku: string }> } };
+  const EXCLUDED = ["MX-0402-MST", "MX-0404-SCL", "APO-MIC-EXT"];
   return {
     default: governedProfilesHumanVerifiedExcept(
-      governedProfilesWithoutSkus(actual.default, ["MX-0402-MST", "MX-0404-SCL"]),
-      ["MX-0402-MST", "MX-0404-SCL"],
+      governedProfilesWithoutSkus(actual.default, EXCLUDED),
+      EXCLUDED,
     ),
   };
 });

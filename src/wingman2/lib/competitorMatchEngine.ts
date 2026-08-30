@@ -16,6 +16,7 @@ export type TechnologyClass =
   | "DISTRIBUTION"
   | "PRESENTATION"
   | "VIDEO_WALL"
+  | "MULTIVIEW"
   | "EXTENDER"
   | "USB_CONFERENCE"
   | "WIRELESS_PRESENTATION"
@@ -453,15 +454,25 @@ const WYRESTORM_TECH_MAP: Record<string, TechnologyClass[]> = {
 };
 
 // Technology class compatibility - which WyreStorm classes match competitor classes
+/**
+ * Technology class compatibility matrix. Symmetric: if class A accepts class B,
+ * class B should also accept class A. Kept in sync with compareSpecEngine.ts
+ * CLASS_COMPATIBILITY and compareCandidateGate.ts allowedClassPair.
+ */
 const TECH_CLASS_COMPATIBILITY: Record<TechnologyClass, TechnologyClass[]> = {
   AVOIP: ["AVOIP"],
   HDBASET: ["HDBASET", "EXTENDER"],
   MATRIX: ["MATRIX"],
   DISTRIBUTION: ["DISTRIBUTION"],
-  PRESENTATION: ["PRESENTATION"],
-  VIDEO_WALL: ["VIDEO_WALL"],
+  // PRESENTATION accepts WIRELESS_PRESENTATION: WyreStorm SW-* switchers
+  // cover both wired and wireless presentation scenarios.
+  PRESENTATION: ["PRESENTATION", "WIRELESS_PRESENTATION"],
+  VIDEO_WALL: ["VIDEO_WALL", "AVOIP", "MULTIVIEW"],
+  MULTIVIEW: ["MULTIVIEW", "VIDEO_WALL"],
   EXTENDER: ["EXTENDER", "HDBASET"],
   USB_CONFERENCE: ["USB_CONFERENCE"],
+  // WIRELESS_PRESENTATION accepts PRESENTATION: wireless competitors may be
+  // answered by a wired presentation switcher with casting support.
   WIRELESS_PRESENTATION: ["WIRELESS_PRESENTATION", "PRESENTATION"],
   AUDIO: ["AUDIO"],
   CONTROL: ["CONTROL"],
@@ -546,6 +557,39 @@ function extractProductCapabilities(product: WyrestormProduct): string[] {
   const searchText = productText(product);
 
   return extractCapabilities(searchText);
+}
+
+/**
+ * Detect the output transport family from product text / SKU.
+ * Returns a coarse transport tag used for transport-match scoring in scoreProduct.
+ */
+function detectTransportTag(text: string, sku: string): "local-hdmi" | "hdbaset" | "avoin" | "wireless" | "unknown" {
+  const lower = text.toLowerCase();
+  const upper = sku.toUpperCase();
+
+  // HDBaseT family: EX-*, RX-*, TX-* extenders, or HDBaseT/HDBT keywords.
+  if (/hdbaset|hdbt/.test(lower) || /^EX-/.test(upper) || /^RX-/.test(upper) || /^TX-/.test(upper)) return "hdbaset";
+
+  // AVoIP family: NetworkHD, NHD-*, encoder/decoder with network output.
+  if (/nhd-|networkhd|avoverip|avover.?ip|avoip|sdvoe/.test(lower) || /^NHD-/.test(upper)) return "avoin";
+
+  // Wireless family: wireless casting, ClickShare, SW-* with wireless keywords.
+  if (/wireless|casting|clickshare|airmedia|solstice/.test(lower)) return "wireless";
+
+  // Local HDMI: MX-* matrices, SP-*/EXP-SP-* splitters, SW-* presentation switchers.
+  // Also explicit "hdmi" in text without HDBaseT/network keywords.
+  if (/^MX-|^SP-|^EXP-SP-|^SW-|^MXV-/.test(upper)) return "local-hdmi";
+  if (/\bhdmi\b/.test(lower) && !/hdbaset|hdbt|network|wireless/.test(lower)) return "local-hdmi";
+
+  return "unknown";
+}
+
+/**
+ * Detect transport from the competitor's input text.
+ */
+function detectCompetitorTransport(competitor: CompetitorProfile): "local-hdmi" | "hdbaset" | "avoin" | "wireless" | "unknown" {
+  const text = [competitor.originalInput, competitor.sku].join(" ");
+  return detectTransportTag(text, competitor.sku);
 }
 
 function toGateClass(technologyClass: TechnologyClass): CompareCompetitorClass {
@@ -649,6 +693,27 @@ function scoreProduct(
 
   if (missingCapabilities.length > 0 && missingCapabilities.length <= 3) {
     cautions.push(`May not support: ${missingCapabilities.join(", ")}`);
+  }
+
+  // Transport-match scoring: a candidate whose output transport matches the
+  // competitor's transport ranks above one that differs. For matrix and
+  // distribution products this is critical — an 8x8 HDMI matrix and an 8x8
+  // HDBaseT matrix both score identically on class+role, but the HDMI one is
+  // the closer match when the competitor is local HDMI.
+  const competitorTransport = detectCompetitorTransport(competitor);
+  const productTransport = detectTransportTag(productText(product), String(product.sku ?? ""));
+  if (competitorTransport !== "unknown" && productTransport !== "unknown") {
+    if (competitorTransport === productTransport) {
+      score += 15;
+      matchReasons.push(`Same transport: ${productTransport}`);
+    } else if (
+      (competitorTransport === "local-hdmi" && productTransport === "hdbaset") ||
+      (competitorTransport === "hdbaset" && productTransport === "local-hdmi")
+    ) {
+      // HDMI vs HDBaseT mismatch — small penalty, not a blocker
+      score -= 5;
+      cautions.push(`Different transport: competitor is ${competitorTransport}, candidate is ${productTransport}`);
+    }
   }
 
   // Determine match quality from corroborating signals rather than the raw

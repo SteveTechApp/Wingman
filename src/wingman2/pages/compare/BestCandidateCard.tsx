@@ -3,7 +3,8 @@
  *
  * Extracted from ComparePageNew.advanced.tsx for maintainability.
  */
-import { PackageSearch } from "lucide-react";
+import { Check, Copy, PackageSearch } from "lucide-react";
+import { useState } from "react";
 import { GovernedDataBadge, weakestLinkTier } from "../../components/GovernedDataBadge";
 import {
   salesWhyBullets,
@@ -42,6 +43,7 @@ export function BestCandidateCard({
   competitorProfile: CompetitorProfile;
   onCopySummary: () => void;
 }) {
+  const [copied, setCopied] = useState(false);
   const wyrestorm = buildWyrestormSummary(candidate);
   const coreFacts = buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate);
   const badgeTier = weakestLinkTier(coreFacts.map((f) => f.result));
@@ -134,9 +136,14 @@ export function BestCandidateCard({
         <button
           className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
           type="button"
-          onClick={onCopySummary}
+          onClick={() => {
+            onCopySummary();
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+          }}
+          aria-label="Copy comparison result"
         >
-          Copy result
+          {copied ? <><Check size={14} aria-hidden="true" /> Copied</> : <><Copy size={14} aria-hidden="true" /> Copy result</>}
         </button>
         <ProductMoreLink sku={candidate.product.sku} />
       </div>

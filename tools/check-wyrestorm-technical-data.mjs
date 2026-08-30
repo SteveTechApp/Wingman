@@ -128,7 +128,10 @@ for (const [index, profile] of payload.profiles.entries()) {
     errors.push(`${sku || prefix} claims verified status without a human verifiedBy - machine data must stay at verified-with-warning.`);
   }
 
-  if (!nonEmptyArray(profile?.transport)) errors.push(`${sku || prefix} must define transport.`);
+  // Accessories (PSU, rack, SFP, blanking plates) don't carry a transport signal.
+  const isAccessory = String(profile?.productClass ?? "").toUpperCase() === "ACCESSORY"
+    || /^(PSU|NHD-RACK|SR-)/i.test(sku);
+  if (!nonEmptyArray(profile?.transport) && !isAccessory) errors.push(`${sku || prefix} must define transport.`);
   if (!Array.isArray(profile?.ports)) errors.push(`${sku || prefix} ports must be an array.`);
   if (!Array.isArray(profile?.dependencies)) errors.push(`${sku || prefix} dependencies must be an array.`);
   if (!nonEmptyArray(profile?.evidence)) errors.push(`${sku || prefix} must have at least one evidence record.`);
@@ -322,10 +325,10 @@ const agedProfiles = unconfirmedProfiles
   .sort((a, b) => (b.ageDays ?? -1) - (a.ageDays ?? -1) || a.sku.localeCompare(b.sku));
 const agingList = agedProfiles.filter((entry) => entry.ageDays !== null && entry.ageDays >= WARN_AFTER_DAYS);
 const overdueList = agedProfiles.filter((entry) => entry.ageDays === null || entry.ageDays >= FAIL_AFTER_DAYS);
+const describeAge = (entry) =>
+  `${entry.sku} (${entry.ageDays === null ? "no evidence timestamp" : `${entry.ageDays}d`})`;
 
 if (agedProfiles.length) {
-  const describeAge = (entry) =>
-    `${entry.sku} (${entry.ageDays === null ? "no evidence timestamp" : `${entry.ageDays}d`})`;
   console.log(
     `[technical-data] Confirmation aging: ${agedProfiles.length} unconfirmed profile(s); ` +
       `${agingList.length} past the ${WARN_AFTER_DAYS}-day warn threshold, ` +

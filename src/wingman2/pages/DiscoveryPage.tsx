@@ -241,8 +241,8 @@ export function DiscoveryPage() {
   const [siteName, setSiteName] = useState(() => draftField("siteName"));
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
-  // Progressive disclosure mode: quick (3 questions) or standard (all questions)
-  const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("standard");
+  // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
+  const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("basic");
   // `?interview=1` (used by the dashboard / project-card resume links) opens
   // straight into the guided interview, which resumes at the first open question.
   const [interviewActive, setInterviewActive] = useState(
@@ -322,14 +322,24 @@ export function DiscoveryPage() {
     [selectedApplication, answers],
   );
 
+  // In Basic mode, only show 6 essential questions; Expert shows all.
+  const BASIC_IDS = useMemo(() => new Set(["opportunity", "scale", "sources", "displays", "display-behaviour", "uc-purpose"]), []);
+  const modeQuestions = useMemo(() => {
+    if (progressiveMode === "expert") return discoveryQuestions;
+    return discoveryQuestions.filter((q) => BASIC_IDS.has(q.id));
+  }, [discoveryQuestions, progressiveMode, BASIC_IDS]);
+
   useEffect(() => {
     if (!editQuestionId || editQuestionId === "budget") return;
-    const editIndex = discoveryQuestions.findIndex((question) => question.id === editQuestionId);
+    // If the target question is not in the current mode's list, switch to Expert.
+    const editIndex = modeQuestions.findIndex((question) => question.id === editQuestionId);
     if (editIndex >= 0) {
       setActiveIndex(editIndex);
       setIsReviewingAnswers(false);
+    } else if (progressiveMode === "basic" && discoveryQuestions.some((q) => q.id === editQuestionId)) {
+      setProgressiveMode("expert");
     }
-  }, [discoveryQuestions, editQuestionId]);
+  }, [modeQuestions, editQuestionId, progressiveMode, discoveryQuestions]);
 
   useEffect(() => {
     if (editQuestionId !== "budget") return;
@@ -340,22 +350,22 @@ export function DiscoveryPage() {
   }, [editQuestionId]);
 
 
-  const activeStepIdRef = useRef(discoveryQuestions[0]?.id ?? "");
+  const activeStepIdRef = useRef(modeQuestions[0]?.id ?? "");
   
   // Clamp active discovery step after reset or dynamic question-list changes.
   useEffect(() => {
     setActiveIndex((index) => {
-      if (discoveryQuestions.length <= 0) {
+      if (modeQuestions.length <= 0) {
         return 0;
       }
 
-      return Math.min(Math.max(index, 0), discoveryQuestions.length - 1);
+      return Math.min(Math.max(index, 0), modeQuestions.length - 1);
     });
-  }, [discoveryQuestions.length]);
+  }, [modeQuestions.length]);
 
   const completionPanelRef = useRef<HTMLElement | null>(null);
 
-  const currentStep = discoveryQuestions[Math.min(activeIndex, Math.max(discoveryQuestions.length - 1, 0))];
+  const currentStep = modeQuestions[Math.min(activeIndex, Math.max(modeQuestions.length - 1, 0))];
   const currentStepView = getQuestionView(currentStep, selectedApplication);
   const currentAnswer = answers[currentStep.id] ?? "";
   const currentNote = notes[currentStep.id] ?? "";
@@ -365,21 +375,23 @@ export function DiscoveryPage() {
     : undefined;
 
   const answeredCount = useMemo(() => {
-    return discoveryQuestions.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length;
-  }, [answers, discoveryQuestions]);
+    return modeQuestions.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length;
+  }, [answers, modeQuestions]);
 
-  const completionPercent = Math.round((answeredCount / discoveryQuestions.length) * 100);
+  const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);
   const isFirstStep = activeIndex === 0;
-  const isLastStep = activeIndex === discoveryQuestions.length - 1;
+  const isLastStep = activeIndex === modeQuestions.length - 1;
+  // The integrity gate checks only the questions visible in the current mode.
+  const integrityQuestions = modeQuestions;
   const decisionIntegrity = useMemo(
-    () => evaluateDiscoveryDecisionIntegrity(discoveryQuestions, answers, notes),
-    [answers, discoveryQuestions, notes],
+    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes),
+    [answers, integrityQuestions, notes],
   );
-  const isDiscoveryComplete = discoveryQuestions.length > 0 && answeredCount === discoveryQuestions.length;
+  const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
 
   useEffect(() => {
-    const visibleIds = new Set(discoveryQuestions.map((step) => step.id));
+    const visibleIds = new Set(modeQuestions.map((step) => step.id));
 
     setAnswers((previous) => {
       const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
@@ -396,10 +408,10 @@ export function DiscoveryPage() {
       staleIds.forEach((id) => delete next[id]);
       return next;
     });
-  }, [discoveryQuestions]);
+  }, [modeQuestions]);
 
   const selectedAnswerLabel = (stepId: string): string => {
-    const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
+    const step = modeQuestions.find((candidate) => candidate.id === stepId);
     return step && wmDiscoveryHasAnswer(answers[stepId])
       ? getOptionLabel(step, answers[stepId], selectedApplication)
       : "";
@@ -429,7 +441,7 @@ export function DiscoveryPage() {
       ? projectTopologySummary(normaliseProjectTopology(topology))
       : "";
 
-    return discoveryQuestions
+    return modeQuestions
       .filter((step) => wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]))
       .map((step) => {
         const capturedNote = notes[step.id]?.trim() ?? "";
@@ -447,7 +459,7 @@ export function DiscoveryPage() {
           confirmed: confirmedSteps[step.id] === true,
         };
       });
-  }, [answers, notes, selectedApplication, discoveryQuestions, opportunityDescription, topology, confirmedSteps]);
+  }, [answers, notes, selectedApplication, modeQuestions, opportunityDescription, topology, confirmedSteps]);
 
   useEffect(() => {
     if (answeredCount === 0 && Object.keys(notes).length === 0) {
@@ -469,8 +481,8 @@ export function DiscoveryPage() {
   }, [answeredCount, activeIndex, answers, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition]);
 
   useEffect(() => {
-    setActiveIndex((current) => Math.min(current, Math.max(discoveryQuestions.length - 1, 0)));
-  }, [discoveryQuestions.length]);
+    setActiveIndex((current) => Math.min(current, Math.max(modeQuestions.length - 1, 0)));
+  }, [modeQuestions.length]);
 
   useEffect(() => {
     document.documentElement.classList.add("wm-discovery-page-open");
@@ -689,7 +701,7 @@ export function DiscoveryPage() {
   }
 
   function moveNext(): void {
-    setActiveIndex((index) => Math.min(discoveryQuestions.length - 1, index + 1));
+    setActiveIndex((index) => Math.min(modeQuestions.length - 1, index + 1));
   }
 
   // Apply smart defaults based on application type
@@ -721,7 +733,7 @@ export function DiscoveryPage() {
       return;
     }
 
-    const completesDiscovery = discoveryQuestions.every(
+    const completesDiscovery = modeQuestions.every(
       (step) => step.id === currentStep.id || wmDiscoveryHasAnswer(answers[step.id]),
     );
 
@@ -854,7 +866,7 @@ export function DiscoveryPage() {
       return;
     }
 
-    const completesDiscovery = discoveryQuestions.every(
+    const completesDiscovery = modeQuestions.every(
       (step) => step.id === currentStep.id || wmDiscoveryHasAnswer(answers[step.id]),
     );
 
@@ -864,7 +876,7 @@ export function DiscoveryPage() {
     }));
 
     window.setTimeout(() => {
-      setActiveIndex((index) => Math.min(discoveryQuestions.length - 1, index + 1));
+      setActiveIndex((index) => Math.min(modeQuestions.length - 1, index + 1));
 
       if (completesDiscovery) {
         completionPanelRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
@@ -967,11 +979,11 @@ export function DiscoveryPage() {
 
   function buildDiscoveryBrief(): StoredDiscoveryBrief {
     const answerLabel = (stepId: string): string => {
-      const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
+      const step = modeQuestions.find((candidate) => candidate.id === stepId);
       return step && wmDiscoveryHasAnswer(answers[stepId]) ? getOptionLabel(step, answers[stepId], selectedApplication) : "";
     };
     const answerLabels = (stepId: string): string[] => {
-      const step = discoveryQuestions.find(
+      const step = modeQuestions.find(
         (candidate) => candidate.id === stepId,
       );
 
@@ -1111,7 +1123,7 @@ export function DiscoveryPage() {
       ...multiviewOperation.map((item) => `Multiview operation: ${item}`),
       ...audioProcessing.map((item) => `Audio processing: ${item}`),
     ].filter(Boolean);
-    const missingInformation = discoveryQuestions.flatMap((step) => {
+    const missingInformation = modeQuestions.flatMap((step) => {
       const answer = answers[step.id] ?? "";
       const answerText = answerLabel(step.id);
       const note = notes[step.id]?.trim() ?? "";
@@ -1261,7 +1273,7 @@ export function DiscoveryPage() {
       nextBestQuestion: decisionIntegrity.issues[0]?.followUpQuestion ?? recommendationEvidence.nextBestQuestion ?? strategy.askNext,
       quoteSafetyStatus: decisionIntegrity.canProceedToRecommendation ? recommendationEvidence.quoteSafetyStatus : "do-not-quote-yet",
       recommendationEvidence,
-      discoveryConversation: buildDiscoveryConversation(discoveryQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep),
+      discoveryConversation: buildDiscoveryConversation(modeQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep),
     };
   }
 
@@ -1443,11 +1455,11 @@ return (
 
         <div className="wm-discovery-completion-card wm-ui-card" aria-label="Discovery completion">
           <strong>{completionPercent}%</strong>
-          <span>{answeredCount} / {discoveryQuestions.length} captured</span>
+          <span>{answeredCount} / {modeQuestions.length} captured</span>
         </div>
       </header>
 
-      {!interviewActive && discoveryMode === "standard" ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={discoveryQuestions.length} openCount={discoveryQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
+      {!interviewActive && discoveryMode === "standard" ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
       <DiscoveryClientDetailsPanel
         clientName={clientName}
@@ -1481,17 +1493,17 @@ return (
       ) : null}
 
       {interviewActive ? (
-        <DiscoveryGuidedInterview questions={discoveryQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} />
+        <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} />
       ) : showCompletionPanel ? (
         <DiscoveryCompletionPanel
           panelRef={completionPanelRef}
-          answerCount={discoveryQuestions.length}
+          answerCount={modeQuestions.length}
           requiresVideoWallConfiguration={videoWallConfigurationPending}
           videoWallConfigured={requiresVideoWallConfiguration && videoWallConfigured}
           savedMessage={savedMessage}
           onMoveForward={moveForward}
           onReviewAnswers={() => {
-            setActiveIndex(Math.max(discoveryQuestions.length - 1, 0));
+            setActiveIndex(Math.max(modeQuestions.length - 1, 0));
             setIsReviewingAnswers(true);
           }}
           onSave={saveDiscoveryToProject}
@@ -1506,7 +1518,7 @@ return (
       {/* Progressive disclosure: mode toggle, smart defaults, and step banner */}
       {!isReviewingAnswers && !editQuestionId && (
         <DiscoveryProgressiveDisclosure
-          questions={discoveryQuestions}
+          questions={modeQuestions}
           activeIndex={activeIndex}
           answers={answers}
           onAnswersChange={setAnswers}
@@ -1528,7 +1540,7 @@ return (
           {/* WINGMAN_DISCOVERY_COMPACT_NAV_START */}
           <div className="wm-discovery-compact-stepbar" aria-label="Discovery progress and controls">
             <div className="wm-discovery-compact-step-copy">
-              <strong>Step {activeIndex + 1} of {discoveryQuestions.length}</strong>
+              <strong>Step {activeIndex + 1} of {modeQuestions.length}</strong>
               <span>
                 {currentStep.section}
                 {currentStep.optional ? " · Optional" : ""}

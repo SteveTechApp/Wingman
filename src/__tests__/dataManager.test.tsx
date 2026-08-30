@@ -92,6 +92,8 @@ describe("ADMIN Data Manager", () => {
     getWingmanSession.mockResolvedValue({ ok: true, session: { workspaceRole: "admin", user: { email: "admin@example.com" } } });
     render(<MemoryRouter><DataManagerPage /></MemoryRouter>);
     expect(await screen.findByRole("heading", { name: "Data Manager" })).toBeInTheDocument();
+    await screen.findByRole("heading", { name: "Data Manager" });
+    fireEvent.click(screen.getByRole("button", { name: /WyreStorm Products/ }));
     expect(await screen.findByText("TEST-1")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Add Product/ })).toBeInTheDocument();
   });
@@ -99,7 +101,8 @@ describe("ADMIN Data Manager", () => {
   it("allows local development access without an admin session", async () => {
     getWingmanSession.mockResolvedValue({ ok: true, session: { workspaceRole: "sales" } });
     render(<MemoryRouter><DataManagerPage /></MemoryRouter>);
-    expect(await screen.findByRole("heading", { name: "Data Manager" })).toBeInTheDocument();
+    await screen.findByRole("heading", { name: "Data Manager" });
+    fireEvent.click(screen.getByRole("button", { name: /WyreStorm Products/ }));
     expect(await screen.findByText("TEST-1")).toBeInTheDocument();
     expect(getWingmanJson).toHaveBeenCalledWith("/api/product-intelligence?limit=1000");
   });
@@ -107,6 +110,8 @@ describe("ADMIN Data Manager", () => {
   it("edits routed and mirrored outputs independently", async () => {
     getWingmanSession.mockResolvedValue({ ok: true, session: { workspaceRole: "admin" } });
     render(<MemoryRouter><DataManagerPage /></MemoryRouter>);
+    await screen.findByRole("heading", { name: "Data Manager" });
+    fireEvent.click(screen.getByRole("button", { name: /WyreStorm Products/ }));
     const sku = await screen.findByText("TEST-1");
     fireEvent.click(within(sku.closest("tr")!).getByRole("button", { name: /Edit/ }));
     const routed = screen.getByLabelText("Routed outputs quantity 1");
@@ -120,6 +125,8 @@ describe("ADMIN Data Manager", () => {
   it("archives DO NOT USE products through the governed status API", async () => {
     getWingmanSession.mockResolvedValue({ ok: true, session: { workspaceRole: "admin", user: { email: "admin@example.com" } } });
     render(<MemoryRouter><DataManagerPage /></MemoryRouter>);
+    await screen.findByRole("heading", { name: "Data Manager" });
+    fireEvent.click(screen.getByRole("button", { name: /WyreStorm Products/ }));
     const sku = await screen.findByText("TEST-1");
     fireEvent.click(within(sku.closest("tr")!).getByRole("button", { name: /Archive/ }));
     await waitFor(() => expect(postWingmanJson).toHaveBeenCalledWith("/api/product-intelligence/status", expect.objectContaining({ status: "expired", notes: expect.stringContaining("do-not-use") })));

@@ -12,6 +12,12 @@ export type TemplateBomRow = {
   status: string;
   evidence: string;
   notes: string;
+  /** Manufacturer of a BY-OTHERS / CUSTOM product (not a governed WyreStorm SKU). */
+  manufacturer?: string;
+  /** Model number of a BY-OTHERS / CUSTOM product. */
+  model?: string;
+  /** Who supplies this item: "customer", "integrator", or "wyrestorm". */
+  owner?: string;
 };
 
 export type RoomTemplate = {

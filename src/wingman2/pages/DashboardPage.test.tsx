@@ -4,11 +4,14 @@ import { MemoryRouter } from "react-router-dom";
 import { readProjectStore, upsertStoredProject } from "../data/projectStore";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { DashboardPage } from "./DashboardPage";
+import { UiModeProvider } from "../data/uiMode";
 
 function renderDashboard() {
   render(
     <MemoryRouter initialEntries={["/wingman"]}>
-      <DashboardPage />
+      <UiModeProvider>
+        <DashboardPage />
+      </UiModeProvider>
     </MemoryRouter>,
   );
 
@@ -18,6 +21,7 @@ function renderDashboard() {
 describe("DashboardPage", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
   });
 
   afterEach(() => {

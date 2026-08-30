@@ -190,6 +190,21 @@ type ProjectReadinessGate = {
   route: string;
 };
 
+type ProjectDetailSection = "overview" | "capture" | "confirm" | "decide" | "handoff";
+
+const projectDetailSections: Array<{
+  key: ProjectDetailSection;
+  label: string;
+  shortLabel: string;
+  description: string;
+}> = [
+  { key: "overview", label: "Overview", shortLabel: "Start", description: "See the decision and next action." },
+  { key: "capture", label: "Capture", shortLabel: "1", description: "Review where the customer information came from." },
+  { key: "confirm", label: "Confirm", shortLabel: "2", description: "Check requirements and settle open answers." },
+  { key: "decide", label: "Decide", shortLabel: "3", description: "Review the evidence behind the product direction." },
+  { key: "handoff", label: "Handoff", shortLabel: "4", description: "Prepare the proposal and share the project." },
+];
+
 function formatProjectTimestamp(value: unknown) {
   const text = String(value ?? "").trim();
   if (!text) return "Not timestamped";
@@ -307,10 +322,8 @@ export function ProjectDetailPage() {
   const [requirements, setRequirements] = useState<StoredRequirementRecord[]>(initialRequirements);
   const [message, setMessage] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
-  // Detail body (opportunity record, evidence trace, requirements, recommendation evidence)
-  // renders expanded by default so the evidence timeline - including the compare-run
-  // confidence chip - is visible without an extra click. The toggle still collapses it.
-  const [showSupportingDetails, setShowSupportingDetails] = useState(true);
+  const [showSupportingDetails, setShowSupportingDetails] = useState(false);
+  const [activeSection, setActiveSection] = useState<ProjectDetailSection>("overview");
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [projectDraft, setProjectDraft] = useState({ name: "", owner: "" });
@@ -838,9 +851,9 @@ export function ProjectDetailPage() {
           <Link to={routeCatalogByKey.projects.path} className="wm-ui-button wm-ui-button-secondary">
             <ArrowLeft className="h-4 w-4" /> All projects
           </Link>
-          <a href="#project-overview" className="wm-ui-button wm-ui-button-secondary">Overview</a>
-          <a href="#project-requirements" className="wm-ui-button wm-ui-button-secondary">Requirements</a>
-          <a href="#project-evidence" className="wm-ui-button wm-ui-button-secondary">Evidence</a>
+          <a href="#project-overview" onClick={() => { setShowSupportingDetails(true); setActiveSection("overview"); }} className={`wm-ui-button ${activeSection === "overview" ? "wm-ui-button-primary" : "wm-ui-button-secondary"}`}>Overview</a>
+          <a href="#project-requirements" onClick={() => { setShowSupportingDetails(true); setActiveSection("confirm"); }} className={`wm-ui-button ${activeSection === "confirm" ? "wm-ui-button-primary" : "wm-ui-button-secondary"}`}>Requirements</a>
+          <a href="#project-evidence" onClick={() => { setShowSupportingDetails(true); setActiveSection("capture"); }} className={`wm-ui-button ${activeSection === "capture" ? "wm-ui-button-primary" : "wm-ui-button-secondary"}`}>Evidence</a>
         </div>
         <div className="wm-project-detail-nav__actions">
           <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => setIsEditingProject((current) => !current)}>
@@ -874,10 +887,6 @@ export function ProjectDetailPage() {
           </button>
         </section>
       ) : null}
-
-      <DealOutcomeSection project={project} />
-
-      <CrmSharePanel project={project} />
 
       <div id="project-overview" className="wm-project-detail-stack space-y-6">
         {savedTemplatePath ? (
@@ -1049,8 +1058,35 @@ export function ProjectDetailPage() {
           </div>
         </section>
 
+        <section className="wm-project-stage-picker rounded-2xl border p-4 wm-ui-card" aria-label="Project review stages">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Review stages</p>
+              <p className="mt-1 text-sm wm-ui-copy">Follow the record from captured information to customer-ready output.</p>
+            </div>
+            <div className="flex flex-wrap gap-2" role="tablist" aria-label="Project review stages">
+              {projectDetailSections.map((section) => (
+                <button
+                  key={section.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeSection === section.key}
+                  className={`rounded-xl border px-3 py-2 text-xs font-black transition ${activeSection === section.key ? "wm-ui-button wm-ui-button-primary" : "wm-ui-button wm-ui-button-secondary"}`}
+                  onClick={() => { setShowSupportingDetails(true); setActiveSection(section.key); }}
+                >
+                  <span className="mr-1.5 opacity-60">{section.shortLabel}</span>{section.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="mt-3 text-xs wm-ui-copy" role="status">
+            {projectDetailSections.find((section) => section.key === activeSection)?.description}
+          </p>
+        </section>
+
         {showSupportingDetails ? (
         <>
+        {activeSection === "overview" ? <>
         {/* Compact project stats bar */}
         <section className="rounded-2xl border p-4 wm-ui-card">
           <div className="flex flex-wrap items-center gap-4">
@@ -1124,9 +1160,10 @@ export function ProjectDetailPage() {
             </div>
           ))}
         </section>
+        </> : null}
 
         {/* Collapsible detailed view */}
-        <SectionCard
+        {activeSection === "overview" ? <SectionCard
           title="Opportunity details"
           subtitle="Discovery status, product direction, blockers, and workflow handoff."
         >
@@ -1202,9 +1239,9 @@ export function ProjectDetailPage() {
               Proposal
             </Link>
           </div>
-        </SectionCard>
+        </SectionCard> : null}
 
-        <SectionCard
+        {activeSection === "overview" ? <SectionCard
           title="Proposal readiness gate"
           subtitle="Use this as the commercial safety check before turning the project into a customer proposal or quote request."
         >
@@ -1245,9 +1282,52 @@ export function ProjectDetailPage() {
               </div>
             )}
           </div>
-        </SectionCard>
+        </SectionCard> : null}
 
-        <SectionCard
+        {activeSection === "overview" ? (
+          <>
+            <SectionCard
+              title="Project evidence trace"
+              subtitle="A short preview of the latest captured source. Open Capture for the complete evidence trail."
+            >
+              <span id="project-evidence" className="wm-project-detail-anchor" aria-hidden="true" />
+              {projectEvidenceTimeline.length ? (
+                <div className="grid gap-2">
+                  {projectEvidenceTimeline.filter((item) => item.id.startsWith("compare-") || item.id === "recommendation-evidence").slice(-2).map((item) => (
+                    <div key={item.id} className="grid gap-2 rounded-xl border p-3 sm:grid-cols-[minmax(0,1fr)_auto] wm-ui-card">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">{item.source}</p>
+                        <p className="mt-1 text-sm font-black wm-ui-copy">{item.label}</p>
+                        <p className="mt-1 text-xs leading-5 wm-ui-copy">{item.detail}</p>
+                      </div>
+                      <div className="flex items-center gap-2 sm:flex-col sm:items-end sm:justify-center">
+                        <span className="text-xs font-bold wm-ui-copy">{item.status}</span>
+                        <Link to={item.route} className="wm-ui-button wm-ui-button-secondary px-3 py-1.5 text-xs">Open</Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm wm-ui-copy">No saved evidence yet. Start with Capture to build the record.</p>
+              )}
+              <button type="button" className="mt-3 wm-ui-button wm-ui-button-secondary text-xs"              onClick={() => { setShowSupportingDetails(true); setActiveSection("capture"); }}>Review full evidence</button>
+
+            </SectionCard>
+
+            <SectionCard
+              title="Discovery conversation"
+              subtitle="A small preview of what was captured. Open Capture to review or correct the complete conversation."
+            >
+              <span id="project-discovery-conversation" className="wm-project-detail-anchor" aria-hidden="true" />
+              <DiscoveryConversationReview items={(project?.discoveryBrief?.discoveryConversation ?? []).slice(0, 3)} />
+              {(project?.discoveryBrief?.discoveryConversation?.length ?? 0) > 3 ? (
+                <button type="button" className="mt-3 wm-ui-button wm-ui-button-secondary text-xs" onClick={() => { setShowSupportingDetails(true); setActiveSection("capture"); }}>Review all captured answers</button>
+              ) : null}
+            </SectionCard>
+          </>
+        ) : null}
+
+        {activeSection === "capture" ? <SectionCard
           title="Project evidence trace"
           subtitle="Trace what Wingman has actually captured, where it came from, what it proves, and which workflow should be opened next."
           >
@@ -1278,9 +1358,9 @@ export function ProjectDetailPage() {
               No saved discovery, product, compare, ingest, or proposal evidence is attached to this project yet. Start with Discovery or Finder before treating this opportunity as ready for proposal.
             </div>
           )}
-        </SectionCard>
+        </SectionCard> : null}
 
-        <SectionCard
+        {activeSection === "capture" ? <SectionCard
           title="Discovery conversation"
           subtitle="The questions asked, the governed answers, and the customer's own wording — audit the trail and jump into Discovery to correct any row before it reaches a proposal."
         >
@@ -1288,9 +1368,9 @@ export function ProjectDetailPage() {
           <DiscoveryConversationReview
             items={project?.discoveryBrief?.discoveryConversation ?? []}
           />
-        </SectionCard>
+        </SectionCard> : null}
 
-        <SectionCard
+        {activeSection === "confirm" ? <SectionCard
           title="Requirements"
           subtitle="Confirmed requirements grouped by category. Edit inline or mark for review."
         >
@@ -1299,9 +1379,9 @@ export function ProjectDetailPage() {
             requirements={requirements}
             onUpdate={updateRequirement}
           />
-        </SectionCard>
+        </SectionCard> : null}
 
-        <SectionCard
+        {activeSection === "decide" ? <SectionCard
           title="Recommendation evidence"
           subtitle="What Wingman carries forward into Finder, Compare, and Proposal."
         >
@@ -1310,7 +1390,26 @@ export function ProjectDetailPage() {
             productFamilyScores={productFamilyScores}
             selectedProducts={selectedProducts}
           />
-        </SectionCard>
+        </SectionCard> : null}
+
+        {activeSection === "handoff" ? (
+          <div className="grid gap-4">
+            <SectionCard
+              title="Proposal handoff"
+              subtitle="Move from a validated project record to a proposal, visual, or CRM handoff."
+            >
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Link to={routeCatalogByKey.proposal.path} className="wm-ui-button wm-ui-button-primary">Open Proposal</Link>
+                <Link to={visualStudioLink} className="wm-ui-button wm-ui-button-secondary">Open Visual Studio</Link>
+                <Link to={routeCatalogByKey.templates.path} className="wm-ui-button wm-ui-button-secondary">Save or open templates</Link>
+                <Link to={routeCatalogByKey.projects.path} className="wm-ui-button wm-ui-button-secondary">Back to projects</Link>
+              </div>
+              <p className="mt-3 text-xs leading-5 wm-ui-copy">Use the controls below to record the outcome and share the same project record with your CRM.</p>
+            </SectionCard>
+            <DealOutcomeSection project={project} />
+            <CrmSharePanel project={project} />
+          </div>
+        ) : null}
         </>
         ) : null}
       </div>

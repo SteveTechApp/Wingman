@@ -27,11 +27,7 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-const KNOWN_OUTSTANDING = new Map([
-  ["APO-VX20-MNT", "do-not-spec, no successor listed. Mount accessory for the APO-VX20 bar - needs a product-owner decision on the current mounting SKU."],
-  ["IDB-300", "do-not-spec, no successor listed. Needs a product-owner decision on the current equivalent."],
-  ["NHD-RACK-1U", "discontinued, no successor listed. NHD-000-RACK4 is active and may be the replacement, but that must be confirmed, not assumed."],
-]);
+const KNOWN_OUTSTANDING = new Map([]);
 
 const ACCEPTABLE = new Set(["active"]);
 
@@ -76,7 +72,8 @@ function resolveStatus(sku, lifecycle) {
 }
 
 const lifecycle = loadLifecycle();
-const templateSource = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8");
+const templateSource = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8")
+  + "\n" + readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplatesExtra.ts"), "utf8");
 const skus = [...new Set([...templateSource.matchAll(/sku:\s*["']([A-Z0-9-]+)["']/g)].map((m) => m[1]))];
 
 const failures = [];

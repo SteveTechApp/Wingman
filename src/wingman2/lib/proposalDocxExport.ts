@@ -11,6 +11,8 @@ import {
   CAPTURE_CONFIDENCE_EXPLAINER,
   captureConfidenceCell,
 } from "./discoveryConversationDisplay";
+import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
+import type { SchematicModel, SchematicNode, SchematicTransportKind } from "./schematic/schematicTypes";
 
 export const NAVY = "08223A";
 export const AQUA = "16B8B0";
@@ -289,6 +291,220 @@ function createSchematicDataUrl(diagram: string) {
   return canvas.toDataURL("image/png");
 }
 
+// ─── Native Schematic Renderer for DOCX ──────────────────────────────────────
+
+const TRANSPORT_COLORS: Record<string, string> = {
+  hdmi: "#4af5e6",
+  hdbaset: "#60a5fa",
+  "av-over-ip": "#60a5fa",
+  usb: "#c084fc",
+  network: "#60a5fa",
+  control: "#fbbf24",
+  unknown: "#94a3b8",
+};
+
+const NODE_COLORS: Record<string, string> = {
+  source: "#4af5e6",
+  display: "#34d399",
+  "av-over-ip-encoder": "#60a5fa",
+  "av-over-ip-decoder": "#34d399",
+  "av-over-ip-transceiver": "#a78bfa",
+  "av-over-ip-controller": "#fbbf24",
+  matrix: "#4af5e6",
+  switcher: "#4af5e6",
+  "network-switch": "#60a5fa",
+  "video-wall-processor": "#4af5e6",
+  camera: "#c084fc",
+  speakerphone: "#c084fc",
+  "touch-panel": "#fbbf24",
+  "usb-bridge": "#c084fc",
+  "audio-device": "#fbbf24",
+  "control-device": "#fbbf24",
+  accessory: "#6b7280",
+};
+
+/**
+ * Renders a native SchematicModel (from buildWingmanSchematic) onto a canvas
+ * for embedding in DOCX exports. Unlike the legacy createSchematicDataUrl
+ * which draws sequential boxes from a text string, this renders real
+ * topology-aware connectivity with proper node types, transport labels,
+ * and orthogonal routing.
+ */
+export function createNativeSchematicDataUrl(schematic: SchematicModel): string | undefined {
+  if (typeof document === "undefined") return undefined;
+
+  const NODE_W = 150;
+  const NODE_H = 50;
+  const COL_GAP = 180;
+  const LANE_GAP = 70;
+  const ORIGIN_X = 40;
+  const ORIGIN_Y = 80;
+
+  // Assign column positions based on node kind
+  function columnForKind(kind: string): number {
+    switch (kind) {
+      case "source": case "camera": case "speakerphone": return 0;
+      case "switcher": case "matrix": case "av-over-ip-encoder":
+      case "av-over-ip-transceiver": case "av-over-ip-controller":
+      case "video-wall-processor": case "usb-bridge": return 1;
+      case "network-switch": return 2;
+      case "av-over-ip-decoder": case "display": case "audio-device": return 3;
+      default: return 2;
+    }
+  }
+
+  function laneGroup(kind: string): number {
+    switch (kind) {
+      case "source": case "camera": case "speakerphone":
+      case "touch-panel": case "control-device": return 0;
+      case "switcher": case "matrix": case "av-over-ip-encoder":
+      case "av-over-ip-transceiver": case "av-over-ip-controller":
+      case "video-wall-processor": case "usb-bridge": return 1;
+      case "network-switch": return 2;
+      case "av-over-ip-decoder": case "display": case "audio-device": return 3;
+      default: return 2;
+    }
+  }
+
+  // Position nodes on a grid
+  const columnLanes = new Map<string, number>();
+  const nodes = schematic.nodes.map((node) => {
+    const col = columnForKind(node.kind);
+    const key = `${col}-${laneGroup(node.kind)}`;
+    const laneIdx = columnLanes.get(key) ?? 0;
+    columnLanes.set(key, laneIdx + 1);
+    return {
+      ...node,
+      x: ORIGIN_X + col * COL_GAP,
+      y: ORIGIN_Y + (col * 3 + laneGroup(node.kind)) * LANE_GAP + laneIdx * (NODE_H + 12),
+    };
+  });
+
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+
+  const maxX = Math.max(...nodes.map((n) => n.x + NODE_W), 600);
+  const maxY = Math.max(...nodes.map((n) => n.y + NODE_H), 300);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = maxX + NODE_W + 60;
+  canvas.height = maxY + NODE_H + 60;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return undefined;
+
+  // Background
+  ctx.fillStyle = "#F4F8FB";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Title
+  ctx.font = "bold 26px Calibri, Arial, sans-serif";
+  ctx.fillStyle = "#08223A";
+  ctx.fillText("System connectivity schematic", 40, 40);
+  ctx.font = "16px Calibri, Arial, sans-serif";
+  ctx.fillStyle = "#5E7280";
+  ctx.fillText(schematic.title || "Topology-aware signal flow", 40, 62);
+
+  // Column headers
+  const colHeaders = ["Sources", "Core / Transport", "Network", "Outputs"];
+  colHeaders.forEach((label, i) => {
+    ctx.font = "bold 11px Calibri, Arial, sans-serif";
+    ctx.fillStyle = "rgba(83,224,255,0.6)";
+    ctx.textAlign = "center";
+    ctx.fillText(label.toUpperCase(), ORIGIN_X + i * COL_GAP + NODE_W / 2, ORIGIN_Y - 12);
+  });
+  ctx.textAlign = "left";
+
+  // Draw connections
+  for (const conn of schematic.connections) {
+    const from = nodeMap.get(conn.from);
+    const to = nodeMap.get(conn.to);
+    if (!from || !to) continue;
+
+    const x1 = from.x + NODE_W;
+    const y1 = from.y + NODE_H / 2;
+    const x2 = to.x;
+    const y2 = to.y + NODE_H / 2;
+    const midX = Math.round((x1 + x2) / 2);
+
+    const color = TRANSPORT_COLORS[conn.transport] || "#94a3b8";
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+    if (y1 === y2) {
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+    } else {
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(midX, y1);
+      ctx.lineTo(midX, y2);
+      ctx.lineTo(x2, y2);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Transport label
+    const label = conn.transport === "unknown" ? "?" : conn.transport.toUpperCase();
+    ctx.font = "9px Calibri, Arial, sans-serif";
+    ctx.fillStyle = "#5E7280";
+    ctx.textAlign = "center";
+    ctx.fillText(label, midX, Math.min(y1, y2) - 4);
+    ctx.textAlign = "left";
+  }
+
+  // Draw nodes
+  for (const node of nodes) {
+    const color = NODE_COLORS[node.kind] || "#6b7280";
+
+    // Background
+    ctx.fillStyle = "rgba(8,29,48,0.92)";
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(node.x, node.y, NODE_W, NODE_H, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Top accent
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(node.x, node.y, NODE_W, 3, [2, 2, 0, 0]);
+    ctx.fill();
+
+    // SKU or label
+    const label = node.sku || node.label;
+    ctx.font = "bold 10px Calibri, Arial, sans-serif";
+    ctx.fillStyle = "#E2E8F0";
+    ctx.textAlign = "center";
+    const truncated = label.length > 20 ? label.slice(0, 19) + "..." : label;
+    ctx.fillText(truncated, node.x + NODE_W / 2, node.y + 22);
+
+    // Subtitle
+    ctx.font = "9px Calibri, Arial, sans-serif";
+    ctx.fillStyle = "rgba(148,163,184,0.85)";
+    const sub = node.sku ? node.kind.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()) : (node.proposalSafeNote || "Confirm");
+    const truncSub = sub.length > 24 ? sub.slice(0, 23) + "..." : sub;
+    ctx.fillText(truncSub, node.x + NODE_W / 2, node.y + 38);
+    ctx.textAlign = "left";
+  }
+
+  // Warnings footer
+  const blockers = schematic.warnings.filter((w) => w.severity === "blocker");
+  if (blockers.length > 0) {
+    const footerY = maxY + NODE_H + 30;
+    ctx.font = "bold 11px Calibri, Arial, sans-serif";
+    ctx.fillStyle = "#EF4444";
+    ctx.fillText(`${blockers.length} design blocker(s) — resolve before quoting:`, 40, footerY);
+    ctx.font = "10px Calibri, Arial, sans-serif";
+    ctx.fillStyle = "#9B1C1C";
+    blockers.slice(0, 3).forEach((b, i) => {
+      ctx.fillText(`• ${b.title}: ${b.message.slice(0, 100)}`, 50, footerY + 16 + i * 14);
+    });
+  }
+
+  return canvas.toDataURL("image/png");
+}
+
 export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft, assets: ProposalDocxAssets = {}) {
   const config = getProposalDocumentTypeConfig(wizard.documentType);
   const company = proposal.companyName || "WyreStorm";
@@ -355,10 +571,51 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
 
 export async function exportProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft) {
   if (typeof window === "undefined") return;
+
+  // Build the native schematic from the proposal's products and BOM rows.
+  // Use BOM row roles to infer source/display/encoder/decoder for a richer
+  // topology than SKU names alone.
+  let nativeSchematicDataUrl: string | undefined;
+  try {
+    const products = proposal.products ?? [];
+    const bomBySku = new Map<string, typeof bomRows[0]>();
+    for (const r of bomRows) bomBySku.set(r.sku.toUpperCase(), r);
+    // Derive role from BOM rows when available, falling back to SKU classification.
+    const roleOf = (p: typeof products[0]): string => {
+      const bom = bomBySku.get((p.sku || "").toUpperCase());
+      return (bom?.role || p.title || "").toLowerCase();
+    };
+    const isSource = (p: typeof products[0]): boolean => {
+      const r = roleOf(p);
+      return /encoder|source|input|transmit/i.test(r) || /tx\b/i.test(p.sku || "");
+    };
+    const isDisplay = (p: typeof products[0]): boolean => {
+      const r = roleOf(p);
+      return /decoder|display|output|receive|screen|monitor/i.test(r) || /rx\b/i.test(p.sku || "");
+    };
+    const toNode = (p: typeof products[0]) => ({
+      sku: p.sku || "", label: p.title || p.sku || "", quantity: p.quantity || 1,
+    });
+    const sources = products.filter(isSource).map(toNode);
+    const displays = products.filter(isDisplay).map(toNode);
+    const remaining = products.filter((p) => !isSource(p) && !isDisplay(p)).map(toNode);
+    const schematicModel = buildWingmanSchematic({
+      title: wizard.projectName || proposal.title || "System schematic",
+      sources: sources.length > 0 ? sources : remaining.slice(0, 1),
+      displays: displays.length > 0 ? displays : remaining.slice(-1),
+    });
+    nativeSchematicDataUrl = createNativeSchematicDataUrl(schematicModel);
+  } catch {
+    // Fall back to the legacy text-based schematic if the native engine fails
+  }
+
   const [logo, room, schematic] = await Promise.all([
     fetchImageAsset(proposal.companyLogoDataUrl, `${proposal.companyName || "WyreStorm"} logo`),
     fetchImageAsset(proposal.applicationProposal?.roomVisualUrl, `${proposal.applicationProposal?.application || "Room"} concept`),
-    fetchImageAsset(createSchematicDataUrl(proposal.applicationProposal?.architectureDiagram || ""), "Room signal-flow schematic"),
+    fetchImageAsset(
+      nativeSchematicDataUrl || createSchematicDataUrl(proposal.applicationProposal?.architectureDiagram || ""),
+      "Room signal-flow schematic",
+    ),
   ]);
   const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic }));
   const url = window.URL.createObjectURL(blob);

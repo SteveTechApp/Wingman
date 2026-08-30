@@ -437,14 +437,13 @@ export function findKnownCompareProfile(input: string, brand?: string): KnownCom
   const text = `${brand ?? ""} ${input ?? ""}`.toUpperCase();
   const compactText = text.replace(/[^A-Z0-9]+/g, "");
 
+  // 1. Check built-in profiles first (they have hand-tuned preferred candidates)
   if (text.includes("C88CS") || (text.includes("BLUSTREAM") && text.includes("C88"))) {
     return C88CS_PROFILE;
   }
-
   if (compactText.includes("MMX4X2HDMI") || (text.includes("LIGHTWARE") && compactText.includes("MMX4X2"))) {
     return LIGHTWARE_MMX4X2_PROFILE;
   }
-
   if (
     compactText.includes("ACMX44HDBT") ||
     compactText.includes("ACMX44") ||
@@ -453,7 +452,6 @@ export function findKnownCompareProfile(input: string, brand?: string): KnownCom
   ) {
     return AVPRO_ACMX44HDBT_PROFILE;
   }
-
   if (compactText.includes("ACEX40444KIT")) {
     return AVPRO_ACEX40_MATRIX_INTENT_PROFILE;
   }
