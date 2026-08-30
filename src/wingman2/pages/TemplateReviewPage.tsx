@@ -198,6 +198,9 @@ export function TemplateReviewPage() {
       ...row, qty: safeQty, status: safeQty === 0 ? "excluded" : row.status === "excluded" ? (row.type === "Required" ? "included" : row.type.toLowerCase()) : row.status,
     }));
   }
+  function updateRowField(rowId: string, field: string, value: string) {
+    mutateRows((current) => current.map((row) => row.id !== rowId ? row : { ...row, [field]: value }));
+  }
   function toggleRow(rowId: string) {
     mutateRows((current) => current.map((row) => {
       if (row.id !== rowId) return row;
@@ -431,6 +434,24 @@ export function TemplateReviewPage() {
         <span className="wm-status is-assumed">{detailRow.type}</span><h2 id="equipment-drawer-title">{detailRow.sku}</h2><p>{detailRow.description}</p>
         <dl><div><dt>System role</dt><dd>{detailRow.role}</dd></div><div><dt>Evidence</dt><dd>{detailRow.evidence}</dd></div><div><dt>Notes</dt><dd>{detailRow.notes}</dd></div></dl>
         <label>Quantity<input type="number" min="0" max="99" value={selectedRows.find((row) => row.id === detailRow.id)?.qty ?? 0} onChange={(event) => updateRowQty(detailRow.id, Number(event.target.value))} /></label>
+        {(detailRow.sku === "BY-OTHERS" || detailRow.sku === "CUSTOM") && (
+          <div className="wm-drawer-fields">
+            <h4>Replace placeholder</h4>
+            <label>Manufacturer<input type="text" value={detailRow.manufacturer ?? ""} placeholder="e.g. Crestron, Extron" onChange={(event) => { updateRowField(detailRow.id, "manufacturer", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, manufacturer: event.target.value } : prev); }} /></label>
+            <label>Model<input type="text" value={detailRow.model ?? ""} placeholder="e.g. DM-NVX-363" onChange={(event) => { updateRowField(detailRow.id, "model", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, model: event.target.value } : prev); }} /></label>
+            <label>Owner<select value={detailRow.owner ?? "integrator"} onChange={(event) => { updateRowField(detailRow.id, "owner", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, owner: event.target.value } : prev); }}>
+              <option value="customer">Customer supply</option>
+              <option value="integrator">Integrator supply</option>
+              <option value="wyrestorm">WyreStorm supply</option>
+            </select></label>
+            {detailRow.manufacturer && detailRow.model && (
+              <div className="wm-drawer-resolved">
+                <strong>{detailRow.manufacturer} {detailRow.model}</strong>
+                <small> — {detailRow.owner === "customer" ? "Customer supplies" : detailRow.owner === "wyrestorm" ? "Add to WyreStorm scope" : "Integrator supplies"}</small>
+              </div>
+            )}
+          </div>
+        )}
         <button className="wm-button is-primary is-full" type="button" onClick={() => setDetailRow(null)}>Done</button>
       </aside></div> : null}
     </div>

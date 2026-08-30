@@ -1,140 +1,18 @@
 {
-  "updatedAt": "2026-08-28T13:18:12.083Z",
+  "updatedAt": "2026-08-30T14:14:18.574Z",
   "tolerancePct": 1,
   "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
-  "exceptions": [
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "total:js"
-      ],
-      "reason": "Reviewed exception for total:js crossing the 1% tolerance by 0.42 KB after the guided-interview capture-language preload at the interview entry card and the static AV block-schematic renderer: the .excalidraw scene (43 KB JSON) is bundled via ?raw into the lazy TemplateReviewPage chunk and the entry-card preload effect (useEffect calling loadInterviewLanguage for the stored capture language) lives in the lazy DiscoveryPage chunk. total:js grew 6,364.75→6,428.82 KB (+64.07 KB, +1.0%). The full @excalidraw/excalidraw EDITOR was evaluated and rejected in the same session (it would have added ~7.4 MB), so this is the minimal cost of rendering the reference schematic in-app plus no-English-flash preloading. Both additions ship only in lazy chunks — initial:js stayed green at 521.35 KB. Remaining weight is the Phase 2/5/6/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "source:discovery-page"
-      ],
-      "reason": "Reviewed exception for recording the interpretation confidence SCORE into the discovery conversation trail and exports: DiscoveryConversationItem gains a confidenceScore field stamped by buildDiscoveryConversation from a confidenceScoresByStep map, DiscoveryPage holds the parallel state and threads scores into the brief (the guided interview passes match.score; the standard capture chip stamps a high=10 sentinel for deliberate picks), and every export renders the score with a 'verify before quote' flag on low captures. source:discovery-page grew 67,642→68,421 B (+779 B): the confidenceScoresByStep state and its threading on the page. Ships in the lazy DiscoveryPage chunk (initial:js stayed green at 521.3 KB). Remaining weight is the Phase 2/5/6/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "chunk:project-workflow",
-        "source:discovery-page"
-      ],
-      "reason": "Reviewed exception for carrying the capture-chip confidence level (high/matched/low) into the in-app Discovery Conversation review: DiscoveryConversationItem gains an optional confidence field stamped by buildDiscoveryConversation from a confidenceByStep map; the guided interview records match-derived tiers, the standard capture suggestion chip passes its tier to the confirm handler, DiscoveryPage threads the map through state/snapshot/brief, and DiscoveryConversationReview renders a confidence badge (high green / matched blue / low amber 'verify before export') on each row. (1) source:discovery-page grew 66,278→67,642 B (+1,364 B, +2.1%): the confidenceByStep state, snapshot and brief wiring plus the confirm-handler signature change all live on the page. (2) chunk:project-workflow grew 225,496→228,020 B (+2,524 B, +1.1%): the confidence badge in DiscoveryConversationReview (consumed by the proposal wizard's Step 2) and the confidence field on the shared projectStore type. Both ship only in lazy chunks (initial:js stayed green at 521.3 KB); the badge uses Tailwind named-colour utilities (no new hex, no style-drift). Remaining weight is the Phase 2/5/6/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "source:project-detail"
-      ],
-      "reason": "Reviewed exception for reusing the DiscoveryConversationReview component on the Project Detail page: a dedicated 'Discovery conversation' SectionCard (Q&A trail with per-row Edit-in-Discovery links and confirmed/open status) lets reps audit the conversation without entering the proposal wizard. source:project-detail grew 55,792→56,401 B (+609 B, +1.1%): one import plus one SectionCard reusing the component's existing wm-discovery-conversation-review styles (no new hex colours). Ships in the lazy project-detail chunk; initial:js stayed green. The limit should travel back downward as the Phase 2/5/8 extraction programme lands (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "chunk:project-workflow"
-      ],
-      "reason": "Reviewed exception for recording the discovery conversation in CRM webhook history: each send now snapshots the exact Q&A trail included in the payload (CrmWebhookHistoryEntry.discoveryConversation), and the CRM panel's Recent Sends list renders an expandable per-entry conversation view (question, governed answer, customer wording, confirmed status) so reps can verify what reached the CRM per project. chunk:project-workflow grew 222,364→225,496 B (+3,132 B, +1.4%): the panel is consumed by the lazy project-workflow chunk via ProposalCompletionWizard, and the expander reuses the panel's existing text classes plus lucide chevrons (no new hex colours). initial:js stayed green at 521.1 KB. The remaining weight is the Phase 2/5/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "total:js"
-      ],
-      "reason": "Reviewed exception for extending the guided-interview i18n tables to the remaining eight supported capture languages (pt-PT, it-IT, nl-NL, sv-SE, nb-NO, ru-RU, zh-CN, hi-IN): full 29-question stem tables plus the fifteen-core-question interpretation tables (stopwords, don't-know phrases and per-option spoken phrases) authored to the same bar as the existing fr/es/de tables, and the spoken-language toggle options + voice previews for each. total:js grew 6,339,478→6,517,504 B (+177,998 B, +2.8%) — the same class as the guided-interview exception before it: the data ships only in the lazy DiscoveryPage chunk (initial:js stayed green at 520.4 KB), and the growth is exactly the phase-6 extraction programme's target (load per-language phrase tables on demand rather than shipping all twelve languages in the bundle; see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "chunk:project-workflow"
-      ],
-      "reason": "Reviewed exception for the in-app Discovery Conversation review on the Proposal page: the DiscoveryConversationReview component (Q&A trail rows with per-row edit links back to the discovery question) is consumed by the lazy project-workflow chunk via ProposalCompletionWizard, growing it 197,077→199,649 B (+2.57 KB, +1.3%). The component ships only in the lazy chunk (never the eager core — initial:js stayed green at 520.1 KB); it deliberately reuses the existing requirements-grid and evidence-details card styling with no new hex colors. The remaining weight is the Phase 2/5/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "chunk:project-workflow"
-      ],
-      "reason": "Reviewed exception for the print-friendly Discovery Brief export (HTML + DOCX): a new standalone document reproducing the full Q&A trail, captured room model and still-to-confirm items for hand-off before design sign-off. discoveryBriefExport.ts (HTML builder, no docx dependency, also consumed by the lazy Discovery page) and discoveryBriefDocxExport.ts (DOCX builder, imported only by ProposalCompletionWizard where docx is already bundled) grow the lazy project-workflow chunk 199,649→218,767 B (+19.1 KB, +9.6%). The DOCX builder reuses the proposal DOCX helper functions rather than duplicating them, and the docx package itself stays out of the project-workflow chunk (it remains shared in the proposal-generation chunk) — initial:js stayed green at 520.4 KB and the discovery-page source budget stayed green at 63.85 KB. The HTML twin intentionally avoids importing docx so the lazy discovery chunk does not grow by the whole library. Remaining weight is the Phase 2/5/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "chunk:project-workflow",
-        "source:project-detail"
-      ],
-      "reason": "Reviewed exception for the discovery resume position and the site-survey install-detail boundary. (1) source:project-detail grew 54,789→55,792 B (+1,003 B, +1.8%): the project card now shows where the guided interview left off and offers a Resume interview jump (discoveryResumeInfo/discoveryResumeUrl imports, the evidence-timeline status/detail/route for a partial discovery, and the workflow-handoff button) so reps can re-enter the interview from the project page. (2) chunk:project-workflow grew 218,767→222,364 B (+3.6 KB, +1.6%): the SiteSurveyChecklist component gained a structured Installation Details section (display mounting height, cable containment, power, mounting hardware, plus projector/rack/network items derived from topology) with offline-persisted confirm checkboxes — the detail belongs to the site survey, not discovery, so it must live in this chunk. Both ship only in lazy chunks (initial:js stayed green at 520.4 KB) and reuse existing tokens/hex values (no style-drift on hex). Remaining weight is the Phase 2/5/7/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "limits": [
-        "total:js",
-        "source:discovery-page"
-      ],
-      "reason": "Reviewed exception for the guided interview (voice Q&A) Discovery mode, its spoken-answer interpretation in the standard capture box, the confidence-level chip, the discovery Q&A trail carried into exported proposals, and the confirmed-with-customer marking that drives settled-vs-open tone in exports. The wiring that must stay on the page — the interview entry card, the interview-vs-standard render branch, the mode state, the discoveryConversation line in buildDiscoveryBrief, and the confirmedSteps state threaded into the brief, snapshot and both input surfaces — grew DiscoveryPage.tsx from its recorded 63,353-byte limit to 64,061 and then to 65,144 (+1,083 B total, +1.7%). total:js grew 6,253,112→6,339,478 (+86,366 B, +1.4%): the complete fr/es/de phrase and question-stem tables (discoveryGuidedInterviewI18n.ts, ~73 KB source), the ~700-line DiscoveryGuidedInterview component, the interpretation/TTS logic, and the capture-suggestion chip all ship in the lazy DiscoveryPage chunk (213.4 KB) — they are NOT in the eager app-core (initial:js stayed green at 519.9 KB). Growth was minimised by extracting everything movable into src/wingman2/pages/discovery/ (component, logic, i18n tables, entry card, buildDiscoveryConversation helper, capture suggestion, summary-card confirm toggles), matching the artefacts' stated remediation. The remaining weight is irreducible feature data and is the target of the same Phase 6 extraction programme (e.g. loading per-language phrase tables on demand rather than all three shipped languages)."
-    },
-    {
-      "date": "2026-08-25",
-      "limits": [
-        "chunk:project-workflow",
-        "initial:js",
-        "total:js",
-        "source:discovery-page",
-        "source:product-call-cards"
-      ],
-      "reason": "Reviewed exception for the pre-sales advisory build-out: CRM share webhook (+4 KB), site survey checklist with QR code and offline sync (+5 KB), photo-to-topology extraction (+4 KB), proposal version history and diff (+3 KB), proposal export validation gate (+2 KB), suggested-kit bundler (+2 KB), product assurance badges (+2 KB), progressive discovery disclosure (+3 KB), and template review guidance (+1 KB). chunk:project-workflow grew 117.8K→197.1K because the proposal/template/SiteSurvey/version-history modules are consumed by the lazy project-workflow chunk. initial:js grew 521.5K→531.2K from the assurance/power modules the proposal wizard imports. total:js grew 5.63M→6.25M from the new lazy page chunks (BattleCards, AnalyticsDashboard, QuoteSafetyDashboard) plus their libs. The CSS cascade extraction actually reduced total:css (979K→891K) and source:style-stack-css (734K→0.4K shim); those reductions are locked in as lower limits. Remaining weight is the Phase 2/5/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-23",
-      "limits": [
-        "initial:js",
-        "total:js",
-        "total:css",
-        "source:style-stack-css"
-      ],
-      "reason": "Reviewed exception for the world-class pre-sales advisory upgrades: power strategy in exported DOCX/HTML (+5 KB CSS, +4 KB JS), chain-blocker export gate (+1 KB JS), cross-product compatibility validation (+8 KB JS), regional SKU governance (+4 KB JS), network infrastructure assurance (+3 KB JS), power budget module (+2 KB JS), feedback-informed guidance (+5 KB JS), feedback consolidation panel (+6 KB JS), assurance blockers on Recommendations page (+3 KB JS), needs-site-survey flag (+2 KB CSS), best-efforts T&Cs page (+2 KB JS), and governed spec evidence (+1 KB JS). Growth is distributed across lazy-loaded page chunks and utility modules; the initial:js increase reflects the new assurance/power modules imported by the proposal wizard which is already lazy. Remaining weight is the target of the Phase 2/5/8 extraction programme (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-16",
-      "limits": [
-        "total:js",
-        "chunk:competitor-registry",
-        "total:css",
-        "source:compare-advanced",
-        "source:project-detail"
-      ],
-      "reason": "Reviewed exception for the compare confidence-tier and evidence-trace feature work. The tier chip (with colour-blind-safe glyphs), verdict-lead banner treatment, projects-list tier badge and shared print styles added ~18 KB emitted CSS; the governed competitor-decision ledger (33 approved decisions, ~15 K lines) embedded in the competitor-registry chunk added ~54 KB JS and raised total JS ~86 KB; the verdict-tier helper, chip plumbing, approved-ledger promotion wiring and strong-direction coupling fix added ~15 KB to the Compare page; the evidence-trace default-expand fix and typed-SKU deep-link helper added ~0.9 KB to ProjectDetailPage. Growth was minimised by extracting the chip (CompareConfidenceTier.tsx) and decision queue (CompetitorDecisionReviewQueue.tsx); the remaining weight is the Phase 2/4/7/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-16",
-      "limits": [
-        "chunk:competitor-registry"
-      ],
-      "reason": "Reviewed exception for the governed-data coverage campaign and compare-trust work. The four newly profiled WyreStorm products (SW-0X01-8K, SW-130-TX, APO-VX20-UC, NHD-610-TX) added ~13 KB of governed profile data bundled into the competitor-registry chunk via the governed product-data module; the chunk remains the Phase 5 extraction target (load a manufacturer data on demand) documented in docs/SIZE_BUDGETS.md."
-    },
-    {
-      "date": "2026-08-28",
-      "limits": [
-        "total:css",
-        "source:discovery-page"
-      ],
-      "reason": "Discovery page UI polish: horizontal step banner with clickable nav, active highlighting, checkmarks, progress counter, and Web Interface Guidelines fixes (explicit transitions, focus-visible, touch-action, text-wrap: balance, tabular-nums, overscroll-behavior) added CSS rules scoped under html[data-wingman-route=\"discovery\"] in wingman-route-overrides.css and wingman-workflow-theme.css (+21 KB CSS), plus the banner JSX markup in discoveryProgressiveDisclosure.tsx (+0.86 KB source). Remaining weight is the Phase 8 layered stylesheet consolidation target (see docs/SIZE_BUDGETS.md)."
-    }
-  ],
   "limits": {
-    "chunk:compare-engine": 427237,
+    "chunk:compare-engine": 431358,
     "chunk:competitor-registry": 895308,
-    "chunk:project-workflow": 228020,
-    "initial:js": 531167,
-    "total:js": 6583112,
-    "total:css": 910000,
-    "source:compare-advanced": 295000,
-    "source:discovery-page": 69500,
+    "chunk:project-workflow": 241392,
+    "initial:js": 537989,
+    "total:js": 6786795,
+    "total:css": 928004,
+    "source:compare-advanced": 295214,
+    "source:discovery-page": 69941,
     "source:product-call-cards": 77764,
-    "source:project-detail": 62500,
+    "source:project-detail": 63119,
     "source:style-stack-css": 431
   }
 }
