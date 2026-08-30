@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -79,6 +79,7 @@ describe("Project detail evidence trace contract", () => {
     ];
 
     renderDetail();
+    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
 
     const trace = traceSection();
     expect(within(trace).getByText("Barco CLICKSHARE-CX-30")).not.toBeNull();
@@ -111,6 +112,7 @@ describe("Project detail evidence trace contract", () => {
     ];
 
     renderDetail();
+    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
 
     const trace = traceSection();
     expect(within(trace).getByText("Kramer VS-42H")).not.toBeNull();

@@ -76,7 +76,8 @@ function resolveStatus(sku, lifecycle) {
 }
 
 const lifecycle = loadLifecycle();
-const templateSource = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8");
+const templateSource = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8")
+  + "\n" + readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplatesExtra.ts"), "utf8");
 const skus = [...new Set([...templateSource.matchAll(/sku:\s*["']([A-Z0-9-]+)["']/g)].map((m) => m[1]))];
 
 const failures = [];

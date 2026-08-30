@@ -158,8 +158,7 @@ export function TemplateReviewPage() {
   }, [selectedTemplate]);
 
   // Derived values computed BEFORE the early return (React hooks rules).
-  const template = selectedTemplate;
-  const bomRows = template ? templateBomRows(template, selectedRows) : [];
+  const bomRows = selectedTemplate ? templateBomRows(selectedTemplate, selectedRows) : [];
   const products = templateProducts(selectedRows);
 
   // Run the proposal export validator — same checks the main wizard uses.
@@ -173,12 +172,13 @@ export function TemplateReviewPage() {
     const base = 100;
     const blockerDeduction = exportValidation.blockers.length * 15;
     const warningDeduction = exportValidation.warnings.length * 5;
-    const validationDeduction = template ? template.validationItems.length * 3 : 0;
+    const validationDeduction = selectedTemplate ? selectedTemplate.validationItems.length * 3 : 0;
     return Math.max(0, Math.min(100, base - blockerDeduction - warningDeduction - validationDeduction));
-  }, [exportValidation, template]);
+  }, [exportValidation, selectedTemplate]);
 
   if (!selectedTemplate) return <div data-wingman-template-detail-page="true" className="pb-10"><PageHero eyebrow="Room templates" title="Template not found." purpose="The selected room design template could not be found." nextMove="Go back to the template library and pick a room design to review." actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]} /></div>;
 
+  const template = selectedTemplate;
   const counts = {
     Required: selectedRows.filter((row) => row.type === "Required" && row.status !== "excluded").length,
     Validate: selectedRows.filter((row) => row.type === "Validate" && row.status !== "excluded").length,

@@ -18,6 +18,10 @@ IMMUTABLE
 AS $$
   SELECT NOW()
 $$;
+-- NOTE: Deployed indexes use static date boundaries (below) because Supabase
+-- SQL Editor had a session-caching bug that refused IMMUTABLE function lookups.
+-- Re-run this migration from a fresh session if you need to use the function-based
+-- predicates (cleaner, but the static dates work identically for now).
 
 -- 1. Active sessions by workspace (auth context)
 --    The auth context loads sessions for a workspace and user. Most sessions
@@ -66,23 +70,21 @@ CREATE INDEX idx_wingman_invitations_workspace_pending
     ON wingman_workspace_invitations (workspace_id, email)
     WHERE status = 'pending';
 
--- 6. Active audit events by workspace (activity feed)
---    The activity feed shows recent audit events. The pg_cron job keeps
---    only the last 800 events, so "recent" events are the hot path.
+-- 6. Recent audit events by workspace (activity feed)
+--    Static 90-day boundary used instead of NOW() due to Supabase SQL Editor
+--    caching issue. Re-run quarterly to keep boundary current.
 --    Covers: readDbFromSupabaseTables → auditEvents sorted by created_at DESC
 DROP INDEX IF EXISTS idx_wingman_audit_workspace_recent;
 CREATE INDEX idx_wingman_audit_workspace_recent
     ON wingman_audit_events (workspace_id, created_at DESC)
-    WHERE created_at > wingman_now_immutable() - INTERVAL '90 days';
+    WHERE created_at > '2026-05-28T00:00:00Z'::timestamptz;
 
--- 7. Active telemetry events by workspace (error history)
---    Error dashboards show recent telemetry. Old events are cleaned up
---    by pg_cron. Recent events (< 30 days) are the hot path.
---    Covers: readDbFromSupabaseTables → telemetryEvents sorted by timestamp DESC
+-- 7. Recent telemetry events by workspace (error history)
+--    Static 30-day boundary. Re-run monthly to keep boundary current.
 DROP INDEX IF EXISTS idx_wingman_telemetry_workspace_recent;
 CREATE INDEX idx_wingman_telemetry_workspace_recent
     ON wingman_telemetry_events (workspace_id, timestamp DESC)
-    WHERE timestamp > wingman_now_immutable() - INTERVAL '30 days';
+    WHERE timestamp > '2026-07-29T00:00:00Z'::timestamptz;
 
 -- ============================================================================
 -- ANALYZE to update planner statistics

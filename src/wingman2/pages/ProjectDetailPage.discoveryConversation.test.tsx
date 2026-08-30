@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -72,6 +72,7 @@ function conversationSection() {
 describe("ProjectDetailPage discovery conversation", () => {
   it("shows the Q&A trail with confirmation status and edit links", () => {
     renderDetail();
+    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
 
     const section = conversationSection();
 
@@ -92,6 +93,7 @@ describe("ProjectDetailPage discovery conversation", () => {
   it("shows the empty state when no conversation has been captured", () => {
     storedProject.discoveryBrief.discoveryConversation = [];
     renderDetail();
+    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
 
     const section = conversationSection();
     expect(

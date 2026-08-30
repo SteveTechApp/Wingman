@@ -5,8 +5,9 @@ import { PRODUCT_LIFECYCLES, displayLifecycle, emptyProduct, isArchivedProduct, 
 import { qualityCounts } from "../lib/productDataQuality";
 import type { ProductQualityIssue } from "../types/productTruth";
 import { LiveResearchReviewQueue } from "../components/data/LiveResearchReviewQueue";
+import { GovernedProfileBrowser } from "../components/data/GovernedProfileBrowser";
 
-const TABS = ["WyreStorm Products", "Competitor Products", "Live Research", "Match Overrides", "Lifecycle", "Reported Errors", "Import / Export", "Change History"] as const;
+const TABS = ["Governed Profiles", "WyreStorm Products", "Competitor Products", "Live Research", "Match Overrides", "Lifecycle", "Reported Errors", "Import / Export", "Change History"] as const;
 type Tab = typeof TABS[number];
 const QUALITY_SUMMARY: Array<{ issue: ProductQualityIssue; label: string }> = [
   { issue: "requires-review", label: "Require review" },
@@ -73,6 +74,7 @@ export function DataManagerPage() {
   return <main className="wm-data-manager-page wm-page" data-wingman-page="data-manager">
     <header className="wm-data-manager-header"><div><p className="wm-ui-kicker">ADMIN - Governed product intelligence</p><h1>Data Manager</h1><p>Maintain product and competitor records without editing repository JSON files.</p></div><button className="wm-button wm-button-secondary" type="button" onClick={() => void reload()}><RefreshCcw /> Refresh data</button></header>
     <nav className="wm-data-tabs" aria-label="Data Manager datasets">{TABS.map((item) => <button type="button" key={item} className={tab === item ? "is-active" : ""} onClick={() => setTab(item)}>{item}</button>)}</nav>
+    {tab === "Governed Profiles" ? <GovernedProfileBrowser /> : null}
     {(tab === "WyreStorm Products" || tab === "Competitor Products") ? <>
       <section className="wm-data-quality-summary wm-section-card wm-data-governance-compact" aria-labelledby="data-quality-title">
   <div className="wm-data-quality-heading">

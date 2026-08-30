@@ -8,6 +8,9 @@ import {
   type StoredDiscoveryBrief,
 } from "./projectStore";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
+import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
+import { getVisibleDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
+import type { DiscoveryAnswers, DiscoveryNotes } from "../pages/discovery/discoveryTypes";
 
 export const DISCOVERY_BRIEF_KEY = "wingman-discovery-brief";
 export const DISCOVERY_SNAPSHOT_KEY = "wingman-discovery-snapshot-v3";
@@ -19,6 +22,17 @@ export type DiscoverySnapshot = {
   state: Record<string, unknown>;
   brief: StoredDiscoveryBrief;
   savedAt: string;
+};
+
+export type DiscoveryEvidenceState = "confirmed" | "inferred" | "unknown" | "conflict";
+
+export type DiscoveryDecisionEvidence = {
+  field: string;
+  value: string;
+  state: DiscoveryEvidenceState;
+  source: "customer" | "topology" | "workflow-inference" | "system";
+  confidence: "high" | "medium" | "low";
+  reason?: string;
 };
 
 export type FinderNeedDraft = {
@@ -194,6 +208,62 @@ function signalStandardAssumptions(roomModel: Record<string, unknown>) {
   return tags;
 }
 
+function buildDecisionEvidence(
+  state: Record<string, unknown>,
+  meta: { missingItems: string[] },
+  roomModel: Record<string, unknown>,
+): DiscoveryDecisionEvidence[] {
+  const entries: DiscoveryDecisionEvidence[] = [];
+  const add = (field: string, value: unknown, source: DiscoveryDecisionEvidence["source"], reason?: string) => {
+    const cleanValue = text(value);
+    const unknownValue = !cleanValue || /^(unknown|not confirmed|not yet confirmed|not selected)$/i.test(cleanValue);
+    entries.push({
+      field,
+      value: cleanValue || "Unknown",
+      state: unknownValue ? "unknown" : source === "workflow-inference" ? "inferred" : "confirmed",
+      source,
+      confidence: unknownValue ? "low" : source === "customer" ? "high" : source === "topology" ? "medium" : "low",
+      ...(reason ? { reason } : {}),
+    });
+  };
+
+  add("application", roomModel.applicationType, "customer");
+  add("source-count", roomModel.sourceCount, "customer");
+  add("display-count", roomModel.displayCount, "customer");
+  add("cable-run", roomModel.longestRun, "topology");
+  add("resolution", roomModel.resolutionRequirement, "customer");
+  add("usb", roomModel.usbTransport, "customer");
+  add("audio", roomModel.audioPath, "customer");
+  add("network", roomModel.networkAvailability, "customer");
+  add("architecture", roomModel.inferredArchitectureDirection, "workflow-inference", "Derived from captured requirements; validate before quoting.");
+
+  if (meta.missingItems.length) {
+    entries.push({
+      field: "missing-information",
+      value: meta.missingItems.join("; "),
+      state: "unknown",
+      source: "system",
+      confidence: "low",
+      reason: "Unresolved or explicitly unknown inputs prevent a confirmed design decision.",
+    });
+  }
+
+  return entries;
+}
+
+function summarizeDecisionIntegrity(evidence: DiscoveryDecisionEvidence[]) {
+  const conflicts = evidence.filter((item) => item.state === "conflict").length;
+  const unknowns = evidence.filter((item) => item.state === "unknown").length;
+  const inferred = evidence.filter((item) => item.state === "inferred").length;
+  return {
+    status: conflicts ? "conflict" : unknowns ? "review" : inferred ? "inferred" : "confirmed",
+    unknownCount: unknowns,
+    inferredCount: inferred,
+    conflictCount: conflicts,
+    canQuote: conflicts === 0 && unknowns === 0,
+  };
+}
+
 function quoteSafetyStatus(missingItems: string[]): StoredQuoteSafetyStatus {
   if (missingItems.length >= 3) return "do-not-quote-yet";
   if (missingItems.length > 0) return "validate-before-quote";
@@ -303,6 +373,49 @@ function controlFromBrief(roomModel: Record<string, unknown>) {
   return "Unknown";
 }
 
+export function legacyStateToDiscoveryAnswers(state: Record<string, unknown>): DiscoveryAnswers {
+  const answers: DiscoveryAnswers = {};
+  const outcome = text(state.outcome);
+  if (outcome) answers.opportunity = outcome;
+  const roomType = text(state.roomType);
+  if (roomType) answers.scale = roomType;
+  const devices = list(state.devices);
+  if (devices.length) {
+    answers.sources = countBand(devices.filter((item) => !/microphone|speaker|camera/i.test(item) || /ndi|ptz/i.test(item)).length);
+    answers["source-device-workflows"] = devices.map(String);
+  }
+  const tags = list(state.technicalTags);
+  if (tags.length) answers["source-connection"] = tags.map(String);
+  const displayCount = text(state.displayCount);
+  if (displayCount) answers.displays = displayCount;
+  const displayBehaviour = text(state.displayBehaviour);
+  if (displayBehaviour) answers["display-behaviour"] = displayBehaviour;
+  const cableRun = text(state.cableRun);
+  if (cableRun) answers["locations-connections"] = cableRun;
+  const controlNeeds = list(state.controlNeeds);
+  if (controlNeeds.length) answers.control = controlNeeds.map(String);
+  const network = text(state.network);
+  if (network && !answers["locations-connections"]) answers["locations-connections"] = network;
+  return answers;
+}
+
+export function legacyStateToDiscoveryNotes(state: Record<string, unknown>): DiscoveryNotes {
+  const notes: DiscoveryNotes = {};
+  const customerNotes = text(state.notes);
+  if (customerNotes) notes.opportunity = customerNotes;
+  return notes;
+}
+
+export function applicationFromLegacyState(state: Record<string, unknown>): string {
+  const blob = [text(state.outcome), text(state.roomType)].join(" ").toLowerCase();
+  if (includesAny(blob, ["video wall", "signage", "led wall", "wall processor"])) return "video-wall";
+  if (includesAny(blob, ["distributed", "many rooms", "campus", "networkhd"])) return "av-over-ip";
+  if (includesAny(blob, ["classroom", "teaching", "lecture"])) return "classroom";
+  if (includesAny(blob, ["bar", "hospitality", "venue", "sports"])) return "hospitality";
+  if (includesAny(blob, ["meeting", "boardroom", "teams", "zoom"])) return "meeting-room";
+  return "not-sure";
+}
+
 export function buildDiscoveryBriefFromState(
   state: Record<string, unknown>,
   meta: {
@@ -322,6 +435,11 @@ export function buildDiscoveryBriefFromState(
   const processing = processingFromBrief(state);
   const status = quoteSafetyStatus(meta.missingItems);
   const nextBestQuestion = nextQuestionFromMissingItems(meta.missingItems);
+  const discoveryAnswers = legacyStateToDiscoveryAnswers(state);
+  const discoveryNotes = legacyStateToDiscoveryNotes(state);
+  const selectedApplication = applicationFromLegacyState(state);
+  const questions = getVisibleDiscoveryQuestions(selectedApplication, discoveryAnswers);
+  const integrity = evaluateDiscoveryDecisionIntegrity(questions, discoveryAnswers, discoveryNotes);
 
   const roomModel = {
     ...state,
@@ -351,8 +469,11 @@ export function buildDiscoveryBriefFromState(
     designDirection: meta.designDirection,
     inferredArchitectureDirection: meta.designDirection,
     nextBestQuestion,
-    quoteSafetyStatus: status,
-    missingInformation: meta.missingItems,
+    quoteSafetyStatus: integrity.canProceedToRecommendation ? status : "do-not-quote-yet",
+    missingInformation: Array.from(new Set([
+      ...meta.missingItems,
+      ...integrity.issues.map((issue) => issue.followUpQuestion),
+    ])),
   };
 
   const brief: StoredDiscoveryBrief = {
@@ -372,13 +493,19 @@ export function buildDiscoveryBriefFromState(
     },
     capturedPercent: meta.capturedPercent,
     returnRoute: meta.returnRoute ?? routeCatalogByKey.discovery.path,
-    missingInformation: meta.missingItems,
-    nextBestQuestion,
-    quoteSafetyStatus: status,
+    missingInformation: roomModel.missingInformation,
+    nextBestQuestion: roomModel.missingInformation[0] ?? nextBestQuestion,
+    quoteSafetyStatus: roomModel.quoteSafetyStatus,
   };
 
+  const evidence = buildDecisionEvidence(state, meta, roomModel);
   return {
     ...brief,
+    roomModel: {
+      ...roomModel,
+      decisionEvidence: evidence,
+      decisionIntegrity: summarizeDecisionIntegrity(evidence),
+    },
     recommendationEvidence: buildDiscoveryRecommendationEvidence(brief),
   };
 }
@@ -497,7 +624,11 @@ export function discoveryBriefToFinderNeed(brief: StoredDiscoveryBrief | null): 
   const roomModel = asRecord(brief.roomModel);
   const devices = list(roomModel.devices).length ? list(roomModel.devices) : list(roomModel.sourceTypes);
   const requirement = technicalRequirementFromBrief(roomModel);
-  const productPath = productPathFromRequirement(requirement, roomModel);
+  const evidence = Array.isArray(roomModel.decisionEvidence) ? roomModel.decisionEvidence as DiscoveryDecisionEvidence[] : [];
+  const hasUnresolvedEvidence =
+    evidence.some((item) => item.state === "unknown" || item.state === "conflict") ||
+    brief.quoteSafetyStatus === "do-not-quote-yet";
+  const productPath = hasUnresolvedEvidence ? "Needs confirmation before product path" : productPathFromRequirement(requirement, roomModel);
   const usbRequirement = usbFromBrief(roomModel);
   const requiresUsb = usbRequirement !== "No USB" && usbRequirement !== "Unknown";
 
@@ -506,7 +637,7 @@ export function discoveryBriefToFinderNeed(brief: StoredDiscoveryBrief | null): 
     // deliberately not placed here: making every narrative word a filter is what
     // previously reduced a complete Discovery to zero results.
     query: "",
-    technicalRequirement: requirement,
+    technicalRequirement: hasUnresolvedEvidence ? "Requirements remain unresolved" : requirement,
     productPath,
     technologyType: technologyTypeFromPath(productPath),
     signalType: requiresUsb || devices.join(" ").toLowerCase().includes("usb") ? "HDMI + USB" : "HDMI video",
