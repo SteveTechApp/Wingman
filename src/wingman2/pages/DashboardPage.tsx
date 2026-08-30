@@ -11,6 +11,8 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { HubCard, routeAction } from "./NavigationHubPages";
 import { StatusChip } from "../components/StatusChip";
+import { GuidedDashboard } from "../components/GuidedDashboard";
+import { useUiMode } from "../data/uiMode";
 import {
   confirmGovernedProfile,
   fetchApprovedCompetitorDecisions,
@@ -731,6 +733,7 @@ function GovernedCoverageStrip() {
 }
 
 export function DashboardPage() {
+  const { isGuided } = useUiMode();
   const { projects } = useProjectStore();
   const [workspaceSession, setWorkspaceSession] = useState<WingmanWorkspaceSession | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
@@ -754,6 +757,11 @@ export function DashboardPage() {
       active = false;
     };
   }, []);
+
+  // In guided mode, show the simplified dashboard
+  if (isGuided) {
+    return <GuidedDashboard />;
+  }
 
   const sourceProjects: DashboardProject[] = projects.length
     ? projects.map((project) => ({ ...project, scope: projectScopeLine(project) }))
