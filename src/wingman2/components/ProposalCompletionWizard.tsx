@@ -1,14 +1,19 @@
 import {
+  CheckCircle,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Download,
   FileText,
   ListChecks,
   Printer,
+  RotateCcw,
+  Send,
   Table2,
   ThumbsDown,
   ThumbsUp,
+  XCircle,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -61,6 +66,14 @@ import {
   type SalesBomRow,
 } from "../lib/salesReadiness";
 import { compileProjectApplicationProposal } from "../lib/proposalCompiler";
+import { useSubmitForApproval, useRecallProposal } from "../data/approvalStore";
+import { proposalReadiness } from "../lib/proposalReadiness";
+import {
+  extractUnresolvedDiscoveryItems,
+  unresolvedToAssumptions,
+  unresolvedToRisks,
+} from "../lib/unresolvedDiscoveryItems";
+import { ApprovalStatusBadge } from "../pages/ApprovalQueuePage";
 
 type DiscoveryView = {
   projectTitle: string;
@@ -190,14 +203,19 @@ function readDiscovery(project: StoredProject): DiscoveryView {
 }
 
 function standardAssumptions(project: StoredProject) {
+  const unresolvedItems = extractUnresolvedDiscoveryItems({
+    discoveryConversation: project.discoveryBrief?.discoveryConversation,
+    decisionEvidence: project.discoveryBrief?.decisionEvidence,
+  });
   return Array.from(
     new Set([
+      ...unresolvedToAssumptions(unresolvedItems),
       ...(project.ingest?.unknowns ?? []),
       ...(project.compareRuns?.[0]?.warnings ?? []),
       ...(project.recommendationEvidence?.missingInformation ?? []),
       ...(project.discoveryBrief?.recommendationEvidence?.missingInformation ?? []),
     ]),
-  ).slice(0, 10);
+  ).slice(0, 15);
 }
 
 function savedProposalBomRows(rows: StoredProjectProposal["bomRows"]): SalesBomRow[] {
@@ -469,6 +487,8 @@ function ProposalCompletionWizardContent({
   const [feedbackRating, setFeedbackRating] = useState<StoredRecommendationFeedback["rating"] | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [showValidationDetails, setShowValidationDetails] = useState(false);
+  const submitForApproval = useSubmitForApproval();
+  const recallProposal = useRecallProposal();
 
   // Reload the draft ONLY when the discovery source data actually changed.
   // `defaults` recomputes whenever the project store round-trips (the 250 ms
@@ -580,6 +600,23 @@ function ProposalCompletionWizardContent({
     ],
   );
 
+  // Unified product/BOM readiness — same scorer the template path uses.
+  const productReadiness = useMemo(
+    () =>
+      proposalReadiness({
+        products: selectedProducts,
+        bomRows,
+        assumptions,
+        exportValidation,
+        topology: project.discoveryBrief?.topology,
+        discoveryConversation: project.discoveryBrief?.discoveryConversation,
+      }),
+    [selectedProducts, bomRows, assumptions, exportValidation, project.discoveryBrief],
+  );
+
+  // Final readiness: the lower of wizard-completion and product-readiness.
+  const finalReadinessScore = Math.min(readiness.score, productReadiness.score);
+
   const typeConfig = getProposalDocumentTypeConfig(
     draft.documentType,
   );
@@ -624,13 +661,20 @@ function ProposalCompletionWizardContent({
         ...linesFromText(draft.nextSteps),
         ...salesReadiness.repGuidance,
       ].slice(0, 15),
-      governanceWarnings:
-        salesReadiness.governanceWarnings,
+      governanceWarnings: [
+        ...salesReadiness.governanceWarnings,
+        ...unresolvedToRisks(
+          extractUnresolvedDiscoveryItems({
+            discoveryConversation: project.discoveryBrief?.discoveryConversation,
+            decisionEvidence: project.discoveryBrief?.decisionEvidence,
+          }),
+        ),
+      ],
       validationNotes:
         salesReadiness.validationNotes,
       visualBlocks:
         project.proposal?.visualBlocks ?? [],
-      readinessScore: readiness.score,
+      readinessScore: finalReadinessScore,
       verification: project.proposal?.verification,
       applicationProposal,
       companyName: profile.companyName,
@@ -665,7 +709,7 @@ function ProposalCompletionWizardContent({
       project.proposal?.verification,
       project.proposal?.visualBlocks,
       project.recommendationEvidence?.evidenceUsed,
-      readiness.score,
+      finalReadinessScore,
       salesReadiness.evidence,
       salesReadiness.governanceWarnings,
       salesReadiness.governedDependencies,
@@ -831,11 +875,21 @@ function ProposalCompletionWizardContent({
       return `Export blocked — resolve these issues first:\n${names.join("; ")}`;
     }
 
+    // Check approval status — pending/rejected proposals cannot be exported
+    const approvalStatus = proposal.approvalStatus || "draft";
+    if (approvalStatus === "pending") {
+      return "Export blocked — proposal is awaiting manager approval. Wait for approval or recall the submission.";
+    }
+    if (approvalStatus === "rejected") {
+      const feedback = proposal.approvalComments ? `\nFeedback: ${proposal.approvalComments}` : "";
+      return `Export blocked — proposal was returned for changes.${feedback}\nAddress the feedback and resubmit for approval.`;
+    }
+
     return null;
   }
 
   async function exportDocx() {
-    if (readiness.score < 100) {
+    if (finalReadinessScore < 100) {
       const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting the final DOCX.",
@@ -870,7 +924,7 @@ function ProposalCompletionWizardContent({
   }
 
   function exportHtml() {
-    if (readiness.score < 100) {
+    if (finalReadinessScore < 100) {
       const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting HTML.",
@@ -897,7 +951,7 @@ function ProposalCompletionWizardContent({
   }
 
   function exportCsv() {
-    if (readiness.score < 100) {
+    if (finalReadinessScore < 100) {
       const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting the BOM CSV.",
@@ -939,7 +993,7 @@ function ProposalCompletionWizardContent({
   }
 
   function exportPdf() {
-    if (readiness.score < 100) {
+    if (finalReadinessScore < 100) {
       const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting a PDF.",
@@ -1001,11 +1055,11 @@ function ProposalCompletionWizardContent({
 
         <div
           className="wm-proposal-readiness wingman-surface"
-          data-ready={readiness.score === 100 ? "true" : "false"}
+          data-ready={finalReadinessScore === 100 ? "true" : "false"}
         >
-          <strong>{readiness.score}%</strong>
+          <strong>{finalReadinessScore}%</strong>
           <span>
-            {readiness.score === 100
+            {finalReadinessScore === 100
               ? "Ready for DOCX export"
               : "Proposal completion"}
           </span>
@@ -1014,7 +1068,7 @@ function ProposalCompletionWizardContent({
 
       <section className="wm-proposal-progress-card">
         <div className="wm-proposal-progress-track">
-          <span style={{ width: `${readiness.score}%` }} />
+          <span style={{ width: `${finalReadinessScore}%` }} />
         </div>
 
         <div className="wm-proposal-score-breakdown">
@@ -1604,7 +1658,7 @@ function ProposalCompletionWizardContent({
                 <button
                   type="button"
                   className="is-primary"
-                  disabled={readiness.score < 100}
+                  disabled={finalReadinessScore < 100}
                   onClick={exportDocx}
                 >
                   <Download aria-hidden="true" />
@@ -1613,7 +1667,7 @@ function ProposalCompletionWizardContent({
 
                 <button
                   type="button"
-                  disabled={readiness.score < 100}
+                  disabled={finalReadinessScore < 100}
                   onClick={exportPdf}
                 >
                   <Printer aria-hidden="true" />
@@ -1622,7 +1676,7 @@ function ProposalCompletionWizardContent({
 
                 <button
                   type="button"
-                  disabled={readiness.score < 100}
+                  disabled={finalReadinessScore < 100}
                   onClick={exportHtml}
                 >
                   <FileText aria-hidden="true" />
@@ -1631,7 +1685,7 @@ function ProposalCompletionWizardContent({
 
                 <button
                   type="button"
-                  disabled={readiness.score < 100}
+                  disabled={finalReadinessScore < 100}
                   onClick={exportCsv}
                 >
                   <Table2 aria-hidden="true" />
@@ -1654,6 +1708,61 @@ function ProposalCompletionWizardContent({
                   {exportMessage}
                 </p>
               ) : null}
+
+              {/* Approval workflow controls */}
+              {(() => {
+                const approvalStatus = proposal.approvalStatus || "draft";
+
+                return (
+                  <div className="wm-proposal-approval-section">
+                    <div className="wm-proposal-approval-header">
+                      <h3>Approval status</h3>
+                      <ApprovalStatusBadge status={approvalStatus} />
+                    </div>
+                    {approvalStatus === "approved" && (
+                      <p className="wm-proposal-approval-note wm-proposal-approval-note--approved">
+                        <CheckCircle size={14} /> Approved by {proposal.approvedBy} on {proposal.approvedAt ? new Date(proposal.approvedAt).toLocaleDateString() : "unknown date"}.
+                        {proposal.approvalComments && <> Comments: "{proposal.approvalComments}"</>}
+                      </p>
+                    )}
+                    {approvalStatus === "rejected" && (
+                      <p className="wm-proposal-approval-note wm-proposal-approval-note--rejected">
+                        <XCircle size={14} /> Returned for changes by {proposal.approvedBy}.
+                        {proposal.approvalComments && <> Feedback: "{proposal.approvalComments}"</>}
+                      </p>
+                    )}
+                    {approvalStatus === "pending" && (
+                      <p className="wm-proposal-approval-note wm-proposal-approval-note--pending">
+                        <Clock size={14} /> Submitted by {proposal.submittedBy} — awaiting manager review.
+                      </p>
+                    )}
+                    <div className="wm-proposal-approval-actions">
+                      {(approvalStatus === "draft" || approvalStatus === "rejected") && (
+                        <button
+                          type="button"
+                          className="wm-button is-primary"
+                          disabled={finalReadinessScore < 100}
+                          onClick={() => {
+                            submitForApproval(project.id, project.name || "Salesperson");
+                          }}
+                          title={finalReadinessScore < 100 ? "Complete the proposal before submitting for approval" : "Submit for manager approval before exporting to customer"}
+                        >
+                          <Send size={14} /> Submit for approval
+                        </button>
+                      )}
+                      {approvalStatus === "pending" && (
+                        <button
+                          type="button"
+                          className="wm-button is-secondary"
+                          onClick={() => recallProposal(project.id)}
+                        >
+                          <RotateCcw size={14} /> Recall submission
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="wm-proposal-crm-section">
                 <h3>Push to CRM</h3>
@@ -1765,7 +1874,7 @@ function ProposalCompletionWizardContent({
             <CheckCircle2 aria-hidden="true" />
             <div>
               <span>Readiness</span>
-              <strong>{readiness.score}% complete</strong>
+              <strong>{finalReadinessScore}% complete</strong>
               <p>
                 A complete Discovery contributes up to 65 points. Existing
                 proposal narrative normally takes the starting score into the

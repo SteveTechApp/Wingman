@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { AlertTriangle, Check, Cloud, Copy, LayoutTemplate, RotateCcw, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { AlertTriangle, Check, Cloud, Copy, Filter, LayoutTemplate, RotateCcw, Search, Trash2, Users } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { FeedbackConsolidationPanel } from "../components/FeedbackConsolidationPanel";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
+import { useTeamMembers } from "../data/useTeamMembers";
 import { useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
 import { createProjectFromTemplate } from "../lib/projectFromTemplate";
 
@@ -60,6 +61,32 @@ export function ProjectsPage() {
     resetStore,
   } = useProjectStore();
   const customTemplates = useCustomRoomTemplates();
+  const { members, currentUserId, getMemberName, getMemberInitials } = useTeamMembers();
+
+  const [teamFilter, setTeamFilter] = useState<"mine" | "team" | "all">("mine");
+  const [memberFilter, setMemberFilter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredProjects = useMemo(() => {
+    let result = projects;
+    if (teamFilter === "mine" && currentUserId) {
+      result = result.filter((p) => p.ownerId === currentUserId || p.ownerId === undefined);
+    } else if (teamFilter === "team" && currentUserId) {
+      result = result.filter((p) => p.ownerId !== currentUserId);
+    }
+    if (memberFilter) {
+      result = result.filter((p) => p.ownerId === memberFilter);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.owner.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [projects, teamFilter, memberFilter, searchQuery, currentUserId]);
 
   const [confirmDeleteProjectId, setConfirmDeleteProjectId] = useState<string | null>(null);
   const [confirmDeleteDraftId, setConfirmDeleteDraftId] = useState<string | null>(null);
@@ -169,10 +196,91 @@ export function ProjectsPage() {
 
       <div className="wm-projects-sections">
         <SectionCard
-          title="Active projects"
+          title={teamFilter === "team" ? "Team projects" : teamFilter === "all" ? "All projects" : "My projects"}
           subtitle="Use this table to reopen active opportunities, copy useful examples, or remove stale project lines."
           showHelp={false}
         >
+          {/* Team filter tabs */}
+          <div className="wm-projects-team-filter">
+            <div className="wm-projects-filter-tabs" role="tablist" aria-label="Project filter">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={teamFilter === "mine"}
+                className={`wm-projects-filter-tab ${teamFilter === "mine" ? "is-active" : ""}`}
+                onClick={() => { setTeamFilter("mine"); setMemberFilter(null); }}
+              >
+                <Filter size={14} aria-hidden="true" />
+                My projects
+                {currentUserId && (
+                  <span className="wm-projects-filter-count">
+                    {projects.filter((p) => p.ownerId === currentUserId || p.ownerId === undefined).length}
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={teamFilter === "team"}
+                className={`wm-projects-filter-tab ${teamFilter === "team" ? "is-active" : ""}`}
+                onClick={() => { setTeamFilter("team"); setMemberFilter(null); }}
+              >
+                <Users size={14} aria-hidden="true" />
+                Team
+                <span className="wm-projects-filter-count">
+                  {currentUserId ? projects.filter((p) => p.ownerId !== currentUserId).length : 0}
+                </span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={teamFilter === "all"}
+                className={`wm-projects-filter-tab ${teamFilter === "all" ? "is-active" : ""}`}
+                onClick={() => { setTeamFilter("all"); setMemberFilter(null); }}
+              >
+                All
+                <span className="wm-projects-filter-count">{projects.length}</span>
+              </button>
+            </div>
+            <div className="wm-projects-search-wrap">
+              <Search size={14} className="wm-projects-search-icon" aria-hidden="true" />
+              <input
+                type="text"
+                className="wm-projects-search"
+                placeholder="Search projects..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search projects"
+              />
+            </div>
+            {teamFilter === "team" && members.length > 1 && (
+              <div className="wm-projects-member-filter">
+                <span className="wm-projects-member-filter-label">Filter by member:</span>
+                <div className="wm-projects-member-chips">
+                  <button
+                    type="button"
+                    className={`wm-projects-member-chip ${memberFilter === null ? "is-active" : ""}`}
+                    onClick={() => setMemberFilter(null)}
+                  >
+                    All
+                  </button>
+                  {members.filter((m) => m.id !== currentUserId).map((member) => (
+                    <button
+                      key={member.id}
+                      type="button"
+                      className={`wm-projects-member-chip ${memberFilter === member.id ? "is-active" : ""}`}
+                      onClick={() => setMemberFilter(memberFilter === member.id ? null : member.id)}
+                    >
+                      <span className="wm-projects-member-avatar" aria-hidden="true">
+                        {member.name.split(" ").map((p) => p.charAt(0)).join("").toUpperCase().slice(0, 2)}
+                      </span>
+                      {member.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <div className="wm-projects-store-toolbar">
               <StatusChip
                 className="max-w-xl"
@@ -224,13 +332,25 @@ export function ProjectsPage() {
                 </tr>
               </thead>
               <tbody>
-                {projects.length ? (
-                  projects.map((project) => {
+                {filteredProjects.length ? (
+                  filteredProjects.map((project) => {
                     const compareConfidence = latestCompareConfidence(project);
+                    const ownerInitials = getMemberInitials(project.ownerId);
+                    const ownerDisplayName = project.ownerId ? getMemberName(project.ownerId) : project.owner;
                     return (
                     <tr key={project.id} className="border-t wm-ui-card">
                       <td className="px-4 py-3 font-semibold text-[#edf6ff]" data-label="Project">{project.name}</td>
-                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Owner">{project.owner}</td>
+                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Owner">
+                        <div className="wm-projects-owner-cell">
+                          <span className="wm-projects-owner-avatar" aria-hidden="true">
+                            {ownerInitials}
+                          </span>
+                          <span>{ownerDisplayName}</span>
+                          {project.ownerId && project.ownerId !== currentUserId && (
+                            <span className="wm-projects-team-badge">Team</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-[#edf6ff]" data-label="Stage">
                         <div className="flex flex-col items-start gap-1">
                           <span>{project.stage}</span>
@@ -301,7 +421,11 @@ export function ProjectsPage() {
                 ) : (
                   <tr>
                     <td className="px-5 py-8 text-center text-[#cfe6f7]" colSpan={6}>
-                      No active projects are currently listed. Use Reset sample store to restore the starter examples.
+                      {teamFilter === "mine"
+                        ? "No projects found for you. Create a new project or switch to Team view."
+                        : teamFilter === "team"
+                          ? "No team projects found. Team members need to create projects in a shared workspace."
+                          : "No active projects are currently listed. Use Reset sample store to restore the starter examples."}
                     </td>
                   </tr>
                 )}

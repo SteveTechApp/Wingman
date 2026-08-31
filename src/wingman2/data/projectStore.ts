@@ -20,6 +20,7 @@ export type StoredProject = {
   id: string;
   name: string;
   owner: string;
+  ownerId?: string;
   stage: ProjectStage;
   status: StatusVariant;
   updated: string;
@@ -44,6 +45,18 @@ export type StoredProject = {
   videowall?: StoredVideowallSummary;
   evidenceFoundation?: ProjectEvidenceFoundation;
   visualAssets?: ProposalVisualAsset[];
+  auditTrail?: ProjectAuditEntry[];
+};
+
+export type ProjectAuditEntry = {
+  id: string;
+  action: string;
+  detail: string;
+  actorName: string;
+  actorEmail?: string;
+  scope: string;
+  severity: "info" | "warn" | "error";
+  createdAt: string;
 };
 
 // One row of the discovery Q&A trail carried into the brief and, from there,
@@ -191,6 +204,13 @@ export type StoredProjectProposal = {
   contactPhone?: string;
   discoveryConversation?: DiscoveryConversationItem[];
   updatedAt: string;
+  /** Approval workflow — managers review before customer issue. */
+  approvalStatus?: ProposalApprovalStatus;
+  submittedBy?: string;
+  submittedAt?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  approvalComments?: string;
 };
 
 /** A snapshot of the proposal at a point in time, for version history. */
@@ -233,6 +253,8 @@ export type StoredRequirementRecord = {
   whyItMatters: string;
   updatedAt: string;
 };
+
+export type ProposalApprovalStatus = "draft" | "pending" | "approved" | "rejected";
 
 export type StoredProposalOutputPurpose = {
   motion: string;
@@ -1061,6 +1083,7 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
     id: stringValue(record.id, createId("stored-project")),
     name: stringValue(record.name || record.roomName, "Untitled Project"),
     owner: stringValue(record.owner || record.customer, "Wingman user"),
+    ownerId: stringValue(record.ownerId, undefined),
     stage: normalizedStage(record.stage),
     status: statusVariant(record.status),
     updated: stringValue(record.updated, "Synced"),
@@ -1111,7 +1134,27 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
   const visualAssets = normalizeProposalVisualAssets(record.visualAssets, project.id);
   if (visualAssets.length) project.visualAssets = visualAssets;
 
+  const auditTrail = normalizeAuditTrail(record.auditTrail);
+  if (auditTrail.length) project.auditTrail = auditTrail;
+
   return project;
+}
+
+function normalizeAuditTrail(value: unknown): ProjectAuditEntry[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    .map((item) => ({
+      id: stringValue(item.id, `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`),
+      action: stringValue(item.action, "updated"),
+      detail: stringValue(item.detail, "Activity recorded."),
+      actorName: stringValue(item.actorName, "Wingman"),
+      actorEmail: stringValue(item.actorEmail, undefined),
+      scope: stringValue(item.scope, "project"),
+      severity: ["info", "warn", "error"].includes(String(item.severity)) ? String(item.severity) as "info" : "info",
+      createdAt: stringValue(item.createdAt, nowIso()),
+    }))
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 }
 
 function normalizeProposalVisualAssets(value: unknown, projectId: string): ProposalVisualAsset[] {
@@ -1795,6 +1838,7 @@ function createWorkflowProject(input: {
   recommendationEvidence?: StoredRecommendationEvidence;
   videowall?: StoredVideowallSummary;
   workflow: StoredWorkflowState;
+  auditTrail?: ProjectAuditEntry[];
 }) {
   const timestamp = nowIso();
 
@@ -1817,6 +1861,7 @@ function createWorkflowProject(input: {
     recommendationEvidence: input.recommendationEvidence,
     videowall: input.videowall,
     workflow: input.workflow,
+    auditTrail: input.auditTrail,
   } satisfies StoredProject;
 }
 
@@ -1855,6 +1900,11 @@ export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief, project
     updatedAt: timestamp,
   };
 
+  const capturedPercent = brief.capturedPercent ?? 0;
+  const auditDetail = existing?.discoveryBrief
+    ? `Discovery updated — ${capturedPercent}% captured`
+    : `Discovery created — ${capturedPercent}% captured`;
+
   const project = existing
     ? {
         ...existing,
@@ -1865,6 +1915,10 @@ export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief, project
         resumeTo: routeCatalogByKey.recommendations.path,
         updatedAt: timestamp,
         discoveryBrief: brief,
+        auditTrail: [
+          { id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, action: "discovery-save", detail: auditDetail, scope: "discovery", severity: "info" as const, actorName: "Wingman user", createdAt: timestamp },
+          ...(existing.auditTrail ?? []),
+        ].slice(0, 50),
         workflow,
       }
     : createWorkflowProject({
@@ -1873,6 +1927,9 @@ export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief, project
         status: "recommended",
         resumeTo: routeCatalogByKey.recommendations.path,
         discoveryBrief: brief,
+        auditTrail: [
+          { id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, action: "discovery-create", detail: auditDetail, scope: "discovery", severity: "info" as const, actorName: "Wingman user", createdAt: timestamp },
+        ],
         workflow,
       });
 
@@ -1985,7 +2042,13 @@ export function saveProductSelectionToProject(projectId: string, selection: Stor
     ...(existing.productSelections ?? []).filter((item) => item.sku !== selected.sku),
   ].slice(0, 20);
 
-  return upsertStoredProject({
+  // Record audit event for product selection change
+  const existingSkus = (existing.productSelections ?? []).map((p) => p.sku);
+  const auditDetail = existingSkus.includes(selected.sku)
+    ? `Updated product ${selected.sku} (${selected.title || selected.sku})`
+    : `Added product ${selected.sku} (${selected.title || selected.sku}) to project`;
+
+  const result = upsertStoredProject({
     ...existing,
     stage: "Recommendations",
     status: selected.status ?? existing.status,
@@ -1993,6 +2056,10 @@ export function saveProductSelectionToProject(projectId: string, selection: Stor
     resumeTo: routeCatalogByKey.recommendations.path,
     updatedAt: timestamp,
     productSelections,
+    auditTrail: [
+      { id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, action: "product-selection", detail: auditDetail, scope: "products", severity: "info" as const, actorName: "Wingman user", createdAt: timestamp },
+      ...(existing.auditTrail ?? []),
+    ].slice(0, 50),
     workflow: {
       source: "Recommendations",
       lastStep: "Product selected",
@@ -2000,6 +2067,8 @@ export function saveProductSelectionToProject(projectId: string, selection: Stor
       updatedAt: timestamp,
     },
   });
+
+  return result;
 }
 
 export function saveProductSelectionToCurrentProject(selection: StoredProductSelection) {
@@ -2276,6 +2345,12 @@ export function saveProjectProposalToProject(proposal: StoredProjectProposal) {
     ];
   }
 
+  const proposalProductCount = (proposal.products ?? []).length;
+  const readinessPct = proposal.readinessScore ?? 0;
+  const proposalAuditDetail = existing?.proposal
+    ? `Proposal updated — ${proposalProductCount} products, readiness ${readinessPct}%`
+    : `Proposal created — ${proposalProductCount} products, readiness ${readinessPct}%`;
+
   const project = existing
     ? {
         ...existing,
@@ -2286,6 +2361,10 @@ export function saveProjectProposalToProject(proposal: StoredProjectProposal) {
         updatedAt: timestamp,
         proposal,
         proposalVersions,
+        auditTrail: [
+          { id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, action: "proposal-save", detail: proposalAuditDetail, scope: "proposal", severity: "info" as const, actorName: "Wingman user", createdAt: timestamp },
+          ...(existing.auditTrail ?? []),
+        ].slice(0, 50),
         workflow,
       }
     : createWorkflowProject({

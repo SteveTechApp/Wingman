@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CheckCircle2, Pencil, Save, Trash2, X } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { AuditLogPanel } from "../components/AuditLogPanel";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip } from "../components/StatusChip";
@@ -190,7 +191,7 @@ type ProjectReadinessGate = {
   route: string;
 };
 
-type ProjectDetailSection = "overview" | "capture" | "confirm" | "decide" | "handoff";
+type ProjectDetailSection = "overview" | "capture" | "confirm" | "decide" | "handoff" | "audit";
 
 const projectDetailSections: Array<{
   key: ProjectDetailSection;
@@ -203,6 +204,7 @@ const projectDetailSections: Array<{
   { key: "confirm", label: "Confirm", shortLabel: "2", description: "Check requirements and settle open answers." },
   { key: "decide", label: "Decide", shortLabel: "3", description: "Review the evidence behind the product direction." },
   { key: "handoff", label: "Handoff", shortLabel: "4", description: "Prepare the proposal and share the project." },
+  { key: "audit", label: "Audit Log", shortLabel: "Log", description: "Track who changed what and when across this project." },
 ];
 
 function formatProjectTimestamp(value: unknown) {
@@ -1409,6 +1411,14 @@ export function ProjectDetailPage() {
             <DealOutcomeSection project={project} />
             <CrmSharePanel project={project} />
           </div>
+        ) : null}
+        {activeSection === "audit" ? (
+          <SectionCard
+            title="Audit Log"
+            subtitle="Track who changed what and when across this project. Discovery edits, product changes, proposal modifications, and approvals are recorded automatically."
+          >
+            <AuditLogPanel entries={project.auditTrail ?? []} />
+          </SectionCard>
         ) : null}
         </>
         ) : null}

@@ -4533,12 +4533,20 @@ function CompetitorSearchCard({
   summary,
   locallyRecognised,
   liveResearched = false,
+  confidenceSource,
 }: {
   brand: string;
   sku: string;
   summary: CompetitorSummary;
   locallyRecognised: boolean;
   liveResearched?: boolean;
+  confidenceSource?: {
+    mode?: string;
+    approvedBy?: string | null;
+    approvedAt?: string | null;
+    decisionType?: string | null;
+    note?: string;
+  };
 }) {
   const primaryFacts = summary.facts.slice(0, 4);
 
@@ -4554,6 +4562,14 @@ function CompetitorSearchCard({
         </span>
       </header>
       <p>{summary.detail || summary.warning || "Competitor product identity requires confirmation."}</p>
+      {confidenceSource?.note && (
+        <div className="wm-compare-confidence-source" role="status">
+          <span className="wm-compare-confidence-source__icon" aria-hidden="true">
+            {confidenceSource.mode === "decision-ledger-approved" ? "✅" : confidenceSource.mode === "stored-intelligence" ? "📋" : confidenceSource.mode === "live" ? "🌐" : "📄"}
+          </span>
+          <span className="wm-compare-confidence-source__text">{confidenceSource.note}</span>
+        </div>
+      )}
       <dl>
         {primaryFacts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
       </dl>
@@ -6521,6 +6537,7 @@ function ComparePageNew() {
                   liveResearchStatus === "done" &&
                   liveResearchAssessment?.sourceMode === "live"
                 }
+                confidenceSource={liveResearchResult?.confidence_source}
               />
               {activeCandidate ? <>
                 <BestCandidateCard candidate={activeCandidate} competitor={competitorSummary} competitorProfile={profile} onCopySummary={() => { void copySummary(); }} />
