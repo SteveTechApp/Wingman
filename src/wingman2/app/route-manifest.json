@@ -250,5 +250,14 @@
     "navLabel": "Analytics",
     "pageFile": "AnalyticsDashboardPage.tsx",
     "summary": "Feature usage patterns, product quote frequency, and win rates from your projects."
+  },
+  {
+    "key": "approvalQueue",
+    "path": "/wingman/approval-queue",
+    "segment": "approval-queue",
+    "label": "Approval Queue",
+    "navLabel": "Approvals",
+    "pageFile": "ApprovalQueuePage.tsx",
+    "summary": "Review and approve proposals before they go to customers."
   }
 ]

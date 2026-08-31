@@ -13,6 +13,7 @@ export interface ProductSearchResult {
   connectors: string[];
   lifecycleStatus: string;
   brand: string;
+  classificationPath: string[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -106,5 +107,6 @@ export async function searchProducts(
     connectors: Array.isArray(p.connectors) ? p.connectors : [],
     lifecycleStatus: String(p.lifecycleStatus ?? ""),
     brand: String(p.brand ?? "WyreStorm"),
+    classificationPath: Array.isArray(p.classificationPath) ? p.classificationPath : [],
   }));
 }
