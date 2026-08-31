@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Database, Menu, Plus, X } from "lucide-react";
+import { Database, Menu, Plus, X, CheckCircle } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { UiModeToggle } from "../components/UiModeToggle";
 import { useUiMode } from "../data/uiMode";
@@ -235,7 +235,7 @@ export function AppShell({ children }: AppShellProps) {
   }, [activeRoute?.key, activeSummary]);
   const { isGuided } = useUiMode();
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
-  const guidedNav = useMemo(() => primaryNav.filter((r) => r.key === "dashboard"), [primaryNav]);
+  const guidedNav = useMemo(() => primaryNav.filter((r) => ["dashboard", "compare", "projects"].includes(r.key)), [primaryNav]);
   const canManageData =
   import.meta.env.DEV ||
   Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
@@ -359,7 +359,7 @@ export function AppShell({ children }: AppShellProps) {
               </span>
             </NavLink>
           ))}
-          {canManageData && !isGuided ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink></> : null}
+          {canManageData && !isGuided ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink><NavLink to="/wingman/approval-queue" title="Review and approve proposals" aria-label="Approval Queue: Review and approve proposals" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><CheckCircle className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Approvals</span></span><span className="wingman-nav-tooltip" role="tooltip">Review and approve proposals</span></NavLink></> : null}
         </nav>
 
         <div className="wingman-sidebar-footer">
@@ -403,6 +403,9 @@ export function AppShell({ children }: AppShellProps) {
           </div>
 
           <WingmanViewportFitControl />
+          <div className="wm-topbar-mode-toggle">
+            <UiModeToggle />
+          </div>
           {activeRoute?.key !== "dashboard" && (
             <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">
               <Plus className="h-4 w-4" />
@@ -424,12 +427,14 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
-      <WingmanGuruFab
-        open={guruOpen}
-        onClick={() => setGuruOpen((current) => !current)}
-        hasContextualTransfer={Boolean(guruSupportCue)}
-      />
-      {guruOpen && (
+      {!isGuided && (
+        <>
+          <WingmanGuruFab
+            open={guruOpen}
+            onClick={() => setGuruOpen((current) => !current)}
+            hasContextualTransfer={Boolean(guruSupportCue)}
+          />
+          {guruOpen && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer
             open={guruOpen}
@@ -442,6 +447,8 @@ export function AppShell({ children }: AppShellProps) {
             onSeedHandled={() => setGuruSeedPrompt(null)}
           />
         </Suspense>
+      )}
+        </>
       )}
     </div>
   );

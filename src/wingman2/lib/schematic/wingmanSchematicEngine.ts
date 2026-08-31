@@ -11,6 +11,7 @@ import type {
   SchematicWarning,
 } from "./schematicTypes";
 import { applySchematicLayout } from "./schematicLayoutEngine";
+import { validateSchematicConstraints, violationsToWarnings } from "./schematicConstraintValidator";
 import {
   defaultTransportForDistance,
   hasAvoipProducts,
@@ -279,6 +280,14 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
     warnings,
     bomHints,
   };
+
+  // Run constraint validation — cable lengths, power budgets, port compatibility.
+  const constraintViolations = validateSchematicConstraints({
+    model: draftModel,
+    products: products.map((p) => ({ sku: p.sku, quantity: p.quantity })),
+    maxSignalDistanceM: brief.maxSignalDistanceM,
+  });
+  draftModel.warnings.push(...violationsToWarnings(constraintViolations));
 
   return applySchematicLayout(draftModel);
 }

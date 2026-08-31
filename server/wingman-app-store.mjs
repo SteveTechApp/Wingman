@@ -1932,6 +1932,33 @@ export async function handleWingmanWorkspaceMembersGet(req, res, url, { sendJson
   sendJson(res, 200, { ok: true, members });
 }
 
+export async function handleWingmanWorkspaceTeamGet(req, res, url, { sendJson }) {
+  const db = await readDb();
+  const auth = getAuthContext(req, url, db);
+  if (!auth.ok) {
+    sendJson(res, 401, { ok: false, error: auth.error });
+    return;
+  }
+
+  const members = getWorkspaceMemberships(auth.workspace).map((membership) => {
+    const user = db.users.find((candidate) => candidate.id === membership.userId);
+    return {
+      id: membership.userId,
+      name: tidy(user?.name) || "Team member",
+      role: normalizeWorkspaceRole(membership.role, "sales"),
+      lastSeenAt: asArray(db.sessions)
+        .filter((session) => session.userId === membership.userId && session.workspaceId === auth.workspace.id)
+        .sort((a, b) => String(b.lastSeenAt).localeCompare(String(a.lastSeenAt)))[0]?.lastSeenAt || null,
+    };
+  });
+
+  sendJson(res, 200, {
+    ok: true,
+    team: members,
+    currentUserId: auth.user.id,
+  });
+}
+
 export async function handleWingmanWorkspaceInvitationsGet(req, res, url, { sendJson }) {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);

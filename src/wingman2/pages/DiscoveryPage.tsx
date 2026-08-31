@@ -243,6 +243,9 @@ export function DiscoveryPage() {
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
   const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("basic");
+  // Pending escalation: set when a non-basic question is edited while in basic mode,
+  // shows a confirmation dialog before switching to Expert.
+  const [pendingEscalation, setPendingEscalation] = useState<string | null>(null);
   // `?interview=1` (used by the dashboard / project-card resume links) opens
   // straight into the guided interview, which resumes at the first open question.
   const [interviewActive, setInterviewActive] = useState(
@@ -337,7 +340,8 @@ export function DiscoveryPage() {
       setActiveIndex(editIndex);
       setIsReviewingAnswers(false);
     } else if (progressiveMode === "basic" && discoveryQuestions.some((q) => q.id === editQuestionId)) {
-      setProgressiveMode("expert");
+      // Don't silently switch — show a confirmation prompt instead
+      setPendingEscalation(editQuestionId);
     }
   }, [modeQuestions, editQuestionId, progressiveMode, discoveryQuestions]);
 
@@ -1498,6 +1502,8 @@ return (
         <DiscoveryCompletionPanel
           panelRef={completionPanelRef}
           answerCount={modeQuestions.length}
+          totalQuestions={discoveryQuestions.length}
+          mode={progressiveMode}
           requiresVideoWallConfiguration={videoWallConfigurationPending}
           videoWallConfigured={requiresVideoWallConfiguration && videoWallConfigured}
           savedMessage={savedMessage}
@@ -1506,6 +1512,7 @@ return (
             setActiveIndex(Math.max(modeQuestions.length - 1, 0));
             setIsReviewingAnswers(true);
           }}
+          onUnlockExpert={() => setProgressiveMode("expert")}
           onSave={saveDiscoveryToProject}
           onExportBrief={() =>
             exportDiscoveryBriefHtml(buildDiscoveryBrief(), {
@@ -1515,6 +1522,42 @@ return (
         />
       ) : (
       <>
+      {/* Pending Escalation Confirmation — shown when user edits a non-basic question */}
+      {pendingEscalation && progressiveMode === "basic" && !isReviewingAnswers && (
+        <div className="wm-discovery-escalation-confirm" data-wingman-escalation-confirm="true" role="dialog" aria-label="Switch to Expert mode?">
+          <div className="wm-discovery-escalation-confirm-content">
+            <span className="wm-discovery-escalation-confirm-icon" aria-hidden="true">🔬</span>
+            <div>
+              <strong>Unlock full discovery?</strong>
+              <p>
+                The question you want to edit is outside the 6 essential Basic questions. Switching to Expert mode will reveal all {discoveryQuestions.length} questions.
+              </p>
+            </div>
+          </div>
+          <div className="wm-discovery-escalation-confirm-actions">
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-primary"
+              onClick={() => {
+                setProgressiveMode("expert");
+                setPendingEscalation(null);
+              }}
+              data-testid="escalation-confirm"
+            >
+              Switch to Expert
+            </button>
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-secondary"
+              onClick={() => setPendingEscalation(null)}
+              data-testid="escalation-dismiss"
+            >
+              Stay in Basic
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Progressive disclosure: mode toggle, smart defaults, and step banner */}
       {!isReviewingAnswers && !editQuestionId && (
         <DiscoveryProgressiveDisclosure

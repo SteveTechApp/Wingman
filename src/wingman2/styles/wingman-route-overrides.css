@@ -28426,9 +28426,304 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* ── Audit Log Panel ──────────────────────────────────────────────── */
+.wm-audit-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 10px;
+  background: rgba(8, 28, 47, 0.5);
+  border: 1px solid rgba(83, 224, 255, 0.12);
+  color: rgba(237, 246, 255, 0.5);
+  font-size: 0.8rem;
+}
+.wm-audit-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wm-audit-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wm-audit-search-wrap {
+  position: relative;
+  max-width: 280px;
+}
+.wm-audit-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(237, 246, 255, 0.35);
+  pointer-events: none;
+}
+.wm-audit-search {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(83, 224, 255, 0.2);
+  background: rgba(8, 28, 47, 0.8);
+  color: #edf6ff;
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.wm-audit-search:focus {
+  border-color: rgba(83, 224, 255, 0.45);
+}
+.wm-audit-search::placeholder {
+  color: rgba(237, 246, 255, 0.35);
+}
+.wm-audit-scope-filters {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.wm-audit-scope-chip {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(83, 224, 255, 0.18);
+  background: rgba(8, 28, 47, 0.6);
+  color: rgba(237, 246, 255, 0.6);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wm-audit-scope-chip:hover {
+  border-color: rgba(83, 224, 255, 0.35);
+  color: #edf6ff;
+}
+.wm-audit-scope-chip.is-active {
+  background: color-mix(in srgb, var(--chip-color, rgba(83, 224, 255, 0.15)) 20%, transparent);
+  border-color: var(--chip-color, rgba(83, 224, 255, 0.4));
+  color: #edf6ff;
+}
+.wm-audit-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.wm-audit-entry {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(83, 224, 255, 0.08);
+}
+.wm-audit-entry:last-child {
+  border-bottom: none;
+}
+.wm-audit-entry-icon {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+.wm-audit-entry-content {
+  flex: 1;
+  min-width: 0;
+}
+.wm-audit-entry-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.wm-audit-entry-action {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.wm-audit-entry-time {
+  font-size: 0.7rem;
+  color: rgba(237, 246, 255, 0.4);
+  margin-left: auto;
+}
+.wm-audit-entry-detail {
+  font-size: 0.8rem;
+  color: rgba(237, 246, 255, 0.75);
+  line-height: 1.4;
+  margin: 0;
+}
+.wm-audit-entry-actor {
+  font-size: 0.7rem;
+  color: rgba(237, 246, 255, 0.4);
+  margin-top: 3px;
+  display: block;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    Phase 1.1 — Mobile-responsive breakpoints for on-site tablet/phone use
    ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Team filter, member chips, and owner badges ────────────────── */
+.wm-projects-team-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(83, 224, 255, 0.12);
+  margin-bottom: 12px;
+}
+.wm-projects-filter-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(8, 28, 47, 0.6);
+  border-radius: 10px;
+  padding: 3px;
+  width: fit-content;
+}
+.wm-projects-filter-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(237, 246, 255, 0.6);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wm-projects-filter-tab:hover {
+  color: rgba(237, 246, 255, 0.85);
+  background: rgba(83, 224, 255, 0.08);
+}
+.wm-projects-filter-tab.is-active {
+  background: rgba(83, 224, 255, 0.15);
+  border-color: rgba(83, 224, 255, 0.3);
+  color: #edf6ff;
+}
+.wm-projects-filter-count {
+  font-size: 0.7rem;
+  background: rgba(83, 224, 255, 0.15);
+  padding: 1px 6px;
+  border-radius: 10px;
+  color: rgba(237, 246, 255, 0.5);
+  min-width: 18px;
+  text-align: center;
+}
+.wm-projects-filter-tab.is-active .wm-projects-filter-count {
+  background: rgba(83, 224, 255, 0.25);
+  color: #edf6ff;
+}
+.wm-projects-search-wrap {
+  position: relative;
+  max-width: 280px;
+}
+.wm-projects-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(237, 246, 255, 0.35);
+  pointer-events: none;
+}
+.wm-projects-search {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(83, 224, 255, 0.2);
+  background: rgba(8, 28, 47, 0.8);
+  color: #edf6ff;
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.wm-projects-search:focus {
+  border-color: rgba(83, 224, 255, 0.45);
+}
+.wm-projects-search::placeholder {
+  color: rgba(237, 246, 255, 0.35);
+}
+.wm-projects-member-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wm-projects-member-filter-label {
+  font-size: 0.75rem;
+  color: rgba(237, 246, 255, 0.5);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.wm-projects-member-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.wm-projects-member-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(83, 224, 255, 0.18);
+  background: rgba(8, 28, 47, 0.6);
+  color: rgba(237, 246, 255, 0.65);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wm-projects-member-chip:hover {
+  border-color: rgba(83, 224, 255, 0.35);
+  color: #edf6ff;
+}
+.wm-projects-member-chip.is-active {
+  background: rgba(83, 224, 255, 0.15);
+  border-color: rgba(83, 224, 255, 0.4);
+  color: #edf6ff;
+}
+.wm-projects-member-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.25);
+  color: #c4b5fd;
+  font-size: 0.6rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.wm-projects-owner-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wm-projects-owner-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(83, 224, 255, 0.2));
+  color: #c4b5fd;
+  font-size: 0.65rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+.wm-projects-team-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 /* --- Projects table: card layout on mobile --- */
 @media (max-width: 760px) {
@@ -28697,6 +28992,105 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
 .wm-discovery-escalation-actions button:first-child {
   background: rgba(251, 191, 36, 0.2);
   border-color: rgba(251, 191, 36, 0.5);
+}
+
+/* ── Escalation Confirmation Dialog ──────────────────────────────── */
+.wm-discovery-escalation-confirm {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(99, 162, 255, 0.25);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 0 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  animation: wm-slide-in 0.2s ease-out;
+}
+@keyframes wm-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.wm-discovery-escalation-confirm-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+.wm-discovery-escalation-confirm-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.wm-discovery-escalation-confirm-content strong {
+  color: #93c5fd;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 4px;
+}
+.wm-discovery-escalation-confirm-content p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin: 0;
+}
+.wm-discovery-escalation-confirm-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.wm-discovery-escalation-confirm-actions button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(99, 162, 255, 0.3);
+  background: rgba(99, 162, 255, 0.12);
+  color: #93c5fd;
+  transition: background 0.15s;
+}
+.wm-discovery-escalation-confirm-actions button:hover {
+  background: rgba(99, 162, 255, 0.2);
+}
+.wm-discovery-escalation-confirm-actions button:first-child {
+  background: rgba(99, 162, 255, 0.2);
+  border-color: rgba(99, 162, 255, 0.5);
+}
+
+/* ── Unlock Expert CTA (completion panel) ──────────────────────────── */
+.wm-discovery-unlock-expert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px dashed rgba(139, 92, 246, 0.35);
+  background: rgba(139, 92, 246, 0.08);
+  color: #c4b5fd;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: left;
+}
+.wm-discovery-unlock-expert:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+.wm-discovery-unlock-expert strong {
+  color: #c4b5fd;
+  font-size: 0.9rem;
+}
+.wm-discovery-unlock-expert small {
+  color: rgba(196, 181, 253, 0.6);
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 2px;
+}
+.wm-discovery-unlock-expert svg:last-child {
+  margin-left: auto;
+  opacity: 0.6;
 }
 
 /* ── Template Validation Blockers/Warnings ────────────────────────── */

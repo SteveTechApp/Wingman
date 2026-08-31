@@ -39,6 +39,14 @@ describe("Discovery step progression", () => {
       </MemoryRouter>,
     );
 
+    // signal-standard is outside Basic mode — shows escalation confirmation dialog
+    const confirmButton = await screen.findByTestId("escalation-confirm");
+    expect(confirmButton).toBeInTheDocument();
+    expect(screen.getByText(/Unlock full discovery/)).toBeInTheDocument();
+
+    // Switch to Expert to access the question
+    fireEvent.click(confirmButton);
+
     expect(await screen.findByRole("heading", { name: "How sharp does the picture need to be?" })).toBeInTheDocument();
   });
 });

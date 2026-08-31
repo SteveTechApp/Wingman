@@ -28,7 +28,9 @@ import type { SalesBomRow } from "../lib/salesReadiness";
 import { compileTemplateApplicationProposal } from "../lib/proposalCompiler";
 import { loadTemplateDraft } from "../lib/solutionTemplates";
 import { validateProposalExport, type ExportValidationResult } from "../lib/proposalExportValidation";
+import { proposalReadiness, type ProposalReadiness } from "../lib/proposalReadiness";
 import { searchProducts, type ProductSearchResult } from "../lib/productSearch";
+import { classifyProduct, checkRoleCompatibility } from "../lib/roleCompatibility";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
 const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
@@ -77,9 +79,13 @@ function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
 function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): StoredProjectProposal {
   const bomRows = templateBomRows(template, rows);
   const products = templateProducts(rows);
-  // readinessScore is now calculated by the component via validateProposalExport.
-  // This fallback is only used inside buildTemplateProposal where the real score isn't available yet.
-  const readinessScore = template.validationItems.length > 4 ? 78 : 84;
+  // Use the unified readiness scorer — no hard-coded fallback.
+  const readiness = proposalReadiness({
+    products, bomRows,
+    assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)],
+    validationItems: template.validationItems,
+  });
+  const readinessScore = readiness.score;
   const coach = buildWingmanCoachState({
     source: "proposal-template", audience: "dealer",
     discovery: { projectTitle: template.name, summary: template.customerNarrative, roomSize: template.application, displays: template.vertical },
@@ -172,14 +178,29 @@ export function TemplateReviewPage() {
     [products, bomRows],
   );
 
-  // Real readiness score: start from 100%, deduct for blockers and warnings
-  const readinessScore = useMemo(() => {
-    const base = 100;
-    const blockerDeduction = exportValidation.blockers.length * 15;
-    const warningDeduction = exportValidation.warnings.length * 5;
-    const validationDeduction = selectedTemplate ? selectedTemplate.validationItems.length * 3 : 0;
-    return Math.max(0, Math.min(100, base - blockerDeduction - warningDeduction - validationDeduction));
-  }, [exportValidation, selectedTemplate]);
+  // Real readiness score via the unified scorer — same formula as the discovery path.
+  const readiness: ProposalReadiness = useMemo(() => {
+    if (!selectedTemplate) return { score: 0, reviewRequired: true, exportValidation, summary: "No template", breakdown: { base: 0, blockerDeduction: 0, warningDeduction: 0, validationItemDeduction: 0, assumptionDeduction: 0, productBonus: 0 } };
+    return proposalReadiness({
+      products,
+      bomRows,
+      assumptions: [...selectedTemplate.assumptions, ...selectedTemplate.validationItems.map((item) => `Unverified: ${item}`)],
+      validationItems: selectedTemplate.validationItems,
+      exportValidation,
+    });
+  }, [products, bomRows, selectedTemplate, exportValidation]);
+  const readinessScore = readiness.score;
+
+  /* Product search for BY-OTHERS replacement — must be before the early return */
+  const handleModelSearch = useCallback((query: string, _rowId: string) => {
+    setModelSearchQuery(query);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (query.length < 2) { setModelSearchResults([]); return; }
+    searchTimerRef.current = setTimeout(async () => {
+      const results = await searchProducts(query, 6);
+      setModelSearchResults(results);
+    }, 250);
+  }, []);
 
   if (!selectedTemplate) return <div data-wingman-template-detail-page="true" className="pb-10"><PageHero eyebrow="Room templates" title="Template not found." purpose="The selected room design template could not be found." nextMove="Go back to the template library and pick a room design to review." actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]} /></div>;
 
@@ -206,17 +227,6 @@ export function TemplateReviewPage() {
   function updateRowField(rowId: string, field: string, value: string) {
     mutateRows((current) => current.map((row) => row.id !== rowId ? row : { ...row, [field]: value }));
   }
-
-  /* Product search for BY-OTHERS replacement */
-  const handleModelSearch = useCallback((query: string, rowId: string) => {
-    setModelSearchQuery(query);
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    if (query.length < 2) { setModelSearchResults([]); return; }
-    searchTimerRef.current = setTimeout(async () => {
-      const results = await searchProducts(query, 6);
-      setModelSearchResults(results);
-    }, 250);
-  }, []);
 
   function selectSearchResult(rowId: string, result: ProductSearchResult) {
     updateRowField(rowId, "manufacturer", result.brand || "WyreStorm");
@@ -466,16 +476,25 @@ export function TemplateReviewPage() {
             <label className="wm-drawer-model-field">Model<input type="text" value={detailRow.model ?? ""} placeholder="Type SKU or product name to search catalogue..." onChange={(event) => { updateRowField(detailRow.id, "model", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, model: event.target.value } : prev); handleModelSearch(event.target.value, detailRow.id); }} /></label>
             {modelSearchResults.length > 0 && detailRow.id && (
               <div className="wm-drawer-search-results" role="listbox" aria-label="Product catalogue search results">
-                {modelSearchResults.map((result) => (
-                  <button key={result.sku} type="button" className="wm-drawer-search-result" role="option" onClick={() => selectSearchResult(detailRow.id, result)}>
-                    <span className="wm-drawer-search-sku">{result.sku}</span>
-                    <span className="wm-drawer-search-name">{result.name}</span>
-                    <span className="wm-drawer-search-meta">{result.category} — {result.lifecycleStatus}</span>
-                    {result.connectors.length > 0 && (
-                      <span className="wm-drawer-search-connectors">{result.connectors.slice(0, 4).join(', ')}</span>
-                    )}
-                  </button>
-                ))}
+                {modelSearchResults.map((result) => {
+                  const productTags = classifyProduct(result);
+                  const roleCheck = detailRow.role ? checkRoleCompatibility(detailRow.role, productTags) : null;
+                  return (
+                    <button key={result.sku} type="button" className={`wm-drawer-search-result ${roleCheck && !roleCheck.compatible ? "wm-drawer-search-result--incompatible" : ""}`} role="option" onClick={() => selectSearchResult(detailRow.id, result)}>
+                      <div className="wm-drawer-search-result-header">
+                        <span className="wm-drawer-search-sku">{result.sku}</span>
+                        {roleCheck && !roleCheck.compatible && (
+                          <span className="wm-drawer-search-role-badge wm-drawer-search-role-badge--error" title={roleCheck.message}>⚠ role mismatch</span>
+                        )}
+                      </div>
+                      <span className="wm-drawer-search-name">{result.name}</span>
+                      <span className="wm-drawer-search-meta">{result.category} — {result.lifecycleStatus}</span>
+                      {result.connectors.length > 0 && (
+                        <span className="wm-drawer-search-connectors">{result.connectors.slice(0, 4).join(', ')}</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
             <label>Owner<select value={detailRow.owner ?? "integrator"} onChange={(event) => { updateRowField(detailRow.id, "owner", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, owner: event.target.value } : prev); }}>
@@ -489,6 +508,17 @@ export function TemplateReviewPage() {
                 <small> — {detailRow.owner === "customer" ? "Customer supplies" : detailRow.owner === "wyrestorm" ? "Add to WyreStorm scope" : "Integrator supplies"}</small>
               </div>
             )}
+            {detailRow.manufacturer && detailRow.model && detailRow.role && (() => {
+              const productTags = classifyProduct({ sku: detailRow.model, name: detailRow.model });
+              const roleCheck = checkRoleCompatibility(detailRow.role, productTags);
+              if (roleCheck.compatible) return null;
+              return (
+                <div className="wm-drawer-role-warning" role="alert">
+                  <AlertTriangle size={14} />
+                  <span>{roleCheck.message}</span>
+                </div>
+              );
+            })()}
           </div>
         )}
         {(detailRow.description?.toLowerCase().includes("in-desk") || detailRow.role?.toLowerCase().includes("in-desk")) && (

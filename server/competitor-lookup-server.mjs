@@ -47,6 +47,7 @@ import {
   handleWingmanWorkspaceInvitationsPost,
   handleWingmanWorkspaceMemberRolePost,
   handleWingmanWorkspaceMembersGet,
+  handleWingmanWorkspaceTeamGet,
   handleWingmanWorkspaceSettingsPost,
 } from "./wingman-app-store.mjs";
 import { resolveCompetitorMatch } from "./competitor/resolve-match.mjs";
@@ -2264,6 +2265,11 @@ const ROUTES = [
     method: "GET",
     path: "/api/wingman/workspace",
     handler: (req, res, url, { sendJson }) => handleWingmanWorkspaceGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/workspace/team",
+    handler: (req, res, url, { sendJson }) => handleWingmanWorkspaceTeamGet(req, res, url, { sendJson }),
   },
   {
     method: "GET",

@@ -4,11 +4,13 @@ import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
 import { normaliseProductTechnology } from "./technology-normalizer.mjs";
 import {
   COMPETITOR_CATALOG_FILE,
+  COMPETITOR_DECISION_LEDGER_FILE,
   PRODUCT_INTELLIGENCE_DB_FILE,
   WYRESTORM_PAGE_CACHE_FILE,
   WYRESTORM_SEED_CATALOG_FILE,
   WYRESTORM_SKU_MASTER_FILE,
 } from "../catalog/files.mjs";
+import { readLedgerForApi } from "../governance/competitor-decision-ledger-store.mjs";
 
 const MATCH_CACHE = new Map();
 const WYRESTORM_PAGE_CACHE = new Map();
@@ -1817,19 +1819,51 @@ async function loadCompetitorIntelligenceRecord(manufacturer, model) {
     ...(Array.isArray(catalog) ? catalog : []),
   ];
 
-  if (records.length === 0) return null;
-
   const brandKey = normalise(manufacturer);
   const skuKey = normalise(model);
 
-  const exact = records.find((record) => {
-    if (!isApprovedCompetitorIntelligenceRecord(record)) return false;
-    if (normalise(record?.brand) !== brandKey) return false;
-    if (normalise(record?.sku) !== skuKey) return false;
-    return true;
-  });
+  // Check file-based intelligence store first
+  if (records.length > 0) {
+    const exact = records.find((record) => {
+      if (!isApprovedCompetitorIntelligenceRecord(record)) return false;
+      if (normalise(record?.brand) !== brandKey) return false;
+      if (normalise(record?.sku) !== skuKey) return false;
+      return true;
+    });
+    if (exact) return exact;
+  }
 
-  if (exact) return exact;
+  // Fallback: check the Supabase-synced decision ledger for approved decisions
+  // This enables cross-machine visibility — an approval made on machine A
+  // is visible to machine B via the ledger's Supabase mirror.
+  try {
+    const { ledger } = await readLedgerForApi(COMPETITOR_DECISION_LEDGER_FILE);
+    const decisions = Array.isArray(ledger?.decisions) ? ledger.decisions : [];
+    const approvedDecision = decisions.find((decision) => {
+      if (decision.reviewStatus !== "approved") return false;
+      if (normalise(decision?.competitorManufacturer) !== brandKey) return false;
+      if (normalise(decision?.competitorSku) !== skuKey) return false;
+      return true;
+    });
+    if (approvedDecision) {
+      // Convert the decision ledger entry into a shape compatible with
+      // the intelligence record interface so downstream code works unchanged.
+      return {
+        brand: approvedDecision.recommendedWyrestormManufacturer || approvedDecision.competitorManufacturer,
+        sku: approvedDecision.recommendedWyrestormSku || "",
+        name: approvedDecision.recommendedWyrestormSku || approvedDecision.competitorSku,
+        status: "approved",
+        vendorType: "competitor",
+        source: "decision-ledger",
+        approvedBy: approvedDecision.reviewer || "unknown",
+        approvedAt: approvedDecision.reviewedAt || approvedDecision.updatedAt,
+        decisionType: approvedDecision.decisionType || "review-required",
+        _fromDecisionLedger: true,
+      };
+    }
+  } catch {
+    // Ledger read failure is non-fatal — fall through to live lookup
+  }
 
   return null;
 }
@@ -2042,6 +2076,7 @@ export async function resolveCompetitorMatch(payload) {
   let competitorResolvedUrl = "";
   let competitorSourceUrls = [];
   let competitorLookupMode = "live";
+  let decisionLedgerSource = null;
 
   if (storedCompetitorRecord) {
     competitorProfile = buildCompetitorProfileFromIntelligenceRecord(storedCompetitorRecord);
@@ -2051,7 +2086,18 @@ export async function resolveCompetitorMatch(payload) {
       : competitorResolvedUrl
         ? [competitorResolvedUrl]
         : [];
-    competitorLookupMode = "stored-intelligence";
+    // Detect whether this came from the decision ledger (Supabase-backed)
+    // vs the file-based intelligence store
+    if (storedCompetitorRecord._fromDecisionLedger) {
+      competitorLookupMode = "decision-ledger-approved";
+      decisionLedgerSource = {
+        approvedBy: storedCompetitorRecord.approvedBy,
+        approvedAt: storedCompetitorRecord.approvedAt,
+        decisionType: storedCompetitorRecord.decisionType,
+      };
+    } else {
+      competitorLookupMode = "stored-intelligence";
+    }
   }
 
   if (!competitorProfile) {
@@ -2137,6 +2183,19 @@ export async function resolveCompetitorMatch(payload) {
     resolved_competitor_url: competitorResolvedUrl,
     compare_quality: best?.quality || null,
     compare_readiness: best?.readiness || null,
+    confidence_source: {
+      mode: competitorLookupMode,
+      approvedBy: decisionLedgerSource?.approvedBy || null,
+      approvedAt: decisionLedgerSource?.approvedAt || null,
+      decisionType: decisionLedgerSource?.decisionType || null,
+      note: competitorLookupMode === "live"
+        ? "Live web lookup — no governed decision found for this competitor product."
+        : competitorLookupMode === "stored-intelligence"
+          ? "Matched from the governed intelligence store."
+          : competitorLookupMode === "decision-ledger-approved"
+            ? `Approved by ${decisionLedgerSource?.approvedBy || "unknown"} on ${decisionLedgerSource?.approvedAt || "unknown date"} — this decision is backed by the governed decision ledger.`
+          : "Matched from the curated competitor catalog.",
+    },
   };
 
   MATCH_CACHE.set(cacheKey, result);

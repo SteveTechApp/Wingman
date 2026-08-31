@@ -16886,9 +16886,9 @@
         "USB-C",
         "Wi-Fi"
       ],
-      "maxResolution": "4K60Hz",
+      "maxResolution": "4K30-3840",
       "video": [
-        "4K60Hz"
+        "4K30-3840"
       ],
       "features": {
         "hdr": false
@@ -16930,7 +16930,7 @@
         "USB-C",
         "Wi-Fi"
       ],
-      "maxResolution": "1080p60Hz",
+      "maxResolution": "1080p",
       "video": [
         "1080p60Hz"
       ],

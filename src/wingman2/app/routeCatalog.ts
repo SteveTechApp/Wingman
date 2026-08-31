@@ -19,6 +19,7 @@ import {
   Shield,
   Workflow,
   Swords,
+  CheckCircle,
 } from "lucide-react";
 import routeManifest from "./route-manifest.json";
 
@@ -44,6 +45,7 @@ export type WingmanRouteKey =
   | "productCallCards"
   | "ingest"
   | "proposal"
+  | "approvalQueue"
   |  "support"
   | "profile"
   | "proposalVisuals"
@@ -95,6 +97,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   analyticsDashboard: BarChart3,
   terms: Shield,
   proposalVisuals: Workflow,
+  approvalQueue: CheckCircle,
 };
 
 const manifest = routeManifest as RouteManifestEntry[];

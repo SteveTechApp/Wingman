@@ -1,14 +1,17 @@
 import type { RefObject } from "react";
-import { ArrowRight, Check, ClipboardCheck, FileText, Save, FileDown } from "lucide-react";
+import { ArrowRight, Check, ClipboardCheck, FileText, Save, FileDown, Sparkles } from "lucide-react";
 
 type DiscoveryCompletionPanelProps = {
   panelRef: RefObject<HTMLElement>;
   answerCount: number;
+  totalQuestions?: number;
+  mode?: "basic" | "expert";
   requiresVideoWallConfiguration: boolean;
   videoWallConfigured: boolean;
   savedMessage: string;
   onMoveForward: (target: "recommendations" | "proposal") => void;
   onReviewAnswers: () => void;
+  onUnlockExpert?: () => void;
   onSave: () => void;
   onExportBrief?: () => void;
 };
@@ -16,11 +19,14 @@ type DiscoveryCompletionPanelProps = {
 export function DiscoveryCompletionPanel({
   panelRef,
   answerCount,
+  totalQuestions,
+  mode,
   requiresVideoWallConfiguration,
   videoWallConfigured,
   savedMessage,
   onMoveForward,
   onReviewAnswers,
+  onUnlockExpert,
   onSave,
   onExportBrief,
 }: DiscoveryCompletionPanelProps) {
@@ -83,6 +89,13 @@ export function DiscoveryCompletionPanel({
             <span><strong>Save to project</strong><small>Keep this discovery on file</small></span>
             <ArrowRight size={16} aria-hidden="true" />
           </button>
+          {mode === "basic" && totalQuestions && totalQuestions > answerCount && onUnlockExpert && (
+            <button type="button" className="wm-discovery-unlock-expert" onClick={onUnlockExpert} data-testid="unlock-expert-cta">
+              <Sparkles size={20} aria-hidden="true" />
+              <span><strong>Unlock more detail</strong><small>{totalQuestions - answerCount} additional questions available</small></span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          )}
           {onExportBrief && (
             <button type="button" onClick={onExportBrief} data-testid="discovery-brief-export">
               <FileDown size={20} aria-hidden="true" />
