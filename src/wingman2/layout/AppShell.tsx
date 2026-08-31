@@ -235,7 +235,7 @@ export function AppShell({ children }: AppShellProps) {
   }, [activeRoute?.key, activeSummary]);
   const { isGuided } = useUiMode();
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
-  const guidedNav = useMemo(() => primaryNav.filter((r) => ["dashboard", "compare", "projects"].includes(r.key)), [primaryNav]);
+  const guidedNav = useMemo(() => primaryNav.filter((r) => ["dashboard"].includes(r.key)), [primaryNav]);
   const canManageData =
   import.meta.env.DEV ||
   Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
