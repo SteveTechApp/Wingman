@@ -29,7 +29,8 @@
     "terms",
     "battleCards",
     "quoteSafetyDashboard",
-    "analyticsDashboard"
+    "analyticsDashboard",
+    "approvalQueue"
   ],
   "retiredRouteKeys": [
     "finder",
