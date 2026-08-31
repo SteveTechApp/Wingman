@@ -4,14 +4,21 @@
     {
       "brand": "Blustream",
       "sku": "C88CS",
-      "matchPatterns": ["C88CS", "BLUSTREAM.*C88"],
+      "matchPatterns": [
+        "C88CS",
+        "BLUSTREAM.*C88"
+      ],
       "productClass": "8x8 HDBaseT matrix",
       "domainTag": "hdbaset_matrix",
       "matrixSize": "8x8",
       "inputCount": 8,
       "outputCount": 8,
-      "inputTypes": ["HDMI"],
-      "outputTypes": ["HDBaseT"],
+      "inputTypes": [
+        "HDMI"
+      ],
+      "outputTypes": [
+        "HDBaseT"
+      ],
       "transport": "HDBaseT",
       "technology": "8x8 HDBaseT matrix",
       "systemRole": "Route multiple HDMI sources to multiple remote displays over HDBaseT.",
@@ -26,9 +33,19 @@
           "confidence": 78,
           "outcome": "PARTIAL MATCH",
           "summary": "Known profile override: 8x8 HDBaseT matrix candidate. Verify datasheet-level video, distance, control and power details before external positioning.",
-          "matches": ["8x8 matrix topology.", "HDBaseT output transport.", "HDMI source input direction."],
-          "gaps": ["Datasheet-level video, distance, control and power details must be confirmed."],
-          "verify": ["Confirm HDMI/HDCP version.", "Confirm 4K distance and receiver compatibility.", "Confirm IR, RS-232 and IP control requirements."],
+          "matches": [
+            "8x8 matrix topology.",
+            "HDBaseT output transport.",
+            "HDMI source input direction."
+          ],
+          "gaps": [
+            "Datasheet-level video, distance, control and power details must be confirmed."
+          ],
+          "verify": [
+            "Confirm HDMI/HDCP version.",
+            "Confirm 4K distance and receiver compatibility.",
+            "Confirm IR, RS-232 and IP control requirements."
+          ],
           "nextAction": "Use as the primary WyreStorm fixed-matrix comparison path."
         },
         {
@@ -37,10 +54,30 @@
           "confidence": 76,
           "outcome": "PARTIAL MATCH",
           "summary": "Known profile override: long-distance 8x8 HDBaseT matrix candidate. Verify datasheet-level details before external positioning.",
-          "matches": ["8x8 matrix topology.", "HDBaseT output transport.", "Longer-distance matrix direction."],
-          "gaps": ["Verify exact distance, receiver compatibility and control set."],
-          "verify": ["Confirm distance requirement.", "Confirm receiver type.", "Confirm control and audio requirements."],
-          "nextAction": "Use where the opportunity is distance-sensitive."
+          "matches": [
+            "8x8 matrix topology.",
+            "HDBaseT output transport.",
+            "Longer-distance matrix direction."
+          ],
+          "gaps": [
+            "Verify exact distance, receiver compatibility and control set."
+          ],
+          "verify": [
+            "Confirm distance requirement.",
+            "Confirm receiver type.",
+            "Confirm control and audio requirements."
+          ],
+          "nextAction": "Use where the opportunity is distance-sensitive.",
+          "matrixInputs": 8,
+          "matrixOutputs": 8,
+          "routedInputs": 8,
+          "routedOutputs": 8,
+          "routedInputCount": 8,
+          "routedOutputCount": 8,
+          "matrixSize": "8x8",
+          "matrixSizeEvidence": "Title evidence: 70m 4K60 8x8 HDBaseT Matrix",
+          "ioEvidenceStatus": "derived",
+          "quoteSafety": "verify-before-quote"
         },
         {
           "sku": "MXV-0808-H2A-KIT",
@@ -48,9 +85,17 @@
           "confidence": 70,
           "outcome": "VERIFY",
           "summary": "Known profile override: 8x8 HDBaseT matrix kit direction with receivers included.",
-          "matches": ["Same 8x8 matrix topology.", "HDBaseT matrix product class.", "KIT package includes receivers."],
-          "gaps": ["Confirm receiver mix and exact receiver types included in the kit."],
-          "verify": ["Confirm whether this is a kit/package comparison or matrix-only comparison."],
+          "matches": [
+            "Same 8x8 matrix topology.",
+            "HDBaseT matrix product class.",
+            "KIT package includes receivers."
+          ],
+          "gaps": [
+            "Confirm receiver mix and exact receiver types included in the kit."
+          ],
+          "verify": [
+            "Confirm whether this is a kit/package comparison or matrix-only comparison."
+          ],
           "nextAction": "Use as the package/kit comparison path when included receivers are required."
         },
         {
@@ -59,26 +104,61 @@
           "confidence": 64,
           "outcome": "VERIFY",
           "summary": "Known profile override: 8x8 matrix kit direction where receivers are included in the box.",
-          "matches": ["8x8 matrix direction.", "KIT package may suit projects where receivers need to be included."],
-          "gaps": ["KIT package does not automatically make it a like-for-like equivalent."],
-          "verify": ["Confirm receiver/package and specification requirements."],
-          "nextAction": "Position as a related package option only after confirming receiver/package requirements."
+          "matches": [
+            "8x8 matrix direction.",
+            "KIT package may suit projects where receivers need to be included."
+          ],
+          "gaps": [
+            "KIT package does not automatically make it a like-for-like equivalent."
+          ],
+          "verify": [
+            "Confirm receiver/package and specification requirements."
+          ],
+          "nextAction": "Position as a related package option only after confirming receiver/package requirements.",
+          "matrixInputs": 8,
+          "matrixOutputs": 8,
+          "routedInputs": 8,
+          "routedOutputs": 8,
+          "routedInputCount": 8,
+          "routedOutputCount": 8,
+          "matrixSize": "8x8",
+          "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
+          "ioEvidenceStatus": "derived",
+          "quoteSafety": "verify-before-quote",
+          "mirroredOutputs": 4,
+          "mirroredOutputCount": 4
         }
       ],
-      "blockedCandidatePatterns": ["-TX(?:-|$)", "-RX(?:-|$)", "^NHD-\\d+", "^NHD-CTL", "^CAB-", "^EX-"],
-      "architectureAlternativeFamilies": ["NetworkHD"]
+      "blockedCandidatePatterns": [
+        "-TX(?:-|$)",
+        "-RX(?:-|$)",
+        "^NHD-\\d+",
+        "^NHD-CTL",
+        "^CAB-",
+        "^EX-"
+      ],
+      "architectureAlternativeFamilies": [
+        "NetworkHD"
+      ]
     },
     {
       "brand": "Lightware",
       "sku": "MMX4x2-HDMI",
-      "matchPatterns": ["MMX4X2HDMI", "LIGHTWARE.*MMX4X2"],
+      "matchPatterns": [
+        "MMX4X2HDMI",
+        "LIGHTWARE.*MMX4X2"
+      ],
       "productClass": "4x2 HDMI matrix",
       "domainTag": "hdmi_matrix",
       "matrixSize": "4x2",
       "inputCount": 4,
       "outputCount": 2,
-      "inputTypes": ["HDMI"],
-      "outputTypes": ["HDMI"],
+      "inputTypes": [
+        "HDMI"
+      ],
+      "outputTypes": [
+        "HDMI"
+      ],
       "transport": "HDMI",
       "technology": "4x2 HDMI matrix",
       "systemRole": "Route four HDMI sources to two independently routed HDMI displays.",
@@ -93,9 +173,19 @@
           "confidence": 82,
           "outcome": "GOOD MATCH",
           "summary": "Known profile override: direct 4x2 HDMI matrix candidate. Verify detailed HDMI/HDCP, control and audio behaviour before quote positioning.",
-          "matches": ["4x2 matrix topology.", "HDMI input transport.", "HDMI output transport."],
-          "gaps": ["Datasheet-level HDMI/HDCP, audio and control behaviour must still be confirmed."],
-          "verify": ["Confirm HDMI/HDCP version.", "Confirm audio de-embed and ARC requirements.", "Confirm control method."],
+          "matches": [
+            "4x2 matrix topology.",
+            "HDMI input transport.",
+            "HDMI output transport."
+          ],
+          "gaps": [
+            "Datasheet-level HDMI/HDCP, audio and control behaviour must still be confirmed."
+          ],
+          "verify": [
+            "Confirm HDMI/HDCP version.",
+            "Confirm audio de-embed and ARC requirements.",
+            "Confirm control method."
+          ],
           "nextAction": "Use as the primary compact HDMI matrix comparison path."
         },
         {
@@ -104,26 +194,50 @@
           "confidence": 48,
           "outcome": "VERIFY",
           "summary": "Known profile override: larger 8x8 HDMI matrix. Only position if the customer needs extra routed HDMI I/O.",
-          "matches": ["HDMI matrix family.", "HDMI source and output direction."],
-          "gaps": ["Oversized versus the 4x2 requirement."],
-          "verify": ["Confirm whether the opportunity actually needs 8 inputs or 8 outputs."],
+          "matches": [
+            "HDMI matrix family.",
+            "HDMI source and output direction."
+          ],
+          "gaps": [
+            "Oversized versus the 4x2 requirement."
+          ],
+          "verify": [
+            "Confirm whether the opportunity actually needs 8 inputs or 8 outputs."
+          ],
           "nextAction": "Treat as an over-capacity option, not the direct replacement."
         }
       ],
-      "blockedCandidatePatterns": ["-TX(?:-|$)", "-RX(?:-|$)", "^NHD-\\d+", "^NHD-CTL", "^CAB-"],
-      "architectureAlternativeFamilies": ["NetworkHD"]
+      "blockedCandidatePatterns": [
+        "-TX(?:-|$)",
+        "-RX(?:-|$)",
+        "^NHD-\\d+",
+        "^NHD-CTL",
+        "^CAB-"
+      ],
+      "architectureAlternativeFamilies": [
+        "NetworkHD"
+      ]
     },
     {
       "brand": "AVPro Edge",
       "sku": "AC-MX-44HDBT",
-      "matchPatterns": ["ACMX44HDBT", "ACMX44", "ACMX42X", "AVPRO.*4X4.*MATRIX"],
+      "matchPatterns": [
+        "ACMX44HDBT",
+        "ACMX44",
+        "ACMX42X",
+        "AVPRO.*4X4.*MATRIX"
+      ],
       "productClass": "4x4 HDBaseT matrix",
       "domainTag": "hdbaset_matrix",
       "matrixSize": "4x4",
       "inputCount": 4,
       "outputCount": 4,
-      "inputTypes": ["HDMI"],
-      "outputTypes": ["HDBaseT"],
+      "inputTypes": [
+        "HDMI"
+      ],
+      "outputTypes": [
+        "HDBaseT"
+      ],
       "transport": "HDBaseT",
       "technology": "4x4 HDBaseT matrix",
       "systemRole": "Route four HDMI sources to four independently routed remote display zones over HDBaseT.",
@@ -138,10 +252,35 @@
           "confidence": 82,
           "outcome": "GOOD MATCH",
           "summary": "Known profile override: 4x4 HDBaseT matrix kit candidate. Treat routed outputs as four zones; mirrored HDMI is a feature, not extra matrix capacity.",
-          "matches": ["4x4 matrix topology.", "HDBaseT destination transport.", "HDMI source input direction.", "Receiver package direction."],
-          "gaps": ["Confirm exact distance, receiver mix, control and audio requirements before quote positioning."],
-          "verify": ["Confirm HDMI/HDCP version.", "Confirm 4K distance and receiver package.", "Confirm whether mirrored HDMI is required or only useful."],
-          "nextAction": "Use as the primary WyreStorm 4x4 HDBaseT matrix comparison path."
+          "matches": [
+            "4x4 matrix topology.",
+            "HDBaseT destination transport.",
+            "HDMI source input direction.",
+            "Receiver package direction."
+          ],
+          "gaps": [
+            "Confirm exact distance, receiver mix, control and audio requirements before quote positioning."
+          ],
+          "verify": [
+            "Confirm HDMI/HDCP version.",
+            "Confirm 4K distance and receiver package.",
+            "Confirm whether mirrored HDMI is required or only useful."
+          ],
+          "nextAction": "Use as the primary WyreStorm 4x4 HDBaseT matrix comparison path.",
+          "matrixInputs": 4,
+          "matrixOutputs": 4,
+          "routedInputs": 4,
+          "routedOutputs": 4,
+          "routedInputCount": 4,
+          "routedOutputCount": 4,
+          "matrixSize": "4x4",
+          "matrixSizeEvidence": "Source evidence: 4 HDBaseT zone outputs plus 1 mirrored HDMI output",
+          "ioEvidenceStatus": "derived",
+          "quoteSafety": "verify-before-quote",
+          "physicalOutputs": 5,
+          "physicalOutputCount": 5,
+          "mirroredOutputs": 1,
+          "mirroredOutputCount": 1
         },
         {
           "sku": "MXV-0404-H2A-KIT",
@@ -149,9 +288,19 @@
           "confidence": 78,
           "outcome": "PARTIAL MATCH",
           "summary": "Known profile override: related 4x4 HDBaseT matrix kit. Verify current availability and receiver package before positioning.",
-          "matches": ["4x4 matrix topology.", "HDBaseT output direction.", "HDMI source input direction."],
-          "gaps": ["Availability and package contents need confirmation."],
-          "verify": ["Confirm active/current SKU status.", "Confirm included receivers.", "Confirm distance class."],
+          "matches": [
+            "4x4 matrix topology.",
+            "HDBaseT output direction.",
+            "HDMI source input direction."
+          ],
+          "gaps": [
+            "Availability and package contents need confirmation."
+          ],
+          "verify": [
+            "Confirm active/current SKU status.",
+            "Confirm included receivers.",
+            "Confirm distance class."
+          ],
           "nextAction": "Use as the related 4x4 HDBaseT matrix path when the V2/current kit is not the right package."
         },
         {
@@ -160,9 +309,18 @@
           "confidence": 66,
           "outcome": "VERIFY",
           "summary": "Known profile override: 4x4 matrix kit with mixed HDBaseT and HDMI outputs. It can be useful, but it is not a pure four-zone HDBaseT like-for-like.",
-          "matches": ["4x4 routed matrix topology.", "HDBaseT matrix family.", "Receiver-kit direction."],
-          "gaps": ["Mixed output transport may not match a four-zone HDBaseT requirement."],
-          "verify": ["Confirm whether all four destinations need HDBaseT.", "Confirm whether one local HDMI output is acceptable."],
+          "matches": [
+            "4x4 routed matrix topology.",
+            "HDBaseT matrix family.",
+            "Receiver-kit direction."
+          ],
+          "gaps": [
+            "Mixed output transport may not match a four-zone HDBaseT requirement."
+          ],
+          "verify": [
+            "Confirm whether all four destinations need HDBaseT.",
+            "Confirm whether one local HDMI output is acceptable."
+          ],
           "nextAction": "Use only if the system design accepts the mixed HDBaseT/HDMI output set."
         },
         {
@@ -171,26 +329,59 @@
           "confidence": 58,
           "outcome": "VERIFY",
           "summary": "Known profile override: local 4x4 HDMI matrix. Same routed size, different transport.",
-          "matches": ["4x4 routed matrix topology.", "HDMI input direction."],
-          "gaps": ["Local HDMI outputs do not replace HDBaseT distance or receiver requirements."],
-          "verify": ["Confirm cable-distance requirement.", "Confirm whether remote receivers are required."],
-          "nextAction": "Use when the job only needs local HDMI routing."
+          "matches": [
+            "4x4 routed matrix topology.",
+            "HDMI input direction."
+          ],
+          "gaps": [
+            "Local HDMI outputs do not replace HDBaseT distance or receiver requirements."
+          ],
+          "verify": [
+            "Confirm cable-distance requirement.",
+            "Confirm whether remote receivers are required."
+          ],
+          "nextAction": "Use when the job only needs local HDMI routing.",
+          "matrixInputs": 4,
+          "matrixOutputs": 4,
+          "routedInputs": 4,
+          "routedOutputs": 4,
+          "routedInputCount": 4,
+          "routedOutputCount": 4,
+          "matrixSize": "4x4",
+          "matrixSizeEvidence": "SKU/title evidence: MX-0404-HDMI / 4x4 HDMI Matrix",
+          "ioEvidenceStatus": "derived",
+          "quoteSafety": "verify-before-quote"
         }
       ],
-      "blockedCandidatePatterns": ["-TX(?:-|$)", "-RX(?:-|$)", "^NHD-\\d+", "^NHD-CTL", "^CAB-", "^EX-"],
-      "architectureAlternativeFamilies": ["NetworkHD"]
+      "blockedCandidatePatterns": [
+        "-TX(?:-|$)",
+        "-RX(?:-|$)",
+        "^NHD-\\d+",
+        "^NHD-CTL",
+        "^CAB-",
+        "^EX-"
+      ],
+      "architectureAlternativeFamilies": [
+        "NetworkHD"
+      ]
     },
     {
       "brand": "AVPro Edge",
       "sku": "AC-EX40-444-KIT",
-      "matchPatterns": ["ACEX40444KIT"],
+      "matchPatterns": [
+        "ACEX40444KIT"
+      ],
       "productClass": "4x4 HDBaseT matrix intent - verify exact AVPro SKU",
       "domainTag": "hdbaset_matrix",
       "matrixSize": "4x4",
       "inputCount": 4,
       "outputCount": 4,
-      "inputTypes": ["HDMI"],
-      "outputTypes": ["HDBaseT"],
+      "inputTypes": [
+        "HDMI"
+      ],
+      "outputTypes": [
+        "HDBaseT"
+      ],
       "transport": "HDBaseT",
       "technology": "4x4 HDBaseT matrix",
       "systemRole": "Route four HDMI sources to four independently routed remote display zones over HDBaseT.",
@@ -205,10 +396,36 @@
           "confidence": 74,
           "outcome": "PARTIAL MATCH",
           "summary": "Known profile override: 4x4 HDBaseT matrix kit candidate. Verify the source competitor SKU because AC-EX40-444-KIT reads as an extender kit, not a matrix SKU.",
-          "matches": ["4x4 matrix topology.", "HDBaseT destination transport.", "HDMI source input direction.", "Receiver package direction."],
-          "gaps": ["Confirm exact distance, receiver mix, control and audio requirements before quote positioning."],
-          "verify": ["Confirm the exact AVPro competitor SKU before quote positioning.", "Confirm HDMI/HDCP version.", "Confirm 4K distance and receiver package.", "Confirm whether mirrored HDMI is required or only useful."],
-          "nextAction": "Use as the primary WyreStorm 4x4 HDBaseT matrix comparison path."
+          "matches": [
+            "4x4 matrix topology.",
+            "HDBaseT destination transport.",
+            "HDMI source input direction.",
+            "Receiver package direction."
+          ],
+          "gaps": [
+            "Confirm exact distance, receiver mix, control and audio requirements before quote positioning."
+          ],
+          "verify": [
+            "Confirm the exact AVPro competitor SKU before quote positioning.",
+            "Confirm HDMI/HDCP version.",
+            "Confirm 4K distance and receiver package.",
+            "Confirm whether mirrored HDMI is required or only useful."
+          ],
+          "nextAction": "Use as the primary WyreStorm 4x4 HDBaseT matrix comparison path.",
+          "matrixInputs": 4,
+          "matrixOutputs": 4,
+          "routedInputs": 4,
+          "routedOutputs": 4,
+          "routedInputCount": 4,
+          "routedOutputCount": 4,
+          "matrixSize": "4x4",
+          "matrixSizeEvidence": "Source evidence: 4 HDBaseT zone outputs plus 1 mirrored HDMI output",
+          "ioEvidenceStatus": "derived",
+          "quoteSafety": "verify-before-quote",
+          "physicalOutputs": 5,
+          "physicalOutputCount": 5,
+          "mirroredOutputs": 1,
+          "mirroredOutputCount": 1
         },
         {
           "sku": "MXV-0404-H2A-KIT",
@@ -216,14 +433,34 @@
           "confidence": 70,
           "outcome": "PARTIAL MATCH",
           "summary": "Known profile override: related 4x4 HDBaseT matrix kit. Verify current availability and receiver package before positioning.",
-          "matches": ["4x4 matrix topology.", "HDBaseT output direction.", "HDMI source input direction."],
-          "gaps": ["Availability and package contents need confirmation."],
-          "verify": ["Confirm the exact AVPro competitor SKU before quote positioning.", "Confirm active/current SKU status.", "Confirm included receivers.", "Confirm distance class."],
+          "matches": [
+            "4x4 matrix topology.",
+            "HDBaseT output direction.",
+            "HDMI source input direction."
+          ],
+          "gaps": [
+            "Availability and package contents need confirmation."
+          ],
+          "verify": [
+            "Confirm the exact AVPro competitor SKU before quote positioning.",
+            "Confirm active/current SKU status.",
+            "Confirm included receivers.",
+            "Confirm distance class."
+          ],
           "nextAction": "Use as the related 4x4 HDBaseT matrix path when the V2/current kit is not the right package."
         }
       ],
-      "blockedCandidatePatterns": ["-TX(?:-|$)", "-RX(?:-|$)", "^NHD-\\d+", "^NHD-CTL", "^CAB-", "^EX-"],
-      "architectureAlternativeFamilies": ["NetworkHD"]
+      "blockedCandidatePatterns": [
+        "-TX(?:-|$)",
+        "-RX(?:-|$)",
+        "^NHD-\\d+",
+        "^NHD-CTL",
+        "^CAB-",
+        "^EX-"
+      ],
+      "architectureAlternativeFamilies": [
+        "NetworkHD"
+      ]
     }
   ]
 }
