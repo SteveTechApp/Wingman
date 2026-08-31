@@ -8033,16 +8033,31 @@ html[data-wingman-ui-mode="guided"] .wingman-brand {
   padding: 10px 12px 6px;
 }
 html[data-wingman-ui-mode="guided"] .wingman-brand-image {
-  width: 100px;
+  width: 48px;
   height: auto;
+}
+html[data-wingman-ui-mode="guided"] .wingman-brand {
+  padding: 8px 0;
+  justify-content: center;
 }
 html[data-wingman-ui-mode="guided"].wingman-shell .wingman-sidebar,
 html[data-wingman-ui-mode="guided"][data-wingman-route] .wingman-sidebar {
-  width: 180px !important;
-  min-width: 180px !important;
+  width: 64px !important;
+  min-width: 64px !important;
 }
 html[data-wingman-ui-mode="guided"] .wingman-nav {
-  padding: 8px 10px;
+  padding: 8px 6px;
+}
+html[data-wingman-ui-mode="guided"] .wingman-nav-link {
+  justify-content: center;
+  padding: 8px;
+  gap: 0;
+}
+html[data-wingman-ui-mode="guided"] .wingman-nav-copy {
+  display: none !important;
+}
+html[data-wingman-ui-mode="guided"] .wingman-nav-tooltip {
+  display: block !important;
 }
 html[data-wingman-ui-mode="guided"] .wingman-sidebar .wingman-nav-link-active {
   background: rgba(83,224,255,0.12);
@@ -8052,83 +8067,97 @@ html[data-wingman-ui-mode="guided"] .wingman-sidebar .wingman-nav-link-active .w
 }
 
 /* ── Guided mode: compact discovery page ──────────────────────── */
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-hero {
-  display: none;
+/* Hide non-essential elements in guided mode */
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-hero,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-completion-card,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-qs-entry,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner-wrap,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-smart-defaults-banner,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-escalation-banner,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-trail-card {
+  display: none !important;
 }
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-completion-card {
-  display: none;
-}
+/* Compact mode toggle — small pill buttons */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-toggle {
-  padding: 4px 8px;
-  gap: 6px;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-button {
-  min-height: 28px;
-  padding: 3px 8px;
-  font-size: .7rem;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-hint {
-  font-size: .6rem;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner-wrap {
-  padding: 4px 0;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner {
-  padding: 6px 10px;
-  gap: 0;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner .wm-discovery-batch-step-item {
-  padding: 4px 8px;
-  font-size: .62rem;
+  padding: 2px 4px;
   gap: 4px;
 }
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-button {
+  padding: 3px 8px;
+  font-size: .65rem;
+  font-weight: 600;
+  border-radius: 6px;
+  min-height: 24px;
+  gap: 3px;
+}
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-button svg,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-button .wm-ui-icon {
+  width: 12px;
+  height: 12px;
+}
+/* Hide the hint text */
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-hint {
+  display: none !important;
+}
+/* Tighter question card and options */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-card {
   padding: 10px 12px;
   gap: 8px;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-heading h2 {
-  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-heading > p {
   font-size: .72rem;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option {
-  min-height: 56px;
-  padding: 8px 10px;
+  min-height: 48px;
+  padding: 6px 10px;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option strong {
-  font-size: .74rem;
+  font-size: .72rem;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option small {
-  font-size: .64rem;
+  font-size: .62rem;
 }
+/* Compact step bar */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-compact-stepbar {
-  padding: 6px 0;
+  padding: 4px 0;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-compact-step-copy strong {
-  font-size: .7rem;
+  font-size: .68rem;
 }
+/* Smaller navigation buttons */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-navigation-row {
   padding: 4px 0;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-navigation-row button {
-  min-height: 32px;
-  padding: 5px 10px;
-  font-size: .72rem;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card {
-  padding: 10px;
-  gap: 8px;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-heading h3 {
-  font-size: .78rem;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card textarea {
-  min-height: 80px;
-  font-size: .72rem;
+  min-height: 28px;
+  padding: 4px 12px;
+  font-size: .7rem;
+  border-radius: 6px;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-layout {
-  gap: 8px;
+  gap: 6px;
+}
+/* Hide step bar and reset button in guided mode */
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-compact-stepbar {
+  display: none !important;
+}
+/* Full-width question area when capture box is hidden */
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-layout {
+  grid-template-columns: 1fr !important;
+}
+/* Subtle welcome header above question in guided mode */
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-layout::before {
+  content: "Let's find the right solution.";
+  display: block;
+  padding: 12px 16px 4px;
+  font-size: .88rem;
+  font-weight: 500;
+  color: rgba(248,251,255,0.55);
+  letter-spacing: .01em;
 }
 
 /* ── Guided mode: compact Compare page ─────────────────────────── */

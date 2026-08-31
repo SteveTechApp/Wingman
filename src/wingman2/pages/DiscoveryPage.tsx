@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useUiMode } from "../data/uiMode";
 import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -106,6 +107,7 @@ const discoveryAuditMarkers = [
 
 
 export function DiscoveryPage() {
+  const { isGuided } = useUiMode();
   const [searchParams] = useSearchParams();
   const editQuestionId = searchParams.get("edit")?.trim() ?? "";
   const [discoveryDraft] = useState(() => readLatestDiscoverySnapshot());
@@ -1463,9 +1465,9 @@ return (
         </div>
       </header>
 
-      {!interviewActive && discoveryMode === "standard" ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
+      {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
-      <DiscoveryClientDetailsPanel
+      {!isGuided && <DiscoveryClientDetailsPanel
         clientName={clientName}
         onClientNameChange={setClientName}
         contactName={contactName}
@@ -1477,7 +1479,7 @@ return (
         budgetInputRef={budgetInputRef}
         timeline={timeline}
         onTimelineChange={setTimeline}
-      />
+      />}
 
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
