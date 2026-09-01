@@ -1,4 +1,17 @@
 {
   "policy": "Reviewed, time-limited exceptions to the high-severity dependency audit gate. An exception records a deliberate decision that a specific advisory does not apply to how Wingman uses the package. It is not a way to silence a finding that has not been assessed. Every entry must carry a justification and an expiry; the check fails once an exception expires, so nothing here can quietly become permanent.",
-  "exceptions": []
+  "exceptions": [
+    {
+      "advisory": "GHSA-c83g-rgw3-j3cx",
+      "package": "browserslist",
+      "expiresOn": "2026-10-31",
+      "justification": "Browserslist is a build-time-only transitive dependency (via autoprefixer -> vite build). It is never shipped to the runtime bundle and its query results are not user-controlled. GHSA-c83g-rgw3-j3cx (unbounded memory growth in query caching, leading to OOM) only applies to long-running processes repeatedly issuing distinct queries against untrusted input; Wingman's build runs a fixed query set once per build. Revisit at expiry: upgrade browserslist (or autoprefixer) if a patched version is available."
+    },
+    {
+      "advisory": "GHSA-73wf-gq98-2v4g",
+      "package": "browserslist",
+      "expiresOn": "2026-10-31",
+      "justification": "GHSA-73wf-gq98-2v4g (prototype write via untrusted browserslist-stats.json custom stats, normalizeStats) requires passing an attacker-controlled stats file to the browserslist CLI or API. Wingman's build never reads a browserslist-stats.json; no custom stats are supplied anywhere in the repo, so the affected code path is unreachable. Revisit at expiry: upgrade browserslist (or autoprefixer) if a patched version is available."
+    }
+  ]
 }

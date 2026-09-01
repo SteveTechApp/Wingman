@@ -2455,7 +2455,7 @@
     "aliases": [],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "8x8 HDMI matrix",
-    "closestWyrestormSkuOrFamily": "MX-0808-HDMI",
+    "closestWyrestormSkuOrFamily": "MX-0808-H2A-MK2",
     "notes": "Official Atlona H2H category and product page; current lifecycle should be reconfirmed at quote. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
@@ -9448,7 +9448,7 @@
     "aliases": [],
     "knownLimitations": "4K60 4:4:4 transport uses CSC; paired endpoints required.",
     "closestWyrestormArchitecture": "Ultra-long-reach HDBaseT extender kit",
-    "closestWyrestormSkuOrFamily": "EX-100-H2-PRO (distance must be verified)",
+    "closestWyrestormSkuOrFamily": "EX-100-H2 (distance must be verified)",
     "notes": "Official Blustream 2025 product catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/blustream.csv",
     "comparisonOnly": true
@@ -9531,7 +9531,7 @@
     "aliases": [],
     "knownLimitations": "Paired transmitter and receiver are mandatory.",
     "closestWyrestormArchitecture": "Point-to-point 18Gbps HDBaseT extender kit",
-    "closestWyrestormSkuOrFamily": "EX-100-H2-PRO",
+    "closestWyrestormSkuOrFamily": "EX-100-H2",
     "notes": "Official Blustream extender catalogue and 2025 product catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/blustream.csv",
     "comparisonOnly": true
@@ -10748,7 +10748,7 @@
     "aliases": [],
     "knownLimitations": "Outputs are fixed at 1080p60; HDMI and VGA are alternatives for four channels.",
     "closestWyrestormArchitecture": "4x4 seamless presentation matrix / video wall processor",
-    "closestWyrestormSkuOrFamily": "MX-0404-H2A plus separate processing",
+    "closestWyrestormSkuOrFamily": "MX-0404-HDMI plus separate processing",
     "notes": "Official Blustream product page. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/blustream.csv",
     "comparisonOnly": true
@@ -12853,7 +12853,7 @@
     ],
     "knownLimitations": "Single local HDMI output; no extension or independent multi-output routing. Exact regional power accessory should be checked before quoting.",
     "closestWyrestormArchitecture": "2x1 HDMI switcher",
-    "closestWyrestormSkuOrFamily": "SW-0201-8K",
+    "closestWyrestormSkuOrFamily": "EXP-SW-0201-8K",
     "notes": "Official Crestron product page and online specification confirm 2x1 topology, 8K60 4:4:4, HDR formats and smart display-control role. Review retained pending governance approval and detailed regional power accessory confirmation. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/crestron.csv",
     "comparisonOnly": true
@@ -13791,7 +13791,7 @@
     "aliases": [],
     "knownLimitations": "Cannot operate standalone and consumes one MODX input-card slot.",
     "closestWyrestormArchitecture": "Modular matrix input card",
-    "closestWyrestormSkuOrFamily": "MX-1616 input-card architecture",
+    "closestWyrestormSkuOrFamily": "MX-1616-SCL input-card architecture",
     "notes": "Official page marks Core Product; power is chassis-dependent rather than a separate PSU. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14447,7 +14447,7 @@
     "aliases": [],
     "knownLimitations": "Cannot operate standalone and consumes one MODX output-card slot.",
     "closestWyrestormArchitecture": "Modular matrix output card",
-    "closestWyrestormSkuOrFamily": "MX-1616 output-card architecture",
+    "closestWyrestormSkuOrFamily": "MX-1616-SCL output-card architecture",
     "notes": "Official CYP catalogue identifies this as a current MODX-1616 output card; detailed card page should be checked at quotation. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14748,7 +14748,7 @@
     "aliases": [],
     "knownLimitations": "All four outputs mirror one source; the CYP overview contains a stray two-output sentence but its title features and port table consistently specify four.",
     "closestWyrestormArchitecture": "HDMI distribution",
-    "closestWyrestormSkuOrFamily": "EXP-SP-0104-8K",
+    "closestWyrestormSkuOrFamily": "EXP-SP-0102-8K",
     "notes": "Official page marks Core Product and specifies 5V/2.6A PSU. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -16492,7 +16492,7 @@
     ],
     "knownLimitations": "Requires a compatible FOX3 receiver and fiber infrastructure; one-fiber mode is mathematically lossless while two fibers are required for uncompressed 4K60 4:4:4.",
     "closestWyrestormArchitecture": "Long-range fiber transmitter",
-    "closestWyrestormSkuOrFamily": "MXV-0808-H2A-70 / fiber solution direction",
+    "closestWyrestormSkuOrFamily": "MXV-0808-H2A-70-V3 / fiber solution direction",
     "notes": "Official product page and A&E specification confirm topology, receiver dependency, optical modes, control, included external power supply and local loop output. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/extron.csv",
     "comparisonOnly": true
@@ -19339,7 +19339,7 @@
     "aliases": [],
     "knownLimitations": "Audio-only product; exact simultaneous connector behaviour and supported formats require datasheet confirmation.",
     "closestWyrestormArchitecture": "Audio extension",
-    "closestWyrestormSkuOrFamily": "EX-100-H2-ARC",
+    "closestWyrestormSkuOrFamily": "EX-100-H2-EARC",
     "notes": "Outcome comparison only; not a video extender. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/hdanywhere.csv",
     "comparisonOnly": true
@@ -20622,7 +20622,7 @@
     "aliases": [],
     "knownLimitations": "A complete link requires two compatible endpoints; TX loop is mirrored.",
     "closestWyrestormArchitecture": "HDBaseT 3 HDMI/USB extender pair",
-    "closestWyrestormSkuOrFamily": "EX-100-H2-PRO plus USB verification",
+    "closestWyrestormSkuOrFamily": "EX-100-H2 plus USB verification",
     "notes": "Official Kramer product page.",
     "sourceFile": "data-sources/competitors/kramer.csv",
     "comparisonOnly": true
@@ -21768,7 +21768,7 @@
     "aliases": [],
     "knownLimitations": "Not a matrix; four receivers are mandatory and receiver power must be planned.",
     "closestWyrestormArchitecture": "1:4 HDBaseT distribution amplifier",
-    "closestWyrestormSkuOrFamily": "SP-0104-HDBT-H2",
+    "closestWyrestormSkuOrFamily": "EXP-SP-0104-H2",
     "notes": "Official Kramer product page. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/kramer.csv",
     "comparisonOnly": true
@@ -22252,7 +22252,7 @@
     "aliases": [],
     "knownLimitations": "Fixed local HDMI matrix; no extension receivers included.",
     "closestWyrestormArchitecture": "4x2 HDMI matrix",
-    "closestWyrestormSkuOrFamily": "MX-0404-H2A (larger output count)",
+    "closestWyrestormSkuOrFamily": "MX-0404-HDMI (larger output count)",
     "notes": "Official Kramer HDMI matrices catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/kramer.csv",
     "comparisonOnly": true
@@ -22516,7 +22516,7 @@
     "aliases": [],
     "knownLimitations": "Local HDMI-only matrix; chassis mains power.",
     "closestWyrestormArchitecture": "6x6 HDMI matrix",
-    "closestWyrestormSkuOrFamily": "MXV-0606-H2A",
+    "closestWyrestormSkuOrFamily": "MXV-0808-H2A-70-V3",
     "notes": "Official Kramer HDMI matrices catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/kramer.csv",
     "comparisonOnly": true
@@ -23492,9 +23492,9 @@
     "name": "TAURUS UCX-2x1-HC30",
     "brand": "Lightware",
     "manufacturer": "Lightware",
-    "family": "",
+    "family": "Taurus UCX",
     "category": "PRESENTATION",
-    "subcategory": "",
+    "subcategory": "Presentation Switcher",
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
@@ -23505,10 +23505,10 @@
     "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "presentation switcher",
-    "transport": "",
+    "transport": "Local",
     "technology": "PRESENTATION",
-    "topology": "",
-    "directionality": "",
+    "topology": "collaboration appliance",
+    "directionality": "bidirectional",
     "inputs": [
       {
         "type": "USB-C",
@@ -23555,6 +23555,9 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Title evidence: 2x1 switcher",
+    "quoteSafety": "comparison-only-verify",
     "specs": {
       "video": {
         "maxResolution": "UHD 4K60 4:4:4",
@@ -23575,7 +23578,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "USB-C/HDMI conferencing presentation switcher",
     "closestWyrestormSkuOrFamily": "SW-120-TX3",
-    "notes": "Verified via official Lightware UCX-2x1-HC30 datasheet/product page.",
+    "notes": "Verified via official Lightware UCX-2x1-HC30 datasheet/product page. | Official Lightware Taurus UCX family page. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Verified via official Lightware Taurus UCX-2x1-HC30 page/datasheet: 2-in-1 USB-C+HDMI switcher, 18Gbps/HDCP2.2, 60W USB-C charging, noiseless.",
     "sourceFile": "data-sources/competitors/lightware.csv",
     "comparisonOnly": true
   },
@@ -24209,98 +24212,6 @@
     "notes": "Official Lightware current user manual and supported-model documentation; keep under review pending per-SKU commercial lifecycle confirmation. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/lightware.csv",
     "comparisonOnly": true
-  },
-  {
-    "sku": "UCX-2X1-HC30",
-    "model": "UCX-2X1-HC30",
-    "name": "Taurus UCX-2x1-HC30",
-    "brand": "Lightware",
-    "manufacturer": "Lightware",
-    "family": "Taurus UCX",
-    "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "review",
-    "approvalStatus": "review",
-    "sourceTier": "structured-catalog",
-    "summary": "2x1 switcher with USB-C, HDMI 2.0, USB 3.1, and Ethernet control for collaboration spaces with host switching and room automation support.",
-    "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
-    "evidenceSource": "https://www.lightware.com/en/product-family/taurus-ucx",
-    "lastReviewed": "2026-07-05",
-    "reviewer": "Claude research pass",
-    "confidence": "high",
-    "role": "presentation-switcher",
-    "transport": "Local",
-    "technology": "Unified Communications",
-    "topology": "collaboration appliance",
-    "directionality": "bidirectional",
-    "inputs": [
-      {
-        "type": "USB-C",
-        "count": 1
-      },
-      {
-        "type": "HDMI 2.0",
-        "count": 1
-      }
-    ],
-    "outputs": [
-      {
-        "type": "HDMI 2.0",
-        "count": 1
-      }
-    ],
-    "control": [
-      "TCP/IP",
-      "Web UI",
-      "CEC",
-      "USB"
-    ],
-    "audio": [
-      "Embedded Audio",
-      "USB Audio"
-    ],
-    "features": [
-      "Compact 4K USB-C + HDMI 2.0 universal switcher",
-      "18Gbps, HDCP 1.x/2.2",
-      "USB-C: 5Gbps USB 3.1 Gen1 + up to 60W charging",
-      "Noiseless/fanless in typical room conditions",
-      "SSH/SSL/HTTPS secure control"
-    ],
-    "video": {
-      "hdmi": "2.0",
-      "usbStandard": "USB 3.1",
-      "maxResolution": "UHD/4K@60Hz 4:4:4",
-      "bandwidthGbps": 18,
-      "hdcp": "2.2"
-    },
-    "matrixInputs": 2,
-    "routedInputs": 2,
-    "routedInputCount": 2,
-    "matrixOutputs": 1,
-    "routedOutputs": 1,
-    "routedOutputCount": 1,
-    "ioEvidenceStatus": "derived",
-    "matrixSizeEvidence": "Title evidence: 2x1 switcher",
-    "quoteSafety": "comparison-only-verify",
-    "specs": {
-      "video": {
-        "maxResolution": "UHD 4K60 4:4:4",
-        "bandwidthGbps": 18,
-        "hdcp": "2.2"
-      },
-      "usbC": {
-        "chargeW": 60,
-        "dataGbps": 5
-      }
-    },
-    "aliases": [],
-    "knownLimitations": "",
-    "closestWyrestormArchitecture": "USB-C/HDMI presentation switcher",
-    "closestWyrestormSkuOrFamily": "SW-120-TX3",
-    "notes": "Official Lightware Taurus UCX family page. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | Verified via official Lightware Taurus UCX-2x1-HC30 page/datasheet: 2-in-1 USB-C+HDMI switcher, 18Gbps/HDCP2.2, 60W USB-C charging, noiseless.",
-    "sourceFile": "data-sources/competitors/lightware.csv",
-    "comparisonOnly": true,
-    "matrixSize": "2x1"
   },
   {
     "sku": "UCX-2x1-HC40",
@@ -27659,7 +27570,7 @@
     "aliases": [],
     "knownLimitations": "Processor/multiview functionality differs from a conventional low-latency matrix.",
     "closestWyrestormArchitecture": "4x2 seamless matrix and multiviewer",
-    "closestWyrestormSkuOrFamily": "MX-0404-H2A plus multiview processor",
+    "closestWyrestormSkuOrFamily": "MX-0404-HDMI plus multiview processor",
     "notes": "Official SY product catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/sy-electronics.csv",
     "comparisonOnly": true
@@ -28189,7 +28100,7 @@
     "aliases": [],
     "knownLimitations": "Local HDMI outputs only.",
     "closestWyrestormArchitecture": "4x4 HDMI matrix",
-    "closestWyrestormSkuOrFamily": "MX-0404-H2A",
+    "closestWyrestormSkuOrFamily": "MX-0404-HDMI",
     "notes": "Official SY product catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/sy-electronics.csv",
     "comparisonOnly": true
@@ -28263,7 +28174,7 @@
     "aliases": [],
     "knownLimitations": "Local HDMI outputs only.",
     "closestWyrestormArchitecture": "8x8 HDMI matrix",
-    "closestWyrestormSkuOrFamily": "MX-0808-H2A",
+    "closestWyrestormSkuOrFamily": "MX-0808-H2A-MK2",
     "notes": "Official SY product catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/sy-electronics.csv",
     "comparisonOnly": true
@@ -28820,7 +28731,7 @@
     "aliases": [],
     "knownLimitations": "Uses proprietary HX transport rather than standards-based HDBaseT.",
     "closestWyrestormArchitecture": "8x8 long-reach matrix kit",
-    "closestWyrestormSkuOrFamily": "MX-0808-H2A-KIT",
+    "closestWyrestormSkuOrFamily": "MXV-0808-H2A-KIT",
     "notes": "Official SY product catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/sy-electronics.csv",
     "comparisonOnly": true
