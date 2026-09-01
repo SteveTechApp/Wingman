@@ -736,7 +736,8 @@
         "verifiedAt": "2026-08-16T10:23:16.037Z",
         "confirmedFields": [
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -1793,7 +1794,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -7656,7 +7658,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -8372,7 +8375,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -13008,7 +13012,8 @@
             "note": "Minimal profile created from product catalogue metadata. Lifecycle is do-not-spec; confirm product-owner decision before active use."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -14130,7 +14135,8 @@
             "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -35647,7 +35653,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -36970,7 +36977,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -39065,7 +39073,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -42863,7 +42872,8 @@
         "verifiedAt": "2026-08-16T10:23:16.087Z",
         "confirmedFields": [
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -46200,7 +46210,8 @@
         "verifiedAt": "2026-08-16T10:23:16.092Z",
         "confirmedFields": [
           "max-resolution"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -48337,7 +48348,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -49292,7 +49304,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -50551,7 +50564,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -51720,7 +51734,8 @@
         "verifiedAt": "2026-08-16T10:23:16.110Z",
         "confirmedFields": [
           "max-resolution"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -52859,7 +52874,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -53857,7 +53873,8 @@
         "confirmedFields": [
           "routed-io"
         ],
-        "maxResolution": "4K60 4:4:4 (3840x2160p @60Hz); USB 3.2 Gen 1 (5Gbps); 100m/328ft"
+        "maxResolution": "4K60 4:4:4 (3840x2160p @60Hz); USB 3.2 Gen 1 (5Gbps); 100m/328ft",
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -55000,7 +55017,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -55711,7 +55729,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -56829,7 +56848,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -57964,7 +57984,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -58915,7 +58936,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -60099,7 +60121,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -61457,7 +61480,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -62432,7 +62456,8 @@
         "verifiedAt": "2026-08-16T10:23:16.158Z",
         "confirmedFields": [
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -63424,7 +63449,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -64566,7 +64592,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -66804,7 +66831,8 @@
         "verifiedAt": "2026-08-16T10:23:16.180Z",
         "confirmedFields": [
           "max-resolution"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -69528,7 +69556,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -70486,7 +70515,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -71483,7 +71513,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -72564,7 +72595,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -89978,7 +90010,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 4,
+          "routedOutputCount": 2
+        }
       }
     },
     "activeSku": "Yes",
@@ -92201,7 +92237,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -93068,7 +93105,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -93934,7 +93972,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -94741,7 +94780,8 @@
           "max-resolution"
         ],
         "inputCount": 2,
-        "outputCount": 1
+        "outputCount": 1,
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -95615,7 +95655,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -96494,7 +96535,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -97176,7 +97218,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -97758,7 +97801,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -98331,7 +98375,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -99023,7 +99068,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -99742,7 +99788,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -100348,7 +100395,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -101000,7 +101048,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -101925,7 +101974,8 @@
         "verifiedAt": "2026-08-16T10:23:16.234Z",
         "confirmedFields": [
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -102760,7 +102810,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -104773,7 +104824,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -108728,7 +108780,8 @@
             "note": "IDB-300 is the active in-desk connectivity product. Lifecycle updated from do-not-spec to active per product team clarification."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -109679,7 +109732,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -116998,7 +117052,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -117588,7 +117643,8 @@
             "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -124427,7 +124483,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -126333,7 +126390,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 4,
+          "routedOutputCount": 4
+        }
       }
     },
     "activeSku": "Yes",
@@ -127587,7 +127648,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 4,
+          "routedOutputCount": 4
+        }
       }
     },
     "activeSku": "Yes",
@@ -128855,7 +128920,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 4,
+          "routedOutputCount": 4
+        }
       }
     },
     "activeSku": "Yes",
@@ -130395,7 +130464,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 8,
+          "routedOutputCount": 4
+        }
       }
     },
     "activeSku": "Yes",
@@ -132982,7 +133055,9 @@
           "includesReceivers": true,
           "mirroredHdmiOutputs": true,
           "poh": true,
-          "smartEdid": true
+          "smartEdid": true,
+          "routedInputCount": 8,
+          "routedOutputCount": 8
         },
         "specs": {
           "hdmiInputs": 8,
@@ -134386,7 +134461,9 @@
           "seamlessSwitching": true,
           "perOutputScaler": true,
           "usbC": true,
-          "analogAudioOut": true
+          "analogAudioOut": true,
+          "routedInputCount": 8,
+          "routedOutputCount": 8
         },
         "specs": {
           "hdmiInputs": 7,
@@ -135787,7 +135864,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 8,
+          "routedOutputCount": 8
+        }
       }
     },
     "activeSku": "Yes",
@@ -137089,7 +137170,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 8,
+          "routedOutputCount": 12
+        }
       }
     },
     "activeSku": "Yes",
@@ -138836,7 +138921,9 @@
           "audioDsp": true,
           "seamlessSwitching": true,
           "scaling": true,
-          "usbC": true
+          "usbC": true,
+          "routedInputCount": 10,
+          "routedOutputCount": 7
         },
         "specs": {
           "hdmiInputs": 7,
@@ -141864,7 +141951,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 16,
+          "routedOutputCount": 16
+        }
       }
     },
     "activeSku": "Yes",
@@ -143009,7 +143100,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 4,
+          "routedOutputCount": 4
+        }
       }
     },
     "salesLanguage": {
@@ -144304,7 +144399,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 4,
+          "routedOutputCount": 4
+        }
       }
     },
     "activeSku": "Yes",
@@ -149870,7 +149969,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 8,
+          "routedOutputCount": 8
+        }
       }
     },
     "activeSku": "Yes",
@@ -151247,7 +151350,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 8,
+          "routedOutputCount": 8
+        }
       }
     },
     "activeSku": "Yes",
@@ -152139,7 +152246,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -158201,8 +158309,6 @@
         "transport": [
           "Passive mechanical mounting - no signal path"
         ],
-        "inputCount": 0,
-        "outputCount": 0,
         "ports": [],
         "video": [],
         "audio": [],
@@ -164751,7 +164857,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -184652,7 +184759,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -186512,7 +186620,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -187435,7 +187544,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -189943,7 +190053,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -196809,7 +196920,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -197772,7 +197884,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -198904,7 +199017,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -200339,7 +200453,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -206826,7 +206941,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -208306,7 +208422,8 @@
             "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -209843,7 +209960,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -213429,7 +213547,8 @@
             "note": "NHD-RACK-1U is a separate active product from NHD-000-RACK4. 1U/2-slot vs 6U/12-slot."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -216591,7 +216710,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -218627,7 +218747,8 @@
         "verifiedAt": "2026-08-16T10:23:16.377Z",
         "confirmedFields": [
           "max-resolution"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -222475,7 +222596,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -226248,7 +226370,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -228465,7 +228588,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -229681,7 +229805,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -231156,7 +231281,8 @@
         "verifiedAt": "2026-08-16T10:23:16.408Z",
         "confirmedFields": [
           "max-resolution"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -232144,7 +232270,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -233209,7 +233336,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -234621,7 +234749,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -235573,7 +235702,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -238357,7 +238487,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -240631,7 +240762,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -244354,7 +244486,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -246919,7 +247052,8 @@
             "note": "Draft generated from canonical official-source material (63 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
           }
         ],
-        "confirmedFields": []
+        "confirmedFields": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -250673,7 +250807,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -251828,7 +251963,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -253147,7 +253283,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "salesLanguage": {
@@ -255878,7 +256015,8 @@
           "max-resolution",
           "routed-io",
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -257339,7 +257477,11 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {
+          "routedInputCount": 4,
+          "routedOutputCount": 2
+        }
       }
     },
     "activeSku": "Yes",
@@ -261028,7 +261170,8 @@
         "verifiedAt": "2026-08-16T10:23:16.480Z",
         "confirmedFields": [
           "power"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -261960,7 +262103,8 @@
         "usb": [],
         "network": [],
         "control": [],
-        "physical": []
+        "physical": [],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -268937,7 +269081,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -270204,7 +270349,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",
@@ -271506,7 +271652,8 @@
         "confirmedFields": [
           "max-resolution",
           "routed-io"
-        ]
+        ],
+        "features": {}
       }
     },
     "activeSku": "Yes",

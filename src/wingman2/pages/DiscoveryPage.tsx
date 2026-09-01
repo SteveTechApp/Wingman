@@ -1586,7 +1586,6 @@ return (
           isReviewingAnswers={isReviewingAnswers}
           showModeToggle={answeredCount < 3}
           showBatchControls={answeredCount === 0}
-          showWarnings={true}
         />
       )}
 

@@ -8033,31 +8033,16 @@ html[data-wingman-ui-mode="guided"] .wingman-brand {
   padding: 10px 12px 6px;
 }
 html[data-wingman-ui-mode="guided"] .wingman-brand-image {
-  width: 48px;
+  width: 100px;
   height: auto;
-}
-html[data-wingman-ui-mode="guided"] .wingman-brand {
-  padding: 8px 0;
-  justify-content: center;
 }
 html[data-wingman-ui-mode="guided"].wingman-shell .wingman-sidebar,
 html[data-wingman-ui-mode="guided"][data-wingman-route] .wingman-sidebar {
-  width: 64px !important;
-  min-width: 64px !important;
+  width: 180px !important;
+  min-width: 180px !important;
 }
 html[data-wingman-ui-mode="guided"] .wingman-nav {
-  padding: 8px 6px;
-}
-html[data-wingman-ui-mode="guided"] .wingman-nav-link {
-  justify-content: center;
-  padding: 8px;
-  gap: 0;
-}
-html[data-wingman-ui-mode="guided"] .wingman-nav-copy {
-  display: none !important;
-}
-html[data-wingman-ui-mode="guided"] .wingman-nav-tooltip {
-  display: block !important;
+  padding: 8px 10px;
 }
 html[data-wingman-ui-mode="guided"] .wingman-sidebar .wingman-nav-link-active {
   background: rgba(83,224,255,0.12);
@@ -8067,152 +8052,83 @@ html[data-wingman-ui-mode="guided"] .wingman-sidebar .wingman-nav-link-active .w
 }
 
 /* ── Guided mode: compact discovery page ──────────────────────── */
-/* Hide non-essential elements in guided mode */
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-hero,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-completion-card,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-qs-entry,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner-wrap,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-trail-card {
-  display: none !important;
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-hero {
+  display: none;
 }
-/* Keep smart defaults and escalation warnings visible in guided mode */
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-smart-defaults-banner,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-escalation-banner {
-  display: flex !important;
-  margin: 4px 8px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: .75rem;
-  gap: 6px;
-  align-items: center;
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-completion-card {
+  display: none;
 }
-/* Compact client details bar in guided mode */
-.wm-discovery-client-compact {
-  margin: 0 8px 6px;
-  border: 1px solid rgba(83, 224, 255, 0.15);
-  border-radius: 8px;
-  background: rgba(8, 28, 47, 0.5);
-}
-.wm-discovery-client-compact-toggle {
-  padding: 6px 10px;
-  font-size: .72rem;
-  color: var(--wm-text-muted);
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.wm-discovery-client-compact-toggle::-webkit-details-marker { display: none; }
-.wm-discovery-client-compact-toggle::before {
-  content: "+";
-  font-weight: 700;
-  color: var(--wm-accent);
-  font-size: .8rem;
-  transition: transform .15s;
-}
-.wm-discovery-client-compact[open] .wm-discovery-client-compact-toggle::before {
-  content: "\u2212";
-}
-.wm-discovery-client-compact-fields {
-  display: flex;
-  gap: 6px;
-  padding: 0 10px 8px;
-}
-.wm-discovery-client-compact-input {
-  flex: 1;
-  padding: 4px 8px;
-  font-size: .7rem;
-  border-radius: 6px;
-  border: 1px solid rgba(83, 224, 255, 0.15);
-  background: rgba(5, 18, 32, 0.8);
-  color: var(--wm-text);
-  outline: none;
-}
-.wm-discovery-client-compact-input:focus {
-  border-color: var(--wm-accent);
-}
-/* Compact mode toggle — small pill buttons */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-toggle {
-  padding: 2px 4px;
-  gap: 4px;
+  padding: 4px 8px;
+  gap: 6px;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-button {
+  min-height: 28px;
   padding: 3px 8px;
-  font-size: .65rem;
-  font-weight: 600;
-  border-radius: 6px;
-  min-height: 24px;
-  gap: 3px;
+  font-size: .7rem;
 }
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-button svg,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-button .wm-ui-icon {
-  width: 12px;
-  height: 12px;
-}
-/* Hide the hint text */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-hint {
-  display: none !important;
+  font-size: .6rem;
 }
-/* Tighter question card and options */
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner-wrap {
+  padding: 4px 0;
+}
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner {
+  padding: 6px 10px;
+  gap: 0;
+}
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner .wm-discovery-batch-step-item {
+  padding: 4px 8px;
+  font-size: .62rem;
+  gap: 4px;
+}
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-card {
   padding: 10px 12px;
   gap: 8px;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-heading h2 {
-  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-heading > p {
   font-size: .72rem;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option {
-  min-height: 48px;
-  padding: 6px 10px;
+  min-height: 56px;
+  padding: 8px 10px;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option strong {
-  font-size: .72rem;
+  font-size: .74rem;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option small {
-  font-size: .62rem;
+  font-size: .64rem;
 }
-/* Compact step bar */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-compact-stepbar {
-  padding: 4px 0;
+  padding: 6px 0;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-compact-step-copy strong {
-  font-size: .68rem;
+  font-size: .7rem;
 }
-/* Smaller navigation buttons */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-navigation-row {
   padding: 4px 0;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-navigation-row button {
-  min-height: 28px;
-  padding: 4px 12px;
-  font-size: .7rem;
-  border-radius: 6px;
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: .72rem;
+}
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card {
+  padding: 10px;
+  gap: 8px;
+}
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-heading h3 {
+  font-size: .78rem;
+}
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card textarea {
+  min-height: 80px;
+  font-size: .72rem;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-layout {
-  gap: 6px;
-}
-/* Hide step bar and reset button in guided mode */
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-compact-stepbar {
-  display: none !important;
-}
-/* Full-width question area when capture box is hidden */
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-layout {
-  grid-template-columns: 1fr !important;
-}
-/* Subtle welcome header above question in guided mode */
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-layout::before {
-  content: "Let's find the right solution.";
-  display: block;
-  padding: 12px 16px 4px;
-  font-size: .88rem;
-  font-weight: 500;
-  color: rgba(248,251,255,0.55);
-  letter-spacing: .01em;
+  gap: 8px;
 }
 
 /* ── Guided mode: compact Compare page ─────────────────────────── */

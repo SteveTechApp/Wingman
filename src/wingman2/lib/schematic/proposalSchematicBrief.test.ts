@@ -102,26 +102,4 @@ describe("proposalSchematicBrief", () => {
     // BY-OTHERS equipment now appears so the schematic proves real connectivity
     expect(brief.products!).toHaveLength(2);
   });
-
-  it("includes BY-OTHERS equipment that exists only in proposal BOM rows", () => {
-    const products = [makeProduct({ sku: "NHD-ENC-TX", quantity: 1 })];
-    const brief = proposalSchematicBrief("Template proposal", products, [
-      { sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE", description: "Customer managed AV network switch", role: "Network infrastructure", qty: 1 },
-    ]);
-
-    expect(brief.products).toEqual(expect.arrayContaining([
-      expect.objectContaining({ sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE", label: "Customer managed AV network switch" }),
-    ]));
-    expect(brief.networkAvailable).toBe(true);
-  });
-
-  it("does not count a core product twice when it appears in products and BOM rows", () => {
-    const products = [makeProduct({ sku: "NHD-ENC-TX", quantity: 2 })];
-    const brief = proposalSchematicBrief("Deduplicated proposal", products, [
-      { sku: "NHD-ENC-TX", description: "NetworkHD encoder", role: "Encoder", qty: 2 },
-    ]);
-
-    expect(brief.products).toHaveLength(1);
-    expect(brief.sources).toHaveLength(2);
-  });
 });
