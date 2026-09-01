@@ -8073,10 +8073,65 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discover
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-qs-entry,
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card,
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-batch-step-banner-wrap,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-smart-defaults-banner,
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-escalation-banner,
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-trail-card {
   display: none !important;
+}
+/* Keep smart defaults and escalation warnings visible in guided mode */
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-smart-defaults-banner,
+html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-escalation-banner {
+  display: flex !important;
+  margin: 4px 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: .75rem;
+  gap: 6px;
+  align-items: center;
+}
+/* Compact client details bar in guided mode */
+.wm-discovery-client-compact {
+  margin: 0 8px 6px;
+  border: 1px solid rgba(83, 224, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(8, 28, 47, 0.5);
+}
+.wm-discovery-client-compact-toggle {
+  padding: 6px 10px;
+  font-size: .72rem;
+  color: var(--wm-text-muted);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.wm-discovery-client-compact-toggle::-webkit-details-marker { display: none; }
+.wm-discovery-client-compact-toggle::before {
+  content: "+";
+  font-weight: 700;
+  color: var(--wm-accent);
+  font-size: .8rem;
+  transition: transform .15s;
+}
+.wm-discovery-client-compact[open] .wm-discovery-client-compact-toggle::before {
+  content: "\u2212";
+}
+.wm-discovery-client-compact-fields {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 8px;
+}
+.wm-discovery-client-compact-input {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: .7rem;
+  border-radius: 6px;
+  border: 1px solid rgba(83, 224, 255, 0.15);
+  background: rgba(5, 18, 32, 0.8);
+  color: var(--wm-text);
+  outline: none;
+}
+.wm-discovery-client-compact-input:focus {
+  border-color: var(--wm-accent);
 }
 /* Compact mode toggle — small pill buttons */
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-mode-toggle {

@@ -984,12 +984,14 @@ export function DiscoveryPage() {
   }
 
   function buildDiscoveryBrief(): StoredDiscoveryBrief {
+    // Always search the FULL question list so Expert answers captured before
+    // switching to Basic mode are not silently dropped from the brief.
     const answerLabel = (stepId: string): string => {
-      const step = modeQuestions.find((candidate) => candidate.id === stepId);
+      const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
       return step && wmDiscoveryHasAnswer(answers[stepId]) ? getOptionLabel(step, answers[stepId], selectedApplication) : "";
     };
     const answerLabels = (stepId: string): string[] => {
-      const step = modeQuestions.find(
+      const step = discoveryQuestions.find(
         (candidate) => candidate.id === stepId,
       );
 
@@ -1129,7 +1131,7 @@ export function DiscoveryPage() {
       ...multiviewOperation.map((item) => `Multiview operation: ${item}`),
       ...audioProcessing.map((item) => `Audio processing: ${item}`),
     ].filter(Boolean);
-    const missingInformation = modeQuestions.flatMap((step) => {
+    const missingInformation = discoveryQuestions.flatMap((step) => {
       const answer = answers[step.id] ?? "";
       const answerText = answerLabel(step.id);
       const note = notes[step.id]?.trim() ?? "";
@@ -1467,19 +1469,45 @@ return (
 
       {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
-      {!isGuided && <DiscoveryClientDetailsPanel
-        clientName={clientName}
-        onClientNameChange={setClientName}
-        contactName={contactName}
-        onContactNameChange={setContactName}
-        siteName={siteName}
-        onSiteNameChange={setSiteName}
-        budgetLevel={budgetLevel}
-        onBudgetLevelChange={setBudgetLevel}
-        budgetInputRef={budgetInputRef}
-        timeline={timeline}
-        onTimelineChange={setTimeline}
-      />}
+      {isGuided ? (
+        <details className="wm-discovery-client-compact" data-wingman-client-compact="true">
+          <summary className="wm-discovery-client-compact-toggle">
+            {(clientName.trim() || siteName.trim())
+              ? `${clientName.trim()}${siteName.trim() ? ` · ${siteName.trim()}` : ""}`
+              : "Add client details"}
+          </summary>
+          <div className="wm-discovery-client-compact-fields">
+            <input
+              type="text"
+              placeholder="Client name"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              className="wm-discovery-client-compact-input"
+            />
+            <input
+              type="text"
+              placeholder="Site name"
+              value={siteName}
+              onChange={(e) => setSiteName(e.target.value)}
+              className="wm-discovery-client-compact-input"
+            />
+          </div>
+        </details>
+      ) : (
+        <DiscoveryClientDetailsPanel
+          clientName={clientName}
+          onClientNameChange={setClientName}
+          contactName={contactName}
+          onContactNameChange={setContactName}
+          siteName={siteName}
+          onSiteNameChange={setSiteName}
+          budgetLevel={budgetLevel}
+          onBudgetLevelChange={setBudgetLevel}
+          budgetInputRef={budgetInputRef}
+          timeline={timeline}
+          onTimelineChange={setTimeline}
+        />
+      )}
 
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
@@ -1573,6 +1601,7 @@ return (
           isReviewingAnswers={isReviewingAnswers}
           showModeToggle={answeredCount < 3}
           showBatchControls={answeredCount === 0}
+          showWarnings={true}
         />
       )}
 

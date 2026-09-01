@@ -7,6 +7,9 @@
  * reads the actual inputCount/outputCount from the governed product
  * technical profiles so matrices, switchers, and AVoIP transceivers
  * produce the correct number of source and display endpoints.
+ *
+ * Updated to include BY-OTHERS equipment and use descriptive labels
+ * so the DOCX schematic proves real connectivity, not generic placeholders.
  */
 
 import type { StoredProductSelection } from "../../data/projectStore";
@@ -22,13 +25,25 @@ import { resolveProductTechnicalData } from "../governedProductTechnicalData";
  * Build a SchematicProjectBrief from proposal products using governed
  * I/O data. This ensures matrices show N inputs and M outputs instead
  * of just chassis quantity.
+ *
+ * @param title Project / room name
+ * @param products All product selections including BY-OTHERS equipment
+ * @param bomRows Optional BOM rows for richer endpoint labels
  */
 export function proposalSchematicBrief(
   title: string,
   products: StoredProductSelection[],
+  bomRows?: Array<{ sku: string; description: string; role: string; qty: number }>,
 ): SchematicProjectBrief {
-  const sources = inferSourcesFromProducts(products);
-  const displays = inferDisplaysFromProducts(products);
+  // Build a lookup from BOM rows for richer labels
+  const bomBySku = new Map<string, { description: string; role: string }>();
+  for (const row of bomRows ?? []) {
+    const key = normaliseSku(row.sku);
+    if (!bomBySku.has(key)) bomBySku.set(key, { description: row.description, role: row.role });
+  }
+
+  const sources = inferSourcesFromProducts(products, bomBySku);
+  const displays = inferDisplaysFromProducts(products, bomBySku);
   const productsBrief = buildProductsBrief(products);
 
   return {
@@ -55,28 +70,40 @@ export function proposalSchematicBrief(
 
 function inferSourcesFromProducts(
   products: StoredProductSelection[],
+  bomBySku: Map<string, { description: string; role: string }>,
 ): SchematicEndpointBrief[] {
   const sources: SchematicEndpointBrief[] = [];
   let encoderCapacity = 0;
+  let lastEncoderSku = "";
 
   for (const product of products) {
     const kind = productNodeKind({ sku: product.sku });
 
     if (kind === "av-over-ip-encoder") {
       encoderCapacity += product.quantity ?? 1;
+      lastEncoderSku = normaliseSku(product.sku);
     } else if (kind === "av-over-ip-transceiver") {
       encoderCapacity += product.quantity ?? 1;
+      lastEncoderSku = normaliseSku(product.sku);
     } else if (kind === "switcher" || kind === "matrix") {
       // Use governed I/O port count — an 8×8 matrix has 8 inputs
       const tech = resolveProductTechnicalData({ sku: product.sku });
       encoderCapacity += (tech.inputCount ?? product.quantity ?? 1);
+      lastEncoderSku = normaliseSku(product.sku);
     }
   }
+
+  // Use BOM description for a more descriptive label when available
+  const bomEntry = lastEncoderSku ? bomBySku.get(lastEncoderSku) : undefined;
+  const baseLabel = bomEntry?.description || lastEncoderSku || "source";
 
   if (encoderCapacity > 0) {
     for (let i = 0; i < encoderCapacity; i++) {
       sources.push({
-        label: encoderCapacity === 1 ? "Room source" : `Room source ${i + 1}`,
+        label: encoderCapacity === 1
+          ? baseLabel
+          : `${baseLabel} ${i + 1}`,
+        sku: lastEncoderSku || undefined,
       });
     }
   }
@@ -92,9 +119,11 @@ function inferSourcesFromProducts(
 
 function inferDisplaysFromProducts(
   products: StoredProductSelection[],
+  bomBySku: Map<string, { description: string; role: string }>,
 ): SchematicEndpointBrief[] {
   const displays: SchematicEndpointBrief[] = [];
   let decoderCapacity = 0;
+  let lastDecoderSku = "";
 
   // First pass: count AVoIP decoders and transceivers
   for (const product of products) {
@@ -102,10 +131,13 @@ function inferDisplaysFromProducts(
 
     if (kind === "av-over-ip-decoder") {
       decoderCapacity += product.quantity ?? 1;
+      lastDecoderSku = normaliseSku(product.sku);
     } else if (kind === "av-over-ip-transceiver") {
       decoderCapacity += product.quantity ?? 1;
+      lastDecoderSku = normaliseSku(product.sku);
     } else if (kind === "display") {
       decoderCapacity += product.quantity ?? 1;
+      lastDecoderSku = normaliseSku(product.sku);
     }
   }
 
@@ -116,14 +148,21 @@ function inferDisplaysFromProducts(
       if (kind === "matrix" || kind === "switcher") {
         const tech = resolveProductTechnicalData({ sku: product.sku });
         decoderCapacity += (tech.outputCount ?? product.quantity ?? 1);
+        lastDecoderSku = normaliseSku(product.sku);
       }
     }
   }
 
+  const bomEntry = lastDecoderSku ? bomBySku.get(lastDecoderSku) : undefined;
+  const baseLabel = bomEntry?.description || lastDecoderSku || "display";
+
   if (decoderCapacity > 0) {
     for (let i = 0; i < decoderCapacity; i++) {
       displays.push({
-        label: decoderCapacity === 1 ? "Room display" : `Room display ${i + 1}`,
+        label: decoderCapacity === 1
+          ? baseLabel
+          : `${baseLabel} ${i + 1}`,
+        sku: lastDecoderSku || undefined,
       });
     }
   }
@@ -141,7 +180,7 @@ function buildProductsBrief(
   products: StoredProductSelection[],
 ): SchematicProductBrief[] {
   return products
-    .filter((p) => p.sku && !p.sku.startsWith("BY-OTHERS"))
+    .filter((p) => p.sku)
     .map((p) => ({
       sku: normaliseSku(p.sku),
       label: p.title || p.sku,
