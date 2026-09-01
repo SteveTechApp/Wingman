@@ -9,13 +9,15 @@
 
 import { describe, expect, it } from "vitest";
 import { baseDiscoveryQuestions } from "./discoveryQuestions";
-import { SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
+import { BASIC_MODE_REQUIRED_IDS, ESCALATION_TRIGGERS, SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
 import { quickStartConfigs } from "./discoveryQuickStart";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
 const questionOptions = new Map(
   baseDiscoveryQuestions.map((question) => [question.id, new Set(question.options.map((option) => option.value))]),
 );
+
+const questionById = new Map(baseDiscoveryQuestions.map((question) => [question.id, question]));
 
 function collectDefaultProblems(defaults: Partial<DiscoveryAnswers>, source: string): string[] {
   const problems: string[] = [];
@@ -92,5 +94,89 @@ describe("discovery default tables stay aligned with the canonical questions", (
       }
     }
     expect(conflicts).toEqual([]);
+  });
+
+  it("every ESCALATION_TRIGGERS questionId and value resolves to a current question option", () => {
+    const problems: string[] = [];
+    for (const trigger of ESCALATION_TRIGGERS) {
+      const options = questionOptions.get(trigger.questionId);
+      if (!options) {
+        problems.push(`ESCALATION_TRIGGERS: unknown question id "${trigger.questionId}"`);
+        continue;
+      }
+      for (const value of trigger.values) {
+        if (!options.has(value)) {
+          problems.push(
+            `ESCALATION_TRIGGERS[${trigger.questionId}]: unknown option value "${value}"`,
+          );
+        }
+      }
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it("every ESCALATION_TRIGGERS question is one Basic mode asks", () => {
+    // Escalation triggers exist to push Basic-mode users into Expert when an
+    // answer signals complexity. The trigger surface must be exactly the set
+    // of questions Basic mode asks (BASIC_MODE_REQUIRED_IDS): a trigger on
+    // any other question is dead — Basic never shows it and no smart default
+    // supplies a value for it.
+    const expected = new Set<string>(BASIC_MODE_REQUIRED_IDS);
+    const unexpected = ESCALATION_TRIGGERS
+      .map((trigger) => trigger.questionId)
+      .filter((questionId) => !expected.has(questionId));
+    expect(unexpected).toEqual([]);
+  });
+
+  it("displays count and display-behaviour never contradict within a default set", () => {
+    // Mirrors the interview rules in discoveryQuestions.getVisibleDiscoveryQuestions:
+    // for a single display the only valid behaviour is mirrored content; a video
+    // wall output requires a wall/processor feed; multi-display rooms may mirror
+    // or route independently. A pair outside these is contradictory — the UI
+    // would offer it as a default and then filter it out of the answer options.
+    const behaviourForDisplays: Record<string, ReadonlySet<string>> = {
+      "one-display": new Set(["same-content-all-displays"]),
+      "two-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
+      "three-eight-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
+      "nine-plus-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
+      "video-wall-output": new Set(["video-wall-or-processor-feed"]),
+    };
+
+    const problems: string[] = [];
+    const checkPair = (
+      source: string,
+      displays: string | string[] | undefined,
+      behaviour: string | string[] | undefined,
+    ) => {
+      if (displays === undefined || behaviour === undefined) return;
+      const display = Array.isArray(displays) ? displays[0] : displays;
+      const allowed = behaviourForDisplays[display];
+      if (!allowed) {
+        problems.push(`${source}: displays "${display}" has no defined behaviour rule`);
+        return;
+      }
+      const behaviours = Array.isArray(behaviour) ? behaviour : [behaviour];
+      for (const entry of behaviours) {
+        if (!allowed.has(entry)) {
+          problems.push(`${source}: displays "${display}" contradicts display-behaviour "${entry}"`);
+        }
+      }
+    };
+
+    for (const [applicationType, defaults] of Object.entries(SMART_DEFAULTS)) {
+      checkPair(
+        `SMART_DEFAULTS["${applicationType}"]`,
+        defaults.displays as string | string[] | undefined,
+        defaults["display-behaviour"] as string | string[] | undefined,
+      );
+    }
+    for (const [roomType, config] of Object.entries(quickStartConfigs)) {
+      checkPair(
+        `quickStartConfigs["${roomType}"].defaults`,
+        config.defaults.displays as string | string[] | undefined,
+        config.defaults["display-behaviour"] as string | string[] | undefined,
+      );
+    }
+    expect(problems).toEqual([]);
   });
 });
