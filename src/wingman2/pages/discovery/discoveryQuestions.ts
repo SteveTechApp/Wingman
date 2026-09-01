@@ -8,7 +8,7 @@
 
 import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
 
-const baseDiscoveryQuestions: DiscoveryQuestion[] = [
+export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "opportunity",
     shortLabel: "Opportunity",

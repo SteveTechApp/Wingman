@@ -54,7 +54,7 @@ const BASIC_MODE_REQUIRED_SET = new Set<string>(BASIC_MODE_REQUIRED_IDS);
  * Smart defaults keyed by application type. These fill in the questions
  * that Basic mode doesn't ask, so the integrity gate sees plausible values.
  */
-const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
+export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
   "meeting-room": {
     scale: "single-large-room",
     sources: "two-four-sources",
