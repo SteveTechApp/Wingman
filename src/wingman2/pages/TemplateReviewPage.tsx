@@ -154,7 +154,6 @@ export function TemplateReviewPage() {
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
   const [modelSearchResults, setModelSearchResults] = useState<ProductSearchResult[]>([]);
-  const [modelSearchQuery, setModelSearchQuery] = useState("");
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [filter, setFilter] = useState("All");
   const [equipmentGroup, setEquipmentGroup] = useState<EquipmentGroup>("Required");
@@ -169,8 +168,11 @@ export function TemplateReviewPage() {
   }, [selectedTemplate]);
 
   // Derived values computed BEFORE the early return (React hooks rules).
-  const bomRows = selectedTemplate ? templateBomRows(selectedTemplate, selectedRows) : [];
-  const products = templateProducts(selectedRows);
+  const bomRows = useMemo(
+    () => (selectedTemplate ? templateBomRows(selectedTemplate, selectedRows) : []),
+    [selectedTemplate, selectedRows],
+  );
+  const products = useMemo(() => templateProducts(selectedRows), [selectedRows]);
 
   // Run the proposal export validator — same checks the main wizard uses.
   const exportValidation: ExportValidationResult = useMemo(
@@ -193,7 +195,6 @@ export function TemplateReviewPage() {
 
   /* Product search for BY-OTHERS replacement — must be before the early return */
   const handleModelSearch = useCallback((query: string, _rowId: string) => {
-    setModelSearchQuery(query);
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     if (query.length < 2) { setModelSearchResults([]); return; }
     searchTimerRef.current = setTimeout(async () => {
@@ -233,7 +234,6 @@ export function TemplateReviewPage() {
     updateRowField(rowId, "model", result.sku);
     setDetailRow((prev) => prev && prev.id === rowId ? { ...prev, manufacturer: result.brand || "WyreStorm", model: result.sku } : prev);
     setModelSearchResults([]);
-    setModelSearchQuery("");
   }
 
   function toggleRow(rowId: string) {
@@ -480,7 +480,7 @@ export function TemplateReviewPage() {
                   const productTags = classifyProduct(result);
                   const roleCheck = detailRow.role ? checkRoleCompatibility(detailRow.role, productTags) : null;
                   return (
-                    <button key={result.sku} type="button" className={`wm-drawer-search-result ${roleCheck && !roleCheck.compatible ? "wm-drawer-search-result--incompatible" : ""}`} role="option" onClick={() => selectSearchResult(detailRow.id, result)}>
+                    <button key={result.sku} type="button" className={`wm-drawer-search-result ${roleCheck && !roleCheck.compatible ? "wm-drawer-search-result--incompatible" : ""}`} role="option" aria-selected="false" onClick={() => selectSearchResult(detailRow.id, result)}>
                       <div className="wm-drawer-search-result-header">
                         <span className="wm-drawer-search-sku">{result.sku}</span>
                         {roleCheck && !roleCheck.compatible && (

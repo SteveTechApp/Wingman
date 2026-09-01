@@ -9,7 +9,6 @@
 import type {
   DiscoveryConversationItem,
   StoredProductSelection,
-  StoredProjectProposal,
 } from "../data/projectStore";
 import type { SalesBomRow } from "./salesReadiness";
 import { powerBudgetSummary } from "./powerBudget";

@@ -82,6 +82,9 @@ function readStoredSalesConversationToneId(): SalesConversationToneId {
   return DEFAULT_SALES_CONVERSATION_TONE_ID;
 }
 
+// The six-stage workflow every call card walks a rep through. Rendered as a
+// guide in the product-mode header; the terms are also contract-checked by
+// tools/check-product-positioning-cards.mjs.
 const productCallCardWorkflowGuide = [
   "Product identifier",
   "Scenario checkpoint",
@@ -1337,6 +1340,11 @@ return (
           <p className="wm-pcc-subtitle wm-ui-copy">
             {[selectedProduct.family, selectedProduct.category].filter(Boolean).join(" · ")}
           </p>
+          <ol className="wm-ui-copy" aria-label="Call card workflow">
+            {productCallCardWorkflowGuide.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
           </div>
           <button
             type="button"

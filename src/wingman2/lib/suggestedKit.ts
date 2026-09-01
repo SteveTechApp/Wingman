@@ -12,7 +12,6 @@
  * Generates complete "kit" suggestions that reps can add with one click.
  */
 import type { StoredProductSelection, StoredDiscoveryBrief } from "../data/projectStore";
-import { buildSystemDesign, type SystemSlot, type SystemArchitecture } from "./discoverySystemDesign";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,14 +50,6 @@ function getRoomType(brief: StoredDiscoveryBrief | null): string {
   return String(room?.application || room?.roomType || "").toLowerCase();
 }
 
-function getSourceCount(brief: StoredDiscoveryBrief | null): number {
-  const room = brief?.roomModel as Record<string, unknown> | undefined;
-  const count = room?.sourceCount;
-  if (typeof count === "number") return count;
-  const match = String(count ?? "").match(/\d+/);
-  return match ? Number(match[0]) : 0;
-}
-
 function getDisplayCount(brief: StoredDiscoveryBrief | null): number {
   const room = brief?.roomModel as Record<string, unknown> | undefined;
   const count = room?.displayCount;
@@ -87,17 +78,6 @@ function hasAudioRequirement(brief: StoredDiscoveryBrief | null): boolean {
   return audio.includes("room-speakers") || audio.includes("amplifier") || audio.includes("distributed");
 }
 
-function hasControlRequirement(brief: StoredDiscoveryBrief | null): boolean {
-  const room = brief?.roomModel as Record<string, unknown> | undefined;
-  const control = String(room?.controlNeeds || "").toLowerCase();
-  return control.includes("touch-panel") || control.includes("keypad") || control.includes("control");
-}
-
-function getScale(brief: StoredDiscoveryBrief | null): string {
-  const room = brief?.roomModel as Record<string, unknown> | undefined;
-  return String(room?.scale || room?.roomSize || "").toLowerCase();
-}
-
 // ─── Kit Generation ───────────────────────────────────────────────────────────
 
 /**
@@ -110,8 +90,6 @@ export function generateSuggestedKits(
   const kits: SuggestedKit[] = [];
   const skus = products.map((p) => String(p.sku || "").toUpperCase());
   const roomType = getRoomType(brief);
-  const sourceCount = getSourceCount(brief);
-  const displayCount = getDisplayCount(brief);
 
   // 1. Meeting Room Kit
   if (roomType.includes("meeting-room") || roomType.includes("boardroom")) {

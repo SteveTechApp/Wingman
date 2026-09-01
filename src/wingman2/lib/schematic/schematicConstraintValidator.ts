@@ -1,5 +1,4 @@
 import type {
-  SchematicConnection,
   SchematicModel,
   SchematicNode,
   SchematicPoint,
@@ -27,14 +26,6 @@ const TRANSPORT_MAX_LENGTH_M: Partial<Record<SchematicTransportKind, number>> = 
 /* ------------------------------------------------------------------ */
 /*  PoE power classes (watts budget per port)                          */
 /* ------------------------------------------------------------------ */
-
-type PoeClass = { class_: string; watts: number };
-
-const POE_CLASSES: PoeClass[] = [
-  { class_: "802.3af (Class 0-3)", watts: 15.4 },
-  { class_: "802.3at (PoE+)", watts: 30 },
-  { class_: "802.3bt (PoE++)", watts: 60 },
-];
 
 /* ------------------------------------------------------------------ */
 /*  Constraint check result                                            */
@@ -137,10 +128,6 @@ function validatePowerBudget(
         (c.from === node.id || c.to === node.id) &&
         (c.signal === "power" || /poe|poh/i.test(c.label)),
     );
-    const isPoweredByProduct = products.some(
-      (p) => p.sku && node.sku && p.sku !== node.sku,
-    );
-
     // If a node has no power connection and no PSU mention, flag it
     if (!hasPowerConnection && node.required) {
       const product = products.find((p) => p.sku === node.sku);
@@ -227,8 +214,6 @@ function validatePortCompatibility(
     if (conn.transport === "av-over-ip") {
       const fromIsEncoder = fromNode.kind === "av-over-ip-encoder";
       const toIsSwitch = toNode.kind === "network-switch";
-      const fromIsSwitch = fromNode.kind === "network-switch";
-      const toIsDecoder = toNode.kind === "av-over-ip-decoder";
 
       if (fromIsEncoder && toIsSwitch) {
         // Check if this is a 10G connection (NHD-600 series)

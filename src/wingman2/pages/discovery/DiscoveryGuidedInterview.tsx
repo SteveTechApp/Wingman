@@ -567,8 +567,11 @@ export function DiscoveryGuidedInterview({
 
   // Mirrors the capture chip's tier logic exactly (score >= 5 high, matched,
   // partial/none low) so the trail records the same confidence the rep saw.
-  const confidenceForMatch = (m: GuidedAnswerMatch): "high" | "matched" | "low" =>
-    m.score >= 5 ? "high" : m.confidence === "matched" ? "matched" : "low";
+  const confidenceForMatch = useCallback(
+    (m: GuidedAnswerMatch): "high" | "matched" | "low" =>
+      m.score >= 5 ? "high" : m.confidence === "matched" ? "matched" : "low",
+    [],
+  );
 
   const confirmHeardAnswer = useCallback(() => {
     if (!match) return;

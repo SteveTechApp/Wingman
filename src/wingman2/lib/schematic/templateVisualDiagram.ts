@@ -13,7 +13,6 @@
 
 import type { RoomTemplate, TemplateBomRow } from "../roomTemplates";
 import type {
-  SchematicConnection,
   SchematicModel,
   SchematicNode,
   SchematicNodeKind,

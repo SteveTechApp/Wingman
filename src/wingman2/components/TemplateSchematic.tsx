@@ -10,7 +10,6 @@ const STAGE_GAP = 44;
 const ROW_HEIGHT = 72;
 const HEADER_HEIGHT = 28;
 const ROW_GAP = 12;
-const ARROW_INSET = 6;
 const CALLOUT_W = 200;
 const CALLOUT_PAD = 10;
 

@@ -9,17 +9,13 @@ import {
   TrendingDown,
   Target,
   Package,
-  Users,
   Clock,
   Trash2,
-  PieChart as PieChartIcon,
 } from "lucide-react";
 import {
   buildAnalyticsDashboard,
   formatAnalyticsDate,
-  formatAnalyticsNumber,
   clearAnalyticsData,
-  type AnalyticsDashboardData,
   type FeatureUsage,
   type ProductQuoteFrequency,
   type WinRateByCategory,

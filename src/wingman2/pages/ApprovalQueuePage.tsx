@@ -3,11 +3,7 @@ import {
   CheckCircle,
   Clock,
   FileText,
-  MessageSquare,
-  Send,
   XCircle,
-  ArrowLeft,
-  RotateCcw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -16,7 +12,6 @@ import {
   usePendingApprovals,
   useApproveProposal,
   useRejectProposal,
-  useRecallProposal,
   type PendingProposal,
 } from "../data/approvalStore";
 import { useProjectStore } from "../data/projectStore";
@@ -63,13 +58,12 @@ function CommentModal({
   const [comment, setComment] = useState("");
 
   return (
-    <div className="wm-modal-backdrop" onClick={onClose}>
+    <div className="wm-modal-backdrop" role="button" aria-label="Close comment dialog" tabIndex={-1} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} onKeyDown={(e) => { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") onClose(); }}>
       <div
         className="wm-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="comment-modal-title"
-        onClick={(e) => e.stopPropagation()}
       >
         <h3 id="comment-modal-title">{title}</h3>
         <textarea
@@ -78,7 +72,6 @@ function CommentModal({
           placeholder="Add comments for the proposer (required for rejection, optional for approval)..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          autoFocus
         />
         <div className="wm-modal-actions">
           <button

@@ -76,7 +76,7 @@ export function SavedComparisonHistory({ runs, view, onSearch, onFilter, onSort,
         <label>Filter <select aria-label="Filter" value={view.filter} onChange={(event) => onFilter(event.target.value)}><option value="all">All verdicts</option><option value="GOOD MATCH">Good match</option><option value="PARTIAL MATCH">Partial match</option><option value="VERIFY">Verify</option><option value="NO MATCH">No match</option></select></label>
         <label>Sort <select aria-label="Sort" value={view.sort} onChange={(event) => onSort(event.target.value)}><option value="newest">Newest</option><option value="score">Highest score</option><option value="confidence">Confidence</option></select></label>
         <button type="button" onClick={() => { onSearch(""); onFilter("all"); onSort("newest"); }}>Clear filters</button>
-        <div onKeyDown={handleExportKeys}><button type="button" aria-haspopup="menu" aria-expanded={exportOpen} onClick={() => setExportOpen((value) => !value)}>Export</button>{exportOpen ? <div role="menu">{[
+        <div><button type="button" aria-haspopup="menu" aria-expanded={exportOpen} onClick={() => setExportOpen((value) => !value)}>Export</button>{exportOpen ? <div role="menu" tabIndex={-1} onKeyDown={handleExportKeys}>{[
           ["Export CSV", exportCsv],
           ["Copy text", () => void copyText()],
           ["Copy view link", () => void navigator.clipboard?.writeText(window.location.href)],

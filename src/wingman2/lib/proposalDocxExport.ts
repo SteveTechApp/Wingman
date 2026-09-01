@@ -13,9 +13,9 @@ import {
   captureConfidenceCell,
 } from "./discoveryConversationDisplay";
 import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
-import type { SchematicModel, SchematicNode, SchematicTransportKind } from "./schematic/schematicTypes";
+import type { SchematicModel } from "./schematic/schematicTypes";
 import { SCHEMATIC_COLORS, SCHEMATIC_NODE_COLORS } from "./schematic/schematicVisualPalette";
-import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel, cableValidationStatusClass, type NativeCableRow } from "./schematic/nativeCableSchedule";
+import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel } from "./schematic/nativeCableSchedule";
 import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
 
 export const NAVY = "08223A";

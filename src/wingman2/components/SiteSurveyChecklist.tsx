@@ -14,8 +14,6 @@ import {
   Save,
   RotateCcw,
   GitCompareArrows,
-  TrendingUp,
-  TrendingDown,
   Minus,
 } from "lucide-react";
 import type { StoredProject, StoredProductSelection } from "../data/projectStore";
@@ -27,7 +25,6 @@ import {
   buildSiteSurveyChecklist,
   printSiteSurveyChecklist,
   downloadSiteSurveyHtml,
-  type SurveyChecklist,
   type SurveyLocation,
   type SurveyCable,
 } from "../lib/siteSurveyChecklist";
@@ -66,7 +63,6 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
   const [expandedCables, setExpandedCables] = useState(true);
   const [edits, setEdits] = useState<SurveyProjectEdits>(() => getProjectEdits(project.id));
   const [online, setOnline] = useState(isOnline());
-  const [showNotes, setShowNotes] = useState(false);
   const [comparisonMode, setComparisonMode] = useState(false);
   const [installChecked, setInstallCheckedState] = useState<Set<string>>(
     () => new Set(getInstallChecked(project.id)),
@@ -647,6 +643,7 @@ function LocationCard({
                           <input
                             type="checkbox"
                             className="wm-survey-checkbox"
+                            aria-label={`Mark ${device.name || device.id} verified`}
                             checked={verified}
                             onChange={(e) => onDeviceVerified(device.id, e.target.checked)}
                           />
@@ -672,8 +669,9 @@ function LocationCard({
           )}
           {/* Location notes */}
           <div className="wm-survey-notes-input">
-            <label className="text-[10px] text-white/40 block mb-1">Integrator notes</label>
+            <label htmlFor={`wm-survey-notes-${location.id}`} className="text-[10px] text-white/40 block mb-1">Integrator notes</label>
             <textarea
+              id={`wm-survey-notes-${location.id}`}
               className="wm-survey-textarea"
               placeholder="Observations, access issues, power availability..."
               value={locationEdit?.notes ?? ""}

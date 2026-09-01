@@ -59,7 +59,7 @@ describe("the Discovery chunk does not ship every language's phrase data", () =>
     expect(source).not.toContain("会议室");
     // And every language must be reachable through the on-demand loaders.
     for (const lang of ["fr", "es", "de", "pt", "it", "nl", "sv", "nb", "ru", "zh", "hi"]) {
-      expect(source).toContain(`import(\"./locales/locale-${lang}\")`);
+      expect(source).toContain(`import("./locales/locale-${lang}")`);
     }
   });
 

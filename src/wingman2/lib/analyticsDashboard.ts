@@ -8,7 +8,7 @@
  *   3. Aggregated data only — no individual event browsing
  *   4. Automatic cleanup after 90 days
  */
-import type { StoredProductSelection, StoredProject } from "../data/projectStore";
+import type { StoredProject } from "../data/projectStore";
 import { readProjectStore } from "../data/projectStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

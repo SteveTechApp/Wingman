@@ -38,7 +38,6 @@ export function evaluateDiscoveryDecisionIntegrity(
   answers: DiscoveryAnswers,
   notes: DiscoveryNotes = {},
 ): DiscoveryDecisionIntegrity {
-  const byId = new Map(questions.map((question) => [question.id, question]));
   const contradictions: DiscoveryDecisionIssue[] = [];
   const underspecified: DiscoveryDecisionIssue[] = [];
   const addContradiction = (questionIds: string[], title: string, detail: string, followUpQuestion: string) => {

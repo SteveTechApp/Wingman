@@ -1,4 +1,3 @@
-import type { StoredProductSelection, StoredProject, StoredRecommendationFeedback } from "../data/projectStore";
 import { readProjectStore } from "../data/projectStore";
 import { buildDesignAssuranceLedger, type DesignAssuranceItem } from "./productAssurance";
 

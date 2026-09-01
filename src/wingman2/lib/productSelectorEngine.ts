@@ -9,7 +9,7 @@ import {
   type WingmanProductLike,
   type WingmanProductProfile,
 } from "./productClassification";
-import { aggregateSkuFeedback, collectDealOutcomes } from "./feedbackInformedGuidance";
+import { collectDealOutcomes } from "./feedbackInformedGuidance";
 import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
 import { extractRawProducts } from "./productStoryEngine";
 import { normaliseSkuKey, resolveWyrestormSkuAlias } from "./skuAliasResolver";

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Copy, PackageSearch, Scale } from "lucide-react";
+import { Check, Copy, PackageSearch } from "lucide-react";
 import {
   isBannedNetworkHdSku,
   mapCompetitorToNetworkHdAvoip,
@@ -45,7 +45,6 @@ import { competitorSkuSeeds } from "../lib/competitorProductIntelligence";
 import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "../lib/competitorSpecRegistry";
 import { findSavedCompetitorSpec } from "../lib/savedCompetitorSpecs";
 import { buildWyrestormCompareProfile } from "../lib/wyrestormCompareProfile";
-import { governedCoverageSummary } from "../lib/governedCoverage";
 import { findKnownWyrestormCompareProfile, hydrateWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
 import type { KnownWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
 import { classifyCompetitorCompareDecision, type CompareSpecFacts } from "../lib/competitorCompareDecision";
@@ -83,7 +82,7 @@ import { CompareShowdown } from "../components/compare/CompareShowdown";
 import { GovernedDataBadge as GovernanceBadge, weakestLinkTier } from "../components/GovernedDataBadge";
 import { SavedComparisonHistory } from "./compare/SavedComparisonHistory";
 import { useCompareHistoryView } from "./compare/useCompareHistoryView";
-import { buildCompareHistoryCsv, buildCompareHistoryText, compareHistoryDiff, filterAndSortCompareHistory, savedHistoryRuns, type CompareHistoryView } from "../lib/compareHistory";
+import { savedHistoryRuns } from "../lib/compareHistory";
 
 /**
  * Keyword-heuristic recommendations are RETIRED (fail-closed policy).
@@ -5528,32 +5527,13 @@ function ComparePageNew() {
   const setHistorySearch = historyView.setSearch;
   const setHistoryFilter = historyView.setFilter;
   const setHistorySort = historyView.setSort;
-  const [historyLinkCopied, setHistoryLinkCopied] = useState(false);
-  const [historyLinkError, setHistoryLinkError] = useState("");
-  const [historyTextCopied, setHistoryTextCopied] = useState(false);
   const [historyExportOpen, setHistoryExportOpen] = useState(false);
-  const [historyExportStatus, setHistoryExportStatus] = useState("");
-  const [lastExport, setLastExport] = useState<{ type: string; at: string } | null>(() => {
-    try {
-      const stored = window.localStorage.getItem("wingman.compare.last-export.v1");
-      return stored ? JSON.parse(stored) as { type: string; at: string } : null;
-    } catch {
-      return null;
-    }
-  });
-  const [sharedViewBannerVisible, setSharedViewBannerVisible] = useState(Boolean(searchParams.get("historySearch") || searchParams.get("historyFilter") || searchParams.get("historySort")));
   const skipResultFocusRef = useRef(false);
   const deleteDialogRef = useRef<HTMLButtonElement | null>(null);
   const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
   const historySearchRef = useRef<HTMLInputElement | null>(null);
   const historyExportRef = useRef<HTMLDivElement | null>(null);
-  const historyExportButtonRef = useRef<HTMLButtonElement | null>(null);
-  const historyExportItemsRef = useRef<HTMLButtonElement[]>([]);
   const [catalogVersion, setCatalogVersion] = useState(0);
-
-  useEffect(() => {
-    if (lastExport) window.localStorage.setItem("wingman.compare.last-export.v1", JSON.stringify(lastExport));
-  }, [lastExport]);
   const [decisionRevision, setDecisionRevision] = useState(0);
   // Ledger-approved decisions fetched from the governed server; merged over
   // the per-browser localStorage ledger so a queue approval promotes into the
@@ -5936,41 +5916,6 @@ function ComparePageNew() {
     : [];
   const matrixAlternatives = (exactSizeMatrixAlternatives.length ? exactSizeMatrixAlternatives : matrixCandidatePool).slice(0, 3);
 
-  // When every candidate is rejected, the no-match card should say WHY, not
-  // just "no suitable match" - e.g. an audio DSP competitor (Biamp Tesira,
-  // Q-SYS Core) is rejected because WyreStorm makes no DSP, and a rep should
-  // see that specific reason instead of a generic low-evidence warning.
-  // Only substantive blockers are surfaced: generic candidate-gate and
-  // evidence-gap boilerplate (e.g. an "accessory cannot be a lead" rejection
-  // for a totally un-described CUSTOM / missing SKU search) must keep falling
-  // back to the limited-data wording, which is the honest message there.
-  const topNoMatchReason = useMemo(() => {
-    const genericReasonPatterns = [
-      /accessory, controller, rack, cable or support item/i,
-      /cannot be a lead replacement/i,
-      /confirm the current specification/i,
-      /no technology class has been verified/i,
-      /no role, transport/i,
-      /more evidence is required/i,
-      /not enough evidence/i,
-      /available facts do not support/i,
-    ];
-    const isSpecificReason = (reason: string): boolean =>
-      reason.length > 0 && !genericReasonPatterns.some((pattern) => pattern.test(reason));
-
-    const rejectedReason = (rigorousResult.rejected ?? [])
-      .map((match) => String((match as Record<string, unknown>).rejectedReason ?? "").trim())
-      .find(isSpecificReason);
-
-    if (rejectedReason) return rejectedReason;
-
-    const firstNoMatch = (rigorousResult.matches ?? []).find((match) => {
-      const decision = (match as Record<string, unknown>).decision as Record<string, unknown> | undefined;
-      return decision?.outcome === "NO MATCH";
-    });
-    const blockers = ((firstNoMatch as Record<string, unknown> | undefined)?.decision as Record<string, unknown> | undefined)?.blockers;
-    return Array.isArray(blockers) ? blockers.find(isSpecificReason) ?? "" : "";
-  }, [rigorousResult]);
 
   const requestLiveLookup = shouldRequestLiveLookupUrl(profile)
     || !isCompetitorSkuHeldLocally(effectiveBrand, competitorInput);
@@ -6283,106 +6228,6 @@ function ComparePageNew() {
 
   function savedComparisonCount(): number {
     return savedComparisonRuns().length;
-  }
-
-  function exportVisibleHistory(): void {
-    const rows = visibleSavedComparisonRuns();
-    const csv = buildCompareHistoryCsv(rows);
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "wingman-saved-comparisons.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-    setHistoryExportStatus(`Exported ${rows.length} saved comparison${rows.length === 1 ? "" : "s"} as CSV.`);
-    setLastExport({ type: "CSV", at: new Date().toLocaleTimeString() });
-    window.setTimeout(() => setHistoryExportStatus(""), 3000);
-  }
-
-  function clearExportHistory(): void {
-    setLastExport(null);
-    window.localStorage.removeItem("wingman.compare.last-export.v1");
-    setHistoryExportStatus("Export history cleared.");
-    window.setTimeout(() => setHistoryExportStatus(""), 3000);
-  }
-
-  async function copyHistoryText(): Promise<void> {
-    const rows = visibleSavedComparisonRuns();
-    const text = buildCompareHistoryText(rows, { search: historySearch, filter: historyFilter, sort: historySort });
-    try {
-      await navigator.clipboard?.writeText(text);
-      setHistoryTextCopied(true);
-      setHistoryExportStatus(`Copied ${rows.length} saved comparison${rows.length === 1 ? "" : "s"} as text.`);
-      setLastExport({ type: "Text", at: new Date().toLocaleTimeString() });
-      window.setTimeout(() => setHistoryExportStatus(""), 3000);
-      window.setTimeout(() => setHistoryTextCopied(false), 2000);
-    } catch {
-      setHistoryTextCopied(false);
-    }
-  }
-
-  async function copyHistoryLink(): Promise<void> {
-    try {
-      await navigator.clipboard?.writeText(window.location.href);
-      setHistoryLinkError("");
-      setHistoryLinkCopied(true);
-      setHistoryExportStatus("Copied the shareable saved-history link.");
-      setLastExport({ type: "Link", at: new Date().toLocaleTimeString() });
-      window.setTimeout(() => setHistoryExportStatus(""), 3000);
-      window.setTimeout(() => setHistoryLinkCopied(false), 2000);
-    } catch {
-      setHistoryLinkCopied(false);
-      setHistoryLinkError("Copy was unavailable. Use the browser address bar to share this view.");
-    }
-  }
-
-  function savedHistorySummary() {
-    const runs = savedComparisonRuns();
-    const count = (type: string) => runs.filter((run) => (run.matchType || "Review") === type).length;
-    return {
-      total: runs.length,
-      good: count("GOOD MATCH"),
-      verify: count("VERIFY"),
-      noMatch: count("NO MATCH"),
-      latest: runs[0],
-    };
-  }
-
-  function visibleSavedComparisonRuns(): StoredCompareRun[] {
-    const view: CompareHistoryView = { search: historySearch, filter: historyFilter, sort: historySort };
-    return filterAndSortCompareHistory(savedComparisonRuns(), view);
-  }
-
-  function legacyVisibleSavedComparisonRuns(): StoredCompareRun[] {
-    const query = historySearch.trim().toLowerCase();
-    const filtered = savedComparisonRuns().filter((run) => {
-      const matchesVerdict = historyFilter === "all" || (run.matchType || "Review") === historyFilter;
-      const searchable = `${run.competitorBrand || ""} ${run.competitorSku || ""} ${run.wyrestormSku || ""}`.toLowerCase();
-      return matchesVerdict && (!query || searchable.includes(query));
-    });
-    return [...filtered].sort((left, right) => {
-      if (historySort === "score") return (right.matchScore ?? -1) - (left.matchScore ?? -1);
-      if (historySort === "confidence") return String(left.confidence || "").localeCompare(String(right.confidence || ""));
-      return Date.parse(right.createdAt || "") - Date.parse(left.createdAt || "");
-    });
-  }
-
-  function savedComparisonDiff(run: StoredCompareRun): string[] {
-    return compareHistoryDiff(run, savedComparisonRuns());
-  }
-
-  function legacySavedComparisonDiff(run: StoredCompareRun): string[] {
-    const prior = savedComparisonRuns()
-      .filter((candidate) => candidate.competitorBrand === run.competitorBrand && candidate.competitorSku === run.competitorSku && (candidate.version ?? 1) < (run.version ?? 1))
-      .sort((left, right) => (right.version ?? 1) - (left.version ?? 1))[0];
-    if (!prior) return [];
-    const changes: string[] = [];
-    if (prior.wyrestormSku !== run.wyrestormSku) changes.push(`Direction changed from ${prior.wyrestormSku || "unspecified"} to ${run.wyrestormSku || "unspecified"}.`);
-    if (prior.matchType !== run.matchType) changes.push(`Verdict changed from ${prior.matchType || "review"} to ${run.matchType || "review"}.`);
-    if (prior.confidence !== run.confidence) changes.push(`Confidence changed from ${prior.confidence || "unrecorded"} to ${run.confidence || "unrecorded"}.`);
-    if ((prior.evidence?.length ?? 0) !== (run.evidence?.length ?? 0)) changes.push(`Evidence count changed from ${prior.evidence?.length ?? 0} to ${run.evidence?.length ?? 0}.`);
-    if ((prior.warnings?.length ?? 0) !== (run.warnings?.length ?? 0)) changes.push(`Quote-check count changed from ${prior.warnings?.length ?? 0} to ${run.warnings?.length ?? 0}.`);
-    return changes;
   }
 
   function reopenSavedComparison(run: NonNullable<ReturnType<typeof savedComparisonRuns>>[number]): void {

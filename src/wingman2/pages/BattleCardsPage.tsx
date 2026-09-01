@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Shield, Swords, ExternalLink, ChevronDown, ChevronRight, AlertTriangle, ArrowRightLeft } from "lucide-react";
-import { getAllBattleCards, type BattleCardEntry, type BattleCardGroup } from "../lib/battleCards";
+import { getAllBattleCards, type BattleCardGroup } from "../lib/battleCards";
 
 import {
   ProductFilterPanel,

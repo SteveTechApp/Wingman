@@ -172,8 +172,9 @@ export function InDeskConnectivityWizard({
       {/* Config questions */}
       <div className="wm-idb-wizard__questions">
         <div className="wm-idb-wizard__field">
-          <label>Form factor</label>
+          <label htmlFor="wm-idb-form-factor">Form factor</label>
           <select
+            id="wm-idb-form-factor"
             value={answers.formFactor}
             onChange={(e) =>
               setAnswers((prev) => ({
@@ -192,8 +193,9 @@ export function InDeskConnectivityWizard({
         </div>
 
         <div className="wm-idb-wizard__field">
-          <label>Number of sources to connect</label>
+          <label htmlFor="wm-idb-source-count">Number of sources to connect</label>
           <select
+            id="wm-idb-source-count"
             value={answers.sourceCount}
             onChange={(e) =>
               setAnswers((prev) => ({
@@ -210,8 +212,9 @@ export function InDeskConnectivityWizard({
         </div>
 
         <div className="wm-idb-wizard__field">
-          <label>Needs wired Ethernet at the table?</label>
+          <label htmlFor="wm-idb-ethernet">Needs wired Ethernet at the table?</label>
           <select
+            id="wm-idb-ethernet"
             value={answers.needsEthernet}
             onChange={(e) =>
               setAnswers((prev) => ({
@@ -227,8 +230,9 @@ export function InDeskConnectivityWizard({
         </div>
 
         <div className="wm-idb-wizard__field">
-          <label>Needs source switching at the table?</label>
+          <label htmlFor="wm-idb-source-switching">Needs source switching at the table?</label>
           <select
+            id="wm-idb-source-switching"
             value={answers.needsSourceSwitching}
             onChange={(e) =>
               setAnswers((prev) => ({
@@ -245,8 +249,9 @@ export function InDeskConnectivityWizard({
         </div>
 
         <div className="wm-idb-wizard__field">
-          <label>Needs USB-C Power Delivery?</label>
+          <label htmlFor="wm-idb-usb-pd">Needs USB-C Power Delivery?</label>
           <select
+            id="wm-idb-usb-pd"
             value={answers.needsUsbPd}
             onChange={(e) =>
               setAnswers((prev) => ({

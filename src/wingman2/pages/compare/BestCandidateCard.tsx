@@ -3,32 +3,23 @@
  *
  * Extracted from ComparePageNew.advanced.tsx for maintainability.
  */
-import { Check, Copy, PackageSearch } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { GovernedDataBadge, weakestLinkTier } from "../../components/GovernedDataBadge";
 import {
   salesWhyBullets,
-  salesImportantDifference,
   compactCompareQuoteChecks,
   commercializeCompareCopy,
   uniqueText,
 } from "../../lib/repScript";
 import { type ScoredCandidate } from "../../lib/compareVerdictPipeline";
-import { compareReportedStatus, compareReportedStatusMeta, CompareReportedStatusRail, type CompareReportedStatus } from "./compareUtilities";
+import { compareReportedStatus, compareReportedStatusMeta, CompareReportedStatusRail } from "./compareUtilities";
 import { CompareEvidenceMatrix } from "./CompareEvidenceMatrix";
 import { CompareEvidenceList } from "./CompareEvidenceList";
 import { openGuruForCompareResult, ProductMoreLink, buildWyrestormSummary, buildCoreComparisonFacts, salesAskCustomer } from "./compareUtilities";
 import type { CompetitorProfile, CompetitorSummary } from "./compareUtilities";
 
 // ─── Helper Components ────────────────────────────────────────────────────────
-
-function verdictClass(verdict: string): string {
-  if (/good match/i.test(verdict)) return "verdict--match";
-  if (/partial/i.test(verdict)) return "verdict--partial";
-  if (/no match/i.test(verdict)) return "verdict--no-match";
-  if (/verify/i.test(verdict)) return "verdict--verify";
-  return "verdict--unknown";
-}
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 

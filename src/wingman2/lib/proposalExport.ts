@@ -3,7 +3,6 @@ import { powerBudgetSummary, type PowerBudgetSummary } from "./powerBudget";
 import {
   buildCableSchedule,
   buildSchematicNodes,
-  cableToneLabel,
   inferSchematicArchitecture,
 } from "./roomSchematicEngine";
 import type { SalesBomRow } from "./salesReadiness";

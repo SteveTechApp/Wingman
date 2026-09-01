@@ -264,9 +264,10 @@ async function runProtectedRoute(res, work) {
   try {
     await work();
   } catch (error) {
+    console.error("[wingman-api] protected route failed:", error);
     sendJson(res, 503, {
       ok: false,
-      error: error instanceof Error ? error.message : "Service unavailable.",
+      error: "Service unavailable.",
     });
   }
 }
@@ -279,9 +280,10 @@ async function requireWingmanPermission(req, res, url, {
   try {
     auth = await getWingmanRequestAuth(req, url);
   } catch (error) {
+    console.error("[wingman-api] auth check failed:", error);
     sendJson(res, 503, {
       ok: false,
-      error: error instanceof Error ? error.message : "Authentication service unavailable.",
+      error: "Authentication service unavailable.",
     });
     return null;
   }
@@ -330,7 +332,8 @@ async function parseJsonBody(req) {
         const error = new Error(`Request body too large. Max ${MAX_JSON_BODY_BYTES} bytes.`);
         error.statusCode = 413;
         fail(error);
-        req.destroy();
+        // Let the caller write the 413 response before tearing down the socket.
+        setImmediate(() => req.destroy());
       }
     });
     req.on("end", () => {
@@ -373,8 +376,8 @@ async function handleProductReportPost(req, res, url, helpers) {
   let body;
   try {
     body = await helpers.parseJsonBody(req);
-  } catch {
-    helpers.sendJson(res, 400, { ok: false, error: "Invalid JSON body." });
+  } catch (error) {
+    helpers.sendJson(res, error?.statusCode === 413 ? 413 : 400, { ok: false, error: "Invalid JSON body." });
     return;
   }
 
@@ -1476,14 +1479,14 @@ async function handleLookupRequest(req, res) {
   let body = {};
   try {
     body = await parseJsonBody(req);
-  } catch {
+  } catch (error) {
     pushRuntimeDiagnosticsEvent({
       scope: "lookup",
       severity: "warn",
       mode: "invalid-request",
       message: "Invalid JSON body for competitor lookup request.",
     });
-    sendJson(res, 400, {
+    sendJson(res, error?.statusCode === 413 ? 413 : 400, {
       ok: false,
       error: "Invalid JSON body.",
     });
@@ -1863,14 +1866,14 @@ async function handleApprovalsPost(req, res, url) {
   let body = {};
   try {
     body = await parseJsonBody(req);
-  } catch {
+  } catch (error) {
     pushRuntimeDiagnosticsEvent({
       scope: "approval",
       severity: "warn",
       mode: "invalid-request",
       message: "Invalid JSON body for competitor approvals POST.",
     });
-    sendJson(res, 400, {
+    sendJson(res, error?.statusCode === 413 ? 413 : 400, {
       ok: false,
       error: "Invalid JSON body.",
     });
@@ -2007,8 +2010,8 @@ async function handleLookupRuntimeDiagnosticsPrune(req, res, url) {
   let body = {};
   try {
     body = await parseJsonBody(req);
-  } catch {
-    sendJson(res, 400, {
+  } catch (error) {
+    sendJson(res, error?.statusCode === 413 ? 413 : 400, {
       ok: false,
       error: "Invalid JSON body.",
     });
@@ -2205,7 +2208,8 @@ const ROUTES = [
         // an ok:false payload. 4xx is reserved for bad input and auth failures.
         return sendJson(res, 200, result);
       } catch (error) {
-        return sendJson(res, 500, { ok: false, error: error instanceof Error ? error.message : "Resolve match failed" });
+        console.error("[wingman-api] /api/competitor/resolveMatch failed:", error);
+        return sendJson(res, error?.statusCode === 413 ? 413 : 500, { ok: false, error: "Resolve match failed." });
       }
     },
   },
@@ -2225,7 +2229,8 @@ const ROUTES = [
         });
         return sendJson(res, result.ok ? 200 : 400, result);
       } catch (error) {
-        return sendJson(res, 500, { ok: false, error: error instanceof Error ? error.message : "Live lookup failed" });
+        console.error("[wingman-api] /api/competitor/liveLookup failed:", error);
+        return sendJson(res, error?.statusCode === 413 ? 413 : 500, { ok: false, error: "Live lookup failed." });
       }
     },
   },
@@ -2544,7 +2549,7 @@ const ROUTES = [
         sendJson(res, 200, { ok: true, ...result });
       } catch (error) {
         console.error("[wingman-api] /api/compare/match failed:", error);
-        sendJson(res, 500, { ok: false, error: "Comparison failed." });
+        sendJson(res, error?.statusCode === 413 ? 413 : 500, { ok: false, error: "Comparison failed." });
       }
     },
   },
@@ -2562,7 +2567,7 @@ const ROUTES = [
         sendJson(res, 200, { ok: true, ...result });
       } catch (error) {
         console.error("[wingman-api] /api/compare/analyze failed:", error);
-        sendJson(res, 500, { ok: false, error: "Analysis failed." });
+        sendJson(res, error?.statusCode === 413 ? 413 : 500, { ok: false, error: "Analysis failed." });
       }
     },
   },

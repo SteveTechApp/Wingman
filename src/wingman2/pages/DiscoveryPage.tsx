@@ -53,7 +53,7 @@ import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsP
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
-import { DiscoveryProgressiveDisclosure, applySmartDefaults, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
+import { DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
 import {
@@ -688,15 +688,6 @@ export function DiscoveryPage() {
 
   function moveNext(): void {
     setActiveIndex((index) => Math.min(modeQuestions.length - 1, index + 1));
-  }
-
-  // Apply smart defaults based on application type
-  function handleApplySmartDefaults(): void {
-    const applicationType = wmDiscoveryAnswerToText(answers.opportunity);
-    if (applicationType) {
-      const updatedAnswers = applySmartDefaults(answers, applicationType);
-      setAnswers(updatedAnswers);
-    }
   }
 
   function handleSelectAnswer(value: string): void {
