@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useUiMode } from "../data/uiMode";
 import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -106,6 +107,7 @@ const discoveryAuditMarkers = [
 
 
 export function DiscoveryPage() {
+  const { isGuided } = useUiMode();
   const [searchParams] = useSearchParams();
   const editQuestionId = searchParams.get("edit")?.trim() ?? "";
   const [discoveryDraft] = useState(() => readLatestDiscoverySnapshot());
@@ -243,6 +245,9 @@ export function DiscoveryPage() {
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
   const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("basic");
+  // Pending escalation: set when a non-basic question is edited while in basic mode,
+  // shows a confirmation dialog before switching to Expert.
+  const [pendingEscalation, setPendingEscalation] = useState<string | null>(null);
   // `?interview=1` (used by the dashboard / project-card resume links) opens
   // straight into the guided interview, which resumes at the first open question.
   const [interviewActive, setInterviewActive] = useState(
@@ -337,7 +342,8 @@ export function DiscoveryPage() {
       setActiveIndex(editIndex);
       setIsReviewingAnswers(false);
     } else if (progressiveMode === "basic" && discoveryQuestions.some((q) => q.id === editQuestionId)) {
-      setProgressiveMode("expert");
+      // Don't silently switch — show a confirmation prompt instead
+      setPendingEscalation(editQuestionId);
     }
   }, [modeQuestions, editQuestionId, progressiveMode, discoveryQuestions]);
 
@@ -389,26 +395,6 @@ export function DiscoveryPage() {
   );
   const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
-
-  useEffect(() => {
-    const visibleIds = new Set(modeQuestions.map((step) => step.id));
-
-    setAnswers((previous) => {
-      const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
-      if (staleIds.length === 0) return previous;
-      const next = { ...previous };
-      staleIds.forEach((id) => delete next[id]);
-      return next;
-    });
-
-    setNotes((previous) => {
-      const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
-      if (staleIds.length === 0) return previous;
-      const next = { ...previous };
-      staleIds.forEach((id) => delete next[id]);
-      return next;
-    });
-  }, [modeQuestions]);
 
   const selectedAnswerLabel = (stepId: string): string => {
     const step = modeQuestions.find((candidate) => candidate.id === stepId);
@@ -978,12 +964,14 @@ export function DiscoveryPage() {
   }
 
   function buildDiscoveryBrief(): StoredDiscoveryBrief {
+    // Always search the FULL question list so Expert answers captured before
+    // switching to Basic mode are not silently dropped from the brief.
     const answerLabel = (stepId: string): string => {
-      const step = modeQuestions.find((candidate) => candidate.id === stepId);
+      const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
       return step && wmDiscoveryHasAnswer(answers[stepId]) ? getOptionLabel(step, answers[stepId], selectedApplication) : "";
     };
     const answerLabels = (stepId: string): string[] => {
-      const step = modeQuestions.find(
+      const step = discoveryQuestions.find(
         (candidate) => candidate.id === stepId,
       );
 
@@ -1123,7 +1111,12 @@ export function DiscoveryPage() {
       ...multiviewOperation.map((item) => `Multiview operation: ${item}`),
       ...audioProcessing.map((item) => `Audio processing: ${item}`),
     ].filter(Boolean);
-    const missingInformation = modeQuestions.flatMap((step) => {
+    const missingInformationQuestions = progressiveMode === "expert"
+      ? discoveryQuestions
+      : discoveryQuestions.filter((step) =>
+          BASIC_IDS.has(step.id) || wmDiscoveryHasAnswer(answers[step.id]),
+        );
+    const missingInformation = missingInformationQuestions.flatMap((step) => {
       const answer = answers[step.id] ?? "";
       const answerText = answerLabel(step.id);
       const note = notes[step.id]?.trim() ?? "";
@@ -1459,21 +1452,47 @@ return (
         </div>
       </header>
 
-      {!interviewActive && discoveryMode === "standard" ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
+      {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
-      <DiscoveryClientDetailsPanel
-        clientName={clientName}
-        onClientNameChange={setClientName}
-        contactName={contactName}
-        onContactNameChange={setContactName}
-        siteName={siteName}
-        onSiteNameChange={setSiteName}
-        budgetLevel={budgetLevel}
-        onBudgetLevelChange={setBudgetLevel}
-        budgetInputRef={budgetInputRef}
-        timeline={timeline}
-        onTimelineChange={setTimeline}
-      />
+      {isGuided ? (
+        <details className="wm-discovery-client-compact" data-wingman-client-compact="true">
+          <summary className="wm-discovery-client-compact-toggle">
+            {(clientName.trim() || siteName.trim())
+              ? `${clientName.trim()}${siteName.trim() ? ` · ${siteName.trim()}` : ""}`
+              : "Add client details"}
+          </summary>
+          <div className="wm-discovery-client-compact-fields">
+            <input
+              type="text"
+              placeholder="Client name"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              className="wm-discovery-client-compact-input"
+            />
+            <input
+              type="text"
+              placeholder="Site name"
+              value={siteName}
+              onChange={(e) => setSiteName(e.target.value)}
+              className="wm-discovery-client-compact-input"
+            />
+          </div>
+        </details>
+      ) : (
+        <DiscoveryClientDetailsPanel
+          clientName={clientName}
+          onClientNameChange={setClientName}
+          contactName={contactName}
+          onContactNameChange={setContactName}
+          siteName={siteName}
+          onSiteNameChange={setSiteName}
+          budgetLevel={budgetLevel}
+          onBudgetLevelChange={setBudgetLevel}
+          budgetInputRef={budgetInputRef}
+          timeline={timeline}
+          onTimelineChange={setTimeline}
+        />
+      )}
 
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
@@ -1498,6 +1517,8 @@ return (
         <DiscoveryCompletionPanel
           panelRef={completionPanelRef}
           answerCount={modeQuestions.length}
+          totalQuestions={discoveryQuestions.length}
+          mode={progressiveMode}
           requiresVideoWallConfiguration={videoWallConfigurationPending}
           videoWallConfigured={requiresVideoWallConfiguration && videoWallConfigured}
           savedMessage={savedMessage}
@@ -1506,6 +1527,7 @@ return (
             setActiveIndex(Math.max(modeQuestions.length - 1, 0));
             setIsReviewingAnswers(true);
           }}
+          onUnlockExpert={() => setProgressiveMode("expert")}
           onSave={saveDiscoveryToProject}
           onExportBrief={() =>
             exportDiscoveryBriefHtml(buildDiscoveryBrief(), {
@@ -1515,6 +1537,42 @@ return (
         />
       ) : (
       <>
+      {/* Pending Escalation Confirmation — shown when user edits a non-basic question */}
+      {pendingEscalation && progressiveMode === "basic" && !isReviewingAnswers && (
+        <div className="wm-discovery-escalation-confirm" data-wingman-escalation-confirm="true" role="dialog" aria-label="Switch to Expert mode?">
+          <div className="wm-discovery-escalation-confirm-content">
+            <span className="wm-discovery-escalation-confirm-icon" aria-hidden="true">🔬</span>
+            <div>
+              <strong>Unlock full discovery?</strong>
+              <p>
+                The question you want to edit is outside the 6 essential Basic questions. Switching to Expert mode will reveal all {discoveryQuestions.length} questions.
+              </p>
+            </div>
+          </div>
+          <div className="wm-discovery-escalation-confirm-actions">
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-primary"
+              onClick={() => {
+                setProgressiveMode("expert");
+                setPendingEscalation(null);
+              }}
+              data-testid="escalation-confirm"
+            >
+              Switch to Expert
+            </button>
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-secondary"
+              onClick={() => setPendingEscalation(null)}
+              data-testid="escalation-dismiss"
+            >
+              Stay in Basic
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Progressive disclosure: mode toggle, smart defaults, and step banner */}
       {!isReviewingAnswers && !editQuestionId && (
         <DiscoveryProgressiveDisclosure
@@ -1528,6 +1586,7 @@ return (
           isReviewingAnswers={isReviewingAnswers}
           showModeToggle={answeredCount < 3}
           showBatchControls={answeredCount === 0}
+          showWarnings={true}
         />
       )}
 

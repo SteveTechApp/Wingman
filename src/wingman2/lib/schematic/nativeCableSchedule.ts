@@ -21,6 +21,12 @@ export type NativeCableRow = {
   fromSku?: string;
   toSku?: string;
   required: boolean;
+  /** Connectors at each end, e.g. "HDMI-A to RJ45" */
+  connectors?: string;
+  /** Max cable length for this transport type in metres, null if unlimited */
+  maxLengthMetres?: number | null;
+  /** Validation status: confirmed by governed data, needs site confirmation, or unknown */
+  validationStatus: "confirmed" | "needs-site-confirmation" | "unknown";
 };
 
 // ─── Transport-specific cable descriptions ────────────────────────────────────
@@ -36,6 +42,32 @@ const TRANSPORT_CABLE: Record<SchematicTransportKind, string> = {
   network: "Cat6/Cat6A to managed switch (confirm VLAN, PoE, bandwidth)",
   control: "RS-232, IR, relay or Cat6 for IP control (confirm protocol, baud rate)",
   unknown: "Cable type to be confirmed on site",
+};
+
+const TRANSPORT_CONNECTORS: Record<SchematicTransportKind, string> = {
+  hdmi: "HDMI-A to HDMI-A",
+  hdbaset: "RJ45 to RJ45 (Cat6/Cat6A)",
+  "av-over-ip": "RJ45 to RJ45 (managed switch)",
+  usb: "USB-C to USB-C / USB-A",
+  "usb-over-ip": "RJ45 to RJ45 (encoder/decoder pair)",
+  "analogue-audio": "XLR / TRS to XLR / TRS",
+  dante: "RJ45 to RJ45 (Dante switch)",
+  network: "RJ45 to RJ45",
+  control: "DB-9 / IR / RJ45",
+  unknown: "To be confirmed on site",
+};
+
+const TRANSPORT_MAX_LENGTH: Record<SchematicTransportKind, number | null> = {
+  hdmi: 15,
+  hdbaset: 100,
+  "av-over-ip": null,
+  usb: 5,
+  "usb-over-ip": null,
+  "analogue-audio": 100,
+  dante: null,
+  network: null,
+  control: 100,
+  unknown: null,
 };
 
 const TRANSPORT_REMINDER: Record<SchematicTransportKind, string> = {
@@ -107,8 +139,21 @@ export function buildNativeCableSchedule(schematic: SchematicModel): NativeCable
     const fromLabel = nodeLabel(from);
     const toLabel = nodeLabel(to);
 
+    const maxLen = TRANSPORT_MAX_LENGTH[transport];
+    // Network-like transports always need site confirmation (switch, VLAN, multicast)
+    // Point-to-point transports with a governed profile are confirmed
+    const isNetworkTransport = transport === "av-over-ip" || transport === "dante" || transport === "usb-over-ip" || transport === "network";
+    const validationStatus: NativeCableRow["validationStatus"] =
+      transport === "unknown"
+        ? "unknown"
+        : isNetworkTransport
+          ? "needs-site-confirmation"
+          : maxLen !== null
+            ? "confirmed"
+            : "needs-site-confirmation";
+
     rows.push({
-      label: `${fromLabel} → ${toLabel}`,
+      label: `${fromLabel} \u2192 ${toLabel}`,
       cable: TRANSPORT_CABLE[transport],
       appliesTo: `${fromLabel} (${from.kind}) to ${toLabel} (${to.kind})`,
       reminder: conn.proposalSafeNote || TRANSPORT_REMINDER[transport],
@@ -117,6 +162,9 @@ export function buildNativeCableSchedule(schematic: SchematicModel): NativeCable
       fromSku: from.sku,
       toSku: to.sku,
       required: conn.required,
+      connectors: TRANSPORT_CONNECTORS[transport],
+      maxLengthMetres: maxLen,
+      validationStatus,
     });
   }
 
@@ -133,6 +181,9 @@ export function buildNativeCableSchedule(schematic: SchematicModel): NativeCable
       type: "network",
       transport: "network",
       required: true,
+      connectors: TRANSPORT_CONNECTORS.network,
+      maxLengthMetres: null,
+      validationStatus: "needs-site-confirmation",
     });
   }
 
@@ -145,10 +196,37 @@ export function buildNativeCableSchedule(schematic: SchematicModel): NativeCable
       type: "control",
       transport: "control",
       required: true,
+      connectors: TRANSPORT_CONNECTORS.control,
+      maxLengthMetres: TRANSPORT_MAX_LENGTH.control,
+      validationStatus: "needs-site-confirmation",
     });
   }
 
   return rows;
+}
+
+/**
+ * Human-readable label for a cable validation status.
+ */
+export function cableValidationStatusLabel(status: NativeCableRow["validationStatus"]): string {
+  switch (status) {
+    case "confirmed": return "Confirmed";
+    case "needs-site-confirmation": return "Needs site confirmation";
+    case "unknown": return "Not confirmed";
+    default: return "Unknown";
+  }
+}
+
+/**
+ * Severity colour class for validation status badges.
+ */
+export function cableValidationStatusClass(status: NativeCableRow["validationStatus"]): string {
+  switch (status) {
+    case "confirmed": return "cable-status--confirmed";
+    case "needs-site-confirmation": return "cable-status--pending";
+    case "unknown": return "cable-status--unknown";
+    default: return "";
+  }
 }
 
 /**

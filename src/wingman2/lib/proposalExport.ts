@@ -11,6 +11,10 @@ import {
   CAPTURE_CONFIDENCE_EXPLAINER,
   captureConfidenceCell,
 } from "./discoveryConversationDisplay";
+import { extractUnresolvedDiscoveryItems } from "./unresolvedDiscoveryItems";
+import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel } from "./schematic/nativeCableSchedule";
+import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
+import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
 
 export type BomRow = SalesBomRow;
 
@@ -53,7 +57,35 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
 
   const contextBlob = proposalContextBlob(proposal);
   const nodes = buildSchematicNodes(contextBlob, bomRows);
-  const cableRows = buildCableSchedule(contextBlob, bomRows);
+
+  // Try native schematic engine first, fall back to legacy
+  let cableRowsHtml = "";
+  try {
+    const products = proposal.products ?? [];
+    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic);
+    const schematicModel = buildWingmanSchematic(brief);
+    const nativeCableRows = buildNativeCableSchedule(schematicModel);
+    if (nativeCableRows.length > 0) {
+      const statusColor: Record<string, string> = {
+        confirmed: "#16a34a",
+        "needs-site-confirmation": "#d97706",
+        unknown: "#dc2626",
+      };
+      cableRowsHtml = nativeCableRows
+        .map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(nativeCableToneLabel(row.type))}</td><td>${row.maxLengthMetres != null ? `${row.maxLengthMetres}m` : "Unlimited"}</td><td>${escapeHtml(row.connectors || "TBC")}</td><td style="color:${statusColor[row.validationStatus] || "#475569"};font-weight:600;">${escapeHtml(cableValidationStatusLabel(row.validationStatus))}</td><td>${escapeHtml(row.reminder)}</td></tr>`)
+        .join("");
+    }
+  } catch {
+    // Fall back to legacy cable schedule
+  }
+
+  if (!cableRowsHtml) {
+    const legacyRows = buildCableSchedule(contextBlob, bomRows);
+    cableRowsHtml = legacyRows
+      .map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(nativeCableToneLabel(row.type))}</td><td>${escapeHtml(row.cable)}</td><td>${escapeHtml(row.appliesTo)}</td><td>${escapeHtml(row.reminder)}</td></tr>`)
+      .join("");
+  }
 
   const nodesHtml = nodes
     .map((node, index) => {
@@ -64,18 +96,11 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
     })
     .join("");
 
-  const cableRowsHtml = cableRows
-    .map(
-      (row) =>
-        `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(row.cable)}</td><td>${escapeHtml(row.appliesTo)}</td><td>${escapeHtml(row.reminder)}</td><td>${escapeHtml(cableToneLabel(row.type))}</td></tr>`,
-    )
-    .join("");
-
   return `
     <div style="display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin-top:8px;">${nodesHtml}</div>
-    <p style="margin-top:14px;font-size:12px;color:#475569;">This diagram is derived directly from the equipment schedule below - it shows the assumed signal flow from source to display so the customer and installer share the same picture of how the room connects together. The cable schedule underneath lists the transport type and validation reminder for each connection.</p>
+    <p style="margin-top:14px;font-size:12px;color:#475569;">This diagram is derived directly from the equipment schedule below - it shows the assumed signal flow from source to display so the customer and installer share the same picture of how the room connects together. The cable schedule underneath lists the transport type, connectors, maximum length, and validation status for each connection.</p>
     <table>
-      <thead><tr><th>Path</th><th>Example cable / transport</th><th>Applies to</th><th>Validation reminder</th><th>Type</th></tr></thead>
+      <thead><tr><th>Cable run</th><th>Transport</th><th>Max length</th><th>Connectors</th><th>Status</th><th>Validation reminder</th></tr></thead>
       <tbody>${cableRowsHtml}</tbody>
     </table>`;
 }
@@ -172,6 +197,24 @@ function buildDiscoveryConversationHtml(proposal: StoredProjectProposal): string
   </table>
   <p style="font-size:12px;">${escapeHtml(CAPTURE_CONFIDENCE_EXPLAINER)}</p>
   <p style="font-size:12px;">Where a row is a note-only capture, the answer was still open at the time of writing and must be confirmed before final design sign-off.</p>`;
+}
+
+function buildUnresolvedDiscoveryHtml(proposal: StoredProjectProposal): string {
+  const items = extractUnresolvedDiscoveryItems({ discoveryConversation: proposal.discoveryConversation });
+  if (!items.length) return "";
+
+  const severityLabel: Record<string, string> = { conflict: "Conflict — BLOCKER", "low-confidence": "Low confidence", inferred: "Inferred (not confirmed)", unconfirmed: "Unconfirmed" };
+  const rows = items
+    .map((item) => `<tr><td><strong>${escapeHtml(item.field)}</strong></td><td>${escapeHtml(item.capturedAnswer)}</td><td>${escapeHtml(severityLabel[item.reason] ?? item.reason)}</td><td>${item.reason === "conflict" ? "BLOCKER" : item.reason === "low-confidence" ? "HIGH" : "MEDIUM"}</td></tr>`)
+    .join("");
+
+  return `
+  <h2>Unresolved Discovery Items</h2>
+  <p>The following ${items.length} discovery item${items.length === 1 ? "" : "s"} could not be fully verified during the discovery conversation. Each must be confirmed with the customer before final design sign-off and commercial quotation. Items marked BLOCKER must be resolved before any commitment is made.</p>
+  <table>
+    <thead><tr><th>Requirement area</th><th>Captured answer</th><th>Status</th><th>Severity</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }
 
 function buildExclusionsHtml(bomRows: BomRow[]) {
@@ -533,6 +576,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <p><strong>Confirmed requirement:</strong> ${escapeHtml(proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
   ${proposal.outputPurpose ? `<p><strong>Sales motion:</strong> ${escapeHtml(proposal.outputPurpose.motion)}</p>` : ""}
   ${buildDiscoveryConversationHtml(proposal)}
+  ${buildUnresolvedDiscoveryHtml(proposal)}
 
   <h2>Recommended Solution</h2>
   ${

@@ -1,7 +1,9 @@
-import { ArrowRight, Search, Zap, ArrowLeftRight } from "lucide-react";
+import { ArrowRight, Search, Zap, ArrowLeftRight, LayoutGrid, Sparkles, ChevronRight, LayoutList, LayoutDashboard } from "lucide-react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { useProjectStore } from "../data/projectStore";
+import { useUiMode } from "../data/uiMode";
 import { StatusChip } from "./StatusChip";
 import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
 import { setActiveProjectId } from "../data/projectStore";
@@ -17,6 +19,7 @@ type JourneyCard = {
   to: string;
   accent: string;
   placeholder: string;
+  step: string;
 };
 
 const journeys: JourneyCard[] = [
@@ -28,6 +31,7 @@ const journeys: JourneyCard[] = [
     to: routeCatalogByKey.discovery.path,
     accent: "aqua",
     placeholder: "e.g. Boardroom with 2 displays, HDMI in, USB-C for laptop",
+    step: "Start a guided interview",
   },
   {
     title: "Compare a competitor",
@@ -37,6 +41,7 @@ const journeys: JourneyCard[] = [
     to: routeCatalogByKey.compare.path,
     accent: "amber",
     placeholder: "e.g. Lightware MMX8X8-HDMI-4K-A",
+    step: "Find the WyreStorm alternative",
   },
   {
     title: "Decode a request",
@@ -46,27 +51,33 @@ const journeys: JourneyCard[] = [
     to: routeCatalogByKey.ingest.path,
     accent: "violet",
     placeholder: "e.g. Customer email about a 12-room classroom rollout",
+    step: "Turn notes into requirements",
   },
 ];
 
-function JourneyCard({ card }: { card: JourneyCard }) {
+function JourneyCard({ card, index }: { card: JourneyCard; index: number }) {
   const Icon = card.icon;
 
   return (
     <Link
       to={card.to}
       className={`wm-guided-journey wm-polish-card wm-polish-${card.accent}`}
+      style={{ animationDelay: `${index * 80}ms` }}
     >
-      <div className="wm-guided-journey-icon">
-        <Icon size={28} />
+      <div className="wm-guided-journey-icon-wrap">
+        <div className="wm-guided-journey-icon">
+          <Icon size={26} strokeWidth={1.8} />
+        </div>
       </div>
       <div className="wm-guided-journey-copy">
+        <div className="wm-guided-journey-step-label">{card.step}</div>
         <h3>{card.title}</h3>
         <p>{card.description}</p>
         <span className="wm-guided-journey-cta">
           Get started <ArrowRight size={14} />
         </span>
       </div>
+      <ChevronRight className="wm-guided-journey-chevron" size={18} />
     </Link>
   );
 }
@@ -79,7 +90,7 @@ function RecentProjects() {
   const { projects } = useProjectStore();
   if (projects.length === 0) return null;
 
-  const recent = projects.slice(0, 3);
+  const recent = projects.slice(0, 2);
 
   return (
     <section className="wm-guided-recent" aria-label="Continue where you left off">
@@ -111,18 +122,43 @@ function RecentProjects() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Hint footer                                                        */
+/*  Onboarding tip — contextual help for new users                      */
 /* ------------------------------------------------------------------ */
 
-function GuidedHint() {
+function OnboardingTip() {
+  const { projects } = useProjectStore();
+
+  if (projects.length > 0) return null;
+
   return (
-    <footer className="wm-guided-hint">
+    <div className="wm-guided-tip" role="status">
+      <Sparkles size={16} className="wm-guided-tip-icon" />
       <p>
-        Not sure where to start?{" "}
-        <strong>Discovery</strong> is the best first step for most situations.
-        Wingman will walk you through it.
+        <strong>Welcome to Wingman.</strong> Start with <strong>Discovery</strong> — answer a few questions about the room and Wingman recommends the right products.
+        No technical knowledge needed.
       </p>
-    </footer>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Unlock full view — prompt when user has done enough                 */
+/* ------------------------------------------------------------------ */
+
+function UnlockFullView() {
+  const { isGuided, toggleMode } = useUiMode();
+  const { projects } = useProjectStore();
+
+  if (!isGuided || projects.length < 2) return null;
+
+  return (
+    <div className="wm-guided-unlock-inline">
+      <LayoutGrid size={14} />
+      <span>Ready for more? <strong>Switch to Full view</strong> for templates, data management and all admin tools.</span>
+      <button type="button" className="wm-button is-secondary wm-guided-unlock-btn" onClick={toggleMode}>
+        Full view
+      </button>
+    </div>
   );
 }
 
@@ -130,7 +166,54 @@ function GuidedHint() {
 /*  Guided Dashboard                                                   */
 /* ------------------------------------------------------------------ */
 
+function JourneyListItem({ card, index }: { card: JourneyCard; index: number }) {
+  const Icon = card.icon;
+
+  return (
+    <Link
+      to={card.to}
+      className={`wm-guided-journey-list wm-polish-card wm-polish-${card.accent}`}
+      style={{ animationDelay: `${index * 60}ms` }}
+    >
+      <div className="wm-guided-journey-list-icon">
+        <Icon size={18} strokeWidth={1.8} />
+      </div>
+      <div className="wm-guided-journey-list-copy">
+        <strong>{card.title}</strong>
+        <span>{card.description}</span>
+      </div>
+      <span className="wm-guided-journey-list-cta">
+        Get started <ArrowRight size={13} />
+      </span>
+    </Link>
+  );
+}
+
+const VIEW_PREF_KEY = "wingman-guided-view-v1";
+
+function readViewPref(): boolean {
+  try {
+    return localStorage.getItem(VIEW_PREF_KEY) === "list";
+  } catch {
+    return false;
+  }
+}
+
+function writeViewPref(compact: boolean) {
+  try {
+    localStorage.setItem(VIEW_PREF_KEY, compact ? "list" : "cards");
+  } catch { /* ignore */ }
+}
+
 export function GuidedDashboard() {
+  const [compact, setCompact] = useState(readViewPref);
+  const toggleView = useCallback(() => {
+    setCompact((c) => {
+      writeViewPref(!c);
+      return !c;
+    });
+  }, []);
+
   return (
     <main
       className="wm-guided-dashboard wm-page wm-polish-shell"
@@ -138,18 +221,39 @@ export function GuidedDashboard() {
       aria-label="Wingman guided home"
     >
       <header className="wm-guided-hero">
+        <div className="wm-guided-hero-badge">Wingman</div>
         <h1>What can Wingman help you with?</h1>
         <p>Pick a starting point — Wingman will guide you from there.</p>
       </header>
 
+      <OnboardingTip />
+
       <section className="wm-guided-journeys" aria-label="Quick start">
-        {journeys.map((card) => (
-          <JourneyCard key={card.title} card={card} />
-        ))}
+        <div className="wm-guided-journeys-header">
+          <h2>Get started</h2>
+          <button
+            type="button"
+            className="wm-guided-view-toggle"
+            onClick={toggleView}
+            title={compact ? "Switch to card view" : "Switch to compact list"}
+            aria-label={compact ? "Switch to card view" : "Switch to compact list"}
+          >
+            {compact ? <LayoutDashboard size={14} /> : <LayoutList size={14} />}
+          </button>
+        </div>
+        <div className={compact ? "wm-guided-journeys-list" : "wm-guided-journeys-cards"}>
+          {journeys.map((card, index) =>
+            compact ? (
+              <JourneyListItem key={card.title} card={card} index={index} />
+            ) : (
+              <JourneyCard key={card.title} card={card} index={index} />
+            ),
+          )}
+        </div>
       </section>
 
       <RecentProjects />
-      <GuidedHint />
+      <UnlockFullView />
     </main>
   );
 }

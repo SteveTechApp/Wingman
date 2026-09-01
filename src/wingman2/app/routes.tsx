@@ -47,6 +47,7 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   quoteSafetyDashboard: lazy(() => import("../pages/QuoteSafetyDashboardPage")),
   analyticsDashboard: lazy(() => import("../pages/AnalyticsDashboardPage")),
   terms: lazy(fromNamedExport(() => import("../pages/TermsPage"), "TermsPage")),
+  approvalQueue: lazy(fromNamedExport(() => import("../pages/ApprovalQueuePage"), "ApprovalQueuePage")),
 };
 
 const ProjectDetailRoute = lazy(fromNamedExport(() => import("../pages/ProjectDetailPage"), "ProjectDetailPage"));

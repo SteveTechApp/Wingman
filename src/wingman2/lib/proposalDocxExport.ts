@@ -7,6 +7,7 @@ import type { StoredProjectProposal, StoredProductSelection } from "../data/proj
 import { powerBudgetSummary } from "./powerBudget";
 import type { SalesBomRow } from "./salesReadiness";
 import { getProposalDocumentTypeConfig, linesFromText, type ProposalWizardDraft } from "./proposalWizard";
+import { extractUnresolvedDiscoveryItems } from "./unresolvedDiscoveryItems";
 import {
   CAPTURE_CONFIDENCE_EXPLAINER,
   captureConfidenceCell,
@@ -14,6 +15,8 @@ import {
 import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
 import type { SchematicModel, SchematicNode, SchematicTransportKind } from "./schematic/schematicTypes";
 import { SCHEMATIC_COLORS, SCHEMATIC_NODE_COLORS } from "./schematic/schematicVisualPalette";
+import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel, cableValidationStatusClass, type NativeCableRow } from "./schematic/nativeCableSchedule";
+import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
 
 export const NAVY = "08223A";
 export const AQUA = "16B8B0";
@@ -213,6 +216,61 @@ function discoveryConversationContent(proposal: StoredProjectProposal): Array<Pa
   ];
 }
 
+function unresolvedDiscoveryContent(proposal: StoredProjectProposal): Array<Paragraph | Table> {
+  const items = extractUnresolvedDiscoveryItems({ discoveryConversation: proposal.discoveryConversation });
+  if (!items.length) {
+    return [paragraph("All discovery items have been confirmed with the customer. No outstanding items require verification before final design sign-off.", { colour: MUTED })];
+  }
+  const widths = [1800, 3000, 1500, 1360];
+  const severityLabel: Record<string, string> = { conflict: "Conflict — BLOCKER", "low-confidence": "Low confidence", inferred: "Inferred (not confirmed)", unconfirmed: "Unconfirmed" };
+  const table = fixedTable(widths, [
+    new TableRow({ tableHeader: true, children: ["Requirement area", "Captured answer", "Status", "Severity"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+    ...items.map((item) => new TableRow({ children: [
+      cell(item.field, widths[0], { bold: true }),
+      cell(item.capturedAnswer, widths[1]),
+      cell(severityLabel[item.reason] ?? item.reason, widths[2]),
+      cell(item.reason === "conflict" ? "BLOCKER" : item.reason === "low-confidence" ? "HIGH" : "MEDIUM", widths[3]),
+    ] })),
+  ]);
+  return [
+    paragraph(`The following ${items.length} discovery item${items.length === 1 ? "" : "s"} could not be fully verified during the discovery conversation. Each must be confirmed with the customer before final design sign-off and commercial quotation. Items marked BLOCKER must be resolved before any commitment is made.`, { justified: true }),
+    table,
+  ];
+}
+
+function cableScheduleContent(proposal: StoredProjectProposal, bomRows: SalesBomRow[]): Array<Paragraph | Table> {
+  if (!bomRows.length) return [];
+  try {
+    const products = proposal.products ?? [];
+    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic);
+    const schematicModel = buildWingmanSchematic(brief);
+    const cableRows = buildNativeCableSchedule(schematicModel);
+    if (!cableRows.length) return [];
+    const widths = [2000, 1500, 900, 1200, 900, 2560];
+    const table = fixedTable(widths, [
+      new TableRow({ tableHeader: true, children: ["Cable run", "Transport type", "Max length", "Connectors", "Status", "Validation reminder"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+      ...cableRows.map((row) => new TableRow({ children: [
+        cell(row.label, widths[0], { bold: true }),
+        cell(nativeCableToneLabel(row.type), widths[1]),
+        cell(row.maxLengthMetres !== null && row.maxLengthMetres !== undefined ? `${row.maxLengthMetres}m` : "Unlimited", widths[2]),
+        cell(row.connectors || "TBC", widths[3]),
+        cell(cableValidationStatusLabel(row.validationStatus), widths[4]),
+        cell(row.reminder, widths[5]),
+      ] })),
+    ]);
+    const confirmedCount = cableRows.filter((r) => r.validationStatus === "confirmed").length;
+    const pendingCount = cableRows.filter((r) => r.validationStatus === "needs-site-confirmation").length;
+    const unknownCount = cableRows.filter((r) => r.validationStatus === "unknown").length;
+    return [
+      paragraph(`The cable schedule below lists every connection in the recommended system, derived from the native topology-aware schematic engine. Each row shows the transport type, maximum cable length, connector format, and validation status. ${confirmedCount} of ${cableRows.length} runs are confirmed from governed product data; ${pendingCount} require site confirmation; ${unknownCount} are not yet confirmed.`, { justified: true }),
+      table,
+    ];
+  } catch {
+    return [paragraph("The cable schedule could not be generated from the schematic engine. Validate cable routes on site.", { colour: MUTED })];
+  }
+}
+
 function productSpecificationContent(proposal: StoredProjectProposal): Array<Paragraph | Table> {
   const specifications = proposal.applicationProposal?.productSpecifications ?? [];
   if (!specifications.length) return [paragraph("Product specifications will be added after the final WyreStorm equipment selection is approved.", { colour: MUTED })];
@@ -375,15 +433,15 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
   if (!ctx) return undefined;
 
   // Background
-  ctx.fillStyle = SCHEMATIC_COLORS.pale;
+  ctx.fillStyle = "#F4F8FB";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Title
   ctx.font = "bold 26px Calibri, Arial, sans-serif";
-  ctx.fillStyle = SCHEMATIC_COLORS.navy;
+  ctx.fillStyle = "#08223A";
   ctx.fillText("System connectivity schematic", 40, 40);
   ctx.font = "16px Calibri, Arial, sans-serif";
-  ctx.fillStyle = SCHEMATIC_COLORS.muted;
+  ctx.fillStyle = "#5E7280";
   ctx.fillText(schematic.title || "Topology-aware signal flow", 40, 62);
 
   // Column headers
@@ -408,7 +466,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
     const y2 = to.y + NODE_H / 2;
     const midX = Math.round((x1 + x2) / 2);
 
-    const color = TRANSPORT_COLORS[conn.transport] || SCHEMATIC_COLORS.slate;
+    const color = TRANSPORT_COLORS[conn.transport] || "#94a3b8";
 
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
@@ -429,7 +487,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
     // Transport label
     const label = conn.transport === "unknown" ? "?" : conn.transport.toUpperCase();
     ctx.font = "9px Calibri, Arial, sans-serif";
-    ctx.fillStyle = SCHEMATIC_COLORS.muted;
+    ctx.fillStyle = "#5E7280";
     ctx.textAlign = "center";
     ctx.fillText(label, midX, Math.min(y1, y2) - 4);
     ctx.textAlign = "left";
@@ -437,7 +495,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
 
   // Draw nodes
   for (const node of nodes) {
-    const color = NODE_COLORS[node.kind] || SCHEMATIC_COLORS.grey;
+    const color = NODE_COLORS[node.kind] || "#6b7280";
 
     // Background
     ctx.fillStyle = "rgba(8,29,48,0.92)";
@@ -457,7 +515,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
     // SKU or label
     const label = node.sku || node.label;
     ctx.font = "bold 10px Calibri, Arial, sans-serif";
-    ctx.fillStyle = SCHEMATIC_COLORS.text;
+    ctx.fillStyle = "#E2E8F0";
     ctx.textAlign = "center";
     const truncated = label.length > 20 ? label.slice(0, 19) + "..." : label;
     ctx.fillText(truncated, node.x + NODE_W / 2, node.y + 22);
@@ -476,10 +534,10 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
   if (blockers.length > 0) {
     const footerY = maxY + NODE_H + 30;
     ctx.font = "bold 11px Calibri, Arial, sans-serif";
-    ctx.fillStyle = SCHEMATIC_COLORS.red;
+    ctx.fillStyle = "#EF4444";
     ctx.fillText(`${blockers.length} design blocker(s) — resolve before quoting:`, 40, footerY);
     ctx.font = "10px Calibri, Arial, sans-serif";
-    ctx.fillStyle = SCHEMATIC_COLORS.darkRed;
+    ctx.fillStyle = "#9B1C1C";
     blockers.slice(0, 3).forEach((b, i) => {
       ctx.fillText(`• ${b.title}: ${b.message.slice(0, 100)}`, 50, footerY + 16 + i * 14);
     });
@@ -515,6 +573,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   ]);
   addSection(children, "Client Objectives and Current Challenge", [paragraph(wizard.customerObjectives || proposal.summary || "The client objectives require confirmation.", { justified: true })]);
   addSection(children, "Discovery Conversation", discoveryConversationContent(proposal));
+  addSection(children, "Unresolved Discovery Items", unresolvedDiscoveryContent(proposal));
   addSection(children, "Proposed Solution and Business Value", [paragraph(wizard.proposedSolution || "The proposed solution requires confirmation.", { justified: true }), bullet("A supportable architecture aligned to the stated operational requirement."), bullet("A controlled route from design approval to quotation, delivery and acceptance."), bullet("Clear ownership of equipment, services, dependencies and by-others scope.")]);
   addSection(children, "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is quoted."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
   addSection(children, "Equipment and Pricing", [paragraph(equipment.complete ? `The equipment total is ${money(equipment.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.` : "COMMERCIAL HOLD: one or more equipment prices are missing. This draft must not be issued as an exact quotation until every TBC value is resolved.", { bold: true, colour: equipment.complete ? NAVY : "9B1C1C" }), equipment.table, paragraph("Pricing covers only the listed equipment. Services, third-party equipment, freight, taxes and by-others work are excluded unless expressly priced below.", { size: 18, colour: MUTED })]);
@@ -528,6 +587,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     ...(assets.schematic ? [imageParagraph(assets.schematic, 620, Math.min(310, Math.max(175, Math.round(620 * 0.32))))] : []),
     architectureTable(application?.architectureDiagram || ""),
   ]);
+  addSection(children, "Cable Schedule", cableScheduleContent(proposal, bomRows));
   addSection(children, "WyreStorm Product Specifications", productSpecificationContent(proposal));
   addSection(children, "Power Strategy", powerStrategyContent(proposal.products));
   if (application?.acceptanceCriteria.length) addSection(children, "Testing and Acceptance Criteria", application.acceptanceCriteria.map(bullet));
@@ -561,32 +621,9 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
   let nativeSchematicDataUrl: string | undefined;
   try {
     const products = proposal.products ?? [];
-    const bomBySku = new Map<string, typeof bomRows[0]>();
-    for (const r of bomRows) bomBySku.set(r.sku.toUpperCase(), r);
-    // Derive role from BOM rows when available, falling back to SKU classification.
-    const roleOf = (p: typeof products[0]): string => {
-      const bom = bomBySku.get((p.sku || "").toUpperCase());
-      return (bom?.role || p.title || "").toLowerCase();
-    };
-    const isSource = (p: typeof products[0]): boolean => {
-      const r = roleOf(p);
-      return /encoder|source|input|transmit/i.test(r) || /tx\b/i.test(p.sku || "");
-    };
-    const isDisplay = (p: typeof products[0]): boolean => {
-      const r = roleOf(p);
-      return /decoder|display|output|receive|screen|monitor/i.test(r) || /rx\b/i.test(p.sku || "");
-    };
-    const toNode = (p: typeof products[0]) => ({
-      sku: p.sku || "", label: p.title || p.sku || "", quantity: p.quantity || 1,
-    });
-    const sources = products.filter(isSource).map(toNode);
-    const displays = products.filter(isDisplay).map(toNode);
-    const remaining = products.filter((p) => !isSource(p) && !isDisplay(p)).map(toNode);
-    const schematicModel = buildWingmanSchematic({
-      title: wizard.projectName || proposal.title || "System schematic",
-      sources: sources.length > 0 ? sources : remaining.slice(0, 1),
-      displays: displays.length > 0 ? displays : remaining.slice(-1),
-    });
+    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const brief = proposalSchematicBrief(wizard.projectName || proposal.title || "System schematic", products, bomRowsForSchematic);
+    const schematicModel = buildWingmanSchematic(brief);
     nativeSchematicDataUrl = createNativeSchematicDataUrl(schematicModel);
   } catch {
     // Fall back to the legacy text-based schematic if the native engine fails

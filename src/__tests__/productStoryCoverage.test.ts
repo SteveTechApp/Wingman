@@ -10,13 +10,13 @@ import canonicalStore from "../../data/wingman-canonical-product-store.json";
 // (everything else falls back to auto-generated positioning flagged for review in
 // the UI). These baselines can only be RAISED: the point is that coverage never
 // silently regresses and the gap stays visible and managed.
-const MIN_TOTAL_STORIES = 127;
+const MIN_TOTAL_STORIES = 130;
 // Every ACTIVE catalogue SKU now has a governed story (catalogue-grounded copy was
 // authored for the whole active range, alias-deduped; cables, discontinued and
 // do-not-spec SKUs are deliberately excluded per productStoriesLifecycle). 96 is
 // the raw-match count against this static 2026 snapshot (aliases such as
 // NHD-610-TX -> NHD-610-TX-V2 resolve at runtime but not in this direct count).
-const MIN_CATALOG_SKUS_COVERED = 101;
+const MIN_CATALOG_SKUS_COVERED = 104;
 
 const repoRoot = process.cwd();
 const auditPath = path.join(repoRoot, "tools", "audit-product-story-coverage.mjs");
@@ -137,8 +137,8 @@ describe("product story backlog hygiene", () => {
         expect(readActiveBacklog(firstDocument)).not.toContain(sku);
       }
 
-      expect(firstDocument).toContain("Active catalogue SKUs (alias-deduped): **129**");
-      expect(firstDocument).toContain("Active covered: **129 (100%)** · Active uncovered: **0**");
+      expect(firstDocument).toContain("Active catalogue SKUs (alias-deduped): **132**");
+      expect(firstDocument).toContain("Active covered: **132 (100%)** · Active uncovered: **0**");
       expect(firstDocument).toContain("cable **34**, dependency-only **1**");
       expect(firstDocument).toContain("NHD-124-RACK-1U — rack:");
     } finally {

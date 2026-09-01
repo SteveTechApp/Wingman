@@ -239,5 +239,14 @@
       "Wire backend aggregation for cross-workspace analytics.",
       "Add date-range filtering and trend comparison periods."
     ]
+  },
+  {
+    "routeKey": "approvalQueue",
+    "status": "wired",
+    "summary": "Approval Queue lets managers review and sign off on proposals before they go to customers.",
+    "needed": [
+      "Wire approval actions to backend persistence.",
+      "Add notification when new proposals enter the queue."
+    ]
   }
 ]

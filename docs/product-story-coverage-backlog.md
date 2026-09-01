@@ -4,9 +4,9 @@
 > Coverage is measured against active governed lifecycle rows only; SKUs are alias-resolved.
 > Dependency-only exclusions remain available to catalogue, compatibility and BOM workflows.
 
-- Governed stories: **135** (reviewed **44**, catalogue-grounded **91**)
-- Active catalogue SKUs (alias-deduped): **129**
-- Active covered: **129 (100%)** · Active uncovered: **0**
+- Governed stories: **138** (reviewed **44**, catalogue-grounded **94**)
+- Active catalogue SKUs (alias-deduped): **132**
+- Active covered: **132 (100%)** · Active uncovered: **0**
 - Excluded (deliberately not storied): cable **34**, dependency-only **1**, discontinued **0**, do-not-spec **0**, unlisted **5**, source-hygiene **0**
 
 ## Active SKUs still needing a governed story
@@ -37,7 +37,7 @@ Confirm whether these are active before authoring a story; the compare engine tr
 
 ## Human-review backlog (catalogue-grounded stories)
 
-91 stories were generated from the official catalogue spec and adversarially verified, but still want a human spot-check against the current datasheet. Find them by searching `provenance: "catalogue-grounded"` in `src/wingman2/data/productStories.ts`.
+94 stories were generated from the official catalogue spec and adversarially verified, but still want a human spot-check against the current datasheet. Find them by searching `provenance: "catalogue-grounded"` in `src/wingman2/data/productStories.ts`.
 
 <!-- lifecycle-manual-decisions -->
 

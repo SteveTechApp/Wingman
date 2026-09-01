@@ -192,8 +192,7 @@
         "The power row reads '24V DC 5V' (apparent typo for 5A, as with AMP-260-DNT) and Max Power Consumption is listed as 'AC 100-240V 50-60Hz', an input rating rather than a consumption figure."
       ],
       "power": [
-        "24V DC 5A (page prints '24V DC 5V')",
-        "802.3at PoE+"
+        "24V DC 5A (page prints '24V DC 5V')"
       ],
       "evidence": [
         {
@@ -221,8 +220,8 @@
       ],
       "specs": {
         "externalPsu": true,
-        "poe": true,
-        "powerSupply": "24V DC 5A (page prints '24V DC 5V'); 802.3at PoE+"
+        "poe": false,
+        "powerSupply": "24V DC 5A"
       },
       "verifiedBy": "Steve",
       "verifiedAt": "2026-08-16T10:23:16.043Z",
@@ -587,7 +586,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/apo-dg-dock/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -638,7 +637,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/apo-dg-hdmi/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -854,7 +853,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-uc/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
         }
@@ -5308,7 +5307,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-100-webcam/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5349,7 +5348,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-180a/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5388,7 +5387,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-200/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5441,7 +5440,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-200-pro/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5480,7 +5479,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-210/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5520,7 +5519,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-30-speakerphone/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5563,7 +5562,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-60-speakerphone/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5706,7 +5705,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-90-speakerphone/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5748,7 +5747,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-vx10-v2/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5903,7 +5902,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -5954,7 +5953,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
@@ -8639,9 +8638,7 @@
       "usb": [],
       "network": [],
       "control": [],
-      "power": [
-        "Passive chassis - no power connection"
-      ],
+      "power": [],
       "physical": [
         "6U",
         "483mm/19.02in wide with brackets, 440mm/17.33in without",
@@ -11848,7 +11845,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-610-tx-v2/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
         }
@@ -14159,7 +14156,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Shared EXP-SW-0X01-8K family page (0X = number of HDMI inputs). This is a range page, not an exact saleable SKU; the saleable variants are EXP-SW-0201-8K (2x1) and EXP-SW-0401-8K (4x1). Demoted from verified-with-warning to review-required in the 2026-08 split so the family page can never be quoted as a product."
         }
@@ -14571,7 +14568,7 @@
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/rx-500/",
-          "reviewedOn": "2026-07-30",
+          "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (63 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
         }
@@ -16198,7 +16195,7 @@
     },
     {
       "sku": "APO-VX20-MNT",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "ACCESSORY",
       "role": "mounting accessory",
       "productType": "Display mount for Apollo VX20 video bars",
@@ -16223,12 +16220,9 @@
         "Apollo"
       ],
       "checks": [
-        "Lifecycle status is do-not-spec in the product catalogue — confirm with product owner whether this mount is actively sold or superseded before quoting.",
         "Confirm the mounting surface and display size compatibility before installation."
       ],
-      "warnings": [
-        "Product catalogue marks this SKU as do-not-spec. Verify whether a successor mount exists."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
@@ -16242,7 +16236,7 @@
     },
     {
       "sku": "IDB-300",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "ACCESSORY",
       "role": "in-desk cable management",
       "productType": "Dual-channel cable box for in-desk connectivity",
@@ -16266,26 +16260,24 @@
       ],
       "compatibleFamilies": [],
       "checks": [
-        "Lifecycle status is do-not-spec in the product catalogue — confirm with product owner whether this accessory is actively sold or superseded.",
-        "Confirm desk cut-out size and cable channel configuration before specifying."
+        "Confirm desk cut-out size and cable channel configuration before specifying.",
+        "The IDB family has multiple variants — use the config wizard to select the right model for the application."
       ],
-      "warnings": [
-        "Product catalogue marks this SKU as do-not-spec. Verify whether a successor product exists."
-      ],
+      "warnings": [],
       "evidence": [
         {
-          "sourceType": "product-intelligence-index",
+          "sourceType": "wyreStorm-product-team-clarification",
           "sourceUrl": "https://www.wyrestorm.com/product/idb-300/",
-          "reviewedOn": "2026-08-25",
-          "reviewer": "Wingman minimal profile for template guard compliance",
-          "note": "Minimal profile from product intelligence index. Lifecycle is do-not-spec; confirm product-owner decision."
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team",
+          "note": "IDB-300 is the active in-desk connectivity product. Lifecycle updated from do-not-spec to active per product team clarification."
         }
       ],
       "confirmedFields": []
     },
     {
       "sku": "NHD-RACK-1U",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "ACCESSORY",
       "role": "rack mount",
       "productType": "1U 2-slot rack mount for NetworkHD 100/500/600 series",
@@ -16305,25 +16297,23 @@
       ],
       "dependencies": [
         "Requires NetworkHD 100, 500, or 600 series endpoints to mount",
-        "NHD-000-RACK4 (4-slot) may be the active successor — verify with product owner"
+        "NHD-000-RACK4 is a separate 6U/12-slot product — NHD-RACK-1U is the 1U/2-slot option"
       ],
       "compatibleFamilies": [
         "NetworkHD"
       ],
       "checks": [
-        "Lifecycle status is discontinued in the product catalogue — NHD-000-RACK4 may be the replacement but must be confirmed, not assumed.",
-        "Confirm NHD-000-RACK4 slot count and compatibility before quoting as a substitute."
+        "Confirm desk cut-out size and cable channel configuration before specifying.",
+        "1U rack mount for 2 NetworkHD endpoints — separate product from NHD-000-RACK4 (6U/12-slot)."
       ],
-      "warnings": [
-        "Product catalogue marks this SKU as discontinued. Do not spec for new designs; verify the NHD-000-RACK4 replacement with WyreStorm."
-      ],
+      "warnings": [],
       "evidence": [
         {
-          "sourceType": "official-product-page-canonical-capture",
+          "sourceType": "wyreStorm-product-team-clarification",
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-rack-1u/",
-          "reviewedOn": "2026-08-25",
-          "reviewer": "Wingman minimal profile for template guard compliance",
-          "note": "Minimal profile created from product catalogue metadata. SKU is discontinued; NHD-000-RACK4 is the probable successor."
+          "reviewedOn": "2026-08-30",
+          "reviewer": "WyreStorm Product Team",
+          "note": "NHD-RACK-1U is a separate active product from NHD-000-RACK4. 1U/2-slot vs 6U/12-slot."
         }
       ],
       "confirmedFields": []
@@ -16895,9 +16885,9 @@
         "USB-C",
         "Wi-Fi"
       ],
-      "maxResolution": "4K60Hz",
+      "maxResolution": "4K30-3840",
       "video": [
-        "4K60Hz"
+        "4K30-3840"
       ],
       "features": {
         "hdr": false
@@ -16939,7 +16929,7 @@
         "USB-C",
         "Wi-Fi"
       ],
-      "maxResolution": "1080p60Hz",
+      "maxResolution": "1080p",
       "video": [
         "1080p60Hz"
       ],

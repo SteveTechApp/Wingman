@@ -113,6 +113,13 @@ export type CompetitorMatchResponse = {
   resolved_competitor_url?: string;
   compare_quality?: unknown;
   compare_readiness?: CompetitorMatchCandidate["readiness"] | null;
+  confidence_source?: {
+    mode?: string;
+    approvedBy?: string | null;
+    approvedAt?: string | null;
+    decisionType?: string | null;
+    note?: string;
+  };
 };
 
 export type WingmanWorkspaceSession = {
@@ -431,4 +438,21 @@ export function loginWingmanWorkspace(input: { email: string; password: string }
 
 export function logoutWingmanWorkspace() {
   return postWingmanJson<{ ok: boolean }>("/api/wingman/auth/logout", {});
+}
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  role: string;
+  lastSeenAt: string | null;
+};
+
+export type TeamResponse = {
+  ok: boolean;
+  team?: TeamMember[];
+  currentUserId?: string;
+};
+
+export function getWorkspaceTeam() {
+  return getWingmanJson<TeamResponse>("/api/wingman/workspace/team");
 }

@@ -223,20 +223,42 @@ export function GovernedProfileBrowser() {
     });
   }, [filtered]);
 
-  /** Bulk update status for selected profiles. */
+  /** Bulk update status for selected profiles. Persists to audit log + downloadable JSON. */
   const bulkUpdateStatus = useCallback((newStatus: string) => {
+    const now = new Date();
+    const timestamp = now.toISOString();
+    const dateStr = timestamp.slice(0, 10);
+    const skusChanged = Array.from(selectedSkus);
+
+    // Update React state
     setProfiles((prev) =>
       prev.map((p) =>
         selectedSkus.has(p.sku)
           ? {
               ...p,
               status: newStatus,
-              verifiedAt: new Date().toISOString().slice(0, 10),
+              verifiedAt: dateStr,
               verifiedBy: "admin-bulk",
             }
           : p
       )
     );
+
+    // Record audit entry in localStorage
+    try {
+      const auditKey = "wingman:governed-profile-audit";
+      const existing: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem(auditKey) ?? "[]");
+      existing.push({
+        timestamp,
+        action: "bulk-status-update",
+        newStatus,
+        skus: skusChanged,
+        count: skusChanged.length,
+      });
+      // Keep last 200 entries
+      localStorage.setItem(auditKey, JSON.stringify(existing.slice(-200)));
+    } catch { /* localStorage unavailable */ }
+
     setSelectedSkus(new Set());
   }, [selectedSkus]);
 
@@ -363,6 +385,29 @@ export function GovernedProfileBrowser() {
           title={`Export ${filtered.length} profiles to CSV`}
         >
           <Download size={14} /> Export CSV
+        </button>
+        <button
+          type="button"
+          className="wm-btn wm-btn--export"
+          onClick={() => {
+            const governedEnvelope = {
+              ...governedTechnicalProfiles,
+              updatedAt: new Date().toISOString(),
+              profiles,
+            };
+            const blob = new Blob([JSON.stringify(governedEnvelope, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `wyrestorm-technical-profiles-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }}
+          title="Download updated profiles as JSON — commit this file to persist changes"
+        >
+          <Download size={14} /> Save Changes
         </button>
       </div>
 

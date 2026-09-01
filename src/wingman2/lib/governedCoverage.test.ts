@@ -9,8 +9,8 @@ describe("governed coverage summary", () => {
     // the 84 imported profiles are review-required pending human confirmation.
     expect(summary.total).toBe(210);
     expect(summary.verified).toBe(117);
-    expect(summary.verified + summary.verifiedWithWarning).toBe(133);
-    expect(summary.reviewRequired).toBe(77);
+    expect(summary.verified + summary.verifiedWithWarning).toBe(136);
+    expect(summary.reviewRequired).toBe(74);
     expect(summary.verifiedPct).toBe(Math.round((117 / 210) * 100));
   });
 

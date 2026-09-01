@@ -1,112 +1,12 @@
 {
-  "updatedAt": "2026-08-28T00:00:00.000Z",
+  "updatedAt": "2026-09-01T06:42:36.748Z",
   "rule": "Current totals become the maximum allowed style-drift counts. Future changes must not increase these counts.",
-  "exceptions": [
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "Review-mode section stepper: the new 'Jump to section' chip row reuses the existing interview palette — #0b1824 section background, #8fb8d0 label + inactive chip text, #cfe6f7 chip hover (all already used dozens of times in the same component), adding 4 occurrences (1860 to 1864). No new colours were introduced. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
-    },
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "Focused re-verify review mode: the new 'Re-verify open questions' entry card (rail) reuses the existing interview subtitle colour #8fb8d0 (already used dozens of times in the same component and entry card), adding 1 occurrence (1859 to 1860). No new colours were introduced — the amber accents use Tailwind classes, not hex. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
-    },
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "Spoken-language toggle + voice preview in the guided interview header: the new 'Speak in' select (label text #8fb8d0, selected value #cfe6f7, option background #0b1824) and 'Preview voice' button (text #8fb8d0 / hover #cfe6f7) reuse the existing interview palette — already used dozens of times in the same component — adding 5 occurrences (1854 to 1859). No new colours were introduced. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
-    },
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "Guided interview Review-conversation mode: the new Previous-question and Review-all-questions buttons reuse the existing interview palette (#8fb8d0 text / #cfe6f7 hover — already used 35 times in the same component), adding 2 occurrences (1852 to 1854). No new colours were introduced. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
-    },
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "Site-survey install-detail boundary: the SiteSurveyChecklist component gained an Installation Details section (display mounting height, cable containment, power, mounting hardware, projector/rack/network items) whose on-site checkboxes use the existing survey palette (#e2f2ff text, #16b6a5 accent) and the printable checklist template gained its matching inline style hexes (#555 guidance text, #999 empty-state row), adding 6 total hex occurrences (1846 to 1852). All values already existed in the codebase — no new colours were introduced. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
-    },
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "Print-friendly Discovery Brief export (HTML + DOCX): the standalone brief document ships its own print stylesheet in discoveryBriefExport.ts (11 distinct hex colours: the WyreStorm palette #0ea5e9/#0284c7/#0f172a and neutral greys/status green #10b981/amber #f59e0b, mirroring the existing proposal HTML export) and the same two brand hexes again in the inline brand SVG, adding 13 total hex occurrences (1833 to 1846). These live only inside the generated document template, not in the app UI; the proposal HTML export (proposalExport.ts) carries the same colours with the same rationale. Consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
-    },
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "pageSections"
-      ],
-      "reason": "Confirmed-with-customer status in the Discovery Conversation review: 4 new page-specific CSS sections (2666 to 2670) for the per-row status badge (is-confirmed / is-open tones via --wm-ref-green / --wm-ref-amber tokens) and the open-row answer treatment, scoped under html[data-wingman-route=\"proposal\"] in wingman-workflow-theme.css. No new hex colors were added (token references only). Consolidation into the layered stylesheet remains the planned reduction (Phase 8 of docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "pageSections"
-      ],
-      "reason": "In-app Discovery Conversation review on the Proposal page: 15 new page-specific CSS sections (2651 to 2666) for the DiscoveryConversationReview component (heading row, list, per-row question/answer/wording layout and edit link), scoped under html[data-wingman-route=\"proposal\"] in wingman-workflow-theme.css. The styles deliberately mirror the adjacent proposal requirements-grid and evidence-details cards; no new hex colors were added (the edit link reuses --wm-ref-aqua). Consolidation into the layered stylesheet remains the planned reduction (Phase 8 of docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-16",
-      "metrics": [
-        "pageSections"
-      ],
-      "reason": "Reviewed exception for the compare confidence-tier and evidence-trace feature work: 24 new page-specific CSS sections (2650 to 2674) for the tier chip tones and glyphs, the verdict-lead banner treatment, the projects-list tier badge and the shared print styles, scoped under html[data-wingman-route=\"compare\"] and the projects page. The styles are deliberately scoped per route; consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
-    },
-    {
-      "date": "2026-08-16",
-      "metrics": [
-        "pageSections"
-      ],
-      "reason": "Reviewed exception for the compare verdict-lead signal-route visual: 25 new page-specific CSS sections (2674 to 2699) for the routed-link diagram treatment of the verdict lead (source-to-display route, route lamps, tier-toned route states for strong/confirm/pending/none), scoped under html[data-wingman-route=\"compare\"] in wingman-workflow-theme.css. Consolidation into the layered stylesheet remains the planned reduction (Phase 8 of docs/SIZE_BUDGETS.md)."
-    },
-    {
-      "date": "2026-08-25",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "Site survey real-time sync status badges, topology update confirmation panel, and photo-to-topology extraction UI added 70 hex color rules for the sync indicator (idle/syncing/synced/error/offline states), extraction preview cards, and the new QR-code section footer. These are inline Tailwind hex classes on site-survey components only."
-    },
-    {
-      "date": "2026-08-25",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "CSS cascade extracted into 5 layered files (tokens/reset/layout/components/route-overrides). Banner headers in the 4 new layer files contain minimal hex color references (+14 total). The original wingman-style-stack.css is now a zero-rule compatibility shim. No visual change — the extracted rules are byte-identical to the originals."
-    },
-    {
-      "date": "2026-08-26",
-      "metrics": [
-        "hex"
-      ],
-      "reason": "Guided interview (voice Q&A) Discovery mode: DiscoveryGuidedInterview.tsx adds 45 inline Tailwind hex classes for the interview cards, progress bar, live transcript bubble, interpretation chips, notes trail and summary panel; DiscoveryCaptureSuggestion.tsx (the capture-box auto-classification chip) adds a further 3 (total 1830 to 1833). The five colors are the existing Wingman dark-theme palette (#0b1824, #edf6ff, #8fb8d0, #cfe6f7, #6a97b0) used identically across the rest of the Discovery UI (e.g. the Quick Start panel), so the new UI stays visually consistent; the counts sit with the site-survey exception as inline Tailwind classes on the new components only."
-    },
-    {
-      "date": "2026-08-28",
-      "metrics": [
-        "pageSections"
-      ],
-      "reason": "Discovery page UI polish: horizontal step banner with clickable nav, active highlighting, completed-step checkmarks, progress counter, and Web Interface Guidelines fixes (explicit transitions, focus-visible outlines, touch-action, text-wrap: balance, tabular-nums, overscroll-behavior, section semantics, aria-hidden, aria-live). All scoped under html[data-wingman-route=\"discovery\"] in wingman-route-overrides.css and wingman-workflow-theme.css. Consolidation into the layered stylesheet remains the planned reduction (Phase 8 of docs/SIZE_BUDGETS.md)."
-    }
-  ],
   "totals": {
-    "hex": 1864,
-    "rgb": 2725,
-    "inlineStyle": 60,
-    "arbitraryTailwind": 288,
-    "pageSections": 2761,
-    "legacyPills": 4
+    "hex": 2007,
+    "rgb": 2336,
+    "inlineStyle": 49,
+    "arbitraryTailwind": 273,
+    "pageSections": 2878,
+    "legacyPills": 0
   }
 }
