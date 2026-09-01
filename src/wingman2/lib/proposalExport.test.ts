@@ -263,7 +263,7 @@ describe("power strategy section", () => {
 
   it("shows PoE audit when products use PoE/PoH", () => {
     const products: StoredProductSelection[] = [
-      { sku: "AMP-2120-DNT", title: "AMP-2120-DNT amplifier", quantity: 1 },
+      { sku: "NHD-120-TX", title: "NHD-120-TX encoder", quantity: 1 },
     ];
     const proposal: StoredProjectProposal = {
       title: "PoE proposal",

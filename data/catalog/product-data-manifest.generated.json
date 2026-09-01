@@ -66,7 +66,10 @@
     "data-sources/competitors/sy-electronics.csv": "f86ed374d933331a14e775f0c687c503933f97bfad6cc4888674170a8b94d8b0",
     "data-sources/competitors/turtle-av.csv": "0254693f3a5f23642170cce659acdd0598c6f6172a0d17da1e053628d3cc0e5c",
     "data-sources/competitors/visionary.csv": "5a38a5150129037a4d010950694478e80f6a466d1bc5caa7ef63248b46e0dd48",
-    "data-sources/competitors/zeevee.csv": "b0bdae1b3e951d1a2ecacede7a79569ea1012c85043a6b3f9b6bfd30a955766e"
+    "data-sources/competitors/zeevee.csv": "b0bdae1b3e951d1a2ecacede7a79569ea1012c85043a6b3f9b6bfd30a955766e",
+    "data/governance/wyrestorm-technical-profiles.json": "000a88f6532e53c84eb3808f462922c3892483a6363a1095d8b997be1be19d7b",
+    "tools/wingman-size-budgets.json": "f5a10693c414b10b2a0b9867a99f8d564796f4695e3c89f0e7d6e4f56fac9f7d",
+    "tools/wingman-style-drift-baseline.json": "4615c1cb4e745aa5bd5729769b741be352c92906a17404c2a9869a5f67ed1978"
   },
   "counts": {
     "wyrestorm": 310,
