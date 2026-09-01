@@ -78,7 +78,8 @@ async function parseJsonBody(req) {
         const error = new Error(`Request body too large. Max ${MAX_JSON_BODY_BYTES} bytes.`);
         error.statusCode = 413;
         fail(error);
-        req.destroy();
+        // Let the caller write the 413 response before tearing down the socket.
+        setImmediate(() => req.destroy());
       }
     });
     req.on("end", () => {
@@ -889,7 +890,7 @@ export async function handleAgentsRoute(req, res) {
       const body = await parseJsonBody(req);
       sendJson(res, 200, await runPhase1Pipeline(body));
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "run-pipeline",
         error: error instanceof Error ? error.message : String(error),
@@ -909,7 +910,7 @@ export async function handleAgentsRoute(req, res) {
         timestamp: nowIso(),
       });
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "discovery",
         error: error instanceof Error ? error.message : String(error),
@@ -929,7 +930,7 @@ export async function handleAgentsRoute(req, res) {
         timestamp: nowIso(),
       });
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "architect",
         error: error instanceof Error ? error.message : String(error),
@@ -949,7 +950,7 @@ export async function handleAgentsRoute(req, res) {
         timestamp: nowIso(),
       });
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "validate",
         error: error instanceof Error ? error.message : String(error),
@@ -969,7 +970,7 @@ export async function handleAgentsRoute(req, res) {
         timestamp: nowIso(),
       });
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "proposal",
         error: error instanceof Error ? error.message : String(error),
@@ -988,7 +989,7 @@ export async function handleAgentsRoute(req, res) {
         timestamp: nowIso(),
       });
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "guru",
         error: error instanceof Error ? error.message : String(error),
@@ -1007,7 +1008,7 @@ export async function handleAgentsRoute(req, res) {
         timestamp: nowIso(),
       });
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "vision-context",
         error: error instanceof Error ? error.message : String(error),
@@ -1027,7 +1028,7 @@ export async function handleAgentsRoute(req, res) {
         timestamp: nowIso(),
       });
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "competitor",
         error: error instanceof Error ? error.message : String(error),

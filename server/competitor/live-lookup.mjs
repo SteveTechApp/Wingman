@@ -730,7 +730,6 @@ function extractKeySpecs(text) {
  * confidence scores for each extracted field.
  */
 function extractStructuredSpecs(text, manufacturer = "", model = "") {
-  const lower = (text || "").toLowerCase();
   const blob = `${manufacturer} ${model} ${text}`.toLowerCase();
   const result = {
     inputCount: null,
@@ -748,7 +747,8 @@ function extractStructuredSpecs(text, manufacturer = "", model = "") {
   if (matrixMatch) {
     result.inputCount = Number(matrixMatch[1]);
     result.outputCount = Number(matrixMatch[2]);
-    result.confidence.ioCount = "high";
+    result.confidence.inputCount = "high";
+    result.confidence.outputCount = "high";
   } else {
     const inMatch = blob.match(/\b(\d{1,2})\s*(?:routed\s+)?(?:hdmi\s+)?(?:source\s+)?input/i);
     const outMatch = blob.match(/\b(\d{1,2})\s*(?:routed\s+)?(?:hdmi\s+|hdbaset\s+|display\s+)?output/i);
