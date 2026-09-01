@@ -1131,7 +1131,12 @@ export function DiscoveryPage() {
       ...multiviewOperation.map((item) => `Multiview operation: ${item}`),
       ...audioProcessing.map((item) => `Audio processing: ${item}`),
     ].filter(Boolean);
-    const missingInformation = discoveryQuestions.flatMap((step) => {
+    const missingInformationQuestions = progressiveMode === "expert"
+      ? discoveryQuestions
+      : discoveryQuestions.filter((step) =>
+          BASIC_IDS.has(step.id) || wmDiscoveryHasAnswer(answers[step.id]),
+        );
+    const missingInformation = missingInformationQuestions.flatMap((step) => {
       const answer = answers[step.id] ?? "";
       const answerText = answerLabel(step.id);
       const note = notes[step.id]?.trim() ?? "";
