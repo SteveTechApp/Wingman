@@ -231,7 +231,7 @@ export function estimatedQuestionCount(roomType: QuickStartRoomType): number {
 }
 
 // Apply smart defaults to existing answers (don't overwrite user answers)
-export function applySmartDefaults(
+export function applyRoomTypeSmartDefaults(
   roomType: QuickStartRoomType,
   existingAnswers: DiscoveryAnswers,
 ): DiscoveryAnswers {

@@ -170,7 +170,7 @@ function getCurrentBatchNumber(activeIndex: number, batchSize: number = 3): numb
   return Math.floor(activeIndex / batchSize) + 1;
 }
 
-export function applySmartDefaults(
+export function applyApplicationSmartDefaults(
   currentAnswers: DiscoveryAnswers,
   applicationType: string,
 ): DiscoveryAnswers {
@@ -319,7 +319,7 @@ export function DiscoveryProgressiveDisclosure({
     : Array.isArray(answers.opportunity) ? answers.opportunity[0] || "" : "";
   // Handle applying smart defaults
   const handleApplyDefaults = () => {
-    const updatedAnswers = applySmartDefaults(answers, selectedApplication);
+    const updatedAnswers = applyApplicationSmartDefaults(answers, selectedApplication);
     onAnswersChange(updatedAnswers);
     setShowSmartDefaultsBanner(false);
   };

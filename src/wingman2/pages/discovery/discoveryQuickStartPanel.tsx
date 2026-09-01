@@ -8,7 +8,7 @@ import {
   Zap,
 } from "lucide-react";
 import {
-  applySmartDefaults,
+  applyRoomTypeSmartDefaults,
   type QuickStartRoomType,
   quickStartConfigs,
   getQuickStartSummary,
@@ -17,7 +17,7 @@ import type { DiscoveryAnswers } from "./discoveryTypes";
 
 export function DiscoveryQuickStartEntry({ onAnswers }: { onAnswers: (answers: DiscoveryAnswers) => void }) {
   const [open, setOpen] = useState(false);
-  if (open) return <div className="wm-discovery-question-layout"><DiscoveryQuickStart onSelect={(type) => { onAnswers(applySmartDefaults(type, {})); setOpen(false); }} onSkip={() => setOpen(false)} /></div>;
+  if (open) return <div className="wm-discovery-question-layout"><DiscoveryQuickStart onSelect={(type) => { onAnswers(applyRoomTypeSmartDefaults(type, {})); setOpen(false); }} onSkip={() => setOpen(false)} /></div>;
   return (
     <div className="wm-qs-entry">
       <button type="button" onClick={() => setOpen(true)} className="wm-qs-entry__button">
