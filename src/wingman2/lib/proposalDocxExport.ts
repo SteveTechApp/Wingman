@@ -242,7 +242,8 @@ function cableScheduleContent(proposal: StoredProjectProposal, bomRows: SalesBom
   if (!bomRows.length) return [];
   try {
     const products = proposal.products ?? [];
-    const brief = proposalSchematicBrief(proposal.title || "System schematic", products);
+    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic);
     const schematicModel = buildWingmanSchematic(brief);
     const cableRows = buildNativeCableSchedule(schematicModel);
     if (!cableRows.length) return [];
@@ -620,7 +621,8 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
   let nativeSchematicDataUrl: string | undefined;
   try {
     const products = proposal.products ?? [];
-    const brief = proposalSchematicBrief(wizard.projectName || proposal.title || "System schematic", products);
+    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const brief = proposalSchematicBrief(wizard.projectName || proposal.title || "System schematic", products, bomRowsForSchematic);
     const schematicModel = buildWingmanSchematic(brief);
     nativeSchematicDataUrl = createNativeSchematicDataUrl(schematicModel);
   } catch {
