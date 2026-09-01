@@ -102,6 +102,42 @@ jobs:
       - name: Run verify stage
         run: npm run verify:${{ matrix.stage }}
 
+  # Proves the LIVE Supabase project's RLS actually protects the Wingman
+  # tables. check:migration-parity (inside verify:data) proves the migration
+  # FILES agree; this proves the DATABASE agrees with them. Read-only: the
+  # tool issues SELECTs with the public anon key and exits nonzero if any
+  # table returns rows to it. Needs the SUPABASE_URL and SUPABASE_ANON_KEY
+  # repository secrets; the job is skipped with a clear message when they
+  # are not configured (e.g. fork PRs, where GitHub never exposes secrets).
+  supabase-rls:
+    name: Supabase RLS (live)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Verify secrets are configured
+        id: secrets
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            echo "Supabase secrets not configured - skipping live RLS verification."
+          else
+            echo "skipped=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify live RLS posture with the anon key
+        if: steps.secrets.outputs.skipped == 'false'
+        run: node tools/verify-supabase-rls.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
   # Proves the built app actually boots and renders. Playwright was already a
   # devDependency and check:browser already existed; neither had ever run in CI.
   smoke:

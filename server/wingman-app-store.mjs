@@ -43,6 +43,26 @@ const scryptAsync = promisify(crypto.scrypt);
 let supabaseAdmin = null;
 let lastStorageModeUsed = "file";
 let lastStorageWarning = "";
+
+// Serializes the store read-modify-write cycles. Every mutating handler does
+// readDb() -> mutate -> writeDb(), and in supabase-tables mode writeDb is a
+// multi-table snapshot (upsert all + delete rows not in the snapshot). Two
+// concurrent requests can interleave their cycles (read A, read B, write A,
+// write B) — the second read sees the first's pre-write state and the first's
+// snapshot-delete then removes the second's freshly upserted rows. The mutex
+// is per-process; multi-instance deployments additionally need an external
+// lock or a move to row-level writes to close the cross-instance window.
+let storeLockTail = Promise.resolve();
+async function withStoreLock(fn) {
+  const run = storeLockTail.then(fn, fn);
+  // Keep the tail alive even when a previous cycle failed, so an error in one
+  // request cannot wedge the lock for every later request.
+  storeLockTail = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
 const authRateBuckets = new Map();
 
 function nowIso() {
@@ -1194,12 +1214,14 @@ function getAuthContext(req, url, db) {
 }
 
 export async function getWingmanRequestAuth(req, url) {
-  const db = await readDb();
-  const auth = getAuthContext(req, url, db);
-  if (auth.ok) {
-    await writeDb(db);
-  }
-  return auth;
+  return withStoreLock(async () => {
+    const db = await readDb();
+    const auth = getAuthContext(req, url, db);
+    if (auth.ok) {
+      await writeDb(db);
+    }
+    return auth;
+  });
 }
 
 function normalizeProjectsForWorkspace(projects, workspaceId, userId) {
@@ -1350,6 +1372,7 @@ function clearWingmanSessionCookie(res) {
   res.setHeader("Set-Cookie", buildExpiredWingmanSessionCookie());
 }
 export async function handleWingmanAuthSignupPost(req, res, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const signupRateLimit = takeAuthRateLimitToken(req, "signup");
   if (!signupRateLimit.ok) {
     const retryAfterSeconds = Math.max(1, Math.ceil(signupRateLimit.retryAfterMs / 1000));
@@ -1442,9 +1465,11 @@ export async function handleWingmanAuthSignupPost(req, res, { sendJson, parseJso
   await writeDb(db);
   setWingmanSessionCookie(res, sessionToken);
   sendJson(res, 200, makeSessionPayload(user, workspace));
+  });
 }
 
 export async function handleWingmanAuthLoginPost(req, res, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const loginRateLimit = takeAuthRateLimitToken(req, "login");
   if (!loginRateLimit.ok) {
     const retryAfterSeconds = Math.max(1, Math.ceil(loginRateLimit.retryAfterMs / 1000));
@@ -1505,9 +1530,11 @@ export async function handleWingmanAuthLoginPost(req, res, { sendJson, parseJson
   await writeDb(db);
   setWingmanSessionCookie(res, sessionToken);
   sendJson(res, 200, makeSessionPayload(user, workspace));
+  });
 }
 
 export async function handleWingmanAuthSessionGet(req, res, url, { sendJson }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -1517,9 +1544,11 @@ export async function handleWingmanAuthSessionGet(req, res, url, { sendJson }) {
 
   await writeDb(db);
   sendJson(res, 200, makeSessionPayload(auth.user, auth.workspace));
+  });
 }
 
 export async function handleWingmanAuthLogoutPost(req, res, url, { sendJson }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const token = getTokenFromRequest(req, url);
   if (token) {
@@ -1540,6 +1569,7 @@ export async function handleWingmanAuthLogoutPost(req, res, url, { sendJson }) {
   }
   clearWingmanSessionCookie(res);
   sendJson(res, 200, { ok: true });
+  });
 }
 
 export async function handleWingmanWorkspaceGet(req, res, url, { sendJson }) {
@@ -1562,6 +1592,7 @@ export async function handleWingmanWorkspaceGet(req, res, url, { sendJson }) {
 }
 
 export async function handleWingmanProjectsGet(req, res, url, { sendJson }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -1579,9 +1610,11 @@ export async function handleWingmanProjectsGet(req, res, url, { sendJson }) {
     activeProjectId: state.activeProjectId,
     projects: state.projects.map((project) => sanitizeProjectForRole(project, auth.workspaceRole)),
   });
+  });
 }
 
 export async function handleWingmanProjectsSyncPost(req, res, url, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -1642,6 +1675,7 @@ export async function handleWingmanProjectsSyncPost(req, res, url, { sendJson, p
     activeProjectId: state.activeProjectId,
     projects: state.projects.map((project) => sanitizeProjectForRole(project, auth.workspaceRole)),
   });
+  });
 }
 
 function findProject(state, projectId) {
@@ -1649,6 +1683,7 @@ function findProject(state, projectId) {
 }
 
 export async function handleWingmanProjectCommentsPost(req, res, url, projectId, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -1717,9 +1752,11 @@ export async function handleWingmanProjectCommentsPost(req, res, url, projectId,
 
   await writeDb(db);
   sendJson(res, 200, { ok: true, project: sanitizeProjectForRole(project, auth.workspaceRole) });
+  });
 }
 
 export async function handleWingmanProjectSharesPost(req, res, url, projectId, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -1781,9 +1818,11 @@ export async function handleWingmanProjectSharesPost(req, res, url, projectId, {
 
   await writeDb(db);
   sendJson(res, 200, { ok: true, project: sanitizeProjectForRole(project, auth.workspaceRole) });
+  });
 }
 
 export async function handleWingmanProjectAttachmentsPost(req, res, url, projectId, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -1849,9 +1888,11 @@ export async function handleWingmanProjectAttachmentsPost(req, res, url, project
 
   await writeDb(db);
   sendJson(res, 200, { ok: true, project: sanitizeProjectForRole(project, auth.workspaceRole) });
+  });
 }
 
 export async function handleWingmanProjectMarkReadyPost(req, res, url, projectId, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -1907,6 +1948,7 @@ export async function handleWingmanProjectMarkReadyPost(req, res, url, projectId
 
   await writeDb(db);
   sendJson(res, 200, { ok: true, project: sanitizeProjectForRole(project, auth.workspaceRole) });
+  });
 }
 
 export async function handleWingmanWorkspaceMembersGet(req, res, url, { sendJson }) {
@@ -1980,6 +2022,7 @@ export async function handleWingmanWorkspaceInvitationsGet(req, res, url, { send
 }
 
 export async function handleWingmanWorkspaceInvitationsPost(req, res, url, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -2055,9 +2098,11 @@ export async function handleWingmanWorkspaceInvitationsPost(req, res, url, { sen
     ok: true,
     invitation: publicInvitation(invitation, auth.workspace, token),
   });
+  });
 }
 
 export async function handleWingmanWorkspaceMemberRolePost(req, res, url, userId, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -2117,9 +2162,11 @@ export async function handleWingmanWorkspaceMemberRolePost(req, res, url, userId
     ok: true,
     member: publicWorkspaceMember(auth.workspace, findWorkspaceMember(auth.workspace, userId), targetUser),
   });
+  });
 }
 
 export async function handleWingmanWorkspaceSettingsPost(req, res, url, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -2160,6 +2207,7 @@ export async function handleWingmanWorkspaceSettingsPost(req, res, url, { sendJs
 
   await writeDb(db);
   sendJson(res, 200, { ok: true, workspace: publicWorkspace(auth.workspace) });
+  });
 }
 
 export async function handleWingmanInvitationResolveGet(_req, res, url, { sendJson }) {
@@ -2192,6 +2240,7 @@ export async function handleWingmanInvitationResolveGet(_req, res, url, { sendJs
 }
 
 export async function handleWingmanInvitationAcceptPost(req, res, url, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   let body = {};
   try {
@@ -2288,6 +2337,7 @@ export async function handleWingmanInvitationAcceptPost(req, res, url, { sendJso
   await writeDb(db);
   setWingmanSessionCookie(res, sessionToken);
   sendJson(res, 200, makeSessionPayload(user, workspace));
+  });
 }
 
 export async function handleWingmanGovernanceGet(req, res, url, { sendJson }) {
@@ -2348,6 +2398,7 @@ export async function handleWingmanTelemetryGet(req, res, url, { sendJson }) {
 }
 
 export async function handleWingmanTelemetryPost(req, res, url, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);
   if (!auth.ok) {
@@ -2392,4 +2443,5 @@ export async function handleWingmanTelemetryPost(req, res, url, { sendJson, pars
 
   await writeDb(db);
   sendJson(res, 200, { ok: true });
+  });
 }
