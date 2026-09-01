@@ -60,7 +60,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     sources: "two-four-sources",
     "source-connection": "mixed-hdmi-usbc",
     displays: "one-display",
-    "display-behaviour": "independent-routing-per-display",
+    // One display cannot route independently: the interview hides
+    // independent-routing-per-display for single-display rooms.
+    "display-behaviour": "same-content-all-displays",
     "signal-standard": "4k60-standard",
     audio: "room-audio",
     control: "touch-panel",

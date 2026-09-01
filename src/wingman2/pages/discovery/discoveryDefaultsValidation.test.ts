@@ -127,4 +127,56 @@ describe("discovery default tables stay aligned with the canonical questions", (
       .filter((questionId) => !expected.has(questionId));
     expect(unexpected).toEqual([]);
   });
+
+  it("displays count and display-behaviour never contradict within a default set", () => {
+    // Mirrors the interview rules in discoveryQuestions.getVisibleDiscoveryQuestions:
+    // for a single display the only valid behaviour is mirrored content; a video
+    // wall output requires a wall/processor feed; multi-display rooms may mirror
+    // or route independently. A pair outside these is contradictory — the UI
+    // would offer it as a default and then filter it out of the answer options.
+    const behaviourForDisplays: Record<string, ReadonlySet<string>> = {
+      "one-display": new Set(["same-content-all-displays"]),
+      "two-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
+      "three-eight-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
+      "nine-plus-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
+      "video-wall-output": new Set(["video-wall-or-processor-feed"]),
+    };
+
+    const problems: string[] = [];
+    const checkPair = (
+      source: string,
+      displays: string | string[] | undefined,
+      behaviour: string | string[] | undefined,
+    ) => {
+      if (displays === undefined || behaviour === undefined) return;
+      const display = Array.isArray(displays) ? displays[0] : displays;
+      const allowed = behaviourForDisplays[display];
+      if (!allowed) {
+        problems.push(`${source}: displays "${display}" has no defined behaviour rule`);
+        return;
+      }
+      const behaviours = Array.isArray(behaviour) ? behaviour : [behaviour];
+      for (const entry of behaviours) {
+        if (!allowed.has(entry)) {
+          problems.push(`${source}: displays "${display}" contradicts display-behaviour "${entry}"`);
+        }
+      }
+    };
+
+    for (const [applicationType, defaults] of Object.entries(SMART_DEFAULTS)) {
+      checkPair(
+        `SMART_DEFAULTS["${applicationType}"]`,
+        defaults.displays as string | string[] | undefined,
+        defaults["display-behaviour"] as string | string[] | undefined,
+      );
+    }
+    for (const [roomType, config] of Object.entries(quickStartConfigs)) {
+      checkPair(
+        `quickStartConfigs["${roomType}"].defaults`,
+        config.defaults.displays as string | string[] | undefined,
+        config.defaults["display-behaviour"] as string | string[] | undefined,
+      );
+    }
+    expect(problems).toEqual([]);
+  });
 });
