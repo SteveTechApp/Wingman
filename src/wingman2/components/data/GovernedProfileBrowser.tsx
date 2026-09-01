@@ -390,7 +390,12 @@ export function GovernedProfileBrowser() {
           type="button"
           className="wm-btn wm-btn--export"
           onClick={() => {
-            const blob = new Blob([JSON.stringify(profiles, null, 2)], { type: "application/json" });
+            const governedEnvelope = {
+              ...governedTechnicalProfiles,
+              updatedAt: new Date().toISOString(),
+              profiles,
+            };
+            const blob = new Blob([JSON.stringify(governedEnvelope, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;

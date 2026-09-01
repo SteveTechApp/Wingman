@@ -24,6 +24,7 @@ import type {
   SchematicNodeKind,
   SchematicTransportKind,
 } from "../lib/schematic/schematicTypes";
+import { SCHEMATIC_COLORS, SCHEMATIC_NODE_COLORS } from "../lib/schematic/schematicVisualPalette";
 import { AlertTriangle, CheckCircle, Info } from "lucide-react";
 
 /* ── Layout constants ── */
@@ -96,25 +97,7 @@ function laneGroup(kind: SchematicNodeKind): number {
 }
 
 /* ── Node kind → color ── */
-const KIND_COLORS: Record<SchematicNodeKind, string> = {
-  source: "#4af5e6",
-  display: "#34d399",
-  camera: "#c084fc",
-  speakerphone: "#c084fc",
-  "touch-panel": "#fbbf24",
-  switcher: "#4af5e6",
-  matrix: "#4af5e6",
-  "av-over-ip-encoder": "#60a5fa",
-  "av-over-ip-decoder": "#34d399",
-  "av-over-ip-transceiver": "#a78bfa",
-  "av-over-ip-controller": "#fbbf24",
-  "network-switch": "#60a5fa",
-  "video-wall-processor": "#4af5e6",
-  "audio-device": "#fbbf24",
-  "usb-bridge": "#c084fc",
-  "control-device": "#fbbf24",
-  accessory: "#6b7280",
-};
+const KIND_COLORS: Record<SchematicNodeKind, string> = SCHEMATIC_NODE_COLORS;
 
 /* ── Transport → human label ── */
 const TRANSPORT_LABELS: Record<SchematicTransportKind, string> = {
@@ -376,7 +359,7 @@ export function NativeTemplateSchematic({ template, rows }: Props) {
 
           {/* Nodes */}
           {positionedNodes.map((node) => {
-            const color = KIND_COLORS[node.kind] ?? "#6b7280";
+            const color = KIND_COLORS[node.kind] ?? SCHEMATIC_COLORS.grey;
             const isSelected = selectedNodeId === node.id;
             const hasSku = Boolean(node.sku);
 
