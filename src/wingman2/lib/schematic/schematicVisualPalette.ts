@@ -1,0 +1,37 @@
+/** Shared schematic colours for browser SVG and exported canvas diagrams. */
+export const SCHEMATIC_COLORS = {
+  aqua: "hsl(174 89% 63%)",
+  green: "hsl(160 84% 39%)",
+  violet: "hsl(270 95% 75%)",
+  amber: "hsl(43 96% 56%)",
+  blue: "hsl(213 94% 68%)",
+  purple: "hsl(255 92% 76%)",
+  grey: "hsl(220 9% 46%)",
+  slate: "hsl(215 20% 65%)",
+  pale: "hsl(210 40% 96%)",
+  navy: "hsl(207 76% 13%)",
+  muted: "hsl(204 15% 44%)",
+  text: "hsl(214 32% 91%)",
+  red: "hsl(0 84% 60%)",
+  darkRed: "hsl(0 69% 36%)",
+} as const;
+
+export const SCHEMATIC_NODE_COLORS = {
+  source: SCHEMATIC_COLORS.aqua,
+  display: SCHEMATIC_COLORS.green,
+  camera: SCHEMATIC_COLORS.violet,
+  speakerphone: SCHEMATIC_COLORS.violet,
+  "touch-panel": SCHEMATIC_COLORS.amber,
+  switcher: SCHEMATIC_COLORS.aqua,
+  matrix: SCHEMATIC_COLORS.aqua,
+  "av-over-ip-encoder": SCHEMATIC_COLORS.blue,
+  "av-over-ip-decoder": SCHEMATIC_COLORS.green,
+  "av-over-ip-transceiver": SCHEMATIC_COLORS.purple,
+  "av-over-ip-controller": SCHEMATIC_COLORS.amber,
+  "network-switch": SCHEMATIC_COLORS.blue,
+  "video-wall-processor": SCHEMATIC_COLORS.aqua,
+  "audio-device": SCHEMATIC_COLORS.amber,
+  "usb-bridge": SCHEMATIC_COLORS.violet,
+  "control-device": SCHEMATIC_COLORS.amber,
+  accessory: SCHEMATIC_COLORS.grey,
+} as const;

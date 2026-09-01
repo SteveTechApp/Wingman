@@ -42,9 +42,10 @@ export function proposalSchematicBrief(
     if (!bomBySku.has(key)) bomBySku.set(key, { description: row.description, role: row.role });
   }
 
-  const sources = inferSourcesFromProducts(products, bomBySku);
-  const displays = inferDisplaysFromProducts(products, bomBySku);
-  const productsBrief = buildProductsBrief(products);
+  const schematicProducts = mergeProductsWithBomRows(products, bomRows ?? []);
+  const sources = inferSourcesFromProducts(schematicProducts, bomBySku);
+  const displays = inferDisplaysFromProducts(schematicProducts, bomBySku);
+  const productsBrief = buildProductsBrief(schematicProducts);
 
   return {
     title,
@@ -64,6 +65,23 @@ export function proposalSchematicBrief(
       /switch|network|avoi|nhd|nvx/i.test(`${p.sku} ${p.label}`),
     ),
   };
+}
+
+function mergeProductsWithBomRows(
+  products: StoredProductSelection[],
+  bomRows: Array<{ sku: string; description: string; role: string; qty: number }>,
+): StoredProductSelection[] {
+  const representedSkus = new Set(products.map((product) => normaliseSku(product.sku)));
+  const merged = [...products];
+
+  for (const row of bomRows) {
+    const sku = normaliseSku(row.sku);
+    if (!sku || row.qty <= 0 || representedSkus.has(sku)) continue;
+    merged.push({ sku, title: row.description || row.role || row.sku, quantity: row.qty });
+    representedSkus.add(sku);
+  }
+
+  return merged;
 }
 
 // ─── Source inference ────────────────────────────────────────────────────────

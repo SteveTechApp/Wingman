@@ -27,6 +27,7 @@ const manifestOutputPath = "data/catalog/product-data-manifest.generated.json";
 const queueOutputPath = "data/wingman-data-maintenance-queue.json";
 const reportJsonOutputPath = "reports/wingman-data-maintenance-report.json";
 const reportMarkdownOutputPath = "reports/wingman-data-maintenance-report.md";
+const knownCompareProfilesPath = "data/governance/known-compare-profiles.json";
 
 const blockedLifecycleStatuses = new Set([
   "discontinued",
@@ -812,6 +813,26 @@ function applyRoutedIoEvidenceBySku(products, competitors) {
   }
 }
 
+function applyRoutedIoEvidenceToNestedRecords(value, evidence) {
+  if (Array.isArray(value)) {
+    return value.reduce((count, item) => count + applyRoutedIoEvidenceToNestedRecords(item, evidence), 0);
+  }
+  if (!value || typeof value !== "object") return 0;
+
+  let applied = 0;
+  const sku = normaliseSku(value.sku);
+  if (sku && evidence[sku]) {
+    applyRoutedIoEvidence(value, evidence[sku]);
+    applied += 1;
+  }
+  for (const child of Object.values(value)) {
+    if (child && typeof child === "object") {
+      applied += applyRoutedIoEvidenceToNestedRecords(child, evidence);
+    }
+  }
+  return applied;
+}
+
 async function main() {
   const productSourceRows = readCsv(wyrestormProductsPath);
   const lifecycleRows = readCsv(wyrestormLifecyclePath);
@@ -832,6 +853,8 @@ async function main() {
   const products = buildWyrestormProducts(productSourceRows, lifecycleRows, enrichmentRows);
   const competitors = await compileCompetitors();
   applyRoutedIoEvidenceBySku(products, competitors);
+  const knownCompareProfiles = await readJson(knownCompareProfilesPath);
+  applyRoutedIoEvidenceToNestedRecords(knownCompareProfiles, loadRoutedIoEvidence());
   const competitorFiles = (await fs.readdir(competitorDirectory))
     .filter((name) => name.endsWith(".csv"))
     .sort()
@@ -850,6 +873,7 @@ async function main() {
       products,
     });
     await writeJson(competitorOutputPath, competitors);
+    await writeJson(knownCompareProfilesPath, knownCompareProfiles);
     await writeJson(manifestOutputPath, manifest);
     await writeJson(queueOutputPath, maintenance.queue);
     await writeJson(reportJsonOutputPath, maintenance.report);
