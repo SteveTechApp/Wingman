@@ -114,6 +114,26 @@ describe("wingman-app-store: auth", () => {
     expect(auth.ok).toBe(false);
   });
 
+  it("serializes concurrent read-modify-write cycles so no signup is lost", async () => {
+    const store = await import("./wingman-app-store.mjs");
+    // Two signups racing through the same read-modify-write cycle. Without the
+    // store lock the second read can see the first's pre-write state and the
+    // second write then overwrites it, silently dropping a user. The lock
+    // serializes the cycles so both users must survive.
+    const [first, second] = await Promise.all([
+      signUp(store, { name: "Racer One", email: "racer1@example.com" }),
+      signUp(store, { name: "Racer Two", email: "racer2@example.com" }),
+    ]);
+
+    expect(first.statusCode).toBe(200);
+    expect(second.statusCode).toBe(200);
+
+    const health = makeRes();
+    await store.handleWingmanHealthGet(undefined, health, { sendJson });
+    expect(health.body.users).toBe(2);
+    expect(health.body.workspaces).toBe(2);
+  });
+
   it("rejects a session token that does not match any session", async () => {
     const store = await import("./wingman-app-store.mjs");
     const auth = await store.getWingmanRequestAuth(
