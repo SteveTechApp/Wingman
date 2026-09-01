@@ -27,8 +27,8 @@ import { resolveProductTechnicalData } from "../governedProductTechnicalData";
  * of just chassis quantity.
  *
  * @param title Project / room name
- * @param products All product selections including BY-OTHERS equipment
- * @param bomRows Optional BOM rows for richer endpoint labels
+ * @param products Product selections stored on the proposal
+ * @param bomRows Optional BOM rows, including equipment supplied by others
  */
 export function proposalSchematicBrief(
   title: string,
@@ -42,6 +42,10 @@ export function proposalSchematicBrief(
     if (!bomBySku.has(key)) bomBySku.set(key, { description: row.description, role: row.role });
   }
 
+  // Template proposals deliberately omit BY-OTHERS rows from proposal.products.
+  // Add BOM-only equipment here, while retaining proposal products as the
+  // authority for rows represented in both collections so quantities are not
+  // counted twice.
   const schematicProducts = mergeProductsWithBomRows(products, bomRows ?? []);
   const sources = inferSourcesFromProducts(schematicProducts, bomBySku);
   const displays = inferDisplaysFromProducts(schematicProducts, bomBySku);
@@ -77,7 +81,11 @@ function mergeProductsWithBomRows(
   for (const row of bomRows) {
     const sku = normaliseSku(row.sku);
     if (!sku || row.qty <= 0 || representedSkus.has(sku)) continue;
-    merged.push({ sku, title: row.description || row.role || row.sku, quantity: row.qty });
+    merged.push({
+      sku,
+      title: row.description || row.role || row.sku,
+      quantity: row.qty,
+    });
     representedSkus.add(sku);
   }
 

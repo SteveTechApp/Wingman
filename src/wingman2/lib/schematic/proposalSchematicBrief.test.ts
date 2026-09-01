@@ -106,11 +106,19 @@ describe("proposalSchematicBrief", () => {
   it("includes BY-OTHERS equipment that exists only in proposal BOM rows", () => {
     const products = [makeProduct({ sku: "NHD-ENC-TX", quantity: 1 })];
     const brief = proposalSchematicBrief("Template proposal", products, [
-      { sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE", description: "Customer managed AV network switch", role: "Network infrastructure", qty: 1 },
+      {
+        sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE",
+        description: "Customer managed AV network switch",
+        role: "Network infrastructure",
+        qty: 1,
+      },
     ]);
 
     expect(brief.products).toEqual(expect.arrayContaining([
-      expect.objectContaining({ sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE", label: "Customer managed AV network switch" }),
+      expect.objectContaining({
+        sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE",
+        label: "Customer managed AV network switch",
+      }),
     ]));
     expect(brief.networkAvailable).toBe(true);
   });

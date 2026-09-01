@@ -244,8 +244,6 @@ type DiscoveryProgressiveDisclosureProps = {
   showModeToggle?: boolean;
   /** Whether to show batch controls (mode toggle, dots, nav) — hides after first answers */
   showBatchControls?: boolean;
-  /** Whether to show smart-defaults and escalation warnings — stays visible after first answer */
-  showWarnings?: boolean;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -261,7 +259,6 @@ export function DiscoveryProgressiveDisclosure({
   isReviewingAnswers,
   showModeToggle = true,
   showBatchControls = true,
-  showWarnings = true,
 }: DiscoveryProgressiveDisclosureProps) {
   const [showSmartDefaultsBanner, setShowSmartDefaultsBanner] = useState(false);
   const [escalationReason, setEscalationReason] = useState<string | null>(null);
@@ -273,9 +270,7 @@ export function DiscoveryProgressiveDisclosure({
     [questions, mode],
   );
 
-  // Auto-apply smart defaults when entering Basic mode or when application is selected.
-  // Depends on mode AND the selected application so the banner appears after the
-  // user picks an application type, not only on a mode switch.
+  // Auto-apply smart defaults when entering Basic mode
   useEffect(() => {
     if (mode === "basic") {
       const selectedApplication = typeof answers.opportunity === "string"
@@ -286,7 +281,7 @@ export function DiscoveryProgressiveDisclosure({
         setShowSmartDefaultsBanner(true);
       }
     }
-  }, [mode, answers.opportunity]);
+  }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check for escalation triggers when answers change in Basic mode
   useEffect(() => {
@@ -378,8 +373,8 @@ export function DiscoveryProgressiveDisclosure({
         </div>
       )}
 
-      {/* Smart Defaults Banner — Basic mode only, stays visible after first answer */}
-      {showWarnings && showSmartDefaultsBanner && mode === "basic" && !isReviewingAnswers && (
+      {/* Smart Defaults Banner — Basic mode only */}
+      {showBatchControls && showSmartDefaultsBanner && mode === "basic" && !isReviewingAnswers && (
         <div className="wm-discovery-smart-defaults-banner" data-wingman-smart-defaults="true">
           <div className="wm-discovery-smart-defaults-content">
             <span className="wm-discovery-smart-defaults-icon" aria-hidden="true">✨</span>
@@ -410,8 +405,8 @@ export function DiscoveryProgressiveDisclosure({
         </div>
       )}
 
-      {/* Escalation Banner — shown when Basic mode answers trigger Expert suggestion, stays visible */}
-      {showWarnings && escalationReason && mode === "basic" && !isReviewingAnswers && (
+      {/* Escalation Banner — shown when Basic mode answers trigger Expert suggestion */}
+      {showBatchControls && escalationReason && mode === "basic" && !isReviewingAnswers && (
         <div className="wm-discovery-escalation-banner" data-wingman-escalation="true" role="alert">
           <div className="wm-discovery-escalation-content">
             <span className="wm-discovery-escalation-icon" aria-hidden="true">⚠️</span>
