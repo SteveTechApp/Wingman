@@ -860,6 +860,26 @@ async function main() {
     .sort()
     .map((name) => `data-sources/competitors/${name}`);
   const manifest = await buildManifest(products, competitors, competitorFiles);
+  if (checkOnly) {
+    // Verify the committed manifest matches the current sources. Without this,
+    // editing a source CSV and forgetting to rebuild leaves the checked-in
+    // hashes stale while --check still passes — drift stays silent.
+    let committed;
+    try {
+      committed = await readJson(manifestOutputPath);
+    } catch {
+      fail(`Committed manifest ${manifestOutputPath} is missing. Run: npm run data:sources:build`);
+    }
+    const committedHashes = committed?.hashes;
+    if (!committedHashes || typeof committedHashes !== "object") {
+      fail(`Committed manifest ${manifestOutputPath} has no hashes object. Run: npm run data:sources:build`);
+    }
+    const stale = Object.keys(manifest.hashes)
+      .filter((file) => committedHashes[file] !== manifest.hashes[file]);
+    if (stale.length) {
+      fail(`Source files changed since the manifest was generated — ${stale.join(", ")}. Run: npm run data:sources:build`);
+    }
+  }
   const maintenance = await buildMaintenanceOutputs(products, competitors, manifest);
 
   if (!checkOnly) {
