@@ -13,6 +13,7 @@ import {
 } from "./discoveryConversationDisplay";
 import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
 import type { SchematicModel, SchematicNode, SchematicTransportKind } from "./schematic/schematicTypes";
+import { SCHEMATIC_COLORS, SCHEMATIC_NODE_COLORS } from "./schematic/schematicVisualPalette";
 
 export const NAVY = "08223A";
 export const AQUA = "16B8B0";
@@ -294,34 +295,16 @@ function createSchematicDataUrl(diagram: string) {
 // ─── Native Schematic Renderer for DOCX ──────────────────────────────────────
 
 const TRANSPORT_COLORS: Record<string, string> = {
-  hdmi: "#4af5e6",
-  hdbaset: "#60a5fa",
-  "av-over-ip": "#60a5fa",
-  usb: "#c084fc",
-  network: "#60a5fa",
-  control: "#fbbf24",
-  unknown: "#94a3b8",
+  hdmi: SCHEMATIC_COLORS.aqua,
+  hdbaset: SCHEMATIC_COLORS.blue,
+  "av-over-ip": SCHEMATIC_COLORS.blue,
+  usb: SCHEMATIC_COLORS.violet,
+  network: SCHEMATIC_COLORS.blue,
+  control: SCHEMATIC_COLORS.amber,
+  unknown: SCHEMATIC_COLORS.slate,
 };
 
-const NODE_COLORS: Record<string, string> = {
-  source: "#4af5e6",
-  display: "#34d399",
-  "av-over-ip-encoder": "#60a5fa",
-  "av-over-ip-decoder": "#34d399",
-  "av-over-ip-transceiver": "#a78bfa",
-  "av-over-ip-controller": "#fbbf24",
-  matrix: "#4af5e6",
-  switcher: "#4af5e6",
-  "network-switch": "#60a5fa",
-  "video-wall-processor": "#4af5e6",
-  camera: "#c084fc",
-  speakerphone: "#c084fc",
-  "touch-panel": "#fbbf24",
-  "usb-bridge": "#c084fc",
-  "audio-device": "#fbbf24",
-  "control-device": "#fbbf24",
-  accessory: "#6b7280",
-};
+const NODE_COLORS: Record<string, string> = SCHEMATIC_NODE_COLORS;
 
 /**
  * Renders a native SchematicModel (from buildWingmanSchematic) onto a canvas
@@ -392,15 +375,15 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
   if (!ctx) return undefined;
 
   // Background
-  ctx.fillStyle = "#F4F8FB";
+  ctx.fillStyle = SCHEMATIC_COLORS.pale;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Title
   ctx.font = "bold 26px Calibri, Arial, sans-serif";
-  ctx.fillStyle = "#08223A";
+  ctx.fillStyle = SCHEMATIC_COLORS.navy;
   ctx.fillText("System connectivity schematic", 40, 40);
   ctx.font = "16px Calibri, Arial, sans-serif";
-  ctx.fillStyle = "#5E7280";
+  ctx.fillStyle = SCHEMATIC_COLORS.muted;
   ctx.fillText(schematic.title || "Topology-aware signal flow", 40, 62);
 
   // Column headers
@@ -425,7 +408,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
     const y2 = to.y + NODE_H / 2;
     const midX = Math.round((x1 + x2) / 2);
 
-    const color = TRANSPORT_COLORS[conn.transport] || "#94a3b8";
+    const color = TRANSPORT_COLORS[conn.transport] || SCHEMATIC_COLORS.slate;
 
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
@@ -446,7 +429,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
     // Transport label
     const label = conn.transport === "unknown" ? "?" : conn.transport.toUpperCase();
     ctx.font = "9px Calibri, Arial, sans-serif";
-    ctx.fillStyle = "#5E7280";
+    ctx.fillStyle = SCHEMATIC_COLORS.muted;
     ctx.textAlign = "center";
     ctx.fillText(label, midX, Math.min(y1, y2) - 4);
     ctx.textAlign = "left";
@@ -454,7 +437,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
 
   // Draw nodes
   for (const node of nodes) {
-    const color = NODE_COLORS[node.kind] || "#6b7280";
+    const color = NODE_COLORS[node.kind] || SCHEMATIC_COLORS.grey;
 
     // Background
     ctx.fillStyle = "rgba(8,29,48,0.92)";
@@ -474,7 +457,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
     // SKU or label
     const label = node.sku || node.label;
     ctx.font = "bold 10px Calibri, Arial, sans-serif";
-    ctx.fillStyle = "#E2E8F0";
+    ctx.fillStyle = SCHEMATIC_COLORS.text;
     ctx.textAlign = "center";
     const truncated = label.length > 20 ? label.slice(0, 19) + "..." : label;
     ctx.fillText(truncated, node.x + NODE_W / 2, node.y + 22);
@@ -493,10 +476,10 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
   if (blockers.length > 0) {
     const footerY = maxY + NODE_H + 30;
     ctx.font = "bold 11px Calibri, Arial, sans-serif";
-    ctx.fillStyle = "#EF4444";
+    ctx.fillStyle = SCHEMATIC_COLORS.red;
     ctx.fillText(`${blockers.length} design blocker(s) — resolve before quoting:`, 40, footerY);
     ctx.font = "10px Calibri, Arial, sans-serif";
-    ctx.fillStyle = "#9B1C1C";
+    ctx.fillStyle = SCHEMATIC_COLORS.darkRed;
     blockers.slice(0, 3).forEach((b, i) => {
       ctx.fillText(`• ${b.title}: ${b.message.slice(0, 100)}`, 50, footerY + 16 + i * 14);
     });

@@ -28643,7 +28643,7 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
 }
 
 /* ── Escalation Banner (Basic → Expert trigger) ────────────────────── */
-.wm-discovery-escalation-banner {
+.wm-escalation-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -28654,33 +28654,33 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
   border: 1px solid rgba(251, 191, 36, 0.25);
   margin-bottom: 8px;
 }
-.wm-discovery-escalation-content {
+.wm-escalation-content {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   flex: 1;
 }
-.wm-discovery-escalation-icon {
+.wm-escalation-icon {
   font-size: 18px;
   flex-shrink: 0;
   margin-top: 2px;
 }
-.wm-discovery-escalation-content strong {
-  color: #fcd34d;
+.wm-escalation-content strong {
+  color: var(--wm-ref-amber);
   font-size: 13px;
 }
-.wm-discovery-escalation-content p {
+.wm-escalation-content p {
   margin: 2px 0 0;
   color: rgba(252, 211, 77, 0.8);
   font-size: 12px;
   line-height: 1.4;
 }
-.wm-discovery-escalation-actions {
+.wm-escalation-actions {
   display: flex;
   gap: 6px;
   flex-shrink: 0;
 }
-.wm-discovery-escalation-actions button {
+.wm-escalation-actions button {
   padding: 5px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -28688,81 +28688,81 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
   cursor: pointer;
   border: 1px solid rgba(251, 191, 36, 0.3);
   background: rgba(251, 191, 36, 0.12);
-  color: #fcd34d;
+  color: var(--wm-ref-amber);
   transition: background 0.15s;
 }
-.wm-discovery-escalation-actions button:hover {
+.wm-escalation-actions button:hover {
   background: rgba(251, 191, 36, 0.2);
 }
-.wm-discovery-escalation-actions button:first-child {
+.wm-escalation-actions button:first-child {
   background: rgba(251, 191, 36, 0.2);
   border-color: rgba(251, 191, 36, 0.5);
 }
 
 /* ── Template Validation Blockers/Warnings ────────────────────────── */
-.wm-template-validation-blockers,
-.wm-template-validation-warnings {
+.wm-validation-blockers,
+.wm-validation-warnings {
   padding: 12px 16px;
   border-radius: 8px;
   margin-top: 12px;
 }
-.wm-template-validation-blockers {
+.wm-validation-blockers {
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
-.wm-template-validation-blockers h3 {
-  color: #f87171;
+.wm-validation-blockers h3 {
+  color: var(--wm-ref-red);
   font-size: 13px;
   display: flex;
   align-items: center;
   gap: 6px;
   margin: 0 0 8px;
 }
-.wm-template-validation-blockers ul {
+.wm-validation-blockers ul {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.wm-template-validation-blockers li {
+.wm-validation-blockers li {
   padding: 6px 0;
   border-bottom: 1px solid rgba(239, 68, 68, 0.1);
   font-size: 12px;
-  color: #fca5a5;
+  color: var(--wm-ref-red);
 }
-.wm-template-validation-blockers li:last-child {
+.wm-validation-blockers li:last-child {
   border-bottom: none;
 }
-.wm-template-validation-blockers li strong {
-  color: #f87171;
+.wm-validation-blockers li strong {
+  color: var(--wm-ref-red);
   text-transform: uppercase;
   font-size: 10px;
   letter-spacing: 0.5px;
 }
-.wm-template-validation-warnings {
+.wm-validation-warnings {
   background: rgba(251, 191, 36, 0.06);
   border: 1px solid rgba(251, 191, 36, 0.2);
 }
-.wm-template-validation-warnings h3 {
-  color: #fcd34d;
+.wm-validation-warnings h3 {
+  color: var(--wm-ref-amber);
   font-size: 13px;
   margin: 0 0 8px;
 }
-.wm-template-validation-warnings ul {
+.wm-validation-warnings ul {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.wm-template-validation-warnings li {
+.wm-validation-warnings li {
   padding: 6px 0;
   border-bottom: 1px solid rgba(251, 191, 36, 0.1);
   font-size: 12px;
-  color: #fde68a;
+  color: var(--wm-ref-amber);
 }
-.wm-template-validation-warnings li:last-child {
+.wm-validation-warnings li:last-child {
   border-bottom: none;
 }
-.wm-template-validation-warnings li strong {
-  color: #fcd34d;
+.wm-validation-warnings li strong {
+  color: var(--wm-ref-amber);
   text-transform: uppercase;
   font-size: 10px;
   letter-spacing: 0.5px;
@@ -28782,11 +28782,11 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
 
 /* Equipment drawer: replace-placeholder fields for BY-OTHERS rows */
 .wm-drawer-fields { margin: 18px 0; padding: 14px; border: 1px solid rgba(83,224,255,.18); border-radius: 10px; background: rgba(8,28,47,.7); }
-.wm-drawer-fields h4 { margin: 0 0 12px; font-size: .78rem; color: #4af5e6; text-transform: uppercase; letter-spacing: .5px; }
+.wm-drawer-fields h4 { margin: 0 0 12px; font-size: .78rem; color: var(--wm-ref-aqua); text-transform: uppercase; letter-spacing: .5px; }
 .wm-drawer-fields label { display: grid; gap: 6px; margin-bottom: 14px; color: var(--tr-muted); font-size: .72rem; }
 .wm-drawer-fields label input,
-.wm-drawer-fields label select { border: 1px solid var(--tr-border); border-radius: 8px; padding: 9px; color: #fff; background: #0d2133; font-size: .82rem; }
+.wm-drawer-fields label select { border: 1px solid var(--tr-border); border-radius: 8px; padding: 9px; color: var(--wm-ref-text); background: var(--wm-ref-panel); font-size: .82rem; }
 .wm-drawer-fields label select { cursor: pointer; }
 .wm-drawer-resolved { margin-top: 8px; padding: 10px 12px; border-radius: 8px; background: rgba(74,245,230,.08); border: 1px solid rgba(74,245,230,.2); }
-.wm-drawer-resolved strong { color: #4af5e6; font-size: .85rem; }
+.wm-drawer-resolved strong { color: var(--wm-ref-aqua); font-size: .85rem; }
 .wm-drawer-resolved small { color: var(--tr-muted); font-size: .72rem; }

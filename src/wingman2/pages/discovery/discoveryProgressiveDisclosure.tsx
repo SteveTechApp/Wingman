@@ -407,15 +407,15 @@ export function DiscoveryProgressiveDisclosure({
 
       {/* Escalation Banner — shown when Basic mode answers trigger Expert suggestion */}
       {showBatchControls && escalationReason && mode === "basic" && !isReviewingAnswers && (
-        <div className="wm-discovery-escalation-banner" data-wingman-escalation="true" role="alert">
-          <div className="wm-discovery-escalation-content">
-            <span className="wm-discovery-escalation-icon" aria-hidden="true">⚠️</span>
+        <div className="wm-escalation-banner" data-wingman-escalation="true" role="alert">
+          <div className="wm-escalation-content">
+            <span className="wm-escalation-icon" aria-hidden="true">⚠️</span>
             <div>
               <strong>Consider switching to Expert</strong>
               <p>{escalationReason}</p>
             </div>
           </div>
-          <div className="wm-discovery-escalation-actions">
+          <div className="wm-escalation-actions">
             <button
               type="button"
               className="wm-ui-button wm-ui-button-primary"

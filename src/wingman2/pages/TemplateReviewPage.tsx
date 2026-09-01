@@ -393,7 +393,7 @@ export function TemplateReviewPage() {
         {activeTab === "Proposal" ? <div className="wm-proposal-handoff">
           <section><span className="wm-status is-validate">{template.validationItems.length} unresolved</span><h2>{exportValidation.allowed ? "Proposal is ready with assumptions" : "Export blocked — resolve blockers first"}</h2><p>{exportValidation.allowed ? "The equipment schedule can move forward, but the following points remain unverified and will be labelled as assumptions." : "The proposal export validator has found issues that must be resolved before this template can be exported."}</p><div className="wm-proposal-readiness"><strong>{readinessScore}%</strong><span>Proposal readiness</span></div></section>
           {exportValidation.blockers.length > 0 && (
-            <section className="wm-template-validation-blockers">
+            <section className="wm-validation-blockers">
               <h3><AlertTriangle /> Export blockers ({exportValidation.blockers.length})</h3>
               <ul>
                 {exportValidation.blockers.map((blocker) => (
@@ -406,7 +406,7 @@ export function TemplateReviewPage() {
             </section>
           )}
           {exportValidation.warnings.length > 0 && (
-            <section className="wm-template-validation-warnings">
+            <section className="wm-validation-warnings">
               <h3>Warnings ({exportValidation.warnings.length})</h3>
               <ul>
                 {exportValidation.warnings.map((warning) => (
