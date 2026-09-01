@@ -222,51 +222,15 @@ CREATE POLICY service_role_all ON wingman_audit_events FOR ALL TO service_role U
 CREATE POLICY service_role_all ON wingman_telemetry_events FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- ============================================================================
--- Automatic Cleanup Functions
+-- Scheduled Cleanup
 -- ============================================================================
-
--- Function to clean up expired sessions
-CREATE OR REPLACE FUNCTION cleanup_expired_sessions()
-RETURNS void AS $$
-BEGIN
-    DELETE FROM wingman_sessions WHERE expires_at < NOW();
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to clean up old audit events (keeps last 800)
-CREATE OR REPLACE FUNCTION cleanup_old_audit_events()
-RETURNS void AS $$
-BEGIN
-    DELETE FROM wingman_audit_events
-    WHERE id NOT IN (
-        SELECT id FROM wingman_audit_events
-        ORDER BY created_at DESC
-        LIMIT 800
-    );
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to clean up old telemetry events (keeps last 400)
-CREATE OR REPLACE FUNCTION cleanup_old_telemetry_events()
-RETURNS void AS $$
-BEGIN
-    DELETE FROM wingman_telemetry_events
-    WHERE id NOT IN (
-        SELECT id FROM wingman_telemetry_events
-        ORDER BY timestamp DESC
-        LIMIT 400
-    );
-END;
-$$ LANGUAGE plpgsql;
-
--- ============================================================================
--- Optional: Scheduled Cleanup (requires pg_cron extension)
--- ============================================================================
--- Uncomment the following if you have pg_cron enabled in your Supabase project:
---
--- SELECT cron.schedule('cleanup-sessions', '0 * * * *', 'SELECT cleanup_expired_sessions()');
--- SELECT cron.schedule('cleanup-audit', '0 0 * * *', 'SELECT cleanup_old_audit_events()');
--- SELECT cron.schedule('cleanup-telemetry', '0 0 * * *', 'SELECT cleanup_old_telemetry_events()');
+-- Retired in migration 008. Earlier revisions of this file defined
+-- cleanup_expired_sessions(), cleanup_old_audit_events() and
+-- cleanup_old_telemetry_events() and left cron.schedule() calls commented out
+-- as an "optional" manual step. The real cleanup runs as pg_cron jobs with
+-- inline SQL, defined in migration 003 (mirrored in the supabase set). The
+-- functions were never scheduled by anything, so they are dead schema -
+-- migration 008 drops them so the schema matches behavior.
 
 -- ============================================================================
 -- Migration Complete
