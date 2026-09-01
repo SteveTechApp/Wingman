@@ -16298,7 +16298,7 @@
       ],
       "dependencies": [
         "Requires NetworkHD 100, 500, or 600 series endpoints to mount",
-        "NHD-000-RACK4 (4-slot) may be the active successor — verify with product owner"
+        "NHD-000-RACK4 is a separate 6U/12-slot product — NHD-RACK-1U is the 1U/2-slot option"
       ],
       "compatibleFamilies": [
         "NetworkHD"
