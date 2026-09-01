@@ -35,7 +35,7 @@
     "check:dashboard-workflow-menu": "node tools/check-dashboard-reference-layout.mjs",
     "check:data-maintenance": "node tools/check-wingman-data-maintenance.mjs",
     "check:docs": "node tools/check-documentation-contract.mjs",
-    "check:data-sources": "node tools/check-wingman-data-sources.mjs",
+    "check:data-sources": "node tools/check-wingman-data-sources.mjs && node tools/check-closest-wyrestorm-refs.mjs",
     "check:navigation-consolidation": "node tools/check-wingman-navigation-consolidation.mjs",
     "check:optional-visual-support": "node tools/check-optional-visual-support.mjs",
     "check:product-matching": "node tools/check-product-matching-scenarios.mjs",

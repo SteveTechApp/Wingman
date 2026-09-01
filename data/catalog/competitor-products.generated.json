@@ -1900,7 +1900,7 @@
     "aliases": [],
     "knownLimitations": "Confirm supported 4K chroma at maximum reach from project-specific datasheet.",
     "closestWyrestormArchitecture": "100 m HDBaseT extender kit",
-    "closestWyrestormSkuOrFamily": "EX-100-H2",
+    "closestWyrestormSkuOrFamily": "EX-100-G2",
     "notes": "Official Atlona kits catalogue and product title. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
@@ -9136,7 +9136,7 @@
     "aliases": [],
     "knownLimitations": "Streaming architecture and latency differ from visually lossless matrix-distribution systems.",
     "closestWyrestormArchitecture": "Streaming encoder or decoder",
-    "closestWyrestormSkuOrFamily": "NHD-150-TX / NHD-150-RX",
+    "closestWyrestormSkuOrFamily": "NHD-150-RX",
     "notes": "Confirm target resolution, latency and third-party decoder interoperability. | 2026-08-15 batch review: evidence-complete row promoted to approved. | AVoIP network speed requires 1GbE/10GbE verification before approval.",
     "sourceFile": "data-sources/competitors/black-box.csv",
     "comparisonOnly": true
@@ -9448,7 +9448,7 @@
     "aliases": [],
     "knownLimitations": "4K60 4:4:4 transport uses CSC; paired endpoints required.",
     "closestWyrestormArchitecture": "Ultra-long-reach HDBaseT extender kit",
-    "closestWyrestormSkuOrFamily": "EX-100-H2 (distance must be verified)",
+    "closestWyrestormSkuOrFamily": "EX-100-G2 (distance must be verified)",
     "notes": "Official Blustream 2025 product catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/blustream.csv",
     "comparisonOnly": true
@@ -9531,7 +9531,7 @@
     "aliases": [],
     "knownLimitations": "Paired transmitter and receiver are mandatory.",
     "closestWyrestormArchitecture": "Point-to-point 18Gbps HDBaseT extender kit",
-    "closestWyrestormSkuOrFamily": "EX-100-H2",
+    "closestWyrestormSkuOrFamily": "EX-100-G2",
     "notes": "Official Blustream extender catalogue and 2025 product catalogue. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/blustream.csv",
     "comparisonOnly": true
@@ -10571,7 +10571,7 @@
     "aliases": [],
     "knownLimitations": "Distributed modes require a configured 10Gb managed switch.",
     "closestWyrestormArchitecture": "NetworkHD 600-series 10Gb transceiver architecture",
-    "closestWyrestormSkuOrFamily": "NHD-600-TX/RX architecture",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRX architecture",
     "notes": "Official product page and quick-reference guide. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/blustream.csv",
     "comparisonOnly": true
@@ -10662,7 +10662,7 @@
     "aliases": [],
     "knownLimitations": "HDMI output cannot access all analog inputs in matrix mode; scaled path is 1080p.",
     "closestWyrestormArchitecture": "Multi-format presentation matrix with HDBaseT",
-    "closestWyrestormSkuOrFamily": "SW-540-TX-W plus receiver/control architecture",
+    "closestWyrestormSkuOrFamily": "SW-510-TX plus receiver/control architecture",
     "notes": "Official Blustream product page.",
     "sourceFile": "data-sources/competitors/blustream.csv",
     "comparisonOnly": true
@@ -13493,7 +13493,7 @@
     "aliases": [],
     "knownLimitations": "Uses CYP AVX proprietary compressed transport rather than interoperable HDBaseT.",
     "closestWyrestormArchitecture": "Point-to-point extender",
-    "closestWyrestormSkuOrFamily": "EX-100-H2 / EX-100-H2-PRO",
+    "closestWyrestormSkuOrFamily": "EX-100-G2",
     "notes": "Official page marks Core Product and confirms both endpoints are included. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -13720,7 +13720,7 @@
     "aliases": [],
     "knownLimitations": "The two physical video outputs are mirrored rather than independently routed; HDBaseT 4K60 4:4:4 is subsampled to 4:2:0.",
     "closestWyrestormArchitecture": "Presentation switching and extension",
-    "closestWyrestormSkuOrFamily": "SW-130-TX / SW-510-TX",
+    "closestWyrestormSkuOrFamily": "SW-130-TX-UK / SW-510-TX",
     "notes": "Official current product page provides exact I/O and mirrored-output behaviour. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -13947,7 +13947,7 @@
     "aliases": [],
     "knownLimitations": "Requires compatible IP-7000 transmitters and a suitable managed network; IP-CS7 is required for CYP system configuration and routing workflows.",
     "closestWyrestormArchitecture": "NetworkHD decoder",
-    "closestWyrestormSkuOrFamily": "NHD-500-RX / NHD-510-RX",
+    "closestWyrestormSkuOrFamily": "NHD-500-RX / NHD-510-TX",
     "notes": "Official current IP-7000 catalogue confirms receiver role HDMI and VGA outputs USB and PoE. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14010,7 +14010,7 @@
     "aliases": [],
     "knownLimitations": "Controller carries no routed AV input or output; endpoints and a managed AV network are separate dependencies.",
     "closestWyrestormArchitecture": "NetworkHD controller",
-    "closestWyrestormSkuOrFamily": "NHD-CTL-PRO / NHD-000-CTL",
+    "closestWyrestormSkuOrFamily": "NHD-CTL-PRO-V2",
     "notes": "Official page marks Core Product and documents discovery configuration groups and presets. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14094,7 +14094,7 @@
     "aliases": [],
     "knownLimitations": "Chassis requires separately selected MODX I/O cards; HDBaseT AVLC outputs require compatible receivers.",
     "closestWyrestormArchitecture": "Modular matrix",
-    "closestWyrestormSkuOrFamily": "MX-1616-S2 / MX-1616-H2XC",
+    "closestWyrestormSkuOrFamily": "MX-1616-SCL",
     "notes": "Official page marks Core Product and documents redundant IEC power supplies. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14178,7 +14178,7 @@
     "aliases": [],
     "knownLimitations": "Third input function depends on a separately selected CYP SDM module.",
     "closestWyrestormArchitecture": "Presentation and matrix switching",
-    "closestWyrestormSkuOrFamily": "SW-130-TX / MX-0404-HDMI",
+    "closestWyrestormSkuOrFamily": "SW-130-TX-UK / MX-0404-HDMI",
     "notes": "Official page marks Core Product and specifies 24V/5A PSU. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14251,7 +14251,7 @@
     "aliases": [],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "Presentation switching",
-    "closestWyrestormSkuOrFamily": "SW-130-TX / SW-510-TX",
+    "closestWyrestormSkuOrFamily": "SW-130-TX-UK / SW-510-TX",
     "notes": "Compare by I/O and USB workflow; not automatically equivalent to an in-wall transmitter. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14379,7 +14379,7 @@
     "aliases": [],
     "knownLimitations": "USB ports provide power only and are not a KVM path.",
     "closestWyrestormArchitecture": "Fixed HDMI matrix",
-    "closestWyrestormSkuOrFamily": "MX-0808-SCL / MX-0808-KIT-V2",
+    "closestWyrestormSkuOrFamily": "MX-0808-SCL-V2 / MX-0808-KIT-V2",
     "notes": "Compare scaling and audio capabilities separately. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14527,7 +14527,7 @@
     "aliases": [],
     "knownLimitations": "Requires a compatible PUV-2600 receiver and supports one active USB host at a time.",
     "closestWyrestormArchitecture": "Presentation switching and extension",
-    "closestWyrestormSkuOrFamily": "SW-130-TX / SW-120-TX3",
+    "closestWyrestormSkuOrFamily": "SW-130-TX-UK / SW-120-TX3",
     "notes": "Receiver inclusion, USB topology and local output requirements materially affect the match. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
@@ -14955,7 +14955,7 @@
     "aliases": [],
     "knownLimitations": "Detailed formats and connector types require datasheet confirmation.",
     "closestWyrestormArchitecture": "4K distribution amplifier",
-    "closestWyrestormSkuOrFamily": "EXP-SP-0104-8K / EXP-SP-0104-H2",
+    "closestWyrestormSkuOrFamily": "EXP-SP-0104-H2",
     "notes": "Compare as mirrored distribution only. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/datapath.csv",
     "comparisonOnly": true
@@ -18266,7 +18266,7 @@
     "aliases": [],
     "knownLimitations": "WyreStorm may require an 8x8 chassis or alternate architecture.",
     "closestWyrestormArchitecture": "HDBaseT matrix system",
-    "closestWyrestormSkuOrFamily": "MX-0808-KIT-V2 / MX-0808-SCL",
+    "closestWyrestormSkuOrFamily": "MX-0808-KIT-V2 / MX-0808-SCL-V2",
     "notes": "Capacity fit and receiver count are primary comparison checks. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/hdanywhere.csv",
     "comparisonOnly": true
@@ -18456,7 +18456,7 @@
     "aliases": [],
     "knownLimitations": "Sixteen physical video connectors do not constitute sixteen independently routed zones; the HDMI connectors mirror the eight routed outputs.",
     "closestWyrestormArchitecture": "HDBaseT matrix with audio",
-    "closestWyrestormSkuOrFamily": "MXV-0808-H2A-KIT / MX-0808-SCL",
+    "closestWyrestormSkuOrFamily": "MXV-0808-H2A-KIT / MX-0808-SCL-V2",
     "notes": "Official power article gives 130W system draw; PRO 2 library and comparison table document included RX and audio features. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/hdanywhere.csv",
     "comparisonOnly": true
@@ -18605,7 +18605,7 @@
     "aliases": [],
     "knownLimitations": "Expansion topology is architectural and is not a one-box equivalence.",
     "closestWyrestormArchitecture": "Scalable matrix or AVoIP",
-    "closestWyrestormSkuOrFamily": "MX-0808-SCL / NetworkHD",
+    "closestWyrestormSkuOrFamily": "MX-0808-SCL-V2 / NetworkHD",
     "notes": "Use room and output scale to decide fixed matrix versus NetworkHD. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/hdanywhere.csv",
     "comparisonOnly": true
@@ -18751,7 +18751,7 @@
     "aliases": [],
     "knownLimitations": "Legacy 2K/1080p class; both display connectors carry one source and power details require datasheet confirmation.",
     "closestWyrestormArchitecture": "Long-range point-to-point HDMI extension",
-    "closestWyrestormSkuOrFamily": "EX-100-H2",
+    "closestWyrestormSkuOrFamily": "EX-100-G2",
     "notes": "Official library and official product support page both identify XTND2K150 and 150m operation. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/hdanywhere.csv",
     "comparisonOnly": true
@@ -18975,7 +18975,7 @@
     "aliases": [],
     "knownLimitations": "All advertised displays share one input; the public library summary does not expose the exact TX/RX connector split, so included receiver quantity needs datasheet confirmation.",
     "closestWyrestormArchitecture": "Long-range mirrored HDMI distribution",
-    "closestWyrestormSkuOrFamily": "EXP-SP-0104-H2 / EX-100-H2",
+    "closestWyrestormSkuOrFamily": "EXP-SP-0104-H2 / EX-100-G2",
     "notes": "Do not infer four independently routed outputs from the four-display package claim. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/hdanywhere.csv",
     "comparisonOnly": true
@@ -19632,7 +19632,7 @@
     "aliases": [],
     "knownLimitations": "Requires compatible MaxColor encoders and managed network configuration.",
     "closestWyrestormArchitecture": "NetworkHD decoder",
-    "closestWyrestormSkuOrFamily": "NHD-500-RX / NHD-510-RX",
+    "closestWyrestormSkuOrFamily": "NHD-500-RX / NHD-510-TX",
     "notes": "Architecture comparison only; codec and interoperability require review. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/just-add-power.csv",
     "comparisonOnly": true
@@ -20622,7 +20622,7 @@
     "aliases": [],
     "knownLimitations": "A complete link requires two compatible endpoints; TX loop is mirrored.",
     "closestWyrestormArchitecture": "HDBaseT 3 HDMI/USB extender pair",
-    "closestWyrestormSkuOrFamily": "EX-100-H2 plus USB verification",
+    "closestWyrestormSkuOrFamily": "EX-100-G2 plus USB verification",
     "notes": "Official Kramer product page.",
     "sourceFile": "data-sources/competitors/kramer.csv",
     "comparisonOnly": true
@@ -21438,7 +21438,7 @@
     "aliases": [],
     "knownLimitations": "Input access differs across the two units; HDBaseT path is 4K60 4:2:0.",
     "closestWyrestormArchitecture": "Dual-display presentation switching and extension",
-    "closestWyrestormSkuOrFamily": "SW-540-TX-W plus receiver architecture",
+    "closestWyrestormSkuOrFamily": "SW-510-TX plus receiver architecture",
     "notes": "Official Kramer product page.",
     "sourceFile": "data-sources/competitors/kramer.csv",
     "comparisonOnly": true
@@ -26620,7 +26620,7 @@
     "aliases": [],
     "knownLimitations": "Requires Q-SYS ecosystem and high-power PoE or auxiliary supply.",
     "closestWyrestormArchitecture": "Network video/presentation endpoint",
-    "closestWyrestormSkuOrFamily": "NHD-500 / presentation switching alternative",
+    "closestWyrestormSkuOrFamily": "NHD-500-TX / presentation switching alternative",
     "notes": "Compare both AVoIP role and USB-C room workflow; not a standalone switcher. | 2026-08-15 batch review: evidence-complete row promoted to approved. | AVoIP network speed requires 1GbE/10GbE verification before approval.",
     "sourceFile": "data-sources/competitors/q-sys.csv",
     "comparisonOnly": true
@@ -26697,7 +26697,7 @@
     "aliases": [],
     "knownLimitations": "Requires Q-SYS ecosystem; Mediacast is limited to 1080p30 while Q-SYS Shift supports 4K60.",
     "closestWyrestormArchitecture": "Network video transceiver",
-    "closestWyrestormSkuOrFamily": "NHD-600-TRX / NHD-500 family",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRX / NHD-500-TX",
     "notes": "Architecture alternative; proprietary codecs and Core role require explicit review. | 2026-08-15 batch review: evidence-complete row promoted to approved. | AVoIP network speed requires 1GbE/10GbE verification before approval.",
     "sourceFile": "data-sources/competitors/q-sys.csv",
     "comparisonOnly": true
@@ -28026,7 +28026,7 @@
     "aliases": [],
     "knownLimitations": "MFT62 does not include the receiver; MFT62-SET includes a Slim70 Pro receiver.",
     "closestWyrestormArchitecture": "Multi-format presentation switcher",
-    "closestWyrestormSkuOrFamily": "SW-510-TX / SW-0401-HDBT",
+    "closestWyrestormSkuOrFamily": "SW-510-TX / SW-0401-H2",
     "notes": "Keep base and SET package topology distinct. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/sy-electronics.csv",
     "comparisonOnly": true
@@ -28407,7 +28407,7 @@
     "aliases": [],
     "knownLimitations": "Wand C and Wand H are optional companion transmitters and not standalone receivers.",
     "closestWyrestormArchitecture": "Wireless presentation",
-    "closestWyrestormSkuOrFamily": "APO-200 / APO-DG2 workflow",
+    "closestWyrestormSkuOrFamily": "APO-210-UC / APO-DG2 workflow",
     "notes": "Confirm protocols touchback conferencing and output resolution. | 2026-08-15 batch review: evidence-complete row promoted to approved.",
     "sourceFile": "data-sources/competitors/sy-electronics.csv",
     "comparisonOnly": true
@@ -28954,7 +28954,7 @@
     "aliases": [],
     "knownLimitations": "Network speed and exact endpoint SKU variants require confirmation.",
     "closestWyrestormArchitecture": "NetworkHD low-bandwidth AVoIP",
-    "closestWyrestormSkuOrFamily": "NHD-100 family",
+    "closestWyrestormSkuOrFamily": "NHD-120-TX / NHD-120-RX",
     "notes": "Do not compare to 4K60 low-latency endpoints without checking codec and latency. | 2026-08-15 batch review: evidence-complete row promoted to approved. | AVoIP network speed requires 1GbE/10GbE verification before approval.",
     "sourceFile": "data-sources/competitors/turtle-av.csv",
     "comparisonOnly": true
