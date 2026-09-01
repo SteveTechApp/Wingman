@@ -72,8 +72,12 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     sources: "two-four-sources",
     "source-connection": "mixed-hdmi-usbc",
     displays: "one-display",
-    "display-behaviour": "video-wall-or-processor-feed",
-    "signal-standard": "4k60-standard",
+    // Aligned with quickStartConfigs.classroom: a teaching space mirrors one
+    // source to a projector/display, typically fed at standard HD. The prior
+    // values (video-wall-or-processor-feed / 4k60-standard) implied a wall
+    // processor feed that classrooms do not use.
+    "display-behaviour": "same-content-all-displays",
+    "signal-standard": "1080p-standard-hdmi",
     audio: "room-audio",
     control: "simple-auto",
     usb: "room-pc-uc",

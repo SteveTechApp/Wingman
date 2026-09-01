@@ -74,4 +74,23 @@ describe("discovery default tables stay aligned with the canonical questions", (
     const invalid = Object.keys(SMART_DEFAULTS).filter((key) => !opportunityOptions.has(key));
     expect(invalid).toEqual([]);
   });
+
+  it("SMART_DEFAULTS and quickStartConfigs agree for the same application type", () => {
+    const conflicts: string[] = [];
+    for (const [applicationType, smartDefaults] of Object.entries(SMART_DEFAULTS)) {
+      const quickStart = quickStartConfigs[applicationType as keyof typeof quickStartConfigs];
+      if (!quickStart) continue;
+      for (const [questionId, smartValue] of Object.entries(smartDefaults)) {
+        const quickStartValue = quickStart.defaults[questionId as keyof DiscoveryAnswers];
+        if (quickStartValue === undefined || quickStartValue === "") continue;
+        const normalize = (value: string | string[]) => (Array.isArray(value) ? JSON.stringify([...value].sort()) : value);
+        if (normalize(smartValue as string | string[]) !== normalize(quickStartValue as string | string[])) {
+          conflicts.push(
+            `${applicationType}: "${questionId}" differs — SMART_DEFAULTS=${JSON.stringify(smartValue)} vs quickStartConfigs=${JSON.stringify(quickStartValue)}`,
+          );
+        }
+      }
+    }
+    expect(conflicts).toEqual([]);
+  });
 });
