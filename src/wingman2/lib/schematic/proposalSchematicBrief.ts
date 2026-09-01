@@ -86,6 +86,7 @@ function mergeProductsWithBomRows(
       title: row.description || row.role || row.sku,
       quantity: row.qty,
     });
+    merged.push({ sku, title: row.description || row.role || row.sku, quantity: row.qty });
     representedSkus.add(sku);
   }
 

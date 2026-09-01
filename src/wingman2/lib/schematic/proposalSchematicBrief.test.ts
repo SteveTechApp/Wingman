@@ -119,6 +119,11 @@ describe("proposalSchematicBrief", () => {
         sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE",
         label: "Customer managed AV network switch",
       }),
+      { sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE", description: "Customer managed AV network switch", role: "Network infrastructure", qty: 1 },
+    ]);
+
+    expect(brief.products).toEqual(expect.arrayContaining([
+      expect.objectContaining({ sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE", label: "Customer managed AV network switch" }),
     ]));
     expect(brief.networkAvailable).toBe(true);
   });

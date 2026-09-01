@@ -14,6 +14,7 @@ import {
 } from "./discoveryConversationDisplay";
 import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
 import type { SchematicModel, SchematicNode, SchematicTransportKind } from "./schematic/schematicTypes";
+import { SCHEMATIC_COLORS, SCHEMATIC_NODE_COLORS } from "./schematic/schematicVisualPalette";
 import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel, cableValidationStatusClass, type NativeCableRow } from "./schematic/nativeCableSchedule";
 import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
 
@@ -352,34 +353,16 @@ function createSchematicDataUrl(diagram: string) {
 // ─── Native Schematic Renderer for DOCX ──────────────────────────────────────
 
 const TRANSPORT_COLORS: Record<string, string> = {
-  hdmi: "#4af5e6",
-  hdbaset: "#60a5fa",
-  "av-over-ip": "#60a5fa",
-  usb: "#c084fc",
-  network: "#60a5fa",
-  control: "#fbbf24",
-  unknown: "#94a3b8",
+  hdmi: SCHEMATIC_COLORS.aqua,
+  hdbaset: SCHEMATIC_COLORS.blue,
+  "av-over-ip": SCHEMATIC_COLORS.blue,
+  usb: SCHEMATIC_COLORS.violet,
+  network: SCHEMATIC_COLORS.blue,
+  control: SCHEMATIC_COLORS.amber,
+  unknown: SCHEMATIC_COLORS.slate,
 };
 
-const NODE_COLORS: Record<string, string> = {
-  source: "#4af5e6",
-  display: "#34d399",
-  "av-over-ip-encoder": "#60a5fa",
-  "av-over-ip-decoder": "#34d399",
-  "av-over-ip-transceiver": "#a78bfa",
-  "av-over-ip-controller": "#fbbf24",
-  matrix: "#4af5e6",
-  switcher: "#4af5e6",
-  "network-switch": "#60a5fa",
-  "video-wall-processor": "#4af5e6",
-  camera: "#c084fc",
-  speakerphone: "#c084fc",
-  "touch-panel": "#fbbf24",
-  "usb-bridge": "#c084fc",
-  "audio-device": "#fbbf24",
-  "control-device": "#fbbf24",
-  accessory: "#6b7280",
-};
+const NODE_COLORS: Record<string, string> = SCHEMATIC_NODE_COLORS;
 
 /**
  * Renders a native SchematicModel (from buildWingmanSchematic) onto a canvas

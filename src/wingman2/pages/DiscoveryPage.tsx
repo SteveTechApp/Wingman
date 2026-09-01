@@ -396,26 +396,6 @@ export function DiscoveryPage() {
   const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
 
-  useEffect(() => {
-    const visibleIds = new Set(modeQuestions.map((step) => step.id));
-
-    setAnswers((previous) => {
-      const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
-      if (staleIds.length === 0) return previous;
-      const next = { ...previous };
-      staleIds.forEach((id) => delete next[id]);
-      return next;
-    });
-
-    setNotes((previous) => {
-      const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
-      if (staleIds.length === 0) return previous;
-      const next = { ...previous };
-      staleIds.forEach((id) => delete next[id]);
-      return next;
-    });
-  }, [modeQuestions]);
-
   const selectedAnswerLabel = (stepId: string): string => {
     const step = modeQuestions.find((candidate) => candidate.id === stepId);
     return step && wmDiscoveryHasAnswer(answers[stepId])
