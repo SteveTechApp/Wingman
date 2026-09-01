@@ -62,7 +62,8 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
   let cableRowsHtml = "";
   try {
     const products = proposal.products ?? [];
-    const brief = proposalSchematicBrief(proposal.title || "System schematic", products);
+    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic);
     const schematicModel = buildWingmanSchematic(brief);
     const nativeCableRows = buildNativeCableSchedule(schematicModel);
     if (nativeCableRows.length > 0) {

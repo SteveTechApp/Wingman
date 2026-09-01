@@ -192,8 +192,7 @@
         "The power row reads '24V DC 5V' (apparent typo for 5A, as with AMP-260-DNT) and Max Power Consumption is listed as 'AC 100-240V 50-60Hz', an input rating rather than a consumption figure."
       ],
       "power": [
-        "24V DC 5A (page prints '24V DC 5V')",
-        "802.3at PoE+"
+        "24V DC 5A (page prints '24V DC 5V')"
       ],
       "evidence": [
         {
@@ -221,8 +220,8 @@
       ],
       "specs": {
         "externalPsu": true,
-        "poe": true,
-        "powerSupply": "24V DC 5A (page prints '24V DC 5V'); 802.3at PoE+"
+        "poe": false,
+        "powerSupply": "24V DC 5A"
       },
       "verifiedBy": "Steve",
       "verifiedAt": "2026-08-16T10:23:16.043Z",
@@ -16298,7 +16297,7 @@
       ],
       "dependencies": [
         "Requires NetworkHD 100, 500, or 600 series endpoints to mount",
-        "NHD-000-RACK4 (4-slot) may be the active successor — verify with product owner"
+        "NHD-000-RACK4 is a separate 6U/12-slot product — NHD-RACK-1U is the 1U/2-slot option"
       ],
       "compatibleFamilies": [
         "NetworkHD"

@@ -93,14 +93,13 @@ describe("proposalSchematicBrief", () => {
     expect(brief.controlRequired).toBe(true);
   });
 
-  it("skips BY-OTHERS products from the product brief", () => {
+  it("includes BY-OTHERS products in the schematic for real connectivity", () => {
     const products = [
       makeProduct({ sku: "BY-OTHERS-DISPLAY", quantity: 1 }),
       makeProduct({ sku: "NHD-ENC-TX", quantity: 1 }),
     ];
     const brief = proposalSchematicBrief("BY-OTHERS test", products);
-    const byOthers = (brief.products ?? []).filter((p) => p.sku.startsWith("by-others"));
-    expect(byOthers).toHaveLength(0);
-    expect(brief.products!).toHaveLength(1);
+    // BY-OTHERS equipment now appears so the schematic proves real connectivity
+    expect(brief.products!).toHaveLength(2);
   });
 });
