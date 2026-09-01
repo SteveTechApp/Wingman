@@ -9,13 +9,15 @@
 
 import { describe, expect, it } from "vitest";
 import { baseDiscoveryQuestions } from "./discoveryQuestions";
-import { SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
+import { BASIC_MODE_REQUIRED_IDS, ESCALATION_TRIGGERS, SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
 import { quickStartConfigs } from "./discoveryQuickStart";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
 const questionOptions = new Map(
   baseDiscoveryQuestions.map((question) => [question.id, new Set(question.options.map((option) => option.value))]),
 );
+
+const questionById = new Map(baseDiscoveryQuestions.map((question) => [question.id, question]));
 
 function collectDefaultProblems(defaults: Partial<DiscoveryAnswers>, source: string): string[] {
   const problems: string[] = [];
@@ -92,5 +94,37 @@ describe("discovery default tables stay aligned with the canonical questions", (
       }
     }
     expect(conflicts).toEqual([]);
+  });
+
+  it("every ESCALATION_TRIGGERS questionId and value resolves to a current question option", () => {
+    const problems: string[] = [];
+    for (const trigger of ESCALATION_TRIGGERS) {
+      const options = questionOptions.get(trigger.questionId);
+      if (!options) {
+        problems.push(`ESCALATION_TRIGGERS: unknown question id "${trigger.questionId}"`);
+        continue;
+      }
+      for (const value of trigger.values) {
+        if (!options.has(value)) {
+          problems.push(
+            `ESCALATION_TRIGGERS[${trigger.questionId}]: unknown option value "${value}"`,
+          );
+        }
+      }
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it("every ESCALATION_TRIGGERS question is one Basic mode asks", () => {
+    // Escalation triggers exist to push Basic-mode users into Expert when an
+    // answer signals complexity. The trigger surface must be exactly the set
+    // of questions Basic mode asks (BASIC_MODE_REQUIRED_IDS): a trigger on
+    // any other question is dead — Basic never shows it and no smart default
+    // supplies a value for it.
+    const expected = new Set<string>(BASIC_MODE_REQUIRED_IDS);
+    const unexpected = ESCALATION_TRIGGERS
+      .map((trigger) => trigger.questionId)
+      .filter((questionId) => !expected.has(questionId));
+    expect(unexpected).toEqual([]);
   });
 });

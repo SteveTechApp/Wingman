@@ -39,7 +39,7 @@ type QuestionBatch = {
  * These are the minimum viable inputs for Wingman to produce a product
  * direction. Everything else gets a smart default from the template.
  */
-const BASIC_MODE_REQUIRED_IDS = [
+export const BASIC_MODE_REQUIRED_IDS = [
   "opportunity",         // What type of room? — drives template selection
   "scale",               // How big? — drives system complexity
   "sources",             // How many sources? — drives input count
@@ -119,7 +119,7 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
  * patterns, the system suggests switching to Expert because the
  * requirement departs from typical template assumptions.
  */
-const ESCALATION_TRIGGERS: Array<{
+export const ESCALATION_TRIGGERS: Array<{
   questionId: string;
   values: string[];
   reason: string;
@@ -146,7 +146,7 @@ const ESCALATION_TRIGGERS: Array<{
   },
   {
     questionId: "uc-purpose",
-    values: ["recording-streaming", "camera-distribution"],
+    values: ["recording-streaming", "camera-distribution-only"],
     reason: "Recording, streaming or camera distribution workflows need detailed USB/audio path planning.",
   },
 ];
