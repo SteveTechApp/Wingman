@@ -45,12 +45,6 @@ const COLORS = {
   orange: "#f97316",
 };
 
-const WIN_RATE_COLORS = {
-  positive: "#22c55e",
-  neutral: "#f59e0b",
-  negative: "#ef4444",
-};
-
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 
 function CustomTooltip({

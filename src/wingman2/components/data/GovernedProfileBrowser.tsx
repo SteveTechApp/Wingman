@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Search, ChevronDown, ChevronRight, ExternalLink, CheckCircle, AlertTriangle, RotateCcw, Download } from "lucide-react";
+import { Search, ChevronDown, ChevronRight, CheckCircle, AlertTriangle, RotateCcw, Download } from "lucide-react";
 import governedTechnicalProfiles from "../../../../data/governance/wyrestorm-technical-profiles.json";
 
 /* ------------------------------------------------------------------ */
@@ -275,7 +275,7 @@ export function GovernedProfileBrowser() {
       counts[cls] = (counts[cls] ?? 0) + 1;
     }
     return counts;
-  }, []);
+  }, [profiles]);
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -284,7 +284,7 @@ export function GovernedProfileBrowser() {
       counts[s] = (counts[s] ?? 0) + 1;
     }
     return counts;
-  }, []);
+  }, [profiles]);
 
   return (
     <section className="wm-governed-browser">

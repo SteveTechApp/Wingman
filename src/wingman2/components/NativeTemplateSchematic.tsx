@@ -18,7 +18,6 @@ import { templateBomToSchematicBrief } from "../lib/schematic/templateBomToSchem
 import { buildWingmanSchematic } from "../lib/schematic/wingmanSchematicEngine";
 import { buildNativeCableSchedule, nativeCableToneLabel } from "../lib/schematic/nativeCableSchedule";
 import type {
-  SchematicConnection,
   SchematicModel,
   SchematicNode,
   SchematicNodeKind,
@@ -34,39 +33,6 @@ const COL_GAP = 200;
 const LANE_GAP = 80;
 const ORIGIN_X = 40;
 const ORIGIN_Y = 40;
-const LABEL_HEIGHT = 20;
-
-/* ── Node kind → visual column ── */
-function columnForKind(kind: SchematicNodeKind): number {
-  switch (kind) {
-    case "source":
-    case "camera":
-    case "speakerphone":
-      return 0;
-    case "switcher":
-    case "matrix":
-    case "av-over-ip-encoder":
-    case "av-over-ip-transceiver":
-    case "av-over-ip-controller":
-    case "video-wall-processor":
-      return 1;
-    case "network-switch":
-      return 2;
-    case "av-over-ip-decoder":
-      return 3;
-    case "display":
-      return 4;
-    case "usb-bridge":
-      return 1;
-    case "audio-device":
-      return 4;
-    case "touch-panel":
-    case "control-device":
-      return 1;
-    default:
-      return 2;
-  }
-}
 
 /* ── Node kind → lane group (for Y positioning) ── */
 function laneGroup(kind: SchematicNodeKind): number {
@@ -134,14 +100,6 @@ function signalStyle(signal: string): { stroke: string; dash?: string } {
 /* ── Helpers ── */
 function truncate(text: string, max: number): string {
   return text.length > max ? text.slice(0, max - 1) + "…" : text;
-}
-
-function nodeX(node: SchematicNode): number {
-  return ORIGIN_X + node.column * COL_GAP;
-}
-
-function nodeY(node: SchematicNode): number {
-  return ORIGIN_Y + node.lane * LANE_GAP;
 }
 
 /* ── Component ── */

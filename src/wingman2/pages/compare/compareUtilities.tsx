@@ -10,7 +10,7 @@ import {
   salesImportantDifference,
   compactCompareQuoteChecks,
 } from "../../lib/repScript";
-import { type ScoredCandidate, type WyreStormProduct } from "../../lib/compareVerdictPipeline";
+import { type ScoredCandidate } from "../../lib/compareVerdictPipeline";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

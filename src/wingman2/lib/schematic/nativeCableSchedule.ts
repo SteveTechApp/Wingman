@@ -9,7 +9,7 @@
  * transport type and a validation reminder tailored to that transport.
  */
 
-import type { SchematicConnection, SchematicModel, SchematicNode, SchematicTransportKind } from "./schematicTypes";
+import type { SchematicModel, SchematicNode, SchematicTransportKind } from "./schematicTypes";
 
 export type NativeCableRow = {
   label: string;

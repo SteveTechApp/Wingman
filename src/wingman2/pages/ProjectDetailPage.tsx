@@ -315,7 +315,7 @@ function DealOutcomeSection({ project }: { project: StoredProject }) {
 export function ProjectDetailPage() {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { projects, syncStatus, deleteProject } = useProjectStore();
+  const { projects, deleteProject } = useProjectStore();
   const project = projects.find((item) => item.id === projectId) ?? null;
   const initialRequirements = useMemo(
     () => (project ? getProjectRequirementRecords(project) : []),

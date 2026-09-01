@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { readProjectStore, updateStoredProject } from "../../data/projectStore";
 import type { CompareHistoryView } from "../../lib/compareHistory";
@@ -7,7 +7,9 @@ const DEFAULT_VIEW: CompareHistoryView = { search: "", filter: "all", sort: "new
 
 export function useCompareHistoryView() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeProject = readProjectStore().projects.find((project) => project.id === readProjectStore().activeProjectId);
+  const store = readProjectStore();
+  const activeProject = store.projects.find((project) => project.id === store.activeProjectId);
+  const activeProjectId = activeProject?.id;
   const projectView = activeProject?.compareHistoryView;
   const hasUrlView = Boolean(searchParams.get("historySearch") || searchParams.get("historyFilter") || searchParams.get("historySort"));
   const initial = hasUrlView
@@ -16,12 +18,17 @@ export function useCompareHistoryView() {
   const [view, setView] = useState<CompareHistoryView>(initial);
 
   useEffect(() => {
-    if (!activeProject) return;
-    updateStoredProject(activeProject.id, (project) => ({ ...project, compareHistoryView: view }));
-  }, [activeProject?.id, view]);
+    if (!activeProjectId) return;
+    updateStoredProject(activeProjectId, (project) => ({ ...project, compareHistoryView: view }));
+  }, [activeProjectId, view]);
+
+  // Keep the latest searchParams available to the persistence effect without
+  // depending on its identity (it changes on every navigation).
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
 
   useEffect(() => {
-    const next = new URLSearchParams(searchParams);
+    const next = new URLSearchParams(searchParamsRef.current);
     if (view.search) next.set("historySearch", view.search); else next.delete("historySearch");
     if (view.filter !== "all") next.set("historyFilter", view.filter); else next.delete("historyFilter");
     if (view.sort !== "newest") next.set("historySort", view.sort); else next.delete("historySort");

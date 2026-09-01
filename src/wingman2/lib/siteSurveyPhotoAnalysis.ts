@@ -6,7 +6,7 @@
  * data extraction for auto-populating the checklist.
  */
 
-import { analyzeVisualAttachment, type VisualAttachmentAnalysis } from "./visionAttachments";
+import { analyzeVisualAttachment } from "./visionAttachments";
 import { runVisionContextAnalysis } from "../api/wingmanApi";
 
 /* ──────────────────────────────────────────────

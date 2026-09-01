@@ -40,12 +40,6 @@ function isHdbtTx(sku: string): boolean {
   return /^(?:EX|TX)-\d+/.test(sku) && !/^NHD-/.test(sku);
 }
 
-/** HDBaseT extender RX (not NetworkHD). */
-function isHdbtRx(sku: string): string | null {
-  const match = sku.match(/^(?:EX|RX)-(\d+)/);
-  return match ? match[0] : null;
-}
-
 /** Matrix switcher SKU. */
 function isMatrix(sku: string): boolean {
   return /^MX[V]?-\d{4}/.test(sku);
@@ -85,7 +79,6 @@ export function suggestComplementaryProducts(
 ): BundleSuggestion[] {
   const suggestions: BundleSuggestion[] = [];
   const skus = products.map(skuUpper);
-  const skusSet = new Set(skus);
 
   // ── 1. NetworkHD TX without matching RX ────────────────────────────
   for (const product of products) {
@@ -94,7 +87,6 @@ export function suggestComplementaryProducts(
 
     const family = nhdFamilyNumber(sku);
     const hasMatchingRx = skus.some((s) => isNhdRx(s) && nhdFamilyNumber(s) === family);
-    const hasAnyRx = skus.some((s) => isNhdRx(s));
 
     if (!hasMatchingRx) {
       const suggestedRx = family ? `NHD-${family}-RX` : "NHD-120-RX";

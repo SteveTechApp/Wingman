@@ -2,7 +2,6 @@ import { beforeAll, describe, expect, it } from "vitest";
 import {
   curatedPhrasesFor,
   guidedVoicePreview,
-  isInterviewLanguageLoaded,
   loadInterviewLanguage,
   normalizeInterviewLang,
   SPOKEN_LANGUAGE_OPTIONS,

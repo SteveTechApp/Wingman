@@ -18,9 +18,6 @@ import {
 } from "./projectTopology";
 import type {
   SiteSurveyPhotoResult,
-  ExtractedLocation,
-  ExtractedEquipment,
-  ExtractedCable,
 } from "./siteSurveyPhotoAnalysis";
 
 /* ──────────────────────────────────────────────

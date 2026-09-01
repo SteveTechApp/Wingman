@@ -37,7 +37,7 @@ import { ProductAssuranceBadge } from "../components/ProductAssuranceBadge";
 import { useWingmanProfile } from "../data/wingmanProfile";
 import { buildDesignAssuranceLedger, getProductAssurance } from "../lib/productAssurance";
 import { suggestComplementaryProducts } from "../lib/systemBundler";
-import { generateSuggestedKits, detectMissingAccessories, type SuggestedKit, type MissingAccessory } from "../lib/suggestedKit";
+import { generateSuggestedKits, detectMissingAccessories } from "../lib/suggestedKit";
 import { collectCompetitorBrandLosses } from "../lib/feedbackInformedGuidance";
 
 type RecommendationDecision = Awaited<

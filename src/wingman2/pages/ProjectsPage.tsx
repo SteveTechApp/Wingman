@@ -7,7 +7,7 @@ import { SectionCard } from "../components/SectionCard";
 import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
 import { useTeamMembers } from "../data/useTeamMembers";
-import { useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
+import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { createProjectFromTemplate } from "../lib/projectFromTemplate";
 
 const PROJECTS_PILL_BUTTON_CLASS =
@@ -144,8 +144,8 @@ export function ProjectsPage() {
       </div>
 
       {templatePickerOpen && (
-        <div className="wm-template-picker-backdrop" role="presentation" onClick={() => setTemplatePickerOpen(false)}>
-          <section className="wm-template-picker-dialog wm-ui-card" role="dialog" aria-modal="true" aria-labelledby="template-picker-title" onClick={(e) => e.stopPropagation()}>
+        <div className="wm-template-picker-backdrop" role="button" aria-label="Close template picker" tabIndex={-1} onClick={(e) => { if (e.target === e.currentTarget) setTemplatePickerOpen(false); }} onKeyDown={(e) => { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") setTemplatePickerOpen(false); }}>
+          <section className="wm-template-picker-dialog wm-ui-card" role="dialog" aria-modal="true" aria-labelledby="template-picker-title">
             <header className="flex items-center justify-between mb-4">
               <div>
                 <p className="wm-ui-kicker">Create from template</p>

@@ -423,7 +423,6 @@ export async function getAllBattleCards(): Promise<BattleCardGroup[]> {
   // Collect all unique product classes from the catalog
   const classCounts = new Map<WingmanProductClass, number>();
   for (const row of catalog) {
-    const t = tag(row);
     for (const productClass of Object.keys(WYRESTORM_FAMILY_STRENGTHS) as WingmanProductClass[]) {
       if (classMatches(row, productClass)) {
         classCounts.set(productClass, (classCounts.get(productClass) ?? 0) + 1);

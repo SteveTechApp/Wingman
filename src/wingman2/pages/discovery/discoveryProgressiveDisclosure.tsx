@@ -317,8 +317,6 @@ export function DiscoveryProgressiveDisclosure({
   const selectedApplication = typeof answers.opportunity === "string"
     ? answers.opportunity
     : Array.isArray(answers.opportunity) ? answers.opportunity[0] || "" : "";
-  const defaultsApplied = hasSmartDefaults(answers, selectedApplication);
-
   // Handle applying smart defaults
   const handleApplyDefaults = () => {
     const updatedAnswers = applySmartDefaults(answers, selectedApplication);

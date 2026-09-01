@@ -7,10 +7,8 @@
 
 import {
   normaliseProjectTopology,
-  type ProjectTopology,
   type ProjectLocation,
   type ProjectDevice,
-  type ProjectConnection,
 } from "./projectTopology";
 import type { StoredProject, StoredProductSelection } from "../data/projectStore";
 import { generateQrCodeSvg, generateTopologyUrl } from "./qrCodeSvg";

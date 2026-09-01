@@ -160,7 +160,7 @@ export function SiteSurveyPhotoCapture({
       {analyzing && (
         <div className="wm-survey-photo-analyzing">
           {previewUrl && (
-            <img src={previewUrl} alt="Site photo" className="wm-survey-photo-thumbnail" />
+            <img src={previewUrl} alt="" className="wm-survey-photo-thumbnail" />
           )}
           <div className="wm-survey-photo-analyzing-text">
             <Loader2 size={16} className="animate-spin text-cyan-400" aria-hidden="true" />

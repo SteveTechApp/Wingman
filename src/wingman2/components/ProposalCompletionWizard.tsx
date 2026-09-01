@@ -702,6 +702,7 @@ function ProposalCompletionWizardContent({
       profile.email,
       profile.phone,
       profile.proposalFooter,
+      project.discoveryBrief?.decisionEvidence,
       project.discoveryBrief?.discoveryConversation,
       project.discoveryBrief?.recommendationEvidence?.evidenceUsed,
       project.name,

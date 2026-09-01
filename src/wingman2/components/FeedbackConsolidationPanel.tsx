@@ -5,8 +5,6 @@ import {
   collectDealOutcomes,
   collectDealOutcomePatterns,
   type CrossProjectFeedbackSummary,
-  type DealOutcomeRecord,
-  type DealOutcomePattern,
 } from "../lib/feedbackInformedGuidance";
 
 const NEGATIVE_RATINGS = new Set(["wrong-fit", "missing-accessory", "needs-review"]);
