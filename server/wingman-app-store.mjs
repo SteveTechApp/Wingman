@@ -748,6 +748,20 @@ async function writeDb(db) {
   await writeJsonFile(WINGMAN_APP_DB_FILE, db);
 }
 
+/**
+ * Test-only seam: persist an arbitrary database object through the exact
+ * file-mode write path (writeDb -> writeJsonFile's crash-atomic temp+rename),
+ * so the process-kill crash-atomicity suite can drive a large file-mode write
+ * in a child process without going through an HTTP handler. Refuses to run in
+ * any Supabase-backed mode so it can never shadow real storage behaviour.
+ */
+export async function __writeFileModeDbForCrashTest(db) {
+  if (configuredStorageMode() !== "file") {
+    throw new Error("__writeFileModeDbForCrashTest requires WINGMAN_STORAGE_MODE=file.");
+  }
+  await writeDb(db);
+}
+
 async function readGovernance() {
   return readJsonFile(GOVERNANCE_FILE, {
     recommendationRules: {
