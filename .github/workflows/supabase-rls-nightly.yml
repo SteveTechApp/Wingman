@@ -1,0 +1,23 @@
+name: Supabase RLS (nightly)
+
+# Scheduled run of the live RLS posture check (the same reusable workflow CI
+# runs on every push/PR). Catches drift that no push has exercised - e.g.
+# someone disabling RLS or an over-permissive policy added directly in the
+# Supabase dashboard ages later. GitHub schedules run on the default branch
+# and can be delayed a few minutes; the check seeds marker rows through the
+# service role and deletes them before the job ends, so this is safe nightly
+# against staging/sandbox projects.
+on:
+  schedule:
+    # 03:30 UTC every night - low-traffic window for a quiet project.
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  supabase-rls:
+    name: Supabase RLS (live, sentinel)
+    uses: ./.github/workflows/supabase-rls.yml
+    secrets: inherit

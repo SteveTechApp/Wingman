@@ -1,0 +1,60 @@
+name: Supabase RLS (live, sentinel)
+
+# Reusable workflow: proves the LIVE Supabase project's RLS actually protects
+# the Wingman tables. check:migration-parity (inside verify:data) proves the
+# migration FILES agree; this proves the DATABASE agrees with them. Runs in
+# SENTINEL mode: the tool seeds one marker row per table through the service
+# role (SUPABASE_SECRET_KEY), then proves the public anon key cannot read it -
+# definitive exposed/protected verdicts even on empty tables. Any warning
+# (seed failure -> inconclusive, or an absent table) fails the job, and the
+# probe rows are deleted before the job ends.
+#
+# Invoked from two places so drift is caught even when nothing is pushed:
+#   - ci.yml                 on every push to main and every PR
+#   - supabase-rls-nightly.yml on a nightly schedule
+#
+# Needs SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SECRET_KEY repository
+# secrets (callers pass them via `secrets: inherit`). The job is skipped with
+# a clear message when they are not configured (e.g. fork PRs, where GitHub
+# never exposes secrets), and FAILS if the secret key is missing while the
+# others are present - read-only mode cannot prove protection on empty tables,
+# so a partial secret setup must not silently degrade this gate.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  supabase-rls:
+    name: Supabase RLS (live, sentinel)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Verify secrets are configured
+        id: secrets
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            echo "Supabase secrets not configured - skipping live RLS verification."
+          elif [ -z "${{ secrets.SUPABASE_SECRET_KEY }}" ]; then
+            echo "::error::SUPABASE_SECRET_KEY is required for the live RLS check. Sentinel mode seeds a marker row per table through the service role; without it the anon probe cannot prove protection on empty tables and the gate degrades to inconclusive notes. Add it to the repository secrets."
+            exit 1
+          else
+            echo "skipped=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify live RLS posture (sentinel probe, seeded marker rows)
+        if: steps.secrets.outputs.skipped == 'false'
+        run: node tools/verify-supabase-rls.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

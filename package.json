@@ -35,7 +35,7 @@
     "check:dashboard-workflow-menu": "node tools/check-dashboard-reference-layout.mjs",
     "check:data-maintenance": "node tools/check-wingman-data-maintenance.mjs",
     "check:docs": "node tools/check-documentation-contract.mjs",
-    "check:data-sources": "node tools/check-wingman-data-sources.mjs && node tools/check-closest-wyrestorm-refs.mjs",
+    "check:data-sources": "node tools/check-wingman-data-sources.mjs && node tools/check-closest-wyrestorm-refs.mjs && node tools/check-recommendation-engine-skus.mjs",
     "check:navigation-consolidation": "node tools/check-wingman-navigation-consolidation.mjs",
     "check:optional-visual-support": "node tools/check-optional-visual-support.mjs",
     "check:product-matching": "node tools/check-product-matching-scenarios.mjs",
@@ -52,6 +52,7 @@
     "check:visual-design-native-output": "node tools/check-visual-design-native-output.mjs",
     "check:guru-ui": "vitest run src/__tests__/guruDrawerUiContract.test.ts",
     "check:workflow": "node tools/workflow-integration-check.mjs",
+    "check:e2e-smoke": "node tools/e2e-smoke-check.mjs",
     "check:api-contract": "node tools/api-contract-check.mjs",
     "data:audit-wyrestorm-products": "node tools/product-intelligence-audit.mjs",
     "data:canonical-products": "node tools/apply-avoip-data-governance.mjs --sources && node tools/build-product-data-sources.mjs",
@@ -191,6 +192,8 @@
     "check:migration-parity": "node tools/check-wingman-migration-parity.mjs",
     "audit:technical-data-coverage:baseline": "node tools/check-wyrestorm-technical-data.mjs --update-baseline",
     "check:supabase-rls": "node tools/verify-supabase-rls.mjs",
+    "check:migration-007": "node tools/check-migration-007.mjs",
+    "check:migration-live": "node tools/check-migration-live-state.mjs",
     "check:template-sku-lifecycle": "node tools/check-room-template-sku-lifecycle.mjs",
     "check:dependency-audit": "node tools/check-dependency-audit.mjs && node tools/check-dependency-audit.mjs --prefix server",
     "check:template-signal-path": "node tools/check-template-signal-path.mjs",
@@ -232,8 +235,9 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.8",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.5.4",
     "axe-core": "^4.11.4",
+    "browserslist": "^4.28.8",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -247,5 +251,9 @@
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.8",
     "vitest": "^4.1.8"
+  },
+  "overrides": {
+    "browserslist": "^4.28.8",
+    "postcss-selector-parser@^6.0.10": "^6.1.4"
   }
 }

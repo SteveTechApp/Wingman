@@ -1,0 +1,197 @@
+import { describe, expect, it } from "vitest";
+import { spawn } from "node:child_process";
+import http from "node:http";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Spawns the real tools/verify-supabase-rls.mjs against a loopback fake
+// PostgREST endpoint. Pins the exit-code contract for both modes without any
+// live Supabase credentials:
+//
+//   Sentinel mode (SUPABASE_SECRET_KEY set)  -> seeds marker rows, so a table
+//     that returns [] to the anon key is definitively PROTECTED. Strict:
+//     inconclusive (seed insert failed) and absent tables FAIL the run - this
+//     is the CI wiring's "fail on warnings" behavior.
+//   Read-only mode (no secret key)           -> soft notes on empty tables
+//     (an empty table and a protected one are indistinguishable there).
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const TOOL = path.join(projectRoot, "tools", "verify-supabase-rls.mjs");
+const ANON_KEY = "anon-test-key";
+const SECRET_KEY = "secret-test-key";
+const TABLE_COUNT = 9;
+
+// Fake PostgREST: records the call flow and answers per scenario.
+//   plan.seedStatus      - HTTP status for POST (seed) inserts, default 201
+//   plan.probeRows       - rows the ANON key's filtered GET should return ([])
+//   plan.probe404Tables  - Set of table names whose anon probe should 404
+//                          with "could not find the table" (others return [])
+//   plan.probeStatus     - HTTP status for the anon probe GET, default 200
+function startFakeSupabase(plan) {
+  return new Promise((resolve) => {
+    const calls = { seeds: [], probes: [], deletes: [], verifies: [] };
+    const server = http.createServer((req, res) => {
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const table = url.pathname.replace(/^\/rest\/v1\//, "");
+      const isService = (req.headers.authorization ?? "").includes(SECRET_KEY);
+      const body = (status, payload) => {
+        res.writeHead(status, { "content-type": "application/json" });
+        res.end(payload === undefined ? "" : JSON.stringify(payload));
+      };
+
+      if (req.method === "POST") {
+        calls.seeds.push(table);
+        body(plan.seedStatus ?? 201, plan.seedStatus === 201 ? { ok: true } : { message: "seed rejected" });
+        return;
+      }
+      if (req.method === "DELETE") {
+        calls.deletes.push(table);
+        res.writeHead(plan.deleteStatus ?? 204);
+        res.end();
+        return;
+      }
+      if (req.method === "GET") {
+        if (isService) {
+          // Cleanup residue verification - sentinel rows are gone.
+          calls.verifies.push(table);
+          body(200, []);
+          return;
+        }
+        calls.probes.push(table);
+        if (plan.probe404Tables?.has(table)) {
+          body(404, { message: "could not find the table" });
+          return;
+        }
+        body(plan.probeStatus ?? 200, plan.probeRows ?? []);
+        return;
+      }
+      res.writeHead(405);
+      res.end();
+    });
+    server.listen(0, "127.0.0.1", () =>
+      resolve({ server, port: server.address().port, calls }),
+    );
+  });
+}
+
+function runTool({ port, secret }) {
+  const env = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!key.startsWith("SUPABASE_")) env[key] = value;
+  }
+  env.SUPABASE_URL = `http://127.0.0.1:${port}`;
+  env.SUPABASE_ANON_KEY = ANON_KEY;
+  if (secret) env.SUPABASE_SECRET_KEY = SECRET_KEY;
+
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, [TOOL], { env, cwd: projectRoot });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => (stdout += chunk));
+    child.stderr.on("data", (chunk) => (stderr += chunk));
+    child.on("close", (code) => resolve({ code, stdout, stderr, all: stdout + stderr }));
+  });
+}
+
+describe("verify-supabase-rls.mjs — sentinel mode (CI wiring)", () => {
+  it("definitively PROTECTED when the anon key cannot read a seeded marker row (exit 0, no residue)", async () => {
+    const { server, port, calls } = await startFakeSupabase({ probeRows: [] });
+    try {
+      const result = await runTool({ port, secret: true });
+      expect(result.code).toBe(0);
+      expect(result.all).toMatch(/hid their seeded marker row from the anon key/);
+      expect(result.all).not.toMatch(/unclear|inconclusive/i);
+      expect(result.all).toContain("Probe rows removed");
+      // Seed -> probe -> cleanup ran for every table: the fake only thought
+      // postgrest, so a correct flow sees 9 of each.
+      expect(calls.seeds).toHaveLength(TABLE_COUNT);
+      expect(calls.probes).toHaveLength(TABLE_COUNT);
+      expect(calls.deletes).toHaveLength(TABLE_COUNT);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("EXPOSED when the anon key reads the seeded marker row (exit 1)", async () => {
+    const { server, port } = await startFakeSupabase({ probeRows: [{ id: "rls-sentinel-leak" }] });
+    try {
+      const result = await runTool({ port, secret: true });
+      expect(result.code).toBe(1);
+      expect(result.all).toMatch(/EXPOSED/);
+      expect(result.all).toMatch(/anon key read sentinel row/);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("FAILS on warnings: a failed seed insert makes the verdict inconclusive, which is a hard failure in sentinel mode", async () => {
+    const { server, port } = await startFakeSupabase({ seedStatus: 500 });
+    try {
+      const result = await runTool({ port, secret: true });
+      expect(result.code).toBe(1);
+      expect(result.stderr).toMatch(/could not be proven protected \(sentinel seed failed\)/);
+      expect(result.stderr).toMatch(/\[seed\] wingman_users FAILED/);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("FAILS when a single table is absent (posture unverifiable) - previously this passed silently", async () => {
+    const { server, port } = await startFakeSupabase({
+      probe404Tables: new Set(["wingman_audit_events"]),
+    });
+    try {
+      const result = await runTool({ port, secret: true });
+      expect(result.code).toBe(1);
+      expect(result.all).toMatch(/1 table\(s\) are absent - posture unverifiable/);
+      // Only the partial-missing failure - not the "no Wingman tables" one,
+      // and definitely not a silent pass.
+      expect(result.all).not.toMatch(/no Wingman tables found/);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+describe("verify-supabase-rls.mjs — read-only mode (human, unchanged semantics)", () => {
+  it("keeps empty tables as a soft NOTE (exit 0) - no secret key, so nothing can be seeded", async () => {
+    const { server, port, calls } = await startFakeSupabase({ probeRows: [] });
+    try {
+      const result = await runTool({ port, secret: false });
+      expect(result.code).toBe(0);
+      expect(result.all).toMatch(/unclear/);
+      expect(result.all).toMatch(/Re-run with SUPABASE_SECRET_KEY/);
+      // Read-only mode must never write.
+      expect(calls.seeds).toHaveLength(0);
+      expect(calls.deletes).toHaveLength(0);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("still fails when the anon key can read rows", async () => {
+    const { server, port } = await startFakeSupabase({ probeRows: [{ id: "real-user-row" }] });
+    try {
+      const result = await runTool({ port, secret: false });
+      expect(result.code).toBe(1);
+      expect(result.all).toMatch(/EXPOSED/);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("fails with exit 2 when URL or anon key is missing", async () => {
+    const env = {};
+    for (const [key, value] of Object.entries(process.env)) {
+      if (!key.startsWith("SUPABASE_")) env[key] = value;
+    }
+    env.SUPABASE_URL = "http://127.0.0.1:1";
+    const result = await new Promise((resolve) => {
+      const child = spawn(process.execPath, [TOOL], { env, cwd: projectRoot });
+      let stderr = "";
+      child.stderr.on("data", (chunk) => (stderr += chunk));
+      child.on("close", (code) => resolve({ code, stderr }));
+    });
+    expect(result.code).toBe(2);
+    expect(result.stderr).toMatch(/SUPABASE_URL and SUPABASE_ANON_KEY are both required/);
+  });
+});
