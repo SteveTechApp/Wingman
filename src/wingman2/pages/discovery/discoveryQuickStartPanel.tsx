@@ -85,6 +85,21 @@ export function DiscoveryQuickStart({
   const disagreements = selectedType ? getQuickStartDisagreements(selectedType) : [];
   const application = config ? config.suggestedApplication : "";
   const applicationLabel = application ? (plainLanguageLabels[application] ?? application) : "";
+  // A remembered per-room choice silently decides what Continue applies on a
+  // repeat visit; surface it on the room-type step so the skip is visible
+  // before the rep commits to it.
+  const remembered =
+    selectedType && disagreements.length > 0
+      ? readQuickStartProfileChoice(selectedType)
+      : null;
+  const rememberedNote =
+    remembered && selectedType && config
+      ? remembered === "room"
+        ? `Using your remembered ${config.label} profile`
+        : remembered === "standard"
+          ? `Using your remembered standard ${applicationLabel} profile`
+          : `Using your remembered blend of the ${config.label} and ${applicationLabel} profiles`
+      : null;
 
   const handleContinue = () => {
     if (!selectedType) return;
@@ -287,15 +302,29 @@ export function DiscoveryQuickStart({
           <div className="wm-qs__help-inner">
             <ChevronRight className="wm-qs__help-chevron" />
             <div>
-              <p className="wm-qs__help-title">
-                What happens next?
-              </p>
-              <p className="wm-qs__help-text">
-                Wingman will pre-fill common settings for a{" "}
-                {quickStartConfigs[selectedType].label.toLowerCase()}. You'll
-                answer a few essential questions, then can review and adjust any
-                details before generating recommendations.
-              </p>
+              {rememberedNote ? (
+                <>
+                  <p className="wm-qs__help-title" data-testid="quick-start-remembered-note" role="status">
+                    {rememberedNote}
+                  </p>
+                  <p className="wm-qs__help-text">
+                    Continue applies it without asking again. Every pre-filled answer stays adjustable in the
+                    interview — change the room type or pick a different profile at any time.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="wm-qs__help-title">
+                    What happens next?
+                  </p>
+                  <p className="wm-qs__help-text">
+                    Wingman will pre-fill common settings for a{" "}
+                    {quickStartConfigs[selectedType].label.toLowerCase()}. You'll
+                    answer a few essential questions, then can review and adjust any
+                    details before generating recommendations.
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

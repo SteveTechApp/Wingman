@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { DiscoveryQuickStart } from "./discoveryQuickStartPanel";
-import { clearQuickStartProfileChoices } from "./discoveryQuickStartPreferences";
+import { clearQuickStartProfileChoices, rememberQuickStartProfileChoice } from "./discoveryQuickStartPreferences";
 import { quickStartConfigs } from "./discoveryQuickStart";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
@@ -175,6 +175,62 @@ describe("DiscoveryQuickStart profile confirmation", () => {
     pickRoom(/Lecture hall/);
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     expect(second).not.toHaveBeenCalled();
+    expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
+  });
+});
+describe("DiscoveryQuickStart remembered-profile note", () => {
+  it("announces the remembered room profile on the room-type step instead of applying it silently", () => {
+    const first = vi.fn();
+    const firstRender = render(<DiscoveryQuickStart onSelect={first} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: /Use Lecture hall profile/ }));
+    expect(first).toHaveBeenCalledTimes(1);
+    firstRender.unmount();
+
+    // Repeat visit: the note is visible BEFORE Continue, naming the room.
+    const second = vi.fn();
+    render(<DiscoveryQuickStart onSelect={second} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    const note = screen.getByTestId("quick-start-remembered-note");
+    expect(note.textContent).toBe("Using your remembered Lecture hall profile");
+    expect(second).not.toHaveBeenCalled();
+
+    // Continue applies it without re-showing the confirmation step.
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/differs from the/)).toBeNull();
+  });
+
+  it("names the standard and blended profiles, not just the room profile", () => {
+    rememberQuickStartProfileChoice("lecture-hall", "standard");
+    const standard = vi.fn();
+    const standardRender = render(<DiscoveryQuickStart onSelect={standard} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.getByTestId("quick-start-remembered-note").textContent).toBe(
+      "Using your remembered standard Teaching / classroom profile",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(standard).toHaveBeenCalledTimes(1);
+    standardRender.unmount();
+
+    rememberQuickStartProfileChoice("lecture-hall", "blend");
+    const blend = vi.fn();
+    render(<DiscoveryQuickStart onSelect={blend} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.getByTestId("quick-start-remembered-note").textContent).toBe(
+      "Using your remembered blend of the Lecture hall and Teaching / classroom profiles",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(blend).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows no note for a room without a remembered choice", () => {
+    render(<DiscoveryQuickStart onSelect={vi.fn()} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.queryByTestId("quick-start-remembered-note")).toBeNull();
+    // Fresh room: Continue still asks for confirmation.
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
   });
 });
