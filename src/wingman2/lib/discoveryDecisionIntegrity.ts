@@ -1,8 +1,9 @@
 import type { DiscoveryAnswers, DiscoveryNotes, DiscoveryQuestion } from "../pages/discovery/discoveryTypes";
 import { canonicalDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
 import { findStrandedQuickStartDefaults, isUnknownDiscoveryValue, wmDiscoveryAnswerToText, wmDiscoveryNormaliseAnswerList } from "../pages/discovery/discoveryAnswerUtils";
+import { findQuickStartApplicationDrift, plainLanguageLabels } from "../pages/discovery/discoveryQuickStart";
 
-export type DiscoveryIssueKind = "contradiction" | "underspecified" | "stranded";
+export type DiscoveryIssueKind = "contradiction" | "underspecified" | "stranded" | "drift";
 
 export type DiscoveryDecisionIssue = {
   kind: DiscoveryIssueKind;
@@ -16,6 +17,7 @@ export type DiscoveryDecisionIntegrity = {
   issues: DiscoveryDecisionIssue[];
   contradictions: DiscoveryDecisionIssue[];
   stranded: DiscoveryDecisionIssue[];
+  drift: DiscoveryDecisionIssue[];
   underspecified: DiscoveryDecisionIssue[];
   canProceedToRecommendation: boolean;
 };
@@ -135,9 +137,18 @@ export function evaluateDiscoveryDecisionIntegrity(
    * (the pre-existing wording).
    */
   appliedDefaults: Partial<DiscoveryAnswers> | null | undefined = null,
+  /**
+   * Quick-start seed provenance (which application the seed was applied for
+   * and the exact answers it wrote). When present, untouched seeded answers
+   * that still follow the PREVIOUS application's profile are drift issues:
+   * the same quote-safety class as stranded defaults. Null when the caller
+   * has no seed record (legacy drafts, or the room was never quick-started).
+   */
+  seedProvenance: { application: string; answers: DiscoveryAnswers } | null = null,
 ): DiscoveryDecisionIntegrity {
   const contradictions: DiscoveryDecisionIssue[] = [];
   const stranded: DiscoveryDecisionIssue[] = [];
+  const drift: DiscoveryDecisionIssue[] = [];
   const underspecified: DiscoveryDecisionIssue[] = [];
 
   // A question with an empty option list carries no visibility information
@@ -161,6 +172,26 @@ export function evaluateDiscoveryDecisionIntegrity(
         : `The ${entry.questionLabel} answer "${entry.optionLabel}" is no longer selectable after your later answers, but it still sits in the brief and would distort the design.`,
       followUpQuestion: `Is "${entry.optionLabel}" the right ${entry.questionLabel.toLowerCase()} answer, or should it be re-chosen from the currently available options — or should the earlier answer that hid it be revisited?`,
     });
+  }
+  // Quick-start answers still following a PREVIOUS application's profile (the
+  // opportunity answer changed after seeding). Same quote-safety class as
+  // stranded defaults: an untouched seed flows into the design as if
+  // confirmed, but it reflects an application profile the rep has since left.
+  if (seedProvenance) {
+    const previousProfile = plainLanguageLabels[seedProvenance.application] ?? seedProvenance.application;
+    const currentProfile = plainLanguageLabels[wmDiscoveryAnswerToText(answers.opportunity)] ?? wmDiscoveryAnswerToText(answers.opportunity);
+    for (const item of findQuickStartApplicationDrift(seedProvenance, answers, wmDiscoveryAnswerToText(answers.opportunity))) {
+      const isOutOfProfile = item.reason === "no-longer-in-profile";
+      drift.push({
+        kind: "drift",
+        questionIds: [item.questionId],
+        title: `Pre-filled ${item.questionLabel} answer follows the previous profile`,
+        detail: isOutOfProfile
+          ? `The quick start pre-filled ${item.questionLabel} as "${item.roomText}" for the ${previousProfile} profile, which the ${currentProfile} profile does not define.`
+          : `The quick start pre-filled ${item.questionLabel} as "${item.roomText}" for the ${previousProfile} profile. The ${currentProfile} profile expects "${item.standardText}", so the captured value no longer reflects the confirmed application.`,
+        followUpQuestion: `Is "${item.roomText}" still the right ${item.questionLabel.toLowerCase()} answer for a ${currentProfile} space, or should it be re-chosen from the ${currentProfile} profile?`,
+      });
+    }
   }
   const addContradiction = (questionIds: string[], title: string, detail: string, followUpQuestion: string) => {
     contradictions.push({ kind: "contradiction", questionIds, title, detail, followUpQuestion });
@@ -226,12 +257,14 @@ export function evaluateDiscoveryDecisionIntegrity(
     });
   }
 
-  const issues = [...contradictions, ...stranded, ...underspecified];
+  const issues = [...contradictions, ...stranded, ...drift, ...underspecified];
   return {
     issues,
     contradictions,
     stranded,
+    drift,
     underspecified,
-    canProceedToRecommendation: contradictions.length === 0 && stranded.length === 0 && underspecified.length === 0,
+    canProceedToRecommendation:
+      contradictions.length === 0 && stranded.length === 0 && drift.length === 0 && underspecified.length === 0,
   };
 }

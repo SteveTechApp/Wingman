@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, PencilLine, Plus, RefreshCw, Route, ShieldCheck, XCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -48,6 +48,8 @@ import {
 } from "./discovery/discoveryAnswerUtils";
 import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
+import { readQuickStartSeedRecord } from "./discovery/useQuickStartConflictSignals";
+import { findQuickStartApplicationDrift } from "./discovery/discoveryQuickStart";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
 import {
   DiscoveryStrandedDefaultsNotice,
@@ -554,11 +556,11 @@ export function RecommendationsPage() {
   const missingInformation = brief?.missingInformation ?? [];
 
   // Stranded quick-start defaults (a captured answer whose option a later
-  // answer hid) still sit in the saved brief and would distort the design, so
-  // they surface on the resolve rail with the same notice the discovery page
-  // uses — letting the rep re-choose or clear them without leaving product
-  // selection. Detection mirrors DiscoveryPage: full visible question set,
-  // origin-aware through the persisted applied-defaults record.
+  // answer hid) and post-seed application drift (untouched quick-start answers
+  // still following the previous application's profile) sit in the saved brief
+  // and would distort the design, so both surface on the resolve rail with the
+  // same notice the discovery page uses. Detection mirrors DiscoveryPage:
+  // full visible question set, origin-aware through the persisted records.
   const strandedAnswers = useMemo((): StrandedQuickStartDefault[] => {
     const draft = readLatestDiscoverySnapshot();
     if (!draft) return [];
@@ -567,14 +569,28 @@ export function RecommendationsPage() {
     return findStrandedQuickStartDefaults(getVisibleDiscoveryQuestions("not-sure", draftAnswers), draftAnswers, appliedDefaults);
   }, []);
   const [strandedCleared, setStrandedCleared] = useState(false);
+  const navigate = useNavigate();
   const visibleStrandedAnswers = strandedCleared ? [] : strandedAnswers;
+  // Recomputed after the remove-stranded action (strandedCleared flips) so a
+  // removed value that was also a drift item stops flagging.
+  const applicationDrift = useMemo((): DiscoveryApplicationDrift | null => {
+    if (strandedCleared) return null;
+    const draft = readLatestDiscoverySnapshot();
+    if (!draft) return null;
+    const seed = readQuickStartSeedRecord(draft.state.quickStartSeed);
+    if (!seed) return null;
+    const draftAnswers = (draft.state.answers as DiscoveryAnswers | undefined) ?? {};
+    const application = text(draftAnswers.opportunity, "not-sure");
+    const items = findQuickStartApplicationDrift(seed, draftAnswers, application);
+    return items.length ? { previousApplication: seed.application, application, items } : null;
+  }, [strandedCleared]);
   // Product selection is refused while the brief still carries a stranded
-  // default (the discovery integrity gate marked it do-not-quote-yet): a
-  // recommendation built on a distorted brief must not be selectable. The
-  // resolve rail above names the hidden answers so the rep can clear them
-  // here, or re-choose them on the discovery page. Clearing them lifts the
-  // block in the same session — the rebuilt brief no longer carries the strand.
-  const selectionBlockedByStrand = visibleStrandedAnswers.length > 0;
+  // default OR an untouched quick-start answer still following a previous
+  // application's profile (the discovery integrity gate marked it
+  // do-not-quote-yet): a recommendation built on a distorted brief must not be
+  // selectable. The resolve rail above names the offending answers so the rep
+  // can clear or re-choose them here or on the discovery page.
+  const selectionBlockedByStrand = visibleStrandedAnswers.length > 0 || (applicationDrift?.items.length ?? 0) > 0;
 
   // Remove-stranded from the recommendations rail: clear every untouched
   // app-applied default from the persisted draft (so discovery resumes clean),
@@ -608,7 +624,8 @@ export function RecommendationsPage() {
 
     const application = text(nextAnswers.opportunity, "not-sure");
     const questions = getVisibleDiscoveryQuestions(application, nextAnswers);
-    const integrity = evaluateDiscoveryDecisionIntegrity(questions, nextAnswers, nextNotes, questions, nextAppliedDefaults);
+    const persistedSeed = readQuickStartSeedRecord(draft.state.quickStartSeed);
+    const integrity = evaluateDiscoveryDecisionIntegrity(questions, nextAnswers, nextNotes, questions, nextAppliedDefaults, persistedSeed);
     // The saved room model carries derived text per question (displayBehaviour,
     // usbTransport, …) rendered from the answers. A removed stranded value must
     // not survive there as a confirmed requirement, so drop the owning field.
@@ -663,7 +680,6 @@ export function RecommendationsPage() {
     );
   }
 
-  const applicationDrift: DiscoveryApplicationDrift | null = null;
   const requirementSummary = [
     need.technicalRequirement,
     need.productPath,
@@ -957,6 +973,7 @@ export function RecommendationsPage() {
               items={visibleStrandedAnswers}
               applicationDrift={applicationDrift}
               onRemoveStranded={removeStrandedFromBrief}
+              onOpenStep={(questionId) => navigate(`${routeCatalogByKey.discovery.path}?edit=${encodeURIComponent(questionId)}`)}
             />
           )}
           <div className="wm-rec-checks-card">

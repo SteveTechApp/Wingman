@@ -250,3 +250,73 @@ describe("exclusive-scope contradiction rules stay keyed to live exclusiveValues
     }
   });
 });
+
+describe("application-drift issues in the integrity gate", () => {
+  const seed = {
+    application: "hospitality",
+    answers: {
+      opportunity: "hospitality",
+      sources: "five-eight-sources",
+      displays: "three-eight-displays",
+      "display-behaviour": "independent-routing-per-display",
+    } as DiscoveryAnswers,
+  };
+
+  it("flags untouched seeded answers still following a previous profile", () => {
+    // Same answers, but the opportunity moved to classroom: the untouched
+    // hospitality seed values still carry the old profile.
+    const answers: DiscoveryAnswers = {
+      opportunity: "classroom",
+      sources: "five-eight-sources",
+      displays: "three-eight-displays",
+      "display-behaviour": "independent-routing-per-display",
+    };
+    const result = evaluateDiscoveryDecisionIntegrity([], answers, {}, [], null, seed);
+    expect(result.drift.length).toBeGreaterThan(0);
+    expect(result.drift[0]?.kind).toBe("drift");
+    expect(result.canProceedToRecommendation).toBe(false);
+    // The wording names both profiles.
+    expect(result.drift[0]?.detail).toContain("hospitality");
+    expect(result.drift[0]?.detail).toContain("classroom");
+  });
+
+  it("stays clean when the seed matches the current application or is absent", () => {
+    const hospitalityAnswers: DiscoveryAnswers = { ...seed.answers };
+    const sameApp = evaluateDiscoveryDecisionIntegrity([], hospitalityAnswers, {}, [], null, seed);
+    expect(sameApp.drift).toEqual([]);
+    expect(sameApp.canProceedToRecommendation).toBe(true);
+    // No seed record (legacy drafts): no drift, regardless of answers.
+    const noSeed = evaluateDiscoveryDecisionIntegrity([], hospitalityAnswers, {}, [], null, null);
+    expect(noSeed.drift).toEqual([]);
+  });
+
+  it("ignores answers the rep retyped after seeding", () => {
+    // Sources differ from the seeded value: that answer is the rep's own now,
+    // so only the other two untouched seeded values can drift.
+    const answers: DiscoveryAnswers = {
+      opportunity: "classroom",
+      sources: "two-four-sources",
+      displays: "three-eight-displays",
+      "display-behaviour": "independent-routing-per-display",
+    };
+    const result = evaluateDiscoveryDecisionIntegrity([], answers, {}, [], null, seed);
+    expect(result.drift.some((issue) => issue.questionIds[0] === "sources")).toBe(false);
+  });
+
+  it("appends drift after contradictions in the merged issue list", () => {
+    // one-display + the untouched independent-routing seed also trips the
+    // display-count contradiction, so the merged list holds both kinds and
+    // must order contradictions before drift.
+    const answers: DiscoveryAnswers = {
+      opportunity: "classroom",
+      sources: "five-eight-sources",
+      displays: "one-display",
+      "display-behaviour": "independent-routing-per-display",
+    };
+    const result = evaluateDiscoveryDecisionIntegrity([], answers, {}, [], null, seed);
+    const kinds = result.issues.map((issue) => issue.kind);
+    expect(kinds.indexOf("contradiction")).toBeGreaterThanOrEqual(0);
+    expect(kinds.indexOf("drift")).toBeGreaterThan(kinds.indexOf("contradiction"));
+    expect(result.canProceedToRecommendation).toBe(false);
+  });
+});

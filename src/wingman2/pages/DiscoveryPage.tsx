@@ -335,7 +335,7 @@ export function DiscoveryPage() {
     return discoveryQuestions.filter((q) => BASIC_IDS.has(q.id));
   }, [discoveryQuestions, progressiveMode, BASIC_IDS]);
 
-  // Quick-start conflict signals — owned by discovery/useQuickStartConflictSignals.
+  // Quick-start conflict signals (stranded defaults, application drift).
   const {
     applyQuickStartSeeded,
     strandedQuickStart,
@@ -414,8 +414,8 @@ export function DiscoveryPage() {
   // set, so an expert-level stranded default still blocks quote safety in Basic.
   const integrityQuestions = modeQuestions;
   const decisionIntegrity = useMemo(
-    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions, appliedDefaults),
-    [answers, appliedDefaults, discoveryQuestions, integrityQuestions, notes],
+    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions, appliedDefaults, quickStartSeed),
+    [answers, appliedDefaults, discoveryQuestions, integrityQuestions, notes, quickStartSeed],
   );
   const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
