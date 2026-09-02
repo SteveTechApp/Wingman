@@ -39,7 +39,7 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "networkhd-100",
     name: "NetworkHD 100",
     shortPosition: "Cost-effective AV-over-IP for flexible 4K distribution where low bandwidth and simple expansion matter.",
-    productSkus: ["NHD-110-TX", "NHD-110-RX", "NHD-120-TX", "NHD-120-RX", "NHD-150-RX", "NHD-128-NDI-TRX"],
+    productSkus: ["NHD-120-TX", "NHD-124-TX", "NHD-120-IW-TX", "NHD-120-RX", "NHD-150-RX", "NHD-128-NDI-TRX"],
     pitchQuery: "NetworkHD 100",
     customerPitch:
       "NetworkHD 100 is the practical entry point into WyreStorm AV-over-IP. Use it when the customer needs flexible source-to-display routing across rooms or zones, but the project does not justify a premium ultra-low-latency or 10G architecture.",
