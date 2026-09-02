@@ -58,7 +58,13 @@ describe("findQuickStartApplicationDrift", () => {
     expect(ucPurpose.reason).toBe("no-longer-in-profile");
     expect(ucPurpose.standardText).toBe("Not part of the new application profile");
     // Differing defaults are still reported as plain disagreements.
-    expect(drift.map((item) => item.questionId).sort()).toEqual(["control", "signal-standard", "uc-purpose", "usb"]);
+    expect(drift.map((item) => item.questionId).sort()).toEqual([
+      "control",
+      "signal-standard",
+      "uc-camera",
+      "uc-purpose",
+      "usb",
+    ]);
   });
 
   it("resolves both application labels through plainLanguageLabels", () => {

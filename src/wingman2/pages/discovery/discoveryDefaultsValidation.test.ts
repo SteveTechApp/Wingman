@@ -12,6 +12,13 @@ import { baseDiscoveryQuestions, canonicalDiscoveryQuestions, getVisibleDiscover
 import { getHiddenAnswerValues } from "./discoveryAnswerUtils";
 import { BASIC_MODE_REQUIRED_IDS, ESCALATION_TRIGGERS, SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
 import { getQuickStartDisagreements, quickStartConfigs } from "./discoveryQuickStart";
+import {
+  auditDisplaysBehaviourPair,
+  auditScaleDisplaysPair,
+  auditSourcesConnectionPair,
+  auditUcPurposeCameraPair,
+  type FlatAnswerSet,
+} from "./discoveryCrossFieldRules";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
 const questionOptions = new Map(
@@ -96,6 +103,7 @@ describe("discovery default tables stay aligned with the canonical questions", (
       "signal-standard": { quickStart: "1080p-standard-hdmi", smart: "4k60-standard", reason: "small collaboration displays are standard HD" },
       audio: { quickStart: "display-audio", smart: "room-audio", reason: "no separate amplification beyond the display" },
       control: { quickStart: "simple-auto", smart: "touch-panel", reason: "auto-switching suffices; no room control panel" },
+      "uc-camera": { quickStart: ["fixed-usb-camera"], smart: ["usb-ptz-camera"], reason: "2-4 person spaces use the compact fixed USB camera; the meeting-room standard defaults to a PTZ camera" },
     },
     "meeting-room-small": {
       scale: { quickStart: "single-small-room", smart: "single-large-room", reason: "4-8 person room" },
@@ -322,7 +330,7 @@ describe("discovery default tables stay aligned with the canonical questions", (
     // same set - not more, not less - so the UI never surprises the
     // salesperson.
     const byRoom: Record<string, string[]> = {
-      "huddle-room": ["scale", "sources", "source-connection", "signal-standard", "audio", "control"],
+      "huddle-room": ["scale", "sources", "source-connection", "signal-standard", "audio", "control", "uc-camera"],
       "meeting-room-small": ["scale", "displays", "display-behaviour", "signal-standard"],
       "meeting-room-large": ["displays", "display-behaviour", "signal-standard", "usb"],
       boardroom: ["sources", "displays", "display-behaviour", "signal-standard", "usb", "uc-purpose"],
@@ -352,150 +360,45 @@ describe("discovery default tables stay aligned with the canonical questions", (
   });
 
   it("displays count and display-behaviour never contradict within a default set", () => {
-    // Mirrors the interview rules in discoveryQuestions.getVisibleDiscoveryQuestions:
-    // for a single display the only valid behaviour is mirrored content; a video
-    // wall output requires a wall/processor feed; multi-display rooms may mirror
-    // or route independently. A pair outside these is contradictory — the UI
-    // would offer it as a default and then filter it out of the answer options.
-    const behaviourForDisplays: Record<string, ReadonlySet<string>> = {
-      "one-display": new Set(["same-content-all-displays"]),
-      "two-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
-      "three-eight-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
-      "nine-plus-displays": new Set(["same-content-all-displays", "independent-routing-per-display", "multiview-on-one-output"]),
-      "video-wall-output": new Set(["video-wall-or-processor-feed"]),
-    };
-
     const problems: string[] = [];
-    const checkPair = (
-      source: string,
-      displays: string | string[] | undefined,
-      behaviour: string | string[] | undefined,
-    ) => {
-      if (displays === undefined || behaviour === undefined) return;
-      const display = Array.isArray(displays) ? displays[0] : displays;
-      const allowed = behaviourForDisplays[display];
-      if (!allowed) {
-        problems.push(`${source}: displays "${display}" has no defined behaviour rule`);
-        return;
-      }
-      const behaviours = Array.isArray(behaviour) ? behaviour : [behaviour];
-      for (const entry of behaviours) {
-        if (!allowed.has(entry)) {
-          problems.push(`${source}: displays "${display}" contradicts display-behaviour "${entry}"`);
-        }
-      }
-    };
-
     for (const [applicationType, defaults] of Object.entries(SMART_DEFAULTS)) {
-      checkPair(
-        `SMART_DEFAULTS["${applicationType}"]`,
-        defaults.displays as string | string[] | undefined,
-        defaults["display-behaviour"] as string | string[] | undefined,
-      );
+      problems.push(...auditDisplaysBehaviourPair(defaults as FlatAnswerSet, `SMART_DEFAULTS["${applicationType}"]`));
     }
     for (const [roomType, config] of Object.entries(quickStartConfigs)) {
-      checkPair(
-        `quickStartConfigs["${roomType}"].defaults`,
-        config.defaults.displays as string | string[] | undefined,
-        config.defaults["display-behaviour"] as string | string[] | undefined,
-      );
+      problems.push(...auditDisplaysBehaviourPair(config.defaults as FlatAnswerSet, `quickStartConfigs["${roomType}"].defaults`));
     }
     expect(problems).toEqual([]);
   });
 
   it("scale and displays count never contradict within a default set", () => {
-    // Scale describes the room/system footprint; displays describes the
-    // endpoint count the defaults seed. A single-small-room (huddle or
-    // contained space) seeding nine-plus displays or a wall processor feed
-    // would make the profile-confirm summary disagree with the seeded
-    // display count, and a multi-room/building-wide scale seeding exactly one
-    // display contradicts "shared source routing across several spaces/zones"
-    // (the interview help text for those scale options). Both directions are
-    // pinned here for SMART_DEFAULTS and quickStartConfigs alike.
-    const displaysAllowedByScale: Record<string, ReadonlySet<string>> = {
-      "single-small-room": new Set(["one-display", "two-displays"]),
-      "single-large-room": new Set([
-        "one-display",
-        "two-displays",
-        "three-eight-displays",
-        "nine-plus-displays",
-        "video-wall-output",
-      ]),
-      "multi-room": new Set(["two-displays", "three-eight-displays", "nine-plus-displays", "video-wall-output"]),
-      "building-wide": new Set(["two-displays", "three-eight-displays", "nine-plus-displays", "video-wall-output"]),
-    };
-
     const problems: string[] = [];
-    const checkScalePair = (
-      source: string,
-      scale: string | string[] | undefined,
-      displays: string | string[] | undefined,
-    ) => {
-      if (scale === undefined || displays === undefined) return;
-      const scaleValue = Array.isArray(scale) ? scale[0] : scale;
-      const displayValue = Array.isArray(displays) ? displays[0] : displays;
-      const allowed = displaysAllowedByScale[scaleValue];
-      if (!allowed) {
-        problems.push(`${source}: scale "${scaleValue}" has no defined display-count rule`);
-        return;
-      }
-      if (!allowed.has(displayValue)) {
-        problems.push(`${source}: scale "${scaleValue}" contradicts displays "${displayValue}"`);
-      }
-    };
-
     for (const [applicationType, defaults] of Object.entries(SMART_DEFAULTS)) {
-      checkScalePair(
-        `SMART_DEFAULTS["${applicationType}"]`,
-        defaults.scale as string | string[] | undefined,
-        defaults.displays as string | string[] | undefined,
-      );
+      problems.push(...auditScaleDisplaysPair(defaults as FlatAnswerSet, `SMART_DEFAULTS["${applicationType}"]`));
     }
     for (const [roomType, config] of Object.entries(quickStartConfigs)) {
-      checkScalePair(
-        `quickStartConfigs["${roomType}"].defaults`,
-        config.defaults.scale as string | string[] | undefined,
-        config.defaults.displays as string | string[] | undefined,
-      );
+      problems.push(...auditScaleDisplaysPair(config.defaults as FlatAnswerSet, `quickStartConfigs["${roomType}"].defaults`));
     }
     expect(problems).toEqual([]);
   });
 
   it("sources count and source-connection never contradict within a default set", () => {
-    // source-connection describes WHERE the sources sit: fixed installed
-    // devices, user-presented laptops/wireless, or a mix that includes routed
-    // network video. "network-video-sources" is the interview option for
-    // "local fixed equipment and/or user laptops combined with routed
-    // AV-over-IP/NDI streams" — an architecture that presumes more than one
-    // source position — so it can never pair with sources = one-source, and
-    // a one-source profile must not claim network feeds as its only input.
     const problems: string[] = [];
-    const checkSourcePair = (
-      source: string,
-      count: string | string[] | undefined,
-      connection: string | string[] | undefined,
-    ) => {
-      if (count === undefined || connection === undefined) return;
-      const countValue = Array.isArray(count) ? count[0] : count;
-      const connectionValues = Array.isArray(connection) ? connection : [connection];
-      if (countValue === "one-source" && connectionValues.includes("network-video-sources")) {
-        problems.push(`${source}: sources "one-source" contradicts source-connection "network-video-sources"`);
-      }
-    };
-
     for (const [applicationType, defaults] of Object.entries(SMART_DEFAULTS)) {
-      checkSourcePair(
-        `SMART_DEFAULTS["${applicationType}"]`,
-        defaults.sources as string | string[] | undefined,
-        defaults["source-connection"] as string | string[] | undefined,
-      );
+      problems.push(...auditSourcesConnectionPair(defaults as FlatAnswerSet, `SMART_DEFAULTS["${applicationType}"]`));
     }
     for (const [roomType, config] of Object.entries(quickStartConfigs)) {
-      checkSourcePair(
-        `quickStartConfigs["${roomType}"].defaults`,
-        config.defaults.sources as string | string[] | undefined,
-        config.defaults["source-connection"] as string | string[] | undefined,
-      );
+      problems.push(...auditSourcesConnectionPair(config.defaults as FlatAnswerSet, `quickStartConfigs["${roomType}"].defaults`));
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it("uc-purpose camera workflows and uc-camera seeding never contradict within a default set", () => {
+    const problems: string[] = [];
+    for (const [applicationType, defaults] of Object.entries(SMART_DEFAULTS)) {
+      problems.push(...auditUcPurposeCameraPair(defaults as FlatAnswerSet, `SMART_DEFAULTS["${applicationType}"]`));
+    }
+    for (const [roomType, config] of Object.entries(quickStartConfigs)) {
+      problems.push(...auditUcPurposeCameraPair(config.defaults as FlatAnswerSet, `quickStartConfigs["${roomType}"].defaults`));
     }
     expect(problems).toEqual([]);
   });
