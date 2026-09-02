@@ -105,8 +105,11 @@ describe("discovery default tables stay aligned with the canonical questions", (
       control: { quickStart: "simple-auto", smart: "touch-panel", reason: "auto-switching suffices; no room control panel" },
       "uc-camera": { quickStart: ["fixed-usb-camera"], smart: ["usb-ptz-camera"], reason: "2-4 person spaces use the compact fixed USB camera; the meeting-room standard defaults to a PTZ camera" },
     },
+    // meeting-room-small deliberately matches the meeting-room standard's
+    // scale (single-large-room): with 2-4 sources, dual routed displays and a
+    // touch panel it is a full meeting room, not the huddle/contained-space
+    // bucket single-small-room describes. Only displays/signal deviate.
     "meeting-room-small": {
-      scale: { quickStart: "single-small-room", smart: "single-large-room", reason: "4-8 person room" },
       displays: { quickStart: "two-displays", smart: "one-display", reason: "profile is 1-2 displays" },
       "display-behaviour": { quickStart: "independent-routing-per-display", smart: "same-content-all-displays", reason: "dual outputs route independently in the small-room profile" },
       "signal-standard": { quickStart: "1080p-standard-hdmi", smart: "4k60-standard", reason: "standard HD screens for a small meeting room" },
@@ -331,7 +334,7 @@ describe("discovery default tables stay aligned with the canonical questions", (
     // salesperson.
     const byRoom: Record<string, string[]> = {
       "huddle-room": ["scale", "sources", "source-connection", "signal-standard", "audio", "control", "uc-camera"],
-      "meeting-room-small": ["scale", "displays", "display-behaviour", "signal-standard"],
+      "meeting-room-small": ["displays", "display-behaviour", "signal-standard"],
       "meeting-room-large": ["displays", "display-behaviour", "signal-standard", "usb"],
       boardroom: ["sources", "displays", "display-behaviour", "signal-standard", "usb", "uc-purpose"],
       classroom: [],

@@ -99,7 +99,12 @@ export const quickStartConfigs: Record<QuickStartRoomType, QuickStartConfig> = {
     estimatedQuestions: 6,
     defaults: {
       opportunity: "meeting-room",
-      scale: "single-small-room",
+      // A 4-8 person meeting room with 2-4 sources, dual routed displays and a
+      // touch panel is a FULL room in scale terms - single-small-room is the
+      // huddle/contained-space bucket ("not a full meeting room"). It matches
+      // the meeting-room standard (single-large-room) like the other
+      // touch-panel dual-display profiles.
+      scale: "single-large-room",
       sources: "two-four-sources",
       "source-connection": "mixed-hdmi-usbc",
       displays: "two-displays",
