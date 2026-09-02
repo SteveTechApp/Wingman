@@ -15,6 +15,8 @@ import {
 import {
   discoveryBriefToFinderNeed,
   readLatestDiscoveryBrief,
+  readLatestDiscoverySnapshot,
+  writeLatestDiscoverySnapshot,
   type FinderNeedDraft,
 } from "../data/workflowHandoff";
 import {
@@ -39,6 +41,19 @@ import { buildDesignAssuranceLedger, getProductAssurance } from "../lib/productA
 import { suggestComplementaryProducts } from "../lib/systemBundler";
 import { generateSuggestedKits, detectMissingAccessories } from "../lib/suggestedKit";
 import { collectCompetitorBrandLosses } from "../lib/feedbackInformedGuidance";
+import {
+  findStrandedQuickStartDefaults,
+  removeDiscoveryAnswerValue,
+  type StrandedQuickStartDefault,
+} from "./discovery/discoveryAnswerUtils";
+import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
+import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
+import {
+  DiscoveryStrandedDefaultsNotice,
+  type DiscoveryApplicationDrift,
+} from "./discovery/DiscoveryStrandedDefaultsNotice";
+import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
 
 type RecommendationDecision = Awaited<
   ReturnType<typeof loadWingmanProductSelectorDecisions>
@@ -535,6 +550,106 @@ export function RecommendationsPage() {
   const brandLosses = useMemo(() => collectCompetitorBrandLosses(), []);
 
   const missingInformation = brief?.missingInformation ?? [];
+
+  // Stranded quick-start defaults (a captured answer whose option a later
+  // answer hid) still sit in the saved brief and would distort the design, so
+  // they surface on the resolve rail with the same notice the discovery page
+  // uses — letting the rep re-choose or clear them without leaving product
+  // selection. Detection mirrors DiscoveryPage: full visible question set,
+  // origin-aware through the persisted applied-defaults record.
+  const strandedAnswers = useMemo((): StrandedQuickStartDefault[] => {
+    const draft = readLatestDiscoverySnapshot();
+    if (!draft) return [];
+    const draftAnswers = (draft.state.answers as DiscoveryAnswers | undefined) ?? {};
+    const appliedDefaults = (draft.state.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {};
+    return findStrandedQuickStartDefaults(getVisibleDiscoveryQuestions("not-sure", draftAnswers), draftAnswers, appliedDefaults);
+  }, []);
+  const [strandedCleared, setStrandedCleared] = useState(false);
+  const visibleStrandedAnswers = strandedCleared ? [] : strandedAnswers;
+
+  // Remove-stranded from the recommendations rail: clear every untouched
+  // app-applied default from the persisted draft (so discovery resumes clean),
+  // rebuild the brief from the remaining answers, re-run the decision-integrity
+  // gate, persist through the same save path discovery uses, and recalculate
+  // the recommendations. Rep-typed stranded answers stay — they are resolved
+  // by re-choosing on the discovery page instead.
+  function removeStrandedFromBrief() {
+    const draft = readLatestDiscoverySnapshot();
+    if (!draft) return;
+    const draftAnswers = { ...((draft.state.answers as DiscoveryAnswers | undefined) ?? {}) };
+    const appliedDefaults = (draft.state.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {};
+    const untouched = findStrandedQuickStartDefaults(getVisibleDiscoveryQuestions("not-sure", draftAnswers), draftAnswers, appliedDefaults)
+      .filter((item) => item.origin === "quick-start");
+    if (!untouched.length) return;
+
+    let nextAnswers = draftAnswers;
+    for (const item of untouched) {
+      nextAnswers = removeDiscoveryAnswerValue(nextAnswers, item.questionId, item.optionValue);
+    }
+    const nextNotes = { ...((draft.state.notes as DiscoveryNotes | undefined) ?? {}) };
+    const nextAppliedDefaults = { ...appliedDefaults };
+    for (const item of untouched) {
+      delete nextAppliedDefaults[item.questionId];
+    }
+
+    writeLatestDiscoverySnapshot({
+      ...draft,
+      state: { ...draft.state, answers: nextAnswers, appliedDefaults: nextAppliedDefaults, notes: nextNotes },
+    });
+
+    const application = text(nextAnswers.opportunity, "not-sure");
+    const questions = getVisibleDiscoveryQuestions(application, nextAnswers);
+    const integrity = evaluateDiscoveryDecisionIntegrity(questions, nextAnswers, nextNotes, questions, nextAppliedDefaults);
+    // The saved room model carries derived text per question (displayBehaviour,
+    // usbTransport, …) rendered from the answers. A removed stranded value must
+    // not survive there as a confirmed requirement, so drop the owning field.
+    const removedQuestionIds = new Set(untouched.map((item) => item.questionId));
+    const roomModelFieldByQuestion: Record<string, string[]> = {
+      displays: ["displayCount"],
+      "display-behaviour": ["displayBehaviour", "displayArrangement", "displays"],
+      "source-count": ["sourceCount"],
+      "source-connection": ["sourceProfile", "sourceConnections"],
+      "usb-transport": ["usbTransport", "usbNeeds", "usbOwnership"],
+      "audio-path": ["audioPath", "audioNeeds"],
+      "cable-run": ["cableRun", "longestRun", "distanceInfrastructureNotes"],
+      network: ["networkAvailability", "network"],
+    };
+    const nextRoomModel: Record<string, unknown> = {
+      ...((draft.brief?.roomModel ?? {}) as Record<string, unknown>),
+    };
+    for (const questionId of removedQuestionIds) {
+      for (const field of roomModelFieldByQuestion[questionId] ?? []) {
+        delete nextRoomModel[field];
+      }
+    }
+    const nextBrief: StoredDiscoveryBrief = {
+      ...(draft.brief ?? {}),
+      roomModel: nextRoomModel,
+      missingInformation: integrity.issues.map((issue) => issue.followUpQuestion),
+      quoteSafetyStatus: integrity.canProceedToRecommendation ? "validate-before-quote" : "do-not-quote-yet",
+    };
+    const nextEvidence = buildDiscoveryRecommendationEvidence(nextBrief);
+    const finalBrief: StoredDiscoveryBrief = {
+      ...nextBrief,
+      quoteSafetyStatus: integrity.canProceedToRecommendation ? nextEvidence.quoteSafetyStatus : "do-not-quote-yet",
+      recommendationEvidence: nextEvidence,
+    };
+    writeLatestDiscoverySnapshot({
+      ...draft,
+      state: { ...draft.state, answers: nextAnswers, appliedDefaults: nextAppliedDefaults, notes: nextNotes },
+      brief: finalBrief,
+      savedAt: new Date().toISOString(),
+    });
+    saveDiscoveryBriefToProject(finalBrief, activeProject?.id);
+
+    setStrandedCleared(true);
+    reloadRecommendations();
+    setMessage(
+      `Removed ${untouched.length} stranded answer${untouched.length === 1 ? "" : "s"}. Re-choose them on the discovery page if the room still needs them.`,
+    );
+  }
+
+  const applicationDrift: DiscoveryApplicationDrift | null = null;
   const requirementSummary = [
     need.technicalRequirement,
     need.productPath,
@@ -821,6 +936,14 @@ export function RecommendationsPage() {
           ) : null}
 
           {stage === "resolve" ? (
+          <>
+          {visibleStrandedAnswers.length > 0 && (
+            <DiscoveryStrandedDefaultsNotice
+              items={visibleStrandedAnswers}
+              applicationDrift={applicationDrift}
+              onRemoveStranded={removeStrandedFromBrief}
+            />
+          )}
           <div className="wm-rec-checks-card">
             <SectionCard
               title="Checks still required"
@@ -871,10 +994,11 @@ export function RecommendationsPage() {
                       ) : null}
                     </li>
                   );
-                })}
+                })                }
               </ul>
             </SectionCard>
             </div>
+          </>
           ) : null}
           {stage === "resolve" && !missingInformation.length ? (
             <SectionCard title="Discovery details are complete" subtitle="No unresolved Discovery checks are blocking the current recommendation.">
