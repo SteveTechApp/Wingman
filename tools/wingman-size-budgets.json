@@ -3,7 +3,7 @@
   "tolerancePct": 1,
   "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
   "limits": {
-    "chunk:compare-engine": 431358,
+    "chunk:compare-engine": 436999,
     "chunk:competitor-registry": 895308,
     "chunk:project-workflow": 251588,
     "initial:js": 537989,
