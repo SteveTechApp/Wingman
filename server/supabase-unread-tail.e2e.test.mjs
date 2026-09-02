@@ -29,7 +29,7 @@ import { fileURLToPath } from "node:url";
 // truncated to the first 1000 rows deletes exactly the tail - proving the
 // delete half of the reconciliation is live, so a green result is not vacuous.
 
-const PORT = 8877; // distinct from 413 e2e (8876), api-contract-check (8898), check:workflow (8899)
+const PORT = 8879; // distinct from 413 e2e (8876), agents e2e (8877/8878), api-contract-check (8898), check:workflow (8899)
 const BASE = `http://127.0.0.1:${PORT}`;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
@@ -236,6 +236,7 @@ let child = null;
 let fakeServer = null;
 let fakePort = 0;
 let sessionCookie = "";
+const childLog = [];
 
 async function waitForHealth(timeoutMs = 30_000) {
   const deadline = Date.now() + timeoutMs;
@@ -301,7 +302,7 @@ beforeAll(async () => {
     env: {
       ...process.env,
       PORT: String(PORT),
-      WINGMAN_UI_PORT: "3997",
+      WINGMAN_UI_PORT: "3999", // agents e2e uses 3997/3998; 413 e2e uses 3996
       WINGMAN_DATA_DIR: dataDir,
       WINGMAN_STORAGE_MODE: "supabase-tables",
       SUPABASE_URL: `http://127.0.0.1:${fakePort}`,
@@ -310,9 +311,11 @@ beforeAll(async () => {
       // features dormant: this test exercises the wingman snapshot path only.
       LOOKUP_PERSIST_RUNTIME_EVENTS: "false",
     },
-    stdio: "ignore",
+    stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
   });
+  child.stdout?.on("data", (chunk) => childLog.push(String(chunk)));
+  child.stderr?.on("data", (chunk) => childLog.push(String(chunk)));
 
   await waitForHealth();
   // Clear the log of pre-signup noise (boot probes) so the paging assertion
@@ -371,7 +374,12 @@ describe("snapshot write past the 1000-row PostgREST cap", () => {
     // Guards against a silent storage fallback: if the server had degraded to
     // file mode the fake would still hold exactly the 1500 seeds and no user.
     const users = await fakeReadAll("wingman_users");
-    expect(users.length).toBeGreaterThanOrEqual(1);
+    expect(
+      users.length,
+      `expected the signup commit to reach the fake. requestLog rpc entries: ${
+        requestLog.filter((entry) => entry.rpc).length
+      }; child log tail: ${childLog.slice(-15).join(" | ")}`,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it("negative control: a genuinely truncated commit payload deletes exactly the tail", async () => {
