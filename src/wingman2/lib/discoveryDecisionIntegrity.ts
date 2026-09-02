@@ -126,6 +126,15 @@ export function evaluateDiscoveryDecisionIntegrity(
    * quote safety even in Basic mode. Defaults to `questions`.
    */
   strandedQuestions: DiscoveryQuestion[] = questions,
+  /**
+   * Which value the app applied per question (quick-start seed, template
+   * pre-fill, smart default). Decides each stranded entry's ORIGIN: a stored
+   * value that still equals the recorded applied default is an untouched
+   * quick-start pre-fill, anything else is a rep-typed answer. When omitted
+   * the caller has no provenance and every strand reads as quick-start origin
+   * (the pre-existing wording).
+   */
+  appliedDefaults: Partial<DiscoveryAnswers> | null | undefined = null,
 ): DiscoveryDecisionIntegrity {
   const contradictions: DiscoveryDecisionIssue[] = [];
   const stranded: DiscoveryDecisionIssue[] = [];
@@ -135,12 +144,21 @@ export function evaluateDiscoveryDecisionIntegrity(
   // (synthetic/test questions, or custom-UI steps); only scan steps that
   // actually report which options remain selectable.
   const strandCandidates = strandedQuestions.filter((step) => step.options.length > 0);
-  for (const entry of findStrandedQuickStartDefaults(strandCandidates, answers)) {
+  for (const entry of findStrandedQuickStartDefaults(strandCandidates, answers, appliedDefaults)) {
+    // Origin-aware copy: an untouched quick-start pre-fill is a leftover
+    // default; a rep-typed answer is the rep's own choice that merely no
+    // longer fits. Both block quote safety, but the wording must not claim a
+    // rep-typed answer was a quick-start default.
+    const isQuickStart = entry.origin === "quick-start";
     stranded.push({
       kind: "stranded",
       questionIds: [entry.questionId],
-      title: `Pre-filled ${entry.questionLabel} answer no longer fits`,
-      detail: `The quick-start default "${entry.optionLabel}" for ${entry.questionLabel} is no longer selectable after your later answers, but it still sits in the brief and would distort the design.`,
+      title: isQuickStart
+        ? `Pre-filled ${entry.questionLabel} answer no longer fits`
+        : `${entry.questionLabel} answer no longer fits`,
+      detail: isQuickStart
+        ? `The quick-start default "${entry.optionLabel}" for ${entry.questionLabel} is no longer selectable after your later answers, but it still sits in the brief and would distort the design.`
+        : `The ${entry.questionLabel} answer "${entry.optionLabel}" is no longer selectable after your later answers, but it still sits in the brief and would distort the design.`,
       followUpQuestion: `Is "${entry.optionLabel}" the right ${entry.questionLabel.toLowerCase()} answer, or should it be re-chosen from the currently available options — or should the earlier answer that hid it be revisited?`,
     });
   }

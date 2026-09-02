@@ -70,6 +70,7 @@ describe("DiscoveryCompletionPanel stranded quick-start defaults", () => {
             questionLabel: "Display behaviour",
             optionValue: "independent-routing-per-display",
             optionLabel: "Different content by display or zone",
+            origin: "quick-start",
           },
         ]}
       />,
@@ -99,6 +100,7 @@ describe("DiscoveryCompletionPanel stranded quick-start defaults", () => {
             questionLabel: "Display behaviour",
             optionValue: "independent-routing-per-display",
             optionLabel: "Different content by display or zone",
+            origin: "quick-start",
           },
         ]}
         onOpenStrandedStep={onOpenStrandedStep}
@@ -127,6 +129,7 @@ describe("DiscoveryCompletionPanel stranded quick-start defaults", () => {
             questionLabel: "Display behaviour",
             optionValue: "independent-routing-per-display",
             optionLabel: "Different content by display or zone",
+            origin: "quick-start",
           },
         ]}
         onRemoveStranded={onRemoveStranded}

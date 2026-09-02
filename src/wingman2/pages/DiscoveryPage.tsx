@@ -203,6 +203,10 @@ export function DiscoveryPage() {
   const [answers, setAnswers] = useState<DiscoveryAnswers>(
     () => (draftState.answers as DiscoveryAnswers | undefined) ?? {},
   );
+  // Which value the app applied per question (quick-start seed).
+  const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
+    () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
+  );
   const [notes, setNotes] = useState<DiscoveryNotes>(
     () => (draftState.notes as DiscoveryNotes | undefined) ?? {},
   );
@@ -210,15 +214,11 @@ export function DiscoveryPage() {
   const [confirmedSteps, setConfirmedSteps] = useState<Record<string, boolean>>(
     () => (draftState.confirmed as Record<string, boolean> | undefined) ?? {},
   );
-  // stepId -> capture confidence (high / matched / low) carried from the
-  // suggestion chip and guided-interview match, so the conversation trail can
-  // flag low-confidence rows for re-verification before export.
+  // stepId -> capture confidence tier (high / matched / low) for the trail.
   const [confidenceByStep, setConfidenceByStep] = useState<Record<string, "high" | "matched" | "low">>(
     () => (draftState.confidence as Record<string, "high" | "matched" | "low"> | undefined) ?? {},
   );
-  // stepId -> raw interpretation score that produced the tier. Carried into
-  // the trail (DiscoveryConversationItem.confidenceScore) so exports show the
-  // trust level behind each you-said → matched pair.
+  // stepId -> raw interpretation score behind the tier (shown in exports).
   const [confidenceScoresByStep, setConfidenceScoresByStep] = useState<
     Record<string, number>
   >({});
@@ -260,9 +260,7 @@ export function DiscoveryPage() {
   const [reviewScope, setReviewScope] = useState<"all" | "open">(
     () => (searchParams.get("review") === "open" ? "open" : "all"),
   );
-  // Persisted zero-based review position: leaving mid-review and re-entering
-  // lands back on the same question instead of question one. Stored on the
-  // brief so it survives navigation and page reloads per project.
+  // Persisted review position: re-entering lands back on the same question.
   const [reviewPosition, setReviewPosition] = useState<number | undefined>(() => {
     const stored = discoveryDraft?.brief?.reviewPosition;
     return typeof stored === "number" && Number.isFinite(stored)
@@ -354,6 +352,8 @@ export function DiscoveryPage() {
     progressiveMode,
     answers,
     setAnswers,
+    appliedDefaults,
+    onAppliedDefaultsChange: setAppliedDefaults,
     setActiveIndex,
     setIsReviewingAnswers,
     setPendingEscalation,
@@ -419,8 +419,8 @@ export function DiscoveryPage() {
   // visible set — a default stranded on an expert-level question must still
   // block quote safety when the brief was completed in Basic mode.
   const decisionIntegrity = useMemo(
-    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions),
-    [answers, discoveryQuestions, integrityQuestions, notes],
+    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions, appliedDefaults),
+    [answers, appliedDefaults, discoveryQuestions, integrityQuestions, notes],
   );
   const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
@@ -485,7 +485,7 @@ export function DiscoveryPage() {
       writeLatestDiscoverySnapshot({
         ...(discoveryOwnershipRef.current ?? {}),
         activeStepIndex: activeIndex,
-        state: { answers, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
+        state: { answers, appliedDefaults, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
         brief: buildDiscoveryBrief(),
         savedAt: "",
       });
@@ -493,7 +493,7 @@ export function DiscoveryPage() {
 
     return () => window.clearTimeout(timeout);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answeredCount, activeIndex, answers, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition]);
+  }, [answeredCount, activeIndex, answers, appliedDefaults, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition]);
 
   useEffect(() => {
     setActiveIndex((current) => Math.min(current, Math.max(modeQuestions.length - 1, 0)));
@@ -616,6 +616,7 @@ export function DiscoveryPage() {
     delete incomingNotes.infrastructure;
 
     setAnswers(incomingAnswers);
+    setAppliedDefaults((previous) => ({ ...previous, ...incomingAnswers }));
     setNotes(incomingNotes);
     setTopology(incomingTopology);
     writeDiscoveryTopology(incomingTopology);
@@ -953,6 +954,7 @@ export function DiscoveryPage() {
     setIsListening(false);
     setMicError("");
     setAnswers({});
+    setAppliedDefaults({});
     setNotes({});
     setConfidenceByStep({});
     setConfidenceScoresByStep({});

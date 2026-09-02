@@ -21,12 +21,73 @@ describe("findStrandedQuickStartDefaults", () => {
     const visible = getVisibleDiscoveryQuestions("classroom", changedAnswers);
     const stranded = findStrandedQuickStartDefaults(visible, changedAnswers);
 
+    // Without provenance the caller cannot tell the value's origin, so it
+    // reads as quick-start (the pre-existing wording) — the safe default for
+    // legacy imports and quote-safety scans over saved answers.
     expect(stranded).toContainEqual({
       questionId: "display-behaviour",
       questionLabel: expect.any(String),
       optionValue: "independent-routing-per-display",
       optionLabel: "Different content by display or zone",
+      origin: "quick-start",
     });
+  });
+
+  it("calls an untouched app-applied default quick-start origin", () => {
+    // The app seeded lecture hall and the rep never touched the value: the
+    // applied-defaults record still matches the stored answer, so the strand
+    // is an untouched quick-start pre-fill (safe for the bulk removal action).
+    const lectureHallDefaults = quickStartConfigs["lecture-hall"].defaults;
+    const changedAnswers: DiscoveryAnswers = {
+      ...lectureHallDefaults,
+      opportunity: "classroom",
+      displays: "one-display",
+    };
+    const visible = getVisibleDiscoveryQuestions("classroom", changedAnswers);
+    const stranded = findStrandedQuickStartDefaults(
+      visible,
+      changedAnswers,
+      { ...lectureHallDefaults, opportunity: "classroom" } as DiscoveryAnswers,
+    );
+
+    expect(stranded).toContainEqual({
+      questionId: "display-behaviour",
+      questionLabel: expect.any(String),
+      optionValue: "independent-routing-per-display",
+      optionLabel: "Different content by display or zone",
+      origin: "quick-start",
+    });
+  });
+
+  it("calls a rep-changed answer rep-typed so bulk removal keeps it", () => {
+    // The app applied one value but the rep later picked their own answer:
+    // the stored value no longer matches the record, so the strand is the
+    // rep's own choice and must NOT be silently bulk-removed. The rep-typed
+    // value is itself a hidden option (a wall feed is not selectable for one
+    // display), so it strands — but with rep-typed origin.
+    const lectureHallDefaults = quickStartConfigs["lecture-hall"].defaults;
+    const changedAnswers: DiscoveryAnswers = {
+      ...lectureHallDefaults,
+      opportunity: "classroom",
+      displays: "one-display",
+      // The rep changed the behaviour answer themselves before displays hid it.
+      "display-behaviour": "video-wall-or-processor-feed",
+    };
+    const visible = getVisibleDiscoveryQuestions("classroom", changedAnswers);
+    const stranded = findStrandedQuickStartDefaults(
+      visible,
+      changedAnswers,
+      { ...lectureHallDefaults, opportunity: "classroom" } as DiscoveryAnswers,
+    );
+
+    expect(stranded).toContainEqual({
+      questionId: "display-behaviour",
+      questionLabel: expect.any(String),
+      optionValue: "video-wall-or-processor-feed",
+      optionLabel: expect.any(String),
+      origin: "rep-typed",
+    });
+    expect(stranded.every((entry) => entry.origin === "rep-typed")).toBe(true);
   });
 
   it("keeps a default that survives the changed answers (mirrored content)", () => {

@@ -105,6 +105,30 @@ describe("evaluateDiscoveryDecisionIntegrity", () => {
     expect(result.canProceedToRecommendation).toBe(false);
   });
 
+  it("names a rep-typed stranded answer as the rep's own, not a quick-start default", () => {
+    // Provenance decides the wording: when the recorded applied default no
+    // longer matches the stored value, the strand is the rep's own answer and
+    // must not be described as a leftover quick-start pre-fill.
+    const answers: DiscoveryAnswers = {
+      opportunity: "classroom",
+      displays: "one-display",
+      "display-behaviour": "video-wall-or-processor-feed",
+    };
+    const visible = getVisibleDiscoveryQuestions("classroom", answers);
+    const appliedDefaults: DiscoveryAnswers = {
+      opportunity: "classroom",
+      displays: "two-displays",
+      "display-behaviour": "independent-routing-per-display",
+    };
+    const result = evaluateDiscoveryDecisionIntegrity(visible, answers, {}, visible, appliedDefaults);
+
+    expect(result.stranded).toHaveLength(1);
+    expect(result.stranded[0]?.title).toBe("Display behaviour answer no longer fits");
+    expect(result.stranded[0]?.detail).toContain("Video wall or LED processor feed");
+    expect(result.stranded[0]?.detail).not.toContain("quick-start");
+    expect(result.canProceedToRecommendation).toBe(false);
+  });
+
   it("flags a hidden option that is NOT a known contradiction, so the class earns its keep", () => {
     // A multi-camera NDI path is viewed only when an NDI camera is present; a
     // fixed USB camera hides it while the stored answer still names it. No

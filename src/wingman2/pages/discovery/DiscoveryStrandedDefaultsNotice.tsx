@@ -34,6 +34,13 @@ export function DiscoveryStrandedDefaultsNotice(props: {
   const hasDrift = drift ? drift.items.length > 0 : false;
   if (!hasStranded && !hasDrift) return null;
 
+  // Only untouched quick-start pre-fills can be cleared by the bulk action
+  // (the hook filters rep-typed answers out deliberately — silently discarding
+  // the rep's own answer would destroy data). When every stranded row is
+  // rep-typed the button is hidden so it never presents a dead action.
+  const hasRemovableDefaults = props.items.some((item) => item.origin === "quick-start");
+  const allRepTyped = hasStranded && props.items.every((item) => item.origin === "rep-typed");
+
   const previousLabel = drift ? (plainLanguageLabels[drift.previousApplication] ?? drift.previousApplication) : "";
   const applicationLabel = drift ? (plainLanguageLabels[drift.application] ?? drift.application) : "";
 
@@ -43,27 +50,40 @@ export function DiscoveryStrandedDefaultsNotice(props: {
         <>
           <div>
             <p className="wm-ui-kicker">Quick-start defaults</p>
-            <h3>Pre-filled answer{props.items.length === 1 ? "" : "s"} no longer fit{props.items.length === 1 ? "s" : ""} your current answers</h3>
+            <h3>{allRepTyped ? "Answer" : "Pre-filled answer"}{props.items.length === 1 ? "" : "s"} no longer fit{props.items.length === 1 ? "s" : ""} your current answers</h3>
           </div>
-          {props.items.map((item) => (
-            <article key={`${item.questionId}:${item.optionValue}`} className="is-warning">
-              <strong>{item.optionLabel}</strong>
-              <p>
-                The quick-start default for <em>{item.questionLabel}</em> is no longer
-                selectable after your later answers. Choose a current option on that
-                step, or revisit the earlier answer that hid it.
-              </p>
-              {props.onOpenStep && (
-                <button
-                  className="wm-ui-button wm-ui-button-secondary"
-                  type="button"
-                  onClick={() => props.onOpenStep?.(item.questionId)}
-                >
-                  Open {item.questionLabel}
-                </button>
-              )}
-            </article>
-          ))}
+          {props.items.map((item) => {
+            const isQuickStart = item.origin === "quick-start";
+            return (
+              <article key={`${item.questionId}:${item.optionValue}`} className="is-warning">
+                <strong>{item.optionLabel}</strong>
+                <p>
+                  {isQuickStart ? (
+                    <>
+                      The quick-start default for <em>{item.questionLabel}</em> is no longer
+                      selectable after your later answers. Choose a current option on that
+                      step, or revisit the earlier answer that hid it.
+                    </>
+                  ) : (
+                    <>
+                      Your <em>{item.questionLabel}</em> answer is no longer selectable after
+                      your later answers. Choose a current option on that step, or revisit
+                      the earlier answer that hid it.
+                    </>
+                  )}
+                </p>
+                {props.onOpenStep && (
+                  <button
+                    className="wm-ui-button wm-ui-button-secondary"
+                    type="button"
+                    onClick={() => props.onOpenStep?.(item.questionId)}
+                  >
+                    Open {item.questionLabel}
+                  </button>
+                )}
+              </article>
+            );
+          })}
         </>
       )}
 
@@ -100,7 +120,7 @@ export function DiscoveryStrandedDefaultsNotice(props: {
         </div>
       )}
 
-      {props.onRemoveStranded && (
+      {hasRemovableDefaults && props.onRemoveStranded && (
         <button
           className="wm-ui-button wm-ui-button-secondary"
           type="button"

@@ -5,19 +5,23 @@
 // orchestrator instead of owning this logic inline (its size budget is
 // tracked by tools/check-size-budgets.mjs).
 //
-// The stranded list derives purely from the current answers (a stored value
-// whose option the interview no longer offers). The drift additionally needs
+// The stranded list derives from the current answers PLUS the persisted
+// applied-defaults record (which default the app applied per question): a
+// stored value whose option the interview no longer offers is only an
+// untouched quick-start default when the app recorded that value for the
+// question and the answer still equals it — otherwise it is a rep-typed
+// answer that must not be silently bulk-removed. The drift additionally needs
 // the seed provenance: which application the quick start was applied for, and
 // the exact answers it wrote — an untouched answer that still disagrees with
 // the CURRENT application's standard profile belongs to the old profile.
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { findStrandedQuickStartDefaults, removeDiscoveryAnswerValue, wmDiscoveryAnswerToText } from "./discoveryAnswerUtils";
 import { findQuickStartApplicationDrift } from "./discoveryQuickStart";
 import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
 
 export type DiscoveryQuickStartConflictSignals = {
-  /** Records the seed provenance and applies the answers. */
+  /** Records the seed provenance + applied defaults and applies the answers. */
   applyQuickStartSeeded: (seeded: DiscoveryAnswers) => void;
   strandedQuickStart: ReturnType<typeof findStrandedQuickStartDefaults>;
   quickStartDrift: {
@@ -39,6 +43,15 @@ export function useQuickStartConflictSignals(options: {
   progressiveMode: "basic" | "expert";
   answers: DiscoveryAnswers;
   setAnswers: (updater: DiscoveryAnswers | ((previous: DiscoveryAnswers) => DiscoveryAnswers)) => void;
+  /**
+   * Which value the app applied per question (quick-start seed, template
+   * pre-fill, smart defaults). Persisted with the discovery draft so stranded
+   * detection can tell untouched quick-start values from rep-typed answers
+   * across reloads. Empty when nothing has been applied by the app yet.
+   */
+  appliedDefaults: Partial<DiscoveryAnswers>;
+  /** Records which values the app applied (same shape as `appliedDefaults`). */
+  onAppliedDefaultsChange: Dispatch<SetStateAction<Partial<DiscoveryAnswers>>>;
   setActiveIndex: (index: number) => void;
   setIsReviewingAnswers: (value: boolean) => void;
   setPendingEscalation: (questionId: string | null) => void;
@@ -49,6 +62,8 @@ export function useQuickStartConflictSignals(options: {
     progressiveMode,
     answers,
     setAnswers,
+    appliedDefaults,
+    onAppliedDefaultsChange,
     setActiveIndex,
     setIsReviewingAnswers,
     setPendingEscalation,
@@ -61,18 +76,25 @@ export function useQuickStartConflictSignals(options: {
   const applyQuickStartSeeded = useCallback(
     (seeded: DiscoveryAnswers) => {
       setQuickStartSeed({ application: wmDiscoveryAnswerToText(seeded.opportunity), answers: seeded });
+      // Record which values the app just applied at the same moment the
+      // answers land, so stranded detection can distinguish untouched
+      // quick-start pre-fills (safe to bulk-remove) from rep-typed answers.
+      onAppliedDefaultsChange((previous) => ({ ...previous, ...seeded }));
       setAnswers(seeded);
     },
-    [setAnswers],
+    [onAppliedDefaultsChange, setAnswers],
   );
 
   // Quick-start defaults stranded by a later answer (a stored value whose
   // option the interview no longer offers). Computed across the FULL visible
   // set so the conflict shows in the summary card and completion panel even
-  // when the owning step is no longer the one being edited.
+  // when the owning step is no longer the one being edited. The applied
+  // defaults record decides each entry's origin: a value the app applied and
+  // the rep never changed is an untouched quick-start default; anything else
+  // is a rep-typed answer that must not be bulk-removed.
   const strandedQuickStart = useMemo(
-    () => findStrandedQuickStartDefaults(discoveryQuestions, answers),
-    [discoveryQuestions, answers],
+    () => findStrandedQuickStartDefaults(discoveryQuestions, answers, appliedDefaults),
+    [discoveryQuestions, answers, appliedDefaults],
   );
 
   // Answers seeded for a room profile that no longer match after the
@@ -106,14 +128,19 @@ export function useQuickStartConflictSignals(options: {
     [discoveryQuestions, modeQuestions, progressiveMode, setActiveIndex, setIsReviewingAnswers, setPendingEscalation],
   );
 
-  // "Remove stranded answers": clear every stored default whose option the
-  // interview no longer offers. The stranded list recomputes from answers, so
-  // the notice disappears as soon as the values are gone.
+  // "Remove stranded answers": clear every UNTOUCHED app-applied default
+  // whose option the interview no longer offers. Rep-typed stranded answers
+  // (values the rep chose/edited themselves) are deliberately left in place —
+  // silently discarding the rep's own answer would destroy data, so those rows
+  // are resolved by re-opening the owning step instead. The stranded list
+  // recomputes from answers, so the notice disappears as soon as the values
+  // are gone.
   const removeStrandedQuickStart = useCallback(() => {
-    if (strandedQuickStart.length === 0) return;
+    const untouchedDefaults = strandedQuickStart.filter((item) => item.origin === "quick-start");
+    if (untouchedDefaults.length === 0) return;
     setAnswers((previous) => {
       let next = previous;
-      for (const item of strandedQuickStart) {
+      for (const item of untouchedDefaults) {
         next = removeDiscoveryAnswerValue(next, item.questionId, item.optionValue);
       }
       return next;

@@ -121,6 +121,7 @@ describe("DiscoverySummaryCard", () => {
             questionLabel: "Display behaviour",
             optionValue: "independent-routing-per-display",
             optionLabel: "Different content by display or zone",
+            origin: "quick-start",
           },
         ]}
         onOpenStrandedStep={onOpenStrandedStep}
@@ -149,6 +150,7 @@ describe("DiscoverySummaryCard", () => {
             questionLabel: "Display behaviour",
             optionValue: "independent-routing-per-display",
             optionLabel: "Different content by display or zone",
+            origin: "quick-start",
           },
         ]}
         onRemoveStranded={onRemoveStranded}
@@ -190,6 +192,44 @@ describe("DiscoverySummaryCard", () => {
     expect(screen.getByText(/The Meeting \/ conference room profile uses 1 display \/ output/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Open Display count" }));
     expect(onOpenStrandedStep).toHaveBeenCalledWith("displays");
+  });
+
+  it("keeps the remove action hidden when every stranded answer is rep-typed", () => {
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "One display", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        compact
+        strandedQuickStart={[
+          {
+            questionId: "display-behaviour",
+            questionLabel: "Display behaviour",
+            optionValue: "independent-routing-per-display",
+            optionLabel: "Different content by display or zone",
+            origin: "rep-typed",
+          },
+        ]}
+        onRemoveStranded={vi.fn()}
+      />,
+    );
+
+    // Rep-typed answers are the rep's own choice — the bulk action must not
+    // offer to discard them, and the row copy must not call them a
+    // quick-start default.
+    expect(screen.queryByRole("button", { name: "Remove stranded answers" })).toBeNull();
+    expect(screen.getByText(/^Answer no longer fits/)).toBeTruthy();
+    // The question label renders inside an <em>; the rep-typed row says
+    // "Your <label> answer is no longer selectable …" (the quick-start branch
+    // says "The quick-start default for …", which is asserted absent below).
+    expect(screen.getByText(/answer is no longer selectable/)).toBeTruthy();
+    expect(screen.getByText("Display behaviour")).toBeTruthy();
+    // The quick-start branch says "The quick-start default for …" — rep-typed
+    // rows must not carry that claim (the kicker header legitimately says
+    // "Quick-start defaults", hence the exact phrase match).
+    expect(screen.queryByText(/The quick-start default for/i)).toBeNull();
   });
 
   it("renders no stranded-default notice when the list is empty", () => {
