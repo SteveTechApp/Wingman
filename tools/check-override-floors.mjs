@@ -1,20 +1,26 @@
 #!/usr/bin/env node
 // Guards the dependency OVERRIDE floors in package.json against silent loss.
 //
-// Two advisory-driven floors are currently load-bearing:
+// The overrides block currently pins three load-bearing packages:
 //   - browserslist must stay pinned at ^4.28.8 (GHSA-73wf-gq98-2v4g and the
 //     sibling browserslist records were fixed in 4.28.7; the caret keeps the
 //     whole installable range on the fixed side).
 //   - postcss-selector-parser in the ^6.0.10 family must stay pinned at ^6.1.4
 //     (GHSA-w9m9-85wc-3x92, uncontrolled AST recursion, fixed in 6.1.3).
+//   - fast-uri must stay pinned at ^3.1.7 (host confusion / SSRF via IDN,
+//     IPv6 and percent-encoding normalization, fixed in 3.1.7).
 //
 // npm install never removes an override, but a hand edit of package.json or a
 // resolve-from-scratch flow (delete lockfile + npm install) can: without the
-// override, browserslist/postcss-selector-parser resolve back into the
-// affected range and the lockfile records the vulnerable version with no red
-// flag on the next commit. This check fails if either override is REMOVED,
-// LOWERED below its advisory floor, or if the committed lockfile still records
-// a version under the floor (a regeneration that dropped the pin).
+// override, the package resolves back into the affected range and the lockfile
+// records the vulnerable version with no red flag on the next commit. This
+// check fails if an override is REMOVED, LOWERED below its advisory floor, or
+// if the committed lockfile still records a version under the floor.
+//
+// Coverage runs both directions: every floor row must have a live override
+// (removed/lowered detection above), and every overrides key in package.json
+// must be claimed by a floor row — so an override added tomorrow without an
+// advisory floor row fails this gate instead of silently being unprotected.
 //
 // Usage: node tools/check-override-floors.mjs
 
@@ -29,8 +35,9 @@ const LOCK_PATH = path.join(projectRoot, "package-lock.json");
 
 // The floors this gate enforces. `overrideKey` is the package.json overrides
 // key (exact, or a prefix for family-scoped keys); `floor` is the minimum
-// version the override must demand; `lockFamily` bounds which lockfile
-// versions must also clear the floor.
+// version the override must demand. `lockFamilyMin`/`lockFamilyMaxExclusive`
+// optionally bound which lockfile versions must also clear the floor (unset =
+// every installed version of the package must clear it).
 const OVERRIDE_FLOORS = [
   {
     overrideKey: "browserslist",
@@ -68,6 +75,24 @@ export function specFloor(spec) {
   return match[2].split("-")[0];
 }
 
+// Which floor row claims an overrides key, if any: an exact overrideKey match
+// or a prefix match for family-scoped keys like "postcss-selector-parser@^6".
+function floorForOverrideKey(key) {
+  return OVERRIDE_FLOORS.find(
+    (floor) =>
+      (floor.overrideKey !== undefined && floor.overrideKey === key) ||
+      (floor.overrideKeyPrefix !== undefined && key.startsWith(floor.overrideKeyPrefix)),
+  );
+}
+
+// Overrides keys in package.json that no floor row claims. Every override is
+// load-bearing by definition (it exists to change resolution), so an override
+// without a floor row is an unprotected one.
+export function unclaimedOverrideKeys(packageJson) {
+  const overrides = packageJson.overrides ?? {};
+  return Object.keys(overrides).filter((key) => floorForOverrideKey(key) === undefined);
+}
+
 function collectPackageJsonProblems(packageJson, problems) {
   const overrides = packageJson.overrides ?? {};
   for (const floor of OVERRIDE_FLOORS) {
@@ -92,35 +117,36 @@ function collectPackageJsonProblems(packageJson, problems) {
       );
     }
   }
+  // The reverse direction: an override with no floor row is unprotected.
+  for (const key of unclaimedOverrideKeys(packageJson)) {
+    problems.push(
+      `package.json overrides key "${key}" has no floor row in OVERRIDE_FLOORS (tools/check-override-floors.mjs) - ` +
+        "this gate cannot detect it being dropped or lowered. Add a floor row with its advisory floor.",
+    );
+  }
 }
 
 function collectLockfileProblems(lock, problems) {
   for (const [key, entry] of Object.entries(lock.packages ?? {})) {
     const packageName = key.slice("node_modules/".length).split("/node_modules/").pop();
     if (!entry?.version) continue;
-    if (packageName === "browserslist") {
-      if (semverCompare(entry.version, "4.28.8") !== null && semverCompare(entry.version, "4.28.8") < 0) {
-        problems.push(
-          `package-lock.json records browserslist ${entry.version}, below the 4.28.8 advisory floor - ` +
-            "the override did not survive the last install/regeneration. Run npm install and commit the new lock.",
-        );
+    for (const floor of OVERRIDE_FLOORS) {
+      if (packageName !== floor.packageName) continue;
+      // Family scoping: rows may bound which installed versions must clear
+      // the floor. A version outside the family resolves under a different
+      // range than the override claims and is not this override's concern.
+      if (floor.lockFamilyMin !== undefined) {
+        const aboveMin = semverCompare(entry.version, floor.lockFamilyMin);
+        if (aboveMin === null || aboveMin < 0) continue;
       }
-    }
-    if (packageName === "postcss-selector-parser") {
-      const inFamily =
-        semverCompare(entry.version, "6.0.10") !== null && semverCompare(entry.version, "6.0.10") >= 0 &&
-        semverCompare(entry.version, "7.0.0") !== null && semverCompare(entry.version, "7.0.0") < 0;
-      if (inFamily && semverCompare(entry.version, "6.1.4") !== null && semverCompare(entry.version, "6.1.4") < 0) {
-        problems.push(
-          `package-lock.json records postcss-selector-parser ${entry.version} (${key}), inside the 6.1.0-6.1.3 ` +
-            "affected range - the override did not survive the last install/regeneration. Run npm install and commit the new lock.",
-        );
+      if (floor.lockFamilyMaxExclusive !== undefined) {
+        const belowMax = semverCompare(entry.version, floor.lockFamilyMaxExclusive);
+        if (belowMax === null || belowMax >= 0) continue;
       }
-    }
-    if (packageName === "fast-uri") {
-      if (semverCompare(entry.version, "3.1.7") !== null && semverCompare(entry.version, "3.1.7") < 0) {
+      const belowFloor = semverCompare(entry.version, floor.floor);
+      if (belowFloor !== null && belowFloor < 0) {
         problems.push(
-          `package-lock.json records fast-uri ${entry.version}, below the 3.1.7 advisory floor - ` +
+          `package-lock.json records ${floor.packageName} ${entry.version} (${key}), below the ${floor.floor} advisory floor - ` +
             "the override did not survive the last install/regeneration. Run npm install and commit the new lock.",
         );
       }
@@ -149,5 +175,7 @@ if (isMain) {
     for (const problem of problems) console.error(`  - ${problem}`);
     process.exit(1);
   }
-  console.log("[override-floors] OK - browserslist ^4.28.8, postcss-selector-parser ^6.1.4 and fast-uri ^3.1.7 override floors are intact and the lockfile honours them.");
+  console.log(
+    `[override-floors] OK - all ${OVERRIDE_FLOORS.length} override floors are intact, every override key is covered by a floor row, and the lockfile honours them.`,
+  );
 }

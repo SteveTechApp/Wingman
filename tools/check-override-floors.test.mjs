@@ -3,6 +3,7 @@ import {
   checkOverrideFloors,
   collectOverrideFloorProblems,
   specFloor,
+  unclaimedOverrideKeys,
 } from "./check-override-floors.mjs";
 
 describe("specFloor", () => {
@@ -101,7 +102,7 @@ describe("collectOverrideFloorProblems", () => {
 
   it("fails when the lockfile records browserslist below the floor (regeneration dropped the pin)", () => {
     const lock = { packages: { ...CLEAN_LOCK.packages, "node_modules/browserslist": { version: "4.28.7" } } };
-    expectOneProblemMatching(CLEAN_PACKAGE, lock, /records browserslist 4\.28\.7, below the 4\.28\.8 advisory floor/);
+    expectOneProblemMatching(CLEAN_PACKAGE, lock, /records browserslist 4\.28\.7 .*below the 4\.28\.8 advisory floor/);
   });
 
   it("fails when the fast-uri override is removed entirely", () => {
@@ -122,12 +123,49 @@ describe("collectOverrideFloorProblems", () => {
 
   it("fails when the lockfile records fast-uri below the floor (regeneration dropped the pin)", () => {
     const lock = { packages: { ...CLEAN_LOCK.packages, "node_modules/fast-uri": { version: "3.1.5" } } };
-    expectOneProblemMatching(CLEAN_PACKAGE, lock, /records fast-uri 3\.1\.5, below the 3\.1\.7 advisory floor/);
+    expectOneProblemMatching(CLEAN_PACKAGE, lock, /records fast-uri 3\.1\.5 .*below the 3\.1\.7 advisory floor/);
   });
 
   it("fails when the lockfile records an in-family postcss-selector-parser below the floor", () => {
     const lock = { packages: { ...CLEAN_LOCK.packages, "node_modules/postcss-selector-parser": { version: "6.1.2" } } };
-    expectOneProblemMatching(CLEAN_PACKAGE, lock, /inside the 6\.1\.0-6\.1\.3 affected range/);
+    expectOneProblemMatching(CLEAN_PACKAGE, lock, /records postcss-selector-parser 6\.1\.2 .*below the 6\.1\.4 advisory floor/);
+  });
+
+  // Coverage direction 2: every overrides key must be claimed by a floor row,
+  // so a future override cannot be added without also declaring its floor.
+  it("reports overrides keys with no floor row as unclaimed", () => {
+    expect(unclaimedOverrideKeys(CLEAN_PACKAGE)).toEqual([]);
+  });
+
+  it("fails when a NEW override is added without a floor row (unguarded override)", () => {
+    const expanded = {
+      ...CLEAN_PACKAGE,
+      overrides: { ...CLEAN_PACKAGE.overrides, "some-new-pkg": "^2.0.0" },
+    };
+    expect(unclaimedOverrideKeys(expanded)).toEqual(["some-new-pkg"]);
+    expectOneProblemMatching(expanded, CLEAN_LOCK, /"some-new-pkg" has no floor row/);
+  });
+
+  it("claims family-scoped override keys by prefix", () => {
+    // The exact postcss-selector-parser key must stay claimed through the
+    // prefix row even if its range is adjusted within the family.
+    const adjusted = {
+      ...CLEAN_PACKAGE,
+      overrides: { ...CLEAN_PACKAGE.overrides, "postcss-selector-parser@^6.0.11": "^6.1.4" },
+    };
+    expect(unclaimedOverrideKeys(adjusted)).toEqual([]);
+  });
+
+  it("lockfile checks derive from the floor table (every row enforces its floor)", () => {
+    // The lockfile loop iterates OVERRIDE_FLOORS, so a row added later covers
+    // the lockfile automatically. Pin this by asserting each floor row's
+    // package below-floor triggers a problem through the same generic path.
+    for (const floor of ["browserslist", "fast-uri"]) {
+      const lock = {
+        packages: { ...CLEAN_LOCK.packages, [`node_modules/${floor}`]: { version: "0.0.1" } },
+      };
+      expectOneProblemMatching(CLEAN_PACKAGE, lock, new RegExp(`records ${floor} 0\\.0\\.1.*below the .* advisory floor`));
+    }
   });
 });
 
