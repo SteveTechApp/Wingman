@@ -17,7 +17,7 @@ import {
   getQuickStartSummary,
 } from "./discoveryQuickStart";
 import { SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
-import { readQuickStartProfileChoice, rememberQuickStartProfileChoice } from "./discoveryQuickStartPreferences";
+import { forgetQuickStartProfileChoice, readQuickStartProfileChoice, rememberQuickStartProfileChoice } from "./discoveryQuickStartPreferences";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
 export function DiscoveryQuickStartEntry({ onAnswers }: { onAnswers: (answers: DiscoveryAnswers) => void }) {
@@ -303,7 +303,7 @@ export function DiscoveryQuickStart({
           <div className="wm-qs__help-inner">
             <ChevronRight className="wm-qs__help-chevron" />
             <div>
-              {rememberedNote ? (
+              {rememberedNote && selectedType ? (
                 <>
                   <p className="wm-qs__help-title" data-testid="quick-start-remembered-note" role="status">
                     {rememberedNote}
@@ -312,6 +312,20 @@ export function DiscoveryQuickStart({
                     Continue applies it without asking again. Every pre-filled answer stays adjustable in the
                     interview — change the room type or pick a different profile at any time.
                   </p>
+                  <button
+                    type="button"
+                    className="wm-qs__skip wm-qs__skip--link"
+                    data-testid="forget-quick-start-choice"
+                    onClick={() => {
+                      forgetQuickStartProfileChoice(selectedType, disagreementIds);
+                      // Deselect the room so the derived note, read from
+                      // storage at render time, disappears with the choice.
+                      setSelectedType(null);
+                    }}
+                  >
+                    <HelpCircle className="wm-qs__skip-icon" />
+                    Clear this session choice
+                  </button>
                 </>
               ) : (
                 <>

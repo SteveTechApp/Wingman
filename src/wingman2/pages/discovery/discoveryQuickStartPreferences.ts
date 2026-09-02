@@ -81,6 +81,23 @@ export function rememberQuickStartProfileChoice(
   }
 }
 
+// Removes a single remembered choice — the one matching this room type and
+// disagreement set — so the confirmation step re-opens for it. Other room
+// types' choices are untouched.
+export function forgetQuickStartProfileChoice(
+  roomType: string,
+  disagreementQuestionIds: readonly string[],
+): void {
+  if (typeof window === "undefined") return;
+  try {
+    const record = readRecord();
+    delete record[quickStartProfileKey(roomType, disagreementQuestionIds)];
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+  } catch {
+    // No memory available — nothing to forget.
+  }
+}
+
 export function clearQuickStartProfileChoices(): void {
   if (typeof window === "undefined") return;
   try {

@@ -275,3 +275,48 @@ describe("remembered choice is keyed to the disagreement set", () => {
     expect(quickStartProfileKey("lecture-hall", [])).toBe(quickStartProfileKey("lecture-hall", []));
   });
 });
+
+describe("clearing a remembered quick-start choice", () => {
+  it("forgets just this room's choice and re-opens the confirmation on the next visit", () => {
+    // Two room types remembered in the session; the clear must not touch the other.
+    rememberQuickStartProfileChoice("lecture-hall", "room", getQuickStartDisagreements("lecture-hall").map((d) => d.questionId));
+    rememberQuickStartProfileChoice("training-room", "standard", getQuickStartDisagreements("training-room").map((d) => d.questionId));
+
+    const first = vi.fn();
+    const firstRender = render(<DiscoveryQuickStart onSelect={first} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Clear this session choice" }));
+    expect(first).not.toHaveBeenCalled();
+    firstRender.unmount();
+
+    // Lecture hall asks again…
+    const second = vi.fn();
+    const secondRender = render(<DiscoveryQuickStart onSelect={second} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.queryByTestId("quick-start-remembered-note")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(second).not.toHaveBeenCalled();
+    expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
+    secondRender.unmount();
+
+    // …while training room still applies its remembered choice.
+    const third = vi.fn();
+    render(<DiscoveryQuickStart onSelect={third} onSkip={vi.fn()} />);
+    pickRoom(/Training room/);
+    expect(screen.getByTestId("quick-start-remembered-note")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(third).toHaveBeenCalledTimes(1);
+  });
+
+  it("deselects the room so the note disappears immediately without ending the flow", () => {
+    rememberQuickStartProfileChoice("lecture-hall", "room", getQuickStartDisagreements("lecture-hall").map((d) => d.questionId));
+    render(<DiscoveryQuickStart onSelect={vi.fn()} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.getByTestId("quick-start-remembered-note")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Clear this session choice" }));
+    expect(screen.queryByTestId("quick-start-remembered-note")).toBeNull();
+    // The quick-start flow itself is still open (room grid + actions present).
+    expect(screen.getByText("What type of room is this?")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy();
+  });
+});
