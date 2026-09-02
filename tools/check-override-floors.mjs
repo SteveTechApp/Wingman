@@ -29,9 +29,9 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { semverCompare } from "./check-build-deps.mjs";
 
-const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const PACKAGE_PATH = path.join(projectRoot, "package.json");
-const LOCK_PATH = path.join(projectRoot, "package-lock.json");
+const DEFAULT_PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const PACKAGE_PATH = path.join(DEFAULT_PROJECT_ROOT, "package.json");
+const LOCK_PATH = path.join(DEFAULT_PROJECT_ROOT, "package-lock.json");
 
 // The floors this gate enforces. `overrideKey` is the package.json overrides
 // key (exact, or a prefix for family-scoped keys); `floor` is the minimum
@@ -147,7 +147,8 @@ function collectLockfileProblems(lock, problems) {
       if (belowFloor !== null && belowFloor < 0) {
         problems.push(
           `package-lock.json records ${floor.packageName} ${entry.version} (${key}), below the ${floor.floor} advisory floor - ` +
-            "the override did not survive the last install/regeneration. Run npm install and commit the new lock.",
+            "the override did not survive the last install/regeneration (e.g. a lockfile regeneration that resolved " +
+            "under the floor). Restore the override, run npm install, and commit the regenerated lock.",
         );
       }
     }
@@ -161,10 +162,18 @@ export function collectOverrideFloorProblems(packageJson, lock) {
   return problems;
 }
 
-export function checkOverrideFloors() {
-  const packageJson = JSON.parse(readFileSync(PACKAGE_PATH, "utf8"));
-  const lock = JSON.parse(readFileSync(LOCK_PATH, "utf8"));
+export function checkOverrideFloors(projectRoot = DEFAULT_PROJECT_ROOT) {
+  const packageJson = JSON.parse(readFileSync(path.join(projectRoot, "package.json"), "utf8"));
+  const lock = JSON.parse(readFileSync(path.join(projectRoot, "package-lock.json"), "utf8"));
   return collectOverrideFloorProblems(packageJson, lock);
+}
+
+// Drill helper: one call that reports every problem plus the pass/fail verdict
+// the standalone CLI derives from it (exit 0 when ok), so the drill tests can
+// pin both the library path and the CLI contract against fixture sandboxes.
+export function evaluateOverrideFloors(packageJson, lock) {
+  const problems = collectOverrideFloorProblems(packageJson, lock);
+  return { problems, ok: problems.length === 0 };
 }
 
 const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
