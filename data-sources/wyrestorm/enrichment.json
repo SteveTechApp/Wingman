@@ -279769,221 +279769,29 @@
       "io": {
         "ports": [
           {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "1x HDMI in (4K30)",
-            "evidence": "1x HDMI in (4K30)"
-          },
-          {
             "count": 2,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)",
-            "evidence": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
-          },
-          {
-            "count": 1,
             "connector": "USB-C",
             "direction": "input",
-            "category": "usb",
-            "detail": "1x USB-C, Video input with MST, up to 2x 4K@30Hz",
-            "evidence": "1x USB-C, Video input with MST, up to 2x 4K@30Hz"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x Analog Audio Output (5-pin Phoenix Male Connector)",
-            "evidence": "1x Analog Audio Output (5-pin Phoenix Male Connector)"
-          },
-          {
-            "count": 3,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "3 x USB 3.0 Type A device ports | 5v 1000mA per port",
-            "evidence": "3 x USB 3.0 Type A device ports | 5v 1000mA per port"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type B host port (assignable)",
-            "evidence": "1 x USB 3.0 Type B host port (assignable)"
-          },
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type-C port",
-            "evidence": "1 x USB 3.0 Type-C port"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 4-pin Phoenix (API control) | Provides 12v power",
-            "evidence": "1x 4-pin Phoenix (API control) | Provides 12v power"
-          },
-          {
-            "count": 2,
-            "connector": "RJ-45 for API control 2x RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "direction": "output",
-            "category": "control",
-            "detail": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "evidence": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 2-Pin Phoenix connector for MUTE port",
-            "evidence": "1x 2-Pin Phoenix connector for MUTE port"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "output",
-            "category": "control",
-            "detail": "1x 4-Pin Phoenix connector for RS232",
-            "evidence": "1x 4-Pin Phoenix connector for RS232"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 5-Pin Phoenix connector for analog audio output",
-            "evidence": "1x 5-Pin Phoenix connector for analog audio output"
+            "category": "video",
+            "detail": "2x USB-C inputs",
+            "evidence": "2x USB-C inputs"
           }
         ],
         "video": [
           {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "1x HDMI in (4K30)",
-            "evidence": "1x HDMI in (4K30)"
-          },
-          {
             "count": 2,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)",
-            "evidence": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
-          }
-        ],
-        "audio": [
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x Analog Audio Output (5-pin Phoenix Male Connector)",
-            "evidence": "1x Analog Audio Output (5-pin Phoenix Male Connector)"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 4-pin Phoenix (API control) | Provides 12v power",
-            "evidence": "1x 4-pin Phoenix (API control) | Provides 12v power"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 2-Pin Phoenix connector for MUTE port",
-            "evidence": "1x 2-Pin Phoenix connector for MUTE port"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 5-Pin Phoenix connector for analog audio output",
-            "evidence": "1x 5-Pin Phoenix connector for analog audio output"
-          }
-        ],
-        "usb": [
-          {
-            "count": 1,
             "connector": "USB-C",
             "direction": "input",
-            "category": "usb",
-            "detail": "1x USB-C, Video input with MST, up to 2x 4K@30Hz",
-            "evidence": "1x USB-C, Video input with MST, up to 2x 4K@30Hz"
-          },
-          {
-            "count": 3,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "3 x USB 3.0 Type A device ports | 5v 1000mA per port",
-            "evidence": "3 x USB 3.0 Type A device ports | 5v 1000mA per port"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type B host port (assignable)",
-            "evidence": "1 x USB 3.0 Type B host port (assignable)"
-          },
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type-C port",
-            "evidence": "1 x USB 3.0 Type-C port"
-          }
-        ],
-        "control": [
-          {
-            "count": 2,
-            "connector": "RJ-45 for API control 2x RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "direction": "output",
-            "category": "control",
-            "detail": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "evidence": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "output",
-            "category": "control",
-            "detail": "1x 4-Pin Phoenix connector for RS232",
-            "evidence": "1x 4-Pin Phoenix connector for RS232"
+            "category": "video",
+            "detail": "2x USB-C inputs",
+            "evidence": "2x USB-C inputs"
           }
         ]
       },
       "video": {
         "present": true,
         "maxResolutions": [
-          "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M",
-          "4K@30Hz Wireless Video from APO-DG2, APO-DG2-PR",
-          "4K@60Hz 4:4:4 8bit, Output 2 – 4K@30Hz 4:4:4 8b",
-          "4K@30Hz video resolution on a HDMI input, 4K@60Hz",
-          "4K@30Hz on HDMI output 2, ensuring superior vis",
-          "4K@30Hz, to both HDMI outputs",
-          "HDMI",
-          "HDCP 2.3",
-          "Multiview",
-          "Seamless switching",
-          "EDID management"
+          "4K60Hz 4:4:4"
         ],
         "standards": [
           "HDMI",
@@ -280015,12 +279823,12 @@
           "The SW-620-TX-W Conference Presentation Switcher features USB-C/HDMI input, as well as support for Miracast, Airplay and Wireless casting via APO-DG2/APO-DG2-PRO, allowing simple and clean installation.",
           "Experience the full potential of USB-C with support for 4K video, USB 3.0 data transfer, and 100W charging. The SW-620-TX-W also supports dual video output via a single USB-C input cable, providing exceptional flexibility for multi-screen presentations."
         ],
-        "maximum": "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M"
+        "maximum": "4K60Hz"
       },
       "audio": {
         "present": true,
         "formats": [
-          "PCM"
+          "Audio De-embed"
         ],
         "networkAudio": [],
         "amplifierPower": [],
@@ -280041,9 +279849,7 @@
         "bandwidth": [],
         "powerDelivery": true,
         "evidence": [
-          "USB 3.0",
-          "USB 3.x",
-          "USB-C"
+          "USB 3.0"
         ]
       },
       "network": {
@@ -280060,21 +279866,14 @@
         "linkSpeeds": [],
         "powerOverNetwork": [],
         "evidence": [
-          "LAN",
-          "Dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.",
-          "Robust Connectivity and Control: Equipped with three USB 3.0 device ports, one balanced audio de-embedding port, RS232, and MUTE port, the SW-620-TX-W allows for seamless integration with various conference equipment. Additionally, the dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.",
-          "Telnet",
-          "API"
+          "Sygma Cloud"
         ]
       },
       "control": {
         "present": true,
         "protocols": [
           "RS-232",
-          "CEC",
-          "Telnet",
-          "API",
-          "EDID"
+          "Relay"
         ],
         "evidence": [
           "COMMUNICATION AND CONTROL",
@@ -280096,9 +279895,7 @@
       "power": {
         "poe": false,
         "powerDelivery": true,
-        "evidence": [
-          "20V 10A DC power adapter"
-        ]
+        "evidence": []
       },
       "mechanical": {
         "installation": [
@@ -280477,184 +280274,72 @@
         ]
       },
       "governedSpecification": {
-        "sku": "SW-620-TX-W",
-        "status": "verified",
-        "productClass": "PRESENTATION",
-        "role": "Room presentation and source switching core",
-        "productType": "Room source switcher",
+        "sku": "SW-660-TX-W",
+        "status": "verified-with-warning",
+        "productClass": "WIRELESS_PRESENTATION",
+        "role": "wireless dongle",
+        "productType": "4K60Hz 6x2 Wireless Presentation Switcher",
         "transport": [
-          "HDMI",
           "USB-C",
-          "Wireless",
-          "USB-C video input",
-          "USB 3.x",
-          "USB-C power delivery",
-          "Wireless conferencing",
-          "Wireless presentation",
-          "Presentation switching"
+          "Wi-Fi"
         ],
-        "maxResolution": "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M",
+        "maxResolution": "4K60Hz",
+        "routedInputs": 2,
+        "inputCount": 2,
         "ports": [
           {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "1x HDMI in (4K30)"
-          },
-          {
             "count": 2,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
-          },
-          {
-            "count": 1,
             "connector": "USB-C",
             "direction": "input",
-            "category": "usb",
-            "detail": "1x USB-C, Video input with MST, up to 2x 4K@30Hz"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x Analog Audio Output (5-pin Phoenix Male Connector)"
-          },
-          {
-            "count": 3,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "3 x USB 3.0 Type A device ports | 5v 1000mA per port"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type B host port (assignable)"
-          },
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type-C port"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 4-pin Phoenix (API control) | Provides 12v power"
-          },
-          {
-            "count": 2,
-            "connector": "RJ-45 for API control 2x RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "direction": "output",
-            "category": "control",
-            "detail": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 2-Pin Phoenix connector for MUTE port"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "output",
-            "category": "control",
-            "detail": "1x 4-Pin Phoenix connector for RS232"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 5-Pin Phoenix connector for analog audio output"
+            "category": "video",
+            "detail": "2x USB-C inputs"
           }
         ],
         "video": [
-          "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M",
-          "4K@30Hz Wireless Video from APO-DG2, APO-DG2-PR",
-          "4K@60Hz 4:4:4 8bit, Output 2 – 4K@30Hz 4:4:4 8b",
-          "4K@30Hz video resolution on a HDMI input, 4K@60Hz",
-          "4K@30Hz on HDMI output 2, ensuring superior vis",
-          "4K@30Hz, to both HDMI outputs",
-          "HDMI",
-          "HDCP 2.3",
-          "Multiview",
-          "Seamless switching",
-          "EDID management"
+          "4K60Hz 4:4:4"
         ],
         "audio": [
-          "PCM"
+          "Audio De-embed"
         ],
         "usb": [
-          "USB 3.0",
-          "USB 3.x",
-          "USB-C"
+          "USB 3.0"
         ],
         "network": [
-          "LAN",
-          "Dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.",
-          "Robust Connectivity and Control: Equipped with three USB 3.0 device ports, one balanced audio de-embedding port, RS232, and MUTE port, the SW-620-TX-W allows for seamless integration with various conference equipment. Additionally, the dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.",
-          "Telnet",
-          "API"
+          "Sygma Cloud"
         ],
         "control": [
           "RS-232",
-          "CEC",
-          "Telnet",
-          "API",
-          "EDID"
+          "Relay"
         ],
-        "power": [
-          "20V 10A DC power adapter"
-        ],
-        "physical": [],
-        "dependencies": [],
-        "compatibleFamilies": [],
-        "checks": [
-          "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
-          "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
-        ],
+        "features": {
+          "hdr": false,
+          "arc": false,
+          "earc": false,
+          "cec": false,
+          "dante": false,
+          "ndi": false
+        },
+        "checks": [],
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "official-product-page-canonical-capture",
-            "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
-            "reviewedOn": "2026-07-30",
-            "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-            "note": "Draft generated from canonical official-source material (66 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
-            "sourceType": "manufacturer",
-            "checkedAt": "2026-08-16T10:23:16.474Z",
-            "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
-            "reviewedOn": "2026-08-16",
-            "reviewer": "Steve"
+            "sourceType": "pricelist-q3-2026",
+            "url": "",
+            "excerpt": "4K60Hz 6x2 Wireless Presentation Switcher | 4K60Hz 4:4:4 | 2 USB-C & 4 HDMI Inputs | 2 HDMI Outputs | Seamless Switching | MST | Multiview | Dual USB-C 60W Charging | USB-C Ethernet | Audio De-embed | USB 3.0 | Relay | RS-232| Airplay & Miracast | Wireless Casting & Conferencing (work with APO-DG2 & APO-DG2-PRO) | Sygma Cloud Management",
+            "checkedAt": "2026-08-29T07:14:40.282Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/sw-660-tx-w",
+            "reviewedOn": "2026-08-30",
+            "reviewer": "WyreStorm Product Team"
           }
         ],
-        "specs": {
-          "externalPsu": true,
-          "powerSupply": "20V 10A DC"
-        },
-        "verifiedBy": "Steve",
-        "verifiedAt": "2026-08-16T10:23:16.474Z",
-        "confirmedFields": [
-          "max-resolution",
-          "routed-io",
-          "power"
-        ],
-        "features": {}
+        "verifiedBy": "auto-import",
+        "verifiedAt": "2026-08-29T07:14:40.282Z",
+        "confirmedFields": [],
+        "createdAt": "2026-08-29T07:14:40.282Z",
+        "dependencies": [],
+        "compatibleFamilies": [],
+        "power": [],
+        "physical": []
       }
     },
     "activeSku": "Yes",
@@ -280807,12 +280492,7 @@
       "USB"
     ],
     "connectors": [
-      "HDMI",
-      "USB-C",
-      "Analog audio",
-      "USB",
-      "RJ-45 for API control 2x RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-      "RS-232"
+      "USB-C"
     ],
     "applications": [
       "BYOD presentation",
@@ -280888,19 +280568,17 @@
     "successor": "",
     "sourceCatalog": {
       "inputs": [
-        "1 x HDMI input - 1x HDMI in (4K30)"
+        "2 x USB-C input - 2x USB-C inputs"
       ],
-      "outputs": [
-        "2 x HDMI output - 2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
-      ],
-      "resolutionBandwidth": "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M; 4K@30Hz Wireless Video from APO-DG2, APO-DG2-PR; 4K@60Hz 4:4:4 8bit, Output 2 – 4K@30Hz 4:4:4 8b; 4K@30Hz video resolution on a HDMI input, 4K@60Hz; 4K@30Hz on HDMI output 2, ensuring superior vis; 4K@30Hz, to both HDMI outputs; HDMI; HDCP 2.3; Multiview; Seamless switching; EDID management",
-      "usb": "USB 3.0; USB 3.x; USB-C",
-      "audio": "PCM",
-      "control": "RS-232; CEC; Telnet; API; EDID",
-      "networkRequirement": "LAN; Dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.; Robust Connectivity and Control: Equipped with three USB 3.0 device ports, one balanced audio de-embedding port, RS232, and MUTE port, the SW-620-TX-W allows for seamless integration with various conference equipment. Additionally, the dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.; Telnet; API",
+      "outputs": [],
+      "resolutionBandwidth": "4K60Hz 4:4:4",
+      "usb": "USB 3.0",
+      "audio": "Audio De-embed",
+      "control": "RS-232; Relay",
+      "networkRequirement": "Sygma Cloud",
       "dependencies": [],
       "compatibleFamilies": [],
-      "quoteWarnings": "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation. Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+      "quoteWarnings": ""
     }
   },
   {
@@ -281243,223 +280921,12 @@
         "Wireless presentation"
       ],
       "io": {
-        "ports": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "1x HDMI in (4K30)",
-            "evidence": "1x HDMI in (4K30)"
-          },
-          {
-            "count": 2,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)",
-            "evidence": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
-          },
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "input",
-            "category": "usb",
-            "detail": "1x USB-C, Video input with MST, up to 2x 4K@30Hz",
-            "evidence": "1x USB-C, Video input with MST, up to 2x 4K@30Hz"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x Analog Audio Output (5-pin Phoenix Male Connector)",
-            "evidence": "1x Analog Audio Output (5-pin Phoenix Male Connector)"
-          },
-          {
-            "count": 3,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "3 x USB 3.0 Type A device ports | 5v 1000mA per port",
-            "evidence": "3 x USB 3.0 Type A device ports | 5v 1000mA per port"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type B host port (assignable)",
-            "evidence": "1 x USB 3.0 Type B host port (assignable)"
-          },
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type-C port",
-            "evidence": "1 x USB 3.0 Type-C port"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 4-pin Phoenix (API control) | Provides 12v power",
-            "evidence": "1x 4-pin Phoenix (API control) | Provides 12v power"
-          },
-          {
-            "count": 2,
-            "connector": "RJ-45 for API control 2x RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "direction": "output",
-            "category": "control",
-            "detail": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "evidence": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 2-Pin Phoenix connector for MUTE port",
-            "evidence": "1x 2-Pin Phoenix connector for MUTE port"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "output",
-            "category": "control",
-            "detail": "1x 4-Pin Phoenix connector for RS232",
-            "evidence": "1x 4-Pin Phoenix connector for RS232"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 5-Pin Phoenix connector for analog audio output",
-            "evidence": "1x 5-Pin Phoenix connector for analog audio output"
-          }
-        ],
-        "video": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "1x HDMI in (4K30)",
-            "evidence": "1x HDMI in (4K30)"
-          },
-          {
-            "count": 2,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)",
-            "evidence": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
-          }
-        ],
-        "audio": [
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x Analog Audio Output (5-pin Phoenix Male Connector)",
-            "evidence": "1x Analog Audio Output (5-pin Phoenix Male Connector)"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 4-pin Phoenix (API control) | Provides 12v power",
-            "evidence": "1x 4-pin Phoenix (API control) | Provides 12v power"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 2-Pin Phoenix connector for MUTE port",
-            "evidence": "1x 2-Pin Phoenix connector for MUTE port"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 5-Pin Phoenix connector for analog audio output",
-            "evidence": "1x 5-Pin Phoenix connector for analog audio output"
-          }
-        ],
-        "usb": [
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "input",
-            "category": "usb",
-            "detail": "1x USB-C, Video input with MST, up to 2x 4K@30Hz",
-            "evidence": "1x USB-C, Video input with MST, up to 2x 4K@30Hz"
-          },
-          {
-            "count": 3,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "3 x USB 3.0 Type A device ports | 5v 1000mA per port",
-            "evidence": "3 x USB 3.0 Type A device ports | 5v 1000mA per port"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type B host port (assignable)",
-            "evidence": "1 x USB 3.0 Type B host port (assignable)"
-          },
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type-C port",
-            "evidence": "1 x USB 3.0 Type-C port"
-          }
-        ],
-        "control": [
-          {
-            "count": 2,
-            "connector": "RJ-45 for API control 2x RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "direction": "output",
-            "category": "control",
-            "detail": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "evidence": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "output",
-            "category": "control",
-            "detail": "1x 4-Pin Phoenix connector for RS232",
-            "evidence": "1x 4-Pin Phoenix connector for RS232"
-          }
-        ]
+        "ports": []
       },
       "video": {
         "present": true,
         "maxResolutions": [
-          "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M",
-          "4K@30Hz Wireless Video from APO-DG2, APO-DG2-PR",
-          "4K@60Hz 4:4:4 8bit, Output 2 – 4K@30Hz 4:4:4 8b",
-          "4K@30Hz video resolution on a HDMI input, 4K@60Hz",
-          "4K@30Hz on HDMI output 2, ensuring superior vis",
-          "4K@30Hz, to both HDMI outputs",
-          "HDMI",
-          "HDCP 2.3",
-          "Multiview",
-          "Seamless switching",
-          "EDID management"
+          "4K60Hz 4:4:4"
         ],
         "standards": [
           "HDMI",
@@ -281491,12 +280958,12 @@
           "The SW-620-TX-W Conference Presentation Switcher features USB-C/HDMI input, as well as support for Miracast, Airplay and Wireless casting via APO-DG2/APO-DG2-PRO, allowing simple and clean installation.",
           "Experience the full potential of USB-C with support for 4K video, USB 3.0 data transfer, and 100W charging. The SW-620-TX-W also supports dual video output via a single USB-C input cable, providing exceptional flexibility for multi-screen presentations."
         ],
-        "maximum": "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M"
+        "maximum": "4K60Hz"
       },
       "audio": {
         "present": true,
         "formats": [
-          "PCM"
+          "Audio De-embed"
         ],
         "networkAudio": [],
         "amplifierPower": [],
@@ -281517,9 +280984,7 @@
         "bandwidth": [],
         "powerDelivery": true,
         "evidence": [
-          "USB 3.0",
-          "USB 3.x",
-          "USB-C"
+          "USB 3.0"
         ]
       },
       "network": {
@@ -281536,22 +281001,12 @@
         "linkSpeeds": [],
         "powerOverNetwork": [],
         "evidence": [
-          "LAN",
-          "Dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.",
-          "Robust Connectivity and Control: Equipped with three USB 3.0 device ports, one balanced audio de-embedding port, RS232, and MUTE port, the SW-620-TX-W allows for seamless integration with various conference equipment. Additionally, the dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.",
-          "Telnet",
-          "API"
+          "Sygma Cloud"
         ]
       },
       "control": {
-        "present": true,
-        "protocols": [
-          "RS-232",
-          "CEC",
-          "Telnet",
-          "API",
-          "EDID"
-        ],
+        "present": false,
+        "protocols": [],
         "evidence": [
           "COMMUNICATION AND CONTROL",
           "HDMI CEC | HDCP 2.3 | EDID",
@@ -281572,9 +281027,7 @@
       "power": {
         "poe": false,
         "powerDelivery": true,
-        "evidence": [
-          "20V 10A DC power adapter"
-        ]
+        "evidence": []
       },
       "mechanical": {
         "installation": [
@@ -281953,184 +281406,58 @@
         ]
       },
       "governedSpecification": {
-        "sku": "SW-620-TX-W",
-        "status": "verified",
-        "productClass": "PRESENTATION",
-        "role": "Room presentation and source switching core",
-        "productType": "Room source switcher",
+        "sku": "SW-620L-TX-W",
+        "status": "verified-with-warning",
+        "productClass": "WIRELESS_PRESENTATION",
+        "role": "wireless dongle",
+        "productType": "4K30Hz 2x2 Wireless Presentation Switcher",
         "transport": [
-          "HDMI",
           "USB-C",
-          "Wireless",
-          "USB-C video input",
-          "USB 3.x",
-          "USB-C power delivery",
-          "Wireless conferencing",
-          "Wireless presentation",
-          "Presentation switching"
+          "Wi-Fi"
         ],
-        "maxResolution": "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M",
-        "ports": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "1x HDMI in (4K30)"
-          },
-          {
-            "count": 2,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
-          },
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "input",
-            "category": "usb",
-            "detail": "1x USB-C, Video input with MST, up to 2x 4K@30Hz"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x Analog Audio Output (5-pin Phoenix Male Connector)"
-          },
-          {
-            "count": 3,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "3 x USB 3.0 Type A device ports | 5v 1000mA per port"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type B host port (assignable)"
-          },
-          {
-            "count": 1,
-            "connector": "USB-C",
-            "direction": "output",
-            "category": "usb",
-            "detail": "1 x USB 3.0 Type-C port"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 4-pin Phoenix (API control) | Provides 12v power"
-          },
-          {
-            "count": 2,
-            "connector": "RJ-45 for API control 2x RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-            "direction": "output",
-            "category": "control",
-            "detail": "2x 8-pin RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 2-Pin Phoenix connector for MUTE port"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "output",
-            "category": "control",
-            "detail": "1x 4-Pin Phoenix connector for RS232"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "1x 5-Pin Phoenix connector for analog audio output"
-          }
-        ],
+        "maxResolution": "4K60Hz",
         "video": [
-          "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M",
-          "4K@30Hz Wireless Video from APO-DG2, APO-DG2-PR",
-          "4K@60Hz 4:4:4 8bit, Output 2 – 4K@30Hz 4:4:4 8b",
-          "4K@30Hz video resolution on a HDMI input, 4K@60Hz",
-          "4K@30Hz on HDMI output 2, ensuring superior vis",
-          "4K@30Hz, to both HDMI outputs",
-          "HDMI",
-          "HDCP 2.3",
-          "Multiview",
-          "Seamless switching",
-          "EDID management"
+          "4K60Hz 4:4:4"
         ],
         "audio": [
-          "PCM"
+          "Audio De-embed"
         ],
         "usb": [
-          "USB 3.0",
-          "USB 3.x",
-          "USB-C"
+          "USB 3.0"
         ],
         "network": [
-          "LAN",
-          "Dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.",
-          "Robust Connectivity and Control: Equipped with three USB 3.0 device ports, one balanced audio de-embedding port, RS232, and MUTE port, the SW-620-TX-W allows for seamless integration with various conference equipment. Additionally, the dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.",
-          "Telnet",
-          "API"
+          "Sygma Cloud"
         ],
-        "control": [
-          "RS-232",
-          "CEC",
-          "Telnet",
-          "API",
-          "EDID"
-        ],
-        "power": [
-          "20V 10A DC power adapter"
-        ],
-        "physical": [],
-        "dependencies": [],
-        "compatibleFamilies": [],
-        "checks": [
-          "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
-          "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
-        ],
+        "features": {
+          "hdr": false,
+          "arc": false,
+          "earc": false,
+          "dante": false,
+          "ndi": false
+        },
+        "checks": [],
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "official-product-page-canonical-capture",
-            "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
-            "reviewedOn": "2026-07-30",
-            "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-            "note": "Draft generated from canonical official-source material (66 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
-            "sourceType": "manufacturer",
-            "checkedAt": "2026-08-16T10:23:16.474Z",
-            "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
-            "reviewedOn": "2026-08-16",
-            "reviewer": "Steve"
+            "sourceType": "pricelist-q3-2026",
+            "url": "",
+            "excerpt": "4K30Hz 2x2 Wireless Presentation Switcher | 4K30Hz 4:4:4 | 2 HDMI Inputs | 2 HDMI Outputs | Seamless Switching | Multiview | USB-B Ethernet | Audio De-embed | USB 3.0 |  Airplay & Miracast | Wireless Casting & Conferencing (work with APO-DG2 & APO-DG2-PRO) | Sygma Cloud Management",
+            "checkedAt": "2026-08-29T07:14:40.282Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/sw-620l-tx-w",
+            "reviewedOn": "2026-08-30",
+            "reviewer": "WyreStorm Product Team"
           }
         ],
-        "specs": {
-          "externalPsu": true,
-          "powerSupply": "20V 10A DC"
-        },
-        "verifiedBy": "Steve",
-        "verifiedAt": "2026-08-16T10:23:16.474Z",
-        "confirmedFields": [
-          "max-resolution",
-          "routed-io",
-          "power"
-        ],
-        "features": {}
+        "verifiedBy": "auto-import",
+        "verifiedAt": "2026-08-29T07:14:40.282Z",
+        "confirmedFields": [],
+        "createdAt": "2026-08-29T07:14:40.282Z",
+        "dependencies": [],
+        "compatibleFamilies": [],
+        "control": [],
+        "power": [],
+        "physical": [],
+        "ports": []
       }
     },
     "activeSku": "Yes",
@@ -282282,14 +281609,7 @@
       "Control",
       "USB"
     ],
-    "connectors": [
-      "HDMI",
-      "USB-C",
-      "Analog audio",
-      "USB",
-      "RJ-45 for API control 2x RJ-45 for API control (Telnet, TLS, HTTP/HTTPS for webUI)",
-      "RS-232"
-    ],
+    "connectors": [],
     "applications": [
       "BYOD presentation",
       "Meeting room, classroom and BYOD presentation workflows",
@@ -282363,20 +281683,16 @@
     "doNotSpec": false,
     "successor": "",
     "sourceCatalog": {
-      "inputs": [
-        "1 x HDMI input - 1x HDMI in (4K30)"
-      ],
-      "outputs": [
-        "2 x HDMI output - 2x HDMI out (Out1 4K60, Out2 4K30; single/multiview)"
-      ],
-      "resolutionBandwidth": "4K@30Hz 4:4:4 8bit 1x USB-C, Video input with M; 4K@30Hz Wireless Video from APO-DG2, APO-DG2-PR; 4K@60Hz 4:4:4 8bit, Output 2 – 4K@30Hz 4:4:4 8b; 4K@30Hz video resolution on a HDMI input, 4K@60Hz; 4K@30Hz on HDMI output 2, ensuring superior vis; 4K@30Hz, to both HDMI outputs; HDMI; HDCP 2.3; Multiview; Seamless switching; EDID management",
-      "usb": "USB 3.0; USB 3.x; USB-C",
-      "audio": "PCM",
-      "control": "RS-232; CEC; Telnet; API; EDID",
-      "networkRequirement": "LAN; Dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.; Robust Connectivity and Control: Equipped with three USB 3.0 device ports, one balanced audio de-embedding port, RS232, and MUTE port, the SW-620-TX-W allows for seamless integration with various conference equipment. Additionally, the dual RJ-45 ports support Ethernet functionality in transparent mode, where it acts as a normal switch or isolated mode where control port is isolated.; Telnet; API",
+      "inputs": [],
+      "outputs": [],
+      "resolutionBandwidth": "4K60Hz 4:4:4",
+      "usb": "USB 3.0",
+      "audio": "Audio De-embed",
+      "control": "",
+      "networkRequirement": "Sygma Cloud",
       "dependencies": [],
       "compatibleFamilies": [],
-      "quoteWarnings": "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation. Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+      "quoteWarnings": ""
     }
   },
   {
@@ -282685,159 +282001,12 @@
         "USB routing / switching"
       ],
       "io": {
-        "ports": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "TX: 1x HDMI in",
-            "evidence": "TX: 1x HDMI in"
-          },
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "RX: 1x HDMI out",
-            "evidence": "RX: 1x HDMI out"
-          },
-          {
-            "count": 1,
-            "connector": "RJ45 / HDBaseT",
-            "direction": "bidirectional",
-            "category": "video",
-            "detail": "HDBaseT link (PoH)",
-            "evidence": "HDBaseT link (PoH)"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "bidirectional",
-            "category": "control",
-            "detail": "1x RS-232 (TX and RX)",
-            "evidence": "1x RS-232 (TX and RX)"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "input",
-            "category": "usb",
-            "detail": "TX: 1x USB host",
-            "evidence": "TX: 1x USB host"
-          },
-          {
-            "count": 4,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "RX: 4x USB device",
-            "evidence": "RX: 4x USB device"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "input",
-            "category": "audio",
-            "detail": "TX: 1x audio in",
-            "evidence": "TX: 1x audio in"
-          },
-          {
-            "count": 2,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "RX: 2x audio out (de-embed + pass-through)",
-            "evidence": "RX: 2x audio out (de-embed + pass-through)"
-          }
-        ],
-        "video": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "TX: 1x HDMI in",
-            "evidence": "TX: 1x HDMI in"
-          },
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "RX: 1x HDMI out",
-            "evidence": "RX: 1x HDMI out"
-          },
-          {
-            "count": 1,
-            "connector": "RJ45 / HDBaseT",
-            "direction": "bidirectional",
-            "category": "video",
-            "detail": "HDBaseT link (PoH)",
-            "evidence": "HDBaseT link (PoH)"
-          }
-        ],
-        "audio": [
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "input",
-            "category": "audio",
-            "detail": "TX: 1x audio in",
-            "evidence": "TX: 1x audio in"
-          },
-          {
-            "count": 2,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "RX: 2x audio out (de-embed + pass-through)",
-            "evidence": "RX: 2x audio out (de-embed + pass-through)"
-          }
-        ],
-        "usb": [
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "input",
-            "category": "usb",
-            "detail": "TX: 1x USB host",
-            "evidence": "TX: 1x USB host"
-          },
-          {
-            "count": 4,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "RX: 4x USB device",
-            "evidence": "RX: 4x USB device"
-          }
-        ],
-        "control": [
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "bidirectional",
-            "category": "control",
-            "detail": "1x RS-232 (TX and RX)",
-            "evidence": "1x RS-232 (TX and RX)"
-          }
-        ]
+        "ports": []
       },
       "video": {
         "present": true,
         "maxResolutions": [
-          "4K HDMI & USB KVM Extender over HDBaseT WyreSto",
-          "4K HDMI, USB 2",
-          "4K60Hz 4:2:0 HDBT 2",
-          "4K: 100m/328ft) Extension Extender AUDIO AND VI",
-          "4K@60Hz 4:2:0 8bit, HDCP 2",
-          "1080p @60Hz 4K @30Hz 4:4:4 4K @60Hz 4:2:0 5120×144",
-          "HDMI",
-          "HDMI 1.4",
-          "HDCP 2.2",
-          "100m",
-          "100m/328ft"
+          "4K60Hz 4:4:4"
         ],
         "standards": [
           "HDMI",
@@ -282863,15 +282032,12 @@
           "Delivers uncompressed video signals up to 100 meters (Cat6/6a/7), ensuring ultra-clear visuals even over long distances.",
           "Enables seamless KVM control by transmitting USB 2.0 alongside HDMI, ideal for remote PC operation."
         ],
-        "maximum": "3840x2160p @60Hz 4:2:0"
+        "maximum": "4K60Hz"
       },
       "audio": {
         "present": true,
         "formats": [
-          "PCM",
-          "Dolby TrueHD",
-          "Dolby Atmos",
-          "DTS-HD Master Audio and DTS"
+          "Audio De-embed"
         ],
         "networkAudio": [],
         "amplifierPower": [],
@@ -282896,17 +282062,11 @@
         "bandwidth": [],
         "powerDelivery": false,
         "evidence": [
-          "USB 2.0",
-          "USB 3.2",
-          "USB 3.2 Gen 1",
-          "USB 3.x",
-          "USB host",
-          "USB device",
-          "KVM / HID"
+          "USB 2.0"
         ]
       },
       "network": {
-        "present": true,
+        "present": false,
         "interfaces": [
           "RX: 4x USB 3.2 Type A1 x RJ45 Input",
           "TX: 1x RJ45 Female"
@@ -282916,10 +282076,7 @@
         "powerOverNetwork": [
           "PoH"
         ],
-        "evidence": [
-          "TX: 1x RJ45 Female",
-          "PoH"
-        ]
+        "evidence": []
       },
       "control": {
         "present": true,
@@ -283264,148 +282421,57 @@
         ]
       },
       "governedSpecification": {
-        "sku": "EX-100-KVM",
-        "status": "verified",
+        "sku": "EX-40-KVM-H2",
+        "status": "verified-with-warning",
         "productClass": "HDBASET",
-        "role": "Point-to-point extension",
-        "productType": "Signal extension endpoint",
+        "role": "KVM extender",
+        "productType": "HDMI 2.0 4K60Hz KVM Extender",
         "transport": [
-          "HDBaseT",
-          "USB",
-          "HDMI",
-          "KVM / USB extension",
-          "USB 2.0",
-          "USB 3.x",
-          "USB routing / switching",
-          "Extension"
+          "HDBaseT"
         ],
-        "maxResolution": "3840x2160p @60Hz 4:2:0",
-        "ports": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "TX: 1x HDMI in"
-          },
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "RX: 1x HDMI out"
-          },
-          {
-            "count": 1,
-            "connector": "RJ45 / HDBaseT",
-            "direction": "bidirectional",
-            "category": "video",
-            "detail": "HDBaseT link (PoH)"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "bidirectional",
-            "category": "control",
-            "detail": "1x RS-232 (TX and RX)"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "input",
-            "category": "usb",
-            "detail": "TX: 1x USB host"
-          },
-          {
-            "count": 4,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "RX: 4x USB device"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "input",
-            "category": "audio",
-            "detail": "TX: 1x audio in"
-          },
-          {
-            "count": 2,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "RX: 2x audio out (de-embed + pass-through)"
-          }
-        ],
+        "maxResolution": "4K60Hz",
         "video": [
-          "4K HDMI & USB KVM Extender over HDBaseT WyreSto",
-          "4K HDMI, USB 2",
-          "4K60Hz 4:2:0 HDBT 2",
-          "4K: 100m/328ft) Extension Extender AUDIO AND VI",
-          "4K@60Hz 4:2:0 8bit, HDCP 2",
-          "1080p @60Hz 4K @30Hz 4:4:4 4K @60Hz 4:2:0 5120×144",
-          "HDMI",
-          "HDMI 1.4",
-          "HDCP 2.2",
-          "100m",
-          "100m/328ft"
+          "4K60Hz 4:4:4"
         ],
         "audio": [
-          "PCM",
-          "Dolby TrueHD",
-          "Dolby Atmos",
-          "DTS-HD Master Audio and DTS"
+          "Audio De-embed"
         ],
         "usb": [
-          "USB 2.0",
-          "USB 3.2",
-          "USB 3.2 Gen 1",
-          "USB 3.x",
-          "USB host",
-          "USB device",
-          "KVM / HID"
-        ],
-        "network": [
-          "TX: 1x RJ45 Female",
-          "PoH"
+          "USB 2.0"
         ],
         "control": [
           "RS-232"
         ],
-        "power": [],
-        "physical": [],
-        "dependencies": [],
-        "compatibleFamilies": [],
-        "checks": [
-          "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
-          "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
-        ],
+        "features": {
+          "hdr": false,
+          "arc": false,
+          "earc": false,
+          "cec": false,
+          "dante": false
+        },
+        "checks": [],
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "official-product-page-canonical-capture",
-            "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
-            "reviewedOn": "2026-07-30",
-            "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-            "note": "Draft generated from canonical official-source material (65 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
-            "sourceType": "manufacturer",
-            "checkedAt": "2026-08-16T10:23:16.105Z",
-            "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
-            "reviewedOn": "2026-08-16",
-            "reviewer": "Steve"
+            "sourceType": "pricelist-q3-2026",
+            "url": "",
+            "excerpt": "HDMI 2.0 4K60Hz KVM Extender | UTP | 4K60Hz 4:4:4 | USB 2.0 | RS232 passthrough | Audio De-embed | Bi-Directional PoC (40m/131ft)",
+            "checkedAt": "2026-08-29T07:14:40.282Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/ex-40-kvm-h2",
+            "reviewedOn": "2026-08-30",
+            "reviewer": "WyreStorm Product Team"
           }
         ],
-        "verifiedBy": "Steve",
-        "verifiedAt": "2026-08-16T10:23:16.105Z",
-        "confirmedFields": [
-          "max-resolution",
-          "routed-io"
-        ],
-        "features": {}
+        "verifiedBy": "auto-import",
+        "verifiedAt": "2026-08-29T07:14:40.282Z",
+        "confirmedFields": [],
+        "createdAt": "2026-08-29T07:14:40.282Z",
+        "dependencies": [],
+        "compatibleFamilies": [],
+        "network": [],
+        "power": [],
+        "physical": [],
+        "ports": []
       }
     },
     "activeSku": "Yes",
@@ -283560,13 +282626,7 @@
       "Video",
       "Network"
     ],
-    "connectors": [
-      "HDMI",
-      "RJ45 / HDBaseT",
-      "RS-232",
-      "USB",
-      "Analog audio"
-    ],
+    "connectors": [],
     "applications": [
       "Classroom",
       "Meeting room",
@@ -283608,20 +282668,16 @@
     "doNotSpec": false,
     "successor": "",
     "sourceCatalog": {
-      "inputs": [
-        "1 x HDMI input - TX: 1x HDMI in"
-      ],
-      "outputs": [
-        "1 x HDMI output - RX: 1x HDMI out"
-      ],
-      "resolutionBandwidth": "4K HDMI & USB KVM Extender over HDBaseT WyreSto; 4K HDMI, USB 2; 4K60Hz 4:2:0 HDBT 2; 4K: 100m/328ft) Extension Extender AUDIO AND VI; 4K@60Hz 4:2:0 8bit, HDCP 2; 1080p @60Hz 4K @30Hz 4:4:4 4K @60Hz 4:2:0 5120×144; HDMI; HDMI 1.4; HDCP 2.2; 100m; 100m/328ft",
-      "usb": "USB 2.0; USB 3.2; USB 3.2 Gen 1; USB 3.x; USB host; USB device; KVM / HID",
-      "audio": "PCM; Dolby TrueHD; Dolby Atmos; DTS-HD Master Audio and DTS",
+      "inputs": [],
+      "outputs": [],
+      "resolutionBandwidth": "4K60Hz 4:4:4",
+      "usb": "USB 2.0",
+      "audio": "Audio De-embed",
       "control": "RS-232",
-      "networkRequirement": "TX: 1x RJ45 Female; PoH",
+      "networkRequirement": "",
       "dependencies": [],
       "compatibleFamilies": [],
-      "quoteWarnings": "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation. Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+      "quoteWarnings": ""
     }
   },
   {
@@ -283930,159 +282986,12 @@
         "USB routing / switching"
       ],
       "io": {
-        "ports": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "TX: 1x HDMI in",
-            "evidence": "TX: 1x HDMI in"
-          },
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "RX: 1x HDMI out",
-            "evidence": "RX: 1x HDMI out"
-          },
-          {
-            "count": 1,
-            "connector": "RJ45 / HDBaseT",
-            "direction": "bidirectional",
-            "category": "video",
-            "detail": "HDBaseT link (PoH)",
-            "evidence": "HDBaseT link (PoH)"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "bidirectional",
-            "category": "control",
-            "detail": "1x RS-232 (TX and RX)",
-            "evidence": "1x RS-232 (TX and RX)"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "input",
-            "category": "usb",
-            "detail": "TX: 1x USB host",
-            "evidence": "TX: 1x USB host"
-          },
-          {
-            "count": 4,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "RX: 4x USB device",
-            "evidence": "RX: 4x USB device"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "input",
-            "category": "audio",
-            "detail": "TX: 1x audio in",
-            "evidence": "TX: 1x audio in"
-          },
-          {
-            "count": 2,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "RX: 2x audio out (de-embed + pass-through)",
-            "evidence": "RX: 2x audio out (de-embed + pass-through)"
-          }
-        ],
-        "video": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "TX: 1x HDMI in",
-            "evidence": "TX: 1x HDMI in"
-          },
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "RX: 1x HDMI out",
-            "evidence": "RX: 1x HDMI out"
-          },
-          {
-            "count": 1,
-            "connector": "RJ45 / HDBaseT",
-            "direction": "bidirectional",
-            "category": "video",
-            "detail": "HDBaseT link (PoH)",
-            "evidence": "HDBaseT link (PoH)"
-          }
-        ],
-        "audio": [
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "input",
-            "category": "audio",
-            "detail": "TX: 1x audio in",
-            "evidence": "TX: 1x audio in"
-          },
-          {
-            "count": 2,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "RX: 2x audio out (de-embed + pass-through)",
-            "evidence": "RX: 2x audio out (de-embed + pass-through)"
-          }
-        ],
-        "usb": [
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "input",
-            "category": "usb",
-            "detail": "TX: 1x USB host",
-            "evidence": "TX: 1x USB host"
-          },
-          {
-            "count": 4,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "RX: 4x USB device",
-            "evidence": "RX: 4x USB device"
-          }
-        ],
-        "control": [
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "bidirectional",
-            "category": "control",
-            "detail": "1x RS-232 (TX and RX)",
-            "evidence": "1x RS-232 (TX and RX)"
-          }
-        ]
+        "ports": []
       },
       "video": {
         "present": true,
         "maxResolutions": [
-          "4K HDMI & USB KVM Extender over HDBaseT WyreSto",
-          "4K HDMI, USB 2",
-          "4K60Hz 4:2:0 HDBT 2",
-          "4K: 100m/328ft) Extension Extender AUDIO AND VI",
-          "4K@60Hz 4:2:0 8bit, HDCP 2",
-          "1080p @60Hz 4K @30Hz 4:4:4 4K @60Hz 4:2:0 5120×144",
-          "HDMI",
-          "HDMI 1.4",
-          "HDCP 2.2",
-          "100m",
-          "100m/328ft"
+          "4K60Hz 4:4:4"
         ],
         "standards": [
           "HDMI",
@@ -284108,15 +283017,12 @@
           "Delivers uncompressed video signals up to 100 meters (Cat6/6a/7), ensuring ultra-clear visuals even over long distances.",
           "Enables seamless KVM control by transmitting USB 2.0 alongside HDMI, ideal for remote PC operation."
         ],
-        "maximum": "3840x2160p @60Hz 4:2:0"
+        "maximum": "4K60Hz"
       },
       "audio": {
         "present": true,
         "formats": [
-          "PCM",
-          "Dolby TrueHD",
-          "Dolby Atmos",
-          "DTS-HD Master Audio and DTS"
+          "Audio De-embed"
         ],
         "networkAudio": [],
         "amplifierPower": [],
@@ -284141,17 +283047,11 @@
         "bandwidth": [],
         "powerDelivery": false,
         "evidence": [
-          "USB 2.0",
-          "USB 3.2",
-          "USB 3.2 Gen 1",
-          "USB 3.x",
-          "USB host",
-          "USB device",
-          "KVM / HID"
+          "USB 2.0"
         ]
       },
       "network": {
-        "present": true,
+        "present": false,
         "interfaces": [
           "RX: 4x USB 3.2 Type A1 x RJ45 Input",
           "TX: 1x RJ45 Female"
@@ -284161,15 +283061,13 @@
         "powerOverNetwork": [
           "PoH"
         ],
-        "evidence": [
-          "TX: 1x RJ45 Female",
-          "PoH"
-        ]
+        "evidence": []
       },
       "control": {
         "present": true,
         "protocols": [
-          "RS-232"
+          "RS-232",
+          "IR"
         ],
         "evidence": [
           "TX: 1x HDMI IN, 1x HDBT OUT, 1x RS232, 1x AUDIO IN, 1x AUDIO OUT, 1x USB HOST, 1x DC 12V IN",
@@ -284184,7 +283082,9 @@
       "power": {
         "poe": true,
         "powerDelivery": false,
-        "evidence": []
+        "evidence": [
+          "PoH"
+        ]
       },
       "mechanical": {
         "installation": [],
@@ -284509,148 +283409,60 @@
         ]
       },
       "governedSpecification": {
-        "sku": "EX-100-KVM",
-        "status": "verified",
+        "sku": "EX-100-KVM-H2",
+        "status": "verified-with-warning",
         "productClass": "HDBASET",
-        "role": "Point-to-point extension",
-        "productType": "Signal extension endpoint",
+        "role": "KVM extender",
+        "productType": "4k60Hz KVM Extender",
         "transport": [
-          "HDBaseT",
-          "USB",
-          "HDMI",
-          "KVM / USB extension",
-          "USB 2.0",
-          "USB 3.x",
-          "USB routing / switching",
-          "Extension"
+          "HDBaseT"
         ],
-        "maxResolution": "3840x2160p @60Hz 4:2:0",
-        "ports": [
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "TX: 1x HDMI in"
-          },
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "detail": "RX: 1x HDMI out"
-          },
-          {
-            "count": 1,
-            "connector": "RJ45 / HDBaseT",
-            "direction": "bidirectional",
-            "category": "video",
-            "detail": "HDBaseT link (PoH)"
-          },
-          {
-            "count": 1,
-            "connector": "RS-232",
-            "direction": "bidirectional",
-            "category": "control",
-            "detail": "1x RS-232 (TX and RX)"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "input",
-            "category": "usb",
-            "detail": "TX: 1x USB host"
-          },
-          {
-            "count": 4,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "detail": "RX: 4x USB device"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "input",
-            "category": "audio",
-            "detail": "TX: 1x audio in"
-          },
-          {
-            "count": 2,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "detail": "RX: 2x audio out (de-embed + pass-through)"
-          }
-        ],
+        "maxResolution": "4K60Hz",
         "video": [
-          "4K HDMI & USB KVM Extender over HDBaseT WyreSto",
-          "4K HDMI, USB 2",
-          "4K60Hz 4:2:0 HDBT 2",
-          "4K: 100m/328ft) Extension Extender AUDIO AND VI",
-          "4K@60Hz 4:2:0 8bit, HDCP 2",
-          "1080p @60Hz 4K @30Hz 4:4:4 4K @60Hz 4:2:0 5120×144",
-          "HDMI",
-          "HDMI 1.4",
-          "HDCP 2.2",
-          "100m",
-          "100m/328ft"
+          "4K60Hz 4:4:4"
         ],
         "audio": [
-          "PCM",
-          "Dolby TrueHD",
-          "Dolby Atmos",
-          "DTS-HD Master Audio and DTS"
+          "Audio De-embed"
         ],
         "usb": [
-          "USB 2.0",
-          "USB 3.2",
-          "USB 3.2 Gen 1",
-          "USB 3.x",
-          "USB host",
-          "USB device",
-          "KVM / HID"
-        ],
-        "network": [
-          "TX: 1x RJ45 Female",
-          "PoH"
+          "USB 2.0"
         ],
         "control": [
-          "RS-232"
+          "RS-232",
+          "IR"
         ],
-        "power": [],
-        "physical": [],
-        "dependencies": [],
-        "compatibleFamilies": [],
-        "checks": [
-          "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
-          "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+        "power": [
+          "PoH"
         ],
+        "features": {
+          "hdr": false,
+          "arc": false,
+          "earc": false,
+          "cec": false,
+          "dante": false
+        },
+        "checks": [],
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "official-product-page-canonical-capture",
-            "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
-            "reviewedOn": "2026-07-30",
-            "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-            "note": "Draft generated from canonical official-source material (65 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
-            "sourceType": "manufacturer",
-            "checkedAt": "2026-08-16T10:23:16.105Z",
-            "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
-            "reviewedOn": "2026-08-16",
-            "reviewer": "Steve"
+            "sourceType": "pricelist-q3-2026",
+            "url": "",
+            "excerpt": "4k60Hz KVM Extender | HDBaseT | 4K60Hz 4:4:4 | Loop-Out | USB 2.0 | Audio De-Embed | RS232 & 2-way IR Passthrough | 1-way PoH (Rx->Tx) (100m/328ft) /Long-Reach (150m/492ft)",
+            "checkedAt": "2026-08-29T07:14:40.282Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-h2",
+            "reviewedOn": "2026-08-30",
+            "reviewer": "WyreStorm Product Team"
           }
         ],
-        "verifiedBy": "Steve",
-        "verifiedAt": "2026-08-16T10:23:16.105Z",
-        "confirmedFields": [
-          "max-resolution",
-          "routed-io"
-        ],
-        "features": {}
+        "verifiedBy": "auto-import",
+        "verifiedAt": "2026-08-29T07:14:40.282Z",
+        "confirmedFields": [],
+        "createdAt": "2026-08-29T07:14:40.282Z",
+        "dependencies": [],
+        "compatibleFamilies": [],
+        "network": [],
+        "physical": [],
+        "ports": []
       }
     },
     "activeSku": "Yes",
@@ -284805,13 +283617,7 @@
       "Video",
       "Network"
     ],
-    "connectors": [
-      "HDMI",
-      "RJ45 / HDBaseT",
-      "RS-232",
-      "USB",
-      "Analog audio"
-    ],
+    "connectors": [],
     "applications": [
       "Classroom",
       "Meeting room",
@@ -284853,20 +283659,16 @@
     "doNotSpec": false,
     "successor": "",
     "sourceCatalog": {
-      "inputs": [
-        "1 x HDMI input - TX: 1x HDMI in"
-      ],
-      "outputs": [
-        "1 x HDMI output - RX: 1x HDMI out"
-      ],
-      "resolutionBandwidth": "4K HDMI & USB KVM Extender over HDBaseT WyreSto; 4K HDMI, USB 2; 4K60Hz 4:2:0 HDBT 2; 4K: 100m/328ft) Extension Extender AUDIO AND VI; 4K@60Hz 4:2:0 8bit, HDCP 2; 1080p @60Hz 4K @30Hz 4:4:4 4K @60Hz 4:2:0 5120×144; HDMI; HDMI 1.4; HDCP 2.2; 100m; 100m/328ft",
-      "usb": "USB 2.0; USB 3.2; USB 3.2 Gen 1; USB 3.x; USB host; USB device; KVM / HID",
-      "audio": "PCM; Dolby TrueHD; Dolby Atmos; DTS-HD Master Audio and DTS",
-      "control": "RS-232",
-      "networkRequirement": "TX: 1x RJ45 Female; PoH",
+      "inputs": [],
+      "outputs": [],
+      "resolutionBandwidth": "4K60Hz 4:4:4",
+      "usb": "USB 2.0",
+      "audio": "Audio De-embed",
+      "control": "RS-232; IR",
+      "networkRequirement": "",
       "dependencies": [],
       "compatibleFamilies": [],
-      "quoteWarnings": "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation. Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+      "quoteWarnings": ""
     }
   },
   {
@@ -285108,34 +283910,8 @@
             "connector": "RJ45",
             "direction": "bidirectional",
             "category": "network",
-            "detail": "1GbE, 802.3at PoE+",
-            "evidence": "1GbE, 802.3at PoE+"
-          },
-          {
-            "count": 1,
-            "connector": "USB 3.0 Type-A",
-            "direction": "bidirectional",
-            "category": "usb",
-            "detail": "For transferring system configuration",
-            "evidence": "For transferring system configuration"
-          },
-          {
-            "count": 1,
-            "connector": "MicroSD",
-            "direction": "bidirectional",
-            "category": "storage",
-            "detail": "For transferring system configuration",
-            "evidence": "For transferring system configuration"
-          }
-        ],
-        "usb": [
-          {
-            "count": 1,
-            "connector": "USB 3.0 Type-A",
-            "direction": "bidirectional",
-            "category": "usb",
-            "detail": "For transferring system configuration",
-            "evidence": "For transferring system configuration"
+            "detail": "1GbE network",
+            "evidence": "1GbE network"
           }
         ],
         "network": [
@@ -285144,26 +283920,14 @@
             "connector": "RJ45",
             "direction": "bidirectional",
             "category": "network",
-            "detail": "1GbE, 802.3at PoE+",
-            "evidence": "1GbE, 802.3at PoE+"
-          }
-        ],
-        "storage": [
-          {
-            "count": 1,
-            "connector": "MicroSD",
-            "direction": "bidirectional",
-            "category": "storage",
-            "detail": "For transferring system configuration",
-            "evidence": "For transferring system configuration"
+            "detail": "1GbE network",
+            "evidence": "1GbE network"
           }
         ]
       },
       "video": {
-        "present": true,
-        "maxResolutions": [
-          "10.1 inch LCD, 1280x800, 16:10"
-        ],
+        "present": false,
+        "maxResolutions": [],
         "standards": [],
         "bandwidth": [],
         "distance": [
@@ -285193,7 +283957,7 @@
         "processing": []
       },
       "usb": {
-        "present": true,
+        "present": false,
         "versions": [
           "USB 3.0",
           "USB 3.x"
@@ -285204,10 +283968,7 @@
         ],
         "bandwidth": [],
         "powerDelivery": false,
-        "evidence": [
-          "1x USB 3.0 Type-A (configuration transfer)",
-          "Micro USB port documented as reserved"
-        ]
+        "evidence": []
       },
       "network": {
         "present": true,
@@ -285223,16 +283984,11 @@
         "powerOverNetwork": [
           "PoE"
         ],
-        "evidence": [
-          "1x 1GbE with 802.3at PoE+"
-        ]
+        "evidence": []
       },
       "control": {
-        "present": true,
-        "protocols": [
-          "10-point capacitive touch",
-          "Android 10.0"
-        ],
+        "present": false,
+        "protocols": [],
         "evidence": [
           "USB for Serial (RS-232 format)",
           "The SYN-TOUCH10 is a powerful LAN-based touchpad controller, compatible with WyreStorm solutions and many other third-party LAN controllable devices. The SYN-TOUCH10 is a perfect solution for corporate and education environments by providing a comprehensive control experience for an entire room. The possibilities are endless with a fully programmable and customizable software environment that takes the hassle and frustration out of a typical control system experience. Two-way communication between devices allows for a responsive experience such as knowing which input is selected or if a microphone has been muted.",
@@ -285244,7 +284000,7 @@
         "poe": true,
         "powerDelivery": false,
         "evidence": [
-          "12V 1.5A DC | 802.3at PoE+"
+          "PoE"
         ]
       },
       "mechanical": {
@@ -285546,122 +284302,55 @@
         ]
       },
       "governedSpecification": {
-        "sku": "SYN-TOUCH10-V2",
-        "status": "verified",
+        "sku": "SYN-TP10-B",
+        "status": "verified-with-warning",
         "productClass": "CONTROL",
-        "role": "Room control touch panel",
-        "productType": "Synergy 10.1 inch all-in-one touchpad controller",
+        "role": "touchpad controller",
+        "productType": "Synergy 10.1” Touchpad for Synergy Flow Series",
         "transport": [
-          "1GbE network control"
+          "Ethernet"
         ],
-        "inputCount": 0,
-        "outputCount": 0,
         "ports": [
           {
             "count": 1,
             "connector": "RJ45",
             "direction": "bidirectional",
             "category": "network",
-            "detail": "1GbE, 802.3at PoE+"
-          },
-          {
-            "count": 1,
-            "connector": "USB 3.0 Type-A",
-            "direction": "bidirectional",
-            "category": "usb",
-            "detail": "For transferring system configuration"
-          },
-          {
-            "count": 1,
-            "connector": "MicroSD",
-            "direction": "bidirectional",
-            "category": "storage",
-            "detail": "For transferring system configuration"
+            "detail": "1GbE network"
           }
-        ],
-        "video": [
-          "10.1 inch LCD, 1280x800, 16:10"
-        ],
-        "audio": [],
-        "usb": [
-          "1x USB 3.0 Type-A (configuration transfer)",
-          "Micro USB port documented as reserved"
-        ],
-        "network": [
-          "1x 1GbE with 802.3at PoE+"
-        ],
-        "control": [
-          "10-point capacitive touch",
-          "Android 10.0"
         ],
         "power": [
-          "12V 1.5A DC | 802.3at PoE+"
-        ],
-        "physical": [
-          "259mm x 178mm x 28mm",
-          "218mm high with the table stand",
-          "0.94kg",
-          "VESA 75x75mm mounting",
-          "280 nits, 1500:1 contrast, 85 degree viewing angle"
-        ],
-        "maxResolution": "1280x800 (panel resolution, not a video input)",
-        "dependencies": [
-          "Requires the Synergy control ecosystem or a compatible WyreStorm system to control - it is a control surface, not a standalone device",
-          "Requires PoE+ or a local 12V supply"
-        ],
-        "compatibleFamilies": [
-          "Synergy",
-          "NetworkHD"
+          "PoE"
         ],
         "features": {
-          "touchPanel": true,
-          "poePlus": true,
-          "vesaMount": true,
-          "android": true
+          "hdr": false,
+          "poe": true
         },
-        "specs": {
-          "networkPorts": 1,
-          "usbTotalPorts": 1,
-          "externalPsu": true
-        },
-        "checks": [
-          "This replaces the discontinued do-not-spec SYN-TOUCH10. Confirm no design or quote still references the old SKU.",
-          "Confirm whether the room uses PoE+ or needs the local PSU; 802.3af is not sufficient.",
-          "Confirm what it is controlling - the panel does not itself switch or route AV."
-        ],
-        "warnings": [
-          "The panel has no video input. It is a control surface and must not be quoted as a display or a source."
-        ],
+        "checks": [],
+        "warnings": [],
         "evidence": [
           {
-            "sourceType": "official-product-page",
-            "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10-v2/",
-            "reviewedOn": "2026-07-24",
-            "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-            "note": "Technical Specifications table: System, Display, Interface, Power & Environmental."
-          },
-          {
-            "sourceType": "official-product-page",
-            "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10-v2/",
-            "reviewedOn": "2026-07-29",
-            "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
-            "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10-v2/",
-            "sourceType": "manufacturer",
-            "checkedAt": "2026-08-16T10:23:16.491Z",
-            "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
-            "reviewedOn": "2026-08-16",
-            "reviewer": "Steve"
+            "sourceType": "pricelist-q3-2026",
+            "url": "",
+            "excerpt": "Synergy 10.1” Touchpad for Synergy Flow Series | PoE | Work with Synergy Flow Series | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
+            "checkedAt": "2026-08-29T07:14:40.282Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/syn-tp10-b",
+            "reviewedOn": "2026-08-30",
+            "reviewer": "WyreStorm Product Team"
           }
         ],
-        "verifiedBy": "Steve",
-        "verifiedAt": "2026-08-16T10:23:16.491Z",
-        "confirmedFields": [
-          "max-resolution",
-          "power"
-        ]
+        "verifiedBy": "auto-import",
+        "verifiedAt": "2026-08-29T07:14:40.282Z",
+        "confirmedFields": [],
+        "createdAt": "2026-08-29T07:14:40.282Z",
+        "dependencies": [],
+        "compatibleFamilies": [],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "physical": []
       }
     },
     "activeSku": "Yes",
@@ -285789,27 +284478,19 @@
     "doNotSpec": false,
     "successor": "",
     "connectors": [
-      "RJ45",
-      "USB 3.0 Type-A",
-      "MicroSD"
+      "RJ45"
     ],
     "sourceCatalog": {
       "inputs": [],
       "outputs": [],
-      "resolutionBandwidth": "10.1 inch LCD, 1280x800, 16:10",
-      "usb": "1x USB 3.0 Type-A (configuration transfer); Micro USB port documented as reserved",
+      "resolutionBandwidth": "",
+      "usb": "",
       "audio": "",
-      "control": "10-point capacitive touch; Android 10.0",
-      "networkRequirement": "1x 1GbE with 802.3at PoE+",
-      "dependencies": [
-        "Requires the Synergy control ecosystem or a compatible WyreStorm system to control - it is a control surface, not a standalone device",
-        "Requires PoE+ or a local 12V supply"
-      ],
-      "compatibleFamilies": [
-        "Synergy",
-        "NetworkHD"
-      ],
-      "quoteWarnings": "This replaces the discontinued do-not-spec SYN-TOUCH10. Confirm no design or quote still references the old SKU. Confirm whether the room uses PoE+ or needs the local PSU; 802.3af is not sufficient. Confirm what it is controlling - the panel does not itself switch or route AV. The panel has no video input. It is a control surface and must not be quoted as a display or a source."
+      "control": "",
+      "networkRequirement": "",
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "quoteWarnings": ""
     }
   }
 ]

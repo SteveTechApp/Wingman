@@ -359,7 +359,6 @@ const CONFIRMATION_BATCH = [
   "NHD-500-IW-TX-V2",
   "NHD-500-RX",
   "NHD-500-TX",
-  "NHD-500-TX-V2",
   "NHD-510-TX",
   "NHD-600-E-RX",
   "NHD-600-E-TX",

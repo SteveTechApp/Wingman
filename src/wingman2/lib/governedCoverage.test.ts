@@ -9,8 +9,11 @@ describe("governed coverage summary", () => {
     // canonical profiles). 116 are human-verified; the rest are pending.
     expect(summary.total).toBe(207);
     expect(summary.verified).toBe(116);
-    expect(summary.verified + summary.verifiedWithWarning).toBe(135);
-    expect(summary.reviewRequired).toBe(72);
+    // 2026-09-02: five newly-active lead profiles (SW-660-TX-W, SW-620L-TX-W,
+    // EX-40-KVM-H2, EX-100-KVM-H2, SYN-TP10-B) promoted to the machine
+    // verified-with-warning tier when their lifecycle rows went active.
+    expect(summary.verified + summary.verifiedWithWarning).toBe(140);
+    expect(summary.reviewRequired).toBe(67);
     expect(summary.verifiedPct).toBe(Math.round((116 / 207) * 100));
   });
 

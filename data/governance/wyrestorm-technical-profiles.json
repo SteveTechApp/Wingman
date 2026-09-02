@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 11,
   "updatedAt": "2026-08-29T07:14:40.282Z",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
@@ -16628,7 +16628,7 @@
     },
     {
       "sku": "SW-620L-TX-W",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless dongle",
       "productType": "4K30Hz 2x2 Wireless Presentation Switcher",
@@ -16682,7 +16682,7 @@
     },
     {
       "sku": "SW-660-TX-W",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless dongle",
       "productType": "4K60Hz 6x2 Wireless Presentation Switcher",
@@ -17902,7 +17902,7 @@
     },
     {
       "sku": "SYN-TP10-B",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "CONTROL",
       "role": "touchpad controller",
       "productType": "Synergy 10.1” Touchpad for Synergy Flow Series",
@@ -18342,7 +18342,7 @@
     },
     {
       "sku": "EX-40-KVM-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "KVM extender",
       "productType": "HDMI 2.0 4K60Hz KVM Extender",
@@ -18395,7 +18395,7 @@
     },
     {
       "sku": "EX-100-KVM-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "KVM extender",
       "productType": "4k60Hz KVM Extender",
