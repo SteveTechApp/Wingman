@@ -1,4 +1,5 @@
 import { handleAgentsRoute } from "./routes/agents.mjs";
+import { readAllSupabaseRows } from "./supabase-pagination.mjs";
 import {
   handleCompetitorDecisionApprovalPost,
   handleCompetitorDecisionApprovedGet,
@@ -312,41 +313,55 @@ async function parseJsonBody(req) {
     const chunks = [];
     let bodyBytes = 0;
     let done = false;
+    let overflowed = false;
+    let error413 = null;
+    let drainTimer = null;
 
-    const fail = (error) => {
+    const finish = () => {
+      if (done) return;
+      done = true;
+      if (overflowed) {
+        reject(error413);
+        return;
+      }
+      try {
+        const text = Buffer.concat(chunks).toString("utf8");
+        resolve(text ? JSON.parse(text) : {});
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    const onBody = (chunk) => {
+      chunks.push(chunk);
+      bodyBytes += chunk.length;
+      if (bodyBytes <= MAX_JSON_BODY_BYTES || overflowed) return;
+      // Oversized: drop the buffered bytes and DRAIN the remainder of the
+      // request before reporting, so the 413 status is delivered only once
+      // the body has been fully consumed. Rejecting mid-upload makes clients
+      // abort their own upload, which cancels intermediary proxy writes and
+      // degrades the 413 to a 502 (vite dev/preview log: write ECANCELED).
+      overflowed = true;
+      chunks.length = 0;
+      error413 = new Error(`Request body too large. Max ${MAX_JSON_BODY_BYTES} bytes.`);
+      error413.statusCode = 413;
+      req.removeListener("data", onBody);
+      req.resume();
+      // Bound slowloris-style stalls: reap the socket after the drain grace.
+      drainTimer = setTimeout(() => {
+        if (!req.complete) req.destroy();
+        finish();
+      }, 3000);
+      drainTimer.unref();
+    };
+
+    req.on("data", onBody);
+    req.on("end", finish);
+    req.on("error", (error) => {
       if (done) return;
       done = true;
       reject(error);
-    };
-
-    const succeed = (value) => {
-      if (done) return;
-      done = true;
-      resolve(value);
-    };
-
-    req.on("data", (chunk) => {
-      chunks.push(chunk);
-      bodyBytes += chunk.length;
-      if (bodyBytes > MAX_JSON_BODY_BYTES) {
-        const error = new Error(`Request body too large. Max ${MAX_JSON_BODY_BYTES} bytes.`);
-        error.statusCode = 413;
-        fail(error);
-        // Let the caller write the 413 response before tearing down the socket.
-        setImmediate(() => req.destroy());
-      }
     });
-    req.on("end", () => {
-      if (done) return;
-      try {
-        const text = Buffer.concat(chunks).toString("utf8");
-        if (!text) return succeed({});
-        succeed(JSON.parse(text));
-      } catch (error) {
-        fail(error);
-      }
-    });
-    req.on("error", fail);
   });
 }
 
@@ -1681,15 +1696,21 @@ async function readApprovalsFromSupabase() {
   }
 
   try {
-    const { data, error } = await client
-      .from(SUPABASE_APPROVALS_TABLE)
-      .select("*")
-      .limit(500);
+    // Full-table read, paged past PostgREST's 1000-row cap. The previous
+    // `.limit(500)` silently served an arbitrary 500-row subset of whatever
+    // the database returned (no order -> nondeterministically chosen rows), so
+    // a mirror with more approvals than that silently hid rows from the
+    // cross-machine merge. A short page proves exhaustion, like every other
+    // mirror read.
+    const { data, error, truncated } = await readAllSupabaseRows(client, SUPABASE_APPROVALS_TABLE, {
+      select: "*",
+      order: "id",
+    });
 
     if (error) {
       return {
         ok: false,
-        reason: error.message || "Supabase approval DB query failed.",
+        reason: (truncated ? "Approval DB read did not reach the end of the table: " : "") + (error.message || "Supabase approval DB query failed."),
         records: [],
       };
     }

@@ -47,6 +47,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { COMPETITOR_DECISION_LEDGER_FILE } from "../catalog/files.mjs";
+import { readAllSupabaseRows } from "../supabase-pagination.mjs";
 
 function text(value) {
   return String(value ?? "").trim();
@@ -81,6 +82,11 @@ async function writeJsonFile(filePath, value) {
 // ---------------------------------------------------------------------------
 
 const TABLE = String(process.env.SUPABASE_COMPETITOR_DECISIONS_TABLE || "competitor_match_decisions").trim();
+// Migration 011: one function that reconciles the whole mirror (delete stale +/
+// upsert) inside a single database transaction.
+const SUPABASE_WINGMAN_LEDGER_COMMIT_FN = String(
+  process.env.SUPABASE_WINGMAN_LEDGER_COMMIT_FUNCTION || "wingman_ledger_commit",
+).trim();
 const SUPABASE_URL = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim();
 const SUPABASE_SERVICE_ROLE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 
@@ -126,8 +132,20 @@ export async function readLedgerFromSupabase() {
   const client = getSupabaseClient();
   if (!client) return { ok: false, error: "Supabase ledger client is not available.", table: TABLE };
   try {
-    const { data, error } = await client.from(TABLE).select("payload").order("id");
-    if (error) return { ok: false, error: error.message, table: TABLE };
+    // Full-table read must page past PostgREST's 1000-row cap: a truncated
+    // mirror would silently drop remote approvals, and the stale-row cleanup
+    // in pushLedgerToSupabase would then DELETE the unread tail as "stale".
+    const { data, error, truncated } = await readAllSupabaseRows(client, TABLE, {
+      select: "payload",
+      order: "id",
+    });
+    if (error) {
+      return {
+        ok: false,
+        error: truncated ? `Mirror read did not reach the end of the table: ${error.message}` : error.message,
+        table: TABLE,
+      };
+    }
     const decisions = (data ?? [])
       .map((row) => row?.payload)
       .filter((payload) => payload && typeof payload === "object");
@@ -167,10 +185,12 @@ export async function pushDecisionToSupabase(decision) {
 }
 
 /**
- * Mirror the ledger to Supabase: upsert every decision row (the full decision
- * as `payload`), then delete rows no longer in the ledger so the table stays
- * an exact mirror. Only safe when `ledger` already contains both sides (the
- * sync tool merges before calling this); never use for a single approval.
+ * Mirror the ledger to Supabase in ONE atomic commit: the database function
+ * (migration 011, wingman_ledger_commit) upserts every decision row and
+ * deletes rows no longer in the ledger inside a single transaction, so the
+ * table stays an exact mirror without ever existing in a torn state. Only safe
+ * when `ledger` already contains both sides (the sync tool merges before
+ * calling this); never use for a single approval.
  */
 export async function pushLedgerToSupabase(ledger) {
   const client = getSupabaseClient();
@@ -186,21 +206,10 @@ export async function pushLedgerToSupabase(ledger) {
   if (rows.length === 0) return { ok: true, count: 0, table: TABLE };
 
   try {
-    const { error: upsertError } = await client.from(TABLE).upsert(rows, { onConflict: "id" });
-    if (upsertError) return { ok: false, error: upsertError.message, table: TABLE };
-
-    const remote = await readLedgerFromSupabase();
-    const remoteIds = new Set(
-      (remote.ok ? remote.decisions : []).map((decision) => text(decision.id)).filter(Boolean),
-    );
-    const keptIds = new Set(rows.map((row) => row.id));
-    const staleIds = [...remoteIds].filter((id) => !keptIds.has(id));
-    if (staleIds.length > 0) {
-      const { error: deleteError } = await client.from(TABLE).delete().in("id", staleIds);
-      if (deleteError) {
-        return { ok: false, error: `Upsert succeeded but stale-row cleanup failed: ${deleteError.message}`, table: TABLE };
-      }
-    }
+    const { error } = await client.rpc(SUPABASE_WINGMAN_LEDGER_COMMIT_FN, {
+      payload: { ledger: rows },
+    });
+    if (error) return { ok: false, error: error.message, table: TABLE };
     return { ok: true, count: rows.length, table: TABLE };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Supabase ledger push failed.", table: TABLE };
