@@ -51,6 +51,8 @@ const UI_BASE = `http://127.0.0.1:${UI_PORT}`;
 const DISPLAYS_QUESTION = "How many displays or outputs are needed?";
 const ONE_DISPLAY_OPTION = "1 display / output";
 const STRANDED_LABEL = "Different content by display or zone";
+const RECS_BLOCKED_LABEL = "Resolve stranded answers first";
+const RECS_OPEN_LABEL = "Add to project";
 
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wingman-stranded-e2e-"));
 const apiLogFd = fs.openSync(path.join(dataDir, "api.log"), "a");
@@ -221,6 +223,136 @@ async function runStrandedLoop(page) {
   console.log("[e2e-stranded] Full loop proven: lecture-hall seed → one-display strands the pre-filled behaviour → Remove clears the notice and the answer is unanswered again.");
 }
 
+// Recommendations leg: with the stranded default still in place, walk to
+// recommendations and prove product selection REFUSES to proceed — the Add
+// buttons are disabled and relabeled "Resolve stranded answers first". Then
+// remove the strand from the recommendations rail and assert selection is
+// allowed again on the recalculated recommendation.
+async function runRecommendationsRefusal(page) {
+  // Re-seed and re-strand (the discovery leg above removed the strand). Then
+  // keep the strand: navigate straight to recommendations via the nav.
+  await page.goto(`${UI_BASE}/wingman/discovery`, { waitUntil: "networkidle", timeout: 60_000 });
+  await page.evaluate(() => localStorage.setItem("wingman-ui-mode-v1", "unguided"));
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForTimeout(400);
+  await seedLectureHallQuickStart(page);
+  const oneDisplay = page
+    .locator("button.wm-discovery-option")
+    .filter({ hasText: ONE_DISPLAY_OPTION })
+    .first();
+  await oneDisplay.waitFor({ state: "visible", timeout: 10_000 });
+  await oneDisplay.click();
+  await page.waitForTimeout(500);
+  const notice = page.locator(".wm-discovery-stranded-defaults");
+  await notice.waitFor({ state: "visible", timeout: 10_000 });
+
+  // Move to recommendations by URL — the in-app CTA is itself gated by the
+  // discovery integrity check ("Resolve N discovery checks before
+  // continuing"), so a direct navigation models the rep who reaches product
+  // selection through a bookmark, the project card, or the browser back
+  // button. The recommendations page must refuse on its own merits.
+  await page.goto(`${UI_BASE}/wingman/recommendations`, { waitUntil: "networkidle", timeout: 60_000 });
+  await page.waitForTimeout(1_500);
+
+  // Open the Resolve stage where the stranded rail lives, then the Validate
+  // stage where the product-selection buttons live.
+  await page.getByRole("tab", { name: /Resolve/ }).click();
+  await page.waitForTimeout(400);
+
+  // The stranded notice is on the resolve rail.
+  await notice.waitFor({ state: "visible", timeout: 10_000 });
+
+  // Selection refusal: on the Validate stage every Add button is disabled and
+  // relabeled, or no safe direction is offered at all. The decision engine
+  // loads asynchronously, so poll until one of the settled states is
+  // observable. The per-SKU selection buttons live inside the closed
+  // "Advanced matches" <details>, so open it first.
+  const settledSelectionState = async (timeoutMs = 30_000) => {
+    // The per-SKU selection buttons live inside the "Advanced matches"
+    // <details>. evaluateAll reads DOM nodes regardless of visibility, so
+    // detection works even while the details is closed; only open it when we
+    // need a visible, clickable assertion at the end. Note
+    // getAttribute("open") returns "" (falsy) for an open details — use the
+    // boolean `open` property — and never blind-click the summary (it
+    // toggles). evaluateAll takes exactly ONE extra arg, so pass both labels
+    // as an array.
+    const details = page.locator("details.wm-rec-advanced-matches");
+    const ensureDetailsOpen = async () => {
+      if ((await details.count()) === 0) return;
+      if (!(await details.first().evaluate((el) => el.open))) {
+        await details.first().locator("summary").click().catch(() => {});
+      }
+    };
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const selectionButtons = await page
+        .locator("details.wm-rec-advanced-matches button")
+        .evaluateAll(
+          (buttons, labels) =>
+            buttons
+              .map((button) => ({ text: (button.textContent || "").trim(), disabled: button.disabled }))
+              .filter((button) => button.text === labels.open || button.text === labels.blocked),
+          { open: RECS_OPEN_LABEL, blocked: RECS_BLOCKED_LABEL },
+        );
+      if (selectionButtons.length > 0) {
+        if (selectionButtons.some((button) => button.text === RECS_OPEN_LABEL && !button.disabled)) return "open";
+        if (selectionButtons.every((button) => button.disabled)) return "refused";
+        return "clickable-blocked";
+      }
+      if (await page.getByText("No safe product direction yet.").isVisible().catch(() => false)) return "no-direction";
+      await page.waitForTimeout(400);
+    }
+    return "timeout";
+  };
+  const assertSelectionRefused = async () => {
+    await page.getByRole("tab", { name: /Validate/ }).click();
+    const state = await settledSelectionState();
+    if (state === "refused" || state === "no-direction") return;
+    const stageContent = await page.locator(".wm-rec-stage-content").innerText().catch(() => "(no stage content)");
+    const buttonDump = await page
+      .locator("details.wm-rec-advanced-matches button")
+      .evaluateAll((buttons) =>
+        buttons.map((button) => ({ text: (button.textContent || "").trim().slice(0, 60), disabled: button.disabled })),
+      );
+    throw new Error(`[e2e-stranded] Recommendations page did not refuse product selection while a stranded default was present (settled state: ${state}). Stage content: ${stageContent.slice(0, 500)} | Buttons: ${JSON.stringify(buttonDump)}`);
+  };
+  await assertSelectionRefused();
+  // Remove the strand from the recommendations resolve rail itself.
+  await page.getByRole("tab", { name: /Resolve/ }).click();
+  await page.waitForTimeout(400);
+  const removeButton = page.getByTestId("remove-stranded-answers");
+  await removeButton.waitFor({ state: "visible", timeout: 8_000 });
+  await removeButton.click();
+
+  // The notice clears and product selection becomes possible again: on the
+  // recalculated Validate stage an Add-to-project button renders enabled.
+  await notice.waitFor({ state: "detached", timeout: 15_000 });
+  await page.getByRole("tab", { name: /Validate/ }).click();
+  const stateAfter = await settledSelectionState(45_000);
+  if (stateAfter !== "open") {
+    const pageText = await page.locator("main.wm-recommendations-page").innerText();
+    throw new Error(`[e2e-stranded] Product selection did not open up after the stranded answers were removed (settled state: ${stateAfter}). Page: ${pageText.slice(0, 600)}`);
+  }
+  const openAdd = page
+    .locator("details.wm-rec-advanced-matches button")
+    .filter({ hasText: RECS_OPEN_LABEL })
+    .first();
+  {
+    const details = page.locator("details.wm-rec-advanced-matches");
+    if ((await details.count()) > 0 && !(await details.first().evaluate((el) => el.open))) {
+      // The card body nests another <details> (the section help popover), so
+      // scope to the outer summary explicitly.
+      await details.first().locator("> summary").first().click();
+    }
+  }
+  await openAdd.waitFor({ state: "visible", timeout: 30_000 });
+  if (!(await openAdd.isEnabled())) {
+    throw new Error("[e2e-stranded] Add-to-project button rendered but stayed disabled after the stranded answers were removed.");
+  }
+
+  console.log(`[e2e-stranded] Recommendations refusal proven: selection refused while a stranded default was present, selection allowed after Remove from the resolve rail.`);
+}
+
 async function main() {
   console.log(`[e2e-stranded] Booting API on :${API_PORT} and UI on :${UI_PORT} (data dir ${dataDir}).`);
 
@@ -258,6 +390,7 @@ async function main() {
     const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
     const page = await context.newPage();
     await runStrandedLoop(page);
+    await runRecommendationsRefusal(page);
   } finally {
     await browser.close().catch(() => {});
   }

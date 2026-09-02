@@ -415,6 +415,7 @@ export function RecommendationsPage() {
   );
 
   function addSlotToProject(slot: SystemSlot, decision: RecommendationDecision) {
+    if (selectionBlockedByStrand) return;
     const selection = selectionFromDecision(decision, slot.quantity);
     const savedProject = saveProductSelectionToCurrentProject({
       ...selection,
@@ -433,6 +434,7 @@ export function RecommendationsPage() {
   }
 
   function addWholeSystemToProject() {
+    if (selectionBlockedByStrand) return;
     const filled = systemSlots.filter((entry) => entry.candidates.length);
 
     if (!filled.length) {
@@ -566,6 +568,13 @@ export function RecommendationsPage() {
   }, []);
   const [strandedCleared, setStrandedCleared] = useState(false);
   const visibleStrandedAnswers = strandedCleared ? [] : strandedAnswers;
+  // Product selection is refused while the brief still carries a stranded
+  // default (the discovery integrity gate marked it do-not-quote-yet): a
+  // recommendation built on a distorted brief must not be selectable. The
+  // resolve rail above names the hidden answers so the rep can clear them
+  // here, or re-choose them on the discovery page. Clearing them lifts the
+  // block in the same session — the rebuilt brief no longer carries the strand.
+  const selectionBlockedByStrand = visibleStrandedAnswers.length > 0;
 
   // Remove-stranded from the recommendations rail: clear every untouched
   // app-applied default from the persisted draft (so discovery resumes clean),
@@ -643,6 +652,11 @@ export function RecommendationsPage() {
     saveDiscoveryBriefToProject(finalBrief, activeProject?.id);
 
     setStrandedCleared(true);
+    // Rebuild the need from the CLEANED brief so the compatibility engine no
+    // longer scores the requirement against the removed answer's behaviour
+    // (reloadRecommendations alone would re-derive it from the stale need).
+    const nextNeed = discoveryBriefToFinderNeed(finalBrief);
+    if (nextNeed) setNeed(nextNeed);
     reloadRecommendations();
     setMessage(
       `Removed ${untouched.length} stranded answer${untouched.length === 1 ? "" : "s"}. Re-choose them on the discovery page if the room still needs them.`,
@@ -664,6 +678,7 @@ export function RecommendationsPage() {
   const systemUnitCount = systemSlots.reduce((total, { slot }) => total + slot.quantity, 0);
 
   function addToProject(decision: RecommendationDecision) {
+    if (selectionBlockedByStrand) return;
     const savedProject = saveProductSelectionToCurrentProject(
       selectionFromDecision(decision),
     );
@@ -1072,7 +1087,13 @@ export function RecommendationsPage() {
                               <strong>{lead.sku}</strong>
                               <p>{productTitle(lead)}</p>
                             </div>
-                            <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => addSlotToProject(slot, lead)}>
+                            <button
+                              type="button"
+                              className="wm-ui-button wm-ui-button-secondary"
+                              disabled={selectionBlockedByStrand}
+                              title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
+                              onClick={() => addSlotToProject(slot, lead)}
+                            >
                               Add role
                             </button>
                           </div>
@@ -1097,7 +1118,14 @@ export function RecommendationsPage() {
                               {alternatives.map((decision) => (
                                 <div className="wm-rec-alternative" key={decision.sku}>
                                   <span><strong>{decision.sku}</strong>{productTitle(decision)}</span>
-                                  <button type="button" onClick={() => addSlotToProject(slot, decision)}>Use this instead</button>
+                                  <button
+                                    type="button"
+                                    disabled={selectionBlockedByStrand}
+                                    title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
+                                    onClick={() => addSlotToProject(slot, decision)}
+                                  >
+                                    Use this instead
+                                  </button>
                                 </div>
                               ))}
                             </div>
@@ -1118,7 +1146,15 @@ export function RecommendationsPage() {
 
               <footer className="wm-rec-system-footer">
                 <div><PackageCheck size={22} aria-hidden="true" /><span><strong>Add the proposed WyreStorm system</strong><small>Adds the best-fit product and correct quantity for every resolved role.</small></span></div>
-                <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={addWholeSystemToProject}>Add complete system to project</button>
+                <button
+                  className="wm-ui-button wm-ui-button-primary"
+                  type="button"
+                  disabled={selectionBlockedByStrand}
+                  title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
+                  onClick={addWholeSystemToProject}
+                >
+                  {selectionBlockedByStrand ? "Resolve stranded answers first" : "Add complete system to project"}
+                </button>
               </footer>
             </section>
           ) : null}
@@ -1217,9 +1253,15 @@ export function RecommendationsPage() {
                       <button
                         className="wm-ui-button wm-ui-button-primary rounded-xl px-4 py-3 font-black"
                         type="button"
+                        disabled={selectionBlockedByStrand}
+                        title={
+                          selectionBlockedByStrand
+                            ? "Resolve the stranded discovery answers before selecting a product."
+                            : undefined
+                        }
                         onClick={() => addToProject(decision)}
                       >
-                        Add to project
+                        {selectionBlockedByStrand ? "Resolve stranded answers first" : "Add to project"}
                       </button>
                       <Link
                         className="wm-ui-button wm-ui-button-secondary rounded-xl px-4 py-3 font-black"
