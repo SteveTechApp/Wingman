@@ -42,6 +42,19 @@ begin
   end if;
 
   -- --------------------------------------------------------------------------
+  -- Oversized-payload circuit breaker (413 semantics, mirroring the API's body
+  -- cap): a mirror blob larger than this cannot be posted through PostgREST
+  -- reliably and would only fail far from the cause. The store pre-flights the
+  -- SAME 8388608-byte default (WINGMAN_LEDGER_COMMIT_MAX_BYTES) before calling
+  -- this RPC; this raise is the backstop for direct callers.
+  -- --------------------------------------------------------------------------
+  if octet_length(payload::text) > 8388608 then
+    raise exception
+      'wingman_ledger_commit payload too large (413): % bytes exceeds the 8388608-byte commit limit; shrink the mirror or sync in shards',
+      octet_length(payload::text);
+  end if;
+
+  -- --------------------------------------------------------------------------
   -- Delete rows no longer in the ledger snapshot (the mirror must be exact).
   -- --------------------------------------------------------------------------
 
