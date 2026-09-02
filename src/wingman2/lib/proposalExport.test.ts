@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
-import { buildBomCsv, buildBomRows, buildProposalHtml } from "./proposalExport";
+import { buildBomCsv, buildBomRows, buildProposalHtml, exportProposalHtml } from "./proposalExport";
 
 describe("BOM export rows", () => {
   it("carries captured quantities instead of assuming one unit per line", () => {
@@ -291,5 +291,40 @@ describe("power strategy section", () => {
     // Power Strategy heading should still appear but with a fallback message
     expect(html).toContain("<h2>Power Strategy</h2>");
     expect(html).toContain("No products have been selected");
+  });
+});
+
+describe("proposal download (blob URL lifecycle)", () => {
+  it("defers the blob-URL revoke until after the download task starts", async () => {
+    const createSpy = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:wingman-proposal-test");
+    const revokeSpy = vi.fn();
+    // revokeObjectURL is inherited in this environment; install an own,
+    // spyable version so the deferred revoke can be observed.
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, writable: true, value: revokeSpy });
+    try {
+      const proposal: StoredProjectProposal = {
+        title: "Download test proposal",
+        summary: "A room requirement.",
+        sections: [],
+        products: [],
+        assumptions: [],
+        updatedAt: "2026-08-26T00:00:00.000Z",
+      };
+      exportProposalHtml(proposal, []);
+
+      // Inside the synchronous handler the URL must still be live: the revoke
+      // is deferred to the next task so the browser can begin the download
+      // fetch against it (see SavedComparisonHistory.exportCsv).
+      expect(createSpy).toHaveBeenCalledTimes(1);
+      expect(createSpy).toHaveBeenCalledWith(expect.any(Blob));
+      expect(revokeSpy).not.toHaveBeenCalled();
+
+      // Once the task queue drains, the exact created URL is revoked.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(revokeSpy).toHaveBeenCalledWith("blob:wingman-proposal-test");
+    } finally {
+      Reflect.deleteProperty(URL, "revokeObjectURL");
+      vi.restoreAllMocks();
+    }
   });
 });

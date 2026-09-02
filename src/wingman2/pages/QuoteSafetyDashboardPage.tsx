@@ -55,7 +55,9 @@ function exportDashboardCsv(projects: ProjectSafetyRecord[]): void {
   link.href = url;
   link.download = `wingman-quote-safety-${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
-  URL.revokeObjectURL(url);
+  // Revoke on a later task, never synchronously: the blob URL must stay live
+  // until the browser has actually begun the download fetch against it.
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 export default function QuoteSafetyDashboardPage() {
