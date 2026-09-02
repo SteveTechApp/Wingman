@@ -65,6 +65,7 @@ import {
 } from "./discoveryGuidedInterviewI18n";
 import { getStoredWingmanCaptureLanguage } from "../../data/wingmanLanguage";
 import { DiscoveryQuickStartEntry } from "./discoveryQuickStartPanel";
+import { DiscoveryDefaultsConflictAlert } from "./DiscoveryDefaultsConflictAlert";
 
 export type DiscoveryAnswersUpdater =
   | DiscoveryAnswers
@@ -1078,6 +1079,15 @@ export function DiscoveryGuidedInterview({
                 )}
               </div>
             )}
+
+            {/* Quick-start defaults that the interview filters can strand an
+                answer; surface them here instead of letting them silently
+                contradict the captured answers. */}
+            <DiscoveryDefaultsConflictAlert
+              questionId={currentQuestion.id}
+              visibleOptionValues={currentView.options.map((option) => option.value)}
+              answer={answers[currentQuestion.id]}
+            />
 
             {/* Manual options — always available as the fallback */}
             <div className="mt-5">

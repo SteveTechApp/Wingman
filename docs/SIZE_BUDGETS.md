@@ -298,6 +298,23 @@ chunks, `initial:js` stayed green at 521.35 KB, and no source limit moved.
 The limit should travel back downward as the Phase 2/5/6/8 extraction
 programme lands.
 
+### 2026-09-02 — Product-story coverage data in the compare engine chunk
+
+Reviewed exception recorded in `tools/wingman-size-budgets.json` for the
+`chunk:compare-engine` limit. The governed-data audit grew
+`src/wingman2/data/productStories.ts` by 113 lines (product-story coverage
+repairs landing in the same batch); that module is compiled into the
+compare-page engine chunk through `productStoryEngine`, pushing the lazy
+chunk from its 431,358-byte limit to a measured 436,999 bytes
+(+5,641 B, +1.3%). Everything that could move was already extracted — the
+story engine and the compare advanced page live in their own lazy chunks
+(`source:compare-advanced` stayed green with 7.29 KB headroom), and the
+growth is content data (product stories), not code, so there is no lighter
+implementation short of dropping story content, which the story-coverage
+tests pin. The limit is raised to the measured value only; it should travel
+back downward as the Phase 4/5 compare-domain split named in the artefact's
+remediation lands (ranking, competitor data and evidence loaded on demand).
+
 ## Adding a new tracked artefact
 
 Add an entry to `TRACKED_ENTRIES` in `tools/lib/wingman-size-budgets.mjs`

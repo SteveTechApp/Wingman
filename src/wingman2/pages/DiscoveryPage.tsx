@@ -56,6 +56,7 @@ import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
 import { DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
+import { DiscoveryDefaultsConflictAlert } from "./discovery/DiscoveryDefaultsConflictAlert";
 import {
   getDiscoverySpeechRecognition,
   type DiscoverySpeechRecognitionEventLike,
@@ -1626,6 +1627,11 @@ return (
                 Select one or more options, then choose Continue.
               </small>
             )}
+            <DiscoveryDefaultsConflictAlert
+              questionId={currentStep.id}
+              visibleOptionValues={currentStepView.options.map((option) => option.value)}
+              answer={currentAnswer}
+            />
           </div>
 
           {currentStep.id === "locations-connections" ? (

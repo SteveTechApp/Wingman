@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 11,
   "updatedAt": "2026-08-29T07:14:40.282Z",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
@@ -10616,205 +10616,6 @@
       ]
     },
     {
-      "sku": "NHD-500-TX-V2",
-      "status": "verified",
-      "productClass": "AVOIP",
-      "role": "encoder",
-      "productType": "NetworkHD 500 source-side encoder, v2 alias",
-      "transport": [
-        "NetworkHD 500",
-        "1GbE",
-        "JPEG2000",
-        "multicast IP"
-      ],
-      "maxResolution": "3840x2160p @ 60Hz",
-      "chroma": "4:4:4",
-      "inputCount": 1,
-      "outputCount": 1,
-      "ports": [
-        {
-          "count": 1,
-          "connector": "HDMI Type A",
-          "direction": "input",
-          "category": "video",
-          "detail": "HDMI 2.0b source input"
-        },
-        {
-          "count": 1,
-          "connector": "5-pin Phoenix",
-          "direction": "input",
-          "category": "audio",
-          "detail": "Balanced analogue audio input"
-        },
-        {
-          "count": 1,
-          "connector": "HDMI Type A",
-          "direction": "output",
-          "category": "video",
-          "detail": "HDMI 2.0b local loop output; non-routed"
-        },
-        {
-          "count": 1,
-          "connector": "5-pin Phoenix",
-          "direction": "output",
-          "category": "audio",
-          "detail": "Balanced analogue audio output"
-        },
-        {
-          "count": 1,
-          "connector": "Toslink",
-          "direction": "output",
-          "category": "audio",
-          "detail": "S/PDIF digital audio output"
-        },
-        {
-          "count": 1,
-          "connector": "RJ-45",
-          "direction": "output",
-          "category": "network",
-          "detail": "1GbE AV network connection"
-        },
-        {
-          "count": 1,
-          "connector": "SFP",
-          "direction": "output",
-          "category": "network",
-          "detail": "1Gb optical AV network connection"
-        },
-        {
-          "count": 1,
-          "connector": "USB 2.0 Type B",
-          "direction": "input",
-          "category": "usb",
-          "detail": "Host-computer USB connection"
-        },
-        {
-          "count": 1,
-          "connector": "3-pin Phoenix",
-          "direction": "bidirectional",
-          "category": "control",
-          "detail": "RS-232"
-        },
-        {
-          "count": 1,
-          "connector": "3.5mm TS",
-          "direction": "output",
-          "category": "control",
-          "detail": "IR TX"
-        },
-        {
-          "count": 1,
-          "connector": "3.5mm TRS",
-          "direction": "input",
-          "category": "control",
-          "detail": "IR RX"
-        },
-        {
-          "count": 1,
-          "connector": "12V DC",
-          "direction": "input",
-          "category": "power",
-          "detail": "Local PSU alternative to PoE"
-        }
-      ],
-      "video": [
-        "1 x HDMI 2.0b source input",
-        "1 x local HDMI 2.0b loop output; non-routed",
-        "Maximum 3840x2160p @ 60Hz, 4:4:4"
-      ],
-      "audio": [
-        "1 x balanced analogue audio input",
-        "1 x balanced analogue audio output",
-        "1 x Toslink S/PDIF digital audio output"
-      ],
-      "usb": [
-        "1 x USB 2.0 Type-B host-computer connection"
-      ],
-      "network": [
-        "1 x RJ-45 1GbE AV network connection",
-        "1 x SFP 1Gb optical AV network connection"
-      ],
-      "control": [
-        "1 x RS-232",
-        "1 x IR TX",
-        "1 x IR RX"
-      ],
-      "power": [
-        "12V DC local PSU alternative",
-        "Confirm PoE support from current product documentation"
-      ],
-      "physical": [
-        "The HDMI loop output is local and is not an independently routed NetworkHD destination"
-      ],
-      "dependencies": [
-        "NHD-CTL-PRO or current compatible NetworkHD controller",
-        "Compatible NetworkHD 500 decoder(s)",
-        "Managed 1GbE multicast network designed for NetworkHD"
-      ],
-      "compatibleFamilies": [
-        "NetworkHD 500"
-      ],
-      "features": {
-        "audioDeEmbed": true,
-        "control": true,
-        "localLoopOutput": true,
-        "usbRouting": true
-      },
-      "specs": {
-        "hdmiInputs": 1,
-        "hdmiOutputs": 1,
-        "hdmiLoopOutputs": 1,
-        "usbHostPorts": 1,
-        "usbDevicePorts": 0,
-        "usbTotalPorts": 1,
-        "usbStandard": "USB 2.0",
-        "audioInputs": 1,
-        "audioOutputs": 2,
-        "networkPorts": 2,
-        "controlPorts": 3,
-        "networkSpeed": "1GbE",
-        "rs232": true,
-        "ir": true,
-        "analogAudio": true,
-        "audioDeEmbed": true,
-        "externalPsu": true,
-        "powerSupply": "12V DC or supported network power"
-      },
-      "checks": [
-        "Count one routed source input and one routed NetworkHD stream output.",
-        "Show the HDMI loop output separately as local and non-routed.",
-        "Count one physical USB 2.0 Type-B host connection.",
-        "Do not turn USB hub tiers, device limits or endpoint limits into additional USB ports."
-      ],
-      "warnings": [
-        "The physical HDMI loop output must not increase routed output count."
-      ],
-      "evidence": [
-        {
-          "sourceType": "central-avoip-governance-registry",
-          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
-          "reviewedOn": "2026-07-14",
-          "reviewer": "Wingman port-count recovery",
-          "note": "Exact NHD-500-TX port topology mirrored from data/governance/avoip-technology-registry.json."
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-08-16T10:23:16.322Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
-          "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
-        }
-      ],
-      "verifiedBy": "Steve",
-      "verifiedAt": "2026-08-16T10:23:16.322Z",
-      "confirmedFields": [
-        "max-resolution",
-        "routed-io",
-        "power"
-      ]
-    },
-    {
       "sku": "NHD-510-TX",
       "status": "verified",
       "productClass": "AVOIP",
@@ -16656,82 +16457,6 @@
       "physical": []
     },
     {
-      "sku": "NHD-500-RX v2",
-      "status": "review-required",
-      "productClass": "AUDIO",
-      "role": "Dante adapter",
-      "productType": "4K60Hz Decoder",
-      "transport": [
-        "Dante",
-        "AES67"
-      ],
-      "maxResolution": "4K60Hz",
-      "ports": [
-        {
-          "count": 1,
-          "connector": "RJ45",
-          "direction": "bidirectional",
-          "category": "network",
-          "detail": "1GbE network"
-        }
-      ],
-      "video": [
-        "4K60Hz 4:4:4 Dolby Vision"
-      ],
-      "audio": [
-        "ARC",
-        "eARC",
-        "Dante",
-        "AES67",
-        "S/PDIF",
-        "Audio De-embed"
-      ],
-      "usb": [
-        "USB 2.0"
-      ],
-      "network": [
-        "1GbE",
-        "SFP"
-      ],
-      "control": [
-        "RS-232",
-        "IR",
-        "CEC"
-      ],
-      "power": [
-        "PoE"
-      ],
-      "features": {
-        "hdr": true,
-        "arc": true,
-        "earc": true,
-        "cec": true,
-        "poe": true,
-        "dante": true,
-        "ndi": false
-      },
-      "checks": [],
-      "warnings": [],
-      "evidence": [
-        {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "4K60Hz Decoder | 4K60Hz 4:4:4 | 1GbE | PoE+ | SFP&2x RJ45 | Dolby Vision & HDR | Video Wall | Audio De-embed | Dante AV-A Ready/AES67 | ARC/eARC | S/PDIF | USB 2.0 | IR & RS232 Routing | CEC",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-rx v2",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        }
-      ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
-      "createdAt": "2026-08-29T07:14:40.282Z",
-      "dependencies": [],
-      "compatibleFamilies": [],
-      "physical": []
-    },
-    {
       "sku": "NHD-140-RACK-1U",
       "status": "review-required",
       "productClass": "ACCESSORY",
@@ -16903,7 +16628,7 @@
     },
     {
       "sku": "SW-620L-TX-W",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless dongle",
       "productType": "4K30Hz 2x2 Wireless Presentation Switcher",
@@ -16957,7 +16682,7 @@
     },
     {
       "sku": "SW-660-TX-W",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless dongle",
       "productType": "4K60Hz 6x2 Wireless Presentation Switcher",
@@ -18128,7 +17853,7 @@
       "ports": []
     },
     {
-      "sku": "NetworkHD Touch™",
+      "sku": "NETWORKHDTOUCHTM",
       "status": "review-required",
       "productClass": "AVOIP",
       "role": "AVoIP component",
@@ -18156,7 +17881,7 @@
           "url": "",
           "excerpt": "Free iPad & Android Control App for NetworkHD 100, 200, 400, 500 and 600 Series",
           "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/networkhd touch™",
+          "sourceUrl": "https://www.wyrestorm.com/product/networkhd-touch™",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
         }
@@ -18176,59 +17901,8 @@
       "physical": []
     },
     {
-      "sku": "SYN-TOUCH10 v3",
-      "status": "review-required",
-      "productClass": "CONTROL",
-      "role": "touchpad controller",
-      "productType": "Synergy 10.1” All-In-One Touchpad IP Controller",
-      "transport": [
-        "Ethernet"
-      ],
-      "ports": [
-        {
-          "count": 1,
-          "connector": "RJ45",
-          "direction": "bidirectional",
-          "category": "network",
-          "detail": "1GbE network"
-        }
-      ],
-      "power": [
-        "PoE"
-      ],
-      "features": {
-        "hdr": false,
-        "poe": true
-      },
-      "checks": [],
-      "warnings": [],
-      "evidence": [
-        {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "Synergy 10.1” All-In-One Touchpad IP Controller | PoE  | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10 v3",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        }
-      ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
-      "createdAt": "2026-08-29T07:14:40.282Z",
-      "dependencies": [],
-      "compatibleFamilies": [],
-      "video": [],
-      "audio": [],
-      "usb": [],
-      "network": [],
-      "control": [],
-      "physical": []
-    },
-    {
       "sku": "SYN-TP10-B",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "CONTROL",
       "role": "touchpad controller",
       "productType": "Synergy 10.1” Touchpad for Synergy Flow Series",
@@ -18668,7 +18342,7 @@
     },
     {
       "sku": "EX-40-KVM-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "KVM extender",
       "productType": "HDMI 2.0 4K60Hz KVM Extender",
@@ -18721,7 +18395,7 @@
     },
     {
       "sku": "EX-100-KVM-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "KVM extender",
       "productType": "4k60Hz KVM Extender",
@@ -19135,7 +18809,7 @@
       "ports": []
     },
     {
-      "sku": "EXP-4KUHD-0.5",
+      "sku": "EXP-4KUHD-05",
       "status": "review-required",
       "productClass": "CABLE",
       "role": "HDMI cable",
@@ -19186,7 +18860,7 @@
       "ports": []
     },
     {
-      "sku": "EXP-4KUHD-1.0",
+      "sku": "EXP-4KUHD-10",
       "status": "review-required",
       "productClass": "CABLE",
       "role": "HDMI cable",
@@ -19237,7 +18911,7 @@
       "ports": []
     },
     {
-      "sku": "EXP-4KUHD-2.0",
+      "sku": "EXP-4KUHD-20",
       "status": "review-required",
       "productClass": "CABLE",
       "role": "HDMI cable",
@@ -19288,7 +18962,7 @@
       "ports": []
     },
     {
-      "sku": "EXP-4KUHD-3.0",
+      "sku": "EXP-4KUHD-30",
       "status": "review-required",
       "productClass": "CABLE",
       "role": "HDMI cable",
@@ -19339,7 +19013,7 @@
       "ports": []
     },
     {
-      "sku": "EXP-4KUHD-5.0",
+      "sku": "EXP-4KUHD-50",
       "status": "review-required",
       "productClass": "CABLE",
       "role": "HDMI cable",
@@ -19390,7 +19064,7 @@
       "ports": []
     },
     {
-      "sku": "EXP-8KUHD-0.5",
+      "sku": "EXP-8KUHD-05",
       "status": "review-required",
       "productClass": "CABLE",
       "role": "HDMI cable",

@@ -13,24 +13,32 @@ import { fileURLToPath } from "node:url";
 // WINGMAN_AGENT_FORCE_MOCK=true makes both agents run in their deterministic
 // mock mode (no Gemini API key, no network), so the assertions pin real
 // behavior instead of live-model output. Port is distinct from the 413 test
-// (8876), tools/api-contract-check.mjs (8898) and check:workflow (8899).
+// (8876), tools/api-contract-check.mjs (8898) and check:workflow (8899). A
+// SECOND server on 8878 runs WITHOUT WINGMAN_AGENT_FORCE_MOCK and without a
+// Gemini key — the negative control: the guru route must fail loudly (400)
+// instead of silently returning mock data.
 const PORT = 8877;
 const BASE = `http://127.0.0.1:${PORT}`;
+const NEG_PORT = 8878;
+const NEG_BASE = `http://127.0.0.1:${NEG_PORT}`;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wingman-agents-e2e-"));
+const negDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wingman-agents-neg-"));
 // 1x1 transparent PNG, enough for the vision-context route to accept.
 const PNG_1PX =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 
 let child = null;
 let sessionCookie = "";
+let negChild = null;
+let negSessionCookie = "";
 
-async function waitForHealth(timeoutMs = 20_000) {
+async function waitForHealth(url = BASE, timeoutMs = 20_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      const res = await fetch(`${BASE}/api/health`);
+      const res = await fetch(`${url}/api/health`);
       if (res.ok) return;
     } catch {
       // Server not up yet.
@@ -40,10 +48,10 @@ async function waitForHealth(timeoutMs = 20_000) {
   throw new Error("test server did not become healthy in time");
 }
 
-async function request(requestPath, { method = "POST", body, cookie = "" } = {}) {
+async function request(requestPath, { method = "POST", body, cookie = "", base = BASE } = {}) {
   const headers = { "content-type": "application/json" };
   if (cookie) headers.cookie = cookie;
-  const res = await fetch(`${BASE}${requestPath}`, {
+  const res = await fetch(`${base}${requestPath}`, {
     method,
     headers,
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -57,8 +65,8 @@ async function request(requestPath, { method = "POST", body, cookie = "" } = {})
   return { status: res.status, json };
 }
 
-async function signupAndCaptureCookie() {
-  const res = await fetch(`${BASE}/api/wingman/auth/signup`, {
+async function signupAndCaptureCookie(url = BASE) {
+  const res = await fetch(`${url}/api/wingman/auth/signup`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -99,7 +107,12 @@ afterAll(() => {
     child.kill("SIGTERM");
     child = null;
   }
+  if (negChild) {
+    negChild.kill("SIGTERM");
+    negChild = null;
+  }
   fs.rmSync(dataDir, { recursive: true, force: true });
+  fs.rmSync(negDataDir, { recursive: true, force: true });
 });
 
 describe("agents routes (end to end over real HTTP)", () => {
@@ -186,5 +199,253 @@ describe("agents routes (end to end over real HTTP)", () => {
     expect(status).toBe(404);
     expect(json?.ok).toBe(false);
     expect(json?.error).toMatch(/unknown wingman agents route/i);
+  });
+});
+
+describe("phase-1 agent routes (discovery, architect, validate, run-pipeline, proposal)", () => {
+  // Realistic discovery brief for a boardroom: the same shape the UI derives
+  // before handing off to the architect phase.
+  function boardroomBrief() {
+    return {
+      briefVersion: "1.0",
+      summary: "boardroom, 4 sources, 2 displays, 25m max run",
+      solutionIntent: "presentation",
+      roomProfile: {
+        roomType: "boardroom",
+        displayCount: 2,
+        sourceCount: 4,
+        zones: 1,
+        maxDistanceM: 25,
+        videoWall: false,
+        videoWallLayout: "none",
+        usbRequired: true,
+        audioBreakoutRequired: false,
+        controlRequired: true,
+      },
+      commercialProfile: {
+        budgetLevel: "mid",
+        priority: "quality",
+      },
+      constraints: [],
+      missingInformation: [],
+      assumptions: [],
+      recommendedNextAction: "architect",
+    };
+  }
+
+  const PHASE_1_ROUTES = [
+    "/api/wingman/agents/discovery",
+    "/api/wingman/agents/architect",
+    "/api/wingman/agents/validate",
+    "/api/wingman/agents/run-pipeline",
+    "/api/wingman/agents/proposal",
+  ];
+
+  it.each(PHASE_1_ROUTES)("%s requires authentication", async (route) => {
+    const { status, json } = await request(route, { body: {} });
+    expect(status).toBe(401);
+    expect(json?.ok).toBe(false);
+  });
+
+  it("POST /api/wingman/agents/discovery derives a boardroom brief from a realistic opportunity description", async () => {
+    const { status, json } = await request("/api/wingman/agents/discovery", {
+      cookie: sessionCookie,
+      body: {
+        projectId: "proj-e2e-boardroom",
+        userInput:
+          "Boardroom with 4 sources and 2 displays, 25m maximum cable run, USB-C laptop input, RS-232 control, audio breakout to wall outputs, mid-range budget",
+        context: {
+          roomType: "boardroom",
+          customerName: "Acme HQ",
+        },
+      },
+    });
+
+    expect(status).toBe(200);
+    expect(json?.ok).toBe(true);
+    expect(json?.phase).toBe("discovery");
+    const data = json.data;
+    expect(data.briefVersion).toBe("1.0");
+    expect(data.roomProfile).toMatchObject({
+      roomType: "boardroom",
+      displayCount: 2,
+      sourceCount: 4,
+      maxDistanceM: 25,
+      videoWall: false,
+      usbRequired: true,
+      controlRequired: true,
+    });
+    expect(data.summary).toContain("2 displays");
+    expect(data.recommendedNextAction).toBe("architect");
+    expect(data.confidence).toBeGreaterThan(0.5);
+    expect(data.missingInformation).toEqual([]);
+    // Throwaway data dir: no stored workspace/project for this id.
+    expect(data.projectContext.workspace).toBeNull();
+    expect(data.projectContext.projectId).toBe("proj-e2e-boardroom");
+    expect(data.roomProfile.audioBreakoutRequired).toBe(true);
+  });
+
+  it("POST /api/wingman/agents/architect resolves a matrix architecture backed by the live catalog", async () => {
+    const { status, json } = await request("/api/wingman/agents/architect", {
+      cookie: sessionCookie,
+      body: { brief: boardroomBrief() },
+    });
+
+    expect(status).toBe(200);
+    expect(json?.ok).toBe(true);
+    expect(json?.phase).toBe("architect");
+    const data = json.data;
+    expect(data.architectureVersion).toBe("1.0");
+    expect(data.catalogBacked).toBe(true);
+    expect(data.recommendedArchitecture.family).toBe("matrix");
+    expect(data.recommendedArchitecture.topology).toContain("4x2");
+    // Multi-source presentation switching: MX/SW products matched from the
+    // committed WyreStorm catalog by prefix + keyword scoring.
+    expect(data.recommendedProducts.length).toBeGreaterThan(0);
+    for (const product of data.recommendedProducts) {
+      expect(product.sku).toBeTruthy();
+      expect(product.role).toBe("matrix");
+    }
+    expect(data.recommendedNextAction).toBe("validate");
+    expect(data.catalogStats.recordCount).toBeGreaterThan(0);
+  });
+
+  it("POST /api/wingman/agents/validate passes a fully-specified architecture and fails an unresolved one", async () => {
+    // Chain the architect output into validate, exactly as the pipeline would.
+    const architect = await request("/api/wingman/agents/architect", {
+      cookie: sessionCookie,
+      body: { brief: boardroomBrief() },
+    });
+    expect(architect.status).toBe(200);
+    const architecture = architect.json.data;
+    expect(architecture.recommendedProducts.length).toBeGreaterThan(0);
+
+    const { status, json } = await request("/api/wingman/agents/validate", {
+      cookie: sessionCookie,
+      body: {
+        brief: boardroomBrief(),
+        architecture,
+      },
+    });
+
+    expect(status).toBe(200);
+    expect(json?.ok).toBe(true);
+    expect(json?.phase).toBe("validate");
+    const data = json.data;
+    expect(data.validationVersion).toBe("1.0");
+    expect(data.status).toBe("pass");
+    // Every check resolved: topology from architect, no missing info, distance
+    // captured, products attached, and the recommended SKUs exist in the live
+    // catalog index (the architect returned them, so compatibility passes).
+    const codes = new Map(data.checks.map((check) => [check.code, check]));
+    expect(codes.get("TOPOLOGY").status).toBe("pass");
+    expect(codes.get("COMPATIBILITY").status).toBe("pass");
+    expect(data.blockingIssues).toEqual([]);
+    expect(data.recommendedNextAction).toBe("ready-for-proposal");
+    expect(data.confidence).toBe(0.86);
+
+    // The validator's failure path: an architecture with no family.
+    const failing = await request("/api/wingman/agents/validate", {
+      cookie: sessionCookie,
+      body: {
+        brief: { roomProfile: { maxDistanceM: 0 }, missingInformation: ["source count"] },
+        architecture: {
+          recommendedArchitecture: { family: "unknown" },
+          recommendedProducts: [],
+        },
+      },
+    });
+    expect(failing.status).toBe(200);
+    expect(failing.json.data.status).toBe("fail");
+    expect(failing.json.data.blockingIssues).toContain("Architecture family is not yet resolved.");
+    expect(failing.json.data.recommendedNextAction).toBe("return-to-architect");
+  });
+
+  it("POST /api/wingman/agents/run-pipeline derives discovery + architecture + validation in one call", async () => {
+    const { status, json } = await request("/api/wingman/agents/run-pipeline", {
+      cookie: sessionCookie,
+      body: {
+        workspaceId: "ws-e2e-training",
+        projectId: "proj-e2e-training",
+        userInput:
+          "Training room with 2 sources and 2 displays, a 15m cable run, USB-C BYOD input, no video wall, budget-conscious",
+        context: { roomType: "training" },
+      },
+    });
+
+    expect(status).toBe(200);
+    expect(json?.ok).toBe(true);
+    expect(json?.mode).toBe("phase1-real-data-pipeline");
+    expect(json.discovery.briefVersion).toBe("1.0");
+    expect(json.discovery.roomProfile.roomType).toBe("training");
+    expect(json.discovery.roomProfile.sourceCount).toBe(2);
+    expect(json.discovery.roomProfile.displayCount).toBe(2);
+    expect(json.architecture.recommendedArchitecture.family).toBeTruthy();
+    expect(json.architecture.recommendedNextAction).toBe("validate");
+    expect(["pass", "pass-with-warnings"]).toContain(json.validation.status);
+    expect(json.status).toBe(json.validation.status);
+    expect(json.projectContext.workspace).toBeNull();
+    // The raw route context carries workspace/project objects; the discovery's
+    // own context echoes the requested project id.
+    expect(json.discovery.projectContext.projectId).toBe("proj-e2e-training");
+  });
+
+  it("POST /api/wingman/agents/proposal accepts a validated brief and echoes it (template binding pending)", async () => {
+    const body = {
+      projectId: "proj-e2e-proposal",
+      brief: boardroomBrief(),
+      architecture: {
+        recommendedArchitecture: { family: "matrix", topology: "4x2 matrix" },
+        recommendedProducts: [{ sku: "MX-0402-MST", role: "matrix", qty: 1 }],
+      },
+      commercial: { budgetLevel: "mid" },
+    };
+    const { status, json } = await request("/api/wingman/agents/proposal", {
+      cookie: sessionCookie,
+      body,
+    });
+
+    expect(status).toBe(200);
+    expect(json?.ok).toBe(true);
+    expect(json?.phase).toBe("proposal");
+    expect(json.note).toMatch(/template binding/i);
+    expect(json.received).toEqual(body);
+  });
+});
+
+describe("guru route config gate (negative control over real HTTP)", () => {
+  // Second server: deliberately NO WINGMAN_AGENT_FORCE_MOCK and NO Gemini key.
+  // A misconfigured agent must fail loudly at the route boundary (400 with a
+  // clear error), never answer a question with silently-derived mock data.
+  beforeAll(async () => {
+    negChild = spawn(process.execPath, ["server/competitor-lookup-server.mjs"], {
+      cwd: projectRoot,
+      env: {
+        ...process.env,
+        PORT: String(NEG_PORT),
+        WINGMAN_UI_PORT: "3998",
+        WINGMAN_DATA_DIR: negDataDir,
+        WINGMAN_STORAGE_MODE: "file",
+        GEMINI_API_KEY: "",
+        // WINGMAN_AGENT_FORCE_MOCK intentionally absent.
+      },
+      stdio: "ignore",
+      windowsHide: true,
+    });
+    await waitForHealth(NEG_BASE);
+    negSessionCookie = await signupAndCaptureCookie(NEG_BASE);
+  }, 30_000);
+
+  it("returns 400 with a config error instead of silently mocking when forceMock is off and no key is set", async () => {
+    const { status, json } = await request("/api/wingman/agents/guru", {
+      base: NEG_BASE,
+      cookie: negSessionCookie,
+      body: { question: "What switcher fits a boardroom?" },
+    });
+
+    expect(status).toBe(400);
+    expect(json?.ok).toBe(false);
+    expect(json?.phase).toBe("guru");
+    expect(json?.error).toMatch(/GEMINI_API_KEY/i);
   });
 });

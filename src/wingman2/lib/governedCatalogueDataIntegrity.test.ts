@@ -29,7 +29,7 @@ describe("governed WyreStorm catalogue integrity", () => {
   const verified = governance.profiles.filter((profile: RecordValue) => /^verified(?:-with-warning)?$/i.test(profile.status));
 
   it("publishes every verified profile or its explicit canonical alias", () => {
-    const explicitAliases: Record<string, string> = { "NHD-500-TX-V2": "NHD-500-TX" };
+    const explicitAliases: Record<string, string> = {};
     const missing = verified
       .filter((profile: RecordValue) => !products.has(profile.sku) && !products.has(explicitAliases[profile.sku]))
       .map((profile: RecordValue) => profile.sku);

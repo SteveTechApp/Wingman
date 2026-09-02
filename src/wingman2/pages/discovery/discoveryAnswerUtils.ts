@@ -11,6 +11,7 @@ import type {
   DiscoveryQuestion,
   DiscoveryQuestionView,
 } from "./discoveryTypes";
+import { getFullDiscoveryOptions } from "./discoveryQuestions";
 import type { DiscoveryConversationItem } from "../../data/projectStore";
 
 export function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): DiscoveryQuestionView {
@@ -80,6 +81,29 @@ export function getOptionLabel(step: DiscoveryQuestion, value: DiscoveryAnswerVa
   }
 
   return value;
+}
+
+export function getHiddenAnswerValues(
+  questionId: string,
+  visibleOptionValues: ReadonlyArray<string>,
+  answer: unknown,
+): Array<{ value: string; label: string }> {
+  // A stored answer that names a REAL option of this question, but not one of
+  // the currently visible options, is trailing state: it was pre-filled (quick
+  // start) before a later answer changed what the interview offers. Values that
+  // are not options of this question at all are a different class (raw input)
+  // and are intentionally not reported here.
+  const values = wmDiscoveryNormaliseAnswerList(answer);
+  if (values.length === 0) return [];
+  const visible = new Set(visibleOptionValues);
+  const fullOptions = getFullDiscoveryOptions(questionId);
+  const hidden: Array<{ value: string; label: string }> = [];
+  for (const value of values) {
+    if (visible.has(value)) continue;
+    const option = fullOptions.find((candidate) => candidate.value === value);
+    if (option) hidden.push({ value: option.value, label: option.label });
+  }
+  return hidden;
 }
 
 export function isUnknownDiscoveryValue(value: string): boolean {

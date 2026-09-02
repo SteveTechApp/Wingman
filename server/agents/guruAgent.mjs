@@ -1,4 +1,4 @@
-import { getAgentConfig, shouldUseMockMode } from "./config.mjs";
+import { assertAgentConfigured, getAgentConfig, shouldUseMockMode } from "./config.mjs";
 import { geminiStructuredGenerate } from "./lib/geminiStructuredGenerate.mjs";
 import { deriveGuruAnswer } from "./lib/mockDerivations.mjs";
 import { guruSystemPrompt } from "./prompts/guruPrompt.mjs";
@@ -37,6 +37,8 @@ export async function runGuruAgent(input, deps = {}) {
   if (shouldUseMockMode(config)) {
     return deriveGuruAnswer(payload);
   }
+
+  assertAgentConfigured(config);
 
   try {
     return await geminiStructuredGenerate({

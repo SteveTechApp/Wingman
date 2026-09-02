@@ -7,6 +7,7 @@ import {
   LEGACY_WINGMAN_APP_DB_FILE,
   WINGMAN_APP_DB_FILE,
 } from "./catalog/files.mjs";
+import { readAllSupabaseRows } from "./supabase-pagination.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +21,7 @@ try {
 
 const GOVERNANCE_FILE = path.join(ROOT, "data", "governance", "wingman-governance.json");
 const SESSION_TTL_MS = Math.max(60 * 60 * 1000, Number(process.env.WINGMAN_SESSION_TTL_MS || 7 * 24 * 60 * 60 * 1000));
+const LAST_SEEN_TOUCH_COOLDOWN_MS = Math.max(5_000, Number(process.env.WINGMAN_LAST_SEEN_COOLDOWN_MS || 60_000));
 const INVITATION_TTL_MS = Math.max(60 * 60 * 1000, Number(process.env.WINGMAN_INVITATION_TTL_MS || 7 * 24 * 60 * 60 * 1000));
 const AUDIT_RETENTION = Math.max(50, Number(process.env.WINGMAN_AUDIT_RETENTION || 800));
 const TELEMETRY_RETENTION = Math.max(50, Number(process.env.WINGMAN_TELEMETRY_RETENTION || 400));
@@ -45,13 +47,14 @@ let lastStorageModeUsed = "file";
 let lastStorageWarning = "";
 
 // Serializes the store read-modify-write cycles. Every mutating handler does
-// readDb() -> mutate -> writeDb(), and in supabase-tables mode writeDb is a
-// multi-table snapshot (upsert all + delete rows not in the snapshot). Two
-// concurrent requests can interleave their cycles (read A, read B, write A,
-// write B) — the second read sees the first's pre-write state and the first's
-// snapshot-delete then removes the second's freshly upserted rows. The mutex
-// is per-process; multi-instance deployments additionally need an external
-// lock or a move to row-level writes to close the cross-instance window.
+// readDb() -> mutate -> writeDb(), and in supabase-tables mode writeDb commits
+// the whole snapshot atomically server-side via wingman_snapshot_commit
+// (migration 009): one database transaction performs the upsert-all + delete-
+// rows-not-in-snapshot reconciliation, so a commit either lands completely or
+// not at all and two processes can no longer interleave their snapshot-deletes
+// and erase each other's rows. The mutex serializes the read-modify-write
+// cycle per process; multi-instance deployments still need an external lock or
+// row-level writes to avoid last-writer-wins across instances.
 let storeLockTail = Promise.resolve();
 async function withStoreLock(fn) {
   const run = storeLockTail.then(fn, fn);
@@ -123,6 +126,9 @@ const SUPABASE_WINGMAN_STATE_ROW_ID = String(process.env.SUPABASE_WINGMAN_STATE_
 const SUPABASE_WINGMAN_TABLES_ENABLED = !["0", "false", "off", "no"].includes(
   String(process.env.SUPABASE_WINGMAN_TABLES_ENABLED || "false").trim().toLowerCase(),
 );
+const SUPABASE_WINGMAN_SNAPSHOT_COMMIT_FN = String(
+  process.env.SUPABASE_WINGMAN_SNAPSHOT_COMMIT_FUNCTION || "wingman_snapshot_commit",
+).trim();
 const SUPABASE_WINGMAN_USERS_TABLE = String(process.env.SUPABASE_WINGMAN_USERS_TABLE || "wingman_users").trim();
 const SUPABASE_WINGMAN_WORKSPACES_TABLE = String(process.env.SUPABASE_WINGMAN_WORKSPACES_TABLE || "wingman_workspaces").trim();
 const SUPABASE_WINGMAN_MEMBERS_TABLE = String(process.env.SUPABASE_WINGMAN_MEMBERS_TABLE || "wingman_workspace_members").trim();
@@ -170,8 +176,20 @@ async function readJsonFile(filePath, fallback) {
 }
 
 async function writeJsonFile(filePath, payload) {
+  // Crash-atomic write: serialize to a temp file in the same directory, then
+  // rename over the target. A plain writeFile truncates the target first, so a
+  // crash mid-write leaves the whole app-state file corrupted and the store
+  // silently falls back to an empty database. fs.rename is atomic on both
+  // POSIX and Windows (MoveFileEx with MOVEFILE_REPLACE_EXISTING).
   await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(payload, null, 2), "utf8");
+  const tmpPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    await fs.writeFile(tmpPath, JSON.stringify(payload, null, 2), "utf8");
+    await fs.rename(tmpPath, filePath);
+  } catch (error) {
+    await fs.rm(tmpPath, { force: true }).catch(() => {});
+    throw error;
+  }
 }
 
 function configuredStorageMode() {
@@ -348,55 +366,27 @@ function normalizeDb(db) {
   return db;
 }
 
-function sqlList(values) {
-  return `(${values.map((value) => `"${String(value).replace(/"/g, '\\"')}"`).join(",")})`;
-}
-
-async function upsertRows(client, table, rows) {
-  if (!rows.length) return true;
-  const { error } = await client.from(table).upsert(rows);
-  if (error) {
-    lastStorageWarning = error.message;
-    // A silent write failure here means a salesperson's project was accepted
-    // by the UI and never persisted. Always log it.
-    logWingmanEvent("error", "storage.upsert.failed", { table, rows: rows.length, reason: error.message });
-    return false;
-  }
-  return true;
-}
-
-async function deleteRowsNotIn(client, table, ids) {
-  let query = client.from(table).delete();
-  if (ids.length > 0) {
-    query = query.not("id", "in", sqlList(ids));
-  }
-  const { error } = await query;
-  if (error) {
-    lastStorageWarning = error.message;
-    logWingmanEvent("error", "storage.delete.failed", { table, reason: error.message });
-    return false;
-  }
-  return true;
-}
-
 async function readDbFromSupabaseTables() {
   const client = getSupabaseAdmin();
   if (!client) return null;
 
   const results = await Promise.all([
-    client.from(SUPABASE_WINGMAN_USERS_TABLE).select("*"),
-    client.from(SUPABASE_WINGMAN_WORKSPACES_TABLE).select("*"),
-    client.from(SUPABASE_WINGMAN_MEMBERS_TABLE).select("*"),
-    client.from(SUPABASE_WINGMAN_INVITATIONS_TABLE).select("*"),
-    client.from(SUPABASE_WINGMAN_SESSIONS_TABLE).select("*"),
-    client.from(SUPABASE_WINGMAN_PROJECTS_TABLE).select("*"),
-    client.from(SUPABASE_WINGMAN_AUDIT_TABLE).select("*"),
-    client.from(SUPABASE_WINGMAN_TELEMETRY_TABLE).select("*"),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_USERS_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_WORKSPACES_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_MEMBERS_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_INVITATIONS_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_SESSIONS_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_PROJECTS_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_AUDIT_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_TELEMETRY_TABLE, { order: "id" }),
   ]);
 
   const firstError = results.find((result) => result.error)?.error;
   if (firstError) {
-    lastStorageWarning = firstError.message;
+    lastStorageWarning = `${firstError.message} (table read did not reach the end; refusing to serve a truncated snapshot)`;
+    logWingmanEvent("error", "storage.read.truncated", {
+      reason: firstError.message,
+    });
     return null;
   }
 
@@ -646,23 +636,27 @@ async function writeDbToSupabaseTables(db) {
     payload: cloneJson(event, {}),
   }));
 
-  if (!(await upsertRows(client, SUPABASE_WINGMAN_USERS_TABLE, users))) return false;
-  if (!(await upsertRows(client, SUPABASE_WINGMAN_WORKSPACES_TABLE, workspaces))) return false;
-  if (!(await upsertRows(client, SUPABASE_WINGMAN_MEMBERS_TABLE, memberships))) return false;
-  if (!(await upsertRows(client, SUPABASE_WINGMAN_INVITATIONS_TABLE, invitations))) return false;
-  if (!(await upsertRows(client, SUPABASE_WINGMAN_SESSIONS_TABLE, sessions))) return false;
-  if (!(await upsertRows(client, SUPABASE_WINGMAN_PROJECTS_TABLE, projects))) return false;
-  if (!(await upsertRows(client, SUPABASE_WINGMAN_AUDIT_TABLE, auditEvents))) return false;
-  if (!(await upsertRows(client, SUPABASE_WINGMAN_TELEMETRY_TABLE, telemetryEvents))) return false;
+  const payload = { users, workspaces, memberships, invitations, sessions, projects, auditEvents, telemetryEvents };
 
-  if (!(await deleteRowsNotIn(client, SUPABASE_WINGMAN_TELEMETRY_TABLE, telemetryEvents.map((row) => row.id)))) return false;
-  if (!(await deleteRowsNotIn(client, SUPABASE_WINGMAN_AUDIT_TABLE, auditEvents.map((row) => row.id)))) return false;
-  if (!(await deleteRowsNotIn(client, SUPABASE_WINGMAN_PROJECTS_TABLE, projects.map((row) => row.id)))) return false;
-  if (!(await deleteRowsNotIn(client, SUPABASE_WINGMAN_SESSIONS_TABLE, sessions.map((row) => row.id)))) return false;
-  if (!(await deleteRowsNotIn(client, SUPABASE_WINGMAN_INVITATIONS_TABLE, invitations.map((row) => row.id)))) return false;
-  if (!(await deleteRowsNotIn(client, SUPABASE_WINGMAN_MEMBERS_TABLE, memberships.map((row) => row.id)))) return false;
-  if (!(await deleteRowsNotIn(client, SUPABASE_WINGMAN_WORKSPACES_TABLE, workspaces.map((row) => row.id)))) return false;
-  if (!(await deleteRowsNotIn(client, SUPABASE_WINGMAN_USERS_TABLE, users.map((row) => row.id)))) return false;
+  // ONE atomic server-side commit (migration 009, wingman_snapshot_commit).
+  // The function replaces the previous 16 separate upsert/delete round-trips
+  // (8 upserts + 8 snapshot-deletes) and runs them inside a single database
+  // transaction, so a mid-batch failure can no longer leave torn table state
+  // and two processes can no longer interleave their snapshot-deletes and
+  // silently erase each other's rows.
+  try {
+    const { error } = await client.rpc(SUPABASE_WINGMAN_SNAPSHOT_COMMIT_FN, { payload });
+    if (error) {
+      lastStorageWarning = error.message;
+      logWingmanEvent("error", "storage.snapshot_commit.failed", { reason: error.message });
+      return false;
+    }
+  } catch (reason) {
+    const message = reason instanceof Error ? reason.message : String(reason);
+    lastStorageWarning = message;
+    logWingmanEvent("error", "storage.snapshot_commit.failed", { reason: message });
+    return false;
+  }
 
   lastStorageWarning = "";
   return true;
@@ -1209,18 +1203,26 @@ function getAuthContext(req, url, db) {
   const workspaceRole = getWorkspaceRoleForUser(workspace, user.id) || "sales";
   const permissions = permissionsForWorkspaceRole(workspaceRole);
 
-  session.lastSeenAt = nowIso();
+  // Throttled last-seen stamp: only advance when the previous touch is older
+  // than the cooldown, and ONLY ever as a side-effect of a write the handler
+  // performs for its own reasons. The auth gate itself never persists, so a
+  // read-only request can no longer trigger a full database-snapshot rewrite
+  // just to keep a "last seen" timestamp warm.
+  const lastSeenMs = Date.parse(String(session.lastSeenAt || ""));
+  if (!Number.isFinite(lastSeenMs) || Date.now() - lastSeenMs >= LAST_SEEN_TOUCH_COOLDOWN_MS) {
+    session.lastSeenAt = nowIso();
+  }
   return { ok: true, session, token, user, workspace, workspaceRole, permissions };
 }
 
 export async function getWingmanRequestAuth(req, url) {
   return withStoreLock(async () => {
     const db = await readDb();
-    const auth = getAuthContext(req, url, db);
-    if (auth.ok) {
-      await writeDb(db);
-    }
-    return auth;
+    // Pure read gate: authentication and permission checks never write. Any
+    // persistence (including the last-seen touch) happens inside the handlers
+    // that are actually mutating state, so read-only requests no longer
+    // rewrite the entire database snapshot on every call.
+    return getAuthContext(req, url, db);
   });
 }
 
@@ -1542,7 +1544,8 @@ export async function handleWingmanAuthSessionGet(req, res, url, { sendJson }) {
     return;
   }
 
-  await writeDb(db);
+  // Read-only session check: the last-seen stamp rides the next real write;
+  // it no longer forces a full snapshot write on its own.
   sendJson(res, 200, makeSessionPayload(auth.user, auth.workspace));
   });
 }

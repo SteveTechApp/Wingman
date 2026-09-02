@@ -1,4 +1,4 @@
-import { getAgentConfig, shouldUseMockMode } from "./config.mjs";
+import { assertAgentConfigured, getAgentConfig, shouldUseMockMode } from "./config.mjs";
 import { geminiStructuredGenerate } from "./lib/geminiStructuredGenerate.mjs";
 import { deriveVisionContext } from "./lib/mockDerivations.mjs";
 import { visionContextSystemPrompt } from "./prompts/visionContextPrompt.mjs";
@@ -19,6 +19,8 @@ export async function runVisionContextAgent(input) {
   if (shouldUseMockMode(config)) {
     return deriveVisionContext(fallbackPayload);
   }
+
+  assertAgentConfigured(config);
 
   try {
     return await geminiStructuredGenerate({

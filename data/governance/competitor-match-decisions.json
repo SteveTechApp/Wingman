@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-23T12:02:57.719Z",
+  "updatedAt": "2026-09-02T08:16:41.890Z",
   "decisions": [
     {
       "id": "airtame-Airtame 2-APO-VX20-UC",
@@ -143,8 +143,8 @@
         "wyrestormSku": "SW-620-TX-W",
         "topSkus": [
           "SW-620-TX-W",
-          "APO-VX20-UC",
-          "SW-220-TX-W"
+          "SW-660-TX-W",
+          "APO-VX20-UC"
         ],
         "rating": 100,
         "comparableFields": 5,
@@ -152,7 +152,7 @@
         "verified": false
       },
       "createdAt": "2026-08-23T11:19:31.193Z",
-      "updatedAt": "2026-08-23T11:19:31.193Z"
+      "updatedAt": "2026-09-02T08:16:41.890Z"
     },
     {
       "id": "amx-DGX1600-ENC-MX-1616-SCL",
@@ -2986,7 +2986,7 @@
         "topSkus": [
           "APO-VX20-UC",
           "SW-620-TX-W",
-          "SW-220-TX-W"
+          "SW-660-TX-W"
         ],
         "rating": 100,
         "comparableFields": 6,
@@ -2994,7 +2994,7 @@
         "verified": false
       },
       "createdAt": "2026-08-23T11:19:31.433Z",
-      "updatedAt": "2026-08-23T11:19:31.433Z"
+      "updatedAt": "2026-09-02T08:16:41.890Z"
     },
     {
       "id": "barco-CLICKSHARE-CX-20-APO-VX20-UC",
@@ -3046,7 +3046,7 @@
         "verified": false
       },
       "createdAt": "2026-08-23T11:19:31.433Z",
-      "updatedAt": "2026-08-23T11:19:31.433Z"
+      "updatedAt": "2026-09-02T08:16:41.890Z"
     },
     {
       "id": "barco-CLICKSHARE-CX-30-APO-VX20-UC",
@@ -3098,7 +3098,7 @@
         "verified": false
       },
       "createdAt": "2026-08-23T11:19:31.492Z",
-      "updatedAt": "2026-08-23T11:19:31.492Z"
+      "updatedAt": "2026-09-02T08:16:41.890Z"
     },
     {
       "id": "barco-CS-100-APO-VX20-UC",
@@ -5607,7 +5607,7 @@
         "verified": false
       },
       "createdAt": "2026-08-23T11:19:31.740Z",
-      "updatedAt": "2026-08-23T11:19:31.740Z"
+      "updatedAt": "2026-09-02T08:16:41.890Z"
     },
     {
       "id": "crestron-AM-3200-WF-I-APO-VX20-UC",
@@ -5658,7 +5658,7 @@
         "verified": false
       },
       "createdAt": "2026-08-23T11:19:31.740Z",
-      "updatedAt": "2026-08-23T11:19:31.740Z"
+      "updatedAt": "2026-09-02T08:16:41.890Z"
     },
     {
       "id": "crestron-AM-TX3-100-APO-DG2",
@@ -9349,7 +9349,7 @@
         "topSkus": [
           "APO-VX20-UC",
           "SW-620-TX-W",
-          "SW-220-TX-W"
+          "SW-660-TX-W"
         ],
         "rating": 100,
         "comparableFields": 6,
@@ -9357,7 +9357,7 @@
         "verified": false
       },
       "createdAt": "2026-08-23T11:19:32.104Z",
-      "updatedAt": "2026-08-23T11:19:32.104Z"
+      "updatedAt": "2026-09-02T08:16:41.890Z"
     },
     {
       "id": "extron-XTP II CROSSPOINT 1600-MX-1616-SCL",
@@ -12970,8 +12970,8 @@
         "wyrestormSku": "SW-620-TX-W",
         "topSkus": [
           "SW-620-TX-W",
-          "APO-VX20-UC",
-          "SW-220-TX-W"
+          "SW-660-TX-W",
+          "APO-VX20-UC"
         ],
         "rating": 100,
         "comparableFields": 6,
@@ -12979,7 +12979,7 @@
         "verified": false
       },
       "createdAt": "2026-08-23T11:19:32.467Z",
-      "updatedAt": "2026-08-23T11:19:32.467Z"
+      "updatedAt": "2026-09-02T08:16:41.890Z"
     },
     {
       "id": "poly-Poly Studio X32-APO-VX20-UC-V2",

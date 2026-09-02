@@ -10,6 +10,7 @@ import {
 import {
   __setLedgerSupabaseClientForTests,
   mergeLedgers,
+  pushLedgerToSupabase,
 } from "./competitor-decision-ledger-store.mjs";
 
 const originalSyncMode = process.env.WINGMAN_LEDGER_SYNC_MODE;
@@ -368,19 +369,52 @@ describe("mergeLedgers (two-way sync core)", () => {
   });
 });
 
-describe("Supabase write-through + cross-machine reads", () => {
-  function fakeSupabaseClient() {
-    let rows = [];
-    return {
-      __rows: () => rows,
-      from: () => ({
-        select: () => ({
-          order: async () => ({
-            data: rows.map((row) => ({ payload: row.payload })),
-            error: null,
-          }),
-        }),
+// Recording fake for both single-row approvals and the atomic ledger RPC.
+function fakeSupabaseClient() {
+  let rows = [];
+  const calls = [];
+  return {
+    __rows: () => rows,
+    __calls: () => calls,
+    rpc: async (fn, args) => {
+      calls.push(`rpc:${fn}`);
+      if (fn === "wingman_ledger_commit") {
+        // Simulate migration 011's transaction: upsert every incoming row
+        // and delete rows no longer in the incoming ledger, atomically.
+        const incoming = args?.payload?.ledger ?? [];
+        const incomingIds = new Set(incoming.map((row) => row.id));
+        rows = rows.filter((row) => incomingIds.has(row.id));
+        for (const row of incoming) {
+          const index = rows.findIndex((existing) => existing.id === row.id);
+          if (index >= 0) rows[index] = row;
+          else rows.push(row);
+        }
+        return { error: null };
+      }
+      return { error: new Error(`unexpected rpc call: ${fn}`) };
+    },
+    from: () => {
+      calls.push("from");
+      return {
+        select: () => {
+          // supabase-js range-paging chain: select().range(from, to).order()
+          let from = 0;
+          let to = Number.MAX_SAFE_INTEGER;
+          const api = {
+            range: (start, end) => {
+              from = start;
+              to = end;
+              return api;
+            },
+            order: async () => ({
+              data: rows.slice(from, Math.min(to + 1, rows.length)).map((row) => ({ payload: row.payload })),
+              error: null,
+            }),
+          };
+          return api;
+        },
         upsert: async (newRows) => {
+          calls.push("upsert");
           for (const row of newRows) {
             const index = rows.findIndex((existing) => existing.id === row.id);
             if (index >= 0) rows[index] = row;
@@ -388,16 +422,21 @@ describe("Supabase write-through + cross-machine reads", () => {
           }
           return { error: null };
         },
-        delete: () => ({
-          in: async (column, ids) => {
-            rows = rows.filter((row) => !ids.includes(row.id));
-            return { error: null };
-          },
-        }),
-      }),
-    };
-  }
+        delete: () => {
+          calls.push("delete");
+          return {
+            in: async (column, ids) => {
+              rows = rows.filter((row) => !ids.includes(row.id));
+              return { error: null };
+            },
+          };
+        },
+      };
+    },
+  };
+}
 
+describe("Supabase write-through + cross-machine reads", () => {
   it("pushes an approval through to the Supabase mirror (write-through)", async () => {
     const client = fakeSupabaseClient();
     __setLedgerSupabaseClientForTests(client);
@@ -521,5 +560,92 @@ describe("pendingDecisionQueue", () => {
       expect(queue.ok).toBe(true);
       expect(queue.queue).toHaveLength(2);
     });
+  });
+});
+
+describe("pushLedgerToSupabase - atomic mirror commit (migration 011)", () => {
+  function ledgerFixture(decisionOverrides = {}) {
+    return {
+      version: 1,
+      decisions: [
+        fixtureDecision({
+          id: "maker-SKU-1--closest-technical-match",
+          competitorSku: "SKU-1",
+          ...decisionOverrides.sku1,
+        }),
+        fixtureDecision({
+          id: "maker-SKU-2--no-match",
+          competitorSku: "SKU-2",
+          decisionType: "no-technical-match",
+          ...decisionOverrides.sku2,
+        }),
+      ],
+    };
+  }
+
+  it("mirrors the whole ledger through ONE atomic RPC commit, stale-row delete included", async () => {
+    const client = fakeSupabaseClient();
+    // The mirror holds a third decision this machine's ledger no longer has;
+    // the transaction must remove it while upserting the two pushed rows.
+    client.__rows().push({
+      id: "maker-SKU-9--approved",
+      payload: fixtureDecision({
+        id: "maker-SKU-9--approved",
+        competitorSku: "SKU-9",
+        reviewStatus: "approved",
+      }),
+      updated_at: "2026-08-16T02:00:00.000Z",
+    });
+    __setLedgerSupabaseClientForTests(client);
+
+    const result = await pushLedgerToSupabase(ledgerFixture());
+
+    expect(result.ok).toBe(true);
+    expect(result.count).toBe(2);
+    // Exactly one RPC commit and ZERO direct table reads/writes - the old
+    // upsert -> read-back -> stale-delete choreography is gone.
+    expect(client.__calls()).toEqual(["rpc:wingman_ledger_commit"]);
+    // The mirror is exact: the two pushed rows present, SKU-9 gone.
+    const ids = client.__rows().map((row) => row.id).sort();
+    expect(ids).toEqual(["maker-SKU-1--closest-technical-match", "maker-SKU-2--no-match"]);
+    expect(client.__rows().every((row) => typeof row.payload === "object")).toBe(true);
+  });
+
+  it("reconciles in one call even when the mirror has no stale rows", async () => {
+    const client = fakeSupabaseClient();
+    __setLedgerSupabaseClientForTests(client);
+
+    const result = await pushLedgerToSupabase(ledgerFixture());
+
+    expect(result.ok).toBe(true);
+    expect(client.__calls()).toEqual(["rpc:wingman_ledger_commit"]);
+    expect(client.__rows()).toHaveLength(2);
+  });
+
+  it("surfaces the RPC error instead of partially applying the mirror", async () => {
+    const client = fakeSupabaseClient();
+    __setLedgerSupabaseClientForTests(client);
+    // Sabotage: make the rpc return an error; nothing must change in the mirror.
+    const originalRpc = client.rpc;
+    client.rpc = async () => ({ error: { message: "ledger commit denied" } });
+
+    try {
+      const result = await pushLedgerToSupabase(ledgerFixture());
+      expect(result.ok).toBe(false);
+      expect(result.error).toBe("ledger commit denied");
+      expect(client.__rows()).toHaveLength(0);
+    } finally {
+      client.rpc = originalRpc;
+    }
+  });
+
+  it("returns early without touching the mirror when the ledger is empty", async () => {
+    const client = fakeSupabaseClient();
+    __setLedgerSupabaseClientForTests(client);
+
+    const result = await pushLedgerToSupabase({ version: 1, decisions: [] });
+    expect(result.ok).toBe(true);
+    expect(result.count).toBe(0);
+    expect(client.__calls()).toEqual([]);
   });
 });

@@ -11,5 +11,15 @@ export function getAgentConfig() {
 }
 
 export function shouldUseMockMode(config = getAgentConfig()) {
-  return config.forceMock || !config.geminiApiKey;
+  // Mock mode is EXPLICIT only. A missing API key must not silently degrade a
+  // production agent into returning locally-derived answers.
+  return config.forceMock;
+}
+
+export function assertAgentConfigured(config = getAgentConfig()) {
+  if (!config.forceMock && !config.geminiApiKey) {
+    throw new Error(
+      "Agent live mode requires GEMINI_API_KEY, or set WINGMAN_AGENT_FORCE_MOCK=true to explicitly enable deterministic mock mode.",
+    );
+  }
 }

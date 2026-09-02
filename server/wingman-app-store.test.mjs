@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createClient } from "@supabase/supabase-js";
 
 // wingman-app-store.mjs dynamically imports this only when Supabase-backed
 // storage is actually used; these tests exercise file-mode and fail-closed-
@@ -24,6 +25,13 @@ vi.mock("node:fs/promises", () => ({
     writeFile: vi.fn(async (filePath, content) => {
       files.set(String(filePath), String(content));
     }),
+    rename: vi.fn(async (from, to) => {
+      const key = String(from);
+      if (!files.has(key)) throw makeEnoent();
+      files.set(String(to), files.get(key));
+      files.delete(key);
+    }),
+    rm: vi.fn(async () => undefined),
     mkdir: vi.fn(async () => undefined),
   },
 }));
@@ -134,6 +142,37 @@ describe("wingman-app-store: auth", () => {
     expect(health.body.workspaces).toBe(2);
   });
 
+  it("auth gate and session check are pure reads: no snapshot write on read-only requests", async () => {
+    const store = await import("./wingman-app-store.mjs");
+    const signupRes = await signUp(store);
+
+    // Locate the persisted db file the mocked fs captured during signup.
+    const dbKeys = [...files.keys()].filter((key) => String(key).endsWith("wingman-app-db.json"));
+    expect(dbKeys.length).toBeGreaterThan(0);
+    const dbKey = dbKeys[0];
+    const persistedBefore = files.get(dbKey);
+
+    const token = extractSessionToken(signupRes);
+    const auth = await store.getWingmanRequestAuth(
+      makeReq(undefined, { headers: { authorization: `Bearer ${token}` } }),
+      SESSION_URL,
+    );
+    expect(auth.ok).toBe(true);
+
+    const sessionRes = makeRes();
+    await store.handleWingmanAuthSessionGet(
+      makeReq(undefined, { headers: { authorization: `Bearer ${token}` } }),
+      sessionRes,
+      SESSION_URL,
+      { sendJson },
+    );
+    expect(sessionRes.statusCode).toBe(200);
+
+    // Neither the gate nor the session GET may rewrite the database snapshot:
+    // the last-seen touch rides real writes only.
+    expect(files.get(dbKey)).toBe(persistedBefore);
+  });
+
   it("rejects a session token that does not match any session", async () => {
     const store = await import("./wingman-app-store.mjs");
     const auth = await store.getWingmanRequestAuth(
@@ -209,11 +248,161 @@ describe("wingman-app-store: auth", () => {
     const otherRes = makeRes();
     await store.handleWingmanAuthLoginPost(
       makeReq({ email: "nobody@example.com", password: "whatever-1234" }, { ip: "10.0.0.11" }),
-      otherRes,
-      { sendJson, parseJsonBody },
+      otherRes,        { sendJson, parseJsonBody },
     );
 
     expect(otherRes.statusCode).toBe(401);
+  });
+});
+
+describe("wingman-app-store: atomic snapshot commit", () => {
+  const ORIGINAL_ENV = { ...process.env };
+
+  beforeEach(() => {
+    files.clear();
+    vi.resetModules();
+    vi.resetAllMocks();
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  function makeTablesClient() {
+    const calls = {
+      tables: [],
+      upserts: [],
+      deletes: [],
+      rpcs: [],
+    };
+    const client = {
+      __calls: calls,
+      from: (table) => {
+        calls.tables.push(table);
+        // Read path only: paged select with empty data (fresh database). Any
+        // attempt to accumulate a write chain (upsert/delete) is recorded so
+        // the test can assert the write path goes exclusively through rpc().
+        return {
+          select: () => {
+            const state = { from: 0, to: 999 };
+            const api = {
+              range: (start, end) => {
+                state.from = start;
+                state.to = end;
+                return api;
+              },
+              order: async () => {
+                // A full page (1000 rows) retriggers recursion; serve empty so
+                // pagination concludes after one request per table.
+                if (state.from === 0) return { data: [], error: null };
+                return { data: [], error: null };
+              },
+            };
+            return api;
+          },
+          upsert: async (rows) => {
+            calls.upserts.push({ table, rows });
+            return { error: null };
+          },
+          delete: () => {
+            calls.deletes.push({ table });
+            return {
+              not: async () => ({ error: null }),
+            };
+          },
+        };
+      },
+      rpc: async (fn, args) => {
+        calls.rpcs.push({ fn, args });
+        return {
+          data: { committed: true, upserted_users: (args?.payload?.users ?? []).length },
+          error: null,
+        };
+      },
+    };
+    return client;
+  }
+
+  it("commits the whole snapshot through one atomic rpc call, never per-table writes", async () => {
+    process.env.WINGMAN_STORAGE_MODE = "supabase-tables";
+    process.env.SUPABASE_URL = "https://example.supabase.co";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
+    process.env.WINGMAN_STORAGE_FAIL_CLOSED = "false";
+
+    const client = makeTablesClient();
+    vi.mocked(createClient).mockImplementation(() => client);
+
+    const store = await import("./wingman-app-store.mjs");
+    const res = makeRes();
+    await store.handleWingmanAuthSignupPost(
+      makeReq({
+        name: "Tabatha",
+        company: "Acme AV",
+        email: "tabatha@example.com",
+        password: "correct horse battery staple",
+      }),
+      res,
+      { sendJson, parseJsonBody },
+    );
+
+    expect(res.statusCode).toBe(200);
+
+    // Exactly ONE write to the database: the atomic RPC commit.
+    expect(client.__calls.rpcs.length).toBe(1);
+    expect(client.__calls.rpcs[0].fn).toBe("wingman_snapshot_commit");
+    expect(client.__calls.upserts.length).toBe(0);
+    expect(client.__calls.deletes.length).toBe(0);
+
+    // The payload carries the full normalized snapshot for the new workspace.
+    const payload = client.__calls.rpcs[0].args.payload;
+    expect(payload.users.length).toBe(1);
+    expect(payload.users[0].email).toBe("tabatha@example.com");
+    expect(payload.workspaces.length).toBe(1);
+    expect(payload.memberships.length).toBe(1);
+    expect(payload.sessions.length).toBe(1);
+    expect(payload.projects).toEqual([]);
+    // Signup records one audit event inside the same atomic commit.
+    expect(payload.auditEvents.length).toBe(1);
+    expect(payload.auditEvents[0].action).toBe("signup");
+    expect(payload.telemetryEvents).toEqual([]);
+
+    // The table reads still flow through the (paginated) select path: the read
+    // side uses all eight tables before the first write.
+    expect(new Set(client.__calls.tables).size).toBeGreaterThanOrEqual(8);
+  });
+
+  it("surfaces an rpc error as a write failure and logs the event class", async () => {
+    process.env.WINGMAN_STORAGE_MODE = "supabase-tables";
+    process.env.SUPABASE_URL = "https://example.supabase.co";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
+    process.env.WINGMAN_STORAGE_FAIL_CLOSED = "false";
+
+    const client = makeTablesClient();
+    client.rpc = async () => ({ data: null, error: new Error("function wingman_snapshot_commit does not exist") });
+    vi.mocked(createClient).mockImplementation(() => client);
+
+    // The rpc failure is logged loudly (error event), even though this
+    // fail-open instance then falls back to file storage.
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const store = await import("./wingman-app-store.mjs");
+    const res = makeRes();
+    await store.handleWingmanAuthSignupPost(
+      makeReq({
+        name: "Failing",
+        company: "Acme AV",
+        email: "failing@example.com",
+        password: "correct horse battery staple",
+      }),
+      res,
+      { sendJson, parseJsonBody },
+    );
+
+    expect(res.statusCode).toBe(200);
+    const errorLines = errorSpy.mock.calls.map((call) => String(call[0]));
+    errorSpy.mockRestore();
+    const commitLog = errorLines.find((line) => line.includes("storage.snapshot_commit.failed"));
+    expect(commitLog).toBeDefined();
+    expect(commitLog).toContain("does not exist");
   });
 });
 

@@ -15,15 +15,21 @@
 // exception cannot quietly become permanent.
 //
 // Fails on: any high/critical advisory that is not excepted; any exception that
-// has expired; any exception that no longer matches a real advisory (so stale
-// entries get cleaned up rather than lingering).
+// has expired; any exception within RENEWAL_WINDOW_DAYS of its expiry (so a
+// renewal is prepared ahead of the deadline instead of being discovered by a
+// red build at the last minute); any exception that no longer matches a real
+// advisory (so stale entries get cleaned up rather than lingering).
+//
+// DEPENDENCY_AUDIT_TODAY=YYYY-MM-DD overrides the reference date - the check
+// normally uses the real clock; the override exists so the window logic can be
+// verified deterministically.
 //
 // Usage: node tools/check-dependency-audit.mjs [--prefix server]
 
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const prefixIndex = process.argv.indexOf("--prefix");
@@ -32,6 +38,27 @@ const cwd = prefix ? path.join(projectRoot, prefix) : projectRoot;
 const label = prefix || "root";
 
 const BLOCKING = new Set(["high", "critical"]);
+
+// The renewal notice horizon: an exception that still passes is a deadline you
+// must act on soon, not later. 14 days is comfortably inside a release/PR
+// cycle, so no exception can expire without at least one CI run demanding its
+// renewal before the date arrives.
+const RENEWAL_WINDOW_DAYS = 14;
+
+// Whole days from `today` (YYYY-MM-DD) until `expiresOn` (YYYY-MM-DD).
+// Negative when already past.
+export function daysUntilExpiry(expiresOn, today) {
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.floor((new Date(`${expiresOn}T00:00:00Z`) - new Date(`${today}T00:00:00Z`)) / msPerDay);
+}
+
+// Decides what the check must do with an exception record.
+// Returns 'ok', 'due-for-renewal', or 'expired'.
+export function evaluateExceptionExpiry(exception, today, windowDays = RENEWAL_WINDOW_DAYS) {
+  if (!exception.expiresOn || exception.expiresOn <= today) return "expired";
+  if (daysUntilExpiry(exception.expiresOn, today) <= windowDays) return "due-for-renewal";
+  return "ok";
+}
 
 function loadExceptions() {
   const file = path.join(projectRoot, "tools", "dependency-audit-exceptions.json");
@@ -80,8 +107,9 @@ function advisoriesFor(vulnerability) {
   return found;
 }
 
+function main() {
 const exceptions = loadExceptions();
-const today = new Date().toISOString().slice(0, 10);
+const today = String(process.env.DEPENDENCY_AUDIT_TODAY || new Date().toISOString().slice(0, 10));
 const report = runAudit();
 const vulnerabilities = Object.entries(report.vulnerabilities ?? {});
 
@@ -118,10 +146,18 @@ for (const [name, vulnerability] of vulnerabilities) {
 
     matchedExceptionIds.add(exception.advisory);
 
-    if (!exception.expiresOn || exception.expiresOn <= today) {
+    const expiryState = evaluateExceptionExpiry(exception, today);
+    if (expiryState === "expired") {
       blocking.push(
         `${name} ${advisory.id} - exception expired on ${exception.expiresOn ?? "(no expiry set)"}. ` +
           "Re-assess it: upgrade if a fix now exists, or renew the exception with a fresh justification.",
+      );
+      continue;
+    }
+    if (expiryState === "due-for-renewal") {
+      blocking.push(
+        `${name} ${advisory.id} - exception expires on ${exception.expiresOn} (within ${RENEWAL_WINDOW_DAYS} days). ` +
+          "Renew it now: update expiresOn with a fresh justification, or resolve the advisory so the exception can be deleted.",
       );
       continue;
     }
@@ -164,3 +200,10 @@ console.log(
   `[dependency-audit:${label}] No unaccepted high or critical advisories. ` +
     `(total reported: ${counts.total ?? 0}; high ${counts.high ?? 0}, critical ${counts.critical ?? 0})`,
 );
+}
+
+// Run as a CLI only when directly executed. Importing the module (as the tests
+// do, for the exported expiry helpers) must not trigger a live npm audit.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}
