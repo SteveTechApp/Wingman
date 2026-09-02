@@ -113,6 +113,47 @@ jobs:
     uses: ./.github/workflows/supabase-rls.yml
     secrets: inherit
 
+  # Dry-run self-check of the supabase-rls wiring above - it verifies the gate
+  # itself, without touching the live database (verify-supabase-rls.mjs is
+  # never run here). Two parts:
+  #   1. A static pass (tools/check-supabase-rls-workflow.mjs) proves
+  #      supabase-rls.yml still wires all three secrets into the sentinel probe
+  #      and that ci.yml + the nightly schedule pass them via `secrets:
+  #      inherit`. These regressions are invisible to the live check: drop
+  #      SUPABASE_SECRET_KEY from the env mapping and the probe silently falls
+  #      back to read-only mode, which cannot prove protection on empty tables.
+  #   2. A secret-presence dry run that FAILS with a clear message when
+  #      SUPABASE_SECRET_KEY is absent from the repository while SUPABASE_URL
+  #      and SUPABASE_ANON_KEY are configured - a partial secret setup must
+  #      never quietly run the weaker mode. (On fork PRs all secrets are
+  #      unavailable, so the step skips - matching the live job.)
+  supabase-rls-selfcheck:
+    name: Supabase RLS workflow self-check (dry run)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Verify supabase-rls.yml wires all three secrets (static)
+        run: node tools/check-supabase-rls-workflow.mjs
+
+      - name: Verify repository secret presence (dry run, no live probe)
+        id: secrets
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "Supabase secrets are not available in this context (fork PR or unconfigured repository) - the live RLS job will skip. Workflow wiring was verified statically above."
+          elif [ -z "${{ secrets.SUPABASE_SECRET_KEY }}" ]; then
+            echo "::error::SUPABASE_SECRET_KEY is absent from the repository secrets (or unavailable in this context). The reusable supabase-rls.yml gate needs it: sentinel mode seeds a marker row per table through the service role, and without it the anon probe cannot prove protection on empty tables - the live check would degrade to inconclusive read-only notes. Add SUPABASE_SECRET_KEY alongside SUPABASE_URL and SUPABASE_ANON_KEY under Settings > Secrets and variables > Actions."
+            exit 1
+          else
+            echo "All three Supabase secrets are configured - the live RLS job will run in sentinel mode."
+          fi
+
   # Proves the built app actually boots and renders. Playwright was already a
   # devDependency and check:browser already existed; neither had ever run in CI.
   smoke:
@@ -142,6 +183,13 @@ jobs:
 
       - name: Run browser smoke check
         run: npm run check:browser
+
+      # Boots the real API (throwaway file-mode data dir) and the Vite dev UI,
+      # then drives a browser through settings sign-in, discovery project save
+      # + HTML brief export, compare history save + CSV export, and the 413
+      # oversized-body contract - no manual session needed.
+      - name: Run end-to-end smoke check
+        run: npm run check:e2e-smoke
 
 
   audit:

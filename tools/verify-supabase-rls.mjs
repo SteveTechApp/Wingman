@@ -222,10 +222,37 @@ async function probe(table, sentinelSeeded) {
       }
 
       // We seeded the row via the service role moments ago, and the anon key
-      // cannot see it. Definitive protection - even though RLS filtering and
-      // an empty table are indistinguishable in the read-only mode, they are
-      // NOT indistinguishable here.
-      return { table, verdict: "protected", detail: "sentinel row invisible to anon key" };
+      // cannot see it via the filtered probe. But RLS policies can be narrow
+      // as well as absent: a permissive policy whose predicate the sentinel
+      // row does not satisfy (e.g. workspace_id = auth.uid()) still leaks the
+      // table's real rows while returning [] for our filtered id probe. The
+      // nightly gate exists to catch arbitrary policy drift, so ALSO issue an
+      // unfiltered anon read: with the sentinel row provably present, any row
+      // the anon key can see at all is a leak.
+      try {
+        const u = await fetch(`${endpoint}?select=id&limit=1`, { headers: ANON });
+        if (u.status === 401 || u.status === 403) {
+          return { table, verdict: "protected", detail: "sentinel row and unfiltered read both denied to anon" };
+        }
+        const uBody = await u.text();
+        let uRows = [];
+        try {
+          uRows = JSON.parse(uBody);
+        } catch {
+          return { table, verdict: "unknown", detail: "unparseable unfiltered response" };
+        }
+        if (Array.isArray(uRows) && uRows.length > 0) {
+          return { table, verdict: "exposed", detail: `anon key read ${uRows.length} row(s) via unfiltered probe (conditional policy leak)` };
+        }
+      } catch (error) {
+        return { table, verdict: "unknown", detail: `unfiltered probe failed: ${error.message}` };
+      }
+
+      // The sentinel row exists (seeded moments ago) and the anon key can see
+      // neither it nor any other row. Definitive protection - even though RLS
+      // filtering and an empty table are indistinguishable in read-only mode,
+      // they are NOT indistinguishable here.
+      return { table, verdict: "protected", detail: "sentinel row and unfiltered read invisible to anon key" };
     } catch (error) {
       return { table, verdict: "unknown", detail: error.message };
     }

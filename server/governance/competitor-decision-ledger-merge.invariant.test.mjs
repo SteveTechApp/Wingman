@@ -17,12 +17,17 @@
  * 299-row baseline.
  */
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {
+  __setLedgerSupabaseClientForTests,
   mergeLedgers,
   readCommittedLedgerFile,
+  readLedgerForApi,
+  readLedgerFromSupabase,
+  syncCompetitorDecisionLedger,
 } from "./competitor-decision-ledger-store.mjs";
+import { readAllSupabaseRows } from "../supabase-pagination.mjs";
 
 // ---------------------------------------------------------------------------
 // Seeded PRNG + generators
@@ -331,5 +336,180 @@ describe("mergeLedgers against the committed ledger", () => {
       expect(row.engineSnapshot).toEqual(committedRow.engineSnapshot);
       expect(row.updatedAt).toBe(committedRow.updatedAt);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Truncating-mirror sentinel (POSTGREST_PAGINATION_LIMIT)
+// ---------------------------------------------------------------------------
+//
+// The convergence story only ends well if the mirror is read COMPLETELY. The
+// committed baseline can exceed 299 rows on any machine, and the mirror can
+// hold thousands; PostgREST answers at most 1000 rows per request, so a read
+// that stops after one request sees a truncation it cannot detect. The store
+// reads through readAllSupabaseRows, which pages until a short page proves
+// exhaustion - and, when a pathological mirror NEVER reports a short page,
+// trips the POSTGREST_PAGINATION_LIMIT safety valve instead of returning a
+// dataset that merely looks complete. These tests drive that sentinel through
+// the real seam: a truncating mirror must abort the sync and the API read
+// before the merge ever sees it, because a merged ledger built from the
+// visible slice of a truncating mirror would converge straight into a
+// data-loss push (wingman_ledger_commit deletes every row not in the pushed
+// ledger).
+
+function truncatingMirrorClient({ rows: count = 1500, pageSize = 1000 } = {}) {
+  const mirror = [];
+  for (let i = 0; i < count; i += 1) {
+    const id = `sentinel-mirror-${String(i).padStart(4, "0")}`;
+    mirror.push({
+      id,
+      updated_at: "2026-09-01T00:00:00.000Z",
+      payload: {
+        id,
+        competitorManufacturer: "Mirror Sentinel",
+        competitorSku: `SENTINEL-${String(i).padStart(4, "0")}`,
+        decisionType: "closest-technical-match",
+        reviewStatus: "pending-review",
+        updatedAt: "2026-09-01T00:00:00.000Z",
+      },
+    });
+  }
+  const windows = [];
+  let rpcCalls = 0;
+  const client = {
+    __mirrorRows: () => mirror,
+    __windows: () => windows,
+    __rpcCalls: () => rpcCalls,
+    from: () => ({
+      select: () => {
+        let from = 0;
+        const api = {
+          range: (start) => {
+            from = start;
+            return api;
+          },
+          order: async () => {
+            // The sentinel: answer EVERY window with a full pageSize page,
+            // however far the reader pages, so a short page is never observed
+            // and readAllSupabaseRows must stop at its maxPages safety valve
+            // with POSTGREST_PAGINATION_LIMIT rather than report a complete
+            // read. Content is cycled - it never reaches a commit anyway.
+            windows.push(from);
+            const data = Array.from({ length: pageSize }, (_, k) => mirror[(from + k) % mirror.length]);
+            return { data, error: null };
+          },
+        };
+        return api;
+      },
+    }),
+    rpc: async () => {
+      rpcCalls += 1;
+      return { error: null };
+    },
+  };
+  return client;
+}
+
+describe("truncating-mirror sentinel (POSTGREST_PAGINATION_LIMIT)", () => {
+  let previousSyncMode;
+
+  beforeEach(() => {
+    previousSyncMode = process.env.WINGMAN_LEDGER_SYNC_MODE;
+    process.env.WINGMAN_LEDGER_SYNC_MODE = "supabase";
+  });
+
+  afterEach(() => {
+    __setLedgerSupabaseClientForTests(null);
+    if (previousSyncMode === undefined) delete process.env.WINGMAN_LEDGER_SYNC_MODE;
+    else process.env.WINGMAN_LEDGER_SYNC_MODE = previousSyncMode;
+  });
+
+  it("readLedgerFromSupabase surfaces the truncation as a hard error, never a partial remote", async () => {
+    const client = truncatingMirrorClient();
+    __setLedgerSupabaseClientForTests(client);
+
+    const result = await readLedgerFromSupabase();
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toMatch(/did not reach the end of the table/);
+    expect(result.error).toMatch(/without reporting a short page/);
+    // The read paged past the cap instead of trusting one response: 100
+    // full-page windows (maxPages) all came back non-short.
+    expect(client.__windows().length).toBeGreaterThan(1);
+
+    // The code-level pin: the exact sentinel that stopped the read is
+    // POSTGREST_PAGINATION_LIMIT, so a caller can tell truncation apart from
+    // a genuinely complete (short-page-terminated) read.
+    const direct = await readAllSupabaseRows(client, "competitor_match_decisions", {
+      select: "payload",
+      order: "id",
+    });
+    expect(direct.error?.code).toBe("POSTGREST_PAGINATION_LIMIT");
+    expect(direct.truncated).toBe(true);
+  });
+
+  it("syncCompetitorDecisionLedger refuses to push when the mirror read truncates", async () => {
+    const client = truncatingMirrorClient();
+    __setLedgerSupabaseClientForTests(client);
+    const before = await readCommittedLedgerFile();
+
+    const result = await syncCompetitorDecisionLedger();
+
+    expect(result.ok).toBe(false);
+    expect(result.mode).toBe("error");
+    expect(result.error).toMatch(/did not reach the end of the table/);
+    // The mirror commit (the only thing that can delete rows) was never
+    // invoked: a truncating mirror cannot converge into a data-loss push.
+    expect(client.__rpcCalls()).toBe(0);
+    // And the committed file - the durable record - was left byte-identical.
+    const after = await readCommittedLedgerFile();
+    expect(after).toEqual(before);
+  });
+
+  it("readLedgerForApi falls back to the committed file rather than merging a truncation", async () => {
+    const client = truncatingMirrorClient();
+    __setLedgerSupabaseClientForTests(client);
+    const local = await readCommittedLedgerFile();
+
+    const result = await readLedgerForApi();
+
+    expect(result.mode).toBe("file-db-fallback");
+    expect(result.ledger).toEqual(local);
+    expect(result.warnings.join(" ")).toMatch(/did not reach the end of the table/);
+    expect(client.__rpcCalls()).toBe(0);
+  });
+
+  it("the refusal is load-bearing: a push built from the visible slice of a truncating mirror deletes the tail", async () => {
+    // Merge-math demonstration with wingman_ledger_commit's real semantics.
+    // A truncating mirror exposes only its first 1000 rows; if that visible
+    // slice were merged and pushed (the pre-guard behaviour), the commit
+    // reconciles the table to the pushed ledger and the 500-row tail dies.
+    const client = truncatingMirrorClient();
+    const mirror = client.__mirrorRows();
+    const local = await readCommittedLedgerFile();
+    // readLedgerFromSupabase maps table rows to their payload before merging;
+    // a truncating read exposes exactly the first 1000 payloads.
+    const visible = mirror.slice(0, 1000).map((row) => row.payload);
+    const tail = mirror.slice(1000).map((row) => row.payload);
+
+    const merged = mergeLedgers(local ?? { version: 1, decisions: [] }, { version: 1, decisions: visible });
+
+    // The merge cannot conjure the tail back: those identities existed only
+    // past the truncation cut and nowhere in the committed baseline.
+    for (const decision of tail) {
+      const key = identityKey(decision);
+      expect(key).not.toBe("");
+      expect(merged.decisions.some((candidate) => identityKey(candidate) === key)).toBe(false);
+    }
+
+    // Reconcile a simulated mirror DB exactly like wingman_ledger_commit:
+    // keep rows whose id is in the pushed ledger, delete the rest.
+    const kept = new Set(merged.decisions.map((decision) => decision.id).filter(Boolean));
+    const deleted = mirror.filter((row) => !kept.has(row.id));
+    const head = mirror.slice(0, 1000);
+
+    expect(head.every((row) => kept.has(row.id))).toBe(true); // head survives
+    expect(deleted.length).toBe(tail.length); // the whole 500-row tail is deleted
+    expect(tail.every((decision) => deleted.some((gone) => gone.id === decision.id))).toBe(true);
   });
 });
