@@ -14,16 +14,31 @@ import type {
 import { getFullDiscoveryOptions } from "./discoveryQuestions";
 import type { DiscoveryConversationItem } from "../../data/projectStore";
 
+// Preferred option ordering applied by getQuestionView so the most likely
+// choices surface first for the selected application. Exported so the
+// consumer-drift test can pin every listed value to a current canonical
+// option - a renamed or removed option value would otherwise silently stop
+// the preferred ordering from applying to it (the stale value ranks at 99
+// and the option never moves to the front).
+export const AUDIO_PREFERRED_OPTION_ORDER: Record<string, string[]> = {
+  "meeting-room": ["display-audio", "room-audio", "source-audio-deembed", "dante-network-audio", "no-room-audio"],
+  classroom: ["room-audio", "separate-programme-voice", "distributed-70v-100v", "dante-network-audio", "display-audio"],
+  hospitality: ["distributed-70v-100v", "separate-programme-voice", "analogue-audio-override", "dante-network-audio", "display-audio"],
+  "video-wall": ["source-audio-deembed", "room-audio", "display-audio", "analogue-audio-override", "no-room-audio"],
+  "av-over-ip": ["dante-network-audio", "source-audio-deembed", "room-audio", "digital-audio-interface", "no-room-audio"],
+};
+
+export const SOURCE_DEVICE_WORKFLOWS_PREFERRED_OPTION_ORDER: Record<string, string[]> = {
+  "meeting-room": ["user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production", "signage-media-players"],
+  classroom: ["teaching-visualisers", "user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production"],
+  hospitality: ["broadcast-tv-feeds", "signage-media-players", "user-laptops", "wireless-casting-source", "network-remote-feeds"],
+  "video-wall": ["operational-workstations", "signage-media-players", "broadcast-tv-feeds", "network-remote-feeds", "cameras-production"],
+  "av-over-ip": ["network-remote-feeds", "operational-workstations", "signage-media-players", "cameras-production", "user-laptops"],
+};
+
 export function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): DiscoveryQuestionView {
   if (step.id === "audio") {
-    const preferredByApplication: Record<string, string[]> = {
-      "meeting-room": ["display-audio", "room-audio", "source-audio-deembed", "dante-network-audio", "no-room-audio"],
-      classroom: ["room-audio", "separate-programme-voice", "distributed-70v-100v", "dante-network-audio", "display-audio"],
-      hospitality: ["distributed-70v-100v", "separate-programme-voice", "analogue-audio-override", "dante-network-audio", "display-audio"],
-      "video-wall": ["source-audio-deembed", "room-audio", "display-audio", "analogue-audio-override", "no-room-audio"],
-      "av-over-ip": ["dante-network-audio", "source-audio-deembed", "room-audio", "digital-audio-interface", "no-room-audio"],
-    };
-    const preferred = preferredByApplication[selectedApplication] ?? [];
+    const preferred = AUDIO_PREFERRED_OPTION_ORDER[selectedApplication] ?? [];
     const rank = new Map(preferred.map((value, index) => [value, index]));
     const options = [...step.options].sort((left, right) => (rank.get(left.value) ?? 99) - (rank.get(right.value) ?? 99));
     const promptByApplication: Record<string, string> = {
@@ -37,14 +52,7 @@ export function getQuestionView(step: DiscoveryQuestion, selectedApplication: st
   }
 
   if (step.id !== "source-device-workflows") return step;
-  const preferredByApplication: Record<string, string[]> = {
-    "meeting-room": ["user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production", "signage-media-players"],
-    classroom: ["teaching-visualisers", "user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production"],
-    hospitality: ["broadcast-tv-feeds", "signage-media-players", "user-laptops", "wireless-casting-source", "network-remote-feeds"],
-    "video-wall": ["operational-workstations", "signage-media-players", "broadcast-tv-feeds", "network-remote-feeds", "cameras-production"],
-    "av-over-ip": ["network-remote-feeds", "operational-workstations", "signage-media-players", "cameras-production", "user-laptops"],
-  };
-  const preferred = preferredByApplication[selectedApplication] ?? [];
+  const preferred = SOURCE_DEVICE_WORKFLOWS_PREFERRED_OPTION_ORDER[selectedApplication] ?? [];
   const rank = new Map(preferred.map((value, index) => [value, index]));
   const options = [...step.options].sort((left, right) => (rank.get(left.value) ?? 99) - (rank.get(right.value) ?? 99));
   return {
