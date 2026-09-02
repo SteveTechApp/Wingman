@@ -8,6 +8,7 @@ import type {
   StoredRecommendationEvidence,
   StoredRecommendationProductFamily,
 } from "../data/projectStore";
+import { STRANDED_BRIEF_QUOTE_SAFETY_MESSAGE } from "./strandedBriefQuoteSafety";
 import { buildSalesReadinessPackage } from "./salesReadiness";
 import { buildAvDecisionEvidence } from "./avDecisionEvidence";
 import {
@@ -831,14 +832,21 @@ function quoteSafetyStatus(input: RecommendationEvidenceInput, missing: string[]
   const fallbackProduct = Boolean(input.product && "isFallback" in input.product && input.product.isFallback);
   const weakCompare = Boolean(input.compare && compareScore > 0 && compareScore < 66);
 
+  // A stranded discovery brief (a captured answer whose option a later answer
+  // hid, flagged by the decision-integrity gate) is quote-unsafe by definition:
+  // the hidden value still sits in the brief and would distort the design. The
+  // brief carries the gate's verdict, so honor it here — downstream consumers
+  // (the project evidence panel, proposal exports) then color from one truth.
+  if (input.discoveryBrief?.quoteSafetyStatus === "do-not-quote-yet") return "do-not-quote-yet";
   if (decisionBlockerCount > 0 || missing.length >= 3 || !input.product?.sku) return "do-not-quote-yet";
   if (missing.length > 0 || fallbackProduct || weakCompare || dependencies.length > 0) return "validate-before-quote";
   return "quote-ready";
 }
 
-function quoteSafetyMessage(status: StoredQuoteSafetyStatus, missing: string[]) {
+function quoteSafetyMessage(status: StoredQuoteSafetyStatus, missing: string[], strandedBrief: boolean) {
   if (status === "quote-ready") return "Quote-ready draft after final datasheet and dependency validation.";
   if (status === "validate-before-quote") return "Validate before quote - the product direction is usable, but checks remain.";
+  if (strandedBrief) return STRANDED_BRIEF_QUOTE_SAFETY_MESSAGE;
   return `Do not quote yet - confirm ${missing[0] || "the missing requirement detail"} first.`;
 }
 
@@ -1001,6 +1009,9 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     (item) => !liveResolved.has(item),
   );
 
+  // A stranded brief (quote-safety gate already downgraded it) keeps its
+  // do-not-quote verdict and names the real reason in the message.
+  const strandedBrief = input.discoveryBrief?.quoteSafetyStatus === "do-not-quote-yet";
   const status = quoteSafetyStatus(input, missing, dependencies, avDecision.blockerCount);
 
   const quoteChecks = unique([
@@ -1035,7 +1046,7 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     customerSafeWording: customerSafeWording(input, status),
     internalGuidance: unique([...internalGuidance(input, status), ...avDecision.repGuidance]),
     quoteSafetyStatus: status,
-    quoteSafetyMessage: quoteSafetyMessage(status, missing),
+    quoteSafetyMessage: quoteSafetyMessage(status, missing, strandedBrief),
     confidence: confidence(status, missing),
     nextBestQuestion: avDecision.nextBestQuestion || nextBestQuestion(input, missing),
   };
