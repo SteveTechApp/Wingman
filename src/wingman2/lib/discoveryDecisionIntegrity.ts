@@ -1,4 +1,5 @@
 import type { DiscoveryAnswers, DiscoveryNotes, DiscoveryQuestion } from "../pages/discovery/discoveryTypes";
+import { canonicalDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
 import { findStrandedQuickStartDefaults, isUnknownDiscoveryValue, wmDiscoveryAnswerToText, wmDiscoveryNormaliseAnswerList } from "../pages/discovery/discoveryAnswerUtils";
 
 export type DiscoveryIssueKind = "contradiction" | "underspecified" | "stranded";
@@ -18,6 +19,84 @@ export type DiscoveryDecisionIntegrity = {
   underspecified: DiscoveryDecisionIssue[];
   canProceedToRecommendation: boolean;
 };
+
+/**
+ * Which of a question's exclusiveValues a contradiction rule fires on:
+ * "declining" exclusives negate the whole scope (no-*), "unsettled"
+ * exclusives mark the answer as unconfirmed (unknown-*). Both declare a
+ * definitive "this cannot also be concrete" state, so combining either with a
+ * concrete value of the same question is contradictory.
+ */
+export type ExclusiveScope = "declining" | "unsettled";
+
+export type ExclusiveScopeRule = {
+  questionId: string;
+  scope: ExclusiveScope;
+  title: string;
+  detail: string;
+  followUpQuestion: string;
+};
+
+// Data-driven "exclusive option selected alongside other options" rules. Each
+// row keys ONLY off the canonical question id; the exclusive VALUES are read
+// from that question's own exclusiveValues at evaluate time (see
+// exclusiveScopeValues), so a renamed exclusive option flows into the check
+// automatically and a removed one is caught by the pin test instead of
+// silently disabling the rule.
+export const EXCLUSIVE_SCOPE_CONTRADICTIONS: ExclusiveScopeRule[] = [
+  {
+    questionId: "uc-purpose",
+    scope: "declining",
+    title: "Conflicting communications scope",
+    detail: "The answers include both no camera or microphone requirements and another UC workflow.",
+    followUpQuestion: "Is there any conferencing, recording, camera, or microphone workflow, or should this be out of scope?",
+  },
+  {
+    questionId: "uc-microphones",
+    scope: "declining",
+    title: "Conflicting microphone scope",
+    detail: "No microphones is selected alongside one or more microphone types.",
+    followUpQuestion: "Should the room have no microphones, or which microphone types should remain in scope?",
+  },
+  {
+    questionId: "usb",
+    scope: "declining",
+    title: "Conflicting USB scope",
+    detail: "No USB transport is selected alongside a USB host, switching, extension, or bandwidth requirement.",
+    followUpQuestion: "Is USB genuinely out of scope, or which USB workflow must the system support?",
+  },
+  {
+    questionId: "display-behaviour",
+    scope: "unsettled",
+    title: "Unsettled display behaviour",
+    detail: "Unknown display behaviour is selected alongside a concrete routing mode.",
+    followUpQuestion: "Should the displays mirror, route independently, form a wall, or use multiview?",
+  },
+  {
+    questionId: "source-connection",
+    scope: "unsettled",
+    title: "Unsettled source profile",
+    detail: "Not yet confirmed is selected alongside a concrete source profile.",
+    followUpQuestion: "Which source profile should drive the design: fixed sources, user presentation, mixed sources, or network video?",
+  },
+];
+
+const UNCERTAINTY_MARKER_PREFIX = "unknown-";
+
+function isUncertaintyMarker(value: string): boolean {
+  return value.startsWith(UNCERTAINTY_MARKER_PREFIX);
+}
+
+/**
+ * The exclusiveValues of a canonical question that belong to a scope class.
+ * Exported so the pin test can assert every rule still has a live trigger and
+ * build representative contradiction fixtures from the canonical option set.
+ */
+export function exclusiveScopeValues(questionId: string, scope: ExclusiveScope): string[] {
+  const step = canonicalDiscoveryQuestions.find((question) => question.id === questionId);
+  const exclusives = step?.exclusiveValues ?? [];
+  return scope === "declining" ? exclusives.filter((value) => !isUncertaintyMarker(value)) : exclusives.filter(isUncertaintyMarker);
+}
 
 function values(answers: DiscoveryAnswers, id: string): string[] {
   return wmDiscoveryNormaliseAnswerList(answers[id]).map((value) => value.trim());
@@ -69,17 +148,21 @@ export function evaluateDiscoveryDecisionIntegrity(
     contradictions.push({ kind: "contradiction", questionIds, title, detail, followUpQuestion });
   };
 
-  if (has(answers, "uc-purpose", "no-uc") && values(answers, "uc-purpose").length > 1) {
-    addContradiction(["uc-purpose"], "Conflicting communications scope", "The answers include both no camera or microphone requirements and another UC workflow.", "Is there any conferencing, recording, camera, or microphone workflow, or should this be out of scope?");
-  }
-  if (has(answers, "uc-microphones", "no-microphones") && values(answers, "uc-microphones").length > 1) {
-    addContradiction(["uc-microphones"], "Conflicting microphone scope", "No microphones is selected alongside one or more microphone types.", "Should the room have no microphones, or which microphone types should remain in scope?");
-  }
-  if (has(answers, "usb", "no-usb") && values(answers, "usb").some((value) => value !== "no-usb")) {
-    addContradiction(["usb"], "Conflicting USB scope", "No USB transport is selected alongside a USB host, switching, extension, or bandwidth requirement.", "Is USB genuinely out of scope, or which USB workflow must the system support?");
-  }
-  if (has(answers, "display-behaviour", "unknown-display-behaviour") && values(answers, "display-behaviour").length > 1) {
-    addContradiction(["display-behaviour"], "Unsettled display behaviour", "Unknown display behaviour is selected alongside a concrete routing mode.", "Should the displays mirror, route independently, form a wall, or use multiview?");
+  // Exclusive-scope contradictions, driven by EXCLUSIVE_SCOPE_CONTRADICTIONS
+  // and each question's canonical exclusiveValues (see exclusiveScopeValues).
+  // Fires when a scope-declaring exclusive value is combined with a concrete
+  // (non-exclusive) value of the same question.
+  for (const rule of EXCLUSIVE_SCOPE_CONTRADICTIONS) {
+    const selected = values(answers, rule.questionId);
+    if (selected.length === 0) continue;
+    const step = canonicalDiscoveryQuestions.find((question) => question.id === rule.questionId);
+    const allExclusives = new Set(step?.exclusiveValues ?? []);
+    const triggers = exclusiveScopeValues(rule.questionId, rule.scope);
+    const hasTrigger = triggers.some((value) => selected.includes(value));
+    const hasConcrete = selected.some((value) => !allExclusives.has(value));
+    if (hasTrigger && hasConcrete) {
+      addContradiction([rule.questionId], rule.title, rule.detail, rule.followUpQuestion);
+    }
   }
 
   // Display count vs display behaviour mirrors the interview's own option
@@ -106,13 +189,11 @@ export function evaluateDiscoveryDecisionIntegrity(
       "Is this a single display, or is a video wall being planned?",
     );
   }
-  if (has(answers, "source-connection", "unknown-source-connectors") && values(answers, "source-connection").length > 1) {
-    addContradiction(["source-connection"], "Unsettled source profile", "Not yet confirmed is selected alongside a concrete source profile.", "Which source profile should drive the design: fixed sources, user presentation, mixed sources, or network video?");
-  }
   if (has(answers, "uc-camera-count", "one-camera") && values(answers, "uc-multi-camera-path").some(Boolean)) {
     addContradiction(["uc-camera-count", "uc-multi-camera-path"], "Camera bridge does not match camera count", "A multi-camera bridge decision is present even though only one camera was requested.", "Is there one camera, or does the room need a multi-camera bridge?");
   }
-  if (has(answers, "uc-purpose", "no-uc") && values(answers, "uc-platform").some((value) => !value.startsWith("unknown-"))) {
+  const ucOutOfScope = exclusiveScopeValues("uc-purpose", "declining").some((value) => has(answers, "uc-purpose", value));
+  if (ucOutOfScope && values(answers, "uc-platform").some((value) => !value.startsWith("unknown-"))) {
     addContradiction(["uc-purpose", "uc-platform"], "Platform outside selected scope", "A conferencing platform is captured while UC workflows are explicitly out of scope.", "Should conferencing remain in scope, or should the platform selection be removed?");
   }
 

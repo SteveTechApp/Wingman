@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { evaluateDiscoveryDecisionIntegrity } from "./discoveryDecisionIntegrity";
-import { getVisibleDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
+import {
+  EXCLUSIVE_SCOPE_CONTRADICTIONS,
+  evaluateDiscoveryDecisionIntegrity,
+  exclusiveScopeValues,
+} from "./discoveryDecisionIntegrity";
+import { canonicalDiscoveryQuestions, getVisibleDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
 import type { DiscoveryAnswers, DiscoveryQuestion } from "../pages/discovery/discoveryTypes";
 
 const question = (id: string, required = true): DiscoveryQuestion => ({
@@ -156,5 +160,69 @@ describe("evaluateDiscoveryDecisionIntegrity", () => {
     // still flag the (intentionally sparse) answer set, which is correct.
     expect(result.stranded).toEqual([]);
     expect(result.contradictions).toEqual([]);
+  });
+});
+
+describe("exclusive-scope contradiction rules stay keyed to live exclusiveValues", () => {
+  const stepFor = (questionId: string) => canonicalDiscoveryQuestions.find((question) => question.id === questionId)!;
+
+  it("every rule's question declares at least one exclusive of the rule's scope", () => {
+    // A renamed exclusive flows into the check automatically, but a REMOVED
+    // one would silently disable the rule (no trigger values). This pin fails
+    // the moment a rule has no live trigger in its question's exclusiveValues.
+    const dead: string[] = [];
+    for (const rule of EXCLUSIVE_SCOPE_CONTRADICTIONS) {
+      if (exclusiveScopeValues(rule.questionId, rule.scope).length === 0) {
+        dead.push(`${rule.questionId} (${rule.scope})`);
+      }
+    }
+    expect(dead).toEqual([]);
+  });
+
+  it("every canonical exclusiveValues entry still resolves to an option value", () => {
+    const dangling: string[] = [];
+    for (const step of canonicalDiscoveryQuestions) {
+      const optionValues = new Set(step.options.map((option) => option.value));
+      for (const exclusive of step.exclusiveValues ?? []) {
+        if (!optionValues.has(exclusive)) {
+          dangling.push(`${step.id}: exclusiveValues "${exclusive}" is not an option`);
+        }
+      }
+    }
+    expect(dangling).toEqual([]);
+  });
+
+  it("each rule still fires when its live exclusive is combined with a concrete value", () => {
+    // Behavioral smoke test built from the CANONICAL option set: if the
+    // data-driven loop regresses, or a rule references a question the evaluator
+    // can no longer resolve, the expected contradiction disappears.
+    for (const rule of EXCLUSIVE_SCOPE_CONTRADICTIONS) {
+      const step = stepFor(rule.questionId);
+      const exclusives = new Set(step.exclusiveValues ?? []);
+      const trigger = exclusiveScopeValues(rule.questionId, rule.scope)[0];
+      const concrete = step.options.find((option) => !exclusives.has(option.value))!.value;
+      const result = evaluateDiscoveryDecisionIntegrity([], {
+        [rule.questionId]: [trigger, concrete],
+      } as DiscoveryAnswers);
+      expect(
+        result.contradictions.map((issue) => issue.title),
+        `${rule.questionId} (${rule.scope}) should flag "${trigger}" + "${concrete}"`,
+      ).toContain(rule.title);
+    }
+  });
+
+  it("a rule never fires for the exclusive value alone", () => {
+    // Guard against over-firing: the exclusive by itself is a legitimate
+    // (if sparse) answer and must not be flagged as contradictory.
+    for (const rule of EXCLUSIVE_SCOPE_CONTRADICTIONS) {
+      const trigger = exclusiveScopeValues(rule.questionId, rule.scope)[0];
+      const result = evaluateDiscoveryDecisionIntegrity([], {
+        [rule.questionId]: [trigger],
+      } as DiscoveryAnswers);
+      expect(
+        result.contradictions.some((issue) => issue.title === rule.title),
+        `${rule.questionId}: exclusive alone must not fire "${rule.title}"`,
+      ).toBe(false);
+    }
   });
 });
