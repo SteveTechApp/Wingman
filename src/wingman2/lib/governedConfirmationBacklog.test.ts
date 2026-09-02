@@ -11,11 +11,11 @@ describe("governed confirmation backlog", () => {
   it("reports every profile awaiting human confirmation, separating human-confirmed profiles", () => {
     const backlog = governedConfirmationBacklog();
 
-    // 139 original governed profiles + 84 imported from the Q3 2026 price list.
-    // The 117 originally verified profiles remain verified; the 84 new profiles
-    // are review-required pending human confirmation.
-    expect(backlog.total).toBe(210);
-    expect(backlog.humanVerified).toBe(117);
+    // The governed profile set (207 today: the governance audit merged the
+    // NHD-500-TX-V2 / NHD-500-RX v2 / SYN-TOUCH10 v3 variant rows into their
+    // canonical profiles). 116 were human-verified; the rest are pending.
+    expect(backlog.total).toBe(207);
+    expect(backlog.humanVerified).toBe(116);
     expect(backlog.awaiting.length).toBeGreaterThanOrEqual(22);
   });
 
@@ -65,7 +65,7 @@ describe("governed confirmation backlog", () => {
   it("exposes the reviewer trail for every human-confirmed profile", () => {
     const backlog = governedConfirmationBacklog();
 
-    expect(backlog.verified.length).toBe(117);
+    expect(backlog.verified.length).toBe(116);
     for (const profile of backlog.verified) {
       expect(profile.sku).toBeTruthy();
       expect(profile.verifiedBy).toBeTruthy();

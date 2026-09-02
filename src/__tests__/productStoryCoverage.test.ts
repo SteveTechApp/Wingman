@@ -137,8 +137,8 @@ describe("product story backlog hygiene", () => {
         expect(readActiveBacklog(firstDocument)).not.toContain(sku);
       }
 
-      expect(firstDocument).toContain("Active catalogue SKUs (alias-deduped): **132**");
-      expect(firstDocument).toContain("Active covered: **132 (100%)** · Active uncovered: **0**");
+      expect(firstDocument).toContain("Active catalogue SKUs (alias-deduped): **137**");
+      expect(firstDocument).toContain("Active covered: **137 (100%)** · Active uncovered: **0**");
       expect(firstDocument).toContain("cable **34**, dependency-only **1**");
       expect(firstDocument).toContain("NHD-124-RACK-1U — rack:");
     } finally {

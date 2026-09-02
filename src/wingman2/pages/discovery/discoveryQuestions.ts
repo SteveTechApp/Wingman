@@ -83,7 +83,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-scale",
-        label: "Unknown",
+        label: "Unknown — room scale",
         help: "Capture the customer wording and continue.",
       },
     ],
@@ -120,7 +120,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-sources",
-        label: "Unknown",
+        label: "Unknown — source count",
         help: "Ask what the customer needs to connect.",
       },
     ],
@@ -158,7 +158,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-source-connectors",
-        label: "Not yet confirmed",
+        label: "Not yet confirmed — source profile",
         help: "Confirm whether the room needs fixed equipment, user laptops, wireless presentation or network video before selecting the architecture.",
       },
     ],
@@ -234,7 +234,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-display-behaviour",
-        label: "Unknown",
+        label: "Unknown — display behaviour",
         help: "Ask whether outputs mirror, route independently, feed a wall processor, or need multiview.",
       },
     ],
@@ -273,7 +273,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-signal-standard",
-        label: "Unknown",
+        label: "Unknown — picture quality",
         help: "Ask whether the job is 1080p, 4K, HDR, HDCP-sensitive, or likely to have EDID issues.",
       },
     ],
@@ -317,7 +317,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
           },
           {
               value: "unknown-uc",
-              label: "Not yet confirmed",
+              label: "Not yet confirmed — UC scope",
               help: "Record the requirement as unresolved and qualify the conferencing, recording, camera and microphone workflow before product selection."
           }
       ]
@@ -361,7 +361,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-uc-platform",
-        label: "Not yet selected",
+        label: "Not yet selected — UC platform",
         help: "The platform or host device still needs to be confirmed.",
       },
     ],
@@ -399,7 +399,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-mtr-integration",
-        label: "Not yet confirmed",
+        label: "Not yet confirmed — Teams Room integration",
         help: "Confirm the MTR input/capture feed and its output/return feed before completing the system design or proposal.",
       },
     ],
@@ -443,7 +443,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-camera",
-        label: "Not yet selected",
+        label: "Not yet selected — camera type",
         help: "Confirm quantity, interface, resolution, positions and control before quoting.",
       },
     ],
@@ -463,7 +463,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       { value: "two-cameras", label: "Two cameras", help: "A camera bridge or compositor is required to select or combine the two camera feeds." },
       { value: "three-four-cameras", label: "Three or four cameras", help: "Use a governed multi-camera bridge and define switching, presets or multiview composition." },
       { value: "five-plus-cameras", label: "Five or more cameras", help: "Treat this as a designed production-style camera workflow with explicit network, control and composition requirements." },
-      { value: "unknown-camera-count", label: "Not yet confirmed", help: "Confirm the maximum simultaneous camera count before selecting the bridge architecture." },
+      { value: "unknown-camera-count", label: "Not yet confirmed — camera count", help: "Confirm the maximum simultaneous camera count before selecting the bridge architecture." },
     ],
   },
   {
@@ -489,7 +489,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-multi-camera-path",
-        label: "Not yet confirmed",
+        label: "Not yet confirmed — camera transport",
         help: "Confirm NDI versus standard camera transport before quoting the bridge, decoder and network dependencies.",
       },
     ],
@@ -533,7 +533,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-camera-routing",
-        label: "Not confirmed",
+        label: "Not confirmed — camera use",
         help: "Confirm whether each camera is conferencing-only or must be routed elsewhere.",
       },
     ],
@@ -587,7 +587,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-microphones",
-        label: "Not yet selected",
+        label: "Not yet selected — microphone type",
         help: "Confirm microphone type, quantity, coverage and local reinforcement needs.",
       },
     ],
@@ -634,7 +634,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-microphone-connection",
-        label: "Not confirmed",
+        label: "Not confirmed — microphone connection",
       },
     ],
   },
@@ -692,7 +692,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-usb",
-        label: "Not confirmed",
+        label: "Not confirmed — USB scope",
         help: "Confirm the host, peripherals, switching, distance and USB 2.0 or USB 3.x requirement.",
       },
     ],
@@ -756,7 +756,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-audio",
-        label: "Unknown",
+        label: "Unknown — audio scope",
       },
     ],
   },
@@ -799,7 +799,7 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "unknown-control",
-        label: "Unknown",
+        label: "Unknown — control method",
         help: "Ask who operates the system day-to-day.",
       },
     ],
@@ -856,7 +856,7 @@ const avoipProfileQuestion: DiscoveryQuestion = {
     },
     {
       value: "unknown-avoip-profile",
-      label: "Unknown",
+      label: "Unknown — performance fit",
       help: "If unclear, capture the customer's own words and check cost vs quality vs speed priorities, device connections, and whether several sources need to show at once.",
     },
   ],
@@ -874,7 +874,7 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
       { value: "lcd-array", label: "LCD screen array", help: "Multiple flat panels arranged as one wall or as independently addressed tiles." },
       { value: "direct-view-led", label: "Direct-view LED wall", help: "LED cabinets driven by an LED processor or controller." },
       { value: "projection-canvas", label: "Blended projection canvas", help: "Multiple projectors forming a larger blended image." },
-      { value: "wall-technology-unknown", label: "Not confirmed yet", help: "Keep LCD, LED and processing decisions open for comparison." },
+      { value: "wall-technology-unknown", label: "Not confirmed yet — wall technology", help: "Keep LCD, LED and processing decisions open for comparison." },
     ],
   },
   {
@@ -889,7 +889,7 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
       { value: "independent-tiles", label: "Different content on individual screens", help: "Each LCD tile or zone needs independent routing." },
       { value: "signage-presets", label: "Signage layouts and scheduled presets", help: "Content follows repeatable branded or operational layouts." },
       { value: "multi-source-canvas", label: "Several live sources composed together", help: "A multiview or windowing processor is required." },
-      { value: "wall-purpose-unknown", label: "Not confirmed yet", help: "Capture the uncertainty without forcing a processor choice." },
+      { value: "wall-purpose-unknown", label: "Not confirmed yet — wall purpose", help: "Capture the uncertainty without forcing a processor choice." },
     ],
   },
   {
@@ -910,7 +910,7 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
       { value: "specialist-simulation-medical", label: "Specialist, simulation or clinical equipment" },
       { value: "network-remote-feeds", label: "Network or remote-room feeds" },
       { value: "wireless-casting-source", label: "Wireless presentation or casting" },
-      { value: "unknown-source-devices", label: "Not yet confirmed" },
+      { value: "unknown-source-devices", label: "Not yet confirmed — source devices" },
     ],
   },
   {
@@ -929,7 +929,7 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
       { value: "wireless-touchback", label: "Touchback or annotation" },
       { value: "wireless-room-routing", label: "Cast content routes beyond one display" },
       { value: "no-wireless-presentation", label: "No wireless presentation" },
-      { value: "unknown-wireless-operation", label: "Not yet confirmed" },
+      { value: "unknown-wireless-operation", label: "Not yet confirmed — wireless operation" },
     ],
   },
   {
@@ -947,7 +947,7 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
       { value: "multiview-confidence-monitor", label: "Confidence or operator monitor" },
       { value: "multiview-record-stream", label: "Recording or streaming output" },
       { value: "multiview-uc-return", label: "Return composite to Teams/Zoom" },
-      { value: "unknown-multiview-destination", label: "Not yet confirmed" },
+      { value: "unknown-multiview-destination", label: "Not yet confirmed — multiview destination" },
     ],
   },
   {
@@ -965,7 +965,7 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
       { value: "five-nine-simultaneous", label: "5–9 simultaneous sources" },
       { value: "ten-plus-simultaneous", label: "10+ simultaneous sources" },
       { value: "independent-compositions", label: "Different compositions on different outputs" },
-      { value: "unknown-multiview-operation", label: "Not yet confirmed" },
+      { value: "unknown-multiview-operation", label: "Not yet confirmed — multiview operation" },
     ],
   },
   {
@@ -979,7 +979,7 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
       { value: "two-four-microphone-feeds", label: "2–4 feeds or pickup zones" },
       { value: "five-eight-microphone-feeds", label: "5–8 feeds or pickup zones" },
       { value: "nine-plus-microphone-feeds", label: "9+ feeds or pickup zones" },
-      { value: "unknown-microphone-count", label: "Not yet confirmed" },
+      { value: "unknown-microphone-count", label: "Not yet confirmed — microphone count" },
     ],
   },
   {
@@ -997,10 +997,39 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
       { value: "audio-bridge-usb-dante-analogue", label: "Bridge USB, Dante and/or analogue audio" },
       { value: "multiple-audio-zones", label: "Different audio zones or outputs" },
       { value: "operator-audio-control", label: "Operator mixing or mute control" },
-      { value: "unknown-audio-processing", label: "Not yet confirmed" },
+      { value: "unknown-audio-processing", label: "Not yet confirmed — audio processing" },
     ],
   },
 ];
+
+// The full, unfiltered option set per question id (base + operational + avoip).
+// The interview's visible list is answer-filtered, so a stored answer can name
+// a REAL option that is currently hidden by those filters. This index is what
+// lets consumers tell rule-hidden defaults apart from non-option junk.
+// The complete canonical question set: base questions plus the operational
+// inserts and the AVoIP profile question that getApplicationDiscoveryQuestions
+// wires in per application. Consumers that must validate the WHOLE option
+// vocabulary (label uniqueness, i18n coverage) iterate this list.
+export const canonicalDiscoveryQuestions: DiscoveryQuestion[] = [
+  ...baseDiscoveryQuestions,
+  ...operationalWorkflowQuestions,
+  avoipProfileQuestion,
+];
+
+const fullQuestionOptions = new Map<string, ReadonlyArray<{ value: string; label: string }>>();
+const fullQuestionShortLabels = new Map<string, string>();
+for (const questionObject of canonicalDiscoveryQuestions) {
+  fullQuestionOptions.set(questionObject.id, questionObject.options);
+  fullQuestionShortLabels.set(questionObject.id, questionObject.shortLabel);
+}
+
+export function getFullDiscoveryOptions(questionId: string): ReadonlyArray<{ value: string; label: string }> {
+  return fullQuestionOptions.get(questionId) ?? [];
+}
+
+export function getDiscoveryQuestionLabel(questionId: string): string {
+  return fullQuestionShortLabels.get(questionId) ?? questionId;
+}
 
 function insertAfter(questions: DiscoveryQuestion[], afterId: string, additions: DiscoveryQuestion[]) {
   const index = questions.findIndex((step) => step.id === afterId);

@@ -149,8 +149,8 @@ function buildMeetingRoomKit(skus: string[], brief: StoredDiscoveryBrief | null)
   // Display extender
   if (!skus.some((s) => /^RX-/.test(s) || /^NHD-.*-RX/.test(s))) {
     products.push({
-      sku: "RX-100",
-      name: "HDBaseT Receiver",
+      sku: "RX-70-4K",
+      name: "70m 4K HDBaseT Receiver",
       role: "Display extension",
       quantity: getDisplayCount(brief) || 1,
       reason: "Carries the signal to the display over Cat6",
@@ -203,8 +203,8 @@ function buildClassroomKit(skus: string[], brief: StoredDiscoveryBrief | null): 
   // Display extension
   if (!skus.some((s) => /^RX-/.test(s) || /^NHD-.*-RX/.test(s))) {
     products.push({
-      sku: "RX-100",
-      name: "HDBaseT Receiver",
+      sku: "RX-70-4K",
+      name: "70m 4K HDBaseT Receiver",
       role: "Projector / display extension",
       quantity: 1,
       reason: "Carries signal to projector or display at the front of the room",
@@ -255,10 +255,10 @@ function buildUcKit(skus: string[], brief: StoredDiscoveryBrief | null): Suggest
   const basedOn: string[] = ["UC / conferencing requirement"];
 
   // UC soundbar or speakerphone
-  if (!skus.some((s) => /^APO-/.test(s) || /^HALO-VX/.test(s))) {
+  if (!skus.some((s) => /^APO-/.test(s))) {
     products.push({
-      sku: "HALO-VX10",
-      name: "HALO VX10 Video Bar",
+      sku: "APO-VX20-UC-V2",
+      name: "Video Bar for Conference Rooms",
       role: "UC all-in-one device",
       quantity: 1,
       reason: "Integrated camera, microphone and speaker for Teams/Zoom meetings",
@@ -267,7 +267,7 @@ function buildUcKit(skus: string[], brief: StoredDiscoveryBrief | null): Suggest
   }
 
   // Camera (if needed and not included in UC device)
-  const hasUcDevice = skus.some((s) => /^APO-/.test(s) || /^HALO-VX/.test(s));
+  const hasUcDevice = skus.some((s) => /^APO-/.test(s));
   const hasCamera = skus.some((s) => /^CAM-/.test(s));
   if (hasUcDevice && !hasCamera && hasCameraRequirement(brief)) {
     const needsExternalCamera = skus.some((s) => /^APO-210/.test(s));
@@ -289,8 +289,8 @@ function buildUcKit(skus: string[], brief: StoredDiscoveryBrief | null): Suggest
     const ucPurpose = String((brief?.roomModel as Record<string, unknown>)?.ucPurpose || "").toLowerCase();
     if (ucPurpose.includes("microphone") || ucPurpose.includes("ceiling")) {
       products.push({
-        sku: "MIC-500",
-        name: "Ceiling Microphone Array",
+        sku: "COM-MIC-HUB",
+        name: "Microphone Hub",
         role: "Room microphone capture",
         quantity: 1,
         reason: "Captures audio from around the room for conferencing",
@@ -332,8 +332,8 @@ function buildAvoipKit(skus: string[], brief: StoredDiscoveryBrief | null): Sugg
   // NetworkHD controller
   if (skus.some((s) => /^NHD-/.test(s)) && !skus.some((s) => /^NHD-CTL/.test(s))) {
     products.push({
-      sku: "NHD-CTL",
-      name: "NetworkHD Controller",
+      sku: "NHD-CTL-PRO-V2",
+      name: "Pro Controller for NetworkHD Series",
       role: "AVoIP system management",
       quantity: 1,
       reason: "Required to manage and control NetworkHD endpoints",
@@ -388,8 +388,8 @@ function buildHospitalityKit(skus: string[], brief: StoredDiscoveryBrief | null)
     const displayCount = getDisplayCount(brief);
     if (displayCount > 2) {
       products.push({
-        sku: "MX-0808-KIT",
-        name: "8x8 HDBaseT Matrix Kit",
+        sku: "MX-0808-KIT-V2",
+        name: "8x8 4K UHD HDBaseT Matrix Kit",
         role: "Source-to-display routing",
         quantity: 1,
         reason: `Routes ${displayCount} sources to ${displayCount} displays across the venue`,
@@ -561,8 +561,8 @@ export function detectMissingAccessories(
   // 5. NetworkHD without controller (warning)
   if (skus.some((s) => /^NHD-/.test(s)) && !skus.some((s) => /^NHD-CTL/.test(s))) {
     accessories.push({
-      sku: "NHD-CTL",
-      name: "NetworkHD Controller",
+      sku: "NHD-CTL-PRO-V2",
+      name: "Pro Controller for NetworkHD Series",
       reason: "NetworkHD endpoints require controller for management",
       severity: "warning",
       category: "control",

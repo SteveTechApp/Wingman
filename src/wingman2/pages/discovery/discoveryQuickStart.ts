@@ -3,6 +3,8 @@
 // for inexperienced users.
 
 import type { DiscoveryAnswers } from "./discoveryTypes";
+import { getDiscoveryQuestionLabel, getFullDiscoveryOptions } from "./discoveryQuestions";
+import { SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
 
 export type QuickStartRoomType =
   | "meeting-room-small"
@@ -224,6 +226,51 @@ export const quickStartConfigs: Record<QuickStartRoomType, QuickStartConfig> = {
     defaults: {},
   },
 };
+
+export type QuickStartDisagreement = {
+  questionId: string;
+  questionLabel: string;
+  // Human-readable (label-resolved) defaults on each side, ready for display.
+  roomText: string;
+  standardText: string;
+};
+
+// Every point where a quick-start room's profile disagrees with the
+// application-level SMART_DEFAULTS it maps to (via suggestedApplication). The
+// validation test pins these as intentional refinements; the UI uses this
+// function to ask the salesperson which profile to start from instead of
+// silently picking the room's. Returns [] when there is no application
+// profile (custom room) or when the room agrees with it on every overlapping
+// question.
+export function getQuickStartDisagreements(roomType: QuickStartRoomType): QuickStartDisagreement[] {
+  const config = quickStartConfigs[roomType];
+  const standard = SMART_DEFAULTS[config.suggestedApplication];
+  if (!standard) return [];
+
+  const normalize = (value: string | string[]): string =>
+    Array.isArray(value) ? JSON.stringify([...value].sort()) : value;
+
+  const disagreements: QuickStartDisagreement[] = [];
+  for (const [questionId, standardValue] of Object.entries(standard)) {
+    const roomValue = config.defaults[questionId as keyof DiscoveryAnswers];
+    if (roomValue === undefined || roomValue === "") continue;
+    if (normalize(roomValue as string | string[]) === normalize(standardValue as string | string[])) continue;
+
+    const labels = new Map(
+      getFullDiscoveryOptions(questionId).map((option) => [option.value, option.label]),
+    );
+    const toText = (value: string | string[]): string =>
+      Array.isArray(value) ? value.map((item) => labels.get(item) ?? item).join(", ") : labels.get(value) ?? value;
+
+    disagreements.push({
+      questionId,
+      questionLabel: getDiscoveryQuestionLabel(questionId),
+      roomText: toText(roomValue as string | string[]),
+      standardText: toText(standardValue as string | string[]),
+    });
+  }
+  return disagreements;
+}
 
 // Get the number of questions that will be shown based on Quick Start selection
 export function estimatedQuestionCount(roomType: QuickStartRoomType): number {
