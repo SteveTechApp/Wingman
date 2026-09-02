@@ -10,12 +10,14 @@ import {
 import {
   applyRoomTypeSmartDefaults,
   getQuickStartDisagreements,
+  mergeRoomAndStandardProfiles,
   plainLanguageLabels,
   type QuickStartRoomType,
   quickStartConfigs,
   getQuickStartSummary,
 } from "./discoveryQuickStart";
 import { SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
+import { readQuickStartProfileChoice, rememberQuickStartProfileChoice } from "./discoveryQuickStartPreferences";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
 export function DiscoveryQuickStartEntry({ onAnswers }: { onAnswers: (answers: DiscoveryAnswers) => void }) {
@@ -87,8 +89,24 @@ export function DiscoveryQuickStart({
   const handleContinue = () => {
     if (!selectedType) return;
     // A room whose profile disagrees with its application-level smart defaults
-    // asks for confirmation instead of silently seeding the room profile.
+    // asks for confirmation instead of silently seeding the room profile —
+    // UNLESS the salesperson already decided for this room type earlier in
+    // the session, in which case the remembered choice applies directly so
+    // the confirmation never blocks a repeat visit.
     if (disagreements.length > 0) {
+      const remembered = readQuickStartProfileChoice(selectedType);
+      if (remembered === "room") {
+        onSelect(roomProfileAnswers(selectedType));
+        return;
+      }
+      if (remembered === "standard" && config) {
+        onSelect(standardProfileAnswers(config.suggestedApplication));
+        return;
+      }
+      if (remembered === "blend" && config) {
+        onSelect(mergeRoomAndStandardProfiles(selectedType));
+        return;
+      }
       setConfirming(true);
       return;
     }
@@ -134,14 +152,30 @@ export function DiscoveryQuickStart({
           </button>
           <button
             type="button"
-            onClick={() => onSelect(standardProfileAnswers(config.suggestedApplication))}
+            onClick={() => {
+              rememberQuickStartProfileChoice(selectedType, "standard");
+              onSelect(standardProfileAnswers(config.suggestedApplication));
+            }}
             className="wm-qs__continue"
           >
             Use standard {applicationLabel} profile
           </button>
           <button
             type="button"
-            onClick={() => onSelect(roomProfileAnswers(selectedType))}
+            onClick={() => {
+              rememberQuickStartProfileChoice(selectedType, "blend");
+              onSelect(mergeRoomAndStandardProfiles(selectedType));
+            }}
+            className="wm-qs__continue"
+          >
+            Blend — standard values where profiles differ
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              rememberQuickStartProfileChoice(selectedType, "room");
+              onSelect(roomProfileAnswers(selectedType));
+            }}
             className="wm-qs__continue wm-qs__continue--active"
           >
             Use {config.label} profile

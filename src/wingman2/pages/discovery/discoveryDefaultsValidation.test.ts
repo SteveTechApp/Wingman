@@ -402,4 +402,101 @@ describe("discovery default tables stay aligned with the canonical questions", (
     }
     expect(problems).toEqual([]);
   });
+
+  it("scale and displays count never contradict within a default set", () => {
+    // Scale describes the room/system footprint; displays describes the
+    // endpoint count the defaults seed. A single-small-room (huddle or
+    // contained space) seeding nine-plus displays or a wall processor feed
+    // would make the profile-confirm summary disagree with the seeded
+    // display count, and a multi-room/building-wide scale seeding exactly one
+    // display contradicts "shared source routing across several spaces/zones"
+    // (the interview help text for those scale options). Both directions are
+    // pinned here for SMART_DEFAULTS and quickStartConfigs alike.
+    const displaysAllowedByScale: Record<string, ReadonlySet<string>> = {
+      "single-small-room": new Set(["one-display", "two-displays"]),
+      "single-large-room": new Set([
+        "one-display",
+        "two-displays",
+        "three-eight-displays",
+        "nine-plus-displays",
+        "video-wall-output",
+      ]),
+      "multi-room": new Set(["two-displays", "three-eight-displays", "nine-plus-displays", "video-wall-output"]),
+      "building-wide": new Set(["two-displays", "three-eight-displays", "nine-plus-displays", "video-wall-output"]),
+    };
+
+    const problems: string[] = [];
+    const checkScalePair = (
+      source: string,
+      scale: string | string[] | undefined,
+      displays: string | string[] | undefined,
+    ) => {
+      if (scale === undefined || displays === undefined) return;
+      const scaleValue = Array.isArray(scale) ? scale[0] : scale;
+      const displayValue = Array.isArray(displays) ? displays[0] : displays;
+      const allowed = displaysAllowedByScale[scaleValue];
+      if (!allowed) {
+        problems.push(`${source}: scale "${scaleValue}" has no defined display-count rule`);
+        return;
+      }
+      if (!allowed.has(displayValue)) {
+        problems.push(`${source}: scale "${scaleValue}" contradicts displays "${displayValue}"`);
+      }
+    };
+
+    for (const [applicationType, defaults] of Object.entries(SMART_DEFAULTS)) {
+      checkScalePair(
+        `SMART_DEFAULTS["${applicationType}"]`,
+        defaults.scale as string | string[] | undefined,
+        defaults.displays as string | string[] | undefined,
+      );
+    }
+    for (const [roomType, config] of Object.entries(quickStartConfigs)) {
+      checkScalePair(
+        `quickStartConfigs["${roomType}"].defaults`,
+        config.defaults.scale as string | string[] | undefined,
+        config.defaults.displays as string | string[] | undefined,
+      );
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it("sources count and source-connection never contradict within a default set", () => {
+    // source-connection describes WHERE the sources sit: fixed installed
+    // devices, user-presented laptops/wireless, or a mix that includes routed
+    // network video. "network-video-sources" is the interview option for
+    // "local fixed equipment and/or user laptops combined with routed
+    // AV-over-IP/NDI streams" — an architecture that presumes more than one
+    // source position — so it can never pair with sources = one-source, and
+    // a one-source profile must not claim network feeds as its only input.
+    const problems: string[] = [];
+    const checkSourcePair = (
+      source: string,
+      count: string | string[] | undefined,
+      connection: string | string[] | undefined,
+    ) => {
+      if (count === undefined || connection === undefined) return;
+      const countValue = Array.isArray(count) ? count[0] : count;
+      const connectionValues = Array.isArray(connection) ? connection : [connection];
+      if (countValue === "one-source" && connectionValues.includes("network-video-sources")) {
+        problems.push(`${source}: sources "one-source" contradicts source-connection "network-video-sources"`);
+      }
+    };
+
+    for (const [applicationType, defaults] of Object.entries(SMART_DEFAULTS)) {
+      checkSourcePair(
+        `SMART_DEFAULTS["${applicationType}"]`,
+        defaults.sources as string | string[] | undefined,
+        defaults["source-connection"] as string | string[] | undefined,
+      );
+    }
+    for (const [roomType, config] of Object.entries(quickStartConfigs)) {
+      checkSourcePair(
+        `quickStartConfigs["${roomType}"].defaults`,
+        config.defaults.sources as string | string[] | undefined,
+        config.defaults["source-connection"] as string | string[] | undefined,
+      );
+    }
+    expect(problems).toEqual([]);
+  });
 });

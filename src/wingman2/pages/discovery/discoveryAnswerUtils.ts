@@ -106,6 +106,69 @@ export function getHiddenAnswerValues(
   return hidden;
 }
 
+export type StrandedQuickStartDefault = {
+  questionId: string;
+  /** The visible label of the question the default belongs to. */
+  questionLabel: string;
+  /** The stored quick-start default value, no longer selectable. */
+  optionValue: string;
+  /** The human label of that default. */
+  optionLabel: string;
+};
+
+// Stranded quick-start defaults across the WHOLE answer set: for every
+// question the interview currently shows, a stored answer that names a real
+// option of that question but not one of its currently visible options was
+// pre-filled (quick start / template / smart default) before a later answer
+// hid it. This is the set-level version of getHiddenAnswerValues — the data
+// the step-level DiscoveryDefaultsConflictAlert and the summary/completion
+// surfaces all consume, so the conflict is visible outside the step where it
+// was caused.
+export function findStrandedQuickStartDefaults(
+  visibleQuestions: ReadonlyArray<DiscoveryQuestion>,
+  answers: DiscoveryAnswers,
+): StrandedQuickStartDefault[] {
+  const stranded: StrandedQuickStartDefault[] = [];
+  for (const step of visibleQuestions) {
+    const hidden = getHiddenAnswerValues(
+      step.id,
+      step.options.map((option) => option.value),
+      answers[step.id],
+    );
+    for (const entry of hidden) {
+      stranded.push({
+        questionId: step.id,
+        questionLabel: step.shortLabel || step.question,
+        optionValue: entry.value,
+        optionLabel: entry.label,
+      });
+    }
+  }
+  return stranded;
+}
+
+// Removes one option value from a question's stored answer. Used by the
+// stranded-defaults action so a rep can clear hidden pre-filled values instead
+// of having to re-open the step. Returns the same reference when nothing
+// changed (no-op for non-matching single values and absent list members).
+export function removeDiscoveryAnswerValue(
+  answers: DiscoveryAnswers,
+  questionId: string,
+  value: string,
+): DiscoveryAnswers {
+  const current = answers[questionId];
+  if (Array.isArray(current)) {
+    if (!current.includes(value)) return answers;
+    return { ...answers, [questionId]: current.filter((item) => item !== value) };
+  }
+  if (current === value) {
+    const next = { ...answers };
+    delete next[questionId];
+    return next;
+  }
+  return answers;
+}
+
 export function isUnknownDiscoveryValue(value: string): boolean {
   const text = value.trim().toLowerCase();
   return text.includes("unknown") || text.includes("not sure");

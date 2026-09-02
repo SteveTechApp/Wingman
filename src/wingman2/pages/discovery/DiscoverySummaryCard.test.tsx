@@ -104,4 +104,96 @@ describe("DiscoverySummaryCard", () => {
     fireEvent.click(openButton);
     expect(onToggle).toHaveBeenCalledWith("scale");
   });
+
+  it("surfaces a stranded quick-start default and jumps to its step", () => {
+    const onOpenStrandedStep = vi.fn();
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "One display", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        compact
+        strandedQuickStart={[
+          {
+            questionId: "display-behaviour",
+            questionLabel: "Display behaviour",
+            optionValue: "independent-routing-per-display",
+            optionLabel: "Different content by display or zone",
+          },
+        ]}
+        onOpenStrandedStep={onOpenStrandedStep}
+      />,
+    );
+
+    expect(screen.getByText(/Pre-filled answer no longer fits/)).toBeTruthy();
+    expect(screen.getByText("Different content by display or zone")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open Display behaviour" }));
+    expect(onOpenStrandedStep).toHaveBeenCalledWith("display-behaviour");
+  });
+
+  it("clears every stranded default with the remove action", () => {
+    const onRemoveStranded = vi.fn();
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "One display", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        compact
+        strandedQuickStart={[
+          {
+            questionId: "display-behaviour",
+            questionLabel: "Display behaviour",
+            optionValue: "independent-routing-per-display",
+            optionLabel: "Different content by display or zone",
+          },
+        ]}
+        onRemoveStranded={onRemoveStranded}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove stranded answers" }));
+    expect(onRemoveStranded).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces answers still following the previous application profile", () => {
+    const onOpenStrandedStep = vi.fn();
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "Two displays", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        compact
+        applicationDrift={{
+          previousApplication: "classroom",
+          application: "meeting-room",
+          items: [
+            {
+              questionId: "displays",
+              questionLabel: "Display count",
+              roomText: "Two displays",
+              standardText: "1 display / output",
+              reason: "differs-from-new-standard",
+            },
+          ],
+        }}
+        onOpenStrandedStep={onOpenStrandedStep}
+      />,
+    );
+
+    expect(screen.getByText(/Answers still follow the Teaching \/ classroom profile/)).toBeTruthy();
+    expect(screen.getByText(/The Meeting \/ conference room profile uses 1 display \/ output/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open Display count" }));
+    expect(onOpenStrandedStep).toHaveBeenCalledWith("displays");
+  });
+
+  it("renders no stranded-default notice when the list is empty", () => {
+    const { container } = renderCompact(3);
+    expect(container.querySelector(".wm-discovery-stranded-defaults")).toBeNull();
+  });
 });

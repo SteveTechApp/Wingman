@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { evaluateDiscoveryDecisionIntegrity } from "./discoveryDecisionIntegrity";
-import type { DiscoveryQuestion } from "../pages/discovery/discoveryTypes";
+import { getVisibleDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
+import type { DiscoveryAnswers, DiscoveryQuestion } from "../pages/discovery/discoveryTypes";
 
 const question = (id: string, required = true): DiscoveryQuestion => ({
   id,
@@ -38,5 +39,122 @@ describe("evaluateDiscoveryDecisionIntegrity", () => {
     );
     expect(result.issues).toEqual([]);
     expect(result.canProceedToRecommendation).toBe(true);
+  });
+
+  it("flags one display paired with independent per-display routing", () => {
+    const result = evaluateDiscoveryDecisionIntegrity([], {
+      displays: "one-display",
+      "display-behaviour": ["independent-routing-per-display"],
+    });
+    expect(result.contradictions).toHaveLength(1);
+    expect(result.contradictions[0]?.questionIds).toEqual(["displays", "display-behaviour"]);
+    expect(result.contradictions[0]?.title).toBe("Display count contradicts display behaviour");
+    expect(result.canProceedToRecommendation).toBe(false);
+  });
+
+  it("flags one display paired with a video-wall processor feed", () => {
+    const result = evaluateDiscoveryDecisionIntegrity([], {
+      displays: "one-display",
+      "display-behaviour": ["video-wall-or-processor-feed"],
+    });
+    expect(result.contradictions).toHaveLength(1);
+    expect(result.canProceedToRecommendation).toBe(false);
+  });
+
+  it("allows the legitimate single-display behaviours", () => {
+    // Multiview on the single output stays visible in the interview for a
+    // one-display room, so it must not be flagged as a contradiction.
+    for (const behaviour of ["same-content-all-displays", "multiview-on-one-output"]) {
+      const result = evaluateDiscoveryDecisionIntegrity([], {
+        displays: "one-display",
+        "display-behaviour": [behaviour],
+      });
+      expect(result.contradictions, behaviour).toEqual([]);
+      expect(result.canProceedToRecommendation).toBe(true);
+    }
+  });
+
+  it("allows independent routing once the room has more than one display", () => {
+    const result = evaluateDiscoveryDecisionIntegrity([], {
+      displays: "two-displays",
+      "display-behaviour": ["independent-routing-per-display"],
+    });
+    expect(result.contradictions).toEqual([]);
+    expect(result.canProceedToRecommendation).toBe(true);
+  });
+
+  it("flags a quick-start default the interview hides after a later answer", () => {
+    // Lecture hall seeds independent routing; answering one display hides that
+    // option. The full visible set exposes the strand as a distinct issue.
+    const answers: DiscoveryAnswers = {
+      opportunity: "classroom",
+      displays: "one-display",
+      "display-behaviour": "independent-routing-per-display",
+    };
+    const visible = getVisibleDiscoveryQuestions("classroom", answers);
+    const result = evaluateDiscoveryDecisionIntegrity(visible, answers);
+
+    expect(result.stranded).toHaveLength(1);
+    expect(result.stranded[0]?.kind).toBe("stranded");
+    expect(result.stranded[0]?.questionIds).toEqual(["display-behaviour"]);
+    expect(result.stranded[0]?.title).toBe("Pre-filled Display behaviour answer no longer fits");
+    expect(result.canProceedToRecommendation).toBe(false);
+  });
+
+  it("flags a hidden option that is NOT a known contradiction, so the class earns its keep", () => {
+    // A multi-camera NDI path is viewed only when an NDI camera is present; a
+    // fixed USB camera hides it while the stored answer still names it. No
+    // existing contradiction rule covers this pair — only the stranded check.
+    const answers: DiscoveryAnswers = {
+      opportunity: "meeting-room",
+      "uc-purpose": ["video-conferencing"],
+      "uc-camera": ["fixed-usb-camera"],
+      "uc-camera-count": "two-cameras",
+      "uc-multi-camera-path": "multi-camera-ndi",
+    };
+    const visible = getVisibleDiscoveryQuestions("meeting-room", answers);
+    const result = evaluateDiscoveryDecisionIntegrity(visible, answers);
+
+    expect(result.contradictions).toEqual([]);
+    expect(result.stranded).toHaveLength(1);
+    expect(result.stranded[0]?.questionIds).toEqual(["uc-multi-camera-path"]);
+    expect(result.canProceedToRecommendation).toBe(false);
+  });
+
+  it("keeps a visible option clean even when the owning question is outside the current mode", () => {
+    // Basic mode gates integrity on its six questions, but a strand on an
+    // expert-level question must still block quote safety when the FULL
+    // visible set is supplied as the stranded scan source.
+    const answers: DiscoveryAnswers = {
+      opportunity: "meeting-room",
+      "uc-purpose": ["video-conferencing"],
+      "uc-camera": ["fixed-usb-camera"],
+      "uc-camera-count": "two-cameras",
+      "uc-multi-camera-path": "multi-camera-ndi",
+    };
+    const visible = getVisibleDiscoveryQuestions("meeting-room", answers);
+    const basicOnly = visible.filter((step) => step.id === "opportunity" || step.id === "displays");
+    const result = evaluateDiscoveryDecisionIntegrity(basicOnly, answers, {}, visible);
+
+    expect(result.stranded).toHaveLength(1);
+    expect(result.canProceedToRecommendation).toBe(false);
+    // The mode-limited question scan alone would have missed it.
+    expect(evaluateDiscoveryDecisionIntegrity(basicOnly, answers).stranded).toEqual([]);
+  });
+
+  it("produces no strand when the stored option is still visible", () => {
+    const answers: DiscoveryAnswers = {
+      opportunity: "meeting-room",
+      "uc-purpose": ["video-conferencing"],
+      "uc-camera": ["ndi-network-camera"],
+      "uc-camera-count": "two-cameras",
+      "uc-multi-camera-path": "multi-camera-ndi",
+    };
+    const visible = getVisibleDiscoveryQuestions("meeting-room", answers);
+    const result = evaluateDiscoveryDecisionIntegrity(visible, answers);
+    // The NDI path stays visible, so no strand — other integrity classes may
+    // still flag the (intentionally sparse) answer set, which is correct.
+    expect(result.stranded).toEqual([]);
+    expect(result.contradictions).toEqual([]);
   });
 });

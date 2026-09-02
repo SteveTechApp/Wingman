@@ -53,8 +53,9 @@ import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsP
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
-import { DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
+import { BASIC_MODE_REQUIRED_IDS, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
+import { useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
 import { DiscoveryDefaultsConflictAlert } from "./discovery/DiscoveryDefaultsConflictAlert";
 import {
@@ -328,12 +329,35 @@ export function DiscoveryPage() {
     [selectedApplication, answers],
   );
 
-  // In Basic mode, only show 6 essential questions; Expert shows all.
-  const BASIC_IDS = useMemo(() => new Set(["opportunity", "scale", "sources", "displays", "display-behaviour", "uc-purpose"]), []);
+  // In Basic mode, only show the essential questions; Expert shows all.
+  // Derive from BASIC_MODE_REQUIRED_IDS (single source of truth) so the UI
+  // gate and the smart-default/escalation logic can never disagree about
+  // which questions Basic mode asks.
+  const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
   const modeQuestions = useMemo(() => {
     if (progressiveMode === "expert") return discoveryQuestions;
     return discoveryQuestions.filter((q) => BASIC_IDS.has(q.id));
   }, [discoveryQuestions, progressiveMode, BASIC_IDS]);
+
+  // Quick-start conflict signals (stranded defaults, application drift) and
+  // their resolution actions — owned by discovery/useQuickStartConflictSignals
+  // so this page stays an orchestrator.
+  const {
+    applyQuickStartSeeded,
+    strandedQuickStart,
+    quickStartDrift,
+    openStrandedStep,
+    removeStrandedQuickStart,
+  } = useQuickStartConflictSignals({
+    discoveryQuestions,
+    modeQuestions,
+    progressiveMode,
+    answers,
+    setAnswers,
+    setActiveIndex,
+    setIsReviewingAnswers,
+    setPendingEscalation,
+  });
 
   useEffect(() => {
     if (!editQuestionId || editQuestionId === "budget") return;
@@ -390,9 +414,13 @@ export function DiscoveryPage() {
   const isLastStep = activeIndex === modeQuestions.length - 1;
   // The integrity gate checks only the questions visible in the current mode.
   const integrityQuestions = modeQuestions;
+  // The quote-safety gate keeps the underspecified/contradiction checks on the
+  // current mode's questions, but stranded default detection scans the FULL
+  // visible set — a default stranded on an expert-level question must still
+  // block quote safety when the brief was completed in Basic mode.
   const decisionIntegrity = useMemo(
-    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes),
-    [answers, integrityQuestions, notes],
+    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions),
+    [answers, discoveryQuestions, integrityQuestions, notes],
   );
   const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
@@ -1444,7 +1472,7 @@ return (
         </div>
       </header>
 
-      {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
+      {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={applyQuickStartSeeded} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
       {isGuided ? (
         <details className="wm-discovery-client-compact" data-wingman-client-compact="true">
@@ -1526,6 +1554,10 @@ return (
               projectName: existingDiscoveryName,
             })
           }
+          strandedQuickStart={strandedQuickStart}
+          applicationDrift={quickStartDrift}
+          onOpenStrandedStep={openStrandedStep}
+          onRemoveStranded={removeStrandedQuickStart}
         />
       ) : (
       <>
@@ -1697,6 +1729,10 @@ return (
                 setConfirmedSteps((previous) => ({ ...previous, [stepId]: previous[stepId] !== true }))
               }
               compact
+              strandedQuickStart={strandedQuickStart}
+              applicationDrift={quickStartDrift}
+              onOpenStrandedStep={openStrandedStep}
+              onRemoveStranded={removeStrandedQuickStart}
             />
           )}
 

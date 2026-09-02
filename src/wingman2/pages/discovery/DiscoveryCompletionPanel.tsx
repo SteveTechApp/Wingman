@@ -1,5 +1,7 @@
 import type { RefObject } from "react";
 import { ArrowRight, Check, ClipboardCheck, FileText, Save, FileDown, Sparkles } from "lucide-react";
+import type { StrandedQuickStartDefault } from "./discoveryAnswerUtils";
+import { DiscoveryStrandedDefaultsNotice, type DiscoveryApplicationDrift } from "./DiscoveryStrandedDefaultsNotice";
 
 type DiscoveryCompletionPanelProps = {
   panelRef: RefObject<HTMLElement>;
@@ -14,6 +16,14 @@ type DiscoveryCompletionPanelProps = {
   onUnlockExpert?: () => void;
   onSave: () => void;
   onExportBrief?: () => void;
+  /** Quick-start defaults stranded by a later answer — surfaced at completion so the conflict is visible outside the step that caused it. */
+  strandedQuickStart?: ReadonlyArray<StrandedQuickStartDefault>;
+  /** Post-seed application switch: answers still following the previous profile. */
+  applicationDrift?: DiscoveryApplicationDrift | null;
+  /** Jump the interview to the step owning a stranded default. */
+  onOpenStrandedStep?: (questionId: string) => void;
+  /** Clear every stranded default from the answers at once. */
+  onRemoveStranded?: () => void;
 };
 
 export function DiscoveryCompletionPanel({
@@ -29,6 +39,10 @@ export function DiscoveryCompletionPanel({
   onUnlockExpert,
   onSave,
   onExportBrief,
+  strandedQuickStart = [],
+  applicationDrift = null,
+  onOpenStrandedStep,
+  onRemoveStranded,
 }: DiscoveryCompletionPanelProps) {
   return (
     <section
@@ -55,6 +69,8 @@ export function DiscoveryCompletionPanel({
           </p>
         </div>
       </div>
+
+      <DiscoveryStrandedDefaultsNotice items={strandedQuickStart} applicationDrift={applicationDrift} onOpenStep={onOpenStrandedStep} onRemoveStranded={onRemoveStranded} />
 
       <div className="wm-discovery-finish-workspace">
         <article className="wm-discovery-finish-next">
