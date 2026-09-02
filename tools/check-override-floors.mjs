@@ -48,6 +48,12 @@ const OVERRIDE_FLOORS = [
     lockFamilyMaxExclusive: "7.0.0",
     why: "postcss-selector-parser GHSA-w9m9-85wc-3x92 (uncontrolled AST recursion) was fixed in 6.1.3",
   },
+  {
+    overrideKey: "fast-uri",
+    packageName: "fast-uri",
+    floor: "3.1.7",
+    why: "fast-uri GHSA-5jgf-p345-68v8 / GHSA-f65p-4m7j-42xc / GHSA-fph4-wmhf-6fwf / GHSA-jqff-g426-hqxp (host confusion / SSRF via IDN, IPv6 and percent-encoding normalization) were fixed in 3.1.7",
+  },
 ];
 
 // The numeric floor of an npm version spec: '^4.28.8'/'~4.28.8'/'>=4.28.8'/
@@ -111,6 +117,14 @@ function collectLockfileProblems(lock, problems) {
         );
       }
     }
+    if (packageName === "fast-uri") {
+      if (semverCompare(entry.version, "3.1.7") !== null && semverCompare(entry.version, "3.1.7") < 0) {
+        problems.push(
+          `package-lock.json records fast-uri ${entry.version}, below the 3.1.7 advisory floor - ` +
+            "the override did not survive the last install/regeneration. Run npm install and commit the new lock.",
+        );
+      }
+    }
   }
 }
 
@@ -135,5 +149,5 @@ if (isMain) {
     for (const problem of problems) console.error(`  - ${problem}`);
     process.exit(1);
   }
-  console.log("[override-floors] OK - browserslist ^4.28.8 and postcss-selector-parser ^6.1.4 override floors are intact and the lockfile honours them.");
+  console.log("[override-floors] OK - browserslist ^4.28.8, postcss-selector-parser ^6.1.4 and fast-uri ^3.1.7 override floors are intact and the lockfile honours them.");
 }

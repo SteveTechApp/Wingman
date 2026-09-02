@@ -36,6 +36,7 @@ const CLEAN_PACKAGE = {
   overrides: {
     browserslist: "^4.28.8",
     "postcss-selector-parser@^6.0.10": "^6.1.4",
+    "fast-uri": "^3.1.7",
   },
 };
 
@@ -43,6 +44,7 @@ const CLEAN_LOCK = {
   packages: {
     "node_modules/browserslist": { version: "4.28.8" },
     "node_modules/postcss-selector-parser": { version: "6.1.4" },
+    "node_modules/fast-uri": { version: "3.1.7" },
   },
 };
 
@@ -100,6 +102,27 @@ describe("collectOverrideFloorProblems", () => {
   it("fails when the lockfile records browserslist below the floor (regeneration dropped the pin)", () => {
     const lock = { packages: { ...CLEAN_LOCK.packages, "node_modules/browserslist": { version: "4.28.7" } } };
     expectOneProblemMatching(CLEAN_PACKAGE, lock, /records browserslist 4\.28\.7, below the 4\.28\.8 advisory floor/);
+  });
+
+  it("fails when the fast-uri override is removed entirely", () => {
+    expectOneProblemMatching(
+      { overrides: { browserslist: "^4.28.8", "postcss-selector-parser@^6.0.10": "^6.1.4" } },
+      CLEAN_LOCK,
+      /fast-uri/,
+    );
+  });
+
+  it("fails when the fast-uri floor is lowered below its advisory minimum", () => {
+    expectOneProblemMatching(
+      { ...CLEAN_PACKAGE, overrides: { ...CLEAN_PACKAGE.overrides, "fast-uri": "^3.1.5" } },
+      CLEAN_LOCK,
+      /fast-uri/,
+    );
+  });
+
+  it("fails when the lockfile records fast-uri below the floor (regeneration dropped the pin)", () => {
+    const lock = { packages: { ...CLEAN_LOCK.packages, "node_modules/fast-uri": { version: "3.1.5" } } };
+    expectOneProblemMatching(CLEAN_PACKAGE, lock, /records fast-uri 3\.1\.5, below the 3\.1\.7 advisory floor/);
   });
 
   it("fails when the lockfile records an in-family postcss-selector-parser below the floor", () => {
