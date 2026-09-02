@@ -55,7 +55,7 @@ import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
 import { BASIC_MODE_REQUIRED_IDS, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
-import { useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
+import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
 import { DiscoveryDefaultsConflictAlert } from "./discovery/DiscoveryDefaultsConflictAlert";
 import {
@@ -200,12 +200,11 @@ export function DiscoveryPage() {
 
   const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
   const [isReviewingAnswers, setIsReviewingAnswers] = useState(false);
-  const [answers, setAnswers] = useState<DiscoveryAnswers>(
-    () => (draftState.answers as DiscoveryAnswers | undefined) ?? {},
-  );
+  const [answers, setAnswers] = useState<DiscoveryAnswers>(() => (draftState.answers as DiscoveryAnswers | undefined) ?? {});
   const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
     () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
   );
+  const [quickStartSeed, setQuickStartSeed] = useState(() => readQuickStartSeedRecord(draftState.quickStartSeed));
   const [notes, setNotes] = useState<DiscoveryNotes>(
     () => (draftState.notes as DiscoveryNotes | undefined) ?? {},
   );
@@ -336,9 +335,7 @@ export function DiscoveryPage() {
     return discoveryQuestions.filter((q) => BASIC_IDS.has(q.id));
   }, [discoveryQuestions, progressiveMode, BASIC_IDS]);
 
-  // Quick-start conflict signals (stranded defaults, application drift) and
-  // their resolution actions — owned by discovery/useQuickStartConflictSignals
-  // so this page stays an orchestrator.
+  // Quick-start conflict signals — owned by discovery/useQuickStartConflictSignals.
   const {
     applyQuickStartSeeded,
     strandedQuickStart,
@@ -353,6 +350,8 @@ export function DiscoveryPage() {
     setAnswers,
     appliedDefaults,
     onAppliedDefaultsChange: setAppliedDefaults,
+    seedProvenance: quickStartSeed,
+    onSeedProvenanceChange: setQuickStartSeed,
     setActiveIndex,
     setIsReviewingAnswers,
     setPendingEscalation,
@@ -481,7 +480,7 @@ export function DiscoveryPage() {
       writeLatestDiscoverySnapshot({
         ...(discoveryOwnershipRef.current ?? {}),
         activeStepIndex: activeIndex,
-        state: { answers, appliedDefaults, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
+        state: { answers, appliedDefaults, quickStartSeed, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
         brief: buildDiscoveryBrief(),
         savedAt: "",
       });
@@ -951,6 +950,7 @@ export function DiscoveryPage() {
     setMicError("");
     setAnswers({});
     setAppliedDefaults({});
+    setQuickStartSeed(null);
     setNotes({});
     setConfidenceByStep({});
     setConfidenceScoresByStep({});

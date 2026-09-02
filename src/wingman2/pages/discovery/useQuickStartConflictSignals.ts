@@ -15,10 +15,19 @@
 // the exact answers it wrote — an untouched answer that still disagrees with
 // the CURRENT application's standard profile belongs to the old profile.
 
-import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useMemo, type Dispatch, type SetStateAction } from "react";
 import { findStrandedQuickStartDefaults, removeDiscoveryAnswerValue, wmDiscoveryAnswerToText } from "./discoveryAnswerUtils";
 import { findQuickStartApplicationDrift } from "./discoveryQuickStart";
 import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
+
+export type QuickStartSeedProvenance = { application: string; answers: DiscoveryAnswers };
+
+/** Narrows an untrusted draft record back into seed provenance (or null). */
+export function readQuickStartSeedRecord(value: unknown): QuickStartSeedProvenance | null {
+  return typeof value === "object" && value !== null && typeof (value as { application?: unknown }).application === "string"
+    ? (value as QuickStartSeedProvenance)
+    : null;
+}
 
 export type DiscoveryQuickStartConflictSignals = {
   /** Records the seed provenance + applied defaults and applies the answers. */
@@ -52,6 +61,15 @@ export function useQuickStartConflictSignals(options: {
   appliedDefaults: Partial<DiscoveryAnswers>;
   /** Records which values the app applied (same shape as `appliedDefaults`). */
   onAppliedDefaultsChange: Dispatch<SetStateAction<Partial<DiscoveryAnswers>>>;
+  /**
+   * The quick-start seed provenance (which application the seed was applied
+   * for and the exact answers it wrote), restored from the discovery draft so
+   * the application-drift flag survives a page reload mid-session. Null when
+   * this draft was never quick-started.
+   */
+  seedProvenance: QuickStartSeedProvenance | null;
+  /** Publishes seed-provenance changes so the caller can persist them. */
+  onSeedProvenanceChange: Dispatch<SetStateAction<QuickStartSeedProvenance | null>>;
   setActiveIndex: (index: number) => void;
   setIsReviewingAnswers: (value: boolean) => void;
   setPendingEscalation: (questionId: string | null) => void;
@@ -64,25 +82,27 @@ export function useQuickStartConflictSignals(options: {
     setAnswers,
     appliedDefaults,
     onAppliedDefaultsChange,
+    seedProvenance,
+    onSeedProvenanceChange,
     setActiveIndex,
     setIsReviewingAnswers,
     setPendingEscalation,
   } = options;
 
-  const [quickStartSeed, setQuickStartSeed] = useState<{ application: string; answers: DiscoveryAnswers } | null>(null);
+  const quickStartSeed = seedProvenance;
 
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
 
   const applyQuickStartSeeded = useCallback(
     (seeded: DiscoveryAnswers) => {
-      setQuickStartSeed({ application: wmDiscoveryAnswerToText(seeded.opportunity), answers: seeded });
+      onSeedProvenanceChange({ application: wmDiscoveryAnswerToText(seeded.opportunity), answers: seeded });
       // Record which values the app just applied at the same moment the
       // answers land, so stranded detection can distinguish untouched
       // quick-start pre-fills (safe to bulk-remove) from rep-typed answers.
       onAppliedDefaultsChange((previous) => ({ ...previous, ...seeded }));
       setAnswers(seeded);
     },
-    [onAppliedDefaultsChange, setAnswers],
+    [onAppliedDefaultsChange, onSeedProvenanceChange, setAnswers],
   );
 
   // Quick-start defaults stranded by a later answer (a stored value whose
