@@ -45,11 +45,16 @@ begin
   -- Delete rows no longer in the ledger snapshot (the mirror must be exact).
   -- --------------------------------------------------------------------------
 
+  -- Only reconcile when the caller actually provided the ledger as an array:
+  -- an omitted or JSON-null section must leave the mirror untouched (the
+  -- documented payload contract), never wipe it. An explicit [] still means
+  -- "the mirror should be empty", so the delete runs and clears the table.
   delete from public.competitor_match_decisions l
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'ledger', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = l.id
-  );
+  where jsonb_typeof(payload -> 'ledger') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'ledger') e(x)
+      where e.x ->> 'id' = l.id
+    );
 
   -- --------------------------------------------------------------------------
   -- Upsert the incoming rows.
@@ -60,7 +65,7 @@ begin
     e.x ->> 'id',
     coalesce(e.x -> 'payload', '{}'::jsonb),
     coalesce(nullif(e.x ->> 'updated_at', '')::timestamptz, now())
-  from jsonb_array_elements(coalesce(payload -> 'ledger', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'ledger') = 'array' then payload -> 'ledger' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     payload    = excluded.payload,
     updated_at = excluded.updated_at;

@@ -195,6 +195,24 @@ export async function pushDecisionToSupabase(decision) {
 export async function pushLedgerToSupabase(ledger) {
   const client = getSupabaseClient();
   if (!client) return { ok: false, error: "Supabase ledger client is not available.", table: TABLE };
+
+  // Migration 011's wingman_ledger_commit hard-codes the migration-created
+  // public.competitor_match_decisions table. With a custom
+  // SUPABASE_COMPETITOR_DECISIONS_TABLE override the reads address the custom
+  // table while this RPC would reconcile the default one - a sync would report
+  // success without touching the configured mirror. Reject loudly instead of
+  // writing to the wrong dataset.
+  if (TABLE !== "competitor_match_decisions") {
+    return {
+      ok: false,
+      error:
+        "Full-mirror commit is only supported on the migration-created competitor_match_decisions table " +
+        `(migration 011's wingman_ledger_commit hard-codes it); SUPABASE_COMPETITOR_DECISIONS_TABLE is set to ${TABLE}. ` +
+        "Remove the override, or provision wingman_ledger_commit for the custom table.",
+      table: TABLE,
+    };
+  }
+
   const decisions = Array.isArray(ledger?.decisions) ? ledger.decisions : [];
   const rows = decisions
     .filter((decision) => text(decision.id))
