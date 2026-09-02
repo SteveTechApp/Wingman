@@ -7,7 +7,7 @@ import {
 // Minimal stand-ins for .github/workflows/supabase-rls.yml and its two callers.
 function cleanReusableWorkflow() {
   return [
-    "name: Supabase RLS (live, sentinel)",
+    "name: Supabase live gates (RLS sentinel + migration parity)",
     "on:",
     "  workflow_call:",
     "",
@@ -33,6 +33,27 @@ function cleanReusableWorkflow() {
     "          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}",
     "          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}",
     "          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}",
+    "",
+    "  migration-live:",
+    "    runs-on: ubuntu-latest",
+    "    steps:",
+    "      - name: Verify access token is configured",
+    "        id: token",
+    "        run: |",
+    '          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then',
+    '            echo "skipped=true" >> "$GITHUB_OUTPUT"',
+    '          elif [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]; then',
+    "            exit 1",
+    "          else",
+    '            echo "skipped=false" >> "$GITHUB_OUTPUT"',
+    "          fi",
+    "",
+    "      - name: Verify live schema matches migration files",
+    '        if: steps.token.outputs.skipped == \'false\'',
+    "        run: node tools/check-migration-live-state.mjs",
+    "        env:",
+    "          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}",
+    "          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}",
     "",
   ].join("\n");
 }
@@ -94,6 +115,76 @@ describe("collectSupabaseRlsWorkflowProblems", () => {
     expectProblemMatching(
       problemsFor({ reusable }),
       /secrets gate no longer references SUPABASE_ANON_KEY|env no longer maps SUPABASE_ANON_KEY/,
+    );
+  });
+
+  it("fails when a secret is removed from the gate but kept in the env mapping (scope regression)", () => {
+    // P2: a whole-file search for "secrets.SUPABASE_ANON_KEY" still finds the
+    // env mapping below the tool line, so removing the gate reference alone
+    // used to pass silently - the exact regression this scoped check blocks.
+    const reusable = cleanReusableWorkflow().split(
+      ' || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ];',
+    ).join("");
+    expectProblemMatching(
+      problemsFor({ reusable }),
+      /RLS sentinel secrets gate no longer references SUPABASE_ANON_KEY/,
+    );
+  });
+
+  it("passes when a secret lives in the RLS job's env without polluting the migration job's gate", () => {
+    // The migration-parity gate needs URL + ACCESS_TOKEN only; SUPABASE_ANON_KEY
+    // / SUPABASE_SECRET_KEY appear later in the file (RLS env). The scoped gate
+    // search must not be fooled by those - and it must not demand RLS secrets
+    // inside the migration gate either.
+    const callers = [
+      { file: "ci.yml", text: cleanCaller("ci.yml") },
+      { file: "supabase-rls-nightly.yml", text: cleanCaller("supabase-rls-nightly.yml") },
+    ];
+    expect(problemsFor({ callers })).toEqual([]);
+  });
+
+  it("fails when the migration-live env mapping for SUPABASE_ACCESS_TOKEN is dropped", () => {
+    const reusable = cleanReusableWorkflow().replace(
+      "          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}\n",
+      "",
+    );
+    expectProblemMatching(
+      problemsFor({ reusable }),
+      /migration-parity live step env no longer maps SUPABASE_ACCESS_TOKEN/,
+    );
+  });
+
+  it("fails when the migration-live tool invocation is removed", () => {
+    const reusable = cleanReusableWorkflow().replace(
+      "        run: node tools/check-migration-live-state.mjs",
+      "        run: echo nothing",
+    );
+    expectProblemMatching(
+      problemsFor({ reusable }),
+      /migration-parity job no longer runs tools\/check-migration-live-state\.mjs/,
+    );
+  });
+
+  it("fails when the migration-live gate loses its partial-setup exit branch", () => {
+    const reusable = cleanReusableWorkflow().split(
+      '          elif [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]; then\n            exit 1',
+    ).join(
+      '          else',
+    );
+    expectProblemMatching(
+      problemsFor({ reusable }),
+      /migration-parity secrets gate has no failing branch/,
+    );
+  });
+
+  it("fails when the migration-live live step is no longer gated on its token check", () => {
+    const reusable = cleanReusableWorkflow().replace(
+      "        if: steps.token.outputs.skipped == 'false'",
+      "",
+    );
+    expectProblemMatching(
+      problemsFor({ reusable }),
+      /migration-parity live step is no longer gated on the secrets check/,
     );
   });
 

@@ -28,10 +28,13 @@ const TABLE_COUNT = 9;
 //   plan.unfilteredRows  - rows the ANON key's UNFILTERED GET (limit=1) should
 //                          return (default: same as probeRows - a table that
 //                          returns nothing filtered also returns nothing
-//                          unfiltered unless a conditional policy leaks)
-//   plan.probe404Tables  - Set of table names whose anon probe should 404
-//                          with "could not find the table" (others return [])
+//                          unfiltered unless a conditional policy leaks)//   plan.probe404Tables  - Set of table names whose anon probe should 404
+//                           with "could not find the table" (others return [])
 //   plan.probeStatus     - HTTP status for the anon probe GET, default 200
+//   plan.unfilteredStatus - HTTP status for the UNFILTERED anon probe GET,
+//                           default 200 (the filtered probe still uses
+//                           probeStatus, so the two failure modes can be
+//                           exercised independently)
 function startFakeSupabase(plan) {
   return new Promise((resolve) => {
     const calls = { seeds: [], probes: [], deletes: [], verifies: [] };
@@ -67,7 +70,13 @@ function startFakeSupabase(plan) {
           body(404, { message: "could not find the table" });
           return;
         }
-        const rows = url.searchParams.has("id") ? (plan.probeRows ?? []) : (plan.unfilteredRows ?? plan.probeRows ?? []);
+        const unfiltered = !url.searchParams.has("id");
+        const rows = unfiltered ? (plan.unfilteredRows ?? plan.probeRows ?? []) : (plan.probeRows ?? []);
+        if (unfiltered && plan.unfilteredStatus) {
+          // PostgREST-style JSON-object error (not an array, not 401/403).
+          body(plan.unfilteredStatus, { code: "PGRST999", message: "backend exploded", hint: null });
+          return;
+        }
         body(plan.probeStatus ?? 200, rows);
         return;
       }
@@ -138,6 +147,28 @@ describe("verify-supabase-rls.mjs — sentinel mode (CI wiring)", () => {
       expect(result.code).toBe(1);
       expect(result.stderr).toMatch(/could not be proven protected \(sentinel seed failed\)/);
       expect(result.stderr).toMatch(/\[seed\] wingman_users FAILED/);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("does NOT report protected when the unfiltered probe errors with a JSON-object body (P1: non-401/403 failure must not read as a green)", async () => {
+    // The unfiltered GET is the probe that decides between "protected" and
+    // "leak" once the sentinel row is seeded. A transient backend error that
+    // returns a JSON-object body (not an array) must classify as unknown and
+    // FAIL the run - previously it parsed as a non-array and fell through to
+    // the protected verdict, leaving the nightly gate green mid-outage.
+    const { server, port } = await startFakeSupabase({
+      probeRows: [],
+      unfilteredStatus: 500,
+    });
+    try {
+      const result = await runTool({ port, secret: true });
+      expect(result.code).toBe(1);
+      expect(result.all).toMatch(/unknown/);
+      expect(result.all).toMatch(/HTTP 500 \(unfiltered probe\)/);
+      // Never a false green: no table may be reported protected here.
+      expect(result.all).not.toMatch(/hid their seeded marker row from the anon key/);
     } finally {
       server.close();
     }

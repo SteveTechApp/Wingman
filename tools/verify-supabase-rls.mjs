@@ -235,13 +235,26 @@ async function probe(table, sentinelSeeded) {
           return { table, verdict: "protected", detail: "sentinel row and unfiltered read both denied to anon" };
         }
         const uBody = await u.text();
+        if (!u.ok) {
+          // An unsuccessful unfiltered response proves nothing about RLS -
+          // mirror the filtered probe's classification instead of reading the
+          // body as rows (PostgREST errors come back as a JSON object that
+          // would otherwise fall through to a false "protected").
+          if (/does not exist|could not find the table/i.test(uBody)) {
+            return { table, verdict: "missing", detail: `HTTP ${u.status} - table not found (unfiltered probe)` };
+          }
+          return { table, verdict: "unknown", detail: `HTTP ${u.status} (unfiltered probe)` };
+        }
         let uRows = [];
         try {
           uRows = JSON.parse(uBody);
         } catch {
           return { table, verdict: "unknown", detail: "unparseable unfiltered response" };
         }
-        if (Array.isArray(uRows) && uRows.length > 0) {
+        if (!Array.isArray(uRows)) {
+          return { table, verdict: "unknown", detail: "unexpected unfiltered response shape (not an array)" };
+        }
+        if (uRows.length > 0) {
           return { table, verdict: "exposed", detail: `anon key read ${uRows.length} row(s) via unfiltered probe (conditional policy leak)` };
         }
       } catch (error) {

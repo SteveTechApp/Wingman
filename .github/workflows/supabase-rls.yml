@@ -1,24 +1,36 @@
-name: Supabase RLS (live, sentinel)
+name: Supabase live gates (RLS sentinel + migration parity)
 
-# Reusable workflow: proves the LIVE Supabase project's RLS actually protects
-# the Wingman tables. check:migration-parity (inside verify:data) proves the
-# migration FILES agree; this proves the DATABASE agrees with them. Runs in
-# SENTINEL mode: the tool seeds one marker row per table through the service
-# role (SUPABASE_SECRET_KEY), then proves the public anon key cannot read it -
-# definitive exposed/protected verdicts even on empty tables. Any warning
-# (seed failure -> inconclusive, or an absent table) fails the job, and the
-# probe rows are deleted before the job ends.
+# Reusable workflow: proves the LIVE Supabase project agrees with the
+# repository's migration files AND that RLS actually protects the Wingman
+# tables. Two jobs:
+#
+#   supabase-rls    - RLS sentinel probe: seeds one marker row per table
+#                     through the service role (SUPABASE_SECRET_KEY), then
+#                     proves the public anon key cannot read it - definitive
+#                     exposed/protected verdicts even on empty tables. Any
+#                     warning (seed failure -> inconclusive, absent table)
+#                     fails the job; probe rows are deleted before it ends.
+#   migration-live   - live migration-parity check: compares the migration
+#                     FILES against the LIVE schema objects via the Management
+#                     API (read-only SELECTs, no DB password). Catches schema
+#                     drift no push has exercised. check:migration-parity
+#                     (inside verify:data) proves the files agree with each
+#                     other; this proves the DATABASE agrees with them.
 #
 # Invoked from two places so drift is caught even when nothing is pushed:
-#   - ci.yml                 on every push to main and every PR
-#   - supabase-rls-nightly.yml on a nightly schedule
+#   - ci.yml                    on every push to main and every PR
+#   - supabase-rls-nightly.yml  on a nightly schedule
 #
-# Needs SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SECRET_KEY repository
-# secrets (callers pass them via `secrets: inherit`). The job is skipped with
-# a clear message when they are not configured (e.g. fork PRs, where GitHub
-# never exposes secrets), and FAILS if the secret key is missing while the
-# others are present - read-only mode cannot prove protection on empty tables,
-# so a partial secret setup must not silently degrade this gate.
+# Needs repository secrets (callers pass them via `secrets: inherit`):
+#   SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SECRET_KEY (RLS sentinel job)
+#   SUPABASE_URL, SUPABASE_ACCESS_TOKEN (Management API token - parity job)
+#
+# Each job skips with a clear message when its secrets are not configured
+# (e.g. fork PRs, where GitHub never exposes secrets), and FAILS on a partial
+# setup - e.g. the RLS job with URL + anon key but no secret key (read-only
+# mode cannot prove protection on empty tables), or the parity job with URL
+# but no access token. A partial secret setup must never silently degrade a
+# gate.
 on:
   workflow_call:
 
@@ -58,3 +70,35 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+
+  migration-live:
+    name: Live migration parity (schema vs files)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Verify access token is configured
+        id: token
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            echo "Supabase secrets not configured - skipping live migration-parity verification."
+          elif [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN is required for the live migration-parity check. It authenticates the Management API (read-only SELECTs against the live schema). Without it this gate cannot run; add it to the repository secrets."
+            exit 1
+          else
+            echo "skipped=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify live schema matches migration files
+        if: steps.token.outputs.skipped == 'false'
+        run: node tools/check-migration-live-state.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
