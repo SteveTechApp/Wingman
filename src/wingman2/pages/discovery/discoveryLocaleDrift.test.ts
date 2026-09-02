@@ -7,7 +7,11 @@
 // diverge from the option surface the English table interprets. locale-en is
 // the base/fallback interpretation table and locale-de the highest-fidelity
 // translation, so both are pinned here against the real question model
-// (discoveryQuestions.ts, not a hand-maintained copy) plus each other.
+// (discoveryQuestions.ts, not a hand-maintained copy) plus each other. Every
+// OTHER language table is pinned the same way: its curated keys must resolve
+// to canonical questions/options and its questionTranslations must resolve to
+// canonical questions with non-empty copy, so any language falling behind the
+// canonical option set fails CI rather than silently mislabelling free text.
 
 import { describe, expect, it } from "vitest";
 import { canonicalDiscoveryQuestions } from "./discoveryQuestions";
@@ -47,6 +51,11 @@ const canonicalOptions = new Map(
   canonicalDiscoveryQuestions.map((question) => [question.id, new Set(question.options.map((option) => option.value))]),
 );
 
+type LocaleTableShape = {
+  curated: Record<string, Record<string, string[]>>;
+  questionTranslations?: Record<string, { question: string; prompt: string }>;
+};
+
 // The locale analog of the canonical per-label uniqueness rule: within ONE
 // language, no two questions may interpret DIFFERENT option sets through an
 // IDENTICAL translated phrase inventory — spoken/free-text capture then cannot
@@ -84,6 +93,22 @@ function collectIdenticalPhraseSetProblems(lang: string, curated: Record<string,
   return problems;
 }
 
+function collectTranslationProblems(
+  lang: string,
+  translations: Record<string, { question: string; prompt: string }>,
+): string[] {
+  const problems: string[] = [];
+  for (const [questionId, entry] of Object.entries(translations)) {
+    if (!canonicalById.has(questionId)) {
+      problems.push(`${lang} translates question "${questionId}" which is not in the canonical question set`);
+      continue;
+    }
+    if (!entry.question.trim()) problems.push(`${lang} question "${questionId}" has an empty translated question`);
+    if (!entry.prompt.trim()) problems.push(`${lang} question "${questionId}" has an empty translated prompt`);
+  }
+  return problems;
+}
+
 function collectCuratedProblems(lang: string, curated: Record<string, Record<string, string[]>>): string[] {
   const problems: string[] = [];
   for (const [questionId, values] of Object.entries(curated)) {
@@ -106,13 +131,11 @@ function collectCuratedProblems(lang: string, curated: Record<string, Record<str
 }
 
 describe("discovery locale tables stay pinned to the canonical question set", () => {
-  it("locale-en curated keys resolve to canonical questions and their option values", () => {
-    expect(collectCuratedProblems("locale-en", en.curated)).toEqual([]);
-  });
-
-  it("locale-de curated keys resolve to canonical questions and their option values", () => {
-    expect(collectCuratedProblems("locale-de", de.curated)).toEqual([]);
-  });
+  for (const [lang, table] of LOCALE_TABLES) {
+    it(`locale-${lang} curated keys resolve to canonical questions and their option values`, () => {
+      expect(collectCuratedProblems(`locale-${lang}`, (table as LocaleTableShape).curated)).toEqual([]);
+    });
+  }
 
   it("locale-en and locale-de interpret exactly the same option values for every shared question", () => {
     // German falls back to the English table for whole questions it has not
@@ -158,17 +181,45 @@ describe("discovery locale tables stay pinned to the canonical question set", ()
     ]);
   });
 
-  it("locale-de questionTranslations resolve to canonical questions with non-empty labels", () => {
-    const translations = de.questionTranslations ?? {};
-    const problems: string[] = [];
-    for (const [questionId, entry] of Object.entries(translations)) {
-      if (!canonicalById.has(questionId)) {
-        problems.push(`locale-de translates question "${questionId}" which is not in the canonical question set`);
-        continue;
-      }
-      if (!entry.question.trim()) problems.push(`locale-de question "${questionId}" has an empty translated question`);
-      if (!entry.prompt.trim()) problems.push(`locale-de question "${questionId}" has an empty translated prompt`);
-    }
-    expect(problems).toEqual([]);
+  for (const [lang, table] of LOCALE_TABLES) {
+    const translations = (table as LocaleTableShape).questionTranslations;
+    if (!translations) continue; // locale-en is the base table and has no translations
+    it(`locale-${lang} questionTranslations resolve to canonical questions with non-empty labels`, () => {
+      expect(collectTranslationProblems(`locale-${lang}`, translations)).toEqual([]);
+    });
+  }
+
+  it("flags a planted stale curated key and unknown question id", () => {
+    // Negative control for the per-language curated pin: a curated table that
+    // interprets a renamed option or a removed question must be reported, so
+    // the real-data loop cannot go green vacuously.
+    const planted: Record<string, Record<string, string[]>> = {
+      displays: {
+        "one-display": ["one screen"],
+        "renamed-display-option": ["some screens"],
+      },
+      "question-that-no-longer-exists": {
+        "some-value": ["phrase"],
+      },
+    };
+    const problems = collectCuratedProblems("planted", planted);
+    expect(problems).toHaveLength(2);
+    expect(problems[0]).toContain('interprets option "renamed-display-option"');
+    expect(problems[1]).toContain('interprets question "question-that-no-longer-exists"');
+  });
+
+  it("flags a planted unknown question and empty translation copy", () => {
+    // Negative control for the per-language translation pin: an id outside the
+    // canonical set or an empty translated question/prompt must be reported.
+    const planted = {
+      "uc-purpose": { question: "Was brauchen Sie?", prompt: "Wählen Sie alles Zutreffende." },
+      "question-that-no-longer-exists": { question: "Gibt es das noch?", prompt: "Bestätigen." },
+      displays: { question: "", prompt: "" },
+    };
+    const problems = collectTranslationProblems("planted", planted);
+    expect(problems).toHaveLength(3);
+    expect(problems[0]).toContain('translates question "question-that-no-longer-exists"');
+    expect(problems[1]).toContain('displays" has an empty translated question');
+    expect(problems[2]).toContain('displays" has an empty translated prompt');
   });
 });
