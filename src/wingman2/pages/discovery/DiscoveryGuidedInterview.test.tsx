@@ -811,6 +811,116 @@ describe("DiscoveryGuidedInterviewEntry", () => {
   });
 });
 
+describe("DiscoveryGuidedInterview stranded defaults in the review trail", () => {
+  const twoQuestionFixture = (): DiscoveryQuestion[] => [
+    {
+      id: "q1", shortLabel: "First", section: "Test", question: "First question", prompt: "Prompt one", why: "", required: true, capturePlaceholder: "",
+      options: [{ value: "a", label: "Option A" }, { value: "b", label: "Option B" }],
+    },
+    {
+      id: "q2", shortLabel: "Second", section: "Test", question: "Second question", prompt: "Prompt two", why: "", required: true, capturePlaceholder: "",
+      options: [{ value: "c", label: "Option C" }],
+    },
+  ];
+
+  // Fully-captured interviews open in review mode; two "Next question" clicks
+  // walk past the last question into the completion summary (the review trail).
+  function walkToSummary(questions: DiscoveryQuestion[]) {
+    fireEvent.click(screen.getByRole("button", { name: /Next question/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Next question/ }));
+    expect(screen.getByText("Interview complete")).toBeTruthy();
+  }
+
+  it("shows the remove-stranded action inside the review trail and stays there", () => {
+    const questions = twoQuestionFixture();
+    const onRemoveStranded = vi.fn();
+    render(
+      <DiscoveryGuidedInterview
+        questions={questions}
+        answers={{ q1: "a", q2: "b" }}
+        notes={{}}
+        onAnswersChange={vi.fn()}
+        onNotesChange={vi.fn()}
+        onExit={vi.fn()}
+        onComplete={vi.fn()}
+        strandedQuickStart={[
+          { questionId: "q2", questionLabel: "Second question", optionValue: "b", optionLabel: "Option B", origin: "quick-start" },
+        ]}
+        onRemoveStranded={onRemoveStranded}
+      />,
+    );
+
+    walkToSummary(questions);
+
+    // The hidden default is flagged inside the trail with the bulk action.
+    expect(screen.getByText("Pre-filled answer no longer fits your current answers")).toBeTruthy();
+    expect(screen.getByText("Option B")).toBeTruthy();
+    const removeButton = screen.getByTestId("remove-stranded-answers");
+
+    // Triggering the action clears the hidden defaults without leaving the
+    // review — the completion summary is still the surface on screen.
+    fireEvent.click(removeButton);
+    expect(onRemoveStranded).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Interview complete")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Generate product recommendations/ })).toBeTruthy();
+  });
+
+  it("opens the owning question from the review trail without exiting the interview", () => {
+    const questions = twoQuestionFixture();
+    const onOpenStrandedStep = vi.fn();
+    render(
+      <DiscoveryGuidedInterview
+        questions={questions}
+        answers={{ q1: "a", q2: "b" }}
+        notes={{}}
+        onAnswersChange={vi.fn()}
+        onNotesChange={vi.fn()}
+        onExit={vi.fn()}
+        onComplete={vi.fn()}
+        strandedQuickStart={[
+          { questionId: "q2", questionLabel: "Second question", optionValue: "b", optionLabel: "Option B", origin: "quick-start" },
+        ]}
+        onOpenStrandedStep={onOpenStrandedStep}
+      />,
+    );
+
+    walkToSummary(questions);
+
+    // The jump stays inside the guided walk: summary closes, question two opens.
+    fireEvent.click(screen.getByRole("button", { name: "Open Second question" }));
+    expect(onOpenStrandedStep).not.toHaveBeenCalled();
+    expect(screen.queryByText("Interview complete")).toBeNull();
+    expect(screen.getByText("Question 2 of 2")).toBeTruthy();
+    expect(screen.getByText("Second question")).toBeTruthy();
+  });
+
+  it("delegates rows outside the guided walk to the page-level step opener", () => {
+    const questions = twoQuestionFixture();
+    const onOpenStrandedStep = vi.fn();
+    render(
+      <DiscoveryGuidedInterview
+        questions={questions}
+        answers={{ q1: "a", q2: "c" }}
+        notes={{}}
+        onAnswersChange={vi.fn()}
+        onNotesChange={vi.fn()}
+        onExit={vi.fn()}
+        onComplete={vi.fn()}
+        strandedQuickStart={[
+          { questionId: "q-missing", questionLabel: "Hidden question", optionValue: "x", optionLabel: "Option X", origin: "quick-start" },
+        ]}
+        onOpenStrandedStep={onOpenStrandedStep}
+      />,
+    );
+
+    walkToSummary(questions);
+
+    fireEvent.click(screen.getByRole("button", { name: "Open Hidden question" }));
+    expect(onOpenStrandedStep).toHaveBeenCalledWith("q-missing");
+    expect(screen.getByText("Interview complete")).toBeTruthy();
+  });
+});
+
 describe("DiscoveryEntryRail", () => {
   it("offers a review entry once every question is answered, without hiding", () => {
     render(

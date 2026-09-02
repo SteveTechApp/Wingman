@@ -40,7 +40,12 @@ import {
   wmDiscoveryAnswerToText,
   wmDiscoveryHasAnswer,
   wmDiscoveryIsMultiSelectStep,
+  type StrandedQuickStartDefault,
 } from "./discoveryAnswerUtils";
+import {
+  DiscoveryStrandedDefaultsNotice,
+  type DiscoveryApplicationDrift,
+} from "./DiscoveryStrandedDefaultsNotice";
 import {
   getDiscoverySpeechRecognition,
   type DiscoverySpeechRecognitionEventLike,
@@ -98,6 +103,15 @@ export type DiscoveryGuidedInterviewProps = {
   onReviewPositionChange?: (index: number) => void;
   /** Start in focused review: walk only the questions still marked "to be confirmed". */
   initialReviewOpen?: boolean;
+  /** Stranded quick-start defaults surfaced in the review trail so the rep can
+   *  clear hidden pre-fills without leaving the completion summary. */
+  strandedQuickStart?: ReadonlyArray<StrandedQuickStartDefault>;
+  /** Post-seed application drift, shown beside the stranded defaults. */
+  applicationDrift?: DiscoveryApplicationDrift | null;
+  /** Fallback jump for stranded rows outside the guided walk (page-level). */
+  onOpenStrandedStep?: (questionId: string) => void;
+  /** Clear every untouched hidden default at once from the review trail. */
+  onRemoveStranded?: () => void;
 };
 
 // Entry card for the hands-free interview. Shows as "Start" on an empty
@@ -216,6 +230,10 @@ export function DiscoveryGuidedInterview({
   reviewPosition,
   onReviewPositionChange,
   initialReviewOpen = false,
+  strandedQuickStart,
+  applicationDrift,
+  onOpenStrandedStep,
+  onRemoveStranded,
 }: DiscoveryGuidedInterviewProps) {
   const [reviewMode, setReviewMode] = useState(() => {
     const firstOpen = questions.findIndex(
@@ -620,6 +638,27 @@ export function DiscoveryGuidedInterview({
     onComplete();
   }, [onComplete, stopListening]);
 
+  // "Open step" from the stranded-defaults notice inside the review trail:
+  // jump the guided walk to the owning question when it is part of the current
+  // walk (full or focused re-verify), so the rep lands directly on the hidden
+  // default to re-choose. Questions outside the walk delegate to the page's
+  // step opener (which handles mode escalation for Basic-only questions).
+  const openStrandedQuestion = useCallback(
+    (questionId: string) => {
+      const walkIndex = walkQuestions.findIndex((question) => question.id === questionId);
+      if (walkIndex >= 0) {
+        setHeard("");
+        setMatch(null);
+        setInterim("");
+        setIndex(walkIndex);
+        setShowSummary(false);
+        return;
+      }
+      onOpenStrandedStep?.(questionId);
+    },
+    [onOpenStrandedStep, walkQuestions],
+  );
+
   // Low-confidence captured answers — listed in the completion summary so the
   // rep can re-verify the guesses before generating recommendations. Only rows
   // with an actual governed answer count (a scuffed keyword-only hit is what
@@ -811,6 +850,10 @@ export function DiscoveryGuidedInterview({
           onReviewOpen={startReviewOpen}
           openCount={openQuestions.length}
           lowConfidenceAnswers={lowConfidenceAnswers}
+          strandedQuickStart={strandedQuickStart}
+          applicationDrift={applicationDrift}
+          onOpenStrandedStep={openStrandedQuestion}
+          onRemoveStranded={onRemoveStranded}
           onExit={onExit}
           interviewLang={activeInterviewLang}
           speechLang={activeSpeechLang}
@@ -1234,6 +1277,10 @@ function SummaryPanel({
   onReviewOpen,
   openCount = 0,
   lowConfidenceAnswers = [],
+  strandedQuickStart,
+  applicationDrift,
+  onOpenStrandedStep,
+  onRemoveStranded,
   onExit,
   interviewLang = "en",
   speechLang = "en-GB",
@@ -1253,6 +1300,14 @@ function SummaryPanel({
   openCount?: number;
   /** Captured answers the rep should re-verify — shown as a one-line summary. */
   lowConfidenceAnswers?: string[];
+  /** Stranded quick-start defaults surfaced in the review trail. */
+  strandedQuickStart?: ReadonlyArray<StrandedQuickStartDefault>;
+  /** Post-seed application drift, shown beside the stranded defaults. */
+  applicationDrift?: DiscoveryApplicationDrift | null;
+  /** Guided-internal jump to the owning question of a stranded row. */
+  onOpenStrandedStep?: (questionId: string) => void;
+  /** Clear every untouched hidden default at once from the review trail. */
+  onRemoveStranded?: () => void;
   onExit: () => void;
   /** Capture language of the conversation — used to show the localized stem. */
   interviewLang?: InterviewLangId | string;
@@ -1367,6 +1422,18 @@ function SummaryPanel({
           );
         })}
       </ul>
+
+      {(strandedQuickStart && strandedQuickStart.length > 0) ||
+      (applicationDrift && applicationDrift.items.length > 0) ? (
+        <div className="mt-4">
+          <DiscoveryStrandedDefaultsNotice
+            items={strandedQuickStart ?? []}
+            applicationDrift={applicationDrift}
+            onOpenStep={onOpenStrandedStep}
+            onRemoveStranded={onRemoveStranded}
+          />
+        </div>
+      ) : null}
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
         <button

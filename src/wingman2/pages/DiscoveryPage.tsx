@@ -203,7 +203,6 @@ export function DiscoveryPage() {
   const [answers, setAnswers] = useState<DiscoveryAnswers>(
     () => (draftState.answers as DiscoveryAnswers | undefined) ?? {},
   );
-  // Which value the app applied per question (quick-start seed).
   const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
     () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
   );
@@ -412,12 +411,9 @@ export function DiscoveryPage() {
   const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);
   const isFirstStep = activeIndex === 0;
   const isLastStep = activeIndex === modeQuestions.length - 1;
-  // The integrity gate checks only the questions visible in the current mode.
+  // Integrity gate = current mode's questions; stranded scan = FULL visible
+  // set, so an expert-level stranded default still blocks quote safety in Basic.
   const integrityQuestions = modeQuestions;
-  // The quote-safety gate keeps the underspecified/contradiction checks on the
-  // current mode's questions, but stranded default detection scans the FULL
-  // visible set — a default stranded on an expert-level question must still
-  // block quote safety when the brief was completed in Basic mode.
   const decisionIntegrity = useMemo(
     () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions, appliedDefaults),
     [answers, appliedDefaults, discoveryQuestions, integrityQuestions, notes],
@@ -1534,7 +1530,7 @@ return (
       ) : null}
 
       {interviewActive ? (
-        <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} />
+        <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} strandedQuickStart={strandedQuickStart} applicationDrift={quickStartDrift} onOpenStrandedStep={openStrandedStep} onRemoveStranded={removeStrandedQuickStart} />
       ) : showCompletionPanel ? (
         <DiscoveryCompletionPanel
           panelRef={completionPanelRef}
