@@ -42,6 +42,8 @@ export type DiscoveryQuickStartConflictSignals = {
   openStrandedStep: (questionId: string) => void;
   /** Clear every hidden default from the answers at once. */
   removeStrandedQuickStart: () => void;
+  /** Clear every untouched quick-start answer still following the old profile. */
+  removeQuickStartDrift: () => void;
 };
 
 export function useQuickStartConflictSignals(options: {
@@ -131,6 +133,33 @@ export function useQuickStartConflictSignals(options: {
     };
   }, [answers, quickStartSeed, selectedApplication]);
 
+  // "Remove answers still following the old profile": clear every untouched
+  // quick-start answer whose value still follows the previous application's
+  // profile. Answers the rep retyped after seeding stay (silently discarding
+  // the rep's own answer would destroy data — those are resolved by re-opening
+  // the owning step). The drift list recomputes from the answers, so the
+  // notice section disappears as soon as the values are gone.
+  const removeQuickStartDrift = useCallback(() => {
+    if (!quickStartDrift) return;
+    const untouchedQuestionIds = new Set(quickStartDrift.items.map((item) => item.questionId));
+    setAnswers((previous) => {
+      let next = previous;
+      for (const item of quickStartDrift.items) {
+        const seeded = quickStartSeed?.answers[item.questionId];
+        if (typeof seeded === "string") next = removeDiscoveryAnswerValue(next, item.questionId, seeded);
+      }
+      return next;
+    });
+    if (untouchedQuestionIds.size === 0) return;
+    onAppliedDefaultsChange((previous) => {
+      const next = { ...previous };
+      for (const questionId of untouchedQuestionIds) {
+        delete next[questionId];
+      }
+      return next;
+    });
+  }, [onAppliedDefaultsChange, quickStartDrift, quickStartSeed, setAnswers]);
+
   const openStrandedStep = useCallback(
     (questionId: string) => {
       const index = modeQuestions.findIndex((question) => question.id === questionId);
@@ -173,5 +202,6 @@ export function useQuickStartConflictSignals(options: {
     quickStartDrift,
     openStrandedStep,
     removeStrandedQuickStart,
+    removeQuickStartDrift,
   };
 }

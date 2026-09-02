@@ -112,6 +112,8 @@ export type DiscoveryGuidedInterviewProps = {
   onOpenStrandedStep?: (questionId: string) => void;
   /** Clear every untouched hidden default at once from the review trail. */
   onRemoveStranded?: () => void;
+  /** Clear every untouched quick-start answer still following the old profile. */
+  onRemoveDrift?: () => void;
 };
 
 // Entry card for the hands-free interview. Shows as "Start" on an empty
@@ -234,6 +236,7 @@ export function DiscoveryGuidedInterview({
   applicationDrift,
   onOpenStrandedStep,
   onRemoveStranded,
+  onRemoveDrift,
 }: DiscoveryGuidedInterviewProps) {
   const [reviewMode, setReviewMode] = useState(() => {
     const firstOpen = questions.findIndex(
@@ -854,6 +857,7 @@ export function DiscoveryGuidedInterview({
           applicationDrift={applicationDrift}
           onOpenStrandedStep={openStrandedQuestion}
           onRemoveStranded={onRemoveStranded}
+          onRemoveDrift={onRemoveDrift}
           onExit={onExit}
           interviewLang={activeInterviewLang}
           speechLang={activeSpeechLang}
@@ -1281,6 +1285,7 @@ function SummaryPanel({
   applicationDrift,
   onOpenStrandedStep,
   onRemoveStranded,
+  onRemoveDrift,
   onExit,
   interviewLang = "en",
   speechLang = "en-GB",
@@ -1308,6 +1313,8 @@ function SummaryPanel({
   onOpenStrandedStep?: (questionId: string) => void;
   /** Clear every untouched hidden default at once from the review trail. */
   onRemoveStranded?: () => void;
+  /** Clear every untouched quick-start answer still following the old profile. */
+  onRemoveDrift?: () => void;
   onExit: () => void;
   /** Capture language of the conversation — used to show the localized stem. */
   interviewLang?: InterviewLangId | string;
@@ -1431,6 +1438,7 @@ function SummaryPanel({
             applicationDrift={applicationDrift}
             onOpenStep={onOpenStrandedStep}
             onRemoveStranded={onRemoveStranded}
+            onRemoveDrift={onRemoveDrift}
           />
         </div>
       ) : null}

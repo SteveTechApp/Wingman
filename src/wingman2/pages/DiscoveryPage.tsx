@@ -245,11 +245,11 @@ export function DiscoveryPage() {
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
   const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("basic");
-  // Pending escalation: set when a non-basic question is edited while in basic mode,
+  // Pending escalation: set when a non-basic question is edited in basic mode —
   // shows a confirmation dialog before switching to Expert.
   const [pendingEscalation, setPendingEscalation] = useState<string | null>(null);
-  // `?interview=1` (used by the dashboard / project-card resume links) opens
-  // straight into the guided interview, which resumes at the first open question.
+  // `?interview=1` (dashboard / project-card resume links) opens straight into
+  // the guided interview, which resumes at the first open question.
   const [interviewActive, setInterviewActive] = useState(
     () => searchParams.get("interview") === "1",
   );
@@ -258,7 +258,7 @@ export function DiscoveryPage() {
   const [reviewScope, setReviewScope] = useState<"all" | "open">(
     () => (searchParams.get("review") === "open" ? "open" : "all"),
   );
-  // Persisted review position: re-entering lands back on the same question.
+  // Persisted review position: re-entry lands back on the same question.
   const [reviewPosition, setReviewPosition] = useState<number | undefined>(() => {
     const stored = discoveryDraft?.brief?.reviewPosition;
     return typeof stored === "number" && Number.isFinite(stored)
@@ -325,10 +325,9 @@ export function DiscoveryPage() {
     [selectedApplication, answers],
   );
 
-  // In Basic mode, only show the essential questions; Expert shows all.
-  // Derive from BASIC_MODE_REQUIRED_IDS (single source of truth) so the UI
-  // gate and the smart-default/escalation logic can never disagree about
-  // which questions Basic mode asks.
+  // In Basic mode, only show the essential questions; Expert shows all. Derived
+  // from BASIC_MODE_REQUIRED_IDS (single source of truth) so the UI gate and
+  // the smart-default/escalation logic can never disagree on Basic's questions.
   const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
   const modeQuestions = useMemo(() => {
     if (progressiveMode === "expert") return discoveryQuestions;
@@ -338,6 +337,7 @@ export function DiscoveryPage() {
   // Quick-start conflict signals (stranded defaults, application drift).
   const {
     applyQuickStartSeeded,
+    removeQuickStartDrift,
     strandedQuickStart,
     quickStartDrift,
     openStrandedStep,
@@ -410,8 +410,8 @@ export function DiscoveryPage() {
   const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);
   const isFirstStep = activeIndex === 0;
   const isLastStep = activeIndex === modeQuestions.length - 1;
-  // Integrity gate = current mode's questions; stranded scan = FULL visible
-  // set, so an expert-level stranded default still blocks quote safety in Basic.
+  // Integrity gate = mode questions; stranded scan = full visible set, so an
+  // expert-level strand still blocks quote safety in Basic.
   const integrityQuestions = modeQuestions;
   const decisionIntegrity = useMemo(
     () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions, appliedDefaults, quickStartSeed),
@@ -768,8 +768,8 @@ export function DiscoveryPage() {
 
     if (currentStep.id === "opportunity" && answers.opportunity !== value) {
       // The note beside the application question is the customer's original
-      // requirement. Changing the classification must not discard that source
-      // wording; only notes belonging to the old conditional route are stale.
+      // requirement; changing the classification must keep it. Only notes on
+      // the old conditional route are stale.
       const opportunityNote = notes.opportunity?.trim() ?? "";
       const nextNotes: DiscoveryNotes = opportunityNote ? { opportunity: opportunityNote } : {};
       setNotes(nextNotes);
@@ -848,8 +848,7 @@ export function DiscoveryPage() {
     if (confidence) {
       setConfidenceByStep((previous) => ({ ...previous, [currentStep.id]: confidence }));
     }
-    // The capture chip has the interpretation score — a deliberate option pick
-    // is high-confidence, so stamp a clearly-high score of 10 for it.
+    // A deliberate option pick is high-confidence: stamp a clear 10 score.
     if (confidence === "high") {
       setConfidenceScoresByStep((previous) => ({ ...previous, [currentStep.id]: 10 }));
     }
@@ -1556,6 +1555,7 @@ return (
           applicationDrift={quickStartDrift}
           onOpenStrandedStep={openStrandedStep}
           onRemoveStranded={removeStrandedQuickStart}
+          onRemoveDrift={removeQuickStartDrift}
         />
       ) : (
       <>
@@ -1731,6 +1731,7 @@ return (
               applicationDrift={quickStartDrift}
               onOpenStrandedStep={openStrandedStep}
               onRemoveStranded={removeStrandedQuickStart}
+              onRemoveDrift={removeQuickStartDrift}
             />
           )}
 

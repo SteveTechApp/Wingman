@@ -28,6 +28,8 @@ export function DiscoveryStrandedDefaultsNotice(props: {
   onOpenStep?: (questionId: string) => void;
   /** Optional: clear every hidden default at once instead of re-opening steps. */
   onRemoveStranded?: () => void;
+  /** Optional: clear every untouched answer still following the old profile. */
+  onRemoveDrift?: () => void;
 }) {
   const hasStranded = props.items.length > 0;
   const drift = props.applicationDrift;
@@ -117,6 +119,16 @@ export function DiscoveryStrandedDefaultsNotice(props: {
               )}
             </article>
           ))}
+          {props.onRemoveDrift && (
+            <button
+              className="wm-ui-button wm-ui-button-secondary"
+              type="button"
+              onClick={() => props.onRemoveDrift?.()}
+              data-testid="remove-drift-answers"
+            >
+              Remove answers still following the old profile
+            </button>
+          )}
         </div>
       )}
 

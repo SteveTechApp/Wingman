@@ -104,3 +104,75 @@ describe("quick-start seed provenance persistence contract", () => {
     expect(readQuickStartSeedRecord([])).toBeNull();
   });
 });
+
+describe("removeQuickStartDrift", () => {
+  function makeDriftHarness(answers: DiscoveryAnswers) {
+    const setAnswers = vi.fn();
+    const onAppliedDefaultsChange = vi.fn();
+    const seedProvenance = {
+      application: "hospitality",
+      answers: {
+        opportunity: "hospitality",
+        sources: "five-eight-sources",
+        displays: "three-eight-displays",
+        "display-behaviour": "independent-routing-per-display",
+      } as DiscoveryAnswers,
+    };
+    const harness = renderHook(() =>
+      useQuickStartConflictSignals({
+        discoveryQuestions: canonicalDiscoveryQuestions,
+        modeQuestions: baseDiscoveryQuestions,
+        progressiveMode: "expert",
+        answers,
+        setAnswers,
+        appliedDefaults: { sources: "five-eight-sources", displays: "three-eight-displays" },
+        onAppliedDefaultsChange,
+        seedProvenance,
+        onSeedProvenanceChange: vi.fn(),
+        setActiveIndex: vi.fn(),
+        setIsReviewingAnswers: vi.fn(),
+        setPendingEscalation: vi.fn(),
+      }),
+    );
+    return { harness, setAnswers, onAppliedDefaultsChange, seedProvenance };
+  }
+
+  it("clears untouched drifted answers and their provenance records", () => {
+    const { harness, setAnswers, onAppliedDefaultsChange } = makeDriftHarness({
+      opportunity: "classroom",
+      sources: "five-eight-sources",
+      displays: "three-eight-displays",
+    });
+    expect(harness.result.current.quickStartDrift).not.toBeNull();
+    act(() => {
+      harness.result.current.removeQuickStartDrift();
+    });
+    // Both drifted questions must be removed from the answers.
+    const updater = setAnswers.mock.calls[0][0] as (previous: DiscoveryAnswers) => DiscoveryAnswers;
+    const next = updater({ opportunity: "classroom", sources: "five-eight-sources", displays: "three-eight-displays" });
+    expect(next.sources).toBeUndefined();
+    expect(next.displays).toBeUndefined();
+    expect(next.opportunity).toBe("classroom");
+    // Provenance records for the removed questions are dropped (updater form).
+    expect(onAppliedDefaultsChange).toHaveBeenCalledTimes(1);
+    const record = onAppliedDefaultsChange.mock.calls[0][0] as Record<string, string | string[]>;
+    expect(record.sources).toBeUndefined();
+    expect(record.displays).toBeUndefined();
+    expect(record["display-behaviour"]).toBeUndefined();
+  });
+
+  it("does nothing when there is no drift", () => {
+    const { harness, setAnswers, onAppliedDefaultsChange } = makeDriftHarness({
+      opportunity: "hospitality",
+      sources: "five-eight-sources",
+      displays: "three-eight-displays",
+      "display-behaviour": "independent-routing-per-display",
+    });
+    expect(harness.result.current.quickStartDrift).toBeNull();
+    act(() => {
+      harness.result.current.removeQuickStartDrift();
+    });
+    expect(setAnswers).not.toHaveBeenCalled();
+    expect(onAppliedDefaultsChange).not.toHaveBeenCalled();
+  });
+});

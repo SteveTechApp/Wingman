@@ -146,6 +146,21 @@ function missingDetailDefinition(item: string): MissingDetailDefinition {
   };
 }
 
+// The saved room model carries derived text per question (displayBehaviour,
+// usbTransport, …) rendered from the answers. When a removed app-applied value
+// must not survive as a confirmed requirement, these are the owning fields to
+// drop from the room model. Shared by the two rail removal actions.
+const roomModelFieldByQuestion: Record<string, string[]> = {
+  displays: ["displayCount"],
+  "display-behaviour": ["displayBehaviour", "displayArrangement", "displays"],
+  "source-count": ["sourceCount"],
+  "source-connection": ["sourceProfile", "sourceConnections"],
+  "usb-transport": ["usbTransport", "usbNeeds", "usbOwnership"],
+  "audio-path": ["audioPath", "audioNeeds"],
+  "cable-run": ["cableRun", "longestRun", "distanceInfrastructureNotes"],
+  network: ["networkAvailability", "network"],
+};
+
 function text(value: unknown, fallback = "") {
   const output = String(value ?? "").trim();
   return output || fallback;
@@ -630,16 +645,6 @@ export function RecommendationsPage() {
     // usbTransport, …) rendered from the answers. A removed stranded value must
     // not survive there as a confirmed requirement, so drop the owning field.
     const removedQuestionIds = new Set(untouched.map((item) => item.questionId));
-    const roomModelFieldByQuestion: Record<string, string[]> = {
-      displays: ["displayCount"],
-      "display-behaviour": ["displayBehaviour", "displayArrangement", "displays"],
-      "source-count": ["sourceCount"],
-      "source-connection": ["sourceProfile", "sourceConnections"],
-      "usb-transport": ["usbTransport", "usbNeeds", "usbOwnership"],
-      "audio-path": ["audioPath", "audioNeeds"],
-      "cable-run": ["cableRun", "longestRun", "distanceInfrastructureNotes"],
-      network: ["networkAvailability", "network"],
-    };
     const nextRoomModel: Record<string, unknown> = {
       ...((draft.brief?.roomModel ?? {}) as Record<string, unknown>),
     };
@@ -677,6 +682,65 @@ export function RecommendationsPage() {
     reloadRecommendations();
     setMessage(
       `Removed ${untouched.length} stranded answer${untouched.length === 1 ? "" : "s"}. Re-choose them on the discovery page if the room still needs them.`,
+    );
+  }
+
+  // Remove-drift from the recommendations rail: clear every untouched
+  // quick-start answer still following the previous application's profile
+  // from the persisted draft, rebuild the brief, re-run the integrity gate,
+  // and recalculate. Mirrors removeStrandedFromBrief; retyped answers stay.
+  function removeDriftFromBrief() {
+    const drift = applicationDrift;
+    if (!drift || drift.items.length === 0) return;
+    const draft = readLatestDiscoverySnapshot();
+    if (!draft) return;
+    const seed = readQuickStartSeedRecord(draft.state.quickStartSeed);
+    if (!seed) return;
+    const draftAnswers = { ...((draft.state.answers as DiscoveryAnswers | undefined) ?? {}) };
+    const appliedDefaults = { ...((draft.state.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {}) };
+    let nextAnswers = draftAnswers;
+    for (const item of drift.items) {
+      const seeded = seed.answers[item.questionId];
+      if (typeof seeded === "string") nextAnswers = removeDiscoveryAnswerValue(nextAnswers, item.questionId, seeded);
+      delete appliedDefaults[item.questionId];
+    }
+    const nextNotes = { ...((draft.state.notes as DiscoveryNotes | undefined) ?? {}) };
+    const questions = getVisibleDiscoveryQuestions(text(nextAnswers.opportunity, "not-sure"), nextAnswers);
+    const integrity = evaluateDiscoveryDecisionIntegrity(questions, nextAnswers, nextNotes, questions, appliedDefaults, seed);
+    const removedQuestionIds = new Set(drift.items.map((item) => item.questionId));
+    const nextRoomModel: Record<string, unknown> = {
+      ...((draft.brief?.roomModel ?? {}) as Record<string, unknown>),
+    };
+    for (const questionId of removedQuestionIds) {
+      for (const field of roomModelFieldByQuestion[questionId] ?? []) {
+        delete nextRoomModel[field];
+      }
+    }
+    const nextBrief: StoredDiscoveryBrief = {
+      ...(draft.brief ?? {}),
+      roomModel: nextRoomModel,
+      missingInformation: integrity.issues.map((issue) => issue.followUpQuestion),
+      quoteSafetyStatus: integrity.canProceedToRecommendation ? "validate-before-quote" : "do-not-quote-yet",
+    };
+    const nextEvidence = buildDiscoveryRecommendationEvidence(nextBrief);
+    const finalBrief: StoredDiscoveryBrief = {
+      ...nextBrief,
+      quoteSafetyStatus: integrity.canProceedToRecommendation ? nextEvidence.quoteSafetyStatus : "do-not-quote-yet",
+      recommendationEvidence: nextEvidence,
+    };
+    writeLatestDiscoverySnapshot({
+      ...draft,
+      state: { ...draft.state, answers: nextAnswers, appliedDefaults, notes: nextNotes },
+      brief: finalBrief,
+      savedAt: new Date().toISOString(),
+    });
+    saveDiscoveryBriefToProject(finalBrief, activeProject?.id);
+    setStrandedCleared(true);
+    const nextNeed = discoveryBriefToFinderNeed(finalBrief);
+    if (nextNeed) setNeed(nextNeed);
+    reloadRecommendations();
+    setMessage(
+      `Removed ${drift.items.length} pre-filled answer${drift.items.length === 1 ? "" : "s"} that still followed the old profile. Re-choose them on the discovery page if the room still needs them.`,
     );
   }
 
@@ -973,6 +1037,7 @@ export function RecommendationsPage() {
               items={visibleStrandedAnswers}
               applicationDrift={applicationDrift}
               onRemoveStranded={removeStrandedFromBrief}
+              onRemoveDrift={removeDriftFromBrief}
               onOpenStep={(questionId) => navigate(`${routeCatalogByKey.discovery.path}?edit=${encodeURIComponent(questionId)}`)}
             />
           )}

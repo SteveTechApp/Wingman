@@ -27,6 +27,8 @@ type DiscoverySummaryCardProps = {
   onOpenStrandedStep?: (questionId: string) => void;
   /** Clear every stranded default from the answers at once. */
   onRemoveStranded?: () => void;
+  /** Clear every untouched quick-start answer still following the old profile. */
+  onRemoveDrift?: () => void;
 };
 
 export function DiscoverySummaryCard({
@@ -44,6 +46,7 @@ export function DiscoverySummaryCard({
   applicationDrift = null,
   onOpenStrandedStep,
   onRemoveStranded,
+  onRemoveDrift,
 }: DiscoverySummaryCardProps) {
   const [expanded, setExpanded] = useState(false);
   const canExpand = compact && items.length > 6;
@@ -86,7 +89,7 @@ export function DiscoverySummaryCard({
         ))}
       </div>
 
-      <DiscoveryStrandedDefaultsNotice items={strandedQuickStart} applicationDrift={applicationDrift} onOpenStep={onOpenStrandedStep} onRemoveStranded={onRemoveStranded} />
+      <DiscoveryStrandedDefaultsNotice items={strandedQuickStart} applicationDrift={applicationDrift} onOpenStep={onOpenStrandedStep} onRemoveStranded={onRemoveStranded} onRemoveDrift={onRemoveDrift} />
 
       {canExpand && (
         <button

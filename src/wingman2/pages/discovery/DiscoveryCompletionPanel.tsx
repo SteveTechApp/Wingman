@@ -24,6 +24,8 @@ type DiscoveryCompletionPanelProps = {
   onOpenStrandedStep?: (questionId: string) => void;
   /** Clear every stranded default from the answers at once. */
   onRemoveStranded?: () => void;
+  /** Clear every untouched quick-start answer still following the old profile. */
+  onRemoveDrift?: () => void;
 };
 
 export function DiscoveryCompletionPanel({
@@ -43,6 +45,7 @@ export function DiscoveryCompletionPanel({
   applicationDrift = null,
   onOpenStrandedStep,
   onRemoveStranded,
+  onRemoveDrift,
 }: DiscoveryCompletionPanelProps) {
   return (
     <section
@@ -70,7 +73,7 @@ export function DiscoveryCompletionPanel({
         </div>
       </div>
 
-      <DiscoveryStrandedDefaultsNotice items={strandedQuickStart} applicationDrift={applicationDrift} onOpenStep={onOpenStrandedStep} onRemoveStranded={onRemoveStranded} />
+      <DiscoveryStrandedDefaultsNotice items={strandedQuickStart} applicationDrift={applicationDrift} onOpenStep={onOpenStrandedStep} onRemoveStranded={onRemoveStranded} onRemoveDrift={onRemoveDrift} />
 
       <div className="wm-discovery-finish-workspace">
         <article className="wm-discovery-finish-next">
