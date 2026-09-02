@@ -6,12 +6,43 @@
 // across sessions (a new project next week may want a different starting
 // profile). Storage failures (private mode, quota) degrade to "no memory",
 // i.e. the confirmation step reappears, which is the safe direction.
+//
+// The choice is remembered per room type AND per disagreement set: the storage
+// key mixes in a hash of the question ids the two profiles disagreed on at the
+// moment of the choice. If the default tables change so a different question
+// set disagrees, the key no longer matches and the confirmation re-opens — the
+// rep answers about the current disagreement instead of silently seeding a
+// profile remembered against questions that no longer apply.
 
 export type QuickStartProfileChoice = "room" | "standard" | "blend";
 
 const STORAGE_KEY = "wingman-quickstart-profile-preference";
 
 type PreferenceRecord = Record<string, QuickStartProfileChoice>;
+
+// FNV-1a over the sorted ids: deterministic, order-independent, compact, and
+// separator-safe (the ids are hashed as one joined stream, so id boundaries
+// cannot blur into each other).
+function disagreementKeyPart(questionIds: readonly string[]): string {
+  const normalized = [...questionIds].sort().join("\u0000");
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < normalized.length; i += 1) {
+    hash ^= normalized.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return (hash >>> 0).toString(36);
+}
+
+// Storage key for one remembered choice: the room type plus a hash of the
+// disagreement question ids. The "#" keeps new-format keys disjoint from any
+// bare room-type keys left over in a session storage from earlier versions —
+// those can never satisfy a lookup again, which is the intended direction.
+export function quickStartProfileKey(
+  roomType: string,
+  disagreementQuestionIds: readonly string[],
+): string {
+  return `${roomType}#${disagreementKeyPart(disagreementQuestionIds)}`;
+}
 
 function readRecord(): PreferenceRecord {
   if (typeof window === "undefined") return {};
@@ -27,16 +58,23 @@ function readRecord(): PreferenceRecord {
   }
 }
 
-export function readQuickStartProfileChoice(roomType: string): QuickStartProfileChoice | null {
-  const choice = readRecord()[roomType];
+export function readQuickStartProfileChoice(
+  roomType: string,
+  disagreementQuestionIds: readonly string[],
+): QuickStartProfileChoice | null {
+  const choice = readRecord()[quickStartProfileKey(roomType, disagreementQuestionIds)];
   return choice === "room" || choice === "standard" || choice === "blend" ? choice : null;
 }
 
-export function rememberQuickStartProfileChoice(roomType: string, choice: QuickStartProfileChoice): void {
+export function rememberQuickStartProfileChoice(
+  roomType: string,
+  choice: QuickStartProfileChoice,
+  disagreementQuestionIds: readonly string[],
+): void {
   if (typeof window === "undefined") return;
   try {
     const record = readRecord();
-    record[roomType] = choice;
+    record[quickStartProfileKey(roomType, disagreementQuestionIds)] = choice;
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
   } catch {
     // No memory available — the confirmation step will simply re-appear.

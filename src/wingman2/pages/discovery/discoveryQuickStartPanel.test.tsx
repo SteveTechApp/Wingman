@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { DiscoveryQuickStart } from "./discoveryQuickStartPanel";
-import { clearQuickStartProfileChoices, rememberQuickStartProfileChoice } from "./discoveryQuickStartPreferences";
-import { quickStartConfigs } from "./discoveryQuickStart";
+import { clearQuickStartProfileChoices, quickStartProfileKey, rememberQuickStartProfileChoice } from "./discoveryQuickStartPreferences";
+import { getQuickStartDisagreements, quickStartConfigs } from "./discoveryQuickStart";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
 function pickRoom(label: RegExp) {
@@ -203,7 +203,8 @@ describe("DiscoveryQuickStart remembered-profile note", () => {
   });
 
   it("names the standard and blended profiles, not just the room profile", () => {
-    rememberQuickStartProfileChoice("lecture-hall", "standard");
+    const lectureHallIds = getQuickStartDisagreements("lecture-hall").map((d) => d.questionId);
+    rememberQuickStartProfileChoice("lecture-hall", "standard", lectureHallIds);
     const standard = vi.fn();
     const standardRender = render(<DiscoveryQuickStart onSelect={standard} onSkip={vi.fn()} />);
     pickRoom(/Lecture hall/);
@@ -214,7 +215,7 @@ describe("DiscoveryQuickStart remembered-profile note", () => {
     expect(standard).toHaveBeenCalledTimes(1);
     standardRender.unmount();
 
-    rememberQuickStartProfileChoice("lecture-hall", "blend");
+    rememberQuickStartProfileChoice("lecture-hall", "blend", lectureHallIds);
     const blend = vi.fn();
     render(<DiscoveryQuickStart onSelect={blend} onSkip={vi.fn()} />);
     pickRoom(/Lecture hall/);
@@ -232,5 +233,45 @@ describe("DiscoveryQuickStart remembered-profile note", () => {
     // Fresh room: Continue still asks for confirmation.
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
+  });
+});
+
+describe("remembered choice is keyed to the disagreement set", () => {
+  const lectureHallIds = () => getQuickStartDisagreements("lecture-hall").map((d) => d.questionId);
+
+  it("applies the remembered choice when the disagreement set is unchanged", () => {
+    // Order-independent key: remembering with a shuffled id list still matches.
+    rememberQuickStartProfileChoice("lecture-hall", "room", [...lectureHallIds()].reverse());
+    const onSelect = vi.fn();
+    render(<DiscoveryQuickStart onSelect={onSelect} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.getByTestId("quick-start-remembered-note")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    const seeded = onSelect.mock.calls[0][0] as DiscoveryAnswers;
+    expect(seeded["display-behaviour"]).toBe("independent-routing-per-display");
+  });
+
+  it("re-opens the confirmation when the defaults changed the disagreement set", () => {
+    // Remembered against a stale disagreement set (the current set plus one
+    // question that used to disagree): nothing may apply silently.
+    rememberQuickStartProfileChoice("lecture-hall", "room", [...lectureHallIds(), "signal-standard"]);
+    const onSelect = vi.fn();
+    render(<DiscoveryQuickStart onSelect={onSelect} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.queryByTestId("quick-start-remembered-note")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
+  });
+
+  it("produces stable, distinct storage keys", () => {
+    const ids = lectureHallIds();
+    expect(quickStartProfileKey("lecture-hall", ids)).toBe(quickStartProfileKey("lecture-hall", [...ids].reverse()));
+    expect(quickStartProfileKey("lecture-hall", ids)).not.toBe(quickStartProfileKey("lecture-hall", [...ids, "extra-q"]));
+    // "#" keeps new-format keys disjoint from bare room-type keys written by
+    // older builds within the same session storage.
+    expect(quickStartProfileKey("lecture-hall", ids)).toContain("#");
+    expect(quickStartProfileKey("lecture-hall", [])).toBe(quickStartProfileKey("lecture-hall", []));
   });
 });

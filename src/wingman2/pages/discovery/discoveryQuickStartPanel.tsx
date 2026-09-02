@@ -85,12 +85,14 @@ export function DiscoveryQuickStart({
   const disagreements = selectedType ? getQuickStartDisagreements(selectedType) : [];
   const application = config ? config.suggestedApplication : "";
   const applicationLabel = application ? (plainLanguageLabels[application] ?? application) : "";
+  const disagreementIds = disagreements.map((disagreement) => disagreement.questionId);
   // A remembered per-room choice silently decides what Continue applies on a
   // repeat visit; surface it on the room-type step so the skip is visible
-  // before the rep commits to it.
+  // before the rep commits to it. The lookup is keyed on the CURRENT
+  // disagreement set, so changed defaults land as a fresh confirmation.
   const remembered =
     selectedType && disagreements.length > 0
-      ? readQuickStartProfileChoice(selectedType)
+      ? readQuickStartProfileChoice(selectedType, disagreementIds)
       : null;
   const rememberedNote =
     remembered && selectedType && config
@@ -100,7 +102,6 @@ export function DiscoveryQuickStart({
           ? `Using your remembered standard ${applicationLabel} profile`
           : `Using your remembered blend of the ${config.label} and ${applicationLabel} profiles`
       : null;
-
   const handleContinue = () => {
     if (!selectedType) return;
     // A room whose profile disagrees with its application-level smart defaults
@@ -109,7 +110,7 @@ export function DiscoveryQuickStart({
     // the session, in which case the remembered choice applies directly so
     // the confirmation never blocks a repeat visit.
     if (disagreements.length > 0) {
-      const remembered = readQuickStartProfileChoice(selectedType);
+      const remembered = readQuickStartProfileChoice(selectedType, disagreementIds);
       if (remembered === "room") {
         onSelect(roomProfileAnswers(selectedType));
         return;
@@ -168,7 +169,7 @@ export function DiscoveryQuickStart({
           <button
             type="button"
             onClick={() => {
-              rememberQuickStartProfileChoice(selectedType, "standard");
+              rememberQuickStartProfileChoice(selectedType, "standard", disagreementIds);
               onSelect(standardProfileAnswers(config.suggestedApplication));
             }}
             className="wm-qs__continue"
@@ -178,7 +179,7 @@ export function DiscoveryQuickStart({
           <button
             type="button"
             onClick={() => {
-              rememberQuickStartProfileChoice(selectedType, "blend");
+              rememberQuickStartProfileChoice(selectedType, "blend", disagreementIds);
               onSelect(mergeRoomAndStandardProfiles(selectedType));
             }}
             className="wm-qs__continue"
@@ -188,7 +189,7 @@ export function DiscoveryQuickStart({
           <button
             type="button"
             onClick={() => {
-              rememberQuickStartProfileChoice(selectedType, "room");
+              rememberQuickStartProfileChoice(selectedType, "room", disagreementIds);
               onSelect(roomProfileAnswers(selectedType));
             }}
             className="wm-qs__continue wm-qs__continue--active"
