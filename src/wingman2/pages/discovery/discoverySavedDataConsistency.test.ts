@@ -131,4 +131,62 @@ describe("saved discovery data never carries cross-field contradictions", () => 
     expect(out.audited).toBe(1);
     expect(out.problems).toEqual([]);
   });
+
+  it("walker flags a saved one-display set that routes independently", () => {
+    // The pre-gate capture class this audit exists to find: a single display
+    // can only mirror content, so a saved set pairing one-display with
+    // independent routing or a wall/processor feed is contradictory and the
+    // interview would filter the behaviour away on re-entry.
+    const bad = {
+      id: "proj-synthetic-one-display-routed",
+      payload: {
+        brief: {
+          roomModel: {
+            displays: "one-display",
+            "display-behaviour": "independent-routing-per-display",
+          },
+        },
+      },
+    };
+    const out: WalkerResult = { audited: 0, problems: [] };
+    walkForAnswerMaps(bad, "ws-synthetic/proj-synthetic-one-display-routed", out);
+    expect(out.audited).toBe(1);
+    expect(out.problems).toEqual([
+      'ws-synthetic/proj-synthetic-one-display-routed.payload.brief.roomModel: displays "one-display" contradicts display-behaviour "independent-routing-per-display"',
+    ]);
+
+    const wall = {
+      id: "proj-synthetic-one-display-wall",
+      payload: {
+        brief: {
+          roomModel: {
+            displays: "one-display",
+            "display-behaviour": "video-wall-or-processor-feed",
+          },
+        },
+      },
+    };
+    const wallOut: WalkerResult = { audited: 0, problems: [] };
+    walkForAnswerMaps(wall, "ws-synthetic/proj-synthetic-one-display-wall", wallOut);
+    expect(wallOut.audited).toBe(1);
+    expect(wallOut.problems).toEqual([
+      'ws-synthetic/proj-synthetic-one-display-wall.payload.brief.roomModel: displays "one-display" contradicts display-behaviour "video-wall-or-processor-feed"',
+    ]);
+
+    const clean = {
+      id: "proj-synthetic-one-display-mirror",
+      payload: {
+        brief: {
+          roomModel: {
+            displays: "one-display",
+            "display-behaviour": "same-content-all-displays",
+          },
+        },
+      },
+    };
+    const cleanOut: WalkerResult = { audited: 0, problems: [] };
+    walkForAnswerMaps(clean, "ws-synthetic/proj-synthetic-one-display-mirror", cleanOut);
+    expect(cleanOut.audited).toBe(1);
+    expect(cleanOut.problems).toEqual([]);
+  });
 });
