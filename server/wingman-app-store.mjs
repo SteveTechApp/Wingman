@@ -149,6 +149,35 @@ const SUPABASE_WINGMAN_PROJECTS_TABLE = String(process.env.SUPABASE_WINGMAN_PROJ
 const SUPABASE_WINGMAN_AUDIT_TABLE = String(process.env.SUPABASE_WINGMAN_AUDIT_TABLE || "wingman_audit_events").trim();
 const SUPABASE_WINGMAN_TELEMETRY_TABLE = String(process.env.SUPABASE_WINGMAN_TELEMETRY_TABLE || "wingman_telemetry_events").trim();
 
+// The normalized-table rows above can be overridden per env var, but migration
+// 009's wingman_snapshot_commit reconciles the DEFAULT migration-created
+// tables only (its DDL hard-codes wingman_*). Reads honoring a custom table
+// while the atomic commit writes the default one would make every change
+// "disappear" on the next read, so non-default table overrides are rejected
+// in supabase-tables mode. The overrides remain meaningful for single-row
+// `supabase` mode (SUPABASE_WINGMAN_STATE_TABLE) where every statement is
+// addressed to the configured table directly.
+const NORMALIZED_TABLE_DEFAULTS = {
+  users: "wingman_users",
+  workspaces: "wingman_workspaces",
+  memberships: "wingman_workspace_members",
+  invitations: "wingman_workspace_invitations",
+  sessions: "wingman_sessions",
+  projects: "wingman_projects",
+  audit: "wingman_audit_events",
+  telemetry: "wingman_telemetry_events",
+};
+const NORMALIZED_TABLE_OVERRIDES = {
+  users: SUPABASE_WINGMAN_USERS_TABLE,
+  workspaces: SUPABASE_WINGMAN_WORKSPACES_TABLE,
+  memberships: SUPABASE_WINGMAN_MEMBERS_TABLE,
+  invitations: SUPABASE_WINGMAN_INVITATIONS_TABLE,
+  sessions: SUPABASE_WINGMAN_SESSIONS_TABLE,
+  projects: SUPABASE_WINGMAN_PROJECTS_TABLE,
+  audit: SUPABASE_WINGMAN_AUDIT_TABLE,
+  telemetry: SUPABASE_WINGMAN_TELEMETRY_TABLE,
+};
+
 function normalizeEmail(value) {
   return tidy(value).toLowerCase();
 }
@@ -553,6 +582,27 @@ async function readDbFromSupabase() {
 async function writeDbToSupabaseTables(db) {
   const client = getSupabaseAdmin();
   if (!client) return false;
+
+  // Reject non-default SUPABASE_WINGMAN_*_TABLE overrides loudly: migration
+  // 009's wingman_snapshot_commit hard-codes the migration-created tables, so
+  // honoring overridden names on the write would commit to different tables
+  // than the reads address - every change would silently disappear on the next
+  // read. This must throw even outside fail-closed mode: it is a configuration
+  // error, not a transient outage.
+  const divergentOverrides = Object.entries(NORMALIZED_TABLE_OVERRIDES).filter(
+    ([key, value]) => value !== NORMALIZED_TABLE_DEFAULTS[key],
+  );
+  if (divergentOverrides.length > 0) {
+    const names = divergentOverrides.map(([key, value]) => `${key}=${value}`).join(", ");
+    const error = new Error(
+      "supabase-tables storage cannot honour table-name overrides: wingman_snapshot_commit " +
+        `(migration 009) targets the migration-created default tables, but overrides are set (${names}). ` +
+        "Remove the SUPABASE_WINGMAN_*_TABLE overrides (keep the migration-created wingman_* tables), " +
+        "or use single-row `supabase` mode where SUPABASE_WINGMAN_STATE_TABLE is honoured.",
+    );
+    logWingmanEvent("error", "storage.table_overrides.unsupported", { reason: error.message });
+    throw error;
+  }
 
   const normalized = normalizeDb(cloneJson(db, emptyDb()));
   const workspaces = normalized.workspaces.map((workspace) => ({
