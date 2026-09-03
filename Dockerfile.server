@@ -20,6 +20,7 @@ COPY data/ /app/data/
 COPY data-sources/ /app/data-sources/
 COPY tools/build-product-data-sources.mjs tools/product-update-utils.mjs /app/tools/
 COPY tools/lib/routed-io-evidence.mjs /app/tools/lib/routed-io-evidence.mjs
+COPY tools/lib/atomic-json-writer.mjs /app/tools/lib/atomic-json-writer.mjs
 RUN node tools/build-product-data-sources.mjs
 
 # Expose the server port
