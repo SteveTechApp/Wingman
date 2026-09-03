@@ -1,0 +1,226 @@
+{
+  "version": 1,
+  "notes": "Wingman canonical product role overrides. These values control whether products are allowed to appear as primary Discovery recommendations.",
+  "rules": [
+    {
+      "match": "APO-VX20-UC",
+      "recommendationRole": "uc-room-core",
+      "productClass": "uc-room-core",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": true,
+      "discoveryEligible": true,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "useWhen": [
+        "Small to medium UC rooms up to around 10 people",
+        "Customer wants an all-in-one UC room device with video switching, speaker, beamforming microphones, touch control and LED/status indicators"
+      ],
+      "doNotUseWhen": [
+        "Room needs a separately positioned camera and audio/control core",
+        "Large room requires separate DSP, ceiling microphones or custom loudspeaker design"
+      ]
+    },
+    {
+      "match": "APO-210-UC",
+      "recommendationRole": "uc-room-core",
+      "productClass": "uc-room-core",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": true,
+      "discoveryEligible": true,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "useWhen": [
+        "UC rooms needing beamforming microphone, loudspeaker, touch control and LED/status indication",
+        "Customer needs a separate camera path"
+      ],
+      "doNotUseWhen": [
+        "Customer requires a single all-in-one video bar style device",
+        "Large room requires full DSP/microphone/loudspeaker design"
+      ]
+    },
+    {
+      "match": "NHD-CTL-PRO",
+      "recommendationRole": "system-controller",
+      "productClass": "controller",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": false,
+      "discoveryEligible": false,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "dependencyOnly": true,
+      "useWhen": [
+        "Required controller layer for NetworkHD systems where applicable"
+      ],
+      "doNotUseWhen": [
+        "Do not show as the primary customer solution"
+      ]
+    },
+    {
+      "match": "NHD-0401-MV",
+      "recommendationRole": "primary-hardware",
+      "productClass": "multiview",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": true,
+      "discoveryEligible": true,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "useWhen": [
+        "Multiview requirement where multiple sources must appear on one output canvas"
+      ],
+      "doNotUseWhen": [
+        "Do not confuse with products that simply have multiple outputs"
+      ]
+    },
+    {
+      "match": "SW-0206-VW",
+      "recommendationRole": "primary-hardware",
+      "productClass": "video wall",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": true,
+      "discoveryEligible": true,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "useWhen": [
+        "Dedicated non-AVoIP video wall processing",
+        "Fixed processor approach is better than AVoIP"
+      ],
+      "doNotUseWhen": [
+        "Customer needs flexible distributed routing across many rooms"
+      ]
+    },
+    {
+      "match": "SW-0204-VW",
+      "recommendationRole": "primary-hardware",
+      "productClass": "video wall",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": true,
+      "discoveryEligible": true,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "useWhen": [
+        "Basic preset-layout video wall requirement"
+      ],
+      "doNotUseWhen": [
+        "Advanced mixed layouts or routed AVoIP workflow is required"
+      ]
+    },
+    {
+      "match": "NHD-600",
+      "recommendationRole": "endpoint-hardware",
+      "productClass": "av-over-ip",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": true,
+      "discoveryEligible": true,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "useWhen": [
+        "Highest-performance 10G AVoIP design",
+        "Zero/near-zero latency and high image quality are critical"
+      ],
+      "doNotUseWhen": [
+        "Customer only needs simple point-to-point extension"
+      ]
+    },
+    {
+      "match": "NHD-500",
+      "recommendationRole": "endpoint-hardware",
+      "productClass": "av-over-ip",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": true,
+      "discoveryEligible": true,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "useWhen": [
+        "Premium 1G AVoIP with strong USB support and low latency",
+        "Education, corporate and routed UC-capable AV environments"
+      ],
+      "doNotUseWhen": [
+        "Customer needs the lowest-cost simple single display solution"
+      ]
+    },
+    {
+      "match": "NHD-100",
+      "recommendationRole": "endpoint-hardware",
+      "productClass": "av-over-ip",
+      "lifecycleStatus": "discontinued",
+      "recommendationEligible": false,
+      "discoveryEligible": false,
+      "finderEligible": true,
+      "proposalBomEligible": false,
+      "useWhen": [
+        "Legacy NetworkHD 100 endpoints that still appear in existing designs"
+      ],
+      "doNotUseWhen": [
+        "New designs: NHD-100 family is discontinued with no active successors"
+      ],
+      "dependencyOnly": true
+    },
+    {
+      "match": "CAM-",
+      "recommendationRole": "camera",
+      "productClass": "camera/capture",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": true,
+      "discoveryEligible": true,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "useWhen": [
+        "Camera, PTZ, NDI, streaming or capture requirement is selected"
+      ],
+      "doNotUseWhen": [
+        "Do not recommend if no camera/capture requirement has been captured"
+      ]
+    },
+    {
+      "match": "CAB-",
+      "recommendationRole": "cable",
+      "productClass": "accessory/support",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": false,
+      "discoveryEligible": false,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "dependencyOnly": true,
+      "useWhen": [
+        "Supporting cable or installation dependency"
+      ],
+      "doNotUseWhen": [
+        "Never show as the primary Discovery recommendation"
+      ]
+    },
+    {
+      "match": "CBL-",
+      "recommendationRole": "cable",
+      "productClass": "accessory/support",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": false,
+      "discoveryEligible": false,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "dependencyOnly": true,
+      "useWhen": [
+        "Supporting cable or installation dependency"
+      ],
+      "doNotUseWhen": [
+        "Never show as the primary Discovery recommendation"
+      ]
+    },
+    {
+      "match": "RACK",
+      "recommendationRole": "rack-mount",
+      "productClass": "accessory/support",
+      "lifecycleStatus": "active-review",
+      "recommendationEligible": false,
+      "discoveryEligible": false,
+      "finderEligible": true,
+      "proposalBomEligible": true,
+      "dependencyOnly": true,
+      "useWhen": [
+        "Rack or mounting dependency"
+      ],
+      "doNotUseWhen": [
+        "Never show as the primary Discovery recommendation"
+      ]
+    }
+  ]
+}

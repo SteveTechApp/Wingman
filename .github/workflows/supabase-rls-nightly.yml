@@ -1,12 +1,17 @@
-name: Supabase RLS (nightly)
+name: Supabase live gates (nightly)
 
-# Scheduled run of the live RLS posture check (the same reusable workflow CI
+# Scheduled run of the live Supabase checks (the same reusable workflow CI
 # runs on every push/PR). Catches drift that no push has exercised - e.g.
 # someone disabling RLS or an over-permissive policy added directly in the
-# Supabase dashboard ages later. GitHub schedules run on the default branch
-# and can be delayed a few minutes; the check seeds marker rows through the
-# service role and deletes them before the job ends, so this is safe nightly
-# against staging/sandbox projects.
+# Supabase dashboard, or the live schema drifting from the migration files.
+# GitHub schedules run on the default branch and can be delayed a few
+# minutes; the RLS job seeds marker rows through the service role and deletes
+# them before the job ends, so this is safe nightly against staging/sandbox
+# projects.
+#
+# Because a scheduled run has no PR to surface a note on, the workflow is
+# invoked with require_secrets: true - a run whose secrets have been removed
+# FAILS loudly instead of silently skipping.
 on:
   schedule:
     # 03:30 UTC every night - low-traffic window for a quiet project.
@@ -17,7 +22,12 @@ permissions:
   contents: read
 
 jobs:
-  supabase-rls:
-    name: Supabase RLS (live, sentinel)
+  supabase-gates:
+    name: Supabase live gates (RLS sentinel + migration parity)
     uses: ./.github/workflows/supabase-rls.yml
+    with:
+      # A scheduled live gate must never degrade into a silent skip: if the
+      # repository secrets vanish, this job FAILS on the next night instead of
+      # skipping to green forever with nothing to notice.
+      require_secrets: true
     secrets: inherit
