@@ -46,6 +46,17 @@ let supabaseAdmin = null;
 let lastStorageModeUsed = "file";
 let lastStorageWarning = "";
 
+// Truncation sentinel for supabase-tables mode: set whenever a remote-tables
+// read did not provably reach the end of every table (pagination safety valve,
+// transport error, policy rejection). A subsequent writeDbToSupabaseTables
+// must then refuse to commit: its server-side reconciliation (migration 009)
+// deletes every row absent from the snapshot, so committing a snapshot built
+// while the remote was unreadable would erase all rows written since. The
+// commit RPC is the one action that destroys data, so it - not the read - is
+// where the sentinel blocks. It is logged as a warning, not an error: the
+// next successful full read clears it.
+let lastTablesReadIncomplete = false;
+
 // Serializes the store read-modify-write cycles. Every mutating handler does
 // readDb() -> mutate -> writeDb(), and in supabase-tables mode writeDb commits
 // the whole snapshot atomically server-side via wingman_snapshot_commit
@@ -412,12 +423,17 @@ async function readDbFromSupabaseTables() {
 
   const firstError = results.find((result) => result.error)?.error;
   if (firstError) {
+    lastTablesReadIncomplete = true;
     lastStorageWarning = `${firstError.message} (table read did not reach the end; refusing to serve a truncated snapshot)`;
     logWingmanEvent("error", "storage.read.truncated", {
       reason: firstError.message,
     });
     return null;
   }
+
+  // Sentinel bookkeeping happens only after the every-table-completeness
+  // gate above: reaching here proves all eight reads were full.
+  lastTablesReadIncomplete = false;
 
   const usersRows = results[0].data ?? [];
   const workspaceRows = results[1].data ?? [];
@@ -687,6 +703,21 @@ async function writeDbToSupabaseTables(db) {
   }));
 
   const payload = { users, workspaces, memberships, invitations, sessions, projects, auditEvents, telemetryEvents };
+
+  // Truncation sentinel: if the most recent supabase-tables read did not
+  // provably reach the end of every table, this snapshot was built while the
+  // remote was unreadable, and the commit's delete-rows-not-in-snapshot
+  // reconciliation would erase everything written since. Abort before the RPC
+  // - the commit is the only destructive step.
+  if (lastTablesReadIncomplete) {
+    const message =
+      "Refusing to commit the snapshot: the most recent remote read did not reach the end of every table, " +
+      "so this snapshot may be stale and committing it would delete rows written since (wingman_snapshot_commit " +
+      "reconciles by deleting rows absent from the payload). Retry after a complete read.";
+    logWingmanEvent("error", "storage.snapshot_commit.refused_stale_read", { reason: message });
+    lastStorageWarning = message;
+    return false;
+  }
 
   // ONE atomic server-side commit (migration 009, wingman_snapshot_commit).
   // The function replaces the previous 16 separate upsert/delete round-trips
