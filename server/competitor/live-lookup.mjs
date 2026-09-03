@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { writeJsonFileAtomic } from "../atomic-json-file.mjs";
 import { COMPETITOR_LIVE_LOOKUP_DB_FILE as LIVE_LOOKUP_DB_FILE } from "../catalog/files.mjs";
 import { normaliseProductTechnology } from "./technology-normalizer.mjs";
 
@@ -350,11 +350,6 @@ async function readJsonFile(filePath, fallback) {
   }
 }
 
-async function writeJsonFile(filePath, value) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(value, null, 2), "utf8");
-}
-
 async function readLiveDb() {
   const db = await readJsonFile(LIVE_LOOKUP_DB_FILE, null);
   if (db && typeof db === "object" && db.records && typeof db.records === "object") return db;
@@ -371,7 +366,7 @@ async function writeLiveDb(db) {
     version: 2,
     updatedAt: nowIso(),
   };
-  await writeJsonFile(LIVE_LOOKUP_DB_FILE, next);
+  await writeJsonFileAtomic(LIVE_LOOKUP_DB_FILE, next);
 }
 
 function isFreshRecord(record) {

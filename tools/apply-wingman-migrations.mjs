@@ -235,20 +235,25 @@ for (const name of picked) {
     process.exit(3);
   }
   console.log(`[apply-migrations] executing against project ${ref}\n`);
-  for (const statement of statements) {
-    const { status, parsed } = await apiPost(token, ref, "query", { query: statement });
-    const okay = status >= 200 && status < 300;
-    console.log(
-      `   [${okay ? "ok" : "FAIL"}] ${statement.replace(/\s+/g, " ").slice(0, 100)}` +
-        (okay ? "" : ` -> ${status} ${String(parsed?.message ?? parsed ?? "").slice(0, 200)}`),
-    );
-    if (!okay) {
-      console.error(`[apply-migrations] ${name} aborted mid-migration at statement ${runCount + 1}; partial apply possible.`);
-      process.exit(1);
-    }
+  // ONE request per migration: all statements go in a single query string, so
+  // Postgres runs them inside one implicit transaction. If any statement
+  // fails, the whole migration rolls back - a partial apply (function created
+  // but its revoke/grant never ran, half the indexes dropped) is impossible.
+  // Migrations here are all transactional DDL/DML; none use non-transactional
+  // constructs (CREATE INDEX CONCURRENTLY, VACUUM).
+  const combined = statements.join(";\n\n");
+  const { status, parsed } = await apiPost(token, ref, "query", { query: combined });
+  const okay = status >= 200 && status < 300;
+  if (okay) {
+    console.log(`   -> ${name} applied atomically (${statements.length} statements, one transaction)`);
     runCount += 1;
+  } else {
+    console.error(
+      `   [FAIL] ${name} - NOTHING APPLIED (transaction rolled back). ${status} ${String(parsed?.message ?? parsed ?? "").slice(0, 300)}`,
+    );
+    console.error("[apply-migrations] Migration aborted atomically - no partial state left behind.");
+    process.exit(1);
   }
-  console.log(`   -> ${name} applied (${runCount} statements OK)`);
 }
 
 console.log("\n[apply-migrations] done. Verify with: node tools/check-migration-live-state.mjs");

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { DiscoverySummaryItem } from "./discoveryTypes";
+import type { StrandedQuickStartDefault } from "./discoveryAnswerUtils";
+import { DiscoveryStrandedDefaultsNotice, type DiscoveryApplicationDrift } from "./DiscoveryStrandedDefaultsNotice";
 
 // Presentational "Captured brief" summary. Renders the captured answers/notes
 // and, while discovery is still in progress, the move-next / save-progress
@@ -17,6 +19,16 @@ type DiscoverySummaryCardProps = {
   /** Toggle a row between "confirmed with customer" and open. */
   onToggleConfirmed?: (stepId: string) => void;
   compact?: boolean;
+  /** Quick-start defaults stranded by a later answer — visible beyond the step that caused them. */
+  strandedQuickStart?: ReadonlyArray<StrandedQuickStartDefault>;
+  /** Post-seed application switch: answers still following the previous profile. */
+  applicationDrift?: DiscoveryApplicationDrift | null;
+  /** Jump the interview to the step owning a stranded default. */
+  onOpenStrandedStep?: (questionId: string) => void;
+  /** Clear every stranded default from the answers at once. */
+  onRemoveStranded?: () => void;
+  /** Clear every untouched quick-start answer still following the old profile. */
+  onRemoveDrift?: () => void;
 };
 
 export function DiscoverySummaryCard({
@@ -30,6 +42,11 @@ export function DiscoverySummaryCard({
   onConfigureVideoWall,
   onToggleConfirmed,
   compact = false,
+  strandedQuickStart = [],
+  applicationDrift = null,
+  onOpenStrandedStep,
+  onRemoveStranded,
+  onRemoveDrift,
 }: DiscoverySummaryCardProps) {
   const [expanded, setExpanded] = useState(false);
   const canExpand = compact && items.length > 6;
@@ -71,6 +88,8 @@ export function DiscoverySummaryCard({
           </article>
         ))}
       </div>
+
+      <DiscoveryStrandedDefaultsNotice items={strandedQuickStart} applicationDrift={applicationDrift} onOpenStep={onOpenStrandedStep} onRemoveStranded={onRemoveStranded} onRemoveDrift={onRemoveDrift} />
 
       {canExpand && (
         <button

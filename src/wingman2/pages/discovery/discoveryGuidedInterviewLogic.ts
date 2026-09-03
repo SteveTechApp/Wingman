@@ -46,6 +46,16 @@ export type GuidedQuestionListOptions = {
   startAt?: number;
 };
 
+// Whether an option is the question's UNCERTAINTY catch-all: options whose
+// value is the unknown-* family ("unknown-display-behaviour"), the renamed
+// suffix form ("wall-purpose-unknown"), or the legacy "not-sure" marker.
+// Every such option interprets the language's unknown phrase list, so
+// "don't know" / "weiß nicht" free text round-trips to the right governed
+// value regardless of which rename a question carries.
+export function isGuidedUncertaintyOption(value: string): boolean {
+  return value.startsWith("unknown-") || value.endsWith("-unknown") || value === "not-sure";
+}
+
 // ─── Question list ───────────────────────────────────────────────────────────
 
 // The same visible + UC-filtered question set the standard Discovery flow
@@ -171,7 +181,7 @@ function buildOptionProfile(
       phrases.push({ text: natural, weight: 5 });
     }
   }
-  if (option.value.startsWith("unknown-")) {
+  if (isGuidedUncertaintyOption(option.value)) {
     unknownPhrasesFor(lang).forEach((phrase) => {
       if (!phrases.some((existing) => existing.text === phrase)) {
         phrases.push({ text: phrase, weight: 5 });
@@ -232,7 +242,7 @@ export function matchSpokenAnswer(
   const capped = unknownHints
     ? scores.map((entry) => ({
         ...entry,
-        score: entry.value.startsWith("unknown-") ? entry.score + 5 : entry.score,
+        score: isGuidedUncertaintyOption(entry.value) ? entry.score + 5 : entry.score,
       }))
     : scores;
 
@@ -256,7 +266,7 @@ export function matchSpokenAnswer(
   // than a deliberate second answer.
   if (isMulti && selected.length > 1) {
     const top = selected[0];
-    if (top.value.startsWith("no-") || top.value.startsWith("unknown-")) {
+    if (top.value.startsWith("no-") || isGuidedUncertaintyOption(top.value)) {
       selected = [top];
     } else if (top.score >= 3) {
       selected = selected.filter((entry) => entry.score >= 3);

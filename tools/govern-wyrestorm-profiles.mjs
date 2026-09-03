@@ -34,6 +34,7 @@
 // Exit codes: 0 = ok / nothing to do; 1 = --strict unmet or write failure.
 import fs from "node:fs";
 import path from "node:path";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const root = process.cwd();
 const args = process.argv.slice(2);
@@ -219,7 +220,7 @@ if (report.changed && !APPLY) {
 
 if (APPLY && report.changed) {
   payload.version = (Number(payload.version) || 1) + 1;
-  fs.writeFileSync(PROFILE_FILE, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  atomicWriteJsonSync(PROFILE_FILE, payload);
   console.log(`[govern-wyrestorm] Wrote ${PROFILE_FILE} (version -> ${payload.version}).`);
 }
 

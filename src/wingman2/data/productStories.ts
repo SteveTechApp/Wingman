@@ -3941,8 +3941,8 @@ export const PRODUCT_STORIES: ProductStory[] = [
     worksWith: [
       { sku: "NHD-500-TX", reason: "Mounts 500-series encoders in the rack." },
       { sku: "NHD-500-RX", reason: "Mounts 500-series decoders in the rack." },
-      { sku: "NHD-100-TX", reason: "Mounts 100-series encoders in the rack." },
-      { sku: "NHD-100-RX", reason: "Mounts 100-series decoders in the rack." }
+      { sku: "NHD-120-TX", reason: "Mounts 100-series encoders in the rack." },
+      { sku: "NHD-120-RX", reason: "Mounts 100-series decoders in the rack." }
     ],
     familyContext: "This is a rack-mounting accessory for NetworkHD endpoints. Count the number of endpoints going into the rack and specify one NHD-RACK-1U per endpoint or use a multi-unit shelf.",
     whenToUse: ["NetworkHD endpoints are being installed in a 19-inch equipment rack.", "The design calls for rack-mounted AVoIP endpoints."],

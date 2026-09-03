@@ -35,6 +35,14 @@
  *                              present) | "supabase" | "file" (never remote)
  *   SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY   shared Supabase credentials
  *   SUPABASE_COMPETITOR_DECISIONS_TABLE        default "competitor_match_decisions"
+ *   WINGMAN_LEDGER_COMMIT_MAX_BYTES            default 8388608; pre-flight cap for
+ *                              the mirror RPC payload. Migration 011 hard-codes
+ *                              the same 8 MiB backstop. When the full mirror
+ *                              exceeds it, pushLedgerToSupabase shards the rows
+ *                              below the cap (migration 012: N mode='upsert'
+ *                              calls + one mode='reconcile' with the id list)
+ *                              instead of refusing wholesale. The payload-limit
+ *                              suite pins both layers.
  *
  * Table schema (one row per decision; the full decision is the `payload`):
  *   create table competitor_match_decisions (
@@ -89,6 +97,16 @@ const SUPABASE_WINGMAN_LEDGER_COMMIT_FN = String(
 ).trim();
 const SUPABASE_URL = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim();
 const SUPABASE_SERVICE_ROLE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+
+// Oversized-payload ceiling for the full-mirror RPC. Migration 011's
+// wingman_ledger_commit hard-codes the same 8 MiB backstop, so this default
+// and the SQL ceiling must move together - the payload-limit suite pins both
+// to 8388608. Deployments behind a tighter platform request cap can lower the
+// pre-flight via env; the SQL ceiling still guards direct callers.
+export const LEDGER_COMMIT_MAX_PAYLOAD_BYTES = Math.max(
+  1024,
+  Number(process.env.WINGMAN_LEDGER_COMMIT_MAX_BYTES || 8_388_608),
+);
 
 let createSupabaseClient = null;
 try {
@@ -189,17 +207,113 @@ export async function pushDecisionToSupabase(decision) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Oversized-payload guard (migration 011 write path)
+// ---------------------------------------------------------------------------
+
 /**
- * Mirror the ledger to Supabase in ONE atomic commit: the database function
- * (migration 011, wingman_ledger_commit) upserts every decision row and
+ * Serialized size of the exact body the supabase-js client posts for the
+ * full-mirror RPC: rpc("wingman_ledger_commit", { payload: { ledger: rows } })
+ * sends JSON.stringify({ payload: { ledger: rows } }). Measuring that - not
+ * the rows alone - keeps the pre-flight aligned with what the wire would
+ * carry, the same quantity the API's 413 path bounds on the way in.
+ */
+export function ledgerCommitPayloadBytes(rows) {
+  return Buffer.byteLength(JSON.stringify({ payload: { ledger: Array.isArray(rows) ? rows : [] } }));
+}
+
+/**
+ * Serialized size of a SHARDED RPC call's body: migration 012's mode parameter
+ * travels on the wire too, so rpc("wingman_ledger_commit", { payload: { ledger:
+ * shard }, mode: "upsert" }) posts JSON.stringify({ payload: { ledger: shard },
+ * mode: "upsert" }). Shards must be packed against THIS size - the mode key is
+ * part of what the platform request cap sees.
+ */
+export function ledgerCommitShardBodyBytes(rows) {
+  return Buffer.byteLength(JSON.stringify({ payload: { ledger: Array.isArray(rows) ? rows : [] }, mode: "upsert" }));
+}
+
+/**
+ * Splits the mirror rows into shards whose serialized upsert bodies each stay
+ * at or under `maxBytes` (default: the shared 8388608 ceiling), greedily
+ * packing as many rows as fit per shard. Every shard is then pushed with
+ * mode='upsert' (never deletes); a single final mode='reconcile' call with the
+ * full id list removes stale rows atomically. Returns null when ONE row alone
+ * exceeds the ceiling - nothing can be sharded in that case.
+ */
+export function ledgerCommitShards(rows, maxBytes = LEDGER_COMMIT_MAX_PAYLOAD_BYTES) {
+  const list = Array.isArray(rows) ? rows : [];
+  const shards = [];
+  let current = [];
+  for (const row of list) {
+    const candidate = [...current, row];
+    if (ledgerCommitShardBodyBytes(candidate) <= maxBytes) {
+      current = candidate;
+    } else {
+      if (current.length === 0) return null; // a single row alone exceeds the ceiling
+      shards.push(current);
+      current = [row];
+      if (ledgerCommitShardBodyBytes(current) > maxBytes) return null;
+    }
+  }
+  if (current.length > 0) shards.push(current);
+  return shards.length > 0 ? shards : null;
+}
+
+/**
+ * Returns a refusal description when the serialized mirror payload exceeds
+ * `maxBytes` (default: the shared 8388608 ceiling), else null. Exported so the
+ * boundary math is unit-testable without materializing an 8 MiB fixture.
+ */
+export function ledgerCommitPayloadTooLargeError(rows, maxBytes = LEDGER_COMMIT_MAX_PAYLOAD_BYTES) {
+  const bytes = ledgerCommitPayloadBytes(rows);
+  if (bytes <= maxBytes) return null;
+  return {
+    bytes,
+    maxBytes,
+    error:
+      `Ledger mirror payload is ${bytes} bytes, exceeding the ${maxBytes}-byte wingman_ledger_commit limit ` +
+      "(migration 011 rejects oversized payloads just like the API's 413 path). Shrink the mirror or sync in shards; nothing was sent.",
+  };
+}
+
+/**
+ * Mirror the ledger to Supabase. When the serialized mirror fits under the
+ * 8 MiB ceiling this is ONE atomic commit: the database function (migration
+ * 011/012, wingman_ledger_commit, mode 'full') upserts every decision row and
  * deletes rows no longer in the ledger inside a single transaction, so the
- * table stays an exact mirror without ever existing in a torn state. Only safe
- * when `ledger` already contains both sides (the sync tool merges before
- * calling this); never use for a single approval.
+ * table stays an exact mirror without ever existing in a torn state.
+ *
+ * When the mirror EXCEEDS the ceiling it is pushed in shards (migration 012):
+ * each shard is upsert-only (mode 'upsert', never deletes) and stays below the
+ * ceiling, then a single mode='reconcile' call carrying the full id list
+ * removes stale rows atomically. Upsert-only shards can never erase a row a
+ * concurrent writer just pushed; the final reconcile is one transaction, so
+ * the mirror converges to exactly the pushed ledger.
+ *
+ * Only safe when `ledger` already contains both sides (the sync tool merges
+ * before calling this); never use for a single approval.
  */
 export async function pushLedgerToSupabase(ledger) {
   const client = getSupabaseClient();
   if (!client) return { ok: false, error: "Supabase ledger client is not available.", table: TABLE };
+
+  // Migration 011's wingman_ledger_commit hard-codes the migration-created
+  // public.competitor_match_decisions table. With a custom
+  // SUPABASE_COMPETITOR_DECISIONS_TABLE override the reads address the custom
+  // table while this RPC would reconcile the default one - a sync would report
+  // success without touching the configured mirror. Reject loudly instead of
+  // writing to the wrong dataset.
+  if (TABLE !== "competitor_match_decisions") {
+    return {
+      ok: false,
+      error:
+        "Full-mirror commit is only supported on the migration-created competitor_match_decisions table " +
+        `(migration 011's wingman_ledger_commit hard-codes it); SUPABASE_COMPETITOR_DECISIONS_TABLE is set to ${TABLE}. ` +
+        "Remove the override, or provision wingman_ledger_commit for the custom table.",
+      table: TABLE,
+    };
+  }
 
 
   const decisions = Array.isArray(ledger?.decisions) ? ledger.decisions : [];
@@ -211,6 +325,74 @@ export async function pushLedgerToSupabase(ledger) {
       updated_at: text(decision.updatedAt) || nowIso(),
     }));
   if (rows.length === 0) return { ok: true, count: 0, table: TABLE };
+
+  // 413-style write-path hardening (the read side has the pagination sentinel
+  // and the API layer rejects oversized JSON bodies on the way in): the single
+  // full-mirror RPC is refused when the exact serialized body would exceed the
+  // migration-011 ceiling. Instead of refusing WHOLESALE, an oversized mirror
+  // is pushed in shards (migration 012): N mode='upsert' calls, each bounded
+  // below the ceiling and never deleting, then ONE mode='reconcile' call with
+  // the full id list that removes stale rows atomically.
+  const tooLarge = ledgerCommitPayloadTooLargeError(rows);
+  if (tooLarge) {
+    const shards = ledgerCommitShards(rows, LEDGER_COMMIT_MAX_PAYLOAD_BYTES);
+    if (!shards) {
+      // A single decision alone exceeds the ceiling - there is nothing to
+      // shard, so the refusal is the only honest answer.
+      return { ok: false, code: "LEDGER_PAYLOAD_TOO_LARGE", table: TABLE, ...tooLarge };
+    }
+
+    // The final reconcile passes ONLY ids, so its payload is far smaller than
+    // the full rows; verify it still fits, then push every shard (upsert-only)
+    // and reconcile once.
+    const reconcilePayload = { ledger: rows.map((row) => ({ id: row.id })) };
+    if (Buffer.byteLength(JSON.stringify({ payload: reconcilePayload, mode: "reconcile" })) > LEDGER_COMMIT_MAX_PAYLOAD_BYTES) {
+      return {
+        ok: false,
+        code: "LEDGER_PAYLOAD_TOO_LARGE",
+        table: TABLE,
+        bytes: Buffer.byteLength(JSON.stringify({ payload: reconcilePayload, mode: "reconcile" })),
+        maxBytes: LEDGER_COMMIT_MAX_PAYLOAD_BYTES,
+        error:
+          `Even the id-only reconcile payload exceeds the ${LEDGER_COMMIT_MAX_PAYLOAD_BYTES}-byte ceiling; ` +
+          "the mirror has more rows than a single reconcile can address. Raise WINGMAN_LEDGER_COMMIT_MAX_BYTES or prune the mirror.",
+      };
+    }
+
+    try {
+      for (const shard of shards) {
+        const { error } = await client.rpc(SUPABASE_WINGMAN_LEDGER_COMMIT_FN, {
+          payload: { ledger: shard },
+          mode: "upsert",
+        });
+        if (error) {
+          return {
+            ok: false,
+            error: `Shard ${shards.indexOf(shard) + 1}/${shards.length} upsert failed: ${error.message}`,
+            table: TABLE,
+            sharded: true,
+            shardCount: shards.length,
+          };
+        }
+      }
+      const { error } = await client.rpc(SUPABASE_WINGMAN_LEDGER_COMMIT_FN, {
+        payload: reconcilePayload,
+        mode: "reconcile",
+      });
+      if (error) {
+        return { ok: false, error: `Final reconcile failed: ${error.message}`, table: TABLE, sharded: true, shardCount: shards.length };
+      }
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : "Supabase ledger push failed.",
+        table: TABLE,
+        sharded: true,
+        shardCount: shards.length,
+      };
+    }
+    return { ok: true, count: rows.length, table: TABLE, sharded: true, shardCount: shards.length };
+  }
 
   try {
     const { error } = await client.rpc(SUPABASE_WINGMAN_LEDGER_COMMIT_FN, {

@@ -2,11 +2,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { normaliseProductTechnology } from "../server/competitor/technology-normalizer.mjs";
+import { loadRoutedIoEvidence } from "./lib/routed-io-evidence.mjs";
 import {
-  applyRoutedIoEvidence,
-  loadRoutedIoEvidence,
-} from "./lib/routed-io-evidence.mjs";
+  materialiseTechnologyProfiles,
+  rowsFrom,
+} from "./lib/product-technology-profiles.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -15,11 +15,6 @@ const competitorPath = path.join(root, "data", "catalog", "competitor-products.g
 const wyrestormPath = path.join(root, "public", "product-intelligence-index.json");
 const materializedPath = path.join(root, "data", "catalog", "product-technology-profiles.generated.json");
 const auditPath = path.join(root, "data", "governance", "product-technology-normalization-audit.generated.json");
-const routedIoEvidence = loadRoutedIoEvidence();
-
-function tidy(value) {
-  return String(value ?? "").trim();
-}
 
 async function readJson(filePath, fallback) {
   try {
@@ -27,82 +22,6 @@ async function readJson(filePath, fallback) {
   } catch {
     return fallback;
   }
-}
-
-function rowsFrom(value) {
-  if (Array.isArray(value)) return value;
-  if (Array.isArray(value?.products)) return value.products;
-  if (Array.isArray(value?.items)) return value.items;
-  if (Array.isArray(value?.records)) return value.records;
-  if (value && typeof value === "object") {
-    return Object.values(value).filter((item) => item && typeof item === "object");
-  }
-  return [];
-}
-
-function productIdentity(row, vendorType) {
-  const manufacturer =
-    vendorType === "wyrestorm"
-      ? "WyreStorm"
-      : tidy(row.manufacturer || row.brand || row.vendor);
-  const sku = tidy(row.sku || row.model || row.SKU || row.partNumber);
-
-  return { manufacturer, sku };
-}
-
-function buildInput(row, vendorType) {
-  const { manufacturer, sku } = productIdentity(row, vendorType);
-  return {
-    manufacturer,
-    sku,
-    model: sku,
-    family: row.family || row.productFamily || row.primarySystemFamily,
-    productClass:
-      row.productClass ||
-      row.product_type ||
-      row.category ||
-      row.productClassification?.primaryCategory ||
-      row.productClassification?.category,
-    transport: row.transport || row.transport_type || row.transportType,
-    technology:
-      row.technology ||
-      row.technologyType ||
-      (Array.isArray(row.technologies) ? row.technologies.join(" / ") : ""),
-    summary: row.summary,
-    description: row.description,
-    features: row.features || row.featureTags || row.capabilities,
-    specs: row.specs || row.technicalProfile,
-    sourceUrl: row.sourceUrl || row.evidenceSource || row.evidence_source,
-  };
-}
-
-function materialise(rows, vendorType) {
-  return rows
-    .map((row) => {
-      const input = buildInput(row, vendorType);
-      if (!input.sku) return null;
-
-      const profile = normaliseProductTechnology(input);
-
-      const record = {
-        vendorType,
-        manufacturer: input.manufacturer,
-        sku: input.sku,
-        profile,
-        sourceUrl: input.sourceUrl || "",
-      };
-
-      const routedEvidence = routedIoEvidence[
-        String(input.sku || "").trim().toUpperCase()
-      ];
-
-      if (routedEvidence) {
-        applyRoutedIoEvidence(record, routedEvidence);
-      }
-
-      return record;
-    })
-    .filter(Boolean);
 }
 
 function manufacturerSummary(records) {
@@ -153,13 +72,11 @@ function unresolvedNamedTechnology(records) {
     .slice(0, 200);
 }
 
+const routedIoEvidence = loadRoutedIoEvidence();
 const competitorRows = rowsFrom(await readJson(competitorPath, []));
 const wyrestormRows = rowsFrom(await readJson(wyrestormPath, []));
 
-const records = [
-  ...materialise(competitorRows, "competitor"),
-  ...materialise(wyrestormRows, "wyrestorm"),
-];
+const records = materialiseTechnologyProfiles(competitorRows, wyrestormRows, routedIoEvidence);
 
 await fs.mkdir(path.dirname(materializedPath), { recursive: true });
 await fs.writeFile(

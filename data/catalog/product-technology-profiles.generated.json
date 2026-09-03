@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-21T08:15:37.394Z",
+  "generatedAt": "2026-09-03T10:20:32.928Z",
   "records": [
     {
       "vendorType": "competitor",
@@ -5330,33 +5330,6 @@
     {
       "vendorType": "competitor",
       "manufacturer": "Lightware",
-      "sku": "UCX-2X1-HC30",
-      "profile": {
-        "matchedRuleIds": [],
-        "notes": [],
-        "evidence": [
-          {
-            "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
-            "sourceType": "manufacturer",
-            "confidence": "requires-review"
-          }
-        ]
-      },
-      "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
-      "routedInputs": 2,
-      "routedOutputs": 1,
-      "routedInputCount": 2,
-      "routedOutputCount": 1,
-      "matrixInputs": 2,
-      "matrixOutputs": 1,
-      "matrixSize": "2x1",
-      "matrixSizeEvidence": "Title evidence: 2x1 switcher",
-      "ioEvidenceStatus": "derived",
-      "quoteSafety": "comparison-only-verify"
-    },
-    {
-      "vendorType": "competitor",
-      "manufacturer": "Lightware",
       "sku": "UCX-2x1-HC40",
       "profile": {
         "matchedRuleIds": [],
@@ -7357,6 +7330,17 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "EX-100-KVM-H2",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "EX-100-KVM-IP",
       "profile": {
         "matchedRuleIds": [],
@@ -7446,6 +7430,17 @@
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
       "sku": "EX-40-KVM-5K",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "EX-40-KVM-H2",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
@@ -9031,11 +9026,7 @@
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
-        "evidence": [],
-        "canonicalTransport": "HDBaseT",
-        "transportFamily": "twisted-pair",
-        "interoperability": "third-party-compatible",
-        "standardRelationship": "compatible"
+        "evidence": []
       },
       "sourceUrl": ""
     },
@@ -9448,7 +9439,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 500",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "based-on",
+        "standardRelationship": "compatible",
         "interoperability": "third-party-compatible",
         "networkClass": "1GbE",
         "codecName": "JPEG2000",
@@ -9478,7 +9469,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 500",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "based-on",
+        "standardRelationship": "compatible",
         "interoperability": "third-party-compatible",
         "networkClass": "1GbE",
         "codecName": "JPEG2000",
@@ -9718,7 +9709,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 600",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "based-on",
+        "standardRelationship": "compatible",
         "interoperability": "third-party-compatible",
         "networkClass": "10GbE",
         "codecName": "SDVoE",
@@ -10616,6 +10607,17 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "SW-620L-TX-W",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "SW-640L-TX-W",
       "profile": {
         "matchedRuleIds": [],
@@ -10633,6 +10635,17 @@
       "matrixSizeEvidence": "Title evidence: 4-input presentation switcher with 2 HDMI matrix outputs",
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote"
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "SW-660-TX-W",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
     },
     {
       "vendorType": "wyrestorm",
@@ -10759,6 +10772,17 @@
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
       "sku": "SYN-TOUCH10-V2",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "SYN-TP10-B",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],

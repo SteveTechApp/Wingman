@@ -1,6 +1,6 @@
 ﻿# Wingman documentation map
 
-_Last updated: 2026-07-05_
+_Last updated: 2026-09-03_
 
 ## Current / authoritative
 
@@ -11,8 +11,7 @@ _Last updated: 2026-07-05_
 | `docs/launch-readiness-report.md` | Superseded gate list, kept so links resolve. |
 | `docs/product-data-health.md` | Current product governance and data-risk summary. |
 | `docs/OPERATIONS.md` | Operational runbook. |
-| `docs/SUPABASE_SETUP.md` | Supabase setup guide. |
-| `docs/SUPABASE_SECRET_DRILL.md` | Secrets-configuration drill runbook: diagnose Supabase secret misconfiguration via the diagnostic workflow without a failing push. |
+| `docs/SUPABASE_SETUP.md` | Supabase setup guide, incl. the nightly RLS job runbook (sentinel seeds, secret setup, red-run triage) and the Supabase access rules (pagination invariant, file-db-only decisions). |
 | `docs/LAUNCH_CHECKLIST.md` | Launch checklist; use with current status file. |
 | `docs/LOAD_TESTING.md` | Load testing method. |
 
@@ -23,6 +22,7 @@ _Last updated: 2026-07-05_
 | `docs/WINGMAN_PROPOSAL_SAFETY_STANDARD.md` | Proposal wording and safety standard. |
 | `docs/wingman-sales-copy-style.md` | Sales copy tone and wording standard. |
 | `docs/wingman-native-schematic-engine.md` | Schematic engine design direction. |
+| `docs/CI_GUARD_GATES.md` | Verify-chain guard gates: what a dependency, lockfile, or product/governance-data edit must satisfy (reference-resolution, generated-manifest, build-deps, override-floor, governance-data, and ratchet gates), with the exception path for each. |
 
 ## Product governance
 

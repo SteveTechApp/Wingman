@@ -7,7 +7,7 @@ import {
   LEGACY_WINGMAN_APP_DB_FILE,
   WINGMAN_APP_DB_FILE,
 } from "./catalog/files.mjs";
-import { readAllSupabaseRows } from "./supabase-pagination.mjs";
+import { POSTGREST_MAX_ROWS, readAllSupabaseRows } from "./supabase-pagination.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,6 +45,17 @@ const scryptAsync = promisify(crypto.scrypt);
 let supabaseAdmin = null;
 let lastStorageModeUsed = "file";
 let lastStorageWarning = "";
+
+// Truncation sentinel for supabase-tables mode: set whenever a remote-tables
+// read did not provably reach the end of every table (pagination safety valve,
+// transport error, policy rejection). A subsequent writeDbToSupabaseTables
+// must then refuse to commit: its server-side reconciliation (migration 009)
+// deletes every row absent from the snapshot, so committing a snapshot built
+// while the remote was unreadable would erase all rows written since. The
+// commit RPC is the one action that destroys data, so it - not the read - is
+// where the sentinel blocks. It is logged as a warning, not an error: the
+// next successful full read clears it.
+let lastTablesReadIncomplete = false;
 
 // Serializes the store read-modify-write cycles. Every mutating handler does
 // readDb() -> mutate -> writeDb(), and in supabase-tables mode writeDb commits
@@ -129,6 +140,15 @@ const SUPABASE_WINGMAN_TABLES_ENABLED = !["0", "false", "off", "no"].includes(
 const SUPABASE_WINGMAN_SNAPSHOT_COMMIT_FN = String(
   process.env.SUPABASE_WINGMAN_SNAPSHOT_COMMIT_FUNCTION || "wingman_snapshot_commit",
 ).trim();
+// Oversized-payload ceiling for the atomic snapshot RPC. Migration 009's
+// wingman_snapshot_commit hard-codes the same 8 MiB backstop, so this default
+// and the SQL ceiling must move together - the payload-limit suite pins both
+// to 8388608. Deployments behind a tighter platform request cap can lower the
+// pre-flight via env; the SQL ceiling still guards direct callers.
+export const SNAPSHOT_COMMIT_MAX_PAYLOAD_BYTES = Math.max(
+  1024,
+  Number(process.env.WINGMAN_SNAPSHOT_COMMIT_MAX_BYTES || 8_388_608),
+);
 const SUPABASE_WINGMAN_USERS_TABLE = String(process.env.SUPABASE_WINGMAN_USERS_TABLE || "wingman_users").trim();
 const SUPABASE_WINGMAN_WORKSPACES_TABLE = String(process.env.SUPABASE_WINGMAN_WORKSPACES_TABLE || "wingman_workspaces").trim();
 const SUPABASE_WINGMAN_MEMBERS_TABLE = String(process.env.SUPABASE_WINGMAN_MEMBERS_TABLE || "wingman_workspace_members").trim();
@@ -137,6 +157,43 @@ const SUPABASE_WINGMAN_SESSIONS_TABLE = String(process.env.SUPABASE_WINGMAN_SESS
 const SUPABASE_WINGMAN_PROJECTS_TABLE = String(process.env.SUPABASE_WINGMAN_PROJECTS_TABLE || "wingman_projects").trim();
 const SUPABASE_WINGMAN_AUDIT_TABLE = String(process.env.SUPABASE_WINGMAN_AUDIT_TABLE || "wingman_audit_events").trim();
 const SUPABASE_WINGMAN_TELEMETRY_TABLE = String(process.env.SUPABASE_WINGMAN_TELEMETRY_TABLE || "wingman_telemetry_events").trim();
+// Read window for the paged full-table reads below. Defaults to PostgREST's
+// 1000-row response cap; shrinking it is only useful in tests that reproduce
+// the >cap walk against a small fake table (the same shrunk-pageSize technique
+// the pagination unit tests use).
+const SUPABASE_WINGMAN_READ_PAGE_SIZE = Math.max(
+  1,
+  Number(process.env.SUPABASE_WINGMAN_READ_PAGE_SIZE || POSTGREST_MAX_ROWS),
+);
+
+// The normalized-table rows above can be overridden per env var, but migration
+// 009's wingman_snapshot_commit reconciles the DEFAULT migration-created
+// tables only (its DDL hard-codes wingman_*). Reads honoring a custom table
+// while the atomic commit writes the default one would make every change
+// "disappear" on the next read, so non-default table overrides are rejected
+// in supabase-tables mode. The overrides remain meaningful for single-row
+// `supabase` mode (SUPABASE_WINGMAN_STATE_TABLE) where every statement is
+// addressed to the configured table directly.
+const NORMALIZED_TABLE_DEFAULTS = {
+  users: "wingman_users",
+  workspaces: "wingman_workspaces",
+  memberships: "wingman_workspace_members",
+  invitations: "wingman_workspace_invitations",
+  sessions: "wingman_sessions",
+  projects: "wingman_projects",
+  audit: "wingman_audit_events",
+  telemetry: "wingman_telemetry_events",
+};
+const NORMALIZED_TABLE_OVERRIDES = {
+  users: SUPABASE_WINGMAN_USERS_TABLE,
+  workspaces: SUPABASE_WINGMAN_WORKSPACES_TABLE,
+  memberships: SUPABASE_WINGMAN_MEMBERS_TABLE,
+  invitations: SUPABASE_WINGMAN_INVITATIONS_TABLE,
+  sessions: SUPABASE_WINGMAN_SESSIONS_TABLE,
+  projects: SUPABASE_WINGMAN_PROJECTS_TABLE,
+  audit: SUPABASE_WINGMAN_AUDIT_TABLE,
+  telemetry: SUPABASE_WINGMAN_TELEMETRY_TABLE,
+};
 
 function normalizeEmail(value) {
   return tidy(value).toLowerCase();
@@ -371,24 +428,29 @@ async function readDbFromSupabaseTables() {
   if (!client) return null;
 
   const results = await Promise.all([
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_USERS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_WORKSPACES_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_MEMBERS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_INVITATIONS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_SESSIONS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_PROJECTS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_AUDIT_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_TELEMETRY_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_USERS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_WORKSPACES_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_MEMBERS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_INVITATIONS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_SESSIONS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_PROJECTS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_AUDIT_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_TELEMETRY_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
   ]);
 
   const firstError = results.find((result) => result.error)?.error;
   if (firstError) {
+    lastTablesReadIncomplete = true;
     lastStorageWarning = `${firstError.message} (table read did not reach the end; refusing to serve a truncated snapshot)`;
     logWingmanEvent("error", "storage.read.truncated", {
       reason: firstError.message,
     });
     return null;
   }
+
+  // Sentinel bookkeeping happens only after the every-table-completeness
+  // gate above: reaching here proves all eight reads were full.
+  lastTablesReadIncomplete = false;
 
   const usersRows = results[0].data ?? [];
   const workspaceRows = results[1].data ?? [];
@@ -510,6 +572,38 @@ async function readDbFromSupabaseTables() {
   return db;
 }
 
+// ---------------------------------------------------------------------------
+// Oversized-payload guard (migration 009 write path)
+// ---------------------------------------------------------------------------
+
+/**
+ * Serialized size of the exact body the supabase-js client posts for the
+ * atomic snapshot RPC: rpc("wingman_snapshot_commit", { payload }) sends
+ * JSON.stringify({ payload }). Measuring that - not the rows alone - keeps the
+ * pre-flight aligned with what the wire would carry, the same quantity the
+ * API's 413 path bounds on the way in.
+ */
+export function snapshotCommitPayloadBytes(payload) {
+  return Buffer.byteLength(JSON.stringify({ payload: payload ?? {} }));
+}
+
+/**
+ * Returns a refusal description when the serialized snapshot payload exceeds
+ * `maxBytes` (default: the shared 8388608 ceiling), else null. Exported so the
+ * boundary math is unit-testable without materializing an 8 MiB fixture.
+ */
+export function snapshotCommitPayloadTooLargeError(payload, maxBytes = SNAPSHOT_COMMIT_MAX_PAYLOAD_BYTES) {
+  const bytes = snapshotCommitPayloadBytes(payload);
+  if (bytes <= maxBytes) return null;
+  return {
+    bytes,
+    maxBytes,
+    error:
+      `Snapshot payload is ${bytes} bytes, exceeding the ${maxBytes}-byte wingman_snapshot_commit limit ` +
+      "(migration 009 rejects oversized payloads just like the API's 413 path). Shrink the snapshot or write in smaller batches; nothing was sent.",
+  };
+}
+
 async function readDbFromSupabase() {
   const client = getSupabaseAdmin();
   if (!client) return null;
@@ -537,6 +631,27 @@ async function readDbFromSupabase() {
 async function writeDbToSupabaseTables(db) {
   const client = getSupabaseAdmin();
   if (!client) return false;
+
+  // Reject non-default SUPABASE_WINGMAN_*_TABLE overrides loudly: migration
+  // 009's wingman_snapshot_commit hard-codes the migration-created tables, so
+  // honoring overridden names on the write would commit to different tables
+  // than the reads address - every change would silently disappear on the next
+  // read. This must throw even outside fail-closed mode: it is a configuration
+  // error, not a transient outage.
+  const divergentOverrides = Object.entries(NORMALIZED_TABLE_OVERRIDES).filter(
+    ([key, value]) => value !== NORMALIZED_TABLE_DEFAULTS[key],
+  );
+  if (divergentOverrides.length > 0) {
+    const names = divergentOverrides.map(([key, value]) => `${key}=${value}`).join(", ");
+    const error = new Error(
+      "supabase-tables storage cannot honour table-name overrides: wingman_snapshot_commit " +
+        `(migration 009) targets the migration-created default tables, but overrides are set (${names}). ` +
+        "Remove the SUPABASE_WINGMAN_*_TABLE overrides (keep the migration-created wingman_* tables), " +
+        "or use single-row `supabase` mode where SUPABASE_WINGMAN_STATE_TABLE is honoured.",
+    );
+    logWingmanEvent("error", "storage.table_overrides.unsupported", { reason: error.message });
+    throw error;
+  }
 
   const normalized = normalizeDb(cloneJson(db, emptyDb()));
   const workspaces = normalized.workspaces.map((workspace) => ({
@@ -637,6 +752,37 @@ async function writeDbToSupabaseTables(db) {
   }));
 
   const payload = { users, workspaces, memberships, invitations, sessions, projects, auditEvents, telemetryEvents };
+
+  // Truncation sentinel: if the most recent supabase-tables read did not
+  // provably reach the end of every table, this snapshot was built while the
+  // remote was unreadable, and the commit's delete-rows-not-in-snapshot
+  // reconciliation would erase everything written since. Abort before the RPC
+  // - the commit is the only destructive step.
+  if (lastTablesReadIncomplete) {
+    const message =
+      "Refusing to commit the snapshot: the most recent remote read did not reach the end of every table, " +
+      "so this snapshot may be stale and committing it would delete rows written since (wingman_snapshot_commit " +
+      "reconciles by deleting rows absent from the payload). Retry after a complete read.";
+    logWingmanEvent("error", "storage.snapshot_commit.refused_stale_read", { reason: message });
+    lastStorageWarning = message;
+    return false;
+  }
+
+  // 413-style write-path hardening (the read side has the pagination sentinel
+  // and the API layer rejects oversized JSON bodies on the way in): refuse the
+  // RPC when the exact serialized body would exceed the migration-009 ceiling,
+  // so an accidentally bloated snapshot fails loudly HERE instead of as a doomed
+  // multi-MB post or a platform-side rejection far from the cause.
+  const tooLarge = snapshotCommitPayloadTooLargeError(payload);
+  if (tooLarge) {
+    logWingmanEvent("error", "storage.snapshot_commit.refused_payload_too_large", {
+      reason: tooLarge.error,
+      bytes: tooLarge.bytes,
+      maxBytes: tooLarge.maxBytes,
+    });
+    lastStorageWarning = tooLarge.error;
+    return false;
+  }
 
   // ONE atomic server-side commit (migration 009, wingman_snapshot_commit).
   // The function replaces the previous 16 separate upsert/delete round-trips
@@ -746,6 +892,20 @@ async function writeDb(db) {
   lastStorageModeUsed = "file";
   lastStorageWarning = "";
   await writeJsonFile(WINGMAN_APP_DB_FILE, db);
+}
+
+/**
+ * Test-only seam: persist an arbitrary database object through the exact
+ * file-mode write path (writeDb -> writeJsonFile's crash-atomic temp+rename),
+ * so the process-kill crash-atomicity suite can drive a large file-mode write
+ * in a child process without going through an HTTP handler. Refuses to run in
+ * any Supabase-backed mode so it can never shadow real storage behaviour.
+ */
+export async function __writeFileModeDbForCrashTest(db) {
+  if (configuredStorageMode() !== "file") {
+    throw new Error("__writeFileModeDbForCrashTest requires WINGMAN_STORAGE_MODE=file.");
+  }
+  await writeDb(db);
 }
 
 async function readGovernance() {

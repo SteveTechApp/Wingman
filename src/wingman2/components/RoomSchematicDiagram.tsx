@@ -4,6 +4,7 @@ import {
   type ProductTopologyProfile,
 } from "../lib/productTopology";
 import { buildRoomSchematicSvg } from "../lib/roomSchematic";
+import { downloadBlob } from "../lib/downloadBlob";
 import type { ProductNarrative, ProductSpec } from "../lib/productStoryEngine";
 
 type RoomSchematicDiagramProps = {
@@ -13,16 +14,7 @@ type RoomSchematicDiagramProps = {
 };
 
 function downloadSvg(sku: string, svg: string) {
-  const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = `${sku}-room-schematic.svg`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  downloadBlob(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), `${sku}-room-schematic.svg`, { revokeDelayMs: 1000 });
 }
 
 function confidenceLabel(profile: ProductTopologyProfile) {
