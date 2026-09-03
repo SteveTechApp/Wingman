@@ -8,9 +8,10 @@
  *
  * Usage: node tools/import-pricelist.mjs <path-to-excel>
  */
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -519,19 +520,19 @@ console.log(`Pricing entries: ${updatedPricing.length}`);
 if (newProfiles.length > 0) {
   profileData.profiles = [...(profileData.profiles || []), ...newProfiles];
   profileData.updatedAt = now;
-  writeFileSync(profilesPath, JSON.stringify(profileData, null, 2) + "\n");
+  atomicWriteJsonSync(profilesPath, profileData);
   console.log(`Updated ${profilesPath} (${profileData.profiles.length} total profiles)`);
 }
 
 // Write pricing catalogue
 const pricingPath = resolve(ROOT, "data/governance/wyrestorm-pricing.json");
-writeFileSync(pricingPath, JSON.stringify({
+atomicWriteJsonSync(pricingPath, {
   version: "Q3-2026",
   currency: "GBP",
   source: "2026 (GBP) Distribution Price List Q3",
   updatedAt: now,
   products: updatedPricing,
-}, null, 2) + "\n");
+});
 console.log(`Wrote ${pricingPath} (${updatedPricing.length} products with pricing)`);
 
 // ---------------------------------------------------------------------------

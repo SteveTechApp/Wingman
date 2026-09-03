@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { isCurrentCatalogProduct } from "./lib/current-catalog.mjs";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const root = process.cwd();
 const strict = process.argv.includes("--strict");
@@ -387,7 +388,7 @@ if (updateBaseline) {
     countedStatuses: ["verified", "verified-with-warning"],
     note: "Verified-profile coverage floor for check:technical-data. Raise via --update-baseline; never lower by hand. review-required profiles deliberately do not count.",
   };
-  fs.writeFileSync(coverageBaselinePath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
+  atomicWriteJsonSync(coverageBaselinePath, next);
   console.log(`[technical-data] Coverage baseline updated to ${governedLeadSkus}/${activeLeadProducts.length} verified.`);
   process.exit(0);
 }
