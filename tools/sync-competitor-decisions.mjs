@@ -50,7 +50,10 @@ if (!local || !Array.isArray(local.decisions)) {
 
 const remote = await readLedgerFromSupabase();
 if (!remote.ok) {
-  console.error(`[sync:competitor-decisions] failed to read the Supabase mirror: ${remote.error}`);
+  console.error(
+    `[sync:competitor-decisions] failed to read the Supabase mirror` +
+      `${remote.errorCode ? ` [${remote.errorCode}]` : ""}: ${remote.error}`,
+  );
   process.exit(1);
 }
 
