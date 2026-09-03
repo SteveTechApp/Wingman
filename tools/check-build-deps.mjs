@@ -65,6 +65,9 @@ const OSV_VULN_URL = "https://api.osv.dev/v1/vulns/";
 const CACHE_PATH = path.join(projectRoot, "tools", "build-dep-cache.generated.json");
 const EXCEPTIONS_PATH = path.join(projectRoot, "tools", "build-dep-exceptions.json");
 const CACHE_MAX_AGE_MINUTES = 6 * 60;
+// Bumped when the cached survey shape changes; a cache entry written by an
+// older schema can never satisfy a lookup (the entry keyed above carries this).
+const SURVEY_SCHEMA_VERSION = 2;
 const RENEWAL_WINDOW_DAYS = 14;
 const FETCH_CONCURRENCY = 12;
 
@@ -147,45 +150,81 @@ export function evaluateAdvisoryForPackage(record, packageName, installedVersion
 // Resolve the devDependency closure of a package-lock v3 file: the direct
 // devDependencies plus everything they (transitively) depend on, with the
 // installed version of each package as recorded in the lock.
-function resolveClosureFrom(lock, seedNames) {
+function resolveDepLockKey(fromKey, depName, packages) {
+  // Node's resolution walk: check the requiring package's own node_modules,
+  // then each ancestor package's node_modules, then the top level.
+  const segments = fromKey.split("/node_modules/");
+  for (let depth = segments.length - 1; depth >= 0; depth -= 1) {
+    const candidate = [...segments.slice(0, depth + 1), depName].join("/node_modules/");
+    if (packages[candidate] !== undefined) return candidate;
+  }
+  const top = `node_modules/${depName}`;
+  return packages[top] !== undefined ? top : null;
+}
+
+// Walk a lock's dependency graph from seed NAMES, returning one entry per
+// INSTALLED COPY: Map<lock key minus the leading "node_modules/",
+// { name, version }>. Nested duplicate versions (node_modules/a/node_modules/b)
+// are distinct entries, so a survey can never bless every copy by looking at
+// only the hoisted one. Peer dependencies are not walked (npm records
+// auto-installed peers under regular dependency edges).
+function resolveClosureEntries(lock, seedNames) {
+  const packages = lock.packages ?? {};
   const result = new Map();
-  const queue = [...seedNames];
   const seen = new Set();
+  const queue = [];
+  for (const name of seedNames) {
+    const key = packages[`node_modules/${name}`] !== undefined ? `node_modules/${name}` : null;
+    if (key) queue.push(key);
+  }
   while (queue.length > 0) {
-    const name = queue.shift();
-    if (seen.has(name)) continue;
-    seen.add(name);
-    const entry = lock.packages?.[`node_modules/${name}`];
+    const key = queue.shift();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const entry = packages[key];
     if (!entry) continue;
-    if (entry.version) result.set(name, entry.version);
+    const name = key.slice("node_modules/".length).split("/node_modules/").pop();
+    if (entry.version) result.set(key.replace(/^node_modules\//, ""), { name, version: entry.version });
     for (const dep of Object.keys({
       ...(entry.dependencies ?? {}),
       ...(entry.optionalDependencies ?? {}),
     })) {
-      if (!seen.has(dep)) queue.push(dep);
+      const depKey = resolveDepLockKey(key, dep, packages);
+      if (depKey && !seen.has(depKey)) queue.push(depKey);
     }
   }
   return result;
 }
 
 export function resolveDevClosure(lock) {
-  return resolveClosureFrom(lock, Object.keys(lock.packages?.[""]?.devDependencies ?? {}));
+  // Back-compat projection: name -> version of the shallowest copy (the
+  // pre-nested-copy contract; root manifests rarely carry duplicates).
+  const projected = new Map();
+  for (const [, entry] of resolveClosureEntries(lock, Object.keys(lock.packages?.[""]?.devDependencies ?? {}))) {
+    if (!projected.has(entry.name)) projected.set(entry.name, entry.version);
+  }
+  return projected;
 }
 
 // Seed names for the audited closure: devDependencies (the build toolchain)
 // when the manifest declares them; otherwise — a runtime package such as the
-// API server — its dependency closure, which is the surface the shipped
+// API server — its dependency closure (including root optionalDependencies,
+// which install on supported platforms), which is the surface the shipped
 // artifact loads at run time.
 export function selectAuditClosureSeeds(rootEntry) {
   const dev = Object.keys(rootEntry?.devDependencies ?? {});
   if (dev.length > 0) return dev;
-  return Object.keys(rootEntry?.dependencies ?? {});
+  return Object.keys({
+    ...(rootEntry?.dependencies ?? {}),
+    ...(rootEntry?.optionalDependencies ?? {}),
+  });
 }
 
-// The audited closure for a lock: the dev toolchain for a manifest with
-// devDependencies, the full runtime dependency closure for a runtime package.
+// The audited closure for a lock: one entry per installed copy (nested
+// duplicates included), dev toolchain for a manifest with devDependencies,
+// full runtime dependency closure for a runtime package.
 export function resolveAuditClosure(lock) {
-  return resolveClosureFrom(lock, selectAuditClosureSeeds(lock.packages?.[""]));
+  return resolveClosureEntries(lock, selectAuditClosureSeeds(lock.packages?.[""]));
 }
 
 // Cache key for a surveyed closure: the lockfile bytes mixed with the closure
@@ -231,8 +270,19 @@ function loadCache() {
   }
 }
 
+// Rehydrate a cached survey into the live Map shape (one entry per installed
+// copy, each carrying its name).
+function restoreSurveyFromCache(cache) {
+  return new Map(
+    Object.entries(cache.survey ?? {}).map(([key, entry]) => [
+      key,
+      { name: entry.name, version: entry.version, vulns: entry.vulns ?? [] },
+    ]),
+  );
+}
+
 function cacheIsUsable(cache, hash) {
-  if (!cache || cache.lockHash !== hash) return false;
+  if (!cache || cache.lockHash !== hash || cache.surveySchema !== SURVEY_SCHEMA_VERSION) return false;
   if (offline || refresh) return cache.lockHash === hash;
   const ageMs = Date.now() - new Date(cache.fetchedAt).getTime();
   return Number.isFinite(ageMs) && ageMs <= CACHE_MAX_AGE_MINUTES * 60 * 1000;
@@ -273,15 +323,17 @@ async function fetchWithRetry(url, attempts = 2) {
   throw lastError;
 }
 
-// Survey installed (package -> version) pairs against OSV. Returns the map
-// name -> { version, vulns: [full advisory records] }.
+// Survey installed copies (lock key -> { name, version }) against OSV. The
+// batch endpoint is queried once per unique NAME; the resulting survey carries
+// one entry per installed COPY so nested duplicates are each evaluated.
+// Returns Map<lock key minus the leading "node_modules/", { name, version, vulns }>.
 export async function surveyPackages(installed) {
-  const names = [...installed.keys()];
+  const uniqueNames = [...new Set([...installed.values()].map((entry) => entry.name))];
   const perQuery = 1000;
   const advisoryIds = new Set();
   const idNames = new Map(); // advisory id -> names that reference it
-  for (let start = 0; start < names.length; start += perQuery) {
-    const chunk = names.slice(start, start + perQuery);
+  for (let start = 0; start < uniqueNames.length; start += perQuery) {
+    const chunk = uniqueNames.slice(start, start + perQuery);
     const body = { queries: chunk.map((name) => ({ package: { name, ecosystem: "npm" } })) };
     const response = await fetchJson(OSV_BATCH_URL, {
       method: "POST",
@@ -303,15 +355,14 @@ export async function surveyPackages(installed) {
   const byId = new Map(records);
 
   const survey = new Map();
-  for (const [name, version] of installed) {
-    survey.set(name, { version, vulns: [] });
+  for (const [key, entry] of installed) {
+    survey.set(key, { name: entry.name, version: entry.version, vulns: [] });
   }
   for (const [id, namesForId] of idNames) {
     const record = byId.get(id);
     if (!record) continue;
-    for (const name of namesForId) {
-      if (!survey.has(name)) continue;
-      survey.get(name).vulns.push(record);
+    for (const [key, entry] of survey) {
+      if (namesForId.includes(entry.name)) survey.get(key).vulns.push(record);
     }
   }
   return survey;
@@ -326,12 +377,13 @@ function evaluateSurvey(survey) {
   const affected = [];
   const resolved = [];
   const unassessable = [];
-  for (const [name, entry] of survey) {
+  for (const [key, entry] of survey) {
     for (const record of entry.vulns) {
-      const verdict = evaluateAdvisoryForPackage(record, name, entry.version);
+      const verdict = evaluateAdvisoryForPackage(record, entry.name, entry.version);
       const item = {
-        name,
+        name: entry.name,
         version: entry.version,
+        at: key,
         id: record.id,
         summary: record.summary ?? "",
         severity: (record.severity ?? []).map((entry) => entry.score ?? "").filter(Boolean)[0] ?? "",
@@ -364,21 +416,11 @@ async function main() {
 
   let survey;
   if (!offline && !refresh && cacheIsUsable(cache, hash)) {
-    survey = new Map(
-      Object.entries(cache.survey ?? {}).map(([name, entry]) => [
-        name,
-        { version: entry.version, vulns: entry.vulns ?? [] },
-      ]),
-    );
+    survey = restoreSurveyFromCache(cache);
     console.log(`[build-deps:${label}] Using cached OSV survey (${cache.fetchedAt}).`);
   } else if (offline) {
-    if (cache && cache.lockHash === hash) {
-      survey = new Map(
-        Object.entries(cache.survey ?? {}).map(([name, entry]) => [
-          name,
-          { version: entry.version, vulns: entry.vulns ?? [] },
-        ]),
-      );
+    if (cache && cache.lockHash === hash && cache.surveySchema === SURVEY_SCHEMA_VERSION) {
+      survey = restoreSurveyFromCache(cache);
       console.log(`[build-deps:${label}] OFFLINE: using cached OSV survey (${cache.fetchedAt}).`);
     } else {
       console.error(
@@ -392,14 +434,9 @@ async function main() {
     try {
       survey = await awaitSurveyWithCacheFallback(installed, hash);
     } catch (error) {
-      if (cache && cache.lockHash === hash) {
+      if (cache && cache.lockHash === hash && cache.surveySchema === SURVEY_SCHEMA_VERSION) {
         console.warn(`[build-deps:${label}] OSV fetch failed (${error.message}); falling back to the cached survey.`);
-        survey = new Map(
-          Object.entries(cache.survey ?? {}).map(([name, entry]) => [
-            name,
-            { version: entry.version, vulns: entry.vulns ?? [] },
-          ]),
-        );
+        survey = restoreSurveyFromCache(cache);
       } else {
         console.error(
           `[build-deps:${label}] OSV fetch failed (${error.message}) and no matching cache exists. ` +
@@ -499,12 +536,16 @@ async function main() {
 async function awaitSurveyWithCacheFallback(installed, hash) {
   const survey = await surveyPackages(installed);
   const serializable = Object.fromEntries(
-    [...survey].map(([name, entry]) => [name, { version: entry.version, vulns: entry.vulns }]),
+    [...survey].map(([key, entry]) => [key, { name: entry.name, version: entry.version, vulns: entry.vulns }]),
   );
   try {
     writeFileSync(
       CACHE_PATH,
-      JSON.stringify({ fetchedAt: new Date().toISOString(), lockHash: hash, survey: serializable }, null, 2),
+      JSON.stringify(
+        { fetchedAt: new Date().toISOString(), lockHash: hash, surveySchema: SURVEY_SCHEMA_VERSION, survey: serializable },
+        null,
+        2,
+      ),
     );
   } catch (error) {
     console.warn(`[build-deps:${label}] Could not write the OSV cache (${error.message}).`);

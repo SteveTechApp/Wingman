@@ -126,6 +126,137 @@ describe("resolveDevClosure", () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Prefix-mode runtime-closure fixtures
+//
+// The widened survey (one entry per installed COPY, nested duplicates
+// included) must not silently regress. Each fixture is a hand-built lock
+// exercising one npm layout hazard the closure walker has to survive.
+// ---------------------------------------------------------------------------
+
+describe("prefix-mode runtime-closure fixtures", () => {
+  // A hoisted shared@2 plus a nested copy under right/ that resolves there.
+  const nestedCopyLock = () => ({
+    packages: {
+      "": { dependencies: { left: "^1", right: "^1" } },
+      "node_modules/left": { version: "1.0.0", dependencies: { shared: "^2.0.0" } },
+      "node_modules/shared": { version: "2.0.0" },
+      "node_modules/right": { version: "1.0.0", dependencies: { shared: "^1.5.0" } },
+      "node_modules/right/node_modules/shared": { version: "1.5.0" },
+    },
+  });
+
+  it("surveys every installed copy, nested duplicates included", () => {
+    const closure = resolveAuditClosure(nestedCopyLock());
+    expect(closure.get("shared")).toMatchObject({ name: "shared", version: "2.0.0" });
+    expect(closure.get("right/node_modules/shared")).toMatchObject({ name: "shared", version: "1.5.0" });
+    expect(closure.size).toBe(4); // left, right, shared, right's nested shared
+  });
+
+  it("does not confuse the nested copy's key with the hoisted package", () => {
+    const closure = resolveAuditClosure(nestedCopyLock());
+    // Keys are lock keys minus the leading node_modules/ - the copy is at
+    // "right/node_modules/shared", NOT a bare collision on "shared".
+    expect(closure.has("right/shared")).toBe(false);
+    expect([...closure.keys()].filter((key) => key === "shared")).toHaveLength(1);
+  });
+
+  it("resolves a dependency through the ancestor chain, not always the top level", () => {
+    // deep requires middle@2; the top level has middle@1, the nested copy is
+    // under deep/. Node resolution finds the nested one.
+    const lock = {
+      packages: {
+        "": { dependencies: { deep: "^1", middle: "^1" } },
+        "node_modules/middle": { version: "1.0.0" },
+        "node_modules/deep": { version: "1.0.0", dependencies: { middle: "^2.0.0" } },
+        "node_modules/deep/node_modules/middle": { version: "2.0.0" },
+      },
+    };
+    const closure = resolveAuditClosure(lock);
+    expect(closure.get("deep/node_modules/middle")).toMatchObject({ name: "middle", version: "2.0.0" });
+    expect(closure.get("middle")).toMatchObject({ name: "middle", version: "1.0.0" });
+  });
+
+  it("carries root optionalDependencies (platform packages) into the runtime closure", () => {
+    const lock = {
+      packages: {
+        "": {
+          dependencies: { app: "^1.0.0" },
+          optionalDependencies: { "@esbuild/win32-x64": "^0.25.0" },
+        },
+        "node_modules/app": { version: "1.0.0" },
+        "node_modules/@esbuild/win32-x64": { version: "0.25.0" },
+      },
+    };
+    const closure = resolveAuditClosure(lock);
+    expect(closure.get("@esbuild/win32-x64")).toMatchObject({ name: "@esbuild/win32-x64", version: "0.25.0" });
+  });
+
+  it("carries transitive optional platform packages (e.g. esbuild's binary) into the closure", () => {
+    const lock = {
+      packages: {
+        "": { dependencies: { esbuild: "^0.25.0" } },
+        "node_modules/esbuild": { version: "0.25.0", optionalDependencies: { "@esbuild/linux-x64": "^0.25.0" } },
+        "node_modules/@esbuild/linux-x64": { version: "0.25.0" },
+      },
+    };
+    const closure = resolveAuditClosure(lock);
+    expect(closure.get("@esbuild/linux-x64")).toMatchObject({ name: "@esbuild/linux-x64", version: "0.25.0" });
+  });
+
+  it("keeps a prod-only package out of a devDependency-seeded closure", () => {
+    // The manifest declares both; the audit seeds from devDependencies, so the
+    // runtime-only package must NOT leak into the build-toolchain survey.
+    const lock = {
+      packages: {
+        "": { dependencies: { react: "^19.0.0" }, devDependencies: { vite: "^8.0.0" } },
+        "node_modules/react": { version: "19.0.0", dependencies: { scheduler: "^0.26.0" } },
+        "node_modules/scheduler": { version: "0.26.0" },
+        "node_modules/vite": { version: "8.0.16" },
+      },
+    };
+    const closure = resolveAuditClosure(lock);
+    expect([...closure.keys()].sort()).toEqual(["vite"]);
+    expect(closure.has("react")).toBe(false);
+    expect(closure.has("scheduler")).toBe(false);
+  });
+
+  it("reaches a prod-only package nested under a dev tool without surveying unrelated prod roots", () => {
+    // A nested prod-only package is reachable THROUGH the dev closure even
+    // though the root also declares an unrelated prod dependency.
+    const lock = {
+      packages: {
+        "": { dependencies: { react: "^19.0.0" }, devDependencies: { vite: "^8.0.0" } },
+        "node_modules/react": { version: "19.0.0" },
+        "node_modules/vite": { version: "8.0.16", dependencies: { picomatch: "^4.0.0" } },
+        "node_modules/vite/node_modules/picomatch": { version: "4.0.2" },
+        "node_modules/picomatch": { version: "3.0.0" },
+      },
+    };
+    const closure = resolveAuditClosure(lock);
+    expect(closure.get("vite/node_modules/picomatch")).toMatchObject({ name: "picomatch", version: "4.0.2" });
+    expect(closure.has("react")).toBe(false);
+    // The top-level picomatch@3 is NOT a dev-closure member on its own.
+    expect(closure.has("picomatch")).toBe(false);
+  });
+
+  it("seeds the runtime closure from dependencies AND optionalDependencies when no devDependencies exist", () => {
+    const seeds = selectAuditClosureSeeds({
+      dependencies: { express: "^5.1.0" },
+      optionalDependencies: { "@esbuild/win32-x64": "^0.25.0" },
+    });
+    expect(seeds.sort()).toEqual(["@esbuild/win32-x64", "express"]);
+  });
+
+  it("deduplicates OSV batch queries across copies of the same package name", () => {
+    const closure = resolveAuditClosure(nestedCopyLock());
+    const names = [...new Set([...closure.values()].map((entry) => entry.name))];
+    // Two installed copies of `shared`, one unique name for the batch query.
+    expect(names.sort()).toEqual(["left", "right", "shared"]);
+    expect([...closure.values()].filter((entry) => entry.name === "shared")).toHaveLength(2);
+  });
+});
+
 describe("audit closure selection and cache keying", () => {
   // Mirrors a runtime package's lock (the API server): no devDependencies,
   // a few runtime deps, and a deep transitive + optional tree.
