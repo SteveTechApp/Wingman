@@ -104,4 +104,136 @@ describe("DiscoverySummaryCard", () => {
     fireEvent.click(openButton);
     expect(onToggle).toHaveBeenCalledWith("scale");
   });
+
+  it("surfaces a stranded quick-start default and jumps to its step", () => {
+    const onOpenStrandedStep = vi.fn();
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "One display", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        compact
+        strandedQuickStart={[
+          {
+            questionId: "display-behaviour",
+            questionLabel: "Display behaviour",
+            optionValue: "independent-routing-per-display",
+            optionLabel: "Different content by display or zone",
+            origin: "quick-start",
+          },
+        ]}
+        onOpenStrandedStep={onOpenStrandedStep}
+      />,
+    );
+
+    expect(screen.getByText(/Pre-filled answer no longer fits/)).toBeTruthy();
+    expect(screen.getByText("Different content by display or zone")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open Display behaviour" }));
+    expect(onOpenStrandedStep).toHaveBeenCalledWith("display-behaviour");
+  });
+
+  it("clears every stranded default with the remove action", () => {
+    const onRemoveStranded = vi.fn();
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "One display", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        compact
+        strandedQuickStart={[
+          {
+            questionId: "display-behaviour",
+            questionLabel: "Display behaviour",
+            optionValue: "independent-routing-per-display",
+            optionLabel: "Different content by display or zone",
+            origin: "quick-start",
+          },
+        ]}
+        onRemoveStranded={onRemoveStranded}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove stranded answers" }));
+    expect(onRemoveStranded).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces answers still following the previous application profile", () => {
+    const onOpenStrandedStep = vi.fn();
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "Two displays", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        compact
+        applicationDrift={{
+          previousApplication: "classroom",
+          application: "meeting-room",
+          items: [
+            {
+              questionId: "displays",
+              questionLabel: "Display count",
+              roomText: "Two displays",
+              standardText: "1 display / output",
+              reason: "differs-from-new-standard",
+            },
+          ],
+        }}
+        onOpenStrandedStep={onOpenStrandedStep}
+      />,
+    );
+
+    expect(screen.getByText(/Answers still follow the Teaching \/ classroom profile/)).toBeTruthy();
+    expect(screen.getByText(/The Meeting \/ conference room profile uses 1 display \/ output/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open Display count" }));
+    expect(onOpenStrandedStep).toHaveBeenCalledWith("displays");
+  });
+
+  it("keeps the remove action hidden when every stranded answer is rep-typed", () => {
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "One display", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        compact
+        strandedQuickStart={[
+          {
+            questionId: "display-behaviour",
+            questionLabel: "Display behaviour",
+            optionValue: "independent-routing-per-display",
+            optionLabel: "Different content by display or zone",
+            origin: "rep-typed",
+          },
+        ]}
+        onRemoveStranded={vi.fn()}
+      />,
+    );
+
+    // Rep-typed answers are the rep's own choice — the bulk action must not
+    // offer to discard them, and the row copy must not call them a
+    // quick-start default.
+    expect(screen.queryByRole("button", { name: "Remove stranded answers" })).toBeNull();
+    expect(screen.getByText(/^Answer no longer fits/)).toBeTruthy();
+    // The question label renders inside an <em>; the rep-typed row says
+    // "Your <label> answer is no longer selectable …" (the quick-start branch
+    // says "The quick-start default for …", which is asserted absent below).
+    expect(screen.getByText(/answer is no longer selectable/)).toBeTruthy();
+    expect(screen.getByText("Display behaviour")).toBeTruthy();
+    // The quick-start branch says "The quick-start default for …" — rep-typed
+    // rows must not carry that claim (the kicker header legitimately says
+    // "Quick-start defaults", hence the exact phrase match).
+    expect(screen.queryByText(/The quick-start default for/i)).toBeNull();
+  });
+
+  it("renders no stranded-default notice when the list is empty", () => {
+    const { container } = renderCompact(3);
+    expect(container.querySelector(".wm-discovery-stranded-defaults")).toBeNull();
+  });
 });

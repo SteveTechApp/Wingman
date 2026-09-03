@@ -324,3 +324,74 @@ describe("Priority 3 recommendation architecture scenarios", () => {
   });
 
 });
+
+describe("stranded brief quote-safety mapping", () => {
+  const pitchProduct = {
+    sku: "MX-0402-MST",
+    title: "Meeting-room presentation switcher",
+    family: "Presentation Switchers",
+    category: "Meeting room",
+    summary: "USB-C and HDMI presentation switching for meeting rooms.",
+    tags: ["usb-c", "byom", "meeting room"],
+  };
+
+  it("forces do-not-quote-yet when the discovery brief was stranded by the integrity gate", () => {
+    const strandedBrief = {
+      roomModel: {
+        applicationType: "Meeting room",
+        roomType: "Small meeting room",
+        sourceCount: 2,
+        displayCount: 1,
+        displays: "1 display",
+        usbTransport: "USB-C laptop host to room camera and speakerphone",
+      },
+      inference: {},
+      // The discovery integrity gate downgraded the brief (e.g. a captured
+      // answer whose option a later answer hid).
+      quoteSafetyStatus: "do-not-quote-yet",
+      missingInformation: [],
+    } as unknown as StoredDiscoveryBrief;
+
+    const evidence = buildRecommendationEvidence({
+      source: "stranded-brief-mapping-test",
+      query: "Small meeting room with USB-C BYOM conferencing and one display.",
+      discoveryBrief: strandedBrief,
+      product: pitchProduct,
+    });
+
+    expect(evidence.quoteSafetyStatus).toBe("do-not-quote-yet");
+    expect(evidence.confidence).toBe("low");
+    expect(evidence.quoteSafetyMessage).toBe(
+      "Do not quote yet - the discovery brief still carries an answer that no longer fits your current answers. Resolve it on the discovery page first.",
+    );
+  });
+
+  it("keeps the normal tiers when the discovery brief is not stranded", () => {
+    const cleanBrief = {
+      roomModel: {
+        applicationType: "Meeting room",
+        roomType: "Small meeting room",
+        sourceCount: 2,
+        displayCount: 1,
+        displays: "1 display",
+        usbTransport: "USB-C laptop host to room camera and speakerphone",
+        audioPath: "Room speakerphone",
+        controlNeeds: "Simple room control",
+        networkAvailability: "Local network available, but not required for video transport",
+      },
+      inference: {},
+      quoteSafetyStatus: "quote-ready",
+      missingInformation: [],
+    } as unknown as StoredDiscoveryBrief;
+
+    const evidence = buildRecommendationEvidence({
+      source: "stranded-brief-mapping-test",
+      query: "Small meeting room with USB-C BYOM conferencing and one display.",
+      discoveryBrief: cleanBrief,
+      product: pitchProduct,
+    });
+
+    expect(evidence.quoteSafetyStatus).not.toBe("do-not-quote-yet");
+    expect(evidence.quoteSafetyMessage).not.toContain("no longer fits");
+  });
+});

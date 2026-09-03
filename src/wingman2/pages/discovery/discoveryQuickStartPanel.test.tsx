@@ -1,11 +1,17 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { DiscoveryQuickStart } from "./discoveryQuickStartPanel";
+import { clearQuickStartProfileChoices, quickStartProfileKey, rememberQuickStartProfileChoice } from "./discoveryQuickStartPreferences";
+import { getQuickStartDisagreements, quickStartConfigs } from "./discoveryQuickStart";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
 function pickRoom(label: RegExp) {
   fireEvent.click(screen.getByRole("button", { name: label }));
 }
+
+beforeEach(() => {
+  clearQuickStartProfileChoices();
+});
 
 describe("DiscoveryQuickStart profile confirmation", () => {
   it("seeds the room profile immediately when the room agrees with its standard profile", () => {
@@ -43,6 +49,24 @@ describe("DiscoveryQuickStart profile confirmation", () => {
     expect(seeded.sources).toBe("five-eight-sources");
   });
 
+  it("blends both profiles: standard where they differ, room elsewhere", () => {
+    const onSelect = vi.fn();
+    render(<DiscoveryQuickStart onSelect={onSelect} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    fireEvent.click(screen.getByRole("button", { name: /Blend — standard values where profiles differ/ }));
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    const seeded = onSelect.mock.calls[0][0] as DiscoveryAnswers;
+    // Disagreements take the standard defaults…
+    expect(seeded.opportunity).toBe("classroom");
+    expect(seeded.displays).toBe("one-display");
+    expect(seeded["display-behaviour"]).toBe("same-content-all-displays");
+    expect(seeded["signal-standard"]).toBe("1080p-standard-hdmi");
+    // …and agreement/room-only questions keep the room values.
+    expect(seeded["source-connection"]).toBe(quickStartConfigs["lecture-hall"].defaults["source-connection"]);
+  });
+
   it("seeds the standard application profile when confirmed instead", () => {
     const onSelect = vi.fn();
     render(<DiscoveryQuickStart onSelect={onSelect} onSkip={vi.fn()} />);
@@ -67,5 +91,232 @@ describe("DiscoveryQuickStart profile confirmation", () => {
 
     expect(onSelect).not.toHaveBeenCalled();
     expect(screen.getByText("What type of room is this?")).toBeTruthy();
+  });
+
+  it("does not re-ask on the next visit after choosing the room profile", () => {
+    const first = vi.fn();
+    const firstRender = render(<DiscoveryQuickStart onSelect={first} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: /Use Lecture hall profile/ }));
+    expect(first).toHaveBeenCalledTimes(1);
+    firstRender.unmount();
+
+    // A FRESH component instance (repeat visit in the same session): the
+    // same room type seeds directly — no confirmation step in between.
+    const second = vi.fn();
+    render(<DiscoveryQuickStart onSelect={second} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/differs from the/)).toBeNull();
+    const seeded = second.mock.calls[0][0] as DiscoveryAnswers;
+    expect(seeded.opportunity).toBe("classroom");
+    expect(seeded.displays).toBe("two-displays");
+    expect(seeded["display-behaviour"]).toBe("independent-routing-per-display");
+  });
+
+  it("reapplies the remembered standard profile on the next visit", () => {
+    const first = vi.fn();
+    const firstRender = render(<DiscoveryQuickStart onSelect={first} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: /Use standard Teaching \/ classroom profile/ }));
+    expect(first).toHaveBeenCalledTimes(1);
+    firstRender.unmount();
+
+    const second = vi.fn();
+    render(<DiscoveryQuickStart onSelect={second} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    expect(second).toHaveBeenCalledTimes(1);
+    const seeded = second.mock.calls[0][0] as DiscoveryAnswers;
+    expect(seeded.displays).toBe("one-display");
+    expect(seeded["signal-standard"]).toBe("1080p-standard-hdmi");
+    expect(seeded.usb).toBe("room-pc-uc");
+  });
+
+  it("applies the remembered blend on the next visit without confirming", () => {
+    const first = vi.fn();
+    const firstRender = render(<DiscoveryQuickStart onSelect={first} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: /Blend — standard values where profiles differ/ }));
+    expect(first).toHaveBeenCalledTimes(1);
+    firstRender.unmount();
+
+    const second = vi.fn();
+    render(<DiscoveryQuickStart onSelect={second} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/differs from the/)).toBeNull();
+    const seeded = second.mock.calls[0][0] as DiscoveryAnswers;
+    expect(seeded.displays).toBe("one-display");
+    expect(seeded["signal-standard"]).toBe("1080p-standard-hdmi");
+  });
+
+  it("remembers the preference per room type, not globally", () => {
+    const first = vi.fn();
+    const firstRender = render(<DiscoveryQuickStart onSelect={first} onSkip={vi.fn()} />);
+    pickRoom(/Training room/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: /Use Training room profile/ }));
+    expect(first).toHaveBeenCalledTimes(1);
+    firstRender.unmount();
+
+    // A different disagreeing room type is not blocked by that memory: it
+    // still asks for confirmation.
+    const second = vi.fn();
+    render(<DiscoveryQuickStart onSelect={second} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(second).not.toHaveBeenCalled();
+    expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
+  });
+});
+describe("DiscoveryQuickStart remembered-profile note", () => {
+  it("announces the remembered room profile on the room-type step instead of applying it silently", () => {
+    const first = vi.fn();
+    const firstRender = render(<DiscoveryQuickStart onSelect={first} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: /Use Lecture hall profile/ }));
+    expect(first).toHaveBeenCalledTimes(1);
+    firstRender.unmount();
+
+    // Repeat visit: the note is visible BEFORE Continue, naming the room.
+    const second = vi.fn();
+    render(<DiscoveryQuickStart onSelect={second} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    const note = screen.getByTestId("quick-start-remembered-note");
+    expect(note.textContent).toBe("Using your remembered Lecture hall profile");
+    expect(second).not.toHaveBeenCalled();
+
+    // Continue applies it without re-showing the confirmation step.
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/differs from the/)).toBeNull();
+  });
+
+  it("names the standard and blended profiles, not just the room profile", () => {
+    const lectureHallIds = getQuickStartDisagreements("lecture-hall").map((d) => d.questionId);
+    rememberQuickStartProfileChoice("lecture-hall", "standard", lectureHallIds);
+    const standard = vi.fn();
+    const standardRender = render(<DiscoveryQuickStart onSelect={standard} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.getByTestId("quick-start-remembered-note").textContent).toBe(
+      "Using your remembered standard Teaching / classroom profile",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(standard).toHaveBeenCalledTimes(1);
+    standardRender.unmount();
+
+    rememberQuickStartProfileChoice("lecture-hall", "blend", lectureHallIds);
+    const blend = vi.fn();
+    render(<DiscoveryQuickStart onSelect={blend} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.getByTestId("quick-start-remembered-note").textContent).toBe(
+      "Using your remembered blend of the Lecture hall and Teaching / classroom profiles",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(blend).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows no note for a room without a remembered choice", () => {
+    render(<DiscoveryQuickStart onSelect={vi.fn()} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.queryByTestId("quick-start-remembered-note")).toBeNull();
+    // Fresh room: Continue still asks for confirmation.
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
+  });
+});
+
+describe("remembered choice is keyed to the disagreement set", () => {
+  const lectureHallIds = () => getQuickStartDisagreements("lecture-hall").map((d) => d.questionId);
+
+  it("applies the remembered choice when the disagreement set is unchanged", () => {
+    // Order-independent key: remembering with a shuffled id list still matches.
+    rememberQuickStartProfileChoice("lecture-hall", "room", [...lectureHallIds()].reverse());
+    const onSelect = vi.fn();
+    render(<DiscoveryQuickStart onSelect={onSelect} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.getByTestId("quick-start-remembered-note")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    const seeded = onSelect.mock.calls[0][0] as DiscoveryAnswers;
+    expect(seeded["display-behaviour"]).toBe("independent-routing-per-display");
+  });
+
+  it("re-opens the confirmation when the defaults changed the disagreement set", () => {
+    // Remembered against a stale disagreement set (the current set plus one
+    // question that used to disagree): nothing may apply silently.
+    rememberQuickStartProfileChoice("lecture-hall", "room", [...lectureHallIds(), "signal-standard"]);
+    const onSelect = vi.fn();
+    render(<DiscoveryQuickStart onSelect={onSelect} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.queryByTestId("quick-start-remembered-note")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
+  });
+
+  it("produces stable, distinct storage keys", () => {
+    const ids = lectureHallIds();
+    expect(quickStartProfileKey("lecture-hall", ids)).toBe(quickStartProfileKey("lecture-hall", [...ids].reverse()));
+    expect(quickStartProfileKey("lecture-hall", ids)).not.toBe(quickStartProfileKey("lecture-hall", [...ids, "extra-q"]));
+    // "#" keeps new-format keys disjoint from bare room-type keys written by
+    // older builds within the same session storage.
+    expect(quickStartProfileKey("lecture-hall", ids)).toContain("#");
+    expect(quickStartProfileKey("lecture-hall", [])).toBe(quickStartProfileKey("lecture-hall", []));
+  });
+});
+
+describe("clearing a remembered quick-start choice", () => {
+  it("forgets just this room's choice and re-opens the confirmation on the next visit", () => {
+    // Two room types remembered in the session; the clear must not touch the other.
+    rememberQuickStartProfileChoice("lecture-hall", "room", getQuickStartDisagreements("lecture-hall").map((d) => d.questionId));
+    rememberQuickStartProfileChoice("training-room", "standard", getQuickStartDisagreements("training-room").map((d) => d.questionId));
+
+    const first = vi.fn();
+    const firstRender = render(<DiscoveryQuickStart onSelect={first} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    fireEvent.click(screen.getByRole("button", { name: "Clear this session choice" }));
+    expect(first).not.toHaveBeenCalled();
+    firstRender.unmount();
+
+    // Lecture hall asks again…
+    const second = vi.fn();
+    const secondRender = render(<DiscoveryQuickStart onSelect={second} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.queryByTestId("quick-start-remembered-note")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(second).not.toHaveBeenCalled();
+    expect(screen.getByText(/Lecture hall differs from the/)).toBeTruthy();
+    secondRender.unmount();
+
+    // …while training room still applies its remembered choice.
+    const third = vi.fn();
+    render(<DiscoveryQuickStart onSelect={third} onSkip={vi.fn()} />);
+    pickRoom(/Training room/);
+    expect(screen.getByTestId("quick-start-remembered-note")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(third).toHaveBeenCalledTimes(1);
+  });
+
+  it("deselects the room so the note disappears immediately without ending the flow", () => {
+    rememberQuickStartProfileChoice("lecture-hall", "room", getQuickStartDisagreements("lecture-hall").map((d) => d.questionId));
+    render(<DiscoveryQuickStart onSelect={vi.fn()} onSkip={vi.fn()} />);
+    pickRoom(/Lecture hall/);
+    expect(screen.getByTestId("quick-start-remembered-note")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Clear this session choice" }));
+    expect(screen.queryByTestId("quick-start-remembered-note")).toBeNull();
+    // The quick-start flow itself is still open (room grid + actions present).
+    expect(screen.getByText("What type of room is this?")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy();
   });
 });

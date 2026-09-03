@@ -134,6 +134,12 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     why: "Separating fixed equipment, user presentation and network video avoids overlapping connector-based answers and gives Wingman a clearer architecture direction.",
     required: true,
     selectionMode: "single",
+    // The "not yet confirmed" marker is declared exclusive so value-keyed
+    // consumers (integrity contradiction rules, hidden-answer scans) can key
+    // off the question's own exclusiveValues instead of hard-coding the
+    // option value. Inert for single-select answers but keeps the declaration
+    // model uniform with display-behaviour's unknown marker.
+    exclusiveValues: ["unknown-source-connectors"],
     capturePlaceholder: "Example: Two permanent media players plus laptops connected by USB-C or wireless presentation.",
     options: [
       {
