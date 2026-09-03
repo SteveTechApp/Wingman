@@ -275,7 +275,12 @@ function saveTextFile(fileName: string, text: string, type: string) {
   window.document.body.appendChild(link);
   link.click();
   link.remove();
-  window.URL.revokeObjectURL(url);
+  // Revoke on a later task, never synchronously: the blob URL must stay live
+  // until the browser has actually begun the download fetch against it. An
+  // immediate revoke after click() is racy - Firefox in particular can
+  // resolve the URL after the revoke and abort the download as a failed
+  // blob fetch.
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
 }
 
 function fileBaseName(title: string) {

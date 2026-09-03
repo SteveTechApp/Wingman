@@ -644,5 +644,9 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
   link.download = `${fileBaseName(wizard.projectName || proposal.title)}.proposal.docx`;
   link.rel = "noopener";
   window.document.body.appendChild(link);
-  link.click(); link.remove(); window.URL.revokeObjectURL(url);
+  link.click();
+  link.remove();
+  // Revoke on a later task, never synchronously: the blob URL must stay live
+  // until the browser has actually begun the download fetch against it.
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
 }

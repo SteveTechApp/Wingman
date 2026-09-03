@@ -154,7 +154,9 @@ function downloadCsv(content: string, filename: string) {
   link.href = url;
   link.download = filename;
   link.click();
-  URL.revokeObjectURL(url);
+  // Revoke on a later task, never synchronously: the blob URL must stay live
+  // until the browser has actually begun the download fetch against it.
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 /* ------------------------------------------------------------------ */
@@ -403,7 +405,9 @@ export function GovernedProfileBrowser() {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Revoke on a later task, never synchronously: the blob URL must
+            // stay live until the browser has begun the download fetch.
+            window.setTimeout(() => URL.revokeObjectURL(url), 0);
           }}
           title="Download updated profiles as JSON — commit this file to persist changes"
         >
