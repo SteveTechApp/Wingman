@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { atomicWriteJson } from "./lib/atomic-json-writer.mjs";
 
 const repoRoot = process.cwd();
 
@@ -673,9 +674,9 @@ async function main() {
   await mkdir(path.dirname(queuePath), { recursive: true });
   await mkdir(path.dirname(reportJsonPath), { recursive: true });
 
-  await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
-  await writeFile(queuePath, `${JSON.stringify(queue, null, 2)}\n`, "utf8");
-  await writeFile(reportJsonPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  await atomicWriteJson(outputPath, output);
+  await atomicWriteJson(queuePath, queue);
+  await atomicWriteJson(reportJsonPath, report);
   await writeFile(reportMdPath, markdownReport(report), "utf8");
 
   console.log(`[wingman-data] Canonical products: ${products.length}`);

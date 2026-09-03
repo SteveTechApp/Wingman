@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { atomicWriteJson } from "./lib/atomic-json-writer.mjs";
 import {
   clean,
   normaliseKey,
@@ -115,7 +116,7 @@ async function readJson(relativePath) {
 async function writeJson(relativePath, payload) {
   const target = path.join(root, relativePath);
   await fs.mkdir(path.dirname(target), { recursive: true });
-  await fs.writeFile(target, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  await atomicWriteJson(target, payload);
 }
 
 function assertHeaders(rows, required, sourceName) {
