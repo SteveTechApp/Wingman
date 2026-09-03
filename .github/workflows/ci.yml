@@ -102,16 +102,66 @@ jobs:
       - name: Run verify stage
         run: npm run verify:${{ matrix.stage }}
 
-  # Live RLS posture check, shared with the nightly schedule via the reusable
-  # workflow .github/workflows/supabase-rls.yml (kept identical so CI and the
-  # nightly run enforce the exact same gate). Runs on every push to main and
-  # every PR; the cron triggers it on main even when nothing is pushed.
-  # See supabase-rls.yml for what the sentinel probe verifies and the secret
-  # requirements (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SECRET_KEY).
+  # Live Supabase checks (RLS sentinel probe + migration parity), shared with
+  # the nightly schedule via the reusable workflow
+  # .github/workflows/supabase-rls.yml (kept identical so CI and the nightly
+  # run enforce the exact same gates). Runs on every push to main and every
+  # PR; the cron triggers it on main even when nothing is pushed.
+  # See supabase-rls.yml for what the two jobs verify and the secret
+  # requirements (RLS sentinel: SUPABASE_URL, SUPABASE_ANON_KEY,
+  # SUPABASE_SECRET_KEY; migration parity: SUPABASE_URL,
+  # SUPABASE_ACCESS_TOKEN).
   supabase-rls:
-    name: Supabase RLS (live, sentinel)
+    name: Supabase live gates (RLS + migration parity)
     uses: ./.github/workflows/supabase-rls.yml
     secrets: inherit
+
+  # Dry-run self-check of the supabase-rls wiring above - it verifies the gate
+  # itself, without touching the live database (neither live tool is ever run
+  # here). Two parts:
+  #   1. A static pass (tools/check-supabase-rls-workflow.mjs) proves
+  #      supabase-rls.yml still wires every secret each job needs (gate region
+  #      + env mapping, scoped per job) and that ci.yml + the nightly schedule
+  #      pass them via `secrets: inherit`. These regressions are invisible to
+  #      the live checks: drop SUPABASE_SECRET_KEY from the RLS env mapping and
+  #      the probe silently falls back to read-only mode, which cannot prove
+  #      protection on empty tables; drop SUPABASE_ACCESS_TOKEN from the
+  #      migration job's env and the parity check cannot run at all.
+  #   2. A secret-presence dry run that FAILS with a clear message when
+  #      SUPABASE_SECRET_KEY or SUPABASE_ACCESS_TOKEN is absent from the
+  #      repository while SUPABASE_URL (+ SUPABASE_ANON_KEY) is configured - a
+  #      partial secret setup must never quietly run a weaker mode. (On fork
+  #      PRs all secrets are unavailable, so the step skips - matching the
+  #      live jobs.)
+  supabase-rls-selfcheck:
+    name: Supabase live-gate workflow self-check (dry run)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Verify supabase-rls.yml wires all secrets into both jobs (static)
+        run: node tools/check-supabase-rls-workflow.mjs
+
+      - name: Verify repository secret presence (dry run, no live probe)
+        id: secrets
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "Supabase secrets are not available in this context (fork PR or unconfigured repository) - the live jobs will skip. Workflow wiring was verified statically above."
+          elif [ -z "${{ secrets.SUPABASE_SECRET_KEY }}" ]; then
+            echo "::error::SUPABASE_SECRET_KEY is absent from the repository secrets (or unavailable in this context). The reusable supabase-rls.yml RLS job needs it: sentinel mode seeds a marker row per table through the service role, and without it the anon probe cannot prove protection on empty tables - the live check would degrade to inconclusive read-only notes. Add SUPABASE_SECRET_KEY alongside SUPABASE_URL and SUPABASE_ANON_KEY under Settings > Secrets and variables > Actions."
+            exit 1
+          elif [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN is absent from the repository secrets (or unavailable in this context). The reusable supabase-rls.yml migration-parity job needs it: it authenticates the Management API (read-only) that compares the live schema against the migration files, catching schema drift no push has exercised. Add SUPABASE_ACCESS_TOKEN alongside SUPABASE_URL under Settings > Secrets and variables > Actions."
+            exit 1
+          else
+            echo "All four Supabase secrets are configured - both live jobs will run in full mode."
+          fi
 
   # Proves the built app actually boots and renders. Playwright was already a
   # devDependency and check:browser already existed; neither had ever run in CI.
@@ -142,6 +192,13 @@ jobs:
 
       - name: Run browser smoke check
         run: npm run check:browser
+
+      # Boots the real API (throwaway file-mode data dir) and the Vite dev UI,
+      # then drives a browser through settings sign-in, discovery project save
+      # + HTML brief export, compare history save + CSV export, and the 413
+      # oversized-body contract - no manual session needed.
+      - name: Run end-to-end smoke check
+        run: npm run check:e2e-smoke
 
 
   audit:
