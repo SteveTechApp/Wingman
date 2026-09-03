@@ -3,7 +3,10 @@ import {
   daysUntilExpiry,
   evaluateAdvisoryForPackage,
   evaluateExceptionExpiry,
+  lockCacheHash,
+  resolveAuditClosure,
   resolveDevClosure,
+  selectAuditClosureSeeds,
   semverCompare,
   versionInWindow,
 } from "./check-build-deps.mjs";
@@ -120,6 +123,67 @@ describe("resolveDevClosure", () => {
     expect([...closure.keys()].sort()).toEqual(["@esbuild/win32-x64", "@scope/tool", "esbuild", "vite"]);
     expect(closure.get("vite")).toBe("8.0.16");
     expect(closure.get("esbuild")).toBe("0.25.0");
+  });
+});
+
+describe("audit closure selection and cache keying", () => {
+  // Mirrors a runtime package's lock (the API server): no devDependencies,
+  // a few runtime deps, and a deep transitive + optional tree.
+  const runtimeLock = () => ({
+    packages: {
+      "": {
+        dependencies: {
+          "@supabase/supabase-js": "^2.45.0",
+          express: "^5.1.0",
+        },
+      },
+      "node_modules/@supabase/supabase-js": { version: "2.49.4", dependencies: { "@supabase/auth-js": "^2.64.2" } },
+      "node_modules/@supabase/auth-js": { version: "2.65.4" },
+      "node_modules/express": { version: "5.1.0", dependencies: { bodyParser: "1.20.3" } },
+      "node_modules/bodyParser": { version: "1.20.3", optionalDependencies: { iconv: "^0.2.0" } },
+      "node_modules/iconv": { version: "0.2.0" },
+      // A dev-only tool that must NOT be reachable through the runtime closure.
+      "node_modules/vitest": { version: "4.1.8" },
+    },
+  });
+
+  it("selectAuditClosureSeeds prefers devDependencies when the manifest declares them", () => {
+    expect(selectAuditClosureSeeds({ devDependencies: { vite: "^8.0.0" }, dependencies: { react: "^19" } })).toEqual(["vite"]);
+  });
+
+  it("selectAuditClosureSeeds falls back to runtime dependencies for a runtime package", () => {
+    expect(selectAuditClosureSeeds({ dependencies: { express: "^5.1.0" } })).toEqual(["express"]);
+    expect(selectAuditClosureSeeds({})).toEqual([]);
+  });
+
+  it("resolveAuditClosure walks the FULL runtime dependency closure when no devDependencies exist", () => {
+    const closure = resolveAuditClosure(runtimeLock());
+    // Every runtime-transitive and optional package is in; the dev tool is not.
+    expect([...closure.keys()].sort()).toEqual(["@supabase/auth-js", "@supabase/supabase-js", "bodyParser", "express", "iconv"]);
+    expect(closure.has("vitest")).toBe(false);
+  });
+
+  it("resolveAuditClosure still audits only the dev toolchain when devDependencies exist", () => {
+    const lock = {
+      packages: {
+        "": { dependencies: { react: "^19.0.0" }, devDependencies: { vite: "^8.0.0" } },
+        "node_modules/react": { version: "19.0.0" },
+        "node_modules/vite": { version: "8.0.16", dependencies: { esbuild: "^0.25.0" } },
+        "node_modules/esbuild": { version: "0.25.0" },
+      },
+    };
+    const closure = resolveAuditClosure(lock);
+    expect([...closure.keys()].sort()).toEqual(["esbuild", "vite"]);
+  });
+
+  it("lockCacheHash separates closures with identical lock bytes", () => {
+    const bytes = "{}";
+    expect(lockCacheHash(bytes, "root")).not.toBe(lockCacheHash(bytes, "prefix:server/package-lock.json"));
+  });
+
+  it("lockCacheHash is stable for the same lock bytes and label", () => {
+    expect(lockCacheHash("abc", "root")).toBe(lockCacheHash("abc", "root"));
+    expect(lockCacheHash("abc", "prefix:server/package-lock.json")).toBe(lockCacheHash("abc", "prefix:server/package-lock.json"));
   });
 });
 

@@ -10,6 +10,11 @@
 //   - fast-uri must stay pinned at ^3.1.7 (host confusion / SSRF via IDN,
 //     IPv6 and percent-encoding normalization, fixed in 3.1.7).
 //
+// The server manifest (server/package.json) carries its own scoped floor row:
+//   - qs must stay pinned at ^6.16.0 there (GHSA-4mjr-xmp4-gh2g, DoS via
+//     attacker-controlled isBuffer, and GHSA-x5fp-wj9c-mxmx, array-limit
+//     bypass, both fixed in 6.16.0; express/body-parser pin ~6.15.1).
+//
 // npm install never removes an override, but a hand edit of package.json or a
 // resolve-from-scratch flow (delete lockfile + npm install) can: without the
 // override, the package resolves back into the affected range and the lockfile
@@ -24,7 +29,7 @@
 //
 // Usage: node tools/check-override-floors.mjs
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { semverCompare } from "./check-build-deps.mjs";
@@ -33,12 +38,32 @@ const DEFAULT_PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta
 const PACKAGE_PATH = path.join(DEFAULT_PROJECT_ROOT, "package.json");
 const LOCK_PATH = path.join(DEFAULT_PROJECT_ROOT, "package-lock.json");
 
+// Manifests whose overrides the guard surveys. "root" is the workspace root;
+// additional package manifests (the API server) join when present. Each scope
+// is checked with its own floor rows and its own coverage invariant.
+function manifestScopes(root = DEFAULT_PROJECT_ROOT) {
+  const scopes = [{ label: "root", packageJsonPath: path.join(root, "package.json"), lockPath: path.join(root, "package-lock.json") }];
+  const serverPackage = path.join(root, "server", "package.json");
+  if (existsSync(serverPackage)) {
+    scopes.push({ label: "server", packageJsonPath: serverPackage, lockPath: path.join(root, "server", "package-lock.json") });
+  }
+  return scopes;
+}
+
 // The floors this gate enforces. `overrideKey` is the package.json overrides
 // key (exact, or a prefix for family-scoped keys); `floor` is the minimum
 // version the override must demand. `lockFamilyMin`/`lockFamilyMaxExclusive`
 // optionally bound which lockfile versions must also clear the floor (unset =
-// every installed version of the package must clear it).
+// every installed version of the package must clear it). `manifest` scopes a
+// row to one manifest's overrides block (default "root").
 const OVERRIDE_FLOORS = [
+  {
+    manifest: "server",
+    overrideKey: "qs",
+    packageName: "qs",
+    floor: "6.16.0",
+    why: "qs GHSA-4mjr-xmp4-gh2g (DoS via attacker-controlled isBuffer) and GHSA-x5fp-wj9c-mxmx (array-limit bypass via bracket-key comma parsing) were fixed in 6.16.0",
+  },
   {
     overrideKey: "browserslist",
     packageName: "browserslist",
@@ -77,25 +102,26 @@ export function specFloor(spec) {
 
 // Which floor row claims an overrides key, if any: an exact overrideKey match
 // or a prefix match for family-scoped keys like "postcss-selector-parser@^6".
-function floorForOverrideKey(key) {
-  return OVERRIDE_FLOORS.find(
-    (floor) =>
-      (floor.overrideKey !== undefined && floor.overrideKey === key) ||
-      (floor.overrideKeyPrefix !== undefined && key.startsWith(floor.overrideKeyPrefix)),
-  );
+function floorForOverrideKey(key, manifest) {
+  return OVERRIDE_FLOORS.find((floor) => {
+    if ((floor.manifest ?? "root") !== manifest) return false;
+    if (floor.overrideKey !== undefined && floor.overrideKey === key) return true;
+    return floor.overrideKeyPrefix !== undefined && key.startsWith(floor.overrideKeyPrefix);
+  });
 }
 
-// Overrides keys in package.json that no floor row claims. Every override is
-// load-bearing by definition (it exists to change resolution), so an override
-// without a floor row is an unprotected one.
-export function unclaimedOverrideKeys(packageJson) {
+// Overrides keys in `manifest`'s package.json that no floor row claims. Every
+// override is load-bearing by definition (it exists to change resolution), so
+// an override without a floor row is an unprotected one.
+export function unclaimedOverrideKeys(packageJson, manifest = "root") {
   const overrides = packageJson.overrides ?? {};
-  return Object.keys(overrides).filter((key) => floorForOverrideKey(key) === undefined);
+  return Object.keys(overrides).filter((key) => floorForOverrideKey(key, manifest) === undefined);
 }
 
-function collectPackageJsonProblems(packageJson, problems) {
+function collectPackageJsonProblems(packageJson, problems, manifest = "root") {
   const overrides = packageJson.overrides ?? {};
   for (const floor of OVERRIDE_FLOORS) {
+    if ((floor.manifest ?? "root") !== manifest) continue;
     const entry = floor.overrideKey !== undefined ? overrides[floor.overrideKey] : undefined;
     const prefixedEntry =
       floor.overrideKeyPrefix !== undefined
@@ -118,7 +144,7 @@ function collectPackageJsonProblems(packageJson, problems) {
     }
   }
   // The reverse direction: an override with no floor row is unprotected.
-  for (const key of unclaimedOverrideKeys(packageJson)) {
+  for (const key of unclaimedOverrideKeys(packageJson, manifest)) {
     problems.push(
       `package.json overrides key "${key}" has no floor row in OVERRIDE_FLOORS (tools/check-override-floors.mjs) - ` +
         "this gate cannot detect it being dropped or lowered. Add a floor row with its advisory floor.",
@@ -126,11 +152,12 @@ function collectPackageJsonProblems(packageJson, problems) {
   }
 }
 
-function collectLockfileProblems(lock, problems) {
+function collectLockfileProblems(lock, problems, manifest = "root") {
   for (const [key, entry] of Object.entries(lock.packages ?? {})) {
     const packageName = key.slice("node_modules/".length).split("/node_modules/").pop();
     if (!entry?.version) continue;
     for (const floor of OVERRIDE_FLOORS) {
+      if ((floor.manifest ?? "root") !== manifest) continue;
       if (packageName !== floor.packageName) continue;
       // Family scoping: rows may bound which installed versions must clear
       // the floor. A version outside the family resolves under a different
@@ -155,17 +182,24 @@ function collectLockfileProblems(lock, problems) {
   }
 }
 
-export function collectOverrideFloorProblems(packageJson, lock) {
+export function collectOverrideFloorProblems(packageJson, lock, manifest = "root") {
   const problems = [];
-  collectPackageJsonProblems(packageJson, problems);
-  collectLockfileProblems(lock, problems);
+  collectPackageJsonProblems(packageJson, problems, manifest);
+  collectLockfileProblems(lock, problems, manifest);
   return problems;
 }
 
 export function checkOverrideFloors(projectRoot = DEFAULT_PROJECT_ROOT) {
-  const packageJson = JSON.parse(readFileSync(path.join(projectRoot, "package.json"), "utf8"));
-  const lock = JSON.parse(readFileSync(path.join(projectRoot, "package-lock.json"), "utf8"));
-  return collectOverrideFloorProblems(packageJson, lock);
+  const problems = [];
+  for (const scope of manifestScopes(projectRoot)) {
+    const packageJson = JSON.parse(readFileSync(scope.packageJsonPath, "utf8"));
+    collectPackageJsonProblems(packageJson, problems, scope.label);
+    if (existsSync(scope.lockPath)) {
+      const lock = JSON.parse(readFileSync(scope.lockPath, "utf8"));
+      collectLockfileProblems(lock, problems, scope.label);
+    }
+  }
+  return problems;
 }
 
 // Drill helper: one call that reports every problem plus the pass/fail verdict

@@ -20,6 +20,15 @@
 //   Resolved advisories are reported as history; open ones block unless a
 //   reviewed exception in tools/build-dep-exceptions.json covers them.
 //
+// A prefix run (--prefix server) audits the PREFIX lock's closure. A runtime
+// package (a root manifest without devDependencies — the API server) has no
+// build toolchain of its own: its dependency closure IS the surface the
+// shipped artifact loads, so that closure is audited. (Resolving the dev
+// closure for such a lock used to yield an empty survey that audited
+// nothing.) Each closure gets its own cache entry: the cache hash mixes the
+// closure label (root vs prefix:<name>) with the lockfile bytes, so a stale
+// survey for one closure can never satisfy the other.
+//
 // The OSV data is cached (tools/build-dep-cache.generated.json, gitignored):
 // a run within CACHE_MAX_AGE_MINUTES of the last fetch that sees the same
 // lockfiles evaluates offline from the cache. BUILD_DEP_REFRESH=1 forces a
@@ -27,7 +36,8 @@
 // absent). BUILD_DEP_TODAY=YYYY-MM-DD overrides the reference date for the
 // exception-expiry logic (deterministic tests).
 //
-// Usage: node tools/check-build-deps.mjs [--prefix server]
+// Usage: node tools/check-build-deps.mjs [--prefix <dir>]
+//   (default: the repo root lock; --prefix server surveys the server lock)
 
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -37,8 +47,17 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const prefixIndex = process.argv.indexOf("--prefix");
 const prefix = prefixIndex !== -1 ? process.argv[prefixIndex + 1] : "";
-const lockFile = prefix ? path.join("server", "package-lock.json") : "package-lock.json";
-const lockPath = path.join(projectRoot, lockFile);
+// A prefix run surveys <prefix>/package-lock.json, resolved against the CWD so
+// both "--prefix server" (from the root) and "--prefix ." (from server/) name
+// the same lock. The label is that resolved path relative to the repo root,
+// so every spelling of the same lock shares one cache entry.
+const lockPath = prefix
+  ? path.resolve(process.cwd(), prefix, "package-lock.json")
+  : path.join(projectRoot, "package-lock.json");
+const lockCacheLabel = prefix
+  ? `prefix:${path.relative(projectRoot, lockPath).split(path.sep).join("/")}`
+  : "root";
+const lockFile = prefix ? path.basename(path.dirname(lockPath)) + "/package-lock.json" : "package-lock.json";
 const label = prefix || "root";
 
 const OSV_BATCH_URL = "https://api.osv.dev/v1/querybatch";
@@ -128,10 +147,9 @@ export function evaluateAdvisoryForPackage(record, packageName, installedVersion
 // Resolve the devDependency closure of a package-lock v3 file: the direct
 // devDependencies plus everything they (transitively) depend on, with the
 // installed version of each package as recorded in the lock.
-export function resolveDevClosure(lock) {
-  const root = lock.packages?.[""];
+function resolveClosureFrom(lock, seedNames) {
   const result = new Map();
-  const queue = [...Object.keys(root?.devDependencies ?? {})];
+  const queue = [...seedNames];
   const seen = new Set();
   while (queue.length > 0) {
     const name = queue.shift();
@@ -148,6 +166,39 @@ export function resolveDevClosure(lock) {
     }
   }
   return result;
+}
+
+export function resolveDevClosure(lock) {
+  return resolveClosureFrom(lock, Object.keys(lock.packages?.[""]?.devDependencies ?? {}));
+}
+
+// Seed names for the audited closure: devDependencies (the build toolchain)
+// when the manifest declares them; otherwise — a runtime package such as the
+// API server — its dependency closure, which is the surface the shipped
+// artifact loads at run time.
+export function selectAuditClosureSeeds(rootEntry) {
+  const dev = Object.keys(rootEntry?.devDependencies ?? {});
+  if (dev.length > 0) return dev;
+  return Object.keys(rootEntry?.dependencies ?? {});
+}
+
+// The audited closure for a lock: the dev toolchain for a manifest with
+// devDependencies, the full runtime dependency closure for a runtime package.
+export function resolveAuditClosure(lock) {
+  return resolveClosureFrom(lock, selectAuditClosureSeeds(lock.packages?.[""]));
+}
+
+// Cache key for a surveyed closure: the lockfile bytes mixed with the closure
+// label, so the root and prefix:<name> closures each get their own cache
+// entry and a survey of one can never satisfy a lookup for the other. The
+// label is the resolved lock path ("prefix:server/package-lock.json"), so any
+// --prefix spelling that resolves the same lock shares one cache entry.
+export function lockCacheHash(lockContents, closureLabel) {
+  const hasher = createHash("sha256");
+  hasher.update(lockContents);
+  hasher.update("\u0000");
+  hasher.update(closureLabel);
+  return hasher.digest("hex");
 }
 
 export function daysUntilExpiry(expiresOn, referenceDay) {
@@ -168,9 +219,7 @@ export function evaluateExceptionExpiry(exception, referenceDay, windowDays = RE
 // ---------------------------------------------------------------------------
 
 function lockfileHash() {
-  const hasher = createHash("sha256");
-  hasher.update(readFileSync(lockPath, "utf8"));
-  return hasher.digest("hex");
+  return lockCacheHash(readFileSync(lockPath, "utf8"), lockCacheLabel);
 }
 
 function loadCache() {
@@ -302,7 +351,14 @@ async function main() {
     process.exit(1);
   }
   const lock = JSON.parse(readFileSync(lockPath, "utf8"));
-  const installed = resolveDevClosure(lock);
+  const installed = resolveAuditClosure(lock);
+  if (installed.size === 0) {
+    console.error(
+      `[build-deps:${label}] The audited closure resolved to zero packages - ` +
+        "the lock has neither devDependencies nor dependencies to survey. Cannot audit nothing; failing closed.",
+    );
+    process.exit(1);
+  }
   const hash = lockfileHash();
   const cache = loadCache();
 

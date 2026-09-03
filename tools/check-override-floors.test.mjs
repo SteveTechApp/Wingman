@@ -328,7 +328,7 @@ describe("lockfile-regeneration drill", () => {
       materialiseSandboxCli(root);
       const run = runGuardCli(root);
       expect(run.status).toBe(0);
-      expect(run.stdout).toMatch(/\[override-floors\] OK - all 3 override floors/);
+      expect(run.stdout).toMatch(/\[override-floors\] OK - all \d+ override floors/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
