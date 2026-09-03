@@ -27,6 +27,12 @@
  */
 
 export const POSTGREST_MAX_ROWS = 1000;
+
+// The code stamped on the safety-valve error when a table never reports a
+// short page. Exported so callers can branch on truncation via
+// result.errorCode === POSTGREST_PAGINATION_LIMIT instead of matching
+// message text.
+export const POSTGREST_PAGINATION_LIMIT = "POSTGREST_PAGINATION_LIMIT";
 const DEFAULT_MAX_PAGES = 100;
 
 export async function readAllSupabaseRows(
@@ -75,6 +81,6 @@ export async function readAllSupabaseRows(
     `Table "${table}" exceeded ${pageSize * maxPages} rows without reporting a short page; ` +
       "pagination stopped at the safety valve and the read may be incomplete.",
   );
-  limitError.code = "POSTGREST_PAGINATION_LIMIT";
+  limitError.code = POSTGREST_PAGINATION_LIMIT;
   return { data: rows, error: limitError, pages: maxPages, truncated: true };
 }

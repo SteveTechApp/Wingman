@@ -154,11 +154,16 @@ export async function readLedgerFromSupabase() {
       order: "id",
     });
     if (error) {
-      return {
+      const failure = {
         ok: false,
         error: truncated ? `Mirror read did not reach the end of the table: ${error.message}` : error.message,
         table: TABLE,
       };
+      // The pagination sentinel's code travels with the result so callers can
+      // branch on POSTGREST_PAGINATION_LIMIT without matching message text.
+      // Present only when the underlying failure carried a code.
+      if (error?.code) failure.errorCode = error.code;
+      return failure;
     }
     const decisions = (data ?? [])
       .map((row) => row?.payload)
@@ -258,6 +263,7 @@ export async function pushLedgerToSupabase(ledger) {
       table: TABLE,
     };
   }
+
 
   const decisions = Array.isArray(ledger?.decisions) ? ledger.decisions : [];
   const rows = decisions
@@ -391,7 +397,13 @@ export async function readLedgerForApi(filePath = COMPETITOR_DECISION_LEDGER_FIL
   try {
     const remote = await readLedgerFromSupabase();
     if (!remote.ok) {
-      return { ledger: local, mode: "file-db-fallback", warnings: [`Supabase ledger read failed: ${remote.error}`] };
+      const fallback = {
+        ledger: local,
+        mode: "file-db-fallback",
+        warnings: [`Supabase ledger read failed: ${remote.error}`],
+      };
+      if (remote.errorCode) fallback.errorCode = remote.errorCode;
+      return fallback;
     }
     if (remote.decisions.length === 0) {
       // The remote mirror is empty - the committed file is the seed.
@@ -426,7 +438,17 @@ export async function syncCompetitorDecisionLedger({ push = true } = {}) {
 
   const remote = await readLedgerFromSupabase();
   if (!remote.ok) {
-    return { ok: false, mode: "error", merged: local, error: remote.error, warnings: [`Supabase ledger read failed: ${remote.error}`] };
+    const failure = {
+      ok: false,
+      mode: "error",
+      merged: local,
+      error: remote.error,
+      warnings: [`Supabase ledger read failed: ${remote.error}`],
+    };
+    // Propagate the pagination sentinel code so the sync tool can distinguish
+    // a truncated mirror from any other read failure without parsing text.
+    if (remote.errorCode) failure.errorCode = remote.errorCode;
+    return failure;
   }
 
   let merged;
