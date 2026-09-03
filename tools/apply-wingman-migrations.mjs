@@ -24,7 +24,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = path.resolve(__dirname, "..", "server", "migrations");
@@ -33,7 +33,7 @@ const MIGRATIONS_DIR = path.resolve(__dirname, "..", "server", "migrations");
 // Statement splitting (SQL-aware enough for these migrations)
 // ---------------------------------------------------------------------------
 
-function splitStatements(sql) {
+export function splitStatements(sql) {
   const statements = [];
   let current = "";
   let inSingle = false;
@@ -67,11 +67,12 @@ function splitStatements(sql) {
       continue;
     }
     if (inDollar) {
-      current += ch;
       if (sql.startsWith(inDollar, i)) {
         current += inDollar;
         i += inDollar.length - 1;
         inDollar = null;
+      } else {
+        current += ch;
       }
       continue;
     }
@@ -179,6 +180,8 @@ async function apiPost(token, ref, endpoint, body) {
 // Main
 // ---------------------------------------------------------------------------
 
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMain) {
 const args = process.argv.slice(2);
 const wantsList = args.includes("--list");
 const apply = args.includes("--apply");
@@ -219,7 +222,6 @@ for (const name of picked) {
     }
     continue;
   }
-  let runCount = 0;
   const token = resolveToken();
   if (!token) {
     console.error(
@@ -246,7 +248,6 @@ for (const name of picked) {
   const okay = status >= 200 && status < 300;
   if (okay) {
     console.log(`   -> ${name} applied atomically (${statements.length} statements, one transaction)`);
-    runCount += 1;
   } else {
     console.error(
       `   [FAIL] ${name} - NOTHING APPLIED (transaction rolled back). ${status} ${String(parsed?.message ?? parsed ?? "").slice(0, 300)}`,
@@ -257,3 +258,4 @@ for (const name of picked) {
 }
 
 console.log("\n[apply-migrations] done. Verify with: node tools/check-migration-live-state.mjs");
+}
