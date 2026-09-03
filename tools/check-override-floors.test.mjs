@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -214,7 +214,20 @@ describe("checkOverrideFloors (real files)", () => {
 
 const TOOL_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "check-override-floors.mjs");
 const BUILD_DEPS_PATH = path.resolve(path.dirname(TOOL_PATH), "check-build-deps.mjs");
-const NPM_CLI = path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js");
+// npm does not ship in a fixed location relative to the node binary: Windows
+// installs put it in <node dir>/node_modules/npm, hosted Linux runners under
+// <node dir>/lib/node_modules/npm, and nvm layouts differ again. Resolve the
+// first layout that exists and fall back to spawning npm's own shim via PATH
+// (which works everywhere npm is actually installed) if none match.
+function resolveNpmCli() {
+  const candidates = [
+    path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js"),
+    path.join(path.dirname(process.execPath), "lib", "node_modules", "npm", "bin", "npm-cli.js"),
+  ];
+  for (const candidate of candidates) if (existsSync(candidate)) return candidate;
+  return null;
+}
+const NPM_CLI = resolveNpmCli();
 
 function runGuardCli(root) {
   // Spawn the SANDBOX copy of the guard: the repo copy hard-codes the repo as
@@ -341,11 +354,17 @@ describe("lockfile-regeneration drill", () => {
       try {
         materialiseSandboxCli(root);
         const runNpm = () => {
-          const result = spawnSync(
-            process.execPath,
-            [NPM_CLI, "install", "--package-lock-only", "--no-audit", "--no-fund", "--loglevel", "error"],
-            { cwd: root, encoding: "utf8", timeout: 180_000 },
-          );
+          const result = NPM_CLI
+            ? spawnSync(
+                process.execPath,
+                [NPM_CLI, "install", "--package-lock-only", "--no-audit", "--no-fund", "--loglevel", "error"],
+                { cwd: root, encoding: "utf8", timeout: 180_000 },
+              )
+            : spawnSync(
+                "npm",
+                ["install", "--package-lock-only", "--no-audit", "--no-fund", "--loglevel", "error"],
+                { cwd: root, encoding: "utf8", timeout: 180_000 },
+              );
           expect(result.error ?? null, `npm spawn failed: ${result.error?.message ?? ""}`).toBeNull();
           expect(result.status, `npm install failed: ${result.stderr}`).toBe(0);
         };
