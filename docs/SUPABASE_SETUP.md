@@ -9,9 +9,11 @@ This guide explains how to configure Supabase for production use with the Wingma
 3. [Running the Database Migration](#running-the-database-migration)
 4. [Environment Variable Configuration](#environment-variable-configuration)
 5. [Storage Modes](#storage-modes)
-6. [Switching from File Storage to Supabase](#switching-from-file-storage-to-supabase)
-7. [Verifying the Setup](#verifying-the-setup)
-8. [Troubleshooting](#troubleshooting)
+6. [Development Rules for Supabase Access](#development-rules-for-supabase-access)
+7. [Switching from File Storage to Supabase](#switching-from-file-storage-to-supabase)
+8. [Verifying the Setup](#verifying-the-setup)
+9. [Nightly Supabase Gates Runbook](#nightly-supabase-gates-runbook)
+10. [Troubleshooting](#troubleshooting)
 
 ## Overview
 
@@ -112,20 +114,22 @@ SUPABASE_WINGMAN_TABLES_ENABLED=true
 WINGMAN_STORAGE_FAIL_CLOSED=true
 ```
 
-### Optional Table Name Overrides
+### Table name overrides — single-row mode only
 
-If you need to use different table names (e.g., for a shared database), you can override them:
+`SUPABASE_WINGMAN_STATE_TABLE` (single-row `supabase` mode) may be renamed
+freely, since every statement addresses the configured table directly.
 
-```bash
-SUPABASE_WINGMAN_USERS_TABLE=wingman_users
-SUPABASE_WINGMAN_WORKSPACES_TABLE=wingman_workspaces
-SUPABASE_WINGMAN_MEMBERS_TABLE=wingman_workspace_members
-SUPABASE_WINGMAN_INVITATIONS_TABLE=wingman_workspace_invitations
-SUPABASE_WINGMAN_SESSIONS_TABLE=wingman_sessions
-SUPABASE_WINGMAN_PROJECTS_TABLE=wingman_projects
-SUPABASE_WINGMAN_AUDIT_TABLE=wingman_audit_events
-SUPABASE_WINGMAN_TELEMETRY_TABLE=wingman_telemetry_events
-```
+In **`supabase-tables` mode the `SUPABASE_WINGMAN_*_TABLE` overrides must NOT be
+set to anything other than the migration-created defaults.** The storage write
+path commits the whole snapshot through migration 009's
+`wingman_snapshot_commit`, whose DDL hard-codes the default `wingman_*` tables
+(and 011's `wingman_ledger_commit` hard-codes
+`competitor_match_decisions`). Reads honouring a custom table name while the
+atomic commit writes the default one would make every change disappear on the
+next read, so the server **rejects non-default overrides in `supabase-tables`
+mode with a clear configuration error** (logged as
+`storage.table_overrides.unsupported`). To use custom table names, provision
+the migration functions for those tables - do not rely on the env override.
 
 ## Storage Modes
 
@@ -151,6 +155,55 @@ SUPABASE_WINGMAN_TELEMETRY_TABLE=wingman_telemetry_events
 - Enables future features like direct SQL queries, backups, and analytics
 - Recommended for production
 
+## Development Rules for Supabase Access
+
+These rules apply to any new code that reads or writes Supabase data. They are
+enforced by CI gates, so violations fail the build rather than surfacing later
+as data problems.
+
+### Invariant: never read a table without a bound
+
+PostgREST caps every list response at 1000 rows by default. A `select` without
+a range, limit, or filter reads at most the first 1000 rows and returns them
+as if they were the whole table — there is no error and no warning. Code that
+reconciles or mirrors a table over such a read will eventually delete or
+overwrite rows it never saw.
+
+Rules for table reads:
+
+- Use `readAllSupabaseRows` from `server/supabase-pagination.mjs` for any read
+  that must observe the full table. It pages through the range headers and
+  merges results, so table size never truncates the snapshot.
+- Direct `client.from(...).select(...)` calls are only acceptable when they
+  carry a bound: `.range()`, `.limit()`, a head-only count
+  (`{ head: true }`), `.single()`/`.maybeSingle()`, or a filter predicate
+  (`.eq/.in/.lt/...`). An `.order()` alone is not a bound — sorting a whole
+  table is still reading a whole table.
+- Raw PostgREST `fetch` calls against `/rest/v1/<table>` need `limit=` or a
+  filter predicate in the URL for read methods. Write methods (POST, PATCH,
+  PUT, DELETE) are exempt.
+
+Enforcement: `tools/check-postgrest-reads.mjs` scans `server/` and `tools/`
+and runs as part of `npm run verify:build`. It fails with file, line, and the
+remediation above when a new unbounded read appears. A deliberately unbounded
+probe (for example, the RLS leak check, where reading everything is the test)
+needs an entry in the checker's file-scoped allowlist with a written
+justification.
+
+### Decision: the product-intelligence store is file-db-only
+
+`server/product-intelligence-store.mjs` reads and writes the gitignored
+product-intelligence database through `node:fs` and has no Supabase client.
+This is deliberate: the store is a derived cache over generated catalog data,
+rebuilt from `data-sources/`, so table mode would add a second copy of the
+same data without a recovery story for divergence.
+
+`server/product-intelligence-store.file-db-pin.test.mjs` keeps it that way:
+it fails if the store gains a Supabase client, a table-mode read, or an RPC
+call, and if an unpaged table read is ever introduced. If table mode becomes
+necessary later, route reads through `readAllSupabaseRows` and update the pin
+test deliberately as part of the design — not by deleting the pin to make a
+build pass.
 ## Switching from File Storage to Supabase
 
 If you have existing data in file storage that you want to migrate:
@@ -268,6 +321,127 @@ curl -X POST http://localhost:8787/api/wingman/auth/signup \
 1. Go to your Supabase Dashboard
 2. Navigate to **Table Editor**
 3. Check that records appear in `wingman_users` and `wingman_workspaces`
+
+## Nightly Supabase Gates Runbook
+
+### What runs and when
+
+`.github/workflows/supabase-rls-nightly.yml` runs **every night at 03:30 UTC**
+(and can be triggered manually via **Run workflow** → `workflow_dispatch`). It
+calls the reusable workflow `.github/workflows/supabase-rls.yml`, which is the
+SAME gate CI runs on every push to `main` and every PR — the nightly schedule
+catches drift that no push has exercised. The reusable workflow runs TWO jobs:
+
+- **`supabase-rls`** — RLS sentinel probe (`tools/verify-supabase-rls.mjs`):
+  seeds marker rows, proves the anon key cannot read them (details below).
+- **`migration-live`** — live migration-parity check
+  (`tools/check-migration-live-state.mjs`): compares the migration FILES
+  against the LIVE schema via the Management API (read-only SELECTs, no DB
+  password), so schema drift beyond RLS — a dropped index, a missing
+  function, a table whose migration never got applied — fails the same gate
+  that blocks a push.
+
+The wiring of that gate is itself guarded: the `supabase-rls-selfcheck`
+dry-run job in `ci.yml` statically verifies that the workflow still wires every
+secret each job needs (gate region + env mapping, scoped per job) and that
+both callers pass `secrets: inherit`, and fails loudly when `SUPABASE_SECRET_KEY`
+or `SUPABASE_ACCESS_TOKEN` is missing while the URL/anon keys are configured.
+
+### What it seeds (and cleans up)
+
+In sentinel mode the job seeds **one marker row per Wingman table** (the nine
+below) through the service role, then proves the public anon key cannot read
+it. That is the only thing that makes empty tables testable: with rows
+provably present, an empty anon result means protection rather than
+indistinguishability.
+
+| Table | Marker row |
+|-------|------------|
+| `wingman_app_state` | `id = rls-sentinel-appstate-<tag>` with `payload` |
+| `wingman_users` | `id = rls-sentinel-user-<tag>` |
+| `wingman_workspaces` | `id = rls-sentinel-ws-<tag>` |
+| `wingman_workspace_members` | `id = rls-sentinel-member-<tag>` |
+| `wingman_workspace_invitations` | `id = rls-sentinel-invite-<tag>` |
+| `wingman_sessions` | `id = rls-sentinel-session-<tag>` |
+| `wingman_projects` | `id = rls-sentinel-project-<tag>` |
+| `wingman_audit_events` | `id = rls-sentinel-audit-<tag>` |
+| `wingman_telemetry_events` | `id = rls-sentinel-telemetry-<tag>` |
+
+(`<tag>` is a per-run `timestamp-hex` stamp; FK-target rows are inserted
+first.) For every table the anon key is asked for the marker row by id AND —
+strict mode — an unfiltered one-row read, so a permissive-but-narrow policy
+(e.g. `workspace_id = auth.uid()`) that leaks real rows while hiding the
+sentinel is still reported **EXPOSED**. After the probe every marker row is
+deleted dependents-first, residue is re-checked, and the job exits non-zero if
+any probe row remains. Seeding writes only these transient rows — it never
+modifies or deletes real data.
+
+### Secret setup
+
+The repository must have these **Actions secrets** (Settings → Secrets and
+variables → Actions):
+
+| Secret | Purpose | Used by |
+|--------|---------|---------|
+| `SUPABASE_URL` | Project URL, e.g. `https://<ref>.supabase.co` | both jobs |
+| `SUPABASE_ANON_KEY` | Public anon/publishable key (the key the probe checks) | RLS job |
+| `SUPABASE_SECRET_KEY` | Service-role secret key (seeds and cleans the markers) | RLS job |
+| `SUPABASE_ACCESS_TOKEN` | Management API personal access token (`sbp_...`), authenticates the read-only schema comparison | migration job |
+
+Both legacy `eyJ...` JWTs and the newer `sb_publishable_...` / `sb_secret_...`
+formats are accepted for the URL keys — only `SUPABASE_SECRET_KEY` may ever
+write, and the RLS tool only ever uses it to seed/clean markers.
+`SUPABASE_ACCESS_TOKEN` is the token from
+supabase.com/dashboard → Account → Access Tokens (or the one `supabase login`
+writes to `~/.supabase/access-token`); the migration job sends only read-only
+SELECTs through it. Behavior when a secret is missing:
+
+- **None available** (e.g. a fork PR, where GitHub never exposes secrets): the
+  job prints the reason and **skips**.
+- **URL + anon key present, secret key missing**: the RLS job **fails** with a
+  clear message — read-only mode cannot prove protection on empty tables, so a
+  partial setup must not silently weaken the gate.
+- **URL present, access token missing**: the migration job **fails** with a
+  clear message — without the token the parity gate cannot run at all.
+
+### How to triage a red nightly run
+
+1. **Reproduce locally** against the same project (staging/sandbox only — the
+   run writes transient probe rows):
+
+   ```bash
+   export SUPABASE_URL=https://<ref>.supabase.co
+   export SUPABASE_ANON_KEY=<publishable-or-anon-key>
+   export SUPABASE_SECRET_KEY=<service-role-secret-key>
+   node tools/verify-supabase-rls.mjs
+   ```
+
+2. **Read the verdict lines** (`EXPOSED` / `protected` / `unclear` / `missing`
+   / `unknown`) and act per row:
+
+   | Verdict | Meaning | Fix |
+   |---------|---------|-----|
+   | `EXPOSED` | The anon key read a row the service role wrote (or any real row via the unfiltered probe) | RLS is off or a policy is too permissive on that table. In the dashboard check **Table Editor → RLS toggle** and **Policies**; re-apply `server/migrations/001_initial_schema.sql`, `002_scope_service_role_policies.sql`, and `006_rls_fix_service_role.sql`, or fix the offending policy. Re-run the check. |
+   | `unclear` (inconclusive) | Sentinel mode: the seed insert failed, so protection could not be proven | Read the `[seed] <table> FAILED:` line above the verdicts; typically a schema mismatch (missing column/FK) — apply the migrations the table needs and re-run. |
+   | `missing` | Table not found | Migrations were not applied to this project, or the URL points at the wrong project. Run the migration files, then re-run. |
+   | `unknown` | Request failed (network, paused project, bad key) | Confirm the project is not paused and the URL/keys are correct, then re-run. |
+   | Probe-row residue | Cleanup could not delete a marker | The tool prints the residue ids; delete them manually with the service role (`DELETE ... WHERE id = 'rls-sentinel-...'`) — dependents first — then re-run. |
+
+3. **Check migration parity while you are in there**: a red RLS run is often
+   the first sign that migrations drifted. `npm run check:migration-parity`
+   proves the migration FILES agree; `node tools/check-migration-live-state.mjs`
+   proves the DATABASE agrees with them — and since both now run on the same
+   nightly schedule, a red `migration-live` job is triaged separately:
+
+   | `migration-live` failure | Meaning | Fix |
+   |--------------------------|---------|-----|
+   | `[DRIFT] <migration>` lines | The live schema no longer matches what the migration files describe (e.g. migrations 007–010 dropped/applied by hand, or applied to the wrong project) | Apply the migration files the drift names (SQL editor or `tools/apply-wingman-migrations.mjs`), or if the DATABASE is the intended source of truth, update the files — then re-run. |
+   | Exit 2 (config error) | `SUPABASE_URL` or `SUPABASE_ACCESS_TOKEN` missing | Reproduce locally with both env vars set, or add the token to repository secrets. |
+   | `Management API HTTP ...` | Token rejected or network issue | Confirm the token's project scope and that the project is not paused. |
+
+4. **Re-run to confirm**: after any fix, re-run `verify-supabase-rls.mjs`
+   locally until it prints `No table returned data to the anon key` and all
+   rows show `protected`, then let the next nightly confirm on its own.
 
 ## Troubleshooting
 

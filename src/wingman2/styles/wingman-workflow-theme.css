@@ -7508,6 +7508,16 @@ html[data-wingman-route="discovery"] .wm-qs__skip-icon {
   width: 1rem;
   height: 1rem;
 }
+/* Inline text-link variant used inside the quick-start help box (e.g. the
+   clear-this-session-choice affordance on a remembered profile). */
+html[data-wingman-route="discovery"] .wm-qs__skip--link {
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  align-self: flex-start;
+}
 html[data-wingman-route="discovery"] .wm-qs__continue {
   display: inline-flex;
   align-items: center;

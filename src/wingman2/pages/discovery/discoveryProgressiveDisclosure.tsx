@@ -68,6 +68,11 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     control: "touch-panel",
     usb: "byod-byom",
     "uc-purpose": ["video-conferencing"],
+    // A camera workflow seeded above must carry a camera type: the UC
+    // cross-field pin (discoveryDefaultsValidation) rejects camera workflows
+    // without uc-camera seeding. USB PTZ is the meeting-room default (the
+    // small/large meeting rooms' quick-start profiles already seed it).
+    "uc-camera": ["usb-ptz-camera"],
   },
   "classroom": {
     scale: "single-large-room",

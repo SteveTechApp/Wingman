@@ -5,12 +5,16 @@
   "type": "module",
   "scripts": {
     "start": "node competitor-lookup-server.mjs",
-    "dev": "node competitor-lookup-server.mjs"
+    "dev": "node competitor-lookup-server.mjs",
+    "check:build-deps": "node ../tools/check-build-deps.mjs --prefix ."
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
     "dotenv": "^16.4.5",
     "express": "^4.22.2",
     "pdfjs-dist": "^4.10.38"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
   }
 }

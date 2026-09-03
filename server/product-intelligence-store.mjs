@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { writeJsonFileAtomic } from "./atomic-json-file.mjs";
 import { enrichProductClassification } from "./shared/product-classification.mjs";
 import {
   COMPETITOR_CATALOG_FILE,
@@ -506,8 +507,9 @@ async function readJsonFile(filePath, fallback) {
 }
 
 async function writeJsonFile(filePath, payload) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(payload, null, 2), "utf8");
+  // Crash-atomic: temp file + rename, so a torn write can never leave the
+  // state DB corrupt (the shared helper used by the other server writers).
+  await writeJsonFileAtomic(filePath, payload);
 }
 
 export function mapCatalogRecord(raw, vendorType, capturedAt) {

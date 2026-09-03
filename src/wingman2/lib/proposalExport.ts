@@ -269,7 +269,9 @@ function saveTextFile(fileName: string, text: string, type: string) {
   window.document.body.appendChild(link);
   link.click();
   link.remove();
-  window.URL.revokeObjectURL(url);
+  // Revoke on a later task, never synchronously: the blob URL must stay live
+  // until the browser has actually begun the download fetch against it.
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
 }
 
 export function buildBomRows(products: StoredProductSelection[]): BomRow[] {

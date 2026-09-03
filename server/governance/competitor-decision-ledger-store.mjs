@@ -35,6 +35,10 @@
  *                              present) | "supabase" | "file" (never remote)
  *   SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY   shared Supabase credentials
  *   SUPABASE_COMPETITOR_DECISIONS_TABLE        default "competitor_match_decisions"
+ *   WINGMAN_LEDGER_COMMIT_MAX_BYTES            default 8388608; pre-flight cap for
+ *                              the full-mirror RPC payload. Migration 011
+ *                              hard-codes the same 8 MiB backstop, so the two
+ *                              move together (the payload-limit suite pins both).
  *
  * Table schema (one row per decision; the full decision is the `payload`):
  *   create table competitor_match_decisions (
@@ -90,6 +94,16 @@ const SUPABASE_WINGMAN_LEDGER_COMMIT_FN = String(
 const SUPABASE_URL = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim();
 const SUPABASE_SERVICE_ROLE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 
+// Oversized-payload ceiling for the full-mirror RPC. Migration 011's
+// wingman_ledger_commit hard-codes the same 8 MiB backstop, so this default
+// and the SQL ceiling must move together - the payload-limit suite pins both
+// to 8388608. Deployments behind a tighter platform request cap can lower the
+// pre-flight via env; the SQL ceiling still guards direct callers.
+export const LEDGER_COMMIT_MAX_PAYLOAD_BYTES = Math.max(
+  1024,
+  Number(process.env.WINGMAN_LEDGER_COMMIT_MAX_BYTES || 8_388_608),
+);
+
 let createSupabaseClient = null;
 try {
   ({ createClient: createSupabaseClient } = await import("@supabase/supabase-js"));
@@ -140,11 +154,16 @@ export async function readLedgerFromSupabase() {
       order: "id",
     });
     if (error) {
-      return {
+      const failure = {
         ok: false,
         error: truncated ? `Mirror read did not reach the end of the table: ${error.message}` : error.message,
         table: TABLE,
       };
+      // The pagination sentinel's code travels with the result so callers can
+      // branch on POSTGREST_PAGINATION_LIMIT without matching message text.
+      // Present only when the underlying failure carried a code.
+      if (error?.code) failure.errorCode = error.code;
+      return failure;
     }
     const decisions = (data ?? [])
       .map((row) => row?.payload)
@@ -184,6 +203,38 @@ export async function pushDecisionToSupabase(decision) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Oversized-payload guard (migration 011 write path)
+// ---------------------------------------------------------------------------
+
+/**
+ * Serialized size of the exact body the supabase-js client posts for the
+ * full-mirror RPC: rpc("wingman_ledger_commit", { payload: { ledger: rows } })
+ * sends JSON.stringify({ payload: { ledger: rows } }). Measuring that - not
+ * the rows alone - keeps the pre-flight aligned with what the wire would
+ * carry, the same quantity the API's 413 path bounds on the way in.
+ */
+export function ledgerCommitPayloadBytes(rows) {
+  return Buffer.byteLength(JSON.stringify({ payload: { ledger: Array.isArray(rows) ? rows : [] } }));
+}
+
+/**
+ * Returns a refusal description when the serialized mirror payload exceeds
+ * `maxBytes` (default: the shared 8388608 ceiling), else null. Exported so the
+ * boundary math is unit-testable without materializing an 8 MiB fixture.
+ */
+export function ledgerCommitPayloadTooLargeError(rows, maxBytes = LEDGER_COMMIT_MAX_PAYLOAD_BYTES) {
+  const bytes = ledgerCommitPayloadBytes(rows);
+  if (bytes <= maxBytes) return null;
+  return {
+    bytes,
+    maxBytes,
+    error:
+      `Ledger mirror payload is ${bytes} bytes, exceeding the ${maxBytes}-byte wingman_ledger_commit limit ` +
+      "(migration 011 rejects oversized payloads just like the API's 413 path). Shrink the mirror or sync in shards; nothing was sent.",
+  };
+}
+
 /**
  * Mirror the ledger to Supabase in ONE atomic commit: the database function
  * (migration 011, wingman_ledger_commit) upserts every decision row and
@@ -195,6 +246,25 @@ export async function pushDecisionToSupabase(decision) {
 export async function pushLedgerToSupabase(ledger) {
   const client = getSupabaseClient();
   if (!client) return { ok: false, error: "Supabase ledger client is not available.", table: TABLE };
+
+  // Migration 011's wingman_ledger_commit hard-codes the migration-created
+  // public.competitor_match_decisions table. With a custom
+  // SUPABASE_COMPETITOR_DECISIONS_TABLE override the reads address the custom
+  // table while this RPC would reconcile the default one - a sync would report
+  // success without touching the configured mirror. Reject loudly instead of
+  // writing to the wrong dataset.
+  if (TABLE !== "competitor_match_decisions") {
+    return {
+      ok: false,
+      error:
+        "Full-mirror commit is only supported on the migration-created competitor_match_decisions table " +
+        `(migration 011's wingman_ledger_commit hard-codes it); SUPABASE_COMPETITOR_DECISIONS_TABLE is set to ${TABLE}. ` +
+        "Remove the override, or provision wingman_ledger_commit for the custom table.",
+      table: TABLE,
+    };
+  }
+
+
   const decisions = Array.isArray(ledger?.decisions) ? ledger.decisions : [];
   const rows = decisions
     .filter((decision) => text(decision.id))
@@ -204,6 +274,16 @@ export async function pushLedgerToSupabase(ledger) {
       updated_at: text(decision.updatedAt) || nowIso(),
     }));
   if (rows.length === 0) return { ok: true, count: 0, table: TABLE };
+
+  // 413-style write-path hardening (the read side has the pagination sentinel
+  // and the API layer rejects oversized JSON bodies on the way in): refuse the
+  // RPC when the exact serialized body would exceed the migration-011 ceiling,
+  // so an accidentally bloated mirror fails loudly HERE instead of as a doomed
+  // multi-MB post or a platform-side rejection far from the cause.
+  const tooLarge = ledgerCommitPayloadTooLargeError(rows);
+  if (tooLarge) {
+    return { ok: false, code: "LEDGER_PAYLOAD_TOO_LARGE", table: TABLE, ...tooLarge };
+  }
 
   try {
     const { error } = await client.rpc(SUPABASE_WINGMAN_LEDGER_COMMIT_FN, {
@@ -317,7 +397,13 @@ export async function readLedgerForApi(filePath = COMPETITOR_DECISION_LEDGER_FIL
   try {
     const remote = await readLedgerFromSupabase();
     if (!remote.ok) {
-      return { ledger: local, mode: "file-db-fallback", warnings: [`Supabase ledger read failed: ${remote.error}`] };
+      const fallback = {
+        ledger: local,
+        mode: "file-db-fallback",
+        warnings: [`Supabase ledger read failed: ${remote.error}`],
+      };
+      if (remote.errorCode) fallback.errorCode = remote.errorCode;
+      return fallback;
     }
     if (remote.decisions.length === 0) {
       // The remote mirror is empty - the committed file is the seed.
@@ -352,7 +438,17 @@ export async function syncCompetitorDecisionLedger({ push = true } = {}) {
 
   const remote = await readLedgerFromSupabase();
   if (!remote.ok) {
-    return { ok: false, mode: "error", merged: local, error: remote.error, warnings: [`Supabase ledger read failed: ${remote.error}`] };
+    const failure = {
+      ok: false,
+      mode: "error",
+      merged: local,
+      error: remote.error,
+      warnings: [`Supabase ledger read failed: ${remote.error}`],
+    };
+    // Propagate the pagination sentinel code so the sync tool can distinguish
+    // a truncated mirror from any other read failure without parsing text.
+    if (remote.errorCode) failure.errorCode = remote.errorCode;
+    return failure;
   }
 
   let merged;
