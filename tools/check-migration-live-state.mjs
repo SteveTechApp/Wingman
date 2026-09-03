@@ -223,6 +223,21 @@ export function queryRowsFromBody(body) {
   );
 }
 
+// PostgreSQL array columns can be returned by the Management API either as a
+// JavaScript array or in PostgreSQL's text representation (for example,
+// "{service_role}"). Normalize both shapes before checking policy roles.
+export function postgresArrayIncludes(value, expected) {
+  if (Array.isArray(value)) return value.includes(expected);
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return false;
+  return trimmed
+    .slice(1, -1)
+    .split(",")
+    .map((item) => item.trim().replace(/^"|"$/g, ""))
+    .includes(expected);
+}
+
 async function query(sql) {
   const response = await fetch(`${apiBase}/v1/projects/${ref}/database/query/read-only`, {
     method: "POST",
@@ -305,7 +320,7 @@ async function main() {
         case "function": return live.functions.has(entry.name);
         case "policy": {
           const roles = live.policyRoles.get(entry.table);
-          return Array.isArray(roles) && roles.includes("service_role");
+          return postgresArrayIncludes(roles, "service_role");
         }
         case "cron": return live.cronJobs.has(entry.name);
         case "extension": return live.extensions.has(entry.name);
@@ -315,7 +330,6 @@ async function main() {
     const ok = entry.expected === PRESENT ? actual : !actual;
     const label = entry.kind === "policy" ? `policy service_role_all on ${entry.table}` : `${entry.kind} ${entry.name}`;
     const expectedText = entry.expected === PRESENT ? "present" : "absent";
-    const descriptor = `${entry.migration} -> ${label}`;
     if (!byMigration.has(entry.migration)) byMigration.set(entry.migration, { ok: 0, drift: 0 });
     const bucket = byMigration.get(entry.migration);
     if (ok) bucket.ok += 1;
@@ -325,9 +339,7 @@ async function main() {
     }
   }
 
-  let totalDrift = 0;
   for (const [migration, stats] of byMigration) {
-    totalDrift += stats.drift;
     const mark = stats.drift ? "DRIFT" : "ok";
     console.log(`  [${mark}] ${migration.padEnd(42)} ${stats.ok}/${stats.ok + stats.drift} objects`);
   }
