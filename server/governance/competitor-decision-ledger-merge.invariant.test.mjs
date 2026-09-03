@@ -30,7 +30,7 @@ import {
   readLedgerFromSupabase,
   syncCompetitorDecisionLedger,
 } from "./competitor-decision-ledger-store.mjs";
-import { readAllSupabaseRows } from "../supabase-pagination.mjs";
+import { POSTGREST_PAGINATION_LIMIT, readAllSupabaseRows } from "../supabase-pagination.mjs";
 import { COMPETITOR_DECISION_LEDGER_FILE } from "../catalog/files.mjs";
 
 // The sync-level suites below drive syncCompetitorDecisionLedger through its
@@ -480,6 +480,8 @@ describe("truncating-mirror sentinel (POSTGREST_PAGINATION_LIMIT)", () => {
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/did not reach the end of the table/);
     expect(result.error).toMatch(/without reporting a short page/);
+    // Callers key off the propagated sentinel code, not message text.
+    expect(result.errorCode).toBe(POSTGREST_PAGINATION_LIMIT);
     // The read paged past the cap instead of trusting one response: 100
     // full-page windows (maxPages) all came back non-short.
     expect(client.__windows().length).toBeGreaterThan(1);
@@ -505,6 +507,8 @@ describe("truncating-mirror sentinel (POSTGREST_PAGINATION_LIMIT)", () => {
     expect(result.ok).toBe(false);
     expect(result.mode).toBe("error");
     expect(result.error).toMatch(/did not reach the end of the table/);
+    // The sync surface propagates the sentinel code for programmatic triage.
+    expect(result.errorCode).toBe(POSTGREST_PAGINATION_LIMIT);
     // The mirror commit (the only thing that can delete rows) was never
     // invoked: a truncating mirror cannot converge into a data-loss push.
     expect(client.__rpcCalls()).toBe(0);
@@ -523,6 +527,7 @@ describe("truncating-mirror sentinel (POSTGREST_PAGINATION_LIMIT)", () => {
     expect(result.mode).toBe("file-db-fallback");
     expect(result.ledger).toEqual(local);
     expect(result.warnings.join(" ")).toMatch(/did not reach the end of the table/);
+    expect(result.errorCode).toBe(POSTGREST_PAGINATION_LIMIT);
     expect(client.__rpcCalls()).toBe(0);
   });
 
