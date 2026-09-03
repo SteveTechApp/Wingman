@@ -113,20 +113,22 @@ SUPABASE_WINGMAN_TABLES_ENABLED=true
 WINGMAN_STORAGE_FAIL_CLOSED=true
 ```
 
-### Optional Table Name Overrides
+### Table name overrides — single-row mode only
 
-If you need to use different table names (e.g., for a shared database), you can override them:
+`SUPABASE_WINGMAN_STATE_TABLE` (single-row `supabase` mode) may be renamed
+freely, since every statement addresses the configured table directly.
 
-```bash
-SUPABASE_WINGMAN_USERS_TABLE=wingman_users
-SUPABASE_WINGMAN_WORKSPACES_TABLE=wingman_workspaces
-SUPABASE_WINGMAN_MEMBERS_TABLE=wingman_workspace_members
-SUPABASE_WINGMAN_INVITATIONS_TABLE=wingman_workspace_invitations
-SUPABASE_WINGMAN_SESSIONS_TABLE=wingman_sessions
-SUPABASE_WINGMAN_PROJECTS_TABLE=wingman_projects
-SUPABASE_WINGMAN_AUDIT_TABLE=wingman_audit_events
-SUPABASE_WINGMAN_TELEMETRY_TABLE=wingman_telemetry_events
-```
+In **`supabase-tables` mode the `SUPABASE_WINGMAN_*_TABLE` overrides must NOT be
+set to anything other than the migration-created defaults.** The storage write
+path commits the whole snapshot through migration 009's
+`wingman_snapshot_commit`, whose DDL hard-codes the default `wingman_*` tables
+(and 011's `wingman_ledger_commit` hard-codes
+`competitor_match_decisions`). Reads honouring a custom table name while the
+atomic commit writes the default one would make every change disappear on the
+next read, so the server **rejects non-default overrides in `supabase-tables`
+mode with a clear configuration error** (logged as
+`storage.table_overrides.unsupported`). To use custom table names, provision
+the migration functions for those tables - do not rely on the env override.
 
 ## Storage Modes
 
