@@ -1,6 +1,6 @@
 ﻿# Wingman documentation map
 
-_Last updated: 2026-07-05_
+_Last updated: 2026-09-03_
 
 ## Current / authoritative
 
@@ -23,6 +23,7 @@ _Last updated: 2026-07-05_
 | `docs/WINGMAN_PROPOSAL_SAFETY_STANDARD.md` | Proposal wording and safety standard. |
 | `docs/wingman-sales-copy-style.md` | Sales copy tone and wording standard. |
 | `docs/wingman-native-schematic-engine.md` | Schematic engine design direction. |
+| `docs/CI_GUARD_GATES.md` | Verify-chain guard gates: what a dependency, lockfile, or product/governance-data edit must satisfy (reference-resolution, generated-manifest, build-deps, override-floor, governance-data, and ratchet gates), with the exception path for each. |
 
 ## Product governance
 
