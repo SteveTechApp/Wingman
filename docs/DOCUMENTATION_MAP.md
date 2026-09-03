@@ -11,7 +11,7 @@ _Last updated: 2026-07-05_
 | `docs/launch-readiness-report.md` | Superseded gate list, kept so links resolve. |
 | `docs/product-data-health.md` | Current product governance and data-risk summary. |
 | `docs/OPERATIONS.md` | Operational runbook. |
-| `docs/SUPABASE_SETUP.md` | Supabase setup guide. |
+| `docs/SUPABASE_SETUP.md` | Supabase setup guide, incl. the Supabase access rules (pagination invariant, file-db-only decisions). |
 | `docs/SUPABASE_SECRET_DRILL.md` | Secrets-configuration drill runbook: diagnose Supabase secret misconfiguration via the diagnostic workflow without a failing push. |
 | `docs/LAUNCH_CHECKLIST.md` | Launch checklist; use with current status file. |
 | `docs/LOAD_TESTING.md` | Load testing method. |

@@ -9,9 +9,10 @@ This guide explains how to configure Supabase for production use with the Wingma
 3. [Running the Database Migration](#running-the-database-migration)
 4. [Environment Variable Configuration](#environment-variable-configuration)
 5. [Storage Modes](#storage-modes)
-6. [Switching from File Storage to Supabase](#switching-from-file-storage-to-supabase)
-7. [Verifying the Setup](#verifying-the-setup)
-8. [Troubleshooting](#troubleshooting)
+6. [Development Rules for Supabase Access](#development-rules-for-supabase-access)
+7. [Switching from File Storage to Supabase](#switching-from-file-storage-to-supabase)
+8. [Verifying the Setup](#verifying-the-setup)
+9. [Troubleshooting](#troubleshooting)
 
 ## Overview
 
@@ -151,6 +152,55 @@ SUPABASE_WINGMAN_TELEMETRY_TABLE=wingman_telemetry_events
 - Enables future features like direct SQL queries, backups, and analytics
 - Recommended for production
 
+## Development Rules for Supabase Access
+
+These rules apply to any new code that reads or writes Supabase data. They are
+enforced by CI gates, so violations fail the build rather than surfacing later
+as data problems.
+
+### Invariant: never read a table without a bound
+
+PostgREST caps every list response at 1000 rows by default. A `select` without
+a range, limit, or filter reads at most the first 1000 rows and returns them
+as if they were the whole table — there is no error and no warning. Code that
+reconciles or mirrors a table over such a read will eventually delete or
+overwrite rows it never saw.
+
+Rules for table reads:
+
+- Use `readAllSupabaseRows` from `server/supabase-pagination.mjs` for any read
+  that must observe the full table. It pages through the range headers and
+  merges results, so table size never truncates the snapshot.
+- Direct `client.from(...).select(...)` calls are only acceptable when they
+  carry a bound: `.range()`, `.limit()`, a head-only count
+  (`{ head: true }`), `.single()`/`.maybeSingle()`, or a filter predicate
+  (`.eq/.in/.lt/...`). An `.order()` alone is not a bound — sorting a whole
+  table is still reading a whole table.
+- Raw PostgREST `fetch` calls against `/rest/v1/<table>` need `limit=` or a
+  filter predicate in the URL for read methods. Write methods (POST, PATCH,
+  PUT, DELETE) are exempt.
+
+Enforcement: `tools/check-postgrest-reads.mjs` scans `server/` and `tools/`
+and runs as part of `npm run verify:build`. It fails with file, line, and the
+remediation above when a new unbounded read appears. A deliberately unbounded
+probe (for example, the RLS leak check, where reading everything is the test)
+needs an entry in the checker's file-scoped allowlist with a written
+justification.
+
+### Decision: the product-intelligence store is file-db-only
+
+`server/product-intelligence-store.mjs` reads and writes the gitignored
+product-intelligence database through `node:fs` and has no Supabase client.
+This is deliberate: the store is a derived cache over generated catalog data,
+rebuilt from `data-sources/`, so table mode would add a second copy of the
+same data without a recovery story for divergence.
+
+`server/product-intelligence-store.file-db-pin.test.mjs` keeps it that way:
+it fails if the store gains a Supabase client, a table-mode read, or an RPC
+call, and if an unpaged table read is ever introduced. If table mode becomes
+necessary later, route reads through `readAllSupabaseRows` and update the pin
+test deliberately as part of the design — not by deleting the pin to make a
+build pass.
 ## Switching from File Storage to Supabase
 
 If you have existing data in file storage that you want to migrate:
