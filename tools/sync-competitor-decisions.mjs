@@ -91,4 +91,7 @@ if (!pushed.ok) {
   process.exit(1);
 }
 
-console.log(`[sync:competitor-decisions] ${mode} and pushed: ${merged.decisions.length} decisions (${approved} approved) now live in the Supabase mirror.`);
+const shardNote = pushed.sharded ? ` (pushed in ${pushed.shardCount} shards below the commit ceiling)` : "";
+console.log(
+  `[sync:competitor-decisions] ${mode} and pushed: ${merged.decisions.length} decisions (${approved} approved) now live in the Supabase mirror${shardNote}.`,
+);

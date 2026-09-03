@@ -17,16 +17,23 @@ import { fileURLToPath } from "node:url";
 // paging every full-table read until a short page proves exhaustion.
 //
 // To pin the fix we boot the REAL competitor-lookup server in supabase-tables
-// mode against an in-process FAKE PostgREST that holds 1500 telemetry rows -
-// more than the real PostgREST would ever return in one request - and then
-// drive a real signup over HTTP. The signup reads the whole DB (must page past
-// the cap) and commits the snapshot (must NOT delete the tail). If anyone
-// regresses the read back to a single unpaged `select`, the fake's 1000-row
-// cap (mirroring real PostgREST) truncates the read, the payload loses the
-// tail, the commit deletes it, and this test goes red.
+// mode against an in-process FAKE PostgREST and drive a real signup over HTTP.
+// The signup reads the whole DB (must page past the cap) and commits the
+// snapshot (must NOT delete the tail). If anyone regresses the read back to a
+// single unpaged `select`, the fake's un-ranged cap (mirroring real
+// PostgREST's silent truncation) cuts the read, the payload loses the tail,
+// the commit deletes it, and this test goes red.
+//
+// Scale is deliberately SMALL, using the same shrunk-pageSize technique as the
+// pagination unit tests: the server's read window is shrunk to 25 rows
+// (SUPABASE_WINGMAN_READ_PAGE_SIZE) and the fake's un-ranged cap is also 25,
+// so a 60-row telemetry table stands in for a 1500-row one - the read must
+// page 25+25+10 past the cap exactly as a 1000-row window pages past a
+// 1500-row table. The real PostgREST numbers (cap 1000, window 1000) are the
+// same arithmetic, just 40x larger.
 //
 // The fake also ships a negative control: a commit whose payload really WAS
-// truncated to the first 1000 rows deletes exactly the tail - proving the
+// truncated to the first 25 rows deletes exactly the tail - proving the
 // delete half of the reconciliation is live, so a green result is not vacuous.
 
 const PORT = 8879; // distinct from 413 e2e (8876), agents e2e (8877/8878), api-contract-check (8898), check:workflow (8899)
@@ -36,8 +43,11 @@ const projectRoot = path.resolve(__dirname, "..");
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wingman-unread-tail-e2e-"));
 
 const TELEMETRY_TABLE = "wingman_telemetry_events";
-const SEED_COUNT = 1500; // > PostgREST's 1000-row default cap
-const CAP = 1000;
+// Shrunk scale: window 25, cap 25, 60 seeded rows (see header). The numbers
+// mirror real PostgREST (cap 1000 / 1000-row window / 1500 rows) at 1/40th.
+const SEED_COUNT = 60; // > the 25-row cap, with a 35-row tail
+const CAP = 25;
+const READ_PAGE_SIZE = 25; // SUPABASE_WINGMAN_READ_PAGE_SIZE handed to the server
 
 const WINGMAN_TABLES = [
   "wingman_app_state",
@@ -63,9 +73,10 @@ const SECTION_TO_TABLE = {
 };
 
 // ---------------------------------------------------------------------------
-// Fake PostgREST: real cap semantics (1000 rows per un-ranged request), the
-// offset/limit window postgrest-js sends for .range(), HEAD count probes, and
-// the migration-009-style atomic snapshot commit reconciliation.
+// Fake PostgREST: real cap semantics (CAP rows per un-ranged request - the
+// shrunken stand-in for real PostgREST's 1000-row max), the offset/limit
+// window postgrest-js sends for .range(), HEAD count probes, and the
+// migration-009-style atomic snapshot commit reconciliation.
 // ---------------------------------------------------------------------------
 
 const fakeStore = new Map(); // table -> Map(id -> row)
@@ -184,7 +195,8 @@ function fakePostgrestHandler(req, res) {
     toExclusive = Math.min(total, from + limit);
   } else {
     // No window: PostgREST silently returns at most CAP rows (its default
-    // max-rows). THIS is the truncation behavior the pagination fix exists for.
+    // max-rows; 1000 in real PostgREST, 25 at this shrunk scale). THIS is the
+    // truncation behavior the pagination fix exists for.
     from = 0;
     toExclusive = Math.min(total, CAP);
   }
@@ -236,6 +248,11 @@ let child = null;
 let fakeServer = null;
 let fakePort = 0;
 let sessionCookie = "";
+// Snapshot of the fake's request log taken IMMEDIATELY after signup, before
+// any test-driven read-back (fakeReadAll/fakeReadPage) pollutes the log. The
+// paging assertion below must prove the SERVER paged during the signup write
+// cycle - not that this test file's own helpers paged while reading back.
+let signupTelemetryReads = [];
 const childLog = [];
 
 async function waitForHealth(timeoutMs = 30_000) {
@@ -269,7 +286,7 @@ async function signupAndCaptureCookie() {
   return setCookie.split(";")[0];
 }
 
-async function fakeReadPage(table, { offset = 0, limit = 1000 } = {}) {
+async function fakeReadPage(table, { offset = 0, limit = READ_PAGE_SIZE } = {}) {
   const res = await fetch(`http://127.0.0.1:${fakePort}/rest/v1/${table}?select=*&offset=${offset}&limit=${limit}`);
   expect(res.status).toBe(200);
   return res.json();
@@ -277,10 +294,10 @@ async function fakeReadPage(table, { offset = 0, limit = 1000 } = {}) {
 
 async function fakeReadAll(table) {
   const all = [];
-  for (let offset = 0; ; offset += 1000) {
+  for (let offset = 0; ; offset += READ_PAGE_SIZE) {
     const page = await fakeReadPage(table, { offset });
     all.push(...page);
-    if (page.length < 1000) break;
+    if (page.length < READ_PAGE_SIZE) break;
   }
   return all;
 }
@@ -291,7 +308,7 @@ function seedIds(count) {
 
 beforeAll(async () => {
   // Fake PostgREST first, seeded BEFORE the server boots so any warm read sees
-  // the full 1500-row table from the start.
+  // the full 60-row table from the start.
   fakeServer = http.createServer(fakePostgrestHandler);
   await new Promise((resolve) => fakeServer.listen(0, "127.0.0.1", resolve));
   fakePort = fakeServer.address().port;
@@ -305,6 +322,9 @@ beforeAll(async () => {
       WINGMAN_UI_PORT: "3999", // agents e2e uses 3997/3998; 413 e2e uses 3996
       WINGMAN_DATA_DIR: dataDir,
       WINGMAN_STORAGE_MODE: "supabase-tables",
+      // Shrink the store's read window so the 60-row fake table stands in for
+      // a 1500-row one: the read must page 25+25+10 past the 25-row cap.
+      SUPABASE_WINGMAN_READ_PAGE_SIZE: String(READ_PAGE_SIZE),
       SUPABASE_URL: `http://127.0.0.1:${fakePort}`,
       SUPABASE_SERVICE_ROLE_KEY: "fake-service-role-key",
       // Keep the lookup server's own competitor approvals/runtime-events
@@ -322,6 +342,11 @@ beforeAll(async () => {
   // below proves the signup read specifically walked past the cap.
   requestLog.length = 0;
   sessionCookie = await signupAndCaptureCookie();
+  // Freeze the signup's telemetry GETs now: the assertions that follow run
+  // AFTER read-backs (fakeReadAll) that would otherwise look like paging.
+  signupTelemetryReads = requestLog.filter(
+    (entry) => entry.resource === TELEMETRY_TABLE && entry.method === "GET" && entry.offset !== null,
+  );
 }, 60_000);
 
 afterAll(async () => {
@@ -336,12 +361,12 @@ afterAll(async () => {
   fs.rmSync(dataDir, { recursive: true, force: true });
 });
 
-describe("snapshot write past the 1000-row PostgREST cap", () => {
+describe("snapshot write past the capped read window (shrunk-pageSize scale)", () => {
   it("keeps every seeded row beyond the cap after a real signup write cycle", async () => {
     const telemetry = await fakeReadAll(TELEMETRY_TABLE);
     const ids = new Set(telemetry.map((row) => row.id));
 
-    // Every pre-seeded row - including the 500-row tail that a capped read
+    // Every pre-seeded row - including the 35-row tail that a capped read
     // would have omitted from the commit payload and thus deleted - survives.
     for (const id of seedIds(SEED_COUNT)) {
       expect(ids.has(id), `seeded row ${id} was deleted by the snapshot write`).toBe(true);
@@ -350,15 +375,14 @@ describe("snapshot write past the 1000-row PostgREST cap", () => {
   });
 
   it("actually paged the read past the cap during signup", async () => {
-    // readAllSupabaseRows asks for offset=1000 (its second page). A store that
-    // read once, uncapped, would only ever have asked offset=0.
-    const telemetryReads = requestLog.filter(
-      (entry) => entry.resource === TELEMETRY_TABLE && entry.method === "GET" && entry.offset !== null,
-    );
-    expect(telemetryReads.some((entry) => Number(entry.offset) >= CAP)).toBe(true);
+    // readAllSupabaseRows asks for offset=25 (its second page) with the shrunk
+    // 25-row window. A store that read once, uncapped, would only ever have
+    // asked offset=0. The snapshot was frozen right after signup, so only the
+    // server's own reads count - the read-back helpers below cannot fake it.
+    expect(signupTelemetryReads.some((entry) => Number(entry.offset) >= CAP)).toBe(true);
   });
 
-  it("the fake's cap is real: an unpaged read sees only the first 1000 of 1500+ rows", async () => {
+  it("the fake's cap is real: an unpaged read sees only the first 25 of 60+ rows", async () => {
     // Mirrors real PostgREST: an un-ranged select returns CAP rows with the
     // true total in Content-Range - so a caller that does not page cannot tell
     // it is missing the tail until the commit deletes it.
@@ -367,12 +391,12 @@ describe("snapshot write past the 1000-row PostgREST cap", () => {
     const contentRange = res.headers.get("content-range") || "";
     expect(rows).toHaveLength(CAP);
     expect(rows[0].id).toBe("seed-telemetry-0000");
-    expect(contentRange).toMatch(/\/\d{4,}$/); // total >= 1000 advertised
+    expect(contentRange).toMatch(/\/\d{2,}$/); // total >= 60 advertised
   });
 
   it("the write path actually reached the fake (commit ran, rows stored)", async () => {
     // Guards against a silent storage fallback: if the server had degraded to
-    // file mode the fake would still hold exactly the 1500 seeds and no user.
+    // file mode the fake would still hold exactly the 60 seeds and no user.
     const users = await fakeReadAll("wingman_users");
     expect(
       users.length,
@@ -384,9 +408,9 @@ describe("snapshot write past the 1000-row PostgREST cap", () => {
 
   it("negative control: a genuinely truncated commit payload deletes exactly the tail", async () => {
     // Prove the delete half of the reconciliation is live: reset the table,
-    // commit a payload that contains only the first 1000 rows (what a
-    // truncating read WOULD have produced before the fix), and assert the
-    // 500-row tail is removed. A green main assertion is therefore meaningful.
+    // commit a payload that contains only the first 25 rows (what a truncating
+    // read WOULD have produced before the fix), and assert the 35-row tail is
+    // removed. A green main assertion is therefore meaningful.
     seedTelemetry(SEED_COUNT);
     const firstPage = await fakeReadPage(TELEMETRY_TABLE, { offset: 0, limit: CAP });
     expect(firstPage).toHaveLength(CAP);

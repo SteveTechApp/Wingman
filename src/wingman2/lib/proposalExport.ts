@@ -1,4 +1,5 @@
 import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
+import { downloadBlob } from "./downloadBlob";
 import { powerBudgetSummary, type PowerBudgetSummary } from "./powerBudget";
 import {
   buildCableSchedule,
@@ -255,23 +256,6 @@ function fileBaseName(title: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80) || "wingman-proposal";
-}
-
-function saveTextFile(fileName: string, text: string, type: string) {
-  if (typeof window === "undefined") return;
-
-  const blob = new Blob([text], { type });
-  const url = window.URL.createObjectURL(blob);
-  const link = window.document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.rel = "noopener";
-  window.document.body.appendChild(link);
-  link.click();
-  link.remove();
-  // Revoke on a later task, never synchronously: the blob URL must stay live
-  // until the browser has actually begun the download fetch against it.
-  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
 }
 
 export function buildBomRows(products: StoredProductSelection[]): BomRow[] {
@@ -741,11 +725,11 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 }
 
 export function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
-  saveTextFile(`${fileBaseName(proposal.title)}.proposal.html`, buildProposalHtml(proposal, bomRows, products), "text/html;charset=utf-8");
+  downloadBlob(new Blob([buildProposalHtml(proposal, bomRows, products)], { type: "text/html;charset=utf-8" }), `${fileBaseName(proposal.title)}.proposal.html`);
 }
 
 export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[]) {
-  saveTextFile(`${fileBaseName(proposal.title)}.bom.csv`, buildBomCsv(bomRows), "text/csv;charset=utf-8");
+  downloadBlob(new Blob([buildBomCsv(bomRows)], { type: "text/csv;charset=utf-8" }), `${fileBaseName(proposal.title)}.bom.csv`);
 }
 
 /**
