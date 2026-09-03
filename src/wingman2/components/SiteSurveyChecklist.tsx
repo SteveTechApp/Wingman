@@ -219,7 +219,9 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Revoke on a later task, never synchronously: the blob URL must stay live
+    // until the browser has actually begun the download fetch against it.
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   function handleTopologyUpdate(_updatedTopology: ProjectTopology, result: PhotoToTopologyResult) {
