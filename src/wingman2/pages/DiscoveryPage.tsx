@@ -53,8 +53,9 @@ import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsP
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
-import { DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
+import { BASIC_MODE_REQUIRED_IDS, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
+import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
 import { DiscoveryDefaultsConflictAlert } from "./discovery/DiscoveryDefaultsConflictAlert";
 import {
@@ -199,9 +200,11 @@ export function DiscoveryPage() {
 
   const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
   const [isReviewingAnswers, setIsReviewingAnswers] = useState(false);
-  const [answers, setAnswers] = useState<DiscoveryAnswers>(
-    () => (draftState.answers as DiscoveryAnswers | undefined) ?? {},
+  const [answers, setAnswers] = useState<DiscoveryAnswers>(() => (draftState.answers as DiscoveryAnswers | undefined) ?? {});
+  const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
+    () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
   );
+  const [quickStartSeed, setQuickStartSeed] = useState(() => readQuickStartSeedRecord(draftState.quickStartSeed));
   const [notes, setNotes] = useState<DiscoveryNotes>(
     () => (draftState.notes as DiscoveryNotes | undefined) ?? {},
   );
@@ -209,15 +212,11 @@ export function DiscoveryPage() {
   const [confirmedSteps, setConfirmedSteps] = useState<Record<string, boolean>>(
     () => (draftState.confirmed as Record<string, boolean> | undefined) ?? {},
   );
-  // stepId -> capture confidence (high / matched / low) carried from the
-  // suggestion chip and guided-interview match, so the conversation trail can
-  // flag low-confidence rows for re-verification before export.
+  // stepId -> capture confidence tier (high / matched / low) for the trail.
   const [confidenceByStep, setConfidenceByStep] = useState<Record<string, "high" | "matched" | "low">>(
     () => (draftState.confidence as Record<string, "high" | "matched" | "low"> | undefined) ?? {},
   );
-  // stepId -> raw interpretation score that produced the tier. Carried into
-  // the trail (DiscoveryConversationItem.confidenceScore) so exports show the
-  // trust level behind each you-said → matched pair.
+  // stepId -> raw interpretation score behind the tier (shown in exports).
   const [confidenceScoresByStep, setConfidenceScoresByStep] = useState<
     Record<string, number>
   >({});
@@ -246,11 +245,11 @@ export function DiscoveryPage() {
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
   const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("basic");
-  // Pending escalation: set when a non-basic question is edited while in basic mode,
+  // Pending escalation: set when a non-basic question is edited in basic mode —
   // shows a confirmation dialog before switching to Expert.
   const [pendingEscalation, setPendingEscalation] = useState<string | null>(null);
-  // `?interview=1` (used by the dashboard / project-card resume links) opens
-  // straight into the guided interview, which resumes at the first open question.
+  // `?interview=1` (dashboard / project-card resume links) opens straight into
+  // the guided interview, which resumes at the first open question.
   const [interviewActive, setInterviewActive] = useState(
     () => searchParams.get("interview") === "1",
   );
@@ -259,9 +258,7 @@ export function DiscoveryPage() {
   const [reviewScope, setReviewScope] = useState<"all" | "open">(
     () => (searchParams.get("review") === "open" ? "open" : "all"),
   );
-  // Persisted zero-based review position: leaving mid-review and re-entering
-  // lands back on the same question instead of question one. Stored on the
-  // brief so it survives navigation and page reloads per project.
+  // Persisted review position: re-entry lands back on the same question.
   const [reviewPosition, setReviewPosition] = useState<number | undefined>(() => {
     const stored = discoveryDraft?.brief?.reviewPosition;
     return typeof stored === "number" && Number.isFinite(stored)
@@ -328,12 +325,37 @@ export function DiscoveryPage() {
     [selectedApplication, answers],
   );
 
-  // In Basic mode, only show 6 essential questions; Expert shows all.
-  const BASIC_IDS = useMemo(() => new Set(["opportunity", "scale", "sources", "displays", "display-behaviour", "uc-purpose"]), []);
+  // In Basic mode, only show the essential questions; Expert shows all. Derived
+  // from BASIC_MODE_REQUIRED_IDS (single source of truth) so the UI gate and
+  // the smart-default/escalation logic can never disagree on Basic's questions.
+  const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
   const modeQuestions = useMemo(() => {
     if (progressiveMode === "expert") return discoveryQuestions;
     return discoveryQuestions.filter((q) => BASIC_IDS.has(q.id));
   }, [discoveryQuestions, progressiveMode, BASIC_IDS]);
+
+  // Quick-start conflict signals (stranded defaults, application drift).
+  const {
+    applyQuickStartSeeded,
+    removeQuickStartDrift,
+    strandedQuickStart,
+    quickStartDrift,
+    openStrandedStep,
+    removeStrandedQuickStart,
+  } = useQuickStartConflictSignals({
+    discoveryQuestions,
+    modeQuestions,
+    progressiveMode,
+    answers,
+    setAnswers,
+    appliedDefaults,
+    onAppliedDefaultsChange: setAppliedDefaults,
+    seedProvenance: quickStartSeed,
+    onSeedProvenanceChange: setQuickStartSeed,
+    setActiveIndex,
+    setIsReviewingAnswers,
+    setPendingEscalation,
+  });
 
   useEffect(() => {
     if (!editQuestionId || editQuestionId === "budget") return;
@@ -388,11 +410,12 @@ export function DiscoveryPage() {
   const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);
   const isFirstStep = activeIndex === 0;
   const isLastStep = activeIndex === modeQuestions.length - 1;
-  // The integrity gate checks only the questions visible in the current mode.
+  // Integrity gate = mode questions; stranded scan = full visible set, so an
+  // expert-level strand still blocks quote safety in Basic.
   const integrityQuestions = modeQuestions;
   const decisionIntegrity = useMemo(
-    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes),
-    [answers, integrityQuestions, notes],
+    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions, appliedDefaults, quickStartSeed),
+    [answers, appliedDefaults, discoveryQuestions, integrityQuestions, notes, quickStartSeed],
   );
   const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
@@ -457,7 +480,7 @@ export function DiscoveryPage() {
       writeLatestDiscoverySnapshot({
         ...(discoveryOwnershipRef.current ?? {}),
         activeStepIndex: activeIndex,
-        state: { answers, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
+        state: { answers, appliedDefaults, quickStartSeed, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
         brief: buildDiscoveryBrief(),
         savedAt: "",
       });
@@ -465,7 +488,7 @@ export function DiscoveryPage() {
 
     return () => window.clearTimeout(timeout);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answeredCount, activeIndex, answers, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition]);
+  }, [answeredCount, activeIndex, answers, appliedDefaults, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition]);
 
   useEffect(() => {
     setActiveIndex((current) => Math.min(current, Math.max(modeQuestions.length - 1, 0)));
@@ -588,6 +611,7 @@ export function DiscoveryPage() {
     delete incomingNotes.infrastructure;
 
     setAnswers(incomingAnswers);
+    setAppliedDefaults((previous) => ({ ...previous, ...incomingAnswers }));
     setNotes(incomingNotes);
     setTopology(incomingTopology);
     writeDiscoveryTopology(incomingTopology);
@@ -744,8 +768,8 @@ export function DiscoveryPage() {
 
     if (currentStep.id === "opportunity" && answers.opportunity !== value) {
       // The note beside the application question is the customer's original
-      // requirement. Changing the classification must not discard that source
-      // wording; only notes belonging to the old conditional route are stale.
+      // requirement; changing the classification must keep it. Only notes on
+      // the old conditional route are stale.
       const opportunityNote = notes.opportunity?.trim() ?? "";
       const nextNotes: DiscoveryNotes = opportunityNote ? { opportunity: opportunityNote } : {};
       setNotes(nextNotes);
@@ -824,8 +848,7 @@ export function DiscoveryPage() {
     if (confidence) {
       setConfidenceByStep((previous) => ({ ...previous, [currentStep.id]: confidence }));
     }
-    // The capture chip has the interpretation score — a deliberate option pick
-    // is high-confidence, so stamp a clearly-high score of 10 for it.
+    // A deliberate option pick is high-confidence: stamp a clear 10 score.
     if (confidence === "high") {
       setConfidenceScoresByStep((previous) => ({ ...previous, [currentStep.id]: 10 }));
     }
@@ -925,6 +948,8 @@ export function DiscoveryPage() {
     setIsListening(false);
     setMicError("");
     setAnswers({});
+    setAppliedDefaults({});
+    setQuickStartSeed(null);
     setNotes({});
     setConfidenceByStep({});
     setConfidenceScoresByStep({});
@@ -1444,7 +1469,7 @@ return (
         </div>
       </header>
 
-      {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={setAnswers} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
+      {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={applyQuickStartSeeded} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
       {isGuided ? (
         <details className="wm-discovery-client-compact" data-wingman-client-compact="true">
@@ -1504,7 +1529,7 @@ return (
       ) : null}
 
       {interviewActive ? (
-        <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} />
+        <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} strandedQuickStart={strandedQuickStart} applicationDrift={quickStartDrift} onOpenStrandedStep={openStrandedStep} onRemoveStranded={removeStrandedQuickStart} />
       ) : showCompletionPanel ? (
         <DiscoveryCompletionPanel
           panelRef={completionPanelRef}
@@ -1526,6 +1551,11 @@ return (
               projectName: existingDiscoveryName,
             })
           }
+          strandedQuickStart={strandedQuickStart}
+          applicationDrift={quickStartDrift}
+          onOpenStrandedStep={openStrandedStep}
+          onRemoveStranded={removeStrandedQuickStart}
+          onRemoveDrift={removeQuickStartDrift}
         />
       ) : (
       <>
@@ -1697,6 +1727,11 @@ return (
                 setConfirmedSteps((previous) => ({ ...previous, [stepId]: previous[stepId] !== true }))
               }
               compact
+              strandedQuickStart={strandedQuickStart}
+              applicationDrift={quickStartDrift}
+              onOpenStrandedStep={openStrandedStep}
+              onRemoveStranded={removeStrandedQuickStart}
+              onRemoveDrift={removeQuickStartDrift}
             />
           )}
 

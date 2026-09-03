@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { StoredDiscoveryBrief, StoredProjectProposal } from "../data/projectStore";
-import { briefFromProposal, buildDiscoveryBriefHtml } from "./discoveryBriefExport";
+import { briefFromProposal, buildDiscoveryBriefHtml, exportDiscoveryBriefHtml } from "./discoveryBriefExport";
 
 const briefWithTrail: StoredDiscoveryBrief = {
   savedAt: "2026-08-26T00:00:00.000Z",
@@ -102,5 +102,32 @@ describe("Discovery Brief HTML export", () => {
     const html = buildDiscoveryBriefHtml(brief, { projectName: proposal.title, preparedBy: proposal.preparedBy });
     expect(html).toContain("What type of opportunity is this?");
     expect(html).toContain("Design direction");
+  });
+});
+
+describe("discovery brief download (blob URL lifecycle)", () => {
+  it("defers the blob-URL revoke until after the download task starts", async () => {
+    const createSpy = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:wingman-brief-test");
+    const revokeSpy = vi.fn();
+    // revokeObjectURL is inherited in this environment; install an own,
+    // spyable version so the deferred revoke can be observed.
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, writable: true, value: revokeSpy });
+    try {
+      exportDiscoveryBriefHtml(briefWithTrail, { projectName: "Acme HQ Boardroom" });
+
+      // Inside the synchronous handler the URL must still be live: the revoke
+      // is deferred to the next task so the browser can begin the download
+      // fetch against it (see SavedComparisonHistory.exportCsv).
+      expect(createSpy).toHaveBeenCalledTimes(1);
+      expect(createSpy).toHaveBeenCalledWith(expect.any(Blob));
+      expect(revokeSpy).not.toHaveBeenCalled();
+
+      // Once the task queue drains, the exact created URL is revoked.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(revokeSpy).toHaveBeenCalledWith("blob:wingman-brief-test");
+    } finally {
+      Reflect.deleteProperty(URL, "revokeObjectURL");
+      vi.restoreAllMocks();
+    }
   });
 });
