@@ -14,6 +14,43 @@ function makeRows(count) {
   return Array.from({ length: count }, (_, index) => ({ id: `row-${index}`, n: index }));
 }
 
+// A fake client that honours arbitrary Range windows against a fixed row
+// array, with an optional page-indexed failure. Unlike fakeClient above, the
+// window arithmetic is pageSize-agnostic, so tests can SHRINK the pageSize
+// passed to readAllSupabaseRows and still exercise multi-page walks against a
+// small row count - the cheap way to simulate a table that outgrew the
+// PostgREST cap.
+function windowedClient(rows, { pageSize, failPage } = {}) {
+  const requestedRange = [];
+  return {
+    requestedRange,
+    from: () => ({
+      select: () => {
+        const state = { from: 0, to: null };
+        const api = {
+          range: (start, end) => {
+            state.from = start;
+            state.to = end;
+            return api;
+          },
+          order: async () => {
+            requestedRange.push([state.from, state.to]);
+            const pageIndex = state.from / pageSize;
+            if (failPage === pageIndex) {
+              return { data: null, error: new Error(`boom on page ${pageIndex}`) };
+            }
+            return {
+              data: rows.slice(state.from, Math.min(state.to + 1, rows.length)),
+              error: null,
+            };
+          },
+        };
+        return api;
+      },
+    }),
+  };
+}
+
 function fakeClient(rows, { failPage } = {}) {
   const requestedRange = [];
   let currentFrom = 0;
@@ -152,5 +189,99 @@ describe("readAllSupabaseRows pagination", () => {
     const result = await readAllSupabaseRows(explodingClient, "explosive", { order: "id" });
     expect(result.truncated).toBe(true);
     expect(result.error.message).toContain("network dropped");
+  });
+});
+
+describe("readAllSupabaseRows with a shrunk pageSize (mutation: simulates a >cap table cheaply)", () => {
+  // The real hazard this pins: PostgREST silently caps a request at 1000 rows,
+  // so a table that outgrew the cap looks complete to a naive one-request
+  // reader. The supabase-tables stores (wingman-app-store's 8 snapshot tables,
+  // the competitor ledger mirror) gate every full-table read on this helper's
+  // contract: `error` is non-null - and the store refuses the snapshot - unless
+  // the walk PROVABLY reached the end of the table. These tests shrink the
+  // pageSize so a small row count stands in for a >cap table, pinning that the
+  // helper honours the shrunken window and never reports a truncated read as
+  // complete.
+
+  it("walks every shrunken window and serves the FULL table, never a one-window slice", async () => {
+    const pageSize = 25;
+    const rows = makeRows(60); // 60 rows vs a 25-row window: 3 pages, like 1500 vs 1000.
+    const client = windowedClient(rows, { pageSize });
+
+    const result = await readAllSupabaseRows(client, "small_cap_table", { order: "id", pageSize });
+
+    expect(result.error).toBeNull();
+    expect(result.truncated).toBe(false);
+    expect(result.pages).toBe(3);
+    expect(result.data).toHaveLength(60);
+    expect(result.data[0]).toEqual(rows[0]);
+    expect(result.data[59]).toEqual(rows[59]);
+    // Deterministic window arithmetic under the shrunken cap.
+    expect(client.requestedRange).toEqual([
+      [0, 24],
+      [25, 49],
+      [50, 74],
+    ]);
+  });
+
+  it("treats an exact multiple of the shrunken pageSize as NOT exhausted and probes the empty tail", async () => {
+    const pageSize = 25;
+    const rows = makeRows(50); // Exactly 2 windows: the second full window is not proof of the end.
+    const client = windowedClient(rows, { pageSize });
+
+    const result = await readAllSupabaseRows(client, "exact_shrunk", { order: "id", pageSize });
+
+    expect(result.error).toBeNull();
+    expect(result.truncated).toBe(false);
+    expect(result.pages).toBe(3);
+    expect(result.data).toHaveLength(50);
+    expect(client.requestedRange).toEqual([
+      [0, 24],
+      [25, 49],
+      [50, 74],
+    ]);
+  });
+
+  it("surfaces a mid-table error at a shrunken window as truncated - the store gate refuses it", async () => {
+    const pageSize = 25;
+    const client = windowedClient(makeRows(60), { pageSize, failPage: 1 });
+
+    const result = await readAllSupabaseRows(client, "flaky_shrunk", { order: "id", pageSize });
+
+    expect(result.error).not.toBeNull();
+    expect(result.error.message).toContain("boom on page 1");
+    expect(result.truncated).toBe(true);
+    // Rows from the completed window are surfaced, but the read is a hard
+    // failure - a store that gates on `error` never serves this as a snapshot.
+    expect(result.data).toHaveLength(25);
+    expect(client.requestedRange).toEqual([
+      [0, 24],
+      [25, 49],
+    ]);
+  });
+
+  it("the store gate is load-bearing: an unguarded one-window read silently serves a truncated snapshot", async () => {
+    // The demonstration: if a store trusted a single Range request (the
+    // pre-pagination behaviour, or a future regression that drops the loop),
+    // the same 60-row / 25-row-cap table would come back as 25 rows with
+    // `error: null` - indistinguishable from a complete table. readAllSupabaseRows
+    // is the guard that makes the store's refusal meaningful.
+    const pageSize = 25;
+    const rows = makeRows(60);
+    const client = windowedClient(rows, { pageSize });
+
+    // Naive one-window read, as a truncating store implementation would issue.
+    const naive = await client
+      .from("small_cap_table")
+      .select("*")
+      .range(0, pageSize - 1)
+      .order("id");
+    expect(naive.error).toBeNull(); // looks complete...
+    expect(naive.data).toHaveLength(pageSize); // ...but only the first window
+
+    const guarded = await readAllSupabaseRows(client, "small_cap_table", { order: "id", pageSize });
+    expect(guarded.error).toBeNull();
+    expect(guarded.truncated).toBe(false);
+    expect(guarded.data).toHaveLength(rows.length); // the whole table
   });
 });
