@@ -7,6 +7,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    globalSetup: ["./tools/vitest-global-setup.mjs"],
     setupFiles: ["./src/__tests__/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}", "server/**/*.{test,spec}.mjs", "tools/**/*.{test,spec}.mjs"],
     exclude: ["node_modules", "dist", "src/_ARCHIVE/**"],
