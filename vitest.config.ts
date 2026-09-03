@@ -31,6 +31,16 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    fs: {
+      // Worktree dev checkouts symlink node_modules into the main checkout; the
+      // realpath of ?url imports (e.g. pdfjs' pdf.worker) then sits OUTSIDE the
+      // worktree root and Vite's fs.allow check denies the transform. Allow the
+      // repo root and its parent so symlinked installs transform fine (inert in
+      // CI, where the install lives inside the checkout).
+      allow: [path.resolve(__dirname), path.resolve(__dirname, '../..')],
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

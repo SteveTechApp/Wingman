@@ -55,6 +55,31 @@ describe("legacyStateToDiscoveryAnswers", () => {
     expect(answers["display-behaviour"]).toBe("Different content per display");
   });
 
+  it("never maps a displays-count label from displayBehaviour into display-behaviour", () => {
+    // The forward-writer falls back to the DISPLAYS label when the behaviour
+    // question was never answered, so a legacy displayBehaviour field can hold
+    // e.g. "1 display / output" or "Video wall / LED processor". That token
+    // must not overwrite display-behaviour with the displays vocabulary.
+    const answers = legacyStateToDiscoveryAnswers({ displayBehaviour: "1 display / output" });
+    expect(answers["display-behaviour"]).toBeUndefined();
+    expect(answers.displays).toBe("1 display / output");
+  });
+
+  it("diverts a displays option value in displayBehaviour to the displays answer", () => {
+    const answers = legacyStateToDiscoveryAnswers({ displayBehaviour: "video-wall-output" });
+    expect(answers["display-behaviour"]).toBeUndefined();
+    expect(answers.displays).toBe("video-wall-output");
+  });
+
+  it("never overwrites an explicit displayCount with a displays token from displayBehaviour", () => {
+    const answers = legacyStateToDiscoveryAnswers({
+      displayCount: "4 displays",
+      displayBehaviour: "Video wall / LED processor",
+    });
+    expect(answers.displays).toBe("4 displays");
+    expect(answers["display-behaviour"]).toBeUndefined();
+  });
+
   it("maps cableRun to locations-connections", () => {
     const answers = legacyStateToDiscoveryAnswers({ cableRun: "15 metres" });
     expect(answers["locations-connections"]).toBe("15 metres");

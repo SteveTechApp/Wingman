@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
+import { writeJsonFileAtomic } from "../atomic-json-file.mjs";
 import { normaliseProductTechnology } from "./technology-normalizer.mjs";
 import {
   COMPETITOR_CATALOG_FILE,
@@ -38,11 +38,6 @@ async function readJsonFile(filePath, fallback) {
   } catch {
     return fallback;
   }
-}
-
-async function writeJsonFile(filePath, value) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(value, null, 2), "utf8");
 }
 
 function flattenHtmlToText(html) {
@@ -1041,7 +1036,7 @@ async function loadWyreStormPersistentCache() {
 }
 
 async function saveWyreStormPersistentCache(cache) {
-  await writeJsonFile(WYRESTORM_PAGE_CACHE_FILE, cache);
+  await writeJsonFileAtomic(WYRESTORM_PAGE_CACHE_FILE, cache);
 }
 
 async function fetchWyreStormPage(sku) {

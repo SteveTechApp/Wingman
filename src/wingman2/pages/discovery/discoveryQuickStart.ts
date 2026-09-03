@@ -56,14 +56,14 @@ export const plainLanguageLabels: Record<string, string> = {
   "no-uc": "No video calls needed",
   "usb-ptz-camera": "USB camera",
   "fixed-usb-camera": "Fixed USB camera",
-  "ceiling-microphone": "Ceiling microphone",
+  "ceiling-microphone-array": "Ceiling microphone",
   "table-microphone": "Table microphone",
   "speakerphone": "Speakerphone",
   "no-microphones": "No separate microphone",
 
   // Signal
-  "hdmi-only": "Standard HDMI",
-  "premium-4k60": "Premium 4K video",
+  "1080p-standard-hdmi": "Standard HDMI",
+  "4k60-hdr-hdcp": "Premium 4K video",
 };
 
 // Smart defaults by room type
@@ -99,7 +99,12 @@ export const quickStartConfigs: Record<QuickStartRoomType, QuickStartConfig> = {
     estimatedQuestions: 6,
     defaults: {
       opportunity: "meeting-room",
-      scale: "single-small-room",
+      // A 4-8 person meeting room with 2-4 sources, dual routed displays and a
+      // touch panel is a FULL room in scale terms - single-small-room is the
+      // huddle/contained-space bucket ("not a full meeting room"). It matches
+      // the meeting-room standard (single-large-room) like the other
+      // touch-panel dual-display profiles.
+      scale: "single-large-room",
       sources: "two-four-sources",
       "source-connection": "mixed-hdmi-usbc",
       displays: "two-displays",
@@ -235,6 +240,16 @@ export type QuickStartDisagreement = {
   standardText: string;
 };
 
+export type QuickStartApplicationDrift = QuickStartDisagreement & {
+  // Why the seeded answer no longer belongs to the current application:
+  // - "differs-from-new-standard": the new application's standard profile
+  //   specifies a different default for this question.
+  // - "no-longer-in-profile": the new application's standard profile no
+  //   longer defines the question at all (the seed was carrying the OLD
+  //   application's default).
+  reason: "differs-from-new-standard" | "no-longer-in-profile";
+};
+
 // Every point where a quick-start room's profile disagrees with the
 // application-level SMART_DEFAULTS it maps to (via suggestedApplication). The
 // validation test pins these as intentional refinements; the UI uses this
@@ -272,6 +287,76 @@ export function getQuickStartDisagreements(roomType: QuickStartRoomType): QuickS
   return disagreements;
 }
 
+// Post-seed mirror of getQuickStartDisagreements: once a quick-start seed has
+// been applied, the rep may change the opportunity answer to a DIFFERENT
+// application. Answers that were pre-filled for the old profile and still sit
+// untouched now disagree with the NEW application's standard profile — the
+// same room-vs-application disagreement the confirmation step shows, surfaced
+// after the fact. Questions the rep has since edited are treated as their own
+// answer and are not flagged; questions the new standard no longer defines
+// are flagged only when they were carrying the old application's own default.
+export function findQuickStartApplicationDrift(
+  seed: { application: string; answers: DiscoveryAnswers } | null,
+  currentAnswers: DiscoveryAnswers,
+  application: string,
+): QuickStartApplicationDrift[] {
+  if (!seed) return [];
+  if (!application || application === seed.application) return [];
+
+  const normalize = (value: string | string[] | undefined): string => {
+    if (Array.isArray(value)) return JSON.stringify([...value].sort());
+    return String(value ?? "");
+  };
+  const labelMap = (questionId: string): Map<string, string> =>
+    new Map(getFullDiscoveryOptions(questionId).map((option) => [option.value, option.label]));
+  const toText = (questionId: string, value: string | string[]): string => {
+    const labels = labelMap(questionId);
+    return Array.isArray(value) ? value.map((item) => labels.get(item) ?? item).join(", ") : labels.get(value) ?? value;
+  };
+
+  const oldStandard = SMART_DEFAULTS[seed.application] ?? {};
+  const newStandard = SMART_DEFAULTS[application] ?? {};
+  const drift: QuickStartApplicationDrift[] = [];
+
+  for (const [questionId, seededValue] of Object.entries(seed.answers)) {
+    if (questionId === "opportunity") continue;
+    const seeded = seededValue as string | string[];
+    if (seeded === undefined || (typeof seeded === "string" && seeded === "")) continue;
+    // The rep edited this answer after seeding — it is now their own, not the
+    // old profile's.
+    if (normalize(currentAnswers[questionId]) !== normalize(seeded)) continue;
+
+    const newStandardValue = newStandard[questionId];
+    if (newStandardValue === undefined) {
+      // The new application does not define this question. Only flag when the
+      // seed was literally the OLD application's standard default — an
+      // application opinion the new profile no longer has.
+      const oldStandardValue = oldStandard[questionId];
+      if (oldStandardValue !== undefined && normalize(seeded) === normalize(oldStandardValue as string | string[])) {
+        drift.push({
+          questionId,
+          questionLabel: getDiscoveryQuestionLabel(questionId),
+          roomText: toText(questionId, seeded),
+          standardText: "Not part of the new application profile",
+          reason: "no-longer-in-profile",
+        });
+      }
+      continue;
+    }
+
+    if (normalize(seeded) === normalize(newStandardValue as string | string[])) continue;
+    drift.push({
+      questionId,
+      questionLabel: getDiscoveryQuestionLabel(questionId),
+      roomText: toText(questionId, seeded),
+      standardText: toText(questionId, newStandardValue as string | string[]),
+      reason: "differs-from-new-standard",
+    });
+  }
+
+  return drift;
+}
+
 // Get the number of questions that will be shown based on Quick Start selection
 export function estimatedQuestionCount(roomType: QuickStartRoomType): number {
   return quickStartConfigs[roomType].estimatedQuestions;
@@ -292,6 +377,33 @@ export function applyRoomTypeSmartDefaults(
     }
   }
 
+  return merged;
+}
+
+// The "blend" starting profile: take the room's default where it agrees with
+// the application's standard (or where the standard has no opinion), and the
+// STANDARD default where the two disagree. Effectively the standard profile
+// with the room's exclusive extras preserved — the conservative middle option
+// between the room profile and the standard profile.
+export function mergeRoomAndStandardProfiles(roomType: QuickStartRoomType): DiscoveryAnswers {
+  const config = quickStartConfigs[roomType];
+  const standard = SMART_DEFAULTS[config.suggestedApplication] ?? {};
+  const normalize = (value: string | string[] | undefined): string => {
+    if (Array.isArray(value)) return JSON.stringify([...value].sort());
+    return String(value ?? "");
+  };
+
+  const merged: DiscoveryAnswers = { opportunity: config.suggestedApplication };
+  for (const [questionId, roomValue] of Object.entries(config.defaults)) {
+    const seeded = roomValue as string | string[];
+    if (questionId === "opportunity" || seeded === undefined || (typeof seeded === "string" && seeded === "")) continue;
+    const standardValue = standard[questionId as keyof DiscoveryAnswers];
+    // Disagreement → standard default; agreement (or standard-silent) → room.
+    merged[questionId] =
+      standardValue !== undefined && normalize(seeded) !== normalize(standardValue as string | string[])
+        ? (standardValue as string | string[])
+        : seeded;
+  }
   return merged;
 }
 

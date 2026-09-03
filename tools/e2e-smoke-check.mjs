@@ -4,6 +4,20 @@
  * Discovery → Recommendations and the Compare workflow, and pins the 413
  * oversized-body contract through the UI→API proxy chain.
  *
+ * The browser run covers four user flows end to end, no manual session needed:
+ *   1. Sign in via the workspace settings form (Profile page) - the session
+ *      cookie flows through the UI→API proxy exactly like a real user's. (In
+ *      DEV the loopback local-session fallback pre-signs a synthetic admin;
+ *      the smoke signs that out first so the real form is exercised.)
+ *   2. Save a discovery project - the completion panel's "Save to project"
+ *      action, asserted via the panel's saved confirmation.
+ *   3. Save a comparison to history - the results' "Save comparison" action,
+ *      asserted via the "Saved comparison history" panel on the Compare page.
+ *   4. Report/export blobs - the discovery brief is exported as an HTML
+ *      download and the saved-comparison history as a CSV download; both
+ *      files are read back and content-asserted (a real <a download> blob
+ *      through the browser, not an API mock).
+ *
  * Repeatable by design: every server uses an env-overridable port and a throwaway
  * data dir, and the whole run tears itself down (servers killed, dir removed)
  * whether it passes or fails. On failure the server logs are preserved so the
@@ -30,6 +44,12 @@ const API_BASE = `http://127.0.0.1:${API_PORT}`;
 const UI_BASE = `http://127.0.0.1:${UI_PORT}`;
 // Default MAX_JSON_BODY_BYTES is 1 MiB; send 2 MiB to trip the 413 contract.
 const OVERSIZED_BODY = JSON.stringify({ manufacturer: "Crestron", model: "x".repeat(2 * 1024 * 1024) });
+
+// Workspace account used for the settings-form sign-in. The 413 stage signs
+// this account up through the UI proxy first; the browser then signs in with
+// the same credentials through the Profile page form.
+const WORKSPACE_EMAIL = "e2esmoke@example.com";
+const WORKSPACE_PASSWORD = "e2e-smoke-pass";
 
 // Discovery walk: current question heading text → the option label to click.
 // Pinned to the six Basic-mode essential questions (discoveryQuestions.ts /
@@ -146,8 +166,76 @@ async function assert413ThroughProxy() {
   return cookie;
 }
 
+async function signInViaSettings(page) {
+  // 1. Sign in through the workspace settings form (Profile → Live-call
+  //    recovery). The login request goes through the Vite proxy to the real
+  //    API server and its Set-Cookie lands on the UI origin, exactly like a
+  //    real user session - no cookie is injected for this flow.
+  await page.goto(`${UI_BASE}/wingman/profile`, { waitUntil: "networkidle", timeout: 60_000 });
+  const workspaceSection = page.locator('section[aria-labelledby="wingman-settings-workspace"]');
+  await workspaceSection.waitFor({ state: "visible", timeout: 15_000 });
+
+  // The Vite dev server installs a local-session fallback that answers the
+  // session endpoint with a synthetic "Local Wingman Admin" (DEV + loopback
+  // only, src/wingman2/utils/installWingmanLocalSessionFallback.ts). The
+  // Profile page therefore opens already "signed in" - sign that session out
+  // first so the real Email/Password form is revealed and exercised.
+  const signOutButton = workspaceSection.getByRole("button", { name: "Sign out", exact: true });
+  if (await signOutButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    await signOutButton.click();
+  }
+
+  const signInButton = workspaceSection.getByRole("button", { name: "Sign in", exact: true });
+  await signInButton.waitFor({ state: "visible", timeout: 10_000 });
+
+  // The workspace section holds a Mode <select> then Email + Password inputs.
+  const inputs = workspaceSection.locator("input.wm-input");
+  await inputs.nth(0).fill(WORKSPACE_EMAIL);
+  await inputs.nth(1).fill(WORKSPACE_PASSWORD);
+  await signInButton.click();
+
+  await workspaceSection
+    .getByText(new RegExp(`Signed in as ${WORKSPACE_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\.`))
+    .waitFor({ state: "visible", timeout: 20_000 });
+
+  const cookies = await page.context().cookies(`${UI_BASE}/`);
+  if (!cookies.some((cookie) => cookie.name === "wingman_session")) {
+    throw new Error("[e2e-smoke] Settings sign-in succeeded in the UI but no wingman_session cookie was set on the UI origin.");
+  }
+  console.log("[e2e-smoke] Signed in via the settings form; wingman_session cookie active on the UI origin.");
+}
+
+async function saveDiscoveryProjectAndExportBrief(page) {
+  // 2. Save the discovery project through the completion panel, then 4. export
+  //    the discovery brief as a real HTML download blob and content-check it.
+  await page.getByRole("button", { name: /Save to project/ }).click();
+  await page
+    .getByText(/Discovery saved to your project\./)
+    .waitFor({ state: "visible", timeout: 10_000 });
+  console.log("[e2e-smoke] Discovery project saved via the completion panel.");
+
+  const exportButton = page.locator('[data-testid="discovery-brief-export"]');
+  await exportButton.waitFor({ state: "visible", timeout: 8_000 });
+  const [briefDownload] = await Promise.all([
+    page.waitForEvent("download", { timeout: 15_000 }),
+    exportButton.click(),
+  ]);
+  const briefFileName = briefDownload.suggestedFilename();
+  if (!briefFileName.endsWith(".discovery-brief.html")) {
+    throw new Error(`[e2e-smoke] Discovery brief export produced unexpected file name "${briefFileName}".`);
+  }
+  const briefPath = await briefDownload.path();
+  const briefHtml = fs.readFileSync(briefPath, "utf8");
+  for (const expected of ["<!doctype html>", "Meeting room / boardroom"]) {
+    if (!briefHtml.includes(expected)) {
+      throw new Error(`[e2e-smoke] Discovery brief HTML export is missing "${expected}".`);
+    }
+  }
+  console.log(`[e2e-smoke] Discovery brief exported as HTML blob (${briefFileName}, ${briefHtml.length} chars) with captured answers.`);
+}
+
 async function walkDiscovery(page) {
-  await page.goto(`${UI_BASE}/wingman/discovery`, { waitUntil: "networkidle", timeout: 45_000 });
+  await page.goto(`${UI_BASE}/wingman/discovery`, { waitUntil: "networkidle", timeout: 60_000 });
   await page.evaluate(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -174,6 +262,7 @@ async function walkDiscovery(page) {
     // Completion panel CTA appears once every essential question has an answer.
     const cta = page.getByRole("button", { name: "Next: find matching products", exact: true });
     if (await cta.isVisible({ timeout: 800 }).catch(() => false)) {
+      await saveDiscoveryProjectAndExportBrief(page);
       await cta.click();
       break;
     }
@@ -227,7 +316,7 @@ async function walkDiscovery(page) {
 }
 
 async function runCompare(page) {
-  await page.goto(`${UI_BASE}/wingman/compare`, { waitUntil: "networkidle", timeout: 45_000 });
+  await page.goto(`${UI_BASE}/wingman/compare`, { waitUntil: "networkidle", timeout: 60_000 });
 
   const manufacturerInput = page.getByRole("combobox", { name: /^Manufacturer$/i });
   const skuInput = page.getByRole("combobox", { name: /^Competitor SKU$/i });
@@ -270,6 +359,41 @@ async function runCompare(page) {
     }
   }
   console.log("[e2e-smoke] Compare workflow rendered real match cards for Crestron DM-NVX-350.");
+
+  // 3. Save a comparison to history: the results' "Save comparison" action
+  //    writes a saved-history run into the active project (mode
+  //    "saved-history", so it shows in the "Saved comparison history" panel
+  //    below). Open the panel if collapsed, then assert the DM-NVX-350
+  //    snapshot row is present.
+  await page.getByRole("button", { name: "Save comparison to history" }).click();
+  const historySection = page.locator('section[aria-label="Saved comparison history"]');
+  await historySection.waitFor({ state: "visible", timeout: 10_000 });
+  const savedCount = historySection.getByText(/\d+ snapshots saved\./);
+  if (!(await savedCount.isVisible({ timeout: 1_500 }).catch(() => false))) {
+    await historySection.locator("summary").click();
+    await savedCount.waitFor({ state: "visible", timeout: 8_000 });
+  }
+  await historySection.getByText(/DM-NVX-350/).first().waitFor({ state: "visible", timeout: 8_000 });
+  console.log("[e2e-smoke] Comparison saved to history via the Save comparison action (Crestron DM-NVX-350 snapshot visible).");
+
+  // 4. Export the saved history as a CSV download blob and content-check it.
+  await historySection.getByRole("button", { name: "Export", exact: true }).click();
+  const [csvDownload] = await Promise.all([
+    page.waitForEvent("download", { timeout: 15_000 }),
+    page.getByRole("menuitem", { name: "Export CSV" }).click(),
+  ]);
+  const csvFileName = csvDownload.suggestedFilename();
+  if (csvFileName !== "wingman-saved-comparisons.csv") {
+    throw new Error(`[e2e-smoke] Compare history export produced unexpected file name "${csvFileName}".`);
+  }
+  const csvPath = await csvDownload.path();
+  const csvText = fs.readFileSync(csvPath, "utf8");
+  for (const expected of ["\"Competitor SKU\"", "\"Crestron\"", "\"DM-NVX-350\""]) {
+    if (!csvText.includes(expected)) {
+      throw new Error(`[e2e-smoke] Saved-comparison CSV export is missing ${expected}.`);
+    }
+  }
+  console.log(`[e2e-smoke] Saved-comparison history exported as CSV blob (${csvFileName}, ${csvText.length} chars) with the run row.`);
 }
 
 async function main() {
@@ -299,9 +423,11 @@ async function main() {
     stdio: ["ignore", uiLogFd, uiLogFd],
     windowsHide: true,
   });
-  await waitForHealth(UI_BASE, "UI dev server");
+  // Vite's first dev-server boot (cold dependency pre-bundle) can take a while
+  // on a clean CI checkout; give it a wider health window than the API.
+  await waitForHealth(UI_BASE, "UI dev server", 90_000);
 
-  const sessionCookie = await assert413ThroughProxy();
+  await assert413ThroughProxy();
 
   const browser = await chromium.launch({
     headless: true,
@@ -309,18 +435,20 @@ async function main() {
   });
   try {
     const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
-    await context.addCookies([
-      { name: "wingman_session", value: sessionCookie.split("=")[1], url: `${UI_BASE}/`, httpOnly: true },
-    ]);
+    // No session cookie is injected: the settings-form sign-in establishes the
+    // session through the real UI→API proxy path, exactly like a user.
     const page = await context.newPage();
 
+    await signInViaSettings(page);
     await walkDiscovery(page);
     await runCompare(page);
   } finally {
     await browser.close().catch(() => {});
   }
 
-  console.log("[e2e-smoke] Discovery, Compare, and 413 contract all verified end to end.");
+  console.log(
+    "[e2e-smoke] Settings sign-in, discovery project save, compare history save, HTML+CSV export blobs, and the 413 contract all verified end to end.",
+  );
 }
 
 main()
