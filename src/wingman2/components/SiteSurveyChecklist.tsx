@@ -28,6 +28,7 @@ import {
   type SurveyLocation,
   type SurveyCable,
 } from "../lib/siteSurveyChecklist";
+import { downloadBlob } from "../lib/downloadBlob";
 import {
   getProjectEdits,
   getInstallChecked,
@@ -210,18 +211,7 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
   }
 
   function handleExportEdits() {
-    const data = JSON.stringify(edits, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `site-survey-edits-${project.id}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    // Revoke on a later task, never synchronously: the blob URL must stay live
-    // until the browser has actually begun the download fetch against it.
-    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    downloadBlob(new Blob([JSON.stringify(edits, null, 2)], { type: "application/json" }), `site-survey-edits-${project.id}.json`);
   }
 
   function handleTopologyUpdate(_updatedTopology: ProjectTopology, result: PhotoToTopologyResult) {

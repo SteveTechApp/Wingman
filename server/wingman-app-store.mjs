@@ -7,7 +7,7 @@ import {
   LEGACY_WINGMAN_APP_DB_FILE,
   WINGMAN_APP_DB_FILE,
 } from "./catalog/files.mjs";
-import { readAllSupabaseRows } from "./supabase-pagination.mjs";
+import { POSTGREST_MAX_ROWS, readAllSupabaseRows } from "./supabase-pagination.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -140,6 +140,10 @@ const SUPABASE_WINGMAN_TABLES_ENABLED = !["0", "false", "off", "no"].includes(
 const SUPABASE_WINGMAN_SNAPSHOT_COMMIT_FN = String(
   process.env.SUPABASE_WINGMAN_SNAPSHOT_COMMIT_FUNCTION || "wingman_snapshot_commit",
 ).trim();
+export const SNAPSHOT_COMMIT_MAX_PAYLOAD_BYTES = Math.max(
+  1024,
+  Number(process.env.WINGMAN_SNAPSHOT_COMMIT_MAX_BYTES || 8_388_608),
+);
 const SUPABASE_WINGMAN_USERS_TABLE = String(process.env.SUPABASE_WINGMAN_USERS_TABLE || "wingman_users").trim();
 const SUPABASE_WINGMAN_WORKSPACES_TABLE = String(process.env.SUPABASE_WINGMAN_WORKSPACES_TABLE || "wingman_workspaces").trim();
 const SUPABASE_WINGMAN_MEMBERS_TABLE = String(process.env.SUPABASE_WINGMAN_MEMBERS_TABLE || "wingman_workspace_members").trim();
@@ -148,6 +152,10 @@ const SUPABASE_WINGMAN_SESSIONS_TABLE = String(process.env.SUPABASE_WINGMAN_SESS
 const SUPABASE_WINGMAN_PROJECTS_TABLE = String(process.env.SUPABASE_WINGMAN_PROJECTS_TABLE || "wingman_projects").trim();
 const SUPABASE_WINGMAN_AUDIT_TABLE = String(process.env.SUPABASE_WINGMAN_AUDIT_TABLE || "wingman_audit_events").trim();
 const SUPABASE_WINGMAN_TELEMETRY_TABLE = String(process.env.SUPABASE_WINGMAN_TELEMETRY_TABLE || "wingman_telemetry_events").trim();
+const SUPABASE_WINGMAN_READ_PAGE_SIZE = Math.max(
+  1,
+  Number(process.env.SUPABASE_WINGMAN_READ_PAGE_SIZE || POSTGREST_MAX_ROWS),
+);
 
 // The normalized-table rows above can be overridden per env var, but migration
 // 009's wingman_snapshot_commit reconciles the DEFAULT migration-created
@@ -411,14 +419,14 @@ async function readDbFromSupabaseTables() {
   if (!client) return null;
 
   const results = await Promise.all([
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_USERS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_WORKSPACES_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_MEMBERS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_INVITATIONS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_SESSIONS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_PROJECTS_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_AUDIT_TABLE, { order: "id" }),
-    readAllSupabaseRows(client, SUPABASE_WINGMAN_TELEMETRY_TABLE, { order: "id" }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_USERS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_WORKSPACES_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_MEMBERS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_INVITATIONS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_SESSIONS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_PROJECTS_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_AUDIT_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
+    readAllSupabaseRows(client, SUPABASE_WINGMAN_TELEMETRY_TABLE, { order: "id", pageSize: SUPABASE_WINGMAN_READ_PAGE_SIZE }),
   ]);
 
   const firstError = results.find((result) => result.error)?.error;
@@ -579,6 +587,22 @@ async function readDbFromSupabase() {
   return normalizeDb(data.payload);
 }
 
+export function snapshotCommitPayloadBytes(payload) {
+  return Buffer.byteLength(JSON.stringify({ payload: payload ?? {} }));
+}
+
+export function snapshotCommitPayloadTooLargeError(payload, maxBytes = SNAPSHOT_COMMIT_MAX_PAYLOAD_BYTES) {
+  const bytes = snapshotCommitPayloadBytes(payload);
+  if (bytes <= maxBytes) return null;
+  return {
+    bytes,
+    maxBytes,
+    error:
+      `Snapshot payload is ${bytes} bytes, exceeding the ${maxBytes}-byte wingman_snapshot_commit limit. ` +
+      "Shrink the snapshot or write in smaller batches; nothing was sent.",
+  };
+}
+
 async function writeDbToSupabaseTables(db) {
   const client = getSupabaseAdmin();
   if (!client) return false;
@@ -716,6 +740,17 @@ async function writeDbToSupabaseTables(db) {
       "reconciles by deleting rows absent from the payload). Retry after a complete read.";
     logWingmanEvent("error", "storage.snapshot_commit.refused_stale_read", { reason: message });
     lastStorageWarning = message;
+    return false;
+  }
+
+  const tooLarge = snapshotCommitPayloadTooLargeError(payload);
+  if (tooLarge) {
+    logWingmanEvent("error", "storage.snapshot_commit.refused_payload_too_large", {
+      reason: tooLarge.error,
+      bytes: tooLarge.bytes,
+      maxBytes: tooLarge.maxBytes,
+    });
+    lastStorageWarning = tooLarge.error;
     return false;
   }
 

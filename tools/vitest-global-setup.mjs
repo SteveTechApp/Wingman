@@ -18,7 +18,13 @@ export default function ensureCanonicalStore() {
   const store = path.join(root, "data", "wingman-canonical-product-store.json");
   if (existsSync(store)) return;
   console.log("[vitest-global-setup] Canonical product store missing - generating it (one-time).");
-  const run = spawnSync("npm", ["run", "data:canonical-products"], { cwd: root, stdio: "inherit" });
+  // `shell: true` so the npm shim resolves on every platform (npm.cmd on
+  // Windows) - the same convention the repo's other npm-spawning tools use.
+  const run = spawnSync("npm", ["run", "data:canonical-products"], {
+    cwd: root,
+    stdio: "inherit",
+    shell: true,
+  });
   if (run.status !== 0) {
     throw new Error(
       `[vitest-global-setup] data/wingman-canonical-product-store.json is missing and could not be generated ` +

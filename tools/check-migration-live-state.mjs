@@ -28,6 +28,7 @@
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const apiBase = "https://api.supabase.com";
 
@@ -60,17 +61,23 @@ const token = String(
     })(),
 ).trim();
 
-if (!url || !token) {
-  console.error("[migration-live] SUPABASE_URL and a Supabase access token are required.");
-  console.error("  - SUPABASE_URL from env or .env");
-  console.error("  - token via SUPABASE_ACCESS_TOKEN env, or run `supabase login` once (writes ~/.supabase/access-token)");
-  process.exit(2);
-}
-
-const ref = url.match(/https:\/\/[a-z0-9]+\.supabase\.co/)?.[0].replace(/^https:\/\//, "").replace(/\.supabase\.co$/, "");
-if (!ref) {
-  console.error(`[migration-live] Cannot parse project ref from "${url}"`);
-  process.exit(2);
+// Credential/URL validation runs inside main() (not at module scope) so that
+// importing this module for the queryRowsFromBody unit test does not exit the
+// process. query() reads `ref`, which requireCredentials() populates first.
+let ref = "";
+function requireCredentials() {
+  if (!url || !token) {
+    console.error("[migration-live] SUPABASE_URL and a Supabase access token are required.");
+    console.error("  - SUPABASE_URL from env or .env");
+    console.error("  - token via SUPABASE_ACCESS_TOKEN env, or run `supabase login` once (writes ~/.supabase/access-token)");
+    process.exit(2);
+  }
+  const parsed = url.match(/https:\/\/[a-z0-9]+\.supabase\.co/)?.[0].replace(/^https:\/\//, "").replace(/\.supabase\.co$/, "");
+  if (!parsed) {
+    console.error(`[migration-live] Cannot parse project ref from "${url}"`);
+    process.exit(2);
+  }
+  ref = parsed;
 }
 
 // ---------------------------------------------------------------------------
@@ -169,8 +176,10 @@ for (const name of FUNCTIONS_ABSENT) add("function", name, ABSENT, "008_drop_dea
 add("function", "wingman_snapshot_commit", PRESENT, "009_atomic_snapshot_commit.sql");
 
 // 011 gives the competitor decision ledger the same treatment: the mirror's
-// two-call upsert + stale-row delete becomes one transaction function.
-add("function", "wingman_ledger_commit", PRESENT, "011_atomic_ledger_snapshot.sql");
+// two-call upsert + stale-row delete becomes one transaction function. 012
+// then adds the mode parameter (full|upsert|reconcile) that lets an oversized
+// mirror sync in shards; the function's final shape is the 012 signature.
+add("function", "wingman_ledger_commit", PRESENT, "011_atomic_ledger_snapshot.sql / 012_atomic_ledger_sharded_commit.sql");
 
 add("extension", "pg_cron", PRESENT, "003_competitor_tables_and_pg_cron.sql");
 
@@ -184,6 +193,36 @@ for (const name of CRON_JOBS) add("cron", name, PRESENT, "003_competitor_tables_
 // Introspection (read-only SELECTs only)
 // ---------------------------------------------------------------------------
 
+// Maps a Management API query response body to its rows. The API returns two
+// shapes depending on which endpoint answers:
+//   - /database/query/read-only returns the bare SELECT rows directly:
+//     [{ col: value, ... }, ...] (or [] for an empty result)
+//   - the sibling /database/query returns one envelope per statement:
+//     [{ type: 'SELECT', rows: [...], ... }, ...]
+// Tolerate both, and NEVER fall through to [] on an unrecognized shape: an
+// empty array here makes every expected object read as absent, which would
+// report total DRIFT against a perfectly matching schema. (This is exactly the
+// bug that shipped in 301ff764: the parser expected the envelope shape, the
+// read-only endpoint returns bare rows, every mismatch silently became [] and
+// a healthy database read as 98 drifts. The live run with a real token caught
+// it - it never could in CI because the token gate ran first.)
+//
+// Returns an array of row objects. Throws on an unrecognized shape.
+export function queryRowsFromBody(body) {
+  if (Array.isArray(body)) {
+    const envelope =
+      body.length > 0 &&
+      typeof body[0]?.type === "string" &&
+      Array.isArray(body[0]?.rows);
+    if (envelope) return body.flatMap((entry) => (Array.isArray(entry?.rows) ? entry.rows : []));
+    return body;
+  }
+  if (body && typeof body === "object" && Array.isArray(body.rows)) return body.rows;
+  throw new Error(
+    `Unexpected response shape from the query endpoint (expected an array of rows or statement envelopes): ${JSON.stringify(body).slice(0, 300)}`,
+  );
+}
+
 async function query(sql) {
   const response = await fetch(`${apiBase}/v1/projects/${ref}/database/query/read-only`, {
     method: "POST",
@@ -193,18 +232,20 @@ async function query(sql) {
   if (!response.ok) {
     const body = await response.text();
     if (response.status === 401 || response.status === 403) {
-    console.error("[migration-live] Management API rejected the token - it needs database access.");
-    console.error("  Full-access tokens (sbp_...) from Settings > Access Tokens work; fine-grained");
-    console.error("  tokens need a scope that covers the project's database read access.");
+      console.error("[migration-live] Management API rejected the token - it needs database access.");
+      console.error("  Full-access tokens (sbp_...) from Settings > Access Tokens work; fine-grained");
+      console.error("  tokens need a scope that covers the project's database read access.");
     } else {
       console.error(`[migration-live] Management API HTTP ${response.status}: ${body.slice(0, 300)}`);
     }
     process.exit(1);
   }
-  const body = await response.json();
-  // The endpoint returns an array of result objects: [{ type: 'SELECT', rows: [...], ... }]
-  const result = Array.isArray(body) ? body[0] : body;
-  return Array.isArray(result?.rows) ? result.rows : [];
+  try {
+    return queryRowsFromBody(await response.json());
+  } catch (error) {
+    console.error(`[migration-live] ${error.message}`);
+    process.exit(1);
+  }
 }
 
 async function readLiveState() {
@@ -242,6 +283,7 @@ async function readLiveState() {
 // ---------------------------------------------------------------------------
 
 async function main() {
+  requireCredentials();
   console.log(`[migration-live] Checking ${manifest.length} expected objects against ${ref}\n  (read-only SELECTs via the Management API - no DB password)\n`);
 
   let live;
@@ -304,7 +346,11 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(`[migration-live] ERROR: ${error.message}`);
-  process.exit(1);
-});
+// Only run when executed directly - importing the module (e.g. from the unit
+// test that pins queryRowsFromBody) must not start a live probe.
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+  main().catch((error) => {
+    console.error(`[migration-live] ERROR: ${error.message}`);
+    process.exit(1);
+  });
+}

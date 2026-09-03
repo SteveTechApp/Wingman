@@ -12,6 +12,7 @@ import {
 } from "./projectTopology";
 import type { StoredProject, StoredProductSelection } from "../data/projectStore";
 import { generateQrCodeSvg, generateTopologyUrl } from "./qrCodeSvg";
+import { downloadBlob } from "./downloadBlob";
 
 /* ──────────────────────────────────────────────
    Types
@@ -627,16 +628,8 @@ export function printSiteSurveyChecklist(checklist: SurveyChecklist): void {
 }
 
 export function downloadSiteSurveyHtml(checklist: SurveyChecklist): void {
-  const html = generateSiteSurveyHtml(checklist);
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `site-survey-${checklist.projectName.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}.html`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  // Revoke on a later task, never synchronously: the blob URL must stay live
-  // until the browser has actually begun the download fetch against it.
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  downloadBlob(
+    new Blob([generateSiteSurveyHtml(checklist)], { type: "text/html;charset=utf-8" }),
+    `site-survey-${checklist.projectName.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}.html`,
+  );
 }

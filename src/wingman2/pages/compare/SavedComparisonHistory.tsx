@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { StoredCompareRun } from "../../data/projectStore";
 import { buildCompareHistoryCsv, buildCompareHistoryText, compareHistoryDiff, filterAndSortCompareHistory, type CompareHistoryView } from "../../lib/compareHistory";
+import { downloadBlob } from "../../lib/downloadBlob";
 
 type Props = {
   runs: StoredCompareRun[];
@@ -41,22 +42,7 @@ export function SavedComparisonHistory({ runs, view, onSearch, onFilter, onSort,
   }, [pendingDelete]);
 
   function exportCsv() {
-    const blob = new Blob([buildCompareHistoryCsv(visible)], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "wingman-saved-comparisons.csv";
-    // The anchor must be in the document for some browsers (Firefox) to even
-    // start the download; detach it only after the click is dispatched.
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    // Revoke on a later task, never synchronously: the blob URL has to stay
-    // live until the browser has actually begun the download fetch. An
-    // immediate revoke after click() is racy - Firefox in particular can
-    // resolve the URL after the revoke and abort the download as a failed
-    // blob fetch.
-    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    downloadBlob(new Blob([buildCompareHistoryCsv(visible)], { type: "text/csv;charset=utf-8" }), "wingman-saved-comparisons.csv");
   }
 
   async function copyText() {

@@ -53,43 +53,53 @@ export function normaliseSku(value) {
 }
 
 /**
+ * Shared successor-acceptability rule (single source of truth).
+ *
+ * Returns null when `successor` is an acceptable remap for `sourceSku`, or a
+ * human-readable reason string when it is not. Used by both
+ * `collectSuccessorProblems` (the CI guard) and the lifecycle reconcile tool
+ * (which refuses to present a version-family promotion whose successor is not
+ * active), so the two never disagree about what a valid remap is.
+ *
+ * @param {Array<Record<string, string>>} rows lifecycle rows
+ * @param {string} sourceSku raw source SKU (normalised internally)
+ * @param {string} successor raw successor value
+ * @returns {string | null}
+ */
+export function successorAcceptabilityProblem(rows, sourceSku, successor) {
+  const bySku = new Map();
+  for (const row of rows) bySku.set(normaliseSku(row.sku), row);
+
+  const source = bySku.get(normaliseSku(sourceSku));
+  const sourceStatus = ((source?.lifecycle_status ?? "") || "").toLowerCase();
+  if (sourceStatus === "active") {
+    return `lifecycle: "${sourceSku}" is active but names successor "${successor}" - a current product cannot be superseded by another SKU.`;
+  }
+  const targetSku = normaliseSku(successor);
+  if (targetSku === normaliseSku(sourceSku)) {
+    return `lifecycle: "${sourceSku}" names itself as its own successor.`;
+  }
+  const target = bySku.get(targetSku);
+  if (!target) {
+    return `lifecycle: successor "${successor}" of "${sourceSku}" does not resolve to any lifecycle row. A remap to an unknown SKU never attaches to a product.`;
+  }
+  if ((target.lifecycle_status || "").toLowerCase() !== "active") {
+    return `lifecycle: successor "${successor}" of "${sourceSku}" is lifecycle "${target.lifecycle_status}" - a remap must point at an active, quotable product.`;
+  }
+  return null;
+}
+
+/**
  * Returns a human-readable problem list for the successor references in the
  * given lifecycle rows. Empty array = every remap resolves to an active SKU.
  */
 export function collectSuccessorProblems(rows) {
-  const bySku = new Map();
-  for (const row of rows) bySku.set(normaliseSku(row.sku), row);
-
   const problems = [];
   for (const row of rows) {
     const successor = (row.successor || "").trim();
     if (!successor) continue;
-
-    const sourceSku = normaliseSku(row.sku);
-    const targetSku = normaliseSku(successor);
-    const sourceStatus = (row.lifecycle_status || "").toLowerCase();
-    const target = bySku.get(targetSku);
-
-    if (sourceStatus === "active") {
-      problems.push(
-        `lifecycle: "${row.sku}" is active but names successor "${successor}" - a current product cannot be superseded by another SKU.`,
-      );
-    }
-    if (targetSku === sourceSku) {
-      problems.push(`lifecycle: "${row.sku}" names itself as its own successor.`);
-      continue;
-    }
-    if (!target) {
-      problems.push(
-        `lifecycle: successor "${successor}" of "${row.sku}" does not resolve to any lifecycle row. A remap to an unknown SKU never attaches to a product.`,
-      );
-      continue;
-    }
-    if ((target.lifecycle_status || "").toLowerCase() !== "active") {
-      problems.push(
-        `lifecycle: successor "${successor}" of "${row.sku}" is lifecycle "${target.lifecycle_status}" - a remap must point at an active, quotable product.`,
-      );
-    }
+    const problem = successorAcceptabilityProblem(rows, row.sku, successor);
+    if (problem) problems.push(problem);
   }
   return problems;
 }
