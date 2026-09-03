@@ -31,8 +31,21 @@ name: Supabase live gates (RLS sentinel + migration parity)
 # mode cannot prove protection on empty tables), or the parity job with URL
 # but no access token. A partial secret setup must never silently degrade a
 # gate.
+#
+# The `require_secrets` input flips the plain skip into a failure. Callers
+# that run on a SCHEDULE (supabase-rls-nightly.yml) must set it: a scheduled
+# live gate whose secrets have vanished would otherwise skip to green on
+# every future night with nothing to notice - the exact silent-skip this
+# workflow exists to prevent. Push/PR callers keep the default so fork PRs
+# still skip instead of failing.
 on:
   workflow_call:
+    inputs:
+      require_secrets:
+        description: "Fail instead of skipping when Supabase secrets are unavailable (scheduled callers must set this)."
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -52,8 +65,14 @@ jobs:
 
       - name: Verify secrets are configured
         id: secrets
+        env:
+          REQUIRE_SECRETS: ${{ inputs.require_secrets }}
         run: |
           if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            if [ "$REQUIRE_SECRETS" = "true" ]; then
+              echo "::error::Supabase secrets are unavailable and require_secrets is set for this run. A scheduled live gate must never silently skip - if the repository secrets were removed or renamed, restore SUPABASE_URL and SUPABASE_ANON_KEY under Settings > Secrets and variables > Actions."
+              exit 1
+            fi
             echo "skipped=true" >> "$GITHUB_OUTPUT"
             echo "Supabase secrets not configured - skipping live RLS verification."
           elif [ -z "${{ secrets.SUPABASE_SECRET_KEY }}" ]; then
@@ -85,8 +104,14 @@ jobs:
 
       - name: Verify access token is configured
         id: token
+        env:
+          REQUIRE_SECRETS: ${{ inputs.require_secrets }}
         run: |
           if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
+            if [ "$REQUIRE_SECRETS" = "true" ]; then
+              echo "::error::SUPABASE_URL is unavailable and require_secrets is set for this run. A scheduled live gate must never silently skip - restore SUPABASE_URL (and SUPABASE_ACCESS_TOKEN for the Management API) under Settings > Secrets and variables > Actions."
+              exit 1
+            fi
             echo "skipped=true" >> "$GITHUB_OUTPUT"
             echo "Supabase secrets not configured - skipping live migration-parity verification."
           elif [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]; then
