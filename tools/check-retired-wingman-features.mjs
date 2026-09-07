@@ -21,6 +21,7 @@ const discoveryPath = "src/wingman2/pages/DiscoveryPage.tsx";
 const navigationHubPath = "src/wingman2/pages/NavigationHubPages.tsx";
 const recommendationsPath = "src/wingman2/pages/RecommendationsPage.tsx";
 const finderPath = "src/wingman2/pages/FinderPage.tsx";
+const retiredNavigationClassToken = "wm-navhub";
 
 const manifest = JSON.parse(read(manifestPath) || "[]");
 const policy = JSON.parse(read(policyPath) || "{}");
@@ -114,6 +115,10 @@ for (const sourceRoot of sourceRoots) {
 
       if (source.includes("Product Finder")) {
         fail(`${relative} still contains retired user-facing Product Finder wording.`);
+      }
+
+      if (source.includes(retiredNavigationClassToken)) {
+        fail(`${relative} still references the retired '${retiredNavigationClassToken}' class family.`);
       }
     }
   }

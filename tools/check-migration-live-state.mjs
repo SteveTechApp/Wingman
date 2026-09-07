@@ -101,6 +101,10 @@ const WINGMAN_TABLES = [
 const COMPETITOR_TABLES = [
   "competitor_approvals", "competitor_lookup_runtime_events", "competitor_match_decisions",
 ];
+// 013's optimistic-concurrency register: infra, not an application snapshot
+// table - it is never reconciled by wingman_snapshot_commit - so it lives in
+// its own bucket rather than WINGMAN_TABLES.
+const GENERATION_REGISTER_TABLE = "wingman_db_generation";
 const ALL_TABLES = [...WINGMAN_TABLES, ...COMPETITOR_TABLES];
 
 for (const table of ALL_TABLES) {
@@ -180,6 +184,13 @@ add("function", "wingman_snapshot_commit", PRESENT, "009_atomic_snapshot_commit.
 // then adds the mode parameter (full|upsert|reconcile) that lets an oversized
 // mirror sync in shards; the function's final shape is the 012 signature.
 add("function", "wingman_ledger_commit", PRESENT, "011_atomic_ledger_snapshot.sql / 012_atomic_ledger_sharded_commit.sql");
+
+// 013 turns wingman_snapshot_commit into a generation-guarded CAS (register
+// + expected_generation argument) so two server instances sharing one
+// Supabase project cannot reconcile over each other's stale reads.
+add("table", GENERATION_REGISTER_TABLE, PRESENT, "013_generation_guarded_snapshot_commit.sql");
+add("rls", GENERATION_REGISTER_TABLE, PRESENT, "013_generation_guarded_snapshot_commit.sql", GENERATION_REGISTER_TABLE);
+add("policy", "service_role_all", PRESENT, "013_generation_guarded_snapshot_commit.sql", GENERATION_REGISTER_TABLE);
 
 add("extension", "pg_cron", PRESENT, "003_competitor_tables_and_pg_cron.sql");
 

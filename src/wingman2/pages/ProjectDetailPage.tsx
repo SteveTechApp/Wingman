@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { AuditLogPanel } from "../components/AuditLogPanel";
 import { PageHero } from "../components/PageHero";
+import { ProjectSyncConflictBanner } from "../components/SyncConflictBanner";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip } from "../components/StatusChip";
 import {
@@ -27,11 +28,7 @@ import { RequirementsAccordion } from "./project/RequirementsAccordion";
 import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePanel";
 import { DiscoveryConversationReview } from "../components/DiscoveryConversationReview";
 
-// Editable requirements are rendered through the extracted accordion below.
-
-// Deep link into the Compare page's typed-SKU flow with the stored competitor,
-// so the trace's Open action re-runs the re-check instead of landing on a cold
-// compare. The Compare page consumes ?brand=&sku= as inbound state.
+// Editable requirements
 function compareDeepLink(compareRun: StoredCompareRun) {
   const params = new URLSearchParams();
   if (compareRun.competitorBrand) params.set("brand", compareRun.competitorBrand);
@@ -873,6 +870,8 @@ export function ProjectDetailPage() {
           </button>
         </div>
       </nav>
+
+      <ProjectSyncConflictBanner conflict={project.syncConflict} />
 
       {isEditingProject ? (
         <section className="wm-project-detail-editor wm-ui-section wm-ui-card" aria-label="Edit project details">

@@ -6,9 +6,7 @@
  * atomic writes can never drift between them.
  */
 
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
+export { atomicWriteJsonSync as atomicWriteJson } from "./atomic-json-writer.mjs";
 
 export function text(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
@@ -80,23 +78,4 @@ export function validateSchema(value, schema, location = "$") {
     }
   }
   return errors;
-}
-
-export function atomicWriteJson(filePath, value) {
-  const temporary = path.join(
-    path.dirname(filePath),
-    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.${os.hostname()}.tmp`,
-  );
-  let descriptor;
-  try {
-    descriptor = fs.openSync(temporary, "wx", 0o600);
-    fs.writeFileSync(descriptor, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-    fs.fsyncSync(descriptor);
-    fs.closeSync(descriptor);
-    descriptor = undefined;
-    fs.renameSync(temporary, filePath);
-  } finally {
-    if (descriptor !== undefined) fs.closeSync(descriptor);
-    if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
-  }
 }

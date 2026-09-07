@@ -16,6 +16,7 @@ describe("atomicWriteJsonSync", () => {
     const target = join(dir, "out.json");
     atomicWriteJsonSync(target, SAMPLE);
     expect(readFileSync(target, "utf8")).toBe(`${JSON.stringify(SAMPLE, null, 2)}\n`);
+    expect(readdirSync(dir).filter((name) => name.endsWith(".tmp"))).toEqual([]);
     rmSync(dir, { recursive: true, force: true });
   });
 

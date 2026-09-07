@@ -32,8 +32,12 @@ expectMarkers("src/wingman2/data/projectStore.ts", [
   "projectBackendSyncEnabled",
   "http-only-cookie",
   "resetProjectBackendSyncSessionState",
-  "credentials: \"include\"",
   "PROJECT_SYNC_SIGN_IN_MESSAGE",
+]);
+
+expectMarkers("src/wingman2/data/projectHydrationFetch.ts", [
+  "buildProjectApiRequest",
+  "credentials: \"include\"",
 ]);
 
 expectMarkers("src/wingman2/api/wingmanApi.ts", [

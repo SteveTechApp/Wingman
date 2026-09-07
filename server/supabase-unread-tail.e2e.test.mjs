@@ -51,6 +51,7 @@ const READ_PAGE_SIZE = 25; // SUPABASE_WINGMAN_READ_PAGE_SIZE handed to the serv
 
 const WINGMAN_TABLES = [
   "wingman_app_state",
+  "wingman_db_generation",
   "wingman_users",
   "wingman_workspaces",
   "wingman_workspace_members",
@@ -88,6 +89,9 @@ function rowsFor(table) {
 }
 
 for (const table of WINGMAN_TABLES) rowsFor(table);
+// Migration-013 register: one 'global' row whose generation moves +1 per
+// successful commit, exactly like the real wingman_db_generation table.
+rowsFor("wingman_db_generation").set("global", { id: "global", generation: 0 });
 
 function seedTelemetry(count) {
   const map = rowsFor(TELEMETRY_TABLE);
@@ -115,20 +119,44 @@ function fakePostgrestHandler(req, res) {
     // Atomic snapshot commit (migration 009): for every section present as an
     // array in the payload, upsert its rows and DELETE table rows whose id is
     // not in the section - the exact semantics that made a truncated read
-    // permanently delete the unread tail.
+    // permanently delete the unread tail. Migration 013 adds the generation
+    // claim: the caller must name the generation its snapshot was read at, and
+    // a claim against a moved register refuses with committed:false/stale:true
+    // before touching any table (register bumps only on a successful commit).
     let body = "";
     req.on("data", (chunk) => {
       body += chunk;
     });
     req.on("end", () => {
-      let payload;
+      let parsed;
       try {
-        payload = JSON.parse(body || "{}").payload;
+        parsed = JSON.parse(body || "{}");
       } catch {
         res.writeHead(400, { "content-type": "application/json" });
         res.end(JSON.stringify({ message: "Invalid RPC payload" }));
         return;
       }
+      const register = rowsFor("wingman_db_generation");
+      const globalRow = register.get("global");
+      const current = globalRow ? Math.max(0, Number(globalRow.generation) || 0) : 0;
+      const expected = parsed?.expected_generation;
+      if (expected === undefined || expected === null) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ message: "wingman_snapshot_commit requires expected_generation" }));
+        return;
+      }
+      if (Number(expected) !== current) {
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({
+          committed: false,
+          stale: true,
+          reason: `snapshot was read at generation ${expected} but the current generation is ${current}`,
+          expected_generation: expected,
+          current_generation: current,
+        }));
+        return;
+      }
+      const { payload } = parsed;
       for (const [section, table] of Object.entries(SECTION_TO_TABLE)) {
         const rows = payload?.[section];
         if (!Array.isArray(rows)) continue; // omitted sections stay untouched
@@ -145,9 +173,10 @@ function fakePostgrestHandler(req, res) {
           if (!kept.has(key)) map.delete(key);
         }
       }
+      register.set("global", { id: "global", generation: current + 1 });
       requestLog.push({ method: req.method, resource: `rpc/${fn}`, rpc: true });
-      res.writeHead(204);
-      res.end();
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ committed: true, generation: current + 1 }));
     });
     return;
   }
@@ -410,17 +439,26 @@ describe("snapshot write past the capped read window (shrunk-pageSize scale)", (
     // Prove the delete half of the reconciliation is live: reset the table,
     // commit a payload that contains only the first 25 rows (what a truncating
     // read WOULD have produced before the fix), and assert the 35-row tail is
-    // removed. A green main assertion is therefore meaningful.
+    // removed. A green main assertion is therefore meaningful. The commit
+    // speaks the migration-013 protocol: a direct caller must first read the
+    // register and claim the CURRENT generation, exactly like the store does.
     seedTelemetry(SEED_COUNT);
     const firstPage = await fakeReadPage(TELEMETRY_TABLE, { offset: 0, limit: CAP });
     expect(firstPage).toHaveLength(CAP);
+    const [generationRow] = await fakeReadAll("wingman_db_generation");
+    const currentGeneration = Number(generationRow?.generation) || 0;
 
     const res = await fetch(`http://127.0.0.1:${fakePort}/rest/v1/rpc/wingman_snapshot_commit`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ payload: { telemetryEvents: firstPage } }),
+      body: JSON.stringify({
+        payload: { telemetryEvents: firstPage },
+        expected_generation: currentGeneration,
+      }),
     });
-    expect(res.status).toBe(204);
+    expect(res.status).toBe(200);
+    const result = await res.json();
+    expect(result.committed).toBe(true);
 
     const remaining = await fakeReadAll(TELEMETRY_TABLE);
     const remainingIds = new Set(remaining.map((row) => row.id));

@@ -8,6 +8,7 @@ _Last updated: 2026-09-03_
 |---|---|
 | `docs/PRE_PRODUCTION_REPORT.md` | **Live status source.** Executed gate results, ranked blockers, and the plan to production. |
 | `docs/CURRENT_STATUS.md` | At-a-glance summary; points at the pre-production report. |
+| `docs/DEVELOPMENT_MILESTONES.md` | Development roadmap to v1.0: measured state, recommended goals, release criteria. |
 | `docs/launch-readiness-report.md` | Superseded gate list, kept so links resolve. |
 | `docs/product-data-health.md` | Current product governance and data-risk summary. |
 | `docs/OPERATIONS.md` | Operational runbook. |
@@ -21,9 +22,11 @@ _Last updated: 2026-09-03_
 | Document | Purpose |
 |---|---|
 | `docs/WINGMAN_PROPOSAL_SAFETY_STANDARD.md` | Proposal wording and safety standard. |
+| `docs/PROJECT_LIFECYCLE_DICTIONARY.md` | Canonical `wingman_projects` stage/status vocabulary (data dictionary): lifecycle, client `ProjectStage`/`StatusVariant` mapping, one-way enrichment rule, extension procedure. Enforced by migration 014. |
 | `docs/wingman-sales-copy-style.md` | Sales copy tone and wording standard. |
 | `docs/wingman-native-schematic-engine.md` | Schematic engine design direction. |
-| `docs/CI_GUARD_GATES.md` | Verify-chain guard gates for dependency, lockfile, product, and governance-data changes, including exception paths. |
+| `docs/design/0001-project-workspace-persistence.md` | ADR-0001: B1 storage-model decision — server-authoritative with local cache vs local-first, with phases and exit criteria (closes P1-3). |
+| `docs/CI_GUARD_GATES.md` | Verify-chain guard gates: what a dependency, lockfile, or product/governance-data edit must satisfy (reference-resolution, generated-manifest, build-deps, override-floor, governance-data, and ratchet gates), with the exception path for each. |
 
 ## Product governance
 

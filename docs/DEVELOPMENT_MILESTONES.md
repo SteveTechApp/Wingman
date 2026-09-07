@@ -1,371 +1,276 @@
-# Wingman Development Milestones — Complete Roadmap
+# Wingman Development Milestones — Evidence-Based Roadmap
 
-**Current state:** v0.9.0 · 140K LOC · 1,285 tests · 72-step verify chain · 445 product SKUs · 355 competitor products · 28 competitor brands
+**Version:** `0.9.0` (package.json) · **Refreshed:** 2026-09-03 from `main` @ `7e619330` (PR #224 merge)
+**Supersedes the 2026-08-24 roadmap.** Every figure in §1 was measured on this commit with the
+command shown next to it; nothing was copied from an older status document.
 
-**Last updated:** 2026-08-24
-
----
-
-## Phase 1: Production Readiness (Weeks 1–3)
-
-**Goal:** Ship a stable, testable v1.0 that a sales rep can use on-site with confidence.
-
-### 1.1 — Mobile-Responsive Layout ⬜
-**Priority:** CRITICAL — reps use Wingman on-site with tablets and phones
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Discovery page: collapse guided steps into vertical scroll with progress indicator | 2d | ⬜ |
-| Product Call Cards: single-column card layout on screens <760px | 1d | ⬜ |
-| Battle Cards: stack brand accordion panels vertically | 1d | ⬜ |
-| Compare page: hide advanced panels behind "More detail" toggle on mobile | 1d | ⬜ |
-| Recommendations: stack role cards vertically, collapse assurance panel | 1d | ⬜ |
-| Proposal Builder: full-width step panels, sticky export bar at bottom | 1d | ⬜ |
-| Dashboard: single-column project grid, collapse sidebar rail to hamburger | 1d | ⬜ |
-| Add `@media (max-width: 760px)` breakpoints to all major page CSS | 2d | ⬜ |
-| Test on iPad Safari, iPhone Safari, Android Chrome | 1d | ⬜ |
-
-### 1.2 — E2E Playwright Tests for Critical Workflows ⬜
-**Priority:** HIGH — prevents regressions in the money paths
-
-| Workflow | Test coverage | Effort |
-|----------|---------------|--------|
-| Discovery → Recommendations → Proposal | Happy path + missing-data recovery | 3d |
-| Competitor Compare (live lookup + no-match fallback) | Brand match + unsupported brand | 2d |
-| Product Call Card → Quick Compare → Add to proposal | 2d |
-| Project save → template → new project from template | 1d |
-| Battle Cards search + expand + link to compare | 1d |
-| Win/loss outcome recording → pattern surface in feedback view | 1d |
-| Quote Safety Dashboard filter + expand + open project | 1d |
-
-### 1.3 — Unit Test Coverage for Ungated Pages ⬜
-**Priority:** HIGH — pages without tests are invisible to the verify chain
-
-| Page | Current tests | Needed |
-|------|---------------|--------|
-| DiscoveryPage | 1 (resume) | Quick-start panel, speech recognition, custom template panel, completion panel |
-| ProposalPage | 0 | Wizard step progression, version history panel, export gate |
-| BattleCardsPage | 0 | Brand grouping, search filter, deal-outcome badges, expand/collapse |
-| SalesHelperPage | 0 | Conversation type selection, room-led vs display-led paths |
-| ProposalVisualsPage | 0 | Block diagram, schematic, room concept creation |
-| VideowallBuilderPage | 0 | Grid shape creation, product assignment, export |
-
-### 1.4 — Service Worker Hardening ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Cache versioning with build-time token replacement | — | ✅ DONE |
-| Add `Vite` config plugin to stamp `sw.js` on every build | — | ✅ DONE |
-| Add cache size monitoring (warn when >50MB) | 0.5d | ⬜ |
-| Add manual "clear cache" button in Settings | 0.5d | ⬜ |
-| Pre-cache `product-media-index.json` for offline product images | 0.5d | ⬜ |
-| Test offline flow end-to-end: go offline → use call cards → come back online | 0.5d | ⬜ |
-
-### 1.5 — Feature Analytics ⬜
-**Priority:** MEDIUM — need data to prioritise future work
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Create `featureAnalytics.ts` module | — | ✅ DONE |
-| Wire into app shell (page views) | — | ✅ DONE |
-| Add `trackFeatureEvent` calls to: Compare, Battle Cards, Discovery completion, Export actions | 1d | ⬜ |
-| Add export tracking (DOCX/PDF format, product count) | 0.5d | ⬜ |
-| Add search tracking (catalog search, competitor search) | 0.5d | ⬜ |
-| Add feature-completion tracking (discovery captured%, proposal readiness) | 0.5d | ⬜ |
+This is the **development roadmap**, not the status file. Live status, executed gate results and
+ranked blockers live in `docs/PRE_PRODUCTION_REPORT.md`; `docs/CURRENT_STATUS.md` is the
+at-a-glance pointer; this file records the plan to v1.0 and the evidence for it.
 
 ---
 
-## Phase 2: Intelligence Loop (Weeks 4–6)
+## 1. Measured state (2026-09-03)
 
-**Goal:** Make every deal outcome, feedback rating, and battle card conversation feed back into smarter recommendations.
+| Metric | Value | How it was measured |
+|---|---|---|
+| Working tree | Clean `main` @ `7e619330` (merge of PR #224, migration-tooling hardening) | `git status`, `git log --oneline -5` |
+| Commits | 2,472 | `git rev-list --count HEAD` |
+| Unit/integration tests | **2,228 passing across 280 files** | `npx vitest run` (75 s, exit 0) |
+| Playwright E2E specs | 14 in `e2e/` — workflow, visual regression, accessibility | `git ls-files e2e/` |
+| npm scripts | 205 total (105 `check:*`, 17 `audit:*`, 5 `verify:*`) | `package.json` |
+| Verify chain | 5 fail-fast stages, **86 top-level npm-run steps** | script expansion of the 5 `verify:*` stages |
+| Source files (`src/**/*.ts,tsx`) | 551 | `git ls-files` |
+| Source lines | ≈59k across `src` + `server` + `tools`; ≈195k tracked non-binary lines repo-wide | `wc -l` on `git ls-files` |
+| WyreStorm canonical catalogue | **315 products** | `public/product-intelligence-index.json` (`products: 315`) |
+| Product index size | **10.2 MB** single JSON | `ls -la public/product-intelligence-index.json` |
+| Governed technical data | **133/133 active lead SKUs verified** (0 drafted, 0 no-profile); 138 specifiable lead products (115 verified, 22 verified-with-warning, 1 review-required) | `node tools/check-wyrestorm-technical-data.mjs` |
+| Competitor catalogue | **354 products / 28 brands** | `data/catalog/competitor-products.generated.json` |
+| Data review queue | 443 items in 4 sheets — 75 new candidates (72 open), 47 ports/IO gaps, 143 lifecycle confirmations, 178 commercial confirmations | `Wingman-Product-Database-Review-Queue.md` (generated 2026-09-03) |
 
-### 2.1 — Win/Loss Feedback Loop ⬜
-**Priority:** HIGH
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Deal outcome recording (won/lost/deferred + why) | — | ✅ DONE |
-| Pattern detection in "why" text (brand, reason extraction) | — | ✅ DONE |
-| Battle card priority boost from deal losses | — | ✅ DONE |
-| Product selector scoring boost/penalty from outcomes | — | ✅ DONE |
-| Surface top losing brands on Recommendations page | — | ✅ DONE |
-| **NEXT:** Auto-escalate losing brands in battle cards when 3+ losses recorded | 1d | ⬜ |
-| **NEXT:** Generate migration-path talking points for losing brands | 2d | ⬜ |
-| **NEXT:** Show "Why we lost" summary on project detail when outcome is "lost" | 1d | ⬜ |
-
-### 2.2 — Proposal Version History ⬜
-**Priority:** HIGH
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Auto-save proposal snapshots on significant change | — | ✅ DONE |
-| Diff engine (title, summary, sections, products) | — | ✅ DONE |
-| Version history UI with compare + restore | — | ✅ DONE |
-| **NEXT:** Show version timeline (vertical stepper with timestamps) | 1d | ⬜ |
-| **NEXT:** "Version summary" auto-generated text ("Added 2 products, removed 1, changed pricing") | 1d | ⬜ |
-| **NEXT:** Version labels (rep can name versions: "v1 - initial", "v2 - added video wall") | 0.5d | ⬜ |
-
-### 2.3 — Quote Safety Dashboard ⬜
-**Priority:** HIGH
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Portfolio view with tier badges, blocker counts, staleness | — | ✅ DONE |
-| Filter by tier, sort by age/products/name | — | ✅ DONE |
-| Expandable blocker/warning detail panels | — | ✅ DONE |
-| **NEXT:** Auto-email stale project owners (configurable threshold) | 2d | ⬜ |
-| **NEXT:** Export dashboard as PDF/CSV for manager review | 1d | ⬜ |
-| **NEXT:** Show deal outcome alongside safety tier ("Lost + 2 blockers = at-risk") | 0.5d | ⬜ |
-
-### 2.4 — Complete System Bundler Intelligence ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Auto-suggest TX+RX pairs, switcher+extenders, UC bar+camera | — | ✅ DONE |
-| Flag missing accessories before quote | — | ✅ DONE |
-| **NEXT:** Warn when TX has no matching RX in the BOM | 1d | ⬜ |
-| **NEXT:** Suggest missing speakers when amplifier is selected | 1d | ⬜ |
-| **NEXT:** Suggest missing camera when UC soundbar is selected | 1d | ⬜ |
-| **NEXT:** Suggest missing control when 3+ devices in BOM | 1d | ⬜ |
+**Change since the July audit (PRE_PRODUCTION_REPORT):** governed technical data went from
+**7/127 verified** to **133/133** — the former P0-2 backlog is closed for active lead SKUs and the
+baseline ratchet has moved from 127 to 133. Tests went from 717 to 2,228, a Playwright E2E suite
+appeared, and the Supabase migration sets were reconciled with `check:migration-parity` in
+`verify:data` and live-schema tooling hardened through PR #224.
 
 ---
 
-## Phase 3: Product Intelligence Automation (Weeks 7–9)
+## 2. How quality is enforced today (do not rebuild this)
 
-**Goal:** Keep Wingman's product data current without manual extraction.
+- **`npm run verify`** = 5 stages — `verify:fast` (typecheck + lint + tests, ≈60 s),
+  `verify:build` (data compile + `vite build` + size budgets + dependency/override guards),
+  `verify:data` (data sources, technical data, lifecycle, story coverage, governance),
+  `verify:contract` (routes, workflow, readiness, compare/decision gates, API contract),
+  `verify:visual` (CSS/route-specific styling guards, page-markup migration, dashboard layout).
+  The pre-commit hook runs the full chain.
+- **CI** runs the stages in a matrix plus lint/typecheck/test-with-coverage jobs; `main` has branch
+  protection with 9 required checks applying to admins (see PRE_PRODUCTION_REPORT §P1-5).
+- **Nightly / scheduled workflows:** evidence-freshness (live official-page checks), Supabase RLS
+  sentinel, vendor-data refresh, governed-data gate, secret drill, Docker builds.
+- **Ratchets that make progress monotonic:** technical-data baseline (now 133), size budgets
+  (`docs/SIZE_BUDGETS.md`), style-drift baseline, CI coverage thresholds, migration parity.
+- **Honesty guards:** `check:sales-facing-language`, `check:documentation-contract` (local links,
+  `npm run` references, proposal export sections), `check:routes`, `check:readiness`.
 
-### 3.1 — Automated Product Data Pipeline ⬜
-**Priority:** HIGH — the product guide PDF is annual; 11 months of drift
+## 3. Capabilities shipped and gate-protected
 
-| Task | Effort | Status |
-|------|--------|--------|
-| Build scraper for wyrestorm.com product pages | 3d | ⬜ |
-| Diff scraped data against product-intelligence-index.json | 2d | ⬜ |
-| Flag new, changed, and discontinued products for review | 1d | ⬜ |
-| Auto-update non-spec fields (images, descriptions, lifecycle) | 2d | ⬜ |
-| Human-in-the-loop review for spec-critical changes | 1d | ⬜ |
-| Schedule monthly check via cron / GitHub Action | 1d | ⬜ |
+Money-path capabilities are now exercised by the E2E suite and/or guarded by dedicated checks, so
+they are not candidate work items:
 
-### 3.2 — Smart Recommendation Memory ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Track rep's product selections by room type + vertical | 2d | ⬜ |
-| Surface "Rep's usual pick" badge on recommended products | 1d | ⬜ |
-| Learn from cross-project patterns (not just one rep) | 2d | ⬜ |
-| Confidence indicator: "90% of reps pick NHD-500 for <12 sources" | 1d | ⬜ |
-
-### 3.3 — Competitor Deal Tracking ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Track which competitors appear in lost deals (from "why" field) | — | ✅ DONE |
-| Surface top 3 competitors by loss frequency | — | ✅ DONE |
-| Auto-generate battle cards for high-loss competitors first | 1d | ⬜ |
-| Show "Crestron appeared in 5 lost deals this quarter" on dashboard | 1d | ⬜ |
-| Suggest specific talking points based on loss reasons | 2d | ⬜ |
+| Capability | Protected by |
+|---|---|
+| Discovery → Recommendations → Proposal | `e2e/discovery-to-proposal-workflow.spec.ts`, `e2e/discovery-happy-path.spec.ts`, `check:discovery-topology` |
+| Call cards → quick compare → add to proposal | `e2e/call-card-to-proposal.spec.ts`, `e2e/product-call-card-happy-path.spec.ts`, `check:call-cards` |
+| Competitor Compare (live + no-match) | `e2e/compare-happy-path.spec.ts`, `e2e/real-competitor-compare.spec.ts`, decision-ledger snapshots (`check:competitor-decisions`), governed evidence checks |
+| Templates & template BOMs | `e2e/template-to-proposal-workflow.spec.ts`, `e2e/template-bom-verification.spec.ts`, `check:template-sku-lifecycle`, `check:template-signal-path` |
+| Battle cards / win-loss feedback | `e2e/battle-cards-search.spec.ts`, `e2e/win-loss-recording.spec.ts` |
+| Proposal export safety | `e2e/proposal-export-validation.spec.ts`; `check:docs` enforces the 7 safety sections in `proposalExport.ts` |
+| Offline shell (service worker) | `public/sw.js` — versioned caches, prune-on-activate |
+| Auth, storage, RLS, security | server tests + `check:supabase-rls`/nightly sentinel; see PRE_PRODUCTION_REPORT §4 (production-grade, do not rebuild) |
 
 ---
 
-## Phase 4: UX Polish & Access (Weeks 10–12)
+## 4. Roadmap to v1.0 — recommended development goals
 
-**Goal:** Make Wingman useful in the room, not just at the desk.
+### Group A · Reliability, performance & measurement
 
-### 4.1 — Discovery Workflow Simplification ⬜
-**Priority:** HIGH — current discovery is "cumbersome" and "expects too much"
+- [x] **A1 — Repair the load-test harness.** Done 2026-09-03. `tools/load-test.mjs` now boots the
+  real server on a throwaway port/data dir, signs up authenticated workspace sessions, and
+  benchmarks health, project load/save, Compare and the payload-limit probe at
+  smoke/standard/stress/spike levels; measured baselines recorded in `docs/LOAD_TESTING.md`.
+  The proposal-export flow is client-side code, benchmarked separately by
+  `tools/proposal-export-load.test.mjs` (`npm run load-test:proposal-export`).
+- [ ] **A2 — Benchmark authenticated flows.** Harness covers project load/save, Compare,
+  proposal compilation/export, and storage-mode-aware Supabase synchronization (run the server
+  in `supabase-tables` mode via `--storage-mode` or target a Supabase-backed deployment with
+  `--url`). Measured so far (2026-09-03, in `docs/LOAD_TESTING.md`): standard/stress/spike at
+  file storage (local host) and an attributable standard-level `supabase-tables` run against
+  the hosted `.env` Supabase project (fail-closed; 12/12 project rows auto-verified
+  persisted — the harness now reads the run's rows back itself after every spawned
+  `supabase-tables` run and exits 1 on any mismatch, replacing the manual read-back;
+  unit-tested in `tools/load-test-persistence.test.mjs`). A verified pass now also
+  deletes the run's own signups/workspaces/project rows (FK-safe direct PostgREST
+  deletes + zero-remaining re-check; `--keep-db-data` opts out), so repeated runs
+  need no manual DB cleanup — proven live with two back-to-back smokes that left
+  the project at its exact pre-run state.
+  Getting that run green surfaced and fixed three real supabase-tables blockers: the
+  `wingman_snapshot_commit`/`wingman_ledger_commit` 42702 SQL bug (migrations 009/011/012,
+  applied live), the client-stage-vocabulary vs DB CHECK-constraint mismatch, and silent
+  file-store fallback on remote failure (harness now forces fail-closed). The vocabulary gap
+  is now CLOSED server-side: the constrained row columns are canonicalised at snapshot build
+  time (ADR-0001 §1.2g) while the payload blob keeps the client strings, the hydration E2E
+  pins it in supabase-tables mode, and the corpus speaks the real client vocabulary again.
+  The canonical vocabulary is now defined in one place (`docs/PROJECT_LIFECYCLE_DICTIONARY.md`)
+  and enforced on every provisioning route by migration 014's named
+  `wingman_projects_stage_check`/`wingman_projects_status_check` constraints (the Supabase
+  GitHub-integration migration set had created `wingman_projects` without them).
+  Cross-instance safety: migration 013's generation register + CAS guard makes the
+  whole-snapshot commit safe when two server instances share one Supabase project
+  (ADR-0001 §1.2h) — two-process race E2E, SQL validated on real Postgres, applied live.
+  Open: a staging run.
+- [ ] **A3 — Establish p95, p99, error-rate and payload-size budgets.** Initial budgets recorded
+  in `docs/LOAD_TESTING.md` (2026-09-03) and enforced by `--strict` in the harness; not yet
+  wired into a scheduled CI job.
+- [x] **A4 — Rewrite `DEVELOPMENT_MILESTONES.md` from current evidence.** This file, 2026-09-03.
+- [ ] **A5 — Add `CONTEXT.md` and architecture decision records.** Capture the storage model
+  decision (P1-3), the governed-Compare workflow, and the canonical-proposal-artifact direction.
+  Suggested home: `docs/design/` alongside existing design notes. Started 2026-09-03:
+  ADR-0001 (`docs/design/0001-project-workspace-persistence.md`) records the storage-model
+  decision (server-authoritative with local cache, recommended) with phases and exit criteria;
+  `CONTEXT.md` and the Compare/proposal ADRs remain.
+- [ ] **A6 — Prioritise the data review queues by product usage and commercial exposure.**
+  Measured state 2026-09-03: 443 items — **72 open new candidates**, **47 ports/IO gaps**,
+  ~140 lifecycle flags now auto-enforced by `lifecycle:reconcile`, and 178 commercial-approval
+  rows that belong in the quote-safety approval workflow rather than a spreadsheet. Sheet 2
+  (ports/IO) and the 404-filtered sheet 1 remain genuinely manual; order by template-BOM and
+  proposal reach, not alphabetically.
 
-| Task | Effort | Status |
-|------|--------|--------|
-| Progressive disclosure: show 3 questions at a time, not 20+ | 3d | ⬜ |
-| Smart defaults: auto-fill vertical → common room type → common equipment | 2d | ⬜ |
-| "Quick mode" for simple rooms (3 questions: room size, displays, sources) | 2d | ⬜ |
-| Voice input for cable distances (already has speech recognition) | 1d | ⬜ |
-| Visual topology builder (drag cables on a room diagram) | 5d | ⬜ |
+### Group B · Architecture: persistence & scale
 
-### 4.2 — Product Call Card Grid Redesign ⬜
-**Priority:** MEDIUM
+- [ ] **B1 — Introduce project/workspace-scoped persistence.** `projectStore.ts` persists to
+  `localStorage` under one key and backend sync is gated on a build-time flag — the P1-3 open
+  decision (server-authoritative with local cache vs local-first). This is the recommended first
+  investment: it removes the clearest scaling risk and gives Project, Discovery, Compare and
+  Proposal one storage substrate to simplify against.
+- [ ] **B2 — Deepen the frontend project-workspace module behind commands and queries**, so pages
+  do not reach into storage primitives directly (mirror the existing module boundaries in
+  `src/wingman2/lib`).
+- [ ] **B3 — Test multi-workspace concurrency, rollback and increasing dataset sizes.** Two-session
+  edit reconciliation ("confirm neither edit is silently lost") started 2026-09-03:
+  `server/project-store-two-session-merge.e2e.test.mjs` reproduces the loss in both sync orders
+  and is green after the server merge hardened to per-sub-document embedded-timestamp LWW for
+  the timestamped single-value sub-documents (ADR-0001 §1.2b). Same-sub-document (same-field)
+  conflicts are now closed too: per-project revision counters (`syncRevision`/`baseRevision`
+  round trip) resolve them deterministically in either sync order — (edit time, revision basis,
+  author) total order, asserted by the same E2E's equal-timestamp case (ADR-0001 §1.2d,
+  2026-09-03). A stress variant (`server/project-store-two-session-stress.e2e.test.mjs`)
+  drives 200 interleaved overlapping saves from both sessions and asserts no edit is ever
+  silently dropped after every single response (ADR-0001 §1.2e). The CLIENT side of reload
+  hydration now follows the same policy: `hydrateProjectStoreFromBackendOnce` merges per
+  sub-document (six timestamped sub-documents by embedded time, by-id list unions, revision-
+  basis tie-break) so offline-then-reload keeps the offline edit even when the backend whole
+  project advanced, and a reloading two-tab copy adopts the other tab's newer sub-document  on a
+  whole-time tie — E2E cases 4-5 in `server/project-store-hydration.e2e.test.mjs`, both
+  verified red against the pre-fix whole-project logic (ADR-0001 §1.2f). The id-keyed
+  collections
+  (compareRuns/proposalVersions/requirements/productSelections/visualAssets) are now closed
+  too:  both the server sync merge and client hydration merge them per item by embedded
+  write-time LWW with a freshness-guarded removal rule, with cross-side parity coverage
+  (`server/project-store-id-keyed-collections.parity.test.mjs`) and concurrent-edit E2E
+  cases for all five collections in both sync orders (disjoint-item union and same-item
+  determinism, `server/project-store-two-session-merge.e2e.test.mjs`) plus the stress
+  suite's shared requirements lane (ADR-0001 §1.2i, 2026-09-03). When a sync
+  response reports a revision newer than the local basis, the store now marks the
+  project `syncConflict` with the exact changed lanes (diff of sent vs returned
+  doc) and surfaces it — amber "Team changed"  badge on the project row, banner on
+  the detail page — clearing automatically once the tab adopts the member's
+  version and syncs clean (ADR-0001 §1.2j, `server/project-store-sync-conflict.e2e.test.mjs`,
+  2026-09-03). Reload hydration is now an incremental pull: the client sends
+  its per-project last-seen revisions (`X-Wingman-Since`) and downloads only
+  the rows that moved (syncConflict-flagged copies force their row back so
+  the reconcile path of §1.2j keeps working), and a since-pull never rewrites
+  the store — measured 258 B vs 366 KB for a no-change supabase-tables reload
+  (ADR-0001 §1.2k, `server/project-store-incremental-hydration.e2e.test.mjs`,
+  harness `--scenarios project-save,hydrate-since`, 2026-09-03). ADR-0001
+  Phase 1's server half is done (2026-09-03, §1.2l): per-project
+  `GET/PUT /api/wingman/projects/:id` routes alongside the whole-store
+  endpoints, the PUT committing ONE row through migration-015
+  `wingman_project_put` — the row's own revision is the CAS (stale commits
+  refuse and re-merge with a bounded retry), a successful commit advances the
+  generation register so whole-snapshot writes cannot reconcile the row away,
+  and the audit row lands in the same transaction
+  (`server/project-store-per-project-sync.e2e.test.mjs`; RPC semantics proven
+  directly against real Postgres on the zero-network stack). The harness
+  `project-put` scenario (opt-in, auto-verifies one persisted row per PUT)
+  measured the write path on the local stack at p50 415.61 ms vs the
+  whole-store sync POST's 871.88 ms (−52%) with a 4× smaller payload and no
+  whole-snapshot RPC per save — the attributed re-run quantifies the
+  reduction: whole-DB RPC + serialization gone from a save (single-row
+  commit 8.8 ms p50), store-lock queue −51% p50 and lock run −44% p50 (dated
+  `WINGMAN_STORE_PROFILE` baseline in docs/LOAD_TESTING.md).
+  Open: client migration to per-project push granularity (narrows the store
+  read + lock to one row), rollback, increasing dataset sizes.
+- [ ] **B4 — Split the 10.2 MB product index** (`public/product-intelligence-index.json`) into a
+  searchable summary index plus deferred technical detail, so initial route load does not pull the
+  full catalogue (see bundle findings in PRE_PRODUCTION_REPORT §P1-4).
+- [ ] **B5 — Begin removing route-specific CSS accumulation.** Measured and ratcheted today by
+  `check:style-drift-baseline` and `wm:guard-css`; work the counted page/compare sections down.
 
-| Task | Effort | Status |
-|------|--------|--------|
-| One-line summary on each card (family + first proof point) | — | ✅ DONE |
-| Recently viewed + frequently used quick-access | — | ✅ DONE |
-| Discovery notes prefill | — | ✅ DONE |
-| **NEXT:** Richer card layout: product image + 3-line summary + role badge | 2d | ⬜ |
-| **NEXT:** Filter by: role, technology, lifecycle status | 1d | ⬜ |
-| **NEXT:** Sort by: relevance, alphabetical, recently used | 0.5d | ⬜ |
+### Group C · Product & workflow governance
 
-### 4.3 — Offline Mode Enhancements ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Service worker with pre-cached data | — | ✅ DONE |
-| Offline banner with connection status | — | ✅ DONE |
-| Cache versioning with build-time stamp | — | ✅ DONE |
-| **NEXT:** Pre-cache product images (small thumbnails only) | 2d | ⬜ |
-| **NEXT:** Cache proposal templates for offline proposal editing | 2d | ⬜ |
-| **NEXT:** Background sync: queue changes offline, push when online | 3d | ⬜ |
-| **NEXT:** IndexedDB for larger data sets (product intelligence index) | 2d | ⬜ |
-
-### 4.4 — Accessibility & Keyboard Navigation ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| All interactive elements focusable with visible focus ring | 2d | ⬜ |
-| ARIA labels on all icon buttons | 1d | ⬜ |
-| Screen reader announcements for dynamic content (toasts, status) | 1d | ⬜ |
-| Keyboard shortcuts for common actions (Ctrl+K search, Ctrl+N new project) | 1d | ⬜ |
-| axe-core integration in CI (already in devDependencies) | 1d | ⬜ |
-
----
-
-## Phase 5: Scale & Integration (Weeks 13–16)
-
-**Goal:** Make Wingman an organisational tool, not just an individual one.
-
-### 5.1 — Multi-User Team Features ⬜
-**Priority:** HIGH
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Shared project access (read/write permissions) | 5d | ⬜ |
-| Team templates (shared across workspace) | 3d | ⬜ |
-| Cross-rep feedback aggregation (consolidate patterns across team) | 3d | ⬜ |
-| Manager view: team dashboard with rep performance metrics | 3d | ⬜ |
-| Role-based access (rep, pre-sales engineer, manager, admin) | 2d | ⬜ |
-
-### 5.2 — CRM Integration ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Salesforce: push project data as Opportunity | 5d | ⬜ |
-| HubSpot: push project data as Deal | 5d | ⬜ |
-| Pipedrive: push project data as Deal | 3d | ⬜ |
-| Generic webhook: POST project data to any URL | 2d | ⬜ |
-| Import: pull customer data from CRM into Discovery | 3d | ⬜ |
-
-### 5.3 — Customer-Facing Portal ⬜
-**Priority:** LOW
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Customer login (magic link, no password) | 3d | ⬜ |
-| Customer views their proposal | 2d | ⬜ |
-| Customer marks items as approved/changed/rejected | 2d | ⬜ |
-| Customer leaves comments on proposal sections | 2d | ⬜ |
-| Rep gets notification of customer changes | 1d | ⬜ |
-| Version diff: "Customer rejected NHD-500-TX, suggested NHD-600-TX" | 2d | ⬜ |
-
-### 5.4 — Analytics Dashboard ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Feature usage heatmap (which pages used most) | 2d | ⬜ |
-| Product quote frequency (which SKUs quoted most) | 1d | ⬜ |
-| Win rate by product family | 1d | ⬜ |
-| Competitor loss frequency by brand | 1d | ⬜ |
-| Average proposal readiness score over time | 1d | ⬜ |
-| Export: CSV/JSON for BI tools | 1d | ⬜ |
-
----
-
-## Phase 6: Advanced Intelligence (Weeks 17–20)
-
-**Goal:** Make Wingman the most knowledgeable AV pre-sales tool in the industry.
-
-### 6.1 — AI-Powered Discovery ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Natural language room description → structured requirements | 5d | ⬜ |
-| Photo upload → room analysis (identify displays, cables, mounts) | 5d | ⬜ |
-| Voice conversation → requirement capture (like a guided interview) | 5d | ⬜ |
-
-### 6.2 — Competitive Intelligence Automation ⬜
-**Priority:** MEDIUM
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Scrape competitor websites for new products/pricing | 5d | ⬜ |
-| Auto-generate battle cards for new competitor products | 3d | ⬜ |
-| Track competitor pricing changes | 2d | ⬜ |
-| Alert when a competitor launches a product in our space | 2d | ⬜ |
-
-### 6.3 — Advanced Proposal Intelligence ⬜
-**Priority:** LOW
-
-| Task | Effort | Status |
-|------|--------|--------|
-| Auto-generate pricing from BOM (when pricing data available) | 5d | ⬜ |
-| Margin calculator (suggest optimal pricing for deal type) | 3d | ⬜ |
-| Multi-currency support | 2d | ⬜ |
-| Proposal templates by vertical (education, corporate, retail) | 3d | ⬜ |
-
----
-
-## Technical Debt & Quality Ratchets
-
-### Current debt (from codebase audit)
-
-| Item | Severity | Effort | Notes |
-|------|----------|--------|-------|
-| ComparePageNew.advanced.tsx is 6,233 lines | HIGH | 5d | Split into sub-components |
-| roomTemplates.ts is 3,283 lines | MEDIUM | 3d | Extract template definitions to JSON |
-| ProductCallCardsPage.tsx is 2,003 lines | MEDIUM | 2d | Extract grid, search, compare components |
-| No Playwright tests at all | HIGH | 5d | Add critical path e2e tests |
-| Service worker has no cache size limits | LOW | 0.5d | Add monitoring |
-| No A/B testing infrastructure | LOW | 3d | Needed for feature experiments |
-
-### Quality gates to add
-
-| Gate | What it checks | Effort |
-|------|---------------|--------|
-| `check:e2e-smoke` | Playwright: discovery → recommendations → proposal happy path | 2d |
-| `check:mobile-viewport` | All pages render correctly at 375px and 768px | 1d |
-| `check:analytics-wiring` | All pages track feature_open events | 0.5d |
-| `check:offline-capability` | Service worker pre-caches all required JSON files | 0.5d |
+- [ ] **C1 — Build one canonical proposal artifact.** Today `proposalExport.ts` enforces 7 safety
+  sections; make export formats render from one semantic document so DOCX/PDF/screen cannot
+  diverge.
+- [ ] **C2 — Model Discovery as a resumable state machine**, so re-entry and partial capture are
+  first-class instead of stored as ad-hoc UI state.
+- [ ] **C3 — Move Compare policy into a governed input-to-result workflow.** Evidence-led wording
+  (`check:compare-evidence-led-wording`), the competitor-decision ledger and match-decisions
+  snapshots already exist; extend the same governance to every Compare entry point.
+- [ ] **C4 — Consolidate canonical product taxonomy across client and server** (role, family,
+  lifecycle, transport) so Compare, templates and proposal reads agree by construction.
+- [ ] **C5 — Replace source-marker checks with interface-level behavioural tests.** The P0-1
+  lesson: a guard that greps for a literal string can be satisfied by a string in the wrong
+  place; prefer rendered-output assertions like `templateWorkflowRendered.test.tsx`.
 
 ---
 
-## Release Milestones
+## 5. v1.0 release criteria (agreed gate, not checklist prose)
 
-| Milestone | Target | Features included |
-|-----------|--------|-------------------|
-| **v1.0-beta** | Week 3 | Mobile responsive, e2e tests, service worker hardened |
-| **v1.0-rc** | Week 6 | Win/loss loop, proposal versioning, quote safety dashboard |
-| **v1.0** | Week 9 | Automated product pipeline, smart recommendations, competitive intelligence |
-| **v1.1** | Week 12 | Discovery simplification, call card redesign, offline enhancements |
-| **v1.2** | Week 16 | Multi-user teams, CRM integration, analytics dashboard |
-| **v2.0** | Week 20 | AI-powered discovery, advanced proposal intelligence |
+Before calling this v1.0, all of the following must be true **and evidenced by a dated artefact**:
+
+| Criterion | Status (2026-09-03) | What would close it |
+|---|---|---|
+| Real sales-rep mobile UAT | ⬜ No UAT on record | Dated UAT runs on tablets/phones (a11y + visual E2E specs exist but are not UAT) |
+| Authenticated production-like load tests | ⬜ | A1 + A2 run against a staging server with a real account; results recorded |
+| Offline edit/reconnect/reconciliation tests | ⬜ | Offline shell exists (`sw.js`) but no reconnect/reconciliation spec; B3 covers the two-tab case |
+| Large-workspace performance tests | ⬜ | B3/B4 datasets at realistic project size; p95/p99 budgets from A3 |
+| Proposal semantic parity across every export format | ◐ Partial | `proposal-export-validation.spec.ts` exists; a parity matrix across export formats does not (C1) |
+| Agreed closure thresholds for missing critical specifications and evidence | ◐ Mostly met by ratchet | 133/133 lead SKUs verified; residual thresholds (verified-with-warning counts, review-required row, commercial-approval queue) need a dated business sign-off |
+| Observability for actual journey completion and failure rates | ◐ Partial | Client error reporting + structured logs exist (P2-1); journey-level completion/funnel and error-rate metrics do not (A3) |
 
 ---
 
-## What's already built (session recap)
+## 6. Verified technical debt (2026-09-03)
 
-| Feature | Files | Status |
-|---------|-------|--------|
-| Call cards simplification | 3 files | ✅ |
-| Product grid hints | 2 files | ✅ |
-| Quick Compare mode | 2 files | ✅ |
-| Recently viewed / Frequently used | 3 files | ✅ |
-| Discovery notes prefill | 3 files | ✅ |
-| Complete this system | 3 files | ✅ |
-| Battle Cards | 5 files (3 new) | ✅ |
-| Win/Loss outcomes | 5 files | ✅ |
-| Project templates | 3 files (1 new) | ✅ |
-| Product Guide 2026 data cleansing | 1 file | ✅ |
-| Offline mode (service worker) | 3 files (2 new) | ✅ |
-| Win/loss feedback loop | 4 files | ✅ |
-| Proposal version history | 4 files (2 new) | ✅ |
-| Quote Safety Dashboard | 3 files (2 new) | ✅ |
-| Service worker cache versioning | 2 files | ✅ |
-| Feature analytics | 3 files (1 new) | ✅ |
-| **Total** | **15 modified + 8 new** | **+3,800 / -500 net lines** |
+| Item | Evidence | Severity |
+|---|---|---|
+| `ComparePageNew.advanced.tsx` | 6,418 lines | HIGH — split into sub-components |
+| `roomTemplates.ts` | 3,376 lines | MEDIUM — extract template definitions to data, keep signal-path guard |
+| `ProductCallCardsPage.tsx` | 2,011 lines | MEDIUM — extract grid/search/compare |
+| Guard-tool sprawl | 105 `check:*` scripts, incl. eight near-duplicate `check:dashboard-*` guards encoding one-off visual corrections (P1-1 finding) | MEDIUM — consolidate to fewer contracts or retire implausible regressions |
+| Commit friction ratchets | size budgets + style-drift baseline fire in pre-commit; raising either requires the exception process in `docs/SIZE_BUDGETS.md` | LOW — by design, but budget raises should be rare |
+| Service worker | cache versioning + prune exist; **no cache-size monitoring / cap** (warn >50 MB) | LOW |
+| Single 10.2 MB product index | one JSON for the whole catalogue (B4) | MEDIUM |
+
+---
+
+## 7. Data governance — state of the former P0
+
+- **Closed:** every active lead SKU has a verified governed profile (133/133, baseline 127 → 133).
+  `check:technical-data --strict` now passes where July's audit showed 7/127.
+- **Ratcheted:** confirmation aging is measured (0 past the 14-day warn threshold today); nightly
+  freshness re-checks official pages.
+- **Still human work:** 47 ports/IO items, 72 real new-candidate SKUs (404 rows filtered), and
+  commercial-approval sign-off per SKU where the business wants it. Lifecycle confirmation is
+  automated (`lifecycle:reconcile` + successor/architecture/reference guards) and the residual
+  review queue rows are stale.
+
+---
+
+## 8. Keeping this file honest
+
+Do not hand-edit the §1 table. Re-measure, then edit:
+
+```bash
+npx vitest run --reporter=dot | tail -5            # test counts
+git rev-list --count HEAD                          # commits
+node tools/check-wyrestorm-technical-data.mjs      # governed coverage
+ls -la public/product-intelligence-index.json      # index size
+npm run verify                                     # full gate before commit
+```
+
+Related documents: `docs/PRE_PRODUCTION_REPORT.md` (live status), `docs/CURRENT_STATUS.md`
+(at-a-glance), `docs/LAUNCH_CHECKLIST.md` (go/no-go), `docs/LOAD_TESTING.md` (load method),
+`docs/DOCUMENTATION_MAP.md` (map), `Wingman-Product-Database-Review-Queue.md` (queue export),
+`docs/CI_GUARD_GATES.md` and `docs/SIZE_BUDGETS.md` (gate/exception rules).

@@ -171,6 +171,11 @@ export default defineConfig({
               priority: 20,
             },
             {
+              name: "wm-project-sync",
+              test: /src[\\/]wingman2[\\/]data[\\/]project(?:Hydration(?:Fetch|Merge)|SyncConflict)\.tsx?$/,
+              priority: 30,
+            },
+            {
               name: "wm-project-workflow",
               test: /src[\\/]wingman2[\\/](data|lib|components)[\\/].*(project|Project|proposal|Proposal|template|Template).*\.tsx?$/,
             },

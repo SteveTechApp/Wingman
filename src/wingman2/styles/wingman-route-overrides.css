@@ -2403,8 +2403,7 @@ html[data-wingman-route] .wm-vs-list li + li {
   padding: 9px 11px;
 }
 
-.wm-templates-workflow-page :where(button, a),
-.wm-template-detail-shell :where(button, a) {
+.wm-templates-workflow-page :where(button, a), .wm-template-detail-shell :where(button, a) {
   text-decoration: none;
 }
 
@@ -4914,179 +4913,11 @@ main :is(
     }
 
 }
-.wm-navhub-page {
-  display: grid;
-  gap: 1rem;
-  padding: clamp(1rem, 2vw, 1.5rem);
-  color: var(--wm-white, #f6fbff);
-}
 
-.wm-navhub-hero,
-.wm-navhub-secondary {
-  border: 1px solid var(--wm-line, rgba(91, 215, 255, 0.24));
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(7, 22, 41, 0.94), rgba(3, 12, 24, 0.92));
-  box-shadow: var(--wm-glow, 0 0 0 1px rgba(91, 215, 255, 0.12));
-  padding: clamp(1rem, 2vw, 1.4rem);
-}
-
-.wm-navhub-hero h1,
-.wm-navhub-secondary h2 {
-  margin: 0.25rem 0 0;
-  color: var(--wm-aqua, #63f3ff);
-  font-size: clamp(1.65rem, 3vw, 2.6rem);
-  line-height: 1;
-}
-
-.wm-navhub-hero p,
-.wm-navhub-secondary p {
-  max-width: 70rem;
-  margin: 0.65rem 0 0;
-  color: var(--wm-soft, #d7e8f8);
-}
-
-.wm-navhub-eyebrow {
-  margin: 0;
-  color: var(--wm-aqua-soft, #9bf7ff);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.wm-navhub-submodes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
-
-.wm-navhub-submodes span {
-  border: 1px solid rgba(99, 243, 255, 0.24);
-  border-radius: 999px;
-  background: rgba(7, 22, 41, 0.76);
-  color: var(--wm-soft, #d7e8f8);
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 0.45rem 0.7rem;
-}
-
-.wm-navhub-grid,
 .wm-home-start-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 0.85rem;
-}
-
-.wm-navhub-secondary {
-  display: grid;
-  gap: 0.9rem;
-}
-
-.wm-navhub-secondary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 0.75rem;
-}
-
-.wm-navhub-card {
-  display: grid;
-  align-content: start;
-  gap: 0.5rem;
-  min-height: 10.5rem;
-  border: 1px solid rgba(91, 215, 255, 0.22);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(8, 25, 45, 0.94), rgba(3, 12, 24, 0.92));
-  color: var(--wm-white, #f6fbff);
-  padding: 1rem;
-  text-decoration: none;
-  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
-}
-
-.wm-navhub-card:hover,
-.wm-navhub-card:focus-visible {
-  border-color: rgba(99, 243, 255, 0.58);
-  background: linear-gradient(180deg, rgba(12, 42, 72, 0.96), rgba(5, 18, 34, 0.94));
-  transform: translateY(-1px);
-}
-
-.wm-navhub-card span {
-  color: var(--wm-aqua-soft, #9bf7ff);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.wm-navhub-card strong {
-  color: var(--wm-consistency-text);
-  font-size: 1.05rem;
-  line-height: 1.15;
-}
-
-.wm-navhub-card p,
-.wm-navhub-card small {
-  margin: 0;
-  color: var(--wm-soft, #d7e8f8);
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.wm-navhub-card small {
-  color: var(--wm-muted, #9fb4ca);
-}
-
-.wm-navhub-dashboard > .wm-navhub-hero,
-.wm-navhub-dashboard > .wm-navhub-secondary,
-.wm-navhub-dashboard .wm-navhub-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.wm-navhub-dashboard > .wm-navhub-hero::after,
-.wm-navhub-dashboard > .wm-navhub-secondary::after {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 9rem;
-  height: 5rem;
-  pointer-events: none;
-  opacity: 0.35;
-  background:
-    linear-gradient(90deg, transparent 25%, rgba(99, 243, 255, 0.15) 25% 26%, transparent 26% 50%, rgba(99, 243, 255, 0.1) 50% 51%, transparent 51%),
-    linear-gradient(0deg, transparent 30%, rgba(99, 243, 255, 0.13) 30% 32%, transparent 32% 64%, rgba(99, 243, 255, 0.09) 64% 66%, transparent 66%);
-  content: "";
-}
-
-.wm-navhub-dashboard .wm-navhub-card::after {
-  position: absolute;
-  inset: auto -3rem -4rem auto;
-  width: 9rem;
-  height: 9rem;
-  border: 1px solid rgba(99, 243, 255, 0.08);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 1.25rem rgba(99, 243, 255, 0.025),
-    0 0 0 2.5rem rgba(99, 243, 255, 0.018);
-  pointer-events: none;
-  content: "";
-}
-
-.wm-navhub-continuation-actions .wm-ui-button,
-.wm-navhub-start-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.45rem;
-  padding: 0.55rem 0.9rem;
-  font-size: 0.82rem;
-  line-height: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wm-navhub-dashboard .wm-navhub-card {
-      transition: none;
-    }
-
 }
 .wm-home-page .wm-page-hero h1,
 main[data-wingman-page="home"] .wm-page-hero h1,
@@ -5128,12 +4959,6 @@ main[data-wingman-page="home"] .wm-polish-hero {
   min-height: fit-content;
 }
 
-.wm-home-page.wm-navhub-page {
-  display: grid;
-  gap: 18px;
-  align-content: start;
-}
-
 .wm-home-page .wm-page-hero {
   padding: 24px 28px;
   margin-bottom: 0;
@@ -5148,25 +4973,6 @@ main[data-wingman-page="home"] .wm-polish-hero {
 .wm-home-page .wm-page-hero p {
   margin: 0;
   max-width: 980px;
-}
-
-.wm-home-page .wm-navhub-secondary-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px;
-}
-
-@media (max-width: 1400px) {
-  .wm-home-page .wm-navhub-secondary-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-}
-@media (max-width: 760px) {
-  .wm-home-page .wm-navhub-secondary-grid {
-      grid-template-columns: 1fr;
-    }
-
 }
 main[data-wingman-page="product-call-cards"] .wm-page-hero,
 .wm-product-call-cards-page .wm-product-call-cards-hero {
@@ -5332,8 +5138,6 @@ main[data-wingman-page="intelligence"] h1,
 
 html[data-wingman-route="glossary"] .wingman-page-hero p:first-child,
 html[data-wingman-route="intelligence"] .wingman-page-hero p:first-child,
-html[data-wingman-route="glossary"] .wm-navhub-eyebrow,
-html[data-wingman-route="intelligence"] .wm-navhub-eyebrow,
 html[data-wingman-route="glossary"] [class*="eyebrow"],
 html[data-wingman-route="intelligence"] [class*="eyebrow"],
 main[data-wingman-page="glossary"] [class*="eyebrow"],
@@ -5466,229 +5270,6 @@ html[data-wingman-route="settings"] .wm-page-hero *,
   color: inherit;
   text-shadow: none;
 }
-
-html[data-wingman-route] .wingman-page-host :is(
-  .wingman-page-hero,
-  .wm-page-hero,
-  .wm-page-header,
-  .wm-navhub-hero,
-  .wm-cr-hero,
-  .cca-header,
-  .wm20-panel[data-wingman-discovery-capture="true"],
-  .wm-product-call-cards-hero,
-  .wm-product-pitch-hero,
-  .wm-intel-hero,
-  .wm-template-detail-hero,
-  .wm-vs-header-card
-) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 14px;
-  min-height: auto;
-  margin: 0;
-  padding: 18px 20px;
-  border: 1px solid var(--wm-consistency-border);
-  border-radius: 18px;
-  background: var(--wm-consistency-hero);
-  color: var(--wm-consistency-text);
-  box-shadow: var(--wm-consistency-shadow);
-}
-
-html[data-wingman-route] .wingman-page-host :is(
-  .wingman-page-hero,
-  .wm-page-hero,
-  .wm-page-header,
-  .wm-navhub-hero,
-  .wm-cr-hero,
-  .cca-header,
-  .wm20-panel[data-wingman-discovery-capture="true"],
-  .wm-product-call-cards-hero,
-  .wm-product-pitch-hero,
-  .wm-intel-hero,
-  .wm-template-detail-hero,
-  .wm-vs-header-card
-) :is(h1, .wingman-display, .wm-page-title) {
-  max-width: 940px;
-  margin: 0;
-  color: var(--wm-consistency-title);
-  font-size: clamp(2rem, 2.6vw, 2.75rem);
-  line-height: 1.05;
-}
-
-html[data-wingman-route] .wingman-page-host :is(
-  .wingman-kicker,
-  .wm-navhub-eyebrow,
-  .wm-cr-eyebrow,
-  .cca-header p,
-  .wm20-eyebrow,
-  .wm-intel-hero span,
-  .wm-product-call-card-selector-label,
-  .wm-template-library-header .wm-section-kicker,
-  [class*="eyebrow"],
-  [class*="kicker"]
-) {
-  color: var(--wm-consistency-title-soft);
-  font-size: 0.72rem;
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-html[data-wingman-route] .wingman-page-host :is(
-  .wingman-page-hero,
-  .wm-page-hero,
-  .wm-page-header,
-  .wm-navhub-hero,
-  .wm-cr-hero,
-  .cca-header,
-  .wm20-panel[data-wingman-discovery-capture="true"],
-  .wm-product-call-cards-hero,
-  .wm-product-pitch-hero,
-  .wm-intel-hero,
-  .wm-template-detail-hero,
-  .wm-vs-header-card
-) :is(p:not([class*="eyebrow"]):not([class*="kicker"]), span:not([class*="eyebrow"]):not([class*="kicker"])) {
-  max-width: 880px;
-  margin: 7px 0 0;
-  color: var(--wm-consistency-muted);
-  font-size: 0.94rem;
-  line-height: 1.45;
-}
-
-html[data-wingman-route] .wingman-page-host :is(
-  .wingman-panel,
-  .wingman-surface,
-  .wingman-section-card,
-  .wm-navhub-secondary,
-  .wm-navhub-card,
-  .wm-cr-card,
-  .wm-cr-score,
-  .wm-cr-candidate,
-  .cca-commandBar,
-  .cca-mainCapture,
-  .cca-sideCoach,
-  .cca-handoffRail,
-  .cca-openerCard,
-  .cca-nextQuestion,
-  .cca-insightCard,
-  .wm20-panel,
-  .wm20-next,
-  .wm-product-call-card-selector,
-  .wm-product-call-card-empty,
-  .wm-product-call-card-result,
-  .wm-product-call-card-panel,
-  .wm-product-pitch-start,
-  .wm-product-pitch-controls,
-  .wm-product-pitch-sheet,
-  .wm-product-pitch-main-card,
-  .wm-product-conversation-panel,
-  .wm-product-conversation-card,
-  .wm-intel-stats,
-  .wm-intel-tabs,
-  .wm-intel-record-list,
-  .wm-intel-panel,
-  .wm-intel-subsection,
-  .wm-intel-approval-box,
-  .wm-intel-guidance,
-  .wm-intel-governance article,
-  .wm-template-stat-card,
-  .wm-template-filter-panel,
-  .wm-template-results-panel,
-  .wm-template-preview-panel,
-  .wm-template-card,
-  .wm-diagram-card,
-  .wm-diagram-control-panel,
-  .wm-diagram-preview-panel,
-  .wm-diagram-studio-shell,
-  .wm-glossary-toolbar,
-  .wm-glossary-results,
-  .wm-glossary-detail,
-  .wm-glossary-definition-grid,
-  .wm-glossary-reality-panel,
-  .wm-vs-panel,
-  .rounded-xl.border,
-  .rounded-2xl.border,
-  .rounded-3xl.border
-) {
-  border: 1px solid var(--wm-consistency-border);
-  border-radius: 18px;
-  background: var(--wm-consistency-panel);
-  color: var(--wm-consistency-text);
-  box-shadow: var(--wm-consistency-shadow);
-}
-
-html[data-wingman-route] .wingman-page-host :is(
-  .wm-navhub-card,
-  .wm-template-card,
-  .wm-cr-candidate,
-  .cca-openerCard,
-  .cca-nextQuestion,
-  .cca-insightCard,
-  .wm-product-call-card-panel,
-  .wm-product-pitch-main-card,
-  .wm-product-conversation-card,
-  .wm-intel-record-list button,
-  .rounded-xl.border,
-  .rounded-2xl.border,
-  .rounded-3xl.border
-) {
-  background: var(--wm-consistency-panel-soft);
-}
-
-html[data-wingman-route] .wingman-page-host :is(
-  h2,
-  h3,
-  .wm-cr-card-title,
-  .wm-cr-product-name,
-  .wm-navhub-card strong,
-  .wm-template-card h3,
-  .wm-intel-panel-head h2,
-  .wm-product-call-card-selector h2,
-  .wm-product-call-card-result h2,
-  .wm-product-pitch-main-card h3
-) {
-  color: var(--wm-consistency-title);
-}
-
-@media (max-width: 760px) {
-  html[data-wingman-route] .wingman-page-host :is(
-      .wingman-page-hero,
-      .wm-page-hero,
-      .wm-page-header,
-      .wm-navhub-hero,
-      .wm-cr-hero,
-      .cca-header,
-      .wm20-panel[data-wingman-discovery-capture="true"],
-      .wm-product-call-cards-hero,
-      .wm-product-pitch-hero,
-      .wm-intel-hero,
-      .wm-template-detail-hero,
-      .wm-vs-header-card
-    ) {
-      grid-template-columns: 1fr;
-      padding: 16px;
-    }
-
-  html[data-wingman-route] .wingman-page-host :is(
-      .wingman-page-hero,
-      .wm-page-hero,
-      .wm-page-header,
-      .wm-navhub-hero,
-      .wm-cr-hero,
-      .cca-header,
-      .wm20-panel[data-wingman-discovery-capture="true"],
-      .wm-product-call-cards-hero,
-      .wm-product-pitch-hero,
-      .wm-intel-hero,
-      .wm-template-detail-hero,
-      .wm-vs-header-card
-    ) :is(h1, .wingman-display, .wm-page-title) {
-      font-size: clamp(1.7rem, 8vw, 2.15rem);
-    }
-
-}
 html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shell,
 .wm-route-templates .wingman-page-host .wm-template-detail-shell {
   overflow: hidden;
@@ -5810,15 +5391,13 @@ html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-acti
   box-shadow: 0 12px 28px rgba(8, 145, 178, 0.18);
 }
 
-html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shell :is(.bg-white, .bg-slate-50, .bg-slate-100, .bg-cyan-50, .bg-sky-100, .bg-emerald-100, .bg-cyan-100),
-.wm-route-templates .wingman-page-host .wm-template-detail-shell :is(.bg-white, .bg-slate-50, .bg-slate-100, .bg-cyan-50, .bg-sky-100, .bg-emerald-100, .bg-cyan-100) {
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shell :is(.bg-white, .bg-slate-50, .bg-slate-100, .bg-cyan-50, .bg-sky-100, .bg-emerald-100, .bg-cyan-100), .wm-route-templates .wingman-page-host .wm-template-detail-shell :is(.bg-white, .bg-slate-50, .bg-slate-100, .bg-cyan-50, .bg-sky-100, .bg-emerald-100, .bg-cyan-100) {
   background: var(--wm-consistency-panel-soft, linear-gradient(145deg, rgba(10, 36, 56, 0.9), rgba(5, 18, 32, 0.88)));
   border-color: var(--wm-consistency-border, rgba(74, 245, 230, 0.28));
   color: var(--wm-consistency-text, #f7fbff);
 }
 
-html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shell :is(.text-cyan-950, .text-sky-950, .text-emerald-800, .text-cyan-900),
-.wm-route-templates .wingman-page-host .wm-template-detail-shell :is(.text-cyan-950, .text-sky-950, .text-emerald-800, .text-cyan-900) {
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shell :is(.text-cyan-950, .text-sky-950, .text-emerald-800, .text-cyan-900), .wm-route-templates .wingman-page-host .wm-template-detail-shell :is(.text-cyan-950, .text-sky-950, .text-emerald-800, .text-cyan-900) {
   color: var(--wm-consistency-title-soft, #a8f4ff);
 }
 
@@ -5844,10 +5423,7 @@ html[data-wingman-route="templates"] .wingman-page-host [class*="signal-flow"] >
   flex-wrap: wrap;
 }
 
-[data-wingman-template-detail-page="true"] .wm-template-detail-no-horizontal-scroll :is(article, section, div)[class*="card"],
-[data-wingman-template-detail-page="true"] [class*="schematic"] :is(article, section, div)[class*="card"],
-[data-wingman-template-detail-page="true"] [class*="connectivity"] :is(article, section, div)[class*="card"],
-[data-wingman-template-detail-page="true"] [class*="signal-flow"] :is(article, section, div)[class*="card"] {
+[data-wingman-template-detail-page="true"] .wm-template-detail-no-horizontal-scroll :is(article, section, div)[class*="card"], [data-wingman-template-detail-page="true"] [class*="schematic"] :is(article, section, div)[class*="card"], [data-wingman-template-detail-page="true"] [class*="connectivity"] :is(article, section, div)[class*="card"], [data-wingman-template-detail-page="true"] [class*="signal-flow"] :is(article, section, div)[class*="card"] {
   flex: 1 1 min(15rem, 100%);
   width: auto;
   max-width: 100%;
@@ -6145,24 +5721,21 @@ html[data-wingman-route="templates"] .wingman-page-host [class*="signal-flow"] >
 
 }
 html[data-wingman-screen-fit] .wm-page-hero,
-html[data-wingman-screen-fit] .wm-pcc-hero,
-html[data-wingman-screen-fit] .wm-navhub-hero {
+html[data-wingman-screen-fit] .wm-pcc-hero {
   padding: 12px 16px;
   margin-bottom: 0;
   min-height: auto;
 }
 
 html[data-wingman-screen-fit] .wm-page-hero h1,
-html[data-wingman-screen-fit] .wm-pcc-hero h1,
-html[data-wingman-screen-fit] .wm-navhub-hero h1 {
+html[data-wingman-screen-fit] .wm-pcc-hero h1 {
   font-size: clamp(1.45rem, 1.5vw, 2.15rem);
   line-height: 1.08;
   margin: 4px 0;
 }
 
 html[data-wingman-screen-fit] .wm-page-hero p,
-html[data-wingman-screen-fit] .wm-pcc-hero p,
-html[data-wingman-screen-fit] .wm-navhub-hero p {
+html[data-wingman-screen-fit] .wm-pcc-hero p {
   font-size: 0.82rem;
   line-height: 1.35;
   max-width: 88ch;
@@ -6207,24 +5780,12 @@ html[data-wingman-screen-fit] .wm-pcc-actions {
   min-height: 42px;
 }
 
-html[data-wingman-screen-fit] .wm-navhub-page,
 html[data-wingman-screen-fit] .wm-home-page {
   height: 100%;
   min-height: 0;
   overflow: hidden;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: var(--wm-single-screen-gap);
-}
-
-html[data-wingman-screen-fit] .wm-navhub-secondary {
-  min-height: 0;
-  overflow: hidden;
-}
-
-html[data-wingman-screen-fit] .wm-navhub-secondary-grid {
-  min-height: 0;
-  overflow: hidden;
   gap: var(--wm-single-screen-gap);
 }
 
@@ -7745,14 +7306,6 @@ html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
   margin-top: 2px;
   font-style: italic;
   opacity: 0.85;
-}
-
-.wm-navhub-submodes,
-.wingman-page-host .wm-navhub-submodes,
-.wm-navhub-page .wm-navhub-submodes,
-main .wm-navhub-submodes,
-section.wm-navhub-submodes {
-  display: none;
 }
 
 .wm-templates-page {
@@ -9684,10 +9237,7 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
 .wm-ui-title,
 .compare-native-page h1,
 .compare-native-page h2,
-.compare-native-page h3,
-.wm-navhub-page h1,
-.wm-navhub-page h2,
-.wm-navhub-page h3 {
+.compare-native-page h3 {
   color: var(--wm-heading);
   font-weight: var(--wm-weight-heading);
   letter-spacing: var(--wm-tracking-heading);
@@ -9701,8 +9251,7 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
 .wingman-page-host span,
 .wm-ui-copy,
 .compare-native-page p,
-.compare-native-page label,
-.wm-navhub-page p {
+.compare-native-page label {
   color: var(--wm-text);
 }
 
@@ -9727,7 +9276,6 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
 .wm-proposal-page,
 .wm-product-pitch-page,
 .wm-product-family-page,
-.wm-navhub-page,
 [data-wingman-page] {
   background: transparent;
   color: var(--wm-text);
@@ -9881,8 +9429,7 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
 .wingman-page-host .wingman-section-nav-pills,
 .wingman-page-host .wm-section-nav-pills,
 .wingman-page-host .wingman-mode-pills,
-.wingman-page-host .wm-mode-pills,
-.wm-navhub-submodes {
+.wingman-page-host .wm-mode-pills {
   display: none;
 }
 
@@ -10089,14 +9636,7 @@ details.wm-ui-guidance-card:not([open]) {
     0 0 0 1px color-mix(in srgb, var(--wm-aqua) 14%, transparent);
 }
 
-.wm-page :is(h1, h2, h3, h4),
-.wm-page-header :is(h1, h2, h3, h4),
-.wm-page-hero :is(h1, h2, h3, h4),
-.wm-section :is(h1, h2, h3, h4),
-.wm-section-card :is(h1, h2, h3, h4),
-.wm-card :is(h1, h2, h3, h4),
-.wm-action-card :is(h1, h2, h3, h4, strong),
-.wm-output-panel :is(h1, h2, h3, h4, strong) {
+.wm-page :is(h1, h2, h3, h4), .wm-page-header :is(h1, h2, h3, h4), .wm-page-hero :is(h1, h2, h3, h4), .wm-section :is(h1, h2, h3, h4), .wm-section-card :is(h1, h2, h3, h4), .wm-card :is(h1, h2, h3, h4), .wm-action-card :is(h1, h2, h3, h4, strong), .wm-output-panel :is(h1, h2, h3, h4, strong) {
   margin: 0;
   color: var(--wm-heading);
   line-height: 1.14;
@@ -10105,14 +9645,7 @@ details.wm-ui-guidance-card:not([open]) {
   box-shadow: none;
 }
 
-.wm-page :is(p, li, dd, dt),
-.wm-page-header :is(p, span:not(.wm-badge):not(.wm-status)),
-.wm-page-hero :is(p, span:not(.wm-badge):not(.wm-status)),
-.wm-section :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)),
-.wm-section-card :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)),
-.wm-card :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)),
-.wm-action-card :is(p, span:not(.wm-badge):not(.wm-status)),
-.wm-output-panel :is(p, span:not(.wm-badge):not(.wm-status)) {
+.wm-page :is(p, li, dd, dt), .wm-page-header :is(p, span:not(.wm-badge):not(.wm-status)), .wm-page-hero :is(p, span:not(.wm-badge):not(.wm-status)), .wm-section :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)), .wm-section-card :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)), .wm-card :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)), .wm-action-card :is(p, span:not(.wm-badge):not(.wm-status)), .wm-output-panel :is(p, span:not(.wm-badge):not(.wm-status)) {
   margin: 0;
   color: var(--wm-text-soft);
   line-height: 1.55;
@@ -11508,7 +11041,6 @@ html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand strong {
 
 .wm-glossary-page,
 .wm-intelligence-page,
-.wm-navhub-page,
 .wm-support-landing,
 .wm-sh-page,
 main.wm-page,
@@ -11526,7 +11058,6 @@ main.wm-page,
 @media (max-width: 980px) {
   .wm-glossary-page,
   .wm-intelligence-page,
-  .wm-navhub-page,
   .wm-support-landing,
   .wm-sh-page,
   main.wm-page,
@@ -11558,7 +11089,7 @@ main.wm-page,
 }
 
 /* ==========================================================================
-   Product Call Cards page - moved out of an inline <style>{`...`}</style>
+   Product Call Cards page - moved out of an inline \3c style>{`...`}\3c /style>
    block in ProductCallCardsPage.tsx (810 lines embedded directly in the
    component). Page files should not carry their own CSS per the project's
    styling-governance rule; this is the same CSS, relocated verbatim into
@@ -12687,8 +12218,7 @@ main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail .wm-
   display: inline-flex;
 }
 
-html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail :is(.wm-ui-kicker, .wm-dashboard-rail-title, .wm-dashboard-rail-copy),
-main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail :is(.wm-ui-kicker, .wm-dashboard-rail-title, .wm-dashboard-rail-copy) {
+html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail :is(.wm-ui-kicker, .wm-dashboard-rail-title, .wm-dashboard-rail-copy), main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail :is(.wm-ui-kicker, .wm-dashboard-rail-title, .wm-dashboard-rail-copy) {
   grid-column: auto;
   max-width: 100%;
 }
@@ -13735,8 +13265,7 @@ html[data-wingman-route] .wingman-page-host :is(
   line-height: 1.08;
 }
 
-html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, .wingman-hero-action) svg,
-html[data-wingman-route] .wingman-new-project-button svg {
+html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, .wingman-hero-action) svg, html[data-wingman-route] .wingman-new-project-button svg {
   width: 0.82rem;
   height: 0.82rem;
 }
@@ -14572,52 +14101,15 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
   }
 }
 
-/* Wingman compact navigation hub pages - START */
-
 /* Applies to Call Coach, Products, Documents, Learn and other nav-hub style pages */
-html[data-wingman-route] .wingman-page-host .wm-navhub-page {
-  display: grid;
-  grid-template-rows: auto auto;
-  grid-auto-rows: max-content;
-  align-content: start;
-  gap: 14px;
-  padding: 16px 22px;
-  min-height: 0;
-  height: auto;
-}
 
 /* Compact the large hero panel */
-html[data-wingman-route] .wingman-page-host .wm-navhub-hero {
-  min-height: 150px;
-  max-height: 220px;
-  height: auto;
-  padding: 18px 20px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  align-content: center;
-  gap: 16px;
-}
 
 /* Prevent oversized hero headings */
-html[data-wingman-route] .wingman-page-host .wm-navhub-hero h1,
-html[data-wingman-route] .wingman-page-host .wm-navhub-hero [class*="title"],
-html[data-wingman-route] .wingman-page-host .wm-navhub-hero [class*="Title"] {
-  font-size: clamp(2rem, 3vw, 3.1rem);
-  line-height: 1.05;
-  margin: 0;
-}
 
 /* Keep hero intro copy compact */
-html[data-wingman-route] .wingman-page-host .wm-navhub-hero p {
-  margin: 0;
-  max-width: 980px;
-}
 
 /* Compact card grids below the hero */
-html[data-wingman-route] .wingman-page-host .wm-navhub-page > div,
-html[data-wingman-route] .wingman-page-host .wm-navhub-grid,
-html[data-wingman-route] .wingman-page-host [class*="navhub"][class*="grid"],
 html[data-wingman-route] .wingman-page-host [class*="NavHub"][class*="grid"] {
   display: grid;
   gap: 14px;
@@ -14627,11 +14119,6 @@ html[data-wingman-route] .wingman-page-host [class*="NavHub"][class*="grid"] {
 }
 
 /* Stop action cards stretching down the page */
-html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > section,
-html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > article,
-html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > a,
-html[data-wingman-route] .wingman-page-host .wm-navhub-card,
-html[data-wingman-route] .wingman-page-host [class*="navhub-card"],
 html[data-wingman-route] .wingman-page-host [class*="NavHubCard"] {
   min-height: 180px;
   max-height: 260px;
@@ -14642,40 +14129,14 @@ html[data-wingman-route] .wingman-page-host [class*="NavHubCard"] {
 }
 
 /* Keep 4-card hub pages in a clean row on desktop */
-@media (min-width: 1101px) {
-  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div,
-  html[data-wingman-route] .wingman-page-host .wm-navhub-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
 
 @media (max-width: 1100px) {
-  html[data-wingman-route] .wingman-page-host .wm-navhub-page {
-    padding: 14px;
-  }
 
-  html[data-wingman-route] .wingman-page-host .wm-navhub-hero {
-    max-height: none;
-    grid-template-columns: 1fr;
-  }
-
-  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div,
-  html[data-wingman-route] .wingman-page-host .wm-navhub-grid {
-    grid-template-columns: 1fr;
-  }
-
-  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > section,
-  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > article,
-  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > a,
-  html[data-wingman-route] .wingman-page-host .wm-navhub-card,
-  html[data-wingman-route] .wingman-page-host [class*="navhub-card"],
   html[data-wingman-route] .wingman-page-host [class*="NavHubCard"] {
     min-height: auto;
     max-height: none;
   }
 }
-
-/* Wingman compact navigation hub pages - END */
 
 
 /* Wingman templates compact filter panel - START */
@@ -14816,14 +14277,7 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-
 }
 
 /* Force all hero text left */
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span),
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .compare-native-hero :is(div, p, h1, h2, span),
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span),
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span),
-.wm-route-compare main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span),
-.wm-route-compare main[data-wingman-page="compare"] > .compare-native-hero :is(div, p, h1, h2, span),
-.wm-route-compare main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span),
-.wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span), html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .compare-native-hero :is(div, p, h1, h2, span), html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span), html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > .compare-native-hero :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span) {
   text-align: left;
   justify-self: start;
   margin-left: 0;
@@ -14862,8 +14316,7 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-
 }
 
 /* Stepper: separate the words instead of concatenating them */
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]),
-.wm-route-compare main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]), .wm-route-compare main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
@@ -14871,8 +14324,7 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compar
   margin: 0;
 }
 
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) > *,
-.wm-route-compare main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) > * {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) > *, .wm-route-compare main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) > * {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 8px;
@@ -14900,35 +14352,29 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compar
 }
 
 /* Remove internal centred content */
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.text-center, [class*="text-center"]),
-.wm-route-compare main[data-wingman-page="compare"] :is(.text-center, [class*="text-center"]) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.text-center, [class*="text-center"]), .wm-route-compare main[data-wingman-page="compare"] :is(.text-center, [class*="text-center"]) {
   text-align: left;
 }
 
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.justify-center, [class*="justify-center"]),
-.wm-route-compare main[data-wingman-page="compare"] :is(.justify-center, [class*="justify-center"]) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.justify-center, [class*="justify-center"]), .wm-route-compare main[data-wingman-page="compare"] :is(.justify-center, [class*="justify-center"]) {
   justify-content: flex-start;
 }
 
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.items-center, [class*="items-center"]),
-.wm-route-compare main[data-wingman-page="compare"] :is(.items-center, [class*="items-center"]) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.items-center, [class*="items-center"]), .wm-route-compare main[data-wingman-page="compare"] :is(.items-center, [class*="items-center"]) {
   align-items: flex-start;
 }
 
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.mx-auto, [class*="mx-auto"]),
-.wm-route-compare main[data-wingman-page="compare"] :is(.mx-auto, [class*="mx-auto"]) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.mx-auto, [class*="mx-auto"]), .wm-route-compare main[data-wingman-page="compare"] :is(.mx-auto, [class*="mx-auto"]) {
   margin-left: 0;
   margin-right: 0;
 }
 
 /* Manufacturer label/input/chip group should behave like Templates filter controls */
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(label, input, select, textarea),
-.wm-route-compare main[data-wingman-page="compare"] :is(label, input, select, textarea) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(label, input, select, textarea), .wm-route-compare main[data-wingman-page="compare"] :is(label, input, select, textarea) {
   text-align: left;
 }
 
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is([role="group"], [aria-label*="Manufacturer"], [aria-label*="manufacturer"], [aria-label*="Brand"], [aria-label*="brand"], .wm-filter-strip, .wm-chip-strip),
-.wm-route-compare main[data-wingman-page="compare"] :is([role="group"], [aria-label*="Manufacturer"], [aria-label*="manufacturer"], [aria-label*="Brand"], [aria-label*="brand"], .wm-filter-strip, .wm-chip-strip) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is([role="group"], [aria-label*="Manufacturer"], [aria-label*="manufacturer"], [aria-label*="Brand"], [aria-label*="brand"], .wm-filter-strip, .wm-chip-strip), .wm-route-compare main[data-wingman-page="compare"] :is([role="group"], [aria-label*="Manufacturer"], [aria-label*="manufacturer"], [aria-label*="Brand"], [aria-label*="brand"], .wm-filter-strip, .wm-chip-strip) {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
@@ -14938,8 +14384,7 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is([role="
 }
 
 /* Compact help and selected-brand areas */
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is([class*="help"], [class*="Help"], [class*="footer"], [class*="Footer"], [class*="action"], [class*="Action"]),
-.wm-route-compare main[data-wingman-page="compare"] :is([class*="help"], [class*="Help"], [class*="footer"], [class*="Footer"], [class*="action"], [class*="Action"]) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is([class*="help"], [class*="Help"], [class*="footer"], [class*="Footer"], [class*="action"], [class*="Action"]), .wm-route-compare main[data-wingman-page="compare"] :is([class*="help"], [class*="Help"], [class*="footer"], [class*="Footer"], [class*="action"], [class*="Action"]) {
   min-height: auto;
   padding: 10px 12px;
   justify-content: flex-start;
@@ -15528,10 +14973,7 @@ html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:fir
 }
 
 /* Hero copy block */
-html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type :is(h1, h2, h3, p, span, div),
-html[data-wingman-route="projects"] main > section:first-of-type :is(h1, h2, h3, p, span, div),
-html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type :is(h1, h2, h3, p, span, div),
-html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type :is(h1, h2, h3, p, span, div) {
+html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type :is(h1, h2, h3, p, span, div), html[data-wingman-route="projects"] main > section:first-of-type :is(h1, h2, h3, p, span, div), html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type :is(h1, h2, h3, p, span, div), html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type :is(h1, h2, h3, p, span, div) {
   max-width: none;
   text-align: left;
 }
@@ -15564,10 +15006,7 @@ html[data-wingman-route="projects"] [data-wingman-page="projects"] p {
 }
 
 /* Put top hero actions on the right without floating into the content */
-html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]),
-html[data-wingman-route="projects"] main > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]),
-html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]),
-html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]) {
+html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]), html[data-wingman-route="projects"] main > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]), html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]), html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]) {
   justify-self: end;
   align-self: center;
   width: auto;
@@ -22633,405 +22072,6 @@ a.wm-proof__provenance--verified:hover {
    - stronger card titles and readable secondary copy;
    - page-specific rules only.
 */
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"] {
-  gap: 9px;
-  min-height: 0;
-  padding-top: 8px;
-  padding-bottom: 24px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-hero.wm-polish-hero {
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: 11px;
-  padding-bottom: 4px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-hero
-  .wm-polish-hero-icon {
-  width: 44px;
-  min-width: 44px;
-  max-width: 44px;
-  height: 44px;
-  min-height: 44px;
-  border-radius: 13px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-hero
-  .wm-polish-hero-icon
-  > svg {
-  width: 21px;
-  max-width: 21px;
-  height: 21px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-hero
-  .wm-polish-eyebrow {
-  margin: 0 0 2px;
-  font-size: 0.64rem;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-hero
-  .wm-polish-hero-copy
-  > h1 {
-  margin-bottom: 3px;
-  font-size: clamp(1.48rem, 1.65vw, 1.86rem);
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-hero
-  .wm-polish-hero-copy
-  > p:last-child {
-  font-size: 0.84rem;
-  line-height: 1.32;
-  color: color-mix(in srgb, var(--wm-ref-text) 72%, transparent);
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-primary-head {
-  display: flex;
-  align-items: end;
-  min-height: 20px;
-  margin: 1px 0 -1px;
-  padding: 0;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-primary-head
-  > .wm-polish-eyebrow,
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-secondary-head
-  > .wm-polish-eyebrow {
-  margin: 0;
-  font-size: 0.63rem;
-  line-height: 1.1;
-  letter-spacing: 0.075em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--wm-ref-cyan) 82%, white 8%);
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-navhub-secondary-grid.wm-polish-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card {
-  grid-template-columns: 46px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  gap: 12px;
-  min-height: 150px;
-  max-height: 150px;
-  height: 150px;
-  padding: 15px;
-  border-radius: 13px;
-  isolation: isolate;
-  transition:
-    transform 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    background-color 150ms ease;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card {
-  min-height: 132px;
-  max-height: 132px;
-  height: 132px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card::before {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      circle at 92% 12%,
-      color-mix(in srgb, var(--wm-polish-accent) 12%, transparent),
-      transparent 42%
-    ),
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--wm-polish-accent) 5%, transparent),
-      transparent 52%
-    );
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card:hover,
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card:focus-visible {
-  transform: translateY(-2px);
-  border-color: color-mix(
-    in srgb,
-    var(--wm-polish-accent) 66%,
-    var(--wm-border)
-  );
-  box-shadow:
-    0 15px 32px rgba(0, 0, 0, 0.2),
-    0 0 0 1px color-mix(in srgb, var(--wm-polish-accent) 17%, transparent);
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-icon.wm-polish-card-icon {
-  width: 46px;
-  min-width: 46px;
-  max-width: 46px;
-  height: 46px;
-  min-height: 46px;
-  border-radius: 13px;
-  border-color: color-mix(in srgb, var(--wm-polish-accent) 72%, transparent);
-  box-shadow: inset 0 0 18px color-mix(in srgb, var(--wm-polish-accent) 9%, transparent);
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-icon
-  > svg {
-  width: 22px;
-  max-width: 22px;
-  height: 22px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-copy.wm-polish-card-copy {
-  gap: 5px;
-  padding-right: 20px;
-  overflow: hidden;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-kicker {
-  display: none;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-title {
-  display: -webkit-box;
-  overflow: hidden;
-  font-size: 1.02rem;
-  line-height: 1.14;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-body {
-  display: -webkit-box;
-  overflow: hidden;
-  font-size: 0.76rem;
-  line-height: 1.34;
-  color: color-mix(in srgb, var(--wm-ref-text) 72%, transparent);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-note {
-  display: -webkit-box;
-  overflow: hidden;
-  margin-top: 0;
-  font-size: 0.66rem;
-  line-height: 1.22;
-  color: color-mix(in srgb, var(--wm-ref-text) 58%, transparent);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-link {
-  margin-top: auto;
-  padding-top: 3px;
-  font-size: 0.74rem;
-  line-height: 1;
-  font-weight: 700;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-link
-  > svg {
-  width: 14px;
-  height: 14px;
-  transition: transform 150ms ease;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-navhub-card:hover
-  .wm-polish-card-link
-  > svg,
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-navhub-card:focus-visible
-  .wm-polish-card-link
-  > svg {
-  transform: translateX(3px);
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-art.wm-polish-card-art {
-  right: -7px;
-  bottom: -10px;
-  width: 78px;
-  min-width: 78px;
-  max-width: 78px;
-  height: 72px;
-  min-height: 72px;
-  opacity: 0.075;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary.wm-polish-secondary {
-  gap: 7px;
-  margin-top: 2px;
-  padding-top: 9px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-secondary-head {
-  gap: 2px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-secondary-head
-  > h2 {
-  margin: 0;
-  font-size: 0.98rem;
-  line-height: 1.18;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-polish-tip {
-  min-height: 34px;
-  padding: 7px 10px;
-  font-size: 0.74rem;
-}
-
-@media (max-width: 1180px) {
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-grid.wm-polish-grid,
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-navhub-secondary-grid.wm-polish-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card,
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-secondary
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card {
-    min-height: 132px;
-    max-height: 132px;
-    height: 132px;
-  }
-}
-
-@media (max-width: 720px) {
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-grid.wm-polish-grid,
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-navhub-secondary-grid.wm-polish-grid {
-    grid-template-columns: 1fr;
-  }
-
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card,
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-secondary
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card {
-    min-height: 116px;
-    max-height: none;
-    height: auto;
-  }
-
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card
-    > .wm-polish-card-copy.wm-polish-card-copy {
-    padding-right: 0;
-  }
-}
 /* WINGMAN_PRODUCTS_HUB_REDESIGN_END */
 /* WINGMAN_PRODUCTS_CARD_ALIGNMENT_FIX_START */
 /*
@@ -23039,245 +22079,6 @@ html body .wingman-page-host
    These rules intentionally use a Products-page scope so other hubs retain
    their existing layouts.
 */
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card.wm-polish-card {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  column-gap: 16px;
-  row-gap: 0;
-  align-items: start;
-  align-content: stretch;
-  justify-items: stretch;
-  min-height: 168px;
-  max-height: none;
-  height: 168px;
-  padding: 16px;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card.wm-polish-card {
-  min-height: 154px;
-  height: 154px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-icon.wm-polish-card-icon {
-  position: relative;
-  inset: auto;
-  grid-column: 1;
-  grid-row: 1;
-  align-self: start;
-  justify-self: start;
-  width: 52px;
-  min-width: 52px;
-  max-width: 52px;
-  height: 52px;
-  min-height: 52px;
-  max-height: 52px;
-  margin: 0;
-  padding: 0;
-  transform: none;
-  box-sizing: border-box;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-icon
-  > svg {
-  width: 24px;
-  max-width: 24px;
-  height: 24px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-copy.wm-polish-card-copy {
-  position: relative;
-  inset: auto;
-  display: flex;
-  grid-column: 2;
-  grid-row: 1;
-  align-self: stretch;
-  justify-self: stretch;
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  min-height: 100%;
-  margin: 0;
-  padding: 0 34px 0 0;
-  gap: 6px;
-  overflow: visible;
-  transform: none;
-  box-sizing: border-box;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  .wm-polish-card-copy
-  > * {
-  position: static;
-  inset: auto;
-  width: auto;
-  max-width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-  transform: none;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-title {
-  display: -webkit-box;
-  margin: 1px 0 0;
-  overflow: hidden;
-  font-size: 1.06rem;
-  line-height: 1.18;
-  letter-spacing: -0.012em;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-body {
-  display: -webkit-box;
-  margin: 0;
-  overflow: hidden;
-  font-size: 0.79rem;
-  line-height: 1.38;
-  color: color-mix(in srgb, var(--wm-ref-text) 76%, transparent);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-note {
-  display: -webkit-box;
-  margin: 0;
-  overflow: hidden;
-  font-size: 0.69rem;
-  line-height: 1.28;
-  color: color-mix(in srgb, var(--wm-ref-text) 62%, transparent);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-card-copy
-  > .wm-polish-card-link {
-  margin: auto 0 0;
-  padding: 7px 0 0;
-  font-size: 0.76rem;
-  line-height: 1;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-art.wm-polish-card-art {
-  right: 2px;
-  bottom: -5px;
-  width: 68px;
-  min-width: 68px;
-  max-width: 68px;
-  height: 64px;
-  min-height: 64px;
-  opacity: 0.055;
-  transform: none;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-art
-  > svg {
-  width: 54px;
-  max-width: 54px;
-  height: 54px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-polish-tip {
-  margin-top: 2px;
-}
-
-@media (max-width: 1180px) {
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card.wm-polish-card,
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-secondary
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card.wm-polish-card {
-    min-height: 144px;
-    height: 144px;
-  }
-}
-
-@media (max-width: 720px) {
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card.wm-polish-card,
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-secondary
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card.wm-polish-card {
-    grid-template-columns: 48px minmax(0, 1fr);
-    column-gap: 13px;
-    min-height: 124px;
-    height: auto;
-    padding: 14px;
-  }
-
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card
-    > .wm-polish-card-icon.wm-polish-card-icon {
-    width: 48px;
-    min-width: 48px;
-    max-width: 48px;
-    height: 48px;
-    min-height: 48px;
-  }
-
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card
-    > .wm-polish-card-copy.wm-polish-card-copy {
-    padding-right: 0;
-  }
-}
 /* WINGMAN_PRODUCTS_CARD_ALIGNMENT_FIX_END */
 /* WINGMAN_PRODUCTS_CARD_ROOM_FIX_START */
 /*
@@ -23285,274 +22086,6 @@ html body .wingman-page-host
    Use available vertical space instead of compressing four primary cards into
    one row. Primary actions now form a clear 2 x 2 decision grid.
 */
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"] {
-  gap: 11px;
-  padding-top: 10px;
-  padding-bottom: 28px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: minmax(178px, auto);
-  gap: 14px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  .wm-navhub-secondary-grid.wm-polish-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  > .wm-navhub-card.wm-polish-card.wm-polish-card {
-  grid-template-columns: 64px minmax(0, 1fr);
-  column-gap: 18px;
-  min-height: 178px;
-  max-height: none;
-  height: 178px;
-  padding: 20px;
-  border-radius: 15px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-icon.wm-polish-card-icon {
-  width: 64px;
-  min-width: 64px;
-  max-width: 64px;
-  height: 64px;
-  min-height: 64px;
-  max-height: 64px;
-  border-radius: 16px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-icon
-  > svg {
-  width: 29px;
-  max-width: 29px;
-  height: 29px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-copy.wm-polish-card-copy {
-  gap: 8px;
-  min-height: 100%;
-  padding: 0 52px 0 0;
-  overflow: visible;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  .wm-polish-card-copy
-  > .wm-polish-card-title {
-  margin-top: 1px;
-  font-size: clamp(1.15rem, 1.2vw, 1.34rem);
-  line-height: 1.16;
-  -webkit-line-clamp: 2;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  .wm-polish-card-copy
-  > .wm-polish-card-body {
-  max-width: 58ch;
-  font-size: 0.86rem;
-  line-height: 1.46;
-  -webkit-line-clamp: 3;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  .wm-polish-card-copy
-  > .wm-polish-card-link {
-  padding-top: 9px;
-  font-size: 0.82rem;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-art.wm-polish-card-art {
-  right: 8px;
-  bottom: -4px;
-  width: 94px;
-  min-width: 94px;
-  max-width: 94px;
-  height: 86px;
-  min-height: 86px;
-  opacity: 0.06;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-grid.wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-art
-  > svg {
-  width: 70px;
-  max-width: 70px;
-  height: 70px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary.wm-polish-secondary {
-  gap: 10px;
-  margin-top: 1px;
-  padding-top: 11px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card.wm-polish-card {
-  grid-template-columns: 56px minmax(0, 1fr);
-  column-gap: 16px;
-  min-height: 162px;
-  max-height: none;
-  height: 162px;
-  padding: 18px;
-  border-radius: 14px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-icon.wm-polish-card-icon {
-  width: 56px;
-  min-width: 56px;
-  max-width: 56px;
-  height: 56px;
-  min-height: 56px;
-  max-height: 56px;
-  border-radius: 14px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-icon
-  > svg {
-  width: 26px;
-  max-width: 26px;
-  height: 26px;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-grid
-  > .wm-navhub-card.wm-polish-card
-  > .wm-polish-card-copy.wm-polish-card-copy {
-  gap: 6px;
-  padding: 0 38px 0 0;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-card-copy
-  > .wm-polish-card-title {
-  font-size: 1.06rem;
-  line-height: 1.18;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-card-copy
-  > .wm-polish-card-body {
-  font-size: 0.79rem;
-  line-height: 1.38;
-  -webkit-line-clamp: 3;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-card-copy
-  > .wm-polish-card-note {
-  font-size: 0.68rem;
-  line-height: 1.26;
-  -webkit-line-clamp: 2;
-}
-
-html body .wingman-page-host
-  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-  > .wm-navhub-secondary
-  .wm-polish-card-copy
-  > .wm-polish-card-link {
-  padding-top: 6px;
-  font-size: 0.78rem;
-}
-
-@media (max-width: 1120px) {
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-navhub-secondary-grid.wm-polish-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-grid.wm-polish-grid,
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-navhub-secondary-grid.wm-polish-grid {
-    grid-template-columns: 1fr;
-  }
-
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-grid.wm-polish-grid
-    > .wm-navhub-card.wm-polish-card.wm-polish-card,
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    > .wm-navhub-secondary
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card.wm-polish-card {
-    grid-template-columns: 52px minmax(0, 1fr);
-    column-gap: 14px;
-    min-height: 138px;
-    height: auto;
-    padding: 16px;
-  }
-
-  html body .wingman-page-host
-    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
-    .wm-polish-grid
-    > .wm-navhub-card.wm-polish-card
-    > .wm-polish-card-copy.wm-polish-card-copy {
-    padding-right: 0;
-  }
-}
 /* WINGMAN_PRODUCTS_CARD_ROOM_FIX_END */
 /* WINGMAN_BATTLE_CARD_SPACE_EXPANSION_START */
 /*

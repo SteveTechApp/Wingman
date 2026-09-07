@@ -155,3 +155,68 @@ describe("wingman snapshot truncation sentinel", () => {
     expect(supabaseMock.current.__rpc).not.toHaveBeenCalled();
   });
 });
+
+describe("migration 013 stale-refusal (generation CAS)", () => {
+  function makeStaleRefusingClient() {
+    // Healthy reads (empty tables => generation 0), but the commit RPC always
+    // answers the way wingman_snapshot_commit does when the generation claim
+    // misses: another instance committed between our read and our RPC.
+    const rpc = vi.fn(async () => ({
+      data: { committed: false, stale: true, current_generation: 7, reason: "re-read and retry" },
+      error: null,
+    }));
+    return {
+      __rpc: rpc,
+      from: (table) => {
+        void table;
+        return {
+          select: () => {
+            const api = {
+              range: () => api,
+              order: async () => ({ data: [], error: null }),
+            };
+            return api;
+          },
+          upsert: async () => ({ error: null }),
+        };
+      },
+      rpc,
+    };
+  }
+
+  it("the commit names the generation the read was taken at", async () => {
+    supabaseMock.current = makeSnapshotClient();
+    vi.resetModules();
+    await signupThroughStore();
+    const [fn, args] = supabaseMock.current.__rpc.mock.calls[0];
+    expect(fn).toBe("wingman_snapshot_commit");
+    // Empty register read => baseline generation 0 is what the commit claims.
+    expect(args.expected_generation).toBe(0);
+    expect(typeof args.payload).toBe("object");
+  });
+
+  it("a stale refusal surfaces as a typed SnapshotStaleError - never a silent file-store fallback", async () => {
+    // Even in fail-open mode (WINGMAN_STORAGE_FAIL_CLOSED=false, set in
+    // beforeEach), a stale refusal must NOT fall back to the local file store:
+    // the refusal means another instance owns the current state, so writing
+    // the file would fork the database. The write path throws instead.
+    supabaseMock.current = makeStaleRefusingClient();
+    vi.resetModules();
+
+    const store = await import("./wingman-app-store.mjs");
+    await expect(
+      store.handleWingmanAuthSignupPost(makeReq(), makeRes(), {
+        sendJson: () => {},
+        parseJsonBody: async () => JSON.parse(makeReq().body),
+      }),
+    ).rejects.toThrow(store.SnapshotStaleError);
+
+    // The commit fired once (refused) and the typed error's current_generation
+    // tells the sync-handler retry what to re-read against. Crucially, no file
+    // was written: fail-open did not fork the database.
+    expect(supabaseMock.current.__rpc).toHaveBeenCalledTimes(1);
+    const [, args] = supabaseMock.current.__rpc.mock.calls[0];
+    expect(args.expected_generation).toBe(0);
+    expect(existsSync(path.join(dataDir, "runtime", "wingman-app-db.json"))).toBe(false);
+  });
+});
