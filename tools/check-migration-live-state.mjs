@@ -176,8 +176,10 @@ for (const name of FUNCTIONS_ABSENT) add("function", name, ABSENT, "008_drop_dea
 add("function", "wingman_snapshot_commit", PRESENT, "009_atomic_snapshot_commit.sql");
 
 // 011 gives the competitor decision ledger the same treatment: the mirror's
-// two-call upsert + stale-row delete becomes one transaction function.
-add("function", "wingman_ledger_commit", PRESENT, "011_atomic_ledger_snapshot.sql");
+// two-call upsert + stale-row delete becomes one transaction function. 012
+// then adds the mode parameter (full|upsert|reconcile) that lets an oversized
+// mirror sync in shards; the function's final shape is the 012 signature.
+add("function", "wingman_ledger_commit", PRESENT, "011_atomic_ledger_snapshot.sql / 012_atomic_ledger_sharded_commit.sql");
 
 add("extension", "pg_cron", PRESENT, "003_competitor_tables_and_pg_cron.sql");
 
@@ -219,6 +221,21 @@ export function queryRowsFromBody(body) {
   throw new Error(
     `Unexpected response shape from the query endpoint (expected an array of rows or statement envelopes): ${JSON.stringify(body).slice(0, 300)}`,
   );
+}
+
+// PostgreSQL array columns can be returned by the Management API either as a
+// JavaScript array or in PostgreSQL's text representation (for example,
+// "{service_role}"). Normalize both shapes before checking policy roles.
+export function postgresArrayIncludes(value, expected) {
+  if (Array.isArray(value)) return value.includes(expected);
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return false;
+  return trimmed
+    .slice(1, -1)
+    .split(",")
+    .map((item) => item.trim().replace(/^"|"$/g, ""))
+    .includes(expected);
 }
 
 async function query(sql) {
@@ -303,7 +320,7 @@ async function main() {
         case "function": return live.functions.has(entry.name);
         case "policy": {
           const roles = live.policyRoles.get(entry.table);
-          return Array.isArray(roles) && roles.includes("service_role");
+          return postgresArrayIncludes(roles, "service_role");
         }
         case "cron": return live.cronJobs.has(entry.name);
         case "extension": return live.extensions.has(entry.name);
@@ -313,7 +330,6 @@ async function main() {
     const ok = entry.expected === PRESENT ? actual : !actual;
     const label = entry.kind === "policy" ? `policy service_role_all on ${entry.table}` : `${entry.kind} ${entry.name}`;
     const expectedText = entry.expected === PRESENT ? "present" : "absent";
-    const descriptor = `${entry.migration} -> ${label}`;
     if (!byMigration.has(entry.migration)) byMigration.set(entry.migration, { ok: 0, drift: 0 });
     const bucket = byMigration.get(entry.migration);
     if (ok) bucket.ok += 1;
@@ -323,9 +339,7 @@ async function main() {
     }
   }
 
-  let totalDrift = 0;
   for (const [migration, stats] of byMigration) {
-    totalDrift += stats.drift;
     const mark = stats.drift ? "DRIFT" : "ok";
     console.log(`  [${mark}] ${migration.padEnd(42)} ${stats.ok}/${stats.ok + stats.drift} objects`);
   }

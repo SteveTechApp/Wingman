@@ -14,16 +14,31 @@ import type {
 import { getFullDiscoveryOptions } from "./discoveryQuestions";
 import type { DiscoveryConversationItem } from "../../data/projectStore";
 
+// Preferred option ordering applied by getQuestionView so the most likely
+// choices surface first for the selected application. Exported so the
+// consumer-drift test can pin every listed value to a current canonical
+// option - a renamed or removed option value would otherwise silently stop
+// the preferred ordering from applying to it (the stale value ranks at 99
+// and the option never moves to the front).
+export const AUDIO_PREFERRED_OPTION_ORDER: Record<string, string[]> = {
+  "meeting-room": ["display-audio", "room-audio", "source-audio-deembed", "dante-network-audio", "no-room-audio"],
+  classroom: ["room-audio", "separate-programme-voice", "distributed-70v-100v", "dante-network-audio", "display-audio"],
+  hospitality: ["distributed-70v-100v", "separate-programme-voice", "analogue-audio-override", "dante-network-audio", "display-audio"],
+  "video-wall": ["source-audio-deembed", "room-audio", "display-audio", "analogue-audio-override", "no-room-audio"],
+  "av-over-ip": ["dante-network-audio", "source-audio-deembed", "room-audio", "digital-audio-interface", "no-room-audio"],
+};
+
+export const SOURCE_DEVICE_WORKFLOWS_PREFERRED_OPTION_ORDER: Record<string, string[]> = {
+  "meeting-room": ["user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production", "signage-media-players"],
+  classroom: ["teaching-visualisers", "user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production"],
+  hospitality: ["broadcast-tv-feeds", "signage-media-players", "user-laptops", "wireless-casting-source", "network-remote-feeds"],
+  "video-wall": ["operational-workstations", "signage-media-players", "broadcast-tv-feeds", "network-remote-feeds", "cameras-production"],
+  "av-over-ip": ["network-remote-feeds", "operational-workstations", "signage-media-players", "cameras-production", "user-laptops"],
+};
+
 export function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): DiscoveryQuestionView {
   if (step.id === "audio") {
-    const preferredByApplication: Record<string, string[]> = {
-      "meeting-room": ["display-audio", "room-audio", "source-audio-deembed", "dante-network-audio", "no-room-audio"],
-      classroom: ["room-audio", "separate-programme-voice", "distributed-70v-100v", "dante-network-audio", "display-audio"],
-      hospitality: ["distributed-70v-100v", "separate-programme-voice", "analogue-audio-override", "dante-network-audio", "display-audio"],
-      "video-wall": ["source-audio-deembed", "room-audio", "display-audio", "analogue-audio-override", "no-room-audio"],
-      "av-over-ip": ["dante-network-audio", "source-audio-deembed", "room-audio", "digital-audio-interface", "no-room-audio"],
-    };
-    const preferred = preferredByApplication[selectedApplication] ?? [];
+    const preferred = AUDIO_PREFERRED_OPTION_ORDER[selectedApplication] ?? [];
     const rank = new Map(preferred.map((value, index) => [value, index]));
     const options = [...step.options].sort((left, right) => (rank.get(left.value) ?? 99) - (rank.get(right.value) ?? 99));
     const promptByApplication: Record<string, string> = {
@@ -37,14 +52,7 @@ export function getQuestionView(step: DiscoveryQuestion, selectedApplication: st
   }
 
   if (step.id !== "source-device-workflows") return step;
-  const preferredByApplication: Record<string, string[]> = {
-    "meeting-room": ["user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production", "signage-media-players"],
-    classroom: ["teaching-visualisers", "user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production"],
-    hospitality: ["broadcast-tv-feeds", "signage-media-players", "user-laptops", "wireless-casting-source", "network-remote-feeds"],
-    "video-wall": ["operational-workstations", "signage-media-players", "broadcast-tv-feeds", "network-remote-feeds", "cameras-production"],
-    "av-over-ip": ["network-remote-feeds", "operational-workstations", "signage-media-players", "cameras-production", "user-laptops"],
-  };
-  const preferred = preferredByApplication[selectedApplication] ?? [];
+  const preferred = SOURCE_DEVICE_WORKFLOWS_PREFERRED_OPTION_ORDER[selectedApplication] ?? [];
   const rank = new Map(preferred.map((value, index) => [value, index]));
   const options = [...step.options].sort((left, right) => (rank.get(left.value) ?? 99) - (rank.get(right.value) ?? 99));
   return {
@@ -104,6 +112,112 @@ export function getHiddenAnswerValues(
     if (option) hidden.push({ value: option.value, label: option.label });
   }
   return hidden;
+}
+
+export type StrandedQuickStartDefault = {
+  questionId: string;
+  /** The visible label of the question the default belongs to. */
+  questionLabel: string;
+  /** The stored quick-start default value, no longer selectable. */
+  optionValue: string;
+  /** The human label of that default. */
+  optionLabel: string;
+  /**
+   * Where the stored value came from:
+   * - "quick-start": the APP applied this value for the question (quick start,
+   *   template or smart default) and the rep has not changed it since — an
+   *   untouched pre-fill that is safe to clear with the bulk removal action.
+   * - "rep-typed": the rep chose/edited this value themselves (or the question
+   *   was never app-applied), so it is their own answer, not a leftover
+   *   default — bulk removal must not silently discard it.
+   */
+  origin: "quick-start" | "rep-typed";
+};
+
+// Stranded quick-start defaults across the WHOLE answer set: for every
+// question the interview currently shows, a stored answer that names a real
+// option of that question but not one of its currently visible options was
+// pre-filled (quick start / template / smart default) before a later answer
+// hid it. This is the set-level version of getHiddenAnswerValues — the data
+// the step-level DiscoveryDefaultsConflictAlert and the summary/completion
+// surfaces all consume, so the conflict is visible outside the step where it
+// was caused.
+//
+// Each entry also carries the ORIGIN of its stored value: whether it is an
+// untouched value the app applied (`appliedDefaults[questionId]` still equals
+// the stored answer) or a value the rep chose/edited themselves. The
+// distinction keeps the summary/completion copy honest and stops the bulk
+// "remove stranded answers" action from silently discarding rep-typed answers.
+// When `appliedDefaults` is omitted the caller has no provenance (legacy
+// import, quote-safety scan over saved answers) and every entry is reported as
+// quick-start origin, matching the pre-existing wording.
+export function findStrandedQuickStartDefaults(
+  visibleQuestions: ReadonlyArray<DiscoveryQuestion>,
+  answers: DiscoveryAnswers,
+  appliedDefaults: Partial<DiscoveryAnswers> | null | undefined = null,
+): StrandedQuickStartDefault[] {
+  const stranded: StrandedQuickStartDefault[] = [];
+  for (const step of visibleQuestions) {
+    const hidden = getHiddenAnswerValues(
+      step.id,
+      step.options.map((option) => option.value),
+      answers[step.id],
+    );
+    if (hidden.length === 0) continue;
+    const applied = appliedDefaults?.[step.id];
+    // Untouched app default: the app recorded a value for this question and
+    // the stored answer still equals it (the rep never changed it since).
+    const isUntouchedQuickStart =
+      applied !== undefined &&
+      answerValuesMatch(applied, answers[step.id]);
+    // null and undefined BOTH mean "no provenance": the caller cannot tell
+    // the value's origin (legacy import, quote-safety scan over saved
+    // answers), so it reads as quick-start — the pre-existing wording. Only a
+    // real record (even an empty one, where a question was never app-applied)
+    // can prove a value is rep-typed.
+    const origin: StrandedQuickStartDefault["origin"] =
+      appliedDefaults != null && !isUntouchedQuickStart ? "rep-typed" : "quick-start";
+    for (const entry of hidden) {
+      stranded.push({
+        questionId: step.id,
+        questionLabel: step.shortLabel || step.question,
+        optionValue: entry.value,
+        optionLabel: entry.label,
+        origin,
+      });
+    }
+  }
+  return stranded;
+}
+
+function answerValuesMatch(left: string | string[], right: string | string[] | undefined): boolean {
+  const normalise = (value: string | string[] | undefined): string => {
+    if (Array.isArray(value)) return JSON.stringify([...value].sort());
+    return String(value ?? "");
+  };
+  return normalise(left) === normalise(right);
+}
+
+// Removes one option value from a question's stored answer. Used by the
+// stranded-defaults action so a rep can clear hidden pre-filled values instead
+// of having to re-open the step. Returns the same reference when nothing
+// changed (no-op for non-matching single values and absent list members).
+export function removeDiscoveryAnswerValue(
+  answers: DiscoveryAnswers,
+  questionId: string,
+  value: string,
+): DiscoveryAnswers {
+  const current = answers[questionId];
+  if (Array.isArray(current)) {
+    if (!current.includes(value)) return answers;
+    return { ...answers, [questionId]: current.filter((item) => item !== value) };
+  }
+  if (current === value) {
+    const next = { ...answers };
+    delete next[questionId];
+    return next;
+  }
+  return answers;
 }
 
 export function isUnknownDiscoveryValue(value: string): boolean {

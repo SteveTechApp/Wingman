@@ -28,6 +28,7 @@
 //     SKU. It needs a source before it can be drafted at all.
 
 import fs from "node:fs";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 import path from "node:path";
 
 const root = process.cwd();
@@ -324,6 +325,6 @@ for (const draft of drafts) {
 }
 
 payload.updatedAt = REVIEWED_ON;
-fs.writeFileSync(target, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+atomicWriteJsonSync(target, payload);
 console.log(`[draft] Added ${added.length} review-required profiles: ${added.join(", ")}`);
 console.log("[draft] These do NOT count toward verified coverage. Promote after human review.");

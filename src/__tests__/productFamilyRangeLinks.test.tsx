@@ -35,9 +35,10 @@ describe("Product Families 'Pitch this range' + SKU card wiring", () => {
   });
 
   it("points 'Pitch this range' at the first index-present SKU and hides phantom SKU cards", async () => {
-    // NetworkHD 100 (default family) lists NHD-110-TX first, but the catalogue
-    // here only has NHD-120-TX and NHD-150-RX - the representative should skip
-    // the absent lead and the phantom cards should not render.
+    // NetworkHD 100 (default family) lists NHD-124-TX among its members, but
+    // the mocked catalogue here only has NHD-120-TX and NHD-150-RX - the
+    // representative should land on the first selectable member and members
+    // missing from the catalogue must not render as clickable dead-ends.
     mockIndex(["NHD-120-TX", "NHD-150-RX"]);
 
     render(
@@ -55,9 +56,10 @@ describe("Product Families 'Pitch this range' + SKU card wiring", () => {
     });
     expect(rangeLink.getAttribute("href")).toContain("q=NetworkHD");
 
-    // Phantom SKUs (not in the catalogue) must not be clickable dead-ends.
+    // Phantom SKUs (in the guide but not in the catalogue) must not be
+    // clickable dead-ends.
     await waitFor(() => {
-      expect(screen.queryByText("NHD-110-TX")).not.toBeInTheDocument();
+      expect(screen.queryByText("NHD-124-TX")).not.toBeInTheDocument();
     });
     expect(screen.getByText("NHD-120-TX")).toBeInTheDocument();
     expect(screen.getByText("NHD-150-RX")).toBeInTheDocument();

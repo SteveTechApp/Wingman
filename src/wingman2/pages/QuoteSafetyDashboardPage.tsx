@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { downloadBlob } from "../lib/downloadBlob";
 import {
   buildQuoteSafetyDashboard,
   type ProjectSafetyRecord,
@@ -49,13 +50,7 @@ function exportDashboardCsv(projects: ProjectSafetyRecord[]): void {
   ]);
   const csvLines = [headers, ...rows].map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","));
   const csv = csvLines.join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `wingman-quote-safety-${new Date().toISOString().slice(0, 10)}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8;" }), `wingman-quote-safety-${new Date().toISOString().slice(0, 10)}.csv`);
 }
 
 export default function QuoteSafetyDashboardPage() {

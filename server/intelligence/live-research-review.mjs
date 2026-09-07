@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { writeJsonFileAtomic } from "../atomic-json-file.mjs";
 import { COMPETITOR_LIVE_RESEARCH_REVIEW_FILE } from "../catalog/files.mjs";
 import { upsertProductIntelligenceRecord } from "../product-intelligence-store.mjs";
 
@@ -98,8 +99,9 @@ async function writeQueue(db, filePath = COMPETITOR_LIVE_RESEARCH_REVIEW_FILE) {
     ),
   };
 
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
+  // Crash-atomic: temp file + rename, so a review decision can never leave
+  // the queue file torn mid-write.
+  await writeJsonFileAtomic(filePath, next);
   return next;
 }
 

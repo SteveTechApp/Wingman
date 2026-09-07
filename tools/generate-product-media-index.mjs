@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const repoRoot = process.cwd();
 const productIndexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
@@ -245,7 +246,7 @@ async function main() {
     lookup: Object.fromEntries(records.map((record) => [record.sku, record])),
   };
 
-  fs.writeFileSync(outputPath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
+  atomicWriteJsonSync(outputPath, output);
   console.log(`[product-media] Wrote ${path.relative(repoRoot, outputPath)} (${withFront} with front/primary, ${withRear} with rear/connector).`);
 }
 

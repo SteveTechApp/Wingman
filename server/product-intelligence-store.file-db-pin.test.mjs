@@ -3,14 +3,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-// product-intelligence-store.mjs is FILE-DB-ONLY by design: it reads and
-// writes the gitignored PRODUCT_INTELLIGENCE_DB_FILE through node:fs and has
-// no Supabase client. This pin keeps it that way. If a Supabase client, a
-// table-mode read, or an RPC call is ever introduced here, the ONLY sanctioned
-// path is the paging helper readAllSupabaseRows (server/supabase-pagination.mjs)
-// - PostgREST caps responses at 1000 rows, and an unpaged full-table read
-// silently truncates. This test fails on that introduction so the change has
-// to be a deliberate, paginated one.
+// product-intelligence-store.mjs is FILE-DB-ONLY by design: it reads the
+// gitignored PRODUCT_INTELLIGENCE_DB_FILE through node:fs and writes it via
+// the shared crash-atomic helper (server/atomic-json-file.mjs, temp+rename),
+// and has no Supabase client. This pin keeps it that way. If a Supabase
+// client, a table-mode read, or an RPC call is ever introduced here, the ONLY
+// sanctioned path is the paging helper readAllSupabaseRows
+// (server/supabase-pagination.mjs) - PostgREST caps responses at 1000 rows,
+// and an unpaged full-table read silently truncates. This test fails on that
+// introduction so the change has to be a deliberate, paginated one.
 
 const storeDir = path.dirname(fileURLToPath(import.meta.url));
 const STORE_PATH = path.join(storeDir, "product-intelligence-store.mjs");
@@ -72,7 +73,11 @@ describe("product-intelligence-store stays file-db-only", () => {
   it("reads and writes the file DB rather than any remote store", () => {
     const source = storeSource();
     expect(source).toContain("PRODUCT_INTELLIGENCE_DB_FILE");
+    // The read stays on node:fs and the write goes through the shared
+    // crash-atomic helper (temp+rename) - both file-local, never remote.
     expect(source).toMatch(/fs\.(readFile|writeFile)\(/);
+    expect(source).toContain('import { writeJsonFileAtomic } from "./atomic-json-file.mjs"');
+    expect(source).toContain("writeJsonFileAtomic(filePath, payload)");
   });
 
   it("would catch a table-mode read introduced without pagination (self-test)", () => {

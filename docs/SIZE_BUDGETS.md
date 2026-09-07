@@ -92,6 +92,11 @@ The limits are meant to travel **downward**.
 
 Never raise a limit merely to make a red build green. That defeats the ratchet.
 
+For the full map of every verify-chain guard gate a dependency or data edit
+must satisfy — and which gates share this exception discipline versus which
+have no exception path at all — see
+[`docs/CI_GUARD_GATES.md`](CI_GUARD_GATES.md).
+
 ## Approved exceptions
 
 ### 2026-08-16 — Compare confidence-tier and evidence-trace feature work

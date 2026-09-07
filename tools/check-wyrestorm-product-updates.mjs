@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { atomicWriteJson } from "./lib/atomic-json-writer.mjs";
 
 const repoRoot = process.cwd();
 
@@ -271,8 +272,8 @@ async function main() {
   await mkdir(path.dirname(reportPath), { recursive: true });
   await mkdir(path.dirname(candidatePath), { recursive: true });
 
-  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-  await writeFile(candidatePath, `${JSON.stringify({ generatedAt, candidates: allCandidates }, null, 2)}\n`, "utf8");
+  await atomicWriteJson(reportPath, report);
+  await atomicWriteJson(candidatePath, { generatedAt, candidates: allCandidates });
 
   console.log(`Indexed SKUs: ${indexedCount}`);
   console.log(`Discovered SKUs: ${discovered.size}`);

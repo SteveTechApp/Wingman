@@ -24,7 +24,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = path.resolve(__dirname, "..", "server", "migrations");
@@ -33,7 +33,7 @@ const MIGRATIONS_DIR = path.resolve(__dirname, "..", "server", "migrations");
 // Statement splitting (SQL-aware enough for these migrations)
 // ---------------------------------------------------------------------------
 
-function splitStatements(sql) {
+export function splitStatements(sql) {
   const statements = [];
   let current = "";
   let inSingle = false;
@@ -67,11 +67,12 @@ function splitStatements(sql) {
       continue;
     }
     if (inDollar) {
-      current += ch;
       if (sql.startsWith(inDollar, i)) {
         current += inDollar;
         i += inDollar.length - 1;
         inDollar = null;
+      } else {
+        current += ch;
       }
       continue;
     }
@@ -179,6 +180,8 @@ async function apiPost(token, ref, endpoint, body) {
 // Main
 // ---------------------------------------------------------------------------
 
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMain) {
 const args = process.argv.slice(2);
 const wantsList = args.includes("--list");
 const apply = args.includes("--apply");
@@ -219,7 +222,6 @@ for (const name of picked) {
     }
     continue;
   }
-  let runCount = 0;
   const token = resolveToken();
   if (!token) {
     console.error(
@@ -235,20 +237,25 @@ for (const name of picked) {
     process.exit(3);
   }
   console.log(`[apply-migrations] executing against project ${ref}\n`);
-  for (const statement of statements) {
-    const { status, parsed } = await apiPost(token, ref, "query", { query: statement });
-    const okay = status >= 200 && status < 300;
-    console.log(
-      `   [${okay ? "ok" : "FAIL"}] ${statement.replace(/\s+/g, " ").slice(0, 100)}` +
-        (okay ? "" : ` -> ${status} ${String(parsed?.message ?? parsed ?? "").slice(0, 200)}`),
+  // ONE request per migration: all statements go in a single query string, so
+  // Postgres runs them inside one implicit transaction. If any statement
+  // fails, the whole migration rolls back - a partial apply (function created
+  // but its revoke/grant never ran, half the indexes dropped) is impossible.
+  // Migrations here are all transactional DDL/DML; none use non-transactional
+  // constructs (CREATE INDEX CONCURRENTLY, VACUUM).
+  const combined = statements.join(";\n\n");
+  const { status, parsed } = await apiPost(token, ref, "query", { query: combined });
+  const okay = status >= 200 && status < 300;
+  if (okay) {
+    console.log(`   -> ${name} applied atomically (${statements.length} statements, one transaction)`);
+  } else {
+    console.error(
+      `   [FAIL] ${name} - NOTHING APPLIED (transaction rolled back). ${status} ${String(parsed?.message ?? parsed ?? "").slice(0, 300)}`,
     );
-    if (!okay) {
-      console.error(`[apply-migrations] ${name} aborted mid-migration at statement ${runCount + 1}; partial apply possible.`);
-      process.exit(1);
-    }
-    runCount += 1;
+    console.error("[apply-migrations] Migration aborted atomically - no partial state left behind.");
+    process.exit(1);
   }
-  console.log(`   -> ${name} applied (${runCount} statements OK)`);
 }
 
 console.log("\n[apply-migrations] done. Verify with: node tools/check-migration-live-state.mjs");
+}

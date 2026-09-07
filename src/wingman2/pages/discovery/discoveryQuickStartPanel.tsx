@@ -10,12 +10,14 @@ import {
 import {
   applyRoomTypeSmartDefaults,
   getQuickStartDisagreements,
+  mergeRoomAndStandardProfiles,
   plainLanguageLabels,
   type QuickStartRoomType,
   quickStartConfigs,
   getQuickStartSummary,
 } from "./discoveryQuickStart";
 import { SMART_DEFAULTS } from "./discoveryProgressiveDisclosure";
+import { forgetQuickStartProfileChoice, readQuickStartProfileChoice, rememberQuickStartProfileChoice } from "./discoveryQuickStartPreferences";
 import type { DiscoveryAnswers } from "./discoveryTypes";
 
 export function DiscoveryQuickStartEntry({ onAnswers }: { onAnswers: (answers: DiscoveryAnswers) => void }) {
@@ -83,12 +85,44 @@ export function DiscoveryQuickStart({
   const disagreements = selectedType ? getQuickStartDisagreements(selectedType) : [];
   const application = config ? config.suggestedApplication : "";
   const applicationLabel = application ? (plainLanguageLabels[application] ?? application) : "";
-
+  const disagreementIds = disagreements.map((disagreement) => disagreement.questionId);
+  // A remembered per-room choice silently decides what Continue applies on a
+  // repeat visit; surface it on the room-type step so the skip is visible
+  // before the rep commits to it. The lookup is keyed on the CURRENT
+  // disagreement set, so changed defaults land as a fresh confirmation.
+  const remembered =
+    selectedType && disagreements.length > 0
+      ? readQuickStartProfileChoice(selectedType, disagreementIds)
+      : null;
+  const rememberedNote =
+    remembered && selectedType && config
+      ? remembered === "room"
+        ? `Using your remembered ${config.label} profile`
+        : remembered === "standard"
+          ? `Using your remembered standard ${applicationLabel} profile`
+          : `Using your remembered blend of the ${config.label} and ${applicationLabel} profiles`
+      : null;
   const handleContinue = () => {
     if (!selectedType) return;
     // A room whose profile disagrees with its application-level smart defaults
-    // asks for confirmation instead of silently seeding the room profile.
+    // asks for confirmation instead of silently seeding the room profile —
+    // UNLESS the salesperson already decided for this room type earlier in
+    // the session, in which case the remembered choice applies directly so
+    // the confirmation never blocks a repeat visit.
     if (disagreements.length > 0) {
+      const remembered = readQuickStartProfileChoice(selectedType, disagreementIds);
+      if (remembered === "room") {
+        onSelect(roomProfileAnswers(selectedType));
+        return;
+      }
+      if (remembered === "standard" && config) {
+        onSelect(standardProfileAnswers(config.suggestedApplication));
+        return;
+      }
+      if (remembered === "blend" && config) {
+        onSelect(mergeRoomAndStandardProfiles(selectedType));
+        return;
+      }
       setConfirming(true);
       return;
     }
@@ -134,14 +168,30 @@ export function DiscoveryQuickStart({
           </button>
           <button
             type="button"
-            onClick={() => onSelect(standardProfileAnswers(config.suggestedApplication))}
+            onClick={() => {
+              rememberQuickStartProfileChoice(selectedType, "standard", disagreementIds);
+              onSelect(standardProfileAnswers(config.suggestedApplication));
+            }}
             className="wm-qs__continue"
           >
             Use standard {applicationLabel} profile
           </button>
           <button
             type="button"
-            onClick={() => onSelect(roomProfileAnswers(selectedType))}
+            onClick={() => {
+              rememberQuickStartProfileChoice(selectedType, "blend", disagreementIds);
+              onSelect(mergeRoomAndStandardProfiles(selectedType));
+            }}
+            className="wm-qs__continue"
+          >
+            Blend — standard values where profiles differ
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              rememberQuickStartProfileChoice(selectedType, "room", disagreementIds);
+              onSelect(roomProfileAnswers(selectedType));
+            }}
             className="wm-qs__continue wm-qs__continue--active"
           >
             Use {config.label} profile
@@ -253,15 +303,43 @@ export function DiscoveryQuickStart({
           <div className="wm-qs__help-inner">
             <ChevronRight className="wm-qs__help-chevron" />
             <div>
-              <p className="wm-qs__help-title">
-                What happens next?
-              </p>
-              <p className="wm-qs__help-text">
-                Wingman will pre-fill common settings for a{" "}
-                {quickStartConfigs[selectedType].label.toLowerCase()}. You'll
-                answer a few essential questions, then can review and adjust any
-                details before generating recommendations.
-              </p>
+              {rememberedNote && selectedType ? (
+                <>
+                  <p className="wm-qs__help-title" data-testid="quick-start-remembered-note" role="status">
+                    {rememberedNote}
+                  </p>
+                  <p className="wm-qs__help-text">
+                    Continue applies it without asking again. Every pre-filled answer stays adjustable in the
+                    interview — change the room type or pick a different profile at any time.
+                  </p>
+                  <button
+                    type="button"
+                    className="wm-qs__skip wm-qs__skip--link"
+                    data-testid="forget-quick-start-choice"
+                    onClick={() => {
+                      forgetQuickStartProfileChoice(selectedType, disagreementIds);
+                      // Deselect the room so the derived note, read from
+                      // storage at render time, disappears with the choice.
+                      setSelectedType(null);
+                    }}
+                  >
+                    <HelpCircle className="wm-qs__skip-icon" />
+                    Clear this session choice
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="wm-qs__help-title">
+                    What happens next?
+                  </p>
+                  <p className="wm-qs__help-text">
+                    Wingman will pre-fill common settings for a{" "}
+                    {quickStartConfigs[selectedType].label.toLowerCase()}. You'll
+                    answer a few essential questions, then can review and adjust any
+                    details before generating recommendations.
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

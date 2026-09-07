@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Search, ChevronDown, ChevronRight, CheckCircle, AlertTriangle, RotateCcw, Download } from "lucide-react";
 import governedTechnicalProfiles from "../../../../data/governance/wyrestorm-technical-profiles.json";
+import { downloadBlob } from "../../lib/downloadBlob";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -148,13 +149,7 @@ function profilesToCsv(profiles: GovernedProfile[]): string {
 }
 
 function downloadCsv(content: string, filename: string) {
-  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(new Blob([content], { type: 'text/csv;charset=utf-8;' }), filename);
 }
 
 /* ------------------------------------------------------------------ */
@@ -395,15 +390,10 @@ export function GovernedProfileBrowser() {
               updatedAt: new Date().toISOString(),
               profiles,
             };
-            const blob = new Blob([JSON.stringify(governedEnvelope, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `wyrestorm-technical-profiles-${new Date().toISOString().slice(0, 10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            downloadBlob(
+              new Blob([JSON.stringify(governedEnvelope, null, 2)], { type: "application/json" }),
+              `wyrestorm-technical-profiles-${new Date().toISOString().slice(0, 10)}.json`,
+            );
           }}
           title="Download updated profiles as JSON — commit this file to persist changes"
         >

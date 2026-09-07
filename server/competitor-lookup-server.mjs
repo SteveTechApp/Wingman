@@ -9,7 +9,7 @@ import { handleProfileConfirmationPost } from "./governance/profile-confirmation
 import { enforceCsrf, issueCsrf } from "./security/csrf.mjs";
 import http from "node:http";
 import fs from "node:fs/promises";
-import path from "node:path";
+import { writeJsonFileAtomic } from "./atomic-json-file.mjs";
 import {
   COMPETITOR_APPROVALS_FILE,
   COMPETITOR_CATALOG_FILE,
@@ -374,11 +374,6 @@ async function readJsonFile(filePath, fallback) {
   }
 }
 
-async function writeJsonFile(filePath, value) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(value, null, 2), "utf8");
-}
-
 // Persist a user-submitted product data correction from the "Report a problem"
 // button. Appends to data/wingman-product-reports.json for the product team to review.
 async function handleProductReportPost(req, res, url, helpers) {
@@ -421,7 +416,7 @@ async function handleProductReportPost(req, res, url, helpers) {
   const existing = await readJsonFile(WINGMAN_PRODUCT_REPORTS_FILE, []);
   const reports = Array.isArray(existing) ? existing : [];
   reports.unshift(report);
-  await writeJsonFile(WINGMAN_PRODUCT_REPORTS_FILE, reports);
+  await writeJsonFileAtomic(WINGMAN_PRODUCT_REPORTS_FILE, reports);
 
   helpers.sendJson(res, 200, { ok: true, id: report.id });
 }
@@ -1642,7 +1637,7 @@ async function saveApprovalRecordToFile(nextRecord) {
   }
 
   approvals.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
-  await writeJsonFile(COMPETITOR_APPROVALS_FILE, approvals);
+  await writeJsonFileAtomic(COMPETITOR_APPROVALS_FILE, approvals);
   const stored = approvals.find((item) => item.id === nextRecord.id) || null;
   return {
     record: stored,

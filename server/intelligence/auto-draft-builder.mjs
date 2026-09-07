@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { writeJsonFileAtomic } from "../atomic-json-file.mjs";
 import { resolveCompetitorIntelligence } from "../competitor/compare-intelligence.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -21,7 +22,7 @@ function obj(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : {
 function clamp(v,min,max,fallback) { const n=Number(v); if(!Number.isFinite(n)) return fallback; return Math.min(max,Math.max(min,n)); }
 
 async function readJson(file, fallback) { try { return JSON.parse(await fs.readFile(file,"utf8")); } catch { return fallback; } }
-async function writeJson(file, value) { await fs.mkdir(path.dirname(file),{recursive:true}); await fs.writeFile(file, JSON.stringify(value,null,2), "utf8"); }
+async function writeJson(file, value) { await writeJsonFileAtomic(file, value); }
 async function readDrafts() { const rows = await readJson(draftsFile, []); return Array.isArray(rows) ? rows : []; }
 async function writeDrafts(rows) { const sorted=[...rows].sort((a,b)=>String(b.updatedAt||"").localeCompare(String(a.updatedAt||""))); await writeJson(draftsFile, sorted.slice(0,5000)); return sorted; }
 

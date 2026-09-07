@@ -1,10 +1,13 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   buildInterviewQuestions,
+  isGuidedUncertaintyOption,
   matchSpokenAnswer,
 } from "./discoveryGuidedInterviewLogic";
 import { buildDiscoveryConversation } from "./discoveryAnswerUtils";
-import { loadInterviewLanguage } from "./discoveryGuidedInterviewI18n";
+import { loadInterviewLanguage, unknownPhrasesFor, type InterviewLangId } from "./discoveryGuidedInterviewI18n";
+import { canonicalDiscoveryQuestions } from "./discoveryQuestions";
+import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
 
 // The non-English interpretation tables are lazy-loaded (see
 // loadInterviewLanguage); the French/Spanish/German/... assertions below need
@@ -31,6 +34,38 @@ function questionFor(application: string, id: string, answers = {}) {
 
 function matchedValues(application: string, id: string, transcript: string) {
   return matchSpokenAnswer(questionFor(application, id), transcript).values;
+}
+
+// Visibility battery: every question with an uncertainty option must be
+// reachable with SOME (application, answers) combination. Tried in order; UC
+// and multiview details need their governing answers to become visible.
+const ALL_LANGUAGES: InterviewLangId[] = ["en", "de", "es", "fr", "hi", "it", "nb", "nl", "pt", "ru", "sv", "zh"];
+const VISIBILITY_BATTERY: Array<[string, DiscoveryAnswers]> = [
+  ["meeting-room", UC_ENABLED],
+  ["meeting-room", { ...UC_ENABLED, "uc-platform": ["microsoft-teams-room"] }],
+  ["meeting-room", { ...UC_ENABLED, "uc-camera": ["ndi-network-camera"], "uc-camera-count": "two-cameras" }],
+  ["meeting-room", { ...UC_ENABLED, "uc-microphones": ["ceiling-microphone-array"] }],
+  ["meeting-room", { ...UC_ENABLED, "uc-microphones": ["ceiling-microphone-array"], "uc-camera": ["ndi-network-camera"], "uc-camera-count": "two-cameras" }],
+  ["meeting-room", { "source-connection": ["laptops-wireless-inputs"] }],
+  ["av-over-ip", UC_ENABLED],
+  ["video-wall", { "video-wall-purpose": "multi-source-canvas" }],
+  ["video-wall", {}],
+  ["classroom", {}],
+  ["", {}],
+];
+
+function questionForAny(questionId: string): DiscoveryQuestion {
+  for (const [application, answers] of VISIBILITY_BATTERY) {
+    const question = buildInterviewQuestions(application, answers).find((candidate) => candidate.id === questionId);
+    if (question) return question;
+  }
+  throw new Error(`Question "${questionId}" never appears in any visibility battery entry`);
+}
+
+function guidedUncertaintyQuestions() {
+  return canonicalDiscoveryQuestions.filter((question) =>
+    question.options.some((option) => isGuidedUncertaintyOption(option.value)),
+  );
 }
 
 describe("guided interview question list", () => {
@@ -307,6 +342,32 @@ describe("guided interview Q&A trail (buildDiscoveryConversation)", () => {
     const purpose = trail.find((item) => item.stepId === "uc-purpose");
     expect(purpose?.answer).toBe("Video conferencing, Recording or live streaming");
     expect(purpose?.note).toBe("teams calls and recording lectures");
+  });
+
+  it("round-trips the renamed uncertainty labels: unknown-style free text resolves to each question's uncertainty option in every language", () => {
+    // The uncertainty catch-alls were renamed across questions ("Unknown —
+    // display behaviour", "Not yet confirmed — source profile", suffix form
+    // "wall-purpose-unknown", legacy "not-sure"). Whatever the rename, typing
+    // the language's unknown phrases must land on THAT question's uncertainty
+    // option and nothing else — per question, per supported language.
+    const problems: string[] = [];
+    for (const lang of ALL_LANGUAGES) {
+      const phrases = unknownPhrasesFor(lang);
+      expect(phrases.length, `unknown phrase list for ${lang}`).toBeGreaterThan(0);
+      for (const question of guidedUncertaintyQuestions()) {
+        const uncertainty = question.options.find((option) => isGuidedUncertaintyOption(option.value))!;
+        const interviewQuestion = questionForAny(question.id);
+        for (const phrase of phrases) {
+          const result = matchSpokenAnswer(interviewQuestion, phrase, lang);
+          if (result.values.length !== 1 || result.values[0] !== uncertainty.value) {
+            problems.push(
+              `${lang}/${question.id}: "${phrase}" → [${result.values.join(", ")}] (expected [${uncertainty.value}])`,
+            );
+          }
+        }
+      }
+    }
+    expect(problems).toEqual([]);
   });
 
   it("flags only rep-confirmed rows as confirmed in the trail", () => {

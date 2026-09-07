@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 import {
   TRACKED_ENTRIES,
@@ -125,7 +126,7 @@ function writeBaseline(data, previous) {
     limits,
   };
 
-  fs.writeFileSync(baselinePath, `${JSON.stringify(baseline, null, 2)}\n`);
+  atomicWriteJsonSync(baselinePath, baseline);
   console.log(`[size-budgets] Baseline updated: ${path.relative(root, baselinePath)}`);
   for (const entry of TRACKED_ENTRIES) {
     console.log(`  ${entry.id.padEnd(28)} ${formatKb(limits[entry.id])}`);

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, PencilLine, Plus, RefreshCw, Route, ShieldCheck, XCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -15,6 +15,8 @@ import {
 import {
   discoveryBriefToFinderNeed,
   readLatestDiscoveryBrief,
+  readLatestDiscoverySnapshot,
+  writeLatestDiscoverySnapshot,
   type FinderNeedDraft,
 } from "../data/workflowHandoff";
 import {
@@ -39,6 +41,21 @@ import { buildDesignAssuranceLedger, getProductAssurance } from "../lib/productA
 import { suggestComplementaryProducts } from "../lib/systemBundler";
 import { generateSuggestedKits, detectMissingAccessories } from "../lib/suggestedKit";
 import { collectCompetitorBrandLosses } from "../lib/feedbackInformedGuidance";
+import {
+  findStrandedQuickStartDefaults,
+  removeDiscoveryAnswerValue,
+  type StrandedQuickStartDefault,
+} from "./discovery/discoveryAnswerUtils";
+import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
+import { readQuickStartSeedRecord } from "./discovery/useQuickStartConflictSignals";
+import { findQuickStartApplicationDrift } from "./discovery/discoveryQuickStart";
+import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
+import {
+  DiscoveryStrandedDefaultsNotice,
+  type DiscoveryApplicationDrift,
+} from "./discovery/DiscoveryStrandedDefaultsNotice";
+import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
 
 type RecommendationDecision = Awaited<
   ReturnType<typeof loadWingmanProductSelectorDecisions>
@@ -128,6 +145,21 @@ function missingDetailDefinition(item: string): MissingDetailDefinition {
     placeholder: "Enter the confirmed requirement",
   };
 }
+
+// The saved room model carries derived text per question (displayBehaviour,
+// usbTransport, …) rendered from the answers. When a removed app-applied value
+// must not survive as a confirmed requirement, these are the owning fields to
+// drop from the room model. Shared by the two rail removal actions.
+const roomModelFieldByQuestion: Record<string, string[]> = {
+  displays: ["displayCount"],
+  "display-behaviour": ["displayBehaviour", "displayArrangement", "displays"],
+  "source-count": ["sourceCount"],
+  "source-connection": ["sourceProfile", "sourceConnections"],
+  "usb-transport": ["usbTransport", "usbNeeds", "usbOwnership"],
+  "audio-path": ["audioPath", "audioNeeds"],
+  "cable-run": ["cableRun", "longestRun", "distanceInfrastructureNotes"],
+  network: ["networkAvailability", "network"],
+};
 
 function text(value: unknown, fallback = "") {
   const output = String(value ?? "").trim();
@@ -400,6 +432,7 @@ export function RecommendationsPage() {
   );
 
   function addSlotToProject(slot: SystemSlot, decision: RecommendationDecision) {
+    if (selectionBlockedByStrand) return;
     const selection = selectionFromDecision(decision, slot.quantity);
     const savedProject = saveProductSelectionToCurrentProject({
       ...selection,
@@ -418,6 +451,7 @@ export function RecommendationsPage() {
   }
 
   function addWholeSystemToProject() {
+    if (selectionBlockedByStrand) return;
     const filled = systemSlots.filter((entry) => entry.candidates.length);
 
     if (!filled.length) {
@@ -535,6 +569,181 @@ export function RecommendationsPage() {
   const brandLosses = useMemo(() => collectCompetitorBrandLosses(), []);
 
   const missingInformation = brief?.missingInformation ?? [];
+
+  // Stranded quick-start defaults (a captured answer whose option a later
+  // answer hid) and post-seed application drift (untouched quick-start answers
+  // still following the previous application's profile) sit in the saved brief
+  // and would distort the design, so both surface on the resolve rail with the
+  // same notice the discovery page uses. Detection mirrors DiscoveryPage:
+  // full visible question set, origin-aware through the persisted records.
+  const strandedAnswers = useMemo((): StrandedQuickStartDefault[] => {
+    const draft = readLatestDiscoverySnapshot();
+    if (!draft) return [];
+    const draftAnswers = (draft.state.answers as DiscoveryAnswers | undefined) ?? {};
+    const appliedDefaults = (draft.state.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {};
+    return findStrandedQuickStartDefaults(getVisibleDiscoveryQuestions("not-sure", draftAnswers), draftAnswers, appliedDefaults);
+  }, []);
+  const [strandedCleared, setStrandedCleared] = useState(false);
+  const navigate = useNavigate();
+  const visibleStrandedAnswers = strandedCleared ? [] : strandedAnswers;
+  // Recomputed after the remove-stranded action (strandedCleared flips) so a
+  // removed value that was also a drift item stops flagging.
+  const applicationDrift = useMemo((): DiscoveryApplicationDrift | null => {
+    if (strandedCleared) return null;
+    const draft = readLatestDiscoverySnapshot();
+    if (!draft) return null;
+    const seed = readQuickStartSeedRecord(draft.state.quickStartSeed);
+    if (!seed) return null;
+    const draftAnswers = (draft.state.answers as DiscoveryAnswers | undefined) ?? {};
+    const application = text(draftAnswers.opportunity, "not-sure");
+    const items = findQuickStartApplicationDrift(seed, draftAnswers, application);
+    return items.length ? { previousApplication: seed.application, application, items } : null;
+  }, [strandedCleared]);
+  // Product selection is refused while the brief still carries a stranded
+  // default OR an untouched quick-start answer still following a previous
+  // application's profile (the discovery integrity gate marked it
+  // do-not-quote-yet): a recommendation built on a distorted brief must not be
+  // selectable. The resolve rail above names the offending answers so the rep
+  // can clear or re-choose them here or on the discovery page.
+  const selectionBlockedByStrand = visibleStrandedAnswers.length > 0 || (applicationDrift?.items.length ?? 0) > 0;
+
+  // Remove-stranded from the recommendations rail: clear every untouched
+  // app-applied default from the persisted draft (so discovery resumes clean),
+  // rebuild the brief from the remaining answers, re-run the decision-integrity
+  // gate, persist through the same save path discovery uses, and recalculate
+  // the recommendations. Rep-typed stranded answers stay — they are resolved
+  // by re-choosing on the discovery page instead.
+  function removeStrandedFromBrief() {
+    const draft = readLatestDiscoverySnapshot();
+    if (!draft) return;
+    const draftAnswers = { ...((draft.state.answers as DiscoveryAnswers | undefined) ?? {}) };
+    const appliedDefaults = (draft.state.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {};
+    const untouched = findStrandedQuickStartDefaults(getVisibleDiscoveryQuestions("not-sure", draftAnswers), draftAnswers, appliedDefaults)
+      .filter((item) => item.origin === "quick-start");
+    if (!untouched.length) return;
+
+    let nextAnswers = draftAnswers;
+    for (const item of untouched) {
+      nextAnswers = removeDiscoveryAnswerValue(nextAnswers, item.questionId, item.optionValue);
+    }
+    const nextNotes = { ...((draft.state.notes as DiscoveryNotes | undefined) ?? {}) };
+    const nextAppliedDefaults = { ...appliedDefaults };
+    for (const item of untouched) {
+      delete nextAppliedDefaults[item.questionId];
+    }
+
+    writeLatestDiscoverySnapshot({
+      ...draft,
+      state: { ...draft.state, answers: nextAnswers, appliedDefaults: nextAppliedDefaults, notes: nextNotes },
+    });
+
+    const application = text(nextAnswers.opportunity, "not-sure");
+    const questions = getVisibleDiscoveryQuestions(application, nextAnswers);
+    const persistedSeed = readQuickStartSeedRecord(draft.state.quickStartSeed);
+    const integrity = evaluateDiscoveryDecisionIntegrity(questions, nextAnswers, nextNotes, questions, nextAppliedDefaults, persistedSeed);
+    // The saved room model carries derived text per question (displayBehaviour,
+    // usbTransport, …) rendered from the answers. A removed stranded value must
+    // not survive there as a confirmed requirement, so drop the owning field.
+    const removedQuestionIds = new Set(untouched.map((item) => item.questionId));
+    const nextRoomModel: Record<string, unknown> = {
+      ...((draft.brief?.roomModel ?? {}) as Record<string, unknown>),
+    };
+    for (const questionId of removedQuestionIds) {
+      for (const field of roomModelFieldByQuestion[questionId] ?? []) {
+        delete nextRoomModel[field];
+      }
+    }
+    const nextBrief: StoredDiscoveryBrief = {
+      ...(draft.brief ?? {}),
+      roomModel: nextRoomModel,
+      missingInformation: integrity.issues.map((issue) => issue.followUpQuestion),
+      quoteSafetyStatus: integrity.canProceedToRecommendation ? "validate-before-quote" : "do-not-quote-yet",
+    };
+    const nextEvidence = buildDiscoveryRecommendationEvidence(nextBrief);
+    const finalBrief: StoredDiscoveryBrief = {
+      ...nextBrief,
+      quoteSafetyStatus: integrity.canProceedToRecommendation ? nextEvidence.quoteSafetyStatus : "do-not-quote-yet",
+      recommendationEvidence: nextEvidence,
+    };
+    writeLatestDiscoverySnapshot({
+      ...draft,
+      state: { ...draft.state, answers: nextAnswers, appliedDefaults: nextAppliedDefaults, notes: nextNotes },
+      brief: finalBrief,
+      savedAt: new Date().toISOString(),
+    });
+    saveDiscoveryBriefToProject(finalBrief, activeProject?.id);
+
+    setStrandedCleared(true);
+    // Rebuild the need from the CLEANED brief so the compatibility engine no
+    // longer scores the requirement against the removed answer's behaviour
+    // (reloadRecommendations alone would re-derive it from the stale need).
+    const nextNeed = discoveryBriefToFinderNeed(finalBrief);
+    if (nextNeed) setNeed(nextNeed);
+    reloadRecommendations();
+    setMessage(
+      `Removed ${untouched.length} stranded answer${untouched.length === 1 ? "" : "s"}. Re-choose them on the discovery page if the room still needs them.`,
+    );
+  }
+
+  // Remove-drift from the recommendations rail: clear every untouched
+  // quick-start answer still following the previous application's profile
+  // from the persisted draft, rebuild the brief, re-run the integrity gate,
+  // and recalculate. Mirrors removeStrandedFromBrief; retyped answers stay.
+  function removeDriftFromBrief() {
+    const drift = applicationDrift;
+    if (!drift || drift.items.length === 0) return;
+    const draft = readLatestDiscoverySnapshot();
+    if (!draft) return;
+    const seed = readQuickStartSeedRecord(draft.state.quickStartSeed);
+    if (!seed) return;
+    const draftAnswers = { ...((draft.state.answers as DiscoveryAnswers | undefined) ?? {}) };
+    const appliedDefaults = { ...((draft.state.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {}) };
+    let nextAnswers = draftAnswers;
+    for (const item of drift.items) {
+      const seeded = seed.answers[item.questionId];
+      if (typeof seeded === "string") nextAnswers = removeDiscoveryAnswerValue(nextAnswers, item.questionId, seeded);
+      delete appliedDefaults[item.questionId];
+    }
+    const nextNotes = { ...((draft.state.notes as DiscoveryNotes | undefined) ?? {}) };
+    const questions = getVisibleDiscoveryQuestions(text(nextAnswers.opportunity, "not-sure"), nextAnswers);
+    const integrity = evaluateDiscoveryDecisionIntegrity(questions, nextAnswers, nextNotes, questions, appliedDefaults, seed);
+    const removedQuestionIds = new Set(drift.items.map((item) => item.questionId));
+    const nextRoomModel: Record<string, unknown> = {
+      ...((draft.brief?.roomModel ?? {}) as Record<string, unknown>),
+    };
+    for (const questionId of removedQuestionIds) {
+      for (const field of roomModelFieldByQuestion[questionId] ?? []) {
+        delete nextRoomModel[field];
+      }
+    }
+    const nextBrief: StoredDiscoveryBrief = {
+      ...(draft.brief ?? {}),
+      roomModel: nextRoomModel,
+      missingInformation: integrity.issues.map((issue) => issue.followUpQuestion),
+      quoteSafetyStatus: integrity.canProceedToRecommendation ? "validate-before-quote" : "do-not-quote-yet",
+    };
+    const nextEvidence = buildDiscoveryRecommendationEvidence(nextBrief);
+    const finalBrief: StoredDiscoveryBrief = {
+      ...nextBrief,
+      quoteSafetyStatus: integrity.canProceedToRecommendation ? nextEvidence.quoteSafetyStatus : "do-not-quote-yet",
+      recommendationEvidence: nextEvidence,
+    };
+    writeLatestDiscoverySnapshot({
+      ...draft,
+      state: { ...draft.state, answers: nextAnswers, appliedDefaults, notes: nextNotes },
+      brief: finalBrief,
+      savedAt: new Date().toISOString(),
+    });
+    saveDiscoveryBriefToProject(finalBrief, activeProject?.id);
+    setStrandedCleared(true);
+    const nextNeed = discoveryBriefToFinderNeed(finalBrief);
+    if (nextNeed) setNeed(nextNeed);
+    reloadRecommendations();
+    setMessage(
+      `Removed ${drift.items.length} pre-filled answer${drift.items.length === 1 ? "" : "s"} that still followed the old profile. Re-choose them on the discovery page if the room still needs them.`,
+    );
+  }
+
   const requirementSummary = [
     need.technicalRequirement,
     need.productPath,
@@ -549,6 +758,7 @@ export function RecommendationsPage() {
   const systemUnitCount = systemSlots.reduce((total, { slot }) => total + slot.quantity, 0);
 
   function addToProject(decision: RecommendationDecision) {
+    if (selectionBlockedByStrand) return;
     const savedProject = saveProductSelectionToCurrentProject(
       selectionFromDecision(decision),
     );
@@ -821,6 +1031,16 @@ export function RecommendationsPage() {
           ) : null}
 
           {stage === "resolve" ? (
+          <>
+          {visibleStrandedAnswers.length > 0 && (
+            <DiscoveryStrandedDefaultsNotice
+              items={visibleStrandedAnswers}
+              applicationDrift={applicationDrift}
+              onRemoveStranded={removeStrandedFromBrief}
+              onRemoveDrift={removeDriftFromBrief}
+              onOpenStep={(questionId) => navigate(`${routeCatalogByKey.discovery.path}?edit=${encodeURIComponent(questionId)}`)}
+            />
+          )}
           <div className="wm-rec-checks-card">
             <SectionCard
               title="Checks still required"
@@ -871,10 +1091,11 @@ export function RecommendationsPage() {
                       ) : null}
                     </li>
                   );
-                })}
+                })                }
               </ul>
             </SectionCard>
             </div>
+          </>
           ) : null}
           {stage === "resolve" && !missingInformation.length ? (
             <SectionCard title="Discovery details are complete" subtitle="No unresolved Discovery checks are blocking the current recommendation.">
@@ -948,7 +1169,13 @@ export function RecommendationsPage() {
                               <strong>{lead.sku}</strong>
                               <p>{productTitle(lead)}</p>
                             </div>
-                            <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => addSlotToProject(slot, lead)}>
+                            <button
+                              type="button"
+                              className="wm-ui-button wm-ui-button-secondary"
+                              disabled={selectionBlockedByStrand}
+                              title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
+                              onClick={() => addSlotToProject(slot, lead)}
+                            >
                               Add role
                             </button>
                           </div>
@@ -973,7 +1200,14 @@ export function RecommendationsPage() {
                               {alternatives.map((decision) => (
                                 <div className="wm-rec-alternative" key={decision.sku}>
                                   <span><strong>{decision.sku}</strong>{productTitle(decision)}</span>
-                                  <button type="button" onClick={() => addSlotToProject(slot, decision)}>Use this instead</button>
+                                  <button
+                                    type="button"
+                                    disabled={selectionBlockedByStrand}
+                                    title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
+                                    onClick={() => addSlotToProject(slot, decision)}
+                                  >
+                                    Use this instead
+                                  </button>
                                 </div>
                               ))}
                             </div>
@@ -994,7 +1228,15 @@ export function RecommendationsPage() {
 
               <footer className="wm-rec-system-footer">
                 <div><PackageCheck size={22} aria-hidden="true" /><span><strong>Add the proposed WyreStorm system</strong><small>Adds the best-fit product and correct quantity for every resolved role.</small></span></div>
-                <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={addWholeSystemToProject}>Add complete system to project</button>
+                <button
+                  className="wm-ui-button wm-ui-button-primary"
+                  type="button"
+                  disabled={selectionBlockedByStrand}
+                  title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
+                  onClick={addWholeSystemToProject}
+                >
+                  {selectionBlockedByStrand ? "Resolve stranded answers first" : "Add complete system to project"}
+                </button>
               </footer>
             </section>
           ) : null}
@@ -1093,9 +1335,15 @@ export function RecommendationsPage() {
                       <button
                         className="wm-ui-button wm-ui-button-primary rounded-xl px-4 py-3 font-black"
                         type="button"
+                        disabled={selectionBlockedByStrand}
+                        title={
+                          selectionBlockedByStrand
+                            ? "Resolve the stranded discovery answers before selecting a product."
+                            : undefined
+                        }
                         onClick={() => addToProject(decision)}
                       >
-                        Add to project
+                        {selectionBlockedByStrand ? "Resolve stranded answers first" : "Add to project"}
                       </button>
                       <Link
                         className="wm-ui-button wm-ui-button-secondary rounded-xl px-4 py-3 font-black"

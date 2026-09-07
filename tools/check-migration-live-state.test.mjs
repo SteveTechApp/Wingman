@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { queryRowsFromBody } from "./check-migration-live-state.mjs";
+import { postgresArrayIncludes, queryRowsFromBody } from "./check-migration-live-state.mjs";
 
 // Pins queryRowsFromBody to the ACTUAL response shapes of the Supabase
 // Management API:
@@ -62,5 +62,20 @@ describe("queryRowsFromBody", () => {
     // is an ARRAY; a scalar `rows` value must not be misclassified.
     const body = [{ type: "SELECT", rows: "not-an-array" }];
     expect(queryRowsFromBody(body)).toEqual(body);
+  });
+});
+
+describe("postgresArrayIncludes", () => {
+  it("accepts the PostgreSQL text representation returned for pg_policies.roles", () => {
+    expect(postgresArrayIncludes("{service_role}", "service_role")).toBe(true);
+  });
+
+  it("also accepts decoded arrays", () => {
+    expect(postgresArrayIncludes(["authenticated", "service_role"], "service_role")).toBe(true);
+  });
+
+  it("rejects missing roles and unexpected values", () => {
+    expect(postgresArrayIncludes("{authenticated}", "service_role")).toBe(false);
+    expect(postgresArrayIncludes(null, "service_role")).toBe(false);
   });
 });

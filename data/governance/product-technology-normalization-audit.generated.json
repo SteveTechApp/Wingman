@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-21T08:15:37.397Z",
+  "generatedAt": "2026-09-03T10:20:32.931Z",
   "sources": {
     "competitor": "data/catalog/competitor-products.generated.json",
     "wyrestorm": "public/product-intelligence-index.json"
   },
   "totals": {
-    "records": 665,
-    "competitorRecords": 355,
-    "wyrestormRecords": 310,
+    "records": 669,
+    "competitorRecords": 354,
+    "wyrestormRecords": 315,
     "normalizedByGovernedRule": 69,
-    "canonicalTransportKnown": 101,
+    "canonicalTransportKnown": 100,
     "networkClassKnown": 47,
     "codecKnown": 47
   },
@@ -145,7 +145,7 @@
     },
     {
       "manufacturer": "Lightware",
-      "products": 29,
+      "products": 28,
       "normalized": 4,
       "canonicalTransportKnown": 4,
       "networkClassKnown": 0,
@@ -233,9 +233,9 @@
     },
     {
       "manufacturer": "WyreStorm",
-      "products": 310,
+      "products": 315,
       "normalized": 23,
-      "canonicalTransportKnown": 54,
+      "canonicalTransportKnown": 53,
       "networkClassKnown": 23,
       "codecKnown": 23
     },

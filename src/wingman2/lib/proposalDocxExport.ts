@@ -4,6 +4,7 @@ import {
   TableLayoutType, TableRow, TextRun, WidthType,
 } from "docx";
 import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
+import { downloadBlob } from "./downloadBlob";
 import { powerBudgetSummary } from "./powerBudget";
 import type { SalesBomRow } from "./salesReadiness";
 import { getProposalDocumentTypeConfig, linesFromText, type ProposalWizardDraft } from "./proposalWizard";
@@ -638,11 +639,5 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
     ),
   ]);
   const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic }));
-  const url = window.URL.createObjectURL(blob);
-  const link = window.document.createElement("a");
-  link.href = url;
-  link.download = `${fileBaseName(wizard.projectName || proposal.title)}.proposal.docx`;
-  link.rel = "noopener";
-  window.document.body.appendChild(link);
-  link.click(); link.remove(); window.URL.revokeObjectURL(url);
+  downloadBlob(blob, `${fileBaseName(wizard.projectName || proposal.title)}.proposal.docx`);
 }

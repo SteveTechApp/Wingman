@@ -9,7 +9,7 @@ import {
 } from "./projectStore";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
-import { getVisibleDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
+import { baseDiscoveryQuestions, getVisibleDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
 import type { DiscoveryAnswers, DiscoveryNotes } from "../pages/discovery/discoveryTypes";
 
 export const DISCOVERY_BRIEF_KEY = "wingman-discovery-brief";
@@ -55,6 +55,20 @@ export type FinderNeedDraft = {
   avoipProfile?: string;
   avoipSeriesHint?: string;
 };
+
+// Vocabulary of the canonical `displays` question (option values AND their
+// human labels). The discovery forward-writer stores the display-behaviour
+// LABEL into the legacy roomModel.displayBehaviour field, but falls back to
+// the DISPLAYS label when behaviour was never answered (DiscoveryPage) — so a
+// legacy displayBehaviour value can actually hold a displays-count token. The
+// import guard below keeps such a token from ever overwriting the
+// display-behaviour answer with the displays vocabulary, where it would
+// render as raw text and trip the displays/display-behaviour gate on
+// re-import.
+const DISPLAYS_STEP = baseDiscoveryQuestions.find((question) => question.id === "displays");
+const DISPLAYS_TOKENS = new Set<string>(
+  (DISPLAYS_STEP?.options ?? []).flatMap((option) => [option.value, option.label]),
+);
 
 function nowIso() {
   return new Date().toISOString();
@@ -389,7 +403,17 @@ export function legacyStateToDiscoveryAnswers(state: Record<string, unknown>): D
   const displayCount = text(state.displayCount);
   if (displayCount) answers.displays = displayCount;
   const displayBehaviour = text(state.displayBehaviour);
-  if (displayBehaviour) answers["display-behaviour"] = displayBehaviour;
+  if (displayBehaviour) {
+    if (DISPLAYS_TOKENS.has(displayBehaviour)) {
+      // The value is a displays-side token (count value or label), not a
+      // behaviour description — the forward-writer only stored it here when
+      // the behaviour question was never answered. Divert it to the displays
+      // answer if still empty instead of corrupting display-behaviour.
+      if (!answers.displays) answers.displays = displayBehaviour;
+    } else {
+      answers["display-behaviour"] = displayBehaviour;
+    }
+  }
   const cableRun = text(state.cableRun);
   if (cableRun) answers["locations-connections"] = cableRun;
   const controlNeeds = list(state.controlNeeds);
