@@ -2,6 +2,7 @@ import {
   AlignmentType, Document, Footer, Header, PageNumber, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType,
 } from "docx";
 import type { StoredDiscoveryBrief, StoredProjectProposal } from "../data/projectStore";
+import { downloadBlob } from "./downloadBlob";
 import {
   NAVY, AQUA, BLUE, MUTED, PALE, TEXT, TABLE_WIDTH, addSection, bullet, cell, fileBaseName, fixedTable, paragraph,
 } from "./proposalDocxExport";
@@ -140,17 +141,7 @@ export function buildDiscoveryBriefDocx(
 export async function exportDiscoveryBriefDocx(brief: StoredDiscoveryBrief, meta: DiscoveryBriefExportMeta = {}) {
   if (typeof window === "undefined") return;
   const blob = await Packer.toBlob(buildDiscoveryBriefDocx(brief, meta));
-  const url = window.URL.createObjectURL(blob);
-  const link = window.document.createElement("a");
-  link.href = url;
-  link.download = `${fileBaseName(meta.projectName || "discovery", "wingman-discovery-brief")}.discovery-brief.docx`;
-  link.rel = "noopener";
-  window.document.body.appendChild(link);
-  link.click();
-  link.remove();
-  // Revoke on a later task, never synchronously: the blob URL must stay live
-  // until the browser has actually begun the download fetch against it.
-  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
+  downloadBlob(blob, `${fileBaseName(meta.projectName || "discovery", "wingman-discovery-brief")}.discovery-brief.docx`);
 }
 
 export { briefFromProposal, briefMetaFromProposal };

@@ -77,8 +77,7 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     ],
     attachProducts: [
       { productFamily: "NetworkHD controller", reason: "NetworkHD systems require the correct controller and network design." },
-      { sku: "NHD-128-NDI-BRG", reason: "Use where NDI camera sources need to be brought into a 100-series workflow." },
-      { sku: "NHD-128-NDI-TRX", reason: "Use where NDI/H.265 workflows are relevant and supported." }
+      { sku: "NHD-128-NDI-TRX", reason: "Use where NDI camera sources or NDI/H.265 workflows need to be brought into a 100-series system." }
     ],
     competitorAngles: [
       { competitorCategory: "AVoIP multiview decoder", positioningNote: "Compare only against AVoIP multiview receivers/decoders in a similar system architecture.", compareSearchTerms: ["AVoIP multiview receiver", "decoder multiview"] }

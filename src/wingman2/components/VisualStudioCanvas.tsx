@@ -30,6 +30,7 @@ import {
 import { buildReactFlowModel, type WingmanFlowNodeData } from "../lib/visualStudioDiagramFactory";
 import { buildVsdxBlob } from "../lib/visioExport";
 import { chooseSchematicPrintLayout } from "../lib/visualStudioPrintLayout";
+import { downloadBlob } from "../lib/downloadBlob";
 import type { VisualDiagramMode, VisualDiagramModel } from "../lib/visualStudioTypes";
 
 interface VisualStudioCanvasProps {
@@ -43,15 +44,6 @@ function downloadDataUrl(dataUrl: string, filename: string): void {
   link.download = filename;
   link.href = dataUrl;
   link.click();
-}
-
-function downloadBlob(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.download = filename;
-  link.href = url;
-  link.click();
-  requestAnimationFrame(() => URL.revokeObjectURL(url));
 }
 
 function safeFileName(value: string): string {

@@ -155,19 +155,22 @@ _None._
 - [ ] SW-0X01-8K
 - [ ] SW-130-TX
 
-## SUPERSEDED — version families with a discontinued SKU and an active successor (5)
+## SUPERSEDED — version families with a discontinued SKU and an active successor (6)
 
 - MXV-0808-H2A-70-V2 → **MXV-0808-H2A-70-V3**
-- MXV-0808-H2A-V2, MXV-0808-H2A-V3 → **MXV-0808-H2A-MK2**
+- MXV-0808-H2A-V2 → **MXV-0808-H2A-MK2**
+- MXV-0808-H2A-V3 → **MXV-0808-H2A-MK2**
 - NHD-500-IW-TX → **NHD-500-IW-TX-V2**
 - NHD-CTL-PRO → **NHD-CTL-PRO-V2**
 - SYN-TOUCH10 → **SYN-TOUCH10-V2**
 
-## STORIES — governed stories referencing a non-active SKU (6)
+## REFUSED — version-family promotions whose successor is not active (0)
+
+_None._
+
+## STORIES — governed stories referencing a non-active SKU (4)
 
 - APO-VX20-UC — story lead — `unlisted`
 - APO-VX20-UC — worksWith — `unlisted`
-- NHD-100-RX — worksWith — `unlisted`
-- NHD-100-TX — worksWith — `unlisted`
 - SW-640-TX-W — story lead — `unlisted`
 - SYN-TOUCH10 — worksWith — `discontinued`

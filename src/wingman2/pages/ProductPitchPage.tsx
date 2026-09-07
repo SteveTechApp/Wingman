@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { downloadBlob } from "../lib/downloadBlob";
 import { getCurrentWorkflowProject, readProjectStore } from "../data/projectStore";
 import { readProductWorkspaceHandoff, writeProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
 import {
@@ -65,15 +66,7 @@ function openProductCheatSheet(product: ProductSpec, narrative: ProductNarrative
 
   // Pop-up blocked: fall back to downloading the cheat-sheet as a file so it is
   // still available offline.
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${product.sku}-cheat-sheet.html`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), `${product.sku}-cheat-sheet.html`, { revokeDelayMs: 1000 });
 }
 
 type ProductTab = "overview" | "features" | "design" | "spec" | "competitors" | "workflow";

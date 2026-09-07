@@ -3,6 +3,7 @@ import { Archive, ArrowUpDown, CheckCircle2, Copy, Database, Download, Pencil, P
 import { getWingmanSession, type WingmanWorkspaceSession } from "../api/wingmanApi";
 import { PRODUCT_LIFECYCLES, displayLifecycle, emptyProduct, isArchivedProduct, productIntelligenceRepository, validateProductRecord, type AdminLifecycle, type ProductIntelligenceRecord, type ProductPort } from "../data/productIntelligenceRepository";
 import { qualityCounts } from "../lib/productDataQuality";
+import { downloadBlob } from "../lib/downloadBlob";
 import type { ProductQualityIssue } from "../types/productTruth";
 import { LiveResearchReviewQueue } from "../components/data/LiveResearchReviewQueue";
 import { GovernedProfileBrowser } from "../components/data/GovernedProfileBrowser";
@@ -162,8 +163,9 @@ function ProductEditor({ record, allRecords, editor, onClose, onSaved }: { recor
 function FormSection({ title, children }: { title: string; children: ReactNode }) { return <fieldset className="wm-data-form-section"><legend>{title}</legend><div>{children}</div></fieldset>; }
 function Field({ label, value, onChange, error, wide, multiline, type = "text" }: { label: string; value: string; onChange: (value: string) => void; error?: string; wide?: boolean; multiline?: boolean; type?: string }) { return <label className={wide ? "is-wide" : ""}>{label}{multiline ? <textarea value={value} onChange={(e) => onChange(e.target.value)} /> : <input type={type} value={value} onChange={(e) => onChange(e.target.value)} />}{error ? <small className="wm-field-error">{error}</small> : null}</label>; }
 function PortEditor({ title, value, onChange }: { title: string; value: ProductPort[]; onChange: (value: ProductPort[]) => void }) { return <fieldset className="wm-data-form-section"><legend>{title}</legend>{value.map((port, index) => <div className="wm-repeat-row" key={`${index}-${port.type}`}><input aria-label={`${title} type ${index + 1}`} placeholder="Port type" value={port.type} onChange={(e) => onChange(value.map((x, i) => i === index ? { ...x, type: e.target.value } : x))} /><input aria-label={`${title} quantity ${index + 1}`} type="number" min="0" value={port.count} onChange={(e) => onChange(value.map((x, i) => i === index ? { ...x, count: Number(e.target.value) } : x))} /><button type="button" onClick={() => onChange(value.filter((_, i) => i !== index))}>Remove</button></div>)}<button type="button" onClick={() => onChange([...value, { type: "HDMI", count: 1 }])}><Plus /> Add row</button></fieldset>; }
-function downloadJson(records: ProductIntelligenceRecord[]) { const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: "application/json" })); const link = document.createElement("a"); link.href = url; link.download = "wingman-product-intelligence.json"; link.click(); // Revoke on a later task, never synchronously: the blob URL must stay live until the download fetch starts.
-  window.setTimeout(() => URL.revokeObjectURL(url), 0); }
+function downloadJson(records: ProductIntelligenceRecord[]) {
+  downloadBlob(new Blob([JSON.stringify(records, null, 2)], { type: "application/json" }), "wingman-product-intelligence.json");
+}
 
 export default DataManagerPage;
 

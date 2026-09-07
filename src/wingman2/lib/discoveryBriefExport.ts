@@ -1,4 +1,5 @@
 import type { StoredDiscoveryBrief, StoredProjectProposal } from "../data/projectStore";
+import { downloadBlob } from "./downloadBlob";
 import {
   CAPTURE_CONFIDENCE_EXPLAINER,
   captureConfidenceCell,
@@ -263,26 +264,6 @@ export function buildDiscoveryBriefHtml(
 </html>`;
 }
 
-function saveTextFile(fileName: string, text: string, type: string) {
-  if (typeof window === "undefined") return;
-
-  const blob = new Blob([text], { type });
-  const url = window.URL.createObjectURL(blob);
-  const link = window.document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.rel = "noopener";
-  window.document.body.appendChild(link);
-  link.click();
-  link.remove();
-  // Revoke on a later task, never synchronously: the blob URL must stay live
-  // until the browser has actually begun the download fetch against it. An
-  // immediate revoke after click() is racy - Firefox in particular can
-  // resolve the URL after the revoke and abort the download as a failed
-  // blob fetch.
-  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
-}
-
 function fileBaseName(title: string) {
   return String(title || "wingman-discovery-brief")
     .toLowerCase()
@@ -292,11 +273,7 @@ function fileBaseName(title: string) {
 }
 
 export function exportDiscoveryBriefHtml(brief: StoredDiscoveryBrief, meta: DiscoveryBriefExportMeta = {}) {
-  saveTextFile(
-    `${fileBaseName(meta.projectName || "discovery")}.discovery-brief.html`,
-    buildDiscoveryBriefHtml(brief, meta),
-    "text/html;charset=utf-8",
-  );
+  downloadBlob(new Blob([buildDiscoveryBriefHtml(brief, meta)], { type: "text/html;charset=utf-8" }), `${fileBaseName(meta.projectName || "discovery")}.discovery-brief.html`);
 }
 
 /**

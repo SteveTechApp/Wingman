@@ -200,6 +200,15 @@ jobs:
       - name: Run end-to-end smoke check
         run: npm run check:e2e-smoke
 
+      # The crash-atomicity suites spawn a child process and hard-kill it
+      # mid-write (wingman-app-store + competitor-lookup file writers). They
+      # are excluded from the parallel fast stage (vitest.config.ts) because
+      # the kill window is timing-sensitive and the coverage run instrumented
+      # them uselessly; they run HERE sequentially so the process-spawn tests
+      # stay out of the parallel lane but still gate every PR.
+      - name: Run crash-atomicity suites (process kill mid-write)
+        run: npm run test:crash-atomicity
+
 
   audit:
     name: Dependency Audit

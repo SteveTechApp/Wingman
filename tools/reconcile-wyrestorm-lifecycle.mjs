@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { readCsv } from "./product-update-utils.mjs";
+import { successorAcceptabilityProblem } from "./check-lifecycle-successor-refs.mjs";
 
 /**
  * WyreStorm product lifecycle reconciliation.
@@ -14,6 +15,10 @@ import { readCsv } from "./product-update-utils.mjs";
  *   ADD       active products missing from the index
  *   REVIEW    indexed products not on any business list (stale / unknown)
  *   SUPERSEDED version families where a discontinued SKU has an active successor
+ *   REFUSED   version-family promotions whose successor is not active - these are
+ *             NOT surfaced as promotion candidates (a pair promoted into
+ *             WYRESTORM_SUPERSESSIONS must name a current, quotable product, the
+ *             same active-successor rule the runtime supersession table enforces)
  *   STORIES   governed stories that lead with, or recommend, a non-active SKU
  *
  * Run: node tools/reconcile-wyrestorm-lifecycle.mjs   (npm run lifecycle:reconcile)
@@ -73,18 +78,68 @@ const baseKey = (sku) =>
       .filter((token) => !/^(V\d+|MK\d+)$/i.test(token))
       .join("-"),
   );
+
+/**
+ * Splits every version family that contains both a discontinued and an active
+ * member into source→successor promotion pairs, then applies the shared
+ * active-successor rule to each pair. Returns the pairs that MAY be promoted
+ * into WYRESTORM_SUPERSESSIONS and the ones that must be REFUSED (with the
+ * rule's reason). Exported for the test suite; the runner uses the result to
+ * render the SUPERSEDED / REFUSED report sections.
+ */
+export function classifyVersionFamilyPromotions(rows, familyMembers) {
+  const rowBySku = new Map(rows.map((row) => [normKey(row.sku), row]));
+  const families = new Map();
+  for (const { sku, status } of familyMembers) {
+    const base = baseKey(sku);
+    if (!families.has(base)) families.set(base, []);
+    families.get(base).push({ sku, status });
+  }
+  const inferredPairs = [...families.values()]
+    .filter(
+    (members) =>
+      members.length > 1 &&
+      members.some((m) => m.status === "discontinued") &&
+      members.some((m) => m.status === "active"),
+    )
+    .flatMap((members) => {
+    const dead = members.filter((m) => m.status === "discontinued");
+    const live = members.filter((m) => m.status === "active");
+    return dead.flatMap((d) => live.map((l) => ({ sourceSku: d.sku, successorSku: l.sku })));
+    });
+  const explicitPairs = familyMembers.flatMap(({ sku, status }) => {
+    if (status !== "discontinued") return [];
+    const successorSku = String(rowBySku.get(normKey(sku))?.successor ?? "").trim();
+    return successorSku ? [{ sourceSku: sku, successorSku }] : [];
+  });
+  const pairs = [...new Map(
+    [...explicitPairs, ...inferredPairs].map((pair) => [
+      `${normKey(pair.sourceSku)}>${normKey(pair.successorSku)}`,
+      pair,
+    ]),
+  ).values()];
+
+  const acceptable = [];
+  const refused = [];
+  for (const pair of pairs) {
+    const problem = successorAcceptabilityProblem(rows, pair.sourceSku, pair.successorSku);
+    if (problem) refused.push({ ...pair, reason: problem });
+    else acceptable.push(pair);
+  }
+  return { acceptable, refused };
+}
+
 const families = new Map();
 for (const sku of [...active.skus, ...discontinued.skus]) {
   const base = baseKey(sku);
   if (!families.has(base)) families.set(base, []);
   families.get(base).push({ sku, status: statusOf(sku) });
 }
-const superseded = [...families.values()].filter(
-  (members) =>
-    members.length > 1 &&
-    members.some((m) => m.status === "discontinued") &&
-    members.some((m) => m.status === "active"),
+const { acceptable: acceptablePairs, refused: refusedPairs } = classifyVersionFamilyPromotions(
+  lifecycleRows,
+  [...families.values()].flat(),
 );
+const superseded = acceptablePairs;
 
 // Stories that lead with or recommend a non-active SKU.
 const storyIssues = [];
@@ -128,12 +183,15 @@ section(
 );
 section(
   `SUPERSEDED — version families with a discontinued SKU and an active successor (${superseded.length})`,
-  superseded
-    .map((members) => {
-      const dead = members.filter((m) => m.status === "discontinued").map((m) => m.sku);
-      const live = members.filter((m) => m.status === "active").map((m) => m.sku);
-      return `- ${dead.join(", ")} → **${live.join(", ")}**`;
-    })
+  superseded.map((pair) => `- ${pair.sourceSku} → **${pair.successorSku}**`).join("\n"),
+);
+section(
+  `REFUSED — version-family promotions whose successor is not active (${refusedPairs.length})`,
+  refusedPairs
+    .map(
+      (pair) =>
+        `- ${pair.sourceSku} → ${pair.successorSku} — ${pair.reason.replace(/^lifecycle: /, "")}`,
+    )
     .join("\n"),
 );
 section(
@@ -152,5 +210,6 @@ console.log(`[lifecycle]   BLOCKED (indexed & EoL/do-not-spec): ${archive.length
 console.log(`[lifecycle]   ADD (active & not indexed):          ${add.length}`);
 console.log(`[lifecycle]   REVIEW (indexed & unlisted):         ${review.length}`);
 console.log(`[lifecycle]   SUPERSEDED (version families):       ${superseded.length}`);
+console.log(`[lifecycle]   REFUSED (successor not active):       ${refusedPairs.length}`);
 console.log(`[lifecycle]   STORIES (referencing non-active):    ${storyIssues.length}`);
 console.log(`[lifecycle] Report written to ${path.relative(repoRoot, reportPath)}`);

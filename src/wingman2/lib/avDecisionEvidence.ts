@@ -667,7 +667,7 @@ export function buildAvDecisionEvidence(input: AvDecisionEvidenceInput): AvDecis
   }
 
   if (hasAny(requirementText, ["ndi", "ndi camera", "ptz", "camera"]) && productIsAvoip(productText)) {
-    dependencies.push("Validate NDI ingest path using NHD-128-NDI-TRX or NHD-128-NDI-BRG where the design needs camera/data composition into NetworkHD.");
+    dependencies.push("Validate NDI ingest path using NHD-128-NDI-TRX where the design needs camera/data composition into NetworkHD.");
     evidence.push("Camera/NDI workflow detected; Wingman should consider NetworkHD NDI ingest/bridge options.");
   }
 
