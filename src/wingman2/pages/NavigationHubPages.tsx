@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
+import { TrainingPortalPage } from "./TrainingPortalPage";
 
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
 
@@ -362,37 +363,5 @@ export function ResponsePackPage() {
 }
 
 export function LearnPage() {
-  return (
-    <HubPage
-      eyebrow="Wingman / Learn"
-      title="Learn"
-      intent="Help me understand AV terms, products, sales guidance or support context."
-      heroIcon={BookOpen}
-      accent="green"
-      tip="Use Glossary for a specific term and Product family learning when you need the broader sales and application context."
-      primaryActions={[
-        routeAction(
-          "glossary",
-          "Glossary",
-          "Look up AV terms, acronyms and customer-safe explanations.",
-          "Search terms",
-          { accent: "green", art: "glossary" },
-        ),
-        routeAction(
-          "support",
-          "Support guidance",
-          "Find escalation guidance and completion gaps.",
-          "Open support",
-          { accent: "amber", art: "support" },
-        ),
-        routeAction(
-          "productFamilies",
-          "Product family learning",
-          "Learn how product families fit real sales conversations.",
-          "Learn families",
-          { accent: "blue", art: "families" },
-        ),
-      ]}
-    />
-  );
+  return <TrainingPortalPage />;
 }
