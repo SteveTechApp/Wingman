@@ -13,9 +13,9 @@
 // the templates now depend on have governed technical data behind them.
 
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const target = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
@@ -421,26 +421,6 @@ function validateSourceReviews() {
   return errors;
 }
 
-function atomicWriteJson(filePath, value) {
-  const directory = path.dirname(filePath);
-  const temporary = path.join(
-    directory,
-    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.${os.hostname()}.tmp`,
-  );
-  let descriptor;
-  try {
-    descriptor = fs.openSync(temporary, "wx", 0o600);
-    fs.writeFileSync(descriptor, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-    fs.fsyncSync(descriptor);
-    fs.closeSync(descriptor);
-    descriptor = undefined;
-    fs.renameSync(temporary, filePath);
-  } finally {
-    if (descriptor !== undefined) fs.closeSync(descriptor);
-    if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
-  }
-}
-
 const check = process.argv.includes("--check");
 const apply = process.argv.includes("--apply");
 const unknown = process.argv.slice(2).filter((argument) => !["--check", "--apply"].includes(argument));
@@ -490,6 +470,6 @@ if (!added.length) {
   process.exit(0);
 }
 
-atomicWriteJson(target, candidate);
+atomicWriteJsonSync(target, candidate);
 console.log(`[draft] Atomically added ${added.length} review-required profile(s): ${added.map((draft) => draft.sku).join(", ")}`);
 console.log("[draft] These do NOT count toward verified coverage. Promote only after human review.");
