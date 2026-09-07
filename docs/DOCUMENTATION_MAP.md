@@ -26,7 +26,7 @@ _Last updated: 2026-09-03_
 | `docs/wingman-sales-copy-style.md` | Sales copy tone and wording standard. |
 | `docs/wingman-native-schematic-engine.md` | Schematic engine design direction. |
 | `docs/design/0001-project-workspace-persistence.md` | ADR-0001: B1 storage-model decision — server-authoritative with local cache vs local-first, with phases and exit criteria (closes P1-3). |
-| `docs/CI_GUARD_GATES.md` | Verify-chain guard gates for dependency, lockfile, product, and governance-data changes, including exception paths. |
+| `docs/CI_GUARD_GATES.md` | Verify-chain guard gates: what a dependency, lockfile, or product/governance-data edit must satisfy (reference-resolution, generated-manifest, build-deps, override-floor, governance-data, and ratchet gates), with the exception path for each. |
 
 ## Product governance
 
