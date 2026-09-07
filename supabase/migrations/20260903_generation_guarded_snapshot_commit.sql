@@ -1,37 +1,77 @@
 -- ============================================================================
--- Atomic Snapshot Commit for the normalized-tables storage mode
--- Version: 9.0.0
+-- Generation-guarded atomic snapshot commit
+-- Version: 13.0.0
 --
--- wingman-app-store.mjs previously wrote the whole application snapshot to the
--- normalized tables as SIXTEEN separate PostgREST calls (8 upserts + 8
--- snapshot-deletes). Each call was its own auto-committed transaction, so:
+-- Migration 009 made wingman_snapshot_commit ONE atomic transaction, so a
+-- commit lands completely or not at all and concurrent writers serialize on
+-- the table locks instead of interleaving their snapshot-deletes. Atomicity
+-- removed the torn-commit hazard, but the whole-snapshot reconcile has a
+-- second, subtler one that atomicity alone cannot fix.
 --
---   1. A failure midway left the tables torn (some upserted, none deleted) -
---      the caller saw an error but a partially-applied write stayed behind.
---   2. Two instances writing concurrently could interleave: writer A's
---      snapshot-delete ran between writer B's upsert and B's delete, removing
---      B's freshly written rows as "stale" - silent cross-instance data loss.
+-- The sync path is read -> merge -> commit, and the commit's delete phase
+-- removes every row absent from the committed payload. When TWO Wingman
+-- server instances share one Supabase project, each has its own in-process
+-- store lock (wingman-app-store.mjs withStoreLock) and cannot see the other's
+-- read-modify-write cycle: both instances can read the same row state, both
+-- merge their own change against it, and the second commit then reconciles
+-- the first instance's freshly written rows away as "stale" - silent
+-- cross-instance data loss with NO error anywhere. Two overlapping saves from
+-- two servers both report success and one of the edits is simply gone.
 --
--- This function performs the ENTIRE snapshot reconciliation (delete rows not
--- present + upsert the incoming rows, for all eight tables) inside ONE
--- transaction, so a commit either lands completely or not at all. Interleaved
--- writers now serialize on the table locks and each complete commit is atomic.
+-- Migration 013 closes that gap with an optimistic-concurrency generation
+-- register:
 --
--- The application calls it via a single PostgREST RPC:
---   select * from wingman_snapshot_commit('{ "users": [...], ... }'::jsonb)
+--   * wingman_db_generation holds ONE row (id 'global') whose `generation`
+--     increases by exactly 1 on every successful snapshot commit.
+--   * wingman_snapshot_commit takes a second argument, expected_generation:
+--     the caller names the generation its snapshot was read at. The commit
+--     first tries to CLAIM that exact generation
+--       (update ... where id = 'global' and generation = expected_generation)
+--     - the single-row lock serializes concurrent claims - and when another
+--     writer has already moved the register, the commit REFUSES with
+--     { "committed": false, "stale": true, "current_generation": N } before
+--     touching a single table. A refused commit is a pure no-op; the caller
+--     re-reads the current snapshot (which contains the winner's rows),
+--     re-merges, and retries against the fresh generation. The store does
+--     exactly this (bounded retry in handleWingmanProjectsSyncPost).
 --
--- Payload shape: one array per table, objects with the SNAKE_CASE columns of
--- the matching table (identical to the rows the app previously upserted
--- directly). A section that is OMITTED or JSON null leaves that table
--- untouched (no delete, no insert) - the delete phase only reconciles
--- sections the caller provided as arrays. An explicit [] still means "the
--- snapshot has no rows here": it deletes every row and inserts nothing.
+-- The register is read FIRST by the store, before the eight snapshot tables:
+-- a commit that lands after our register read can only move the generation
+-- AHEAD of the snapshot we are assembling, so the CAS refuses the commit
+-- instead of letting an older snapshot reconcile over rows we never saw. The
+-- guard can under-accept (a needless retry) but never over-accept.
 --
--- Only service_role may execute it - regular/anon roles must not be able to
--- replace the whole application snapshot.
+-- The old one-argument signature is dropped (same convention as migration
+-- 012): exactly one canonical function must exist, and a pre-013 store that
+-- calls with one argument fails loudly at PostgREST instead of silently
+-- committing without the guard.
+--
+-- The register row itself is application infrastructure, never part of the
+-- snapshot: wingman_snapshot_commit never reads or reconciles it as a table
+-- section, so a snapshot payload can never delete or overwrite it.
 -- ============================================================================
 
-create or replace function public.wingman_snapshot_commit(payload jsonb)
+create table if not exists public.wingman_db_generation (
+  id         text primary key,
+  generation bigint not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+-- One register row for the whole database, present from the moment the
+-- migration lands so the first guarded commit has a baseline to claim.
+insert into public.wingman_db_generation (id, generation)
+values ('global', 0)
+on conflict (id) do nothing;
+
+-- Only the service role may read or advance the register; it is internal
+-- bookkeeping, not application data.
+alter table public.wingman_db_generation enable row level security;
+create policy service_role_all on public.wingman_db_generation
+  for all to service_role using (true) with check (true);
+
+drop function if exists public.wingman_snapshot_commit(jsonb);
+
+create or replace function public.wingman_snapshot_commit(payload jsonb, expected_generation bigint)
 returns jsonb
 language plpgsql
 security invoker
@@ -39,6 +79,8 @@ set search_path = public
 as $$
 #variable_conflict use_variable
 declare
+  v_current_generation bigint;
+  v_next_generation    bigint;
   v_users      int := 0;
   v_workspaces int := 0;
   v_members    int := 0;
@@ -52,6 +94,14 @@ begin
     raise exception 'wingman_snapshot_commit payload must be a JSON object, got %', coalesce(jsonb_typeof(payload), 'null');
   end if;
 
+  -- expected_generation is mandatory: a caller that cannot name the generation
+  -- its snapshot was read at cannot be guarded, so it must not commit a
+  -- destructive whole-snapshot reconcile at all.
+  if expected_generation is null then
+    raise exception
+      'wingman_snapshot_commit requires expected_generation (the generation the snapshot was read at); call wingman_snapshot_commit(payload, expected_generation)';
+  end if;
+
   -- ------------------------------------------------------------------------
   -- Oversized-payload circuit breaker (413 semantics, mirroring the API's body
   -- cap): a snapshot blob larger than this cannot be posted through PostgREST
@@ -63,6 +113,43 @@ begin
     raise exception
       'wingman_snapshot_commit payload too large (413): % bytes exceeds the 8388608-byte commit limit; shrink the snapshot or write in smaller batches',
       octet_length(payload::text);
+  end if;
+
+  -- ------------------------------------------------------------------------
+  -- Optimistic-concurrency claim (migration 013). Claim the generation our
+  -- snapshot was read at BEFORE writing anything: the single-row update locks
+  -- the register for the whole transaction, so two concurrent commits
+  -- serialize here instead of on the table rows. A claim that affects zero
+  -- rows means another writer committed between our read and this RPC - the
+  -- register has moved past expected_generation - so the commit refuses with
+  -- a structured stale result and NOTHING is written. The caller re-reads the
+  -- current snapshot (which includes the winner's rows), re-merges, and
+  -- retries with the fresh generation.
+  -- ------------------------------------------------------------------------
+  update public.wingman_db_generation
+     set generation = generation + 1,
+         updated_at = now()
+   where id = 'global'
+     and generation = expected_generation
+   returning generation into v_next_generation;
+
+  if v_next_generation is null then
+    select generation into v_current_generation
+      from public.wingman_db_generation
+     where id = 'global';
+    if v_current_generation is null then
+      raise exception
+        'wingman_db_generation register is empty: insert the ''global'' row (migration 013) before committing snapshots';
+    end if;
+    return jsonb_build_object(
+      'committed', false,
+      'stale', true,
+      'reason', 'snapshot was read at generation ' || expected_generation ||
+                ' but the current generation is ' || v_current_generation ||
+                '; re-read the current snapshot and retry',
+      'expected_generation', expected_generation,
+      'current_generation', v_current_generation
+    );
   end if;
 
   -- ------------------------------------------------------------------------
@@ -339,6 +426,7 @@ begin
 
   return jsonb_build_object(
     'committed', true,
+    'generation', v_next_generation,
     'upserted_users',      v_users,
     'upserted_workspaces', v_workspaces,
     'upserted_members',    v_members,
@@ -352,6 +440,6 @@ end;
 $$;
 
 -- Only the service role may replace the whole application snapshot; revoke the
--- implicit PUBLIC execute grant.
-revoke execute on function public.wingman_snapshot_commit(jsonb) from public;
-grant execute on function public.wingman_snapshot_commit(jsonb) to service_role;
+-- implicit PUBLIC execute grant for the new signature.
+revoke execute on function public.wingman_snapshot_commit(jsonb, bigint) from public;
+grant execute on function public.wingman_snapshot_commit(jsonb, bigint) to service_role;

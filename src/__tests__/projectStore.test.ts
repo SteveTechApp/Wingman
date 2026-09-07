@@ -56,6 +56,8 @@ import {
   type StoredRequirementRecord,
   type ProjectStoreSnapshot,
 } from "@/wingman2/data/projectStore";
+import { buildHydrationSinceManifest, mergeProjectVersionsForHydration } from "@/wingman2/data/projectHydrationMerge";
+import { changedProjectLanes, projectLaneLabel, PROJECT_SYNC_CONFLICT_LANES } from "@/wingman2/data/projectSyncConflict";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -1838,5 +1840,388 @@ describe("projectStore", () => {
       // Should be limited to 40 feedback entries
       expect(result?.feedback?.length).toBeLessThanOrEqual(40);
     });
+  });
+});
+
+describe("mergeProjectVersionsForHydration (per-sub-document hydration merge)", () => {
+  const T0 = "2026-09-03T08:00:00.000Z";
+
+  function mergeProject(id: string, at: string, revision?: number): StoredProject {
+    return {
+      id,
+      name: "Merge Test Project",
+      owner: "Tester",
+      ownerId: "tester-1",
+      stage: "Discovery",
+      status: "recommended",
+      updated: "Just now",
+      resumeTo: "/wingman/discovery",
+      createdAt: at,
+      updatedAt: at,
+      syncRevision: revision,
+    };
+  }
+
+  function mergeBrief(at: string, capturedPercent: number, customer: string): StoredDiscoveryBrief {
+    return {
+      savedAt: at,
+      roomModel: { customer },
+      capturedPercent,
+      missingInformation: [],
+      quoteSafetyStatus: "quote-ready",
+    };
+  }
+
+  function mergeProposal(at: string, title: string): StoredProjectProposal {
+    return { title, summary: `${title} summary`, sections: [], products: [], assumptions: [], updatedAt: at };
+  }
+
+  function attachmentsOf(project: StoredProject): Array<{ id?: unknown; name?: unknown }> {
+    return (project as unknown as { attachments?: Array<{ id?: unknown; name?: unknown }> }).attachments ?? [];
+  }
+
+  it("keeps the offline sub-document edit and adopts the backend's newer sub-document (offline-then-reload)", () => {
+    const tOffline = "2026-09-03T08:10:00.000Z";
+    const tOther = "2026-09-03T08:20:00.000Z";
+
+    // Local: brief edited offline (never synced), proposal still the baseline.
+    const local = mergeProject("p", tOffline, 1);
+    local.discoveryBrief = mergeBrief(tOffline, 55, "Acme Corp (offline edit)");
+    local.proposal = mergeProposal(T0, "Acme Proposal - base");
+
+    // Backend: whole project NEWER (another session's proposal edit); its brief
+    // is still the older baseline.
+    const backend = mergeProject("p", tOther, 2);
+    backend.discoveryBrief = mergeBrief(T0, 40, "Acme Corp");
+    backend.proposal = mergeProposal(tOther, "Acme Proposal - other session rev");
+
+    const { project, conflict } = mergeProjectVersionsForHydration(local, backend);
+
+    expect(project.discoveryBrief?.capturedPercent, "the offline brief edit must survive").toBe(55);
+    expect(project.discoveryBrief?.savedAt).toBe(tOffline);
+    expect(project.proposal?.title, "the backend's newer proposal must be adopted").toBe("Acme Proposal - other session rev");
+    expect(project.updatedAt, "the merged copy carries the newest whole-project time").toBe(tOther);
+    expect(project.syncRevision, "backend content was adopted, so its revision is echoed next").toBe(2);
+    expect(conflict, "preserving the offline edit over the backend brief is a conflict").toBe(true);
+  });
+
+  it("adopts the other tab's newer sub-document when whole-project timestamps tie (two-tab)", () => {
+    const tA = "2026-09-03T08:10:00.000Z";
+    const tB = "2026-09-03T08:12:00.000Z";
+
+    // Tab B (local) holds the stale baseline brief plus its own proposal edit;
+    // the whole-project timestamps TIE because tab B's edit was the last
+    // whole-project change on the server too.
+    const local = mergeProject("p", tB, 3);
+    local.discoveryBrief = mergeBrief(T0, 40, "Acme Corp");
+    local.proposal = mergeProposal(tB, "Acme Proposal - tab B rev");
+
+    const backend = mergeProject("p", tB, 3);
+    backend.discoveryBrief = mergeBrief(tA, 72, "Acme Corp (tab A)");
+    backend.proposal = mergeProposal(tB, "Acme Proposal - tab B rev");
+
+    const { project, conflict } = mergeProjectVersionsForHydration(local, backend);
+
+    expect(project.discoveryBrief?.capturedPercent, "the other tab's newer brief must be adopted by embedded time").toBe(72);
+    expect(project.discoveryBrief?.roomModel?.customer).toBe("Acme Corp (tab A)");
+    expect(project.proposal?.title, "the reloading tab's own proposal must be kept").toBe("Acme Proposal - tab B rev");
+    expect(project.updatedAt).toBe(tB);
+    expect(conflict).toBe(false);
+  });
+
+  it("keeps the richer local sub-documents when the equal-aged backend row is thin (thin-row defense)", () => {
+    // Local: rich, based on revision 3. Backend: same revision and same whole
+    // timestamp, but its work-product fields are gone (legacy/allowlist row).
+    const local = mergeProject("p", T0, 3);
+    local.discoveryBrief = mergeBrief(T0, 55, "Acme Corp");
+    local.proposal = mergeProposal(T0, "Acme Proposal - base");
+
+    const backend = mergeProject("p", T0, 3);
+
+    const { project, conflict } = mergeProjectVersionsForHydration(local, backend);
+
+    expect(project.discoveryBrief?.capturedPercent, "the thin backend row must never displace richer local content").toBe(55);
+    expect(project.proposal?.title).toBe("Acme Proposal - base");
+    expect(conflict).toBe(false);
+  });
+
+  it("is a no-op when the reloading copy equals the backend copy (plain reload)", () => {
+    const local = mergeProject("p", T0, 2);
+    local.discoveryBrief = mergeBrief(T0, 55, "Acme Corp");
+    local.proposal = mergeProposal(T0, "Acme Proposal - base");
+    const backend = mergeProject("p", T0, 2);
+    backend.discoveryBrief = mergeBrief(T0, 55, "Acme Corp");
+    backend.proposal = mergeProposal(T0, "Acme Proposal - base");
+
+    const { project, conflict } = mergeProjectVersionsForHydration(local, backend);
+
+    expect(project.discoveryBrief?.capturedPercent).toBe(55);
+    expect(project.proposal?.title).toBe("Acme Proposal - base");
+    expect(project.updatedAt).toBe(T0);
+    expect(conflict).toBe(false);
+  });
+
+  it("adopts the backend wholesale when it is newer in every lane (no false conflict)", () => {
+    const tNew = "2026-09-03T09:00:00.000Z";
+    const local = mergeProject("p", T0, 1);
+    local.discoveryBrief = mergeBrief(T0, 40, "Acme Corp");
+    local.proposal = mergeProposal(T0, "Acme Proposal - base");
+
+    const backend = mergeProject("p", tNew, 2);
+    backend.discoveryBrief = mergeBrief(tNew, 88, "Acme Corp (new)");
+    backend.proposal = mergeProposal(tNew, "Acme Proposal - rev 2");
+
+    const { project, conflict } = mergeProjectVersionsForHydration(local, backend);
+
+    expect(project.discoveryBrief?.capturedPercent).toBe(88);
+    expect(project.proposal?.title).toBe("Acme Proposal - rev 2");
+    expect(project.syncRevision).toBe(2);
+    expect(conflict).toBe(false);
+  });
+
+  it("unions the append-mostly lanes by id: local-only kept, backend-only added, same id resolved to the backend row", () => {
+    const tNew = "2026-09-03T09:00:00.000Z";
+    const local = mergeProject("p", T0, 1);
+    const backend = mergeProject("p", tNew, 2);
+    const localRecord = local as unknown as { attachments: Array<{ id: string; name: string }> };
+    const backendRecord = backend as unknown as { attachments: Array<{ id: string; name: string }> };
+    localRecord.attachments = [
+      { id: "a1", name: "local-only" },
+      { id: "a2", name: "local a2" },
+    ];
+    backendRecord.attachments = [
+      { id: "a2", name: "backend a2" },
+      { id: "b1", name: "backend-only" },
+    ];
+
+    const { project } = mergeProjectVersionsForHydration(local, backend);
+
+    const merged = attachmentsOf(project);
+    expect(merged).toHaveLength(3);
+    expect(merged.map((item) => item?.name)).toEqual(["local-only", "backend a2", "backend-only"]);
+  });
+});
+
+describe("sync-conflict lane diffing (changedProjectLanes)", () => {
+  const T0 = "2026-09-03T08:00:00.000Z";
+
+  function laneProject(id: string, at: string): StoredProject {
+    return {
+      id,
+      name: "Conflict Test Project",
+      owner: "Tester",
+      ownerId: "tester-1",
+      stage: "Proposal Builder",
+      status: "recommended",
+      updated: "Just now",
+      resumeTo: "/wingman/proposal",
+      createdAt: at,
+      updatedAt: at,
+      syncRevision: 1,
+    };
+  }
+
+  it("returns [] when the merged document matches what we sent on every tracked lane", () => {
+    const sent = laneProject("p", T0);
+    sent.proposal = { title: "Acme Proposal", sections: [], products: [], assumptions: [], summary: "s", updatedAt: T0 };
+    // The server may reorder keys or bump the whole-project revision/time;
+    // neither may look like a team member changed content.
+    const returned = JSON.parse(JSON.stringify(sent));
+    returned.proposal = { updatedAt: T0, summary: "s", products: [], title: "Acme Proposal", assumptions: [], sections: [] };
+    returned.syncRevision = 2;
+    returned.updatedAt = "2026-09-03T09:00:00.000Z";
+    returned.auditTrail = [{ id: "server-row", action: "updated", detail: "server appended", actorName: "Wingman", severity: "info", createdAt: T0 }];
+
+    expect(changedProjectLanes(sent, returned)).toEqual([]);
+  });
+
+  it("flags the lanes whose server-accepted content differs from what we sent", () => {
+    const sent = laneProject("p", T0);
+    sent.discoveryBrief = { savedAt: T0, roomModel: { customer: "Acme" }, capturedPercent: 40, missingInformation: [], quoteSafetyStatus: "quote-ready" };
+    sent.requirements = [{ id: "req-a", updatedAt: T0, label: "ours" }];
+
+    const returned = JSON.parse(JSON.stringify(sent));
+    // Another member captured more of the brief and added a requirement.
+    returned.discoveryBrief.capturedPercent = 88;
+    returned.requirements.push({ id: "req-b", updatedAt: T0, label: "theirs" });
+
+    expect(changedProjectLanes(sent, returned)).toEqual(["discoveryBrief", "requirements"]);
+  });
+
+  it("flags a proposal lane where our same-item edit lost the tie to another member's", () => {
+    const sent = laneProject("p", T0);
+    sent.proposal = { title: "Proposal from us", sections: [], products: [], assumptions: [], summary: "ours", updatedAt: T0 };
+    const returned = JSON.parse(JSON.stringify(sent));
+    returned.proposal.title = "Proposal from the other member";
+    returned.proposal.updatedAt = "2026-09-03T08:30:00.000Z";
+
+    expect(changedProjectLanes(sent, returned)).toEqual(["proposal"]);
+  });
+
+  it("ignores lanes the server owns or reshapes (revision, timestamps, auditTrail, attachments)", () => {
+    const sent = laneProject("p", T0);
+    (sent as unknown as { attachments: unknown[] }).attachments = [{ id: "a1", name: "ours" }];
+    const returned = JSON.parse(JSON.stringify(sent));
+    returned.updatedAt = "2026-09-03T09:00:00.000Z";
+    returned.syncRevision = 5;
+    returned.auditTrail = [{ id: "server-row", action: "updated", detail: "x", actorName: "Wingman", severity: "info", createdAt: T0 }];
+    (returned as { attachments: unknown[] }).attachments = [{ id: "a1", name: "ours", uploadedBy: "server-user-id" }];
+
+    expect(changedProjectLanes(sent, returned)).toEqual([]);
+    expect(PROJECT_SYNC_CONFLICT_LANES).not.toContain("attachments");
+    expect(PROJECT_SYNC_CONFLICT_LANES).not.toContain("auditTrail");
+    expect(PROJECT_SYNC_CONFLICT_LANES).not.toContain("updatedAt");
+  });
+
+  it("ignores present-but-undefined keys a normalizer leaves behind (they never survive a JSON round trip)", () => {
+    const sent = laneProject("p", T0);
+    sent.discoveryBrief = {
+      savedAt: T0,
+      roomModel: { customer: "Acme Corp" },
+      capturedPercent: 40,
+      missingInformation: [],
+      quoteSafetyStatus: "quote-ready",
+    };
+    // normalizeDiscoveryBrief leaves empty-string/undefined keys on the in-
+    // memory doc; the server row is a JSON round trip, so those keys vanish.
+    const brief = sent.discoveryBrief as unknown as Record<string, unknown>;
+    brief.returnRoute = undefined;
+    brief.nextBestQuestion = undefined;
+    const returned = JSON.parse(JSON.stringify(sent));
+
+    expect(changedProjectLanes(sent, returned)).toEqual([]);
+
+    // Control: a genuinely present value on either side IS a change.
+    const returnedWithValue = JSON.parse(JSON.stringify(sent));
+    (returnedWithValue.discoveryBrief as Record<string, unknown>).capturedPercent = 88;
+    expect(changedProjectLanes(sent, returnedWithValue)).toEqual(["discoveryBrief"]);
+  });
+
+  it("returns [] for a missing sent document or malformed returned document", () => {
+    expect(changedProjectLanes(undefined, { id: "p" })).toEqual([]);
+    expect(changedProjectLanes(laneProject("p", T0), null)).toEqual([]);
+  });
+
+  it("maps lane keys to human labels with a prettified fallback", () => {
+    expect(projectLaneLabel("proposal")).toBe("Proposal");
+    expect(projectLaneLabel("discoveryBrief")).toBe("Discovery brief");
+    expect(projectLaneLabel("productSelections")).toBe("Product selections");
+    expect(projectLaneLabel("madeUpLane")).toBe("Made Up Lane");
+    expect(PROJECT_SYNC_CONFLICT_LANES.length).toBeGreaterThanOrEqual(14);
+  });
+});
+
+describe("syncConflict persistence and normalization", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Earlier tests seed localStorageMock.getItem with canned return values
+    // (mockReturnValue) that shadow the real closure store and are NOT cleared
+    // by vi.clearAllMocks, so this describe installs hermetic, isolated
+    // implementations that only it uses.
+    const isolated = new Map<string, string>();
+    localStorageMock.getItem.mockImplementation((key: string) => isolated.get(key) ?? null);
+    localStorageMock.setItem.mockImplementation((key: string, value: string) => {
+      isolated.set(key, value);
+    });
+    localStorageMock.removeItem.mockImplementation((key: string) => {
+      isolated.delete(key);
+    });
+    localStorageMock.clear.mockImplementation(() => {
+      isolated.clear();
+    });
+    Object.defineProperty(window, "localStorage", { value: localStorageMock, writable: true });
+    window.dispatchEvent = dispatchEventMock;
+  });
+
+  it("survives a write/read round trip so the badge shows after a reload", () => {
+    const project = {
+      id: "conflict-proj",
+      name: "Conflict Project",
+      owner: "Tester",
+      ownerId: "tester-1",
+      stage: "Discovery",
+      status: "recommended",
+      updated: "Just now",
+      resumeTo: "/wingman/discovery",
+      createdAt: "2026-09-03T08:00:00.000Z",
+      updatedAt: "2026-09-03T08:00:00.000Z",
+      syncRevision: 3,
+      syncConflict: { fields: ["proposal", "requirements"], detectedAt: "2026-09-03T08:45:00.000Z" },
+    } satisfies StoredProject;
+    writeProjectStore({ projects: [project], proposalDrafts: [], activeProjectId: project.id }, { syncBackend: false });
+
+    const reloaded = readProjectStore().projects.find((item) => item.id === project.id);
+    expect(reloaded?.syncConflict?.fields).toEqual(["proposal", "requirements"]);
+    expect(reloaded?.syncConflict?.detectedAt).toBe("2026-09-03T08:45:00.000Z");
+  });
+
+  it("drops malformed or empty conflict records on read", () => {
+    const rawProject = {
+      id: "junk-proj",
+      name: "Junk Project",
+      owner: "Tester",
+      ownerId: "tester-1",
+      stage: "Discovery",
+      status: "recommended",
+      updated: "Just now",
+      resumeTo: "/wingman/discovery",
+      createdAt: "2026-09-03T08:00:00.000Z",
+      updatedAt: "2026-09-03T08:00:00.000Z",
+      syncConflict: { fields: ["proposal", "", "proposal"], detectedAt: "" },
+    };
+    writeProjectStore(
+      { projects: [rawProject as StoredProject], proposalDrafts: [], activeProjectId: rawProject.id },
+      { syncBackend: false },
+    );
+
+    const reloaded = readProjectStore().projects.find((item) => item.id === rawProject.id);
+    expect(reloaded?.syncConflict?.fields).toEqual(["proposal"]);
+    expect(reloaded?.syncConflict?.detectedAt).toBeTruthy();
+
+    const emptyConflict = {
+      ...rawProject,
+      id: "empty-proj",
+      syncConflict: { fields: [], detectedAt: "2026-09-03T08:00:00.000Z" },
+    };
+    writeProjectStore(
+      { projects: [emptyConflict as StoredProject], proposalDrafts: [], activeProjectId: emptyConflict.id },
+      { syncBackend: false },
+    );
+    const reloadedEmpty = readProjectStore().projects.find((item) => item.id === emptyConflict.id);
+    expect(reloadedEmpty?.syncConflict).toBeUndefined();
+  });
+});
+
+describe("buildHydrationSinceManifest (incremental pull)", () => {
+  it("reports the last syncRevision of every synced, non-flagged project", () => {
+    const projects = [
+      { id: "current", syncRevision: 3, updatedAt: "2026-09-03T09:00:00.000Z" },
+      { id: "member-moved", syncRevision: 1, updatedAt: "2026-09-03T09:00:00.000Z" },
+    ] as StoredProject[];
+    expect(buildHydrationSinceManifest(projects)).toEqual({ current: 3, "member-moved": 1 });
+  });
+
+  it("forces a pull for syncConflict-flagged projects by reporting revision 0", () => {
+    const projects = [
+      {
+        id: "flagged",
+        syncRevision: 3,
+        syncConflict: { fields: ["proposal"], detectedAt: "2026-09-03T09:00:00.000Z" },
+        updatedAt: "2026-09-03T09:00:00.000Z",
+      },
+    ] as StoredProject[];
+    // 0 < any real row revision, so the server always returns the row and the
+    // hydration merge can adopt the member's newer content (the flag means the
+    // reported 3 was adopted without the row's content).
+    expect(buildHydrationSinceManifest(projects)).toEqual({ flagged: 0 });
+  });
+
+  it("reports 0 for never-synced local projects (server treats them as unknown or legacy)", () => {
+    const projects = [{ id: "pending-upload", updatedAt: "2026-09-03T09:00:00.000Z" }] as StoredProject[];
+    expect(buildHydrationSinceManifest(projects)).toEqual({ "pending-upload": 0 });
+  });
+
+  it("an empty store yields an empty manifest (a first load pulls everything)", () => {
+    expect(buildHydrationSinceManifest([])).toEqual({});
   });
 });

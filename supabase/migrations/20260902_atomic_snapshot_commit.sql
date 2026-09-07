@@ -37,6 +37,7 @@ language plpgsql
 security invoker
 set search_path = public
 as $$
+#variable_conflict use_variable
 declare
   v_users      int := 0;
   v_workspaces int := 0;

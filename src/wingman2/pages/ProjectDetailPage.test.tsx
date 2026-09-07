@@ -14,6 +14,7 @@ const { deleteProject, updateStoredProject, storedProject } = vi.hoisted(() => (
     updated: "Today",
     updatedAt: "2026-08-04T09:00:00.000Z",
     resumeTo: "/wingman/discovery",
+    syncConflict: undefined as { fields: string[]; detectedAt: string } | undefined,
     requirements: [],
     productSelections: [],
     compareRuns: [],
@@ -35,6 +36,7 @@ vi.mock("../data/projectStore", () => ({
   setActiveProjectId: vi.fn(),
   saveProjectRequirementsToProject: vi.fn(),
   updateStoredProject: (...args: unknown[]) => updateStoredProject(...args),
+  projectLaneLabel: (lane: string) => (lane === "proposal" ? "Proposal" : lane === "requirements" ? "Requirements" : lane),
   useProjectStore: () => ({
     projects: [storedProject],
     syncStatus: { state: "local", message: "Saved in this browser." },
@@ -59,6 +61,16 @@ describe("Project Detail review controls", () => {
   beforeEach(() => {
     deleteProject.mockClear();
     updateStoredProject.mockClear();
+    delete storedProject.syncConflict;
+  });
+
+  it("warns with the changed lanes when a team member edited the project since our last sync", () => {
+    storedProject.syncConflict = { fields: ["proposal", "requirements"], detectedAt: "2026-08-04T10:00:00.000Z" };
+    renderPage();
+
+    const banner = screen.getByRole("region", { name: "Team member changes" });
+    expect(banner.textContent).toContain("A team member changed Proposal, Requirements since your last sync.");
+    expect(banner.textContent).toContain("Reload the page");
   });
 
   it("renders persistent review navigation and edits project metadata", () => {

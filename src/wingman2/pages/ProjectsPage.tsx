@@ -6,6 +6,7 @@ import { FeedbackConsolidationPanel } from "../components/FeedbackConsolidationP
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
+import { projectLaneLabel } from "../data/projectSyncConflict";
 import { useTeamMembers } from "../data/useTeamMembers";
 import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { createProjectFromTemplate } from "../lib/projectFromTemplate";
@@ -21,6 +22,14 @@ function projectStatusLabel(status: StoredProject["status"]) {
   if (status === "recommended") return "On track";
   if (status === "alternative") return "In progress";
   return "Needs review";
+}
+
+/** Compact "Team changed: ..." summary for a per-project conflict badge. */
+function changedLanesLabel(fields: string[], maxVisible = 2): string {
+  const labels = fields.map(projectLaneLabel);
+  const visible = labels.slice(0, maxVisible).join(", ");
+  const extra = labels.length > maxVisible ? ` +${labels.length - maxVisible} more` : "";
+  return visible + extra;
 }
 
 function syncStatusVariant(state: StoredProjectSyncStatus["state"]): StatusChipVariant {
@@ -339,7 +348,20 @@ export function ProjectsPage() {
                     const ownerDisplayName = project.ownerId ? getMemberName(project.ownerId) : project.owner;
                     return (
                     <tr key={project.id} className="border-t wm-ui-card">
-                      <td className="px-4 py-3 font-semibold text-[#edf6ff]" data-label="Project">{project.name}</td>
+                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Project">
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="font-semibold">{project.name}</span>
+                          {project.syncConflict?.fields?.length ? (
+                            <StatusChip
+                              variant="warning"
+                              label={`Team changed: ${changedLanesLabel(project.syncConflict.fields)}`}
+                              className="text-xs leading-4"
+                              title={`A team member changed ${project.syncConflict.fields.map(projectLaneLabel).join(", ")} since your last sync (${new Date(project.syncConflict.detectedAt).toLocaleString()}). Reload the project to review their latest changes.`}
+                              icon={<AlertTriangle className="h-3.5 w-3.5" />}
+                            />
+                          ) : null}
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-[#edf6ff]" data-label="Owner">
                         <div className="wm-projects-owner-cell">
                           <span className="wm-projects-owner-avatar" aria-hidden="true">

@@ -34,6 +34,7 @@ language plpgsql
 security invoker
 set search_path = public
 as $$
+#variable_conflict use_variable
 declare
   v_ledger int := 0;
 begin

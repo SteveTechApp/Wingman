@@ -37,7 +37,9 @@ import {
   handleWingmanHealthGet,
   handleWingmanProjectAttachmentsPost,
   handleWingmanProjectCommentsPost,
+  handleWingmanProjectGet,
   handleWingmanProjectMarkReadyPost,
+  handleWingmanProjectPut,
   handleWingmanProjectsGet,
   handleWingmanProjectsSyncPost,
   handleWingmanProjectSharesPost,
@@ -2321,6 +2323,18 @@ const ROUTES = [
     method: "POST",
     path: "/api/wingman/projects/sync",
     handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanProjectsSyncPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "GET",
+    pattern: /^\/api\/wingman\/projects\/([^/]+)$/,
+    handler: (req, res, url, { sendJson }, params) =>
+      handleWingmanProjectGet(req, res, url, decodeURIComponent(params[1] || ""), { sendJson }),
+  },
+  {
+    method: "PUT",
+    pattern: /^\/api\/wingman\/projects\/([^/]+)$/,
+    handler: (req, res, url, { sendJson, parseJsonBody }, params) =>
+      handleWingmanProjectPut(req, res, url, decodeURIComponent(params[1] || ""), { sendJson, parseJsonBody }),
   },
   {
     method: "POST",
