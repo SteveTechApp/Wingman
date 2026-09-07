@@ -1310,13 +1310,6 @@
           "detail": "1x HDMI female Type A"
         },
         {
-          "count": 12,
-          "connector": "SFP / fibre",
-          "direction": "output",
-          "category": "video",
-          "detail": "12x optical and 16x digital zoom"
-        },
-        {
           "count": 1,
           "connector": "USB",
           "direction": "output",
@@ -1329,13 +1322,6 @@
           "direction": "output",
           "category": "network",
           "detail": "1x RJ45 8-pin LAN"
-        },
-        {
-          "count": 12,
-          "connector": "SFP / fibre",
-          "direction": "output",
-          "category": "video",
-          "detail": "12x optical and 4x digital zoom"
         }
       ],
       "video": [
@@ -2777,7 +2763,7 @@
         },
         {
           "count": 1,
-          "connector": "Analog audio",
+          "connector": "Phoenix / Euroblock",
           "direction": "output",
           "category": "audio",
           "detail": "1x 5-pin Phoenix (balanced audio out)"
@@ -4752,14 +4738,16 @@
           "connector": "HDMI",
           "direction": "input",
           "category": "video",
-          "detail": "HDMI 2.1 input"
+          "evidence": "Governed topology: 1x2 HDMI splitter",
+          "logicalFunction": "source-input"
         },
         {
           "count": 2,
           "connector": "HDMI",
           "direction": "output",
           "category": "video",
-          "detail": "2x HDMI 2.1 out; output 2 can downscale 8K->4K or 4K->1080p"
+          "evidence": "Governed topology: 1x2 mirrored HDMI distribution",
+          "logicalFunction": "mirrored-output"
         }
       ],
       "dependencies": [
@@ -4840,14 +4828,16 @@
           "connector": "HDMI",
           "direction": "input",
           "category": "video",
-          "detail": "HDMI input"
+          "evidence": "Governed topology: 1x2 HDMI splitter",
+          "logicalFunction": "source-input"
         },
         {
           "count": 2,
           "connector": "HDMI",
           "direction": "output",
           "category": "video",
-          "detail": "2x HDMI out, each with a 4K->1080p downscaler"
+          "evidence": "Governed topology: 1x2 mirrored HDMI distribution",
+          "logicalFunction": "mirrored-output"
         }
       ],
       "dependencies": [
@@ -4927,14 +4917,16 @@
           "connector": "HDMI",
           "direction": "input",
           "category": "video",
-          "detail": "HDMI input"
+          "evidence": "Governed topology: 1x4 HDMI splitter",
+          "logicalFunction": "source-input"
         },
         {
           "count": 4,
           "connector": "HDMI",
           "direction": "output",
           "category": "video",
-          "detail": "4x HDMI out, each with a 4K->1080p downscaler"
+          "evidence": "Governed topology: 1x4 mirrored HDMI distribution",
+          "logicalFunction": "mirrored-output"
         }
       ],
       "dependencies": [
@@ -11610,7 +11602,7 @@
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "Phoenix / Euroblock",
           "direction": "input",
           "category": "audio",
           "detail": "1x 5-pin Balanced Analog Audio"
@@ -11624,7 +11616,7 @@
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "Phoenix / Euroblock",
           "direction": "output",
           "category": "audio",
           "detail": "1x 5-pin Balanced Analog Audio Out"
@@ -13509,14 +13501,16 @@
           "connector": "HDMI",
           "direction": "input",
           "category": "video",
-          "detail": "HDMI input"
+          "evidence": "Governed topology: 1x4 HDMI splitter",
+          "logicalFunction": "source-input"
         },
         {
           "count": 4,
           "connector": "HDMI",
           "direction": "output",
           "category": "video",
-          "detail": "4x duplicate HDMI outputs"
+          "evidence": "Governed topology: 1x4 mirrored HDMI distribution",
+          "logicalFunction": "mirrored-output"
         }
       ],
       "dependencies": [
@@ -13594,20 +13588,6 @@
       "ports": [
         {
           "count": 1,
-          "connector": "HDMI",
-          "direction": "input",
-          "category": "video",
-          "detail": "HDMI input"
-        },
-        {
-          "count": 8,
-          "connector": "HDMI",
-          "direction": "output",
-          "category": "video",
-          "detail": "8x HDMI out, each with a 4K->1080p downscaler (dipswitch/API)"
-        },
-        {
-          "count": 1,
           "connector": "3.5mm",
           "direction": "output",
           "category": "audio",
@@ -13619,6 +13599,22 @@
           "direction": "output",
           "category": "audio",
           "detail": "S/PDIF de-embed"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "evidence": "Governed topology: 1x8 HDMI splitter",
+          "logicalFunction": "source-input"
+        },
+        {
+          "count": 8,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "evidence": "Governed topology: 1x8 mirrored HDMI distribution",
+          "logicalFunction": "mirrored-output"
         }
       ],
       "dependencies": [

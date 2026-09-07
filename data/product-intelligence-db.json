@@ -2435,8 +2435,8 @@
       "title": "8K60Hz 4:4:4 1x2 HDMI Splitter",
       "description": "8K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | Audio De-embed | Down-Scaler",
       "summary": "8K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | Audio De-embed | Down-Scaler",
-      "category": "Audio / control",
-      "family": "Audio / control",
+      "category": "HDMI splitter",
+      "family": "Splitter / Distribution",
       "technologies": [
         "HDMI",
         "Audio",
@@ -2473,8 +2473,8 @@
       ],
       "routingClass": "Other",
       "source": "2026 WyreStorm SKU spreadsheet",
-      "routedInputs": 1,
-      "routedOutputs": 2,
+      "routedInputs": 0,
+      "routedOutputs": 0,
       "routedInputCount": 1,
       "routedOutputCount": 2,
       "matrixInputs": 1,
@@ -2486,7 +2486,13 @@
       "physicalOutputs": 2,
       "physicalOutputCount": 2,
       "mirroredOutputs": 2,
-      "mirroredOutputCount": 2
+      "mirroredOutputCount": 2,
+      "productClass": "HDMI splitter",
+      "role": "distribution amplifier",
+      "topologyType": "one-to-many-mirrored",
+      "outputBehaviour": "mirrored",
+      "logicalInputs": 1,
+      "logicalOutputs": 2
     },
     {
       "brand": "WyreStorm",
@@ -2497,7 +2503,7 @@
       "description": "4K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler",
       "summary": "4K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler",
       "category": "HDMI splitter",
-      "family": "HDMI splitter",
+      "family": "Splitter / Distribution",
       "technologies": [
         "HDMI",
         "Scaling",
@@ -2525,8 +2531,8 @@
       ],
       "routingClass": "Distribution",
       "source": "2026 WyreStorm SKU spreadsheet",
-      "routedInputs": 1,
-      "routedOutputs": 2,
+      "routedInputs": 0,
+      "routedOutputs": 0,
       "routedInputCount": 1,
       "routedOutputCount": 2,
       "matrixInputs": 1,
@@ -2538,7 +2544,13 @@
       "physicalOutputs": 2,
       "physicalOutputCount": 2,
       "mirroredOutputs": 2,
-      "mirroredOutputCount": 2
+      "mirroredOutputCount": 2,
+      "productClass": "HDMI splitter",
+      "role": "distribution amplifier",
+      "topologyType": "one-to-many-mirrored",
+      "outputBehaviour": "mirrored",
+      "logicalInputs": 1,
+      "logicalOutputs": 2
     },
     {
       "brand": "WyreStorm",
@@ -2549,7 +2561,7 @@
       "description": "4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler",
       "summary": "4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler",
       "category": "HDMI splitter",
-      "family": "HDMI splitter",
+      "family": "Splitter / Distribution",
       "technologies": [
         "HDMI",
         "Scaling",
@@ -2577,8 +2589,8 @@
       ],
       "routingClass": "Distribution",
       "source": "2026 WyreStorm SKU spreadsheet",
-      "routedInputs": 1,
-      "routedOutputs": 4,
+      "routedInputs": 0,
+      "routedOutputs": 0,
       "routedInputCount": 1,
       "routedOutputCount": 4,
       "matrixInputs": 1,
@@ -2590,7 +2602,13 @@
       "physicalOutputs": 4,
       "physicalOutputCount": 4,
       "mirroredOutputs": 4,
-      "mirroredOutputCount": 4
+      "mirroredOutputCount": 4,
+      "productClass": "HDMI splitter",
+      "role": "distribution amplifier",
+      "topologyType": "one-to-many-mirrored",
+      "outputBehaviour": "mirrored",
+      "logicalInputs": 1,
+      "logicalOutputs": 4
     },
     {
       "brand": "WyreStorm",
@@ -6568,7 +6586,7 @@
       "description": "4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | EDID Management",
       "summary": "4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | EDID Management",
       "category": "HDMI splitter",
-      "family": "HDMI splitter",
+      "family": "Splitter / Distribution",
       "technologies": [
         "HDMI",
         "4K60"
@@ -6593,8 +6611,8 @@
       ],
       "routingClass": "Distribution",
       "source": "2026 WyreStorm SKU spreadsheet",
-      "routedInputs": 1,
-      "routedOutputs": 4,
+      "routedInputs": 0,
+      "routedOutputs": 0,
       "routedInputCount": 1,
       "routedOutputCount": 4,
       "matrixInputs": 1,
@@ -6606,7 +6624,13 @@
       "physicalOutputs": 4,
       "physicalOutputCount": 4,
       "mirroredOutputs": 4,
-      "mirroredOutputCount": 4
+      "mirroredOutputCount": 4,
+      "productClass": "HDMI splitter",
+      "role": "distribution amplifier",
+      "topologyType": "one-to-many-mirrored",
+      "outputBehaviour": "mirrored",
+      "logicalInputs": 1,
+      "logicalOutputs": 4
     },
     {
       "brand": "WyreStorm",
@@ -6616,8 +6640,8 @@
       "title": "4K60Hz 4:4:4 1x8 HDMI Splitter",
       "description": "4K60Hz 4:4:4 1x8 HDMI Splitter | Dolby Vision & HDR | EDID Management | Down-Scaling | Audio De-embed",
       "summary": "4K60Hz 4:4:4 1x8 HDMI Splitter | Dolby Vision & HDR | EDID Management | Down-Scaling | Audio De-embed",
-      "category": "Audio / control",
-      "family": "Audio / control",
+      "category": "HDMI splitter",
+      "family": "Splitter / Distribution",
       "technologies": [
         "HDMI",
         "Audio",
@@ -6654,8 +6678,8 @@
       ],
       "routingClass": "Other",
       "source": "2026 WyreStorm SKU spreadsheet",
-      "routedInputs": 1,
-      "routedOutputs": 8,
+      "routedInputs": 0,
+      "routedOutputs": 0,
       "routedInputCount": 1,
       "routedOutputCount": 8,
       "matrixInputs": 1,
@@ -6667,7 +6691,13 @@
       "physicalOutputs": 8,
       "physicalOutputCount": 8,
       "mirroredOutputs": 8,
-      "mirroredOutputCount": 8
+      "mirroredOutputCount": 8,
+      "productClass": "HDMI splitter",
+      "role": "distribution amplifier",
+      "topologyType": "one-to-many-mirrored",
+      "outputBehaviour": "mirrored",
+      "logicalInputs": 1,
+      "logicalOutputs": 8
     },
     {
       "brand": "WyreStorm",

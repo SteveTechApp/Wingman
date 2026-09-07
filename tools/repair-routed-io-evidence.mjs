@@ -28,7 +28,14 @@ const REPORT_DIR = path.join(ROOT, "reports");
 const REPORT_JSON = path.join(REPORT_DIR, "routed-io-repair-report.json");
 const REPORT_MD = path.join(REPORT_DIR, "routed-io-repair-report.md");
 
-const SEARCH_DIRS = ["public", "data"];
+// Validate only artefacts onto which the canonical generators deliberately
+// project this authority. Other JSON files are source databases, audits or
+// historical/runtime snapshots and are not generated projections.
+const SEARCH_TARGETS = [
+  "data/wingman-canonical-product-store.json",
+  "data/catalog/competitor-products.generated.json",
+  "public/product-intelligence-index.json",
+];
 
 const EXCLUDED_DIRS = new Set([
   ".git",
@@ -85,11 +92,16 @@ function getSku(record) {
   return "";
 }
 
-function listJsonFiles(startDir) {
-  const absoluteStart = path.join(ROOT, startDir);
+function listJsonFiles(startPath) {
+  const absoluteStart = path.join(ROOT, startPath);
 
   if (!fs.existsSync(absoluteStart)) {
     return [];
+  }
+
+  const stat = fs.statSync(absoluteStart);
+  if (stat.isFile()) {
+    return absoluteStart.toLowerCase().endsWith(".json") ? [absoluteStart] : [];
   }
 
   const files = [];
@@ -152,12 +164,13 @@ function readJsonFile(filePath) {
 
 function run() {
   const evidence = loadRoutedIoEvidence();
-  const jsonFiles = SEARCH_DIRS.flatMap(listJsonFiles);
+  const jsonFiles = SEARCH_TARGETS.flatMap(listJsonFiles);
 
   const report = {
     mode: "check",
     generatedAt: new Date().toISOString(),
     evidenceFile: path.relative(ROOT, path.join(ROOT, "data", "governance", "routed-io-evidence.json")),
+    searchTargets: SEARCH_TARGETS,
     filesScanned: jsonFiles.length,
     filesSkipped: 0,
     productsMatched: 0,

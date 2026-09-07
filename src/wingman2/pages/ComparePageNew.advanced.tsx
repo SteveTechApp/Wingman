@@ -2242,8 +2242,8 @@ function compareSignalDirection(profile: CompetitorProfile): string {
   }
 
   // Distribution amplifier: implicit 1:N fan-out
-  if (productClass.includes("distribution") || role.includes("splitter")) {
-    return "One-to-many distribution";
+  if (productClass.includes("distribution") || role.includes("splitter") || role.includes("distribution amplifier")) {
+    return "One source to mirrored display outputs";
   }
 
   if (role.includes("processor")) return "Processing path";
@@ -2880,6 +2880,7 @@ function roleSignalDirection(role: string): string {
   if (/tx\/rx extender kit|usb extender|extender/.test(value)) return "Point-to-point source-to-display extension";
   if (/matrix/.test(value)) return "Local routed source-to-display switching";
   if (/presentation switcher|switcher/.test(value)) return "In-room source switching";
+  if (/distribution amplifier|splitter/.test(value)) return "One source to mirrored display outputs";
   if (/video wall/.test(value)) return "Dedicated video wall processing";
 
   return "System direction needs confirmation";

@@ -22,7 +22,9 @@
         "Speaker output",
         "Mic/Line input",
         "Line output",
-        "LAN"
+        "LAN",
+        "RS-232",
+        "Trigger input"
       ],
       "features": [
         "Audio / Control",
@@ -105,12 +107,51 @@
               "evidence": "Trigger input"
             }
           ],
-          "video": [],
-          "audio": [],
-          "usb": [],
-          "network": [],
-          "control": [],
-          "power": []
+          "power": [],
+          "other": [
+            {
+              "count": 1,
+              "connector": "Speaker output",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Speaker output"
+            },
+            {
+              "count": 1,
+              "connector": "Mic/Line input",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Mic/Line input"
+            },
+            {
+              "count": 1,
+              "connector": "Line output",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Line output"
+            },
+            {
+              "count": 1,
+              "connector": "LAN",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "LAN"
+            },
+            {
+              "count": 1,
+              "connector": "RS-232",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "RS-232"
+            },
+            {
+              "count": 1,
+              "connector": "Trigger input",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Trigger input"
+            }
+          ]
         }
       }
     },
@@ -122,7 +163,15 @@
       "description": "DISCONTINUED Part of the Unified Communication line of products, the CAM-200-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A ",
       "summary": "DISCONTINUED Part of the Unified Communication line of products, the CAM-200-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A ",
       "technologies": [],
-      "connectors": [],
+      "connectors": [
+        "USB",
+        "RJ45 / Ethernet",
+        "RJ-45 Female 1x RJ-45 Female",
+        "Mini Din 1x Mini Din (max length 30m)",
+        "CAM-200-PTZ camera 1x CAM-200-PTZ camera",
+        "12V DC 1.5A Power Supply 1x 12V DC 1.5A Power Supply (US/UK/EU/AU)",
+        "RS-232"
+      ],
       "features": [
         "USB",
         "Camera / Capture",
@@ -190,13 +239,6 @@
               "evidence": "1x 8-pin Mini Din (max length 30m)"
             },
             {
-              "count": 12,
-              "connector": "SFP / fibre",
-              "direction": "output",
-              "category": "video",
-              "evidence": "12x optical and 4x digital zoom"
-            },
-            {
               "count": 1,
               "connector": "CAM-200-PTZ camera 1x CAM-200-PTZ camera",
               "direction": "output",
@@ -212,20 +254,6 @@
             },
             {
               "count": 1,
-              "connector": "IR",
-              "direction": "output",
-              "category": "control",
-              "evidence": "1x IR Remote"
-            },
-            {
-              "count": 1,
-              "connector": "Wall Mount 1x Wall Mount",
-              "direction": "output",
-              "category": "other",
-              "evidence": "1x Wall Mount"
-            },
-            {
-              "count": 1,
               "connector": "RS-232",
               "direction": "output",
               "category": "control",
@@ -237,25 +265,42 @@
               "direction": "output",
               "category": "usb",
               "evidence": "1x 1.5m USB 3.0 Type B host cable"
+            }
+          ],
+          "accessories": [
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 4x digital zoom",
+              "semanticDisposition": "accessory-or-capability"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR Remote",
+              "semanticDisposition": "accessory-or-capability"
+            },
+            {
+              "count": 1,
+              "connector": "Wall Mount 1x Wall Mount",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x Wall Mount",
+              "semanticDisposition": "accessory-or-capability"
             },
             {
               "count": 1,
               "connector": "QuickStart Guide 1x QuickStart Guide",
               "direction": "output",
               "category": "other",
-              "evidence": "1x QuickStart Guide"
+              "evidence": "1x QuickStart Guide",
+              "semanticDisposition": "accessory-or-capability"
             }
           ],
-          "video": [
-            {
-              "count": 12,
-              "connector": "SFP / fibre",
-              "direction": "output",
-              "category": "video",
-              "evidence": "12x optical and 4x digital zoom"
-            }
-          ],
-          "audio": [],
           "usb": [
             {
               "count": 1,
@@ -279,22 +324,6 @@
               "direction": "output",
               "category": "network",
               "evidence": "1x RJ45 8-pin LAN"
-            }
-          ],
-          "control": [
-            {
-              "count": 1,
-              "connector": "IR",
-              "direction": "output",
-              "category": "control",
-              "evidence": "1x IR Remote"
-            },
-            {
-              "count": 1,
-              "connector": "RS-232",
-              "direction": "output",
-              "category": "control",
-              "evidence": "1x 2m 8 pin Mini Din RS-232 cable"
             }
           ],
           "other": [
@@ -325,20 +354,15 @@
               "direction": "output",
               "category": "other",
               "evidence": "1x 12V DC 1.5A Power Supply (US/UK/EU/AU)"
-            },
+            }
+          ],
+          "control": [
             {
               "count": 1,
-              "connector": "Wall Mount 1x Wall Mount",
+              "connector": "RS-232",
               "direction": "output",
-              "category": "other",
-              "evidence": "1x Wall Mount"
-            },
-            {
-              "count": 1,
-              "connector": "QuickStart Guide 1x QuickStart Guide",
-              "direction": "output",
-              "category": "other",
-              "evidence": "1x QuickStart Guide"
+              "category": "control",
+              "evidence": "1x 2m 8 pin Mini Din RS-232 cable"
             }
           ]
         }
@@ -362,10 +386,15 @@
         "Network"
       ],
       "connectors": [
+        "USB",
         "HDMI",
-        "USB-A/B",
-        "RJ45 / network",
-        "USB"
+        "RJ-45 Female 1x RJ-45 Female",
+        "Mini Din 1x Mini Din (max length 30m)",
+        "RJ45 / Ethernet",
+        "CAM-210-PTZ camera 1x CAM-210-PTZ camera",
+        "12V DC 1A Power Supply 1x 12V DC 1A Power Supply (US/UK/EU/AU)",
+        "RS-232",
+        "USB-C"
       ],
       "features": [
         "USB",
@@ -434,13 +463,6 @@
               "evidence": "1x 8-pin Mini Din (max length 30m)"
             },
             {
-              "count": 12,
-              "connector": "SFP / fibre",
-              "direction": "output",
-              "category": "video",
-              "evidence": "12x optical and 16x digital zoom"
-            },
-            {
               "count": 1,
               "connector": "USB",
               "direction": "output",
@@ -462,13 +484,6 @@
               "evidence": "1x 8-pin RJ-45 Female"
             },
             {
-              "count": 12,
-              "connector": "SFP / fibre",
-              "direction": "output",
-              "category": "video",
-              "evidence": "12x optical and 4x digital zoom"
-            },
-            {
               "count": 1,
               "connector": "CAM-210-PTZ camera 1x CAM-210-PTZ camera",
               "direction": "output",
@@ -484,20 +499,6 @@
             },
             {
               "count": 1,
-              "connector": "IR",
-              "direction": "output",
-              "category": "control",
-              "evidence": "1x IR Remote"
-            },
-            {
-              "count": 1,
-              "connector": "Wall Mount 1x Wall Mount",
-              "direction": "output",
-              "category": "other",
-              "evidence": "1x Wall Mount"
-            },
-            {
-              "count": 1,
               "connector": "RS-232",
               "direction": "output",
               "category": "control",
@@ -509,39 +510,50 @@
               "direction": "output",
               "category": "usb",
               "evidence": "1x USB 3.0 Type-C to A cable"
+            }
+          ],
+          "accessories": [
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 16x digital zoom",
+              "semanticDisposition": "accessory-or-capability"
+            },
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 4x digital zoom",
+              "semanticDisposition": "accessory-or-capability"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR Remote",
+              "semanticDisposition": "accessory-or-capability"
+            },
+            {
+              "count": 1,
+              "connector": "Wall Mount 1x Wall Mount",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x Wall Mount",
+              "semanticDisposition": "accessory-or-capability"
             },
             {
               "count": 1,
               "connector": "QuickStart Guide 1x QuickStart Guide",
               "direction": "output",
               "category": "other",
-              "evidence": "1x QuickStart Guide"
+              "evidence": "1x QuickStart Guide",
+              "semanticDisposition": "accessory-or-capability"
             }
           ],
-          "video": [
-            {
-              "count": 1,
-              "connector": "HDMI",
-              "direction": "output",
-              "category": "video",
-              "evidence": "1x HDMI female Type A"
-            },
-            {
-              "count": 12,
-              "connector": "SFP / fibre",
-              "direction": "output",
-              "category": "video",
-              "evidence": "12x optical and 16x digital zoom"
-            },
-            {
-              "count": 12,
-              "connector": "SFP / fibre",
-              "direction": "output",
-              "category": "video",
-              "evidence": "12x optical and 4x digital zoom"
-            }
-          ],
-          "audio": [],
           "usb": [
             {
               "count": 1,
@@ -565,29 +577,13 @@
               "evidence": "1x USB 3.0 Type-C to A cable"
             }
           ],
-          "network": [
+          "video": [
             {
               "count": 1,
-              "connector": "RJ45 / Ethernet",
+              "connector": "HDMI",
               "direction": "output",
-              "category": "network",
-              "evidence": "1x RJ45 8-pin LAN"
-            }
-          ],
-          "control": [
-            {
-              "count": 1,
-              "connector": "IR",
-              "direction": "output",
-              "category": "control",
-              "evidence": "1x IR Remote"
-            },
-            {
-              "count": 1,
-              "connector": "RS-232",
-              "direction": "output",
-              "category": "control",
-              "evidence": "1x 2m 8 pin Mini Din RS-232 cable"
+              "category": "video",
+              "evidence": "1x HDMI female Type A"
             }
           ],
           "other": [
@@ -625,20 +621,24 @@
               "direction": "output",
               "category": "other",
               "evidence": "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
-            },
+            }
+          ],
+          "network": [
             {
               "count": 1,
-              "connector": "Wall Mount 1x Wall Mount",
+              "connector": "RJ45 / Ethernet",
               "direction": "output",
-              "category": "other",
-              "evidence": "1x Wall Mount"
-            },
+              "category": "network",
+              "evidence": "1x RJ45 8-pin LAN"
+            }
+          ],
+          "control": [
             {
               "count": 1,
-              "connector": "QuickStart Guide 1x QuickStart Guide",
+              "connector": "RS-232",
               "direction": "output",
-              "category": "other",
-              "evidence": "1x QuickStart Guide"
+              "category": "control",
+              "evidence": "1x 2m 8 pin Mini Din RS-232 cable"
             }
           ]
         }
@@ -662,10 +662,12 @@
         "Matrix"
       ],
       "connectors": [
-        "HDMI",
+        "Phoenix / Euroblock",
         "HDBaseT",
-        "Audio analogue",
-        "RJ45 / Ethernet"
+        "MX-0808-KIT Matrix 1x MX-0808-KIT Matrix",
+        "MX-KIT-RX Receivers 8x MX-KIT-RX Receivers",
+        "AC Power Cord 1x AC Power Cord (UK/US/EU)",
+        "IR"
       ],
       "features": [
         "Matrix",
@@ -707,7 +709,7 @@
           "ports": [
             {
               "count": 4,
-              "connector": "RJ45 / Ethernet",
+              "connector": "Phoenix / Euroblock",
               "direction": "output",
               "category": "audio",
               "evidence": "4x 5-pin Balanced Analog Audio"
@@ -741,13 +743,6 @@
               "evidence": "1x AC Power Cord (UK/US/EU)"
             },
             {
-              "count": 1,
-              "connector": "Remote 1 x Remote (Battery not included)",
-              "direction": "output",
-              "category": "other",
-              "evidence": "1 x Remote (Battery not included)"
-            },
-            {
               "count": 8,
               "connector": "IR",
               "direction": "output",
@@ -760,20 +755,41 @@
               "direction": "output",
               "category": "control",
               "evidence": "8x IR Receivers"
+            }
+          ],
+          "accessories": [
+            {
+              "count": 1,
+              "connector": "Remote 1 x Remote (Battery not included)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1 x Remote (Battery not included)",
+              "semanticDisposition": "accessory-or-capability"
             },
             {
               "count": 2,
               "connector": "Matrix Mounting Brackets 2x Matrix Mounting Brackets (2 per RX)",
               "direction": "output",
               "category": "other",
-              "evidence": "2x Matrix Mounting Brackets (2 per RX)"
+              "evidence": "2x Matrix Mounting Brackets (2 per RX)",
+              "semanticDisposition": "accessory-or-capability"
             },
             {
               "count": 1,
               "connector": "Quickstart Guide 1x Quickstart Guide",
               "direction": "output",
               "category": "other",
-              "evidence": "1x Quickstart Guide"
+              "evidence": "1x Quickstart Guide",
+              "semanticDisposition": "accessory-or-capability"
+            }
+          ],
+          "audio": [
+            {
+              "count": 4,
+              "connector": "Phoenix / Euroblock",
+              "direction": "output",
+              "category": "audio",
+              "evidence": "4x 5-pin Balanced Analog Audio"
             }
           ],
           "video": [
@@ -783,33 +799,6 @@
               "direction": "output",
               "category": "video",
               "evidence": "True 8x8 matrix with 8 HDBaseT zones and 4"
-            }
-          ],
-          "audio": [
-            {
-              "count": 4,
-              "connector": "RJ45 / Ethernet",
-              "direction": "output",
-              "category": "audio",
-              "evidence": "4x 5-pin Balanced Analog Audio"
-            }
-          ],
-          "usb": [],
-          "network": [],
-          "control": [
-            {
-              "count": 8,
-              "connector": "IR",
-              "direction": "output",
-              "category": "control",
-              "evidence": "8x IR Emitters"
-            },
-            {
-              "count": 8,
-              "connector": "IR",
-              "direction": "output",
-              "category": "control",
-              "evidence": "8x IR Receivers"
             }
           ],
           "other": [
@@ -833,27 +822,22 @@
               "direction": "output",
               "category": "other",
               "evidence": "1x AC Power Cord (UK/US/EU)"
+            }
+          ],
+          "control": [
+            {
+              "count": 8,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "8x IR Emitters"
             },
             {
-              "count": 1,
-              "connector": "Remote 1 x Remote (Battery not included)",
+              "count": 8,
+              "connector": "IR",
               "direction": "output",
-              "category": "other",
-              "evidence": "1 x Remote (Battery not included)"
-            },
-            {
-              "count": 2,
-              "connector": "Matrix Mounting Brackets 2x Matrix Mounting Brackets (2 per RX)",
-              "direction": "output",
-              "category": "other",
-              "evidence": "2x Matrix Mounting Brackets (2 per RX)"
-            },
-            {
-              "count": 1,
-              "connector": "Quickstart Guide 1x Quickstart Guide",
-              "direction": "output",
-              "category": "other",
-              "evidence": "1x Quickstart Guide"
+              "category": "control",
+              "evidence": "8x IR Receivers"
             }
           ]
         }
@@ -877,10 +861,18 @@
         "1G Ethernet"
       ],
       "connectors": [
-        "USB-A/B",
-        "RJ45 / network",
-        "Fibre",
-        "RS-232"
+        "HDMI",
+        "Phoenix / Euroblock",
+        "S/PDIF 1 x S/PDIF (Toslink)",
+        "S/PDIF Digital 1 x S/PDIF Digital",
+        "RJ45 / Ethernet",
+        "IR",
+        "Analog audio",
+        "USB",
+        "SFP / fibre",
+        "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
+        "Pair of Wall Brackets 2x Pair of Wall Brackets",
+        "Terminal Block 1x Terminal Block"
       ],
       "features": [
         "Encoder / transmitter",
@@ -930,7 +922,7 @@
             },
             {
               "count": 1,
-              "connector": "RJ45 / Ethernet",
+              "connector": "Phoenix / Euroblock",
               "direction": "input",
               "category": "audio",
               "evidence": "1 x 5-pin Balanced Audio"
@@ -1048,13 +1040,6 @@
               "evidence": "1x IR Receiver"
             },
             {
-              "count": 1,
-              "connector": "Pair of Rack Brackets 1x Pair of Rack Brackets",
-              "direction": "output",
-              "category": "control",
-              "evidence": "1x Pair of Rack Brackets"
-            },
-            {
               "count": 2,
               "connector": "Pair of Wall Brackets 2x Pair of Wall Brackets",
               "direction": "output",
@@ -1074,6 +1059,16 @@
               "direction": "output",
               "category": "other",
               "evidence": "1x 5-pin Terminal Block"
+            }
+          ],
+          "accessories": [
+            {
+              "count": 1,
+              "connector": "Pair of Rack Brackets 1x Pair of Rack Brackets",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x Pair of Rack Brackets",
+              "semanticDisposition": "accessory-or-capability"
             }
           ],
           "video": [
@@ -1102,7 +1097,7 @@
           "audio": [
             {
               "count": 1,
-              "connector": "RJ45 / Ethernet",
+              "connector": "Phoenix / Euroblock",
               "direction": "input",
               "category": "audio",
               "evidence": "1 x 5-pin Balanced Audio"
@@ -1122,34 +1117,41 @@
               "evidence": "1 x 3.5mm TRS Audio"
             }
           ],
-          "usb": [
+          "other": [
             {
               "count": 1,
-              "connector": "USB",
-              "direction": "output",
-              "category": "usb",
-              "evidence": "1 x USB 2.0 Type B"
-            },
-            {
-              "count": 2,
-              "connector": "USB",
-              "direction": "output",
-              "category": "usb",
-              "evidence": "2 x USB HID Type A"
-            },
-            {
-              "count": 2,
-              "connector": "USB",
-              "direction": "output",
-              "category": "usb",
-              "evidence": "2 x USB 2.0 Type A (up to 200Mbps upstream)"
+              "connector": "S/PDIF 1 x S/PDIF (Toslink)",
+              "direction": "input",
+              "category": "other",
+              "evidence": "1 x S/PDIF (Toslink)"
             },
             {
               "count": 1,
-              "connector": "USB",
+              "connector": "S/PDIF Digital 1 x S/PDIF Digital",
               "direction": "output",
-              "category": "usb",
-              "evidence": "1 x USB 2.0 Type Host"
+              "category": "other",
+              "evidence": "1 x S/PDIF Digital"
+            },
+            {
+              "count": 1,
+              "connector": "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x NHD-500-TX or NHD-500-RX"
+            },
+            {
+              "count": 1,
+              "connector": "Terminal Block 1x  Terminal Block",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 3-pin Terminal Block"
+            },
+            {
+              "count": 1,
+              "connector": "Terminal Block 1x  Terminal Block",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 5-pin Terminal Block"
             }
           ],
           "network": [
@@ -1191,13 +1193,6 @@
               "evidence": "1x IR Receiver"
             },
             {
-              "count": 1,
-              "connector": "Pair of Rack Brackets 1x Pair of Rack Brackets",
-              "direction": "output",
-              "category": "control",
-              "evidence": "1x Pair of Rack Brackets"
-            },
-            {
               "count": 2,
               "connector": "Pair of Wall Brackets 2x Pair of Wall Brackets",
               "direction": "output",
@@ -1205,41 +1200,34 @@
               "evidence": "2x Pair of Wall Brackets"
             }
           ],
-          "other": [
+          "usb": [
             {
               "count": 1,
-              "connector": "S/PDIF 1 x S/PDIF (Toslink)",
-              "direction": "input",
-              "category": "other",
-              "evidence": "1 x S/PDIF (Toslink)"
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1 x USB 2.0 Type B"
+            },
+            {
+              "count": 2,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "2 x USB HID Type A"
+            },
+            {
+              "count": 2,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "2 x USB 2.0 Type A (up to 200Mbps upstream)"
             },
             {
               "count": 1,
-              "connector": "S/PDIF Digital 1 x S/PDIF Digital",
+              "connector": "USB",
               "direction": "output",
-              "category": "other",
-              "evidence": "1 x S/PDIF Digital"
-            },
-            {
-              "count": 1,
-              "connector": "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
-              "direction": "output",
-              "category": "other",
-              "evidence": "1x NHD-500-TX or NHD-500-RX"
-            },
-            {
-              "count": 1,
-              "connector": "Terminal Block 1x  Terminal Block",
-              "direction": "output",
-              "category": "other",
-              "evidence": "1x 3-pin Terminal Block"
-            },
-            {
-              "count": 1,
-              "connector": "Terminal Block 1x  Terminal Block",
-              "direction": "output",
-              "category": "other",
-              "evidence": "1x 5-pin Terminal Block"
+              "category": "usb",
+              "evidence": "1 x USB 2.0 Type Host"
             }
           ]
         }
@@ -1260,8 +1248,7 @@
         "Audio"
       ],
       "connectors": [
-        "HDMI",
-        "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+        "HDMI"
       ],
       "features": [
         "HDMI",
@@ -1302,43 +1289,73 @@
         "io": {
           "ports": [
             {
-              "count": 3840,
-              "connector": "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
-              "direction": "unspecified",
-              "category": "other",
-              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+              "count": 1,
+              "connector": "HDMI",
+              "direction": "input",
+              "category": "video",
+              "evidence": "Governed topology: 1x4 HDMI splitter",
+              "logicalFunction": "source-input"
             },
             {
-              "count": 4096,
-              "connector": "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
-              "direction": "unspecified",
-              "category": "other",
-              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+              "count": 4,
+              "connector": "HDMI",
+              "direction": "output",
+              "category": "video",
+              "evidence": "Governed topology: 1x4 mirrored HDMI distribution",
+              "logicalFunction": "mirrored-output"
             }
           ],
-          "video": [],
-          "audio": [],
-          "usb": [],
-          "network": [],
-          "control": [],
-          "other": [
+          "accessories": [
             {
               "count": 3840,
               "connector": "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
               "direction": "unspecified",
               "category": "other",
-              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
+              "semanticDisposition": "accessory-or-capability"
             },
             {
               "count": 4096,
               "connector": "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
               "direction": "unspecified",
               "category": "other",
-              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
+              "semanticDisposition": "accessory-or-capability"
+            }
+          ],
+          "video": [
+            {
+              "count": 1,
+              "connector": "HDMI",
+              "direction": "input",
+              "category": "video",
+              "evidence": "Governed topology: 1x4 HDMI splitter",
+              "logicalFunction": "source-input"
+            },
+            {
+              "count": 4,
+              "connector": "HDMI",
+              "direction": "output",
+              "category": "video",
+              "evidence": "Governed topology: 1x4 mirrored HDMI distribution",
+              "logicalFunction": "mirrored-output"
             }
           ]
         }
-      }
+      },
+      "topologyType": "one-to-many-mirrored",
+      "outputBehaviour": "mirrored",
+      "logicalInputs": 1,
+      "logicalOutputs": 4,
+      "routedInputs": 0,
+      "routedOutputs": 0,
+      "routedInputCount": 0,
+      "routedOutputCount": 0,
+      "physicalOutputs": 4,
+      "physicalOutputCount": 4,
+      "physicalVideoOutputCount": 4,
+      "mirroredOutputs": 4,
+      "mirroredOutputCount": 4
     },
     {
       "sku": "CAB-DAOC-10-C",
