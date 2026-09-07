@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../styles/wingman-training-portal.css";
 import {
   ArrowRight,
   BookOpen,
@@ -80,7 +81,7 @@ const learningPaths: LearningPath[] = [
     duration: "24 min",
     lessons: 4,
     icon: Users,
-    outcome: "Discover the user workflow before specifying the room technology.",
+    outcome: "Discover how people need the room to work before specifying its technology.",
     topics: ["BYOD and BYOM", "USB extension", "Audio pickup", "Room control"],
   },
 ];
@@ -104,7 +105,7 @@ const discoveryQuestions = [
   "Must every screen show something different, or can outputs be mirrored?",
   "What are the real cable-route distances, not the straight-line distances?",
   "Who owns the network, control system and ongoing support?",
-  "What does a successful day in this room look like for the user?",
+  "What does a successful day in this room look like for the people using it?",
 ];
 
 export function TrainingPortalPage() {

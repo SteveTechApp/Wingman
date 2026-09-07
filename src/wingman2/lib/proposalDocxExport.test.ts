@@ -31,6 +31,17 @@ const bom: SalesBomRow[] = [{
 }];
 
 describe("proposal DOCX export", () => {
+  it("carries the canonical design revision into the Word output", async () => {
+    const withDesign: StoredProjectProposal = { ...proposal, designRevision: { schemaVersion: 1, revisionId: "dp1-word", contentHash: "dp1-word", projectId: "p", projectName: "Room", compiledAt: "2026-09-07", customerRequirement: "Customer said operational sources", interpretedRequirement: "Wingman understood routed visibility", architecture: "NetworkHD fabric", requirements: [], roleCoverage: [{ role: "network", label: "Network infrastructure", required: true, covered: true, evidence: ["10G fabric"], requirementIds: [] }], productOverviews: [{ sku: "NHD-CTL-PRO-V2", name: "Controller", quantity: 1, designRole: "Routing control", requirementIds: [], reason: "Controls the selected endpoints", proof: ["Central management"], dependencies: [], validation: [] }], assumptions: [], blockers: [], warnings: [], canIssue: true } };
+    const wizard = createProposalWizardDefaults({ projectId: "p", projectName: "Room", preparedBy: "Team", executiveSummary: "Summary", architectureNarrative: "NetworkHD" });
+    const buffer = await Packer.toBuffer(buildProposalDocx(withDesign, bom, wizard));
+    const zip = await JSZip.loadAsync(buffer); const xml = await zip.file("word/document.xml")!.async("string"); const text = xml.replace(/<[^>]+>/g, " ");
+    expect(text).toContain("Requirement Understanding and Design Trace");
+    expect(text).toContain("dp1-word");
+    expect(text).toContain("System completeness");
+    expect(text).toContain("Controls the selected endpoints");
+  });
+
   it("creates the required commercial sections and exact equipment totals", async () => {
     const wizard = createProposalWizardDefaults({
       projectId: "government-control-room", projectName: proposal.title, preparedBy: "Solutions Team",

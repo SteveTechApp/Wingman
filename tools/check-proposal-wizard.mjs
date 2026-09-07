@@ -35,7 +35,6 @@ const css = read("Proposal wizard CSS", files.css);
 
 [
   "ProposalCompletionWizard",
-  "ProposalCompletionWizard",
   "data-wingman-proposal-page",
 ].forEach((marker) => requireMarker("ProposalPage.tsx", page, marker));
 

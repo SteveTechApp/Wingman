@@ -5,7 +5,7 @@ export function DesignProposalReview({ revision }: { revision: StoredDesignPropo
   return (
     <section className="wm-design-review" aria-labelledby="design-review-title">
       <header className="wm-design-review__header">
-        <div><span>Canonical design revision</span><h3 id="design-review-title">Requirement-to-design review</h3></div>
+        <div><span>Design revision</span><h3 id="design-review-title">Requirement-to-design review</h3></div>
         <code>{revision.revisionId}</code>
       </header>
       <div className="wm-design-review__summary">

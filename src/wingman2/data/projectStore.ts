@@ -1014,36 +1014,9 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
 function normalizeDesignProposalRevision(value: unknown): StoredDesignProposalRevision | undefined {
   const record = objectRecord(value);
   if (!record || Number(record.schemaVersion) !== 1) return undefined;
-  const requirements = Array.isArray(record.requirements) ? record.requirements.filter(objectRecord).map((item) => ({
-    id: stringValue(item.id, createId("design-requirement")),
-    customerStatement: stringValue(item.customerStatement, "Requirement not confirmed"),
-    interpretation: stringValue(item.interpretation, "Requires review"),
-    designConsequence: stringValue(item.designConsequence, "Confirm before final design"),
-    source: stringValue(item.source, "Wingman"),
-    state: (["confirmed", "inferred", "unknown", "conflict"].includes(String(item.state)) ? item.state : "unknown") as DesignRequirementState,
-    confidence: (["high", "medium", "low"].includes(String(item.confidence)) ? item.confidence : "low") as "high" | "medium" | "low",
-  })) : [];
-  const roleCoverage = Array.isArray(record.roleCoverage) ? record.roleCoverage.filter(objectRecord).map((item) => ({
-    role: stringValue(item.role, "processing") as StoredDesignRoleCoverage["role"],
-    label: stringValue(item.label, "System role"),
-    required: Boolean(item.required), covered: Boolean(item.covered),
-    evidence: stringArray(item.evidence), requirementIds: stringArray(item.requirementIds),
-  })) : [];
-  const productOverviews = Array.isArray(record.productOverviews) ? record.productOverviews.filter(objectRecord).map((item) => ({
-    sku: stringValue(item.sku, "TBC"), name: stringValue(item.name, "Selected product"),
-    quantity: Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 1,
-    designRole: stringValue(item.designRole, "System product"), requirementIds: stringArray(item.requirementIds),
-    reason: stringValue(item.reason, "Selected for the proposed system"), proof: stringArray(item.proof),
-    dependencies: stringArray(item.dependencies), validation: stringArray(item.validation),
-  })) : [];
-  return {
-    schemaVersion: 1, revisionId: stringValue(record.revisionId, createId("design-revision")),
-    contentHash: stringValue(record.contentHash), projectId: stringValue(record.projectId), projectName: stringValue(record.projectName),
-    compiledAt: stringValue(record.compiledAt, nowIso()), customerRequirement: stringValue(record.customerRequirement, "Requirement not confirmed"),
-    interpretedRequirement: stringValue(record.interpretedRequirement, "Interpretation requires review"), architecture: stringValue(record.architecture, "Architecture requires confirmation"),
-    requirements, roleCoverage, productOverviews, assumptions: stringArray(record.assumptions), blockers: stringArray(record.blockers),
-    warnings: stringArray(record.warnings), canIssue: Boolean(record.canIssue),
-  };
+  // Design revisions are generated atomically by compileDesignProposal. Preserve
+  // the versioned payload here; the compiler owns its schema and defaults.
+  return record as unknown as StoredDesignProposalRevision;
 }
 
 function normalizeProposalVisualBlocks(value: unknown): StoredProposalVisualBlock[] {

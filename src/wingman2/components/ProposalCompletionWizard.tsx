@@ -699,7 +699,13 @@ function ProposalCompletionWizardContent({
       approvedRevisionHash: project.proposal?.approvedRevisionHash,
       updatedAt: new Date().toISOString(),
       };
-      const designRevision = compileDesignProposal({ ...project, proposal: baseProposal });
+      const designRevision = compileDesignProposal({
+        id: project.id, name: project.name, owner: project.owner, ownerId: project.ownerId,
+        stage: project.stage, status: project.status, updated: project.createdAt,
+        createdAt: project.createdAt, updatedAt: project.createdAt, resumeTo: project.resumeTo,
+        requirements: project.requirements, discoveryBrief: project.discoveryBrief,
+        productSelections: selectedProducts, proposal: baseProposal,
+      });
       const approvedMatches = baseProposal.approvedRevisionHash === designRevision.contentHash;
       const submittedMatches = baseProposal.submittedRevisionHash === designRevision.contentHash;
       return {
@@ -724,9 +730,15 @@ function ProposalCompletionWizardContent({
       profile.email,
       profile.phone,
       profile.proposalFooter,
-      project.discoveryBrief?.decisionEvidence,
-      project.discoveryBrief?.discoveryConversation,
-      project.discoveryBrief?.recommendationEvidence?.evidenceUsed,
+      project.discoveryBrief,
+      project.requirements,
+      project.id,
+      project.owner,
+      project.ownerId,
+      project.stage,
+      project.status,
+      project.createdAt,
+      project.resumeTo,
       project.name,
       applicationProposal,
       project.proposal?.verification,
@@ -751,6 +763,8 @@ function ProposalCompletionWizardContent({
       typeConfig.sections,
     ],
   );
+
+  const customerOutputBlocked = finalReadinessScore < 100 || !proposal.designRevision?.canIssue;
 
   useEffect(() => {
     saveProposalWizardDraft(draft);
@@ -906,6 +920,14 @@ function ProposalCompletionWizardContent({
       return `Export blocked — resolve these issues first:\n${names.join("; ")}`;
     }
 
+    if (proposal.designRevision?.blockers.length) {
+      return `Export blocked — the complete design still has gaps:\n${proposal.designRevision.blockers.join("; ")}`;
+    }
+
+    if (proposal.approvalStatus === "approved" && proposal.approvedRevisionHash !== proposal.designRevision?.contentHash) {
+      return "Export blocked — the approved revision no longer matches the current design. Submit the revised design for approval.";
+    }
+
     // Check approval status — pending/rejected proposals cannot be exported
     const approvalStatus = proposal.approvalStatus || "draft";
     if (approvalStatus === "pending") {
@@ -920,7 +942,7 @@ function ProposalCompletionWizardContent({
   }
 
   async function exportDocx() {
-    if (finalReadinessScore < 100) {
+    if (customerOutputBlocked) {
       const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting the final DOCX.",
@@ -955,7 +977,7 @@ function ProposalCompletionWizardContent({
   }
 
   function exportHtml() {
-    if (finalReadinessScore < 100) {
+    if (customerOutputBlocked) {
       const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting HTML.",
@@ -982,7 +1004,7 @@ function ProposalCompletionWizardContent({
   }
 
   function exportCsv() {
-    if (finalReadinessScore < 100) {
+    if (customerOutputBlocked) {
       const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting the BOM CSV.",
@@ -1024,7 +1046,7 @@ function ProposalCompletionWizardContent({
   }
 
   function exportPdf() {
-    if (finalReadinessScore < 100) {
+    if (customerOutputBlocked) {
       const reason = getExportBlockReason();
       setExportMessage(
         reason ?? "Complete the remaining wizard items before exporting a PDF.",
@@ -1691,7 +1713,7 @@ function ProposalCompletionWizardContent({
                 <button
                   type="button"
                   className="is-primary"
-                  disabled={finalReadinessScore < 100}
+                  disabled={customerOutputBlocked}
                   onClick={exportDocx}
                 >
                   <Download aria-hidden="true" />
@@ -1700,7 +1722,7 @@ function ProposalCompletionWizardContent({
 
                 <button
                   type="button"
-                  disabled={finalReadinessScore < 100}
+                  disabled={customerOutputBlocked}
                   onClick={exportPdf}
                 >
                   <Printer aria-hidden="true" />
@@ -1709,7 +1731,7 @@ function ProposalCompletionWizardContent({
 
                 <button
                   type="button"
-                  disabled={finalReadinessScore < 100}
+                  disabled={customerOutputBlocked}
                   onClick={exportHtml}
                 >
                   <FileText aria-hidden="true" />
@@ -1718,7 +1740,7 @@ function ProposalCompletionWizardContent({
 
                 <button
                   type="button"
-                  disabled={finalReadinessScore < 100}
+                  disabled={customerOutputBlocked}
                   onClick={exportCsv}
                 >
                   <Table2 aria-hidden="true" />
@@ -1774,11 +1796,11 @@ function ProposalCompletionWizardContent({
                         <button
                           type="button"
                           className="wm-button is-primary"
-                          disabled={finalReadinessScore < 100}
+                          disabled={customerOutputBlocked}
                           onClick={() => {
                             submitForApproval(project.id, project.name || "Salesperson");
                           }}
-                          title={finalReadinessScore < 100 ? "Complete the proposal before submitting for approval" : "Submit for manager approval before exporting to customer"}
+                          title={customerOutputBlocked ? "Complete the proposal and system design before submitting for approval" : "Submit this exact design revision for manager approval"}
                         >
                           <Send size={14} /> Submit for approval
                         </button>

@@ -1,9 +1,11 @@
-import { ArrowRight, BookOpen, Bot, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
+import { lazy, Suspense } from "react";
+import { ArrowRight, Bot, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
-import { TrainingPortalPage } from "./TrainingPortalPage";
+
+const TrainingPortalPage = lazy(() => import("./TrainingPortalPage").then((module) => ({ default: module.TrainingPortalPage })));
 
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
 
@@ -363,5 +365,9 @@ export function ResponsePackPage() {
 }
 
 export function LearnPage() {
-  return <TrainingPortalPage />;
+  return (
+    <Suspense fallback={<div className="wm-page-loading">Loading training portal…</div>}>
+      <TrainingPortalPage />
+    </Suspense>
+  );
 }

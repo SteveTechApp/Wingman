@@ -39,7 +39,7 @@ export function ProposalVisualsPage() {
       purpose,
       status: warnings.length ? "review-required" : "draft",
       source: {
-        projectRevision: activeProject.updatedAt,
+        projectRevision: activeProject.proposal?.designRevision?.contentHash ?? activeProject.updatedAt,
         productSkus: (activeProject.productSelections ?? []).map((product) => product.sku),
       },
       model: model as unknown as Record<string, unknown>,
