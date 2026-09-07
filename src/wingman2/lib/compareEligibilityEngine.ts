@@ -797,7 +797,10 @@ function candidateProductTransportText(product: unknown): string {
 
 function matrixFitPenalty(competitorText: string, sku: string, text: string, product?: unknown): number {
   const required = extractMatrixSizeFromText(competitorText);
-  const offered = extractCandidateMatrixSize(product) ?? extractMatrixSizeFromText(`${sku} ${text}`);
+  const encoded = extractMatrixSizeFromText(sku);
+  const offered = /^(?:EXPSP|SP)/.test(skuKey(sku))
+    ? encoded
+    : extractCandidateMatrixSize(product) ?? encoded;
 
   let penalty = 0;
 
@@ -1255,8 +1258,25 @@ export function evaluateProductEligibility(args: {
 
   if (args.intent === "distribution-amplifier") {
     if (/^SP|^EXPSP/.test(key) || /\b(splitter|distribution amplifier|distribution amp|duplicator)\b/i.test(combined)) {
-      const penalty = matrixFitPenalty(args.competitorText, sku, combined, product);
-      return direct(args.intent, ["HDMI distribution amplifier candidate with a one-source, mirrored-output topology."], penalty);
+      const requiredFanout = extractMatrixSizeFromText(args.competitorText).outputs;
+      const offeredFanout = extractMatrixSizeFromText(sku).outputs;
+      const calculatedPenalty = matrixFitPenalty(args.competitorText, sku, combined, product);
+      const penalty = requiredFanout && offeredFanout && offeredFanout < requiredFanout
+        ? Math.max(200, calculatedPenalty)
+        : calculatedPenalty;
+      if (penalty >= 200) {
+        return related(
+          args.intent,
+          ["HDMI distribution candidate has the correct mirrored topology but is undersized for the required source/output fan-out."],
+          penalty,
+        );
+      }
+
+      return direct(
+        args.intent,
+        ["HDMI distribution amplifier candidate with a one-source, mirrored-output topology."],
+        penalty,
+      );
     }
 
     if (/^MX|^NHD/.test(key) || /\b(matrix|routed|networkhd|av-over-ip)\b/i.test(combined)) {

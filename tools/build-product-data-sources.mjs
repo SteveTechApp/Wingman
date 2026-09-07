@@ -806,6 +806,10 @@ function applyRoutedIoEvidenceBySku(products, competitors) {
     const entry = evidence[normaliseSku(record?.sku)];
     if (!entry) continue;
     applyRoutedIoEvidence(record, entry);
+    const governedSpecification = record?.technicalProfile?.governedSpecification;
+    if (governedSpecification && typeof governedSpecification === "object") {
+      applyRoutedIoEvidence(governedSpecification, entry);
+    }
     applied += 1;
   }
 

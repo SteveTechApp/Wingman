@@ -48,6 +48,11 @@ export const EVIDENCE_COMPARED_KEYS = [
   "mirroredOutputs",
   "mirroredOutputCount",
   "physicalVideoOutputCount",
+  "logicalInputs",
+  "logicalOutputs",
+  "topologyType",
+  "outputBehaviour",
+  "topologyEvidence",
 ];
 
 const NUMERIC_INPUT_FIELDS = ["inputs", "inputCount", "videoInputs", "matrixInputs"];
@@ -81,6 +86,46 @@ function patchNumericField(record, fieldName, value) {
 /** Applies an authority entry onto a record (mutates and returns it). This is
  * the exact state the generator emits and the validator expects. */
 export function applyRoutedIoEvidence(record, evidence) {
+  const mirroredDistribution =
+    evidence.outputBehaviour === "mirrored" ||
+    evidence.topologyType === "one-to-many-mirrored";
+
+  if (mirroredDistribution) {
+    const logicalInputs = getNumber(evidence.logicalInputs) ?? getNumber(evidence.physicalInputs) ?? 1;
+    const logicalOutputs = getNumber(evidence.logicalOutputs) ?? getNumber(evidence.mirroredOutputs) ?? getNumber(evidence.physicalOutputs) ?? 0;
+    for (const fieldName of NUMERIC_INPUT_FIELDS) patchNumericField(record, fieldName, logicalInputs);
+    for (const fieldName of NUMERIC_OUTPUT_FIELDS) patchNumericField(record, fieldName, logicalOutputs);
+    record.logicalInputs = logicalInputs;
+    record.logicalOutputs = logicalOutputs;
+    record.routedInputs = 0;
+    record.routedOutputs = 0;
+    record.routedInputCount = 0;
+    record.routedOutputCount = 0;
+    delete record.matrixInputs;
+    delete record.matrixOutputs;
+    delete record.matrixSize;
+    delete record.matrixSizeEvidence;
+    record.topologyType = "one-to-many-mirrored";
+    record.outputBehaviour = "mirrored";
+    record.topologyEvidence = evidence.topologyEvidence ?? evidence.matrixSizeEvidence ?? `Governed mirrored distribution: ${logicalInputs}x${logicalOutputs}`;
+    record.ioEvidenceStatus = evidence.ioEvidenceStatus;
+    record.quoteSafety = evidence.quoteSafety;
+    const physicalOutputs = getNumber(evidence.physicalOutputs) ?? logicalOutputs;
+    const mirroredOutputs = getNumber(evidence.mirroredOutputs) ?? logicalOutputs;
+    record.physicalOutputs = physicalOutputs;
+    record.physicalOutputCount = physicalOutputs;
+    record.physicalVideoOutputCount = physicalOutputs;
+    record.mirroredOutputs = mirroredOutputs;
+    record.mirroredOutputCount = mirroredOutputs;
+    return record;
+  }
+
+  delete record.logicalInputs;
+  delete record.logicalOutputs;
+  delete record.topologyType;
+  delete record.outputBehaviour;
+  delete record.topologyEvidence;
+
   preservePhysicalCount(record, "outputs", evidence.routedOutputs, "physicalOutputCount");
   preservePhysicalCount(record, "outputCount", evidence.routedOutputs, "physicalOutputCount");
   preservePhysicalCount(record, "videoOutputs", evidence.routedOutputs, "physicalVideoOutputCount");

@@ -123,67 +123,95 @@
     "quoteSafety": "verify-before-quote"
   },
   "SP-0108-SCL": {
-    "routedInputs": 1,
-    "routedOutputs": 8,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 8,
     "mirroredOutputs": 8,
-    "matrixSizeEvidence": "Title evidence: 1x8 HDMI",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "verify-before-quote"
+    "quoteSafety": "verify-before-quote",
+    "logicalInputs": 1,
+    "logicalOutputs": 8,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: 1x8 HDMI"
   },
   "EXP-SP-0102-8K": {
-    "routedInputs": 1,
-    "routedOutputs": 2,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 2,
     "mirroredOutputs": 2,
-    "matrixSizeEvidence": "Title evidence: 1x2 HDMI Splitter",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "verify-before-quote"
+    "quoteSafety": "verify-before-quote",
+    "logicalInputs": 1,
+    "logicalOutputs": 2,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: 1x2 HDMI Splitter"
   },
   "EXP-SP-0102-H2": {
-    "routedInputs": 1,
-    "routedOutputs": 2,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 2,
     "mirroredOutputs": 2,
-    "matrixSizeEvidence": "Title evidence: 1x2 HDMI Splitter",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "verify-before-quote"
+    "quoteSafety": "verify-before-quote",
+    "logicalInputs": 1,
+    "logicalOutputs": 2,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: 1x2 HDMI Splitter"
   },
   "EXP-SP-0104-H2": {
-    "routedInputs": 1,
-    "routedOutputs": 4,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 4,
     "mirroredOutputs": 4,
-    "matrixSizeEvidence": "Title evidence: 1x4 HDMI Splitter",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "verify-before-quote"
+    "quoteSafety": "verify-before-quote",
+    "logicalInputs": 1,
+    "logicalOutputs": 4,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: 1x4 HDMI Splitter"
   },
   "SP-0102-H2": {
-    "routedInputs": 1,
-    "routedOutputs": 2,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 2,
     "mirroredOutputs": 2,
-    "matrixSizeEvidence": "Title evidence: 1x2 HDMI Splitter",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "verify-before-quote"
+    "quoteSafety": "verify-before-quote",
+    "logicalInputs": 1,
+    "logicalOutputs": 2,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: 1x2 HDMI Splitter"
   },
   "SP-0104-H2": {
-    "routedInputs": 1,
-    "routedOutputs": 4,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 4,
     "mirroredOutputs": 4,
-    "matrixSizeEvidence": "Title evidence: 1x4 HDMI Splitter",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "verify-before-quote"
+    "quoteSafety": "verify-before-quote",
+    "logicalInputs": 1,
+    "logicalOutputs": 4,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: 1x4 HDMI Splitter"
   },
   "SP-618": {
-    "routedInputs": 1,
-    "routedOutputs": 8,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 8,
     "mirroredOutputs": 8,
-    "matrixSizeEvidence": "Title evidence: 1x8 HDMI Splitter",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "verify-before-quote"
+    "quoteSafety": "verify-before-quote",
+    "logicalInputs": 1,
+    "logicalOutputs": 8,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: 1x8 HDMI Splitter"
   },
   "TX-H2X-HDBT": {
     "routedInputs": 1,
@@ -244,22 +272,30 @@
     "quoteSafety": "comparison-only-verify"
   },
   "DA2-HDMI": {
-    "routedInputs": 1,
-    "routedOutputs": 2,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 2,
     "mirroredOutputs": 2,
-    "matrixSizeEvidence": "Title evidence: HDMI distribution amplifier feeding two displays",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "comparison-only-verify"
+    "quoteSafety": "comparison-only-verify",
+    "logicalInputs": 1,
+    "logicalOutputs": 2,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: HDMI distribution amplifier feeding two displays"
   },
   "HD-DA2-4KZ-E": {
-    "routedInputs": 1,
-    "routedOutputs": 2,
+    "routedInputs": 0,
+    "routedOutputs": 0,
     "physicalOutputs": 2,
     "mirroredOutputs": 2,
-    "matrixSizeEvidence": "Title evidence: 1x2 HDMI Distribution Amplifier",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "comparison-only-verify"
+    "quoteSafety": "comparison-only-verify",
+    "logicalInputs": 1,
+    "logicalOutputs": 2,
+    "topologyType": "one-to-many-mirrored",
+    "outputBehaviour": "mirrored",
+    "topologyEvidence": "Title evidence: 1x2 HDMI Distribution Amplifier"
   },
   "UCX-2X1-HC30": {
     "routedInputs": 2,

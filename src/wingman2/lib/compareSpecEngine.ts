@@ -139,6 +139,8 @@ export type SpecSheet = {
   hdmiOut: number | null;
   routedIn: number | null;
   routedOut: number | null;
+  physicalOut?: number | null;
+  mirroredOut?: number | null;
   usbVersion: string;
   usbRank: number; // 0 unknown, 2 = USB2, 3 = USB3
   audioOptions: string[];
@@ -439,6 +441,19 @@ function countPorts(list: unknown, match: RegExp): number | null {
   return seen ? total : null;
 }
 
+function countAllPorts(list: unknown): number | null {
+  if (!Array.isArray(list)) return null;
+  let total = 0;
+  let seen = false;
+  for (const port of list as PortLike[]) {
+    const count = num(port?.count);
+    if (count == null) continue;
+    seen = true;
+    total += count;
+  }
+  return seen ? total : null;
+}
+
 const emptyConnections = (): SpecConnections => ({
   videoInputs: [], videoOutputs: [], usb: [], network: [],
   audioInputs: [], audioOutputs: [], control: [],
@@ -542,6 +557,9 @@ export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
   const hdmiOut = countPorts(entry.outputs, /hdmi/i);
   const routedIn = num(entry.routedInputCount) ?? num(entry.matrixInputs) ?? hdmiIn;
   const routedOut = num(entry.routedOutputCount) ?? num(entry.matrixOutputs) ?? hdmiOut;
+  const physicalOut = num(entry.physicalOutputCount) ?? countAllPorts(entry.outputs);
+  const mirroredOut = num(entry.mirroredOutputCount)
+    ?? (specClass === "DISTRIBUTION" ? physicalOut : null);
 
   const featureText = Array.isArray(entry.features) ? (entry.features as unknown[]).map(text).join(" ") : "";
   const usbSource = `${featureText} ${summary}`;
@@ -614,6 +632,8 @@ export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
     hdmiOut,
     routedIn,
     routedOut,
+    physicalOut,
+    mirroredOut,
     usbVersion: usbVersion || "",
     usbRank: rankUsb(usbVersion || ""),
     audioOptions: uniq(Array.isArray(entry.audio) ? (entry.audio as unknown[]).map(text) : []),
@@ -919,6 +939,7 @@ function normalizeGovernedBattleCard(entry: WsEntry): SpecSheet | null {
     ?? governedPortCount(ports, "output", "video");
 
   const mirroredOutputCount = num(governedValue(features, "mirroredOutputCount")) ?? 0;
+  const physicalOutputCount = governedPortCount(ports, "output", "video") || null;
   const loopOutputCount = num(governedValue(features, "loopOutputCount")) ?? 0;
   const status = text(profile.status).toLowerCase();
   const capabilities = capabilitiesFromFeatureRecord(features);
@@ -954,6 +975,8 @@ function normalizeGovernedBattleCard(entry: WsEntry): SpecSheet | null {
     hdmiOut: governedPortCount(ports, "output", "video", /hdmi/i) || null,
     routedIn,
     routedOut,
+    physicalOut: physicalOutputCount,
+    mirroredOut: mirroredOutputCount || null,
     usbVersion: "",
     usbRank: 0,
     audioOptions,
@@ -1040,6 +1063,8 @@ export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
 
   const standards = Array.isArray(video.standards) ? (video.standards as unknown[]).map(text) : [];
   const maxResolutions = Array.isArray(video.maxResolutions) ? (video.maxResolutions as unknown[]).map(text) : [];
+  const maximumResolution = text(video.maximum);
+  if (maximumResolution) maxResolutions.push(maximumResolution);
   // A dedicated max-resolution field outranks broad standards/feature text.
   // Mixing both arrays allowed unrelated power or refresh-rate numbers later in
   // a long standards fragment to promote a 4K60 product to 4K120.
@@ -1142,6 +1167,8 @@ export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
     hdmiOut: wsCountPorts(ports, "output", /hdmi/i),
     routedIn: num(entry.routedInputCount) ?? wsCountPorts(ports, "input", /hdmi|usb-c|displayport/i),
     routedOut: num(entry.routedOutputCount) ?? wsCountPorts(ports, "output", /hdmi|hdbaset/i),
+    physicalOut: num(entry.physicalOutputCount) ?? wsCountPorts(ports, "output", /hdmi|hdbaset|displayport|sdi|dvi/i),
+    mirroredOut: num(entry.mirroredOutputCount),
     usbVersion,
     usbRank: rankUsb(usbVersion),
     audioOptions,
@@ -1471,14 +1498,17 @@ function detectBlockers(competitor: SpecSheet, ws: SpecSheet): string[] {
     }
   }
 
-  // A distribution amplifier must preserve fan-out. A 1x2 cannot replace a
-  // 1x4/1x8, and an unknown output count is not evidence that it can. Treat
-  // this as physical incompatibility rather than a soft scoring gap.
-  if (competitor.specClass === "DISTRIBUTION" && competitor.hdmiOut != null) {
-    if (ws.hdmiOut == null) {
-      blockers.push(`Distribution output capacity unverified: needs ${competitor.hdmiOut}`);
-    } else if (ws.hdmiOut < competitor.hdmiOut) {
-      blockers.push(`Insufficient distribution outputs: needs ${competitor.hdmiOut}, candidate has ${ws.hdmiOut}`);
+  // Fixed distribution preserves physical fan-out even when the destination
+  // connector changes from HDMI to HDBaseT or another video transport.
+  if (competitor.specClass === "DISTRIBUTION") {
+    const requiredFanout = competitor.mirroredOut ?? competitor.physicalOut ?? competitor.hdmiOut;
+    const candidateFanout = ws.mirroredOut ?? ws.physicalOut ?? ws.hdmiOut;
+    if (requiredFanout != null) {
+      if (candidateFanout == null) {
+        blockers.push(`Distribution output capacity unverified: needs ${requiredFanout}`);
+      } else if (candidateFanout < requiredFanout) {
+        blockers.push(`Insufficient distribution outputs: needs ${requiredFanout}, candidate has ${candidateFanout}`);
+      }
     }
   }
 
@@ -1576,6 +1606,32 @@ export async function runSpecShowdown(brand: string, sku: string): Promise<Showd
       "closest-technical-match": 1,
       "architecture-alternative": 2,
     };
+    if (competitor.specClass === "DISTRIBUTION") {
+      if (a.gapFields !== b.gapFields) return a.gapFields - b.gapFields;
+
+      const fanout = (sheet: SpecSheet): number | null =>
+        sheet.mirroredOut ?? sheet.physicalOut ?? sheet.hdmiOut;
+      const fanoutDistance = (match: ShowdownMatch): number => {
+        const required = fanout(competitor);
+        const offered = fanout(match.sheet);
+        if (required == null) return 0;
+        if (offered == null || offered < required) return Number.MAX_SAFE_INTEGER;
+        return offered - required;
+      };
+      const fanoutDelta = fanoutDistance(a) - fanoutDistance(b);
+      if (fanoutDelta !== 0) return fanoutDelta;
+
+      const resolutionDistance = (match: ShowdownMatch): number => {
+        if (competitor.resolutionRank <= 0) return 0;
+        if (match.sheet.resolutionRank <= 0) return 10000;
+        if (match.sheet.resolutionRank < competitor.resolutionRank) {
+          return 5000 + competitor.resolutionRank - match.sheet.resolutionRank;
+        }
+        return match.sheet.resolutionRank - competitor.resolutionRank;
+      };
+      const resolutionDelta = resolutionDistance(a) - resolutionDistance(b);
+      if (resolutionDelta !== 0) return resolutionDelta;
+    }
     if (decisionOrder[a.decision] !== decisionOrder[b.decision]) {
       return decisionOrder[a.decision] - decisionOrder[b.decision];
     }

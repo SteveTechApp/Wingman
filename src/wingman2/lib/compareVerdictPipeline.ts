@@ -250,7 +250,10 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
       (eligibilityRank[aEligibility.eligibility] ?? 3) -
       (eligibilityRank[bEligibility.eligibility] ?? 3);
     if (eligibilityDelta !== 0) return eligibilityDelta;
-    const fitDelta = aEligibility.fitPenalty - bEligibility.fitPenalty;
+    const useRuntimeFit = intent === "distribution-amplifier";
+    const aFit = useRuntimeFit && Number.isFinite(a.fitPenalty) ? (a.fitPenalty as number) : aEligibility.fitPenalty;
+    const bFit = useRuntimeFit && Number.isFinite(b.fitPenalty) ? (b.fitPenalty as number) : bEligibility.fitPenalty;
+    const fitDelta = aFit - bFit;
     if (fitDelta !== 0) return fitDelta;
     return semanticRank(b) - semanticRank(a);
   };
@@ -278,19 +281,31 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
 
   const ordered = semanticallyOrderedAdjusted;
 
-  // Governed/local decisions are ranking evidence, not permission to bypass
-  // current product-role eligibility. Revalidate the final merged list so a
-  // stale saved decision cannot resurrect a wrong product architecture.
-  const viable = ordered.filter(
-    (candidate) =>
-      candidate.verdict !== "NO MATCH" &&
-      evaluateProductEligibility({
-        intent,
-        competitorText,
-        match: candidate.product,
-        product: candidate.product,
-      }).eligibility !== "blocked",
-  );
+  const runtimeEligibilityBySku = new Map<string, string>();
+  const runtimeSkuKey = (value: string): string =>
+    value.trim().toUpperCase().replace(/[^A-Z0-9]+/g, "");
+  for (const match of engineMatches) {
+    const eligibility = (match as RigorousMatch & {
+      compareEligibility?: { eligibility?: string };
+    }).compareEligibility?.eligibility;
+    if (eligibility) runtimeEligibilityBySku.set(runtimeSkuKey(match.sku), eligibility);
+  }
+
+  const viable = ordered.filter((candidate) => {
+    if (candidate.verdict === "NO MATCH") return false;
+    const candidateKey = runtimeSkuKey(candidate.product.sku);
+    const runtimeEligibility = runtimeEligibilityBySku.get(candidateKey);
+    const reducedSemanticIdentity =
+      candidate.product.productClass.trim().toLowerCase() === "product" &&
+      candidate.product.role.trim().toLowerCase() === "product";
+    if (runtimeEligibility && reducedSemanticIdentity) return runtimeEligibility !== "blocked";
+    return evaluateProductEligibility({
+      intent,
+      competitorText,
+      match: candidate.product,
+      product: candidate.product,
+    }).eligibility !== "blocked";
+  });
   const sameComparisonJob = (product: WyreStormProduct): boolean => {
     if (product.productClass === profile.productClass) return true;
 

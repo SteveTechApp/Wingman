@@ -550,6 +550,15 @@ function normalizeProduct(item, index, sourceFile) {
   const profileApplications = asArray(technicalProfile?.applications);
   const salesLanguageTerms = collectTextValues(salesLanguage);
   const routedIo = {
+    ...(item?.outputBehaviour === "mirrored" || item?.topologyType === "one-to-many-mirrored"
+      ? {
+          logicalInputs: item?.logicalInputs,
+          logicalOutputs: item?.logicalOutputs,
+          topologyType: item?.topologyType,
+          outputBehaviour: item?.outputBehaviour,
+          topologyEvidence: item?.topologyEvidence,
+        }
+      : {}),
     routedInputs: item?.routedInputs,
     routedOutputs: item?.routedOutputs,
     routedInputCount: item?.routedInputCount,
