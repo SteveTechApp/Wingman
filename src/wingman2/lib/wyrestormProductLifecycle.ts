@@ -38,6 +38,15 @@ export type WyreStormSupersession = {
  * already cover. Keep this list driven by the reconciliation report: promote a
  * flagged version pair here only once a human has confirmed the successor is the
  * correct, current replacement (and that the successor is itself active).
+ *
+ * The table is PINNED to the same active-successor rule the lifecycle CSV
+ * successor column enforces (tools/check-lifecycle-successor-refs.mjs): a
+ * remap may only point at a SKU whose business status is `active`.
+ * collectWyreStormSupersessionProblems() runs at module load and logs any
+ * violation, entries whose successor is not active are excluded from the
+ * resolved map so the runtime can never redirect a rep onto a discontinued
+ * SKU, and the supersession pin suite (wyrestormProductLifecycle.test.ts)
+ * fails CI if the table drifts.
  */
 export const WYRESTORM_SUPERSESSIONS: readonly WyreStormSupersession[] = [
   // Promoted from the reconciliation report (npm run lifecycle:reconcile): each
@@ -58,16 +67,86 @@ export const WYRESTORM_SUPERSESSIONS: readonly WyreStormSupersession[] = [
     successor: "NHD-500-IW-TX-V2",
     reason: "NHD-500-IW-TX is discontinued; NHD-500-IW-TX-V2 is the current in-wall 500-series encoder.",
   },
-  {
-    predecessor: "APO-VX20-UC",
-    successor: "APO-VX20-UC-V2",
-    reason: "APO-VX20-UC is discontinued; APO-VX20-UC-V2 is the current Apollo video bar/UC switcher.",
-  },
+  // APO-VX20-UC -> APO-VX20-UC-V2 is deliberately NOT listed here: the alias
+  // resolver (skuAliasResolver.ts) already canonicalises APO-VX20-UC to the V2
+  // SKU, so a supersession entry would both duplicate that mapping and make the
+  // predecessor look active (alias-resolved) while declaring a successor - the
+  // active-successor pin flags exactly that class. Only successors the alias map
+  // does not cover belong in this table.
 ];
 
-const SUPERSESSION_BY_KEY = new Map<string, WyreStormSupersession>();
-for (const entry of WYRESTORM_SUPERSESSIONS) {
-  SUPERSESSION_BY_KEY.set(normaliseSkuKey(entry.predecessor), entry);
+/**
+ * Human-readable problems for a supersession table, mirroring the predicate of
+ * tools/check-lifecycle-successor-refs.mjs (collectSuccessorProblems): every
+ * successor must resolve to an ACTIVE SKU, an active product cannot declare a
+ * successor, and no row may name itself. Empty array = the table is clean.
+ */
+export function collectWyreStormSupersessionProblems(
+  entries: readonly WyreStormSupersession[] = WYRESTORM_SUPERSESSIONS,
+): string[] {
+  const problems: string[] = [];
+  for (const entry of entries) {
+    const predecessor = normaliseSkuKey(entry.predecessor);
+    const successor = normaliseSkuKey(entry.successor);
+    const predecessorStatus = getWyreStormSkuBusinessStatus(entry.predecessor);
+    const successorStatus = getWyreStormSkuBusinessStatus(entry.successor);
+
+    if (predecessorStatus === "active") {
+      problems.push(
+        `supersession: "${entry.predecessor}" is active but names successor "${entry.successor}" - a current product cannot be superseded by another SKU.`,
+      );
+    }
+    if (successor === predecessor) {
+      problems.push(`supersession: "${entry.predecessor}" names itself as its own successor.`);
+      continue;
+    }
+    if (successorStatus === "unlisted") {
+      problems.push(
+        `supersession: successor "${entry.successor}" of "${entry.predecessor}" does not resolve to any lifecycle row. A remap to an unknown SKU never attaches to a product.`,
+      );
+      continue;
+    }
+    if (successorStatus !== "active") {
+      problems.push(
+        `supersession: successor "${entry.successor}" of "${entry.predecessor}" is lifecycle "${successorStatus}" - a remap must point at an active, quotable product.`,
+      );
+    }
+  }
+  return problems;
+}
+
+// Build the resolved map from redirect-SAFE entries only: a supersession whose
+// successor is not an active, known SKU (or that names itself) is never served,
+// so a promoted remap can never direct a rep onto a discontinued product even
+// before the table is fixed. Data-quality violations still fail CI via the pin
+// suite and are logged loudly at import time below.
+function buildSupersessionMap(): Map<string, WyreStormSupersession> {
+  const map = new Map<string, WyreStormSupersession>();
+  for (const entry of WYRESTORM_SUPERSESSIONS) {
+    const predecessor = normaliseSkuKey(entry.predecessor);
+    const successor = normaliseSkuKey(entry.successor);
+    const successorStatus = getWyreStormSkuBusinessStatus(entry.successor);
+    if (successor !== predecessor && successorStatus === "active") {
+      map.set(predecessor, entry);
+    }
+  }
+  return map;
+}
+
+const SUPERSESSION_BY_KEY = buildSupersessionMap();
+
+const SUPERSESSION_PROBLEMS = collectWyreStormSupersessionProblems();
+if (SUPERSESSION_PROBLEMS.length > 0) {
+  // Loud but non-fatal: the supersession pin suite fails CI on the same
+  // problems, and the fail-closed map above already stops serving bad remaps.
+  // eslint-disable-next-line no-console
+  console.error(
+    `[wingman:supersession] WYRESTORM_SUPERSESSIONS violates the active-successor rule (${SUPERSESSION_PROBLEMS.length}):`,
+  );
+  for (const problem of SUPERSESSION_PROBLEMS) {
+    // eslint-disable-next-line no-console
+    console.error(`  - ${problem}`);
+  }
 }
 
 export type ProductLifecycle = {

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const root = process.cwd();
 const dbPath = path.join(root, "data", "admin", "wingman-product-admin-db.json");
@@ -29,7 +30,7 @@ function readDb() {
 
 function writeDb(db) {
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2) + "\n", "utf8");
+  atomicWriteJsonSync(dbPath, db);
 }
 
 function normaliseSku(value) {

@@ -13,6 +13,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import { writeJsonFileAtomic } from "../atomic-json-file.mjs";
 import { WYRESTORM_TECHNICAL_PROFILES_FILE } from "../catalog/files.mjs";
 
 const SPEC_CRITICAL_FIELDS = ["max-resolution", "routed-io", "power"];
@@ -49,8 +50,9 @@ async function readJsonFile(filePath, fallback) {
 }
 
 async function writeJsonFile(filePath, value) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(value, null, 2), "utf8");
+  // Crash-atomic: temp file + rename, so a confirmed profile can never be
+  // left half-written in the tracked governance file.
+  await writeJsonFileAtomic(filePath, value);
 }
 
 function isHumanConfirmed(profile) {

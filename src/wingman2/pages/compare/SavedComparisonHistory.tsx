@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { StoredCompareRun } from "../../data/projectStore";
 import { buildCompareHistoryCsv, buildCompareHistoryText, compareHistoryDiff, filterAndSortCompareHistory, type CompareHistoryView } from "../../lib/compareHistory";
+import { downloadBlob } from "../../lib/downloadBlob";
 
 type Props = {
   runs: StoredCompareRun[];
@@ -41,13 +42,7 @@ export function SavedComparisonHistory({ runs, view, onSearch, onFilter, onSort,
   }, [pendingDelete]);
 
   function exportCsv() {
-    const blob = new Blob([buildCompareHistoryCsv(visible)], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "wingman-saved-comparisons.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(new Blob([buildCompareHistoryCsv(visible)], { type: "text/csv;charset=utf-8" }), "wingman-saved-comparisons.csv");
   }
 
   async function copyText() {

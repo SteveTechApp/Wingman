@@ -22,8 +22,10 @@
 --
 -- Payload shape: one array per table, objects with the SNAKE_CASE columns of
 -- the matching table (identical to the rows the app previously upserted
--- directly). Arrays may be omitted or null; an omitted table's rows are left
--- untouched (no delete, no insert).
+-- directly). A section that is OMITTED or JSON null leaves that table
+-- untouched (no delete, no insert) - the delete phase only reconciles
+-- sections the caller provided as arrays. An explicit [] still means "the
+-- snapshot has no rows here": it deletes every row and inserts nothing.
 --
 -- Only service_role may execute it - regular/anon roles must not be able to
 -- replace the whole application snapshot.
@@ -50,58 +52,83 @@ begin
   end if;
 
   -- ------------------------------------------------------------------------
+  -- Oversized-payload circuit breaker (413 semantics, mirroring the API's body
+  -- cap): a snapshot blob larger than this cannot be posted through PostgREST
+  -- reliably and would only fail far from the cause. The store pre-flights the
+  -- SAME 8388608-byte default (WINGMAN_SNAPSHOT_COMMIT_MAX_BYTES) before
+  -- calling this RPC; this raise is the backstop for direct callers.
+  -- ------------------------------------------------------------------------
+  if octet_length(payload::text) > 8388608 then
+    raise exception
+      'wingman_snapshot_commit payload too large (413): % bytes exceeds the 8388608-byte commit limit; shrink the snapshot or write in smaller batches',
+      octet_length(payload::text);
+  end if;
+
+  -- ------------------------------------------------------------------------
   -- Phase 1: delete rows no longer in the snapshot, children first so the
   -- foreign keys (RESTRICT on users, CASCADE/SET NULL elsewhere) can never
   -- block a legitimate removal. Same order the app used for its deletes.
   -- ------------------------------------------------------------------------
 
+  -- Deletes only reconcile sections the caller actually provided as arrays:
+  -- an omitted or JSON-null section must leave that table untouched (the
+  -- documented payload contract), never wipe it. An explicit [] still means
+  -- "the snapshot has no rows here", so the delete runs and empties the table.
   delete from wingman_telemetry_events t
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'telemetryEvents', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = t.id
-  );
+  where jsonb_typeof(payload -> 'telemetryEvents') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'telemetryEvents') e(x)
+      where e.x ->> 'id' = t.id
+    );
 
   delete from wingman_audit_events a
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'auditEvents', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = a.id
-  );
+  where jsonb_typeof(payload -> 'auditEvents') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'auditEvents') e(x)
+      where e.x ->> 'id' = a.id
+    );
 
   delete from wingman_projects p
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'projects', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = p.id
-  );
+  where jsonb_typeof(payload -> 'projects') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'projects') e(x)
+      where e.x ->> 'id' = p.id
+    );
 
   delete from wingman_sessions s
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'sessions', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = s.id
-  );
+  where jsonb_typeof(payload -> 'sessions') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'sessions') e(x)
+      where e.x ->> 'id' = s.id
+    );
 
   delete from wingman_workspace_invitations i
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'invitations', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = i.id
-  );
+  where jsonb_typeof(payload -> 'invitations') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'invitations') e(x)
+      where e.x ->> 'id' = i.id
+    );
 
   delete from wingman_workspace_members m
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'memberships', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = m.id
-  );
+  where jsonb_typeof(payload -> 'memberships') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'memberships') e(x)
+      where e.x ->> 'id' = m.id
+    );
 
   delete from wingman_workspaces w
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'workspaces', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = w.id
-  );
+  where jsonb_typeof(payload -> 'workspaces') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'workspaces') e(x)
+      where e.x ->> 'id' = w.id
+    );
 
   delete from wingman_users u
-  where not exists (
-    select 1 from jsonb_array_elements(coalesce(payload -> 'users', '[]'::jsonb)) e(x)
-    where e.x ->> 'id' = u.id
-  );
+  where jsonb_typeof(payload -> 'users') = 'array'
+    and not exists (
+      select 1 from jsonb_array_elements(payload -> 'users') e(x)
+      where e.x ->> 'id' = u.id
+    );
 
   -- ------------------------------------------------------------------------
   -- Phase 2: upsert the incoming rows, parents first (workspaces reference
@@ -122,7 +149,7 @@ begin
     coalesce(nullif(e.x ->> 'status', ''), 'active'),
     coalesce(nullif(e.x ->> 'created_at', '')::timestamptz, now()),
     nullif(e.x ->> 'last_login_at', '')::timestamptz
-  from jsonb_array_elements(coalesce(payload -> 'users', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'users') = 'array' then payload -> 'users' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     name           = excluded.name,
     email          = excluded.email,
@@ -146,7 +173,7 @@ begin
     e.x ->> 'owner_user_id',
     nullif(e.x ->> 'active_project_id', ''),
     coalesce(nullif(e.x ->> 'created_at', '')::timestamptz, now())
-  from jsonb_array_elements(coalesce(payload -> 'workspaces', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'workspaces') = 'array' then payload -> 'workspaces' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     name              = excluded.name,
     slug              = excluded.slug,
@@ -165,7 +192,7 @@ begin
     e.x ->> 'user_id',
     coalesce(nullif(e.x ->> 'role', ''), 'sales'),
     coalesce(nullif(e.x ->> 'created_at', '')::timestamptz, now())
-  from jsonb_array_elements(coalesce(payload -> 'memberships', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'memberships') = 'array' then payload -> 'memberships' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     workspace_id = excluded.workspace_id,
     user_id      = excluded.user_id,
@@ -189,7 +216,7 @@ begin
     e.x ->> 'token_hash',
     coalesce(nullif(e.x ->> 'created_at', '')::timestamptz, now()),
     nullif(e.x ->> 'accepted_at', '')::timestamptz
-  from jsonb_array_elements(coalesce(payload -> 'invitations', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'invitations') = 'array' then payload -> 'invitations' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     workspace_id       = excluded.workspace_id,
     email              = excluded.email,
@@ -214,7 +241,7 @@ begin
     coalesce(nullif(e.x ->> 'created_at', '')::timestamptz, now()),
     coalesce(nullif(e.x ->> 'expires_at', '')::timestamptz, now()),
     coalesce(nullif(e.x ->> 'last_seen_at', '')::timestamptz, now())
-  from jsonb_array_elements(coalesce(payload -> 'sessions', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'sessions') = 'array' then payload -> 'sessions' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     token_hash   = excluded.token_hash,
     user_id      = excluded.user_id,
@@ -241,7 +268,7 @@ begin
     coalesce(nullif(e.x ->> 'created_at', '')::timestamptz, now()),
     coalesce(nullif(e.x ->> 'updated_at', '')::timestamptz, now()),
     coalesce(e.x -> 'payload', '{}'::jsonb)
-  from jsonb_array_elements(coalesce(payload -> 'projects', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'projects') = 'array' then payload -> 'projects' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     workspace_id = excluded.workspace_id,
     owner_id     = excluded.owner_id,
@@ -272,7 +299,7 @@ begin
     coalesce(nullif(e.x ->> 'detail', ''), 'Workspace activity captured.'),
     coalesce(nullif(e.x ->> 'created_at', '')::timestamptz, now()),
     coalesce(e.x -> 'payload', '{}'::jsonb)
-  from jsonb_array_elements(coalesce(payload -> 'auditEvents', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'auditEvents') = 'array' then payload -> 'auditEvents' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     workspace_id = excluded.workspace_id,
     project_id   = excluded.project_id,
@@ -298,7 +325,7 @@ begin
     coalesce(nullif(e.x ->> 'message', ''), 'Runtime event'),
     coalesce(nullif(e.x ->> 'timestamp', '')::timestamptz, now()),
     coalesce(e.x -> 'payload', '{}'::jsonb)
-  from jsonb_array_elements(coalesce(payload -> 'telemetryEvents', '[]'::jsonb)) e(x)
+  from jsonb_array_elements(case when jsonb_typeof(payload -> 'telemetryEvents') = 'array' then payload -> 'telemetryEvents' else '[]'::jsonb end) e(x)
   on conflict (id) do update set
     workspace_id = excluded.workspace_id,
     user_id      = excluded.user_id,

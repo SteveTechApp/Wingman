@@ -1,9 +1,18 @@
 import { describe, expect, it } from "vitest";
+import { WYRESTORM_CANONICAL_SKU_ALIASES } from "./skuAliasResolver";
 import {
   getWyreStormCompareLeadBlockReason,
   getWyreStormSkuBusinessStatus,
   isWyreStormSkuCompareLeadAllowed,
+  type WyreStormSkuBusinessStatus,
 } from "./wyrestormSkuBusinessStatus";
+
+const DEFINITIVE_STATUSES: readonly WyreStormSkuBusinessStatus[] = [
+  "active",
+  "discontinued",
+  "do-not-spec",
+  "cable",
+];
 
 describe("getWyreStormSkuBusinessStatus", () => {
   it("returns active for a confirmed active SKU", () => {
@@ -53,6 +62,26 @@ describe("getWyreStormSkuBusinessStatus", () => {
 
   it("returns unlisted for an empty SKU", () => {
     expect(getWyreStormSkuBusinessStatus("")).toBe("unlisted");
+  });
+
+  it("resolves every skuAliasResolver canonicalSku to a definitive lifecycle row", () => {
+    // Every canonicalSku in WYRESTORM_CANONICAL_SKU_ALIASES supplies the
+    // business status for its aliases (getWyreStormSkuBusinessStatus falls
+    // back to the canonical when the raw SKU has no definitive status). A
+    // canonical that is missing from lifecycle.csv, or that only has a
+    // non-definitive "review" placeholder row, reports as "unlisted" - every
+    // alias mapped to it silently degrades to compare-risk. This pins the
+    // whole map against that drift class (mirror of the successor-refs guard
+    // for the alias map that supplies business status).
+    expect(WYRESTORM_CANONICAL_SKU_ALIASES.length).toBeGreaterThan(0);
+    for (const entry of WYRESTORM_CANONICAL_SKU_ALIASES) {
+      const status = getWyreStormSkuBusinessStatus(entry.canonicalSku);
+      expect(
+        DEFINITIVE_STATUSES.includes(status),
+        `canonicalSku "${entry.canonicalSku}" (note: ${entry.note}) must resolve to a definitive lifecycle row, but business status is "${status}". ` +
+          "Add the SKU to lifecycle.csv with a real status (active/discontinued/do-not-spec/cable), or the alias resolves to compare-risk forever.",
+      ).toBe(true);
+    }
   });
 
   it("blocks a compare lead the admin has manually marked doNotUse", () => {

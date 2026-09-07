@@ -1,6 +1,23 @@
 #!/bin/sh
 echo "Wingman pre-commit..."
 
+# Fast lane: hand edits to package.json/package-lock.json are the cheapest way
+# to silently drop an override floor, so check them BEFORE the full verify
+# chain spends minutes on typecheck/build/tests. Gate the guard on whether the
+# commit actually touches those files (staged diff, empty tree = HEAD) so
+# unrelated commits pay ~80ms, not the full gate.
+if git diff --cached --quiet -- package.json package-lock.json; then
+  echo "pre-commit: no staged package.json/package-lock.json changes - skipping override-floor fast lane"
+else
+  echo "pre-commit: staged package manifest changes - running check:override-floors"
+  npm run --silent check:override-floors
+  fast_status=$?
+  if [ $fast_status -ne 0 ]; then
+    echo "Commit blocked (override floors broken by staged package manifest changes)"
+    exit 1
+  fi
+fi
+
 npm run precommit:check
 status=$?
 

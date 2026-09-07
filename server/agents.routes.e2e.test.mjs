@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -28,6 +28,36 @@ const negDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wingman-agents-neg-"))
 // 1x1 transparent PNG, enough for the vision-context route to accept.
 const PNG_1PX =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+
+// The architect/validate routes back their recommendations with the canonical
+// WyreStorm product store (data/wingman-canonical-product-store.json), which
+// is a gitignored GENERATED artifact (~14 MB). CI generates it before testing,
+// but a fresh `npm test` / `verify:fast` checkout does not - and without it
+// loadCatalogContext() reads zero records, the architect returns no
+// recommended products, and this suite fails on a clean clone. Generate the
+// store here (only when actually missing) so the suite is self-sufficient
+// instead of relying on a pre-existing generated file or an earlier command
+// having happened to run data:canonical-products first.
+const CANONICAL_STORE = path.join(projectRoot, "data", "wingman-canonical-product-store.json");
+
+function ensureCanonicalStore() {
+  if (fs.existsSync(CANONICAL_STORE)) return;
+  // eslint-disable-next-line no-console
+  console.log("[agents-e2e] Canonical product store missing - generating it (one-time).");
+  // `shell: true` so the npm shim resolves on every platform (npm.cmd on
+  // Windows) - the same convention the repo's other npm-spawning tools use.
+  const run = spawnSync("npm", ["run", "data:canonical-products"], {
+    cwd: projectRoot,
+    stdio: "inherit",
+    shell: true,
+  });
+  if (run.status !== 0 || !fs.existsSync(CANONICAL_STORE)) {
+    throw new Error(
+      `[agents-e2e] data/wingman-canonical-product-store.json is missing and could not be generated ` +
+        `(npm run data:canonical-products exited ${run.status}). Run it manually and re-run this suite.`,
+    );
+  }
+}
 
 let child = null;
 let sessionCookie = "";
@@ -83,6 +113,11 @@ async function signupAndCaptureCookie(url = BASE) {
 }
 
 beforeAll(async () => {
+  // The architect/validate assertions depend on live catalog records, so the
+  // store must exist BEFORE the server boots (its route cache snapshots the
+  // catalog on first load).
+  ensureCanonicalStore();
+
   child = spawn(process.execPath, ["server/competitor-lookup-server.mjs"], {
     cwd: projectRoot,
     env: {

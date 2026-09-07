@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const root = process.cwd();
 
@@ -57,7 +58,7 @@ if (updateBaseline) {
     files: Object.fromEntries(results.map((result) => [result.file, result.count])),
   };
 
-  fs.writeFileSync(baselinePath, `${JSON.stringify(baseline, null, 2)}\n`);
+  atomicWriteJsonSync(baselinePath, baseline);
   console.log(`[visual-class-drift] Baseline updated: ${path.relative(root, baselinePath)} total=${total}`);
   process.exit(0);
 }

@@ -7,6 +7,7 @@ import {
 } from "../lib/documentIngest/multiSkuCompetitorIngest";
 import type { StatusVariant } from "../types";
 import type { DiscoveryEvidence, ProjectEvidenceFoundation } from "../types/productTruth";
+import { STRANDED_BRIEF_QUOTE_SAFETY_MESSAGE } from "../lib/strandedBriefQuoteSafety";
 
 export type ProjectStage =
   | "Discovery"
@@ -2137,6 +2138,13 @@ export function saveRecommendationEvidenceToProject(
       : evidence.quoteSafetyStatus === "do-not-quote-yet"
         ? "caution"
         : "alternative";
+  // A stranded discovery brief (a captured answer whose option a later answer
+  // hid) already downgraded the brief's quote-safety gate. Carrying a fresh
+  // evidence payload over it must not re-derive a safer status from the pitch
+  // alone — keep the project at the brief's do-not-quote verdict so the
+  // evidence panel colors the same as the brief it overrides.
+  const strandedByBrief = existing?.discoveryBrief?.quoteSafetyStatus === "do-not-quote-yet";
+  const projectStatus: StatusVariant = strandedByBrief ? "caution" : status;
   const workflow: StoredWorkflowState = {
     source: "Product Pitch",
     lastStep: "Recommendation evidence saved",
@@ -2148,17 +2156,24 @@ export function saveRecommendationEvidenceToProject(
     updatedAt: timestamp,
     source: evidence.source || "Product Pitch",
   }) ?? evidence;
+  const evidenceForProject = strandedByBrief && normalizedEvidence.quoteSafetyStatus !== "do-not-quote-yet"
+    ? {
+        ...normalizedEvidence,
+        quoteSafetyStatus: "do-not-quote-yet" as const,
+        quoteSafetyMessage: STRANDED_BRIEF_QUOTE_SAFETY_MESSAGE,
+      }
+    : normalizedEvidence;
 
   const project = existing
     ? {
         ...existing,
         stage: "Recommendations" as const,
-        status,
+        status: projectStatus,
         updated: "Just now",
         resumeTo: routeCatalogByKey.productPitch.path,
         updatedAt: timestamp,
         productSelections,
-        recommendationEvidence: normalizedEvidence,
+        recommendationEvidence: evidenceForProject,
         workflow,
       }
     : createWorkflowProject({
@@ -2166,10 +2181,10 @@ export function saveRecommendationEvidenceToProject(
           ? `${normalizedSelection.sku} Product Pitch`
           : evidence.productDirection || "Product Pitch Direction",
         stage: "Recommendations",
-        status,
+        status: projectStatus,
         resumeTo: routeCatalogByKey.productPitch.path,
         productSelections: normalizedSelection ? [normalizedSelection] : undefined,
-        recommendationEvidence: normalizedEvidence,
+        recommendationEvidence: evidenceForProject,
         workflow,
       });
 
