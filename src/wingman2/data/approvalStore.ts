@@ -5,6 +5,7 @@ import {
   type ProposalApprovalStatus,
   type StoredProjectProposal,
 } from "./projectStore";
+import { withApprovedDesignRevision, withSubmittedDesignRevision } from "../lib/projectWorkflow";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -44,22 +45,7 @@ export function useSubmitForApproval() {
       const project = projects.find((p) => p.id === projectId);
       if (!project?.proposal) return false;
 
-      const proposal: StoredProjectProposal = {
-        ...project.proposal,
-        approvalStatus: "pending" as ProposalApprovalStatus,
-        submittedBy,
-        submittedAt: new Date().toISOString(),
-        // Clear previous approval if re-submitting
-        approvedBy: undefined,
-        approvedAt: undefined,
-        approvalComments: undefined,
-      };
-
-      upsertStoredProject({
-        ...project,
-        proposal,
-        updatedAt: new Date().toISOString(),
-      });
+      upsertStoredProject(withSubmittedDesignRevision(project, submittedBy));
       return true;
     },
     [projects],
@@ -77,19 +63,9 @@ export function useApproveProposal() {
       const project = projects.find((p) => p.id === projectId);
       if (!project?.proposal) return false;
 
-      const proposal: StoredProjectProposal = {
-        ...project.proposal,
-        approvalStatus: "approved" as ProposalApprovalStatus,
-        approvedBy,
-        approvedAt: new Date().toISOString(),
-        approvalComments: comments || project.proposal.approvalComments,
-      };
-
-      upsertStoredProject({
-        ...project,
-        proposal,
-        updatedAt: new Date().toISOString(),
-      });
+      const approved = withApprovedDesignRevision(project, approvedBy, comments);
+      if (approved.proposal?.approvalStatus !== "approved") return false;
+      upsertStoredProject(approved);
       return true;
     },
     [projects],

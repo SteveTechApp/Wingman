@@ -74,6 +74,8 @@ import {
   unresolvedToRisks,
 } from "../lib/unresolvedDiscoveryItems";
 import { ApprovalStatusBadge } from "../pages/ApprovalQueuePage";
+import { compileDesignProposal } from "../lib/designProposal";
+import { DesignProposalReview } from "./DesignProposalReview";
 
 type DiscoveryView = {
   projectTitle: string;
@@ -622,7 +624,8 @@ function ProposalCompletionWizardContent({
   );
 
   const proposal = useMemo<StoredProjectProposal>(
-    () => ({
+    () => {
+      const baseProposal: StoredProjectProposal = {
       title:
         draft.projectName ||
         project.name,
@@ -686,8 +689,27 @@ function ProposalCompletionWizardContent({
       contactPhone: profile.phone,
       discoveryConversation:
         project.discoveryBrief?.discoveryConversation ?? [],
+      approvalStatus: project.proposal?.approvalStatus ?? "draft",
+      submittedBy: project.proposal?.submittedBy,
+      submittedAt: project.proposal?.submittedAt,
+      approvedBy: project.proposal?.approvedBy,
+      approvedAt: project.proposal?.approvedAt,
+      approvalComments: project.proposal?.approvalComments,
+      submittedRevisionHash: project.proposal?.submittedRevisionHash,
+      approvedRevisionHash: project.proposal?.approvedRevisionHash,
       updatedAt: new Date().toISOString(),
-    }),
+      };
+      const designRevision = compileDesignProposal({ ...project, proposal: baseProposal });
+      const approvedMatches = baseProposal.approvedRevisionHash === designRevision.contentHash;
+      const submittedMatches = baseProposal.submittedRevisionHash === designRevision.contentHash;
+      return {
+        ...baseProposal,
+        designRevision,
+        ...((baseProposal.approvalStatus === "approved" && !approvedMatches) || (baseProposal.approvalStatus === "pending" && !submittedMatches)
+          ? { approvalStatus: "draft" as const, approvedBy: undefined, approvedAt: undefined, approvedRevisionHash: undefined, submittedBy: undefined, submittedAt: undefined, submittedRevisionHash: undefined, approvalComments: "Approval cleared because the design changed." }
+          : {}),
+      };
+    },
     [
       bomRows,
       discovery.summary,
@@ -709,6 +731,14 @@ function ProposalCompletionWizardContent({
       applicationProposal,
       project.proposal?.verification,
       project.proposal?.visualBlocks,
+      project.proposal?.approvalStatus,
+      project.proposal?.submittedBy,
+      project.proposal?.submittedAt,
+      project.proposal?.approvedBy,
+      project.proposal?.approvedAt,
+      project.proposal?.approvalComments,
+      project.proposal?.submittedRevisionHash,
+      project.proposal?.approvedRevisionHash,
       project.recommendationEvidence?.evidenceUsed,
       finalReadinessScore,
       salesReadiness.evidence,
@@ -1570,6 +1600,8 @@ function ProposalCompletionWizardContent({
                   )}
                 </section>
               </div>
+
+              {proposal.designRevision ? <DesignProposalReview revision={proposal.designRevision} /> : null}
 
               <label className="wm-proposal-confirmation wm-proposal-final-confirmation">
                 <input

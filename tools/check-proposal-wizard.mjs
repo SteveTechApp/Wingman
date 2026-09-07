@@ -35,7 +35,7 @@ const css = read("Proposal wizard CSS", files.css);
 
 [
   "ProposalCompletionWizard",
-  "TemplateProposalSeedPanel",
+  "ProposalCompletionWizard",
   "data-wingman-proposal-page",
 ].forEach((marker) => requireMarker("ProposalPage.tsx", page, marker));
 
@@ -72,7 +72,8 @@ const css = read("Proposal wizard CSS", files.css);
   "Header",
   "Footer",
   "PageNumber.CURRENT",
-  "Equipment Schedule",
+  "Equipment and Pricing",
+  "Requirement Understanding and Design Trace",
   ".proposal.docx",
 ].forEach((marker) =>
   requireMarker("proposalDocxExport.ts", exporter, marker),

@@ -235,6 +235,64 @@ export type StoredProjectProposal = {
   approvedBy?: string;
   approvedAt?: string;
   approvalComments?: string;
+  /** Canonical, project-owned design revision used by review and every customer output. */
+  designRevision?: StoredDesignProposalRevision;
+  /** Hash of the exact canonical revision submitted for approval. */
+  submittedRevisionHash?: string;
+  /** Hash of the exact canonical revision approved for customer issue. */
+  approvedRevisionHash?: string;
+};
+
+export type DesignRequirementState = "confirmed" | "inferred" | "unknown" | "conflict";
+
+export type StoredDesignRequirementTrace = {
+  id: string;
+  customerStatement: string;
+  interpretation: string;
+  designConsequence: string;
+  source: string;
+  state: DesignRequirementState;
+  confidence: "high" | "medium" | "low";
+};
+
+export type StoredDesignRoleCoverage = {
+  role: "source" | "processing" | "transport" | "destination" | "network" | "usb" | "audio" | "control" | "power";
+  label: string;
+  required: boolean;
+  covered: boolean;
+  evidence: string[];
+  requirementIds: string[];
+};
+
+export type StoredDesignProductOverview = {
+  sku: string;
+  name: string;
+  quantity: number;
+  designRole: string;
+  requirementIds: string[];
+  reason: string;
+  proof: string[];
+  dependencies: string[];
+  validation: string[];
+};
+
+export type StoredDesignProposalRevision = {
+  schemaVersion: 1;
+  revisionId: string;
+  contentHash: string;
+  projectId: string;
+  projectName: string;
+  compiledAt: string;
+  customerRequirement: string;
+  interpretedRequirement: string;
+  architecture: string;
+  requirements: StoredDesignRequirementTrace[];
+  roleCoverage: StoredDesignRoleCoverage[];
+  productOverviews: StoredDesignProductOverview[];
+  assumptions: string[];
+  blockers: string[];
+  warnings: string[];
+  canIssue: boolean;
 };
 
 /** A snapshot of the proposal at a point in time, for version history. */
@@ -937,7 +995,54 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
     contactEmail: stringValue(record.contactEmail, undefined),
     contactPhone: stringValue(record.contactPhone, undefined),
     discoveryConversation: normalizeDiscoveryConversation(record.discoveryConversation),
+    designRevision: normalizeDesignProposalRevision(record.designRevision),
+    submittedRevisionHash: stringValue(record.submittedRevisionHash, undefined),
+    approvedRevisionHash: stringValue(record.approvedRevisionHash, undefined),
+    approvalStatus:
+      record.approvalStatus === "pending" || record.approvalStatus === "approved" || record.approvalStatus === "rejected"
+        ? record.approvalStatus
+        : "draft",
+    submittedBy: stringValue(record.submittedBy, undefined),
+    submittedAt: stringValue(record.submittedAt, undefined),
+    approvedBy: stringValue(record.approvedBy, undefined),
+    approvedAt: stringValue(record.approvedAt, undefined),
+    approvalComments: stringValue(record.approvalComments, undefined),
     updatedAt: stringValue(record.updatedAt, nowIso()),
+  };
+}
+
+function normalizeDesignProposalRevision(value: unknown): StoredDesignProposalRevision | undefined {
+  const record = objectRecord(value);
+  if (!record || Number(record.schemaVersion) !== 1) return undefined;
+  const requirements = Array.isArray(record.requirements) ? record.requirements.filter(objectRecord).map((item) => ({
+    id: stringValue(item.id, createId("design-requirement")),
+    customerStatement: stringValue(item.customerStatement, "Requirement not confirmed"),
+    interpretation: stringValue(item.interpretation, "Requires review"),
+    designConsequence: stringValue(item.designConsequence, "Confirm before final design"),
+    source: stringValue(item.source, "Wingman"),
+    state: (["confirmed", "inferred", "unknown", "conflict"].includes(String(item.state)) ? item.state : "unknown") as DesignRequirementState,
+    confidence: (["high", "medium", "low"].includes(String(item.confidence)) ? item.confidence : "low") as "high" | "medium" | "low",
+  })) : [];
+  const roleCoverage = Array.isArray(record.roleCoverage) ? record.roleCoverage.filter(objectRecord).map((item) => ({
+    role: stringValue(item.role, "processing") as StoredDesignRoleCoverage["role"],
+    label: stringValue(item.label, "System role"),
+    required: Boolean(item.required), covered: Boolean(item.covered),
+    evidence: stringArray(item.evidence), requirementIds: stringArray(item.requirementIds),
+  })) : [];
+  const productOverviews = Array.isArray(record.productOverviews) ? record.productOverviews.filter(objectRecord).map((item) => ({
+    sku: stringValue(item.sku, "TBC"), name: stringValue(item.name, "Selected product"),
+    quantity: Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 1,
+    designRole: stringValue(item.designRole, "System product"), requirementIds: stringArray(item.requirementIds),
+    reason: stringValue(item.reason, "Selected for the proposed system"), proof: stringArray(item.proof),
+    dependencies: stringArray(item.dependencies), validation: stringArray(item.validation),
+  })) : [];
+  return {
+    schemaVersion: 1, revisionId: stringValue(record.revisionId, createId("design-revision")),
+    contentHash: stringValue(record.contentHash), projectId: stringValue(record.projectId), projectName: stringValue(record.projectName),
+    compiledAt: stringValue(record.compiledAt, nowIso()), customerRequirement: stringValue(record.customerRequirement, "Requirement not confirmed"),
+    interpretedRequirement: stringValue(record.interpretedRequirement, "Interpretation requires review"), architecture: stringValue(record.architecture, "Architecture requires confirmation"),
+    requirements, roleCoverage, productOverviews, assumptions: stringArray(record.assumptions), blockers: stringArray(record.blockers),
+    warnings: stringArray(record.warnings), canIssue: Boolean(record.canIssue),
   };
 }
 

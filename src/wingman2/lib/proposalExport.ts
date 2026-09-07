@@ -217,6 +217,15 @@ function buildUnresolvedDiscoveryHtml(proposal: StoredProjectProposal): string {
   </table>`;
 }
 
+function buildCanonicalDesignHtml(proposal: StoredProjectProposal): string {
+  const revision = proposal.designRevision;
+  if (!revision) return "";
+  const requirements = revision.requirements.map((item) => `<tr><td>${escapeHtml(item.customerStatement)}</td><td>${escapeHtml(item.interpretation)}</td><td>${escapeHtml(item.designConsequence)}</td><td>${escapeHtml(item.state)}</td></tr>`).join("");
+  const roles = revision.roleCoverage.filter((item) => item.required).map((item) => `<tr><td>${escapeHtml(item.label)}</td><td>${item.covered ? "Covered" : "Missing"}</td><td>${escapeHtml(item.evidence.join("; ") || "No design evidence")}</td></tr>`).join("");
+  const products = revision.productOverviews.map((item) => `<tr><td>${item.quantity} × ${escapeHtml(item.sku)}</td><td>${escapeHtml(item.designRole)}</td><td>${escapeHtml(item.reason)}</td><td>${escapeHtml(item.proof.join("; ") || "Confirm product evidence")}</td></tr>`).join("");
+  return `<h2>Requirement Understanding and Design Trace</h2><p><strong>Design revision:</strong> ${escapeHtml(revision.revisionId)}</p><p><strong>Customer said:</strong> ${escapeHtml(revision.customerRequirement)}</p><p><strong>Wingman understood:</strong> ${escapeHtml(revision.interpretedRequirement)}</p><p><strong>Design direction:</strong> ${escapeHtml(revision.architecture)}</p><table><thead><tr><th>Customer requirement</th><th>Wingman interpretation</th><th>Design consequence</th><th>Status</th></tr></thead><tbody>${requirements}</tbody></table><h2>System Completeness</h2><table><thead><tr><th>Required design role</th><th>Coverage</th><th>Evidence</th></tr></thead><tbody>${roles}</tbody></table><h2>Product Overview in This Design</h2><table><thead><tr><th>Product</th><th>Design role</th><th>Requirement served</th><th>Proof</th></tr></thead><tbody>${products}</tbody></table>`;
+}
+
 function buildExclusionsHtml(bomRows: BomRow[]) {
   const standardExclusions = [
     "Display, projector, LED and mounting hardware supply unless listed as a specific line item above.",
@@ -562,6 +571,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   ${proposal.outputPurpose ? `<p><strong>Sales motion:</strong> ${escapeHtml(proposal.outputPurpose.motion)}</p>` : ""}
   ${buildDiscoveryConversationHtml(proposal)}
   ${buildUnresolvedDiscoveryHtml(proposal)}
+  ${buildCanonicalDesignHtml(proposal)}
 
   <h2>Recommended Solution</h2>
   ${
