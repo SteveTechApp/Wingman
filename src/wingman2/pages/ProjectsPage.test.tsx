@@ -26,6 +26,10 @@ function baseProject(overrides: Partial<StoredProject>): StoredProject {
 vi.mock("../data/projectStore", () => ({
   setActiveProjectId: vi.fn(),
   useProjectStore: useProjectStoreMock,
+  // Real label behaviour is pinned by projectStore unit tests; the page test
+  // only needs the lane names it renders.
+  projectLaneLabel: (lane: string) =>
+    ({ proposal: "Proposal", requirements: "Requirements", discoveryBrief: "Discovery brief" })[lane] ?? lane,
 }));
 
 vi.mock("../lib/feedbackInformedGuidance", () => ({
@@ -107,5 +111,29 @@ describe("projects list compare confidence badge", () => {
     expect(strongBadge?.className).toContain("wm-status-success");
     const noneBadge = screen.getByText("No Equivalent Room").closest("tr")?.querySelector(".wm-projects-compare-tier");
     expect(noneBadge?.className).toContain("wm-status-danger");
+  });
+});
+
+describe("projects list team-change conflict badge", () => {
+  it("marks a project another member changed with the changed lane labels", () => {
+    renderProjects([
+      baseProject({
+        id: "project-with-conflict",
+        name: "Conflicted Project",
+        syncConflict: { fields: ["proposal", "requirements"], detectedAt: "2026-08-16T15:00:00.000Z" },
+      }),
+      baseProject({ id: "project-clean", name: "Clean Project" }),
+    ]);
+
+    const conflictedRow = screen.getByText("Conflicted Project").closest("tr");
+    expect(conflictedRow).not.toBeNull();
+    expect(conflictedRow?.textContent).toContain("Team changed:");
+    expect(conflictedRow?.textContent).toContain("Proposal");
+    expect(conflictedRow?.textContent).toContain("Requirements");
+    expect(conflictedRow?.querySelector(".wm-status-warning")).not.toBeNull();
+
+    // A project with no conflict shows no badge.
+    const cleanRow = screen.getByText("Clean Project").closest("tr");
+    expect(cleanRow?.textContent).not.toContain("Team changed:");
   });
 });

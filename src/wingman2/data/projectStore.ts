@@ -47,6 +47,29 @@ export type StoredProject = {
   evidenceFoundation?: ProjectEvidenceFoundation;
   visualAssets?: ProposalVisualAsset[];
   auditTrail?: ProjectAuditEntry[];
+  /**
+   * Server-owned per-project revision counter (ADR-0001 Phase 2). The backend
+   * returns it on every sync/hydration; the client echoes it back as
+   * baseRevision so the server's merge can tell stale writes apart and resolve
+   * same-field concurrent edits deterministically instead of by arrival order.
+   */
+  syncRevision?: number;
+  /**
+   * Set by the sync-response handler whenever the merged server document
+   * differs from the document this browser SENT on a lane the server merge
+   * arbitrates: another team member's accepted changes (or our edit losing a
+   * same-item tie) reached the row without this copy. `fields` names the
+   * changed lanes; cleared on the first sync response whose merged content
+   * matches our local copy. Never sent to the backend.
+   */
+  syncConflict?: StoredProjectSyncConflict;
+};
+
+export type StoredProjectSyncConflict = {
+  /** Lane keys whose server-accepted content differs from our local copy. */
+  fields: string[];
+  /** When the conflict was last detected by a sync response. */
+  detectedAt: string;
 };
 
 export type ProjectAuditEntry = {
@@ -600,7 +623,6 @@ function defaultStore(): ProjectStoreSnapshot {
     ],
   };
 }
-
 function objectRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
@@ -1138,6 +1160,10 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
   const auditTrail = normalizeAuditTrail(record.auditTrail);
   if (auditTrail.length) project.auditTrail = auditTrail;
 
+  const syncConflict = normalizeSyncConflict(record.syncConflict);
+  if (syncConflict) project.syncConflict = syncConflict;
+  else delete project.syncConflict;
+
   return project;
 }
 
@@ -1236,6 +1262,16 @@ function normalizeSyncStatus(value: unknown): StoredProjectSyncStatus {
     message: stringValue(record?.message, "Project data is stored locally."),
     updatedAt: stringValue(record?.updatedAt, nowIso()),
   };
+}
+
+function normalizeSyncConflict(value: unknown): StoredProjectSyncConflict | undefined {
+  const record = objectRecord(value);
+  if (!record) return undefined;
+  const fields = Array.isArray(record.fields)
+    ? Array.from(new Set(record.fields.map((field) => stringValue(field)).filter(Boolean))).slice(0, 20)
+    : [];
+  if (!fields.length) return undefined;
+  return { fields, detectedAt: stringValue(record.detectedAt, nowIso()) };
 }
 
 function safeStore(candidate: Partial<ProjectStoreSnapshot> | null | undefined): ProjectStoreSnapshot {
@@ -1352,19 +1388,6 @@ function getProjectStorageMode(): ProjectStorageMode {
   };
 }
 
-function buildProjectApiRequest(init: RequestInit, storageMode: RemoteProjectStorageMode): RequestInit {
-  const headers = new Headers(init.headers);
-  if (storageMode.authToken) {
-    headers.set("Authorization", `Bearer ${storageMode.authToken}`);
-  }
-
-  return {
-    ...init,
-    credentials: "include",
-    headers,
-  };
-}
-
 function storedProjectFromBackend(value: Record<string, unknown>): StoredProject {
   return normalizeStoredProject(value) ?? {
     id: createId("backend-project"),
@@ -1379,52 +1402,23 @@ function storedProjectFromBackend(value: Record<string, unknown>): StoredProject
   };
 }
 
-function backendProjectFromStored(project: StoredProject) {
-  return {
-    ...project,
-    customer: project.owner,
-    site: "",
-    roomName: project.name,
-    notes: `Resume workflow: ${project.resumeTo}`,
-  };
-}
-
-async function fetchBackendProjectStore(storageMode: RemoteProjectStorageMode) {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const response = await fetch(
-      PROJECTS_ENDPOINT,
-      buildProjectApiRequest(
-        {
-          cache: "no-store",
-        },
-        storageMode,
-      ),
-    );
-
-    if (response.status === 401) {
-      backendSyncRejectedForSession = true;
-      setProjectSyncStatus({
-        state: "local",
-        message: PROJECT_SYNC_SIGN_IN_MESSAGE,
-        updatedAt: nowIso(),
-      });
-      return null;
-    }
-    if (!response.ok) return null;
-    const payload = (await response.json()) as { projects?: unknown[] };
-    if (!Array.isArray(payload.projects)) return null;
-
-    return payload.projects
-      .filter((project): project is Record<string, unknown> => Boolean(project) && typeof project === "object")
-      .map(storedProjectFromBackend);
-  } catch (error) {
-    console.error("[wingman] projectStore: fetchBackendProjectStore failed", error);
-    return null;
-  }
-}
-
+/**
+ * The incremental-hydration `since` manifest (ADR-0001 §1.2k): per project,
+ * the last syncRevision the local copy is based on. The server skips any row
+ * whose revision equals the reported one and returns everything else, so a
+ * reload only downloads projects that actually changed. Two exclusions keep
+ * the pull safe under the merge policy:
+ *
+ *  - a project that was never synced (no syncRevision) is omitted - the row
+ *    either does not exist (a pending upload, which hydration must keep
+ *    local) or is legacy with no revision, which the server always returns;
+ *  - a syncConflict-flagged project is sent as revision 0, forcing the row
+ *    to be returned: the flag means the sync response advanced our revision
+ *    WITHOUT adopting the row's content (content basis < reported revision),
+ *    so only a full hydration merge can adopt the member's newer lanes.
+ *    Sending our reported revision there would skip the row forever and the
+ *    conflict would never reconcile.
+ */
 function setProjectSyncStatus(syncStatus: StoredProjectSyncStatus) {
   if (typeof window === "undefined") return;
 
@@ -1459,9 +1453,17 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
     window.clearTimeout(backendSyncTimer);
   }
 
-  backendSyncTimer = window.setTimeout(() => {
+  backendSyncTimer = window.setTimeout(async () => {
     backendSyncTimer = null;
+    const [{ analyzeProjectSyncResponse, backendProjectForSync, syncConflictStatusMessage }, { buildProjectApiRequest }] = await Promise.all([
+      import("./projectSyncConflict"),
+      import("./projectHydrationFetch"),
+    ]);
     const store = safeStore(snapshot);
+    // The exact documents this sync SENT: the conflict check diffs each
+    // returned merged project against its sent counterpart, so an edit made
+    // locally WHILE the request was in flight cannot look like a conflict.
+    const sentProjects = store.projects;
 
     fetch(
       PROJECT_SYNC_ENDPOINT,
@@ -1471,13 +1473,13 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             activeProjectId: store.activeProjectId ?? null,
-            projects: store.projects.map(backendProjectFromStored),
+            projects: store.projects.map(backendProjectForSync),
           }),
         },
         storageMode,
       ),
     )
-      .then((response) => {
+      .then(async (response) => {
         if (response.status === 401) {
           backendSyncRejectedForSession = true;
           setProjectSyncStatus({
@@ -1498,11 +1500,67 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
           return;
         }
 
-        setProjectSyncStatus({
-          state: "synced",
-          message: "Project changes are synced to the workspace backend.",
-          updatedAt: nowIso(),
-        });
+        // Adopt the server's per-project revision counter so the next sync
+        // echoes it back as baseRevision (ADR-0001 Phase 2). Content is never
+        // overwritten here - only the revision the local copy is based on, so
+        // a concurrent server-side merge still surfaces as a stale base on the
+        // next sync instead of silently clobbering the local document.
+        //
+        // Conflict surfacing: the merged document the server returns is the
+        // row's accepted state. When it differs from the document we SENT on a
+        // merge-arbitrated lane, another team member's changes reached the row
+        // (or our own edit lost a same-item tie) without this copy - the
+        // response revision advanced past our base revision in exactly those
+        // cases. The project is marked with the existing "conflict" sync state
+        // and the changed lane keys, so the UI can tell the rep which fields a
+        // team member changed. A later response that MATCHES our copy clears
+        // the mark (reconciled by a reload's hydration or the member reverting).
+        const payload = await response.json().catch(() => null);
+        const returned = payload?.projects;
+        const { revisionById, changedLanesByProjectId } = analyzeProjectSyncResponse(sentProjects, returned);
+
+        const conflicted: Array<{ name: string; fields: string[] }> = [];
+        if (revisionById.size > 0 || changedLanesByProjectId.size > 0) {
+          const snapshot = readProjectStore();
+          writeProjectStore(
+            {
+              ...snapshot,
+              projects: snapshot.projects.map((project) => {
+                let next = project;
+                const revision = revisionById.get(project.id);
+                if (revision !== undefined) next = { ...next, syncRevision: revision };
+                const changedLanes = changedLanesByProjectId.get(project.id);
+                if (changedLanes !== undefined) {
+                  if (changedLanes.length > 0) {
+                    conflicted.push({ name: project.name, fields: changedLanes });
+                    next = { ...next, syncConflict: { fields: changedLanes, detectedAt: nowIso() } };
+                  } else {
+                    // The merged row now matches this copy on every tracked
+                    // lane: a previously marked conflict is resolved.
+                    next = { ...next };
+                    delete next.syncConflict;
+                  }
+                }
+                return next;
+              }),
+            },
+            { syncBackend: false },
+          );
+        }
+
+        setProjectSyncStatus(
+          conflicted.length > 0
+            ? {
+                state: "conflict",
+                message: syncConflictStatusMessage(conflicted),
+                updatedAt: nowIso(),
+              }
+            : {
+                state: "synced",
+                message: "Project changes are synced to the workspace backend.",
+                updatedAt: nowIso(),
+              },
+        );
       })
       .catch((error) => {
         console.error("[wingman] projectStore: backend sync request failed", error);
@@ -1551,9 +1609,37 @@ export function writeProjectStore(snapshot: ProjectStoreSnapshot, options: { syn
   window.dispatchEvent(new CustomEvent(PROJECT_STORE_EVENT));
 }
 
+/**
+ * The timestamped sub-documents the client saves whole and that the server
+ * merge resolves per embedded timestamp (server/wingman-app-store.mjs
+ * SUB_DOCUMENT_TIMESTAMP_KEYS). Kept identical so both sides merge with one
+ * policy (ADR-0001 §1.2b/§1.2d, extended to hydration by §1.2f).
+ */
 async function hydrateProjectStoreFromBackendOnce(storageMode: RemoteProjectStorageMode) {
-  const backendProjects = await fetchBackendProjectStore(storageMode);
-  if (!backendProjects) return;
+  const [{ buildHydrationSinceManifest, mergeProjectVersionsForHydration }, { buildProjectApiRequest, fetchProjectHydration }] = await Promise.all([
+    import("./projectHydrationMerge"),
+    import("./projectHydrationFetch"),
+  ]);
+  // The manifest is read BEFORE the request so it reflects the revisions the
+  // local copies were based on when the pull started (an edit made while the
+  // request is in flight is preserved by the merge below and pushed by the
+  // next sync, exactly as a full hydration would). The merge base is read
+  // again AFTER the request so an in-flight local write is never clobbered by
+  // a stale snapshot.
+  const sinceManifest = buildHydrationSinceManifest(readProjectStore().projects);
+  const result = await fetchProjectHydration(PROJECTS_ENDPOINT, buildProjectApiRequest({
+    cache: "no-store",
+    headers: { "X-Wingman-Since": JSON.stringify(sinceManifest) },
+  }, storageMode));
+  if (result.status === 401) {
+    backendSyncRejectedForSession = true;
+    setProjectSyncStatus({ state: "local", message: PROJECT_SYNC_SIGN_IN_MESSAGE, updatedAt: nowIso() });
+    return;
+  }
+  if (!result.projects) return;
+  const backendProjects = result.projects
+    .filter((project): project is Record<string, unknown> => Boolean(project) && typeof project === "object")
+    .map(storedProjectFromBackend);
   const currentStore = readProjectStore();
   let conflictDetected = false;
   const localById = new Map(currentStore.projects.map((project) => [project.id, project]));
@@ -1562,14 +1648,18 @@ async function hydrateProjectStoreFromBackendOnce(storageMode: RemoteProjectStor
     const localProject = localById.get(backendProject.id);
     if (!localProject) return backendProject;
 
-    const localTime = Date.parse(localProject.updatedAt || "");
-    const backendTime = Date.parse(backendProject.updatedAt || "");
-    if (Number.isFinite(localTime) && Number.isFinite(backendTime) && localTime > backendTime) {
-      conflictDetected = true;
-      return localProject;
-    }
-
-    return backendProject;
+    // One merge policy on BOTH sides: per-sub-document embedded-timestamp LWW,
+    // exactly like the server's merge on every accepted sync. A reload can no
+    // longer resolve by whole-project updatedAt alone, which silently dropped
+    // a locally-edited (offline) sub-document whenever a DIFFERENT
+    // sub-document had advanced on the backend — and, in the other direction,
+    // left a two-tab copy blind to the other tab's newer sub-document because
+    // the whole-project timestamps tied. The merged copy also adopts the
+    // backend's syncRevision (when backend content is adopted) so the next
+    // sync echoes the freshest basis the merged content is based on.
+    const merged = mergeProjectVersionsForHydration(localProject, backendProject);
+    if (merged.conflict) conflictDetected = true;
+    return merged.project;
   });
 
   currentStore.projects.forEach((project) => {
