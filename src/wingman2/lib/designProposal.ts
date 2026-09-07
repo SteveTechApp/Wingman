@@ -1,4 +1,3 @@
-import { getProductStory } from "../data/productStories";
 import type {
   DesignRequirementState,
   StoredDesignProductOverview,
@@ -86,10 +85,10 @@ function roleCoverage(project: StoredProject, requirements: StoredDesignRequirem
 function productOverviews(project: StoredProject, requirements: StoredDesignRequirementTrace[]): StoredDesignProductOverview[] {
   const rows = project.proposal?.bomRows?.length ? project.proposal.bomRows : (project.productSelections ?? []).map((item, index) => ({ item: index + 1, sku: item.sku, description: item.title ?? item.sku, role: item.category ?? item.family ?? "System product", qty: item.quantity ?? 1, status: "selected", evidence: item.evidence?.join("; "), notes: item.cautions?.join("; ") ?? "" }));
   return rows.filter((row) => row.qty > 0 && !row.sku.startsWith("BY-OTHERS")).map((row) => {
-    const story = getProductStory(row.sku); const blob = `${row.sku} ${row.description} ${row.role} ${story?.whatItDoes ?? ""}`;
+    const blob = `${row.sku} ${row.description} ${row.role}`;
     const matched = requirements.filter((item) => ROLE_DEFINITIONS.some((definition) => definition.patterns.test(blob) && definition.patterns.test(`${item.customerStatement} ${item.designConsequence}`)));
     const dependencies = (project.proposal?.governedDependencies ?? []).filter((item) => item.sourceSku === row.sku || item.sku === row.sku).map((item) => `${item.qty} × ${item.sku}: ${item.label}`);
-    return { sku: row.sku, name: story?.plainEnglishName || row.description, quantity: row.qty, designRole: row.role || "System product", requirementIds: matched.map((item) => item.id), reason: matched.length ? `Selected to address: ${matched.map((item) => item.customerStatement).join("; ")}` : story?.customerProblem || `Selected for the ${row.role || "system"} role.`, proof: unique([...(story?.keyFeatures.slice(0, 4) ?? []), ...(row.evidence ? [row.evidence] : [])]), dependencies, validation: unique([...(story?.quoteChecks.slice(0, 4) ?? []), ...(row.notes ? [row.notes] : [])]) };
+    return { sku: row.sku, name: row.description, quantity: row.qty, designRole: row.role || "System product", requirementIds: matched.map((item) => item.id), reason: matched.length ? `Selected to address: ${matched.map((item) => item.customerStatement).join("; ")}` : `Selected for the ${row.role || "system"} role.`, proof: row.evidence ? [row.evidence] : [], dependencies, validation: row.notes ? [row.notes] : [] };
   });
 }
 
@@ -116,4 +115,21 @@ export function compileDesignProposal(project: StoredProject, compiledAt = new D
 export function approvalMatchesDesignRevision(project: StoredProject) {
   const proposal = project.proposal; if (!proposal?.designRevision) return false;
   return proposal.approvalStatus !== "approved" || proposal.approvedRevisionHash === proposal.designRevision.contentHash;
+}
+
+export function withRefreshedDesignRevision(project: StoredProject, compiledAt = new Date().toISOString()): StoredProject {
+  if (!project.proposal) return project;
+  const designRevision = compileDesignProposal(project, compiledAt);
+  const approvalStillMatches = project.proposal.approvedRevisionHash === designRevision.contentHash;
+  return {
+    ...project,
+    proposal: {
+      ...project.proposal,
+      designRevision,
+      ...(project.proposal.approvalStatus === "approved" && !approvalStillMatches
+        ? { approvalStatus: "draft" as const, approvedBy: undefined, approvedAt: undefined, approvedRevisionHash: undefined, approvalComments: "Approval cleared because the design changed." }
+        : {}),
+    },
+    updatedAt: compiledAt,
+  };
 }

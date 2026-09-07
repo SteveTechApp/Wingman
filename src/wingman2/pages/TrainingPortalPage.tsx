@@ -1,27 +1,14 @@
 import { useState } from "react";
-import "../styles/wingman-training-portal.css";
 import {
   ArrowRight,
-  BookOpen,
-  Cable,
   Check,
-  ChevronRight,
   CircleAlert,
   Clock3,
-  EthernetPort,
-  Gauge,
   GraduationCap,
-  Headphones,
-  Lightbulb,
   Monitor,
   Network,
-  Play,
-  Radio,
   Search,
-  ShieldCheck,
-  SlidersHorizontal,
   Sparkles,
-  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -47,7 +34,7 @@ const learningPaths: LearningPath[] = [
     description: "Learn the complete AV journey from a source device to the audience, and the questions that expose risk at every hand-off.",
     duration: "35 min",
     lessons: 5,
-    icon: Cable,
+    icon: Network,
     outcome: "Map a customer requirement into a credible signal path.",
     topics: ["Sources and formats", "Switching and distribution", "Transport and distance", "Displays and destinations"],
   },
@@ -69,7 +56,7 @@ const learningPaths: LearningPath[] = [
     description: "Compare HDMI, HDBaseT, fibre and AV over IP by application, scale, distance and operational ownership.",
     duration: "32 min",
     lessons: 5,
-    icon: EthernetPort,
+    icon: Network,
     outcome: "Recommend an architecture for the reason that matters to the buyer.",
     topics: ["Copper limits", "HDBaseT", "Fibre", "1G and 10G AVoIP"],
   },
@@ -80,24 +67,24 @@ const learningPaths: LearningPath[] = [
     description: "Connect cameras, microphones, speakers, USB hosts and conferencing platforms into a room people can actually operate.",
     duration: "24 min",
     lessons: 4,
-    icon: Users,
+    icon: GraduationCap,
     outcome: "Discover how people need the room to work before specifying its technology.",
     topics: ["BYOD and BYOM", "USB extension", "Audio pickup", "Room control"],
   },
 ];
 
 const signalStages = [
-  { label: "Source", example: "Laptop · camera · player", question: "What is being shown?", icon: Play },
-  { label: "Process", example: "Switch · scale · compose", question: "What must happen to it?", icon: SlidersHorizontal },
-  { label: "Transport", example: "Copper · fibre · network", question: "How far must it travel?", icon: Radio },
+  { label: "Source", example: "Laptop · camera · player", question: "What is being shown?", icon: Monitor },
+  { label: "Process", example: "Switch · scale · compose", question: "What must happen to it?", icon: Network },
+  { label: "Transport", example: "Copper · fibre · network", question: "How far must it travel?", icon: Network },
   { label: "Destination", example: "Display · recorder · USB host", question: "Where must it arrive?", icon: Monitor },
 ];
 
 const fieldNotes = [
-  { term: "EDID", meaning: "The display tells the source which picture and audio formats it can accept.", ask: "Are all displays the same capability?", icon: Gauge },
-  { term: "HDCP", meaning: "Content protection must be supported across every device in the chain.", ask: "Will protected streaming content be shown?", icon: ShieldCheck },
+  { term: "EDID", meaning: "The display tells the source which picture and audio formats it can accept.", ask: "Are all displays the same capability?", icon: Monitor },
+  { term: "HDCP", meaning: "Content protection must be supported across every device in the chain.", ask: "Will protected streaming content be shown?", icon: Network },
   { term: "Latency", meaning: "The delay between an action and its result; visible in speech, cameras and interaction.", ask: "Is this for viewing, presenting or live interaction?", icon: Clock3 },
-  { term: "Audio path", meaning: "Sound often needs a different destination and control plan from the picture.", ask: "Where should sound be heard and who controls it?", icon: Headphones },
+  { term: "Audio path", meaning: "Sound often needs a different destination and control plan from the picture.", ask: "Where should sound be heard and who controls it?", icon: Monitor },
 ];
 
 const discoveryQuestions = [
@@ -154,7 +141,7 @@ export function TrainingPortalPage() {
               return (
                 <button key={path.id} type="button" role="tab" aria-selected={active} className={active ? "is-active" : ""} onClick={() => setActivePath(path)}>
                   <span className="wm-training-path-number">0{index + 1}</span><Icon aria-hidden="true" />
-                  <span><small>{path.label}</small><strong>{path.title}</strong></span><ChevronRight aria-hidden="true" />
+                  <span><small>{path.label}</small><strong>{path.title}</strong></span><ArrowRight aria-hidden="true" />
                 </button>
               );
             })}
@@ -163,7 +150,7 @@ export function TrainingPortalPage() {
             <div className="wm-training-path-detail__meta"><span>{activePath.lessons} lessons</span><span><Clock3 aria-hidden="true" /> {activePath.duration}</span></div>
             <h3>{activePath.title}</h3><p>{activePath.description}</p>
             <ul>{activePath.topics.map((topic) => <li key={topic}><Check aria-hidden="true" /> {topic}</li>)}</ul>
-            <div className="wm-training-outcome"><Lightbulb aria-hidden="true" /><span><small>You will be able to</small><strong>{activePath.outcome}</strong></span></div>
+            <div className="wm-training-outcome"><Sparkles aria-hidden="true" /><span><small>You will be able to</small><strong>{activePath.outcome}</strong></span></div>
             <Link className="wm-training-topic-link" to={routeCatalogByKey.glossary.path}>Explore this topic in the glossary <ArrowRight aria-hidden="true" /></Link>
           </article>
         </div>
@@ -195,7 +182,7 @@ export function TrainingPortalPage() {
         <div><Sparkles aria-hidden="true" /><span><small>Put it into practice</small><strong>Learn a family, test a claim, then use it in discovery.</strong></span></div>
         <nav>
           <Link to={routeCatalogByKey.productFamilies.path}><Network aria-hidden="true" /> Product family learning</Link>
-          <Link to={routeCatalogByKey.productCallCards.path}><BookOpen aria-hidden="true" /> Product call cards</Link>
+          <Link to={routeCatalogByKey.productCallCards.path}><GraduationCap aria-hidden="true" /> Product call cards</Link>
         </nav>
       </section>
     </main>

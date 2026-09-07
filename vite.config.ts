@@ -176,6 +176,11 @@ export default defineConfig({
               priority: 30,
             },
             {
+              name: "wm-design-workflow",
+              test: /src[\\/]wingman2[\\/](?:lib[\\/]designProposal|components[\\/]DesignProposalReview)\.tsx?$/,
+              priority: 25,
+            },
+            {
               name: "wm-project-workflow",
               test: /src[\\/]wingman2[\\/](data|lib|components)[\\/].*(project|Project|proposal|Proposal|template|Template).*\.tsx?$/,
             },

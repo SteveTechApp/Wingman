@@ -1,4 +1,3 @@
-import { AlertTriangle, CheckCircle2, CircleDashed, Link2, ShieldCheck } from "lucide-react";
 import type { StoredDesignProposalRevision } from "../data/projectStore";
 
 export function DesignProposalReview({ revision }: { revision: StoredDesignProposalRevision }) {
@@ -17,7 +16,7 @@ export function DesignProposalReview({ revision }: { revision: StoredDesignPropo
       <div className="wm-design-review__section-head"><h4>Requirement trace</h4><span>{revision.requirements.length} captured</span></div>
       <div className="wm-design-review__requirements">
         {revision.requirements.map((item) => <article key={item.id} data-state={item.state}>
-          <div><Link2 aria-hidden="true" /><strong>{item.customerStatement}</strong><span>{item.state}</span></div>
+          <div><span aria-hidden="true">↗</span><strong>{item.customerStatement}</strong><span>{item.state}</span></div>
           <p><b>Interpretation:</b> {item.interpretation}</p><p><b>Design consequence:</b> {item.designConsequence}</p>
           <small>{item.source} · {item.confidence} confidence</small>
         </article>)}
@@ -26,7 +25,7 @@ export function DesignProposalReview({ revision }: { revision: StoredDesignPropo
       <div className="wm-design-review__section-head"><h4>System completeness</h4><span>{revision.roleCoverage.filter((item) => item.required && item.covered).length}/{revision.roleCoverage.filter((item) => item.required).length} required roles covered</span></div>
       <div className="wm-design-review__roles">
         {revision.roleCoverage.map((item) => <div key={item.role} data-required={item.required} data-covered={item.covered}>
-          {item.covered ? <CheckCircle2 aria-hidden="true" /> : <CircleDashed aria-hidden="true" />}<span><strong>{item.label}</strong><small>{item.required ? "Required" : "As required"}{item.evidence.length ? ` · ${item.evidence.join(", ")}` : ""}</small></span>
+          <span aria-hidden="true">{item.covered ? "✓" : "○"}</span><span><strong>{item.label}</strong><small>{item.required ? "Required" : "As required"}{item.evidence.length ? ` · ${item.evidence.join(", ")}` : ""}</small></span>
         </div>)}
       </div>
 
@@ -36,8 +35,8 @@ export function DesignProposalReview({ revision }: { revision: StoredDesignPropo
       </div>
 
       {(revision.blockers.length || revision.warnings.length) ? <div className="wm-design-review__issues">
-        {revision.blockers.length ? <div data-tone="blocker"><AlertTriangle aria-hidden="true" /><span><strong>Design blockers</strong>{revision.blockers.map((item) => <p key={item}>{item}</p>)}</span></div> : null}
-        {revision.warnings.length ? <div data-tone="warning"><ShieldCheck aria-hidden="true" /><span><strong>Confirm before issue</strong>{revision.warnings.map((item) => <p key={item}>{item}</p>)}</span></div> : null}
+        {revision.blockers.length ? <div data-tone="blocker"><span aria-hidden="true">!</span><span><strong>Design blockers</strong>{revision.blockers.map((item) => <p key={item}>{item}</p>)}</span></div> : null}
+        {revision.warnings.length ? <div data-tone="warning"><span aria-hidden="true">?</span><span><strong>Confirm before issue</strong>{revision.warnings.map((item) => <p key={item}>{item}</p>)}</span></div> : null}
       </div> : null}
     </section>
   );

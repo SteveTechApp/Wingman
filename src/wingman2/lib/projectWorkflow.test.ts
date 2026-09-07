@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { StoredProject } from "../data/projectStore";
-import { withApprovedDesignRevision, withRefreshedDesignRevision, withSubmittedDesignRevision } from "./projectWorkflow";
+import { withRefreshedDesignRevision } from "./designProposal";
+import { withApprovedDesignRevision, withSubmittedDesignRevision } from "./projectWorkflow";
 
 const now = "2026-09-07T10:00:00.000Z";
 function fixture(): StoredProject {
@@ -9,7 +10,7 @@ function fixture(): StoredProject {
 
 describe("project design workflow", () => {
   it("submits and approves the exact compiled revision", () => {
-    const submitted = withSubmittedDesignRevision(fixture(), "Rep", now);
+    const submitted = withSubmittedDesignRevision(withRefreshedDesignRevision(fixture(), now), "Rep", now);
     expect(submitted.proposal?.submittedRevisionHash).toBe(submitted.proposal?.designRevision?.contentHash);
     const approved = withApprovedDesignRevision(submitted, "Manager", "Checked", now);
     expect(approved.proposal?.approvalStatus).toBe("approved");
@@ -17,7 +18,7 @@ describe("project design workflow", () => {
   });
 
   it("invalidates approval after a material requirement change", () => {
-    const approved = withApprovedDesignRevision(withSubmittedDesignRevision(fixture(), "Rep", now), "Manager", "", now);
+    const approved = withApprovedDesignRevision(withSubmittedDesignRevision(withRefreshedDesignRevision(fixture(), now), "Rep", now), "Manager", "", now);
     const changed = { ...approved, requirements: approved.requirements?.map((item) => ({ ...item, value: "Two sources to two displays" })) };
     const refreshed = withRefreshedDesignRevision(changed, "2026-09-07T12:00:00.000Z");
     expect(refreshed.proposal?.approvalStatus).toBe("draft");

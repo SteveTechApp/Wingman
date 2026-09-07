@@ -67,6 +67,11 @@ assert(
 );
 
 assert(
+  routes.includes("../pages/TrainingPortalPage"),
+  "The dedicated training portal should be loaded directly by the Learn route.",
+);
+
+assert(
   routes.includes("../pages/CallCardsPage"),
   "Legacy /wingman/call-cards route should remain registered for safe redirects.",
 );
@@ -112,8 +117,7 @@ assert(
 assert(
   navigationHub.includes("export function ProductsPage") &&
     navigationHub.includes("export function DocumentsPage") &&
-    navigationHub.includes("export function ResponsePackPage") &&
-    navigationHub.includes("export function LearnPage"),
+    navigationHub.includes("export function ResponsePackPage"),
   "NavigationHubPages is missing one or more consolidated hub page exports.",
 );
 
