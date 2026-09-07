@@ -114,6 +114,16 @@ describe("discovery conversation in proposal HTML", () => {
 });
 
 describe("proposal safety standard", () => {
+  it("exports the canonical requirement, completeness and product context from one revision", () => {
+    const proposal: StoredProjectProposal = { title: "Canonical design", summary: "Room", sections: [], products: [], assumptions: [], updatedAt: "2026-09-07", designRevision: { schemaVersion: 1, revisionId: "dp1-test", contentHash: "dp1-test", projectId: "p", projectName: "Room", compiledAt: "2026-09-07", customerRequirement: "Customer said two displays", interpretedRequirement: "Wingman understood independent destinations", architecture: "Matrix transport", requirements: [{ id: "r", customerStatement: "Two displays", interpretation: "Independent destinations", designConsequence: "Provide two routed outputs", source: "Customer", state: "confirmed", confidence: "high" }], roleCoverage: [{ role: "destination", label: "Displays and destinations", required: true, covered: true, evidence: ["2 × outputs"], requirementIds: ["r"] }], productOverviews: [{ sku: "MX-0402-MST", name: "Matrix", quantity: 1, designRole: "Routing", requirementIds: ["r"], reason: "Serves two independent displays", proof: ["Two routed outputs"], dependencies: [], validation: [] }], assumptions: [], blockers: [], warnings: [], canIssue: true } };
+    const html = buildProposalHtml(proposal, []);
+    expect(html).toContain("Requirement Understanding and Design Trace");
+    expect(html).toContain("System Completeness");
+    expect(html).toContain("Product Overview in This Design");
+    expect(html).toContain("dp1-test");
+    expect(html).toContain("Serves two independent displays");
+  });
+
   it("separates every required customer-safe output section", () => {
     const proposal: StoredProjectProposal = {
       title: "Test proposal",

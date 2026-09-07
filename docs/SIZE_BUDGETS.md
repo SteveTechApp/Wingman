@@ -99,6 +99,18 @@ have no exception path at all — see
 
 ## Approved exceptions
 
+### 2026-09-07 — Consolidated training and canonical design workflow
+
+Reviewed exception recorded for the AV technology training portal and the
+project-owned design revision used by proposal review, approval and export.
+After removing shared product-story and icon coupling, splitting the compiler
+from the project workflow chunk, and folding route styling into the governed
+stylesheet, `initial:js` is 544,333 bytes and `total:js` is 6,859,118 bytes.
+The same consolidation lowers the competitor-registry limit from 895,308 to
+874,497 bytes and the total CSS limit from 958,800 to 916,258 bytes. The design
+logic remains route-loaded; the small eager increase is the persisted revision
+shape and exact-revision approval guard used by the shared project store.
+
 ### 2026-08-16 — Compare confidence-tier and evidence-trace feature work
 
 Reviewed exception recorded in `tools/wingman-size-budgets.json` (and

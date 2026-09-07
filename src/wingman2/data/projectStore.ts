@@ -235,6 +235,64 @@ export type StoredProjectProposal = {
   approvedBy?: string;
   approvedAt?: string;
   approvalComments?: string;
+  /** Canonical, project-owned design revision used by review and every customer output. */
+  designRevision?: StoredDesignProposalRevision;
+  /** Hash of the exact canonical revision submitted for approval. */
+  submittedRevisionHash?: string;
+  /** Hash of the exact canonical revision approved for customer issue. */
+  approvedRevisionHash?: string;
+};
+
+export type DesignRequirementState = "confirmed" | "inferred" | "unknown" | "conflict";
+
+export type StoredDesignRequirementTrace = {
+  id: string;
+  customerStatement: string;
+  interpretation: string;
+  designConsequence: string;
+  source: string;
+  state: DesignRequirementState;
+  confidence: "high" | "medium" | "low";
+};
+
+export type StoredDesignRoleCoverage = {
+  role: "source" | "processing" | "transport" | "destination" | "network" | "usb" | "audio" | "control" | "power";
+  label: string;
+  required: boolean;
+  covered: boolean;
+  evidence: string[];
+  requirementIds: string[];
+};
+
+export type StoredDesignProductOverview = {
+  sku: string;
+  name: string;
+  quantity: number;
+  designRole: string;
+  requirementIds: string[];
+  reason: string;
+  proof: string[];
+  dependencies: string[];
+  validation: string[];
+};
+
+export type StoredDesignProposalRevision = {
+  schemaVersion: 1;
+  revisionId: string;
+  contentHash: string;
+  projectId: string;
+  projectName: string;
+  compiledAt: string;
+  customerRequirement: string;
+  interpretedRequirement: string;
+  architecture: string;
+  requirements: StoredDesignRequirementTrace[];
+  roleCoverage: StoredDesignRoleCoverage[];
+  productOverviews: StoredDesignProductOverview[];
+  assumptions: string[];
+  blockers: string[];
+  warnings: string[];
+  canIssue: boolean;
 };
 
 /** A snapshot of the proposal at a point in time, for version history. */
@@ -937,8 +995,28 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
     contactEmail: stringValue(record.contactEmail, undefined),
     contactPhone: stringValue(record.contactPhone, undefined),
     discoveryConversation: normalizeDiscoveryConversation(record.discoveryConversation),
+    designRevision: normalizeDesignProposalRevision(record.designRevision),
+    submittedRevisionHash: stringValue(record.submittedRevisionHash, undefined),
+    approvedRevisionHash: stringValue(record.approvedRevisionHash, undefined),
+    approvalStatus:
+      record.approvalStatus === "pending" || record.approvalStatus === "approved" || record.approvalStatus === "rejected"
+        ? record.approvalStatus
+        : "draft",
+    submittedBy: stringValue(record.submittedBy, undefined),
+    submittedAt: stringValue(record.submittedAt, undefined),
+    approvedBy: stringValue(record.approvedBy, undefined),
+    approvedAt: stringValue(record.approvedAt, undefined),
+    approvalComments: stringValue(record.approvalComments, undefined),
     updatedAt: stringValue(record.updatedAt, nowIso()),
   };
+}
+
+function normalizeDesignProposalRevision(value: unknown): StoredDesignProposalRevision | undefined {
+  const record = objectRecord(value);
+  if (!record || Number(record.schemaVersion) !== 1) return undefined;
+  // Design revisions are generated atomically by compileDesignProposal. Preserve
+  // the versioned payload here; the compiler owns its schema and defaults.
+  return record as unknown as StoredDesignProposalRevision;
 }
 
 function normalizeProposalVisualBlocks(value: unknown): StoredProposalVisualBlock[] {

@@ -283,6 +283,23 @@ function productSpecificationContent(proposal: StoredProjectProposal): Array<Par
   ]);
 }
 
+function canonicalDesignContent(proposal: StoredProjectProposal): Array<Paragraph | Table> {
+  const revision = proposal.designRevision;
+  if (!revision) return [paragraph("A canonical design revision has not been compiled for this legacy proposal.", { colour: MUTED })];
+  return [
+    paragraph(`Design revision: ${revision.revisionId}`, { bold: true, colour: NAVY }),
+    heading("Customer said", 2), paragraph(revision.customerRequirement),
+    heading("Wingman understood", 2), paragraph(revision.interpretedRequirement),
+    heading("Design direction", 2), paragraph(revision.architecture),
+    heading("Requirement trace", 2),
+    ...revision.requirements.flatMap((item) => [paragraph(item.customerStatement, { bold: true }), paragraph(`${item.interpretation} Design consequence: ${item.designConsequence} Status: ${item.state}.`, { colour: MUTED })]),
+    heading("System completeness", 2),
+    ...revision.roleCoverage.filter((item) => item.required).map((item) => bullet(`${item.label}: ${item.covered ? "Covered" : "Missing"}${item.evidence.length ? ` — ${item.evidence.join("; ")}` : ""}`)),
+    heading("Product overview in this design", 2),
+    ...revision.productOverviews.flatMap((item) => [paragraph(`${item.quantity} × ${item.sku} — ${item.name}`, { bold: true }), paragraph(`${item.designRole}. ${item.reason}${item.proof.length ? ` Proof: ${item.proof.join("; ")}` : ""}`, { colour: MUTED })]),
+  ];
+}
+
 async function fetchImageAsset(url: string | undefined, title: string): Promise<ProposalImageAsset | undefined> {
   if (!url || typeof fetch === "undefined") return undefined;
   try {
@@ -575,6 +592,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   addSection(children, "Client Objectives and Current Challenge", [paragraph(wizard.customerObjectives || proposal.summary || "The client objectives require confirmation.", { justified: true })]);
   addSection(children, "Discovery Conversation", discoveryConversationContent(proposal));
   addSection(children, "Unresolved Discovery Items", unresolvedDiscoveryContent(proposal));
+  addSection(children, "Requirement Understanding and Design Trace", canonicalDesignContent(proposal));
   addSection(children, "Proposed Solution and Business Value", [paragraph(wizard.proposedSolution || "The proposed solution requires confirmation.", { justified: true }), bullet("A supportable architecture aligned to the stated operational requirement."), bullet("A controlled route from design approval to quotation, delivery and acceptance."), bullet("Clear ownership of equipment, services, dependencies and by-others scope.")]);
   addSection(children, "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is quoted."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
   addSection(children, "Equipment and Pricing", [paragraph(equipment.complete ? `The equipment total is ${money(equipment.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.` : "COMMERCIAL HOLD: one or more equipment prices are missing. This draft must not be issued as an exact quotation until every TBC value is resolved.", { bold: true, colour: equipment.complete ? NAVY : "9B1C1C" }), equipment.table, paragraph("Pricing covers only the listed equipment. Services, third-party equipment, freight, taxes and by-others work are excluded unless expressly priced below.", { size: 18, colour: MUTED })]);

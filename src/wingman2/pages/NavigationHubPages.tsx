@@ -1,8 +1,9 @@
-import { ArrowRight, BookOpen, Bot, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, Bot, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
+
 
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
 
@@ -355,42 +356,6 @@ export function ResponsePackPage() {
           "Start from a room archetype when a known application template is enough.",
           "Use template",
           { accent: "green", art: "templates" },
-        ),
-      ]}
-    />
-  );
-}
-
-export function LearnPage() {
-  return (
-    <HubPage
-      eyebrow="Wingman / Learn"
-      title="Learn"
-      intent="Help me understand AV terms, products, sales guidance or support context."
-      heroIcon={BookOpen}
-      accent="green"
-      tip="Use Glossary for a specific term and Product family learning when you need the broader sales and application context."
-      primaryActions={[
-        routeAction(
-          "glossary",
-          "Glossary",
-          "Look up AV terms, acronyms and customer-safe explanations.",
-          "Search terms",
-          { accent: "green", art: "glossary" },
-        ),
-        routeAction(
-          "support",
-          "Support guidance",
-          "Find escalation guidance and completion gaps.",
-          "Open support",
-          { accent: "amber", art: "support" },
-        ),
-        routeAction(
-          "productFamilies",
-          "Product family learning",
-          "Learn how product families fit real sales conversations.",
-          "Learn families",
-          { accent: "blue", art: "families" },
         ),
       ]}
     />
