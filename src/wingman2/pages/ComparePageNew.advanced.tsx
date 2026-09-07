@@ -6294,8 +6294,6 @@ function ComparePageNew() {
     setCatalogVersion((version) => version + 1);
   }
 
-  handleRetryWithSourceUrl("");
-
   // WINGMAN_MINIMUM_COMPARE_RENDER_V2
   const activeCandidate = displayedCandidate ?? best;
 

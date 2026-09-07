@@ -140,11 +140,14 @@ function detectRole(product: WyrestormProduct, blob: string, domain?: string): s
   return undefined;
 }
 
-function detectIo(blob: string): { inputCount?: number; outputCount?: number } {
+function detectIo(blob: string, rawSku = ""): { inputCount?: number; outputCount?: number } {
   const match = blob.match(/(\d{1,2})\s*[x×]\s*(\d{1,2})/);
   if (match) {
     return { inputCount: Number(match[1]), outputCount: Number(match[2]) };
   }
+  const sku = rawSku.toUpperCase().replace(/[^A-Z0-9]+/g, "");
+  const splitter = sku.match(/^(?:EXP)?SP(\d{2})(\d{2})/);
+  if (splitter) return { inputCount: Number(splitter[1]), outputCount: Number(splitter[2]) };
   return {};
 }
 
@@ -370,7 +373,7 @@ function technicalPorts(product: WyrestormProduct): TechnicalPort[] {
   ];
 }
 
-function structuredIo(product: WyrestormProduct, blob: string): {
+function structuredIo(product: WyrestormProduct, blob: string, domain?: string): {
   inputCount?: number;
   outputCount?: number;
   evidence: string[];
@@ -381,20 +384,22 @@ function structuredIo(product: WyrestormProduct, blob: string): {
   const videoPorts = uniqueTechnicalPorts(allPorts);
   const dropped = videoPorts.filter((port) => isLikelyAccessoryOrFalsePort(port)).length;
   let inputCount = countPorts(videoPorts, "input");
-  let outputCount = countPorts(videoPorts, "output");
   const physicalOutputCount = videoPorts
     .filter((port) => isVideoTransportPort(port))
     .filter((port) => safeText(port.direction).toLowerCase() === "output")
     .reduce((sum, port) => sum + (Number.isFinite(Number(port.count)) ? Number(port.count) : 0), 0);
-  const nameIo = detectIo(blob);
+  const distributionLike = domain === "DISTRIBUTION" || /^(?:EXP-)?SP-/i.test(product.sku);
+  let outputCount = distributionLike && physicalOutputCount > 0 ? physicalOutputCount : countPorts(videoPorts, "output");
+  const nameIo = detectIo(blob, product.sku);
   const evidence: string[] = [];
   const warnings: string[] = [];
-  const matrixLike = /\bmatrix\b/.test(blob);
+  const matrixLike = /\bmatrix\b/.test(blob) && !distributionLike;
   const hasNonRoutedOutputWording = /\b(mirror|mirrored|parallel|duplicate|duplicated|loop|daisy|cascade|local monitor|monitor out|preview|aux)\b/.test(blob);
 
   if (inputCount || outputCount) {
     evidence.push("Structured video I/O read from product technical profile.");
   }
+  if (distributionLike && outputCount) evidence.push("Distribution output capacity uses physical mirrored fan-out.");
 
   if (matrixLike && nameIo.inputCount && nameIo.outputCount) {
     const structuredConflictsWithMatrixSize =
@@ -418,8 +423,8 @@ function structuredIo(product: WyrestormProduct, blob: string): {
   }
 
   if (!inputCount && !outputCount && (nameIo.inputCount || nameIo.outputCount)) {
-    evidence.push("I/O count inferred from matrix-style product name.");
-    warnings.push("I/O count is name-derived; confirm against datasheet before quoting.");
+    evidence.push(distributionLike ? "Distribution fan-out inferred from splitter SKU/name evidence." : "I/O count inferred from matrix-style product name.");
+    warnings.push("I/O count is name/SKU-derived; confirm against datasheet before quoting.");
   }
 
   return {
@@ -467,7 +472,7 @@ function detectFeatures(blob: string): Record<string, boolean> {
   return features;
 }
 
-function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: number): CompareSpecFacts {
+function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: number, outputCount?: number, domain?: string): CompareSpecFacts {
   const allPorts = uniqueTechnicalPorts(technicalPorts(product));
   const specs: CompareSpecFacts = {};
   const usbStandardMatch = blob.match(/\busb\s*(1\.1|2\.0|3(?:\.0|\.1|\.2)?|4(?:\.0)?)\b/i);
@@ -480,11 +485,11 @@ function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: nu
 
   specs.hdmiOutputs = countCategoryPorts(
     allPorts,
-    (port, value) => /\bhdmi\b/.test(value) && !isNonRoutedVideoOutputPort(port),
+    (port, value) => /\bhdmi\b/.test(value) && (domain === "DISTRIBUTION" || !isNonRoutedVideoOutputPort(port)),
     "output",
-  );
+  ) ?? (domain === "DISTRIBUTION" ? outputCount : undefined);
 
-  specs.hdmiLoopOutputs = countCategoryPorts(
+  specs.hdmiLoopOutputs = domain === "DISTRIBUTION" ? undefined : countCategoryPorts(
     allPorts,
     (port, value) => /\bhdmi\b/.test(value) && isNonRoutedVideoOutputPort(port),
     "output",
@@ -588,9 +593,12 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
     semantic.canonicalRole !== "unknown"
       ? semantic.canonicalRole
       : detectRole(product, blob, domain);
-  const role = governed.compare.role ?? fallbackRole;
-  const io = structuredIo(product, blob);
-  const fallbackSpecs = buildSpecFacts(product, blob, io.inputCount);
+  const resolvedRole = governed.compare.role ?? fallbackRole;
+  const role = domain === "DISTRIBUTION" && /splitter|distribution amplifier/i.test(String(resolvedRole ?? blob))
+    ? "distribution amplifier"
+    : resolvedRole;
+  const io = structuredIo(product, blob, domain);
+  const fallbackSpecs = buildSpecFacts(product, blob, io.inputCount, io.outputCount, domain);
   // Verification is an authority layer, not a destructive projection. The
   // governed record often certifies only the claims reviewed by a human; the
   // remaining connector, control and transport facts still come from the
