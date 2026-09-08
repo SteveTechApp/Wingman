@@ -1,5 +1,18 @@
 # Wingman Load Testing Guide
 
+## 2026-09-08 release-sequence smoke validation
+
+Commit `24e17751` was exercised locally with
+`npm run load-test -- --level smoke --strict` using file storage, three authenticated throwaway
+workspace sessions, concurrency 5 and 20 requests per measured scenario. All recorded budgets
+passed with 100% successful requests: health p95 3.17 ms, project-list p95 6.26 ms,
+project-save p95 78.15 ms (326.4 KB mean request), and Compare p95 17.62 ms. The oversized-body
+probe was rejected on all three attempts.
+
+This proves the harness and local baseline only. It does not close the v1 production-like-load
+criterion; that requires the same strict run against the named staging deployment with its
+active storage mode recorded.
+
 _Last measured: 2026-09-03 — file storage (local host) and Supabase-backed
 (`supabase-tables`, hosted project) baselines recorded below._
 
