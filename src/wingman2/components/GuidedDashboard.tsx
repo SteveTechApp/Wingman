@@ -1,5 +1,4 @@
-import { ArrowRight, Search, Zap, ArrowLeftRight, LayoutGrid, Sparkles, ChevronRight, LayoutList, LayoutDashboard } from "lucide-react";
-import { useCallback, useState } from "react";
+import { ArrowRight, Search, Zap, ArrowLeftRight, LayoutGrid, Sparkles, ChevronRight, Radio } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { useProjectStore } from "../data/projectStore";
@@ -70,6 +69,7 @@ function JourneyCard({ card, index }: { card: JourneyCard; index: number }) {
         </div>
       </div>
       <div className="wm-guided-journey-copy">
+        <span className="wm-guided-card-number">0{index + 1}</span>
         <div className="wm-guided-journey-step-label">{card.step}</div>
         <h3>{card.title}</h3>
         <p>{card.description}</p>
@@ -162,58 +162,7 @@ function UnlockFullView() {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Guided Dashboard                                                   */
-/* ------------------------------------------------------------------ */
-
-function JourneyListItem({ card, index }: { card: JourneyCard; index: number }) {
-  const Icon = card.icon;
-
-  return (
-    <Link
-      to={card.to}
-      className={`wm-guided-journey-list wm-polish-card wm-polish-${card.accent}`}
-      style={{ animationDelay: `${index * 60}ms` }}
-    >
-      <div className="wm-guided-journey-list-icon">
-        <Icon size={18} strokeWidth={1.8} />
-      </div>
-      <div className="wm-guided-journey-list-copy">
-        <strong>{card.title}</strong>
-        <span>{card.description}</span>
-      </div>
-      <span className="wm-guided-journey-list-cta">
-        Get started <ArrowRight size={13} />
-      </span>
-    </Link>
-  );
-}
-
-const VIEW_PREF_KEY = "wingman-guided-view-v1";
-
-function readViewPref(): boolean {
-  try {
-    return localStorage.getItem(VIEW_PREF_KEY) === "list";
-  } catch {
-    return false;
-  }
-}
-
-function writeViewPref(compact: boolean) {
-  try {
-    localStorage.setItem(VIEW_PREF_KEY, compact ? "list" : "cards");
-  } catch { /* ignore */ }
-}
-
 export function GuidedDashboard() {
-  const [compact, setCompact] = useState(readViewPref);
-  const toggleView = useCallback(() => {
-    setCompact((c) => {
-      writeViewPref(!c);
-      return !c;
-    });
-  }, []);
-
   return (
     <main
       className="wm-guided-dashboard wm-page wm-polish-shell"
@@ -221,34 +170,30 @@ export function GuidedDashboard() {
       aria-label="Wingman guided home"
     >
       <header className="wm-guided-hero">
-        <div className="wm-guided-hero-badge">Wingman</div>
-        <h1>What can Wingman help you with?</h1>
-        <p>Pick a starting point — Wingman will guide you from there.</p>
+        <div className="wm-guided-hero-copy">
+          <div className="wm-guided-hero-badge"><Radio size={13} /> Sales signal ready</div>
+          <h1>Turn the brief into<br /><em>a clear signal path.</em></h1>
+          <p>Start with what you have. Wingman will find the requirements, surface the risks and guide you to the right WyreStorm solution.</p>
+          <Link className="wm-guided-primary-action" to={routeCatalogByKey.discovery.path}>
+            Start discovery <ArrowRight size={16} />
+          </Link>
+        </div>
+        <aside className="wm-guided-hero-path" aria-label="What Wingman does next">
+          <span className="wm-guided-hero-path-label">From conversation to confidence</span>
+          <div><strong>Capture</strong><small>Room, signals and customer intent</small></div>
+          <div><strong>Check</strong><small>Dependencies, unknowns and quote risk</small></div>
+          <div><strong>Recommend</strong><small>A defensible WyreStorm direction</small></div>
+        </aside>
       </header>
 
       <OnboardingTip />
 
       <section className="wm-guided-journeys" aria-label="Quick start">
         <div className="wm-guided-journeys-header">
-          <h2>Get started</h2>
-          <button
-            type="button"
-            className="wm-guided-view-toggle"
-            onClick={toggleView}
-            title={compact ? "Switch to card view" : "Switch to compact list"}
-            aria-label={compact ? "Switch to card view" : "Switch to compact list"}
-          >
-            {compact ? <LayoutDashboard size={14} /> : <LayoutList size={14} />}
-          </button>
+          <div><span>Choose your input</span><h2>How do you want to begin?</h2></div>
         </div>
-        <div className={compact ? "wm-guided-journeys-list" : "wm-guided-journeys-cards"}>
-          {journeys.map((card, index) =>
-            compact ? (
-              <JourneyListItem key={card.title} card={card} index={index} />
-            ) : (
-              <JourneyCard key={card.title} card={card} index={index} />
-            ),
-          )}
+        <div className="wm-guided-journeys-cards">
+          {journeys.map((card, index) => <JourneyCard key={card.title} card={card} index={index} />)}
         </div>
       </section>
 

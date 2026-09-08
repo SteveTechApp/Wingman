@@ -326,18 +326,27 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className={`wingman-shell wingman-authority-shell ${activeRouteClass}`}>
-      <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
-        <div className="wingman-brand wingman-brand-logo-only">
-          <img
-            src={wingmanBrandLogo}
-            alt="WyreStorm Wingman"
-            className="wingman-brand-image"
-            width={280}
-            height={92}
-            decoding="async"
-            loading="eager"
-          />
-        </div>
+      <aside className={`wingman-sidebar ${isGuided ? "wingman-guided-menu" : ""}`} data-mobile-open={mobileNavOpen ? "true" : "false"}>
+        {isGuided ? (
+          <div className="wingman-guided-menu-header">
+            <span>Navigation</span>
+            <button type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation">
+              <X size={18} />
+            </button>
+          </div>
+        ) : (
+          <div className="wingman-brand wingman-brand-logo-only">
+            <img
+              src={wingmanBrandLogo}
+              alt="WyreStorm Wingman"
+              className="wingman-brand-image"
+              width={280}
+              height={92}
+              decoding="async"
+              loading="eager"
+            />
+          </div>
+        )}
 
         <nav className={`wingman-nav ${isGuided ? "wingman-nav--guided" : ""}`} aria-label="Wingman navigation">
           {(isGuided ? guidedNav : primaryNav).map(({ path, navLabel, icon: Icon, summary, key }) => (
@@ -383,15 +392,15 @@ export function AppShell({ children }: AppShellProps) {
         <header
           className={`wingman-topbar wm-balanced-topbar ${isProjectDetailPage ? "wm-topbar--compact-context" : ""}`}
         >
-          <button
-            type="button"
-            className="wingman-mobile-nav-button"
-            onClick={() => setMobileNavOpen((current) => !current)}
-            aria-label={mobileNavOpen ? "Close Wingman navigation" : "Open Wingman navigation"}
-            aria-expanded={mobileNavOpen}
-          >
-            {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          {isGuided && (
+            <img
+              src={wingmanBrandLogo}
+              alt="WyreStorm Wingman"
+              className="wingman-guided-topbar-logo"
+              width={140}
+              height={46}
+            />
+          )}
 
           <div
             className="wingman-topbar-title wm-balanced-topbar-title"
@@ -412,6 +421,15 @@ export function AppShell({ children }: AppShellProps) {
               <span>{uiText.newProject}</span>
             </button>
           )}
+          <button
+            type="button"
+            className="wingman-mobile-nav-button"
+            onClick={() => setMobileNavOpen((current) => !current)}
+            aria-label={mobileNavOpen ? "Close Wingman navigation" : "Open Wingman navigation"}
+            aria-expanded={mobileNavOpen}
+          >
+            {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </header>
 
         <main className="wingman-app-main">
@@ -427,14 +445,13 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
-      {!isGuided && (
-        <>
-          <WingmanGuruFab
-            open={guruOpen}
-            onClick={() => setGuruOpen((current) => !current)}
-            hasContextualTransfer={Boolean(guruSupportCue)}
-          />
-          {guruOpen && (
+      <>
+        <WingmanGuruFab
+          open={guruOpen}
+          onClick={() => setGuruOpen((current) => !current)}
+          hasContextualTransfer={Boolean(guruSupportCue)}
+        />
+        {guruOpen && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer
             open={guruOpen}
@@ -448,8 +465,7 @@ export function AppShell({ children }: AppShellProps) {
           />
         </Suspense>
       )}
-        </>
-      )}
+      </>
     </div>
   );
 }

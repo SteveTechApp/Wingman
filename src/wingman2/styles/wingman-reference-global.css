@@ -739,7 +739,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-content-grid {
 }
 
 @media (min-width: 981px) {
-  html[data-wingman-route="dashboard"] .wingman-topbar {
+  html:not([data-wingman-ui-mode="guided"])[data-wingman-route="dashboard"] .wingman-topbar {
     display: none !important;
   }
 }
