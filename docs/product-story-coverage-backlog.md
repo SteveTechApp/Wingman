@@ -7,7 +7,7 @@
 - Governed stories: **142** (reviewed **44**, catalogue-grounded **98**)
 - Active catalogue SKUs (alias-deduped): **137**
 - Active covered: **137 (100%)** · Active uncovered: **0**
-- Excluded (deliberately not storied): cable **34**, dependency-only **1**, discontinued **0**, do-not-spec **0**, unlisted **5**, source-hygiene **0**
+- Excluded (deliberately not storied): cable **34**, dependency-only **1**, discontinued **0**, do-not-spec **0**, unlisted **4**, source-hygiene **0**
 
 ## Active SKUs still needing a governed story
 
@@ -32,7 +32,6 @@ Confirm whether these are active before authoring a story; the compare engine tr
 - [ ] APO-VX20-UC-V2
 - [ ] MX-0808-SCL-V2
 - [ ] NHD-610-TX-V2
-- [ ] SW-0X01-8K
 - [ ] SW-130-TX
 
 ## Human-review backlog (catalogue-grounded stories)
@@ -59,7 +58,6 @@ These SKUs have been reviewed separately from the generated lifecycle status.
 - MX-0808-SCL-V2
 - NHD-610-TX-V2
 - NETWORKHDTOUCHTM
-- SW-0X01-8K
 - SW-130-TX
 
 ### Do not use / block from storying
@@ -82,6 +80,6 @@ These SKUs have been reviewed separately from the generated lifecycle status.
 - SWX-100-HDBT3
 - SWX-100-IW-UX
 
-### Pattern note
+### Shared-page note
 
-- SW-0X01-8K is retained as a family / pattern reference. X denotes a variable number such as inputs, outputs or cable length.
+- The shared 0X01 product page resolves to two saleable SKUs: EXP-SW-0201-8K (2 HDMI inputs) and EXP-SW-0401-8K (4 HDMI inputs). Both have one HDMI output.

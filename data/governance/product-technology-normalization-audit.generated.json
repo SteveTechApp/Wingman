@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-07T14:11:44.013Z",
+  "generatedAt": "2026-09-09T05:58:10.190Z",
   "sources": {
     "competitor": "data/catalog/competitor-products.generated.json",
     "wyrestorm": "public/product-intelligence-index.json"
   },
   "totals": {
-    "records": 669,
+    "records": 668,
     "competitorRecords": 354,
-    "wyrestormRecords": 315,
+    "wyrestormRecords": 314,
     "normalizedByGovernedRule": 69,
     "canonicalTransportKnown": 100,
     "networkClassKnown": 47,
@@ -233,7 +233,7 @@
     },
     {
       "manufacturer": "WyreStorm",
-      "products": 315,
+      "products": 314,
       "normalized": 23,
       "canonicalTransportKnown": 53,
       "networkClassKnown": 23,

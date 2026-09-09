@@ -1,47 +1,28 @@
 # Wingman current status
 
-_Last updated: 2026-07-24_
+_Measured: 2026-09-09 · `codex/v1-sync-catalogue` @ `0b018afa`_
 
-## Where status lives now
-
-**`docs/PRE_PRODUCTION_REPORT.md` is the live status document.** It records gate results that were
-actually executed rather than asserted, and carries the prioritised route to production.
-
-This file previously held a status table in which every row read "Pending", alongside two other
-documents tracking overlapping state. That spread status across three places and made stale
-entries look identical to real blockers. It is now a pointer, not a second source of truth.
-
-## Current position at a glance
-
-| | |
+| Signal | Current evidence |
 |---|---|
-| Build / quality gate | `npm run verify` exits 0 across all stages |
-| Tests | 717 passing across 88 files |
-| Coverage | 68.9% lines, 61.0% branches, enforced by threshold in CI |
-| Largest open risk | Governed technical data coverage - see P0-2 in the pre-production report |
-| Launch shape | Internal pilot first; customer-facing output gated on the technical-data ratchet |
+| Build and quality | Tests, strict TypeScript, production build, size budgets, data governance and build-time dependency audit pass |
+| Tests | 2,375 passing across 310 Vitest files |
+| Product data | 314 WyreStorm products delivered through a lightweight summary plus deferred detail; 354 competitor products across 28 brands |
+| Governed technical data | 133/133 active lead SKUs have governed verified profiles |
+| Product stories | 137/137 active catalogue SKUs covered |
+| Release posture | Late beta; suitable for a controlled internal pilot, not yet evidenced for v1.0 |
 
-## How to refresh this
+Per-project push and lightweight catalogue delivery are implemented. The v1.0 decision remains
+no-go: real mobile sales UAT, a production-like staging load run, real-device offline reconnect
+evidence, staging-scale performance, export-format semantic parity, business data-threshold
+sign-off and journey-level observability remain open. A separate moderate runtime `hono` audit
+finding remains for dependency maintenance but does not affect the build-time gate.
 
-Do not hand-edit a status table here. Run the gates and read the result:
+## Authoritative documents
 
-```bash
-npm run verify
-```
+- `docs/PRE_PRODUCTION_REPORT.md` — current evidence, risks and go/no-go position.
+- `docs/DEVELOPMENT_MILESTONES.md` — roadmap and v1.0 criteria.
+- `docs/V1_RELEASE_EVIDENCE.md` — dated criterion-by-criterion go/no-go evidence matrix.
+- `docs/superpowers/plans/2026-09-08-v1-release-evidence-sequence.md` — execution sequence.
+- `docs/LAUNCH_CHECKLIST.md` — launch procedure.
 
-Stage by stage, if you want a faster signal:
-
-```bash
-npm run verify:fast
-```
-
-`verify:fast` runs typecheck, lint and the test suite in about a minute and catches most breakage.
-The remaining stages (`verify:data`, `verify:contract`, `verify:visual`) cover data governance,
-route and workflow contracts, and the visual guard suite.
-
-## Related documents
-
-- `docs/PRE_PRODUCTION_REPORT.md` - live status, blockers, and the plan to production.
-- `docs/LAUNCH_CHECKLIST.md` - the go/no-go checklist for the launch itself.
-- `docs/OPERATIONS.md` - runbooks, rollback, and operational procedure.
-- `docs/production-readiness-audit.md` - superseded historical audit, kept for context.
+Refresh this page only from executed commands. The primary local gate is `npm run verify`.

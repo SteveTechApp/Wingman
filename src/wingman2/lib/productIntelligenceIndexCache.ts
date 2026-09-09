@@ -1,4 +1,7 @@
 let productIntelligenceIndexPromise: Promise<unknown> | null = null;
+let productIntelligenceSummaryPromise: Promise<ProductIndexPayload> | null = null;
+let productIntelligenceDetailsPromise: Promise<{ products?: Record<string, { path?: string }> }> | null = null;
+const productIntelligenceDetailPromises = new Map<string, Promise<Record<string, unknown>>>();
 
 type ProductIndexPayload = { products?: Array<Record<string, unknown>> } | Array<Record<string, unknown>>;
 
@@ -72,20 +75,14 @@ export function applyRuntimeAdminRecords(
 
 export async function loadProductIntelligenceIndex(): Promise<unknown> {
   if (!productIntelligenceIndexPromise) {
-    productIntelligenceIndexPromise = fetch("/product-intelligence-index.json", {
-      cache: "force-cache",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          productIntelligenceIndexPromise = null;
-          throw new Error(`Product intelligence index unavailable: ${response.status}`);
-        }
-
-        return response.json();
-      })
-      .then(async (staticPayload: ProductIndexPayload) =>
-        applyRuntimeAdminRecords(staticPayload, await loadRuntimeAdminRecords())
-      )
+    productIntelligenceIndexPromise = Promise.all([
+      fetchJson<ProductIndexPayload>("/product-intelligence-index.json"),
+      loadRuntimeAdminRecords(),
+    ]).then(([payload, runtimeRecords]) => applyRuntimeAdminRecords(payload, runtimeRecords))
+      .catch(async () => applyRuntimeAdminRecords(
+        await fetchJson<ProductIndexPayload>("/product-intelligence-index.json"),
+        await loadRuntimeAdminRecords(),
+      ))
       .catch((error) => {
         productIntelligenceIndexPromise = null;
         throw error;
@@ -95,6 +92,52 @@ export async function loadProductIntelligenceIndex(): Promise<unknown> {
   return productIntelligenceIndexPromise;
 }
 
+async function fetchJson<T>(url: string): Promise<T> {
+  const response = await fetch(url, { cache: "force-cache" });
+  if (!response.ok) throw new Error(`Product intelligence artifact unavailable: ${response.status}`);
+  return response.json() as Promise<T>;
+}
+
+export function loadProductIntelligenceSummary(): Promise<ProductIndexPayload> {
+  if (!productIntelligenceSummaryPromise) {
+    productIntelligenceSummaryPromise = fetchJson<ProductIndexPayload>("/product-intelligence-summary.json")
+      .catch(() => fetchJson<ProductIndexPayload>("/product-intelligence-index.json"))
+      .then(async (payload) => applyRuntimeAdminRecords(payload, await loadRuntimeAdminRecords()))
+      .catch((error) => { productIntelligenceSummaryPromise = null; throw error; });
+  }
+  return productIntelligenceSummaryPromise;
+}
+
+function loadProductIntelligenceDetails() {
+  if (!productIntelligenceDetailsPromise) {
+    productIntelligenceDetailsPromise = fetchJson<{ products?: Record<string, { path?: string }> }>("/product-intelligence-details.json")
+      .catch((error) => { productIntelligenceDetailsPromise = null; throw error; });
+  }
+  return productIntelligenceDetailsPromise;
+}
+
+export async function loadProductIntelligenceDetail(sku: string): Promise<Record<string, unknown> | null> {
+  const summary = await loadProductIntelligenceSummary();
+  const product = (Array.isArray(summary) ? summary : summary.products ?? []).find((item) => skuKey(item.sku) === skuKey(sku));
+  if (!product) return null;
+  try {
+    const key = skuKey(sku);
+    const manifest = await loadProductIntelligenceDetails();
+    const path = manifest.products?.[key]?.path;
+    if (!path) return product;
+    if (!productIntelligenceDetailPromises.has(key)) {
+      productIntelligenceDetailPromises.set(key, fetchJson<Record<string, unknown>>(path)
+        .catch((error) => { productIntelligenceDetailPromises.delete(key); throw error; }));
+    }
+    return { ...product, ...(await productIntelligenceDetailPromises.get(key)) };
+  } catch {
+    return product;
+  }
+}
+
 export function clearProductIntelligenceIndexCache(): void {
   productIntelligenceIndexPromise = null;
+  productIntelligenceSummaryPromise = null;
+  productIntelligenceDetailsPromise = null;
+  productIntelligenceDetailPromises.clear();
 }

@@ -86,6 +86,12 @@ const OVERRIDE_FLOORS = [
     floor: "3.1.7",
     why: "fast-uri GHSA-5jgf-p345-68v8 / GHSA-f65p-4m7j-42xc / GHSA-fph4-wmhf-6fwf / GHSA-jqff-g426-hqxp (host confusion / SSRF via IDN, IPv6 and percent-encoding normalization) were fixed in 3.1.7",
   },
+  {
+    overrideKey: "js-yaml",
+    packageName: "js-yaml",
+    floor: "4.3.2",
+    why: "js-yaml GHSA-2883-xcg3-v3hh (maxTotalMergeKeys bypass with empty merge sources) was fixed in 4.3.2",
+  },
 ];
 
 // The numeric floor of an npm version spec: '^4.28.8'/'~4.28.8'/'>=4.28.8'/

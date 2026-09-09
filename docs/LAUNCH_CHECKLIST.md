@@ -3,6 +3,10 @@
 A go/no-go checklist for taking Wingman live. Work top to bottom. Do not promote to
 production until every **Blocker** item is checked.
 
+The dated criterion-by-criterion release position is maintained in
+[`V1_RELEASE_EVIDENCE.md`](V1_RELEASE_EVIDENCE.md). As of 2026-09-09 the v1.0 decision is
+**no-go**; a controlled authenticated internal pilot remains the supported posture.
+
 ---
 
 ## 1. Build & Quality Gate (Blocker)
@@ -19,7 +23,7 @@ Already verified via the repo's check suite — re-run before launch to confirm:
 
 - [ ] `npm run check:product-matching` passes (6 scenarios).
 - [ ] `npm run check:av-decisions` passes (AV safety rules + recommendation evidence).
-- [ ] `npm run check:data-sources` passes (canonical product index baseline, currently 310 products).
+- [ ] `npm run check:data-sources` passes (canonical WyreStorm catalogue currently 314 products).
 - [ ] `npm run check:competitor-intelligence` passes.
 - [ ] EXP guardrail spot-check: confirm no EXP-prefixed SKU is proposed as a **primary**
       switcher in a generated design (only as optional local/lectern switching or cables).
@@ -103,7 +107,9 @@ Per the WyreStorm design rule, **all standard designs are workshop-tested before
 | Soap-test workshop | | |
 | User acceptance | | |
 
-**Decision:**  ⬜ Go   ⬜ No-go   — Date: ________  Approver: ________
+**Current evidence decision:**  ⬜ Go   ☒ No-go   — Date: 2026-09-09  Approver: pending
+
+See [`V1_RELEASE_EVIDENCE.md`](V1_RELEASE_EVIDENCE.md) for the open evidence and named owner roles.
 
 ---
 

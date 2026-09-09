@@ -2,7 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const indexPath = path.join(root, "public", "product-intelligence-index.json");
+const indexPaths = ["product-intelligence-index.json", "product-intelligence-summary.json", "product-intelligence-details.json"]
+  .map((name) => path.join(root, "public", name));
+const detailDirectory = path.join(root, "public", "product-intelligence-details");
+if (fs.existsSync(detailDirectory)) {
+  indexPaths.push(...fs.readdirSync(detailDirectory).filter((name) => name.endsWith(".json")).map((name) => path.join(detailDirectory, name)));
+}
 const suppressionPath = path.join(root, "data", "wingman-product-suppression-list.json");
 
 function readJson(filePath) {
@@ -170,22 +175,16 @@ function sanitise(value) {
   return value;
 }
 
-if (!fs.existsSync(indexPath)) {
-  throw new Error(`Missing public index: ${indexPath}`);
-}
-
-const before = fs.readFileSync(indexPath, "utf8");
+const indexPath = indexPaths[0];
+if (!fs.existsSync(indexPath)) throw new Error(`Missing public index: ${indexPath}`);
+const before = indexPaths.filter(fs.existsSync).map((filePath) => fs.readFileSync(filePath, "utf8")).join("\n");
 const beforeMatches = suppressedSkus.filter((sku) => before.toUpperCase().includes(sku));
 
 console.log(`[product-intelligence-sanitise] Suppressed SKUs: ${suppressedSkus.join(", ") || "none"}`);
 console.log(`[product-intelligence-sanitise] Matches before: ${beforeMatches.join(", ") || "none"}`);
 
-const parsed = JSON.parse(before);
-const cleaned = sanitise(parsed);
-
-writeJson(indexPath, cleaned);
-
-const after = fs.readFileSync(indexPath, "utf8");
+for (const filePath of indexPaths.filter(fs.existsSync)) writeJson(filePath, sanitise(readJson(filePath)));
+const after = indexPaths.filter(fs.existsSync).map((filePath) => fs.readFileSync(filePath, "utf8")).join("\n");
 const afterMatches = suppressedSkus.filter((sku) => after.toUpperCase().includes(sku));
 
 if (afterMatches.length > 0) {

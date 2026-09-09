@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-07T14:11:44.010Z",
+  "generatedAt": "2026-09-09T05:58:10.187Z",
   "records": [
     {
       "vendorType": "competitor",
@@ -10489,17 +10489,6 @@
       "matrixSizeEvidence": "Title/source evidence: 4x1 HDMI switcher routing four sources to one display",
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote"
-    },
-    {
-      "vendorType": "wyrestorm",
-      "manufacturer": "WyreStorm",
-      "sku": "SW-0X01-8K",
-      "profile": {
-        "matchedRuleIds": [],
-        "notes": [],
-        "evidence": []
-      },
-      "sourceUrl": ""
     },
     {
       "vendorType": "wyrestorm",

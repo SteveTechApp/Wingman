@@ -50,6 +50,7 @@ let indexForSweep: typeof index = index;
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockImplementation(() => Promise.resolve(indexForSweep)),
+  loadProductIntelligenceSummary: vi.fn().mockImplementation(() => Promise.resolve(indexForSweep)),
 }));
 
 // Remove the matrix profiles AND APO-MIC-EXT (which the catalog sweep strips

@@ -1,12 +1,20 @@
 # Wingman Development Milestones — Evidence-Based Roadmap
 
-**Version:** `0.9.0` (package.json) · **Refreshed:** 2026-09-03 from `main` @ `7e619330` (PR #224 merge)
+**Version:** `0.9.0` (package.json) · **Refreshed:** 2026-09-08 from `main` @ `2f8f3a5c`
 **Supersedes the 2026-08-24 roadmap.** Every figure in §1 was measured on this commit with the
 command shown next to it; nothing was copied from an older status document.
 
 This is the **development roadmap**, not the status file. Live status, executed gate results and
 ranked blockers live in `docs/PRE_PRODUCTION_REPORT.md`; `docs/CURRENT_STATUS.md` is the
 at-a-glance pointer; this file records the plan to v1.0 and the evidence for it.
+
+The tables below preserve the detailed 2026-09-03 architecture snapshot. The current release
+baseline is 2,368 passing tests across 308 files, 29 E2E files, 2,502 commits, 212 npm scripts,
+315 WyreStorm products and 133/133 governed active lead SKUs. Since that snapshot, per-project
+server persistence, canonical design revision approval, canonical product-branch consolidation,
+Compare topology recovery, mirrored distribution semantics, the training portal and the refreshed
+Guided sales journey have landed. See `docs/PRE_PRODUCTION_REPORT.md` for the executed 2026-09-08
+gate evidence.
 
 ---
 

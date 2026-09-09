@@ -14,7 +14,7 @@ describe("governed confirmation backlog", () => {
     // The governed profile set (207 today: the governance audit merged the
     // NHD-500-TX-V2 / NHD-500-RX v2 / SYN-TOUCH10 v3 variant rows into their
     // canonical profiles). 116 were human-verified; the rest are pending.
-    expect(backlog.total).toBe(207);
+    expect(backlog.total).toBe(206);
     expect(backlog.humanVerified).toBe(116);
     expect(backlog.awaiting.length).toBeGreaterThanOrEqual(22);
   });

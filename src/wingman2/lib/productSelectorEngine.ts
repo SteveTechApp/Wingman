@@ -71,7 +71,6 @@ type IndexedProduct = WingmanProductLike & {
 };
 
 const SELECTOR_POLICY_BLOCKED_SKUS = new Set([
-  "SW-0X01-8K",
   "SW-120-TX3-US",
   "SW-130-TX-US",
   "SW-540-TX-W",

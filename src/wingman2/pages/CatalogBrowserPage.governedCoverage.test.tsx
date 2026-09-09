@@ -1,7 +1,7 @@
 import { render, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import index from "../../../public/product-intelligence-summary.json";
 import governedProfiles from "../../../data/governance/wyrestorm-technical-profiles.json";
 import { specCriticalFieldLabel } from "../lib/governedConfirmationBacklog";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
@@ -12,7 +12,7 @@ import { CatalogBrowserPage } from "./CatalogBrowserPage";
 // The real product-intelligence index drives the same catalogue build and
 // governed-tier resolution the live app uses.
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
 }));
 
 vi.mock("../api/wingmanApi", () => ({

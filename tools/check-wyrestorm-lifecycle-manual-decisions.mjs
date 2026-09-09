@@ -14,12 +14,8 @@ if (duplicated.length > 0) {
   throw new Error(`Manual lifecycle decision conflict: ${duplicated.join(", ")}`);
 }
 
-if (!keep.includes("SW-0X01-8K")) {
-  throw new Error("SW-0X01-8K must remain in the keep list because X is a family/pattern placeholder.");
-}
-
-if (doNotUse.includes("SW-0X01-8K")) {
-  throw new Error("SW-0X01-8K must not be in the do-not-use list.");
+if (keep.includes("SW-0X01-8K") || doNotUse.includes("SW-0X01-8K")) {
+  throw new Error("SW-0X01-8K is a shared page reference, not a catalogue SKU; use EXP-SW-0201-8K and EXP-SW-0401-8K.");
 }
 
 const productStories = readFileSync(productStoriesPath, "utf8").toUpperCase();
@@ -58,9 +54,9 @@ ${keep.map((sku) => `- ${sku}`).join("\n")}
 
 ${doNotUse.map((sku) => `- ${sku}`).join("\n")}
 
-### Pattern note
+### Shared-page note
 
-- SW-0X01-8K is retained as a family / pattern reference. X denotes a variable number such as inputs, outputs or cable length.
+- The shared 0X01 product page resolves to two saleable SKUs: EXP-SW-0201-8K (2 HDMI inputs) and EXP-SW-0401-8K (4 HDMI inputs). Both have one HDMI output.
 `;
 
 const markerIndex = backlog.indexOf(marker);

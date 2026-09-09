@@ -235,7 +235,6 @@ export function AppShell({ children }: AppShellProps) {
   }, [activeRoute?.key, activeSummary]);
   const { isGuided } = useUiMode();
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
-  const guidedNav = useMemo(() => primaryNav.filter((r) => ["dashboard", "compare", "projects"].includes(r.key)), [primaryNav]);
   const canManageData =
   import.meta.env.DEV ||
   Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
@@ -326,21 +325,30 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className={`wingman-shell wingman-authority-shell ${activeRouteClass}`}>
-      <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
-        <div className="wingman-brand wingman-brand-logo-only">
-          <img
-            src={wingmanBrandLogo}
-            alt="WyreStorm Wingman"
-            className="wingman-brand-image"
-            width={280}
-            height={92}
-            decoding="async"
-            loading="eager"
-          />
-        </div>
+      <aside className={`wingman-sidebar ${isGuided ? "wingman-guided-menu" : ""}`} data-mobile-open={mobileNavOpen ? "true" : "false"}>
+        {isGuided ? (
+          <div className="wingman-guided-menu-header">
+            <span>Navigation</span>
+            <button type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation">
+              <X size={18} />
+            </button>
+          </div>
+        ) : (
+          <div className="wingman-brand wingman-brand-logo-only">
+            <img
+              src={wingmanBrandLogo}
+              alt="WyreStorm Wingman"
+              className="wingman-brand-image"
+              width={280}
+              height={92}
+              decoding="async"
+              loading="eager"
+            />
+          </div>
+        )}
 
         <nav className={`wingman-nav ${isGuided ? "wingman-nav--guided" : ""}`} aria-label="Wingman navigation">
-          {(isGuided ? guidedNav : primaryNav).map(({ path, navLabel, icon: Icon, summary, key }) => (
+          {primaryNav.map(({ path, navLabel, icon: Icon, summary, key }) => (
             <NavLink
               key={path}
               to={path}
@@ -359,7 +367,7 @@ export function AppShell({ children }: AppShellProps) {
               </span>
             </NavLink>
           ))}
-          {canManageData && !isGuided ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink><NavLink to="/wingman/approval-queue" title="Review and approve proposals" aria-label="Approval Queue: Review and approve proposals" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><CheckCircle className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Approvals</span></span><span className="wingman-nav-tooltip" role="tooltip">Review and approve proposals</span></NavLink></> : null}
+          {canManageData ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink><NavLink to="/wingman/approval-queue" title="Review and approve proposals" aria-label="Approval Queue: Review and approve proposals" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><CheckCircle className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Approvals</span></span><span className="wingman-nav-tooltip" role="tooltip">Review and approve proposals</span></NavLink></> : null}
         </nav>
 
         <div className="wingman-sidebar-footer">
@@ -383,15 +391,15 @@ export function AppShell({ children }: AppShellProps) {
         <header
           className={`wingman-topbar wm-balanced-topbar ${isProjectDetailPage ? "wm-topbar--compact-context" : ""}`}
         >
-          <button
-            type="button"
-            className="wingman-mobile-nav-button"
-            onClick={() => setMobileNavOpen((current) => !current)}
-            aria-label={mobileNavOpen ? "Close Wingman navigation" : "Open Wingman navigation"}
-            aria-expanded={mobileNavOpen}
-          >
-            {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          {isGuided && (
+            <img
+              src={wingmanBrandLogo}
+              alt="WyreStorm Wingman"
+              className="wingman-guided-topbar-logo"
+              width={140}
+              height={46}
+            />
+          )}
 
           <div
             className="wingman-topbar-title wm-balanced-topbar-title"
@@ -412,6 +420,15 @@ export function AppShell({ children }: AppShellProps) {
               <span>{uiText.newProject}</span>
             </button>
           )}
+          <button
+            type="button"
+            className="wingman-mobile-nav-button"
+            onClick={() => setMobileNavOpen((current) => !current)}
+            aria-label={mobileNavOpen ? "Close Wingman navigation" : "Open Wingman navigation"}
+            aria-expanded={mobileNavOpen}
+          >
+            {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </header>
 
         <main className="wingman-app-main">
@@ -427,14 +444,13 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
-      {!isGuided && (
-        <>
-          <WingmanGuruFab
-            open={guruOpen}
-            onClick={() => setGuruOpen((current) => !current)}
-            hasContextualTransfer={Boolean(guruSupportCue)}
-          />
-          {guruOpen && (
+      <>
+        <WingmanGuruFab
+          open={guruOpen}
+          onClick={() => setGuruOpen((current) => !current)}
+          hasContextualTransfer={Boolean(guruSupportCue)}
+        />
+        {guruOpen && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer
             open={guruOpen}
@@ -448,8 +464,7 @@ export function AppShell({ children }: AppShellProps) {
           />
         </Suspense>
       )}
-        </>
-      )}
+      </>
     </div>
   );
 }

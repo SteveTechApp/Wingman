@@ -1,4 +1,3 @@
-import { Compass, LayoutGrid } from "lucide-react";
 import { useUiMode } from "../data/uiMode";
 
 /**
@@ -7,31 +6,16 @@ import { useUiMode } from "../data/uiMode";
  * "Full" = grid icon, all features visible.
  */
 export function UiModeToggle() {
-  const { mode, toggleMode, isGuided } = useUiMode();
+  const { mode, setMode } = useUiMode();
 
   return (
-    <button
-      type="button"
+    <div
       className="wm-mode-toggle"
-      onClick={toggleMode}
-      title={
-        isGuided
-          ? "Switch to full view — all features and admin tools"
-          : "Switch to guided view — simplified for new users"
-      }
-      aria-label={`Currently ${mode} mode. Click to switch to ${isGuided ? "full" : "guided"} mode.`}
+      role="group"
+      aria-label="Choose interface view"
     >
-      {isGuided ? (
-        <>
-          <Compass size={14} />
-          <span>Guided</span>
-        </>
-      ) : (
-        <>
-          <LayoutGrid size={14} />
-          <span>Full</span>
-        </>
-      )}
-    </button>
+      <button type="button" className={mode === "guided" ? "is-active" : ""} aria-pressed={mode === "guided"} onClick={() => setMode("guided")}>Guided</button>
+      <button type="button" className={mode === "unguided" ? "is-active" : ""} aria-pressed={mode === "unguided"} onClick={() => setMode("unguided")}>Full</button>
+    </div>
   );
 }

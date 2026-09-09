@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import index from "../../../public/product-intelligence-summary.json";
 
 vi.mock("./productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
 }));
 
 import { searchProducts } from "./productSearch";
