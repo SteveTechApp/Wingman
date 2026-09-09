@@ -7,7 +7,7 @@
 - Governed stories: **142** (reviewed **44**, catalogue-grounded **98**)
 - Active catalogue SKUs (alias-deduped): **137**
 - Active covered: **137 (100%)** · Active uncovered: **0**
-- Excluded (deliberately not storied): cable **34**, dependency-only **1**, discontinued **0**, do-not-spec **0**, unlisted **5**, source-hygiene **0**
+- Excluded (deliberately not storied): cable **34**, dependency-only **1**, discontinued **0**, do-not-spec **0**, unlisted **4**, source-hygiene **0**
 
 ## Active SKUs still needing a governed story
 
@@ -32,7 +32,6 @@ Confirm whether these are active before authoring a story; the compare engine tr
 - [ ] APO-VX20-UC-V2
 - [ ] MX-0808-SCL-V2
 - [ ] NHD-610-TX-V2
-- [ ] SW-0X01-8K
 - [ ] SW-130-TX
 
 ## Human-review backlog (catalogue-grounded stories)
