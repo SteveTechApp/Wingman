@@ -7696,269 +7696,6 @@ html[data-wingman-route="discovery"] .wm-qs__help-text {
 .wm-mode-toggle button.is-active { background: rgba(83,224,255,.15); color: #dffcff; box-shadow: inset 0 0 0 1px rgba(83,224,255,.18); }
 
 /* ------------------------------------------------------------------ */
-/*  Guided dashboard                                                   */
-/* ------------------------------------------------------------------ */
-
-.wm-guided-dashboard {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 10px 20px 16px;
-  animation: wm-fade-up .35s ease both;
-}
-@keyframes wm-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Hero ─────────────────────────────────────────────────────── */
-.wm-guided-hero {
-  position: relative;
-  text-align: center;
-  margin-bottom: 12px;
-  padding: 14px 16px 12px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(83,224,255,0.06) 0%, rgba(139,92,246,0.04) 50%, rgba(232,150,4,0.03) 100%);
-  border: 1px solid rgba(83,224,255,0.12);
-  position: relative;
-  overflow: hidden;
-}
-.wm-guided-hero::before {
-  content: '';
-  position: absolute;
-  top: -60%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 300px;
-  height: 200px;
-  background: radial-gradient(ellipse, rgba(83,224,255,0.12) 0%, transparent 70%);
-  pointer-events: none;
-}
-@keyframes wm-badge-shimmer {
-  0% { background-position: -80px 0; }
-  100% { background-position: 80px 0; }
-}
-.wm-guided-hero-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: linear-gradient(90deg, rgba(83,224,255,0.1) 0%, rgba(83,224,255,0.25) 50%, rgba(83,224,255,0.1) 100%);
-  background-size: 80px 100%;
-  border: 1px solid rgba(83,224,255,0.2);
-  font-size: .65rem;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: #53e0ff;
-  margin-bottom: 12px;
-  position: relative;
-  animation: wm-badge-shimmer 3s ease-in-out infinite;
-}
-.wm-guided-hero h1 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0 0 2px;
-  position: relative;
-}
-.wm-guided-hero p {
-  color: var(--wm-text-muted);
-  font-size: .78rem;
-  margin: 0;
-  position: relative;
-}
-
-/* ── Journey cards ────────────────────────────────────────────── */
-.wm-guided-journeys {
-  margin-bottom: 12px;
-}
-.wm-guided-journeys-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-.wm-guided-journeys-header h2 {
-  font-size: .82rem;
-  font-weight: 650;
-  margin: 0;
-  color: var(--wm-text-muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-.wm-guided-journeys-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.wm-guided-journey {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px 12px 16px;
-  border: 1px solid var(--wm-border);
-  border-left: 3px solid transparent;
-  border-radius: 14px;
-  background: var(--wm-surface);
-  text-decoration: none;
-  color: var(--wm-text);
-  transition: border-color .2s, box-shadow .2s, transform .15s, background .2s;
-  position: relative;
-  overflow: hidden;
-  animation: wm-fade-up .35s ease both;
-}
-.wm-guided-journey::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity .2s;
-  pointer-events: none;
-}
-.wm-guided-journey::after {
-  content: '';
-  position: absolute;
-  top: 6px;
-  bottom: 6px;
-  left: 0;
-  width: 4px;
-  border-radius: 0 3px 3px 0;
-  opacity: 0;
-  transform: scaleY(0);
-  transition: opacity .3s ease, transform .3s ease;
-  pointer-events: none;
-}
-.wm-guided-journey:hover {
-  transform: translateY(-2px);
-}
-.wm-guided-journey:hover::before { opacity: 1; }
-.wm-guided-journey:hover::after { opacity: 1; transform: scaleY(1); }
-
-/* Aqua accent */
-.wm-polish-aqua.wm-guided-journey::before { background: linear-gradient(135deg, rgba(83,224,255,0.04) 0%, transparent 60%); }
-.wm-polish-aqua.wm-guided-journey::after { background: #53e0ff; box-shadow: 0 0 8px rgba(83,224,255,0.6), 0 0 20px rgba(83,224,255,0.3), inset 0 0 6px rgba(83,224,255,0.15); }
-.wm-polish-aqua.wm-guided-journey:hover { border-color: rgba(83,224,255,0.4); box-shadow: 0 0 0 1px rgba(83,224,255,0.3), 0 4px 20px rgba(83,224,255,0.12); }
-
-/* Amber accent */
-.wm-polish-amber.wm-guided-journey::before { background: linear-gradient(135deg, rgba(232,150,4,0.04) 0%, transparent 60%); }
-.wm-polish-amber.wm-guided-journey::after { background: #e89604; box-shadow: 0 0 8px rgba(232,150,4,0.6), 0 0 20px rgba(232,150,4,0.3), inset 0 0 6px rgba(232,150,4,0.15); }
-.wm-polish-amber.wm-guided-journey:hover { border-color: rgba(232,150,4,0.4); box-shadow: 0 0 0 1px rgba(232,150,4,0.3), 0 4px 20px rgba(232,150,4,0.12); }
-
-/* Violet accent */
-.wm-polish-violet.wm-guided-journey::before { background: linear-gradient(135deg, rgba(139,92,246,0.04) 0%, transparent 60%); }
-.wm-polish-violet.wm-guided-journey::after { background: #8b5cf6; box-shadow: 0 0 8px rgba(139,92,246,0.6), 0 0 20px rgba(139,92,246,0.3), inset 0 0 6px rgba(139,92,246,0.15); }
-.wm-polish-violet.wm-guided-journey:hover { border-color: rgba(139,92,246,0.4); box-shadow: 0 0 0 1px rgba(139,92,246,0.3), 0 4px 20px rgba(139,92,246,0.12); }
-.wm-guided-journey-icon-wrap {
-  position: relative;
-  z-index: 1;
-}
-.wm-guided-journey-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  flex-shrink: 0;
-  background: rgba(83,224,255,0.1);
-  color: var(--wm-accent, #53e0ff);
-  transition: transform .2s, box-shadow .2s;
-}
-.wm-guided-journey:hover .wm-guided-journey-icon {
-  transform: scale(1.1);
-  box-shadow: 0 0 16px rgba(83,224,255,0.2);
-}
-.wm-polish-aqua .wm-guided-journey-icon { background: rgba(83,224,255,0.1); color: #53e0ff; }
-.wm-polish-amber .wm-guided-journey-icon { background: rgba(232,150,4,0.1); color: #e89604; }
-.wm-polish-violet .wm-guided-journey-icon { background: rgba(139,92,246,0.1); color: #8b5cf6; }
-.wm-polish-aqua.wm-guided-journey:hover .wm-guided-journey-icon { box-shadow: 0 0 20px rgba(83,224,255,0.3); }
-.wm-polish-amber.wm-guided-journey:hover .wm-guided-journey-icon { box-shadow: 0 0 20px rgba(232,150,4,0.3); }
-.wm-polish-violet.wm-guided-journey:hover .wm-guided-journey-icon { box-shadow: 0 0 20px rgba(139,92,246,0.3); }
-
-/* Green accent */
-.wm-polish-green.wm-guided-journey::before { background: linear-gradient(135deg, rgba(34,197,94,0.04) 0%, transparent 60%); }
-.wm-polish-green.wm-guided-journey::after { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.6), 0 0 20px rgba(34,197,94,0.3), inset 0 0 6px rgba(34,197,94,0.15); }
-.wm-polish-green.wm-guided-journey:hover { border-color: rgba(34,197,94,0.4); box-shadow: 0 0 0 1px rgba(34,197,94,0.3), 0 4px 20px rgba(34,197,94,0.12); }
-.wm-polish-green .wm-guided-journey-icon { background: rgba(34,197,94,0.1); color: #22c55e; }
-.wm-polish-green.wm-guided-journey:hover .wm-guided-journey-icon { box-shadow: 0 0 20px rgba(34,197,94,0.3); }
-.wm-guided-journey-copy { flex: 1; min-width: 0; position: relative; z-index: 1; }
-.wm-guided-journey-step-label {
-  font-size: .56rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--wm-text-muted);
-  margin-bottom: 1px;
-}
-.wm-guided-journey-copy h3 { font-size: .84rem; font-weight: 650; margin: 0 0 1px; }
-.wm-guided-journey-copy p { font-size: .73rem; color: var(--wm-text-muted); margin: 0 0 3px; line-height: 1.3; }
-.wm-guided-journey-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: .75rem;
-  font-weight: 600;
-  color: var(--wm-accent, #53e0ff);
-}
-.wm-guided-journey:hover .wm-guided-journey-cta { text-decoration: underline; }
-.wm-guided-journey-chevron {
-  color: var(--wm-text-muted);
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity .2s, transform .2s;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-}
-.wm-guided-journey:hover .wm-guided-journey-chevron {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* ── Onboarding tip ───────────────────────────────────────────── */
-.wm-guided-tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(83,224,255,0.08), rgba(139,92,246,0.05));
-  border: 1px solid rgba(83,224,255,0.15);
-  font-size: .76rem;
-  color: var(--wm-text-muted);
-  line-height: 1.4;
-}
-.wm-guided-tip-icon { color: #53e0ff; flex-shrink: 0; margin-top: 1px; }
-.wm-guided-tip strong { color: var(--wm-text); }
-
-/* ── Recent projects ──────────────────────────────────────────── */
-.wm-guided-recent { margin-top: 2px; }
-.wm-guided-recent h2 {
-  font-size: .72rem;
-  font-weight: 650;
-  margin: 0 0 6px;
-  color: var(--wm-text-muted);
-}
-.wm-guided-recent-list { display: flex; gap: 6px; flex-wrap: wrap; }
-.wm-guided-recent-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid var(--wm-border);
-  border-radius: 8px;
-  background: var(--wm-surface);
-  text-decoration: none;
-  color: var(--wm-text);
-  min-width: 0;
-  flex: 1;
-  min-width: 160px;
-  transition: border-color .15s;
-}
-.wm-guided-recent-card:hover { border-color: var(--wm-accent, #53e0ff); }
-.wm-guided-recent-card strong { font-size: .72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wm-guided-recent-card small { font-size: .62rem; color: var(--wm-text-muted); white-space: nowrap; }
-
-/* ------------------------------------------------------------------ */
 /*  Guided mode: sidebar condensed — icons only, no text labels         */
 /* ------------------------------------------------------------------ */
 
@@ -9587,3 +9324,24 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
 @media (prefers-reduced-motion: reduce) { .wm-training-page * { scroll-behavior: auto !important; } }
 
 /* WINGMAN_TRAINING_PORTAL_END */
+/* Guided interview — compact, route-scoped treatment. */
+[data-wingman-guided-interview="true"]{width:min(100%,56rem);margin:0 auto 1.5rem;color:rgb(237 246 255)}
+[data-wingman-guided-interview="true"]>section{margin-top:1rem;border:1px solid rgb(255 255 255/.1);border-radius:1rem;background:rgb(11 24 36/.8);padding:1.25rem}
+[data-wingman-guided-interview="true"] :is(.flex,.inline-flex){display:flex;align-items:center;flex-wrap:wrap;gap:.6rem}
+[data-wingman-guided-interview="true"] .justify-between{justify-content:space-between}
+[data-wingman-guided-interview="true"] button{display:inline-flex;align-items:center;gap:.45rem;margin:.2rem;border:1px solid rgb(255 255 255/.1);border-radius:999px;background:rgb(255 255 255/.04);color:rgb(207 230 247);padding:.6rem 1rem;font-size:.82rem;font-weight:650}
+[data-wingman-guided-interview="true"] button:hover,[data-wingman-guided-interview="true"] button[aria-pressed="true"]{border-color:rgb(192 132 252/.7);background:rgb(168 85 247/.2);color:rgb(243 232 255)}
+[data-wingman-guided-interview="true"] h2{margin:.75rem 0 .35rem;color:rgb(237 246 255);font-size:1.5rem}
+[data-wingman-guided-interview="true"] p{color:rgb(143 184 208)}
+[data-wingman-guided-interview="true"] [class*="mt-"]{margin-top:.8rem}
+[data-wingman-guided-interview="true"] :is(.rounded-lg,.rounded-xl){border-radius:.75rem;padding:1rem}
+[data-wingman-guided-interview="true"] .w-full{width:100%}
+[data-wingman-guided-interview="true"] .h-2{height:.5rem}
+[data-wingman-guided-interview="true"] .h-full{height:100%}
+[data-wingman-guided-interview="true"] [class*="bg-purple-500/"]{background:rgb(168 85 247/.15)}
+[data-wingman-guided-interview="true"] [class*="bg-emerald-500/"]{background:rgb(16 185 129/.13)}
+[data-wingman-guided-interview="true"] [class*="bg-amber-500/"]{background:rgb(245 158 11/.13)}
+[data-wingman-guided-interview="true"] .bg-purple-500{background:rgb(168 85 247);color:rgb(59 7 100)}
+[data-wingman-guided-interview="true"] .bg-cyan-500{background:rgb(34 211 238);color:rgb(8 51 68)}
+[data-wingman-guided-interview="true"] .bg-gradient-to-r{border-radius:999px;background:linear-gradient(90deg,rgb(168 85 247),rgb(34 211 238))}
+[data-wingman-guided-interview="true"] svg{width:1rem;height:1rem;flex:none}
