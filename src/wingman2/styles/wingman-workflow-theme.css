@@ -237,6 +237,7 @@ html[data-wingman-route="discovery"] .wm-discovery-capture-card {
 
 html[data-wingman-route="discovery"] .wm-discovery-question-card {
   display: grid;
+  align-content: start;
   gap: 12px;
   padding: 16px;
 }
@@ -5694,6 +5695,120 @@ html[data-wingman-route="discovery"] .wm-discovery-finish-actions > button:hover
   transform: translateX(3px);
 }
 
+html[data-wingman-route="discovery"] .wm-discovery-finish-action {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-finish-action::after,
+html[data-wingman-route="discovery"] .wm-discovery-next-button::after,
+html[data-wingman-route="discovery"] .wm-discovery-save-button::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(115deg, transparent 20%, color-mix(in srgb, white 18%, transparent), transparent 72%);
+  content: "";
+  opacity: 0;
+  transform: translateX(-70%);
+  transition: opacity 180ms ease, transform 320ms ease;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-finish-action:hover::after,
+html[data-wingman-route="discovery"] .wm-discovery-next-button:hover::after,
+html[data-wingman-route="discovery"] .wm-discovery-save-button:hover::after {
+  opacity: 1;
+  transform: translateX(70%);
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-next-button,
+html[data-wingman-route="discovery"] .wm-discovery-save-button {
+  background: linear-gradient(135deg, var(--wm-ref-aqua), color-mix(in srgb, var(--wm-ref-cyan) 72%, #146e9d));
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 82%, white);
+  color: var(--wm-ref-bg);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--wm-ref-aqua) 20%, transparent);
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-finish-action--proposal,
+html[data-wingman-route="discovery"] .wm-discovery-finish-action--export {
+  border-color: color-mix(in srgb, var(--wm-ref-purple) 42%, var(--wm-ref-border));
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-finish-action--proposal > svg:first-child,
+html[data-wingman-route="discovery"] .wm-discovery-finish-action--export > svg:first-child {
+  color: color-mix(in srgb, var(--wm-ref-purple) 75%, white);
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-finish-action--review > svg:first-child {
+  color: var(--wm-ref-green);
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-finish-action--save > svg:first-child {
+  color: var(--wm-ref-aqua);
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-suggestion-button--confirm {
+  background: var(--wm-ref-aqua);
+  color: var(--wm-ref-bg);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--wm-ref-aqua) 20%, transparent);
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-suggestion-button--confirm:hover {
+  background: color-mix(in srgb, var(--wm-ref-aqua) 80%, white);
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-suggestion-button--dismiss {
+  border: 1px solid var(--wm-ref-border);
+  background: color-mix(in srgb, var(--wm-ref-panel) 75%, transparent);
+  color: var(--wm-ref-muted);
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-suggestion-button--dismiss:hover {
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 36%, var(--wm-ref-border));
+  color: var(--wm-ref-text);
+}
+
+/* Keep the answer cards compact and intentional even when the capture rail is
+   taller than the question content. The workflow should feel like a signal
+   path, not a set of stretched empty panels. */
+html[data-wingman-route="discovery"] .wm-discovery-option-list {
+  align-content: start;
+  align-self: start;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option {
+  min-height: 104px;
+  align-content: center;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-grid button {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 9px;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 34%, var(--wm-ref-border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--wm-ref-aqua) 8%, var(--wm-ref-panel));
+  color: var(--wm-ref-text);
+  font-size: 0.66rem;
+  font-weight: 760;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-grid button:hover {
+  border-color: var(--wm-ref-aqua);
+  background: color-mix(in srgb, var(--wm-ref-aqua) 15%, var(--wm-ref-panel));
+  transform: translateY(-1px);
+}
+
+@media (max-width: 700px) {
+  html[data-wingman-route="discovery"] .wm-discovery-option {
+    min-height: 84px;
+  }
+}
+
 html[data-wingman-route="discovery"] .wm-discovery-finish-actions > button > svg:first-child {
   color: var(--wm-ref-aqua);
 }
@@ -8313,15 +8428,16 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discover
     min-height: 0;
   }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-card {
-    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto auto;
   }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option-list {
-    height: 100%;
-    grid-auto-rows: minmax(0, 1fr);
+    height: auto;
+    align-content: start;
+    grid-auto-rows: auto;
   }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option {
-    height: 100%;
-    align-content: center;
+    height: auto;
+    align-content: start;
   }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card {
     position: relative;

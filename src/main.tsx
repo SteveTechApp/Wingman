@@ -11,7 +11,6 @@ import "./wingman2/styles/wingman-route-overrides.css";
 
 /* Companion theme files — load after the core layers */
 import "./wingman2/styles/wingman-reference-theme.css";
-import "./wingman2/styles/wingman-workflow-theme.css";
 import "./wingman2/styles/wingman-polish-navigation.css";
 import "./wingman2/styles/wingman-reference-global.css";
 import "./wingman2/styles/wingman-product-tools-visual-weight.css";
@@ -31,6 +30,9 @@ import { installTemplateCardExpansionController } from "./wingman2/lib/templates
 import { installRuntimeTelemetry } from "./wingman2/lib/runtimeTelemetry";
 import { installFeatureAnalytics } from "./wingman2/lib/featureAnalytics";
 import "./wingman2/lib/productToolsVisualWeight";
+/* Keep the workflow treatment last so route-specific discovery/compare rules
+   are not silently flattened by global density and polish overrides. */
+import "./wingman2/styles/wingman-workflow-theme.css";
 
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
