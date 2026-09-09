@@ -15,6 +15,8 @@ import "./wingman2/styles/wingman-workflow-theme.css";
 import "./wingman2/styles/wingman-polish-navigation.css";
 import "./wingman2/styles/wingman-reference-global.css";
 import "./wingman2/styles/wingman-product-tools-visual-weight.css";
+/* Scoped utility layer used only by Discovery's guided interview. */
+import "./wingman2/styles/wingman-guided-interview.css";
 import { installCompareManufacturerAssist } from "./wingman2/lib/compareManufacturerAssist";
 import "./wingman2/lib/guruDetachedPanel";
 import "./wingman2/lib/microphoneSafety";

@@ -1,0 +1,29 @@
+/*
+ * The guided interview is authored with Tailwind utilities, unlike the rest
+ * of Wingman's hand-written design system. Generate only the utilities used by
+ * that surface and scope them to its root so they cannot restyle other routes.
+ */
+@config "../../../tailwind.guided.config.js";
+@tailwind utilities;
+
+[data-wingman-guided-interview="true"] {
+  width: min(100%, 56rem);
+  margin-right: auto;
+  margin-bottom: 1.5rem;
+  margin-left: auto;
+}
+
+[data-wingman-guided-interview="true"] > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-wingman-guided-interview="true"] *,
+  [data-wingman-guided-interview="true"] *::before,
+  [data-wingman-guided-interview="true"] *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
