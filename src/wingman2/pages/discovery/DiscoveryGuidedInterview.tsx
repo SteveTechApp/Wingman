@@ -150,7 +150,7 @@ export function DiscoveryGuidedInterviewEntry({
   }, []);
 
   return (
-    <>
+    <div data-wingman-guided-interview="true" data-guided-interview-entry="true">
       <button
         type="button"
         onClick={onStart}
@@ -179,7 +179,7 @@ export function DiscoveryGuidedInterviewEntry({
           </span>
         </button>
       )}
-    </>
+    </div>
   );
 }
 
