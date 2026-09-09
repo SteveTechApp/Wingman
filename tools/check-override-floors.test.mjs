@@ -45,6 +45,7 @@ const CLEAN_PACKAGE = {
     browserslist: "^4.28.8",
     "postcss-selector-parser@^6.0.10": "^6.1.4",
     "fast-uri": "^3.1.7",
+    "js-yaml": "^4.3.2",
   },
 };
 
@@ -53,6 +54,7 @@ const CLEAN_LOCK = {
     "node_modules/browserslist": { version: "4.28.8" },
     "node_modules/postcss-selector-parser": { version: "6.1.4" },
     "node_modules/fast-uri": { version: "3.1.7" },
+    "node_modules/js-yaml": { version: "4.3.2" },
   },
 };
 
@@ -286,7 +288,7 @@ function sandboxPackageJson(overrides) {
   return {
     name: "override-floor-drill-fixture",
     private: true,
-    overrides,
+    overrides: { "js-yaml": "^4.3.2", ...overrides },
     dependencies: { autoprefixer: "^10.4.20" },
   };
 }
@@ -430,4 +432,3 @@ describe("lockfile-regeneration drill", () => {
     360_000,
   );
 });
-
