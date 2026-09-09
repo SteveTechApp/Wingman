@@ -5,7 +5,7 @@ import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, Product
 import { ProductWhyFlashCard } from "../components/ProductWhyFlashCard";
 import {
   clearProductIntelligenceIndexCache,
-  loadProductIntelligenceIndex,
+  loadProductIntelligenceSummary,
 } from "../lib/productIntelligenceIndexCache";
 import { extractRawProducts, type GovernedReviewerTrail as GovernedReviewerTrailData } from "../lib/productStoryEngine";
 import {
@@ -218,7 +218,7 @@ export function CatalogBrowserPage() {
 
   useEffect(() => {
     let cancelled = false;
-    loadProductIntelligenceIndex()
+    loadProductIntelligenceSummary()
       .then((data) => {
         if (cancelled) return;
         const rawRecords = extractRawProducts(data);

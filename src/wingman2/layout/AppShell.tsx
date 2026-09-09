@@ -235,7 +235,6 @@ export function AppShell({ children }: AppShellProps) {
   }, [activeRoute?.key, activeSummary]);
   const { isGuided } = useUiMode();
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
-  const guidedNav = useMemo(() => primaryNav.filter((r) => ["dashboard", "compare", "projects"].includes(r.key)), [primaryNav]);
   const canManageData =
   import.meta.env.DEV ||
   Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
@@ -349,7 +348,7 @@ export function AppShell({ children }: AppShellProps) {
         )}
 
         <nav className={`wingman-nav ${isGuided ? "wingman-nav--guided" : ""}`} aria-label="Wingman navigation">
-          {(isGuided ? guidedNav : primaryNav).map(({ path, navLabel, icon: Icon, summary, key }) => (
+          {primaryNav.map(({ path, navLabel, icon: Icon, summary, key }) => (
             <NavLink
               key={path}
               to={path}
@@ -368,7 +367,7 @@ export function AppShell({ children }: AppShellProps) {
               </span>
             </NavLink>
           ))}
-          {canManageData && !isGuided ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink><NavLink to="/wingman/approval-queue" title="Review and approve proposals" aria-label="Approval Queue: Review and approve proposals" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><CheckCircle className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Approvals</span></span><span className="wingman-nav-tooltip" role="tooltip">Review and approve proposals</span></NavLink></> : null}
+          {canManageData ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink><NavLink to="/wingman/approval-queue" title="Review and approve proposals" aria-label="Approval Queue: Review and approve proposals" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><CheckCircle className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Approvals</span></span><span className="wingman-nav-tooltip" role="tooltip">Review and approve proposals</span></NavLink></> : null}
         </nav>
 
         <div className="wingman-sidebar-footer">

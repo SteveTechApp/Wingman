@@ -14,7 +14,9 @@ describe("product intelligence index cache usage", () => {
     const cacheSource = readFileSync(join(process.cwd(), "src/wingman2/lib/productIntelligenceIndexCache.ts"), "utf8");
 
     expect(cacheSource).toContain("productIntelligenceIndexPromise");
-    expect(cacheSource).toContain('fetch("/product-intelligence-index.json"');
+    expect(cacheSource).toContain('"/product-intelligence-summary.json"');
+    expect(cacheSource).toContain('"/product-intelligence-details.json"');
+    expect(cacheSource).toContain("loadProductIntelligenceDetail");
 
     for (const relativePath of clientProductIndexConsumers) {
       const source = readFileSync(join(process.cwd(), relativePath), "utf8");

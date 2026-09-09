@@ -1,4 +1,4 @@
-import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
+import { loadProductIntelligenceSummary } from "./productIntelligenceIndexCache";
 
 /* ------------------------------------------------------------------ */
 /*  Public types                                                       */
@@ -71,7 +71,7 @@ export async function searchProducts(
 ): Promise<ProductSearchResult[]> {
   if (!query || query.length < 2) return [];
 
-  const index = (await loadProductIntelligenceIndex()) as {
+  const index = (await loadProductIntelligenceSummary()) as {
     products?: Array<Record<string, unknown>>;
   };
   const products = index?.products ?? [];

@@ -26,6 +26,7 @@ const failures = [];
 const routes = read("src/wingman2/app/routes.tsx");
 const routeCatalog = read("src/wingman2/app/routeCatalog.ts");
 const routeManifest = JSON.parse(read("src/wingman2/app/route-manifest.json"));
+const appShell = read("src/wingman2/layout/AppShell.tsx");
 const navigationHub = read("src/wingman2/pages/NavigationHubPages.tsx");
 const callCardsPage = read("src/wingman2/pages/CallCardsPage.tsx");
 const salesHelperPage = read("src/wingman2/pages/SalesHelperPage.tsx");
@@ -129,6 +130,16 @@ assert(
 assert(
   !primaryNavBlock.includes('"salesHelper"'),
   "Sales Helper must not duplicate Call Coach in the primary sidebar.",
+);
+
+assert(
+  appShell.includes("{primaryNav.map(") && !appShell.includes("guidedNav"),
+  "Guided navigation should expose the complete consolidated Wingman feature menu.",
+);
+
+assert(
+  appShell.includes("{canManageData ?") && !appShell.includes("canManageData && !isGuided"),
+  "Guided navigation should retain permission-gated admin features.",
 );
 
 assert(

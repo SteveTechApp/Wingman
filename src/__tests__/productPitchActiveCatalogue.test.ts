@@ -9,7 +9,6 @@ const pageSource = readFileSync(
 );
 
 const blockedProducts = [
-  { sku: "SW-0X01-8K", name: "Rejected switch", family: "Switching", category: "Switch" },
   { sku: "SW-120-TX3-US", name: "Regional US transmitter", family: "Presentation", category: "Transmitter" },
   { sku: "SW-130-TX-US", name: "Regional US transmitter", family: "Presentation", category: "Transmitter" },
   { sku: "SW-540-TX-W", name: "Rejected wireless transmitter", family: "Presentation", category: "Wireless" },
@@ -45,7 +44,7 @@ describe("Product Pitch active catalogue", () => {
   });
 
   it("keeps rejected products from current project suggestions by only accepting compatible engine decisions", () => {
-    const blocked = productPitchDecisions().find((decision) => decision.sku === "SW-0X01-8K");
+    const blocked = productPitchDecisions().find((decision) => decision.sku === "SW-120-TX3-US");
     const active = productPitchDecisions().find((decision) => decision.sku === "NHD-500-TX");
 
     expect(blocked?.eligible).toBe(false);

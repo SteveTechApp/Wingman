@@ -591,6 +591,7 @@ const projectStages: ProjectStage[] = [
 ];
 
 let backendSyncTimer: number | null = null;
+let backendSyncBaseline: ProjectStoreSnapshot | null = null;
 let backendHydrationPromise: Promise<void> | null = null;
 let backendSyncRejectedForSession = false;
 
@@ -1510,7 +1511,11 @@ function setProjectSyncStatus(syncStatus: StoredProjectSyncStatus) {
   );
 }
 
-function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode: ProjectStorageMode = getProjectStorageMode()) {
+function scheduleBackendProjectSync(
+  snapshot: ProjectStoreSnapshot,
+  previousSnapshot: ProjectStoreSnapshot,
+  storageMode: ProjectStorageMode = getProjectStorageMode(),
+) {
   if (typeof window === "undefined") return;
 
   if (storageMode.kind === "local") {
@@ -1530,10 +1535,11 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
   if (backendSyncTimer) {
     window.clearTimeout(backendSyncTimer);
   }
+  backendSyncBaseline ??= previousSnapshot;
 
   backendSyncTimer = window.setTimeout(async () => {
     backendSyncTimer = null;
-    const [{ analyzeProjectSyncResponse, backendProjectForSync, syncConflictStatusMessage }, { buildProjectApiRequest }] = await Promise.all([
+    const [{ analyzeProjectSyncResponse, backendProjectForSync, buildProjectPushPlan, syncConflictStatusMessage }, { buildProjectApiRequest }] = await Promise.all([
       import("./projectSyncConflict"),
       import("./projectHydrationFetch"),
     ]);
@@ -1542,23 +1548,32 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
     // returned merged project against its sent counterpart, so an edit made
     // locally WHILE the request was in flight cannot look like a conflict.
     const sentProjects = store.projects;
+    const baseline = backendSyncBaseline ?? previousSnapshot;
+    backendSyncBaseline = null;
+    const pushPlan = buildProjectPushPlan(baseline.projects, store.projects);
+    const send = (endpoint: string, method: "POST" | "PUT", body: unknown) => fetch(
+      endpoint,
+      buildProjectApiRequest({
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }, storageMode),
+    );
+    const requests = pushPlan.kind === "snapshot"
+      ? [send(
+          PROJECT_SYNC_ENDPOINT,
+          "POST",
+          { activeProjectId: store.activeProjectId ?? null, projects: store.projects.map(backendProjectForSync) },
+        )]
+      : pushPlan.projects.map((project) => send(
+          `${PROJECTS_ENDPOINT}/${encodeURIComponent(project.id)}`,
+          "PUT",
+          backendProjectForSync(project),
+        ));
 
-    fetch(
-      PROJECT_SYNC_ENDPOINT,
-      buildProjectApiRequest(
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            activeProjectId: store.activeProjectId ?? null,
-            projects: store.projects.map(backendProjectForSync),
-          }),
-        },
-        storageMode,
-      ),
-    )
-      .then(async (response) => {
-        if (response.status === 401) {
+    Promise.all(requests)
+      .then(async (responses) => {
+        if (responses.some((response) => response.status === 401)) {
           backendSyncRejectedForSession = true;
           setProjectSyncStatus({
             state: "local",
@@ -1568,11 +1583,13 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
           return;
         }
 
-        if (!response.ok) {
-          console.error(`[wingman] projectStore: backend sync failed with status ${response.status}`);
+        const failedResponse = responses.find((response) => !response.ok);
+        if (failedResponse) {
+          backendSyncBaseline ??= baseline;
+          console.error(`[wingman] projectStore: backend sync failed with status ${failedResponse.status}`);
           setProjectSyncStatus({
             state: "error",
-            message: `Project sync failed with status ${response.status}. Local changes were preserved.`,
+            message: `Project sync failed with status ${failedResponse.status}. Local changes were preserved.`,
             updatedAt: nowIso(),
           });
           return;
@@ -1593,8 +1610,10 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
         // and the changed lane keys, so the UI can tell the rep which fields a
         // team member changed. A later response that MATCHES our copy clears
         // the mark (reconciled by a reload's hydration or the member reverting).
-        const payload = await response.json().catch(() => null);
-        const returned = payload?.projects;
+        const payloads = await Promise.all(responses.map((response) => response.json().catch(() => null)));
+        const returned = pushPlan.kind === "snapshot"
+          ? payloads[0]?.projects
+          : payloads.map((payload) => payload?.project).filter(Boolean);
         const { revisionById, changedLanesByProjectId } = analyzeProjectSyncResponse(sentProjects, returned);
 
         const conflicted: Array<{ name: string; fields: string[] }> = [];
@@ -1641,6 +1660,7 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
         );
       })
       .catch((error) => {
+        backendSyncBaseline ??= baseline;
         console.error("[wingman] projectStore: backend sync request failed", error);
         setProjectSyncStatus({
           state: "error",
@@ -1676,13 +1696,14 @@ export function writeProjectStore(snapshot: ProjectStoreSnapshot, options: { syn
   }
 
   const storageMode = getProjectStorageMode();
+  const previousStore = readProjectStore();
   const store = safeStore({
     ...snapshot,
     syncStatus: storageMode.kind === "local" ? localProjectSyncStatus(snapshot.syncStatus, storageMode.reason) : snapshot.syncStatus,
   });
   window.localStorage.setItem(PROJECT_STORE_KEY, JSON.stringify(store));
   if (options.syncBackend !== false && storageMode.kind === "remote") {
-    scheduleBackendProjectSync(store, storageMode);
+    scheduleBackendProjectSync(store, previousStore, storageMode);
   }
   window.dispatchEvent(new CustomEvent(PROJECT_STORE_EVENT));
 }

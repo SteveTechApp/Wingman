@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import index from "../../../public/product-intelligence-index.json";
+import index from "../../../public/product-intelligence-summary.json";
 
 const { getWingmanSession, getWingmanJson } = vi.hoisted(() => ({
   getWingmanSession: vi.fn(),
@@ -9,7 +9,7 @@ const { getWingmanSession, getWingmanJson } = vi.hoisted(() => ({
 }));
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
 }));
 
 vi.mock("../api/wingmanApi", () => ({

@@ -57,6 +57,7 @@ import { BASIC_MODE_REQUIRED_IDS, DiscoveryProgressiveDisclosure, type Discovery
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
+import { DiscoveryOpportunityGraphic } from "./discovery/DiscoveryOpportunityGraphic";
 import { DiscoveryDefaultsConflictAlert } from "./discovery/DiscoveryDefaultsConflictAlert";
 import {
   getDiscoverySpeechRecognition,
@@ -83,12 +84,10 @@ import {
   wmDiscoveryToggleMultiSelectAnswer,
 } from "./discovery/discoveryAnswerUtils";
 
-// Workflow integration compatibility markers required by tools/workflow-integration-check.mjs.
 // Live call mode
 // Current model
 // View full model
 
-// Call notes handoff compatibility required by tools/check-short-workflow-pages.
 // wingman:use-call-notes-in-discovery
 const callNotesStorageKey = "wingman:use-call-notes-in-discovery";
 
@@ -1685,6 +1684,7 @@ return (
                     aria-pressed={selected}
                   >
                     <span className={wmDiscoveryIsMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
+                    {currentStep.id === "opportunity" ? <DiscoveryOpportunityGraphic option={option.value} /> : null}
                     <span>
                       <strong>{option.label}</strong>
                       <small>{option.help}</small>

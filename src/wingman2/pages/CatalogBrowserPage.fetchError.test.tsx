@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockRejectedValue(new Error("network offline")),
+  loadProductIntelligenceSummary: vi.fn().mockRejectedValue(new Error("network offline")),
 }));
 
 import { CatalogBrowserPage } from "./CatalogBrowserPage";

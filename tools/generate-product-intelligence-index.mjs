@@ -44,6 +44,7 @@ function applyClassificationCorrection(sku, classification) {
 const outputTargets = [
   { type: "json", path: "public/product-intelligence-index.json" },
 ];
+const deferredDetailFields = new Set(["technicalProfile", "salesLanguage", "dataMaintenance", "sourceCatalog"]);
 
 const generatedAt = "source-controlled";
 
@@ -769,6 +770,44 @@ function buildIndex(products, discoveredSources) {
   };
 }
 
+function buildSplitIndexes(index) {
+  const details = {};
+  const products = index.products.map((product) => {
+    const summary = {};
+    const detail = {};
+    for (const [key, value] of Object.entries(product)) {
+      (deferredDetailFields.has(key) ? detail : summary)[key] = deferredDetailFields.has(key) ? cleanDeferredValue(value) : value;
+    }
+    const presentSections = [...deferredDetailFields].filter((field) => detail[field] !== undefined);
+    detail._quality = {
+      completenessPercent: Math.round((presentSections.length / deferredDetailFields.size) * 100),
+      presentSections,
+      missingSections: [...deferredDetailFields].filter((field) => !presentSections.includes(field)),
+    };
+    details[String(product.sku || product.id).toUpperCase().replace(/[^A-Z0-9]+/g, "")] = detail;
+    return summary;
+  });
+  return { summary: { ...index, products }, details };
+}
+
+function cleanDeferredValue(value) {
+  if (typeof value === "string") return value.trim() || undefined;
+  if (Array.isArray(value)) {
+    const cleaned = value.map(cleanDeferredValue).filter((item) => item !== undefined);
+    if (cleaned.every((item) => typeof item !== "object")) {
+      return [...new Map(cleaned.map((item) => [String(item).toLowerCase(), item])).values()];
+    }
+    return cleaned.length ? cleaned : undefined;
+  }
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value)
+      .map(([key, child]) => [key, cleanDeferredValue(child)])
+      .filter(([, child]) => child !== undefined);
+    return entries.length ? Object.fromEntries(entries) : undefined;
+  }
+  return value ?? undefined;
+}
+
 async function writeFileEnsured(filePath, content) {
   const fsp = await import("node:fs/promises");
   const pathModule = await import("node:path");
@@ -864,6 +903,7 @@ async function main() {
 
   const products = dedupeProducts(normalizedProducts);
   const index = buildIndex(products, discoveredSources);
+  const splitIndexes = buildSplitIndexes(index);
 
   for (const target of outputTargets) {
     const absoluteOutputPath = path.join(projectRoot, target.path);
@@ -882,6 +922,23 @@ async function main() {
 
     console.log(`[product-intelligence-index] Wrote ${target.path}`);
   }
+
+  await writeFileEnsured(path.join(projectRoot, "public/product-intelligence-summary.json"), `${JSON.stringify(splitIndexes.summary)}\n`);
+  const detailDirectory = path.join(projectRoot, "public/product-intelligence-details");
+  await fs.mkdir(detailDirectory, { recursive: true });
+  const detailManifest = {};
+  for (const [key, detail] of Object.entries(splitIndexes.details)) {
+    if (!key || detail._quality.presentSections.length === 0) throw new Error(`Invalid deferred detail record: ${key || "missing key"}`);
+    const fileName = `${key.toLowerCase()}.json`;
+    const content = `${JSON.stringify(detail)}\n`;
+    detailManifest[key] = { path: `/product-intelligence-details/${fileName}`, bytes: Buffer.byteLength(content) };
+    await writeFileEnsured(path.join(detailDirectory, fileName), content);
+  }
+  const expectedFiles = new Set(Object.values(detailManifest).map((entry) => path.basename(entry.path)));
+  for (const fileName of await fs.readdir(detailDirectory)) {
+    if (fileName.endsWith(".json") && !expectedFiles.has(fileName)) await fs.unlink(path.join(detailDirectory, fileName));
+  }
+  await writeFileEnsured(path.join(projectRoot, "public/product-intelligence-details.json"), `${JSON.stringify({ meta: { generatedAt, count: Object.keys(detailManifest).length }, products: detailManifest })}\n`);
 
   if (products.length === 0) {
     console.log(

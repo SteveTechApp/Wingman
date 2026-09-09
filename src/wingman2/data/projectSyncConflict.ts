@@ -1,5 +1,31 @@
 import type { StoredProject } from "./projectStore";
 
+export type ProjectPushPlan =
+  | { kind: "snapshot" }
+  | { kind: "projects"; projects: Array<StoredProject & { baseRevision: number }> };
+
+function comparableProject(project: StoredProject) {
+  const copy = { ...project };
+  delete copy.syncRevision;
+  delete copy.syncConflict;
+  return JSON.stringify(copy);
+}
+
+export function buildProjectPushPlan(previous: StoredProject[], next: StoredProject[]): ProjectPushPlan {
+  const nextIds = new Set(next.map((project) => project.id));
+  if (previous.some((project) => !nextIds.has(project.id))) return { kind: "snapshot" };
+  const previousById = new Map(previous.map((project) => [project.id, project]));
+  return {
+    kind: "projects",
+    projects: next
+      .filter((project) => {
+        const prior = previousById.get(project.id);
+        return project.syncRevision === undefined || project.syncConflict !== undefined || !prior || comparableProject(prior) !== comparableProject(project);
+      })
+      .map((project) => ({ ...project, baseRevision: project.syncRevision ?? 0 })),
+  };
+}
+
 function objectRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 }

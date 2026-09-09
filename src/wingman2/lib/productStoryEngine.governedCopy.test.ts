@@ -194,45 +194,33 @@ describe("governed-first pitch and call-card copy", () => {
     expect(benefits).toMatch(/4:4:4/);
   });
 
-  it("range page SW-0X01-8K carries no saleable spec of its own after the variant split", () => {
-    // The user correction: SW-0X01-8K is a family page covering the two real
-    // SKUs (EXP-SW-0201-8K 2x1, EXP-SW-0401-8K 4x1), not a product. It must not
-    // present phantom claims (USB 3.x, a single HDMI-out spec, video-wall
-    // processing) as if it were a saleable unit.
-    const raw = findRaw("SW-0X01-8K");
-    expect(raw).toBeTruthy();
+  it("models the shared 0X01 page as two exact HDMI switcher SKUs", () => {
+    expect(findRaw("SW-0X01-8K")).toBeUndefined();
 
-    const record = raw as {
-      lifecycleStatus?: string;
-      commercialRole?: string;
-      features?: string[];
-      tags?: string[];
-      technicalProfile?: {
-        io?: { ports?: Array<{ count: number; connector: string; direction: string; category: string }> };
-        usb?: { present?: boolean; versions?: string[] };
-        transports?: string[];
-        governedSpecification?: { status?: string; productClass?: string } | null;
+    const variants = [
+      ["EXP-SW-0201-8K", 2],
+      ["EXP-SW-0401-8K", 4],
+    ] as const;
+
+    for (const [sku, inputs] of variants) {
+      const record = findRaw(sku) as {
+        lifecycleStatus?: string;
+        technicalProfile?: {
+          governedSpecification?: { inputCount?: number; outputCount?: number };
+          io?: { ports?: Array<{ count: number; connector: string; direction: string }> };
+        };
       };
-    };
-
-    // Lifecycle: review-required range placeholder, not a lead product.
-    expect(record.lifecycleStatus).toBe("review");
-    expect(record.commercialRole).toBe("review-required");
-
-    // Phantom spec claims stripped: no USB 3.x, no video-wall processing, no ports.
-    const profile = record.technicalProfile ?? {};
-    expect(profile.usb?.present ?? false).toBe(false);
-    expect((profile.io?.ports ?? []).length).toBe(0);
-    expect(profile.transports ?? []).not.toContain("USB 3.x");
-    expect((record.features ?? []).join(" ")).not.toMatch(/Video Wall|USB 3\.x|Processing/);
-
-    // The real variants carry the actual governed I/O.
-    const twoIn = findRaw("EXP-SW-0201-8K") as { technicalProfile?: { io?: { ports?: unknown[] }; governedSpecification?: { inputCount?: number; outputCount?: number } } };
-    const fourIn = findRaw("EXP-SW-0401-8K") as { technicalProfile?: { io?: { ports?: unknown[] }; governedSpecification?: { inputCount?: number; outputCount?: number } } };
-    expect(twoIn.technicalProfile?.governedSpecification?.inputCount).toBe(2);
-    expect(fourIn.technicalProfile?.governedSpecification?.inputCount).toBe(4);
-    expect((twoIn.technicalProfile?.io?.ports ?? []).length).toBeGreaterThan(0);
-    expect((fourIn.technicalProfile?.io?.ports ?? []).length).toBeGreaterThan(0);
+      expect(record).toBeTruthy();
+      expect(record.lifecycleStatus).toBe("active");
+      expect(record.technicalProfile?.governedSpecification?.inputCount).toBe(inputs);
+      expect(record.technicalProfile?.governedSpecification?.outputCount).toBe(1);
+      expect(record.technicalProfile?.io?.ports).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ count: inputs, connector: "HDMI", direction: "input" }),
+          expect.objectContaining({ count: 1, connector: "HDMI", direction: "output" }),
+        ]),
+      );
+    }
   });
 
   it("index generator force-demotes every detected range/family page to review-required with no spec claims", () => {
@@ -251,7 +239,7 @@ describe("governed-first pitch and call-card copy", () => {
       return /(\(family\)|family reference|range page|range reference|family page|not an orderable sku|shared family page|range placeholder)/i.test(text);
     });
 
-    expect(rangePages.map((p) => p.sku).sort()).toEqual(["SW-0X01-8K", "SW-130-TX"]);
+    expect(rangePages.map((p) => p.sku).sort()).toEqual(["SW-130-TX"]);
 
     for (const product of rangePages) {
       expect(product.lifecycleStatus).toBe("review");
