@@ -57,8 +57,8 @@ import { BASIC_MODE_REQUIRED_IDS, DiscoveryProgressiveDisclosure, type Discovery
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
-import { DiscoveryOpportunityGraphic } from "./discovery/DiscoveryOpportunityGraphic";
-import { DiscoveryQuestionIntro } from "./discovery/DiscoveryQuestionGraphic";
+import { DiscoveryOptionGraphic } from "./discovery/DiscoveryOpportunityGraphic";
+import { DiscoveryQuestionIntro, getDiscoverySectionTone } from "./discovery/DiscoveryQuestionGraphic";
 import { DiscoveryDefaultsConflictAlert } from "./discovery/DiscoveryDefaultsConflictAlert";
 import {
   getDiscoverySpeechRecognition,
@@ -1611,7 +1611,7 @@ return (
         />
       )}
 
-      <div className="wm-discovery-question-layout">
+      <div className={`wm-discovery-question-layout is-${getDiscoverySectionTone(currentStep.section)}`}>
         <section
           className="wm-discovery-question-card wm-ui-section wm-ui-card"
           data-discovery-step={currentStep.id}
@@ -1682,7 +1682,7 @@ return (
                     aria-pressed={selected}
                   >
                     <span className={wmDiscoveryIsMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
-                    {currentStep.id === "opportunity" ? <DiscoveryOpportunityGraphic option={option.value} /> : null}
+                    <DiscoveryOptionGraphic option={option.value} step={currentStep.id} label={option.label} />
                     <span>
                       <strong>{option.label}</strong>
                       <small>{option.help}</small>

@@ -220,6 +220,7 @@ html[data-wingman-route="discovery"] .wm-discovery-step-pill.is-active > span:fi
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-question-layout {
+  --discovery-step-accent: var(--wm-ref-aqua);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 370px);
   gap: 14px;
@@ -227,10 +228,16 @@ html[data-wingman-route="discovery"] .wm-discovery-question-layout {
   min-width: 0;
 }
 
+.wm-discovery-question-layout.is-blue { --discovery-step-accent: var(--wm-info); }
+.wm-discovery-question-layout.is-purple { --discovery-step-accent: var(--wm-ref-purple); }
+.wm-discovery-question-layout.is-green { --discovery-step-accent: var(--wm-success); }
+.wm-discovery-question-layout.is-amber { --discovery-step-accent: var(--wm-warning); }
+.wm-discovery-question-layout.is-rose { --discovery-step-accent: var(--wm-danger); }
+
 html[data-wingman-route="discovery"] .wm-discovery-question-card,
 html[data-wingman-route="discovery"] .wm-discovery-capture-card {
-  background: linear-gradient(145deg, var(--wm-ref-panel-strong), var(--wm-ref-panel-soft));
-  border: 1px solid var(--wm-ref-border);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--discovery-step-accent) 10%, var(--wm-ref-panel-strong)), var(--wm-ref-panel-soft));
+  border: 1px solid color-mix(in srgb, var(--discovery-step-accent) 24%, var(--wm-ref-border));
   border-radius: var(--wm-ref-radius);
   box-shadow: var(--wm-ref-shadow-soft);
 }
@@ -239,6 +246,7 @@ html[data-wingman-route="discovery"] .wm-discovery-question-card {
   display: grid;
   gap: 12px;
   padding: 16px;
+  overflow: hidden;
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-question-heading {
@@ -254,11 +262,11 @@ html[data-wingman-route="discovery"] .wm-discovery-question-heading > span {
   align-items: center;
   justify-content: center;
   padding: 4px 9px;
-  color: var(--wm-ref-aqua);
+  color: color-mix(in srgb, var(--discovery-step-accent) 78%, white);
   font-size: 0.7rem;
   font-weight: 760;
-  background: color-mix(in srgb, var(--wm-ref-aqua) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 30%, transparent);
+  background: color-mix(in srgb, var(--discovery-step-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--discovery-step-accent) 36%, transparent);
   border-radius: 999px;
 }
 
@@ -349,8 +357,9 @@ html[data-wingman-route="discovery"] .wm-discovery-option-list {
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-option {
-  --wm-option-accent: var(--wm-ref-aqua);
+  --wm-option-accent: var(--discovery-step-accent);
   display: grid;
+  position: relative;
   min-height: 76px;
   grid-template-columns: 20px minmax(0, 1fr);
   gap: 10px;
@@ -358,17 +367,17 @@ html[data-wingman-route="discovery"] .wm-discovery-option {
   padding: 12px 13px;
   color: var(--wm-ref-copy);
   text-align: left;
-  background: color-mix(in srgb, var(--wm-ref-panel) 86%, transparent);
-  border: 1px solid var(--wm-ref-border);
-  border-radius: 9px;
-  box-shadow: none;
-  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+  background: radial-gradient(circle at calc(100% - 16px) 14px, var(--wm-option-accent) 0 2px, transparent 3px), linear-gradient(90deg, var(--wm-option-accent) 0 3px, color-mix(in srgb, var(--wm-option-accent) 8%, var(--wm-ref-panel)) 3px);
+  border: 1px solid color-mix(in srgb, var(--wm-option-accent) 18%, var(--wm-ref-border));
+  border-radius: 14px 14px 14px 4px;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--wm-option-accent) 12%, transparent);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-option:has(.wm-discovery-option-graphic) {
-  grid-template-columns: 18px 46px minmax(0, 1fr);
-  align-items: center;
-  background: linear-gradient(110deg, color-mix(in srgb, var(--wm-option-accent) 9%, var(--wm-ref-panel)), color-mix(in srgb, var(--wm-ref-panel) 92%, transparent));
+  grid-template-columns: 18px minmax(0, 1fr);
+  padding-right: 78px;
+  overflow: hidden;
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-option:nth-child(2) { --wm-option-accent: var(--wm-info); }
@@ -378,26 +387,28 @@ html[data-wingman-route="discovery"] .wm-discovery-option:nth-child(5) { --wm-op
 html[data-wingman-route="discovery"] .wm-discovery-option:nth-child(6) { --wm-option-accent: var(--wm-ref-muted); }
 
 html[data-wingman-route="discovery"] .wm-discovery-option-graphic {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid color-mix(in srgb, var(--wm-option-accent) 34%, transparent);
-  border-radius: 12px;
-  color: var(--wm-option-accent);
-  background: color-mix(in srgb, var(--wm-option-accent) 10%, transparent);
+  display: block;
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 68px;
+  height: 68px;
+  color: color-mix(in srgb, var(--wm-option-accent) 70%, white);
+  opacity: .24;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
 }
 
-html[data-wingman-route="discovery"] .wm-discovery-option-graphic svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 1.6;
+html[data-wingman-route="discovery"] .wm-discovery-option .wm-discovery-option-graphic svg {
+  width: 100%;
+  height: 100%;
+  stroke-width: 1.1;
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-option:hover {
-  background: color-mix(in srgb, var(--wm-ref-aqua) 6%, var(--wm-ref-panel));
-  border-color: color-mix(in srgb, var(--wm-ref-aqua) 42%, var(--wm-ref-border));
-  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--wm-option-accent) 52%, var(--wm-ref-border));
+  transform: translateY(-2px);
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-option > span:last-child {
@@ -431,7 +442,7 @@ html[data-wingman-route="discovery"] .wm-discovery-option-checkbox {
   margin-top: 1px;
   place-items: center;
   background: color-mix(in srgb, var(--wm-ref-bg) 70%, transparent);
-  border: 1px solid color-mix(in srgb, var(--wm-ref-muted) 52%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wm-option-accent) 55%, transparent);
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-option-radio {
@@ -444,9 +455,9 @@ html[data-wingman-route="discovery"] .wm-discovery-option-checkbox {
 
 html[data-wingman-route="discovery"] .wm-discovery-option.is-selected {
   color: var(--wm-ref-text);
-  background: color-mix(in srgb, var(--wm-ref-aqua) 12%, var(--wm-ref-panel));
-  border-color: color-mix(in srgb, var(--wm-ref-aqua) 66%, transparent);
-  box-shadow: inset 3px 0 0 var(--wm-ref-aqua), 0 0 16px color-mix(in srgb, var(--wm-ref-aqua) 7%, transparent);
+  background: color-mix(in srgb, var(--wm-option-accent) 16%, var(--wm-ref-panel));
+  border-color: color-mix(in srgb, var(--wm-option-accent) 70%, transparent);
+  box-shadow: inset 4px 0 0 var(--wm-option-accent), 0 0 24px color-mix(in srgb, var(--wm-option-accent) 16%, transparent);
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-option:has(.wm-discovery-option-graphic).is-selected {
@@ -456,8 +467,8 @@ html[data-wingman-route="discovery"] .wm-discovery-option:has(.wm-discovery-opti
 
 html[data-wingman-route="discovery"] .wm-discovery-option.is-selected .wm-discovery-option-radio,
 html[data-wingman-route="discovery"] .wm-discovery-option.is-selected .wm-discovery-option-checkbox {
-  background: var(--wm-ref-aqua);
-  border-color: var(--wm-ref-aqua);
+  background: var(--wm-option-accent);
+  border-color: var(--wm-option-accent);
   box-shadow: inset 0 0 0 4px var(--wm-ref-panel-strong);
 }
 
@@ -474,6 +485,13 @@ html[data-wingman-route="discovery"] .wm-discovery-navigation-row {
 
 html[data-wingman-route="discovery"] .wm-discovery-navigation-row button {
   min-width: 118px;
+  border-radius: 10px;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-navigation-row button:last-child {
+  color: #031317;
+  background: var(--discovery-step-accent);
+  border-color: transparent;
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-capture-card {
@@ -607,23 +625,6 @@ html[data-wingman-route="discovery"] .wm-route-step-actions > button:last-child 
   justify-self: end;
 }
 
-html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="opportunity"] {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--wm-ref-aqua) 8%, var(--wm-ref-panel-strong)), var(--wm-ref-panel-soft));
-}
-
-html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="locations-connections"] {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--wm-ref-purple) 8%, var(--wm-ref-panel-strong)), var(--wm-ref-panel-soft));
-}
-
-html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="locations-connections"] .wm-discovery-question-heading > span {
-  color: color-mix(in srgb, var(--wm-ref-purple) 72%, white);
-  border-color: color-mix(in srgb, var(--wm-ref-purple) 34%, transparent);
-}
-
-html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="control"] {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--wm-ref-green) 7%, var(--wm-ref-panel-strong)), var(--wm-ref-panel-soft));
-}
-
 html[data-wingman-route="discovery"] .wm-discovery-capture-heading {
   display: flex;
   align-items: flex-start;
@@ -688,6 +689,9 @@ html[data-wingman-route="discovery"] .wm-discovery-capture-actions {
 
 html[data-wingman-route="discovery"] .wm-discovery-capture-card .wm-discovery-capture-actions button {
   width: 100%;
+  color: #031317;
+  background: var(--discovery-step-accent);
+  border-color: transparent;
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-live-tip {
@@ -8006,10 +8010,6 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discover
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-heading > p {
   font-size: .72rem;
 }
-html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option {
-  min-height: 56px;
-  padding: 8px 10px;
-}
 html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option strong {
   font-size: .74rem;
 }
@@ -8107,7 +8107,7 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discover
   padding-top: 12px;
   border-top: 1px solid rgba(93,230,237,.1);
 }
-@media (min-width: 961px) {
+@media (min-width: 1351px) {
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wingman-page-host,
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-page {
     height: auto;
@@ -8118,6 +8118,7 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discover
     padding-bottom: 18px;
   }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(390px, 430px);
     min-height: 0;
     height: auto;
     align-items: start;
@@ -8125,10 +8126,10 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discover
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-card,
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card {
     height: auto;
-    min-height: 0;
+    min-height: clamp(560px, calc(100dvh - 250px), 860px);
   }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-card {
-    grid-template-rows: repeat(4, auto);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
   }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-option-list {
     height: auto;
@@ -8142,11 +8143,11 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discover
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card {
     position: sticky;
     top: 12px;
-    grid-template-rows: repeat(3, auto);
+    grid-template-rows: auto auto minmax(160px, 1fr) auto auto auto;
   }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card textarea {
-    height: 180px;
-    min-height: 140px;
+    height: 100%;
+    min-height: 160px;
     resize: vertical;
   }
 }
@@ -8157,10 +8158,6 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discover
 @media (max-width: 1350px) {
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-layout { display: flex !important; width: auto !important; max-width: none !important; flex-direction: column; }
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-capture-card { position: relative !important; top: auto !important; }
-}
-@container discovery-workspace (max-width: 1350px) {
-  .wm-discovery-question-layout { display: flex !important; width: auto !important; max-width: none !important; flex-direction: column; }
-  .wm-discovery-capture-card { position: relative !important; top: auto !important; }
 }
 @media (max-width: 640px) {
   html[data-wingman-ui-mode="guided"][data-wingman-route="discovery"] .wm-discovery-question-card { padding: 14px; border-radius: 16px; }
