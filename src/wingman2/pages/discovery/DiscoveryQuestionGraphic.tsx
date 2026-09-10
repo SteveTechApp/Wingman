@@ -23,6 +23,10 @@ const sectionGraphics: Record<string, SectionGraphic> = {
   "Video wall intent": { tone: "rose", Icon: Network },
 };
 
+export function getDiscoverySectionTone(section: string) {
+  return sectionGraphics[section]?.tone ?? sectionGraphics["About the space"].tone;
+}
+
 type DiscoveryQuestionIntroProps = {
   section: string;
   shortLabel: string;
@@ -33,10 +37,11 @@ type DiscoveryQuestionIntroProps = {
 };
 
 export function DiscoveryQuestionGraphic({ section }: { section: string }) {
-  const { tone, Icon } = sectionGraphics[section] ?? sectionGraphics["About the space"];
+  const graphic = sectionGraphics[section] ?? sectionGraphics["About the space"];
+  const { Icon } = graphic;
 
   return (
-    <span className={`wm-discovery-question-graphic is-${tone}`} aria-hidden="true">
+    <span className={`wm-discovery-question-graphic is-${graphic.tone}`} aria-hidden="true">
       <Icon />
     </span>
   );
