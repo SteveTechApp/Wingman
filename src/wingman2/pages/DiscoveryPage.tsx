@@ -1698,7 +1698,7 @@ return (
               Previous
             </button>
             <button
-              className="wm-ui-button wm-ui-button-secondary"
+              className="wm-ui-button wm-ui-button-primary wm-discovery-next-button"
               type="button"
               onClick={currentStep.id === "locations-connections" ? completeTopologyStep : moveNext}
               disabled={currentStep.id === "locations-connections" ? false : isLastStep}
@@ -1761,7 +1761,7 @@ return (
           <DiscoveryCaptureSuggestion step={currentStep} view={currentStepView} note={currentNote} onConfirm={confirmCaptureSuggestion} />
 
           <div className="wm-discovery-capture-actions">
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveCaptureAsAnswer} disabled={!currentNote.trim()}>
+            <button className="wm-ui-button wm-ui-button-primary wm-discovery-save-button" type="button" onClick={saveCaptureAsAnswer} disabled={!currentNote.trim()}>
               Save capture and continue
             </button>
           </div>
