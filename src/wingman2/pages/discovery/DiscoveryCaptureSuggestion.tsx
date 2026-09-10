@@ -119,7 +119,7 @@ export function DiscoveryCaptureSuggestion({
           <button
             type="button"
             onClick={confirm}
-            className="inline-flex items-center gap-1 rounded-full bg-cyan-500 px-3.5 py-1.5 text-xs font-bold text-cyan-950 transition hover:bg-cyan-400"
+            className="wm-discovery-suggestion-button wm-discovery-suggestion-button--confirm inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-bold transition"
           >
             <Check className="h-3.5 w-3.5" />
             Confirm
@@ -127,7 +127,7 @@ export function DiscoveryCaptureSuggestion({
           <button
             type="button"
             onClick={() => setDismissed(true)}
-            className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
+            className="wm-discovery-suggestion-button wm-discovery-suggestion-button--dismiss inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition"
           >
             <X className="h-3.5 w-3.5" />
             Not this

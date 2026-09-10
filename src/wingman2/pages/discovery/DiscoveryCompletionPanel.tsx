@@ -93,30 +93,30 @@ export function DiscoveryCompletionPanel({
         </article>
 
         <div className="wm-discovery-finish-actions" aria-label="Other discovery actions">
-          <button type="button" onClick={() => onMoveForward("proposal")}>
+          <button className="wm-discovery-finish-action wm-discovery-finish-action--proposal" type="button" onClick={() => onMoveForward("proposal")}>
             <FileText size={20} aria-hidden="true" />
             <span><strong>Build proposal</strong><small>Start the customer response</small></span>
             <ArrowRight size={16} aria-hidden="true" />
           </button>
-          <button type="button" onClick={onReviewAnswers}>
+          <button className="wm-discovery-finish-action wm-discovery-finish-action--review" type="button" onClick={onReviewAnswers}>
             <ClipboardCheck size={20} aria-hidden="true" />
             <span><strong>Review answers</strong><small>Check or amend the brief</small></span>
             <ArrowRight size={16} aria-hidden="true" />
           </button>
-          <button type="button" onClick={onSave}>
+          <button className="wm-discovery-finish-action wm-discovery-finish-action--save" type="button" onClick={onSave}>
             <Save size={20} aria-hidden="true" />
             <span><strong>Save to project</strong><small>Keep this discovery on file</small></span>
             <ArrowRight size={16} aria-hidden="true" />
           </button>
           {mode === "basic" && totalQuestions && totalQuestions > answerCount && onUnlockExpert && (
-            <button type="button" className="wm-discovery-unlock-expert" onClick={onUnlockExpert} data-testid="unlock-expert-cta">
+            <button type="button" className="wm-discovery-finish-action wm-discovery-unlock-expert" onClick={onUnlockExpert} data-testid="unlock-expert-cta">
               <Sparkles size={20} aria-hidden="true" />
               <span><strong>Unlock more detail</strong><small>{totalQuestions - answerCount} additional questions available</small></span>
               <ArrowRight size={16} aria-hidden="true" />
             </button>
           )}
           {onExportBrief && (
-            <button type="button" onClick={onExportBrief} data-testid="discovery-brief-export">
+            <button className="wm-discovery-finish-action wm-discovery-finish-action--export" type="button" onClick={onExportBrief} data-testid="discovery-brief-export">
               <FileDown size={20} aria-hidden="true" />
               <span><strong>Export discovery brief</strong><small>Print-friendly hand-off before sign-off</small></span>
               <ArrowRight size={16} aria-hidden="true" />

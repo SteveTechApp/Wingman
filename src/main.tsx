@@ -31,7 +31,6 @@ import { installTemplateCardExpansionController } from "./wingman2/lib/templates
 import { installRuntimeTelemetry } from "./wingman2/lib/runtimeTelemetry";
 import { installFeatureAnalytics } from "./wingman2/lib/featureAnalytics";
 import "./wingman2/lib/productToolsVisualWeight";
-
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
 installCsrfFetch();
