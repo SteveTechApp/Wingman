@@ -58,6 +58,7 @@ import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/Discov
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
 import { DiscoveryOpportunityGraphic } from "./discovery/DiscoveryOpportunityGraphic";
+import { DiscoveryQuestionIntro } from "./discovery/DiscoveryQuestionGraphic";
 import { DiscoveryDefaultsConflictAlert } from "./discovery/DiscoveryDefaultsConflictAlert";
 import {
   getDiscoverySpeechRecognition,
@@ -1647,21 +1648,18 @@ return (
           </div>
           {/* WINGMAN_DISCOVERY_COMPACT_NAV_END */}
 
-          <div className="wm-discovery-question-heading wm-ui-title">
-            <span>{currentStep.shortLabel}</span>
-            <h2 className="wm-ui-title">{currentStepView.question}</h2>
-            <p className="wm-ui-copy">{currentStepView.prompt}</p>
-            {wmDiscoveryIsMultiSelectStep(currentStep) && (
-              <small className="wm-discovery-multi-select-note">
-                Select one or more options, then choose Continue.
-              </small>
-            )}
-            <DiscoveryDefaultsConflictAlert
+          <DiscoveryQuestionIntro
+            section={currentStep.section}
+            shortLabel={currentStep.shortLabel}
+            question={currentStepView.question}
+            prompt={currentStepView.prompt}
+            showMultiSelectNote={wmDiscoveryIsMultiSelectStep(currentStep)}
+            conflictAlert={<DiscoveryDefaultsConflictAlert
               questionId={currentStep.id}
               visibleOptionValues={currentStepView.options.map((option) => option.value)}
               answer={currentAnswer}
-            />
-          </div>
+            />}
+          />
 
           {currentStep.id === "locations-connections" ? (
             <DiscoveryLocationsConnections

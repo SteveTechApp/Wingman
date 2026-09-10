@@ -94,7 +94,10 @@ function RecentProjects() {
 
   return (
     <section className="wm-guided-recent" aria-label="Continue where you left off">
-      <h2>Continue your work</h2>
+      <div className="wm-guided-recent-heading">
+        <span>In progress</span>
+        <h2>Continue your work</h2>
+      </div>
       <div className="wm-guided-recent-list">
         {recent.map((project) => {
           const resume = discoveryResumeInfo(project.discoveryBrief);
@@ -111,8 +114,11 @@ function RecentProjects() {
               onClick={() => setActiveProjectId(project.id)}
             >
               <StatusChip label={project.status} variant={project.status} />
-              <strong>{project.name}</strong>
-              <small>{project.stage}</small>
+              <span className="wm-guided-recent-copy">
+                <strong>{project.name}</strong>
+                <small>{project.stage}</small>
+              </span>
+              <ArrowRight className="wm-guided-recent-arrow" size={16} aria-hidden="true" />
             </Link>
           );
         })}
