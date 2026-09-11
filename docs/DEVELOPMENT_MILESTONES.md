@@ -247,7 +247,7 @@ Before calling this v1.0, all of the following must be true **and evidenced by a
 | `roomTemplates.ts` | 3,376 lines | MEDIUM — extract template definitions to data, keep signal-path guard |
 | `ProductCallCardsPage.tsx` | 2,011 lines | MEDIUM — extract grid/search/compare |
 | Guard-tool sprawl | 105 `check:*` scripts, incl. eight near-duplicate `check:dashboard-*` guards encoding one-off visual corrections (P1-1 finding) | MEDIUM — consolidate to fewer contracts or retire implausible regressions |
-| Commit friction ratchets | size budgets + style-drift baseline fire in pre-commit; raising either requires the exception process in `docs/SIZE_BUDGETS.md` | LOW — by design, but budget raises should be rare |
+| Commit friction ratchets | pre-commit runs fast tests + architecture boundaries; shipped-size and style-drift ratchets run in CI/full verify, and raising either requires the exception process in `docs/SIZE_BUDGETS.md` | LOW — merge protection remains strict without rebuilding on every commit |
 | Service worker | cache versioning + prune exist; **no cache-size monitoring / cap** (warn >50 MB) | LOW |
 | Single 10.2 MB product index | one JSON for the whole catalogue (B4) | MEDIUM |
 

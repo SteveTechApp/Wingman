@@ -24,6 +24,7 @@ ratchet-style gates share the exception discipline recorded in
 | `check:build-deps` / `check:build-deps:server` | `verify:build` | an OSV-open advisory in the build-time transitive closure (root and `server/` locks) | reviewed, **time-limited** exception in `tools/build-dep-exceptions.json` |
 | `check:override-floors` | `verify:build` + pre-commit fast lane | removing/lowering a load-bearing `overrides` floor or adding an unclaimed override | reviewed raise of the floor row inside the tool (advisory-driven only) |
 | `check:size-budgets` | `verify:build` | a tracked artefact growing past its recorded byte limit | reviewed exception recorded in `tools/wingman-size-budgets.json` (see SIZE_BUDGETS.md) |
+| `check:architecture-boundaries` | `verify:build` and CI Build | a new/growing oversized TS module or page, or a private cross-boundary feature import | none — split the module, shrink existing debt, or import a feature's public API |
 | `check:style-drift-baseline` | `verify:visual` | new page-scoped CSS sections beyond the recorded baseline | reviewed exception recorded in `tools/wingman-style-drift-baseline.json` |
 | `check:technical-data` | `verify:data` | governed-profile coverage falling below the recorded baseline | `npm run check:technical-data -- --update-baseline` only when coverage genuinely improved |
 | `check:postgrest-reads` | `verify:build` | an unbounded Supabase/PostgREST full-table read in `server/` or `tools/` | none — add `.range()` pagination (see docs/SUPABASE_SETUP.md) |
@@ -132,3 +133,9 @@ regression and only move one way under review. The exception discipline for
 all of them — what may be raised, what the PR must state, and every approved
 exception so far — is documented in [`docs/SIZE_BUDGETS.md`](SIZE_BUDGETS.md).
 New page CSS, bundle growth, and coverage-floor changes go there first.
+
+`check:architecture-boundaries` is intentionally not an exception-based
+ratchet. Its checked-in migration allowlist contains only pre-existing debt,
+with a per-file line ceiling. The tool rejects new allowlist keys and any
+growth beyond those ceilings. As modules are decomposed, their entries are
+deleted permanently.

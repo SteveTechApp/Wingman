@@ -19,7 +19,8 @@
  *   - "initialJs"  sum of the JS the entry HTML loads up front (the entry
  *                  script plus every modulepreload) — the initial download the
  *                  browser must fetch before the dashboard is interactive.
- *   - "source"     a single source file measured by its byte size on disk.
+ *   - "source"     a non-TypeScript source asset measured on disk. TypeScript
+ *                  structure is governed by check:architecture-boundaries.
  */
 export const TRACKED_ENTRIES = [
   {
@@ -66,38 +67,6 @@ export const TRACKED_ENTRIES = [
     label: "Total emitted CSS",
     remediation:
       "Remove dead route overrides and consolidate duplicate rules once the stylesheet is layered (Phase 8).",
-  },
-  {
-    id: "source:compare-advanced",
-    kind: "source",
-    path: "src/wingman2/pages/ComparePageNew.advanced.tsx",
-    label: "ComparePageNew.advanced.tsx",
-    remediation:
-      "Extract cohesive Compare sections/hooks into src/wingman2/pages/compare/ (Phase 4).",
-  },
-  {
-    id: "source:discovery-page",
-    kind: "source",
-    path: "src/wingman2/pages/DiscoveryPage.tsx",
-    label: "DiscoveryPage.tsx",
-    remediation:
-      "Extract Discovery steps, reducer and validation into src/wingman2/pages/discovery/ (Phase 6).",
-  },
-  {
-    id: "source:product-call-cards",
-    kind: "source",
-    path: "src/wingman2/pages/ProductCallCardsPage.tsx",
-    label: "ProductCallCardsPage.tsx",
-    remediation:
-      "Extract search/filter, card list and detail view into cohesive components (Phase 7).",
-  },
-  {
-    id: "source:project-detail",
-    kind: "source",
-    path: "src/wingman2/pages/ProjectDetailPage.tsx",
-    label: "ProjectDetailPage.tsx",
-    remediation:
-      "Extract blockers, requirements, evidence and action panels into components (Phase 7).",
   },
   {
     id: "source:style-stack-css",

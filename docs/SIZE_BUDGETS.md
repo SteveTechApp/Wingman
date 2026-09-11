@@ -1,23 +1,23 @@
 # Wingman Size Budgets
 
-A ratchet that stops the frontend bundle and the largest source files from
-growing while the incremental refactoring programme reduces them. It does **not**
-demand improvement — it only forbids regression. Existing debt is allowed to sit
-at its recorded limit; any change that grows a tracked artefact past that limit
-fails the build with an actionable message.
+A ratchet that stops the shipped frontend bundle from growing while the
+incremental refactoring programme reduces it. TypeScript module structure is
+enforced separately by `check:architecture-boundaries`, so ordinary refactors
+do not fail because source text grew while shipped output stayed flat.
 
 - **Definitions (what and how to measure):** `tools/lib/wingman-size-budgets.mjs`
 - **CLI runner:** `tools/check-size-budgets.mjs`
 - **Recorded limits (the numbers):** `tools/wingman-size-budgets.json`
 - **Unit tests:** `tools/lib/wingman-size-budgets.test.mjs`
+- **Architecture rules:** `tools/lib/wingman-architecture-boundaries.mjs`
+- **Migration debt:** `tools/wingman-architecture-allowlist.json`
 
 ## Why the budgets exist
 
-Wingman ships a Compare engine chunk over 1 MB, a competitor registry near
-700 KB, and page components thousands of lines long. The refactor shrinks these,
-but nothing prevents them from quietly re-inflating between pull requests. The
-ratchet makes any growth visible and blocking, so a reviewer sees it before it
-merges rather than discovering it months later.
+Wingman ships several large chunks. The size ratchet protects what users
+download; the architecture gate protects maintainability with maximum line
+counts and dependency direction. Separating those concerns avoids using raw
+source bytes as a proxy for design quality.
 
 ## What is measured
 
@@ -29,10 +29,6 @@ merges rather than discovering it months later.
 | `initial:js` | the entry `<script>` + every `<link rel="modulepreload">` in `dist/index.html` | eager JS |
 | `total:js` | every emitted `.js` file | emitted JS |
 | `total:css` | every emitted `.css` file | emitted CSS |
-| `source:compare-advanced` | `src/wingman2/pages/ComparePageNew.advanced.tsx` | source file |
-| `source:discovery-page` | `src/wingman2/pages/DiscoveryPage.tsx` | source file |
-| `source:product-call-cards` | `src/wingman2/pages/ProductCallCardsPage.tsx` | source file |
-| `source:project-detail` | `src/wingman2/pages/ProjectDetailPage.tsx` | source file |
 | `source:style-stack-css` | `src/wingman2/styles/wingman-style-stack.css` | source file |
 
 Production chunks are matched by their **stable named-group prefix** (from
@@ -46,6 +42,22 @@ interactive. It is read from `dist/index.html` — the entry script plus every
 heuristic. Keeping heavy features behind their lazy routes (so they stay out of
 the entry's modulepreload) is what keeps this number down.
 
+## Architecture boundaries
+
+`npm run check:architecture-boundaries` rejects production TypeScript/TSX
+files over 1,200 lines, page entry files over 400 lines, private imports across
+feature packages, and private feature imports from app/shared core. Feature
+packages expose public APIs from their root `index.ts`.
+
+Current oversized modules are recorded with exact line ceilings in
+`tools/wingman-architecture-allowlist.json`. They may stay the same size or
+shrink while migration proceeds. Growth, new oversized files, and new
+allowlist keys fail. Remove an entry as soon as its file meets the target;
+never add an exception to accommodate new work.
+
+The CSS entry budget remains because TypeScript import boundaries do not cover
+stylesheet layering.
+
 ### Tolerance
 
 `tolerancePct` in the baseline JSON (default `1`) widens each limit slightly so
@@ -58,11 +70,17 @@ does not.
 ```
 npm run check:size-budgets     # enforce — used by CI and by `npm run verify`
 npm run audit:size-budgets      # report only, never fails (local inspection)
+npm run check:architecture-boundaries
 ```
 
 Both need a build present (`npm run build` first); `check:size-budgets` runs
 automatically as part of `npm run verify` (inside `verify:build`) and as a
 dedicated step in the CI `build` job after the application is built.
+
+The pre-commit hook runs `verify:fast` plus `check:architecture-boundaries`.
+Bundle generation and shipped-size enforcement stay in the CI Build job and
+the explicit `npm run verify` release gate, avoiding a full production build
+for every local commit without weakening merge protection.
 
 ## Updating the budgets
 
