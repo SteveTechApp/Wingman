@@ -93,6 +93,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright browser for visual verification
+        if: matrix.stage == 'visual'
+        run: npx playwright install --with-deps chromium
+
       - name: Generate canonical product data
         run: npm run data:canonical-products
 
