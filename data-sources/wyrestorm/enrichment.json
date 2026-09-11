@@ -35,7 +35,7 @@
     ],
     "connectors": [
       "MIC 2 x MIC (Combo XLR/TRS, mic or line level, 48V phantom power per channel)",
-      "RJ45 / Ethernet",
+      "Phoenix / Euroblock",
       "Speaker / Amplifier 1 x Speaker / Amplifier (Hi-Z 70V/100V or Low-Z 4/8Ω)",
       "Analog audio"
     ],
@@ -194,17 +194,17 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "input",
-            "category": "network",
+            "category": "audio",
             "detail": "1 x Line In (balanced)",
             "evidence": "1 x Line In (balanced)"
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "output",
-            "category": "network",
+            "category": "audio",
             "detail": "1 x Line Out (balanced, max +4 dBu)",
             "evidence": "1 x Line Out (balanced, max +4 dBu)"
           },
@@ -244,6 +244,22 @@
           },
           {
             "count": 1,
+            "connector": "Phoenix / Euroblock",
+            "direction": "input",
+            "category": "audio",
+            "detail": "1 x Line In (balanced)",
+            "evidence": "1 x Line In (balanced)"
+          },
+          {
+            "count": 1,
+            "connector": "Phoenix / Euroblock",
+            "direction": "output",
+            "category": "audio",
+            "detail": "1 x Line Out (balanced, max +4 dBu)",
+            "evidence": "1 x Line Out (balanced, max +4 dBu)"
+          },
+          {
+            "count": 1,
             "connector": "Speaker / Amplifier 1 x Speaker / Amplifier (Hi-Z 70V/100V or Low-Z 4/8Ω)",
             "direction": "output",
             "category": "audio",
@@ -265,24 +281,6 @@
             "category": "audio",
             "detail": "2x 4-pin phoenix male connector",
             "evidence": "2x 4-pin phoenix male connector"
-          }
-        ],
-        "network": [
-          {
-            "count": 1,
-            "connector": "RJ45 / Ethernet",
-            "direction": "input",
-            "category": "network",
-            "detail": "1 x Line In (balanced)",
-            "evidence": "1 x Line In (balanced)"
-          },
-          {
-            "count": 1,
-            "connector": "RJ45 / Ethernet",
-            "direction": "output",
-            "category": "network",
-            "detail": "1 x Line Out (balanced, max +4 dBu)",
-            "evidence": "1 x Line Out (balanced, max +4 dBu)"
           }
         ]
       },
@@ -650,16 +648,16 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "input",
-            "category": "network",
+            "category": "audio",
             "detail": "1 x Line In (balanced)"
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "output",
-            "category": "network",
+            "category": "audio",
             "detail": "1 x Line Out (balanced, max +4 dBu)"
           },
           {
@@ -41983,7 +41981,7 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "output",
             "category": "audio",
             "detail": "1x 5-pin Phoenix Female | connect to PC or other device | unbalanced | Left and Right channels output",
@@ -41991,7 +41989,7 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "input",
             "category": "audio",
             "detail": "1x 3-pin Phoenix Female | connect to Wireless Mic, i.e. Shure, Balanced Input",
@@ -41999,7 +41997,7 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "output",
             "category": "audio",
             "detail": "1x 5-pin Phoenix Female | connect to AMP | unbalanced | left and right channels output",
@@ -42057,7 +42055,7 @@
         "audio": [
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "output",
             "category": "audio",
             "detail": "1x 5-pin Phoenix Female | connect to PC or other device | unbalanced | Left and Right channels output",
@@ -42065,7 +42063,7 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "input",
             "category": "audio",
             "detail": "1x 3-pin Phoenix Female | connect to Wireless Mic, i.e. Shure, Balanced Input",
@@ -42073,7 +42071,7 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "output",
             "category": "audio",
             "detail": "1x 5-pin Phoenix Female | connect to AMP | unbalanced | left and right channels output",
@@ -42538,21 +42536,21 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "output",
             "category": "audio",
             "detail": "1x 5-pin Phoenix Female | connect to PC or other device | unbalanced | Left and Right channels output"
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "input",
             "category": "audio",
             "detail": "1x 3-pin Phoenix Female | connect to Wireless Mic, i.e. Shure, Balanced Input"
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "Phoenix / Euroblock",
             "direction": "output",
             "category": "audio",
             "detail": "1x 5-pin Phoenix Female | connect to AMP | unbalanced | left and right channels output"
@@ -42804,6 +42802,7 @@
     "connectors": [
       "USB-B",
       "RJ45 / Ethernet",
+      "Phoenix / Euroblock",
       "Analog audio",
       "COM-MIC-HUB 1x COM-MIC-HUB"
     ],
@@ -199012,15 +199011,15 @@
           },
           {
             "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
+            "connector": "3.5 mm TRS",
+            "direction": "output",
+            "category": "audio",
             "detail": "1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)",
             "evidence": "1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)"
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "3.5 mm TRS",
             "direction": "output",
             "category": "audio",
             "detail": "1x 3.5 mm TRS jack connector, Analog audio output Unbalanced stereo audio",
@@ -199075,14 +199074,6 @@
             "category": "video",
             "detail": "1x HDMI 19-pin HDMI type A",
             "evidence": "1x HDMI 19-pin HDMI type A"
-          },
-          {
-            "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
-            "detail": "1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)",
-            "evidence": "1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)"
           }
         ],
         "audio": [
@@ -199096,7 +199087,15 @@
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "3.5 mm TRS",
+            "direction": "output",
+            "category": "audio",
+            "detail": "1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)",
+            "evidence": "1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)"
+          },
+          {
+            "count": 1,
+            "connector": "3.5 mm TRS",
             "direction": "output",
             "category": "audio",
             "detail": "1x 3.5 mm TRS jack connector, Analog audio output Unbalanced stereo audio",
@@ -199728,14 +199727,14 @@
           },
           {
             "count": 1,
-            "connector": "HDMI",
-            "direction": "input",
-            "category": "video",
+            "connector": "3.5 mm TRS",
+            "direction": "output",
+            "category": "audio",
             "detail": "1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)"
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "3.5 mm TRS",
             "direction": "output",
             "category": "audio",
             "detail": "1x 3.5 mm TRS jack connector, Analog audio output Unbalanced stereo audio"
@@ -200019,8 +200018,7 @@
       "avoipChipStatus": "not-publicly-confirmed",
       "avoipCodec": "SDVoE Pixel Pipeline",
       "inputs": [
-        "1 x HDMI input - 1x HDMI 19-pin HDMI type A",
-        "1 x HDMI input - 1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)"
+        "1 x HDMI input - 1x HDMI 19-pin HDMI type A"
       ],
       "outputs": [],
       "resolutionBandwidth": "4K60 SDVoE AV over IP Encoder & Decoder WyreSto; 4K60 4:4:4 AV over IP with near-zero latency, s; 1080p@60Hz 8bit – 3; 4K @30Hz 4:4:4 8bit – 6; 4K @60Hz 4:4:4 8bit – 8; 4096x2160p @ 60Hz 8bit 4:4:4 or RGB 3840x2160p @ 60Hz 1; 1920x1080p @60Hz 12bit *5K resolution only support in g; HDMI; HDMI 2.0; HDCP 2.2; Dolby Vision; HDR; Seamless switching; EDID management",
@@ -200040,6 +200038,7 @@
       "HDMI",
       "Analog audio",
       "RJ45 / Ethernet",
+      "3.5 mm TRS",
       "IR"
     ]
   },

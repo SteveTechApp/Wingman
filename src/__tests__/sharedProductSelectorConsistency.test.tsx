@@ -60,7 +60,8 @@ describe("shared product selector consistency", () => {
   it("keeps the primary selector consumers wired to the shared engine", () => {
     expect(readSource("src/wingman2/pages/ProductPitchPage.tsx")).toMatch(/productSelectorEngine/);
     expect(readSource("src/wingman2/pages/ProductCallCardsPage.tsx")).toMatch(/productSelectorEngine/);
-    expect(readSource("src/wingman2/pages/RecommendationsPage.tsx")).toMatch(/productSelectorEngine/);
+    expect(readSource("src/wingman2/pages/RecommendationsPage.tsx")).toMatch(/recommendationsDecisionBoundary/);
+    expect(readSource("src/wingman2/lib/recommendationsDecisionBoundary.ts")).toMatch(/productSelectorEngine/);
     expect(readSource("src/wingman2/pages/CatalogBrowserPage.tsx")).toMatch(/productSelectorEngine/);
     expect(readSource("src/wingman2/lib/compareEligibilityEngine.ts")).toMatch(/productSelectorEngine/);
   });

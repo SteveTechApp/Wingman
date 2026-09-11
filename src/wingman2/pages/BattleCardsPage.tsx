@@ -64,8 +64,9 @@ export default function BattleCardsPage() {
         setGroups(result);
         setLoadState("ready");
       })
-      .catch(() => {
+      .catch((error) => {
         if (!active) return;
+        console.error("[wingman] Battle cards failed to load", error);
         setLoadState("error");
       });
     return () => { active = false; };

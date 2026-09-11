@@ -32,6 +32,14 @@ export type SurveyProjectEdits = {
   locationEdits: Record<string, SurveyLocationEdit>;
   lastModified: string;
   synced: boolean;
+  /** Last server revision successfully observed by this browser. */
+  serverTimestamp?: string;
+};
+
+export type SaveSurveyEditsOptions = {
+  source?: "local" | "server";
+  timestamp?: string;
+  serverTimestamp?: string;
 };
 
 /* ──────────────────────────────────────────────
@@ -77,14 +85,40 @@ export function getProjectEdits(projectId: string): SurveyProjectEdits {
   };
 }
 
-export function saveProjectEdits(edits: SurveyProjectEdits): void {
+export function saveProjectEdits(
+  edits: SurveyProjectEdits,
+  options: SaveSurveyEditsOptions = {},
+): void {
   const all = readAllEdits();
+  const fromServer = options.source === "server";
+  const now = new Date().toISOString();
+  const localTimestamp = !fromServer && now <= edits.lastModified
+    ? new Date(new Date(edits.lastModified).getTime() + 1).toISOString()
+    : now;
   all[edits.projectId] = {
     ...edits,
-    lastModified: new Date().toISOString(),
-    synced: false,
+    lastModified: options.timestamp ?? (fromServer ? edits.lastModified : localTimestamp),
+    synced: fromServer,
+    serverTimestamp: options.serverTimestamp ?? edits.serverTimestamp,
   };
   writeAllEdits(all);
+}
+
+/** Persist an acknowledged server copy without turning it back into a local edit. */
+export function saveSyncedProjectEdits(
+  edits: SurveyProjectEdits,
+  serverTimestamp: string,
+): boolean {
+  const current = getProjectEdits(edits.projectId);
+  if (current.lastModified !== edits.lastModified) {
+    return false;
+  }
+  saveProjectEdits(edits, {
+    source: "server",
+    timestamp: edits.lastModified,
+    serverTimestamp,
+  });
+  return true;
 }
 
 /* ──────────────────────────────────────────────

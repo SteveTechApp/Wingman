@@ -8,7 +8,7 @@ import {
   type WingmanProductClass,
   type WingmanProductLike,
 } from "./productClassification";
-import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
+import { loadProductIntelligenceSummary } from "./productIntelligenceIndexCache";
 import { collectCompetitorBrandLosses, type CompetitorBrandLoss } from "./feedbackInformedGuidance";
 
 // ── Types ────────────────────────────────────────────────────────────
@@ -208,7 +208,7 @@ function generateDifferentiators(entry: RawRow, productClass: WingmanProductClas
   }
 
   // Add spec-based differentiators
-  const features = entry.features ?? [];
+  const features = Array.isArray(entry.features) ? entry.features : [];
   const resolution = entry.video?.maxResolution ?? "";
 
   if (/1080p/.test(resolution) && !/4k/i.test(resolution)) {
@@ -264,7 +264,7 @@ function generateObjectionHandling(
   });
 
   // Feature-based objections
-  const features = entry.features ?? [];
+  const features = Array.isArray(entry.features) ? entry.features : [];
   if (features.some((f) => /wireless|casting/i.test(f))) {
     objections.push({
       objection: `${brand} has wireless built in.`,
@@ -414,8 +414,8 @@ export function getBattleCards(
 export async function getAllBattleCards(): Promise<BattleCardGroup[]> {
   let intelligenceProducts: WingmanProductLike[] = [];
   try {
-    const payload = await loadProductIntelligenceIndex() as { products?: unknown[] };
-    intelligenceProducts = (payload.products ?? []) as WingmanProductLike[];
+    const payload = await loadProductIntelligenceSummary();
+    intelligenceProducts = (Array.isArray(payload) ? payload : payload.products ?? []) as WingmanProductLike[];
   } catch {
     // Fall through with empty products.
   }

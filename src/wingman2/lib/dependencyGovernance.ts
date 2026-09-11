@@ -1,5 +1,6 @@
 import type { StoredCompareRun, StoredIngestAnalysis, StoredProductSelection } from "../data/projectStore";
 import type { SalesBomType } from "./salesReadiness";
+import { normaliseProjectTopology, projectTopologyHasContent } from "./projectTopology";
 
 export type DependencyConfidence = "High" | "Medium" | "Low";
 export type DependencyGovernanceKind = "Exact" | "Validate" | "Prompt";
@@ -43,6 +44,7 @@ export type DependencyGovernanceInput = {
   assumptions: string[];
   ingest?: StoredIngestAnalysis;
   compareRun?: StoredCompareRun | null;
+  topology?: unknown;
 };
 
 type DependencyQuantityBasis = "one" | "source-count" | "display-count" | "source-unit-count";
@@ -407,6 +409,16 @@ function usbTransportNotRequired(input: DependencyGovernanceInput) {
 }
 
 function distanceMetresFromInput(input: DependencyGovernanceInput) {
+  if (projectTopologyHasContent(input.topology)) {
+    const applicable = normaliseProjectTopology(input.topology).connections
+      .filter((connection) => connection.scope !== "infrastructure")
+      .filter((connection) => connection.services.includes("video"))
+      .filter((connection) => ["hdmi", "hdbaset-2", "hdbaset-3", "unknown"].includes(connection.transport))
+      .filter((connection) => connection.lengthMode !== "unknown")
+      .map((connection) => connection.lengthMetres)
+      .filter((distance): distance is number => typeof distance === "number" && Number.isFinite(distance));
+    return applicable.length ? Math.max(...applicable) : null;
+  }
   const text = [
     input.discovery.distance,
     input.discovery.summary,
@@ -681,7 +693,14 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
     );
   }
 
-  const requiresHdbasetOrExtension = hasAny(combinedText, [
+  const topologyAvailable = projectTopologyHasContent(input.topology);
+  const topology = topologyAvailable ? input.topology : undefined;
+  const applicableTopologyDistance = topologyAvailable ? distanceMetresFromInput(input) : null;
+  const topologyRequiresExtension = topologyAvailable && (
+    (applicableTopologyDistance ?? 0) > 10 ||
+    hasAny(JSON.stringify(topology).toLowerCase(), ["hdbaset-2", "hdbaset-3", "usb-extender"])
+  );
+  const requiresHdbasetOrExtension = topologyAvailable ? topologyRequiresExtension : hasAny(combinedText, [
     "hdbaset",
     "extender",
     "transmitter",

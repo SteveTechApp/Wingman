@@ -12,6 +12,43 @@ function meta(overrides: Record<string, unknown> = {}) {
 }
 
 describe("buildDiscoveryBriefFromState integrity engine", () => {
+  it("keeps structured infrastructure distance separate and marks legacy distance as inferred", () => {
+    const structured = buildDiscoveryBriefFromState(
+      {
+        outcome: "Campus AVoIP",
+        cableRun: "70 metres",
+        topology: {
+          schemaVersion: 1,
+          mode: "advanced",
+          locations: [
+            { id: "desk", name: "Desk", type: "table" },
+            { id: "network", name: "AV network", type: "network" },
+          ],
+          devices: [
+            { id: "source", name: "Source", category: "source", locationId: "desk", quantity: 1, thirdParty: true, status: "confirmed" },
+            { id: "encoder", name: "Encoder", category: "encoder", locationId: "desk", quantity: 1, thirdParty: false, status: "confirmed" },
+            { id: "controller", name: "Controller", category: "controller", locationId: "network", quantity: 1, thirdParty: false, status: "confirmed" },
+          ],
+          connections: [
+            { id: "patch", fromDeviceId: "source", toDeviceId: "encoder", services: ["video"], transport: "hdmi", lengthMode: "confirmed", lengthMetres: 2, status: "confirmed" },
+            { id: "network-route", fromDeviceId: "encoder", toDeviceId: "controller", services: ["av-over-ip"], transport: "ip-av-vlan", lengthMode: "confirmed", lengthMetres: 70, status: "confirmed" },
+          ],
+          generatedFromDiscovery: false,
+          createdAt: "2026-09-10T00:00:00.000Z",
+          updatedAt: "2026-09-10T00:00:00.000Z",
+        },
+      },
+      meta(),
+    );
+    expect(structured.roomModel?.longestRun).toBe("2 metres");
+    expect(structured.roomModel?.distanceInfrastructureNotes).toBe("70 metres");
+    expect(structured.roomModel?.distanceBasis).toBe("structured topology");
+
+    const legacy = buildDiscoveryBriefFromState({ cableRun: "35 metres" }, meta());
+    expect(legacy.roomModel?.longestRun).toBe("35 metres");
+    expect(legacy.roomModel?.distanceBasis).toBe("inferred from legacy cableRun");
+  });
+
   it("produces underspecified issues for required discovery questions missing from a partial legacy state", () => {
     const brief = buildDiscoveryBriefFromState(
       {

@@ -30,6 +30,11 @@ const appShell = read("src/wingman2/layout/AppShell.tsx");
 const navigationHub = read("src/wingman2/pages/NavigationHubPages.tsx");
 const callCardsPage = read("src/wingman2/pages/CallCardsPage.tsx");
 const salesHelperPage = read("src/wingman2/pages/SalesHelperPage.tsx");
+const uiMode = read("src/wingman2/data/uiMode.tsx");
+const uiModeToggle = read("src/wingman2/components/UiModeToggle.tsx");
+const discoveryPage = read("src/wingman2/pages/DiscoveryPage.tsx");
+const discoveryDisclosure = read("src/wingman2/pages/discovery/discoveryProgressiveDisclosure.tsx");
+const discoveryInterview = read("src/wingman2/pages/discovery/DiscoveryGuidedInterview.tsx");
 
 const routeImports = Array.from(routes.matchAll(/\.\.\/pages\//g));
 const knownRouteKeys = new Set(routeManifest.map((route) => route.key));
@@ -183,6 +188,29 @@ assert(
     salesHelperPage.includes("navigate(routeCatalogByKey[card.routeKey].path)"),
   "Sales Helper is not wiring its selected conversation context into the next workflow.",
 );
+
+assert(
+  uiMode.includes('label: "Focused view"') && uiMode.includes('label: "Full workspace"') &&
+    uiModeToggle.includes("UI_MODE_PRESENTATION.guided.label") && uiModeToggle.includes("UI_MODE_PRESENTATION.unguided.label"),
+  "Interface scope must use the central Focused view / Full workspace labels.",
+);
+
+assert(
+  discoveryDisclosure.includes('label: "Essential"') && discoveryDisclosure.includes('label: "Detailed"') &&
+    discoveryDisclosure.includes('label: "Voice interview"'),
+  "Discovery terminology must define Essential / Detailed depth and Voice interview capture labels.",
+);
+
+const formerVisibleTerminology = [
+  [uiModeToggle, />\s*Guided\s*</, "UiModeToggle still visibly labels interface scope as Guided."],
+  [uiModeToggle, />\s*Full\s*</, "UiModeToggle still visibly labels interface scope as Full."],
+  [discoveryPage, /[>"`]\s*(?:Basic|Expert)(?: mode)?\??\s*[<"`]/, "DiscoveryPage still exposes a former depth label."],
+  [discoveryDisclosure, />\s*(?:Basic|Expert)\s*</, "Discovery disclosure still exposes a former depth label."],
+  [discoveryInterview, /[>"`]\s*(?:Continue )?Guided interview(?:\s+—\s+voice Q&A)?\s*[<"`]/i, "Discovery capture still exposes Guided interview."],
+];
+for (const [source, pattern, message] of formerVisibleTerminology) {
+  assert(!pattern.test(source), message);
+}
 
 if (failures.length > 0) {
   console.error("[navigation-consolidation] Failed:");

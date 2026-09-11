@@ -19,6 +19,16 @@ import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
 
 export type DiscoveryMode = "basic" | "expert";
 
+export const DISCOVERY_DEPTH_PRESENTATION: Record<DiscoveryMode, { label: string; description: string }> = {
+  basic: { label: "Essential", description: "6 essential questions — get a product direction fast" },
+  expert: { label: "Detailed", description: "All questions — capture full requirements" },
+};
+
+export const DISCOVERY_CAPTURE_PRESENTATION = {
+  label: "Voice interview",
+  description: "Wingman reads each question aloud and captures spoken answers.",
+} as const;
+
 type QuestionBatch = {
   startIndex: number;
   endIndex: number;
@@ -363,7 +373,7 @@ export function DiscoveryProgressiveDisclosure({
             aria-pressed={mode === "basic"}
           >
             <span className="wm-discovery-mode-icon" aria-hidden="true">🎯</span>
-            Basic
+            {DISCOVERY_DEPTH_PRESENTATION.basic.label}
           </button>
           <button
             type="button"
@@ -372,12 +382,12 @@ export function DiscoveryProgressiveDisclosure({
             aria-pressed={mode === "expert"}
           >
             <span className="wm-discovery-mode-icon" aria-hidden="true">🔬</span>
-            Expert
+            {DISCOVERY_DEPTH_PRESENTATION.expert.label}
           </button>
           <span className="wm-discovery-mode-hint">
             {mode === "basic"
-              ? `${visibleQuestions.length} essential questions — get a product direction fast`
-              : `${questions.length} questions — capture full requirements`}
+              ? DISCOVERY_DEPTH_PRESENTATION.basic.description
+              : DISCOVERY_DEPTH_PRESENTATION.expert.description.replace("All", String(questions.length))}
           </span>
         </div>
       )}
@@ -391,7 +401,7 @@ export function DiscoveryProgressiveDisclosure({
               <strong>Template defaults available</strong>
               <p>
                 Pre-fill common answers for a {selectedApplication.replace(/-/g, " ")} room?
-                You can always change them later or switch to Expert for full control.
+                You can always change them later or switch to {DISCOVERY_DEPTH_PRESENTATION.expert.label} for full control.
               </p>
             </div>
           </div>
@@ -420,7 +430,7 @@ export function DiscoveryProgressiveDisclosure({
           <div className="wm-discovery-escalation-content">
             <span className="wm-discovery-escalation-icon" aria-hidden="true">⚠️</span>
             <div>
-              <strong>Consider switching to Expert</strong>
+              <strong>Consider switching to {DISCOVERY_DEPTH_PRESENTATION.expert.label}</strong>
               <p>{escalationReason}</p>
             </div>
           </div>
@@ -430,14 +440,14 @@ export function DiscoveryProgressiveDisclosure({
               className="wm-ui-button wm-ui-button-primary"
               onClick={() => onModeChange("expert")}
             >
-              Switch to Expert
+              Switch to {DISCOVERY_DEPTH_PRESENTATION.expert.label}
             </button>
             <button
               type="button"
               className="wm-ui-button wm-ui-button-secondary"
               onClick={() => setEscalationReason(null)}
             >
-              Stay in Basic
+              Stay in {DISCOVERY_DEPTH_PRESENTATION.basic.label}
             </button>
           </div>
         </div>
@@ -580,8 +590,8 @@ export function DiscoveryProgressiveDisclosure({
       {showBatchControls && mode === "basic" && !isReviewingAnswers && (
         <div className="wm-discovery-quick-summary" data-wingman-quick-summary="true">
           <p>
-            <strong>Basic mode:</strong> Answer the {visibleQuestions.length} questions above.
-            Template defaults fill in the rest. Switch to Expert for full technical detail.
+            <strong>{DISCOVERY_DEPTH_PRESENTATION.basic.label}:</strong> Answer the {visibleQuestions.length} questions above.
+            Template defaults fill in the rest. {DISCOVERY_DEPTH_PRESENTATION.expert.label} discovery reveals all questions for full technical detail.
           </p>
         </div>
       )}

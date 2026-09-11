@@ -9,6 +9,7 @@ import { SectionCard } from "../components/SectionCard";
 import { StatusChip } from "../components/StatusChip";
 import {
   saveDealOutcome,
+  removeProductSelectionFromProject,
   saveProjectRequirementsToProject,
   setActiveProjectId,
   updateStoredProject,
@@ -314,6 +315,12 @@ export function ProjectDetailPage() {
   const navigate = useNavigate();
   const { projects, deleteProject } = useProjectStore();
   const project = projects.find((item) => item.id === projectId) ?? null;
+
+  function removeProductLine(sku: string) {
+    if (!project || !window.confirm(`Remove ${sku} from this project?`)) return;
+    const updated = removeProductSelectionFromProject(project.id, sku);
+    setMessage(updated ? `${sku} removed from the project.` : `${sku} could not be removed.`);
+  }
   const initialRequirements = useMemo(
     () => (project ? getProjectRequirementRecords(project) : []),
     [project],
@@ -1194,6 +1201,31 @@ export function ProjectDetailPage() {
               {leadingProductFamilyScore.reasons[0] ? (
                 <p className="mt-2 text-xs line-clamp-1 wm-ui-copy">{leadingProductFamilyScore.reasons[0]}</p>
               ) : null}
+            </div>
+          ) : null}
+
+          {selectedProducts.length > 0 ? (
+            <div className="mb-4 rounded-xl border p-4 wm-ui-card" aria-labelledby="project-products-title">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] wm-ui-kicker">Products currently in design</p>
+                  <h3 id="project-products-title" className="mt-1 text-base font-black wm-ui-title">Review or remove line items</h3>
+                </div>
+                <span className="text-xs wm-ui-copy">{selectedProducts.length} item{selectedProducts.length === 1 ? "" : "s"}</span>
+              </div>
+              <div className="grid gap-2">
+                {selectedProducts.map((product) => (
+                  <div key={product.sku} className="flex items-center justify-between gap-3 rounded-lg border p-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-black wm-ui-copy">{product.sku}</p>
+                      <p className="truncate text-xs wm-ui-copy">{product.title || product.family || "Product selection"}{product.quantity ? ` · Qty ${product.quantity}` : ""}</p>
+                    </div>
+                    <button type="button" className="wm-ui-button wm-ui-button-secondary shrink-0" onClick={() => removeProductLine(product.sku)}>
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : null}
 

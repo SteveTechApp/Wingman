@@ -4,9 +4,9 @@ export function buildProjectApiRequest(init: RequestInit, storageMode: { authTok
   return { ...init, credentials: "include", headers };
 }
 
-export async function fetchProjectHydration(endpoint: string, init: RequestInit): Promise<{ status: number; projects: unknown[] | null }> {
+export async function fetchProjectHydration(endpoint: string, init: RequestInit, fetchImpl: typeof fetch = fetch): Promise<{ status: number; projects: unknown[] | null }> {
   try {
-    const response = await fetch(endpoint, init);
+    const response = await fetchImpl(endpoint, init);
     if (!response.ok) return { status: response.status, projects: null };
     const payload = await response.json() as { projects?: unknown[] };
     return { status: response.status, projects: Array.isArray(payload.projects) ? payload.projects : null };

@@ -30,9 +30,14 @@ expectMarkers(".env.example", [
 
 expectMarkers("src/wingman2/data/projectStore.ts", [
   "projectBackendSyncEnabled",
-  "http-only-cookie",
   "resetProjectBackendSyncSessionState",
+  "projectSyncService",
+]);
+
+expectMarkers("src/wingman2/features/projects/persistence/projectSyncService.ts", [
+  "http-only-cookie",
   "PROJECT_SYNC_SIGN_IN_MESSAGE",
+  "createProjectSyncService",
 ]);
 
 expectMarkers("src/wingman2/data/projectHydrationFetch.ts", [

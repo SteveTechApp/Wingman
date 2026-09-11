@@ -139,12 +139,12 @@ describe("TRACKED_ENTRIES", () => {
         "chunk:project-workflow",
         "initial:js",
         "total:js",
-        "source:compare-advanced",
-        "source:discovery-page",
-        "source:product-call-cards",
-        "source:project-detail",
         "source:style-stack-css",
       ]),
     );
+  });
+
+  it("uses architecture boundaries rather than TypeScript source-byte budgets", () => {
+    expect(TRACKED_ENTRIES.filter((entry) => entry.kind === "source" && /\.tsx?$/.test(entry.path))).toEqual([]);
   });
 });

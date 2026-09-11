@@ -22,6 +22,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { hasExplicitSharedContentIntent } from "./lib/template-shared-content-intent.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -283,15 +284,18 @@ for (const template of templates) {
     .reduce((sum, row) => sum + row.qty, 0);
 
   const hasMultiview = bomRows.some((row) => multiviewPattern.test(row.sku));
+  const assumptionsBody = body.match(/assumptions:\s*\[([\s\S]*?)\]/)?.[1] ?? "";
+  const assumptions = [...assumptionsBody.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+  const hasSharedContentIntent = hasExplicitSharedContentIntent(assumptions);
 
   const ratio = totalSources > 0 ? totalDisplays / totalSources : totalDisplays;
 
-  if (ratio > 2 && !hasMultiview) {
+  if (ratio > 2 && !hasMultiview && !hasSharedContentIntent) {
     ratioWarnings.push(
       `"${template.name}" has ${totalDisplays} display endpoint(s) but only ${totalSources} source endpoint(s)` +
       ` (${ratio.toFixed(1)}:1 ratio) with no multiview processor. ` +
-      `Most displays will show the same content. If this is intentional (signage/overflow), ` +
-      `add a comment in the template's assumptions array.`
+      `Most displays will show the same content. If intentional, add one assumption with ` +
+      `shared/repeat/distribution intent and explicit source and display counts.`
     );
   }
 }

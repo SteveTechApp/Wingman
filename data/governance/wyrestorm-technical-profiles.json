@@ -33,16 +33,16 @@
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "Phoenix / Euroblock",
           "direction": "input",
-          "category": "network",
+          "category": "audio",
           "detail": "1 x Line In (balanced)"
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "Phoenix / Euroblock",
           "direction": "output",
-          "category": "network",
+          "category": "audio",
           "detail": "1 x Line Out (balanced, max +4 dBu)"
         },
         {
@@ -1705,21 +1705,21 @@
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "Phoenix / Euroblock",
           "direction": "output",
           "category": "audio",
           "detail": "1x 5-pin Phoenix Female | connect to PC or other device | unbalanced | Left and Right channels output"
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "Phoenix / Euroblock",
           "direction": "input",
           "category": "audio",
           "detail": "1x 3-pin Phoenix Female | connect to Wireless Mic, i.e. Shure, Balanced Input"
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "Phoenix / Euroblock",
           "direction": "output",
           "category": "audio",
           "detail": "1x 5-pin Phoenix Female | connect to AMP | unbalanced | left and right channels output"
@@ -10966,14 +10966,14 @@
         },
         {
           "count": 1,
-          "connector": "HDMI",
-          "direction": "input",
-          "category": "video",
+          "connector": "3.5 mm TRS",
+          "direction": "output",
+          "category": "audio",
           "detail": "1x 3.5 mm TRS jack connector, Analog audio output (de-embed from HDMI input)"
         },
         {
           "count": 1,
-          "connector": "RJ45 / Ethernet",
+          "connector": "3.5 mm TRS",
           "direction": "output",
           "category": "audio",
           "detail": "1x 3.5 mm TRS jack connector, Analog audio output Unbalanced stereo audio"
