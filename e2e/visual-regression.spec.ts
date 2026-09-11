@@ -18,6 +18,46 @@ async function waitForPageReady(page: import("@playwright/test").Page) {
   await page.waitForTimeout(500);
 }
 
+async function clearBrowserState(page: import("@playwright/test").Page) {
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+}
+
+async function dismissConnectionNotice(page: import("@playwright/test").Page) {
+  await page.addStyleTag({ content: ".wm-offline-banner { display: none !important; }" });
+}
+
+async function openCompletedRecommendation(page: import("@playwright/test").Page) {
+  const answers: Record<string, string> = {
+    "What type of opportunity is this?": "Meeting room / boardroom",
+    "What is the approximate room or system scale?": "Single large room",
+    "How many source positions are likely?": "2-4 sources",
+    "How many displays or outputs are needed?": "1 display / output",
+    "How should the displays behave?": "Same content on all displays",
+    "What camera, microphone or capture workflows are required?": "No camera or microphone requirements",
+  };
+  await page.goto("/wingman/discovery");
+  await clearBrowserState(page);
+  await page.reload({ waitUntil: "networkidle" });
+  for (let turn = 0; turn < 12; turn += 1) {
+    const finish = page.getByRole("button", { name: "Next: find matching products", exact: true });
+    if (await finish.isVisible({ timeout: 700 }).catch(() => false)) {
+      await finish.click();
+      await page.waitForURL("**/wingman/recommendations");
+      await page.getByRole("button", { name: "Review proposed system" }).click();
+      return;
+    }
+    const heading = page.locator("main h2").first();
+    const question = (await heading.innerText()).trim();
+    await page.locator("button.wm-discovery-option").filter({ hasText: answers[question] }).first().click();
+    await page.waitForTimeout(200);
+    if ((await heading.innerText()).trim() === question) {
+      const next = page.getByRole("button", { name: "Continue", exact: true });
+      if (await next.isEnabled()) await next.click();
+    }
+  }
+  throw new Error("Recommendation visual fixture did not complete Discovery.");
+}
+
 test.describe("Visual regression - Dashboard", () => {
   test("dashboard page matches baseline", async ({ page }) => {
     await page.goto("/wingman/dashboard");
@@ -112,7 +152,7 @@ test.describe("Visual regression - Compare", () => {
 
 test.describe("Visual regression - Battle Cards", () => {
   test("battle cards page matches baseline", async ({ page }) => {
-    await page.goto("/wingman/battleCards");
+    await page.goto("/wingman/battle-cards");
     await waitForPageReady(page);
 
     await expect(page).toHaveScreenshot("battle-cards-full.png", {
@@ -124,7 +164,7 @@ test.describe("Visual regression - Battle Cards", () => {
   test("battle cards first brand section matches baseline", async ({
     page,
   }) => {
-    await page.goto("/wingman/battleCards");
+    await page.goto("/wingman/battle-cards");
     await waitForPageReady(page);
 
     // Find the first brand card/section
@@ -145,7 +185,7 @@ test.describe("Visual regression - Battle Cards", () => {
 
 test.describe("Visual regression - Product Call Cards", () => {
   test("product call cards page matches baseline", async ({ page }) => {
-    await page.goto("/wingman/productCallCards");
+    await page.goto("/wingman/product-call-cards");
     await waitForPageReady(page);
 
     await expect(page).toHaveScreenshot("product-call-cards-full.png", {
@@ -155,7 +195,7 @@ test.describe("Visual regression - Product Call Cards", () => {
   });
 
   test("product call cards product grid matches baseline", async ({ page }) => {
-    await page.goto("/wingman/productCallCards");
+    await page.goto("/wingman/product-call-cards");
     await waitForPageReady(page);
 
     // Focus on the product grid area
@@ -213,7 +253,7 @@ test.describe("Visual regression - Responsive", () => {
 
   test("battle cards tablet view matches baseline", async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
-    await page.goto("/wingman/battleCards");
+    await page.goto("/wingman/battle-cards");
     await waitForPageReady(page);
 
     await expect(page).toHaveScreenshot("battle-cards-tablet.png", {
@@ -224,12 +264,66 @@ test.describe("Visual regression - Responsive", () => {
 
   test("product call cards tablet view matches baseline", async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
-    await page.goto("/wingman/productCallCards");
+    await page.goto("/wingman/product-call-cards");
     await waitForPageReady(page);
 
     await expect(page).toHaveScreenshot("product-call-cards-tablet.png", {
       fullPage: true,
       maxDiffPixelRatio: 0.01,
+    });
+  });
+});
+
+test.describe("Visual regression - Populated decisions", () => {
+  test("completed recommendation matches baseline", async ({ page }) => {
+    await openCompletedRecommendation(page);
+    await expect(page.locator(".wm-rec-system")).toBeVisible();
+    await dismissConnectionNotice(page);
+    await expect(page).toHaveScreenshot("recommendation-completed.png", { fullPage: true });
+  });
+
+  test("known competitor comparison matches baseline", async ({ page }) => {
+    await page.goto("/wingman/compare");
+    await clearBrowserState(page);
+    await page.reload({ waitUntil: "networkidle" });
+    await page.getByRole("combobox", { name: /^Manufacturer$/i }).fill("Crestron");
+    await page.getByRole("combobox", { name: /^Competitor SKU$/i }).fill("DM-NVX-350");
+    const heading = page.getByRole("heading", { name: "Comparison result" });
+    if (!(await heading.isVisible().catch(() => false))) await page.getByRole("button", { name: "Compare", exact: true }).click();
+    await expect(heading).toBeVisible({ timeout: 20_000 });
+    await dismissConnectionNotice(page);
+    await expect(page).toHaveScreenshot("compare-populated.png", { fullPage: true });
+  });
+
+  test("expanded battle card matches baseline", async ({ page }) => {
+    await page.goto("/wingman/battle-cards", { waitUntil: "networkidle" });
+    await page.getByLabel("Search competitors").fill("Crestron");
+    const crestron = page.locator(".wm-bc-brand-group").filter({ has: page.locator(".wm-bc-brand-header", { hasText: "Crestron" }) });
+    await crestron.locator(".wm-bc-brand-header").click();
+    await crestron.locator(".wm-bc-card-header").first().click();
+    await expect(crestron.locator(".wm-bc-card").first()).toContainText(/WyreStorm|equivalent/i);
+    await dismissConnectionNotice(page);
+    await expect(page).toHaveScreenshot("battle-card-populated.png", { fullPage: true });
+  });
+
+  test("populated product call card matches baseline", async ({ page }) => {
+    await page.goto("/wingman/product-call-cards", { waitUntil: "networkidle" });
+    await page.getByLabel("Search products").fill("NHD-500-TX");
+    await page.locator(".wm-pcc-selection-mode button, .wm-pcc-selection-mode a").filter({ hasText: "NHD-500-TX" }).first().click();
+    await expect(page.getByRole("heading", { level: 1, name: "NHD-500-TX" })).toBeVisible();
+    await dismissConnectionNotice(page);
+    await expect(page).toHaveScreenshot("product-call-card-populated.png", { fullPage: true });
+  });
+
+  test("template proposal review matches baseline", async ({ page }) => {
+    await page.goto("/wingman/templates", { waitUntil: "networkidle" });
+    await page.locator(".wm-library-tile").first().click();
+    await page.getByRole("tab", { name: "Proposal", exact: true }).click();
+    await expect(page.getByRole("tabpanel")).toContainText(/assumption|risk/i);
+    await dismissConnectionNotice(page);
+    await expect(page).toHaveScreenshot("proposal-review-populated.png", {
+      fullPage: true,
+      mask: [page.getByText("Start from room, vertical and application templates.", { exact: true })],
     });
   });
 });

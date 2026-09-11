@@ -32,6 +32,8 @@ export type StoredProject = {
   isDemo?: boolean;
   discoveryBrief?: StoredDiscoveryBrief;
   productSelections?: StoredProductSelection[];
+  /** SKUs deliberately removed by the user; automatic rebuilds must honour this list. */
+  omittedProductSkus?: string[];
   ingest?: StoredIngestAnalysis;
   compareRuns?: StoredCompareRun[];
   compareHistoryView?: { search?: string; filter?: string; sort?: string };
@@ -1201,6 +1203,10 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
 
   const productSelections = normalizeProductSelections(record.productSelections);
   if (productSelections.length) project.productSelections = productSelections;
+  const omittedProductSkus = stringArray(record.omittedProductSkus)
+    .map((sku) => sku.trim().toUpperCase())
+    .filter(Boolean);
+  if (omittedProductSkus.length) project.omittedProductSkus = omittedProductSkus;
 
   const ingest = normalizeIngestAnalysis(record.ingest);
   if (ingest) project.ingest = ingest;
@@ -2246,6 +2252,7 @@ export function saveProductSelectionToProject(projectId: string, selection: Stor
     resumeTo: routeCatalogByKey.recommendations.path,
     updatedAt: timestamp,
     productSelections,
+    omittedProductSkus: (existing.omittedProductSkus ?? []).filter((sku) => sku.toUpperCase() !== selected.sku.toUpperCase()),
     auditTrail: [
       { id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, action: "product-selection", detail: auditDetail, scope: "products", severity: "info" as const, actorName: "Wingman user", createdAt: timestamp },
       ...(existing.auditTrail ?? []),
@@ -2287,6 +2294,49 @@ export function saveProductSelectionToCurrentProject(selection: StoredProductSel
   return saveProductSelectionToProject(project.id, selection);
 }
 
+
+/** Remove a product line from a project and remember the omission. */
+export function removeProductSelectionFromProject(projectId: string, sku: string) {
+  const snapshot = readProjectStore();
+  const existing = snapshot.projects.find((project) => project.id === projectId);
+  const targetSku = sku.trim().toUpperCase();
+  if (!existing || !targetSku) return null;
+
+  const current = existing.productSelections ?? [];
+  const removed = current.find((item) => item.sku.trim().toUpperCase() === targetSku);
+  if (!removed) return existing;
+
+  const timestamp = nowIso();
+  const omittedProductSkus = Array.from(new Set([
+    ...(existing.omittedProductSkus ?? []),
+    removed.sku.trim().toUpperCase(),
+  ]));
+
+  return upsertStoredProject({
+    ...existing,
+    productSelections: current.filter((item) => item.sku.trim().toUpperCase() !== targetSku),
+    omittedProductSkus,
+    updated: "Just now",
+    updatedAt: timestamp,
+    auditTrail: [
+      {
+        id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        action: "product-selection-remove",
+        detail: `Removed product ${removed.sku} (${removed.title || removed.sku}) from project`,
+        scope: "products",
+        severity: "info" as const,
+        actorName: "Wingman user",
+        createdAt: timestamp,
+      },
+      ...(existing.auditTrail ?? []),
+    ].slice(0, 50),
+  });
+}
+
+export function removeProductSelectionFromCurrentProject(sku: string) {
+  const existing = getCurrentWorkflowProject();
+  return existing ? removeProductSelectionFromProject(existing.id, sku) : null;
+}
 export function createProjectForProductSelection(name: string, selection: StoredProductSelection) {
   const projectName = name.trim() || `${selection.sku} Product Selection`;
   const normalizedSelection = normalizeProductSelections([selection])[0] ?? selection;

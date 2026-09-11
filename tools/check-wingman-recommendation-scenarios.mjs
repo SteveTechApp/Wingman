@@ -1,14 +1,44 @@
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 const ROOT = process.cwd();
 
 const SCENARIO_PATH = path.join(ROOT, "data", "wingman-real-av-scenarios.json");
+const BLIND_SCENARIO_PATH = path.join(ROOT, "data", "wingman-blind-recommendation-scenarios.json");
 const PRODUCT_INDEX_PATH = path.join(ROOT, "public", "product-intelligence-index.json");
 const QUOTE_SAFETY_RULES_PATH = path.join(ROOT, "data", "wingman-quote-safety-rules.json");
 
 const failures = [];
 const warnings = [];
+const forbiddenBlindInputKeys = new Set(["sku", "product", "candidate", "leadproduct", "preferredfamily"]);
+
+function checkBlindInput(value, scenarioId, inputPath = "input") {
+  if (!value || typeof value !== "object") return;
+  for (const [key, child] of Object.entries(value)) {
+    if (forbiddenBlindInputKeys.has(key.toLowerCase())) fail(`${scenarioId}: forbidden seeded recommendation key at ${inputPath}.${key}`);
+    checkBlindInput(child, scenarioId, `${inputPath}.${key}`);
+  }
+}
+
+function checkBlindScenarios(blindScenarios, products) {
+  const requiredIds = ["blind-higher-education-avoip", "blind-fixed-hdmi-matrix", "blind-hdbaset-point-to-point", "blind-wireless-byom", "blind-lcd-video-wall", "blind-multiview", "blind-audio-dante", "blind-underspecified"];
+  const ids = new Set(blindScenarios.map((scenario) => scenario?.id));
+  for (const id of requiredIds) if (!ids.has(id)) fail(`Missing required blind scenario: ${id}`);
+  if (blindScenarios.length < 8) fail(`Expected at least eight blind scenarios; found ${blindScenarios.length}`);
+  for (const scenario of blindScenarios) {
+    const id = scenario?.id ?? "unknown-blind-scenario";
+    if (!scenario?.input || typeof scenario.input !== "object" || Array.isArray(scenario.input)) fail(`${id}: missing customer input object`);
+    checkBlindInput(scenario?.input, id);
+    const expected = scenario?.expected;
+    if (!expected || typeof expected !== "object") { fail(`${id}: missing expected result`); continue; }
+    for (const field of ["bom", "requiredDependencies", "forbidden", "missingInformation"]) if (!Array.isArray(expected[field])) fail(`${id}: expected.${field} must be an array`);
+    for (const row of expected.bom ?? []) {
+      if (!row?.sku || !Number.isInteger(row.quantity) || row.quantity < 1) fail(`${id}: invalid exact BOM row ${JSON.stringify(row)}`);
+      else if (!findProductBySku(products, row.sku)) fail(`${id}: expected BOM SKU is absent from the normal catalogue: ${row.sku}`);
+    }
+  }
+}
 
 function rel(filePath) {
   return path.relative(ROOT, filePath);
@@ -373,10 +403,12 @@ function checkQuoteSafetyRuleCoverage(scenarios, quoteSafetyRules) {
 }
 
 const scenarioData = readJson(SCENARIO_PATH);
+const blindScenarioData = readJson(BLIND_SCENARIO_PATH);
 const productData = readJson(PRODUCT_INDEX_PATH);
 const quoteSafetyRules = readJson(QUOTE_SAFETY_RULES_PATH);
 
 const scenarios = Array.isArray(scenarioData?.scenarios) ? scenarioData.scenarios : [];
+const blindScenarios = Array.isArray(blindScenarioData?.scenarios) ? blindScenarioData.scenarios : [];
 const products = getProducts(productData);
 
 if (scenarios.length === 0) {
@@ -392,6 +424,7 @@ console.log(`[wingman-recommendation-scenarios] Product records: ${products.leng
 
 checkCoreScenarioCoverage(scenarios);
 checkQuoteSafetyRuleCoverage(scenarios, quoteSafetyRules);
+checkBlindScenarios(blindScenarios, products);
 
 for (const scenario of scenarios) {
   checkScenarioShape(scenario);
@@ -430,3 +463,6 @@ if (failures.length > 0) {
 
 console.log("");
 console.log("[wingman-recommendation-scenarios] Verified real AV scenario contract, quote-safety rules, expected recommendation shape, and product evidence hooks.");
+const blindResult = spawnSync(process.execPath, ["node_modules/vitest/vitest.mjs", "run", "src/wingman2/lib/blindRecommendationAcceptance.test.ts"], { stdio: "inherit" });
+if (blindResult.status !== 0) process.exit(blindResult.status ?? 1);
+console.log(`[wingman-recommendation-scenarios] ${blindScenarios.length} blind scenarios passed through the shared Recommendations boundary.`);

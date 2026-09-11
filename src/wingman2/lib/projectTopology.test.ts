@@ -6,6 +6,7 @@ import {
   projectTopologyConnectionTypes,
   projectTopologyLongestRun,
   projectTopologyMissingInformation,
+  projectTopologyDistanceSummary,
   projectTopologySurveyState,
   projectTopologyToMermaid,
   type ProjectTopology,
@@ -52,6 +53,34 @@ function topologyWithPlanningMarker(
 }
 
 describe("project topology discovery model", () => {
+  it("separates short local HDMI patches from AV-network infrastructure distance", () => {
+    const base = createBlankProjectTopology();
+    const topology: ProjectTopology = {
+      ...base,
+      locations: [
+        { id: "lectern", name: "Lectern", type: "lectern", roomId: "room-1" },
+        { id: "network", name: "AV network", type: "network", buildingId: "building-1" },
+        { id: "display", name: "Display", type: "display-wall", roomId: "room-1" },
+      ],
+      devices: [
+        { id: "source", name: "Laptop", category: "source", locationId: "lectern", quantity: 1, thirdParty: true, status: "confirmed" },
+        { id: "encoder", name: "Encoder", category: "encoder", locationId: "lectern", quantity: 1, thirdParty: false, status: "confirmed" },
+        { id: "switch", name: "AV switch", category: "network", locationId: "network", quantity: 1, thirdParty: true, status: "confirmed" },
+        { id: "decoder", name: "Decoder", category: "decoder", locationId: "display", quantity: 1, thirdParty: false, status: "confirmed" },
+      ],
+      connections: [
+        { id: "patch", fromDeviceId: "source", toDeviceId: "encoder", services: ["video"], transport: "hdmi", lengthMode: "confirmed", lengthMetres: 2, status: "confirmed" },
+        { id: "network-route", fromDeviceId: "encoder", toDeviceId: "switch", services: ["av-over-ip", "ethernet"], transport: "ip-av-vlan", lengthMode: "confirmed", lengthMetres: 70, status: "confirmed" },
+      ],
+    };
+
+    expect(projectTopologyDistanceSummary(topology)).toEqual({
+      localPatchMaxMetres: 2,
+      endpointRouteMaxMetres: undefined,
+      infrastructureMaxMetres: 70,
+    });
+  });
+
   it("generates meeting-room devices, locations and USB paths from discovery", () => {
     const topology = generateProjectTopologyFromDiscovery({
       application: "meeting-room",

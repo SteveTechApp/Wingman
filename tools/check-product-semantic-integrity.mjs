@@ -2,6 +2,12 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import {
+  isAnalogueAudioConnector,
+  isAnalogueAudioEvidence,
+  isExplicitAudioOutputEvidence,
+  isEthernetConnector,
+} from "./lib/product-port-semantics.mjs";
 
 const ROOT = process.cwd();
 const failures = [];
@@ -28,6 +34,7 @@ function payloadArray(payload) {
   if (Array.isArray(payload)) return payload;
   if (Array.isArray(payload?.products)) return payload.products;
   if (Array.isArray(payload?.records)) return payload.records;
+  if (Array.isArray(payload?.profiles)) return payload.profiles;
   return [];
 }
 function parseCsv(text) {
@@ -82,6 +89,7 @@ function isSplitter(sku, title, extra = "") {
 }
 
 for (const rel of [
+  "data/governance/wyrestorm-technical-profiles.json",
   "data-sources/wyrestorm/enrichment.json",
   "data/wingman-canonical-product-store.json",
   "public/product-intelligence-index.json",
@@ -93,7 +101,9 @@ for (const rel of [
     const title = clean(product.name || product.title || product.summary);
     const ports = Array.isArray(product?.technicalProfile?.io?.ports)
       ? product.technicalProfile.io.ports
-      : [];
+      : Array.isArray(product?.ports)
+        ? product.ports
+        : [];
 
     for (const port of ports) {
       const count = num(port.count);
@@ -111,14 +121,25 @@ for (const rel of [
       if (/(?:ir|bluetooth)\s+remote\b|remote control|remote handset|quick\s*start|user guide|\bmanual\b|wall mount|rack mount|mounting bracket|rack bracket|battery not included/i.test(evidence)) {
         fail(rel, sku, `Accessory remains in io.ports: ${evidence}`);
       }
-      if (/5-?pin.*balanced.*audio|balanced.*audio.*5-?pin/i.test(evidence) &&
-          /rj-?45|ethernet/i.test(connector)) {
-        fail(rel, sku, `Balanced audio terminal block is still Ethernet/RJ45: ${combined}`);
+      if (isAnalogueAudioEvidence(combined) && isEthernetConnector(connector)) {
+        fail(rel, sku, `Analogue audio termination is still Ethernet/RJ45: ${combined}`);
+      }
+      if (isAnalogueAudioEvidence(combined) &&
+          isAnalogueAudioConnector(connector) &&
+          /^(?:video|network)$/.test(lower(port.category))) {
+        fail(rel, sku, `Analogue audio termination has non-audio category ${clean(port.category)}: ${combined}`);
+      }
+      if (isAnalogueAudioEvidence(combined) &&
+          isAnalogueAudioConnector(connector) &&
+          isExplicitAudioOutputEvidence(evidence) &&
+          lower(port.direction) !== "output") {
+        fail(rel, sku, `Analogue audio output has contradictory direction ${clean(port.direction)}: ${combined}`);
       }
     }
 
     const size = splitterSize(sku, title);
-    if (size && isSplitter(sku, title, `${product.category} ${product.family}`)) {
+    if (rel !== "data/governance/wyrestorm-technical-profiles.json" &&
+        size && isSplitter(sku, title, `${product.category} ${product.family}`)) {
       const hdmiInput = ports
         .filter((p) => lower(p.direction) === "input" && /\bhdmi\b/i.test(`${p.connector} ${p.evidence}`))
         .reduce((sum, p) => sum + (num(p.count) ?? 0), 0);
@@ -219,7 +240,8 @@ console.log("Validated:");
 console.log("- no impossible physical port counts");
 console.log("- no camera zoom represented as optical/fibre I/O");
 console.log("- no known box-content accessories in io.ports");
-console.log("- balanced terminal audio is not Ethernet");
+console.log("- analogue audio terminations are not Ethernet or video/network-category records");
+console.log("- explicit analogue audio outputs have output direction");
 console.log("- 1xN splitter physical I/O is explicit");
 console.log("- fixed distribution fan-out is mirrored, not independently routed");
 console.log("- WyreStorm source splitter classification/I-O is explicit");

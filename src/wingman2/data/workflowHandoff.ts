@@ -11,6 +11,11 @@ import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvide
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
 import { baseDiscoveryQuestions, getVisibleDiscoveryQuestions } from "../pages/discovery/discoveryQuestions";
 import type { DiscoveryAnswers, DiscoveryNotes } from "../pages/discovery/discoveryTypes";
+import {
+  normaliseProjectTopology,
+  projectTopologyDistanceSummary,
+  projectTopologyHasContent,
+} from "../lib/projectTopology";
 
 export const DISCOVERY_BRIEF_KEY = "wingman-discovery-brief";
 export const DISCOVERY_SNAPSHOT_KEY = "wingman-discovery-snapshot-v3";
@@ -464,6 +469,15 @@ export function buildDiscoveryBriefFromState(
   const selectedApplication = applicationFromLegacyState(state);
   const questions = getVisibleDiscoveryQuestions(selectedApplication, discoveryAnswers);
   const integrity = evaluateDiscoveryDecisionIntegrity(questions, discoveryAnswers, discoveryNotes);
+  const topologyCandidate = state.topology ?? state.projectTopology;
+  const structuredTopology = projectTopologyHasContent(topologyCandidate)
+    ? normaliseProjectTopology(topologyCandidate)
+    : undefined;
+  const distanceSummary = structuredTopology ? projectTopologyDistanceSummary(structuredTopology) : undefined;
+  const pointToPointDistance = Math.max(
+    distanceSummary?.localPatchMaxMetres ?? 0,
+    distanceSummary?.endpointRouteMaxMetres ?? 0,
+  ) || undefined;
 
   const roomModel = {
     ...state,
@@ -475,8 +489,13 @@ export function buildDiscoveryBriefFromState(
     sourceCount: countBand(devices.filter((item) => !/microphone|speaker|camera/i.test(item) || /ndi|ptz/i.test(item)).length),
     displayCount: text(state.displayCount, "Unknown"),
     displays: text(state.displayBehaviour, "Not confirmed"),
-    longestRun: text(state.cableRun, "Unknown"),
-    distanceInfrastructureNotes: text(state.cableRun, "Unknown"),
+    longestRun: structuredTopology
+      ? pointToPointDistance === undefined ? "Unknown" : `${pointToPointDistance} metres`
+      : text(state.cableRun, "Unknown"),
+    distanceInfrastructureNotes: structuredTopology
+      ? distanceSummary?.infrastructureMaxMetres === undefined ? "Unknown" : `${distanceSummary.infrastructureMaxMetres} metres`
+      : text(state.cableRun, "Unknown"),
+    distanceBasis: structuredTopology ? "structured topology" : "inferred from legacy cableRun",
     resolutionRequirement,
     usbNeeds: [usbTransport].filter(Boolean),
     usbTransport,
@@ -502,6 +521,7 @@ export function buildDiscoveryBriefFromState(
 
   const brief: StoredDiscoveryBrief = {
     savedAt: timestamp,
+    topology: structuredTopology,
     roomModel,
     inference: {
       architecture: meta.designDirection,

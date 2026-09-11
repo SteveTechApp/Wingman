@@ -6,6 +6,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 export type WingmanUiMode = "guided" | "unguided";
 
+export const UI_MODE_PRESENTATION: Record<WingmanUiMode, { label: string; description: string }> = {
+  guided: { label: "Focused view", description: "A streamlined interface for the current workflow." },
+  unguided: { label: "Full workspace", description: "The complete interface with every available workspace tool." },
+};
+
 export type UiModeContextValue = {
   mode: WingmanUiMode;
   setMode: (mode: WingmanUiMode) => void;

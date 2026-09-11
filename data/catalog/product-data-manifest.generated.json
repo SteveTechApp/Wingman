@@ -38,7 +38,7 @@
   "hashes": {
     "data-sources/wyrestorm/products.csv": "ad705eed2819c7c70dfa2722a9eddfb03139dd17a665422bbe98561145526513",
     "data-sources/wyrestorm/lifecycle.csv": "a1f5ec21ed49f7a67c785881781f045f6f6fd205369e8c72a99294175d737a5c",
-    "data-sources/wyrestorm/enrichment.json": "7a2683df6afa7d7fac3806b2e2e2b0b6f4ae8283eb6110dd9c064d2f786bd03a",
+    "data-sources/wyrestorm/enrichment.json": "2e806b52216eb4f324c1585e289f895654993c7f25b8f7ecefeffbf5d731d225",
     "data-sources/competitors/airtame.csv": "b83683d86b02fa6a09c4cf738b49d0fd2147134bcbc2f5f6f2506edd76f468f0",
     "data-sources/competitors/amx.csv": "ac102506d26e5fa7b8f73c330754c9b3567b41fabfec55fc8967136ab08fbd26",
     "data-sources/competitors/atlona.csv": "5122e4cdeff362c0255eea561412a6cb21ef282e7b795b744739c42d96d3375a",

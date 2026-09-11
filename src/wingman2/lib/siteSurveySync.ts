@@ -6,7 +6,7 @@
  * endpoint for site survey edits.
  */
 
-import { getProjectEdits, saveProjectEdits, type SurveyProjectEdits } from "./siteSurveyStorage";
+import { getProjectEdits, saveSyncedProjectEdits, type SurveyProjectEdits } from "./siteSurveyStorage";
 
 const SURVEY_SYNC_ENDPOINT = "/api/wingman/site-survey/sync";
 const SURVEY_SYNC_POLL_INTERVAL_MS = 5_000; // 5 seconds
@@ -15,6 +15,7 @@ const SURVEY_SYNC_DEBOUNCE_MS = 1_000;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 let syncTimer: ReturnType<typeof setTimeout> | null = null;
 let lastSyncedAt: string | null = null;
+let editedListener: (() => void) | null = null;
 
 /* ──────────────────────────────────────────────
    Types
@@ -31,11 +32,19 @@ export type SurveySyncPayload = {
   projectId: string;
   edits: SurveyProjectEdits;
   clientTimestamp: string;
+  baseServerTimestamp?: string;
 };
 
 export type SurveySyncResponse = {
   ok: boolean;
   edits?: SurveyProjectEdits;
+  serverTimestamp?: string;
+  error?: string;
+  outcome?: "synced" | "conflict" | "error";
+};
+
+export type SurveySyncResult = {
+  outcome: "synced" | "conflict" | "error";
   serverTimestamp?: string;
   error?: string;
 };
@@ -75,8 +84,13 @@ export function getSyncStatus(): SurveySyncStatus {
    Sync to backend
    ────────────────────────────────────────────── */
 
-async function pushEditsToBackend(projectId: string): Promise<boolean> {
+export async function pushEditsToBackend(projectId: string): Promise<SurveySyncResult> {
   const edits = getProjectEdits(projectId);
+
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    updateStatus({ state: "offline", message: "Offline — changes remain on this device" });
+    return { outcome: "error", error: "offline" };
+  }
 
   try {
     updateStatus({ state: "syncing", message: "Syncing edits to server..." });
@@ -85,6 +99,7 @@ async function pushEditsToBackend(projectId: string): Promise<boolean> {
       projectId,
       edits,
       clientTimestamp: new Date().toISOString(),
+      baseServerTimestamp: edits.serverTimestamp,
     };
 
     const response = await fetch(SURVEY_SYNC_ENDPOINT, {
@@ -97,21 +112,34 @@ async function pushEditsToBackend(projectId: string): Promise<boolean> {
       signal: AbortSignal.timeout(10_000),
     });
 
+    if (response.status === 409) {
+      const conflict = await response.json().catch(() => ({})) as SurveySyncResponse;
+      updateStatus({ state: "error", message: "Sync conflict — local changes were preserved" });
+      return { outcome: "conflict", serverTimestamp: conflict.serverTimestamp, error: conflict.error };
+    }
     if (!response.ok) {
       throw new Error(`Sync failed: ${response.status}`);
     }
 
     const result: SurveySyncResponse = await response.json();
 
-    if (result.ok) {
-      lastSyncedAt = new Date().toISOString();
+    if (result.ok && result.outcome !== "conflict") {
+      lastSyncedAt = result.serverTimestamp ?? new Date().toISOString();
+      const acknowledged = saveSyncedProjectEdits(edits, lastSyncedAt);
+      if (!acknowledged) {
+        updateStatus({ state: "syncing", message: "A newer local change is waiting to sync" });
+        return { outcome: "error", serverTimestamp: lastSyncedAt, error: "newer-local-edit" };
+      }
       updateStatus({
         state: "synced",
         message: "Edits synced to server",
         lastSyncedAt,
         pendingChanges: 0,
       });
-      return true;
+      return { outcome: "synced", serverTimestamp: lastSyncedAt };
+    } else if (result.outcome === "conflict") {
+      updateStatus({ state: "error", message: "Sync conflict — local changes were preserved" });
+      return { outcome: "conflict", serverTimestamp: result.serverTimestamp, error: result.error };
     } else {
       throw new Error(result.error || "Sync failed");
     }
@@ -122,7 +150,7 @@ async function pushEditsToBackend(projectId: string): Promise<boolean> {
       state: "error",
       message: `Sync failed: ${message}`,
     });
-    return false;
+    return { outcome: "error", error: message };
   }
 }
 
@@ -163,13 +191,17 @@ async function pollForUpdates(projectId: string): Promise<boolean> {
       const localTime = new Date(localEdits.lastModified).getTime();
 
       if (serverTime > localTime) {
+        if (!localEdits.synced) {
+          updateStatus({ state: "error", message: "Sync conflict — local changes were preserved" });
+          return false;
+        }
         // Server has newer data - merge
-        saveProjectEdits({
+        saveSyncedProjectEdits({
           ...result.edits,
           projectId,
           lastModified: result.serverTimestamp,
           synced: true,
-        });
+        }, result.serverTimestamp);
 
         lastSyncedAt = result.serverTimestamp;
         updateStatus({
@@ -220,14 +252,10 @@ export function startSurveySync(projectId: string): void {
   }, SURVEY_SYNC_POLL_INTERVAL_MS);
 
   // Listen for local changes to trigger sync
-  window.addEventListener("wingman:survey-edited", () => {
-    scheduleSync(projectId);
-  });
+  editedListener = () => scheduleSync(projectId);
+  window.addEventListener("wingman:survey-edited", editedListener);
 
-  updateStatus({
-    state: "synced",
-    message: "Real-time sync active",
-  });
+  updateStatus({ state: "syncing", message: "Checking for saved changes" });
 }
 
 /**
@@ -242,12 +270,16 @@ export function stopSurveySync(): void {
     clearTimeout(syncTimer);
     syncTimer = null;
   }
+  if (editedListener) {
+    window.removeEventListener("wingman:survey-edited", editedListener);
+    editedListener = null;
+  }
 }
 
 /**
  * Manually trigger a sync push.
  */
-export function manualSync(projectId: string): Promise<boolean> {
+export function manualSync(projectId: string): Promise<SurveySyncResult> {
   return pushEditsToBackend(projectId);
 }
 

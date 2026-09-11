@@ -1,10 +1,14 @@
 import JSZip from "jszip";
 import { Packer } from "docx";
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import type { StoredProjectProposal } from "../data/projectStore";
 import type { SalesBomRow } from "./salesReadiness";
 import { buildProposalDocx } from "./proposalDocxExport";
+import { buildProposalHtml } from "./proposalExport";
 import { createProposalWizardDefaults } from "./proposalWizard";
+import { PARITY_MARKERS, parityBom, parityProposal, parityWizard } from "../../../e2e/fixtures/proposal-output-parity";
 
 const proposal: StoredProjectProposal = {
   title: "Government Control Room - NetworkHD 600",
@@ -31,6 +35,39 @@ const bom: SalesBomRow[] = [{
 }];
 
 describe("proposal DOCX export", () => {
+  it("keeps the canonical completed proposal content aligned with the screen export", async () => {
+    const html = buildProposalHtml(parityProposal, parityBom, parityProposal.products);
+    const screenText = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+    const buffer = await Packer.toBuffer(buildProposalDocx(parityProposal, parityBom, parityWizard));
+    const zip = await JSZip.loadAsync(buffer);
+    const xml = await zip.file("word/document.xml")!.async("string");
+    const docxText = xml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    const requiredMarkers = [
+      PARITY_MARKERS.requirement, PARITY_MARKERS.recommendation, PARITY_MARKERS.dependency,
+      PARITY_MARKERS.assumption, PARITY_MARKERS.risk, PARITY_MARKERS.discoveryQuestion,
+      PARITY_MARKERS.discoveryAnswer, PARITY_MARKERS.disclaimer,
+      "NHD-600-TX", "NHD-600-RX", "NHD-CTL-PRO-V2",
+    ];
+    for (const marker of requiredMarkers) {
+      expect(screenText).toContain(marker);
+      expect(docxText).toContain(marker);
+    }
+
+    if (process.env.WINGMAN_WRITE_PROPOSAL_PARITY === "1") {
+      const outputDir = path.resolve("docs/release-evidence/proposal-output-parity/latest");
+      fs.rmSync(outputDir, { recursive: true, force: true });
+      fs.mkdirSync(outputDir, { recursive: true });
+      fs.writeFileSync(path.join(outputDir, "proposal-screen.html"), html);
+      fs.writeFileSync(path.join(outputDir, "proposal.docx"), buffer);
+      fs.writeFileSync(path.join(outputDir, "proposal-docx.txt"), docxText);
+      fs.writeFileSync(path.join(outputDir, "manifest.json"), JSON.stringify({
+        fixture: "northstar-parity",
+        requiredSections: ["Customer Requirement", "Recommended Solution", "Equipment Schedule", "Technical Architecture", "Discovery Conversation", "Assumptions", "Risks and Dependencies", "Best-Efforts Disclaimer"],
+        requiredMarkers, quantities: { "NHD-600-TX": 2, "NHD-600-RX": 4, "NHD-CTL-PRO-V2": 1 },
+        artifacts: { screenHtml: "proposal-screen.html", docx: "proposal.docx", docxText: "proposal-docx.txt" },
+      }, null, 2));
+    }
+  });
   it("carries the canonical design revision into the Word output", async () => {
     const withDesign: StoredProjectProposal = { ...proposal, designRevision: { schemaVersion: 1, revisionId: "dp1-word", contentHash: "dp1-word", projectId: "p", projectName: "Room", compiledAt: "2026-09-07", customerRequirement: "Customer said operational sources", interpretedRequirement: "Wingman understood routed visibility", architecture: "NetworkHD fabric", requirements: [], roleCoverage: [{ role: "network", label: "Network infrastructure", required: true, covered: true, evidence: ["10G fabric"], requirementIds: [] }], productOverviews: [{ sku: "NHD-CTL-PRO-V2", name: "Controller", quantity: 1, designRole: "Routing control", requirementIds: [], reason: "Controls the selected endpoints", proof: ["Central management"], dependencies: [], validation: [] }], assumptions: [], blockers: [], warnings: [], canIssue: true } };
     const wizard = createProposalWizardDefaults({ projectId: "p", projectName: "Room", preparedBy: "Team", executiveSummary: "Summary", architectureNarrative: "NetworkHD" });

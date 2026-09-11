@@ -18,7 +18,6 @@ import {
 } from "../data/workflowHandoff";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
-import { exportDiscoveryBriefHtml } from "../lib/discoveryBriefExport";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
 import {
   clearDiscoveryHandoff,
@@ -53,7 +52,7 @@ import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsP
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
-import { BASIC_MODE_REQUIRED_IDS, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
+import { BASIC_MODE_REQUIRED_IDS, DISCOVERY_DEPTH_PRESENTATION, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
@@ -1450,7 +1449,7 @@ return (
         : null}
       <header className="wm-discovery-capture-hero wm-ui-hero">
         <div>
-          <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Guided discovery - live call mode</p>
+          <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Discovery - Voice interview</p>
           <h1 className="wm-ui-title">One question at a time</h1>
           <p className="wm-ui-copy">
             Capture the customer wording, choose the closest answer, then move forward. Use the capture box when the
@@ -1546,8 +1545,8 @@ return (
           }}
           onUnlockExpert={() => setProgressiveMode("expert")}
           onSave={saveDiscoveryToProject}
-          onExportBrief={() =>
-            exportDiscoveryBriefHtml(buildDiscoveryBrief(), {
+          onExportBrief={async () =>
+            (await import("../lib/discoveryBriefExport")).exportDiscoveryBriefHtml(buildDiscoveryBrief(), {
               projectName: existingDiscoveryName,
             })
           }
@@ -1561,13 +1560,13 @@ return (
       <>
       {/* Pending Escalation Confirmation — shown when user edits a non-basic question */}
       {pendingEscalation && progressiveMode === "basic" && !isReviewingAnswers && (
-        <div className="wm-discovery-escalation-confirm" data-wingman-escalation-confirm="true" role="dialog" aria-label="Switch to Expert mode?">
+        <div className="wm-discovery-escalation-confirm" data-wingman-escalation-confirm="true" role="dialog" aria-label={`Switch to ${DISCOVERY_DEPTH_PRESENTATION.expert.label} discovery?`}>
           <div className="wm-discovery-escalation-confirm-content">
             <span className="wm-discovery-escalation-confirm-icon" aria-hidden="true">🔬</span>
             <div>
               <strong>Unlock full discovery?</strong>
               <p>
-                The question you want to edit is outside the 6 essential Basic questions. Switching to Expert mode will reveal all {discoveryQuestions.length} questions.
+                The question you want to edit is outside the 6 Essential questions. {DISCOVERY_DEPTH_PRESENTATION.expert.label} discovery reveals all {discoveryQuestions.length} questions.
               </p>
             </div>
           </div>
@@ -1581,7 +1580,7 @@ return (
               }}
               data-testid="escalation-confirm"
             >
-              Switch to Expert
+              Switch to {DISCOVERY_DEPTH_PRESENTATION.expert.label}
             </button>
             <button
               type="button"
@@ -1589,7 +1588,7 @@ return (
               onClick={() => setPendingEscalation(null)}
               data-testid="escalation-dismiss"
             >
-              Stay in Basic
+              Stay in {DISCOVERY_DEPTH_PRESENTATION.basic.label}
             </button>
           </div>
         </div>

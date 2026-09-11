@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   getProjectEdits,
   saveProjectEdits,
+  saveSyncedProjectEdits,
   setCableLength,
   setCableConfirmed,
   setDeviceVerified,
@@ -51,6 +52,29 @@ describe("siteSurveyStorage", () => {
       expect(edits.cableEdits).toEqual({});
       expect(edits.deviceEdits).toEqual({});
       expect(edits.locationEdits).toEqual({});
+    });
+
+    it("keeps an offline save pending until the server acknowledges it", () => {
+      setCableLength("offline-project", "cable-1", 22);
+      expect(getProjectEdits("offline-project").synced).toBe(false);
+
+      const pending = getProjectEdits("offline-project");
+      saveSyncedProjectEdits(pending, "2026-09-10T12:00:00.000Z");
+      expect(getProjectEdits("offline-project")).toMatchObject({
+        synced: true,
+        serverTimestamp: "2026-09-10T12:00:00.000Z",
+      });
+    });
+
+    it("marks a new edit dirty while retaining its last acknowledged revision", () => {
+      const edits = getProjectEdits("replay-project");
+      saveSyncedProjectEdits(edits, "2026-09-10T12:00:00.000Z");
+      setCableConfirmed("replay-project", "cable-1", true);
+
+      expect(getProjectEdits("replay-project")).toMatchObject({
+        synced: false,
+        serverTimestamp: "2026-09-10T12:00:00.000Z",
+      });
     });
 
     it("returns saved edits for an existing project", () => {

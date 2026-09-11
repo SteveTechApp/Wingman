@@ -19,6 +19,7 @@ export type ProjectLocationType =
 
 export type ProjectDeviceStatus = "confirmed" | "assumed" | "unknown";
 export type ProjectLengthMode = "estimated" | "confirmed" | "unknown";
+export type ProjectConnectionScope = "local-patch" | "endpoint-route" | "infrastructure";
 
 export type ProjectConnectionService =
   | "video"
@@ -85,6 +86,8 @@ export type ProjectConnection = {
   toPort?: string;
   services: ProjectConnectionService[];
   transport: ProjectTransport;
+  /** Inferred when absent so topology saved before schema v1 remains usable. */
+  scope?: ProjectConnectionScope;
   lengthMode: ProjectLengthMode;
   lengthMetres?: number;
   estimateReason?: string;
@@ -171,6 +174,28 @@ const SERVICE_TYPES = new Set<ProjectConnectionService>(PROJECT_CONNECTION_SERVI
 const TRANSPORT_TYPES = new Set<ProjectTransport>(PROJECT_TRANSPORT_OPTIONS.map((item) => item.value));
 const DEVICE_STATUSES = new Set<ProjectDeviceStatus>(["confirmed", "assumed", "unknown"]);
 const LENGTH_MODES = new Set<ProjectLengthMode>(["estimated", "confirmed", "unknown"]);
+const CONNECTION_SCOPES = new Set<ProjectConnectionScope>(["local-patch", "endpoint-route", "infrastructure"]);
+
+function inferConnectionScope(
+  connection: Pick<ProjectConnection, "fromDeviceId" | "toDeviceId" | "services" | "transport">,
+  devices: ProjectDevice[],
+  locations: ProjectLocation[],
+): ProjectConnectionScope {
+  const deviceById = new Map(devices.map((item) => [item.id, item]));
+  const locationById = new Map(locations.map((item) => [item.id, item]));
+  const fromLocation = locationById.get(deviceById.get(connection.fromDeviceId)?.locationId ?? "");
+  const toLocation = locationById.get(deviceById.get(connection.toDeviceId)?.locationId ?? "");
+  if (fromLocation && toLocation && fromLocation.id === toLocation.id) return "local-patch";
+
+  const isNetworkTransport = ["ip-av-vlan", "shared-ip-network"].includes(connection.transport);
+  const isBuildingLocation = (location?: ProjectLocation) => Boolean(location && [
+    "network", "central-rack", "other-room", "other-floor", "other-building",
+  ].includes(location.type));
+  const isInfrastructureFibre = ["fibre-mm", "fibre-sm"].includes(connection.transport)
+    && (isBuildingLocation(fromLocation) || isBuildingLocation(toLocation));
+  if (isNetworkTransport || connection.services.includes("av-over-ip") || isInfrastructureFibre) return "infrastructure";
+  return "endpoint-route";
+}
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -366,7 +391,7 @@ export function normaliseProjectTopology(value: unknown): ProjectTopology {
     const services = list(row.services)
       .map((item) => item as ProjectConnectionService)
       .filter((item) => SERVICE_TYPES.has(item));
-    return [{
+    const connection = {
       id: cleanText(row.id, `connection-${index + 1}`),
       fromDeviceId,
       toDeviceId,
@@ -374,13 +399,18 @@ export function normaliseProjectTopology(value: unknown): ProjectTopology {
       toPort: cleanText(row.toPort) || undefined,
       services: services.length ? services : ["video"],
       transport: TRANSPORT_TYPES.has(transportValue) ? transportValue : "unknown",
+      scope: CONNECTION_SCOPES.has(cleanText(row.scope) as ProjectConnectionScope)
+        ? cleanText(row.scope) as ProjectConnectionScope
+        : undefined,
       lengthMode: LENGTH_MODES.has(lengthModeValue) ? lengthModeValue : "unknown",
       lengthMetres: cleanNumber(row.lengthMetres),
       estimateReason: cleanText(row.estimateReason) || undefined,
       networkSegmentId: cleanText(row.networkSegmentId) || undefined,
       status: DEVICE_STATUSES.has(statusValue) ? statusValue : "assumed",
       notes: cleanText(row.notes) || undefined,
-    }];
+    } satisfies ProjectConnection;
+    connection.scope ??= inferConnectionScope(connection, devices, locations);
+    return [connection];
   });
 
   return {
@@ -908,6 +938,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
       status: "assumed",
       notes: note,
     };
+    connection.scope = inferConnectionScope(connection, devices, locations);
     connections.push(connection);
     return connection;
   };
@@ -1127,6 +1158,28 @@ export function projectTopologyLongestRun(value: unknown): number | undefined {
     .map((item) => item.lengthMetres)
     .filter((item): item is number => typeof item === "number" && Number.isFinite(item));
   return values.length ? Math.max(...values) : undefined;
+}
+
+export type ProjectTopologyDistanceSummary = {
+  localPatchMaxMetres?: number;
+  endpointRouteMaxMetres?: number;
+  infrastructureMaxMetres?: number;
+};
+
+export function projectTopologyDistanceSummary(value: unknown): ProjectTopologyDistanceSummary {
+  const topology = normaliseProjectTopology(value);
+  const maximum = (scope: ProjectConnectionScope) => {
+    const lengths = topology.connections
+      .filter((connection) => connection.scope === scope && connection.lengthMode !== "unknown")
+      .map((connection) => connection.lengthMetres)
+      .filter((length): length is number => typeof length === "number" && Number.isFinite(length));
+    return lengths.length ? Math.max(...lengths) : undefined;
+  };
+  return {
+    localPatchMaxMetres: maximum("local-patch"),
+    endpointRouteMaxMetres: maximum("endpoint-route"),
+    infrastructureMaxMetres: maximum("infrastructure"),
+  };
 }
 
 export function projectTopologyConnectionTypes(value: unknown): string[] {

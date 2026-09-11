@@ -1,0 +1,410 @@
+WyreStorm Proposal Reference: WYR-WK3V48
+Date: 11 September 2026
+Prepared by: Solutions Team
+Document: Draft Proposal
+Northstar Operations Room
+WYRESTORM | TECHNICAL PROPOSAL
+Executive Summary
+Route two operator sources to four displays with resilient 4K distribution.
+This document sets out the WyreStorm recommendation for this requirement, how it will work in use, the
+equipment involved, and what remains to be confirmed before it is issued as a final customer proposal.
+Customer Requirement
+Confirmed requirement: Route two operator sources to four displays with resilient 4K distribution.
+Discovery Conversation
+The recommendation in this document is based on the discovery conversation captured below: the
+question asked, the closest governed answer, and the customer's own wording where recorded. Rows
+marked "Confirmed with customer" were verified with the customer during discovery; rows marked "To
+be confirmed" are still open and must be verified before final design sign-off. Nothing here is presented
+as a settled fact that was not said during discovery.
+QUESTION ASKED GOVERNED
+ANSWER
+CUSTOMER
+WORDING
+STATUS CAPTURE
+CONFIDENCE
+How many displays must
+receive independently
+routed content?
+Four displays Each operator needs
+independent routing.
+Confirmed
+with customer
+High
+confidence (12)
+The "Capture confidence" column shows how strongly the customer's wording matched the closest governed answer: "High
+confidence" is a strong exact match, "Matched" is a curated-phrase match, and "Low confidence — verify before quote" is a
+partial match that must be re-verified with the customer before quoting. The number in brackets is the match score behind the
+tier.
+Where a row is a note-only capture, the answer was still open at the time of writing and must be confirmed before final design
+sign-off.
+Recommended Solution
+Recommendation: NetworkHD is the leading product-family path for this requirement, based on the
+recommendation evidence gathered so far (family confidence 96/100).
+The confirmed routing and resilience requirement needs a scalable 10GbE fabric.
+Information required: Confirm redundant power and switch failover behaviour during commissioning.
+Required WyreStorm products: NHD-600-TX - NetworkHD 600 encoder; NHD-600-RX - NetworkHD
+600 decoder; NHD-CTL-PRO-V2 - NetworkHD controller
+Practical Operation
+This is what the system will do for the people using the room, day to day.
+Users will select the source they need and it will appear on the assigned display(s) without reconnecting
+any equipment.
+Routing runs over the AV-over-IP network, so additional displays, sources or rooms can be added later
+within the same architecture.
+Day-to-day operation is intended to use simple named presets or a control interface rather than
+requiring the user to understand the underlying signal path.
+Commercial and Operational Benefits
+A consistent, repeatable connection experience across the room(s) covered by this proposal.
+An AV-over-IP architecture gives a clear, supported path to add displays, sources or rooms later without
+redesigning the system.
+Final commercial and operational benefit statements should be confirmed against the customer's specific
+business or KPI outcome before proposal issue.
+Technical Architecture
+The following diagram and cable schedule explain how the recommended solution connects together,
+derived directly from the equipment schedule below.
+STEP 1
+Sources
+Customer sources such as PCs,
+media players, cameras, signage
+players, IPTV, laptops or local
+inputs.
+2 ASSUMED SOURCE PATHS
+→
+STEP 2
+WyreStorm core
+NetworkHD 600 transceivers
+provide the high-performance
+10G routed AV layer.
+3 WYRESTORM BOM ROWS
+→
+STEP 3
+Transport
+10G managed AV switch
+infrastructure, fibre/copper
+uplinks and approved network
+configuration.
+10G AV NETWORK
+→
+STEP 4
+Displays / outputs
+Flat panels, projectors,
+confidence monitors, preview
+displays or customer-facing
+display zones.
+4 ASSUMED OUTPUT PATHS
+→
+STEP 6
+Audio
+DSP, microphones,
+loudspeakers, amplification,
+assistive listening, venue audio
+or Dante handoff.
+USUALLY BY OTHERS
+→
+STEP 6
+Other required scope
+Displays, mounts, rack, UPS,
+power, cable containment,
+network switch, programming,
+labour and customer source
+equipment.
+ADD PLACEHOLDERS
+This diagram is derived directly from the equipment schedule below - it shows the assumed signal flow from source to display so
+the customer and installer share the same picture of how the room connects together. The cable schedule underneath lists the
+transport type, connectors, maximum length, and validation status for each connection.
+CABLE RUN TRANSPORT MAX
+LENGTH
+CONNECTORS STATUS VALIDATION REMINDER
+NHD-600-TX
+→ NHD-600-
+TX
+Video 15m HDMI-A to
+HDMI-A
+Confirmed Confirm source and
+display connector types,
+cable length (typically
+<5m passive), HDCP
+version, EDID behaviour,
+and resolution/HDR
+requirements.
+NHD-600-TX
+→ NHD-600-
+TX
+Video 15m HDMI-A to
+HDMI-A
+Confirmed Confirm source and
+display connector types,
+cable length (typically
+<5m passive), HDCP
+version, EDID behaviour,
+and resolution/HDR
+requirements.
+NHD-600-TX
+→ Network
+switch
+Network /
+AVoIP
+Unlimited RJ45 to RJ45 Needs site
+confirmation
+Confirm switch port
+availability, VLAN
+assignment, PoE budget,
+cable category, and
+network topology.
+NHD-600-TX
+→ Network
+switch
+Network /
+AVoIP
+Unlimited RJ45 to RJ45 Needs site
+confirmation
+Confirm switch port
+availability, VLAN
+assignment, PoE budget,
+cable category, and
+network topology.
+CABLE RUN TRANSPORT MAX
+LENGTH
+CONNECTORS STATUS VALIDATION REMINDER
+NHD-600-RX
+→ Network
+switch
+Network /
+AVoIP
+Unlimited RJ45 to RJ45 Needs site
+confirmation
+Confirm switch port
+availability, VLAN
+assignment, PoE budget,
+cable category, and
+network topology.
+NHD-600-RX
+→ Network
+switch
+Network /
+AVoIP
+Unlimited RJ45 to RJ45 Needs site
+confirmation
+Confirm switch port
+availability, VLAN
+assignment, PoE budget,
+cable category, and
+network topology.
+NHD-600-RX
+→ Network
+switch
+Network /
+AVoIP
+Unlimited RJ45 to RJ45 Needs site
+confirmation
+Confirm switch port
+availability, VLAN
+assignment, PoE budget,
+cable category, and
+network topology.
+NHD-600-RX
+→ Network
+switch
+Network /
+AVoIP
+Unlimited RJ45 to RJ45 Needs site
+confirmation
+Confirm switch port
+availability, VLAN
+assignment, PoE budget,
+cable category, and
+network topology.
+NHD-CTL-
+PRO-V2 →
+Network
+switch
+Network /
+AVoIP
+Unlimited RJ45 to RJ45 Needs site
+confirmation
+Confirm switch port
+availability, VLAN
+assignment, PoE budget,
+cable category, and
+network topology.
+NHD-600-RX
+→ NHD-600-
+RX
+Video 15m HDMI-A to
+HDMI-A
+Confirmed Confirm source and
+display connector types,
+cable length (typically
+<5m passive), HDCP
+version, EDID behaviour,
+and resolution/HDR
+requirements.
+CABLE RUN TRANSPORT MAX
+LENGTH
+CONNECTORS STATUS VALIDATION REMINDER
+NHD-600-RX
+→ NHD-600-
+RX
+Video 15m HDMI-A to
+HDMI-A
+Confirmed Confirm source and
+display connector types,
+cable length (typically
+<5m passive), HDCP
+version, EDID behaviour,
+and resolution/HDR
+requirements.
+NHD-600-RX
+→ NHD-600-
+RX
+Video 15m HDMI-A to
+HDMI-A
+Confirmed Confirm source and
+display connector types,
+cable length (typically
+<5m passive), HDCP
+version, EDID behaviour,
+and resolution/HDR
+requirements.
+NHD-600-RX
+→ NHD-600-
+RX
+Video 15m HDMI-A to
+HDMI-A
+Confirmed Confirm source and
+display connector types,
+cable length (typically
+<5m passive), HDCP
+version, EDID behaviour,
+and resolution/HDR
+requirements.
+Control
+system →
+NHD-600-TX
+Control 100m DB-9 / IR /
+RJ45
+Confirmed Confirm control
+protocol (RS-232/IR/IP),
+baud rate, pinout, cable
+routing, and control
+processor compatibility.
+AV network
+infrastructure
+Network /
+AVoIP
+Unlimited RJ45 to RJ45 Needs site
+confirmation
+Confirm switch model,
+port count, PoE budget,
+VLAN configuration,
+multicast policy, and
+uplink capacity.
+Control
+system
+integration
+Control 100m DB-9 / IR /
+RJ45
+Needs site
+confirmation
+Define who operates the
+room and convert
+engineering routes into
+user-friendly presets.
+Equipment Schedule
+ITEM SKU DESCRIPTION ROLE QTY TYPE NOTES
+1 NHD-600-
+TX
+NetworkHD 600
+encoder
+Encode
+operator
+sources
+2 Required Install in the
+equipment rack.
+2 NHD-600-
+RX
+NetworkHD 600
+decoder
+Decode display
+feeds
+4 Required One decoder per
+display.
+3 NHD-CTL-
+PRO-V2
+NetworkHD
+controller
+Routing control 1 Required Confirm firmware
+compatibility.
+Evidence basis: NHD-600-TX: Two confirmed operator sources | NHD-600-RX: Four independently routed displays | NHD-CTL-
+PRO-V2: Central routing and control requirement
+Power Strategy
+The power budget below is derived from the governed technical profiles for each selected product.
+Figures are stated-maximum consumption per the published profile and must be verified against the
+current datasheet before order.
+SKU QTY PER-UNIT MAX TOTAL MAX POWER DATA (GOVERNED PROFILE)
+NHD-600-TX 2 Not proven — No power data in governed profile
+NHD-600-RX 4 Not proven — No power data in governed profile
+NHD-CTL-PRO-V2 1 15.4W 15.4W 12V DC | PoE compliant; Max 15.4W, average 8W
+Stated maximum consumption: approximately 15W across 1 product with proven figures. 1 product (NHD-CTL-PRO-
+V2) requires PoE/PoH — confirm the injector or switch PoE budget covers the total.
+Options
+No optional enhancements are currently selected.
+Assumptions and Exclusions
+Assumptions
+Assumption: Customer IT will provide a dedicated 10GbE AV VLAN.
+Exclusions
+Display, projector, LED and mounting hardware supply unless listed as a specific line item above.
+Electrical, structural and builder's work.
+Network switch procurement, VLAN/multicast configuration and IT commissioning access.
+Structured cabling installation and certification.
+Third-party control programming beyond WyreStorm-native presets.
+Installation, labour and commissioning, unless separately quoted.
+Risks and Dependencies
+Risks / information required
+Risk: Confirm redundant power and switch failover behaviour during commissioning.
+Governed dependencies
+Dependency: NET-SWITCH-10G-MANAGED - Managed 10GbE network switch (Prompt): Confirm
+switch model, port budget, VLAN and multicast configuration. Basis: NetworkHD endpoints require
+managed 10GbE switching.
+Implementation and Next Steps
+Approve the network design and complete acceptance testing.
+This proposal draft includes selected WyreStorm products. Validate final product specifications,
+accessories and dependencies before issue.
+Competitor products are excluded from this proposal and equipment schedule unless a
+comparison-only output is explicitly requested.
+Important Notice & Best-Efforts Disclaimer
+This proposal has been prepared on a best-efforts basis using WyreStorm Wingman to support your sales and design process. The
+information contained herein is provided for planning purposes only and does not constitute a binding quotation, order
+confirmation, or statement of capability.
+Product Specifications: All product specifications, features, compatibility information, lifecycle status, regional availability,
+pricing, and lead times are indicative and must be independently verified against the current official WyreStorm documentation,
+datasheets, or by contacting the WyreStorm order desk before this document is used for any commercial purpose.
+Third-Party Products: References to competitor or third-party products are approximate and provided solely for comparative
+context. WyreStorm makes no claims regarding the accuracy of third-party specifications.
+Technical Validation: System designs, power budgets, cable schedules, and equipment selections shown in this proposal are
+based on available product data and assumptions stated within. Final designs must be validated by a qualified AV integrator or
+pre-sales engineer before installation.
+Limitation of Liability: WyreStorm Technologies Ltd provides this document "as is" without warranty of any kind, either
+expressed or implied. WyreStorm shall not be liable for any errors, omissions, or damages arising from the use of or reliance on
+the information contained in this document.
+For the most current product information, please visit wyrestorm.com or contact your regional WyreStorm sales representative.
+WyreStorm
+Professional AV Solutions
+wyrestorm.com
+Northstar parity evidence fixture
+Confirmed Requirement
+Route two operator sources to four displays with resilient 4K distribution.
+Design Assumptions
+Customer IT will provide a dedicated 10GbE AV VLAN.
+Recommended Architecture
+NetworkHD is the current leading product-family direction.
+The confirmed routing and resilience requirement needs a scalable 10GbE fabric.
+Required WyreStorm Products
+NHD-600-TX - NetworkHD 600 encoder
+NHD-600-RX - NetworkHD 600 decoder
+NHD-CTL-PRO-V2 - NetworkHD controller
+Optional Enhancements
+No optional enhancements are currently selected.
+Risks / Needs Validation
+Confirm redundant power and switch failover behaviour during commissioning.
+Next Steps
+Approve the network design and complete acceptance testing.

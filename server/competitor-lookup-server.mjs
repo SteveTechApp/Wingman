@@ -7,6 +7,7 @@ import {
 } from "./governance/competitor-decision-approval.mjs";
 import { handleProfileConfirmationPost } from "./governance/profile-confirmation.mjs";
 import { enforceCsrf, issueCsrf } from "./security/csrf.mjs";
+import { handleSiteSurveySyncGet, handleSiteSurveySyncPost } from "./site-survey-sync.mjs";
 import http from "node:http";
 import fs from "node:fs/promises";
 import { writeJsonFileAtomic } from "./atomic-json-file.mjs";
@@ -2323,6 +2324,16 @@ const ROUTES = [
     method: "POST",
     path: "/api/wingman/projects/sync",
     handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanProjectsSyncPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/site-survey/sync",
+    handler: (req, res, url, helpers) => handleSiteSurveySyncGet(req, res, url, helpers),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/site-survey/sync",
+    handler: (req, res, url, helpers) => handleSiteSurveySyncPost(req, res, url, helpers),
   },
   {
     method: "GET",

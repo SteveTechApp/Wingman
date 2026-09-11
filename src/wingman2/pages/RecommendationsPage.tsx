@@ -20,16 +20,13 @@ import {
   type FinderNeedDraft,
 } from "../data/workflowHandoff";
 import {
-  loadWingmanProductSelectorDecisions,
-  type ProductSelectorRequest,
-} from "../lib/productSelectorEngine";
-import {
-  buildSystemDesign,
-  productMatchesSlot,
-  ucAllInOneCoverage,
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
-import { readClassificationFacts } from "../lib/productStoryEngine";
+import {
+  loadRecommendationsDecisionBoundary,
+  resolveRecommendationSystemSlots,
+  type RecommendationDecision,
+} from "../lib/recommendationsDecisionBoundary";
 import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { GovernedDataBadge } from "../components/GovernedDataBadge";
@@ -47,6 +44,10 @@ import {
   type StrandedQuickStartDefault,
 } from "./discovery/discoveryAnswerUtils";
 import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import {
+  recommendationCandidateAllowed,
+  shouldShowRecommendationAlternatives,
+} from "../lib/recommendationSafety";
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
 import { readQuickStartSeedRecord } from "./discovery/useQuickStartConflictSignals";
 import { findQuickStartApplicationDrift } from "./discovery/discoveryQuickStart";
@@ -56,10 +57,6 @@ import {
   type DiscoveryApplicationDrift,
 } from "./discovery/DiscoveryStrandedDefaultsNotice";
 import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
-
-type RecommendationDecision = Awaited<
-  ReturnType<typeof loadWingmanProductSelectorDecisions>
->[number];
 
 type LoadState = "loading" | "ready" | "missing" | "error";
 type RecommendationStage = "overview" | "resolve" | "build" | "validate" | "handoff";
@@ -191,69 +188,6 @@ function productDescription(decision: RecommendationDecision) {
   );
 }
 
-function buildRequest(need: Partial<FinderNeedDraft>): ProductSelectorRequest {
-  return {
-    mode: "recommendations",
-    query: need.query ?? "",
-    technicalRequirement: need.technicalRequirement ?? "",
-    productPath: need.productPath ?? "",
-    technologyType: need.technologyType ?? "",
-    signalType: need.signalType ?? "",
-    sourceConnector: need.sourceConnector ?? "",
-    displayConnector: need.displayConnector ?? "",
-    inputs: need.inputs ?? "",
-    outputs: need.outputs ?? "",
-    distance: need.distance ?? "",
-    resolution: need.resolution ?? "",
-    usb: need.usb ?? "",
-    audio: need.audio ?? "",
-    network: need.network ?? "",
-    processing: need.processing ?? "",
-    control: need.control ?? "",
-    includeArchitectureAlternatives: true,
-    // An AV-over-IP controller is filed as a dependency and is still a required
-    // line on the quote, so dependencies must be selectable. Discontinued and
-    // do-not-spec products stay excluded - `includeDiscontinued` is left off
-    // deliberately, and slot candidates are filtered on eligibility below.
-    includeDependencies: true,
-    // Unlimited. The flat shortlist still shows 12, but the system design has
-    // to bucket candidates into slots (encoder, decoder, controller, extender,
-    // camera, microphone), and a decoder will never appear inside the top 30
-    // ranked against a whole-room requirement.
-  };
-}
-
-// Slot candidates come from a SECOND, deliberately unconstrained selector pass.
-//
-// The whole-room need ("distributed 4K60 AV-over-IP over a 70m run") is the
-// right filter for the lead-product shortlist, and the wrong one for a slot:
-// its compatibility gate rejects a ceiling microphone and a PTZ camera for not
-// being distribution products, so the microphone and camera slots silently
-// emptied - a bill of materials quietly missing the parts the room needs.
-//
-// This pass applies no requirement filtering, so lifecycle governance and the
-// governed taxonomy decide slot membership. Discontinued, do-not-spec,
-// superseded and admin-blocked SKUs are still excluded, because
-// `includeDiscontinued` stays off and candidates are filtered on eligibility.
-function buildSlotRequest(): ProductSelectorRequest {
-  return {
-    mode: "recommendations",
-    includeDependencies: true,
-    includeAccessories: true,
-    includeArchitectureAlternatives: true,
-  };
-}
-
-type SystemSlotResult = {
-  slot: SystemSlot;
-  candidates: RecommendationDecision[];
-  ucCovered?: boolean;
-};
-
-function decisionClassification(decision: RecommendationDecision) {
-  return readClassificationFacts(decision.product as unknown as Record<string, unknown>);
-}
-
 function selectionFromDecision(
   decision: RecommendationDecision,
   quantity?: number,
@@ -302,6 +236,7 @@ export function RecommendationsPage() {
   const [editingCheck, setEditingCheck] = useState("");
   const [detailAnswers, setDetailAnswers] = useState<Record<string, string>>({});
   const [stage, setStage] = useState<RecommendationStage>("overview");
+  const [showAlternatives, setShowAlternatives] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -328,11 +263,8 @@ export function RecommendationsPage() {
     setNeed(nextNeed);
     setLoadState("loading");
 
-    Promise.all([
-      loadWingmanProductSelectorDecisions(buildRequest(nextNeed)),
-      loadWingmanProductSelectorDecisions(buildSlotRequest()),
-    ])
-      .then(([nextDecisions, nextSlotPool]) => {
+    loadRecommendationsDecisionBoundary(latestBrief, nextNeed)
+      .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         if (cancelled) return;
         setDecisions(nextDecisions);
         setSlotPool(nextSlotPool);
@@ -386,44 +318,9 @@ export function RecommendationsPage() {
       },
     };
   }, [activeProject?.discoveryBrief?.savedAt, activeProject?.videowall, brief]);
-  const design = useMemo(() => buildSystemDesign(systemBrief), [systemBrief]);
-
-  const systemSlots = useMemo<SystemSlotResult[]>(
-    () => {
-      // Step 1: build raw slots with candidates.
-      const raw = design.slots.map((slot) => ({
-        slot,
-        candidates: slot.supply === "external" ? [] : slotPool
-          .filter((decision) => decision.eligible)
-          .filter((decision) => productMatchesSlot(decisionClassification(decision), slot))
-          .slice(0, 4),
-      }));
-
-      // Step 2: detect UC all-in-ones among each slot's lead candidate.  When
-      // a video bar (camera + video-bar) or speakerphone is selected for one
-      // slot, it already covers camera/microphone/speaker roles.  Suppress the
-      // redundant slots so the system does not recommend three separate
-      // products for what one UC device handles.
-      const coveredByUc = new Set<string>();
-      for (const entry of raw) {
-        const lead = entry.candidates[0];
-        if (!lead) continue;
-        const coverage = ucAllInOneCoverage(decisionClassification(lead));
-        if (coverage) {
-          for (const slotKind of coverage) coveredByUc.add(slotKind);
-        }
-      }
-
-      if (coveredByUc.size === 0) return raw;
-
-      return raw.map((entry) => {
-        if (coveredByUc.has(entry.slot.kind)) {
-          return { ...entry, candidates: [], ucCovered: true };
-        }
-        return entry;
-      });
-    },
-    [design, slotPool],
+  const { design, systemSlots } = useMemo(
+    () => resolveRecommendationSystemSlots(systemBrief, slotPool),
+    [systemBrief, slotPool],
   );
 
   const unfilledSlots = useMemo(
@@ -452,7 +349,8 @@ export function RecommendationsPage() {
 
   function addWholeSystemToProject() {
     if (selectionBlockedByStrand) return;
-    const filled = systemSlots.filter((entry) => entry.candidates.length);
+    const omitted = new Set((activeProject?.omittedProductSkus ?? []).map((sku) => String(sku).trim().toUpperCase()));
+    const filled = systemSlots.filter((entry) => entry.candidates.length && !omitted.has(entry.candidates[0].sku.trim().toUpperCase()));
 
     if (!filled.length) {
       setMessage("No system slots could be filled from the catalogue yet.");
@@ -784,11 +682,8 @@ export function RecommendationsPage() {
     setLoadState("loading");
     setMessage("");
 
-    Promise.all([
-      loadWingmanProductSelectorDecisions(buildRequest(nextNeed)),
-      loadWingmanProductSelectorDecisions(buildSlotRequest()),
-    ])
-      .then(([nextDecisions, nextSlotPool]) => {
+    loadRecommendationsDecisionBoundary(latestBrief, nextNeed)
+      .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         setDecisions(nextDecisions);
         setSlotPool(nextSlotPool);
         setLoadState("ready");
@@ -848,11 +743,8 @@ export function RecommendationsPage() {
     if (!nextNeed) return;
     setNeed(nextNeed);
     setLoadState("loading");
-    Promise.all([
-      loadWingmanProductSelectorDecisions(buildRequest(nextNeed)),
-      loadWingmanProductSelectorDecisions(buildSlotRequest()),
-    ])
-      .then(([nextDecisions, nextSlotPool]) => {
+    loadRecommendationsDecisionBoundary(nextBrief, nextNeed)
+      .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         setDecisions(nextDecisions);
         setSlotPool(nextSlotPool);
         setLoadState("ready");
@@ -1120,6 +1012,14 @@ export function RecommendationsPage() {
                   <span className={unfilledSlots.length ? "is-warning" : "is-ready"}>
                     {unfilledSlots.length ? `${unfilledSlots.length} role${unfilledSlots.length === 1 ? "" : "s"} need review` : "System roles covered"}
                   </span>
+                  <button
+                    type="button"
+                    className="wm-ui-button wm-ui-button-secondary"
+                    onClick={() => setShowAlternatives((current) => !current)}
+                    aria-pressed={showAlternatives}
+                  >
+                    {showAlternatives ? "Hide alternatives" : "Show alternatives"}
+                  </button>
                 </div>
               </header>
 
@@ -1136,7 +1036,7 @@ export function RecommendationsPage() {
               <div className="wm-rec-slot-list">
                 {systemSlots.map(({ slot, candidates, ucCovered }, index) => {
                   const lead = candidates[0];
-                  const alternatives = candidates.slice(1);
+                  const alternatives = shouldShowRecommendationAlternatives(showAlternatives) ? candidates.slice(1) : [];
                   return (
                     <article className={`wm-rec-slot${slot.supply === "external" ? " is-external" : ""}${!lead && slot.supply === "wyrestorm" && !ucCovered ? " is-unresolved" : ""}${ucCovered ? " is-uc-covered" : ""}`} key={slot.kind}>
                       <div className="wm-rec-slot-index">{index + 1}</div>

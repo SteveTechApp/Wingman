@@ -787,15 +787,15 @@ describe("DiscoveryGuidedInterviewEntry", () => {
       />,
     );
 
-    expect(screen.getByText("Continue guided interview — voice Q&A")).toBeTruthy();
+    expect(screen.getByText("Continue voice interview")).toBeTruthy();
     expect(screen.getByText(/2 of 10 captured/)).toBeTruthy();
   });
 
   it("reads as 'Start' when nothing has been captured", () => {
     render(<DiscoveryGuidedInterviewEntry onStart={vi.fn()} />);
 
-    expect(screen.getByText("Guided interview — voice Q&A")).toBeTruthy();
-    expect(screen.queryByText(/Continue guided interview/)).toBeNull();
+    expect(screen.getByText("Voice interview")).toBeTruthy();
+    expect(screen.queryByText(/Continue voice interview/)).toBeNull();
   });
 
   it("preloads the stored capture language's tables so the first question never flashes English", async () => {
@@ -931,7 +931,7 @@ describe("DiscoveryEntryRail", () => {
         total={5}
       />,
     );
-    expect(screen.getByText("Review conversation — voice Q&A")).toBeTruthy();
+    expect(screen.getByText("Review voice interview")).toBeTruthy();
     expect(screen.getByText(/Re-walk every question/)).toBeTruthy();
   });
 
@@ -944,7 +944,7 @@ describe("DiscoveryEntryRail", () => {
         total={10}
       />,
     );
-    expect(screen.getByText("Continue guided interview — voice Q&A")).toBeTruthy();
+    expect(screen.getByText("Continue voice interview")).toBeTruthy();
   });
 });
 

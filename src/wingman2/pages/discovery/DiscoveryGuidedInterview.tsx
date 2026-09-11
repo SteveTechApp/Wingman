@@ -71,6 +71,7 @@ import {
 import { getStoredWingmanCaptureLanguage } from "../../data/wingmanLanguage";
 import { DiscoveryQuickStartEntry } from "./discoveryQuickStartPanel";
 import { DiscoveryDefaultsConflictAlert } from "./DiscoveryDefaultsConflictAlert";
+import { DISCOVERY_CAPTURE_PRESENTATION } from "./discoveryProgressiveDisclosure";
 
 export type DiscoveryAnswersUpdater =
   | DiscoveryAnswers
@@ -159,7 +160,7 @@ export function DiscoveryGuidedInterviewEntry({
         <span className="flex items-center gap-3">
           <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-500 text-sm font-bold text-purple-950">🎙️</span>
           <span>
-            <span className="block text-sm font-bold text-purple-300">{reviewing ? "Review conversation — voice Q&A" : resuming ? "Continue guided interview — voice Q&A" : "Guided interview — voice Q&A"}</span>
+            <span className="block text-sm font-bold text-purple-300">{reviewing ? `Review ${DISCOVERY_CAPTURE_PRESENTATION.label.toLowerCase()}` : resuming ? `Continue ${DISCOVERY_CAPTURE_PRESENTATION.label.toLowerCase()}` : DISCOVERY_CAPTURE_PRESENTATION.label}</span>
             <span className="block text-xs text-[#8fb8d0]">{reviewing ? `Re-walk every question (${answeredCount} of ${total} captured) — answers stay captured, change anything before sign-off.` : resuming ? `Resume at the next open question (${answeredCount} of ${total} captured) — answer by speaking or choosing options.` : "Wingman reads each question aloud, you answer by speaking. Notes and the product shortlist build as you go."}</span>
           </span>
         </span>
@@ -734,7 +735,7 @@ export function DiscoveryGuidedInterview({
               🎙️
             </span>
             <div>
-              <p className="text-sm font-bold text-[#edf6ff]">Guided interview</p>
+              <p className="text-sm font-bold text-[#edf6ff]">{DISCOVERY_CAPTURE_PRESENTATION.label}</p>
               <p className="text-xs text-[#8fb8d0]">
                 Wingman asks, you answer — notes and product selection build as you go.
               </p>
