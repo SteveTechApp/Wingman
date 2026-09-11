@@ -181,6 +181,13 @@ export default defineConfig({
               priority: 25,
             },
             {
+              // Export validation and readiness are loaded by proposal-facing
+              // routes, but do not belong in the shared project workspace.
+              name: "wm-proposal-readiness",
+              test: /src[\\/]wingman2[\\/]lib[\\/]proposal(?:Diff|Export|ExportValidation|Readiness)\.tsx?$/,
+              priority: 20,
+            },
+            {
               name: "wm-project-workflow",
               test: /src[\\/]wingman2[\\/](data|lib|components)[\\/].*(project|Project|proposal|Proposal|template|Template).*\.tsx?$/,
             },

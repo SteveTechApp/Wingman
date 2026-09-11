@@ -1,12 +1,4 @@
 import { routeCatalogByKey } from "../../../app/routeCatalog";
-import { buildProjectApiRequest, fetchProjectHydration } from "../../../data/projectHydrationFetch";
-import { buildHydrationSinceManifest, mergeProjectVersionsForHydration } from "../../../data/projectHydrationMerge";
-import {
-  analyzeProjectSyncResponse,
-  backendProjectForSync,
-  buildProjectPushPlan,
-  syncConflictStatusMessage,
-} from "../../../data/projectSyncConflict";
 import type {
   LocalProjectStorageMode,
   ProjectStorageMode,
@@ -122,6 +114,17 @@ export function createProjectSyncService({
   };
 
   const runSync = async (snapshot: ProjectStoreSnapshot, previousSnapshot: ProjectStoreSnapshot, mode: RemoteProjectStorageMode) => {
+    const [hydrationFetch, syncConflict] = await Promise.all([
+      import("../../../data/projectHydrationFetch"),
+      import("../../../data/projectSyncConflict"),
+    ]);
+    const { buildProjectApiRequest } = hydrationFetch;
+    const {
+      analyzeProjectSyncResponse,
+      backendProjectForSync,
+      buildProjectPushPlan,
+      syncConflictStatusMessage,
+    } = syncConflict;
     const store = decodeProjectStore(snapshot);
     const sentProjects = store.projects;
     const baseline = syncBaseline ?? previousSnapshot;
@@ -179,6 +182,12 @@ export function createProjectSyncService({
   };
 
   const hydrateOnce = async (mode: RemoteProjectStorageMode) => {
+    const [hydrationFetch, hydrationMerge] = await Promise.all([
+      import("../../../data/projectHydrationFetch"),
+      import("../../../data/projectHydrationMerge"),
+    ]);
+    const { buildProjectApiRequest, fetchProjectHydration } = hydrationFetch;
+    const { buildHydrationSinceManifest, mergeProjectVersionsForHydration } = hydrationMerge;
     const since = buildHydrationSinceManifest(repository.read().projects);
     const result = await fetchProjectHydration(PROJECTS_ENDPOINT, buildProjectApiRequest({
       cache: "no-store",

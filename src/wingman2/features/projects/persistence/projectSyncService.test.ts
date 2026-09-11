@@ -68,6 +68,7 @@ describe("projectSyncService", () => {
     service.schedule(snapshot([project({ name: "First", syncRevision: 2 })]), previous);
     service.schedule(snapshot([project({ name: "Latest", syncRevision: 2 })]), previous);
     await vi.runAllTimersAsync();
+    await vi.dynamicImportSettled();
     expect(fetchImpl).toHaveBeenCalledOnce();
     const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("/api/wingman/projects/project-1");

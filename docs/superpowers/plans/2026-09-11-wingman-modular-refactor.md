@@ -243,7 +243,7 @@
 
 - [ ] Run `npx tsc --noEmit -p tsconfig.typecheck.json`.
 - [ ] Run `npm run verify` and retain the complete log as release evidence.
-- [ ] Run `npm run e2e:critical:windows` on Windows.
+- [ ] Run `npm run test:e2e:windows-critical` on Windows.
 - [ ] Run authenticated project sync conflict/idempotency suites.
 - [ ] Run proposal screen/DOCX/PDF parity.
 - [ ] Run `git diff --check` and ensure generated evidence changed only when intentionally refreshed.

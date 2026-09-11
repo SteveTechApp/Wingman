@@ -167,9 +167,12 @@ assertSourceContains("src/wingman2/lib/roomTemplates.ts", [
 ]);
 assertSourceContains("src/wingman2/data/projectStore.ts", [
   "syncStatus",
-  "conflict",
   "StoredRequirementRecord",
   "StoredRecommendationFeedback",
+  "projectSyncService",
+]);
+assertSourceContains("src/wingman2/features/projects/persistence/projectSyncService.ts", [
+  "conflict",
   "Local project changes were newer than backend data",
 ]);
 
