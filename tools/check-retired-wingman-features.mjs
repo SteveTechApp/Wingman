@@ -20,6 +20,7 @@ const routesPath = "src/wingman2/app/routes.tsx";
 const discoveryPath = "src/wingman2/pages/DiscoveryPage.tsx";
 const navigationHubPath = "src/wingman2/pages/NavigationHubPages.tsx";
 const recommendationsPath = "src/wingman2/pages/RecommendationsPage.tsx";
+const recommendationsDecisionBoundaryPath = "src/wingman2/lib/recommendationsDecisionBoundary.ts";
 const finderPath = "src/wingman2/pages/FinderPage.tsx";
 const retiredNavigationClassToken = "wm-navhub";
 
@@ -33,6 +34,7 @@ const routes = read(routesPath);
 const discovery = read(discoveryPath);
 const navigationHub = read(navigationHubPath);
 const recommendations = read(recommendationsPath);
+const recommendationsDecisionBoundary = read(recommendationsDecisionBoundaryPath);
 
 if (!approvedRouteKeys.size) fail("Feature-surface policy has no approved routes.");
 
@@ -79,11 +81,12 @@ if (/routeAction\s*\(\s*["']finder["']\s*,/m.test(navigationHub)) {
 if (/routeAction\s*\(\s*["']recommendations["']\s*,\s*["']Find Product["']/m.test(navigationHub)) {
   fail("The Products hub is exposing the retired guided Find Product workflow.");
 }
-if (!recommendations.includes("loadWingmanProductSelectorDecisions")) {
-  fail("RecommendationsPage is not using the shared governed selector.");
+if (!recommendations.includes("loadRecommendationsDecisionBoundary") ||
+    !recommendationsDecisionBoundary.includes("loadWingmanProductSelectorDecisions")) {
+  fail("RecommendationsPage is not using the shared governed selector boundary.");
 }
-if (!recommendations.includes('mode: "recommendations"')) {
-  fail("RecommendationsPage is not using recommendations selector mode.");
+if (!recommendationsDecisionBoundary.includes('mode: "recommendations"')) {
+  fail("Recommendations selector boundary is not using recommendations mode.");
 }
 
 const sourceRoots = ["src"];

@@ -19,6 +19,12 @@ describe("recommendation safety", () => {
     expect(recommendationCandidateAllowed({ sku: "RX3-100" }, "avoip-decoder", ["SW-120-TX3"])).toBe(false);
   });
 
+  it("does not use a receiver-only SKU as a standalone extender kit", () => {
+    expect(recommendationCandidateAllowed({ sku: "RXV-35-SCL" }, "extension", ["55m HDMI route", "extension"])).toBe(false);
+    expect(recommendationCandidateAllowed({ sku: "SW-120-TX3" }, "extension", ["55m HDMI route", "extension"])).toBe(false);
+    expect(recommendationCandidateAllowed({ sku: "EX-70-H2" }, "extension", ["55m HDMI route", "extension"])).toBe(true);
+  });
+
   it("keeps alternatives opt-in", () => {
     expect(shouldShowRecommendationAlternatives(false)).toBe(false);
     expect(shouldShowRecommendationAlternatives(true)).toBe(true);

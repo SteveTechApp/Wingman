@@ -2215,7 +2215,7 @@ export function saveVideowallToProject(input: { wallType: string; summary: Recor
 
 export function saveProductSelectionToProject(projectId: string, selection: StoredProductSelection) {
   const snapshot = readProjectStore();
-  const existing =
+  const existing: StoredProject =
     snapshot.projects.find((project) => project.id === projectId) ??
     createWorkflowProject({
       name: `${selection.sku} Product Selection`,

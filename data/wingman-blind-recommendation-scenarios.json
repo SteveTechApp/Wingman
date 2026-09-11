@@ -74,7 +74,7 @@
       },
       "expected": {
         "architecture": "extension",
-        "bom": [{ "sku": "RX3-100", "quantity": 1 }],
+        "bom": [{ "sku": "EX-100-G2", "quantity": 1 }],
         "requiredDependencies": ["extension"],
         "forbidden": ["NHD-", "MX-"],
         "missingInformation": [],

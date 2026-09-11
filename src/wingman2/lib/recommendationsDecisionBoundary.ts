@@ -58,7 +58,7 @@ export function resolveRecommendationSystemSlots(
       .filter((decision) => recommendationCandidateAllowed(
         decision,
         slot.kind,
-        [brief?.roomModel, brief],
+        [design.architecture, brief?.roomModel, brief],
       ))
       .slice(0, 4),
   }));

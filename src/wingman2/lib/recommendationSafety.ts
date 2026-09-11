@@ -43,11 +43,20 @@ export function recommendationCandidateAllowed(
   context: readonly unknown[],
 ): boolean {
   const sku = normalise(decision.sku);
+  const contextText = searchable(context).join(" ");
 
   // Keep RX3-100 out of every generic slot. It can only enter a deliberately
   // paired HDBaseT 3.0 design, never a broad extension candidate list.
   if (sku === "RX3-100") {
     return slotKind === "extension" && isRx3ReceiverPairConfirmed(context);
+  }
+
+  // A standalone extension slot needs a complete extender set. Receiver-only
+  // and transmitter-only SKUs remain valid dependencies in an explicitly
+  // paired or matrix design, but cannot lead a generic one-link solution.
+  if (slotKind === "extension" && /\bextension\b/i.test(contextText) &&
+      !/\b(?:matrix|transmitter|TX)\b/i.test(contextText)) {
+    return /^EX-/.test(sku);
   }
 
   return true;
