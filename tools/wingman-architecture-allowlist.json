@@ -5,7 +5,7 @@
     "max-file-lines:src/wingman2/components/WingmanGuruDrawer.tsx": { "maxLines": 1967 },
     "max-file-lines:src/wingman2/data/productPositioningCards.ts": { "maxLines": 1467 },
     "max-file-lines:src/wingman2/data/productStories.ts": { "maxLines": 4117 },
-    "max-file-lines:src/wingman2/data/projectStore.ts": { "maxLines": 2801 },
+    "max-file-lines:src/wingman2/data/projectStore.ts": { "maxLines": 1510 },
     "max-file-lines:src/wingman2/lib/compareEligibilityEngine.ts": { "maxLines": 2019 },
     "max-file-lines:src/wingman2/lib/compareSpecEngine.ts": { "maxLines": 1651 },
     "max-file-lines:src/wingman2/lib/productStoryEngine.ts": { "maxLines": 1302 },
