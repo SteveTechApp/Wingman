@@ -97,6 +97,10 @@ jobs:
         if: matrix.stage == 'visual'
         run: npx playwright install --with-deps chromium
 
+      - name: Install PDF text extraction dependency
+        if: matrix.stage == 'visual'
+        run: python3 -m pip install pypdf
+
       - name: Generate canonical product data
         run: npm run data:canonical-products
 

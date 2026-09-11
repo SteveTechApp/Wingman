@@ -4,7 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 const outputDir = path.resolve("docs/release-evidence/proposal-output-parity/latest");
-const bundledPython = process.env.WINGMAN_BUNDLED_PYTHON || "C:/Users/steve/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe";
+const bundledPython = process.env.WINGMAN_BUNDLED_PYTHON
+  || (process.platform === "win32"
+    ? "C:/Users/steve/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe"
+    : "python3");
 
 function normalized(value: string) { return value.replace(/\s+/g, " ").trim(); }
 
