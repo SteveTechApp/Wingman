@@ -1,4 +1,4 @@
-import type { StoredProject } from "./projectStore";
+import type { StoredProject } from "../features/projects/model/projectTypes";
 
 export type ProjectPushPlan =
   | { kind: "snapshot" }

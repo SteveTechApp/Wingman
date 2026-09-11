@@ -50,23 +50,8 @@ import {
   normalizeRequirementRecords,
   stringValue,
 } from "../features/projects/persistence/projectCodecs";
-const PROJECT_STORE_KEY = "wingman-project-store-v1";
-const PROJECT_STORE_EVENT = "wingman:project-store-updated";
-const PROJECT_SYNC_ENDPOINT = "/api/wingman/projects/sync";
-const PROJECTS_ENDPOINT = "/api/wingman/projects";
-const BACKEND_SYNC_DEBOUNCE_MS = 600;
-const PROJECT_BACKEND_SYNC_ENABLED = String(import.meta.env.VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC ?? "").toLowerCase() === "true";
-const PROJECT_SYNC_DISABLED_MESSAGE = "Project backend sync is disabled. Projects are saved in this browser.";
-const PROJECT_SYNC_SIGN_IN_MESSAGE = "Project backend sync is enabled, but Wingman is not signed in. Local changes are preserved.";
-const PROJECT_SYNC_REJECTED_MESSAGE = "Project backend sync was rejected by the server. Local changes are preserved.";
-const LOCAL_PROJECT_MODE_MESSAGE = PROJECT_SYNC_SIGN_IN_MESSAGE;
-const PROJECT_SYNC_AUTH_STORAGE_KEYS = [
-  "wingman.projectSyncToken",
-  "wingman.sessionToken",
-  "wingman.authToken",
-  "wingman.auth.token",
-  "wingman_session",
-];
+import { projectRepository } from "../features/projects/persistence/projectRepository";
+import { projectSyncService } from "../features/projects/persistence/projectSyncService";
 const projectStages: ProjectStage[] = [
   "Discovery",
   "Competitor Compare",
@@ -75,11 +60,6 @@ const projectStages: ProjectStage[] = [
   "Templates",
   "Support",
 ];
-
-let backendSyncTimer: number | null = null;
-let backendSyncBaseline: ProjectStoreSnapshot | null = null;
-let backendHydrationPromise: Promise<void> | null = null;
-let backendSyncRejectedForSession = false;
 
 function nowIso() {
   return new Date().toISOString();
@@ -92,432 +72,29 @@ function createId(prefix: string) {
 function defaultStore(): ProjectStoreSnapshot {
   return createDefaultProjectStore(nowIso);
 }
-const normalizeStoredProject = decodeStoredProject;
-const safeStore = decodeProjectStore;
-
 export function projectBackendSyncEnabled() {
-  return PROJECT_BACKEND_SYNC_ENABLED;
+  return projectSyncService.enabled();
 }
 
-function localProjectMessage(reason: LocalProjectStorageMode["reason"]) {
-  if (reason === "sync-disabled") return PROJECT_SYNC_DISABLED_MESSAGE;
-  if (reason === "remote-rejected") return PROJECT_SYNC_REJECTED_MESSAGE;
-  return PROJECT_SYNC_SIGN_IN_MESSAGE;
-}
-
-function localProjectSyncStatus(
-  previous?: StoredProjectSyncStatus | null,
-  reason: LocalProjectStorageMode["reason"] = "missing-auth",
-): StoredProjectSyncStatus {
-  return {
-    state: "local",
-    message: localProjectMessage(reason),
-    updatedAt: previous?.updatedAt ?? nowIso(),
-  };
-}
-
-function readBrowserStorageValue(storageKey: "localStorage" | "sessionStorage", key: string) {
-  try {
-    return window[storageKey].getItem(key)?.trim() ?? "";
-  } catch {
-    return "";
-  }
-}
-
-function readVisibleCookieValue(name: string) {
-  if (typeof document === "undefined") return "";
-
-  const cookies = document.cookie
-    .split(";")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  for (const cookie of cookies) {
-    const separatorIndex = cookie.indexOf("=");
-    if (separatorIndex <= 0) continue;
-    if (cookie.slice(0, separatorIndex).trim() !== name) continue;
-
-    const rawValue = cookie.slice(separatorIndex + 1).trim();
-    try {
-      return decodeURIComponent(rawValue);
-    } catch {
-      return rawValue;
-    }
-  }
-
-  return "";
-}
-
-function getProjectSyncAuthToken() {
-  if (typeof window === "undefined") return "";
-
-  for (const key of PROJECT_SYNC_AUTH_STORAGE_KEYS) {
-    const sessionValue = readBrowserStorageValue("sessionStorage", key);
-    if (sessionValue) return sessionValue;
-
-    const localValue = readBrowserStorageValue("localStorage", key);
-    if (localValue) return localValue;
-  }
-
-  return readVisibleCookieValue("wingman_session");
-}
-
-function getProjectStorageMode(): ProjectStorageMode {
-  if (typeof window === "undefined") {
-    return { kind: "local", reason: "server" };
-  }
-
-  if (!projectBackendSyncEnabled()) {
-    return { kind: "local", reason: "sync-disabled" };
-  }
-
-  if (backendSyncRejectedForSession) {
-    return { kind: "local", reason: "remote-rejected" };
-  }
-
-  const authToken = getProjectSyncAuthToken();
-  return {
-    kind: "remote",
-    authToken: authToken || undefined,
-    authSource: authToken ? "storage-token" : "http-only-cookie",
-  };
-}
-
-function storedProjectFromBackend(value: Record<string, unknown>): StoredProject {
-  return normalizeStoredProject(value) ?? {
-    id: createId("backend-project"),
-    name: "Untitled Project",
-    owner: "Wingman user",
-    stage: "Discovery",
-    status: "alternative",
-    updated: "Synced",
-    resumeTo: routeCatalogByKey.discovery.path,
-    createdAt: nowIso(),
-    updatedAt: nowIso(),
-  };
-}
-
-/**
- * The incremental-hydration `since` manifest (ADR-0001 §1.2k): per project,
- * the last syncRevision the local copy is based on. The server skips any row
- * whose revision equals the reported one and returns everything else, so a
- * reload only downloads projects that actually changed. Two exclusions keep
- * the pull safe under the merge policy:
- *
- *  - a project that was never synced (no syncRevision) is omitted - the row
- *    either does not exist (a pending upload, which hydration must keep
- *    local) or is legacy with no revision, which the server always returns;
- *  - a syncConflict-flagged project is sent as revision 0, forcing the row
- *    to be returned: the flag means the sync response advanced our revision
- *    WITHOUT adopting the row's content (content basis < reported revision),
- *    so only a full hydration merge can adopt the member's newer lanes.
- *    Sending our reported revision there would skip the row forever and the
- *    conflict would never reconcile.
- */
-function setProjectSyncStatus(syncStatus: StoredProjectSyncStatus) {
-  if (typeof window === "undefined") return;
-
-  const snapshot = readProjectStore();
-  writeProjectStore(
-    {
-      ...snapshot,
-      syncStatus,
-    },
-    { syncBackend: false },
-  );
-}
-
-function scheduleBackendProjectSync(
-  snapshot: ProjectStoreSnapshot,
-  previousSnapshot: ProjectStoreSnapshot,
-  storageMode: ProjectStorageMode = getProjectStorageMode(),
-) {
-  if (typeof window === "undefined") return;
-
-  if (storageMode.kind === "local") {
-    if (backendSyncTimer) {
-      window.clearTimeout(backendSyncTimer);
-      backendSyncTimer = null;
-    }
-    return;
-  }
-
-  setProjectSyncStatus({
-    state: "syncing",
-    message: "Saving project changes to the workspace backend...",
-    updatedAt: nowIso(),
-  });
-
-  if (backendSyncTimer) {
-    window.clearTimeout(backendSyncTimer);
-  }
-  backendSyncBaseline ??= previousSnapshot;
-
-  backendSyncTimer = window.setTimeout(async () => {
-    backendSyncTimer = null;
-    const [{ analyzeProjectSyncResponse, backendProjectForSync, buildProjectPushPlan, syncConflictStatusMessage }, { buildProjectApiRequest }] = await Promise.all([
-      import("./projectSyncConflict"),
-      import("./projectHydrationFetch"),
-    ]);
-    const store = safeStore(snapshot);
-    // The exact documents this sync SENT: the conflict check diffs each
-    // returned merged project against its sent counterpart, so an edit made
-    // locally WHILE the request was in flight cannot look like a conflict.
-    const sentProjects = store.projects;
-    const baseline = backendSyncBaseline ?? previousSnapshot;
-    backendSyncBaseline = null;
-    const pushPlan = buildProjectPushPlan(baseline.projects, store.projects);
-    const send = (endpoint: string, method: "POST" | "PUT", body: unknown) => fetch(
-      endpoint,
-      buildProjectApiRequest({
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      }, storageMode),
-    );
-    const requests = pushPlan.kind === "snapshot"
-      ? [send(
-          PROJECT_SYNC_ENDPOINT,
-          "POST",
-          { activeProjectId: store.activeProjectId ?? null, projects: store.projects.map(backendProjectForSync) },
-        )]
-      : pushPlan.projects.map((project) => send(
-          `${PROJECTS_ENDPOINT}/${encodeURIComponent(project.id)}`,
-          "PUT",
-          backendProjectForSync(project),
-        ));
-
-    Promise.all(requests)
-      .then(async (responses) => {
-        if (responses.some((response) => response.status === 401)) {
-          backendSyncRejectedForSession = true;
-          setProjectSyncStatus({
-            state: "local",
-            message: PROJECT_SYNC_SIGN_IN_MESSAGE,
-            updatedAt: nowIso(),
-          });
-          return;
-        }
-
-        const failedResponse = responses.find((response) => !response.ok);
-        if (failedResponse) {
-          backendSyncBaseline ??= baseline;
-          console.error(`[wingman] projectStore: backend sync failed with status ${failedResponse.status}`);
-          setProjectSyncStatus({
-            state: "error",
-            message: `Project sync failed with status ${failedResponse.status}. Local changes were preserved.`,
-            updatedAt: nowIso(),
-          });
-          return;
-        }
-
-        // Adopt the server's per-project revision counter so the next sync
-        // echoes it back as baseRevision (ADR-0001 Phase 2). Content is never
-        // overwritten here - only the revision the local copy is based on, so
-        // a concurrent server-side merge still surfaces as a stale base on the
-        // next sync instead of silently clobbering the local document.
-        //
-        // Conflict surfacing: the merged document the server returns is the
-        // row's accepted state. When it differs from the document we SENT on a
-        // merge-arbitrated lane, another team member's changes reached the row
-        // (or our own edit lost a same-item tie) without this copy - the
-        // response revision advanced past our base revision in exactly those
-        // cases. The project is marked with the existing "conflict" sync state
-        // and the changed lane keys, so the UI can tell the rep which fields a
-        // team member changed. A later response that MATCHES our copy clears
-        // the mark (reconciled by a reload's hydration or the member reverting).
-        const payloads = await Promise.all(responses.map((response) => response.json().catch(() => null)));
-        const returned = pushPlan.kind === "snapshot"
-          ? payloads[0]?.projects
-          : payloads.map((payload) => payload?.project).filter(Boolean);
-        const { revisionById, changedLanesByProjectId } = analyzeProjectSyncResponse(sentProjects, returned);
-
-        const conflicted: Array<{ name: string; fields: string[] }> = [];
-        if (revisionById.size > 0 || changedLanesByProjectId.size > 0) {
-          const snapshot = readProjectStore();
-          writeProjectStore(
-            {
-              ...snapshot,
-              projects: snapshot.projects.map((project) => {
-                let next = project;
-                const revision = revisionById.get(project.id);
-                if (revision !== undefined) next = { ...next, syncRevision: revision };
-                const changedLanes = changedLanesByProjectId.get(project.id);
-                if (changedLanes !== undefined) {
-                  if (changedLanes.length > 0) {
-                    conflicted.push({ name: project.name, fields: changedLanes });
-                    next = { ...next, syncConflict: { fields: changedLanes, detectedAt: nowIso() } };
-                  } else {
-                    // The merged row now matches this copy on every tracked
-                    // lane: a previously marked conflict is resolved.
-                    next = { ...next };
-                    delete next.syncConflict;
-                  }
-                }
-                return next;
-              }),
-            },
-            { syncBackend: false },
-          );
-        }
-
-        setProjectSyncStatus(
-          conflicted.length > 0
-            ? {
-                state: "conflict",
-                message: syncConflictStatusMessage(conflicted),
-                updatedAt: nowIso(),
-              }
-            : {
-                state: "synced",
-                message: "Project changes are synced to the workspace backend.",
-                updatedAt: nowIso(),
-              },
-        );
-      })
-      .catch((error) => {
-        backendSyncBaseline ??= baseline;
-        console.error("[wingman] projectStore: backend sync request failed", error);
-        setProjectSyncStatus({
-          state: "error",
-          message: "Project sync failed. Local changes were preserved.",
-          updatedAt: nowIso(),
-        });
-      });
-  }, BACKEND_SYNC_DEBOUNCE_MS);
-}
+const normalizeStoredProject = decodeStoredProject;
 
 export function readProjectStore(): ProjectStoreSnapshot {
-  if (typeof window === "undefined") {
-    return defaultStore();
-  }
-
-  const raw = window.localStorage.getItem(PROJECT_STORE_KEY);
-
-  if (!raw) {
-    return defaultStore();
-  }
-
-  try {
-    const parsed = JSON.parse(raw) as Partial<ProjectStoreSnapshot>;
-    return safeStore(parsed);
-  } catch {
-    return defaultStore();
-  }
+  return projectRepository.read();
 }
 
 export function writeProjectStore(snapshot: ProjectStoreSnapshot, options: { syncBackend?: boolean } = {}) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const storageMode = getProjectStorageMode();
   const previousStore = readProjectStore();
-  const store = safeStore({
-    ...snapshot,
-    syncStatus: storageMode.kind === "local" ? localProjectSyncStatus(snapshot.syncStatus, storageMode.reason) : snapshot.syncStatus,
-  });
-  window.localStorage.setItem(PROJECT_STORE_KEY, JSON.stringify(store));
-  if (options.syncBackend !== false && storageMode.kind === "remote") {
-    scheduleBackendProjectSync(store, previousStore, storageMode);
-  }
-  window.dispatchEvent(new CustomEvent(PROJECT_STORE_EVENT));
-}
-
-/**
- * The timestamped sub-documents the client saves whole and that the server
- * merge resolves per embedded timestamp (server/wingman-app-store.mjs
- * SUB_DOCUMENT_TIMESTAMP_KEYS). Kept identical so both sides merge with one
- * policy (ADR-0001 §1.2b/§1.2d, extended to hydration by §1.2f).
- */
-async function hydrateProjectStoreFromBackendOnce(storageMode: RemoteProjectStorageMode) {
-  const [{ buildHydrationSinceManifest, mergeProjectVersionsForHydration }, { buildProjectApiRequest, fetchProjectHydration }] = await Promise.all([
-    import("./projectHydrationMerge"),
-    import("./projectHydrationFetch"),
-  ]);
-  // The manifest is read BEFORE the request so it reflects the revisions the
-  // local copies were based on when the pull started (an edit made while the
-  // request is in flight is preserved by the merge below and pushed by the
-  // next sync, exactly as a full hydration would). The merge base is read
-  // again AFTER the request so an in-flight local write is never clobbered by
-  // a stale snapshot.
-  const sinceManifest = buildHydrationSinceManifest(readProjectStore().projects);
-  const result = await fetchProjectHydration(PROJECTS_ENDPOINT, buildProjectApiRequest({
-    cache: "no-store",
-    headers: { "X-Wingman-Since": JSON.stringify(sinceManifest) },
-  }, storageMode));
-  if (result.status === 401) {
-    backendSyncRejectedForSession = true;
-    setProjectSyncStatus({ state: "local", message: PROJECT_SYNC_SIGN_IN_MESSAGE, updatedAt: nowIso() });
-    return;
-  }
-  if (!result.projects) return;
-  const backendProjects = result.projects
-    .filter((project): project is Record<string, unknown> => Boolean(project) && typeof project === "object")
-    .map(storedProjectFromBackend);
-  const currentStore = readProjectStore();
-  let conflictDetected = false;
-  const localById = new Map(currentStore.projects.map((project) => [project.id, project]));
-  const backendIds = new Set(backendProjects.map((project) => project.id));
-  const projects = backendProjects.map((backendProject) => {
-    const localProject = localById.get(backendProject.id);
-    if (!localProject) return backendProject;
-
-    // One merge policy on BOTH sides: per-sub-document embedded-timestamp LWW,
-    // exactly like the server's merge on every accepted sync. A reload can no
-    // longer resolve by whole-project updatedAt alone, which silently dropped
-    // a locally-edited (offline) sub-document whenever a DIFFERENT
-    // sub-document had advanced on the backend — and, in the other direction,
-    // left a two-tab copy blind to the other tab's newer sub-document because
-    // the whole-project timestamps tied. The merged copy also adopts the
-    // backend's syncRevision (when backend content is adopted) so the next
-    // sync echoes the freshest basis the merged content is based on.
-    const merged = mergeProjectVersionsForHydration(localProject, backendProject);
-    if (merged.conflict) conflictDetected = true;
-    return merged.project;
-  });
-
-  currentStore.projects.forEach((project) => {
-    if (!backendIds.has(project.id)) {
-      projects.push(project);
-    }
-  });
-
-  writeProjectStore(
-    {
-      ...currentStore,
-      projects,
-      activeProjectId: currentStore.activeProjectId,
-      syncStatus: conflictDetected
-        ? {
-            state: "conflict",
-            message: "Local project changes were newer than backend data, so Wingman preserved the local version.",
-            updatedAt: nowIso(),
-          }
-        : {
-            state: "synced",
-            message: "Project data was loaded from the workspace backend.",
-            updatedAt: nowIso(),
-          },
-    },
-    { syncBackend: false },
-  );
+  const store = projectSyncService.normalizeForStorage(snapshot);
+  if (!projectRepository.write(store)) return;
+  if (options.syncBackend !== false) projectSyncService.schedule(store, previousStore);
 }
 
 export async function hydrateProjectStoreFromBackend() {
-  const storageMode = getProjectStorageMode();
-  if (storageMode.kind === "local") return;
-
-  if (!backendHydrationPromise) {
-    backendHydrationPromise = hydrateProjectStoreFromBackendOnce(storageMode);
-  }
-
-  return backendHydrationPromise;
+  return projectSyncService.hydrate();
 }
 
 export function resetProjectBackendSyncSessionState() {
-  backendSyncRejectedForSession = false;
-  backendHydrationPromise = null;
+  projectSyncService.resetSession();
 }
 
 /**
@@ -615,16 +192,7 @@ export function deleteStoredProposalDraft(draftId: string) {
 }
 
 export function getProjectSyncStatus(snapshot: ProjectStoreSnapshot = readProjectStore()) {
-  const storageMode = getProjectStorageMode();
-  if (storageMode.kind === "local") {
-    return localProjectSyncStatus(snapshot.syncStatus, storageMode.reason);
-  }
-
-  return snapshot.syncStatus ?? {
-    state: "local",
-    message: LOCAL_PROJECT_MODE_MESSAGE,
-    updatedAt: nowIso(),
-  };
+  return projectSyncService.status(snapshot);
 }
 
 export function saveRecommendationFeedback(
@@ -1466,13 +1034,7 @@ export function useProjectStore() {
       console.error("[wingman] projectStore: hydrateProjectStoreFromBackend failed", error);
     });
 
-    window.addEventListener(PROJECT_STORE_EVENT, refresh);
-    window.addEventListener("storage", refresh);
-
-    return () => {
-      window.removeEventListener(PROJECT_STORE_EVENT, refresh);
-      window.removeEventListener("storage", refresh);
-    };
+    return projectRepository.subscribe(refresh);
   }, []);
 
   const copyProject = useCallback((projectId: string) => {

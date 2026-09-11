@@ -1,4 +1,4 @@
-import type { StoredProject } from "./projectStore";
+import type { StoredProject } from "../features/projects/model/projectTypes";
 
 function objectRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
