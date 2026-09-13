@@ -7934,8 +7934,22 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="dashboard"] #root {
 .wm-guided-journeys-header { margin-bottom: 10px; }
 .wm-guided-journeys-header span { display: block; margin-bottom: 5px; color: var(--guided-aqua); font-size: .68rem; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
 .wm-guided-journeys-header h2 { margin: 0; font-size: clamp(1.35rem, 2vw, 1.9rem); letter-spacing: -.025em; }
-.wm-guided-journeys-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.wm-guided-journey { position: relative; display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 16px; min-height: 190px; align-items: flex-start; padding: 18px; overflow: hidden; border-radius: 18px; color: inherit; text-decoration: none; }
+.wm-guided-journeys-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(18px, 1.7vw, 26px); }
+.wm-guided-journey {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 16px;
+  min-height: 190px;
+  align-items: flex-start;
+  padding: 20px;
+  border: 1px solid rgba(93,230,237,.24);
+  border-radius: 18px;
+  background: #0a2032;
+  box-shadow: 0 16px 34px rgba(0,4,12,.32);
+  color: inherit;
+  text-decoration: none;
+}
+.wm-guided-journey:focus-visible { outline: 2px solid var(--wm-polish-accent); }
 .wm-guided-journey-copy { position: relative; display: flex; min-width: 0; height: 100%; flex-direction: column; align-items: flex-start; }
 .wm-guided-card-number { position: absolute; right: 0; top: -6px; color: rgba(155,188,202,.26); font: 700 2.1rem/1 ui-monospace, monospace; }
 .wm-guided-journey-icon { width: 42px; height: 42px; border-radius: 12px; }
