@@ -1477,15 +1477,15 @@ return (
         </div>
       </header>
 
-      <section className="wm-discovery-session-dock" aria-label="Set the pace for this discovery">
+      <section className="wm-discovery-session-dock wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Set the pace for this discovery">
         <div className="wm-discovery-session-dock-copy">
           <span>{discoveryPace === "live" ? "Live rhythm" : "Desk rhythm"}</span>
           <strong>{discoveryPace === "live" ? "One clear question. No screen-reading." : "Capture the source material, then refine."}</strong>
         </div>
-        <div className="wm-discovery-session-switch" role="group" aria-label="Discovery session type">
+        <div className="wm-discovery-session-switch wm-discovery-mode-toggle" role="group" aria-label="Discovery session type">
             <button
               type="button"
-              className={discoveryPace === "live" ? "is-active" : ""}
+              className={discoveryPace === "live" ? "wm-discovery-mode-button is-active" : "wm-discovery-mode-button"}
               aria-pressed={discoveryPace === "live"}
               onClick={() => setDiscoveryPace("live")}
             >
@@ -1494,7 +1494,7 @@ return (
             </button>
             <button
               type="button"
-              className={discoveryPace === "desk" ? "is-active" : ""}
+              className={discoveryPace === "desk" ? "wm-discovery-mode-button is-active" : "wm-discovery-mode-button"}
               aria-pressed={discoveryPace === "desk"}
               onClick={() => setDiscoveryPace("desk")}
             >
