@@ -167,9 +167,14 @@ assertSourceContains("src/wingman2/lib/roomTemplates.ts", [
 ]);
 assertSourceContains("src/wingman2/data/projectStore.ts", [
   "syncStatus",
+  "projectSyncService",
+]);
+assertSourceContains("src/wingman2/features/projects/model/projectTypes.ts", [
   "StoredRequirementRecord",
   "StoredRecommendationFeedback",
-  "projectSyncService",
+]);
+assertSourceContains("src/wingman2/features/projects/commands/proposalCommands.ts", [
+  "saveProjectRequirementsToProject",
 ]);
 assertSourceContains("src/wingman2/features/projects/persistence/projectSyncService.ts", [
   "conflict",

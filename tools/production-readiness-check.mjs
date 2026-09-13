@@ -102,11 +102,14 @@ const projectStoreSource = readFileSync(
   path.join(projectRoot, "src", "wingman2", "data", "projectStore.ts"),
   "utf8",
 );
+const projectModelSource = readFileSync(
+  path.join(projectRoot, "src", "wingman2", "features", "projects", "model", "projectTypes.ts"),
+  "utf8",
+);
 
 for (const marker of [
   "activeProjectId",
   "syncStatus",
-  "StoredRequirementRecord",
   "saveProjectRequirementsToProject",
   "saveDiscoveryBriefToProject",
   "saveProductSelectionToProject",
@@ -116,6 +119,11 @@ for (const marker of [
 ]) {
   if (!projectStoreSource.includes(marker)) {
     errors.push(`Project workflow store marker is missing: ${marker}.`);
+  }
+}
+for (const marker of ["StoredRequirementRecord", "StoredRecommendationFeedback"]) {
+  if (!projectModelSource.includes(marker)) {
+    errors.push(`Project workflow model marker is missing: ${marker}.`);
   }
 }
 

@@ -1,4 +1,8 @@
 import { recommendationCandidateAllowed } from "./recommendationSafety";
+import {
+  buildRecommendationSafetyContext,
+  filterSafeRecommendationCandidates,
+} from "./recommendationSafetyGate";
 import type { StoredDiscoveryBrief } from "../data/projectStore";
 import type { FinderNeedDraft } from "../data/workflowHandoff";
 import { buildSystemDesign, productMatchesSlot, ucAllInOneCoverage, type SystemSlot } from "./discoverySystemDesign";
@@ -49,10 +53,14 @@ export function resolveRecommendationSystemSlots(
   brief: StoredDiscoveryBrief | null,
   slotPool: RecommendationDecision[],
 ) {
+  const safetyCheckedSlotPool = filterSafeRecommendationCandidates(
+    slotPool,
+    buildRecommendationSafetyContext(brief),
+  );
   const design = buildSystemDesign(brief);
   const raw: RecommendationSystemSlotResult[] = design.slots.map((slot) => ({
     slot,
-    candidates: slot.supply === "external" ? [] : slotPool
+    candidates: slot.supply === "external" ? [] : safetyCheckedSlotPool
       .filter((decision) => decision.eligible)
       .filter((decision) => productMatchesSlot(classification(decision), slot))
       .filter((decision) => recommendationCandidateAllowed(

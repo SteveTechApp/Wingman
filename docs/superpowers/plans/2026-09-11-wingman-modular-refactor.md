@@ -102,12 +102,12 @@
 - Commands accept a `ProjectRepository` dependency and return the updated project/snapshot.
 - Existing store functions remain facade delegates until consumers migrate.
 
-- [ ] Add command tests for create/copy/delete, discovery save, recommendation add/remove/evidence, compare history, proposal revisions, visual assets, requirements, and deal outcome.
-- [ ] Move commands by domain without changing audit entries, timestamps, IDs, merge semantics, or active-project behavior.
-- [ ] Inject repository/time/ID dependencies in tests; retain production defaults in the facade.
-- [ ] Run project store, workflow handoff, proposal version, compare history, and videowall suites.
-- [ ] Confirm `projectStore.ts` is at most 250 lines and functions only as a compatibility facade.
-- [ ] Commit: `refactor(projects): split project commands by domain`.
+- [x] Add command tests for create/copy/delete, discovery save, recommendation add/remove/evidence, compare history, proposal revisions, visual assets, requirements, and deal outcome.
+- [x] Move commands by domain without changing audit entries, timestamps, IDs, merge semantics, or active-project behavior.
+- [x] Inject repository/time/ID dependencies in tests; retain production defaults in the facade.
+- [x] Run project store, workflow handoff, proposal version, compare history, and videowall suites.
+- [x] Confirm `projectStore.ts` is at most 250 lines and functions only as a compatibility facade.
+- [x] Commit: `refactor(projects): split project commands by domain`.
 
 ### Task 5: Decompose Discovery into a controller and step panels
 
