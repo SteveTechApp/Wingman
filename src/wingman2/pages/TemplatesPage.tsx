@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Building2, Check, FilePenLine, Info, LayoutTemplate, X } from "lucide-react";
+import { ArrowRight, Building2, Check, FilePenLine, Info, X } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { deleteCustomRoomTemplate, duplicateCustomRoomTemplate, useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
 import { writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
 import { ALL_MARKET_FILTER, TEMPLATE_MARKET_FILTERS, templateMatchesMarketFilter } from "../lib/templateMarkets";
+import { templateImageFor } from "../lib/templateImages";
 import { defaultPersonalisation, loadTemplateDraft, saveTemplateDraft, toSolutionTemplate, validatePublishedTemplate, type DocumentPersonalisation, type SolutionTemplateDefinition } from "../lib/solutionTemplates";
 
 type AvailableTemplate = RoomTemplate | CustomRoomTemplate;
@@ -65,10 +66,10 @@ export function TemplatesPage() {
           const item = toSolutionTemplate(template);
           const purposeId = `template-purpose-${template.id}`;
           if (market === ALL_MARKET_FILTER) {
-            return <button className="wm-library-tile" key={template.id} type="button" aria-label={item.title} data-template-tone={templateTone(template.vertical)} onClick={() => applyTemplate(template)}><span className="wm-library-tile__name">{item.title}</span><span className="wm-library-tile__category">{template.vertical}</span></button>;
+            return <button className="wm-library-tile" key={template.id} type="button" aria-label={item.title} data-template-tone={templateTone(template.vertical)} onClick={() => applyTemplate(template)}><img className="wm-library-tile__image" src={templateImageFor(template)} alt="" loading="lazy" /><span className="wm-library-tile__name">{item.title}</span><span className="wm-library-tile__category">{template.vertical}</span></button>;
           }
           return <article className="wm-solution-card wm-action-card" key={template.id} data-template-tone={templateTone(template.vertical)} data-custom-template={isCustom(template) ? "true" : undefined}>
-            <div className="wm-solution-card-visual" aria-hidden="true"><LayoutTemplate /><span className="wm-badge">{template.vertical}</span></div>
+            <div className="wm-solution-card-visual"><img src={templateImageFor(template)} alt="" loading="lazy" /><span className="wm-badge">{template.vertical}</span></div>
             <div className="wm-solution-card-body"><div className="wm-solution-card-meta"><span className={`wm-status is-${item.status === "published" ? "confirmed" : "assumed"} ${isCustom(template) ? "wm-template-custom-badge" : ""}`}>{item.status === "custom" ? "Custom" : item.status}</span><span>{template.scale}</span></div>
               <h3 className="wm-card-title">{item.title}</h3><div className="wm-template-card-tools"><div className="wm-template-info-trigger"><button type="button" aria-label={`More information about ${item.title}`} aria-describedby={purposeId}><Info /></button><p id={purposeId} role="tooltip" className="wm-copy wm-solution-card-purpose"><strong>{template.scale}</strong><span>{item.purpose}</span></p></div></div>
               <div className="wm-template-actions"><button className="wm-button wm-button-secondary wm-template-action-personalise" type="button" onClick={() => personaliseTemplate(template)}><FilePenLine /> Personalise</button><button className="wm-button wm-button-primary wm-template-action-use" type="button" onClick={() => applyTemplate(template)}>Use template</button></div>

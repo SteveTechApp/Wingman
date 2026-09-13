@@ -56,6 +56,18 @@ describe("Templates market filters", () => {
     expect(screen.getByRole("button", { name: roomTemplates[0].name })).toBeInTheDocument();
   });
 
+  it("renders template artwork in both the All and filtered card layouts", () => {
+    renderApp();
+
+    const allMarketCard = screen.getByRole("button", { name: roomTemplates[0].name });
+    expect(allMarketCard.querySelector("img")).toHaveAttribute("src", expect.stringContaining("/template-photos/"));
+
+    fireEvent.click(screen.getByRole("button", { name: roomTemplates[0].vertical }));
+
+    const filteredCard = screen.getByRole("heading", { name: roomTemplates[0].name }).closest("article");
+    expect(filteredCard?.querySelector(".wm-solution-card-visual img")).toHaveAttribute("src", expect.stringContaining("/template-photos/"));
+  });
+
   it("limits results to Corporate templates and updates the count when that filter is selected", () => {
     seedCorporateCustomTemplate();
     renderApp();
