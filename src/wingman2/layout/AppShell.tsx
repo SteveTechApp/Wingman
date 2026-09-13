@@ -17,7 +17,7 @@ import {
   clearActiveProject,
   getCurrentWorkflowProject,
   readProjectStore,
-} from "../data/projectStore";
+} from "../features/projects";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 import { getWingmanSession, type WingmanWorkspaceSession } from "../api/wingmanApi";
