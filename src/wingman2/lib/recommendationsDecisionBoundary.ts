@@ -53,10 +53,10 @@ export function resolveRecommendationSystemSlots(
   brief: StoredDiscoveryBrief | null,
   slotPool: RecommendationDecision[],
 ) {
-   const safetyCheckedSlotPool = filterSafeRecommendationCandidates(
-     slotPool as ReadonlyArray<Record<string, unknown>>,
-     buildRecommendationSafetyContext(brief),
-   );
+  const safetyCheckedSlotPool = filterSafeRecommendationCandidates(
+    slotPool,
+    buildRecommendationSafetyContext(brief),
+  );
   const design = buildSystemDesign(brief);
   const raw: RecommendationSystemSlotResult[] = design.slots.map((slot) => ({
     slot,

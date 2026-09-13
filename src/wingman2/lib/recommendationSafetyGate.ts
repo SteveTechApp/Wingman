@@ -11,7 +11,7 @@ export type RecommendationRole =
   | "support"
   | string;
 
-export type RecommendationSafetyCandidate = Record<string, unknown> & {
+export type RecommendationSafetyCandidate = {
   sku?: unknown;
   productSku?: unknown;
   product?: unknown;
@@ -52,10 +52,7 @@ function normalise(value: unknown): string {
 }
 
 function valuesOf(value: ReadonlyArray<string> | ReadonlySet<string> | undefined): Set<string> {
-  if (value instanceof Set) {
-    return new Set(Array.from(value, normalise));
-  }
-  return new Set((value ?? []).map(normalise));
+  return new Set(Array.from(value ?? [], normalise));
 }
 
 function stringArray(value: unknown): string[] {
