@@ -12,7 +12,7 @@ const {
   mockSaveProjectRequirementsToProject: vi.fn(),
 }));
 
-vi.mock("@/wingman2/data/projectStore", async () => {
+vi.mock("@/wingman2/features/projects", async () => {
   const actual = await vi.importActual<typeof import("@/wingman2/data/projectStore")>("@/wingman2/data/projectStore");
 
   return {

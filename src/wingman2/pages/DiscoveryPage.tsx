@@ -10,7 +10,7 @@ import {
   readProjectStore,
   saveDiscoveryBriefToProject,
   type StoredDiscoveryBrief,
-} from "../data/projectStore";
+} from "../features/projects";
 import {
   clearLatestDiscoverySnapshot,
   readLatestDiscoverySnapshot,

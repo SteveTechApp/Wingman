@@ -1,12 +1,12 @@
 # ADR-0001 · Project / workspace-scoped persistence
 
-- **Status:** Proposed (decision requested — closes open P1-3)
+- **Status:** Accepted; phased implementation in progress
 - **Date:** 2026-09-03
 - **Deciders:** Architecture review; roadmap milestone A5 / workstream B1
 - **Supersedes:** the undecided storage model behind `src/wingman2/data/projectStore.ts`
 - **Related:** `docs/PRE_PRODUCTION_REPORT.md` §P1-3, `docs/DEVELOPMENT_MILESTONES.md` workstream B (B1–B3), milestone A5
 
-## Decision (recommended)
+## Decision
 
 Adopt **server-authoritative with a local cache** as the target architecture for
 project/workspace data: the deployment backend becomes the explicit system of
@@ -18,9 +18,12 @@ per-project sync replaces the current whole-store last-writer-wins upload. Do **
 with an operation log / CRDT merge) at this stage; revisit only if real sales-rep
 UAT makes multi-day offline editing on shared projects a hard requirement.
 
-This ADR is a design record, not an implementation. The recommendation is
-written so Phase 0 (contract tests that pin today's behaviour) can start before
-any schema work.
+The public Project Workspace interface now lives under
+`src/wingman2/features/projects/`; `src/wingman2/data/projectStore.ts` is a
+compatibility facade. Discovery, Recommendations, Project Detail and Proposal
+Completion have migrated to the public interface. Server-authoritative
+workspace scoping and the remaining legacy callers continue through the phased
+migration described below.
 
 ---
 

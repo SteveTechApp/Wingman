@@ -15,7 +15,7 @@ const ANALYTICS_ENDPOINT = "/api/wingman/telemetry";
 const MAX_EVENTS_PER_SESSION = 50;
 const BATCH_INTERVAL_MS = 30_000; // 30 seconds
 
-type AnalyticsEventKind = "feature_open" | "feature_complete" | "export" | "search" | "session_start";
+type AnalyticsEventKind = "feature_open" | "feature_complete" | "export" | "search" | "session_start" | "journey";
 
 type AnalyticsEvent = {
   kind: AnalyticsEventKind;
@@ -123,6 +123,10 @@ export function trackExport(feature: string, format: string): void {
  */
 export function trackSearch(feature: string, queryLength: number): void {
   trackFeatureEvent("search", feature, { queryLength });
+}
+
+export function trackJourneyEvent(name: string, metadata: Record<string, string | number | boolean>): void {
+  trackFeatureEvent("journey", name, metadata);
 }
 
 // Test seam: resets state so each test starts clean.

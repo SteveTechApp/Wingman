@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const root = process.cwd();
@@ -71,7 +72,7 @@ function auditFile(file) {
   };
 }
 
-function runAudit() {
+export function runAudit() {
   const files = walk(sourceRoot);
   const results = files.map(auditFile);
 
@@ -103,7 +104,7 @@ function runAudit() {
   return { totals, topFiles };
 }
 
-function writeReport(audit) {
+export function writeReport(audit) {
   const generatedAt = new Date().toISOString();
 
   const report = [
@@ -142,6 +143,7 @@ function writeReport(audit) {
   fs.writeFileSync(reportPath, report);
 }
 
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 const audit = runAudit();
 writeReport(audit);
 
@@ -190,3 +192,4 @@ if (failures.length > 0) {
 
 console.log("[style-drift] OK. Drift has not increased beyond baseline.");
 console.log(audit.totals);
+}

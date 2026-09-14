@@ -31,7 +31,7 @@ import {
   type StoredProject,
   type StoredProjectProposal,
   type StoredRecommendationFeedback,
-} from "../data/projectStore";
+} from "../features/projects";
 import {
   normaliseProjectTopology,
   projectTopologySurveyState,

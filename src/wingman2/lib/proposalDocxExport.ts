@@ -18,6 +18,7 @@ import type { SchematicModel } from "./schematic/schematicTypes";
 import { SCHEMATIC_COLORS, SCHEMATIC_NODE_COLORS } from "./schematic/schematicVisualPalette";
 import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel } from "./schematic/nativeCableSchedule";
 import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
+import { buildDesignProjectDocument, trackDesignProjectExport } from "../features/design-project";
 
 export const NAVY = "08223A";
 export const AQUA = "16B8B0";
@@ -286,17 +287,18 @@ function productSpecificationContent(proposal: StoredProjectProposal): Array<Par
 function canonicalDesignContent(proposal: StoredProjectProposal): Array<Paragraph | Table> {
   const revision = proposal.designRevision;
   if (!revision) return [paragraph("A canonical design revision has not been compiled for this legacy proposal.", { colour: MUTED })];
+  const document = buildDesignProjectDocument(revision);
   return [
-    paragraph(`Design revision: ${revision.revisionId}`, { bold: true, colour: NAVY }),
-    heading("Customer said", 2), paragraph(revision.customerRequirement),
-    heading("Wingman understood", 2), paragraph(revision.interpretedRequirement),
-    heading("Design direction", 2), paragraph(revision.architecture),
+    paragraph(`Design revision: ${document.revisionId}`, { bold: true, colour: NAVY }),
+    heading("Customer said", 2), paragraph(document.customerRequirement),
+    heading("Wingman understood", 2), paragraph(document.interpretation),
+    heading("Design direction", 2), paragraph(document.architecture),
     heading("Requirement trace", 2),
-    ...revision.requirements.flatMap((item) => [paragraph(item.customerStatement, { bold: true }), paragraph(`${item.interpretation} Design consequence: ${item.designConsequence} Status: ${item.state}.`, { colour: MUTED })]),
+    ...document.requirements.flatMap((item) => [paragraph(item.customerStatement, { bold: true }), paragraph(`${item.interpretation} Design consequence: ${item.designConsequence} Status: ${item.state}.`, { colour: MUTED })]),
     heading("System completeness", 2),
-    ...revision.roleCoverage.filter((item) => item.required).map((item) => bullet(`${item.label}: ${item.covered ? "Covered" : "Missing"}${item.evidence.length ? ` — ${item.evidence.join("; ")}` : ""}`)),
+    ...document.requiredRoles.map((item) => bullet(`${item.label}: ${item.covered ? "Covered" : "Missing"}${item.evidence.length ? ` — ${item.evidence.join("; ")}` : ""}`)),
     heading("Product overview in this design", 2),
-    ...revision.productOverviews.flatMap((item) => [paragraph(`${item.quantity} × ${item.sku} — ${item.name}`, { bold: true }), paragraph(`${item.designRole}. ${item.reason}${item.proof.length ? ` Proof: ${item.proof.join("; ")}` : ""}`, { colour: MUTED })]),
+    ...document.products.flatMap((item) => [paragraph(`${item.quantity} × ${item.sku} — ${item.name}`, { bold: true }), paragraph(`${item.designRole}. ${item.reason}${item.proof.length ? ` Proof: ${item.proof.join("; ")}` : ""}`, { colour: MUTED })]),
   ];
 }
 
@@ -658,4 +660,5 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
   ]);
   const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic }));
   downloadBlob(blob, `${fileBaseName(wizard.projectName || proposal.title)}.proposal.docx`);
+  trackDesignProjectExport(proposal.designRevision, "docx");
 }
