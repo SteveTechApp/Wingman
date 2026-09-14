@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useUiMode } from "../data/uiMode";
 import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { DiscoverySessionHero, DiscoverySessionPaceSwitch, type DiscoveryPace } from "../components/DiscoverySessionPaceSwitch";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   clearActiveProject,
@@ -252,6 +253,7 @@ export function DiscoveryPage() {
   const [interviewActive, setInterviewActive] = useState(
     () => searchParams.get("interview") === "1",
   );
+  const [discoveryPace, setDiscoveryPace] = useState<DiscoveryPace>("live");
   // Which review walk the interview starts with: the whole conversation, or
   // only the questions still marked "to be confirmed" (`?review=open`).
   const [reviewScope, setReviewScope] = useState<"all" | "open">(
@@ -1432,7 +1434,11 @@ export function DiscoveryPage() {
     setIsListening(true);
   }
 return (
-    <main className="wm-discovery-capture-page wm-ui-page" data-audit={discoveryAuditMarkers.join("|")}>
+    <main
+      className="wm-discovery-capture-page wm-ui-page"
+      data-audit={discoveryAuditMarkers.join("|")}
+      data-discovery-pace={discoveryPace}
+    >
       {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_START */}
       {showExistingDiscoveryWarning && existingDiscoveryPortalTarget &&
         !hasIntentionalDiscoveryEntry? createPortal(
@@ -1447,26 +1453,9 @@ return (
             existingDiscoveryPortalTarget,
           )
         : null}
-      <header className="wm-discovery-capture-hero wm-ui-hero">
-        <div>
-          <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Discovery - Voice interview</p>
-          <h1 className="wm-ui-title">One question at a time</h1>
-          <p className="wm-ui-copy">
-            Capture the customer wording, choose the closest answer, then move forward. Use the capture box when the
-            answer is not yet clear.
-          </p>
-          {(clientName.trim() || siteName.trim()) && (
-            <p className="wm-discovery-client-line wm-ui-copy">
-              {[clientName.trim(), siteName.trim()].filter(Boolean).join(" · ")}
-            </p>
-          )}
-        </div>
+      <DiscoverySessionHero pace={discoveryPace} clientName={clientName} siteName={siteName} completionPercent={completionPercent} answeredCount={answeredCount} questionCount={modeQuestions.length} />
 
-        <div className="wm-discovery-completion-card wm-ui-card" aria-label="Discovery completion">
-          <strong>{completionPercent}%</strong>
-          <span>{answeredCount} / {modeQuestions.length} captured</span>
-        </div>
-      </header>
+      <DiscoverySessionPaceSwitch pace={discoveryPace} onChange={setDiscoveryPace} />
 
       {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={applyQuickStartSeeded} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
