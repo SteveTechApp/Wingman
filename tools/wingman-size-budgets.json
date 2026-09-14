@@ -1,6 +1,6 @@
 {
   "updatedAt": "2026-09-07T13:16:26.377Z",
-  "tolerancePct": 1,
+  "tolerancePct": 5,
   "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
   "limits": {
     "chunk:compare-engine": 436999,

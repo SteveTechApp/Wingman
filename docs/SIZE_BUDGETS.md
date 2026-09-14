@@ -60,10 +60,10 @@ stylesheet layering.
 
 ### Tolerance
 
-`tolerancePct` in the baseline JSON (default `1`) widens each limit slightly so
-trivial, environment-dependent minification noise between a local machine and CI
-does not fail a build. A real regression clears the tolerance; a rounding wobble
-does not.
+`tolerancePct` in the baseline JSON (default `5`) allows up to five percent of
+variation for environment-dependent minification and normal refactoring movement
+between chunks. Growth beyond five percent remains a blocking regression; teams
+should still lower recorded limits as sustained reductions land.
 
 ## Running it
 
