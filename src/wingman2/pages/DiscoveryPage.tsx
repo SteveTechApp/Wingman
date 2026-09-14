@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useUiMode } from "../data/uiMode";
 import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { FileText, PhoneCall, Radio } from "lucide-react";
+import { DiscoverySessionHero, DiscoverySessionPaceSwitch, type DiscoveryPace } from "../components/DiscoverySessionPaceSwitch";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   clearActiveProject,
@@ -253,7 +253,7 @@ export function DiscoveryPage() {
   const [interviewActive, setInterviewActive] = useState(
     () => searchParams.get("interview") === "1",
   );
-  const [discoveryPace, setDiscoveryPace] = useState<"live" | "desk">("live");
+  const [discoveryPace, setDiscoveryPace] = useState<DiscoveryPace>("live");
   // Which review walk the interview starts with: the whole conversation, or
   // only the questions still marked "to be confirmed" (`?review=open`).
   const [reviewScope, setReviewScope] = useState<"all" | "open">(
@@ -1453,56 +1453,9 @@ return (
             existingDiscoveryPortalTarget,
           )
         : null}
-      <header className="wm-discovery-capture-hero wm-ui-hero">
-        <div>
-          <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">
-            <Radio aria-hidden="true" /> Discovery session
-          </p>
-          <h1 className="wm-ui-title">Keep the conversation moving.</h1>
-          <p className="wm-ui-copy">
-            {discoveryPace === "live"
-              ? "Stay with the customer. Wingman keeps the next useful question in view and builds the brief as you talk."
-              : "Work through an email, meeting note, or site survey at your own pace. Everything stays editable."}
-          </p>
-          {(clientName.trim() || siteName.trim()) && (
-            <p className="wm-discovery-client-line wm-ui-copy">
-              {[clientName.trim(), siteName.trim()].filter(Boolean).join(" · ")}
-            </p>
-          )}
-        </div>
+      <DiscoverySessionHero pace={discoveryPace} clientName={clientName} siteName={siteName} completionPercent={completionPercent} answeredCount={answeredCount} questionCount={modeQuestions.length} />
 
-        <div className="wm-discovery-completion-card wm-ui-card" aria-label="Discovery completion">
-          <strong>{completionPercent}%</strong>
-          <span>{answeredCount} / {modeQuestions.length} captured</span>
-        </div>
-      </header>
-
-      <section className="wm-discovery-session-dock wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Set the pace for this discovery">
-        <div className="wm-discovery-session-dock-copy">
-          <span>{discoveryPace === "live" ? "Live rhythm" : "Desk rhythm"}</span>
-          <strong>{discoveryPace === "live" ? "One clear question. No screen-reading." : "Capture the source material, then refine."}</strong>
-        </div>
-        <div className="wm-discovery-session-switch wm-discovery-mode-toggle" role="group" aria-label="Discovery session type">
-            <button
-              type="button"
-              className={discoveryPace === "live" ? "wm-discovery-mode-button is-active" : "wm-discovery-mode-button"}
-              aria-pressed={discoveryPace === "live"}
-              onClick={() => setDiscoveryPace("live")}
-            >
-              <PhoneCall aria-hidden="true" />
-              <span><strong>On a call</strong><small>Fast, focused prompts</small></span>
-            </button>
-            <button
-              type="button"
-              className={discoveryPace === "desk" ? "wm-discovery-mode-button is-active" : "wm-discovery-mode-button"}
-              aria-pressed={discoveryPace === "desk"}
-              onClick={() => setDiscoveryPace("desk")}
-            >
-              <FileText aria-hidden="true" />
-              <span><strong>From notes</strong><small>Email or site survey</small></span>
-            </button>
-        </div>
-      </section>
+      <DiscoverySessionPaceSwitch pace={discoveryPace} onChange={setDiscoveryPace} />
 
       {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={applyQuickStartSeeded} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
 
