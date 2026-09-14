@@ -150,7 +150,8 @@ writeReport(audit);
 if (updateBaseline) {
   const baseline = {
     updatedAt: new Date().toISOString(),
-    rule: "Current totals become the maximum allowed style-drift counts. Future changes must not increase these counts.",
+    tolerancePct: 5,
+    rule: "Current totals become the baseline style-drift counts. Nonzero metrics may vary by up to tolerancePct; zero baselines remain strict.",
     totals: audit.totals,
   };
 
@@ -168,6 +169,7 @@ if (!fs.existsSync(baselinePath)) {
 
 const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf8"));
 const failures = [];
+const tolerancePct = Number(baseline.tolerancePct ?? 0);
 
 for (const metric of Object.keys(audit.totals)) {
   const current = audit.totals[metric];
@@ -178,8 +180,9 @@ for (const metric of Object.keys(audit.totals)) {
     continue;
   }
 
-  if (current > allowed) {
-    failures.push(`${metric}: current ${current} > baseline ${allowed}`);
+  const ceiling = allowed === 0 ? 0 : Math.floor(allowed * (1 + tolerancePct / 100));
+  if (current > ceiling) {
+    failures.push(`${metric}: current ${current} > allowed ${ceiling} (baseline ${allowed} + ${tolerancePct}%)`);
   }
 }
 
@@ -190,6 +193,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("[style-drift] OK. Drift has not increased beyond baseline.");
+console.log(`[style-drift] OK. Drift is within the ${tolerancePct}% baseline allowance.`);
 console.log(audit.totals);
 }

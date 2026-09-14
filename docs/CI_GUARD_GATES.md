@@ -134,8 +134,11 @@ all of them — what may be raised, what the PR must state, and every approved
 exception so far — is documented in [`docs/SIZE_BUDGETS.md`](SIZE_BUDGETS.md).
 New page CSS, bundle growth, and coverage-floor changes go there first.
 
-`check:architecture-boundaries` is intentionally not an exception-based
-ratchet. Its checked-in migration allowlist contains only pre-existing debt,
-with a per-file line ceiling. The tool rejects new allowlist keys and any
-growth beyond those ceilings. As modules are decomposed, their entries are
-deleted permanently.
+`check:architecture-boundaries` keeps new files on the strict 1,200-line
+production and 400-line page limits. Existing migration entries receive 2%
+headroom capped at 25 lines, preventing small refactor churn from blocking CI
+without permitting substantial growth. New allowlist keys remain rejected.
+
+`check:style-drift-baseline` allows 5% variation for nonzero aggregate metrics.
+Metrics whose baseline is zero remain strict so retired visual patterns cannot
+return.

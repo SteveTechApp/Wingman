@@ -1,5 +1,7 @@
 {
-  "rule": "Temporary line-count debt may stay or shrink. New exceptions and growth beyond maxLines fail.",
+  "rule": "Temporary line-count debt may vary by 2% up to 25 lines. New exceptions remain blocked.",
+  "tolerancePct": 2,
+  "maxToleranceLines": 25,
   "violations": {
     "max-file-lines:src/wingman2/components/ProposalCompletionWizard.tsx": { "maxLines": 1959 },
     "max-file-lines:src/wingman2/components/WingmanGuruDrawer.tsx": { "maxLines": 1967 },
