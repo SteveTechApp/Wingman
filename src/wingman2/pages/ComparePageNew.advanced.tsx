@@ -20,12 +20,12 @@ import {
   compactCompareQuoteChecks,
 } from "../lib/repScript";
 import {
-  domainFromProductClass,
-  resolveCompareVerdictCandidates,
+  decideComparison,
   type ScoredCandidate,
   type Verdict,
   type WyreStormProduct,
-} from "../lib/compareVerdictPipeline";
+} from "../features/compare";
+import { domainFromProductClass } from "../lib/compareVerdictPipeline";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { VerifyBeforeQuoteNote } from "../components/VerifyBeforeQuoteNote";
@@ -5856,7 +5856,7 @@ function ComparePageNew() {
 
   const verdictResult = useMemo(
     () =>
-      resolveCompareVerdictCandidates({
+      decideComparison({
         engineMatches: rigorousResult.matches,
         products: ACTIVE_WYRESTORM_PRODUCTS,
         governedDecision,

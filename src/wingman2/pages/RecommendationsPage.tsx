@@ -11,7 +11,7 @@ import {
   useProjectStore,
   type StoredDiscoveryBrief,
   type StoredProductSelection,
-} from "../data/projectStore";
+} from "../features/projects";
 import {
   discoveryBriefToFinderNeed,
   readLatestDiscoveryBrief,

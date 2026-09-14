@@ -40,7 +40,7 @@ const { storedProject } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("../data/projectStore", () => ({
+vi.mock("../features/projects", () => ({
   setActiveProjectId: vi.fn(),
   saveProjectRequirementsToProject: vi.fn(),
   updateStoredProject: vi.fn(),
