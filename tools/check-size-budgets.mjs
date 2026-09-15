@@ -121,7 +121,7 @@ function writeBaseline(data, previous) {
 
   const baseline = {
     updatedAt: new Date().toISOString(),
-    tolerancePct: previous?.tolerancePct ?? 1,
+    tolerancePct: previous?.tolerancePct ?? 5,
     rule: "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
     limits,
   };

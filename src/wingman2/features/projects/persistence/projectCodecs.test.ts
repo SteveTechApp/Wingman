@@ -84,6 +84,12 @@ describe("project persistence codecs", () => {
     expect(decoded?.proposalVersions).toBe(proposalVersions);
   });
 
+  it("preserves a versioned design-project graph", () => {
+    const decision = { schemaVersion: 1, revisionId: "revision-8", contentHash: "decision-8" };
+    const designProject = { schemaVersion: 1, projectId: BASE_PROJECT.id, projectName: BASE_PROJECT.name, compiledAt: BASE_PROJECT.updatedAt, contentHash: "dpg1-12345678", stages: [], decision, publication: { canIssue: false, blockers: ["Confirm source"], warnings: [] } };
+    expect(decodeStoredProject({ ...BASE_PROJECT, designProject })?.designProject).toEqual(designProject);
+  });
+
   it("normalizes valid sync conflicts and removes malformed or empty conflicts", () => {
     const valid = decodeStoredProject({
       ...BASE_PROJECT,

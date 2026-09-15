@@ -122,6 +122,23 @@ describe("wingman-app-store: auth", () => {
     expect(auth.ok).toBe(false);
   });
 
+  it("persists validated journey metadata from analytics batches", async () => {
+    const store = await import("./wingman-app-store.mjs");
+    const signup = await signUp(store);
+    const token = extractSessionToken(signup);
+    const res = makeRes();
+    await store.handleWingmanTelemetryPost(
+      makeReq({ kind: "analytics_batch", events: [{ kind: "journey", feature: "design_project_started", timestamp: "2026-09-14T12:00:00.000Z", metadata: { projectId: "p-1", graphHash: "dpg1-12345678", stage: "evidence", outcome: "blocked", blockerCount: 2 } }] }, { headers: { authorization: `Bearer ${token}` } }),
+      res,
+      new URL("http://localhost/api/wingman/telemetry"),
+      { sendJson, parseJsonBody },
+    );
+    expect(res.body).toEqual({ ok: true, accepted: 1 });
+    const dbKey = [...files.keys()].find((key) => String(key).endsWith("wingman-app-db.json"));
+    const persisted = JSON.parse(files.get(dbKey));
+    expect(persisted.telemetryEvents[0]).toMatchObject({ kind: "journey", message: "design_project_started", feature: "design_project_started", metadata: { projectId: "p-1", graphHash: "dpg1-12345678" } });
+  });
+
   it("serializes concurrent read-modify-write cycles so no signup is lost", async () => {
     const store = await import("./wingman-app-store.mjs");
     // Two signups racing through the same read-modify-write cycle. Without the

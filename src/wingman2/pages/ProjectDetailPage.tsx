@@ -17,7 +17,7 @@ import {
   type StoredProject,
   type StoredRequirementRecord,
   useProjectStore,
-} from "../data/projectStore";
+} from "../features/projects";
 import { CrmSharePanel } from "../components/CrmSharePanel";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";

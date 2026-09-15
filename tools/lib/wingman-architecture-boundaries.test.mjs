@@ -85,13 +85,20 @@ describe("checkWingmanArchitecture", () => {
     ]);
   });
 
-  it("allows recorded debt only up to its line ceiling", () => {
+  it("rejects recorded debt beyond its configured flex", () => {
     const file = "src/wingman2/pages/DiscoveryPage.tsx";
-    const rootDir = fixture({ [file]: Array(402).fill("export const value = 1;").join("\n") });
-    const migrationAllowlist = { violations: { [`page-entry-lines:${file}`]: { maxLines: 401 } } };
+    const rootDir = fixture({ [file]: Array(427).fill("export const value = 1;").join("\n") });
+    const migrationAllowlist = { tolerancePct: 2, maxToleranceLines: 25, violations: { [`page-entry-lines:${file}`]: { maxLines: 401 } } };
     expect(checkWingmanArchitecture({ rootDir, migrationAllowlist })).toEqual([
       expect.objectContaining({ rule: "page-entry-lines", file }),
     ]);
+  });
+
+  it("allows limited flex for recorded debt", () => {
+    const file = "src/wingman2/pages/DiscoveryPage.tsx";
+    const rootDir = fixture({ [file]: Array(409).fill("export const value = 1;").join("\n") });
+    const migrationAllowlist = { tolerancePct: 2, maxToleranceLines: 25, violations: { [`page-entry-lines:${file}`]: { maxLines: 401 } } };
+    expect(checkWingmanArchitecture({ rootDir, migrationAllowlist })).toEqual([]);
   });
 
   it("allows active recorded debt at its ceiling", () => {

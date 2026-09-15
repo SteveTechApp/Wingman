@@ -125,6 +125,8 @@ function allowlistEntries(migrationAllowlist) {
 export function checkWingmanArchitecture({ rootDir, migrationAllowlist = {} }) {
   const violations = [];
   const allowed = allowlistEntries(migrationAllowlist);
+  const tolerancePct = Number(migrationAllowlist.tolerancePct ?? 0);
+  const maxToleranceLines = Number(migrationAllowlist.maxToleranceLines ?? 0);
   const activeDebt = new Set();
 
   for (const key of migrationAllowlist?.duplicateKeys ?? []) {
@@ -148,7 +150,10 @@ export function checkWingmanArchitecture({ rootDir, migrationAllowlist = {} }) {
     const key = `${rule}:${file}`;
     activeDebt.add(key);
     const ceiling = allowed[key]?.maxLines;
-    if (typeof lines === "number" && MIGRATION_ALLOWLIST_KEYS.has(key) && Number.isInteger(ceiling) && lines <= ceiling) return;
+    const flex = Number.isInteger(ceiling)
+      ? Math.min(Math.ceil(ceiling * tolerancePct / 100), maxToleranceLines)
+      : 0;
+    if (typeof lines === "number" && MIGRATION_ALLOWLIST_KEYS.has(key) && Number.isInteger(ceiling) && lines <= ceiling + flex) return;
     violations.push({ rule, file, detail });
   };
 

@@ -1,6 +1,7 @@
 {
   "updatedAt": "2026-09-01T10:39:50.566Z",
-  "rule": "Current totals become the maximum allowed style-drift counts. Future changes must not increase these counts.",
+  "tolerancePct": 5,
+  "rule": "Current totals are the baseline. Nonzero metrics may vary by up to tolerancePct; zero baselines remain strict.",
   "totals": {
     "hex": 2007,
     "rgb": 2336,

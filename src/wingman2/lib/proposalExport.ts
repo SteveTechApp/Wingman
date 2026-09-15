@@ -15,6 +15,7 @@ import { extractUnresolvedDiscoveryItems } from "./unresolvedDiscoveryItems";
 import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel } from "./schematic/nativeCableSchedule";
 import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
 import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
+import { buildDesignProjectDocument, trackDesignProjectExport } from "../features/design-project";
 
 export type BomRow = SalesBomRow;
 
@@ -220,10 +221,11 @@ function buildUnresolvedDiscoveryHtml(proposal: StoredProjectProposal): string {
 function buildCanonicalDesignHtml(proposal: StoredProjectProposal): string {
   const revision = proposal.designRevision;
   if (!revision) return "";
-  const requirements = revision.requirements.map((item) => `<tr><td>${escapeHtml(item.customerStatement)}</td><td>${escapeHtml(item.interpretation)}</td><td>${escapeHtml(item.designConsequence)}</td><td>${escapeHtml(item.state)}</td></tr>`).join("");
-  const roles = revision.roleCoverage.filter((item) => item.required).map((item) => `<tr><td>${escapeHtml(item.label)}</td><td>${item.covered ? "Covered" : "Missing"}</td><td>${escapeHtml(item.evidence.join("; ") || "No design evidence")}</td></tr>`).join("");
-  const products = revision.productOverviews.map((item) => `<tr><td>${item.quantity} × ${escapeHtml(item.sku)}</td><td>${escapeHtml(item.designRole)}</td><td>${escapeHtml(item.reason)}</td><td>${escapeHtml(item.proof.join("; ") || "Confirm product evidence")}</td></tr>`).join("");
-  return `<h2>Requirement Understanding and Design Trace</h2><p><strong>Design revision:</strong> ${escapeHtml(revision.revisionId)}</p><p><strong>Customer said:</strong> ${escapeHtml(revision.customerRequirement)}</p><p><strong>Wingman understood:</strong> ${escapeHtml(revision.interpretedRequirement)}</p><p><strong>Design direction:</strong> ${escapeHtml(revision.architecture)}</p><table><thead><tr><th>Customer requirement</th><th>Wingman interpretation</th><th>Design consequence</th><th>Status</th></tr></thead><tbody>${requirements}</tbody></table><h2>System Completeness</h2><table><thead><tr><th>Required design role</th><th>Coverage</th><th>Evidence</th></tr></thead><tbody>${roles}</tbody></table><h2>Product Overview in This Design</h2><table><thead><tr><th>Product</th><th>Design role</th><th>Requirement served</th><th>Proof</th></tr></thead><tbody>${products}</tbody></table>`;
+  const document = buildDesignProjectDocument(revision);
+  const requirements = document.requirements.map((item) => `<tr><td>${escapeHtml(item.customerStatement)}</td><td>${escapeHtml(item.interpretation)}</td><td>${escapeHtml(item.designConsequence)}</td><td>${escapeHtml(item.state)}</td></tr>`).join("");
+  const roles = document.requiredRoles.map((item) => `<tr><td>${escapeHtml(item.label)}</td><td>${item.covered ? "Covered" : "Missing"}</td><td>${escapeHtml(item.evidence.join("; ") || "No design evidence")}</td></tr>`).join("");
+  const products = document.products.map((item) => `<tr><td>${item.quantity} × ${escapeHtml(item.sku)}</td><td>${escapeHtml(item.designRole)}</td><td>${escapeHtml(item.reason)}</td><td>${escapeHtml(item.proof.join("; ") || "Confirm product evidence")}</td></tr>`).join("");
+  return `<h2>Requirement Understanding and Design Trace</h2><p><strong>Design revision:</strong> ${escapeHtml(document.revisionId)}</p><p><strong>Customer said:</strong> ${escapeHtml(document.customerRequirement)}</p><p><strong>Wingman understood:</strong> ${escapeHtml(document.interpretation)}</p><p><strong>Design direction:</strong> ${escapeHtml(document.architecture)}</p><table><thead><tr><th>Customer requirement</th><th>Wingman interpretation</th><th>Design consequence</th><th>Status</th></tr></thead><tbody>${requirements}</tbody></table><h2>System Completeness</h2><table><thead><tr><th>Required design role</th><th>Coverage</th><th>Evidence</th></tr></thead><tbody>${roles}</tbody></table><h2>Product Overview in This Design</h2><table><thead><tr><th>Product</th><th>Design role</th><th>Requirement served</th><th>Proof</th></tr></thead><tbody>${products}</tbody></table>`;
 }
 
 function buildExclusionsHtml(bomRows: BomRow[]) {
@@ -736,10 +738,12 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
 export function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
   downloadBlob(new Blob([buildProposalHtml(proposal, bomRows, products)], { type: "text/html;charset=utf-8" }), `${fileBaseName(proposal.title)}.proposal.html`);
+  trackDesignProjectExport(proposal.designRevision, "html");
 }
 
 export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   downloadBlob(new Blob([buildBomCsv(bomRows)], { type: "text/csv;charset=utf-8" }), `${fileBaseName(proposal.title)}.bom.csv`);
+  trackDesignProjectExport(proposal.designRevision, "csv");
 }
 
 /**
@@ -760,6 +764,7 @@ export function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomR
   printWindow.document.open();
   printWindow.document.write(buildProposalHtml(proposal, bomRows, products));
   printWindow.document.close();
+  trackDesignProjectExport(proposal.designRevision, "pdf");
   printWindow.onload = () => {
     printWindow.focus();
     printWindow.print();
