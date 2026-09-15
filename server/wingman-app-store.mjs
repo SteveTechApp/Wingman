@@ -3430,9 +3430,36 @@ export async function handleWingmanTelemetryPost(req, res, url, { sendJson, pars
     return;
   }
 
-  const event = {
+  const allowedProjectIds = new Set(asArray(ensureWorkspaceState(db, auth.workspace.id).projects).map((project) => project.id));
+  const analyticsKinds = new Set(["feature_open", "feature_complete", "export", "search", "session_start", "journey"]);
+  const journeyNames = new Set(["design_project_started", "design_project_blocked", "design_project_recommended", "design_project_proposal_ready", "design_project_exported"]);
+  const rawEvents = tidy(body?.kind) === "analytics_batch" ? asArray(body?.events).slice(0, 50) : [body];
+  const events = rawEvents.flatMap((raw) => {
+    if (!raw || typeof raw !== "object") return [];
+    const kind = tidy(raw.kind);
+    if (tidy(body?.kind) === "analytics_batch") {
+      const feature = tidy(raw.feature);
+      const metadata = raw.metadata && typeof raw.metadata === "object" && !Array.isArray(raw.metadata) ? cloneJson(raw.metadata, {}) : {};
+      if (!analyticsKinds.has(kind) || !feature) return [];
+      if (kind === "journey" && (!journeyNames.has(feature) || !tidy(metadata.projectId) || !tidy(metadata.graphHash))) return [];
+      const requestedProjectId = tidy(metadata.projectId);
+      return [{
+        id: tidy(raw.id) || makeId("telemetry"),
+        kind,
+        message: feature,
+        feature,
+        metadata,
+        sessionDurationMs: Number.isFinite(Number(raw.sessionDurationMs)) ? Number(raw.sessionDurationMs) : undefined,
+        timestamp: tidy(raw.timestamp) || nowIso(),
+        route: tidy(raw.route) || undefined,
+        projectId: requestedProjectId && allowedProjectIds.has(requestedProjectId) ? requestedProjectId : undefined,
+        workspaceId: auth.workspace.id,
+        userId: auth.user.id,
+      }];
+    }
+    return [{
     id: tidy(body?.id) || makeId("telemetry"),
-    kind: ["error", "unhandledrejection", "info"].includes(tidy(body?.kind)) ? tidy(body?.kind) : "info",
+    kind: ["error", "unhandledrejection", "info"].includes(kind) ? kind : "info",
     message: tidy(body?.message) || "Runtime event",
     stack: tidy(body?.stack) || undefined,
     source: tidy(body?.source) || undefined,
@@ -3444,20 +3471,26 @@ export async function handleWingmanTelemetryPost(req, res, url, { sendJson, pars
     handled: typeof body?.handled === "boolean" ? body.handled : undefined,
     workspaceId: auth.workspace.id,
     userId: auth.user.id,
-  };
+    }];
+  });
 
-  appendTelemetryEvent(db, event);
+  if (events.length === 0) {
+    sendJson(res, 400, { ok: false, error: "Telemetry payload did not contain any valid events." });
+    return;
+  }
+
+  for (const event of events) appendTelemetryEvent(db, event);
   appendAuditEvent(db, makeProjectAuditEvent({
     scope: "telemetry",
-    action: "runtime",
-    detail: `Runtime telemetry captured: ${event.kind}.`,
+    action: tidy(body?.kind) === "analytics_batch" ? "analytics" : "runtime",
+    detail: `${events.length} telemetry event${events.length === 1 ? "" : "s"} captured.`,
     user: auth.user,
-    projectId: event.projectId,
+    projectId: events.length === 1 ? events[0].projectId : undefined,
     workspaceId: auth.workspace.id,
-    severity: event.kind === "info" ? "info" : "warn",
+    severity: events.every((event) => !["error", "unhandledrejection"].includes(event.kind)) ? "info" : "warn",
   }));
 
   await writeDb(db);
-  sendJson(res, 200, { ok: true });
+  sendJson(res, 200, { ok: true, accepted: events.length });
   });
 }

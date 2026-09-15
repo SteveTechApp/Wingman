@@ -15,6 +15,7 @@ import type {
   ProposalVisualStatus,
   StoredCompareRun,
   StoredDesignProposalRevision,
+  StoredDesignProject,
   StoredDiscoveryBrief,
   StoredGovernedDependency,
   StoredIngestAnalysis,
@@ -357,14 +358,14 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
     contactPhone: stringValue(record.contactPhone, undefined),
     discoveryConversation: normalizeDiscoveryConversation(record.discoveryConversation),
     designRevision: normalizeDesignProposalRevision(record.designRevision),
-    submittedRevisionHash: stringValue(record.submittedRevisionHash, undefined),
+    submittedRevisionHash: stringValue(record.submittedRevisionHash) || undefined,
     approvedRevisionHash: stringValue(record.approvedRevisionHash, undefined),
     approvalStatus:
       record.approvalStatus === "pending" || record.approvalStatus === "approved" || record.approvalStatus === "rejected"
         ? record.approvalStatus
         : "draft",
-    submittedBy: stringValue(record.submittedBy, undefined),
-    submittedAt: stringValue(record.submittedAt, undefined),
+    submittedBy: stringValue(record.submittedBy) || undefined,
+    submittedAt: stringValue(record.submittedAt) || undefined,
     approvedBy: stringValue(record.approvedBy, undefined),
     approvedAt: stringValue(record.approvedAt, undefined),
     approvalComments: stringValue(record.approvalComments, undefined),
@@ -378,6 +379,28 @@ function normalizeDesignProposalRevision(value: unknown): StoredDesignProposalRe
   // Design revisions are generated atomically by compileDesignProposal. Preserve
   // the versioned payload here; the compiler owns its schema and defaults.
   return record as unknown as StoredDesignProposalRevision;
+}
+
+function normalizeDesignProject(value: unknown): StoredDesignProject | undefined {
+  const record = objectRecord(value);
+  if (!record || Number(record.schemaVersion) !== 1 || !Array.isArray(record.stages)) return undefined;
+  const decision = normalizeDesignProposalRevision(record.decision);
+  const publication = objectRecord(record.publication);
+  if (!decision || !publication) return undefined;
+  return {
+    schemaVersion: 1,
+    projectId: stringValue(record.projectId),
+    projectName: stringValue(record.projectName),
+    compiledAt: stringValue(record.compiledAt, nowIso()),
+    contentHash: stringValue(record.contentHash),
+    stages: record.stages as StoredDesignProject["stages"],
+    decision,
+    publication: {
+      canIssue: publication.canIssue === true,
+      blockers: stringArray(publication.blockers),
+      warnings: stringArray(publication.warnings),
+    },
+  };
 }
 
 function normalizeProposalVisualBlocks(value: unknown): StoredProposalVisualBlock[] {
@@ -565,6 +588,7 @@ export function decodeStoredProject(value: unknown): StoredProject | null {
   delete project.compareHistoryView;
   delete project.compareRuns;
   delete project.proposal;
+  delete project.designProject;
   delete project.requirements;
   delete project.recommendationEvidence;
   delete project.feedback;
@@ -601,6 +625,9 @@ export function decodeStoredProject(value: unknown): StoredProject | null {
 
   const proposal = normalizeProjectProposal(record.proposal);
   if (proposal) project.proposal = proposal;
+
+  const designProject = normalizeDesignProject(record.designProject);
+  if (designProject) project.designProject = designProject;
 
   const requirements = normalizeRequirementRecords(record.requirements);
   if (requirements.length) project.requirements = requirements;

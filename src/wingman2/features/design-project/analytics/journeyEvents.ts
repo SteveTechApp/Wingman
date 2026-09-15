@@ -5,10 +5,10 @@ import { trackJourneyEvent } from "../../../lib/featureAnalytics";
 export type DesignProjectJourneyName = "design_project_started" | "design_project_blocked" | "design_project_recommended" | "design_project_proposal_ready" | "design_project_exported";
 export type DesignProjectJourneyEvent = { name: DesignProjectJourneyName; projectId: string; graphHash: string; stage: string; outcome: "complete" | "blocked" | "review"; blockerCount: number };
 
-export function buildDesignProjectJourneyEvent(graph: DesignProjectDecisionGraph): DesignProjectJourneyEvent {
+export function buildDesignProjectJourneyEvent(graph: DesignProjectDecisionGraph, lifecycle: "started" | "refreshed" = "refreshed"): DesignProjectJourneyEvent {
   const publication = graph.stages.find((stage) => stage.id === "publication");
   const recommendation = graph.stages.find((stage) => stage.id === "recommendation");
-  const name: DesignProjectJourneyName = graph.publication.canIssue ? "design_project_proposal_ready" : recommendation?.status === "complete" ? "design_project_recommended" : graph.publication.blockers.length ? "design_project_blocked" : "design_project_started";
+  const name: DesignProjectJourneyName = lifecycle === "started" ? "design_project_started" : graph.publication.canIssue ? "design_project_proposal_ready" : recommendation?.status === "complete" ? "design_project_recommended" : "design_project_blocked";
   return { name, projectId: graph.projectId, graphHash: graph.contentHash, stage: publication?.id ?? "evidence", outcome: publication?.status ?? "review", blockerCount: graph.publication.blockers.length };
 }
 

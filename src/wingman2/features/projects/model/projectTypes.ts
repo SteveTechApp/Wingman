@@ -32,6 +32,8 @@ export type StoredProject = {
   compareRuns?: StoredCompareRun[];
   compareHistoryView?: { search?: string; filter?: string; sort?: string };
   proposal?: StoredProjectProposal;
+  /** Persisted canonical graph for the complete design-project lifecycle. */
+  designProject?: StoredDesignProject;
   proposalVersions?: StoredProposalVersion[];
   requirements?: StoredRequirementRecord[];
   recommendationEvidence?: StoredRecommendationEvidence;
@@ -237,6 +239,23 @@ export type StoredProjectProposal = {
   submittedRevisionHash?: string;
   /** Hash of the exact canonical revision approved for customer issue. */
   approvedRevisionHash?: string;
+};
+
+export type StoredDesignProjectStage = {
+  id: "evidence" | "topology" | "recommendation" | "validation" | "publication";
+  status: "complete" | "blocked" | "review";
+  facts: string[];
+};
+
+export type StoredDesignProject = {
+  schemaVersion: 1;
+  projectId: string;
+  projectName: string;
+  compiledAt: string;
+  contentHash: string;
+  stages: StoredDesignProjectStage[];
+  decision: StoredDesignProposalRevision;
+  publication: { canIssue: boolean; blockers: string[]; warnings: string[] };
 };
 
 export type DesignRequirementState = "confirmed" | "inferred" | "unknown" | "conflict";

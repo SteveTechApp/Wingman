@@ -350,6 +350,20 @@ tests pin. The limit is raised to the measured value only; it should travel
 back downward as the Phase 4/5 compare-domain split named in the artefact's
 remediation lands (ranking, competitor data and evidence loaded on demand).
 
+### 2026-09-14 — Bounded tolerance for refactor and minifier variation
+
+Reviewed exception: size and nonzero style-drift totals now allow 5% variation.
+The former 1% size margin repeatedly blocked behavior-preserving module moves
+because Rollup reassigned shared modules between chunks; the design-project
+merge exceeded eager JavaScript by only 1.72 KB while remaining below the new
+5% ceiling. Removing the feature, duplicating shared code, and reshaping imports
+solely to influence chunk placement were rejected because they would reduce
+functionality or architecture quality. Architecture debt receives a smaller 2%
+margin capped at 25 lines, applies only to existing allowlisted files, and never
+permits new oversized files. Zero style baselines remain strict. These margins
+are ceilings rather than targets, and recorded baselines should continue moving
+down as sustained reductions land.
+
 ## Adding a new tracked artefact
 
 Add an entry to `TRACKED_ENTRIES` in `tools/lib/wingman-size-budgets.mjs`
