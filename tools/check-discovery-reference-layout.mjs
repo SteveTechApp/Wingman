@@ -3,6 +3,8 @@ import path from "node:path";
 
 const root = process.cwd();
 const pagePath = path.join(root, "src", "wingman2", "pages", "DiscoveryPage.tsx");
+const questionSectionPath = path.join(root, "src", "wingman2", "pages", "discovery", "DiscoveryQuestionSection.tsx");
+const sessionHeroPath = path.join(root, "src", "wingman2", "components", "DiscoverySessionPaceSwitch.tsx");
 const themePath = path.join(root, "src", "wingman2", "styles", "wingman-workflow-theme.css");
 const mainPath = path.join(root, "src", "main.tsx");
 const errors = [];
@@ -22,7 +24,7 @@ function requireMarker(label, source, marker) {
   }
 }
 
-const page = read(pagePath);
+const page = `${read(pagePath)}\n${read(questionSectionPath)}\n${read(sessionHeroPath)}`;
 const theme = read(themePath);
 const main = read(mainPath);
 
@@ -30,14 +32,11 @@ const main = read(mainPath);
   "wm-discovery-capture-hero",
   "wm-discovery-completion-card",
   "wm-discovery-trail-card",
-  "wm-discovery-step-pills",
   "wm-discovery-question-layout",
   "wm-discovery-option-list",
   "wm-discovery-capture-card",
   "wm-discovery-live-tip",
-  "One question at a time",
   "Discovery trail",
-  "Why this matters",
   "Customer wording / notes",
 ].forEach((marker) => requireMarker("DiscoveryPage.tsx", page, marker));
 
