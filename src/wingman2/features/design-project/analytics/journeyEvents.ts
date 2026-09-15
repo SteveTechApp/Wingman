@@ -9,7 +9,7 @@ export function buildDesignProjectJourneyEvent(graph: DesignProjectDecisionGraph
   const publication = graph.stages.find((stage) => stage.id === "publication");
   const recommendation = graph.stages.find((stage) => stage.id === "recommendation");
   const name: DesignProjectJourneyName = lifecycle === "started" ? "design_project_started" : graph.publication.canIssue ? "design_project_proposal_ready" : recommendation?.status === "complete" ? "design_project_recommended" : "design_project_blocked";
-  return { name, projectId: graph.projectId, graphHash: graph.contentHash, stage: publication?.id ?? "evidence", outcome: publication?.status ?? "review", blockerCount: graph.publication.blockers.length };
+  return { name, projectId: graph.projectId, graphHash: graph.decision.contentHash, stage: publication?.id ?? "evidence", outcome: publication?.status ?? "review", blockerCount: graph.publication.blockers.length };
 }
 
 export function buildDesignProjectExportEvent(projectId: string, graphHash: string, format: "html" | "docx" | "pdf" | "csv"): DesignProjectJourneyEvent & { format: string } {

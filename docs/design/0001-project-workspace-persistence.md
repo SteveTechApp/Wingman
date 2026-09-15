@@ -42,10 +42,14 @@ Compare decision adapter. Routes may collect input, invoke commands and format
 results, but must not independently reinterpret recommendation, validation or
 publication policy.
 
-Journey telemetry records only the typed lifecycle outcome, Project id, graph
-hash, stage and bounded operational metadata. The authenticated server accepts
-and validates batched journey events; customer notes, contact details and
-proposal content are excluded.
+Journey telemetry records only the typed lifecycle outcome, Project id,
+canonical proposal revision hash (`StoredDesignProposalRevision.contentHash`,
+`dp1-*`), stage and bounded operational metadata. The existing telemetry field
+is named `graphHash` for wire compatibility, but every refresh and HTML, DOCX,
+PDF/print or BOM CSV export producer writes that same canonical revision hash;
+the graph-specific `StoredDesignProject.contentHash` (`dpg1-*`) is not emitted
+in that field. The authenticated server accepts and validates batched journey
+events; customer notes, contact details and proposal content are excluded.
 
 ---
 
