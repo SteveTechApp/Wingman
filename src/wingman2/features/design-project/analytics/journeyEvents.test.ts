@@ -6,7 +6,8 @@ describe("Design Project journey evidence", () => {
   it("contains only opaque identity and decision-state fields", () => {
     const graph = compileDesignProject({ id: "p-1", name: "Secret Customer", owner: "person@example.com", stage: "Discovery", status: "alternative", updated: "now", createdAt: "now", updatedAt: "now", resumeTo: "/" }, "2026-09-14");
     const event = buildDesignProjectJourneyEvent(graph);
-    expect(event).toMatchObject({ name: "design_project_blocked", projectId: "p-1", graphHash: graph.contentHash, blockerCount: expect.any(Number) });
+    expect(event).toMatchObject({ name: "design_project_blocked", projectId: "p-1", graphHash: graph.decision.contentHash, blockerCount: expect.any(Number) });
+    expect(event.graphHash).toMatch(/^dp1-/);
     expect(JSON.stringify(event)).not.toContain("Secret Customer");
     expect(JSON.stringify(event)).not.toContain("person@example.com");
   });

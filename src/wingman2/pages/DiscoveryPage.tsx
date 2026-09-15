@@ -26,7 +26,6 @@ import {
   type DiscoveryHandoffMode,
 } from "../lib/discoveryTemplateHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
-import DiscoveryLocationsConnections from "../components/DiscoveryLocationsConnections";
 import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
   clearDiscoveryTopology,
@@ -51,15 +50,11 @@ import type {
 import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
-import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
 import { BASIC_MODE_REQUIRED_IDS, DISCOVERY_DEPTH_PRESENTATION, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
-import { DiscoveryCaptureSuggestion } from "./discovery/DiscoveryCaptureSuggestion";
-import { DiscoveryOptionGraphic } from "./discovery/DiscoveryOpportunityGraphic";
-import { DiscoveryQuestionIntro, getDiscoverySectionTone } from "./discovery/DiscoveryQuestionGraphic";
-import { DiscoveryDefaultsConflictAlert } from "./discovery/DiscoveryDefaultsConflictAlert";
+import { DiscoveryQuestionSection } from "./discovery/DiscoveryQuestionSection";
 import {
   getDiscoverySpeechRecognition,
   type DiscoverySpeechRecognitionEventLike,
@@ -1599,182 +1594,22 @@ return (
         />
       )}
 
-      <div className={`wm-discovery-question-layout is-${getDiscoverySectionTone(currentStep.section)}`}>
-        <section
-          className="wm-discovery-question-card wm-ui-section wm-ui-card"
-          data-discovery-step={currentStep.id}
-          data-discovery-section={currentStep.section}
-        >
-          {/* WINGMAN_DISCOVERY_COMPACT_NAV_START */}
-          <div className="wm-discovery-compact-stepbar" aria-label="Discovery progress and controls">
-            <div className="wm-discovery-compact-step-copy">
-              <strong>Step {activeIndex + 1} of {modeQuestions.length}</strong>
-              <span>
-                {currentStep.section}
-                {currentStep.optional ? " · Optional" : ""}
-              </span>
-            </div>
-
-            <div className="wm-discovery-compact-step-actions">
-              {isReviewingAnswers && (
-                <button
-                  className="wm-ui-button wm-ui-button-secondary"
-                  type="button"
-                  onClick={() => setIsReviewingAnswers(false)}
-                >
-                  Back to completion
-                </button>
-              )}
-              <button
-                className="wm-ui-button wm-ui-button-secondary"
-                type="button"
-                onClick={resetDiscovery}
-              >
-                Reset discovery
-              </button>
-            </div>
-          </div>
-          {/* WINGMAN_DISCOVERY_COMPACT_NAV_END */}
-
-          <DiscoveryQuestionIntro
-            section={currentStep.section}
-            shortLabel={currentStep.shortLabel}
-            question={currentStepView.question}
-            prompt={currentStepView.prompt}
-            showMultiSelectNote={wmDiscoveryIsMultiSelectStep(currentStep)}
-            conflictAlert={<DiscoveryDefaultsConflictAlert
-              questionId={currentStep.id}
-              visibleOptionValues={currentStepView.options.map((option) => option.value)}
-              answer={currentAnswer}
-            />}
-          />
-
-          {currentStep.id === "locations-connections" ? (
-            <DiscoveryLocationsConnections
-              value={topology}
-              seed={{ answers, notes, application: selectedApplication, existing: topology }}
-              onChange={handleTopologyChange}
-            />
-          ) : (
-            <div className="wm-discovery-option-list wm-ui-card">
-              {currentStepView.options.map((option) => {
-                const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
-                const optionClassNames = ["wm-discovery-option"];
-                if (selected) optionClassNames.push("is-selected");
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={optionClassNames.join(" ")}
-                    onClick={() => handleSelectAnswer(option.value)}
-                    aria-pressed={selected}
-                  >
-                    <span className={wmDiscoveryIsMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
-                    <DiscoveryOptionGraphic option={option.value} step={currentStep.id} label={option.label} />
-                    <span>
-                      <strong>{option.label}</strong>
-                      <small>{option.help}</small>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          <div className="wm-discovery-navigation-row wm-ui-card">
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={movePrevious} disabled={isFirstStep}>
-              Previous
-            </button>
-            <button
-              className="wm-ui-button wm-ui-button-primary wm-discovery-next-button"
-              type="button"
-              onClick={currentStep.id === "locations-connections" ? completeTopologyStep : moveNext}
-              disabled={currentStep.id === "locations-connections" ? false : isLastStep}
-            >
-              {currentStep.id === "locations-connections"
-                ? (isLastStep ? "Complete discovery" : "Continue")
-                : wmDiscoveryIsMultiSelectStep(currentStep) ? "Continue" : "Continue"}
-            </button>
-          </div>
-        </section>
-
-        <aside className="wm-discovery-capture-card wm-ui-card">
-          {capturedSummary.length > 0 && (
-            <DiscoverySummaryCard
-              items={capturedSummary}
-              isDiscoveryComplete={isDiscoveryComplete}
-              savedMessage={savedMessage}
-              onMoveNext={moveNext}
-              onSaveProgress={saveDiscoveryToProject}
-              videoWallRequired={requiresVideoWallConfiguration}
-              videoWallConfigured={videoWallConfigured}
-              onConfigureVideoWall={openVideoWallConfiguration}
-              onToggleConfirmed={(stepId) =>
-                setConfirmedSteps((previous) => ({ ...previous, [stepId]: previous[stepId] !== true }))
-              }
-              compact
-              strandedQuickStart={strandedQuickStart}
-              applicationDrift={quickStartDrift}
-              onOpenStrandedStep={openStrandedStep}
-              onRemoveStranded={removeStrandedQuickStart}
-              onRemoveDrift={removeQuickStartDrift}
-            />
-          )}
-
-          <div className="wm-discovery-capture-heading wm-ui-title">
-            <div>
-              <span>Capture box</span>
-              <h3 className="wm-ui-title">Customer wording / notes</h3>
-            </div>
-
-            <button
-              type="button"
-              className={isListening ? "wm-discovery-mic-button is-listening" : "wm-discovery-mic-button"}
-              onClick={toggleMicrophone}
-              aria-pressed={isListening}
-              disabled={!micSupported && isListening}
-            >
-              {isListening ? "Stop mic" : "Mic"}
-            </button>
-          </div>
-
-          <textarea className="wm-ui-input"
-            aria-label="Customer wording / notes"
-            value={currentNote}
-            onChange={(event) => handleCaptureChange(event.target.value)}
-            placeholder={currentStepView.capturePlaceholder}
-            rows={9}
-          />
-
-          <DiscoveryCaptureSuggestion step={currentStep} view={currentStepView} note={currentNote} onConfirm={confirmCaptureSuggestion} />
-
-          <div className="wm-discovery-capture-actions">
-            <button className="wm-ui-button wm-ui-button-primary wm-discovery-save-button" type="button" onClick={saveCaptureAsAnswer} disabled={!currentNote.trim()}>
-              Save capture and continue
-            </button>
-          </div>
-
-          {!micSupported && (
-            <p className="wm-discovery-muted-note wm-ui-copy">
-              Microphone capture depends on browser support. Manual note capture is always available.
-            </p>
-          )}
-
-          {micError && <p className="wm-discovery-error-note wm-ui-copy">{micError}</p>}
-
-          {selectedApplicationGuidance && (
-            <div className="wm-discovery-live-tip wm-discovery-application-guidance">
-              <strong>Application-specific discovery question guidance</strong>
-              <p className="wm-ui-copy">{selectedApplicationGuidance.likelyDirection}</p>
-              <ul>
-                {selectedApplicationGuidance.checkBeforeProduct.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </aside>
-      </div>
+      <DiscoveryQuestionSection
+        activeIndex={activeIndex} questionCount={modeQuestions.length} currentStep={currentStep} currentStepView={currentStepView}
+        currentAnswer={currentAnswer} currentNote={currentNote} answers={answers} notes={notes} topology={topology}
+        isFirstStep={isFirstStep} isLastStep={isLastStep} isReviewingAnswers={isReviewingAnswers}
+        isDiscoveryComplete={isDiscoveryComplete} capturedSummary={capturedSummary} savedMessage={savedMessage}
+        micSupported={micSupported} isListening={isListening} micError={micError} selectedApplication={selectedApplication}
+        selectedApplicationGuidance={selectedApplicationGuidance} requiresVideoWallConfiguration={requiresVideoWallConfiguration}
+        videoWallConfigured={videoWallConfigured} strandedQuickStart={strandedQuickStart} quickStartDrift={quickStartDrift}
+        setIsReviewingAnswers={setIsReviewingAnswers} setConfirmedSteps={setConfirmedSteps} onReset={resetDiscovery}
+        onSelectAnswer={handleSelectAnswer} onTopologyChange={handleTopologyChange} onCompleteTopology={completeTopologyStep}
+        onMovePrevious={movePrevious} onMoveNext={moveNext} onCaptureChange={handleCaptureChange}
+        onConfirmCaptureSuggestion={confirmCaptureSuggestion} onSaveCapture={saveCaptureAsAnswer}
+        onSaveDiscovery={saveDiscoveryToProject} onToggleMicrophone={toggleMicrophone}
+        onConfigureVideoWall={openVideoWallConfiguration} onOpenStrandedStep={openStrandedStep}
+        onRemoveStranded={removeStrandedQuickStart} onRemoveDrift={removeQuickStartDrift}
+      />
       </>
       )}
 

@@ -25,6 +25,32 @@ Completion have migrated to the public interface. Server-authoritative
 workspace scoping and the remaining legacy callers continue through the phased
 migration described below.
 
+### Canonical Design Project decision (accepted 2026-09-15)
+
+The persisted Project also owns one versioned Design Project decision graph.
+`compileDesignProject` derives its five ordered stages—evidence, topology,
+recommendation, validation and publication—from Project data and assigns a
+deterministic `dpg1-*` content identity. `refreshDesignProject` stores that
+graph atomically with its compatibility proposal revision and invalidates an
+approved or pending submission whenever its submitted revision no longer
+matches the new graph.
+
+Decision policy belongs to the Design Project compiler and focused adapters,
+not route components. Proposal screen/HTML, DOCX, print/PDF and BOM projections
+consume the shared `DesignProjectDocument`; Compare pages consume the public
+Compare decision adapter. Routes may collect input, invoke commands and format
+results, but must not independently reinterpret recommendation, validation or
+publication policy.
+
+Journey telemetry records only the typed lifecycle outcome, Project id,
+canonical proposal revision hash (`StoredDesignProposalRevision.contentHash`,
+`dp1-*`), stage and bounded operational metadata. The existing telemetry field
+is named `graphHash` for wire compatibility, but every refresh and HTML, DOCX,
+PDF/print or BOM CSV export producer writes that same canonical revision hash;
+the graph-specific `StoredDesignProject.contentHash` (`dpg1-*`) is not emitted
+in that field. The authenticated server accepts and validates batched journey
+events; customer notes, contact details and proposal content are excluded.
+
 ---
 
 ## 1. Context: what `projectStore.ts` does today (measured 2026-09-03)

@@ -39,7 +39,7 @@ requireText(
 );
 
 requireText(
-  "src/wingman2/pages/DiscoveryPage.tsx",
+  "src/wingman2/pages/discovery/DiscoveryQuestionSection.tsx",
   "<DiscoveryLocationsConnections",
   "Topology editor rendering",
 );

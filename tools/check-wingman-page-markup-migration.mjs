@@ -32,6 +32,12 @@ const defaultClassTokens = {
 };
 
 const pageContracts = {
+  "src/wingman2/pages/DiscoveryPage.tsx": {
+    sources: [
+      "src/wingman2/pages/DiscoveryPage.tsx",
+      "src/wingman2/pages/discovery/DiscoveryQuestionSection.tsx",
+    ],
+  },
   "src/wingman2/pages/DashboardPage.tsx": {
     sources: ["src/wingman2/pages/DashboardPage.tsx"],
     tokens: {

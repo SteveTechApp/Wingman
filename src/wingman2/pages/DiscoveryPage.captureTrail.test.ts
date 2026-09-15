@@ -5,6 +5,10 @@ import { describe, expect, it } from "vitest";
 describe("free-text capture suggestions reach the discovery conversation trail", () => {
   it("confirms a suggestion through handleSelectAnswer so the typed wording survives as the note", () => {
     const source = readFileSync(join(process.cwd(), "src/wingman2/pages/DiscoveryPage.tsx"), "utf8");
+    const questionSection = readFileSync(
+      join(process.cwd(), "src/wingman2/pages/discovery/DiscoveryQuestionSection.tsx"),
+      "utf8",
+    );
 
     // The suggestion chip must confirm via the same answer path used by option
     // taps. handleSelectAnswer only clears notes for conditional-route cleanup
@@ -12,7 +16,8 @@ describe("free-text capture suggestions reach the discovery conversation trail",
     // notes store and flows into the conversation trail.
     expect(source).toContain("function confirmCaptureSuggestion(values: string[], confidence?: \"high\" | \"matched\" | \"low\"): void {");
     expect(source).toContain("handleSelectAnswer(values[0]);");
-    expect(source).toContain("onConfirm={confirmCaptureSuggestion}");
+    expect(source).toContain("onConfirmCaptureSuggestion={confirmCaptureSuggestion}");
+    expect(questionSection).toContain("onConfirm={onConfirmCaptureSuggestion}");
   });
 
   it("keeps the wording column populated by wiring notes into buildDiscoveryConversation", () => {
