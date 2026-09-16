@@ -12,6 +12,7 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { HubCard, routeAction } from "./NavigationHubPages";
 import { StatusChip } from "../components/StatusChip";
 import { GuidedDashboard } from "../components/GuidedDashboard";
+import { UiModeToggle } from "../components/UiModeToggle";
 import { useUiMode } from "../data/uiMode";
 import {
   confirmGovernedProfile,
@@ -787,15 +788,18 @@ export function DashboardPage() {
           <p>What would you like to achieve today?</p>
         </div>
 
-        <button
-          type="button"
-          className="wingman-new-project-button"
-          onClick={() => window.dispatchEvent(new Event("wingman:new-project"))}
-          aria-label="Create new Wingman project"
-        >
-          <Plus className="h-4 w-4" />
-          <span>New Project</span>
-        </button>
+        <div className="wm-dashboard-heading-actions">
+          <UiModeToggle />
+          <button
+            type="button"
+            className="wingman-new-project-button"
+            onClick={() => window.dispatchEvent(new Event("wingman:new-project"))}
+            aria-label="Create new Wingman project"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Project</span>
+          </button>
+        </div>
       </header>
 
       <div className="wm-reference-dashboard-layout wm-dashboard-content-grid">

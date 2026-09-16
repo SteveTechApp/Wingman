@@ -371,7 +371,6 @@ export function AppShell({ children }: AppShellProps) {
         </nav>
 
         <div className="wingman-sidebar-footer">
-          <UiModeToggle />
           <NavLink to={routeCatalogByKey.terms.path} title="Terms & legal disclaimer" aria-label="Terms and legal disclaimer" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
             Terms &amp; legal
           </NavLink>

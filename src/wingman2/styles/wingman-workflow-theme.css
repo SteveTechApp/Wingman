@@ -8340,15 +8340,12 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
   font-size: .58rem;
 }
 
-/* ── Topbar mode toggle (mobile only) ─────────────────────────── */
+/* ── Topbar mode toggle ───────────────────────────────────────── */
 .wm-topbar-mode-toggle {
-  display: none;
+  display: flex;
+  align-items: center;
 }
 @media (max-width: 980px) {
-  .wm-topbar-mode-toggle {
-    display: flex;
-    align-items: center;
-  }
   .wm-topbar-mode-toggle .wm-mode-toggle {
     min-height: 30px;
     padding: 4px 8px;
