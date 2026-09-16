@@ -45,7 +45,7 @@ requireText(
 );
 
 requireText(
-  "src/wingman2/pages/DiscoveryPage.tsx",
+  "src/wingman2/pages/discovery/discoveryBriefBuilder.ts",
   "topology: activeTopology",
   "Project brief topology handoff",
 );

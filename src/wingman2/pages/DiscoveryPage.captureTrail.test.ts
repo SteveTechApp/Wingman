@@ -22,11 +22,16 @@ describe("free-text capture suggestions reach the discovery conversation trail",
 
   it("keeps the wording column populated by wiring notes into buildDiscoveryConversation", () => {
     const source = readFileSync(join(process.cwd(), "src/wingman2/pages/DiscoveryPage.tsx"), "utf8");
+    const briefBuilder = readFileSync(
+      join(process.cwd(), "src/wingman2/pages/discovery/discoveryBriefBuilder.ts"),
+      "utf8",
+    );
 
     // The brief must build the trail from BOTH the governed answers and the
     // notes store, so a chip-confirmed capture records the customer's own
     // wording next to the auto-classified answer.
-    expect(source).toContain("discoveryConversation: buildDiscoveryConversation(modeQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep)");
-    expect(source).toContain('buildDiscoveryConversation,\n');
+    expect(source).toContain("return compileDiscoveryBrief({");
+    expect(briefBuilder).toContain("discoveryConversation: buildDiscoveryConversation(modeQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep)");
+    expect(briefBuilder).toContain('buildDiscoveryConversation,\n');
   });
 });
