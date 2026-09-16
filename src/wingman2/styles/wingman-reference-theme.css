@@ -144,7 +144,8 @@ body {
 
 .wingman-nav {
   display: grid;
-  gap: 7px;
+  align-content: start;
+  gap: 4px;
 }
 
 .wingman-nav-link {
