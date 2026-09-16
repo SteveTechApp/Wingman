@@ -561,6 +561,31 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   padding: 0;
 }
 
+.wm-dashboard-heading-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 700px) {
+  .wm-dashboard-heading-row {
+    flex-wrap: wrap;
+  }
+
+  .wm-dashboard-heading-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 980px) {
+  .wm-dashboard-heading-actions .wm-mode-toggle {
+    display: none;
+  }
+}
+
 .wm-dashboard-heading .wm-polish-eyebrow,
 .wm-dashboard-heading p {
   margin: 0;
