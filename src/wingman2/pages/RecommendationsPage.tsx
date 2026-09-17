@@ -23,10 +23,10 @@ import {
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
 import {
-  loadRecommendationsDecisionBoundary,
+  buildRecommendation,
   resolveRecommendationSystemSlots,
   type RecommendationDecision,
-} from "../lib/recommendationsDecisionBoundary";
+} from "../features/recommendations";
 import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { GovernedDataBadge } from "../components/GovernedDataBadge";
@@ -263,7 +263,7 @@ export function RecommendationsPage() {
     setNeed(nextNeed);
     setLoadState("loading");
 
-    loadRecommendationsDecisionBoundary(latestBrief, nextNeed)
+    buildRecommendation({ brief: latestBrief, need: nextNeed })
       .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         if (cancelled) return;
         setDecisions(nextDecisions);
@@ -682,7 +682,7 @@ export function RecommendationsPage() {
     setLoadState("loading");
     setMessage("");
 
-    loadRecommendationsDecisionBoundary(latestBrief, nextNeed)
+    buildRecommendation({ brief: latestBrief, need: nextNeed })
       .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         setDecisions(nextDecisions);
         setSlotPool(nextSlotPool);
@@ -743,7 +743,7 @@ export function RecommendationsPage() {
     if (!nextNeed) return;
     setNeed(nextNeed);
     setLoadState("loading");
-    loadRecommendationsDecisionBoundary(nextBrief, nextNeed)
+    buildRecommendation({ brief: nextBrief, need: nextNeed })
       .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         setDecisions(nextDecisions);
         setSlotPool(nextSlotPool);

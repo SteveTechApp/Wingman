@@ -249,6 +249,27 @@ try {
     `${adminOnly.status} ${JSON.stringify(adminOnly.json)?.slice(0, 140)}`,
   );
 
+  const anonymousProposalDecision = await request("/api/wingman/projects/contract-project/proposal-decision", {
+    method: "POST",
+    body: { expectedRevisionHash: "revision-1", decision: "approve", approvedBy: "Request Body Manager" },
+  });
+  assert(
+    "POST proposal-decision (anonymous) → 401 {ok:false}",
+    anonymousProposalDecision.status === 401 && anonymousProposalDecision.json?.ok === false,
+    `${anonymousProposalDecision.status} ${JSON.stringify(anonymousProposalDecision.json)?.slice(0, 140)}`,
+  );
+
+  const memberProposalDecision = await request("/api/wingman/projects/contract-project/proposal-decision", {
+    method: "POST",
+    body: { expectedRevisionHash: "revision-1", decision: "approve", approvedBy: "Request Body Manager" },
+    cookie: memberCookie,
+  });
+  assert(
+    "POST proposal-decision (sales member) → 403 {ok:false}",
+    memberProposalDecision.status === 403 && memberProposalDecision.json?.ok === false,
+    `${memberProposalDecision.status} ${JSON.stringify(memberProposalDecision.json)?.slice(0, 140)}`,
+  );
+
   // --- 7. Authed data surfaces keep the envelope contract ---
   const projects = await request("/api/wingman/projects", { cookie });
   assert(

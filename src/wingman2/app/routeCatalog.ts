@@ -132,6 +132,11 @@ export const consolidatedRouteGroups = {
   learn: ["glossary", "support", "productFamilies"],
 } as const satisfies Partial<Record<WingmanRouteKey, readonly WingmanRouteKey[]>>;
 
+export const canonicalWorkflowRoutes = {
+  "sales-conversation": ["callCoach", "salesHelper", "callCards", "productCallCards"],
+  "response-authoring": ["documents", "responsePack", "proposal"],
+} as const satisfies Record<string, readonly WingmanRouteKey[]>;
+
 export function routeByPath(pathname: string) {
   const normalizedPath = pathname.replace(/\/+$/, "") || "/wingman";
 

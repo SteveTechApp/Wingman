@@ -21,6 +21,7 @@ import {
 } from "../lib/repScript";
 import {
   decideComparison,
+  runGovernedCompareSync,
   type ScoredCandidate,
   type Verdict,
   type WyreStormProduct,
@@ -52,7 +53,6 @@ import { isWyreStormSkuCompareLeadAllowed } from "../lib/wyrestormSkuBusinessSta
 import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolver";
 import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
 import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
-import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
 import {
   mergeApprovedLedgerDecisions,
   readCompetitorMatchDecisionLedger,
@@ -5733,12 +5733,12 @@ function ComparePageNew() {
 
   const rigorousResult = useMemo(() => {
     const inputText = [effectiveBrand, competitorInput, mustMatchFeatures].filter(Boolean).join(" ");
-    const result = runCompareRuntimePipeline(
+    const result = runGovernedCompareSync({
       inputText,
-      ACTIVE_WYRESTORM_PRODUCTS,
-      effectiveBrand,
-      8,
-    ) as RigorousCompareResult;
+      products: ACTIVE_WYRESTORM_PRODUCTS,
+      brand: effectiveBrand,
+      limit: 8,
+    }) as RigorousCompareResult;
     // resolveCompetitorSpecProfile() (result.competitor) only classifies SKUs it has
     // curated/family-rule evidence for. The page's own tag classifier
     // (extractTags/productClassFromTags, feeding `profile`) recognises far more

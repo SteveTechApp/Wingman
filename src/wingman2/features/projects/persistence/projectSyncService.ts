@@ -13,12 +13,12 @@ import { projectRepository, type ProjectRepository } from "./projectRepository";
 const PROJECT_SYNC_ENDPOINT = "/api/wingman/projects/sync";
 const PROJECTS_ENDPOINT = "/api/wingman/projects";
 const BACKEND_SYNC_DEBOUNCE_MS = 600;
-const PROJECT_SYNC_AUTH_STORAGE_KEYS = [
-  "wingman.projectSyncToken", "wingman.sessionToken", "wingman.authToken", "wingman.auth.token", "wingman_session",
-];
+const PROJECT_SESSION_ENDPOINT = "/api/wingman/auth/session";
+const LEGACY_SESSION_BRIDGE_KEY = "wingman.projectSyncToken";
 const PROJECT_SYNC_DISABLED_MESSAGE = "Project backend sync is disabled. Projects are saved in this browser.";
 const PROJECT_SYNC_SIGN_IN_MESSAGE = "Project backend sync is enabled, but Wingman is not signed in. Local changes are preserved.";
 const PROJECT_SYNC_REJECTED_MESSAGE = "Project backend sync was rejected by the server. Local changes are preserved.";
+const PROJECT_SYNC_QUOTA_MESSAGE = "Project cache quota was exceeded. Changes remain available in this session.";
 
 export interface ProjectSyncService {
   enabled(): boolean;
@@ -49,10 +49,12 @@ export function createProjectSyncService({
   let syncBaseline: ProjectStoreSnapshot | null = null;
   let hydrationPromise: Promise<void> | null = null;
   let rejectedForSession = false;
+  let missingAuth = false;
 
   const localMessage = (reason: LocalProjectStorageMode["reason"]) => {
     if (reason === "sync-disabled") return PROJECT_SYNC_DISABLED_MESSAGE;
     if (reason === "remote-rejected") return PROJECT_SYNC_REJECTED_MESSAGE;
+    if (reason === "quota-failed") return PROJECT_SYNC_QUOTA_MESSAGE;
     return PROJECT_SYNC_SIGN_IN_MESSAGE;
   };
 
@@ -62,38 +64,31 @@ export function createProjectSyncService({
     updatedAt: previous?.updatedAt ?? now(),
   });
 
-  const readStorageValue = (storage: Storage, key: string) => {
-    try { return storage.getItem(key)?.trim() ?? ""; } catch { return ""; }
-  };
-
-  const visibleCookie = (name: string) => {
-    if (typeof document === "undefined") return "";
-    for (const cookie of document.cookie.split(";").map((part) => part.trim()).filter(Boolean)) {
-      const separator = cookie.indexOf("=");
-      if (separator <= 0 || cookie.slice(0, separator).trim() !== name) continue;
-      const raw = cookie.slice(separator + 1).trim();
-      try { return decodeURIComponent(raw); } catch { return raw; }
-    }
-    return "";
-  };
-
-  const authToken = () => {
-    if (typeof window === "undefined") return "";
-    for (const key of PROJECT_SYNC_AUTH_STORAGE_KEYS) {
-      const sessionValue = readStorageValue(window.sessionStorage, key);
-      if (sessionValue) return sessionValue;
-      const localValue = readStorageValue(window.localStorage, key);
-      if (localValue) return localValue;
-    }
-    return visibleCookie("wingman_session");
-  };
-
   const storageMode = (): ProjectStorageMode => {
     if (typeof window === "undefined") return { kind: "local", reason: "server" };
     if (!backendEnabled) return { kind: "local", reason: "sync-disabled" };
     if (rejectedForSession) return { kind: "local", reason: "remote-rejected" };
-    const token = authToken();
-    return { kind: "remote", authToken: token || undefined, authSource: token ? "storage-token" : "http-only-cookie" };
+    if (missingAuth) return { kind: "local", reason: "missing-auth" };
+    let legacyToken = "";
+    try { legacyToken = window.localStorage.getItem(LEGACY_SESSION_BRIDGE_KEY)?.trim() ?? ""; } catch { /* cookie session remains authoritative */ }
+    return legacyToken
+      ? { kind: "remote", authToken: legacyToken, authSource: "storage-token" }
+      : { kind: "remote", authSource: "http-only-cookie" };
+  };
+
+  const establishSessionScope = async (mode: RemoteProjectStorageMode) => {
+    if (!repository.initializeScope) return true;
+    const headers = new Headers();
+    if (mode.authToken) headers.set("Authorization", `Bearer ${mode.authToken}`);
+    const response = await fetchImpl(PROJECT_SESSION_ENDPOINT, { method: "GET", credentials: "include", cache: "no-store", headers });
+    if (response.status === 401) return false;
+    if (!response.ok) throw new Error(`Session lookup failed with status ${response.status}.`);
+    const payload = await response.json().catch(() => null);
+    const workspaceId = payload?.session?.workspace?.id;
+    const userId = payload?.session?.user?.id;
+    if (typeof workspaceId !== "string" || typeof userId !== "string") return false;
+    await repository.initializeScope({ workspaceId, userId });
+    return true;
   };
 
   const setStatus = (syncStatus: StoredProjectSyncStatus) => {
@@ -182,6 +177,11 @@ export function createProjectSyncService({
   };
 
   const hydrateOnce = async (mode: RemoteProjectStorageMode) => {
+    if (!await establishSessionScope(mode)) {
+      missingAuth = true;
+      setStatus({ state: "local", message: PROJECT_SYNC_SIGN_IN_MESSAGE, updatedAt: now() });
+      return;
+    }
     const [hydrationFetch, hydrationMerge] = await Promise.all([
       import("../../../data/projectHydrationFetch"),
       import("../../../data/projectHydrationMerge"),
@@ -268,6 +268,7 @@ export function createProjectSyncService({
     },
     resetSession() {
       rejectedForSession = false;
+      missingAuth = false;
       hydrationPromise = null;
       syncBaseline = null;
       if (syncTimer) clearTimeout(syncTimer);

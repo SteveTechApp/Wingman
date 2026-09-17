@@ -1,8 +1,15 @@
 import { ArrowRight, Bot, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
+import {
+  canonicalWorkflowForRoute,
+  installWorkflowAbandonmentTracking,
+  type CanonicalWorkflowId,
+  workflowTelemetry,
+} from "../features/navigation/workflowTelemetry";
 
 
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
@@ -17,6 +24,7 @@ export type HubAction = {
   note?: string;
   linkLabel?: string;
   art?: HubCardArtKind;
+  routeKey: WingmanRouteKey;
 };
 
 type HubPageProps = {
@@ -28,6 +36,8 @@ type HubPageProps = {
   heroIcon: LucideIcon;
   accent: PolishAccent;
   tip: string;
+  workflowId?: CanonicalWorkflowId;
+  entryRoute?: WingmanRouteKey;
 };
 
 type RouteActionOptions = {
@@ -54,17 +64,28 @@ export function routeAction(
     icon: routeCatalogByKey[routeKey].icon,
     to: routeCatalogByKey[routeKey].path,
     art: options.art,
+    routeKey,
   };
 }
 
-export function HubCard({ item }: { item: HubAction }) {
+export function HubCard({ item, workflowId }: { item: HubAction; workflowId?: CanonicalWorkflowId }) {
   const Icon = item.icon;
+  const destinationWorkflowId = canonicalWorkflowForRoute(item.routeKey);
 
   return (
     <Link
       to={item.to}
       className={`wm-sh-choice-card wm-polish-card wm-polish-${item.accent}`}
       aria-label={`Open ${item.title} in Wingman`}
+      onClick={() => {
+        const selectedWorkflowId = workflowId ?? destinationWorkflowId;
+        if (selectedWorkflowId) {
+          workflowTelemetry.handoff(selectedWorkflowId, {
+            destinationRoute: item.routeKey,
+            source: "hub-card",
+          });
+        }
+      }}
     >
       <span className="wm-polish-card-icon" aria-hidden="true">
         <Icon />
@@ -100,8 +121,17 @@ function HubPage({
   heroIcon: HeroIcon,
   accent,
   tip,
+  workflowId,
+  entryRoute,
 }: HubPageProps) {
   const actions = [...primaryActions, ...secondaryActions];
+
+  useEffect(() => {
+    installWorkflowAbandonmentTracking();
+    if (workflowId && entryRoute) {
+      workflowTelemetry.start(workflowId, { entryRoute });
+    }
+  }, [entryRoute, workflowId]);
 
   return (
     <main
@@ -127,14 +157,14 @@ function HubPage({
       <section className="wm-sh-page-section" aria-label={`${title} actions`}>
         <div className="wm-sh-card-grid wm-polish-grid">
           {actions.map((item) => (
-            <HubCard key={item.title} item={item} />
+            <HubCard key={item.title} item={item} workflowId={workflowId} />
           ))}
         </div>
 
         <div className="wm-polish-tip">
           <Sparkles aria-hidden="true" />
           <span>
-            <strong>Suggested starting point:</strong> {tip}
+            <strong>{workflowId ? "Canonical next action:" : "Suggested starting point:"}</strong> {tip}
           </span>
         </div>
       </section>
@@ -151,6 +181,8 @@ export function CallCoachPage() {
       heroIcon={Bot}
       accent="aqua"
       tip="Begin with Capture Requirements when the customer has described an application but has not provided enough technical detail."
+      workflowId="sales-conversation"
+      entryRoute="callCoach"
       primaryActions={[
         routeAction(
           "productCallCards",
@@ -285,6 +317,8 @@ export function DocumentsPage() {
       heroIcon={FileSearch}
       accent="violet"
       tip="Begin with Decode request for unstructured emails, BOMs or tender text, then move only the relevant items into Compare or Response Pack."
+      workflowId="response-authoring"
+      entryRoute="documents"
       primaryActions={[
         routeAction(
           "ingest",
@@ -328,6 +362,8 @@ export function ResponsePackPage() {
       heroIcon={FileText}
       accent="amber"
       tip="Start with Response Pack Builder when requirements and products are known; add a schematic only when it materially improves customer understanding."
+      workflowId="response-authoring"
+      entryRoute="responsePack"
       primaryActions={[
         routeAction(
           "proposal",
