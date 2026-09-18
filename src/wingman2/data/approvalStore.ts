@@ -5,7 +5,8 @@ import {
   type ProposalApprovalStatus,
   type StoredProjectProposal,
 } from "./projectStore";
-import { withApprovedDesignRevision, withSubmittedDesignRevision } from "../lib/projectWorkflow";
+import { withSubmittedDesignRevision } from "../lib/projectWorkflow";
+import { postWingmanJson } from "../api/wingmanApi";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -28,6 +29,11 @@ export type PendingProposal = {
   proposal: StoredProjectProposal;
   submittedBy: string;
   submittedAt: string;
+};
+
+type ProposalDecisionResponse = {
+  ok: boolean;
+  project: ReturnType<typeof useProjectStore>["projects"][number];
 };
 
 /* ------------------------------------------------------------------ */
@@ -59,13 +65,16 @@ export function useApproveProposal() {
   const { projects } = useProjectStore();
 
   return useCallback(
-    (projectId: string, approvedBy: string, comments?: string) => {
+    async (projectId: string, _approvedBy?: string, comments?: string) => {
       const project = projects.find((p) => p.id === projectId);
-      if (!project?.proposal) return false;
-
-      const approved = withApprovedDesignRevision(project, approvedBy, comments);
-      if (approved.proposal?.approvalStatus !== "approved") return false;
-      upsertStoredProject(approved);
+      const expectedRevisionHash = project?.proposal?.designRevision?.contentHash;
+      if (!project?.proposal || !expectedRevisionHash) return false;
+      const response = await postWingmanJson<ProposalDecisionResponse>(`/api/wingman/projects/${encodeURIComponent(projectId)}/proposal-decision`, {
+        expectedRevisionHash,
+        decision: "approve",
+        comment: comments,
+      });
+      upsertStoredProject(response.project);
       return true;
     },
     [projects],
@@ -79,23 +88,16 @@ export function useRejectProposal() {
   const { projects } = useProjectStore();
 
   return useCallback(
-    (projectId: string, rejectedBy: string, comments: string) => {
+    async (projectId: string, _rejectedBy: string | undefined, comments: string) => {
       const project = projects.find((p) => p.id === projectId);
-      if (!project?.proposal) return false;
-
-      const proposal: StoredProjectProposal = {
-        ...project.proposal,
-        approvalStatus: "rejected" as ProposalApprovalStatus,
-        approvedBy: rejectedBy,
-        approvedAt: new Date().toISOString(),
-        approvalComments: comments,
-      };
-
-      upsertStoredProject({
-        ...project,
-        proposal,
-        updatedAt: new Date().toISOString(),
+      const expectedRevisionHash = project?.proposal?.designRevision?.contentHash;
+      if (!project?.proposal || !expectedRevisionHash) return false;
+      const response = await postWingmanJson<ProposalDecisionResponse>(`/api/wingman/projects/${encodeURIComponent(projectId)}/proposal-decision`, {
+        expectedRevisionHash,
+        decision: "reject",
+        comment: comments,
       });
+      upsertStoredProject(response.project);
       return true;
     },
     [projects],
@@ -180,9 +182,9 @@ export function useProposalApprovalStatus(
  * Check if a proposal can be exported (approved or no approval required).
  */
 export function useCanExportProposal(projectId: string): boolean {
-  const status = useProposalApprovalStatus(projectId);
-  // "draft" proposals can be exported (approval not yet submitted)
-  // "approved" proposals can be exported
-  // "pending" and "rejected" cannot
-  return status === "draft" || status === "approved";
+  const { projects } = useProjectStore();
+  const proposal = projects.find((project) => project.id === projectId)?.proposal;
+  return proposal?.approvalStatus === "approved"
+    && Boolean(proposal.designRevision?.contentHash)
+    && proposal.approvedRevisionHash === proposal.designRevision?.contentHash;
 }

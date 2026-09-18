@@ -1,13 +1,15 @@
 ﻿# Wingman documentation map
 
-_Last updated: 2026-09-03_
+_Last updated: 2026-09-17_
 
 ## Current / authoritative
 
 | Document | Purpose |
 |---|---|
-| `docs/PRE_PRODUCTION_REPORT.md` | **Live status source.** Executed gate results, ranked blockers, and the plan to production. |
-| `docs/CURRENT_STATUS.md` | At-a-glance summary; points at the pre-production report. |
+| `docs/release-evidence/release-evidence-manifest.json` | **Release-status source.** Criterion state, evidence provenance, owner, and closure condition. |
+| `docs/PRE_PRODUCTION_REPORT.md` | Generated release matrix plus retained risk and go/no-go narrative. |
+| `docs/CURRENT_STATUS.md` | Generated at-a-glance release matrix plus engineering context. |
+| `docs/V1_RELEASE_EVIDENCE.md` | Generated criterion matrix and release-authority policy. |
 | `docs/DEVELOPMENT_MILESTONES.md` | Development roadmap to v1.0: measured state, recommended goals, release criteria. |
 | `docs/launch-readiness-report.md` | Superseded gate list, kept so links resolve. |
 | `docs/product-data-health.md` | Current product governance and data-risk summary. |
@@ -47,10 +49,9 @@ _Last updated: 2026-09-03_
 
 ## Rule
 
-When documents disagree, follow this order:
+Release-criterion state is generated from the evidence manifest. For other facts, follow this order:
 
-1. `docs/CURRENT_STATUS.md`
-2. latest successful command output
-3. current source/tests
-4. current launch-readiness report
-5. older audits/action plans
+1. latest successful command output
+2. current source/tests
+3. current launch-readiness report
+4. older audits/action plans

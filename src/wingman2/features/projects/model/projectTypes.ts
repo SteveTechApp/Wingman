@@ -558,7 +558,7 @@ export type StoredRecommendationEvidence = {
 
 export type LocalProjectStorageMode = {
   kind: "local";
-  reason: "server" | "sync-disabled" | "missing-auth" | "remote-rejected";
+  reason: "server" | "sync-disabled" | "missing-auth" | "remote-rejected" | "quota-failed";
 };
 
 export type RemoteProjectStorageMode = {

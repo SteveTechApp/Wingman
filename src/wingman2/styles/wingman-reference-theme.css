@@ -556,6 +556,13 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   margin: 0 0 14px;
 }
 
+.wm-dashboard-heading-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+}
+
 .wm-dashboard-heading {
   min-width: 0;
   margin: 0;
@@ -1113,6 +1120,14 @@ button.wm-reference-quick-card {
 }
 
 @media (max-width: 760px) {
+  .wm-dashboard-heading-actions {
+    gap: 6px;
+  }
+
+  .wm-dashboard-heading-actions > .wm-mode-toggle {
+    display: none;
+  }
+
   .wingman-topbar-page-summary {
     display: none;
   }

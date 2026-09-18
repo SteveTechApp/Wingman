@@ -66,6 +66,16 @@ describe("checkWingmanArchitecture", () => {
     expect(violations.filter((item) => item.rule === "app-core-imports-feature-private")).toHaveLength(1);
   });
 
+  it("rejects route imports from governed decision internals", () => {
+    const rootDir = fixture({
+      "src/wingman2/pages/ComparePage.tsx": 'import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";',
+      "src/wingman2/pages/SafePage.tsx": 'import { runGovernedCompare } from "../features/compare";',
+    });
+    expect(checkWingmanArchitecture({ rootDir })).toEqual([
+      expect.objectContaining({ rule: "page-imports-decision-internal", file: "src/wingman2/pages/ComparePage.tsx" }),
+    ]);
+  });
+
   it("scans import type, re-exports, multiline imports, aliases, and dynamic imports", () => {
     const rootDir = fixture({
       "src/wingman2/app/router.ts": [

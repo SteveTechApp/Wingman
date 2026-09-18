@@ -597,8 +597,8 @@ html[data-wingman-route="dashboard"] .wm-dashboard-content-grid {
   }
 
   html[data-wingman-route="dashboard"] .wingman-brand {
-    min-height: 50px !important;
-    margin: 0 6px 12px !important;
+    min-height: 46px !important;
+    margin: 0 6px 6px !important;
   }
 
   html[data-wingman-route="dashboard"] .wingman-brand-image {
@@ -607,13 +607,13 @@ html[data-wingman-route="dashboard"] .wm-dashboard-content-grid {
   }
 
   html[data-wingman-route="dashboard"] .wingman-nav {
-    gap: 3px !important;
+    gap: 0 !important;
   }
 
   html[data-wingman-route="dashboard"] .wingman-nav-link {
-    min-height: 35px !important;
+    min-height: 32px !important;
     gap: 9px !important;
-    padding: 7px 10px !important;
+    padding: 5px 10px !important;
   }
 
   html[data-wingman-route="dashboard"] .wingman-shell > .wingman-workspace > .wingman-app-main > .wingman-page-host {
