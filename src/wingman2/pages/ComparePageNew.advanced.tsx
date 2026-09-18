@@ -4960,6 +4960,7 @@ function PrimaryBattleCard({
   detail,
   productClass,
   rows,
+  matchTone,
 }: {
   side: PrimaryBattleCardSide;
   eyebrow: string;
@@ -4967,6 +4968,7 @@ function PrimaryBattleCard({
   detail: string;
   productClass: string;
   rows: CompareCoreFact[];
+  matchTone?: ReturnType<typeof compareVerdictTier>["tone"];
 }) {
   const valueFor = (row: CompareCoreFact): string => row[side] || "Needs verification";
   const visibleGroups = PRIMARY_BATTLE_GROUPS.map((group) => ({
@@ -4977,7 +4979,11 @@ function PrimaryBattleCard({
   })).filter((group) => group.rows.length > 0);
 
   return (
-    <article className={`compare-compact-result__product compare-primary-battle-card compare-primary-battle-card--${side} wm-ui-card${side === "wyrestorm" ? " compare-compact-result__product--wyrestorm" : ""}`} aria-label={side === "competitor" ? "Competitor product card" : "WyreStorm product card"}>
+    <article
+      className={`compare-compact-result__product compare-primary-battle-card compare-primary-battle-card--${side} wm-ui-card${side === "wyrestorm" ? " compare-compact-result__product--wyrestorm" : ""}`}
+      aria-label={side === "competitor" ? "Competitor product card" : "WyreStorm product card"}
+      data-match-tone={side === "wyrestorm" ? matchTone : undefined}
+    >
       <header className="compare-primary-battle-card__header">
         <span>{eyebrow}</span>
         <strong>{heading}</strong>
@@ -5011,6 +5017,8 @@ function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
 }) {
   const status = compareReportedStatus(candidate, competitor);
   const statusMeta = compareReportedStatusMeta(status);
+  const evidencePending = status === "no-match" && !competitorProfile.resolvedSpec;
+  const matchTone = compareVerdictTier(status, { evidencePending }).tone;
   const wyrestorm = candidate ? buildWyrestormSummary(candidate) : null;
   const noMatchFactPriority = (label: string): number => {
     if (/^inputs$/i.test(label)) return 0;
@@ -5053,8 +5061,8 @@ function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
         <PrimaryBattleCard side="competitor" eyebrow="Competitor product" heading={competitor.heading} detail={competitor.detail} productClass={competitor.recognisedClass} rows={rows} />
         <span className="compare-compact-result__arrow" aria-hidden="true">→</span>
         {candidate && wyrestorm
-          ? <PrimaryBattleCard side="wyrestorm" eyebrow="WyreStorm alternative" heading={candidate.product.sku} detail={candidate.product.name} productClass={wyrestorm.productType} rows={rows} />
-          : <article className="compare-compact-result__product compare-compact-result__product--wyrestorm wm-ui-card" aria-label="No WyreStorm product match"><span>WyreStorm alternative</span><strong>No suitable match</strong><small>Confirm the competitor specification or add evidence before positioning an alternative.</small></article>}
+          ? <PrimaryBattleCard side="wyrestorm" eyebrow="WyreStorm alternative" heading={candidate.product.sku} detail={candidate.product.name} productClass={wyrestorm.productType} rows={rows} matchTone={matchTone} />
+          : <article className="compare-compact-result__product compare-compact-result__product--wyrestorm wm-ui-card" aria-label="No WyreStorm product match" data-match-tone={matchTone}><span>WyreStorm alternative</span><strong>No suitable match</strong><small>Confirm the competitor specification or add evidence before positioning an alternative.</small></article>}
       </div>
       {closestOnly && importantDifferences.length ? (
         <section className="compare-compact-result__warnings wm-ui-card" aria-label="Why this is not a direct match">

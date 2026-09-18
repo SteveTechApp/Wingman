@@ -1,30 +1,23 @@
-// Simplified from 10 granular headings to 7 practical groups.
-// Sales reps think in workflows ("I need a presentation room"), not in
-// product-line taxonomy ("DA / Splitters" vs "Extender Kits").
+// These are product identities, not room applications. Keeping UC separate
+// from presentation switching prevents a compatible matrix/switcher from
+// appearing as though it were itself a UC device.
 export const PRODUCT_CALL_CARD_HEADINGS = [
   "All",
-  "Presentation & UC",
-  "AVoIP & Networked",
-  "Matrix & Routing",
-  "Extenders & Distribution",
-  "Video & Processing",
-  "Control & Audio",
+  "Unified Comms",
+  "Presentation Switchers",
+  "Wireless Casting",
+  "AVoIP",
+  "Matrix Switchers",
+  "Extender Kits",
+  "DA / Splitters",
+  "Video Wall",
+  "Control",
+  "Audio",
 ] as const;
 
 export type ProductCallCardHeading = (typeof PRODUCT_CALL_CARD_HEADINGS)[number];
-type GroupedProductCallCardHeading = Exclude<ProductCallCardHeading, "All">;
-type GranularProductCallCardHeading =
-  | "Audio"
-  | "Extender Kits"
-  | "DA / Splitters"
-  | "Presentation Switchers"
-  | "Matrix Switchers"
-  | "Wireless Casting"
-  | "Unified Comms"
-  | "AVoIP"
-  | "Video Wall"
-  | "Control";
-export type ClassifiedProductCallCardHeading = GroupedProductCallCardHeading | GranularProductCallCardHeading;
+type GranularProductCallCardHeading = Exclude<ProductCallCardHeading, "All">;
+export type ClassifiedProductCallCardHeading = GranularProductCallCardHeading;
 
 export type ProductCallCardClassificationInput = {
   sku?: unknown;
@@ -262,28 +255,35 @@ export function classifyProductCallCard(
     headings.add("Control");
   }
 
-  return mapToGroupedHeadings([...headings]);
+  return rankProductCallCardHeadings([...headings], sku, identityText);
 }
 
-// Map granular product-line headings to the simplified grouped headings.
-// Sales reps think in workflows, not product taxonomy.
-const GRANULAR_TO_GROUPED: Record<GranularProductCallCardHeading, GroupedProductCallCardHeading> = {
-  "Audio": "Control & Audio",
-  "Extender Kits": "Extenders & Distribution",
-  "DA / Splitters": "Extenders & Distribution",
-  "Presentation Switchers": "Presentation & UC",
-  "Matrix Switchers": "Matrix & Routing",
-  "Wireless Casting": "Presentation & UC",
-  "Unified Comms": "Presentation & UC",
-  "AVoIP": "AVoIP & Networked",
-  "Video Wall": "Video & Processing",
-  "Control": "Control & Audio",
-};
+function rankProductCallCardHeadings(headings: GranularProductCallCardHeading[], sku: string, identityText: string): GranularProductCallCardHeading[] {
+  const priority: GranularProductCallCardHeading[] = /^NHD-(?:000-)?CTL|^NHD-TOUCH/.test(sku)
+    ? ["Control", "AVoIP", "Video Wall"]
+    : /^NHD-/.test(sku)
+      ? ["AVoIP", "Video Wall", "Control"]
+      : /^(?:EXP-)?MX(?:V)?-/.test(sku)
+        ? ["Matrix Switchers", "Extender Kits", "Presentation Switchers"]
+        : /^APO-DG|(?:^|-)DG2?(?:-|$)/.test(sku)
+          ? ["Wireless Casting", "Unified Comms", "Presentation Switchers"]
+          : /^(?:APO-|HALO-|CAM-)/.test(sku)
+            ? ["Unified Comms", "Wireless Casting", "Presentation Switchers"]
+            : /^(?:EXP-)?SW-/.test(sku)
+              ? ["Presentation Switchers", "Video Wall", "Unified Comms"]
+              : /\bmatrix (?:switcher|router)|\bfixed i\/o matrix|\brouting matrix/.test(identityText)
+                ? ["Matrix Switchers", "Extender Kits", "Presentation Switchers"]
+                : /\bpresentation switcher|\broom switching|\busb-c presentation/.test(identityText)
+                  ? ["Presentation Switchers", "Wireless Casting", "Unified Comms"]
+                  : /\bvideo bar|\buc endpoint|\bconference camera|\bspeakerphone/.test(identityText)
+                    ? ["Unified Comms", "Wireless Casting", "Presentation Switchers"]
+                    : ["Audio", "Control", "Extender Kits", "DA / Splitters", "Video Wall", "Unified Comms", "Presentation Switchers", "Matrix Switchers"];
+  const order = new Map(priority.map((heading, index) => [heading, index]));
+  return [...headings].sort((a, b) => (order.get(a) ?? 100) - (order.get(b) ?? 100));
+}
 
-function mapToGroupedHeadings(headings: GranularProductCallCardHeading[]): GroupedProductCallCardHeading[] {
-  const grouped = new Set<GroupedProductCallCardHeading>();
-  for (const heading of headings) {
-    grouped.add(GRANULAR_TO_GROUPED[heading] ?? heading);
-  }
-  return [...grouped];
+export function primaryProductCallCardHeading(
+  product: ProductCallCardClassificationInput,
+): ClassifiedProductCallCardHeading | null {
+  return classifyProductCallCard(product)[0] ?? null;
 }

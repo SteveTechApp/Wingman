@@ -169,6 +169,7 @@ const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: strin
 ];
 
 const PAGE_SIZE = 14;
+const PRODUCT_CALL_CARD_FILTERS_KEY = "wingman.productCallCards.filters.v1";
 
 const PRODUCT_CALL_CARD_ENDPOINT = "/product-call-card-products.json";
 
@@ -762,9 +763,25 @@ function matchesFamily(product: ProductCard, family: string): boolean {
     return true;
   }
 
-  return product.headings.includes(family as ClassifiedProductCallCardHeading);
+  // Catalogue filters use the primary workflow; search still covers secondary applications.
+  return product.headings[0] === (family as ClassifiedProductCallCardHeading);
 }
 
+type RecalledProductFilters = { query: string; family: string; quickFinder: string };
+function readRecalledProductFilters(): RecalledProductFilters {
+  const fallback = { query: "", family: "All", quickFinder: "All" };
+  if (typeof window === "undefined") return fallback;
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(PRODUCT_CALL_CARD_FILTERS_KEY) || "null") as Partial<RecalledProductFilters> | null;
+    return {
+      query: typeof parsed?.query === "string" ? parsed.query : "",
+      family: PRODUCT_CALL_CARD_HEADINGS.includes(parsed?.family as never) ? parsed!.family! : "All",
+      quickFinder: typeof parsed?.quickFinder === "string" ? parsed.quickFinder : "All",
+    };
+  } catch {
+    return fallback;
+  }
+}
 function productPresentationMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
   const firstSkuChar = product.sku.charAt(0).toUpperCase();
 
@@ -821,10 +838,11 @@ export default function ProductCallCardsPage() {
 
   const [products, setProducts] = useState<ProductCard[]>([]);
   const [isFallback, setIsFallback] = useState(false);
-  const [query, setQuery] = useState("");
+  const recalledFilters = useMemo(readRecalledProductFilters, []);
+  const [query, setQuery] = useState(recalledFilters.query);
   const debouncedQuery = useDebouncedValue(query);
-  const [activeFamily, setActiveFamily] = useState("All");
-  const [activeQuickFinder, setActiveQuickFinder] = useState("All");
+  const [activeFamily, setActiveFamily] = useState(recalledFilters.family);
+  const [activeQuickFinder, setActiveQuickFinder] = useState(recalledFilters.quickFinder);
   const [selectedSku, setSelectedSku] = useState(pathSku);
   const [pageIndex, setPageIndex] = useState(0);
   const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("overview");
@@ -873,6 +891,14 @@ export default function ProductCallCardsPage() {
 
   useEffect(() => {
     setPageIndex(0);
+  }, [query, activeFamily, activeQuickFinder]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(PRODUCT_CALL_CARD_FILTERS_KEY, JSON.stringify({ query, family: activeFamily, quickFinder: activeQuickFinder }));
+    } catch {
+      // Filtering remains usable when browser storage is unavailable.
+    }
   }, [query, activeFamily, activeQuickFinder]);
 
   const availableQuickFinders = useMemo(() => {
