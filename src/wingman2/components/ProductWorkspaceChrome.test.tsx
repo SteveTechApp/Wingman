@@ -17,9 +17,9 @@ describe("ProductWorkspaceChrome", () => {
 
     expect(screen.getByRole("navigation", { name: "Product tools" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Catalogue" }).className).toContain("is-active");
-    expect(screen.getByRole("link", { name: "Families" }).getAttribute("href")).toBe("/wingman/product-families");
-    expect(screen.getByRole("link", { name: "Call cards" }).getAttribute("href")).toBe("/wingman/product-call-cards");
-    expect(screen.getByRole("link", { name: "Positioning" }).getAttribute("href")).toBe("/wingman/product-pitch");
+    expect(screen.getByRole("link", { name: "Families" }).getAttribute("href")).toBe("/wingman/products?view=families");
+    expect(screen.getByRole("link", { name: "Call cards" }).getAttribute("href")).toBe("/wingman/products?view=call-cards");
+    expect(screen.getByRole("link", { name: "Positioning" }).getAttribute("href")).toBe("/wingman/products?view=positioning");
   });
 
   it("uses a consistent accessible heading and search control", () => {

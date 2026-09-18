@@ -118,17 +118,16 @@ export const consolidatedPrimaryNavKeys = [
   "templates",
   "compare",
   "documents",
-  "responsePack",
   "projects",
   "learn",
   "profile",
 ] as const satisfies readonly WingmanRouteKey[];
 
 export const consolidatedRouteGroups = {
-  callCoach: ["callCards", "productCallCards", "discovery", "salesHelper", "support"],
+  callCoach: ["productCallCards", "discovery", "compare"],
   products: ["productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
   documents: ["ingest", "templates", "compare", "proposal"],
-  responsePack: ["proposal", "support", "proposalVisuals", "templates"],
+  responsePack: ["proposal", "proposalVisuals", "templates"],
   learn: ["glossary", "support", "productFamilies"],
 } as const satisfies Partial<Record<WingmanRouteKey, readonly WingmanRouteKey[]>>;
 

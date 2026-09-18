@@ -1,7 +1,7 @@
-import { ArrowRight, Bot, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
 import {
@@ -9,7 +9,18 @@ import {
   installWorkflowAbandonmentTracking,
   type CanonicalWorkflowId,
   workflowTelemetry,
-} from "../features/navigation/workflowTelemetry";
+} from "../features/navigation";
+import { SalesHelperPage } from "./SalesHelperPage";
+
+const ProductCatalogueView = lazy(() => import("./CatalogBrowserPage").then((module) => ({ default: module.CatalogBrowserPage })));
+const ProductFamiliesView = lazy(() => import("./ProductFamilyPage").then((module) => ({ default: module.ProductFamilyPage })));
+const ProductCallCardsView = lazy(() => import("./ProductCallCardsPage"));
+const ProductPositioningView = lazy(() => import("./ProductPitchPage").then((module) => ({ default: module.ProductPitchPage })));
+
+function ProductWorkspaceMode({ view }: { view: string }) {
+  const Page = view === "catalogue" ? ProductCatalogueView : view === "families" ? ProductFamiliesView : view === "call-cards" ? ProductCallCardsView : ProductPositioningView;
+  return <Suspense fallback={<div className="wm-ui-card p-6">Loading Product Workspace…</div>}><Page /></Suspense>;
+}
 
 
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
@@ -173,67 +184,17 @@ function HubPage({
 }
 
 export function CallCoachPage() {
-  return (
-    <HubPage
-      eyebrow="Wingman / Call Coach"
-      title="Call Coach"
-      intent="Live sales support for product conversations, customer discovery and escalation decisions."
-      heroIcon={Bot}
-      accent="aqua"
-      tip="Begin with Capture Requirements when the customer has described an application but has not provided enough technical detail."
-      workflowId="sales-conversation"
-      entryRoute="callCoach"
-      primaryActions={[
-        routeAction(
-          "productCallCards",
-          "Open SKU Call Card",
-          "Search for a WyreStorm SKU and view what it is, what it does, how to position it and the key specification points.",
-          "Product-specific call",
-          {
-            accent: "aqua",
-            linkLabel: "Choose product",
-            art: "call-card",
-          },
-        ),
-        routeAction(
-          "discovery",
-          "Capture Requirements",
-          "Record the application, sources, displays, distances, USB, audio, control and network requirements before selecting products.",
-          "Discovery / requirement capture",
-          {
-            accent: "blue",
-            linkLabel: "Start discovery",
-            art: "discovery",
-          },
-        ),
-        routeAction(
-          "salesHelper",
-          "Open Sales Helper",
-          "Choose whether the opportunity is room-led, display-led, UC-led, competitor-led, product-led or proposal-led.",
-          "Call-out day",
-          {
-            accent: "green",
-            linkLabel: "Choose conversation type",
-            art: "conversation",
-          },
-        ),
-        routeAction(
-          "support",
-          "Check Escalation",
-          "Review complexity, missing information, compatibility risks and quote readiness before progressing.",
-          "Escalation check",
-          {
-            accent: "amber",
-            linkLabel: "Check requirements",
-            art: "support",
-          },
-        ),
-      ]}
-    />
-  );
+  useEffect(() => {
+    installWorkflowAbandonmentTracking();
+    workflowTelemetry.start("sales-conversation", { entryRoute: "callCoach" });
+  }, []);
+  return <SalesHelperPage />;
 }
 
 export function ProductsPage() {
+  const [searchParams] = useSearchParams();
+  const view = searchParams.get("view");
+  if (view && ["catalogue", "families", "call-cards", "positioning"].includes(view)) return <ProductWorkspaceMode view={view} />;
   return (
     <HubPage
       eyebrow="Wingman / Products"
@@ -309,6 +270,8 @@ export function ProductsPage() {
   );
 }
 export function DocumentsPage() {
+  const [searchParams] = useSearchParams();
+  if (searchParams.get("mode") === "publication") return <ResponsePackPage embedded />;
   return (
     <HubPage
       eyebrow="Wingman / Documents"
@@ -353,10 +316,10 @@ export function DocumentsPage() {
   );
 }
 
-export function ResponsePackPage() {
+export function ResponsePackPage({ embedded = false }: { embedded?: boolean }) {
   return (
     <HubPage
-      eyebrow="Wingman / Response Pack"
+      eyebrow={embedded ? "Wingman / Documents / Publication" : "Wingman / Response Pack"}
       title="Response Pack"
       intent="Create a usable response: quick email reply, RFI response, formal RFQ support, project summary, internal handover or schematic-backed response pack."
       heroIcon={FileText}

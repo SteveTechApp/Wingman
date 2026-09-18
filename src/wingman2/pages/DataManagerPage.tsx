@@ -7,6 +7,7 @@ import { downloadBlob } from "../lib/downloadBlob";
 import type { ProductQualityIssue } from "../types/productTruth";
 import { LiveResearchReviewQueue } from "../components/data/LiveResearchReviewQueue";
 import { GovernedProfileBrowser } from "../components/data/GovernedProfileBrowser";
+import AnalyticsDashboardPage from "./AnalyticsDashboardPage";
 
 const TABS = ["Governed Profiles", "WyreStorm Products", "Competitor Products", "Live Research", "Import / Export"] as const;
 type Tab = typeof TABS[number];
@@ -37,7 +38,7 @@ const isAdminSession = (session: WingmanWorkspaceSession | null) =>
     )
   );
 
-export function DataManagerPage() {
+function DataManagerContent() {
   const [session, setSession] = useState<WingmanWorkspaceSession | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
   const [tab, setTab] = useState<Tab>(TABS[0]);
@@ -133,6 +134,10 @@ export function DataManagerPage() {
     {message ? <p className="wm-data-message" role="status">{message}</p> : null}
     {editing ? <ProductEditor record={editing} allRecords={records} editor={session?.user?.email || "ADMIN"} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await reload(); setMessage("Product saved. Product Catalogue, Finder, Compare, Product Pitch, Guru, Templates, BOM and Proposal caches were invalidated."); }} /> : null}
   </main>;
+}
+
+export function DataManagerPage() {
+  return new URLSearchParams(window.location.search).get("view") === "analytics" ? <AnalyticsDashboardPage /> : <DataManagerContent />;
 }
 
 type DataJobResult = { ok: boolean; jobId?: string; state?: "completed" | "failed"; findings?: Array<{ message: string }>; error?: string };
