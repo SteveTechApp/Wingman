@@ -154,14 +154,15 @@ export function SalesHelperPage() {
   }
 
   return (
-    <div className="wm-sh-page wm-polish-shell" data-wingman-page="sales-helper">
-      <section className="wm-sh-page-hero wm-polish-hero wm-polish-aqua" aria-labelledby="sales-helper-title">
+    <div className="wm-sh-page wm-polish-shell" data-wingman-page="call-coach">
+      <section className="wm-sh-page-hero wm-polish-hero wm-polish-aqua" aria-labelledby="call-coach-title">
         <span className="wm-polish-hero-icon" aria-hidden="true">
           <MessageSquare />
         </span>
 
         <div className="wm-polish-hero-copy">
-          <h1 id="sales-helper-title">Choose the conversation type</h1>
+          <p className="wm-polish-eyebrow">Wingman / Call Coach</p>
+          <h1 id="call-coach-title">Choose the conversation type</h1>
           <p>
             Pick the closest starting point. Wingman will carry that context into the next workflow,
             narrow the next question, and keep the conversation application-led.

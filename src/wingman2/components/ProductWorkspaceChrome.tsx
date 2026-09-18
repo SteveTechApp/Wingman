@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Search } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 
 type ProductWorkspaceHeaderProps = {
@@ -29,24 +29,27 @@ export function ProductWorkspaceHeader({
 }
 
 const productWorkspaceRoutes = [
-  [routeCatalogByKey.catalogBrowser.path, "Catalogue"],
-  [routeCatalogByKey.productFamilies.path, "Families"],
-  [routeCatalogByKey.productCallCards.path, "Call cards"],
-  [routeCatalogByKey.productPitch.path, "Positioning"],
+  [`${routeCatalogByKey.products.path}?view=catalogue`, "Catalogue", routeCatalogByKey.catalogBrowser.path],
+  [`${routeCatalogByKey.products.path}?view=families`, "Families", routeCatalogByKey.productFamilies.path],
+  [`${routeCatalogByKey.products.path}?view=call-cards`, "Call cards", routeCatalogByKey.productCallCards.path],
+  [`${routeCatalogByKey.products.path}?view=positioning`, "Positioning", routeCatalogByKey.productPitch.path],
 ] as const;
 
 export function ProductWorkspaceNav() {
+  const location = useLocation();
   return (
     <nav className="wm-product-workspace-nav" aria-label="Product tools">
-      {productWorkspaceRoutes.map(([path, label]) => (
-        <NavLink
+      {productWorkspaceRoutes.map(([path, label, legacyPath]) => {
+        const view = new URLSearchParams(path.split("?")[1]).get("view");
+        const active = location.pathname === legacyPath || (location.pathname === routeCatalogByKey.products.path && new URLSearchParams(location.search).get("view") === view);
+        return <Link
           key={path}
           to={path}
-          className={({ isActive }) => `wm-product-workspace-nav-link${isActive ? " is-active" : ""}`}
+          className={`wm-product-workspace-nav-link${active ? " is-active" : ""}`}
         >
           {label}
-        </NavLink>
-      ))}
+        </Link>;
+      })}
     </nav>
   );
 }
