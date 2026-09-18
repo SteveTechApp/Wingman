@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { saveRoomTemplateCopy } from "../wingman2/lib/customRoomTemplates";
 import { roomTemplates } from "../wingman2/lib/roomTemplates";
+import { templateMatchesMarketFilter } from "../wingman2/lib/templateMarkets";
 import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
 import { TemplatesPage } from "../wingman2/pages/TemplatesPage";
 import { getTemplateApplicationProfile } from "../wingman2/lib/templateApplicationProfiles";
@@ -83,7 +84,10 @@ describe("template workflow wiring", () => {
     const savedTemplate = saveRoomTemplateCopy(roomTemplates[0]);
     renderTemplateRoutes();
 
-    expect(screen.getByRole("heading", { name: `${roomTemplates.length + 1} templates` })).toBeInTheDocument();
+    const corporateTemplateCount = [...roomTemplates, savedTemplate]
+      .filter((template) => templateMatchesMarketFilter(template, "Corporate")).length;
+    expect(screen.queryByRole("button", { name: "All" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: `${corporateTemplateCount} templates` })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: savedTemplate.name }));
     expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();

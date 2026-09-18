@@ -21,7 +21,7 @@ const relationships: Partial<Record<WingmanRouteKey, readonly RelatedFeature[]>>
     { routeKey: "compare", label: "Compare a competitor", reason: "Check a named competitor product and its fit gaps." },
   ],
   products: [
-    { routeKey: "callCoach", label: "Open Call Coach", reason: "Use the current product in a customer conversation." },
+    { routeKey: "callCoach", label: "Get product conversation prompts", reason: "Use the current product in a customer conversation." },
     { routeKey: "discovery", label: "Start Discovery", reason: "Validate the room and system need before selecting." },
     { routeKey: "compare", label: "Compare a competitor", reason: "Check the product direction against another manufacturer." },
   ],

@@ -9,7 +9,7 @@ describe("TemplateLibraryCard", () => {
     render(<TemplateLibraryCard template={template} onReview={vi.fn()} onPersonalise={vi.fn()} />);
 
     expect(screen.getByRole("img", { name: new RegExp(template.name, "i") })).toBeTruthy();
-    expect(screen.getByText(template.summary)).toBeTruthy();
+    expect(screen.queryByText(template.summary)).toBeNull();
     expect(screen.getByText(template.scale)).toBeTruthy();
     expect(screen.getByText(/required sku/i)).toBeTruthy();
     expect(screen.getByRole("button", { name: /review design/i })).toBeTruthy();

@@ -10,7 +10,10 @@ export function FeatureJourneyStrip({ routeKey, context = {} }: { routeKey: Wing
   return <aside className="wm-feature-journey" aria-label="Useful next tools">
     <div className="wm-feature-journey__heading"><Sparkles aria-hidden="true" /><div><strong>Useful next tools</strong><span>Continue without losing the current context.</span></div></div>
     <div className="wm-feature-journey__actions">
-      {actions.map((action) => <Link key={`${action.routeKey}-${action.label}`} to={action.to} className="wm-feature-journey__action"><span><strong>{action.label}</strong><small>{action.reason}</small></span><ArrowRight aria-hidden="true" /></Link>)}
+      {actions.map((action) => {
+        const isCallCoach = action.routeKey === "callCoach";
+        return <Link key={`${action.routeKey}-${action.label}`} to={action.to} className={`wm-feature-journey__action${isCallCoach ? " wm-feature-journey__action--compact" : ""}`}><span><strong>{action.label}</strong>{isCallCoach ? null : <small>{action.reason}</small>}</span><ArrowRight aria-hidden="true" /></Link>;
+      })}
     </div>
   </aside>;
 }

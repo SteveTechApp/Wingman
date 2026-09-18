@@ -8,7 +8,7 @@ import { writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
 import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
 import { templateImageFor } from "../lib/templateImages";
-import { ALL_MARKET_FILTER, TEMPLATE_MARKET_FILTERS, templateMatchesMarketFilter } from "../lib/templateMarkets";
+import { TEMPLATE_MARKETS, TEMPLATE_MARKET_FILTERS, templateMatchesMarketFilter } from "../lib/templateMarkets";
 import { defaultPersonalisation, loadTemplateDraft, saveTemplateDraft, toSolutionTemplate, validatePublishedTemplate, type DocumentPersonalisation, type SolutionTemplateDefinition } from "../lib/solutionTemplates";
 
 type AvailableTemplate = RoomTemplate | CustomRoomTemplate;
@@ -17,7 +17,7 @@ const isCustom = (template: AvailableTemplate): template is CustomRoomTemplate =
 export function TemplatesPage() {
   const customTemplates = useCustomRoomTemplates();
   const navigate = useNavigate();
-  const [market, setMarket] = useState(ALL_MARKET_FILTER);
+  const [market, setMarket] = useState<string>(TEMPLATE_MARKETS[0]);
   const [selected, setSelected] = useState<AvailableTemplate | null>(null);
   const [personalising, setPersonalising] = useState(false);
   const [personalisation, setPersonalisation] = useState<DocumentPersonalisation | null>(null);
@@ -53,8 +53,8 @@ export function TemplatesPage() {
     </nav>
     <div className="wm-template-browser">
       <aside className="wm-market-rail" aria-label="Market filters"><h2>Markets</h2>{TEMPLATE_MARKET_FILTERS.map((item) => <button key={item} type="button" aria-label={item} aria-pressed={item === market} className={item === market ? "is-active" : ""} onClick={() => setMarket(item)}><Building2 /> <span>{item}</span><small>{templates.filter((t) => templateMatchesMarketFilter(t, item)).length}</small></button>)}</aside>
-      <section className="wm-template-results wm-section-card" aria-label="Application templates" data-market-view={market === ALL_MARKET_FILTER ? "all" : "filtered"}>
-        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market === ALL_MARKET_FILTER ? "All markets" : market}</p><h2>{filtered.length} templates</h2></div><p>Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
+      <section className="wm-template-results wm-section-card" aria-label="Application templates">
+        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market}</p><h2>{filtered.length} templates</h2></div><p>Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
         <div className="wm-solution-card-grid">{filtered.map((template) => <TemplateLibraryCard key={template.id} template={template} onReview={() => applyTemplate(template)} onPersonalise={() => personaliseTemplate(template)} {...(isCustom(template) ? { onEdit: () => manageCustom(template), onDuplicate: () => duplicateCustomRoomTemplate(template.id), onDelete: () => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id), onCancelDelete: () => setConfirmDeleteId(null), deletePending: confirmDeleteId === template.id } : {})} />)}</div>
       </section>
     </div>
