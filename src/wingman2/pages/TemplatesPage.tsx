@@ -1,30 +1,23 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Building2, Check, FilePenLine, Info, X } from "lucide-react";
+import { ArrowRight, Building2, Check, FilePenLine, X } from "lucide-react";
+import { TemplateLibraryCard } from "../components/TemplateLibraryCard";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { deleteCustomRoomTemplate, duplicateCustomRoomTemplate, useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
 import { writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
-import { ALL_MARKET_FILTER, TEMPLATE_MARKET_FILTERS, templateMatchesMarketFilter } from "../lib/templateMarkets";
+import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
 import { templateImageFor } from "../lib/templateImages";
+import { TEMPLATE_MARKETS, TEMPLATE_MARKET_FILTERS, templateMatchesMarketFilter } from "../lib/templateMarkets";
 import { defaultPersonalisation, loadTemplateDraft, saveTemplateDraft, toSolutionTemplate, validatePublishedTemplate, type DocumentPersonalisation, type SolutionTemplateDefinition } from "../lib/solutionTemplates";
 
 type AvailableTemplate = RoomTemplate | CustomRoomTemplate;
 const isCustom = (template: AvailableTemplate): template is CustomRoomTemplate => "customTemplate" in template && template.customTemplate === true;
-const templateTone = (vertical: string) => {
-  const market = vertical.toLowerCase();
-  if (market.includes("education")) return "blue";
-  if (market.includes("retail") || market.includes("hospitality")) return "amber";
-  if (market.includes("health") || market.includes("residential")) return "green";
-  if (market.includes("government") || market.includes("control") || market.includes("transport")) return "violet";
-  if (market.includes("broadcast") || market.includes("media") || market.includes("venue")) return "magenta";
-  return "aqua";
-};
 
 export function TemplatesPage() {
   const customTemplates = useCustomRoomTemplates();
   const navigate = useNavigate();
-  const [market, setMarket] = useState(ALL_MARKET_FILTER);
+  const [market, setMarket] = useState<string>(TEMPLATE_MARKETS[0]);
   const [selected, setSelected] = useState<AvailableTemplate | null>(null);
   const [personalising, setPersonalising] = useState(false);
   const [personalisation, setPersonalisation] = useState<DocumentPersonalisation | null>(null);
@@ -60,22 +53,9 @@ export function TemplatesPage() {
     </nav>
     <div className="wm-template-browser">
       <aside className="wm-market-rail" aria-label="Market filters"><h2>Markets</h2>{TEMPLATE_MARKET_FILTERS.map((item) => <button key={item} type="button" aria-label={item} aria-pressed={item === market} className={item === market ? "is-active" : ""} onClick={() => setMarket(item)}><Building2 /> <span>{item}</span><small>{templates.filter((t) => templateMatchesMarketFilter(t, item)).length}</small></button>)}</aside>
-      <section className="wm-template-results wm-section-card" aria-label="Application templates" data-market-view={market === ALL_MARKET_FILTER ? "all" : "filtered"}>
-        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market === ALL_MARKET_FILTER ? "All markets" : market}</p><h2>{filtered.length} templates</h2></div><p>Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
-        <div className="wm-solution-card-grid">{filtered.map((template) => {
-          const item = toSolutionTemplate(template);
-          const purposeId = `template-purpose-${template.id}`;
-          if (market === ALL_MARKET_FILTER) {
-            return <button className="wm-library-tile" key={template.id} type="button" aria-label={item.title} data-template-tone={templateTone(template.vertical)} onClick={() => applyTemplate(template)}><img src={templateImageFor(template)} alt="" loading="lazy" hidden /><span className="wm-library-tile__name">{item.title}</span><span className="wm-library-tile__category">{template.vertical}</span></button>;
-          }
-          return <article className="wm-solution-card wm-action-card" key={template.id} data-template-tone={templateTone(template.vertical)} data-custom-template={isCustom(template) ? "true" : undefined}>
-            <div className="wm-solution-card-visual"><img src={templateImageFor(template)} alt="" loading="lazy" width="400" height="70" /><span className="wm-badge">{template.vertical}</span></div>
-            <div className="wm-solution-card-body"><div className="wm-solution-card-meta"><span className={`wm-status is-${item.status === "published" ? "confirmed" : "assumed"} ${isCustom(template) ? "wm-template-custom-badge" : ""}`}>{item.status === "custom" ? "Custom" : item.status}</span><span>{template.scale}</span></div>
-              <h3 className="wm-card-title">{item.title}</h3><div className="wm-template-card-tools"><div className="wm-template-info-trigger"><button type="button" aria-label={`More information about ${item.title}`} aria-describedby={purposeId}><Info /></button><p id={purposeId} role="tooltip" className="wm-copy wm-solution-card-purpose"><strong>{template.scale}</strong><span>{item.purpose}</span></p></div></div>
-              <div className="wm-template-actions"><button className="wm-button wm-button-secondary wm-template-action-personalise" type="button" onClick={() => personaliseTemplate(template)}><FilePenLine /> Personalise</button><button className="wm-button wm-button-primary wm-template-action-use" type="button" onClick={() => applyTemplate(template)}>Use template</button></div>
-              {isCustom(template) ? <details className="wm-template-manage"><summary>Manage custom template</summary><div className="wm-template-manage-actions"><button type="button" onClick={() => manageCustom(template)}>Edit</button><button type="button" onClick={() => duplicateCustomRoomTemplate(template.id)}>Duplicate</button><button type="button" onClick={() => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id)}>{confirmDeleteId === template.id ? "Confirm delete?" : "Delete"}</button>{confirmDeleteId === template.id ? <button type="button" onClick={() => setConfirmDeleteId(null)}>Keep template</button> : null}</div></details> : null}
-            </div></article>;
-        })}</div>
+      <section className="wm-template-results wm-section-card" aria-label="Application templates">
+        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market}</p><h2>{filtered.length} templates</h2></div><p>Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
+        <div className="wm-solution-card-grid">{filtered.map((template) => <TemplateLibraryCard key={template.id} template={template} onReview={() => applyTemplate(template)} onPersonalise={() => personaliseTemplate(template)} {...(isCustom(template) ? { onEdit: () => manageCustom(template), onDuplicate: () => duplicateCustomRoomTemplate(template.id), onDelete: () => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id), onCancelDelete: () => setConfirmDeleteId(null), deletePending: confirmDeleteId === template.id } : {})} />)}</div>
       </section>
     </div>
     {selected && definition && personalisation ? <TemplateDrawer template={selected} definition={definition} personalisation={personalisation} personalising={personalising} saved={saved} onClose={() => setSelected(null)} onPersonalise={() => setPersonalising(true)} onBack={() => setPersonalising(false)} onUpdate={update} onApply={applyDraft} onUse={() => applyTemplate(selected)} /> : null}
@@ -84,13 +64,15 @@ export function TemplatesPage() {
 
 function TemplateDrawer({ template, definition, personalisation, personalising, saved, onClose, onPersonalise, onBack, onUpdate, onApply, onUse }: { template: AvailableTemplate; definition: SolutionTemplateDefinition; personalisation: DocumentPersonalisation; personalising: boolean; saved: boolean; onClose: () => void; onPersonalise: () => void; onBack: () => void; onUpdate: <K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) => void; onApply: () => void; onUse: () => void }) {
   const publicationIssues = validatePublishedTemplate(definition);
+  const profile = getTemplateApplicationProfile(template);
   return <div className="wm-template-drawer-backdrop"><button className="wm-template-drawer-scrim" type="button" onClick={onClose} aria-label="Close template preview" /><aside className="wm-template-preview-drawer" role="dialog" aria-modal="true" aria-labelledby="template-preview-title">
     <header><div><p className="wm-ui-kicker">{personalising ? "Configure document" : `${definition.market} · ${template.scale}`}</p><h2 id="template-preview-title">{personalising ? `Personalise ${definition.title}` : definition.title}</h2></div><button className="wm-icon-button" type="button" onClick={onClose} aria-label="Close template preview"><X /></button></header>
     {personalising ? <PersonalisationForm value={personalisation} onUpdate={onUpdate} /> : <div className="wm-template-preview-content">
-      <section className="wm-section-card"><h3 className="wm-section-title">Purpose</h3><p className="wm-copy">{definition.purpose}</p></section><section className="wm-section-card"><h3 className="wm-section-title">Market-aware customer story</h3><p className="wm-copy">{definition.customerStory}</p></section><div className="wm-template-preview-split"><section><h3>User experience</h3><p>{definition.userExperience}</p></section><section><h3>Business outcomes</h3><ul>{definition.businessOutcomes.map((x) => <li key={x}>{x}</li>)}</ul></section></div>
-      <section><h3>Suggested architecture</h3><p>{definition.architectureDirection}</p></section><section><h3>Included AV paths</h3><ul>{definition.productFamilyRules.slice(0, 6).map((x) => <li key={x}>{x}</li>)}</ul></section>
-      <div className="wm-template-preview-split"><section><h3>Assumptions</h3><ul>{definition.assumptions.map((x) => <li key={x}><span className="wm-status is-assumed">Assumed</span>{x}</li>)}</ul></section><section><h3>Information still required</h3><ul>{definition.qualificationQuestions.map((x) => <li key={x}>{x}</li>)}</ul></section></div>
-      <section><h3>Required dependencies</h3><ul>{definition.requiredDependencies.map((x) => <li key={x}>{x}</li>)}</ul></section><section><h3>Expected document contents</h3><p>{definition.documentBlueprint.join(" · ")}</p></section>
+      <figure className="wm-template-brief-image"><img src={templateImageFor(template)} alt={`${definition.title} application`} /><figcaption><span>{profile.canonicalMarket}</span><strong>{template.scale}</strong><p>{template.summary}</p></figcaption></figure>
+      <section className="wm-section-card"><h3 className="wm-section-title">Application brief</h3><p className="wm-copy">{profile.userJourney}</p></section>
+      <div className="wm-template-preview-split"><section><h3>Architecture</h3><strong>{profile.architectureFamily}</strong><p>{definition.architectureDirection}</p></section><section><h3>Sizing basis</h3><ul>{profile.sizingBasis.map((x) => <li key={x}>{x}</li>)}</ul></section></div>
+      <div className="wm-template-preview-split"><section><h3>Included WyreStorm scope</h3><ul>{profile.inclusions.map((x) => <li key={x}>{x}</li>)}</ul></section><section><h3>Third-party scope</h3><ul>{profile.exclusions.map((x) => <li key={x}>{x}</li>)}</ul></section></div>
+      <div className="wm-template-preview-split"><section><h3>Assumptions</h3><ul>{definition.assumptions.map((x) => <li key={x}><span className="wm-status is-assumed">Assumed</span>{x}</li>)}</ul></section><section><h3>Site validation required</h3><ul>{template.validationItems.map((x) => <li key={x}>{x}</li>)}</ul></section></div>
       {publicationIssues.length ? <p className="wm-template-validation-warning">Draft only: missing {publicationIssues.join(", ")}.</p> : null}
     </div>}
     <footer>{personalising ? <><button className="wm-button wm-button-secondary" type="button" onClick={onBack}>Back to preview</button><button className="wm-button wm-button-secondary" type="button" onClick={() => location.reload()}>Reset to Brand Defaults</button><button className="wm-button wm-button-primary" type="button" onClick={onApply}>{saved ? "Draft saved" : "Apply to Draft"}</button></> : <><Link className="wm-button wm-button-secondary" to={`${routeCatalogByKey.templates.path}/${template.id}`}>Review Template</Link><button className="wm-button wm-button-secondary" type="button" onClick={onPersonalise}><FilePenLine /> Personalise</button><button className="wm-button wm-button-primary" type="button" onClick={onUse}>Use Template <ArrowRight /></button></>}</footer>

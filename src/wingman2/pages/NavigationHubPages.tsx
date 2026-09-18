@@ -1,8 +1,26 @@
-import { ArrowRight, Bot, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
+import {
+  canonicalWorkflowForRoute,
+  installWorkflowAbandonmentTracking,
+  type CanonicalWorkflowId,
+  workflowTelemetry,
+} from "../features/navigation";
+import { SalesHelperPage } from "./SalesHelperPage";
+
+const ProductCatalogueView = lazy(() => import("./CatalogBrowserPage").then((module) => ({ default: module.CatalogBrowserPage })));
+const ProductFamiliesView = lazy(() => import("./ProductFamilyPage").then((module) => ({ default: module.ProductFamilyPage })));
+const ProductCallCardsView = lazy(() => import("./ProductCallCardsPage"));
+const ProductPositioningView = lazy(() => import("./ProductPitchPage").then((module) => ({ default: module.ProductPitchPage })));
+
+function ProductWorkspaceMode({ view }: { view: string }) {
+  const Page = view === "catalogue" ? ProductCatalogueView : view === "families" ? ProductFamiliesView : view === "call-cards" ? ProductCallCardsView : ProductPositioningView;
+  return <Suspense fallback={<div className="wm-ui-card p-6">Loading Product Workspace…</div>}><Page /></Suspense>;
+}
 
 
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
@@ -17,6 +35,7 @@ export type HubAction = {
   note?: string;
   linkLabel?: string;
   art?: HubCardArtKind;
+  routeKey: WingmanRouteKey;
 };
 
 type HubPageProps = {
@@ -28,6 +47,8 @@ type HubPageProps = {
   heroIcon: LucideIcon;
   accent: PolishAccent;
   tip: string;
+  workflowId?: CanonicalWorkflowId;
+  entryRoute?: WingmanRouteKey;
 };
 
 type RouteActionOptions = {
@@ -54,17 +75,28 @@ export function routeAction(
     icon: routeCatalogByKey[routeKey].icon,
     to: routeCatalogByKey[routeKey].path,
     art: options.art,
+    routeKey,
   };
 }
 
-export function HubCard({ item }: { item: HubAction }) {
+export function HubCard({ item, workflowId }: { item: HubAction; workflowId?: CanonicalWorkflowId }) {
   const Icon = item.icon;
+  const destinationWorkflowId = canonicalWorkflowForRoute(item.routeKey);
 
   return (
     <Link
       to={item.to}
       className={`wm-sh-choice-card wm-polish-card wm-polish-${item.accent}`}
       aria-label={`Open ${item.title} in Wingman`}
+      onClick={() => {
+        const selectedWorkflowId = workflowId ?? destinationWorkflowId;
+        if (selectedWorkflowId) {
+          workflowTelemetry.handoff(selectedWorkflowId, {
+            destinationRoute: item.routeKey,
+            source: "hub-card",
+          });
+        }
+      }}
     >
       <span className="wm-polish-card-icon" aria-hidden="true">
         <Icon />
@@ -100,8 +132,17 @@ function HubPage({
   heroIcon: HeroIcon,
   accent,
   tip,
+  workflowId,
+  entryRoute,
 }: HubPageProps) {
   const actions = [...primaryActions, ...secondaryActions];
+
+  useEffect(() => {
+    installWorkflowAbandonmentTracking();
+    if (workflowId && entryRoute) {
+      workflowTelemetry.start(workflowId, { entryRoute });
+    }
+  }, [entryRoute, workflowId]);
 
   return (
     <main
@@ -127,14 +168,14 @@ function HubPage({
       <section className="wm-sh-page-section" aria-label={`${title} actions`}>
         <div className="wm-sh-card-grid wm-polish-grid">
           {actions.map((item) => (
-            <HubCard key={item.title} item={item} />
+            <HubCard key={item.title} item={item} workflowId={workflowId} />
           ))}
         </div>
 
         <div className="wm-polish-tip">
           <Sparkles aria-hidden="true" />
           <span>
-            <strong>Suggested starting point:</strong> {tip}
+            <strong>{workflowId ? "Canonical next action:" : "Suggested starting point:"}</strong> {tip}
           </span>
         </div>
       </section>
@@ -143,65 +184,17 @@ function HubPage({
 }
 
 export function CallCoachPage() {
-  return (
-    <HubPage
-      eyebrow="Wingman / Call Coach"
-      title="Call Coach"
-      intent="Live sales support for product conversations, customer discovery and escalation decisions."
-      heroIcon={Bot}
-      accent="aqua"
-      tip="Begin with Capture Requirements when the customer has described an application but has not provided enough technical detail."
-      primaryActions={[
-        routeAction(
-          "productCallCards",
-          "Open SKU Call Card",
-          "Search for a WyreStorm SKU and view what it is, what it does, how to position it and the key specification points.",
-          "Product-specific call",
-          {
-            accent: "aqua",
-            linkLabel: "Choose product",
-            art: "call-card",
-          },
-        ),
-        routeAction(
-          "discovery",
-          "Capture Requirements",
-          "Record the application, sources, displays, distances, USB, audio, control and network requirements before selecting products.",
-          "Discovery / requirement capture",
-          {
-            accent: "blue",
-            linkLabel: "Start discovery",
-            art: "discovery",
-          },
-        ),
-        routeAction(
-          "salesHelper",
-          "Open Sales Helper",
-          "Choose whether the opportunity is room-led, display-led, UC-led, competitor-led, product-led or proposal-led.",
-          "Call-out day",
-          {
-            accent: "green",
-            linkLabel: "Choose conversation type",
-            art: "conversation",
-          },
-        ),
-        routeAction(
-          "support",
-          "Check Escalation",
-          "Review complexity, missing information, compatibility risks and quote readiness before progressing.",
-          "Escalation check",
-          {
-            accent: "amber",
-            linkLabel: "Check requirements",
-            art: "support",
-          },
-        ),
-      ]}
-    />
-  );
+  useEffect(() => {
+    installWorkflowAbandonmentTracking();
+    workflowTelemetry.start("sales-conversation", { entryRoute: "callCoach" });
+  }, []);
+  return <SalesHelperPage />;
 }
 
 export function ProductsPage() {
+  const [searchParams] = useSearchParams();
+  const view = searchParams.get("view");
+  if (view && ["catalogue", "families", "call-cards", "positioning"].includes(view)) return <ProductWorkspaceMode view={view} />;
   return (
     <HubPage
       eyebrow="Wingman / Products"
@@ -277,6 +270,8 @@ export function ProductsPage() {
   );
 }
 export function DocumentsPage() {
+  const [searchParams] = useSearchParams();
+  if (searchParams.get("mode") === "publication") return <ResponsePackPage embedded />;
   return (
     <HubPage
       eyebrow="Wingman / Documents"
@@ -285,6 +280,8 @@ export function DocumentsPage() {
       heroIcon={FileSearch}
       accent="violet"
       tip="Begin with Decode request for unstructured emails, BOMs or tender text, then move only the relevant items into Compare or Response Pack."
+      workflowId="response-authoring"
+      entryRoute="documents"
       primaryActions={[
         routeAction(
           "ingest",
@@ -319,15 +316,17 @@ export function DocumentsPage() {
   );
 }
 
-export function ResponsePackPage() {
+export function ResponsePackPage({ embedded = false }: { embedded?: boolean }) {
   return (
     <HubPage
-      eyebrow="Wingman / Response Pack"
+      eyebrow={embedded ? "Wingman / Documents / Publication" : "Wingman / Response Pack"}
       title="Response Pack"
       intent="Create a usable response: quick email reply, RFI response, formal RFQ support, project summary, internal handover or schematic-backed response pack."
       heroIcon={FileText}
       accent="amber"
       tip="Start with Response Pack Builder when requirements and products are known; add a schematic only when it materially improves customer understanding."
+      workflowId="response-authoring"
+      entryRoute="responsePack"
       primaryActions={[
         routeAction(
           "proposal",

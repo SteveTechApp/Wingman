@@ -24,6 +24,17 @@
 | Edit offline, reconnect and confirm deterministic reconciliation | Not run | Not run | — |
 | Verify keyboard basics, visible focus and accessible labels | Not run | Not run | — |
 | Open and close Guided navigation and the Guru assistant | Not run | Not run | — |
+| Choose between Call Coach, Sales Helper and Call Cards for the same sales conversation; record the clearest starting point and any duplicated steps | Not run | Not run | — |
+| Choose between Documents, Response Pack and Proposal for a supplied customer brief; record the clearest starting point and any duplicated steps | Not run | Not run | — |
+
+## Workflow-path validation
+
+Use realistic but non-customer test data. For each choice task, record the first route selected, whether the task was completed without backtracking, and the reason for any handoff. Compare those observations with the privacy-safe workflow start, handoff, completion and abandonment counts. Do not remove or redirect a route until the sales representative and release owner have signed the decision below.
+
+| Workflow group | Observed preferred path | Routes to retain, redirect or remove | Sales representative | Release owner | Decision date | Evidence |
+|---|---|---|---|---|---|---|
+| Call Coach / Sales Helper / Call Cards | Pending external UAT | No change pending evidence | Pending | Pending | — | — |
+| Documents / Response Pack / Proposal | Pending external UAT | No change pending evidence | Pending | Pending | — | — |
 
 ## Release-owner decision
 

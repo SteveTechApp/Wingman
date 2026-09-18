@@ -31,7 +31,8 @@ import { validateProposalExport, type ExportValidationResult } from "../lib/prop
 import { proposalReadiness, type ProposalReadiness } from "../lib/proposalReadiness";
 import { searchProducts, type ProductSearchResult } from "../lib/productSearch";
 import { classifyProduct, checkRoleCompatibility } from "../lib/roleCompatibility";
-
+import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
+import { templateImageFor } from "../lib/templateImages";
 const includedStatuses = new Set(["included", "optional", "validate"]);
 const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
 type Tab = (typeof tabs)[number];
@@ -205,7 +206,7 @@ export function TemplateReviewPage() {
 
   if (!selectedTemplate) return <div data-wingman-template-detail-page="true" className="pb-10"><PageHero eyebrow="Room templates" title="Template not found." purpose="The selected room design template could not be found." nextMove="Go back to the template library and pick a room design to review." actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]} /></div>;
 
-  const template = selectedTemplate;
+  const template = selectedTemplate, applicationProfile = getTemplateApplicationProfile(selectedTemplate);
   const counts = {
     Required: selectedRows.filter((row) => row.type === "Required" && row.status !== "excluded").length,
     Validate: selectedRows.filter((row) => row.type === "Validate" && row.status !== "excluded").length,
@@ -309,6 +310,9 @@ export function TemplateReviewPage() {
             </div></details>
           </div>
         </div>
+        <div className="wm-template-detail-hero"><img src={templateImageFor(template)} alt={`${template.name} application`} />
+          <div><span>{applicationProfile.canonicalMarket} · {template.scale}</span><strong>{applicationProfile.architectureFamily}</strong><p>{applicationProfile.userJourney}</p></div>
+        </div>
       </header>
 
       {(savedProjectPath || savedTemplatePath) ? <div className="wm-template-save-notice"><CheckCircle2 />
@@ -339,7 +343,15 @@ export function TemplateReviewPage() {
             </div>
             <div className="wm-template-overview-notes">
               <div><span>Application</span><p>{template.application}</p></div>
-              <div><span>Architecture</span><p>{template.architecture}</p></div>
+              <div><span>Architecture</span><p><strong>{applicationProfile.architectureFamily}</strong> — {template.architecture}</p></div>
+            </div>
+            <div className="wm-template-brief-grid">
+              <section><h3>How the room is used</h3><p>{applicationProfile.userJourney}</p></section>
+              <section><h3>Sizing basis</h3><ul>{applicationProfile.sizingBasis.map((item) => <li key={item}>{item}</li>)}</ul></section>
+              <section><h3>Included WyreStorm scope</h3><ul>{applicationProfile.inclusions.map((item) => <li key={item}>{item}</li>)}</ul></section>
+              <section><h3>Third-party scope</h3><ul>{applicationProfile.exclusions.map((item) => <li key={item}>{item}</li>)}</ul></section>
+              <section><h3>Assumptions</h3><ul>{template.assumptions.map((item) => <li key={item}>{item}</li>)}</ul></section>
+              <section><h3>Site validation required</h3><ul>{template.validationItems.map((item) => <li key={item}>{item}</li>)}</ul></section>
             </div>
           </section>
           <aside className="wm-template-readiness">

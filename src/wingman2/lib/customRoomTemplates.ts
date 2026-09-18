@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { StoredProject, StoredProposalBomRow } from "../data/projectStore";
 import type { RoomTemplate, TemplateBomRow, TemplateBomType } from "./roomTemplates";
+import { getTemplateApplicationProfile, type TemplateApplicationProfile } from "./templateApplicationProfiles";
 import { normaliseProjectTopology, type ProjectTopology } from "./projectTopology";
 
 export const CUSTOM_ROOM_TEMPLATE_EVENT = "wingman:custom-room-templates-updated";
@@ -44,6 +45,7 @@ export type CreateCustomRoomTemplateInput = {
   discoveryAnswers?: DiscoveryAnswerMap;
   discoveryNotes?: DiscoveryNoteMap;
   topology?: ProjectTopology;
+  applicationProfile?: TemplateApplicationProfile;
 };
 
 function nowIso() {
@@ -171,7 +173,7 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
     ? record.bom.map((row, rowIndex) => normalizeBomRow(row, rowIndex)).filter((row): row is TemplateBomRow => Boolean(row))
     : [];
 
-  return {
+  const normalized: CustomRoomTemplate = {
     id,
     name: safeString(record.name, "Custom room template"),
     vertical: safeString(record.vertical, "Custom"),
@@ -209,6 +211,11 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
     discoveryNotes: safeDiscoveryNotes(record.discoveryNotes),
     topology: normaliseProjectTopology(record.topology),
   };
+  const savedProfile = record.applicationProfile;
+  normalized.applicationProfile = savedProfile && typeof savedProfile === "object"
+    ? savedProfile as TemplateApplicationProfile
+    : getTemplateApplicationProfile(normalized);
+  return normalized;
 }
 
 function readCustomTemplates(): CustomRoomTemplate[] {
@@ -260,7 +267,7 @@ export function createBlankCustomRoomTemplate(input: CreateCustomRoomTemplateInp
   const timestamp = nowIso();
   const summary = safeString(input.summary, "A reusable room template created by the Wingman user.");
 
-  return {
+  const template: CustomRoomTemplate = {
     id,
     name: safeString(input.name, "Custom room template"),
     vertical: safeString(input.vertical, "Custom"),
@@ -285,6 +292,8 @@ export function createBlankCustomRoomTemplate(input: CreateCustomRoomTemplateInp
     discoveryNotes: input.discoveryNotes ?? {},
     topology: normaliseProjectTopology(input.topology),
   };
+  template.applicationProfile = input.applicationProfile ?? getTemplateApplicationProfile(template);
+  return template;
 }
 
 export function saveCustomRoomTemplate(

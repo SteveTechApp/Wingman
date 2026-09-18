@@ -13,6 +13,7 @@ import {
 } from "../app/routeCatalog";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
+import { FeatureJourneyStrip } from "../components/FeatureJourneyStrip";
 import {
   clearActiveProject,
   getCurrentWorkflowProject,
@@ -439,6 +440,7 @@ export function AppShell({ children }: AppShellProps) {
             key={`${location.pathname}-${pageResetVersion}`}
           >
             {children ?? <Outlet />}
+            {activeRoute ? <FeatureJourneyStrip routeKey={activeRoute.key} context={{ projectId: guruActivityContext.project?.id, sku: guruActivityContext.project?.selectedSkus[0] }} /> : null}
           </div>
         </main>
       </div>

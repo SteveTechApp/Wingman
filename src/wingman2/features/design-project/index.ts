@@ -3,6 +3,6 @@ export type { DesignProjectDecisionGraph, DesignProjectStage, DesignProjectStage
 export { createDesignProjectCommands } from "./commands/designProjectCommands";
 export { buildDesignProjectDocument } from "./proposal/designProjectDocument";
 export type { DesignProjectDocument } from "./proposal/designProjectDocument";
-export { buildDesignProjectExportEvent, buildDesignProjectJourneyEvent, trackDesignProjectExport } from "./analytics/journeyEvents";
-export type { DesignProjectJourneyEvent, DesignProjectJourneyName } from "./analytics/journeyEvents";
+export { buildDesignProjectExportEvent, buildDesignProjectJourneyEvent, buildOperationalJourneyEvent, summarizeOperationalJourneyEvents, trackDesignProjectExport, trackOperationalJourneyEvent } from "./analytics/journeyEvents";
+export type { DesignProjectJourneyEvent, DesignProjectJourneyName, OperationalJourneyEvent, OperationalJourneyEventName, OperationalJourneySummary } from "./analytics/journeyEvents";
 export { compileRecommendedDesignProject } from "./compileRecommendedDesignProject";

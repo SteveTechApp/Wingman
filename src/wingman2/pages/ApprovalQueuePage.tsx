@@ -246,6 +246,8 @@ export function ApprovalQueuePage() {
     type: "approve" | "reject";
     projectId: string;
   } | null>(null);
+  const [decisionError, setDecisionError] = useState("");
+  const [decisionPending, setDecisionPending] = useState(false);
 
   function handleApprove(projectId: string) {
     setModal({ type: "approve", projectId });
@@ -255,16 +257,22 @@ export function ApprovalQueuePage() {
     setModal({ type: "reject", projectId });
   }
 
-  function submitDecision(comments: string) {
+  async function submitDecision(comments: string) {
     if (!modal) return;
-    // TODO: replace "Manager" with actual user identity when auth is wired
-    const reviewer = "Manager";
-    if (modal.type === "approve") {
-      approveProposal(modal.projectId, reviewer, comments);
-    } else {
-      rejectProposal(modal.projectId, reviewer, comments);
+    setDecisionPending(true);
+    setDecisionError("");
+    try {
+      if (modal.type === "approve") {
+        await approveProposal(modal.projectId, undefined, comments);
+      } else {
+        await rejectProposal(modal.projectId, undefined, comments);
+      }
+      setModal(null);
+    } catch (error) {
+      setDecisionError(error instanceof Error ? error.message : "The proposal decision could not be saved.");
+    } finally {
+      setDecisionPending(false);
     }
-    setModal(null);
   }
 
   return (
@@ -313,6 +321,8 @@ export function ApprovalQueuePage() {
 
       <ApprovalHistory />
 
+      {decisionError ? <p role="alert" className="wm-form-error">{decisionError}</p> : null}
+
       {modal && (
         <CommentModal
           title={
@@ -321,7 +331,7 @@ export function ApprovalQueuePage() {
               : "Request changes"
           }
           onSubmit={submitDecision}
-          onClose={() => setModal(null)}
+          onClose={() => { if (!decisionPending) setModal(null); }}
         />
       )}
     </main>

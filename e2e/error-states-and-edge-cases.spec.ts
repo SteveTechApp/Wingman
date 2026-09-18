@@ -87,4 +87,29 @@ test.describe("Error states and edge cases", () => {
     const bodyHTML = await page.locator("body").innerHTML().catch(() => "");
     expect(bodyHTML.length).toBeGreaterThan(50);
   });
+
+  test("Data Manager reports governed validation pending, failure and success accurately", async ({ page }) => {
+    await page.route("**/api/wingman/auth/session", (route) => route.fulfill({ json: { ok: true, session: { user: { id: "admin", email: "admin@example.com", role: "admin" }, workspaceRole: "admin", permissions: { canManageWorkspace: true } } } }));
+    await page.route("**/api/product-intelligence**", (route) => route.fulfill({ json: { ok: true, records: [] } }));
+    let fail = true;
+    await page.route("**/api/governance/data-jobs/validate", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      await route.fulfill({ status: fail ? 400 : 200, json: fail
+        ? { ok: false, error: "Import JSON must be an array of product records.", state: "failed" }
+        : { ok: true, jobId: "job-1", state: "completed", findings: [], startedAt: new Date().toISOString(), completedAt: new Date().toISOString() } });
+    });
+    await page.goto(`${BASE}/admin/data-manager`);
+    await page.getByRole("button", { name: "Import / Export" }).click();
+    const chooser = page.getByLabel("Choose JSON import to validate");
+    const validationStatus = page.getByRole("main").getByRole("status");
+    await chooser.setInputFiles({ name: "bad.json", mimeType: "application/json", buffer: Buffer.from("not-json") });
+    await expect(validationStatus).toHaveText("Validation is running…");
+    await expect(validationStatus).toContainText("Validation failed");
+    await expect(validationStatus).not.toContainText("completed");
+
+    fail = false;
+    await chooser.setInputFiles({ name: "good.json", mimeType: "application/json", buffer: Buffer.from("[]") });
+    await expect(validationStatus).toHaveText("Validation is running…");
+    await expect(validationStatus).toHaveText("Validation completed with 0 findings.");
+  });
 });

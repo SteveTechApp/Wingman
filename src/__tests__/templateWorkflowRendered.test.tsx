@@ -4,8 +4,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { saveRoomTemplateCopy } from "../wingman2/lib/customRoomTemplates";
 import { roomTemplates } from "../wingman2/lib/roomTemplates";
+import { templateMatchesMarketFilter } from "../wingman2/lib/templateMarkets";
 import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
 import { TemplatesPage } from "../wingman2/pages/TemplatesPage";
+import { getTemplateApplicationProfile } from "../wingman2/lib/templateApplicationProfiles";
 
 function renderTemplateRoutes(initialPath = "/wingman/templates") {
   return render(
@@ -42,6 +44,29 @@ describe("template workflow wiring", () => {
     expect(screen.queryByText(roomTemplates[0].name)).not.toBeInTheDocument();
   });
 
+  it("carries the reviewed application brief into preview and detail overview", () => {
+    const template = roomTemplates[0];
+    const profile = getTemplateApplicationProfile(template);
+    const view = renderTemplateRoutes();
+
+    const card = screen.getByRole("heading", { name: template.name }).closest("article");
+    expect(card).not.toBeNull();
+    fireEvent.click(within(card!).getByRole("button", { name: /personalise/i }));
+    fireEvent.click(screen.getByRole("button", { name: /back to preview/i }));
+    const preview = screen.getByRole("dialog", { name: template.name });
+    expect(within(preview).getByRole("img", { name: `${template.name} application` })).toBeVisible();
+    expect(within(preview).getByText("Sizing basis")).toBeVisible();
+    expect(within(preview).getByText(profile.userJourney)).toBeVisible();
+    view.unmount();
+
+    renderTemplateRoutes(`/wingman/templates/${template.id}`);
+    expect(screen.getByRole("img", { name: `${template.name} application` })).toBeVisible();
+    fireEvent.click(screen.getByRole("tab", { name: "Overview" }));
+    expect(screen.getByRole("heading", { name: "Third-party scope" })).toBeVisible();
+    expect(screen.getAllByText(profile.architectureFamily).length).toBeGreaterThan(0);
+    expect(screen.getByText(profile.sizingBasis[0])).toBeVisible();
+  });
+
   it("saves an adjusted room design as a reusable custom template", () => {
     const template = roomTemplates[0];
     renderTemplateRoutes(`/wingman/templates/${template.id}`);
@@ -59,7 +84,10 @@ describe("template workflow wiring", () => {
     const savedTemplate = saveRoomTemplateCopy(roomTemplates[0]);
     renderTemplateRoutes();
 
-    expect(screen.getByRole("heading", { name: `${roomTemplates.length + 1} templates` })).toBeInTheDocument();
+    const corporateTemplateCount = [...roomTemplates, savedTemplate]
+      .filter((template) => templateMatchesMarketFilter(template, "Corporate")).length;
+    expect(screen.queryByRole("button", { name: "All" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: `${corporateTemplateCount} templates` })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: savedTemplate.name }));
     expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();

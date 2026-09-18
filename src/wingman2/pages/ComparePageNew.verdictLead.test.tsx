@@ -58,7 +58,11 @@ describe("compare page minimum verdict surface", () => {
       /Match|Partial match|Further checks required/i,
     );
     expect(within(cards).getByLabelText("Competitor product card")).not.toBeNull();
-    expect(within(cards).getByLabelText("WyreStorm product card")).not.toBeNull();
+    const wyrestormCard = within(cards).getByLabelText("WyreStorm product card");
+    const expectedTone = /Further checks required|Partial match/i.test(status.textContent || "")
+      ? "confirm"
+      : "strong";
+    expect(wyrestormCard.getAttribute("data-match-tone")).toBe(expectedTone);
 
     const technicalDetails = screen
       .getByText("Technical evidence & review")

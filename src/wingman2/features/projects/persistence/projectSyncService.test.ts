@@ -56,8 +56,7 @@ describe("projectSyncService", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it("discovers stored authentication and debounces writes without changing the payload", async () => {
-    window.sessionStorage.setItem("wingman.projectSyncToken", "token-1");
+  it("uses the HTTP-only session contract and debounces writes without changing the payload", async () => {
     const previous = snapshot([project({ syncRevision: 2 })]);
     const repository = memoryRepository(previous);
     const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ project: { ...project({ name: "Latest", syncRevision: 3 }), customer: "Owner" } }), {
@@ -72,7 +71,8 @@ describe("projectSyncService", () => {
     expect(fetchImpl).toHaveBeenCalledOnce();
     const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("/api/wingman/projects/project-1");
-    expect(new Headers(init.headers).get("Authorization")).toBe("Bearer token-1");
+    expect(new Headers(init.headers).get("Authorization")).toBeNull();
+    expect(init.credentials).toBe("include");
     expect(JSON.parse(String(init.body))).toMatchObject({ id: "project-1", name: "Latest", customer: "Owner", baseRevision: 2 });
   });
 
@@ -108,5 +108,21 @@ describe("projectSyncService", () => {
     service.resetSession();
     await service.hydrate();
     expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("recovers from a rejected session after re-authentication", async () => {
+    const repository = memoryRepository(snapshot()) as ReturnType<typeof memoryRepository> & { initializeScope: ReturnType<typeof vi.fn> };
+    repository.initializeScope = vi.fn().mockResolvedValue(undefined);
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ session: { workspace: { id: "workspace-1" }, user: { id: "user-1" } } }), { status: 200, headers: { "Content-Type": "application/json" } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ projects: [] }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    const service = createProjectSyncService({ repository, backendEnabled: true, fetchImpl: fetchImpl as unknown as typeof fetch, now: () => NOW });
+    await service.hydrate();
+    expect(service.storageMode()).toEqual({ kind: "local", reason: "missing-auth" });
+    service.resetSession();
+    await service.hydrate();
+    expect(repository.initializeScope).toHaveBeenCalledWith({ workspaceId: "workspace-1", userId: "user-1" });
+    expect(service.storageMode()).toEqual({ kind: "remote", authSource: "http-only-cookie" });
   });
 });

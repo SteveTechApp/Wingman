@@ -1,4 +1,5 @@
-import type { RoomTemplate } from "./roomTemplates";
+import type { RoomTemplate, TemplateBomRow } from "./roomTemplates";
+import { getTemplateApplicationProfile, type TemplateApplicationProfile } from "./templateApplicationProfiles";
 
 export type TemplateStatus = "published" | "draft" | "custom";
 export type DocumentAudience = "Customer" | "Consultant" | "Integrator" | "Internal";
@@ -14,6 +15,7 @@ export type SolutionTemplateDefinition = {
   qualificationQuestions: string[]; alternativeDesignPath: string; unsuitableWhen: string[];
   visualAssets: string[]; personalisationOptions: string[]; validationRules: string[];
   tags: string[]; createdBy: string; updatedAt: string;
+  applicationProfile?: TemplateApplicationProfile; bom?: TemplateBomRow[];
 };
 
 export type DocumentPersonalisation = {
@@ -56,10 +58,12 @@ export function toSolutionTemplate(template: RoomTemplate & { customTemplate?: b
     visualAssets: [], personalisationOptions: ["Brand", "Content", "Audience", "Section order"],
     validationRules: ["discovery-required", "recommendation-engine-required", "assumptions-not-confirmed"],
     tags: [template.vertical, template.scale, template.application], createdBy: "Wingman", updatedAt: "2026-08-05",
+    applicationProfile: getTemplateApplicationProfile(template), bom: template.bom,
   };
 }
 
-export function validatePublishedTemplate(template: SolutionTemplateDefinition): string[] {
+export function validatePublishedTemplate(template: SolutionTemplateDefinition, governedSkus?: ReadonlySet<string>): string[] {
+  if (template.status !== "published") return [];
   const required: Array<[string, unknown]> = [
     ["purpose", template.purpose], ["customerStory", template.customerStory], ["userExperience", template.userExperience],
     ["businessOutcomes", template.businessOutcomes], ["discoveryPreset", Object.keys(template.discoveryPreset)],
@@ -69,7 +73,20 @@ export function validatePublishedTemplate(template: SolutionTemplateDefinition):
     ["alternativeDesignPath", template.alternativeDesignPath], ["unsuitableWhen", template.unsuitableWhen],
     ["documentBlueprint", template.documentBlueprint],
   ];
-  return required.filter(([, value]) => !value || (Array.isArray(value) && value.length === 0)).map(([name]) => name);
+  const issues = required.filter(([, value]) => !value || (Array.isArray(value) && value.length === 0)).map(([name]) => name);
+  if (!template.applicationProfile) issues.push("governed application profile");
+  else {
+    if (template.applicationProfile.reviewStatus !== "reviewed") issues.push("reviewed application profile");
+    if (!template.applicationProfile.sizingBasis.length) issues.push("sizing basis");
+    if (!template.applicationProfile.imageKey) issues.push("application image key");
+  }
+  const governed = (template.bom ?? []).filter((row) => !row.sku.startsWith("BY-OTHERS") && !row.sku.startsWith("CUSTOM"));
+  if (!governed.some((row) => row.type === "Required")) issues.push("required governed WyreStorm row");
+  if (governedSkus) {
+    const unresolved = governed.filter((row) => !governedSkus.has(row.sku.toUpperCase())).map((row) => row.sku);
+    if (unresolved.length) issues.push(`unresolved governed SKU(s): ${[...new Set(unresolved)].join(", ")}`);
+  }
+  return issues;
 }
 
 export function defaultPersonalisation(template: SolutionTemplateDefinition): DocumentPersonalisation {

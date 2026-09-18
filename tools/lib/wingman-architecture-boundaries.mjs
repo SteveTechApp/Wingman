@@ -164,6 +164,19 @@ export function checkWingmanArchitecture({ rootDir, migrationAllowlist = {} }) {
     if (lines > MAX_PRODUCTION_FILE_LINES) report("max-file-lines", file, `${lines} lines exceeds ${MAX_PRODUCTION_FILE_LINES}`, lines);
     if (/^src\/wingman2\/pages\/[^/]+\.tsx$/.test(file) && lines > MAX_PAGE_ENTRY_LINES) report("page-entry-lines", file, `${lines} lines exceeds ${MAX_PAGE_ENTRY_LINES}`, lines);
 
+    if (/^src\/wingman2\/pages\//.test(file)) {
+      const forbiddenDecisionInternals = new Set([
+        "src/wingman2/lib/compareRuntimePipeline",
+        "src/wingman2/lib/recommendationsDecisionBoundary",
+      ]);
+      for (const specifier of importSpecifiers(source, file)) {
+        const target = resolveImport(absolute, specifier, rootDir);
+        if (target && forbiddenDecisionInternals.has(canonicalModule(target))) {
+          report("page-imports-decision-internal", file, `Route page imports decision-engine internal ${specifier}; use the feature public API`);
+        }
+      }
+    }
+
     const owner = featureName(file);
     if (!owner) continue;
     for (const specifier of importSpecifiers(source, file)) {

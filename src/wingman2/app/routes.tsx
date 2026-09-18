@@ -54,6 +54,10 @@ const ProjectDetailRoute = lazy(fromNamedExport(() => import("../pages/ProjectDe
 const TemplateReviewRoute = lazy(fromNamedExport(() => import("../pages/TemplateReviewPage"), "TemplateReviewPage"));
 const DataManagerRoute = lazy(fromNamedExport(() => import("../pages/DataManagerPage"), "DataManagerPage"));
 
+const consolidatedRedirectKeys = new Set<WingmanRouteKey>([
+  "salesHelper", "callCards", "battleCards", "responsePack", "support", "quoteSafetyDashboard", "analyticsDashboard",
+]);
+
 function RouteFallback() {
   return (
     <div data-wingman-sales-helper="true" className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-6 text-sm font-semibold text-slate-600">
@@ -85,7 +89,14 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
       { path: "product-families/:familyId", element: routeElement(pageRegistry.productFamilies) },
       { path: "admin/data-manager", element: routeElement(DataManagerRoute) },
-      ...routeCatalog.filter((route) => route.key !== "dashboard").map((route) => ({
+      { path: "sales-helper", element: <Navigate to="/wingman/call-coach" replace /> },
+      { path: "call-cards", element: <Navigate to="/wingman/call-coach" replace /> },
+      { path: "battle-cards", element: <Navigate to="/wingman/compare?mode=battle-cards" replace /> },
+      { path: "response-pack", element: <Navigate to="/wingman/documents?mode=publication" replace /> },
+      { path: "support", element: <Navigate to="/wingman/call-coach" replace /> },
+      { path: "quote-safety", element: <Navigate to="/wingman/projects?view=quote-safety" replace /> },
+      { path: "analytics", element: <Navigate to="/wingman/admin/data-manager?view=analytics" replace /> },
+      ...routeCatalog.filter((route) => route.key !== "dashboard" && !consolidatedRedirectKeys.has(route.key)).map((route) => ({
         path: route.key === "productCallCards" ? `${route.segment}/*` : route.segment,
         element: routeElement(pageRegistry[route.key]),
       })),

@@ -32,6 +32,8 @@ const KNOWN_DYNAMIC_ALLOWLIST = new Set([
   "src/wingman2/lib/testHelpers/governedProfilesHarness.ts",
   // Guard module for the competitor-decision drift gate: imported by tools/snapshot-competitor-match-decisions.mjs and the snapshot test, never by live pages.
   "src/wingman2/lib/competitorMatchDecisionSnapshot.ts",
+  // Audit entrypoint bundled and dynamically imported by tools/check-template-realism.mjs, never by live pages.
+  "src/wingman2/lib/templateRealismAuditEntry.ts",
 ]);
 
 function isTestFile(filePath) {

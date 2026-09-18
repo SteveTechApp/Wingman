@@ -1,5 +1,6 @@
 // Compare output wording: Important differences are shown as evidence-led fit gaps. Use local source until connector evidence is proven.
 import CompetitorComparePage from "./ComparePageNew.advanced";
+import BattleCardsPage from "./BattleCardsPage";
 
 function setWorkflowStep(step: "options") {
   return step;
@@ -48,6 +49,7 @@ export function scoreExplanation(displayedScore: number | string) {
 }
 
 export function ComparePageNew() {
+  if (new URLSearchParams(window.location.search).get("mode") === "battle-cards") return <BattleCardsPage />;
   return <CompetitorComparePage />;
 }
 
