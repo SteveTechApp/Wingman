@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Archive, ArrowUpDown, CheckCircle2, Copy, Database, Download, Pencil, Plus, RefreshCcw, Search, ShieldAlert, Upload, X } from "lucide-react";
-import { getWingmanSession, type WingmanWorkspaceSession } from "../api/wingmanApi";
+import { Archive, ArrowUpDown, CheckCircle2, Copy, Download, Pencil, Plus, RefreshCcw, Search, ShieldAlert, Upload, X } from "lucide-react";
+import { getWingmanSession, postWingmanJson, type WingmanWorkspaceSession } from "../api/wingmanApi";
 import { PRODUCT_LIFECYCLES, displayLifecycle, emptyProduct, isArchivedProduct, productIntelligenceRepository, validateProductRecord, type AdminLifecycle, type ProductIntelligenceRecord, type ProductPort } from "../data/productIntelligenceRepository";
 import { qualityCounts } from "../lib/productDataQuality";
 import { downloadBlob } from "../lib/downloadBlob";
 import type { ProductQualityIssue } from "../types/productTruth";
 import { LiveResearchReviewQueue } from "../components/data/LiveResearchReviewQueue";
 import { GovernedProfileBrowser } from "../components/data/GovernedProfileBrowser";
+import AnalyticsDashboardPage from "./AnalyticsDashboardPage";
 
-const TABS = ["Governed Profiles", "WyreStorm Products", "Competitor Products", "Live Research", "Match Overrides", "Lifecycle", "Reported Errors", "Import / Export", "Change History"] as const;
+const TABS = ["Governed Profiles", "WyreStorm Products", "Competitor Products", "Live Research", "Import / Export"] as const;
 type Tab = typeof TABS[number];
 const QUALITY_SUMMARY: Array<{ issue: ProductQualityIssue; label: string }> = [
   { issue: "requires-review", label: "Require review" },
@@ -37,7 +38,7 @@ const isAdminSession = (session: WingmanWorkspaceSession | null) =>
     )
   );
 
-export function DataManagerPage() {
+function DataManagerContent() {
   const [session, setSession] = useState<WingmanWorkspaceSession | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
   const [tab, setTab] = useState<Tab>(TABS[0]);
@@ -122,7 +123,7 @@ export function DataManagerPage() {
         <button className="wm-button wm-button-primary" type="button" onClick={() => setEditing(emptyProduct(vendorType))}><Plus /> Add Product</button>
       </section>
       <section className="wm-data-table-card wm-section-card"><header><div><h2>{visible.length} records</h2><p>Validation, lifecycle and editor information remain visible at a glance.</p></div><button type="button" onClick={() => setSort(sort === "sku" ? "updatedAt" : "sku")}><ArrowUpDown /> Sort by {sort === "sku" ? "last edited" : "SKU"}</button></header>
-        <div className="wm-data-table-scroll"><table><thead><tr><th>Product</th><th>Classification</th><th>Lifecycle</th><th>Validation</th><th>Last edited</th><th>Actions</th></tr></thead><tbody>{visible.map((record) => { const errors = validateProductRecord(record, records); const blocked = isArchivedProduct(record); return <tr key={`${record.vendorType}-${record.brand}-${record.sku}`}><td><strong>{record.sku}</strong><span>{record.name}</span><small>{record.brand}</small></td><td>{record.family}<small>{record.category}</small></td><td><span className={`wm-status ${blocked ? "is-validate" : "is-confirmed"}`}>{displayLifecycle(record)}</span></td><td>{Object.keys(errors).length ? <span className="wm-validation-bad">{Object.keys(errors).length} issues</span> : <span className="wm-validation-good"><CheckCircle2 /> Valid</span>}</td><td>{record.updatedAt ? new Date(record.updatedAt).toLocaleDateString() : "Ã¢â‚¬â€"}<small>{record.reviewedBy || "System import"}</small></td><td><div className="wm-data-row-actions"><button type="button" onClick={() => setEditing(structuredClone(record))} className="wm-data-icon-action" aria-label="Edit product" title="Edit"><Pencil /></button><button type="button" onClick={() => setEditing({ ...structuredClone(record), id: undefined, sku: `${record.sku}-COPY`, lifecycle: "draft" })}><Copy /><span className="wm-sr-only">Duplicate</span></button>{blocked ? <button type="button" onClick={() => void lifecycle(record, "review")}><RefreshCcw /> Restore</button> : <button type="button" onClick={() => void lifecycle(record, "do-not-use")}><Archive /><span className="wm-sr-only">Archive</span></button>}</div></td></tr>; })}</tbody></table></div>{loading ? <p>Loading recordsÃ¢â‚¬Â¦</p> : null}</section>
+        <div className="wm-data-table-scroll"><table><thead><tr><th>Product</th><th>Classification</th><th>Lifecycle</th><th>Validation</th><th>Last edited</th><th>Actions</th></tr></thead><tbody>{visible.map((record) => { const errors = validateProductRecord(record, records); const blocked = isArchivedProduct(record); return <tr key={`${record.vendorType}-${record.brand}-${record.sku}`}><td><strong>{record.sku}</strong><span>{record.name}</span><small>{record.brand}</small></td><td>{record.family}<small>{record.category}</small></td><td><span className={`wm-status ${blocked ? "is-validate" : "is-confirmed"}`}>{displayLifecycle(record)}</span></td><td>{Object.keys(errors).length ? <span className="wm-validation-bad">{Object.keys(errors).length} issues</span> : <span className="wm-validation-good"><CheckCircle2 /> Valid</span>}</td><td>{record.updatedAt ? new Date(record.updatedAt).toLocaleDateString() : "—"}<small>{record.reviewedBy || "System import"}</small></td><td><div className="wm-data-row-actions"><button type="button" onClick={() => setEditing(structuredClone(record))} className="wm-data-icon-action" aria-label="Edit product" title="Edit"><Pencil /></button><button type="button" onClick={() => setEditing({ ...structuredClone(record), id: undefined, sku: `${record.sku}-COPY`, lifecycle: "draft" })}><Copy /><span className="wm-sr-only">Duplicate</span></button>{blocked ? <button type="button" onClick={() => void lifecycle(record, "review")}><RefreshCcw /> Restore</button> : <button type="button" onClick={() => void lifecycle(record, "do-not-use")}><Archive /><span className="wm-sr-only">Archive</span></button>}</div></td></tr>; })}</tbody></table></div>{loading ? <p>Loading records…</p> : null}</section>
     </> : tab === "Live Research" ? (
       <LiveResearchReviewQueue
         existingRecords={records.filter((record) => record.vendorType === "competitor")}
@@ -135,9 +136,36 @@ export function DataManagerPage() {
   </main>;
 }
 
+export function DataManagerPage() {
+  return new URLSearchParams(window.location.search).get("view") === "analytics" ? <AnalyticsDashboardPage /> : <DataManagerContent />;
+}
+
+type DataJobResult = { ok: boolean; jobId?: string; state?: "completed" | "failed"; findings?: Array<{ message: string }>; error?: string };
+const newJobKey = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+
 function DatasetPlaceholder({ tab, records }: { tab: Tab; records: ProductIntelligenceRecord[] }) {
-  if (tab === "Import / Export") return <section className="wm-data-placeholder wm-section-card"><Upload /><h2>Import / Export</h2><p>Preview and validate CSV or JSON before committing. Existing records are never silently overwritten.</p><div><button className="wm-button wm-button-secondary" type="button"><Upload /> Validate import</button><button className="wm-button wm-button-secondary" type="button" onClick={() => downloadJson(records)}><Download /> Export JSON</button></div></section>;
-  return <section className="wm-data-placeholder wm-section-card"><Database /><h2>{tab}</h2><p>This governed dataset uses the shared product-intelligence repository. Select a product dataset to edit records, lifecycle and evidence.</p></section>;
+  const [job, setJob] = useState<DataJobResult | null>(null);
+  const [pending, setPending] = useState(false);
+  async function validateImport(file: File) {
+    setPending(true);
+    setJob(null);
+    try {
+      const source = await file.text();
+      setJob(await postWingmanJson<DataJobResult>("/api/governance/data-jobs/validate", { source, format: "json", idempotencyKey: newJobKey() }));
+    } catch (error) {
+      setJob({ ok: false, state: "failed", error: error instanceof Error ? error.message : "Validation failed." });
+    } finally {
+      setPending(false);
+    }
+  }
+  return <section className="wm-data-placeholder wm-section-card"><Upload /><h2>{tab}</h2><p>Validate a JSON export as a non-publishing dry run. Existing records are never changed by validation.</p><div><label className="wm-button wm-button-secondary"><Upload /> Validate import<input aria-label="Choose JSON import to validate" type="file" accept="application/json,.json" hidden disabled={pending} onChange={(event) => { const file = event.target.files?.[0]; if (file) void validateImport(file); }} /></label><button className="wm-button wm-button-secondary" type="button" onClick={() => downloadJson(records)}><Download /> Export JSON</button></div><DataJobStatus pending={pending} result={job} /></section>;
+}
+
+function DataJobStatus({ pending, result }: { pending: boolean; result: DataJobResult | null }) {
+  if (pending) return <p role="status">Validation is running…</p>;
+  if (!result) return null;
+  const count = result.findings?.length || 0;
+  return <p role="status">{result.state === "completed" ? `Validation completed with ${count} findings.` : `Validation failed${result.error ? `: ${result.error}` : ` with ${count} findings.`}`}</p>;
 }
 
 function ProductEditor({ record, allRecords, editor, onClose, onSaved }: { record: ProductIntelligenceRecord; allRecords: ProductIntelligenceRecord[]; editor: string; onClose: () => void; onSaved: () => void }) {
@@ -145,6 +173,19 @@ function ProductEditor({ record, allRecords, editor, onClose, onSaved }: { recor
   const errors = validateProductRecord(draft, allRecords.filter((x) => x.id !== record.id)); const update = (key: string, value: unknown) => setDraft((current) => ({ ...current, [key]: value }));
   async function save() { if (Object.keys(errors).length) { setStatus("Resolve validation errors before publishing."); return; } setBusy(true); try { await productIntelligenceRepository.save({ ...draft, reviewedBy: editor, lastReviewedAt: new Date().toISOString() }); await onSaved(); } catch (error) { setStatus(error instanceof Error ? error.message : "Save failed."); } finally { setBusy(false); } }
   function applyJson() { try { const parsed = JSON.parse(json) as ProductIntelligenceRecord; setDraft(parsed); setStatus("Advanced JSON applied to the form. Review validation before saving."); } catch { setStatus("Invalid JSON. Correct the syntax before applying it."); } }
+  async function runAffectedChecks() {
+    setBusy(true);
+    setStatus("Affected checks are running…");
+    try {
+      const result = await postWingmanJson<DataJobResult>("/api/governance/data-jobs/affected-checks", { records: [draft], checks: ["catalog-schema", "duplicate-products", "publish-readiness"], idempotencyKey: newJobKey() });
+      const count = result.findings?.length || 0;
+      setStatus(result.state === "completed" ? `Affected checks completed with ${count} findings.` : `Affected checks failed with ${count} findings.`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Affected checks failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
   return <div className="wm-data-editor-backdrop"><button type="button" className="wm-data-editor-scrim" onClick={onClose} aria-label="Close product editor" /><aside className="wm-data-editor" role="dialog" aria-modal="true" aria-labelledby="data-editor-title"><header><div><p className="wm-ui-kicker">Structured product record</p><h2 id="data-editor-title">{record.sku ? `Edit ${record.sku}` : "Add product"}</h2></div><button type="button" onClick={onClose} aria-label="Close product editor"><X /></button></header>
     <div className="wm-data-editor-body"><FormSection title="Identity"><Field label="Manufacturer" value={draft.brand} error={errors.brand} onChange={(v) => update("brand", v)} /><Field label="SKU" value={draft.sku} error={errors.sku} onChange={(v) => update("sku", v)} /><Field label="Product name" value={draft.name} error={errors.name} onChange={(v) => update("name", v)} /><Field label="Summary" value={draft.summary} onChange={(v) => update("summary", v)} wide /></FormSection>
       <FormSection title="Classification"><Field label="Family" value={draft.family} error={errors.family} onChange={(v) => update("family", v)} /><Field label="Category / product class" value={draft.category} error={errors.category} onChange={(v) => update("category", v)} /></FormSection>
@@ -156,7 +197,7 @@ function ProductEditor({ record, allRecords, editor, onClose, onSaved }: { recor
       <FormSection title="Evidence and sources"><Field label="Source URLs (one per line)" value={Array.isArray(draft.sourceUrls) ? (draft.sourceUrls as string[]).join("\n") : ""} error={errors.evidence} onChange={(v) => update("sourceUrls", v.split("\n").filter(Boolean))} wide multiline /></FormSection>
       <details open={advanced} onToggle={(e) => setAdvanced(e.currentTarget.open)}><summary>Advanced JSON</summary><textarea aria-label="Advanced product JSON" value={json} onChange={(e) => setJson(e.target.value)} /><button type="button" onClick={applyJson}>Apply JSON to form</button></details>
       {preview ? <section className="wm-before-after"><div><h3>Before</h3><pre>{JSON.stringify(record, null, 2)}</pre></div><div><h3>After</h3><pre>{JSON.stringify(draft, null, 2)}</pre></div></section> : null}
-      <section className="wm-impact-panel"><h3>Recommendation impact</h3><p>Product Catalogue Ã‚Â· Finder Ã‚Â· Discovery recommendations Ã‚Â· Competitor Compare Ã‚Â· Product Pitch Ã‚Â· Guru Ã‚Â· Templates Ã‚Â· BOM Ã‚Â· Proposal output</p><button type="button" onClick={() => setStatus("Affected checks queued for the current validation state.")}>Run affected checks</button></section><p role="status">{status}</p>
+      <section className="wm-impact-panel"><h3>Recommendation impact</h3><p>Product Catalogue · Finder · Discovery recommendations · Competitor Compare · Product Pitch · Guru · Templates · BOM · Proposal output</p><button type="button" disabled={busy} onClick={() => void runAffectedChecks()}>Run affected checks</button></section><p role="status">{status}</p>
     </div><footer><button className="wm-button wm-button-secondary" type="button" onClick={() => setPreview(!preview)}>{preview ? "Hide" : "Review"} Before / After</button><button className="wm-button wm-button-primary" type="button" disabled={busy || Object.keys(errors).length > 0} onClick={() => void save()}>Publish changes</button></footer></aside></div>;
 }
 
@@ -168,6 +209,3 @@ function downloadJson(records: ProductIntelligenceRecord[]) {
 }
 
 export default DataManagerPage;
-
-
-

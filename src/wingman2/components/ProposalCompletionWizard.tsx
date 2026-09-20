@@ -937,6 +937,9 @@ function ProposalCompletionWizardContent({
       const feedback = proposal.approvalComments ? `\nFeedback: ${proposal.approvalComments}` : "";
       return `Export blocked — proposal was returned for changes.${feedback}\nAddress the feedback and resubmit for approval.`;
     }
+    if (approvalStatus !== "approved" || proposal.approvedRevisionHash !== proposal.designRevision?.contentHash) {
+      return "Export blocked — submit this design revision and obtain manager approval before creating customer documents.";
+    }
 
     return null;
   }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, Check, Cloud, Copy, Filter, LayoutTemplate, RotateCcw, Search, Trash2, Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { FeedbackConsolidationPanel } from "../components/FeedbackConsolidationPanel";
 import { SectionCard } from "../components/SectionCard";
@@ -10,6 +10,7 @@ import { projectLaneLabel } from "../data/projectSyncConflict";
 import { useTeamMembers } from "../data/useTeamMembers";
 import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { createProjectFromTemplate } from "../lib/projectFromTemplate";
+import QuoteSafetyDashboardPage from "./QuoteSafetyDashboardPage";
 
 const PROJECTS_PILL_BUTTON_CLASS =
   "rounded-lg border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-bold text-[#edf6ff] transition";
@@ -56,7 +57,7 @@ function compareConfidenceVariant(confidence: string): StatusChipVariant {
   return "warning";
 }
 
-export function ProjectsPage() {
+function ProjectsListPage() {
   const navigate = useNavigate();
   const {
     projects,
@@ -514,6 +515,11 @@ export function ProjectsPage() {
       </div>
     </div>
   );
+}
+
+export function ProjectsPage() {
+  const [searchParams] = useSearchParams();
+  return searchParams.get("view") === "quote-safety" ? <QuoteSafetyDashboardPage /> : <ProjectsListPage />;
 }
 
 export default ProjectsPage;

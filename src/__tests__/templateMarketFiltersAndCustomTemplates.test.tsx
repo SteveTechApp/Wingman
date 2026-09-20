@@ -47,13 +47,14 @@ describe("Templates market filters", () => {
     window.sessionStorage.clear();
   });
 
-  it("shows all built-in and custom templates under the All filter, with the count reflecting the result", () => {
+  it("shows built-in and custom templates in the selected market, with the count reflecting the result", () => {
     seedCorporateCustomTemplate();
     renderApp();
 
-    expect(screen.getByText(`${roomTemplates.length + 1} templates`)).toBeInTheDocument();
+    const expectedCorporate = roomTemplates.filter((template) => template.vertical === "Corporate").length + 1;
+    expect(screen.getByText(`${expectedCorporate} templates`)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Council Chamber Hybrid" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: roomTemplates[0].name })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: roomTemplates.find((template) => template.vertical === "Corporate")!.name })).toBeInTheDocument();
   });
 
   it("renders template artwork in both the All and filtered card layouts", () => {

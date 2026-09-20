@@ -118,19 +118,23 @@ export const consolidatedPrimaryNavKeys = [
   "templates",
   "compare",
   "documents",
-  "responsePack",
   "projects",
   "learn",
   "profile",
 ] as const satisfies readonly WingmanRouteKey[];
 
 export const consolidatedRouteGroups = {
-  callCoach: ["callCards", "productCallCards", "discovery", "salesHelper", "support"],
+  callCoach: ["productCallCards", "discovery", "compare"],
   products: ["productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
   documents: ["ingest", "templates", "compare", "proposal"],
-  responsePack: ["proposal", "support", "proposalVisuals", "templates"],
+  responsePack: ["proposal", "proposalVisuals", "templates"],
   learn: ["glossary", "support", "productFamilies"],
 } as const satisfies Partial<Record<WingmanRouteKey, readonly WingmanRouteKey[]>>;
+
+export const canonicalWorkflowRoutes = {
+  "sales-conversation": ["callCoach", "salesHelper", "callCards", "productCallCards"],
+  "response-authoring": ["documents", "responsePack", "proposal"],
+} as const satisfies Record<string, readonly WingmanRouteKey[]>;
 
 export function routeByPath(pathname: string) {
   const normalizedPath = pathname.replace(/\/+$/, "") || "/wingman";

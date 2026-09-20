@@ -14,6 +14,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
+import { workflowTelemetry } from "../features/navigation";
 import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
 import { writeDiscoveryHandoff, type DiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 
@@ -136,6 +137,7 @@ export function SalesHelperPage() {
   const navigate = useNavigate();
 
   function openCard(card: SalesHelperCard) {
+    workflowTelemetry.complete("sales-conversation", { destinationRoute: card.routeKey, completion: "conversation-selected" });
     if (card.handoff) {
       window.sessionStorage.removeItem(callNotesStorageKey);
       writeDiscoveryHandoff(card.handoff);
@@ -149,19 +151,21 @@ export function SalesHelperPage() {
   }
 
   function startRoomDiscovery() {
+    workflowTelemetry.complete("sales-conversation", { destinationRoute: "discovery", completion: "conversation-selected" });
     window.sessionStorage.setItem(callNotesStorageKey, roomRequirementSeed);
     navigate(routeCatalogByKey.discovery.path);
   }
 
   return (
-    <div className="wm-sh-page wm-polish-shell" data-wingman-page="sales-helper">
-      <section className="wm-sh-page-hero wm-polish-hero wm-polish-aqua" aria-labelledby="sales-helper-title">
+    <div className="wm-sh-page wm-polish-shell" data-wingman-page="call-coach">
+      <section className="wm-sh-page-hero wm-polish-hero wm-polish-aqua" aria-labelledby="call-coach-title">
         <span className="wm-polish-hero-icon" aria-hidden="true">
           <MessageSquare />
         </span>
 
         <div className="wm-polish-hero-copy">
-          <h1 id="sales-helper-title">Choose the conversation type</h1>
+          <p className="wm-polish-eyebrow">Wingman / Call Coach</p>
+          <h1 id="call-coach-title">Choose the conversation type</h1>
           <p>
             Pick the closest starting point. Wingman will carry that context into the next workflow,
             narrow the next question, and keep the conversation application-led.

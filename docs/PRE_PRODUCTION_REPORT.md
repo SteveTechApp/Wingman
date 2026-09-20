@@ -1,59 +1,36 @@
 # Wingman Pre-Production Report
 
-_Measured: 2026-09-08 · Branch `main` @ `2f8f3a5c` · Version `0.9.0`_
-
 ## Verdict
 
-Wingman is a late-beta product with a green engineering baseline and broad, guarded sales
-workflows. It is suitable for a controlled authenticated internal pilot. It is not yet defensible
-as v1.0 because production-like load, real-device sales UAT, offline reconciliation,
-large-workspace performance and cross-format proposal parity lack dated release evidence.
+Wingman has a green engineering baseline and broad, guarded sales workflows. It is suitable for a
+controlled authenticated internal pilot. It is not yet defensible as v1.0 because the external
+release evidence below has not been supplied.
 
-## Evidence executed on this commit
+<!-- release-evidence:start -->
+## Release evidence status
 
-| Gate or measure | Result |
-|---|---|
-| Full verification | PASS — `npm run verify` completed fast, build, data, contract and visual stages in the pre-commit hook |
-| TypeScript | PASS using `tsconfig.typecheck.json` |
-| Lint | PASS with 0 errors and 35 non-blocking warnings |
-| Unit/integration tests | 2,368 passing across 308 files |
-| Size and style ratchets | PASS without raising either baseline |
-| API contract | PASS — 19 authenticated and unauthenticated HTTP checks |
-| Routes | 29 routed features checked |
-| Catalogue | 315 WyreStorm products; 354 competitor products across 28 brands |
-| Technical governance | 133/133 active lead SKUs verified; 3 profiles at the 14-day confirmation warning threshold |
-| Story governance | 137/137 active catalogue SKUs covered |
-| Template lifecycle | 44 referenced SKUs resolve active across 55 room templates |
+_Generated from `docs/release-evidence/release-evidence-manifest.json` · Measured: not measured · Commit: not recorded_
 
-## Open release risks
+| Criterion | Status | Artifact | Owner | Closure condition |
+|---|---|---|---|---|
+| Mobile sales representative UAT | **Blocked** | Evidence not supplied | Sales lead + release owner | Attach a dated, signed result from the agreed phones and tablets. |
+| Offline edit and reconnect UAT | **Blocked** | Evidence not supplied | Engineering + mobile tester | Attach dated real-device evidence covering reconnect, duplicate update, and conflict resolution. |
+| Production-like authenticated load | **Blocked** | Evidence not supplied | Infrastructure + performance owner | Attach authenticated staging measurements with p95, p99, and error rate. |
+| Production journey observation window | **Blocked** | Evidence not supplied | Operations + product analytics | Attach a dated operational export after a representative production observation window. |
+<!-- release-evidence:end -->
 
-### P0 — external evidence required
+## Quality debt to contain
 
-1. No dated sales-representative UAT on agreed phone and tablet targets.
-2. No strict authenticated staging load run attributable to a production-like deployment.
-3. No release artifact proving offline edit, reconnect and reconciliation behaviour.
-
-These require a staging environment and named human test sessions; a local green gate cannot
-close them.
-
-### P1 — engineering completion
-
-1. Complete client adoption of the guarded per-project push endpoint.
-2. Split the 10,701,624-byte product intelligence index into summary and deferred detail.
-3. Produce a dated proposal parity matrix across screen, DOCX and PDF.
-4. Schedule large-workspace p95/p99, error-rate and payload-budget enforcement.
-5. Add release-level journey completion and failure measurement.
-
-### P2 — quality debt to contain
-
-- Lint reports 35 warnings, including accessibility labels, unused bindings and hook dependencies.
-- Expected jsdom navigation diagnostics obscure otherwise passing test output.
-- The Compare source-repair audit reports advisory mojibake in `src/wingman2/pages/DataManagerPage.tsx`.
-- Three room templates retain source/display-ratio warnings requiring explicit assumptions.
+- Accessibility-label, unused-binding and hook-dependency warnings should continue to be reduced.
+- Expected jsdom navigation diagnostics can obscure otherwise passing test output.
+- Room-template source/display-ratio warnings require explicit assumptions.
+- The separate moderate runtime `hono` audit finding remains a dependency-maintenance item.
 
 ## Release decision
 
-Proceed with an authenticated internal pilot while Tasks 3–5 in the dated release sequence collect
-staging/UAT evidence, finish scale work and publish the final v1 evidence matrix. Do not label the
-product v1.0 until each criterion in `docs/DEVELOPMENT_MILESTONES.md` section 5 links to a dated
-passing artifact or an explicit release-owner risk acceptance.
+Proceed only as a controlled authenticated internal pilot while owners collect the evidence listed
+above. Do not label the product v1.0 until each criterion links to a dated passing artifact or an
+explicit, time-bounded release-owner risk acceptance.
+
+Automated build, contract, data and visual checks remain necessary engineering gates, but cannot be
+used as substitutes for staging, real-device, human-sign-off or production-observation evidence.

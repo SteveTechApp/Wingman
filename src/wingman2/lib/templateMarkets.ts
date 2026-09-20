@@ -15,10 +15,9 @@ export const TEMPLATE_MARKETS = [
 
 export type TemplateMarket = (typeof TEMPLATE_MARKETS)[number];
 
-export const ALL_MARKET_FILTER = "All";
 export const CUSTOM_MARKET_FILTER = "Custom";
 
-export const TEMPLATE_MARKET_FILTERS = [ALL_MARKET_FILTER, ...TEMPLATE_MARKETS, CUSTOM_MARKET_FILTER];
+export const TEMPLATE_MARKET_FILTERS = [...TEMPLATE_MARKETS, CUSTOM_MARKET_FILTER];
 
 // Older room templates were authored before this market list existed. Map their
 // vertical text onto the closest canonical market rather than rewriting 37 records.
@@ -36,7 +35,6 @@ export function templateMatchesMarketFilter(
   template: { vertical: string; customTemplate?: boolean },
   filter: string,
 ): boolean {
-  if (filter === ALL_MARKET_FILTER) return true;
   if (filter === CUSTOM_MARKET_FILTER) return template.customTemplate === true;
   return normalizeTemplateMarket(template.vertical) === filter;
 }

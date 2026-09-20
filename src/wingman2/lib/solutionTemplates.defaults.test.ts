@@ -73,4 +73,13 @@ describe("proposal template defaults", () => {
     }
     expect(problems).toEqual([]);
   });
+
+  it("keeps custom templates draft-safe and rejects incomplete published governance", () => {
+    const custom = { ...toSolutionTemplate({ ...roomTemplates[0], customTemplate: true }), status: "custom" as const };
+    expect(validatePublishedTemplate({ ...custom, applicationProfile: undefined, bom: [] })).toEqual([]);
+    const published = toSolutionTemplate(roomTemplates[0]);
+    expect(validatePublishedTemplate({ ...published, applicationProfile: { ...published.applicationProfile!, sizingBasis: [] } })).toContain("sizing basis");
+    expect(validatePublishedTemplate({ ...published, bom: [] })).toContain("required governed WyreStorm row");
+    expect(validatePublishedTemplate(published, new Set())).toEqual(expect.arrayContaining([expect.stringContaining("unresolved governed SKU(s)")]));
+  });
 });

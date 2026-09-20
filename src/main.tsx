@@ -27,7 +27,6 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { installCsrfFetch } from "./wingman2/api/csrf";
-import { installTemplateCardExpansionController } from "./wingman2/lib/templatesCardExpansion";
 import { installRuntimeTelemetry } from "./wingman2/lib/runtimeTelemetry";
 import { installFeatureAnalytics } from "./wingman2/lib/featureAnalytics";
 import "./wingman2/lib/productToolsVisualWeight";
@@ -50,7 +49,6 @@ if (!rootElement) {
 }
 
 installCompareManufacturerAssist();
-installTemplateCardExpansionController();
 
 installWingmanLocalSessionFallback();
 

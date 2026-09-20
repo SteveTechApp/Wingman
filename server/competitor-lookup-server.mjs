@@ -6,6 +6,7 @@ import {
   handleCompetitorDecisionQueueGet,
 } from "./governance/competitor-decision-approval.mjs";
 import { handleProfileConfirmationPost } from "./governance/profile-confirmation.mjs";
+import { handleAffectedChecksPost, handleDataValidationPost } from "./governance/data-jobs.mjs";
 import { enforceCsrf, issueCsrf } from "./security/csrf.mjs";
 import { handleSiteSurveySyncGet, handleSiteSurveySyncPost } from "./site-survey-sync.mjs";
 import http from "node:http";
@@ -40,6 +41,7 @@ import {
   handleWingmanProjectCommentsPost,
   handleWingmanProjectGet,
   handleWingmanProjectMarkReadyPost,
+  handleWingmanProposalDecisionPost,
   handleWingmanProjectPut,
   handleWingmanProjectsGet,
   handleWingmanProjectsSyncPost,
@@ -2210,6 +2212,13 @@ const ROUTES = [
   // --- Competitor match / live lookup (authenticated) ---
   {
     method: "POST",
+    pattern: /^\/api\/wingman\/projects\/([^/]+)\/proposal-decision$/,
+    permission: "canManageWorkspace",
+    deniedMessage: "Proposal decisions are restricted to workspace admins.",
+    handler: (req, res, url, helpers, params) => handleWingmanProposalDecisionPost(req, res, url, decodeURIComponent(params[1] || ""), helpers),
+  },
+  {
+    method: "POST",
     path: "/api/competitor/resolveMatch",
     permission: "canViewDiagnostics",
     deniedMessage: "Competitor match lookup requires an authenticated Wingman workspace session.",
@@ -2443,6 +2452,22 @@ const ROUTES = [
   },
 
   // --- Governance ---
+  {
+    method: "POST",
+    path: "/api/governance/data-jobs/validate",
+    permission: "canManageWorkspace",
+    deniedMessage: "Data validation jobs are restricted to workspace admins.",
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleDataValidationPost(req, res, url, { sendJson, parseJsonBody, getRequestAuth: getWingmanRequestAuth }),
+  },
+  {
+    method: "POST",
+    path: "/api/governance/data-jobs/affected-checks",
+    permission: "canManageWorkspace",
+    deniedMessage: "Affected checks are restricted to workspace admins.",
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleAffectedChecksPost(req, res, url, { sendJson, parseJsonBody, getRequestAuth: getWingmanRequestAuth }),
+  },
   {
     method: "POST",
     path: "/api/governance/profiles/confirm",

@@ -23,10 +23,10 @@ import {
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
 import {
-  loadRecommendationsDecisionBoundary,
   resolveRecommendationSystemSlots,
+  loadRecommendationsDecisionBoundary,
   type RecommendationDecision,
-} from "../lib/recommendationsDecisionBoundary";
+} from "../features/recommendations";
 import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { GovernedDataBadge } from "../components/GovernedDataBadge";

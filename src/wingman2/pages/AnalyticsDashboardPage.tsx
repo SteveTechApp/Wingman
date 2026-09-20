@@ -22,6 +22,7 @@ import {
   type CompetitorLossFrequency,
 } from "../lib/analyticsDashboard";
 import { PageHero } from "../components/PageHero";
+import { OperationalJourneyEvidence } from "../components/OperationalJourneyEvidence";
 import {
   FeatureUsageChart,
   WinRateChart,
@@ -247,6 +248,8 @@ export default function AnalyticsDashboardPage() {
       />
 
       <div className="wm-analytics-content">
+        <OperationalJourneyEvidence refreshKey={refreshKey} />
+
         {/* Summary Cards */}
         <section className="wm-analytics-summary" aria-label="Analytics summary">
           <SummaryCard icon={Target} label="Total projects" value={data.summary.totalProjects} accent="aqua" />

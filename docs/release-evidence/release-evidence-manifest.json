@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "generatedMetadata": {
+    "measuredAt": null,
+    "commit": null
+  },
+  "criteria": [
+    {
+      "id": "mobile-sales-uat",
+      "title": "Mobile sales representative UAT",
+      "evidenceType": "human",
+      "claimedStatus": "blocked",
+      "measuredAt": null,
+      "expiresAfterDays": 90,
+      "artifactPath": null,
+      "approver": null,
+      "owner": "Sales lead + release owner",
+      "closureCondition": "Attach a dated, signed result from the agreed phones and tablets."
+    },
+    {
+      "id": "offline-reconnect-uat",
+      "title": "Offline edit and reconnect UAT",
+      "evidenceType": "human",
+      "claimedStatus": "blocked",
+      "measuredAt": null,
+      "expiresAfterDays": 90,
+      "artifactPath": null,
+      "approver": null,
+      "owner": "Engineering + mobile tester",
+      "closureCondition": "Attach dated real-device evidence covering reconnect, duplicate update, and conflict resolution."
+    },
+    {
+      "id": "production-like-load",
+      "title": "Production-like authenticated load",
+      "evidenceType": "staging",
+      "claimedStatus": "blocked",
+      "measuredAt": null,
+      "expiresAfterDays": 30,
+      "artifactPath": null,
+      "approver": null,
+      "owner": "Infrastructure + performance owner",
+      "budgets": { "maxP95Ms": 1000, "maxP99Ms": 2000, "maxErrorRate": 0.01 },
+      "closureCondition": "Attach authenticated staging measurements with p95, p99, and error rate."
+    },
+    {
+      "id": "production-observation-window",
+      "title": "Production journey observation window",
+      "evidenceType": "production",
+      "claimedStatus": "blocked",
+      "measuredAt": null,
+      "expiresAfterDays": 30,
+      "artifactPath": null,
+      "approver": null,
+      "owner": "Operations + product analytics",
+      "closureCondition": "Attach a dated operational export after a representative production observation window."
+    }
+  ]
+}

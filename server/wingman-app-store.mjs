@@ -9,6 +9,7 @@ import {
 } from "./catalog/files.mjs";
 import { POSTGREST_MAX_ROWS, readAllSupabaseRows } from "./supabase-pagination.mjs";
 import { canonicalStageForRow, canonicalStatusForRow } from "./project-row-vocabulary.mjs";
+import { ProposalApprovalError, decideProposalApproval } from "./governance/proposal-approval.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1498,6 +1499,27 @@ function sanitizeProject(project, workspaceId, userId) {
   const source = cloneJson(project, {});
   const createdAt = tidy(source.createdAt) || nowIso();
   const updatedAt = tidy(source.updatedAt) || createdAt;
+  const canonicalRevisionHash = tidy(source.proposal?.designRevision?.contentHash);
+  if (source.proposal?.approvalStatus === "approved" && tidy(source.proposal.approvedRevisionHash) !== canonicalRevisionHash) {
+    source.proposal = {
+      ...source.proposal,
+      approvalStatus: "draft",
+      approvedBy: undefined,
+      approvedAt: undefined,
+      approvedRevisionHash: undefined,
+      approvalComments: "Approval cleared because the design changed.",
+    };
+  }
+  if (source.proposal?.approvalStatus === "pending" && tidy(source.proposal.submittedRevisionHash) !== canonicalRevisionHash) {
+    source.proposal = {
+      ...source.proposal,
+      approvalStatus: "draft",
+      submittedBy: undefined,
+      submittedAt: undefined,
+      submittedRevisionHash: undefined,
+      approvalComments: "Approval submission cleared because the design changed.",
+    };
+  }
 
   return {
     ...source,
@@ -2698,6 +2720,40 @@ export async function handleWingmanProjectGet(req, res, url, projectId, { sendJs
   });
 }
 
+export async function handleWingmanProposalDecisionPost(req, res, url, projectId, { sendJson, parseJsonBody }) {
+  return withStoreLock(async () => {
+    const db = await readDb();
+    const auth = getAuthContext(req, url, db);
+    if (!auth.ok) return sendJson(res, 401, { ok: false, error: auth.error });
+    if (!auth.permissions.canManageWorkspace) {
+      return sendJson(res, 403, { ok: false, error: "Proposal decisions are restricted to workspace admins." });
+    }
+    let body;
+    try { body = await parseJsonBody(req); }
+    catch (error) { return sendJson(res, error?.statusCode === 413 ? 413 : 400, { ok: false, error: "Invalid JSON body." }); }
+
+    const state = ensureWorkspaceState(db, auth.workspace.id);
+    state.projects = normalizeProjectsForWorkspace(state.projects, auth.workspace.id, auth.user.id);
+    const existing = findProject(state, projectId);
+    try {
+      const result = decideProposalApproval({ ...body, projectId }, auth.user, existing);
+      if (!result.idempotent) {
+        result.project.auditTrail = asArray(result.project.auditTrail);
+        appendProjectAudit(result.project, result.auditEvent);
+        state.projects = state.projects.map((candidate) => candidate.id === projectId ? result.project : candidate);
+        appendAuditEvent(db, { ...result.auditEvent, workspaceId: auth.workspace.id });
+        await writeDb(db);
+      }
+      return sendJson(res, 200, { ok: true, project: projectForClient(result.project, auth.workspaceRole), auditEvent: result.auditEvent, idempotent: result.idempotent });
+    } catch (error) {
+      if (error instanceof ProposalApprovalError) {
+        return sendJson(res, error.statusCode, { ok: false, error: error.message, code: error.code });
+      }
+      throw error;
+    }
+  });
+}
+
 export async function handleWingmanProjectCommentsPost(req, res, url, projectId, { sendJson, parseJsonBody }) {
   return withStoreLock(async () => {
   const db = await readDb();
@@ -3431,17 +3487,26 @@ export async function handleWingmanTelemetryPost(req, res, url, { sendJson, pars
   }
 
   const allowedProjectIds = new Set(asArray(ensureWorkspaceState(db, auth.workspace.id).projects).map((project) => project.id));
-  const analyticsKinds = new Set(["feature_open", "feature_complete", "export", "search", "session_start", "journey"]);
-  const journeyNames = new Set(["design_project_started", "design_project_blocked", "design_project_recommended", "design_project_proposal_ready", "design_project_exported"]);
+  const analyticsKinds = new Set(["feature_open", "feature_complete", "export", "search", "session_start", "journey", "workflow_started", "workflow_completed", "workflow_abandoned", "handoff_selected"]);
+  const journeyNames = new Set(["design_project_started", "design_project_blocked", "design_project_recommended", "design_project_proposal_ready", "design_project_exported", "journey_started", "stage_completed", "journey_failed", "sync_degraded", "publication_blocked"]);
   const rawEvents = tidy(body?.kind) === "analytics_batch" ? asArray(body?.events).slice(0, 50) : [body];
   const events = rawEvents.flatMap((raw) => {
     if (!raw || typeof raw !== "object") return [];
     const kind = tidy(raw.kind);
     if (tidy(body?.kind) === "analytics_batch") {
-      const feature = tidy(raw.feature);
-      const metadata = raw.metadata && typeof raw.metadata === "object" && !Array.isArray(raw.metadata) ? cloneJson(raw.metadata, {}) : {};
+      const feature = tidy(raw.feature) || tidy(raw.workflowId);
+      let metadata = raw.metadata && typeof raw.metadata === "object" && !Array.isArray(raw.metadata) ? cloneJson(raw.metadata, {}) : {};
+      if (tidy(raw.workflowId)) metadata.workflowId = tidy(raw.workflowId);
       if (!analyticsKinds.has(kind) || !feature) return [];
-      if (kind === "journey" && (!journeyNames.has(feature) || !tidy(metadata.projectId) || !tidy(metadata.graphHash))) return [];
+      const isOperationalJourney = ["journey_started", "stage_completed", "journey_failed", "sync_degraded", "publication_blocked"].includes(feature);
+      if (kind === "journey" && (!journeyNames.has(feature) || (isOperationalJourney ? !tidy(metadata.journeyId) || !tidy(metadata.stage) : !tidy(metadata.projectId) || !tidy(metadata.graphHash)))) return [];
+      if (isOperationalJourney) {
+        metadata = {
+          journeyId: tidy(metadata.journeyId).slice(0, 40),
+          stage: tidy(metadata.stage).slice(0, 40),
+          ...(tidy(metadata.reason) ? { reason: tidy(metadata.reason).slice(0, 40) } : {}),
+        };
+      }
       const requestedProjectId = tidy(metadata.projectId);
       return [{
         id: tidy(raw.id) || makeId("telemetry"),

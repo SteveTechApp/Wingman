@@ -1,14 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { designScopeRows } from "./roomTemplatePlaceholders";
 import { roomTemplates } from "./roomTemplates";
+import { getTemplateApplicationProfile } from "./templateApplicationProfiles";
 
 const requiredElements = [
   /display|projector|video.wall|led/i,
   /mount/i,
-  /audio input|audio i\/o|dsp|aec/i,
-  /microphone|audio capture/i,
-  /speaker|loudspeaker|amplif/i,
-  /network|vlan/i,
-  /rack|furniture|ups|power distribution/i,
+  /rack|furniture|power distribution/i,
   /ccts|cables, connectors|cabling and consumables/i,
   /installation labour/i,
   /commissioning|training/i,
@@ -25,10 +23,10 @@ describe("complete-room template placeholders", () => {
   });
 
   it("adds camera and UC placeholders where the application is conferencing-led", () => {
-    const conferencing = roomTemplates.filter((template) => /teams|zoom|video confer|videoconfer|hybrid|uc room|camera/i.test(`${template.name} ${template.application} ${template.summary} ${template.architecture}`));
+    const conferencing = roomTemplates.filter((template) => getTemplateApplicationProfile(template).capabilities.includes("uc"));
     expect(conferencing.length).toBeGreaterThan(0);
     for (const template of conferencing) {
-      expect(template.bom.some((row) => row.sku.startsWith("BY-OTHERS") && /camera|uc compute|camera bridge/i.test(`${row.description} ${row.notes}`))).toBe(true);
+      expect(template.bom.some((row) => row.sku.startsWith("BY-OTHERS") && /camera|uc compute|camera bridge/i.test(`${row.description} ${row.notes}`)), template.id).toBe(true);
     }
   });
 
@@ -38,5 +36,15 @@ describe("complete-room template placeholders", () => {
     for (const template of controlled) {
       expect(template.bom.some((row) => row.sku.startsWith("BY-OTHERS") && /control processor|touch panel|room control by others|control user interface/i.test(`${row.description} ${row.role}`))).toBe(false);
     }
+  });
+
+  it("does not add meeting-room audio scope to silent signage", () => {
+    const rows = designScopeRows("qsr", ["video", "signage", "network"]);
+    expect(rows.some((row) => /microphone|aec|audio capture/i.test(`${row.role} ${row.description}`))).toBe(false);
+  });
+
+  it("adds resilience and network validation to operational control rooms", () => {
+    const rows = designScopeRows("noc", ["video", "control", "network", "resilience"]);
+    expect(rows.some((row) => /redundan|failover|ups|recovery/i.test(`${row.description} ${row.notes}`))).toBe(true);
   });
 });
