@@ -72,6 +72,7 @@ Apply-*.ps1
 .wingman-work/
 .freebuff/
 .codex/
+.codex-worktrees/
 
 # --- Runtime / generated data ---
 # Only the generated/runtime files below are ignored, explicitly. Do not add a
