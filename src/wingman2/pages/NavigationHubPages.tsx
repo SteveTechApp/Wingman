@@ -21,8 +21,6 @@ function ProductWorkspaceMode({ view }: { view: string }) {
   const Page = view === "catalogue" ? ProductCatalogueView : view === "families" ? ProductFamiliesView : view === "call-cards" ? ProductCallCardsView : ProductPositioningView;
   return <Suspense fallback={<div className="wm-ui-card p-6">Loading Product Workspace…</div>}><Page /></Suspense>;
 }
-
-
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
 
 export type HubAction = {
@@ -94,6 +92,10 @@ export function HubCard({ item, workflowId }: { item: HubAction; workflowId?: Ca
           workflowTelemetry.handoff(selectedWorkflowId, {
             destinationRoute: item.routeKey,
             source: "hub-card",
+          });
+          workflowTelemetry.complete(selectedWorkflowId, {
+            destinationRoute: item.routeKey,
+            completion: "hub-handoff",
           });
         }
       }}
@@ -188,7 +190,42 @@ export function CallCoachPage() {
     installWorkflowAbandonmentTracking();
     workflowTelemetry.start("sales-conversation", { entryRoute: "callCoach" });
   }, []);
-  return <SalesHelperPage />;
+
+  const governedStartingPoints = [
+    routeAction(
+      "productCallCards",
+      "Product-specific call", "Prepare governed product proof and customer-ready talking points.",
+      "Prepare product conversation",
+      { accent: "aqua", linkLabel: "Open product call cards", art: "call-card" },
+    ),
+    routeAction(
+      "discovery",
+      "Discovery / requirement capture", "Capture the room, application and technical requirements before recommending.",
+      "Capture requirements",
+      { accent: "blue", linkLabel: "Start Discovery", art: "room" },
+    ),
+    routeAction(
+      "salesHelper",
+      "Call-out day", "Choose a conversation starting point and carry its context into the next workflow.",
+      "Plan the next call",
+      { accent: "green", linkLabel: "Open Sales Helper", art: "growth" },
+    ),
+    routeAction(
+      "support",
+      "Escalation check", "Find the right specialist path when a conversation needs technical confirmation.",
+      "Check escalation path",
+      { accent: "amber", linkLabel: "Open Support", art: "support" },
+    ),
+  ];
+
+  return <>
+    <section className="wm-sh-page-section" aria-label="Call Coach workflows">
+      <div className="wm-sh-card-grid wm-polish-grid">
+        {governedStartingPoints.map((item) => <HubCard key={item.routeKey} item={item} workflowId="sales-conversation" />)}
+      </div>
+    </section>
+    <SalesHelperPage />
+  </>;
 }
 
 export function ProductsPage() {

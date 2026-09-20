@@ -23,8 +23,8 @@ import {
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
 import {
-  buildRecommendation,
   resolveRecommendationSystemSlots,
+  loadRecommendationsDecisionBoundary,
   type RecommendationDecision,
 } from "../features/recommendations";
 import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
@@ -263,7 +263,7 @@ export function RecommendationsPage() {
     setNeed(nextNeed);
     setLoadState("loading");
 
-    buildRecommendation({ brief: latestBrief, need: nextNeed })
+    loadRecommendationsDecisionBoundary(latestBrief, nextNeed)
       .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         if (cancelled) return;
         setDecisions(nextDecisions);
@@ -682,7 +682,7 @@ export function RecommendationsPage() {
     setLoadState("loading");
     setMessage("");
 
-    buildRecommendation({ brief: latestBrief, need: nextNeed })
+    loadRecommendationsDecisionBoundary(latestBrief, nextNeed)
       .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         setDecisions(nextDecisions);
         setSlotPool(nextSlotPool);
@@ -743,7 +743,7 @@ export function RecommendationsPage() {
     if (!nextNeed) return;
     setNeed(nextNeed);
     setLoadState("loading");
-    buildRecommendation({ brief: nextBrief, need: nextNeed })
+    loadRecommendationsDecisionBoundary(nextBrief, nextNeed)
       .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
         setDecisions(nextDecisions);
         setSlotPool(nextSlotPool);

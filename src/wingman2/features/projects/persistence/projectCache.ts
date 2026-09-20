@@ -125,6 +125,7 @@ export function createProjectCache(scope: ProjectCacheScope, adapter: ProjectCac
       for (const project of snapshot.projects) await adapter.set(projectKey(project.id), project);
       await writeIndex({ projectIds: snapshot.projects.map(({ id }) => id), proposalDrafts: snapshot.proposalDrafts, activeProjectId: snapshot.activeProjectId, syncStatus: snapshot.syncStatus });
       storage.setItem(migrationKey, "complete");
+      storage.removeItem(LEGACY_PROJECT_STORE_KEY);
       notify();
       return true;
     },

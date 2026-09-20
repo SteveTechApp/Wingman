@@ -106,7 +106,7 @@ function capabilitiesFor(template: RoomTemplate): TemplateCapability[] {
 }
 
 function governedRows(template: RoomTemplate) {
-  return template.bom.filter((row) => row.sku !== "BY-OTHERS" && !/^CUSTOM(?:-|$)/.test(row.sku));
+  return template.bom.filter((row) => !row.sku.startsWith("BY-OTHERS") && !/^CUSTOM(?:-|$)/.test(row.sku));
 }
 
 function sizingBasisFor(template: RoomTemplate): string[] {
@@ -128,7 +128,7 @@ function buildPublishedProfile(template: RoomTemplate, imageKey = imageFor(templ
     capabilities: capabilitiesFor(template),
     environmentConstraints: [...template.validationItems],
     inclusions: governedRows(template).filter((row) => row.type === "Required").map((row) => `${row.qty} × ${row.sku}: ${row.role}`),
-    exclusions: template.bom.filter((row) => row.sku === "BY-OTHERS").map((row) => row.description),
+    exclusions: template.bom.filter((row) => row.sku.startsWith("BY-OTHERS")).map((row) => row.description),
     reviewStatus: "reviewed",
     reviewNotes: [`Reviewed for ${template.scale}: ${template.application}`, `The authored ${architectureFamily} architecture and BOM quantities form the published baseline.`],
   };

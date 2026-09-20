@@ -1,6 +1,6 @@
 import type { ProjectCommandContext, ProjectLifecycleCommands } from "../../projects";
 import { compileDesignProject, toStoredDesignProposalRevision } from "../compileDesignProject";
-import { buildDesignProjectJourneyEvent } from "../analytics/journeyEvents";
+import { buildDesignProjectJourneyEvent, trackOperationalJourneyEvent } from "../analytics/journeyEvents";
 import { trackJourneyEvent } from "../../../lib/featureAnalytics";
 
 export function createDesignProjectCommands(context: ProjectCommandContext, lifecycle: ProjectLifecycleCommands) {
@@ -39,6 +39,10 @@ export function createDesignProjectCommands(context: ProjectCommandContext, life
       });
       const event = buildDesignProjectJourneyEvent(graph, lifecycleEvent);
       trackJourneyEvent(event.name, { projectId: event.projectId, graphHash: event.graphHash, stage: event.stage, outcome: event.outcome, blockerCount: event.blockerCount });
+      if (lifecycleEvent === "started") trackOperationalJourneyEvent({ name: "journey_started", journeyId: "design-project", stage: "evidence" });
+      trackOperationalJourneyEvent(graph.publication.canIssue
+        ? { name: "stage_completed", journeyId: "design-project", stage: "validation" }
+        : { name: "publication_blocked", journeyId: "design-project", stage: "publication", reason: "validation" });
       return graph;
     },
   };

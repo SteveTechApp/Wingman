@@ -29,4 +29,13 @@ describe("template application profiles", () => {
     expect(profile.reviewStatus).toBe("needs-review");
     expect(existsSync(resolve("public/template-photos", profile.imageKey))).toBe(true);
   });
+
+  it("keeps prefixed third-party placeholders out of governed design facts", () => {
+    const template = roomTemplates.find((item) => item.bom.some((row) => row.sku.startsWith("BY-OTHERS-")));
+    expect(template).toBeDefined();
+    const profile = getTemplateApplicationProfile(template!);
+    const governedRequired = template!.bom.filter((row) => row.type === "Required" && !row.sku.startsWith("BY-OTHERS") && !row.sku.startsWith("CUSTOM"));
+    expect(templateDesignFacts(template!).requiredSkuCount).toBe(governedRequired.length);
+    expect(profile.exclusions).toContain(template!.bom.find((row) => row.sku.startsWith("BY-OTHERS-"))!.description);
+  });
 });

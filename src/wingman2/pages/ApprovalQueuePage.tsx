@@ -48,10 +48,12 @@ export function ApprovalStatusBadge({
 
 function CommentModal({
   title,
+  requiresComment,
   onSubmit,
   onClose,
 }: {
   title: string;
+  requiresComment: boolean;
   onSubmit: (comment: string) => void;
   onClose: () => void;
 }) {
@@ -85,9 +87,9 @@ function CommentModal({
             type="button"
             className="wm-button is-primary"
             onClick={() => onSubmit(comment)}
-            disabled={title.includes("Reject") && !comment.trim()}
+            disabled={requiresComment && !comment.trim()}
           >
-            {title.includes("Reject") ? "Reject with comments" : "Approve"}
+            {requiresComment ? "Request changes" : "Approve"}
           </button>
         </div>
       </div>
@@ -325,6 +327,7 @@ export function ApprovalQueuePage() {
 
       {modal && (
         <CommentModal
+          requiresComment={modal.type === "reject"}
           title={
             modal.type === "approve"
               ? "Approve proposal"

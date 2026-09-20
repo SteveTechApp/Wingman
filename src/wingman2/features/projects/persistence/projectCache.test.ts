@@ -23,6 +23,10 @@ describe("ProjectCache", () => {
     expect(await cache.migrateLegacySnapshot()).toBe(false);
     expect((await cache.readProject("legacy"))?.id).toBe("legacy");
     expect(localStorage.getItem(`${PROJECT_CACHE_MIGRATION_KEY}:workspace:w:user:u`)).toBe("complete");
+    expect(localStorage.getItem(LEGACY_PROJECT_STORE_KEY)).toBeNull();
+    const nextAccount = createProjectCache({ workspaceId: "w", userId: "next" }, adapter);
+    expect(await nextAccount.migrateLegacySnapshot()).toBe(false);
+    expect(await nextAccount.readProject("legacy")).toBeUndefined();
   });
 
   it("surfaces quota failures without marking migration complete", async () => {

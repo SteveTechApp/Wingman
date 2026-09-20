@@ -45,16 +45,16 @@ export function TemplatesPage() {
 
   return <main className="wm-templates-page wm-page" data-wingman-page="templates">
     <header className="wm-solution-header">
-      <div><p className="wm-ui-kicker">Guided solution documents</p><h1>Solution Templates</h1><p>Choose a market and application, then review and adjust its equipment schedule before producing the proposal.</p></div>
+      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 className="wm-page-title">Solution Templates</h1><p className="wm-ui-copy">Choose a market and application, then review and adjust its equipment schedule before producing the proposal.</p></div>
       <div className="wm-solution-header-actions"><button className="wm-button wm-button-secondary" type="button" onClick={() => setMarket("Custom")}>Manage Templates</button><button className="wm-button wm-button-primary" type="button" onClick={startCustom}>+ New Custom Template</button></div>
     </header>
     <nav className="wm-template-stages" aria-label="Template workflow stages">
       {["Market", "Application", "Configure", "Draft"].map((stage, index) => <span key={stage} className={index === (personalising ? 2 : selected ? 1 : 0) ? "is-active" : index < (selected ? 1 : 0) ? "is-complete" : ""}><i>{index < (selected ? 1 : 0) ? <Check /> : index + 1}</i>{stage}</span>)}
     </nav>
     <div className="wm-template-browser">
-      <aside className="wm-market-rail" aria-label="Market filters"><h2>Markets</h2>{TEMPLATE_MARKET_FILTERS.map((item) => <button key={item} type="button" aria-label={item} aria-pressed={item === market} className={item === market ? "is-active" : ""} onClick={() => setMarket(item)}><Building2 /> <span>{item}</span><small>{templates.filter((t) => templateMatchesMarketFilter(t, item)).length}</small></button>)}</aside>
+      <aside className="wm-market-rail wm-ui-card" aria-label="Market filters"><h2 className="wm-section-title">Markets</h2>{TEMPLATE_MARKET_FILTERS.map((item) => <button key={item} type="button" aria-label={item} aria-pressed={item === market} className={item === market ? "is-active" : ""} onClick={() => setMarket(item)}><Building2 /> <span>{item}</span><small>{templates.filter((t) => templateMatchesMarketFilter(t, item)).length}</small></button>)}</aside>
       <section className="wm-template-results wm-section-card" aria-label="Application templates">
-        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market}</p><h2>{filtered.length} templates</h2></div><p>Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
+        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market}</p><h2 className="wm-section-title">{filtered.length} templates</h2></div><p className="wm-ui-copy">Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
         <div className="wm-solution-card-grid">{filtered.map((template) => <TemplateLibraryCard key={template.id} template={template} onReview={() => applyTemplate(template)} onPersonalise={() => personaliseTemplate(template)} {...(isCustom(template) ? { onEdit: () => manageCustom(template), onDuplicate: () => duplicateCustomRoomTemplate(template.id), onDelete: () => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id), onCancelDelete: () => setConfirmDeleteId(null), deletePending: confirmDeleteId === template.id } : {})} />)}</div>
       </section>
     </div>

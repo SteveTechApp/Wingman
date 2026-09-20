@@ -21,7 +21,8 @@ describe("feature route consolidation", () => {
 
   it("renders conversation intents through Call Coach", () => {
     const hubs = read("src/wingman2/pages/NavigationHubPages.tsx");
-    expect(hubs).toContain("return <SalesHelperPage />");
+    expect(hubs).toContain('aria-label="Call Coach workflows"');
+    expect(hubs).toMatch(/routeAction\(\s*"salesHelper"/);
   });
 
   it("owns product modes under Product Workspace", () => {

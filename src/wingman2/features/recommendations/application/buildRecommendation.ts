@@ -33,4 +33,4 @@ export function buildRecommendation(
 }
 
 export type { RecommendationDecision };
-export { resolveRecommendationSystemSlots };
+export { loadRecommendationsDecisionBoundary, resolveRecommendationSystemSlots };

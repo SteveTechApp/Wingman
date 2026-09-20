@@ -763,7 +763,7 @@ function matchesFamily(product: ProductCard, family: string): boolean {
     return true;
   }
 
-  // Catalogue filters use the primary workflow; search still covers secondary applications.
+  // Catalogue filters use the first heading; search covers all headings.
   return product.headings[0] === (family as ClassifiedProductCallCardHeading);
 }
 
