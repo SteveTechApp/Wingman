@@ -9,7 +9,7 @@ import type {
 } from "../model/projectTypes";
 import { decodeProjectStore, decodeStoredProject } from "./projectCodecs";
 import { projectRepository, type ProjectRepository } from "./projectRepository";
-import { trackOperationalJourneyEvent } from "../../design-project";
+import { trackJourneyEvent } from "../../../lib/featureAnalytics";
 
 const PROJECT_SYNC_ENDPOINT = "/api/wingman/projects/sync";
 const PROJECTS_ENDPOINT = "/api/wingman/projects";
@@ -95,7 +95,7 @@ export function createProjectSyncService({
   const setStatus = (syncStatus: StoredProjectSyncStatus) => {
     if (typeof window === "undefined") return;
     if (syncStatus.state === "error" || syncStatus.state === "conflict") {
-      trackOperationalJourneyEvent({ name: "sync_degraded", journeyId: "project-sync", stage: "sync", reason: syncStatus.state === "conflict" ? "conflict" : "remote-rejected" });
+      trackJourneyEvent("sync_degraded", { journeyId: "project-sync", stage: "sync", reason: syncStatus.state === "conflict" ? "conflict" : "remote-rejected" });
     }
     repository.write({ ...repository.read(), syncStatus });
   };
@@ -218,7 +218,7 @@ export function createProjectSyncService({
       return merged.project;
     });
     current.projects.forEach((project) => { if (!backendIds.has(project.id)) projects.push(project); });
-    if (conflictDetected) trackOperationalJourneyEvent({ name: "sync_degraded", journeyId: "project-sync", stage: "sync", reason: "conflict" });
+    if (conflictDetected) trackJourneyEvent("sync_degraded", { journeyId: "project-sync", stage: "sync", reason: "conflict" });
     repository.write({
       ...current,
       projects,
