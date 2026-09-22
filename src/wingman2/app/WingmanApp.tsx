@@ -5,6 +5,7 @@ import { VoiceAnswerCaptureOverlay } from "../components/VoiceAnswerCaptureOverl
 import { OfflineBanner } from "../components/OfflineBanner";
 import { UiModeProvider } from "../data/uiMode";
 import { trackFeatureEvent } from "../lib/featureAnalytics";
+import { routeByPath } from "./routeCatalog";
 
 import { wingmanRoutes } from "./routes";
 
@@ -13,7 +14,7 @@ export default function WingmanApp() {
 
   // Track page views when the route changes.
   useEffect(() => {
-    trackFeatureEvent("feature_open", "page", { path: location.pathname });
+    trackFeatureEvent("feature_open", routeByPath(location.pathname)?.key ?? "unknown", { path: location.pathname });
   }, [location.pathname]);
 
   const routes = useRoutes([

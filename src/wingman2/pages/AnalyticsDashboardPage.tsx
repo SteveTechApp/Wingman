@@ -242,9 +242,9 @@ export default function AnalyticsDashboardPage() {
     <main className="wm-analytics-page wm-page" data-wingman-page="analytics">
       <PageHero
         eyebrow="Wingman / Analytics"
-        title="Analytics Dashboard"
-        purpose="Feature usage patterns, product quote frequency, and win rates from your projects."
-        nextMove="Review the data below to understand how Wingman is being used."
+        title="Local activity"
+        purpose="Activity and outcomes recorded in this browser and its saved projects."
+        nextMove="Use these figures to inspect this workspace; they do not represent all Wingman users."
       />
 
       <div className="wm-analytics-content">

@@ -17,7 +17,7 @@ const { deleteProject, updateStoredProject, storedProject } = vi.hoisted(() => (
     syncConflict: undefined as { fields: string[]; detectedAt: string } | undefined,
     requirements: [],
     productSelections: [],
-    compareRuns: [],
+    compareRuns: [] as Array<{ id: string; createdAt: string; version?: number; competitorBrand?: string; competitorSku?: string; wyrestormSku?: string; summary?: string; evidence?: string[]; warnings?: string[] }>,
     recommendationEvidence: {
       productDirection: "Presentation / UC",
       systemShape: "Meeting room presentation system",
@@ -62,6 +62,7 @@ describe("Project Detail review controls", () => {
     deleteProject.mockClear();
     updateStoredProject.mockClear();
     delete storedProject.syncConflict;
+    storedProject.compareRuns = [];
   });
 
   it("warns with the changed lanes when a team member edited the project since our last sync", () => {
@@ -103,8 +104,28 @@ describe("Project Detail review controls", () => {
     expect(screen.getByRole("tab", { name: /Confirm/ }).getAttribute("aria-selected")).toBe("true");
 
     fireEvent.click(screen.getByRole("tab", { name: /Handoff/ }));
-    expect(screen.getAllByText("Move from a validated project record to a proposal, visual, or CRM handoff.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Move from a validated project record to a customer response, visual, or CRM handoff.").length).toBeGreaterThan(0);
     expect(screen.getByText("Share to CRM")).not.toBeNull();
+  });
+
+  it("keeps saved comparison decisions with the project and links to a current fit check", () => {
+    storedProject.compareRuns = [{
+      id: "run-1",
+      createdAt: "2026-08-04T09:00:00.000Z",
+      version: 2,
+      competitorBrand: "Extron",
+      competitorSku: "DTP2",
+      wyrestormSku: "MX-0402-MST",
+      summary: "Partial fit after review.",
+      evidence: ["HDMI output confirmed"],
+      warnings: ["Confirm USB routing"],
+    }];
+    renderPage();
+
+    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
+    expect(screen.getByText("Snapshot v2", { exact: false })).not.toBeNull();
+    expect(screen.getAllByText("Partial fit after review.").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "Check current fit" }).getAttribute("href")).toContain("projectId=project-1");
   });
 
   it("requires confirmation before deleting and returns to Projects", () => {

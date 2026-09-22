@@ -1,4 +1,4 @@
-import { FileText, PhoneCall, Radio } from "lucide-react";
+import { FileText, PhoneCall } from "lucide-react";
 
 export type DiscoveryPace = "live" | "desk";
 
@@ -15,15 +15,14 @@ export function DiscoverySessionHero({ pace, clientName, siteName, completionPer
   const location = [clientName.trim(), siteName.trim()].filter(Boolean).join(" · ");
   return (
     <header className="wm-discovery-capture-hero wm-ui-hero">
-      <div>
-        <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker"><Radio aria-hidden="true" /> Discovery session</p>
-        <h1 className="wm-ui-title">Keep the conversation moving.</h1>
-        <p className="wm-ui-copy">{pace === "live" ? "Stay with the customer. Wingman keeps the next useful question in view and builds the brief as you talk." : "Work through an email, meeting note, or site survey at your own pace. Everything stays editable."}</p>
-        {location && <p className="wm-discovery-client-line wm-ui-copy">{location}</p>}
+      <div className="wm-discovery-session-title">
+        <h1 className="wm-ui-title">Discovery</h1>
+        <p className="wm-ui-copy">{location || (pace === "live" ? "On a call" : "From notes")}</p>
       </div>
       <div className="wm-discovery-completion-card wm-ui-card" aria-label="Discovery completion">
+        <span>{answeredCount} of {questionCount}</span>
+        <div className="wm-discovery-session-progress" aria-hidden="true"><span style={{ width: `${completionPercent}%` }} /></div>
         <strong>{completionPercent}%</strong>
-        <span>{answeredCount} / {questionCount} captured</span>
       </div>
     </header>
   );
@@ -39,18 +38,15 @@ export function DiscoverySessionPaceSwitch({ pace, onChange }: DiscoverySessionP
 
   return (
     <section className="wm-discovery-session-dock wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Set the pace for this discovery">
-      <div className="wm-discovery-session-dock-copy">
-        <span>{isLive ? "Live rhythm" : "Desk rhythm"}</span>
-        <strong>{isLive ? "One clear question. No screen-reading." : "Capture the source material, then refine."}</strong>
-      </div>
+      <span className="wm-discovery-session-dock-label">Capture from</span>
       <div className="wm-discovery-session-switch wm-discovery-mode-toggle" role="group" aria-label="Discovery session type">
         <button type="button" className={isLive ? "wm-discovery-mode-button is-active" : "wm-discovery-mode-button"} aria-pressed={isLive} onClick={() => onChange("live")}>
           <PhoneCall aria-hidden="true" />
-          <span><strong>On a call</strong><small>Fast, focused prompts</small></span>
+          <span><strong>On a call</strong></span>
         </button>
         <button type="button" className={!isLive ? "wm-discovery-mode-button is-active" : "wm-discovery-mode-button"} aria-pressed={!isLive} onClick={() => onChange("desk")}>
           <FileText aria-hidden="true" />
-          <span><strong>From notes</strong><small>Email or site survey</small></span>
+          <span><strong>From notes</strong></span>
         </button>
       </div>
     </section>

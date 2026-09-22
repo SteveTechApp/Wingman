@@ -128,8 +128,9 @@ assert(
 );
 
 assert(
-  primaryNavBlock.includes('"callCoach"'),
-  "Call Coach should remain the single primary navigation entry for sales conversation support.",
+  ['"dashboard"', '"discovery"', '"products"', '"compare"', '"responsePack"', '"projects"'].every((key) => primaryNavBlock.includes(key)) &&
+    !['"callCoach"', '"documents"', '"templates"', '"learn"', '"profile"'].some((key) => primaryNavBlock.includes(key)),
+  "Primary navigation should contain only Home, Opportunities, Products, Compare, Responses and Projects.",
 );
 
 assert(

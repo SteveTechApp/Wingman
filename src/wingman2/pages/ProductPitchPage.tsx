@@ -35,6 +35,7 @@ import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
 import { getCompetitorLandscape } from "../lib/competitorLandscape";
+import { buildTechnologySalesPositioning, buildTechnologySpeakingCues } from "../lib/technologySalesPositioning";
 
 
 function useProductPitchDensityClass() {
@@ -653,6 +654,10 @@ function OverviewTab({
   context: ProductSalesContext;
 }) {
   const guidance = buildProductPitchSalesGuidance(product, narrative, context);
+  const technologyPositioning = useMemo(() => buildTechnologySalesPositioning(product), [product]);
+  const [activeTechnologyPrompt, setActiveTechnologyPrompt] = useState(0);
+  const activePrompt = technologyPositioning?.prompts[activeTechnologyPrompt];
+  const speakingCues = activePrompt ? buildTechnologySpeakingCues(activePrompt) : [];
   const topBenefits = cleanUsefulList(guidance.featureBenefits, 3)
     .map((benefit) => conciseSalesCopy(benefit, 18));
 
@@ -683,11 +688,72 @@ function OverviewTab({
       </div>
 
       <section className="wm-product-pitch-talk-track wm-ui-section rounded-lg border p-5 wm-ui-card">
-        <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Say it like this</p>
-        <p className="mt-2 max-w-5xl text-base leading-6 wm-ui-copy">
-          “{conciseSalesCopy(guidance.customerSafeWording, 36)}”
-        </p>
+        <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Conversation anchors</p>
+        <h3>Remember the shape of the answer—not a script</h3>
+        <div className="wm-product-pitch-talk-track__anchors">
+          <p><span>Problem</span>{conciseSalesCopy(guidance.customerProblem, 16)}</p>
+          <p><span>Outcome</span>{conciseSalesCopy(guidance.plainDescription, 18)}</p>
+          <p><span>Proof</span>{topBenefits[0] ?? conciseSalesCopy(guidance.customerSafeWording, 18)}</p>
+        </div>
       </section>
+
+      {technologyPositioning ? (
+        <section className="wm-product-pitch-tech-conversation wm-ui-section rounded-lg border p-5 wm-ui-card">
+          <header className="wm-product-pitch-tech-conversation__header">
+            <div>
+              <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Technology conversation</p>
+              <h2>{technologyPositioning.label}</h2>
+              <p>{technologyPositioning.decisionHeadline}</p>
+            </div>
+            <span>Talk outcome first</span>
+          </header>
+
+          <div className="wm-product-pitch-tech-conversation__frame">
+            <article>
+              <span>Lead with</span>
+              <p>{technologyPositioning.leadWith}</p>
+            </article>
+            <article>
+              <span>Be honest about</span>
+              <p>{technologyPositioning.tradeOff}</p>
+            </article>
+            <article>
+              <span>Evidence anchor</span>
+              <p>{technologyPositioning.proofPoint}</p>
+            </article>
+          </div>
+
+          <div className="wm-product-pitch-tech-conversation__coach">
+            <div className="wm-product-pitch-tech-conversation__prompts" role="tablist" aria-label="Common customer objections">
+              {technologyPositioning.prompts.map((prompt, index) => (
+                <button
+                  key={prompt.customerSays}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTechnologyPrompt === index}
+                  onClick={() => setActiveTechnologyPrompt(index)}
+                >
+                  “{prompt.customerSays}”
+                </button>
+              ))}
+            </div>
+            <div className="wm-product-pitch-tech-conversation__answer" role="tabpanel">
+              <span>Speaking cues</span>
+              <p className="wm-product-pitch-tech-conversation__delivery-note">Glance at the sequence, then use your own words.</p>
+              <ol className="wm-product-pitch-tech-conversation__cue-list">
+                {speakingCues.map((cue) => (
+                  <li key={`${cue.label}-${cue.text}`}>
+                    <span>{cue.label}</span>
+                    <p>{cue.text}</p>
+                  </li>
+                ))}
+              </ol>
+              <strong>Ask next</strong>
+              <p>{activePrompt?.askNext}</p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <details className="wm-product-pitch-technical wm-ui-card rounded-lg border p-5">
         <summary className="cursor-pointer font-extrabold">

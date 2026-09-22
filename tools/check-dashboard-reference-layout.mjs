@@ -39,9 +39,9 @@ const main = read(mainPath);
   "Good morning",
   "Good afternoon",
   "Good evening",
-  "Start Discovery",
+  "New Opportunity",
   "Compare Products",
-  "Browse Templates",
+  "Build Response",
   "My Projects",
   "Recent Projects",
   "Today&apos;s Focus",
@@ -53,7 +53,7 @@ const main = read(mainPath);
   "wm-reference-dashboard-main",
   "routeCatalogByKey.discovery.path",
   "routeCatalogByKey.compare.path",
-  "routeCatalogByKey.templates.path",
+  "routeCatalogByKey.responsePack.path",
   "routeCatalogByKey.projects.path",
 ].forEach((marker) => requireMarker("DashboardPage.tsx", dashboard, marker));
 

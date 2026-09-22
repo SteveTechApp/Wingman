@@ -1,4 +1,4 @@
-import { ArrowRight, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, FileSearch, FileText, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { lazy, Suspense, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -231,80 +231,10 @@ export function CallCoachPage() {
 export function ProductsPage() {
   const [searchParams] = useSearchParams();
   const view = searchParams.get("view");
-  if (view && ["catalogue", "families", "call-cards", "positioning"].includes(view)) return <ProductWorkspaceMode view={view} />;
-  return (
-    <HubPage
-      eyebrow="Wingman / Products"
-      title="Products"
-      intent="Find, understand, compare or position the right WyreStorm product."
-      heroIcon={Boxes}
-      accent="blue"
-      tip="Start with Find by Requirement when the product is unknown. Use Search a Known SKU when you already have a WyreStorm product code."
-      primaryActions={[
-        routeAction(
-          "catalogBrowser",
-          "Browse Catalogue",
-          "Search the governed WyreStorm catalogue by family, role, technology and lifecycle.",
-          "Browse products",
-          { accent: "blue", linkLabel: "Open catalogue" },
-        ),
-        routeAction(
-          "productFamilies",
-          "Explore Product Families",
-          "Understand the available WyreStorm technology routes before selecting a specific product.",
-          "Family-led research",
-          {
-            accent: "violet",
-            linkLabel: "Explore",
-          },
-        ),
-        routeAction(
-          "productCallCards",
-          "Search a Known SKU",
-          "Open the sales call card when you already know the WyreStorm product code.",
-          "SKU-led lookup",
-          {
-            accent: "aqua",
-            linkLabel: "Search",
-          },
-        ),
-        routeAction(
-          "compare",
-          "Compare a Competitor",
-          "Start with another manufacturer's SKU and identify the closest safe WyreStorm direction.",
-          "Competitor-led search",
-          {
-            accent: "amber",
-            linkLabel: "Compare",
-          },
-        ),
-      ]}
-      secondaryActions={[
-        routeAction(
-          "productPitch",
-          "Product Dashboard",
-          "Review product facts, I/O, positioning, qualification questions and checks before recommending.",
-          "Detailed product view",
-          {
-            accent: "green",
-            note: "Best used after selecting a WyreStorm SKU.",
-            linkLabel: "Open",
-          },
-        ),
-        routeAction(
-          "videowall",
-          "Videowall Builder",
-          "Design an LED or LCD wall signal-flow architecture when the requirement is display-wall led.",
-          "Display-wall workflow",
-          {
-            accent: "magenta",
-            linkLabel: "Build",
-            art: "videowall",
-          },
-        ),
-      ]}
-    />
-  );
+  const activeView = view && ["catalogue", "families", "call-cards", "positioning"].includes(view)
+    ? view
+    : searchParams.has("sku") ? "positioning" : "catalogue";
+  return <ProductWorkspaceMode view={activeView} />;
 }
 export function DocumentsPage() {
   const [searchParams] = useSearchParams();

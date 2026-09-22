@@ -18,8 +18,8 @@ describe("feature journey", () => {
 
   it("preserves safe SKU and project context", () => {
     const product = featureJourneyActions("catalogBrowser", { sku: "MX-0404" }).find((action) => action.routeKey === "productPitch");
-    const publication = featureJourneyActions("recommendations", { projectId: "project-1" }).find((action) => action.routeKey === "proposal");
+    const response = featureJourneyActions("recommendations", { projectId: "project-1" }).find((action) => action.routeKey === "responsePack");
     expect(product?.to).toContain("sku=MX-0404");
-    expect(publication?.to).toContain("projectId=project-1");
+    expect(response?.to).toContain("projectId=project-1");
   });
 });

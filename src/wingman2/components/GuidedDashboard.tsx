@@ -1,8 +1,7 @@
-import { ArrowRight, Search, Zap, ArrowLeftRight, LayoutGrid, Sparkles, ChevronRight, Radio } from "lucide-react";
+import { ArrowRight, Search, Zap, ArrowLeftRight, Sparkles, ChevronRight, Radio } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { useProjectStore } from "../data/projectStore";
-import { useUiMode } from "../data/uiMode";
 import { StatusChip } from "./StatusChip";
 import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
 import { setActiveProjectId } from "../data/projectStore";
@@ -151,23 +150,6 @@ function OnboardingTip() {
 /*  Unlock full view — prompt when user has done enough                 */
 /* ------------------------------------------------------------------ */
 
-function UnlockFullView() {
-  const { isGuided, toggleMode } = useUiMode();
-  const { projects } = useProjectStore();
-
-  if (!isGuided || projects.length < 2) return null;
-
-  return (
-    <div className="wm-guided-unlock-inline">
-      <LayoutGrid size={14} />
-      <span>Ready for more? <strong>Switch to Full view</strong> for templates, data management and all admin tools.</span>
-      <button type="button" className="wm-button is-secondary wm-guided-unlock-btn" onClick={toggleMode}>
-        Full view
-      </button>
-    </div>
-  );
-}
-
 export function GuidedDashboard() {
   return (
     <main
@@ -204,7 +186,6 @@ export function GuidedDashboard() {
       </section>
 
       <RecentProjects />
-      <UnlockFullView />
     </main>
   );
 }

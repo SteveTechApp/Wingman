@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CheckCircle2, Pencil, Save, Trash2, X } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { AuditLogPanel } from "../components/AuditLogPanel";
 import { PageHero } from "../components/PageHero";
@@ -28,10 +28,13 @@ import { repTierLabelFromRun } from "../lib/repScript";
 import { RequirementsAccordion } from "./project/RequirementsAccordion";
 import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePanel";
 import { DiscoveryConversationReview } from "../components/DiscoveryConversationReview";
+import { ProposalVersionHistory } from "../components/ProposalVersionHistory";
+import { ProjectComparisonHistory } from "./project/ProjectComparisonHistory";
 
 // Editable requirements
-function compareDeepLink(compareRun: StoredCompareRun) {
+function compareDeepLink(compareRun: StoredCompareRun, projectId?: string) {
   const params = new URLSearchParams();
+  if (projectId) params.set("projectId", projectId);
   if (compareRun.competitorBrand) params.set("brand", compareRun.competitorBrand);
   const sku = compareRun.competitorSku || compareRun.competitorName;
   if (sku) params.set("sku", sku);
@@ -312,9 +315,17 @@ function DealOutcomeSection({ project }: { project: StoredProject }) {
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
+  const location = useLocation();
+  const opensHistory = new URLSearchParams(location.search).get("view") === "history";
   const navigate = useNavigate();
   const { projects, deleteProject } = useProjectStore();
   const project = projects.find((item) => item.id === projectId) ?? null;
+
+  function deleteSavedComparison(runId: string) {
+    if (!project) return;
+    updateStoredProject(project.id, (current) => ({ ...current, compareRuns: (current.compareRuns ?? []).filter((run) => run.id !== runId), updated: "Just now", updatedAt: new Date().toISOString() }));
+    setMessage("Saved comparison snapshot deleted.");
+  }
 
   function removeProductLine(sku: string) {
     if (!project || !window.confirm(`Remove ${sku} from this project?`)) return;
@@ -328,8 +339,8 @@ export function ProjectDetailPage() {
   const [requirements, setRequirements] = useState<StoredRequirementRecord[]>(initialRequirements);
   const [message, setMessage] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
-  const [showSupportingDetails, setShowSupportingDetails] = useState(false);
-  const [activeSection, setActiveSection] = useState<ProjectDetailSection>("overview");
+  const [showSupportingDetails, setShowSupportingDetails] = useState(opensHistory);
+  const [activeSection, setActiveSection] = useState<ProjectDetailSection>(opensHistory ? "capture" : "overview");
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [projectDraft, setProjectDraft] = useState({ name: "", owner: "" });
@@ -533,7 +544,7 @@ export function ProjectDetailPage() {
           compareRun.warnings?.[0] ||
           "Comparison evidence saved to project.",
         timestamp: formatProjectTimestamp(compareRun.createdAt),
-        route: compareDeepLink(compareRun),
+        route: compareDeepLink(compareRun, project.id),
       });
     });
 
@@ -1394,6 +1405,42 @@ export function ProjectDetailPage() {
         </SectionCard> : null}
 
         {activeSection === "capture" ? <SectionCard
+          title="Saved comparisons"
+          subtitle="Past decisions are kept with this project. Reopen one to check it against current product data."
+        >
+          {(project.compareRuns ?? []).length ? (
+            <div className="grid gap-3" aria-label="Saved comparison history">
+              {(project.compareRuns ?? []).filter((run) => run.mode !== "saved-history").map((run, index) => (
+                <article key={run.id || `comparison-${index}`} className="rounded-2xl border p-4 wm-ui-card">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Snapshot v{run.version ?? 1} · {formatProjectTimestamp(run.createdAt)}</p>
+                      <h3 className="mt-1 font-black wm-ui-copy">{projectText([run.competitorBrand, run.competitorSku || run.competitorName].filter(Boolean).join(" "), "Competitor comparison")}</h3>
+                      <p className="mt-1 text-sm wm-ui-copy">WyreStorm direction: {run.wyrestormSku || "No suitable match recorded"}</p>
+                    </div>
+                    <Link to={compareDeepLink(run, project.id)} className="wm-ui-button wm-ui-button-secondary">Check current fit</Link>
+                  </div>
+                  <p className="mt-3 text-sm wm-ui-copy">{run.summary || "No summary was saved for this comparison."}</p>
+                  {run.evidence?.length ? <details className="mt-3"><summary className="cursor-pointer font-semibold wm-ui-copy">Saved evidence ({run.evidence.length})</summary><ul className="mt-2 list-disc pl-5 text-sm wm-ui-copy">{run.evidence.map((item, evidenceIndex) => <li key={`${run.id}-evidence-${evidenceIndex}`}>{item}</li>)}</ul></details> : null}
+                  {run.warnings?.length ? <details className="mt-3"><summary className="cursor-pointer font-semibold wm-ui-copy">Quote checks ({run.warnings.length})</summary><ul className="mt-2 list-disc pl-5 text-sm wm-ui-copy">{run.warnings.map((item, warningIndex) => <li key={`${run.id}-warning-${warningIndex}`}>{item}</li>)}</ul></details> : null}
+                </article>
+              ))}
+              {(project.compareRuns ?? []).some((run) => run.mode === "saved-history") ? <ProjectComparisonHistory projectId={project.id} runs={project.compareRuns ?? []} compareLink={(run) => compareDeepLink(run, project.id)} onDelete={deleteSavedComparison} /> : null}
+            </div>
+          ) : <p className="text-sm wm-ui-copy">No comparisons saved to this project yet.</p>}
+        </SectionCard> : null}
+
+        {activeSection === "capture" ? <SectionCard
+          title="Response versions"
+          subtitle="Review earlier customer response drafts and restore a version when needed."
+        >
+          <ProposalVersionHistory
+            versions={project.proposalVersions ?? []}
+            currentProposal={project.proposal ?? null}
+          />
+        </SectionCard> : null}
+
+        {activeSection === "capture" ? <SectionCard
           title="Discovery conversation"
           subtitle="The questions asked, the governed answers, and the customer's own wording — audit the trail and jump into Discovery to correct any row before it reaches a proposal."
         >
@@ -1428,11 +1475,11 @@ export function ProjectDetailPage() {
         {activeSection === "handoff" ? (
           <div className="grid gap-4">
             <SectionCard
-              title="Proposal handoff"
-              subtitle="Move from a validated project record to a proposal, visual, or CRM handoff."
+              title="Response handoff"
+              subtitle="Move from a validated project record to a customer response, visual, or CRM handoff."
             >
               <div className="grid gap-3 sm:grid-cols-2">
-                <Link to={routeCatalogByKey.proposal.path} className="wm-ui-button wm-ui-button-primary">Open Proposal</Link>
+                <Link to={`${routeCatalogByKey.responsePack.path}?projectId=${encodeURIComponent(project.id)}`} className="wm-ui-button wm-ui-button-primary">Open response</Link>
                 <Link to={visualStudioLink} className="wm-ui-button wm-ui-button-secondary">Open Visual Studio</Link>
                 <Link to={routeCatalogByKey.templates.path} className="wm-ui-button wm-ui-button-secondary">Save or open templates</Link>
                 <Link to={routeCatalogByKey.projects.path} className="wm-ui-button wm-ui-button-secondary">Back to projects</Link>

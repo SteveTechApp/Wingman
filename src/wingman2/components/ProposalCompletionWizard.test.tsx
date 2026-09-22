@@ -51,8 +51,8 @@ describe("ProposalCompletionWizard", () => {
     seedActiveProject();
     renderWizard();
 
-    expect(screen.getByText("Complete and export the customer proposal")).not.toBeNull();
-    expect(screen.getByRole("navigation", { name: "Proposal completion steps" })).not.toBeNull();
+    expect(screen.getByText("Build and review the customer response")).not.toBeNull();
+    expect(screen.getByRole("navigation", { name: "Response completion steps" })).not.toBeNull();
     expect(screen.getByText(/% complete/)).not.toBeNull();
   });
 

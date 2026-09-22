@@ -1,6 +1,6 @@
 import { Suspense, lazy, type ComponentType, type LazyExoticComponent } from "react";
 import type { RouteObject } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { AppShell } from "../layout/AppShell";
 import { routeCatalog, type WingmanRouteKey } from "./routeCatalog";
 
@@ -23,10 +23,10 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   callCoach: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "CallCoachPage")),
   products: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "ProductsPage")),
   documents: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "DocumentsPage")),
-  responsePack: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "ResponsePackPage")),
+  responsePack: lazy(fromNamedExport(() => import("../pages/ProposalPage"), "ProposalPage")),
   learn: lazy(fromNamedExport(() => import("../pages/TrainingPortalPage"), "TrainingPortalPage")),
   projects: lazy(fromNamedExport(() => import("../pages/ProjectsPage"), "ProjectsPage")),
-  discovery: lazy(fromNamedExport(() => import("../pages/DiscoveryPage"), "DiscoveryPage")),
+  discovery: lazy(fromNamedExport(() => import("../pages/OpportunitiesPage"), "OpportunitiesPage")),
   recommendations: lazy(fromNamedExport(() => import("../pages/RecommendationsPage"), "RecommendationsPage")),
   productFamilies: lazy(fromNamedExport(() => import("../pages/ProductFamilyPage"), "ProductFamilyPage")),
   productPitch: lazy(fromNamedExport(() => import("../pages/ProductPitchPage"), "ProductPitchPage")),
@@ -55,8 +55,16 @@ const TemplateReviewRoute = lazy(fromNamedExport(() => import("../pages/Template
 const DataManagerRoute = lazy(fromNamedExport(() => import("../pages/DataManagerPage"), "DataManagerPage"));
 
 const consolidatedRedirectKeys = new Set<WingmanRouteKey>([
-  "salesHelper", "callCards", "battleCards", "responsePack", "support", "quoteSafetyDashboard", "analyticsDashboard",
+  "salesHelper", "callCards", "battleCards", "documents", "support", "quoteSafetyDashboard", "analyticsDashboard",
 ]);
+
+function LegacyTaskRedirect({ to }: { to: string }) {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  params.delete("mode");
+  const search = params.toString();
+  return <Navigate to={`${to}${search ? `?${search}` : ""}`} replace />;
+}
 
 function RouteFallback() {
   return (
@@ -92,7 +100,8 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "sales-helper", element: <Navigate to="/wingman/call-coach" replace /> },
       { path: "call-cards", element: <Navigate to="/wingman/call-coach" replace /> },
       { path: "battle-cards", element: <Navigate to="/wingman/compare?mode=battle-cards" replace /> },
-      { path: "response-pack", element: <Navigate to="/wingman/documents?mode=publication" replace /> },
+      { path: "response-pack", element: <LegacyTaskRedirect to="/wingman/responses" /> },
+      { path: "documents", element: <LegacyTaskRedirect to="/wingman/responses" /> },
       { path: "support", element: <Navigate to="/wingman/call-coach" replace /> },
       { path: "quote-safety", element: <Navigate to="/wingman/projects?view=quote-safety" replace /> },
       { path: "analytics", element: <Navigate to="/wingman/admin/data-manager?view=analytics" replace /> },

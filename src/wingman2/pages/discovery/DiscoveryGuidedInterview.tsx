@@ -161,7 +161,10 @@ export function DiscoveryGuidedInterviewEntry({
           <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-500 text-sm font-bold text-purple-950">🎙️</span>
           <span>
             <span className="block text-sm font-bold text-purple-300">{reviewing ? `Review ${DISCOVERY_CAPTURE_PRESENTATION.label.toLowerCase()}` : resuming ? `Continue ${DISCOVERY_CAPTURE_PRESENTATION.label.toLowerCase()}` : DISCOVERY_CAPTURE_PRESENTATION.label}</span>
-            <span className="block text-xs text-[#8fb8d0]">{reviewing ? `Re-walk every question (${answeredCount} of ${total} captured) — answers stay captured, change anything before sign-off.` : resuming ? `Resume at the next open question (${answeredCount} of ${total} captured) — answer by speaking or choosing options.` : "Wingman reads each question aloud, you answer by speaking. Notes and the product shortlist build as you go."}</span>
+            <span className="block text-xs text-[#8fb8d0]">
+              {reviewing ? `${answeredCount} of ${total} captured` : resuming ? `${answeredCount} of ${total} captured` : "Answer aloud"}
+              {reviewing && <span className="sr-only"> Re-walk every question.</span>}
+            </span>
           </span>
         </span>
       </button>

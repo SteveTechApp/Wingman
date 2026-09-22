@@ -47,14 +47,14 @@ describe("DashboardPage", () => {
   it("links each primary action to its Wingman route", () => {
     renderDashboard();
 
-    expect(screen.getByRole("link", { name: /Start Discovery/ }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: /New Opportunity/ }).getAttribute("href")).toBe(
       routeCatalogByKey.discovery.path,
     );
     expect(screen.getByRole("link", { name: /Compare Products/ }).getAttribute("href")).toBe(
       routeCatalogByKey.compare.path,
     );
-    expect(screen.getByRole("link", { name: /Browse Templates/ }).getAttribute("href")).toBe(
-      routeCatalogByKey.templates.path,
+    expect(screen.getByRole("link", { name: /Build Response/ }).getAttribute("href")).toBe(
+      routeCatalogByKey.responsePack.path,
     );
     expect(screen.getByRole("link", { name: /My Projects/ }).getAttribute("href")).toBe(
       routeCatalogByKey.projects.path,

@@ -21,7 +21,6 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { NeedsSiteSurveyFlag } from "./NeedsSiteSurveyFlag";
 import { DiscoveryConversationReview } from "./DiscoveryConversationReview";
 import { VerifyBeforeQuoteNote } from "./VerifyBeforeQuoteNote";
-import { ProposalVersionHistory } from "./ProposalVersionHistory";
 import { CrmSharePanel } from "./CrmSharePanel";
 import { SiteSurveyChecklist } from "./SiteSurveyChecklist";
 import {
@@ -1101,11 +1100,11 @@ function ProposalCompletionWizardContent({
     >
       <header className="wm-proposal-wizard-header">
         <div>
-          <span>Proposal Support</span>
-          <h1>Complete and export the customer proposal</h1>
+          <span>Customer response</span>
+          <h1>Build and review the customer response</h1>
           <p>
-            Discovery supplies the proposal foundation. Complete the remaining
-            customer, solution, commercial and approval details to reach 100%.
+            The opportunity brief supplies the starting evidence. Complete the
+            customer, solution, commercial and approval details before export.
           </p>
         </div>
 
@@ -1117,7 +1116,7 @@ function ProposalCompletionWizardContent({
           <span>
             {finalReadinessScore === 100
               ? "Ready for DOCX export"
-              : "Proposal completion"}
+              : "Response completion"}
           </span>
         </div>
       </header>
@@ -1138,7 +1137,7 @@ function ProposalCompletionWizardContent({
 
       <nav
         className="wm-proposal-step-rail"
-        aria-label="Proposal completion steps"
+        aria-label="Response completion steps"
       >
         {steps.map((label, index) => (
           <button
@@ -1647,14 +1646,9 @@ function ProposalCompletionWizardContent({
 
               <VerifyBeforeQuoteNote className="wm-proposal-verify-note" />
 
-              <ProposalVersionHistory
-                versions={project.proposalVersions ?? []}
-                currentProposal={proposal}
-                onRestore={() => {
-                  /* Force re-render after restore */
-                  window.location.reload();
-                }}
-              />
+              <Link to={`${routeCatalogByKey.projects.path}/${project.id}?view=history`} className="wm-ui-button wm-ui-button-secondary">
+                Review saved response versions in Project
+              </Link>
 
               {/* Export validation gate */}
               {(exportValidation.blockers.length > 0 || exportValidation.warnings.length > 0) && (
