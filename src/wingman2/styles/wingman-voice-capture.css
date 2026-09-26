@@ -1,0 +1,17 @@
+.wm-voice-capture { display:grid; gap:14px; padding:18px; margin:16px 0; border:1px solid var(--wm-ref-border); border-radius:12px; background:var(--wm-ref-panel-strong); }
+.wm-voice-heading { display:flex; align-items:flex-start; gap:12px; }
+.wm-voice-heading > svg { width:24px; height:24px; color:var(--wm-ref-aqua); flex-shrink:0; }
+.wm-voice-capture h3 { margin:0 0 5px; font-size:18px; }
+.wm-voice-capture p { margin:0; line-height:1.5; font-size:13px; }
+.wm-voice-actions { display:flex; align-items:end; flex-wrap:wrap; gap:10px; }
+.wm-voice-language { display:grid; gap:5px; font-size:11px; color:var(--wm-ref-copy); }
+.wm-voice-language select { min-height:36px; padding:6px 10px; }
+.wm-voice-capture .wm-voice-note,.wm-voice-file small { color:var(--wm-ref-muted); font-size:12px; }
+.wm-voice-file { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding-top:14px; border-top:1px solid var(--wm-ref-border); }
+.wm-voice-file label { display:grid; gap:8px; min-width:0; }
+.wm-voice-file input { max-width:100%; font-size:12px; }
+.wm-voice-file audio { width:100%; max-width:360px; }
+.wm-voice-file strong { overflow-wrap:anywhere; }
+.wm-voice-capture [role=alert] { color:var(--wm-ref-amber); }
+.wm-voice-interim { color:var(--wm-ref-aqua); font-style:italic; }
+.wm-voice-live-dot { display:inline-block; width:8px; height:8px; background:var(--wm-ref-aqua); border-radius:50%; margin-right:8px; }

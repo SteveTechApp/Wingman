@@ -218,14 +218,14 @@ export function CallCoachPage() {
     ),
   ];
 
-  return <>
+  return <div className="wm-polish-shell wm-call-coach-workspace">
     <section className="wm-sh-page-section" aria-label="Call Coach workflows">
       <div className="wm-sh-card-grid wm-polish-grid">
         {governedStartingPoints.map((item) => <HubCard key={item.routeKey} item={item} workflowId="sales-conversation" />)}
       </div>
     </section>
     <SalesHelperPage />
-  </>;
+  </div>;
 }
 
 export function ProductsPage() {

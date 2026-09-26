@@ -1,3 +1,4 @@
+import { EXTERNAL_DESIGN_PROMPTS } from "./proposalSalesContent";
 export type ProposalDocumentType =
   | "quote-response"
   | "technical-proposal"
@@ -26,6 +27,7 @@ export type ProposalWizardDraft = {
   preparedBy: string;
   executiveSummary: string;
   customerObjectives: string;
+  externalScope?: string;
   proposedSolution: string;
   architectureNarrative: string;
   inclusions: string;
@@ -230,6 +232,7 @@ export function createProposalWizardDefaults(input: {
     preparedBy: input.preparedBy,
     executiveSummary: input.executiveSummary,
     customerObjectives: input.executiveSummary,
+    externalScope: EXTERNAL_DESIGN_PROMPTS,
     proposedSolution,
     architectureNarrative: input.architectureNarrative,
     inclusions: [
@@ -268,11 +271,11 @@ export function createProposalWizardDefaults(input: {
       "Visio / CAD / as-built drawings | By integrator | Separately quoted",
     ].join("\n"),
     implementationTimeline: [
-      "Phase 1 | Site survey and preparation | Days 1-3 | Confirm room, cable routes, network, power and access",
-      "Phase 2 | Hardware delivery and physical installation | Days 4-7 | Subject to stock and site readiness",
-      "Phase 3 | Cabling, configuration and integration | Days 8-10 | Integrator / trades complete by-others scope",
-      "Phase 4 | Commissioning and acceptance testing | Days 11-12 | Validate routing, control, audio, USB and failover",
-      "Phase 5 | Handover and close-out | Days 13-14 | Training, documentation and customer sign-off",
+      "Phase 1 | Site survey and preparation | Dates to be agreed | Confirm room, cable routes, network, power and access",
+      "Phase 2 | Hardware delivery and physical installation | Dates to be agreed | Subject to stock and site readiness",
+      "Phase 3 | Cabling, configuration and integration | Dates to be agreed | Integrator / trades complete by-others scope",
+      "Phase 4 | Commissioning and acceptance testing | Dates to be agreed | Validate agreed routing, control, audio and USB workflows",
+      "Phase 5 | Handover and close-out | Dates to be agreed | Training, documentation and customer sign-off",
     ].join("\n"),
     nextSteps: [
       "Confirm the customer and project details.",

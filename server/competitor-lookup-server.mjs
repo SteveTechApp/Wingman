@@ -1,4 +1,5 @@
 import { handleAgentsRoute } from "./routes/agents.mjs";
+import { handleAudioTranscription } from "./audio-transcription.mjs";
 import { readAllSupabaseRows } from "./supabase-pagination.mjs";
 import {
   handleCompetitorDecisionApprovalPost,
@@ -2172,6 +2173,13 @@ function matchRoute(method, url) {
 }
 
 const ROUTES = [
+  {
+    method: "POST",
+    path: "/api/wingman/audio/transcribe",
+    permission: "canEditProjects",
+    deniedMessage: "Sign in to your Wingman workspace to transcribe a voice note.",
+    handler: (req, res, url, helpers) => handleAudioTranscription(req, res, url, helpers),
+  },
   // --- Public introspection (no session required) ---
   {
     method: "GET",

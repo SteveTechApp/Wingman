@@ -201,6 +201,7 @@ export type StoredCompareRun = {
 };
 
 export type StoredProjectProposal = {
+  salesContent?: { objectives: string; solutionOverview: string; architecture?: string; externalScope: string };
   title: string;
   summary: string;
   sections: string[];

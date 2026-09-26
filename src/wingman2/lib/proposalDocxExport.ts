@@ -1,5 +1,7 @@
+import { loadProductMediaIndex, type ProductMediaIndex } from "../data/productMedia";
+import { proposalProductCards, proposalSolutionStory } from "./proposalSalesContent";
 import {
-  AlignmentType, BorderStyle, Document, Footer, Header, HeadingLevel,
+  AlignmentType, BorderStyle, Document, ExternalHyperlink, Footer, Header, HeadingLevel,
   ImageRun, PageBreak, PageNumber, Packer, Paragraph, ShadingType, Table, TableCell,
   TableLayoutType, TableRow, TextRun, WidthType,
 } from "docx";
@@ -29,8 +31,8 @@ export const PALE = "F4F6F9";
 export const BORDER = "CBD5E1";
 export const TABLE_WIDTH = 9360;
 
-type ProposalImageAsset = { data: Uint8Array; type: "jpg" | "png"; title: string };
-type ProposalDocxAssets = { logo?: ProposalImageAsset; room?: ProposalImageAsset; schematic?: ProposalImageAsset };
+type ProposalImageAsset = { data: Uint8Array; type: "jpg" | "png"; title: string; width?: number; height?: number };
+type ProposalDocxAssets = { logo?: ProposalImageAsset; room?: ProposalImageAsset; schematic?: ProposalImageAsset; products?: Record<string, ProposalImageAsset>; media?: ProductMediaIndex | null };
 
 export function fileBaseName(title: string, fallback = "wingman-proposal") {
   return String(title || fallback).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || fallback;
@@ -132,7 +134,7 @@ function imageParagraph(asset: ProposalImageAsset, width: number, height: number
     children: [new ImageRun({
       data: asset.data,
       type: asset.type,
-      transformation: { width, height },
+      transformation: asset.width && asset.height ? { width: Math.min(width, height * asset.width / asset.height), height: Math.min(height, width * asset.height / asset.width) } : { width, height },
       altText: { title: asset.title, description: asset.title, name: asset.title },
     })],
   });
@@ -244,7 +246,7 @@ function cableScheduleContent(proposal: StoredProjectProposal, bomRows: SalesBom
   if (!bomRows.length) return [];
   try {
     const products = proposal.products ?? [];
-    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const bomRowsForSchematic = (bomRows.length ? bomRows : proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
     const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic);
     const schematicModel = buildWingmanSchematic(brief);
     const cableRows = buildNativeCableSchedule(schematicModel);
@@ -255,7 +257,7 @@ function cableScheduleContent(proposal: StoredProjectProposal, bomRows: SalesBom
       ...cableRows.map((row) => new TableRow({ children: [
         cell(row.label, widths[0], { bold: true }),
         cell(nativeCableToneLabel(row.type), widths[1]),
-        cell(row.maxLengthMetres !== null && row.maxLengthMetres !== undefined ? `${row.maxLengthMetres}m` : "Unlimited", widths[2]),
+        cell(row.maxLengthMetres !== null && row.maxLengthMetres !== undefined ? `${row.maxLengthMetres}m` : "Not confirmed", widths[2]),
         cell(row.connectors || "TBC", widths[3]),
         cell(cableValidationStatusLabel(row.validationStatus), widths[4]),
         cell(row.reminder, widths[5]),
@@ -305,11 +307,23 @@ function canonicalDesignContent(proposal: StoredProjectProposal): Array<Paragrap
 async function fetchImageAsset(url: string | undefined, title: string): Promise<ProposalImageAsset | undefined> {
   if (!url || typeof fetch === "undefined") return undefined;
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
     if (!response.ok) return undefined;
-    const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
-    const type = contentType.includes("png") || url.toLowerCase().includes(".png") ? "png" : "jpg";
-    return { data: new Uint8Array(await response.arrayBuffer()), type, title };
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) return undefined;
+    const bitmap = await createImageBitmap(blob);
+    try {
+      const canvas = document.createElement("canvas");
+      const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+      canvas.width = Math.round(bitmap.width * scale);
+      canvas.height = Math.round(bitmap.height * scale);
+      const context = canvas.getContext("2d");
+      if (!context) return undefined;
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const png = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (!png) return undefined;
+      return { data: new Uint8Array(await png.arrayBuffer()), type: "png", title, width: canvas.width, height: canvas.height };
+    } finally { bitmap.close(); }
   } catch {
     return undefined;
   }
@@ -409,20 +423,8 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
       case "av-over-ip-transceiver": case "av-over-ip-controller":
       case "video-wall-processor": case "usb-bridge": return 1;
       case "network-switch": return 2;
-      case "av-over-ip-decoder": case "display": case "audio-device": return 3;
-      default: return 2;
-    }
-  }
-
-  function laneGroup(kind: string): number {
-    switch (kind) {
-      case "source": case "camera": case "speakerphone":
-      case "touch-panel": case "control-device": return 0;
-      case "switcher": case "matrix": case "av-over-ip-encoder":
-      case "av-over-ip-transceiver": case "av-over-ip-controller":
-      case "video-wall-processor": case "usb-bridge": return 1;
-      case "network-switch": return 2;
-      case "av-over-ip-decoder": case "display": case "audio-device": return 3;
+      case "av-over-ip-decoder": return 3;
+      case "display": case "audio-device": return 4;
       default: return 2;
     }
   }
@@ -431,13 +433,13 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
   const columnLanes = new Map<string, number>();
   const nodes = schematic.nodes.map((node) => {
     const col = columnForKind(node.kind);
-    const key = `${col}-${laneGroup(node.kind)}`;
+    const key = String(col);
     const laneIdx = columnLanes.get(key) ?? 0;
     columnLanes.set(key, laneIdx + 1);
     return {
       ...node,
       x: ORIGIN_X + col * COL_GAP,
-      y: ORIGIN_Y + (col * 3 + laneGroup(node.kind)) * LANE_GAP + laneIdx * (NODE_H + 12),
+      y: ORIGIN_Y + laneIdx * (NODE_H + LANE_GAP),
     };
   });
 
@@ -465,7 +467,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
   ctx.fillText(schematic.title || "Topology-aware signal flow", 40, 62);
 
   // Column headers
-  const colHeaders = ["Sources", "Core / Transport", "Network", "Outputs"];
+  const colHeaders = ["Sources", "Core / Transport", "Network", "Decoders", "Outputs"];
   colHeaders.forEach((label, i) => {
     ctx.font = "bold 11px Calibri, Arial, sans-serif";
     ctx.fillStyle = "rgba(83,224,255,0.6)";
@@ -572,6 +574,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   const equipment = equipmentTable(bomRows, wizard);
   const risks = [...(proposal.governanceWarnings ?? []), ...(proposal.validationNotes ?? [])];
   const application = proposal.applicationProposal;
+  const story = proposalSolutionStory(proposal, bomRows);
   const children: Array<Paragraph | Table> = [
     ...(assets.logo ? [imageParagraph(assets.logo, 190, 64)] : []),
     paragraph(company, { bold: true, size: 32, colour: AQUA, alignment: AlignmentType.CENTER, after: 120 }),
@@ -584,6 +587,11 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   ];
 
   addSection(children, "Executive Summary", [paragraph(wizard.executiveSummary || proposal.summary || "Executive summary to be confirmed.", { justified: true })]);
+  addSection(children, "Solution Overview", [
+    paragraph(wizard.proposedSolution || story.overview, { justified: true }),
+    heading("How the solution will work", 2), ...story.operation.map((item) => paragraph(item)),
+    heading("What successful delivery looks like", 2), ...story.acceptance.map(bullet),
+  ]);
   if (application) addSection(children, "Market and Application Story", [
     paragraph(application.marketStory || application.customerNeed, { justified: true }),
     heading("Intended room experience", 2),
@@ -599,16 +607,27 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   addSection(children, "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is quoted."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
   addSection(children, "Equipment and Pricing", [paragraph(equipment.complete ? `The equipment total is ${money(equipment.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.` : "COMMERCIAL HOLD: one or more equipment prices are missing. This draft must not be issued as an exact quotation until every TBC value is resolved.", { bold: true, colour: equipment.complete ? NAVY : "9B1C1C" }), equipment.table, paragraph("Pricing covers only the listed equipment. Services, third-party equipment, freight, taxes and by-others work are excluded unless expressly priced below.", { size: 18, colour: MUTED })]);
   addSection(children, "Services and Commercial Allowances", [pipeTable(wizard.servicesAndAllowances, ["Service / discipline", "Responsibility", "Commercial status"], [3900, 2460, 3000])]);
+  addSection(children, "Complete System Design and Responsibilities", [
+    paragraph("The following items complete the wider solution. Unfilled entries are open design decisions, not supplied equipment or agreed services. Replace each [complete] with the agreed detail or mark it not applicable / excluded."),
+    ...bulletLines(wizard.externalScope || story.externalScope, "External design scope to be agreed."),
+  ]);
   addSection(children, "Third-Party System Scope", [
     paragraph("WyreStorm forms part of the complete AV solution. The following equipment and delivery disciplines must be designed, owned and commercially completed before customer issue. TBC cells are deliberately editable allowances, not included prices.", { justified: true }),
     scopeTable(proposal),
   ]);
   addSection(children, "Technical Architecture", [
     paragraph(wizard.architectureNarrative || application?.solutionOverview || "The technical architecture requires confirmation.", { justified: true }),
-    ...(assets.schematic ? [imageParagraph(assets.schematic, 620, Math.min(310, Math.max(175, Math.round(620 * 0.32))))] : []),
-    architectureTable(application?.architectureDiagram || ""),
+    ...(assets.schematic ? [imageParagraph(assets.schematic, 560, 620)] : []),
+    paragraph("Concept signal-flow diagram: confirm physical connections, cable routes, third-party interfaces and operating modes before installation.", { colour: MUTED }),
+    ...(!assets.schematic ? [architectureTable(application?.architectureDiagram || "")] : []),
   ]);
   addSection(children, "Cable Schedule", cableScheduleContent(proposal, bomRows));
+  addSection(children, "Products in the Solution", proposalProductCards(bomRows, assets.media).flatMap((card) => [
+    heading(`${card.sku} — ${card.name}`, 2),
+    ...(assets.products?.[card.sku] ? [imageParagraph(assets.products[card.sku], 460, 170)] : [paragraph("Product photograph unavailable.", { colour: MUTED })]),
+    paragraph(`Role in this design: ${card.role || "To be confirmed"}`),
+    ...(card.url ? [new Paragraph({ children: [new ExternalHyperlink({ link: card.url, children: [new TextRun({ text: "Manufacturer product page and documentation", style: "Hyperlink" })] })] })] : [paragraph("Official product link to be confirmed.", { colour: MUTED })]),
+  ]));
   addSection(children, "WyreStorm Product Specifications", productSpecificationContent(proposal));
   addSection(children, "Power Strategy", powerStrategyContent(proposal.products));
   if (application?.acceptanceCriteria.length) addSection(children, "Testing and Acceptance Criteria", application.acceptanceCriteria.map(bullet));
@@ -642,7 +661,7 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
   let nativeSchematicDataUrl: string | undefined;
   try {
     const products = proposal.products ?? [];
-    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const bomRowsForSchematic = (bomRows.length ? bomRows : proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
     const brief = proposalSchematicBrief(wizard.projectName || proposal.title || "System schematic", products, bomRowsForSchematic);
     const schematicModel = buildWingmanSchematic(brief);
     nativeSchematicDataUrl = createNativeSchematicDataUrl(schematicModel);
@@ -650,6 +669,15 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
     // Fall back to the legacy text-based schematic if the native engine fails
   }
 
+  const media = await loadProductMediaIndex();
+  const productAssets: Record<string, ProposalImageAsset> = {};
+  const cards = proposalProductCards(bomRows, media);
+  for (let index = 0; index < cards.length; index += 4) {
+    await Promise.all(cards.slice(index, index + 4).map(async (card) => {
+      const asset = await fetchImageAsset(card.imageUrl, `${card.sku}: ${card.alt}`);
+      if (asset) productAssets[card.sku] = asset;
+    }));
+  }
   const [logo, room, schematic] = await Promise.all([
     fetchImageAsset(proposal.companyLogoDataUrl, `${proposal.companyName || "WyreStorm"} logo`),
     fetchImageAsset(proposal.applicationProposal?.roomVisualUrl, `${proposal.applicationProposal?.application || "Room"} concept`),
@@ -658,7 +686,7 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
       "Room signal-flow schematic",
     ),
   ]);
-  const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic }));
+  const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic, products: productAssets, media }));
   downloadBlob(blob, `${fileBaseName(wizard.projectName || proposal.title)}.proposal.docx`);
   trackDesignProjectExport(proposal.designRevision, "docx");
 }

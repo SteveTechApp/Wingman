@@ -1,0 +1,108 @@
+:root { --wm-paper-bg:#fff; --wm-paper-ink:#172b3a; --wm-paper-accent:#087d7c; --wm-paper-muted:#5b7080; --wm-paper-rule:#d9e3e9; --wm-paper-shadow:#0004; }
+/* Visual sales workspaces use the shared Wingman palette and typography. */
+html .wingman-shell .wm-project-gallery-page { padding: 12px 0 28px; gap: 24px; height:auto !important; max-height:none !important; }
+html .wm-project-gallery-page .wm-projects-page-toolbar { display:flex; align-items:center; justify-content:space-between; gap:24px; margin:0 0 12px; }
+html .wm-project-gallery-page .wm-sales-page-intro h1 { font-size:clamp(26px,2.3vw,34px); line-height:1.15; letter-spacing:-.035em; margin:0 0 10px; color:var(--wm-ref-text); }
+html .wm-project-gallery-page .wm-sales-page-intro p { color:var(--wm-ref-muted); font-size:14px; margin:0; }
+html .wm-project-gallery-page .wm-projects-sections { display:grid; gap:28px; }
+html .wm-project-gallery-page .wingman-section-card { background:none !important; border:0; padding:0; box-shadow:none !important; }
+html .wm-project-gallery-page .wingman-section-card-header { padding:0 0 16px; background:none; border:0; }
+html .wm-project-gallery-page .wingman-section-card-header .wingman-kicker { display:none; }
+html .wm-project-gallery-page .wingman-section-card-title-row { background:none; border-radius:0; padding:0; }
+html .wm-project-gallery-page .wingman-section-card h2 { font-size:21px; margin:0 0 5px; }
+html .wm-project-gallery-page .wingman-section-card-body { padding:0; }
+html .wm-project-gallery-page .wm-projects-team-filter { display:flex !important; flex-direction:row; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:14px; padding:0 0 12px; margin:0; background:none; border:0; }
+html .wm-project-gallery-page .wm-projects-filter-tabs { display:flex; gap:6px; }
+html .wm-project-gallery-page .wm-projects-search-wrap { position:relative; min-width:230px; }
+html .wm-project-gallery-page .wm-projects-search-icon { position:absolute; left:12px; top:13px; }
+html .wm-project-gallery-page .wm-projects-search { padding:10px 14px 10px 35px; width:100%; min-height:40px; }
+html .wm-project-gallery-page .wm-projects-store-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:0 0 14px; }
+html .wm-project-gallery-page .wm-project-gallery { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+html .wm-project-gallery-page .wm-project-visual-card { display:grid; grid-template-columns:1fr auto; align-content:start; gap:12px; min-width:0; overflow:hidden; background:var(--wm-ref-panel-strong); border:1px solid var(--wm-ref-border); border-radius:12px; padding:0 18px 16px; }
+html .wm-project-gallery-page .wm-project-card-image { grid-column:1/-1; position:relative; margin:0 -18px 4px; aspect-ratio:2/1; background:linear-gradient(135deg,var(--wm-ref-panel-strong),var(--wm-ref-panel-strong)); display:grid; place-items:center; overflow:hidden; }
+html .wm-project-gallery-page .wm-project-card-image img { width:100%; height:100%; object-fit:cover; }
+html .wm-project-gallery-page .wm-project-card-image > svg { width:56px; height:56px; color:var(--wm-ref-cyan); }
+html .wm-project-gallery-page .wm-project-card-image > span { position:absolute; bottom:10px; left:14px; padding:4px 8px; background:var(--wm-ref-bg); color:var(--wm-ref-text); border-radius:4px; font-size:11px; }
+html .wm-project-gallery-page .wm-project-card-name { grid-column:1/-1; }
+html .wm-project-gallery-page .wm-project-card-name h3 { margin:0; font-size:18px; line-height:1.35; color:var(--wm-ref-text); overflow-wrap:anywhere; }
+html .wm-project-gallery-page .wm-project-card-owner { grid-column:1/-1; color:var(--wm-ref-copy); font-size:12px; }
+html .wm-project-gallery-page .wm-projects-owner-cell { display:flex; align-items:center; gap:8px; }
+html .wm-project-gallery-page .wm-project-card-stage { font-size:12px; color:var(--wm-ref-muted); }
+html .wm-project-gallery-page .wm-project-card-status { justify-self:end; }
+html .wm-project-gallery-page .wm-project-card-updated { grid-column:1/-1; font-size:11px; color:var(--wm-ref-muted); }
+html .wm-project-gallery-page .wm-project-card-actions { grid-column:1/-1; border-top:1px solid var(--wm-ref-border); padding-top:12px; }
+html .wm-project-gallery-page .wm-project-row-actions { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+html .wm-project-gallery-page .wm-project-row-actions a { font-size:12px; padding:8px 4px; color:var(--wm-ref-aqua); }
+html .wm-project-gallery-page .wm-project-row-actions a:nth-of-type(2) { margin-right:auto; }
+html .wm-project-gallery-page .wm-project-gallery-empty { grid-column:1/-1; padding:30px; border:1px dashed var(--wm-ref-border); border-radius:12px; }
+html .wm-project-gallery-page .wm-project-draft-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+html .wm-project-gallery-page .wm-project-draft-tile { display:grid; grid-template-columns:38px 1fr; padding:16px; gap:12px; background:var(--wm-ref-panel-strong); border:1px solid var(--wm-ref-border); border-radius:10px; }
+html .wm-project-gallery-page .wm-project-draft-actions { grid-column:2; justify-content:start; }
+.wm-draft-paper-icon { width:34px; height:46px; background:var(--wm-paper-bg); padding:10px 5px; border-radius:2px; box-shadow:2px 3px 0 var(--wm-ref-muted); }
+.wm-draft-paper-icon span { display:block; height:2px; margin-bottom:5px; background:var(--wm-paper-muted); }
+.wm-draft-paper-icon span:first-child { background:var(--wm-paper-accent); width:65%; }
+
+html .wingman-shell .wm-response-studio { width:100%; display:grid; gap:20px; }
+html .wingman-shell .wm-response-studio .wm-proposal-wizard-header { display:grid !important; grid-template-columns:1fr auto; padding:10px 0; background:none; border:0; box-shadow:none; }
+html .wingman-shell .wm-response-studio .wm-proposal-wizard-header h1 { display:block !important; font-size:clamp(26px,2.3vw,34px); line-height:1.15; }
+html .wingman-shell .wm-response-studio .wm-proposal-wizard-header p { font-size:14px; color:var(--wm-ref-muted); }
+html .wingman-shell .wm-response-studio .wm-proposal-readiness { min-height:76px; padding:12px 20px; border-radius:50px; background:var(--wm-ref-panel-strong); box-shadow:none; }
+html .wingman-shell .wm-response-studio .wm-proposal-readiness strong { font-size:26px; }
+html .wingman-shell .wm-response-studio .wm-proposal-progress-card { padding:0; background:none; border:0; }
+html .wingman-shell .wm-response-studio .wm-proposal-score-breakdown { display:flex; flex-wrap:wrap; gap:12px; padding-top:8px; }
+html .wingman-shell .wm-response-studio .wm-proposal-wizard-layout { grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr); gap:24px; }
+html .wingman-shell .wm-response-studio .wm-proposal-step-card { padding:24px; background:var(--wm-ref-panel-strong); border-color:var(--wm-ref-border); gap:22px; }
+html .wingman-shell .wm-response-studio .wm-proposal-step-heading h2 { font-size:23px; letter-spacing:-.025em; }
+html .wingman-shell .wm-response-studio .wm-proposal-step-heading p { font-size:13px; max-width:60ch; }
+html .wingman-shell .wm-response-studio .wm-proposal-field input,
+html .wingman-shell .wm-response-studio .wm-proposal-field select { min-height:42px; padding:10px 12px; font-size:13px; }
+html .wingman-shell .wm-response-studio .wm-proposal-form-grid { gap:18px 20px; }
+html .wingman-shell .wm-response-studio .wm-proposal-field > span { font-size:12px; }
+html .wingman-shell .wm-response-studio .wm-proposal-step-rail button { border:0; border-bottom:2px solid var(--wm-ref-border); border-radius:0; background:none; min-height:54px; padding:8px; }
+html .wingman-shell .wm-response-studio .wm-proposal-step-rail button.is-active { border-color:var(--wm-ref-aqua); background:var(--wm-primary-soft); }
+html .wingman-shell .wm-response-studio .wm-proposal-step-rail strong { white-space:normal; font-size:12px; }
+html .wingman-shell .wm-response-studio .wm-proposal-wizard-sidebar { display:grid; gap:18px; }
+.wm-response-preview-label { margin:0 0 12px; color:var(--wm-ref-muted); letter-spacing:.12em; text-transform:uppercase; font-size:11px; font-weight:700; }
+.wm-response-paper { background:var(--wm-paper-bg); color:var(--wm-paper-ink); border-radius:3px; padding:26px; box-shadow:0 16px 36px var(--wm-paper-shadow); }
+.wm-response-paper-brand { display:flex; justify-content:space-between; align-items:center; gap:15px; color:var(--wm-paper-accent); font-size:17px; font-weight:800; }
+.wm-response-paper-brand span { color:var(--wm-paper-muted); font-size:9px; font-weight:400; }
+html .wingman-shell .wm-response-paper h2 { margin:28px 0 12px; font:700 clamp(20px,2vw,30px)/1.13 Georgia,serif !important; color:var(--wm-paper-ink) !important; overflow-wrap:anywhere; }
+html .wingman-shell .wm-response-paper :is(strong,footer) { color:var(--wm-paper-ink) !important; }
+html .wingman-shell .wm-response-paper :is(small,span) { color:var(--wm-paper-muted) !important; }
+.wm-response-paper-intro { font-size:11px; line-height:1.5; color:var(--wm-paper-muted); margin:0 0 20px; }
+.wm-response-cover-image { aspect-ratio:1.7; background:var(--wm-paper-rule); display:grid; place-items:center; overflow:hidden; }
+.wm-response-cover-image img { width:100%; height:100%; object-fit:cover; }
+.wm-response-cover-image > svg { width:60px; height:60px; color:var(--wm-paper-accent); }
+.wm-response-image-caption { display:block; color:var(--wm-paper-muted); font-size:9px; margin:5px 0; }
+.wm-response-paper-customer { display:grid; gap:5px; margin:24px 0; }
+.wm-response-paper-customer span,.wm-response-paper footer span { color:var(--wm-paper-muted); font-size:10px; }
+.wm-response-paper-customer strong { font-size:16px; color:var(--wm-paper-ink); }
+.wm-response-paper-customer small { color:var(--wm-paper-muted); font-size:11px; }
+.wm-response-paper footer { display:flex; justify-content:space-between; align-items:end; border-top:1px solid var(--wm-paper-rule); padding-top:14px; gap:14px; }
+.wm-response-paper footer div { display:grid; gap:5px; font-size:11px; }
+.wm-response-preview-note { display:flex; align-items:center; gap:8px; color:var(--wm-ref-muted); font-size:11px; margin:14px 0 0; }
+.wm-response-document-details { color:var(--wm-ref-muted); font-size:12px; line-height:1.6; }
+.wm-response-document-details summary { cursor:pointer; color:var(--wm-ref-copy); padding:8px 0; }
+.wm-response-document-details strong { display:block; margin-top:10px; }
+@media(max-width:1150px) {
+  html .wm-project-gallery-page .wm-project-gallery,html .wm-project-gallery-page .wm-project-draft-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  html .wm-project-gallery-page .wm-projects-page-toolbar { align-items:start; flex-direction:column; }
+  html .wingman-shell .wm-response-studio .wm-proposal-wizard-layout { grid-template-columns:minmax(0,1fr) 280px; gap:16px; }
+  html .wingman-shell .wm-response-studio .wm-proposal-step-card { padding:18px; }
+  .wm-response-paper { padding:20px; }
+}
+@media(max-width:850px) {
+  html .wingman-shell .wm-response-studio .wm-proposal-wizard-layout { grid-template-columns:1fr; }
+  html .wingman-shell .wm-response-studio .wm-proposal-wizard-sidebar { max-width:430px; width:100%; justify-self:center; }
+  html .wingman-shell .wm-response-studio .wm-proposal-step-rail { grid-template-columns:repeat(5,minmax(80px,1fr)); overflow-x:auto; }
+}
+@media(max-width:580px) {
+  html .wm-project-gallery-page .wm-project-gallery,html .wm-project-gallery-page .wm-project-draft-grid { grid-template-columns:1fr; }
+  html .wm-project-gallery-page .wm-projects-store-toolbar { flex-wrap:wrap; }
+  html .wingman-shell .wm-response-studio .wm-proposal-form-grid { grid-template-columns:1fr; }
+  html .wingman-shell .wm-response-studio .wm-proposal-wizard-header { grid-template-columns:1fr; }
+  html .wingman-shell .wm-response-studio .wm-proposal-readiness { justify-self:start; min-height:0; display:flex; align-items:center; gap:10px; border-radius:8px; }
+}
+
+html .wm-project-gallery-page .wm-projects-compact-actions { display:flex; flex-wrap:wrap; gap:8px; min-width:0; }
+@media(max-width:580px) { html .wm-project-gallery-page .wingman-section-card { padding:0 !important; } html .wingman-shell .wm-response-studio .wm-proposal-step-rail { grid-template-columns:repeat(5,170px); } html .wingman-shell .wm-response-studio .wm-proposal-step-rail strong { overflow:visible; text-overflow:clip; white-space:normal; } }

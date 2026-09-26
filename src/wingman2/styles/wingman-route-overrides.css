@@ -6820,14 +6820,14 @@ html[data-wingman-route="proposal"] .wm-coach-visuals a {
   color: #f8fbff;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
   width: min(1380px, calc(100vw - 300px));
   max-width: 1380px;
   margin: 0 auto;
   padding: 28px 28px 64px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -6835,8 +6835,8 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-hero {
   margin-bottom: 24px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-kicker,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-kicker,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-eyebrow {
   margin: 0;
   color: #65d7f4;
   font-size: 0.72rem;
@@ -6846,7 +6846,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
   text-transform: uppercase;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero h1 {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero h1 {
   margin: 6px 0 4px;
   color: #65d7f4;
   font-size: clamp(1.7rem, 2.4vw, 2.65rem);
@@ -6854,8 +6854,8 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-hero h1 {
   font-weight: var(--wm-weight-heading);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero p,
-html[data-wingman-route="salesHelper"] .wm-sh-section-head p {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero p,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-section-head p {
   margin: 0;
   max-width: 920px;
   color: rgba(232, 244, 255, 0.84);
@@ -6863,14 +6863,14 @@ html[data-wingman-route="salesHelper"] .wm-sh-section-head p {
   line-height: 1.45;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-stepper {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-stepper {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin: 0 0 28px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -6885,37 +6885,37 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-step {
   color: #f8fbff;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step span {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step span {
   color: rgba(232, 244, 255, 0.72);
   font-size: 0.82rem;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step strong {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step strong {
   color: #f8fbff;
   font-size: 0.88rem;
   font-weight: var(--wm-weight-ui);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-section {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-section {
   display: grid;
   gap: 16px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-section-head h2 {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-section-head h2 {
   margin: 4px 0 4px;
   color: #65d7f4;
   font-size: 1.15rem;
   line-height: 1.15;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 14px;
   align-items: stretch;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card {
   appearance: none;
   display: flex;
   flex-direction: column;
@@ -6941,8 +6941,8 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
     box-shadow 120ms ease;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:hover,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card:hover,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card:focus-visible {
   transform: translateY(-1px);
   border-color: rgba(101, 215, 244, 0.62);
   background:
@@ -6951,7 +6951,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
   box-shadow: 0 20px 44px rgba(0, 0, 0, 0.26);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-title {
   display: block;
   color: #65d7f4;
   font-size: 1.08rem;
@@ -6959,7 +6959,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
   font-weight: 900;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-body {
   display: block;
   color: rgba(232, 244, 255, 0.84);
   font-size: 0.88rem;
@@ -6967,66 +6967,66 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
 }
 
 @media (max-width: 980px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-page {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
       width: 100%;
       padding: 22px 16px 48px;
     }
 
-  html[data-wingman-route="salesHelper"] .wm-sh-page-stepper {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-stepper {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-  html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
       grid-template-columns: 1fr;
     }
 
 }
-html[data-wingman-route="salesHelper"] .wm-sh-page {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
   width: min(1240px, calc(100vw - 292px));
   max-width: 1240px;
   padding-top: 20px;
   padding-bottom: 52px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero {
   margin-bottom: 18px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero p,
-html[data-wingman-route="salesHelper"] .wm-sh-section-head p {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero p,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-section-head p {
   max-width: 76ch;
   font-size: 1.03rem;
   line-height: 1.55;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-stepper {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-stepper {
   margin-bottom: 24px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step span {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step span {
   font-size: 0.88rem;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step strong {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step strong {
   font-size: 0.94rem;
   line-height: 1.2;
   font-weight: var(--wm-weight-ui);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-section-head h2 {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-section-head h2 {
   font-size: 1.42rem;
   line-height: 1.14;
   font-weight: var(--wm-weight-heading);
   letter-spacing: var(--wm-tracking-heading);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
   align-items: stretch;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-auto-rows: auto;
@@ -7038,7 +7038,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
   padding: 20px 22px 18px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card > * {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card > * {
   display: block;
   width: 100%;
   max-width: none;
@@ -7047,7 +7047,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card > * {
   white-space: normal;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-head {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 8px;
@@ -7055,9 +7055,9 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-head {
   justify-items: start;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-eyebrow,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-title,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-body {
   width: 100%;
   max-width: none;
   min-width: 0;
@@ -7066,7 +7066,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
   white-space: normal;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-eyebrow {
   max-width: 32ch;
   color: #8feaff;
   font-size: 0.74rem;
@@ -7075,7 +7075,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
   line-height: 1.22;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-title {
   color: var(--wm-consistency-text);
   font-size: 1.18rem;
   line-height: 1.18;
@@ -7083,14 +7083,14 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
   letter-spacing: -0.012em;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-body {
   padding-right: 0;
   color: rgba(232, 244, 255, 0.85);
   font-size: 0.99rem;
   line-height: 1.54;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-action {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-action {
   display: inline-flex;
   width: auto;
   max-width: 100%;
@@ -7106,32 +7106,32 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-action {
   white-space: nowrap;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:hover,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card:hover,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card:focus-visible {
   transform: translateY(-2px);
 }
 
 @media (max-width: 1280px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-page {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
       width: min(1180px, calc(100vw - 272px));
     }
 
 }
 @media (max-width: 1180px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-page {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
       width: 100%;
     }
 
-  html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
       grid-template-columns: 1fr;
     }
 
-  html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card {
       min-height: 0;
     }
 
 }
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
   display: flex;
   flex-direction: column;
   grid-template-columns: none;
@@ -7145,12 +7145,12 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm
   overflow: hidden;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card > *,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-head,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-eyebrow,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-title,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-body,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-action {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card > *,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-head,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-eyebrow,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-title,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-body,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-action {
   display: block;
   width: 100%;
   max-width: none;
@@ -7164,13 +7164,13 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm
   text-align: left;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-head {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-head {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-eyebrow {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-eyebrow {
   color: #8feaff;
   font-size: 0.68rem;
   font-weight: var(--wm-weight-ui);
@@ -7179,7 +7179,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-eyebrow 
   text-transform: uppercase;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-title {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-title {
   color: var(--wm-consistency-text);
   font-size: 1.08rem;
   font-weight: var(--wm-weight-heading);
@@ -7187,7 +7187,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-title {
   letter-spacing: var(--wm-tracking-heading);
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-body {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-body {
   flex: 1 1 auto;
   color: rgba(232, 244, 255, 0.86);
   font-size: 0.88rem;
@@ -7198,7 +7198,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-body {
   text-overflow: clip;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-action {
   width: auto;
   align-self: flex-start;
   margin-top: auto;
@@ -7208,17 +7208,17 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action {
   line-height: 1;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action::after {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-action::after {
   content: " \2192";
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
   grid-template-columns: repeat(2, minmax(360px, 1fr));
   gap: 16px;
 }
 
 @media (max-width: 1180px) {
-  html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
       min-height: 0;
     }
 
@@ -9312,9 +9312,7 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
 .compare-native-stage-card,
 .compare-native-results,
 .wingman-page-host .wingman-card,
-.wingman-page-host .wingman-panel,
-.wingman-page-host [class*="card"],
-.wingman-page-host [class*="panel"] {
+.wingman-page-host .wingman-panel {
   border-color: var(--wm-border-light);
   border-radius: var(--wm-radius-xl);
   background:

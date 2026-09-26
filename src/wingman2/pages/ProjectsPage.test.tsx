@@ -77,9 +77,11 @@ describe("projects list compare confidence badge", () => {
       baseProject({ id: "project-without-compare", name: "Westbrook Classroom", stage: "Proposal Builder", compareRuns: [] }),
     ]);
 
+    expect(screen.getByRole("link", { name: "Open response" }).getAttribute("href")).toBe("/wingman/responses");
+
     // The project with a committed comparison shows its tier badge next to the
     // stage, with a title explaining what it is.
-    const harbourRow = screen.getByText("Harbour Retail Signage").closest("tr");
+    const harbourRow = screen.getByText("Harbour Retail Signage").closest("article");
     expect(harbourRow).not.toBeNull();
     expect(harbourRow?.textContent).toContain("Plausible — confirm");
     const badge = harbourRow?.querySelector(".wm-projects-compare-tier");
@@ -88,7 +90,7 @@ describe("projects list compare confidence badge", () => {
 
     // A project with no comparison shows no tier badge (the row's own status
     // chip is a different element).
-    const classroomRow = screen.getByText("Westbrook Classroom").closest("tr");
+    const classroomRow = screen.getByText("Westbrook Classroom").closest("article");
     expect(classroomRow?.querySelector(".wm-projects-compare-tier")).toBeNull();
   });
 
@@ -107,9 +109,9 @@ describe("projects list compare confidence badge", () => {
       }),
     ]);
 
-    const strongBadge = screen.getByText("Strong Direction Room").closest("tr")?.querySelector(".wm-projects-compare-tier");
+    const strongBadge = screen.getByText("Strong Direction Room").closest("article")?.querySelector(".wm-projects-compare-tier");
     expect(strongBadge?.className).toContain("wm-status-success");
-    const noneBadge = screen.getByText("No Equivalent Room").closest("tr")?.querySelector(".wm-projects-compare-tier");
+    const noneBadge = screen.getByText("No Equivalent Room").closest("article")?.querySelector(".wm-projects-compare-tier");
     expect(noneBadge?.className).toContain("wm-status-danger");
   });
 });
@@ -125,7 +127,7 @@ describe("projects list team-change conflict badge", () => {
       baseProject({ id: "project-clean", name: "Clean Project" }),
     ]);
 
-    const conflictedRow = screen.getByText("Conflicted Project").closest("tr");
+    const conflictedRow = screen.getByText("Conflicted Project").closest("article");
     expect(conflictedRow).not.toBeNull();
     expect(conflictedRow?.textContent).toContain("Team changed:");
     expect(conflictedRow?.textContent).toContain("Proposal");
@@ -133,7 +135,7 @@ describe("projects list team-change conflict badge", () => {
     expect(conflictedRow?.querySelector(".wm-status-warning")).not.toBeNull();
 
     // A project with no conflict shows no badge.
-    const cleanRow = screen.getByText("Clean Project").closest("tr");
+    const cleanRow = screen.getByText("Clean Project").closest("article");
     expect(cleanRow?.textContent).not.toContain("Team changed:");
   });
 });

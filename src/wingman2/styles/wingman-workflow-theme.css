@@ -1963,12 +1963,12 @@ html[data-wingman-route="discovery"] .wm-discovery-client-line {
 
 /* WINGMAN_PROPOSAL_WIZARD_START */
 
-html[data-wingman-route="proposal"] .wm-proposal-route-page {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-route-page {
   width: 100%;
   max-width: none;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-page {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-page {
   display: grid;
   gap: 18px;
   width: min(100%, 1520px);
@@ -1976,7 +1976,7 @@ html[data-wingman-route="proposal"] .wm-proposal-wizard-page {
   color: var(--wm-ref-text);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-header {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 190px;
   gap: 18px;
@@ -1990,12 +1990,12 @@ html[data-wingman-route="proposal"] .wm-proposal-wizard-header {
   box-shadow: var(--wm-ref-shadow-soft);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-header > div:first-child {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-header > div:first-child {
   display: grid;
   gap: 7px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-header > div:first-child > span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-header > div:first-child > span {
   color: var(--wm-ref-aqua);
   font-size: 0.7rem;
   font-weight: 800;
@@ -2003,18 +2003,18 @@ html[data-wingman-route="proposal"] .wm-proposal-wizard-header > div:first-child
   text-transform: uppercase;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-header h1 {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-header h1 {
   margin: 0;
   font-size: clamp(1.65rem, 2vw, 2.35rem);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-header p {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-header p {
   max-width: 880px;
   margin: 0;
   color: var(--wm-ref-copy);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-readiness {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-readiness {
   display: grid;
   min-height: 118px;
   place-content: center;
@@ -2025,22 +2025,22 @@ html[data-wingman-route="proposal"] .wm-proposal-readiness {
   border-radius: 12px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-readiness[data-ready="true"] {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-readiness[data-ready="true"] {
   border-color: rgba(36, 214, 163, 0.62);
   box-shadow: 0 0 24px rgba(36, 214, 163, 0.1);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-readiness strong {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-readiness strong {
   color: var(--wm-ref-aqua);
   font-size: 2rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-readiness span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-readiness span {
   color: var(--wm-ref-muted);
   font-size: 0.72rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-progress-card {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-progress-card {
   display: grid;
   gap: 10px;
   padding: 14px 16px;
@@ -2049,14 +2049,14 @@ html[data-wingman-route="proposal"] .wm-proposal-progress-card {
   border-radius: 11px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-progress-track {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-progress-track {
   height: 7px;
   overflow: hidden;
   background: rgba(85, 119, 148, 0.2);
   border-radius: 999px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-progress-track span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-progress-track span {
   display: block;
   height: 100%;
   background: linear-gradient(90deg, var(--wm-ref-aqua), var(--wm-ref-cyan));
@@ -2064,7 +2064,7 @@ html[data-wingman-route="proposal"] .wm-proposal-progress-track span {
   transition: width 180ms ease;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-score-breakdown {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-score-breakdown {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 16px;
@@ -2072,13 +2072,13 @@ html[data-wingman-route="proposal"] .wm-proposal-score-breakdown {
   font-size: 0.68rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-rail {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-rail button {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail button {
   display: grid;
   min-height: 58px;
   grid-template-columns: 28px minmax(0, 1fr);
@@ -2092,7 +2092,7 @@ html[data-wingman-route="proposal"] .wm-proposal-step-rail button {
   border-radius: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-rail button > span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail button > span {
   display: grid;
   width: 27px;
   height: 27px;
@@ -2101,34 +2101,34 @@ html[data-wingman-route="proposal"] .wm-proposal-step-rail button > span {
   border-radius: 999px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-rail button strong {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail button strong {
   overflow: hidden;
   color: inherit;
   font-size: 0.72rem;
   text-overflow: ellipsis;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-rail button.is-active {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail button.is-active {
   color: var(--wm-ref-text);
   background: rgba(14, 94, 93, 0.3);
   border-color: rgba(24, 217, 194, 0.56);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-rail button.is-active > span,
-html[data-wingman-route="proposal"] .wm-proposal-step-rail button.is-complete > span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail button.is-active > span,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail button.is-complete > span {
   color: #031612;
   background: var(--wm-ref-aqua);
   border-color: var(--wm-ref-aqua);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-layout {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
   gap: 16px;
   align-items: start;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-card {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-card {
   display: grid;
   gap: 18px;
   min-width: 0;
@@ -2139,12 +2139,12 @@ html[data-wingman-route="proposal"] .wm-proposal-step-card {
   box-shadow: var(--wm-ref-shadow-soft);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-heading {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-heading {
   display: grid;
   gap: 5px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-heading > span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-heading > span {
   color: var(--wm-ref-aqua);
   font-size: 0.68rem;
   font-weight: 800;
@@ -2152,45 +2152,45 @@ html[data-wingman-route="proposal"] .wm-proposal-step-heading > span {
   text-transform: uppercase;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-heading h2,
-html[data-wingman-route="proposal"] .wm-proposal-step-heading p {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-heading h2,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-heading p {
   margin: 0;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-step-heading p {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-heading p {
   color: var(--wm-ref-copy);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-form-grid {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 13px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-field {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-field {
   display: grid;
   gap: 6px;
   min-width: 0;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-field-wide {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-field-wide {
   grid-column: 1 / -1;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-field > span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-field > span {
   color: var(--wm-ref-text);
   font-size: 0.76rem;
   font-weight: 720;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-field > small {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-field > small {
   color: var(--wm-ref-muted);
   font-size: 0.68rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-field input,
-html[data-wingman-route="proposal"] .wm-proposal-field select,
-html[data-wingman-route="proposal"] .wm-proposal-field textarea {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-field input,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-field select,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-field textarea {
   width: 100%;
   color: var(--wm-ref-text);
   background: rgba(2, 10, 20, 0.76);
@@ -2198,20 +2198,20 @@ html[data-wingman-route="proposal"] .wm-proposal-field textarea {
   border-radius: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-field textarea {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-field textarea {
   min-height: 118px;
   padding: 11px;
   resize: vertical;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid article,
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid article,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid > a {
   display: grid;
   gap: 5px;
   min-width: 0;
@@ -2221,22 +2221,22 @@ html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a {
   border-radius: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid > a {
   color: inherit;
   text-decoration: none;
   cursor: pointer;
   transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a:hover,
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a:focus-visible {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid > a:hover,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid > a:focus-visible {
   border-color: rgba(45, 212, 191, 0.75);
   background: rgba(13, 148, 136, 0.12);
   transform: translateY(-1px);
   outline: none;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a small {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid > a small {
   display: block;
   margin-top: 0.45rem;
   color: #5eead4;
@@ -2244,7 +2244,7 @@ html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a small {
   font-weight: 800;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid span {
   color: var(--wm-ref-aqua);
   font-size: 0.63rem;
   font-weight: 800;
@@ -2252,27 +2252,27 @@ html[data-wingman-route="proposal"] .wm-proposal-requirements-grid span {
   text-transform: uppercase;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid strong {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid strong {
   overflow-wrap: anywhere;
   color: var(--wm-ref-text);
   font-size: 0.75rem;
   line-height: 1.4;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-evidence-details {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-evidence-details {
   padding: 13px;
   background: rgba(6, 17, 30, 0.7);
   border: 1px solid var(--wm-ref-border);
   border-radius: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-evidence-details summary {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-evidence-details summary {
   color: var(--wm-ref-copy);
   font-weight: 700;
   cursor: pointer;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review {
   margin-top: 16px;
   padding: 13px;
   background: rgba(6, 17, 30, 0.7);
@@ -2280,29 +2280,29 @@ html[data-wingman-route="proposal"] .wm-discovery-conversation-review {
   border-radius: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__heading {
   display: flex;
   align-items: flex-start;
   gap: 10px;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading h3,
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading p {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__heading h3,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__heading p {
   margin: 0;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading h3 {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__heading h3 {
   color: var(--wm-ref-text);
   font-size: 0.85rem;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__heading p {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__heading p {
   margin-top: 2px;
   color: var(--wm-ref-muted);
   font-size: 0.7rem;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__icon {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__icon {
   flex: 0 0 auto;
   margin-top: 2px;
   color: var(--wm-ref-aqua);
@@ -2310,13 +2310,13 @@ html[data-wingman-route="proposal"] .wm-discovery-conversation-review__icon {
   height: 16px;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__empty {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__empty {
   margin: 10px 0 0;
   color: var(--wm-ref-muted);
   font-size: 0.72rem;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__list {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__list {
   margin: 10px 0 0;
   padding: 0;
   list-style: none;
@@ -2324,7 +2324,7 @@ html[data-wingman-route="proposal"] .wm-discovery-conversation-review__list {
   gap: 8px;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__list li {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__list li {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -2335,13 +2335,13 @@ html[data-wingman-route="proposal"] .wm-discovery-conversation-review__list li {
   border-radius: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__row {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__row {
   display: grid;
   gap: 3px;
   min-width: 0;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__question {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__question {
   color: var(--wm-ref-aqua);
   font-size: 0.62rem;
   font-weight: 800;
@@ -2349,20 +2349,20 @@ html[data-wingman-route="proposal"] .wm-discovery-conversation-review__question 
   text-transform: uppercase;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__answer {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__answer {
   color: var(--wm-ref-text);
   font-size: 0.75rem;
   font-weight: 700;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__note {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__note {
   overflow-wrap: anywhere;
   color: var(--wm-ref-copy);
   font-size: 0.7rem;
   line-height: 1.4;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__status {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__status {
   flex: 0 0 auto;
   font-size: 0.6rem;
   font-weight: 800;
@@ -2370,19 +2370,19 @@ html[data-wingman-route="proposal"] .wm-discovery-conversation-review__status {
   text-transform: uppercase;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__status.is-confirmed {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__status.is-confirmed {
   color: var(--wm-ref-green);
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__status.is-open {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__status.is-open {
   color: var(--wm-ref-amber);
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__answer.is-open {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__answer.is-open {
   color: var(--wm-ref-copy);
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__edit {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__edit {
   flex: 0 0 auto;
   color: var(--wm-ref-aqua);
   font-size: 0.62rem;
@@ -2390,31 +2390,31 @@ html[data-wingman-route="proposal"] .wm-discovery-conversation-review__edit {
   text-decoration: none;
 }
 
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__edit:hover,
-html[data-wingman-route="proposal"] .wm-discovery-conversation-review__edit:focus-visible {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__edit:hover,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-discovery-conversation-review__edit:focus-visible {
   color: var(--wm-ref-aqua);
   text-decoration: underline;
   outline: none;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-heading {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-heading {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-heading h3,
-html[data-wingman-route="proposal"] .wm-proposal-bom-heading p {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-heading h3,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-heading p {
   margin: 0;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-heading p {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-heading p {
   color: var(--wm-ref-muted);
   font-size: 0.72rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-heading a {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-heading a {
   display: inline-flex;
   min-height: 38px;
   align-items: center;
@@ -2425,41 +2425,41 @@ html[data-wingman-route="proposal"] .wm-proposal-bom-heading a {
   border-radius: 8px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-table {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-table {
   overflow: auto;
   border: 1px solid var(--wm-ref-border);
   border-radius: 10px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-table table {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-table table {
   width: 100%;
   border-collapse: collapse;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-table th,
-html[data-wingman-route="proposal"] .wm-proposal-bom-table td {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-table th,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-table td {
   padding: 10px 12px;
   border-bottom: 1px solid rgba(120, 190, 228, 0.13);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-table th {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-table th {
   color: #d9faff;
   font-size: 0.7rem;
   text-align: left;
   background: rgba(13, 34, 55, 0.94);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-table td {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-table td {
   color: var(--wm-ref-copy);
   font-size: 0.73rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-bom-table input {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-bom-table input {
   width: 70px;
   min-height: 34px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-confirmation {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-confirmation {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
   gap: 10px;
@@ -2471,30 +2471,30 @@ html[data-wingman-route="proposal"] .wm-proposal-confirmation {
   border-radius: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-confirmation input {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-confirmation input {
   width: 18px;
   height: 18px;
   margin-top: 1px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-final-grid {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-final-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-final-grid section {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-final-grid section {
   padding: 15px;
   background: rgba(7, 20, 35, 0.72);
   border: 1px solid var(--wm-ref-border);
   border-radius: 10px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-final-grid h3 {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-final-grid h3 {
   margin: 0 0 10px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-final-grid ul {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-final-grid ul {
   display: grid;
   gap: 7px;
   margin: 0;
@@ -2502,31 +2502,31 @@ html[data-wingman-route="proposal"] .wm-proposal-final-grid ul {
   list-style: none;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-final-grid li {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-final-grid li {
   display: flex;
   gap: 8px;
   color: var(--wm-ref-muted);
   font-size: 0.74rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-final-grid li svg {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-final-grid li svg {
   width: 17px;
   height: 17px;
   flex: 0 0 auto;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-final-grid li[data-complete="true"] {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-final-grid li[data-complete="true"] {
   color: #b8ffeb;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-export-actions {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-export-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-export-actions button,
-html[data-wingman-route="proposal"] .wm-proposal-navigation button {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-export-actions button,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-navigation button {
   display: inline-flex;
   min-height: 40px;
   align-items: center;
@@ -2540,56 +2540,56 @@ html[data-wingman-route="proposal"] .wm-proposal-navigation button {
   border-radius: 9px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-export-actions button.is-primary {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-export-actions button.is-primary {
   background: linear-gradient(135deg, #0f887d, #16b6a5);
   border-color: rgba(91, 244, 222, 0.62);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-export-actions button:disabled,
-html[data-wingman-route="proposal"] .wm-proposal-navigation button:disabled {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-export-actions button:disabled,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-navigation button:disabled {
   opacity: 0.42;
   cursor: not-allowed;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-export-actions svg,
-html[data-wingman-route="proposal"] .wm-proposal-navigation svg {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-export-actions svg,
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-navigation svg {
   width: 17px;
   height: 17px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-export-message {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-export-message {
   margin: 0;
   color: var(--wm-ref-aqua);
   font-size: 0.75rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-crm-section {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-crm-section {
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--wm-ref-border);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-crm-section > h3 {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-crm-section > h3 {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--wm-ref-text);
   margin-bottom: 4px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-crm-intro {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-crm-intro {
   font-size: 0.72rem;
   color: var(--wm-ref-muted);
   margin-bottom: 12px;
   line-height: 1.4;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-crm-section .wm-crm-share-panel {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-crm-section .wm-crm-share-panel {
   background: transparent;
   border: 1px solid var(--wm-ref-border);
   padding: 12px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-navigation {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-navigation {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 12px;
@@ -2598,20 +2598,20 @@ html[data-wingman-route="proposal"] .wm-proposal-navigation {
   border-top: 1px solid var(--wm-ref-border);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-navigation > span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-navigation > span {
   color: var(--wm-ref-muted);
   font-size: 0.68rem;
   text-align: center;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar {
   position: sticky;
   top: 8px;
   display: grid;
   gap: 10px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar section {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar section {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr);
   gap: 10px;
@@ -2621,18 +2621,18 @@ html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar section {
   border-radius: 10px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar svg {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar svg {
   width: 22px;
   height: 22px;
   color: var(--wm-ref-aqua);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar div {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar div {
   display: grid;
   gap: 4px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar span {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar span {
   color: var(--wm-ref-muted);
   font-size: 0.62rem;
   font-weight: 800;
@@ -2640,19 +2640,19 @@ html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar span {
   text-transform: uppercase;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar strong {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar strong {
   color: var(--wm-ref-text);
   font-size: 0.78rem;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar p {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar p {
   margin: 0;
   color: var(--wm-ref-muted);
   font-size: 0.68rem;
   line-height: 1.4;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-empty {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-empty {
   display: grid;
   max-width: 760px;
   gap: 12px;
@@ -2664,13 +2664,13 @@ html[data-wingman-route="proposal"] .wm-proposal-empty {
   border-radius: var(--wm-ref-radius);
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-empty div {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-empty div {
   display: flex;
   justify-content: center;
   gap: 10px;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-empty a {
+html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-empty a {
   padding: 9px 13px;
   color: var(--wm-ref-aqua);
   text-decoration: none;
@@ -2679,41 +2679,41 @@ html[data-wingman-route="proposal"] .wm-proposal-empty a {
 }
 
 @media (max-width: 1150px) {
-  html[data-wingman-route="proposal"] .wm-proposal-wizard-layout {
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-layout {
     grid-template-columns: 1fr;
   }
 
-  html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar {
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar {
     position: static;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  html[data-wingman-route="proposal"] .wm-proposal-step-rail {
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 760px) {
-  html[data-wingman-route="proposal"] .wm-proposal-wizard-header {
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-header {
     grid-template-columns: 1fr;
   }
 
-  html[data-wingman-route="proposal"] .wm-proposal-form-grid,
-  html[data-wingman-route="proposal"] .wm-proposal-requirements-grid,
-  html[data-wingman-route="proposal"] .wm-proposal-final-grid,
-  html[data-wingman-route="proposal"] .wm-proposal-wizard-sidebar {
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-form-grid,
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-requirements-grid,
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-final-grid,
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-wizard-sidebar {
     grid-template-columns: 1fr;
   }
 
-  html[data-wingman-route="proposal"] .wm-proposal-step-rail {
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-rail {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  html[data-wingman-route="proposal"] .wm-proposal-navigation {
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-navigation {
     grid-template-columns: 1fr 1fr;
   }
 
-  html[data-wingman-route="proposal"] .wm-proposal-navigation > span {
+  html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-navigation > span {
     grid-column: 1 / -1;
     grid-row: 1;
   }

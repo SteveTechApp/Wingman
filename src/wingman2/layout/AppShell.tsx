@@ -353,6 +353,7 @@ export function AppShell({ children }: AppShellProps) {
             <NavLink
               key={path}
               to={path}
+              end={key === "dashboard"}
               title={summary}
               aria-label={`${navLabel}: ${summary}`}
               className={() =>

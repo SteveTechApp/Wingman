@@ -1,3 +1,4 @@
+import { ProposalCoverPreview } from "./ProposalCoverPreview";
 import {
   CheckCircle,
   CheckCircle2,
@@ -6,7 +7,6 @@ import {
   Clock,
   Download,
   FileText,
-  ListChecks,
   Printer,
   RotateCcw,
   Send,
@@ -282,9 +282,9 @@ export function ProposalCompletionWizard() {
   if (!project) {
     return (
       <section className="wm-proposal-empty">
-        <h1>Open a project before building a proposal</h1>
+        <h1>Open a project before building a response</h1>
         <p>
-          Proposal output must remain attached to the correct Discovery brief,
+          Customer output must remain attached to the correct Discovery brief,
           product selection, assumptions and project record.
         </p>
         <div>
@@ -427,13 +427,13 @@ function ProposalCompletionWizardContent({
           profile.reportPreparedBy ||
           profile.userName ||
           project.owner,
-        executiveSummary: project.proposal?.applicationProposal?.executiveSummary || discovery.summary,
+        executiveSummary: project.proposal?.summary || project.proposal?.applicationProposal?.executiveSummary || discovery.summary,
         architectureNarrative:
-          discovery.architecture ||
+          project.proposal?.salesContent?.architecture || discovery.architecture ||
           familyScores[0]?.family ||
           "Architecture to be confirmed from the completed Discovery brief and selected product path.",
         proposedSolution:
-          project.proposal?.applicationProposal?.solutionOverview,
+          project.proposal?.salesContent?.solutionOverview || project.proposal?.applicationProposal?.solutionOverview,
         assumptions,
         dependencies:
           salesReadiness.governedDependencies.map(
@@ -441,6 +441,10 @@ function ProposalCompletionWizardContent({
               `${item.label}: ${item.validationQuestion}`,
           ),
       });
+      if (project.proposal?.salesContent) {
+        proposalDefaults.customerObjectives = project.proposal.salesContent.objectives;
+        proposalDefaults.externalScope = project.proposal.salesContent.externalScope;
+      }
       const scope = project.proposal?.applicationProposal?.thirdPartyScope ?? [];
       if (scope.length) {
         proposalDefaults.servicesAndAllowances = scope
@@ -473,6 +477,8 @@ function ProposalCompletionWizardContent({
       project.id,
       project.name,
       project.owner,
+      project.proposal?.salesContent,
+      project.proposal?.summary,
       project.proposal?.applicationProposal?.solutionOverview,
       project.proposal?.applicationProposal?.executiveSummary,
       project.proposal?.applicationProposal?.thirdPartyScope,
@@ -628,6 +634,7 @@ function ProposalCompletionWizardContent({
       title:
         draft.projectName ||
         project.name,
+      salesContent: { objectives: draft.customerObjectives, solutionOverview: draft.proposedSolution, architecture: draft.architectureNarrative, externalScope: draft.externalScope || "" },
       summary:
         draft.executiveSummary ||
         discovery.summary,
@@ -720,6 +727,10 @@ function ProposalCompletionWizardContent({
       discovery.summary,
       draft.assumptions,
       draft.executiveSummary,
+      draft.customerObjectives,
+      draft.architectureNarrative,
+      draft.proposedSolution,
+      draft.externalScope,
       draft.nextSteps,
       draft.preparedBy,
       draft.projectName,
@@ -978,7 +989,7 @@ function ProposalCompletionWizardContent({
     }
   }
 
-  function exportHtml() {
+  async function exportHtml() {
     if (customerOutputBlocked) {
       const reason = getExportBlockReason();
       setExportMessage(
@@ -994,7 +1005,7 @@ function ProposalCompletionWizardContent({
     }
 
     try {
-      exportProposalHtml(proposal, bomRows, selectedProducts);
+      await exportProposalHtml(proposal, bomRows, selectedProducts);
       setExportMessage("HTML export generated.");
     } catch (error) {
       setExportMessage(
@@ -1047,7 +1058,7 @@ function ProposalCompletionWizardContent({
     }
   }
 
-  function exportPdf() {
+  async function exportPdf() {
     if (customerOutputBlocked) {
       const reason = getExportBlockReason();
       setExportMessage(
@@ -1063,7 +1074,7 @@ function ProposalCompletionWizardContent({
     }
 
     try {
-      exportProposalPdf(proposal, bomRows, selectedProducts);
+      await exportProposalPdf(proposal, bomRows, selectedProducts);
       setExportMessage(
         "Opened the print dialog - choose \"Save as PDF\" as the destination.",
       );
@@ -1095,16 +1106,15 @@ function ProposalCompletionWizardContent({
 
   return (
     <div
-      className="wm-proposal-wizard-page"
+      className="wm-proposal-wizard-page wm-response-studio"
       data-wingman-proposal-wizard="true"
     >
       <header className="wm-proposal-wizard-header">
         <div>
           <span>Customer response</span>
-          <h1>Build and review the customer response</h1>
+          <h1>Make the proposal yours.</h1>
           <p>
-            The opportunity brief supplies the starting evidence. Complete the
-            customer, solution, commercial and approval details before export.
+            Shape the story, confirm the details and prepare it for your customer.
           </p>
         </div>
 
@@ -1150,6 +1160,7 @@ function ProposalCompletionWizardContent({
                   ? "is-complete"
                   : ""
             }
+            aria-current={index === activeStep ? "step" : undefined}
             onClick={() => setActiveStep(index)}
           >
             <span>{index + 1}</span>
@@ -1164,7 +1175,7 @@ function ProposalCompletionWizardContent({
             <>
               <div className="wm-proposal-step-heading">
                 <span>Step 1 of 5</span>
-                <h2>Customer and project</h2>
+                <h2>Who is this proposal for?</h2>
                 <p>
                   Set the document type and the details used on the cover,
                   header and footer.
@@ -1272,6 +1283,7 @@ function ProposalCompletionWizardContent({
 
               <NeedsSiteSurveyFlag reasons={topologySurvey.reasons} />
 
+              <p>Personalise the opening for the decision-maker: explain the current challenge, the proposed outcome and the decision requested. Keep detailed specifications in the technical sections.</p>
               <div className="wm-proposal-form-grid">
                 <TextAreaField
                   label="Executive summary"
@@ -1333,6 +1345,14 @@ function ProposalCompletionWizardContent({
                   }
                 />
               </div>
+
+              <TextAreaField
+                label="Complete the wider system design (non-WyreStorm scope)"
+                value={draft.externalScope || ""}
+                rows={10}
+                onChange={(value) => updateDraft("externalScope", value)}
+              />
+              <p>Replace each [complete] with the agreed detail, or state not applicable / excluded. Record the supplier, responsibility and commercial allowance. These notes appear in the customer document.</p>
 
               <div className="wm-proposal-bom-heading">
                 <div>
@@ -1913,39 +1933,13 @@ function ProposalCompletionWizardContent({
         </section>
 
         <aside className="wm-proposal-wizard-sidebar">
-          <section>
-            <ListChecks aria-hidden="true" />
-            <div>
-              <span>Current document</span>
-              <strong>{typeConfig.label}</strong>
-              <p>{typeConfig.description}</p>
-            </div>
-          </section>
-
-          <section>
-            <CheckCircle2 aria-hidden="true" />
-            <div>
-              <span>Readiness</span>
-              <strong>{finalReadinessScore}% complete</strong>
-              <p>
-                A complete Discovery contributes up to 65 points. Existing
-                proposal narrative normally takes the starting score into the
-                80-90% range.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <FileText aria-hidden="true" />
-            <div>
-              <span>Export standard</span>
-              <strong>Formatted Microsoft Word document</strong>
-              <p>
-                Includes a cover page, headers, footer, page number, structured
-                headings and a repeating equipment-schedule header row.
-              </p>
-            </div>
-          </section>
+          <ProposalCoverPreview draft={draft} company={profile.companyName || "Wingman"} />
+          <details className="wm-response-document-details">
+            <summary>Document format and readiness</summary>
+            <strong>{typeConfig.label}</strong>
+            <p>{typeConfig.description}</p>
+            <p>{finalReadinessScore}% complete. Complete the remaining evidence and review steps before customer issue.</p>
+          </details>
         </aside>
       </div>
     </div>

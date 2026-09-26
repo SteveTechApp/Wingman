@@ -26,7 +26,7 @@ describe("IngestPage error handling", () => {
   it("shows an error instead of hanging when file extraction throws", async () => {
     renderIngestPage();
 
-    const fileInput = document.querySelector('input[type="file"]:not([accept*="image"])') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Upload readable documents') as HTMLInputElement;
     const file = new File(["not real content"], "brief.pdf", { type: "application/pdf" });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
