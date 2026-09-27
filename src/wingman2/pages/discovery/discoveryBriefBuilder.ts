@@ -27,6 +27,7 @@ import {
   wmDiscoveryNormaliseAnswerList,
 } from "./discoveryAnswerUtils";
 import { getQuestionStrategy } from "./discoveryQuestions";
+import { getDiscoveryEnvironment, getDiscoveryMarket } from "./discoveryMarketContext";
 import type { DiscoveryMode } from "./discoveryProgressiveDisclosure";
 import type { DiscoveryAnswers, DiscoveryNotes, DiscoveryQuestion, DiscoverySummaryItem } from "./discoveryTypes";
 
@@ -101,9 +102,19 @@ export function compileDiscoveryBrief({
     const avoipProfileValue = wmDiscoveryAnswerToText(answers["avoip-profile"]);
     const avoipSeriesHint = getAvoipSeriesHint(avoipProfileValue);
     const allNotes = Object.values(notes).map((note) => note.trim()).filter(Boolean);
-    const summaryText = capturedSummary
+    const marketId = wmDiscoveryAnswerToText(answers.market);
+    const environmentId = wmDiscoveryAnswerToText(answers.environment);
+    const marketLabel = getDiscoveryMarket(marketId)?.label ?? "";
+    const environmentLabel = environmentId === "other"
+      ? wmDiscoveryAnswerToText(answers["environment-detail"])
+      : getDiscoveryEnvironment(marketId, environmentId)?.label ?? "";
+    const networkPath = answerLabel("network-path");
+    const summaryText = [
+      marketLabel && `Market: ${marketLabel}`,
+      environmentLabel && `Environment: ${environmentLabel}`,
+      ...capturedSummary
       .map((item) => `${item.label}: ${item.answer}${item.note ? ` - ${item.note}` : ""}`)
-      .join("\n");
+    ].filter(Boolean).join("\n");
     const strategy = getQuestionStrategy("opportunity", wmDiscoveryAnswerToText(answers.opportunity));
     const inferredDirection = selectedApplication === "av-over-ip"
       ? getAvoipDirection(avoipProfileValue, strategy.likelyDirection)
@@ -236,7 +247,7 @@ export function compileDiscoveryBrief({
       if (!missingInformation.includes(item)) missingInformation.push(item);
     });
 
-    if (selectedApplication === "av-over-ip" && !activeTopology.connections.some((connection) => ["ip-av-vlan", "shared-ip-network", "point-to-point-network"].includes(connection.transport))) {
+    if (selectedApplication === "av-over-ip" && !networkPath && !activeTopology.connections.some((connection) => ["ip-av-vlan", "shared-ip-network", "point-to-point-network"].includes(connection.transport))) {
       missingInformation.push("Confirm whether NetworkHD uses the customer network or a dedicated AV network design.");
     }
 
@@ -252,6 +263,9 @@ export function compileDiscoveryBrief({
       savedAt: new Date().toISOString(),
       topology: activeTopology,
       roomModel: {
+        market: marketLabel,
+        environment: environmentLabel,
+        networkPath,
         roomType: application,
         application,
         applicationType: application,
@@ -299,7 +313,7 @@ export function compileDiscoveryBrief({
         longestRun: longestRunMetres !== undefined ? `${longestRunMetres} m` : "Unknown",
         distanceInfrastructureNotes,
         network: networkSummary,
-        networkAvailability: networkSummary,
+        networkAvailability: ["corporate-av-vlan", "dedicated-av-lan"].includes(wmDiscoveryAnswerToText(answers["network-path"])) ? networkPath : networkSummary,
         processingNeeds,
         processingRequirement: processingNeeds[0] ?? "",
         videoWallRequirement:

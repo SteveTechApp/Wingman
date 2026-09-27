@@ -11,6 +11,7 @@ import AnalyticsDashboardPage from "./AnalyticsDashboardPage";
 
 const TABS = ["Governed Profiles", "WyreStorm Products", "Competitor Products", "Live Research", "Import / Export"] as const;
 type Tab = typeof TABS[number];
+export const isImportExportTab = (tab: Tab): boolean => tab === "Import / Export";
 const QUALITY_SUMMARY: Array<{ issue: ProductQualityIssue; label: string }> = [
   { issue: "requires-review", label: "Require review" },
   { issue: "low-confidence", label: "Low confidence" },
@@ -76,7 +77,7 @@ function DataManagerContent() {
   return <main className="wm-data-manager-page wm-page" data-wingman-page="data-manager">
     <header className="wm-data-manager-header"><div><p className="wm-ui-kicker">ADMIN - Governed product intelligence</p><h1>Data Manager</h1><p>Maintain product and competitor records without editing repository JSON files.</p></div><button className="wm-button wm-button-secondary" type="button" onClick={() => void reload()}><RefreshCcw /> Refresh data</button></header>
     <nav className="wm-data-tabs" aria-label="Data Manager datasets">{TABS.map((item) => <button type="button" key={item} className={tab === item ? "is-active" : ""} onClick={() => setTab(item)}>{item}</button>)}</nav>
-    {tab === "Governed Profiles" ? <GovernedProfileBrowser /> : null}
+    {tab === "Governed Profiles" ? <GovernedProfileBrowser reviewer={session?.user?.email || session?.user?.name || "ADMIN"} /> : null}
     {(tab === "WyreStorm Products" || tab === "Competitor Products") ? <>
       <section className="wm-data-quality-summary wm-section-card wm-data-governance-compact" aria-labelledby="data-quality-title">
   <div className="wm-data-quality-heading">
@@ -130,7 +131,9 @@ function DataManagerContent() {
         reviewer={session?.user?.email || session?.user?.name || "ADMIN"}
         onPromoted={reload}
       />
-    ) : <DatasetPlaceholder tab={tab} records={records} />}
+    ) : isImportExportTab(tab) ? (
+      <DatasetPlaceholder tab={tab} records={records} onCancel={() => setTab("Governed Profiles")} />
+    ) : null}
     {message ? <p className="wm-data-message" role="status">{message}</p> : null}
     {editing ? <ProductEditor record={editing} allRecords={records} editor={session?.user?.email || "ADMIN"} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await reload(); setMessage("Product saved. Product Catalogue, Finder, Compare, Product Pitch, Guru, Templates, BOM and Proposal caches were invalidated."); }} /> : null}
   </main>;
@@ -143,7 +146,7 @@ export function DataManagerPage() {
 type DataJobResult = { ok: boolean; jobId?: string; state?: "completed" | "failed"; findings?: Array<{ message: string }>; error?: string };
 const newJobKey = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
 
-function DatasetPlaceholder({ tab, records }: { tab: Tab; records: ProductIntelligenceRecord[] }) {
+export function DatasetPlaceholder({ tab, records, onCancel }: { tab: Tab; records: ProductIntelligenceRecord[]; onCancel: () => void }) {
   const [job, setJob] = useState<DataJobResult | null>(null);
   const [pending, setPending] = useState(false);
   async function validateImport(file: File) {
@@ -158,7 +161,7 @@ function DatasetPlaceholder({ tab, records }: { tab: Tab; records: ProductIntell
       setPending(false);
     }
   }
-  return <section className="wm-data-placeholder wm-section-card"><Upload /><h2>{tab}</h2><p>Validate a JSON export as a non-publishing dry run. Existing records are never changed by validation.</p><div><label className="wm-button wm-button-secondary"><Upload /> Validate import<input aria-label="Choose JSON import to validate" type="file" accept="application/json,.json" hidden disabled={pending} onChange={(event) => { const file = event.target.files?.[0]; if (file) void validateImport(file); }} /></label><button className="wm-button wm-button-secondary" type="button" onClick={() => downloadJson(records)}><Download /> Export JSON</button></div><DataJobStatus pending={pending} result={job} /></section>;
+  return <section className="wm-data-placeholder wm-section-card"><button className="wm-data-placeholder-cancel" type="button" onClick={onCancel}><X aria-hidden="true" /><span>Cancel</span></button><Upload /><h2>{tab}</h2><p>Validate a JSON export as a non-publishing dry run. Existing records are never changed by validation.</p><div><label className="wm-button wm-button-secondary"><Upload /> Validate import<input aria-label="Choose JSON import to validate" type="file" accept="application/json,.json" hidden disabled={pending} onChange={(event) => { const file = event.target.files?.[0]; if (file) void validateImport(file); }} /></label><button className="wm-button wm-button-secondary" type="button" onClick={() => downloadJson(records)}><Download /> Export JSON</button></div><DataJobStatus pending={pending} result={job} /></section>;
 }
 
 function DataJobStatus({ pending, result }: { pending: boolean; result: DataJobResult | null }) {

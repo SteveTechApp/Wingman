@@ -23,6 +23,13 @@ describe("Discovery step progression", () => {
       </MemoryRouter>,
     );
 
+    fireEvent.click(screen.getByRole("button", { name: /Other \/ not sure/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Describe the environment/i }));
+    fireEvent.change(screen.getByRole("textbox", { name: /Describe the customer’s space or situation/i }), {
+      target: { value: "A customer room that still needs classification" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Continue with this environment" }));
+
     expect(await screen.findByText(/^Step 1 of \d+$/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Meeting room \/ boardroom/i }));
@@ -38,6 +45,13 @@ describe("Discovery step progression", () => {
         <DiscoveryPage />
       </MemoryRouter>,
     );
+
+    fireEvent.click(screen.getByRole("button", { name: /Other \/ not sure/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Describe the environment/i }));
+    fireEvent.change(screen.getByRole("textbox", { name: /Describe the customer’s space or situation/i }), {
+      target: { value: "A customer room that still needs classification" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Continue with this environment" }));
 
     // signal-standard is outside Basic mode — shows escalation confirmation dialog
     const confirmButton = await screen.findByTestId("escalation-confirm");

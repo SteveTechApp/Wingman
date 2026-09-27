@@ -89,6 +89,22 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     ],
   },
   {
+    id: "network-path",
+    shortLabel: "AV network path",
+    section: "About the space",
+    question: "What network path would carry the AV signals?",
+    prompt: "Confirm this with the customer's IT or network team. Building size alone does not decide it.",
+    why: "An AV VLAN on the organisation's network and a dedicated physical AV LAN have different approval, switching, security and support requirements.",
+    required: true,
+    capturePlaceholder: "Example: University IT will provide an AV VLAN on the campus network; multicast and switch capacity still need confirmation.",
+    options: [
+      { value: "corporate-av-vlan", label: "Existing organisation network with a dedicated AV VLAN", help: "IT-managed network and switching; confirm permissions, capacity, multicast/QoS, security boundaries and support ownership." },
+      { value: "dedicated-av-lan", label: "Dedicated physical AV network", help: "Separate switching for AV; confirm cabling, uplinks, management and support ownership." },
+      { value: "unknown-network-path", label: "Network approach not agreed yet", help: "Keep both paths open and involve the network owner before specifying equipment." },
+      { value: "no-network-distribution", label: "No network distribution planned", help: "Confirm whether local switching or point-to-point extension meets the brief." },
+    ],
+  },
+  {
     id: "sources",
     shortLabel: "Sources",
     section: "Sources & displays",
@@ -1117,6 +1133,7 @@ export function getVisibleDiscoveryQuestions(
   const wirelessRelevant = sourceProfileValues.some((value) => ["laptops-wireless-inputs", "mixed-hdmi-usbc", "network-video-sources"].includes(value)) || sourceDeviceValues.includes("wireless-casting-source");
 
   return withApplicationQuestions.filter((step) => {
+    if (step.id === "network-path" && selectedApplication !== "av-over-ip" && !["multi-room", "building-wide"].includes(String(answers.scale ?? ""))) return false;
     if (selectedApplication === "video-wall" && [
       "displays", "uc-purpose", "uc-platform", "mtr-av-integration", "uc-camera",
       "uc-camera-count", "uc-multi-camera-path", "uc-camera-routing", "uc-microphones",

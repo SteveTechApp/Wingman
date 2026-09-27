@@ -105,6 +105,7 @@ describe("Project Detail review controls", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: /Handoff/ }));
     expect(screen.getAllByText("Move from a validated project record to a customer response, visual, or CRM handoff.").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "Open response" }).getAttribute("href")).toBe("/wingman/responses?projectId=project-1");
     expect(screen.getByText("Share to CRM")).not.toBeNull();
   });
 
@@ -144,7 +145,7 @@ describe("Project Detail review controls", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Review .* project blocker/ }));
 
-    expect(screen.getByRole("region", { name: "Proposal blocker walkthrough" })).not.toBeNull();
+    expect(screen.getByRole("region", { name: "Response blocker walkthrough" })).not.toBeNull();
     expect(screen.getByText(/Blocker 1 of/)).not.toBeNull();
     expect(screen.getAllByText("USB host ownership").length).toBeGreaterThan(0);
     expect(screen.getByRole("link", { name: "Open full Discovery" }).getAttribute("href")).toBe(

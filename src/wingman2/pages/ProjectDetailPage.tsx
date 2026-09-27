@@ -8,7 +8,6 @@ import { ProjectSyncConflictBanner } from "../components/SyncConflictBanner";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip } from "../components/StatusChip";
 import {
-  saveDealOutcome,
   removeProductSelectionFromProject,
   saveProjectRequirementsToProject,
   setActiveProjectId,
@@ -30,6 +29,7 @@ import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePan
 import { DiscoveryConversationReview } from "../components/DiscoveryConversationReview";
 import { ProposalVersionHistory } from "../components/ProposalVersionHistory";
 import { ProjectComparisonHistory } from "./project/ProjectComparisonHistory";
+import { DealOutcomeSection } from "./project/DealOutcomeSection";
 
 // Editable requirements
 function compareDeepLink(compareRun: StoredCompareRun, projectId?: string) {
@@ -184,7 +184,7 @@ type ProjectEvidenceTimelineItem = {
 };
 
 type ProjectReadinessGate = {
-  status: "Do not quote yet" | "Validate before proposal" | "Proposal-ready draft";
+  status: "Do not quote yet" | "Validate before response" | "Response-ready draft";
   tone: "block" | "review" | "ready";
   summary: string;
   blockers: string[];
@@ -204,7 +204,7 @@ const projectDetailSections: Array<{
   { key: "capture", label: "Capture", shortLabel: "1", description: "Review where the customer information came from." },
   { key: "confirm", label: "Confirm", shortLabel: "2", description: "Check requirements and settle open answers." },
   { key: "decide", label: "Decide", shortLabel: "3", description: "Review the evidence behind the product direction." },
-  { key: "handoff", label: "Handoff", shortLabel: "4", description: "Prepare the proposal and share the project." },
+  { key: "handoff", label: "Handoff", shortLabel: "4", description: "Prepare the response and share the project." },
   { key: "audit", label: "Audit Log", shortLabel: "Log", description: "Track who changed what and when across this project." },
 ];
 
@@ -224,95 +224,6 @@ function formatProjectTimestamp(value: unknown) {
   });
 }
 
-function DealOutcomeSection({ project }: { project: StoredProject }) {
-  const [outcome, setOutcome] = useState<StoredProject["dealOutcome"]>(project.dealOutcome ?? "");
-  const [why, setWhy] = useState(project.dealOutcomeWhy ?? "");
-  const [saved, setSaved] = useState(false);
-
-  function handleSave() {
-    saveDealOutcome(project.id, outcome ?? "", why);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  }
-
-  const outcomeOptions: Array<{ value: StoredProject["dealOutcome"]; label: string; color: string }> = [
-    { value: "won", label: "Won", color: "border-emerald-500/40 bg-emerald-950/30 text-emerald-300" },
-    { value: "lost", label: "Lost", color: "border-red-500/40 bg-red-950/30 text-red-300" },
-    { value: "deferred", label: "Deferred", color: "border-amber-500/30 bg-amber-950/20 text-amber-300" },
-    { value: "", label: "Not set", color: "border-slate-500/30 bg-slate-900/30 text-slate-300" },
-  ];
-
-  return (
-    <section className="wm-deal-outcome wm-ui-card rounded-2xl border p-5">
-      <header className="mb-3">
-        <p className="wm-ui-kicker">Deal outcome</p>
-        <h2 className="wm-ui-title text-lg font-black">Project result</h2>
-        <p className="wm-ui-copy text-sm opacity-70">
-          Record whether this deal was won, lost or deferred. Patterns surface in the feedback consolidation view.
-        </p>
-      </header>
-
-      <div className="flex flex-wrap gap-2 mb-3">
-        {outcomeOptions.map((option) => (
-          <button
-            key={option.value ?? "none"}
-            type="button"
-            className={`rounded-lg border px-3 py-1.5 text-sm font-bold transition ${
-              outcome === option.value
-                ? option.color
-                : "border-slate-600/30 bg-transparent text-slate-400 hover:border-slate-400/50"
-            }`}
-            onClick={() => setOutcome(option.value)}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-
-      <label className="block">
-        <span className="text-xs font-bold opacity-60">Why?</span>
-        <textarea
-          className="wm-ui-input mt-1 w-full"
-          rows={2}
-          placeholder="e.g. Lost to Crestron because customer had existing ecosystem…"
-          value={why}
-          onChange={(e) => setWhy(e.target.value)}
-        />
-      </label>
-
-      <div className="mt-2 flex items-center gap-3">
-        <button
-          type="button"
-          className="wm-ui-button wm-ui-button-primary rounded-lg px-4 py-1.5 text-sm font-bold"
-          onClick={handleSave}
-        >
-          Save outcome
-        </button>
-        {saved && <span className="text-xs text-emerald-400 font-bold">Saved</span>}
-      </div>
-
-      {outcome === "lost" && why.trim() && (
-        <div className="wm-deal-loss-summary mt-4 rounded-xl border border-red-500/25 bg-red-950/20 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-black text-red-300 uppercase tracking-wide">Why we lost</span>
-          </div>
-          <p className="text-sm text-red-200/80 leading-relaxed">{why}</p>
-          <p className="text-xs text-red-300/50 mt-2 italic">This feedback feeds into competitor battle card priorities and the feedback consolidation view. The brand mentioned here is tracked for loss-pattern analysis.</p>
-        </div>
-      )}
-
-      {outcome === "won" && why.trim() && (
-        <div className="wm-deal-win-summary mt-4 rounded-xl border border-emerald-500/25 bg-emerald-950/20 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-black text-emerald-300 uppercase tracking-wide">Why we won</span>
-          </div>
-          <p className="text-sm text-emerald-200/80 leading-relaxed">{why}</p>
-        </div>
-      )}
-    </section>
-  );
-}
-
 export function ProjectDetailPage() {
   const { projectId } = useParams();
   const location = useLocation();
@@ -320,6 +231,7 @@ export function ProjectDetailPage() {
   const navigate = useNavigate();
   const { projects, deleteProject } = useProjectStore();
   const project = projects.find((item) => item.id === projectId) ?? null;
+  const responsePath = project ? `${routeCatalogByKey.responsePack.path}?projectId=${encodeURIComponent(project.id)}` : routeCatalogByKey.responsePack.path;
 
   function deleteSavedComparison(runId: string) {
     if (!project) return;
@@ -436,8 +348,8 @@ export function ProjectDetailPage() {
       : "No compare run saved";
 
     const proposalLabel = proposal
-      ? projectText(proposal.outputPurpose?.motion || proposal.title, "Proposal draft saved")
-      : "No proposal draft saved";
+      ? projectText(proposal.outputPurpose?.motion || proposal.title, "Response draft saved")
+      : "No response draft saved";
 
     return [
       {
@@ -456,11 +368,11 @@ export function ProjectDetailPage() {
         detail: latestCompareRun?.summary || "No competitor comparison evidence has been saved to this project yet.",
       },
       {
-        label: "Proposal readiness",
+        label: "Response readiness",
         value: proposalLabel,
         detail:
           recommendationEvidence?.quoteSafetyMessage ||
-          (proposal?.readinessScore ? `Proposal readiness score: ${proposal.readinessScore}%` : "Generate a response pack after requirements are cleaner."),
+          (proposal?.readinessScore ? `Response readiness score: ${proposal.readinessScore}%` : "Build a response after requirements are clearer."),
       },
     ];
   }, [latestCompareRun, project, proposal, recommendationEvidence, selectedProductRankingReasons]);
@@ -567,7 +479,7 @@ export function ProjectDetailPage() {
       items.push({
         id: "proposal-draft",
         label: proposal.title,
-        source: "Proposal",
+        source: "Response",
         status:
           typeof proposal.readinessScore === "number"
             ? `${proposal.readinessScore}% ready`
@@ -576,14 +488,14 @@ export function ProjectDetailPage() {
           proposal.outputPurpose?.nextAction ||
           proposal.summary ||
           proposal.governanceWarnings?.[0] ||
-          "Proposal draft exists for this project.",
+          "Response draft exists for this project.",
         timestamp: formatProjectTimestamp(proposal.updatedAt),
-        route: routeCatalogByKey.proposal.path,
+        route: responsePath,
       });
     }
 
     return items;
-  }, [project, proposal, recommendationEvidence, selectedProducts]);
+  }, [project, proposal, recommendationEvidence, responsePath, selectedProducts]);
 
   const projectReadinessGate = useMemo<ProjectReadinessGate>(() => {
     const unknownRequirementCount = requirements.filter((requirement) => requirement.status === "unknown").length;
@@ -617,28 +529,28 @@ export function ProjectDetailPage() {
 
     if (quoteSafetyStatus === "validate-before-quote" || reviewRequirementCount > 0 || (proposalScore !== null && proposalScore < 80)) {
       return {
-        status: "Validate before proposal",
+        status: "Validate before response",
         tone: "review",
         summary: "The project has enough structure to prepare a draft, but it still needs technical or commercial validation before it is customer-safe.",
         blockers: dedupeText([
           quoteSafetyStatus === "validate-before-quote" ? "Recommendation evidence asks for validation before quote." : null,
           reviewRequirementCount > 0 ? `${reviewRequirementCount} requirement${reviewRequirementCount === 1 ? "" : "s"} are marked for review.` : null,
-          proposalScore !== null && proposalScore < 80 ? `Proposal readiness score is ${proposalScore}%.` : null,
+          proposalScore !== null && proposalScore < 80 ? `Response readiness score is ${proposalScore}%.` : null,
         ]),
-        nextAction: "Open Proposal to draft the response, then validate the system shape, dependencies, and customer assumptions before sending.",
-        route: routeCatalogByKey.proposal.path,
+        nextAction: "Open Responses to draft the customer output, then validate the system shape, dependencies, and assumptions before sending.",
+        route: responsePath,
       };
     }
 
     return {
-      status: "Proposal-ready draft",
+      status: "Response-ready draft",
       tone: "ready",
       summary: "The project has a usable discovery record, product direction, and no current missing-information blockers.",
       blockers: [],
-      nextAction: "Open Proposal or Visual Studio to turn the project record into customer-facing output.",
-      route: routeCatalogByKey.proposal.path,
+      nextAction: "Open Responses or Visual Studio to turn the project record into customer-facing output.",
+      route: responsePath,
     };
-  }, [missingInformation, project, projectEvidenceTimeline.length, proposal, recommendationEvidence, requirements, selectedProducts.length]);
+  }, [missingInformation, project, projectEvidenceTimeline.length, proposal, recommendationEvidence, requirements, responsePath, selectedProducts.length]);
 
   const activeBlocker = projectReadinessGate.blockers[activeBlockerIndex] ?? null;
   const activeBlockerWorkflow = useMemo(() => {
@@ -649,12 +561,12 @@ export function ProjectDetailPage() {
     if (blocker.includes("evidence") || blocker.includes("compare")) {
       return { label: "Open Compare", route: routeCatalogByKey.compare.path };
     }
-    if (blocker.includes("proposal")) {
-      return { label: "Open Proposal", route: routeCatalogByKey.proposal.path };
+    if (blocker.includes("proposal") || blocker.includes("response")) {
+      return { label: "Open Responses", route: responsePath };
     }
     // WINGMAN_DISCOVERY_PROJECT_DETAIL_RESUME_QUERY
     return { label: "Open full Discovery", route: `${routeCatalogByKey.discovery.path}?resume=project` };
-  }, [activeBlocker]);
+  }, [activeBlocker, responsePath]);
 
   const activeBlockerOptions = useMemo(
     () => (activeBlocker ? blockerAnswerOptions(activeBlocker) : []),
@@ -672,6 +584,8 @@ export function ProjectDetailPage() {
       text.includes("compare") ||
       text.includes("proposal readiness") ||
       text.includes("proposal draft") ||
+      text.includes("response readiness") ||
+      text.includes("response draft") ||
       text.includes("marked do not quote")
     );
   }, [activeBlocker]);
@@ -961,12 +875,12 @@ export function ProjectDetailPage() {
                   to={projectReadinessGate.route}
                   className="mt-3 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-black wm-ui-button wm-ui-button-primary"
                 >
-                  Continue to proposal
+                  Continue to response
                 </Link>
               )}
 
               {showBlockerReview && activeBlocker ? (
-                <div id="project-blocker-walkthrough" className="wm-project-blocker-walkthrough" role="region" aria-label="Proposal blocker walkthrough">
+                <div id="project-blocker-walkthrough" className="wm-project-blocker-walkthrough" role="region" aria-label="Response blocker walkthrough">
                   <div className="wm-project-blocker-walkthrough__progress">
                     <span>Blocker {activeBlockerIndex + 1} of {projectReadinessGate.blockers.length}</span>
                     <button type="button" onClick={() => setShowBlockerReview(false)} aria-label="Close blocker review">Close</button>
@@ -1279,14 +1193,14 @@ export function ProjectDetailPage() {
             <Link to={routeCatalogByKey.productPitch.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary">
               Products
             </Link>
-            <Link to={routeCatalogByKey.proposal.path} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-primary">
-              Proposal
+            <Link to={responsePath} className="rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-primary">
+              Response
             </Link>
           </div>
         </SectionCard> : null}
 
         {activeSection === "overview" ? <SectionCard
-          title="Proposal readiness gate"
+          title="Response readiness gate"
           subtitle="Use this as the commercial safety check before turning the project into a customer proposal or quote request."
         >
           <div
@@ -1399,7 +1313,7 @@ export function ProjectDetailPage() {
             </div>
           ) : (
             <div className="rounded-2xl border p-4 wm-ui-card">
-              No saved discovery, product, compare, ingest, or proposal evidence is attached to this project yet. Start with Discovery or Finder before treating this opportunity as ready for proposal.
+              No saved discovery, product, compare, ingest, or response evidence is attached to this project yet. Start with Discovery or Finder before treating this opportunity as ready for a customer response.
             </div>
           )}
         </SectionCard> : null}
@@ -1442,7 +1356,7 @@ export function ProjectDetailPage() {
 
         {activeSection === "capture" ? <SectionCard
           title="Discovery conversation"
-          subtitle="The questions asked, the governed answers, and the customer's own wording — audit the trail and jump into Discovery to correct any row before it reaches a proposal."
+          subtitle="The questions asked, the governed answers, and the customer's own wording — audit the trail and jump into Discovery to correct any row before it reaches a response."
         >
           <span id="project-discovery-conversation" className="wm-project-detail-anchor" aria-hidden="true" />
           <DiscoveryConversationReview
@@ -1463,7 +1377,7 @@ export function ProjectDetailPage() {
 
         {activeSection === "decide" ? <SectionCard
           title="Recommendation evidence"
-          subtitle="What Wingman carries forward into Finder, Compare, and Proposal."
+          subtitle="What Wingman carries forward into Finder, Compare, and Responses."
         >
           <RecommendationEvidencePanel
             evidence={recommendationEvidence}
@@ -1479,7 +1393,7 @@ export function ProjectDetailPage() {
               subtitle="Move from a validated project record to a customer response, visual, or CRM handoff."
             >
               <div className="grid gap-3 sm:grid-cols-2">
-                <Link to={`${routeCatalogByKey.responsePack.path}?projectId=${encodeURIComponent(project.id)}`} className="wm-ui-button wm-ui-button-primary">Open response</Link>
+                <Link to={responsePath} className="wm-ui-button wm-ui-button-primary">Open response</Link>
                 <Link to={visualStudioLink} className="wm-ui-button wm-ui-button-secondary">Open Visual Studio</Link>
                 <Link to={routeCatalogByKey.templates.path} className="wm-ui-button wm-ui-button-secondary">Save or open templates</Link>
                 <Link to={routeCatalogByKey.projects.path} className="wm-ui-button wm-ui-button-secondary">Back to projects</Link>

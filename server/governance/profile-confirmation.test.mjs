@@ -78,6 +78,22 @@ describe("saveProfileConfirmation", () => {
     });
   });
 
+  it("allows an administrator to confirm the governed scope of a passive accessory", async () => {
+    await withTempProfilesFile(async (filePath) => {
+      const payload = fixturePayload();
+      payload.profiles = [{ sku: "PASSIVE-MOUNT", productClass: "ACCESSORY", role: "mounting accessory", status: "review-required", ports: [], power: [] }];
+      await fs.writeFile(filePath, JSON.stringify(payload, null, 2), "utf8");
+      const result = await saveProfileConfirmation({
+        sku: "PASSIVE-MOUNT",
+        verifiedBy: "Admin Reviewer",
+        confirmedFields: ["profile-scope"],
+        evidenceUrl: "https://www.wyrestorm.com/product/passive-mount/",
+      }, filePath);
+      expect(result.ok).toBe(true);
+      expect(result.profile.confirmedFields).toEqual(["profile-scope"]);
+    });
+  });
+
   it("rejects a confirmation without a reviewer name", async () => {
     await withTempProfilesFile(async (filePath) => {
       const result = await saveProfileConfirmation(

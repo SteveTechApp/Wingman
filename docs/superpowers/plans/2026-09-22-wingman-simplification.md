@@ -49,7 +49,7 @@
 
 - [x] Correct route event names.
 - [x] Label admin analytics as local activity where shown.
-- [ ] Verify the analytics calculation with a focused test.
+- [x] Verify the analytics calculation with a focused test.
 
 ### Task 4: Final checks
 

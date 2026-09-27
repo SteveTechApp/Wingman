@@ -3,7 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 export const CANONICAL_TEMPLATE_MARKETS = new Set([
-  "Corporate", "Education", "Government", "Healthcare", "Hospitality", "Retail",
+  "Corporate", "Education", "Government", "Emergency Services", "Energy / Oil & Gas",
+  "Manufacturing / Logistics", "Healthcare", "Hospitality", "Retail",
   "Sports & Leisure", "House of Worship", "Control Rooms", "Transportation",
   "Broadcast / Media", "Residential",
 ]);

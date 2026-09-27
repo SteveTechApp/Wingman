@@ -132,8 +132,8 @@ describe("Project Detail rendered workflow evidence", () => {
     expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
     fireEvent.click(screen.getByRole("button", { name: /Review .* project blockers?/ }));
-    expect(screen.getByRole("region", { name: "Proposal blocker walkthrough" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Open full Discovery|Open Finder|Open Compare|Open Proposal/ })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Response blocker walkthrough" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Open full Discovery|Open Finder|Open Compare|Open Responses/ })).toBeInTheDocument();
 
     // The evidence trace renders by default: the compare-run confidence chip is
     // visible on the timeline without an extra click.

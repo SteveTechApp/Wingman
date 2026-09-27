@@ -72,6 +72,10 @@ export const TEMPLATE_IMAGE_KEYS: Readonly<Record<string, string>> = Object.free
   "government-emergency-briefing-room-networkhd500": images.situation,
   "healthcare-telemedicine-consult-room-apollo": images.huddle,
   "healthcare-theatre-observation-networkhd500": images.situation,
+  "emergency-station-briefing-hdbaset": "emergency-station-briefing-v1.png",
+  "emergency-tactical-coordination-hybrid": "government-briefing-room-v1.png",
+  "emergency-dispatch-control-networkhd600": "security-operations-cctv-v1.png",
+  "emergency-shared-status-networkhd100": "emergency-shared-status-v1.png",
 });
 
 function imageFor(template: RoomTemplate): string {
@@ -83,6 +87,7 @@ function imageFor(template: RoomTemplate): string {
 function architectureFor(template: RoomTemplate): TemplateArchitectureFamily {
   const text = `${template.name} ${template.architecture}`.toLowerCase();
   if (/video wall|led wall|lcd wall/.test(text)) return "Video wall";
+  if (/hybrid matrix/.test(text)) return "Hybrid";
   if (/av-over-ip|networkhd/.test(text)) return "AV over IP";
   if (/hybrid matrix|matrix/.test(text)) return "Matrix";
   if (/hdbaset/.test(text)) return "HDBaseT";

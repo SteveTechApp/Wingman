@@ -1,0 +1,125 @@
+import type { RoomTemplate, TemplateBomRow } from "./roomTemplates";
+import { byOthersRow } from "./roomTemplatePlaceholders";
+
+const productDescriptions: Record<string, string> = {
+  "SW-130-TX-UK": "Three-input in-wall HDBaseT transmitter",
+  "RX-700": "4K60 HDBaseT receiver with USB",
+  "MX-1007-HYB": "10×7 4K hybrid matrix switcher",
+  "NHD-500-TX": "4K60 NetworkHD 500 encoder",
+  "NHD-500-RX": "4K60 NetworkHD 500 decoder",
+  "NHD-CTL-PRO-V2": "NetworkHD Pro controller",
+  "CAM-0402-NDI-BRG": "4K multi-camera NDI/HDMI bridge",
+  "NHD-600-TRX": "4K60 10GbE NetworkHD 600 transceiver",
+  "NHD-120-TX": "4K30 NetworkHD 120 encoder",
+  "NHD-120-RX": "4K30 NetworkHD 120 decoder",
+  "NHD-150-RX": "NetworkHD 100-series multiview decoder",
+  "NHD-128-NDI-TRX": "4K30 NDI-to-NetworkHD 100 gateway",
+};
+
+function wyreRow(prefix: string, sku: string, qty: number, role: string, evidence: string, notes: string, type: TemplateBomRow["type"] = "Required"): TemplateBomRow {
+  return { id: `${prefix}-${sku.toLowerCase()}`, sku, description: productDescriptions[sku] ?? sku, role, qty, type, status: type === "Required" ? "included" : type.toLowerCase(), evidence, notes };
+}
+
+export const emergencyRoomTemplates: RoomTemplate[] = [
+  {
+    id: "emergency-station-briefing-hdbaset",
+    name: "Station Briefing Room - Local Presentation",
+    vertical: "Emergency Services",
+    application: "Small fire, police or ambulance station briefing room with a presenter laptop, local operations PC and one shared display.",
+    scale: "Small room · 6-12 people · 1 display",
+    summary: "A modest, dependable local room: USB-C or HDMI at the wall, a station PC, and one display without a new AV network.",
+    customerNarrative: "The duty team can brief from a laptop or station PC without consuming control-room infrastructure. A remote incident update is an optional, separately approved input—not a hidden assumption in the base price.",
+    architecture: "SW-130-TX-UK selects the local USB-C/HDMI inputs and sends one HDBaseT link to RX-700 at the display. The display, station PC, audio reproduction and connectivity are supplied or confirmed by others. Add a governed remote video receiver only when the customer asks for a central feed.",
+    bom: [
+      wyreRow("station", "SW-130-TX-UK", 1, "Local laptop and station-PC input switcher / transmitter", "One wall input point serves a small team briefing room.", "Confirm wall-box depth, usable USB-C video mode and the two HDMI source positions."),
+      wyreRow("station", "RX-700", 1, "HDBaseT receiver at the display", "The selected transmitter requires a compatible receiver at the single display.", "Confirm PoH direction, Cat6a run, resolution, distance and mounting access."),
+      byOthersRow("station", "station-pc", "Customer station PC or incident briefing laptop", "Local source equipment", "Confirm ownership, video outputs, cyber policy and whether the PC remains connected when the room is idle."),
+    ],
+    designNotes: [
+      { label: "Physical sources", description: "Laptop at the wall input and a station PC in or near the room; no remote source is included in the base design." },
+      { label: "Remote option", description: "If central updates must appear here, scope a separate approved receiver and source path, with content filtering and failover behaviour." },
+      { label: "Delivery boundary", description: "Display, mounting, room loudspeakers if required, power, containment and tested cable run are by others." },
+    ],
+    assumptions: ["One display and one HDBaseT point-to-point cable run", "Local presentation remains usable if the corporate network is unavailable"],
+    validationItems: ["Display input and resolution", "USB-C laptop capability and wall-box location", "Cable length and PoH compatibility", "Need for a remote approved feed or room audio"],
+    upgradePaths: ["Add a central status receiver and source path after IT approval", "Add a separate camera/UC design if remote participation becomes a requirement"],
+  },
+  {
+    id: "emergency-tactical-coordination-hybrid",
+    name: "Tactical Coordination Room - Hybrid Sources",
+    vertical: "Emergency Services",
+    application: "Medium incident coordination room with local laptops and incident PC, a remote NetworkHD 500 source, two displays and hybrid meeting capability.",
+    scale: "Medium room · 12-24 people · 2 displays",
+    summary: "Bring local briefing sources and an approved remote operations feed into one switchable room, with a path to share out to an overflow space.",
+    customerNarrative: "A team can compare the local incident-management PC, a visiting-agency laptop and an approved live feed from another building area on two room displays. Remote participants can join through a separately scoped conferencing platform.",
+    architecture: "A hybrid matrix built around MX-1007-HYB switches local HDMI/USB-C and its NetworkHD 500 input to two local displays. An NHD-500-TX encodes one approved remote HDMI source near the source room; NHD-CTL-PRO-V2 governs routing on the approved 1Gb AV network. The matrix NetworkHD output can feed a separately scoped overflow decoder after the exact output topology is confirmed. CAM-0402-NDI-BRG is optional for NDI HX camera feeds, converting them to an HDMI input; it is not a native NetworkHD 500 decoder.",
+    bom: [
+      wyreRow("tactical", "MX-1007-HYB", 1, "Local hybrid matrix, two-display routing and audio core", "Local and remote inputs need independently selectable presentation outputs.", "Confirm exact local output mapping, DSP and UC/USB topology; do not assume a complete conferencing system."),
+      wyreRow("tactical", "NHD-500-TX", 1, "Remote approved HDMI-source encoder", "One source originates away from the coordination room.", "Locate beside the remote source; verify source permissions, bandwidth, optics and route to the matrix NHD 500 input."),
+      wyreRow("tactical", "NHD-CTL-PRO-V2", 1, "NetworkHD routing controller", "The remote feed requires commissioning and predictable route control.", "Agree AV-VLAN or dedicated LAN with IT; size multicast, switch ports and uplinks."),
+      wyreRow("tactical", "NHD-500-RX", 1, "Optional overflow-room decoder", "An adjoining room may need the selected briefing feed.", "Only include when the matrix NHD output path, permissions and actual overflow display are confirmed.", "Optional"),
+      wyreRow("tactical", "CAM-0402-NDI-BRG", 1, "Optional NDI camera bridge to local HDMI input", "Remote NDI HX camera feeds may be useful for the incident brief.", "Confirm NDI HX version, video-only network feed, firewall path, latency and camera ownership.", "Optional"),
+      byOthersRow("tactical", "incident-pc", "Incident-management PC, visiting laptop and conferencing compute/licences", "Customer source and UC systems", "Confirm security domains, connector formats, UC provider, data-sharing policy and audio echo-cancellation scope."),
+    ],
+    designNotes: [
+      { label: "Physical sources", description: "Local incident PC and visiting laptop connect directly to the matrix; source devices stay in the room or nearby rack." },
+      { label: "Remote feeds", description: "One approved HDMI output from another operations space is encoded by NHD-500-TX. Optional NDI HX cameras enter through a camera bridge's HDMI output, not straight into NetworkHD 500." },
+      { label: "Network boundary", description: "Use the organisation's AV-VLAN if IT approves multicast and security segmentation; a dedicated AV LAN is an alternative. Do not assume cross-VLAN source discovery or access." },
+    ],
+    assumptions: ["Two directly connected room displays", "One remote NHD 500 source on an IT-approved 1Gb AV path", "UC compute, microphones, loudspeakers and room displays are not included as WyreStorm hardware"],
+    validationItems: ["Local and remote source count and classification", "Corporate AV-VLAN or dedicated LAN, multicast and uplink capacity", "MX-1007-HYB output/USB/audio topology", "NDI HX compatibility if cameras are requested", "UC and audio design, acoustic conditions and accessibility"],
+    upgradePaths: ["Add a scoped NHD-500-RX at an overflow display", "Add CAM-0402-NDI-BRG when approved NDI HX feeds are needed", "Extend controlled source routing to another coordination room after network review"],
+  },
+  {
+    id: "emergency-dispatch-control-networkhd600",
+    name: "Dispatch Control Room - NetworkHD 600",
+    vertical: "Emergency Services",
+    application: "Large 24/7 dispatch room with multiple local operator workstations, independent wall displays and low-latency routing.",
+    scale: "Large control room · 3 source positions · 3 display endpoints",
+    summary: "One performance-led control-room design, with explicit source and display counts rather than several near-identical NHD-600 choices.",
+    customerNarrative: "Dispatchers can route three approved workstation outputs to three wall or operator displays. A 600-series output can be configured for multiview, and a larger display wall can be engineered from further outputs and displays once the required layout is known.",
+    architecture: "Three NHD-600-TRX units encode the HDMI outputs of approved local source workstations; three further NHD-600-TRX units decode to three displays. NHD-CTL-PRO-V2 provides route control over an IT-approved 10Gb AV network. NHD-600's built-in multiview and wall processing may combine sources, but the mode, windows, bezel layout and endpoint count must be designed and tested. Genlock mode and fast-switch mode have different latency behaviour. For an NDI camera feed, an optional CAM-0402-NDI-BRG converts approved NDI HX streams to HDMI before a spare 600-series transmitter; the bridge does not join the 600 fabric directly.",
+    bom: [
+      wyreRow("dispatch", "NHD-600-TRX", 3, "HDMI source encoders at dispatch workstations", "Three local workstations are the priced source baseline.", "Confirm each workstation's permitted mirrored/extended HDMI output and failover source."),
+      { ...wyreRow("dispatch-output", "NHD-600-TRX", 3, "Wall/display decoders with optional built-in multiview", "Three display endpoints form the priced output baseline.", "Confirm independent routes versus multiview or video-wall mode, window count and final output mapping."), id: "dispatch-display-nhd-600-trx" },
+      wyreRow("dispatch", "NHD-CTL-PRO-V2", 1, "AV route and preset controller", "Operator routes must be repeatable and supportable.", "Confirm secure control access, operator permissions and recovery procedures."),
+      wyreRow("dispatch", "CAM-0402-NDI-BRG", 1, "Optional NDI HX camera-to-HDMI bridge", "Remote NDI HX feeds may need to enter a spare HDMI source endpoint.", "Add a further NHD-600-TRX source unit if the three baseline source positions are already occupied.", "Optional"),
+      byOthersRow("dispatch", "source-systems", "Dispatch/CAD PCs, CCTV/VMS workstations and network camera systems", "Customer operational sources", "Confirm authorised video outputs, data classification, operational ownership and cyber approval."),
+      byOthersRow("dispatch", "display-wall", "Independent displays or video-wall panels, mounting and structure", "Visual output system", "Specify panel count, resolution, bezel compensation, structure, maintenance access and spares; NHD-600 processing is available but must be commissioned for the chosen wall layout."),
+    ],
+    designNotes: [
+      { label: "Physical sources", description: "Three authorised HDMI workstation outputs near the operator positions or equipment room; no direct CCTV/VMS integration is assumed." },
+      { label: "Remote feeds", description: "Approved NDI HX feeds can be bridged to HDMI as a separate option. Other secure inter-site feeds need their own gateway and security design." },
+      { label: "Network and resilience", description: "10Gb switching, PoE+ budget, multicast, fibre/uplinks, UPS, permissions and failover are engineered with IT. A corporate AV-VLAN is possible only if the infrastructure and security team approves the fabric; otherwise use a dedicated AV LAN." },
+    ],
+    assumptions: ["Three source outputs and three display endpoints", "A managed 10Gb AV path is available or supplied by others", "Operational dispatch systems remain outside WyreStorm's supply and control scope"],
+    validationItems: ["Actual concurrent source and display count", "Required NHD-600 multiview/window layout, wall arrangement and latency mode", "10Gb switch capacity, multicast design, VLAN/security sign-off and PoE+ budget", "UPS, redundancy, failover, monitoring and operational spares", "CCTV/VMS output permissions and data classification"],
+    upgradePaths: ["Add paired NHD-600-TRX endpoints for further physical sources and displays", "Commission NHD-600 multiview or a larger wall layout after the display/output map is confirmed", "Bridge approved NDI HX cameras via CAM-0402-NDI-BRG plus a spare 600 source endpoint"],
+  },
+  {
+    id: "emergency-shared-status-networkhd100",
+    name: "Shared Status and Overflow Displays - NetworkHD 100",
+    vertical: "Emergency Services",
+    application: "Station corridor, crew area and adjacent briefing overflow with centrally managed, approved status and announcement feeds.",
+    scale: "Shared spaces · 2 source feeds · 3 displays plus 1 multiview display",
+    summary: "Distribute filtered status, training or public-safe messages to shared areas without cloning the dispatch control room.",
+    customerNarrative: "Staff see the right authorised status and briefing content in circulation and welfare spaces. A multiview screen can combine approved feeds in a staffed area, while public-facing screens receive only content cleared for them.",
+    architecture: "Two NHD-120-TX encoders sit beside a centrally managed content PC and an approved briefing-room HDMI output. Three NHD-120-RX decoders feed single-content displays; one NHD-150-RX provides a separate multiview display in a staffed location. NHD-CTL-PRO-V2 handles route presets on an approved 1Gb AV-VLAN or dedicated AV LAN. NHD-128-NDI-TRX is optional for NDI HX feeds on this 100-series fabric; it is not an NHD-600 gateway.",
+    bom: [
+      wyreRow("shared", "NHD-CTL-PRO-V2", 1, "NetworkHD routing and preset controller", "Different display zones need distinct approved content routes.", "Restrict who can route operational content to shared and public zones."),
+      wyreRow("shared", "NHD-120-TX", 2, "Central status and briefing HDMI encoders", "Two physically separate source outputs are priced.", "Locate beside the content PC and approved briefing output; confirm source format and rights."),
+      wyreRow("shared", "NHD-120-RX", 3, "Single-feed shared-area display decoders", "Three corridor, crew or overflow displays are priced.", "Confirm location, screen size, content class, PoE and network drop per screen."),
+      wyreRow("shared", "NHD-150-RX", 1, "Staffed-area multiview display decoder", "One staffed display may show simultaneous approved feeds.", "Confirm the required layout and 100-series source resolution/latency."),
+      wyreRow("shared", "NHD-128-NDI-TRX", 1, "Optional NDI HX gateway into NetworkHD 100", "Network camera or production feeds may be approved for the staffed multiview screen.", "Verify NDI HX version, available streams, network segmentation, bandwidth and information governance.", "Optional"),
+      byOthersRow("shared", "content-platform", "Status/content-management PC, licences and moderation workflow", "Customer-controlled content source", "Define who publishes updates, content approval, recovery and retention; do not send raw dispatch screens to public areas."),
+    ],
+    designNotes: [
+      { label: "Physical sources", description: "Status/content PC near the central rack and one approved briefing-room HDMI output; each needs its own encoder." },
+      { label: "Remote inputs", description: "Approved NDI HX streams can be added through NHD-128-NDI-TRX on the NetworkHD 100 system, subject to IT and information-governance approval." },
+      { label: "Zoning", description: "Treat public, staff-only and operational displays as different information zones with enforced source permissions and default routes." },
+    ],
+    assumptions: ["Two source outputs, three single-feed displays and one staffed multiview display", "A managed 1Gb AV path with appropriate multicast and PoE is provided or approved", "Only moderated, approved content reaches shared and public-facing displays"],
+    validationItems: ["Exact screen count, location and visibility to the public", "Approved content sources and moderation owner", "1Gb AV-VLAN or dedicated LAN, multicast/PoE and network security", "Required multiview layout, resolution and acceptable latency", "Display mounting, audio/alerting, power and accessibility"],
+    upgradePaths: ["Add NHD-120-RX for further single-feed displays", "Add NHD-128-NDI-TRX only for approved NDI HX feeds", "Add another NHD-150-RX if a second staffed multiview point is needed"],
+  },
+];

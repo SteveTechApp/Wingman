@@ -12,11 +12,10 @@
  */
 
 import fs from "node:fs/promises";
-import path from "node:path";
 import { writeJsonFileAtomic } from "../atomic-json-file.mjs";
 import { WYRESTORM_TECHNICAL_PROFILES_FILE } from "../catalog/files.mjs";
 
-const SPEC_CRITICAL_FIELDS = ["max-resolution", "routed-io", "power"];
+const SPEC_CRITICAL_FIELDS = ["max-resolution", "routed-io", "power", "profile-scope"];
 
 const PLACEHOLDER_PATTERNS = [
   /not yet confirmed/i,
@@ -91,6 +90,14 @@ export function readableSpecFields(profile) {
   });
   if (hasPowerNotes || hasPowerSpec) {
     readable.add("power");
+  }
+
+  // Passive accessories can legitimately have no resolution, routed I/O or
+  // power claim. In that case an administrator confirms that the governed
+  // role/classification is the complete applicable scope instead of adding
+  // invented technical values merely to satisfy the review workflow.
+  if (readable.size === 0 && (text(profile.role) || text(profile.productClass))) {
+    readable.add("profile-scope");
   }
 
   return readable;

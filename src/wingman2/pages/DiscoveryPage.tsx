@@ -4,26 +4,11 @@ import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { DiscoverySessionHero, DiscoverySessionPaceSwitch, type DiscoveryPace } from "../components/DiscoverySessionPaceSwitch";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import {
-  clearActiveProject,
-  getCurrentWorkflowProject,
-  readProjectStore,
-  saveDiscoveryBriefToProject,
-  type StoredDiscoveryBrief,
-} from "../features/projects";
-import {
-  clearLatestDiscoverySnapshot,
-  readLatestDiscoverySnapshot,
-  resolveDiscoverySnapshotProject,
-  writeLatestDiscoverySnapshot,
-} from "../data/workflowHandoff";
+import { clearActiveProject, getCurrentWorkflowProject, readProjectStore, saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../features/projects";
+import { clearLatestDiscoverySnapshot, readLatestDiscoverySnapshot, resolveDiscoverySnapshotProject, writeLatestDiscoverySnapshot } from "../data/workflowHandoff";
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
-import {
-  clearDiscoveryHandoff,
-  readDiscoveryHandoff,
-  type DiscoveryHandoffMode,
-} from "../lib/discoveryTemplateHandoff";
+import { clearDiscoveryHandoff, readDiscoveryHandoff, type DiscoveryHandoffMode } from "../lib/discoveryTemplateHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
@@ -38,16 +23,16 @@ import {
   type ProjectTopology,
 } from "../lib/projectTopology";
 
-import type {
-  DiscoveryAnswers,
-  DiscoveryNotes,
-} from "./discovery/discoveryTypes";
+import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
 import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
 import { BASIC_MODE_REQUIRED_IDS, DISCOVERY_DEPTH_PRESENTATION, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview } from "./discovery/DiscoveryGuidedInterview";
+import { DiscoveryMarketEntry } from "./discovery/DiscoveryMarketEntry";
+import { DiscoveryMarketContextSummary } from "./discovery/DiscoveryMarketContextSummary";
+import { changeDiscoveryApplication, DISCOVERY_TEMPLATE_MARKET } from "./discovery/discoveryMarketContext";
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryQuestionSection } from "./discovery/DiscoveryQuestionSection";
 import { compileDiscoveryBrief } from "./discovery/discoveryBriefBuilder";
@@ -89,8 +74,6 @@ const discoveryAuditMarkers = [
   "Current model",
   "applicationSpecificDiscoveryQuestionGuidance",
 ] as const;
-
-
 
 export function DiscoveryPage() {
   const { isGuided } = useUiMode();
@@ -185,6 +168,7 @@ export function DiscoveryPage() {
   const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
   const [isReviewingAnswers, setIsReviewingAnswers] = useState(false);
   const [answers, setAnswers] = useState<DiscoveryAnswers>(() => (draftState.answers as DiscoveryAnswers | undefined) ?? {});
+  const [editingMarketContext, setEditingMarketContext] = useState(false);
   const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
     () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
   );
@@ -302,6 +286,9 @@ export function DiscoveryPage() {
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
+  const marketId = wmDiscoveryAnswerToText(answers.market);
+  const environmentId = wmDiscoveryAnswerToText(answers.environment);
+  const showMarketContext = editingMarketContext || (!environmentId && (Boolean(marketId) || !selectedApplication));
   const discoveryQuestions = useMemo(
     () =>
       wmDiscoveryFilterUnifiedCommsQuestions(
@@ -458,7 +445,7 @@ export function DiscoveryPage() {
   }, [answers, notes, selectedApplication, modeQuestions, opportunityDescription, topology, confirmedSteps]);
 
   useEffect(() => {
-    if (answeredCount === 0 && Object.keys(notes).length === 0) {
+    if (answeredCount === 0 && Object.keys(notes).length === 0 && !marketId) {
       return;
     }
 
@@ -638,10 +625,12 @@ export function DiscoveryPage() {
       opportunity: current.opportunity ? current.opportunity : cleanCallNotes,
     }));
 
-    setAnswers((current) => ({
-      ...current,
-      opportunity: current.opportunity ? current.opportunity : "not-sure",
-    }));
+    if (!cleanCallNotes.startsWith("Guru assistant handoff")) {
+      setAnswers((current) => ({
+        ...current,
+        opportunity: current.opportunity ? current.opportunity : "not-sure",
+      }));
+    }
 
     window.sessionStorage.removeItem(callNotesStorageKey);
   }, []);
@@ -727,7 +716,7 @@ export function DiscoveryPage() {
 
     setAnswers((previous) => {
       if (currentStep.id === "opportunity" && previous.opportunity !== value) {
-        return { opportunity: value };
+        return changeDiscoveryApplication(previous, value);
       }
 
       const updated: DiscoveryAnswers = {
@@ -760,7 +749,7 @@ export function DiscoveryPage() {
       const nextNotes: DiscoveryNotes = opportunityNote ? { opportunity: opportunityNote } : {};
       setNotes(nextNotes);
       setTopology(generateProjectTopologyFromDiscovery({
-        answers: { opportunity: value },
+        answers: { market: marketId, environment: environmentId, opportunity: value },
         notes: nextNotes,
         application: value,
       }));
@@ -1203,7 +1192,36 @@ return (
         </section>
       ) : null}
 
-      {interviewActive ? (
+      {!showMarketContext && marketId && environmentId && <DiscoveryMarketContextSummary
+        marketId={marketId}
+        environmentId={environmentId}
+        environmentDetail={wmDiscoveryAnswerToText(answers["environment-detail"])}
+        onEdit={() => setEditingMarketContext(true)}
+      />}
+
+      {showMarketContext ? (
+        <DiscoveryMarketEntry
+          marketId={marketId}
+          environmentId={environmentId}
+          onMarketChange={(nextMarket) => {
+            setAnswers((current) => {
+              const next: DiscoveryAnswers = { ...current, market: nextMarket };
+              delete next.environment;
+              return next;
+            });
+            if (DISCOVERY_TEMPLATE_MARKET[nextMarket]) setTemplateDraftMarket(DISCOVERY_TEMPLATE_MARKET[nextMarket]);
+          }}
+          onEnvironmentSelect={(nextEnvironment, suggestedApplication, description) => {
+            setAnswers((current) => ({
+              ...current,
+              environment: nextEnvironment,
+              "environment-detail": description ?? "",
+              ...(!wmDiscoveryHasAnswer(current.opportunity) && suggestedApplication ? { opportunity: suggestedApplication } : {}),
+            }));
+            setEditingMarketContext(false);
+          }}
+        />
+      ) : interviewActive ? (
         <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} strandedQuickStart={strandedQuickStart} applicationDrift={quickStartDrift} onOpenStrandedStep={openStrandedStep} onRemoveStranded={removeStrandedQuickStart} />
       ) : showCompletionPanel ? (
         <DiscoveryCompletionPanel

@@ -1,4 +1,5 @@
 import { extraRoomTemplates } from "./roomTemplatesExtra";
+import { emergencyRoomTemplates } from "./roomTemplatesEmergency";
 import { byOthersRow, completeDesignPlaceholders, withRequiredRoomElements } from "./roomTemplatePlaceholders";
 import type { TemplateApplicationProfile } from "./templateApplicationProfiles";
 export type TemplateBomType = "Required" | "Optional" | "Validate";
@@ -3374,7 +3375,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
   },
 ];
 
-export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...libraryRoomTemplates, ...extraRoomTemplates]
+export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...libraryRoomTemplates, ...extraRoomTemplates, ...emergencyRoomTemplates]
   .map(withRequiredRoomElements);
 
 export const roomTemplateVerticals = ["All", ...Array.from(new Set(roomTemplates.map((template) => template.vertical)))];

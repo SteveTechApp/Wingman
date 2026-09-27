@@ -12,6 +12,7 @@ import {
   type WingmanRouteKey,
 } from "../app/routeCatalog";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
+import { UiModeToggle } from "../components/UiModeToggle";
 import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
 import { FeatureJourneyStrip } from "../components/FeatureJourneyStrip";
 import {
@@ -199,10 +200,14 @@ const GURU_SUPPORT_BY_ROUTE: Partial<Record<WingmanRouteKey, GuruSupportCue>> = 
 
 export function AppShell({ children }: AppShellProps) {
   const [guruOpen, setGuruOpen] = useState(false);
+  const [guruMounted, setGuruMounted] = useState(false);
   const [guruSeedPrompt, setGuruSeedPrompt] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pageResetVersion, setPageResetVersion] = useState(0);
   const [workspaceSession, setWorkspaceSession] = useState<WingmanWorkspaceSession | null>(null);
+  useEffect(() => {
+    if (guruOpen) setGuruMounted(true);
+  }, [guruOpen]);
   const location = useLocation();
   const navigate = useNavigate();
   const { uiText } = useWingmanLanguage();
@@ -373,6 +378,7 @@ export function AppShell({ children }: AppShellProps) {
         </nav>
 
         <div className="wingman-sidebar-footer">
+          {!isGuided && <UiModeToggle />}
           <NavLink to={routeCatalogByKey.profile.path} title="Account and workspace settings" aria-label="Settings" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
             Settings
           </NavLink>
@@ -414,6 +420,7 @@ export function AppShell({ children }: AppShellProps) {
             <span className="wingman-topbar-page-summary">{activeSummary}</span>
           </div>
 
+          {isGuided && <div className="wm-topbar-mode-toggle"><UiModeToggle /></div>}
           <WingmanViewportFitControl />
           {activeRoute?.key !== "dashboard" && (
             <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">
@@ -452,7 +459,7 @@ export function AppShell({ children }: AppShellProps) {
           onClick={() => setGuruOpen((current) => !current)}
           hasContextualTransfer={Boolean(guruSupportCue)}
         />
-        {guruOpen && (
+        {guruMounted && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer
             open={guruOpen}
