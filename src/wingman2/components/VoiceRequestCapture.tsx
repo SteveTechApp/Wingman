@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Mic, Square, Upload, Users } from "lucide-react";
-import "../styles/wingman-voice-capture.css";
 
 type SpeechResult = { isFinal: boolean; 0: { transcript: string } };
 type Recognition = {

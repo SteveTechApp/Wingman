@@ -134,14 +134,9 @@ try {
   await assertPageText(page, "/wingman/compare", "Competitor Compare");
   await assertCompareWorkflow(page);
 
-  // This check had never been run by CI, so several assertions had drifted away
-  // from the UI. Each expectation below was re-derived by driving the real app
-  // rather than by reading source, and the strings were confirmed present.
-  //
-  // "Proposal Builder" no longer appears in src/. A smoke run always starts
-  // with an empty localStorage and therefore no active project, so the proposal
-  // route deterministically renders its empty state.
-  await assertPageText(page, "/wingman/proposal", "Open a project before building a proposal");
+  // A fresh browser context has no active project, so the response builder
+  // prompts the salesperson to open one before preparing customer output.
+  await assertPageText(page, "/wingman/proposal", "Open a project before building a response");
 
   // Was "Editable requirements". That string is still in ProjectDetailPage.tsx
   // (check:workflow asserts it) but renders only once requirement records

@@ -17,6 +17,7 @@ import "./wingman2/styles/wingman-reference-global.css";
 import "./wingman2/styles/wingman-product-tools-visual-weight.css";
 import "./wingman2/styles/wingman-ui-consistency.css";
 import "./wingman2/styles/wingman-sales-workspace.css";
+import "./wingman2/styles/wingman-voice-capture.css";
 import { installCompareManufacturerAssist } from "./wingman2/lib/compareManufacturerAssist";
 import "./wingman2/lib/guruDetachedPanel";
 import "./wingman2/lib/microphoneSafety";

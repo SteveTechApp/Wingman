@@ -1529,10 +1529,10 @@ html[data-wingman-route="recommendations"] .wm-rec-unresolved {
   gap: 12px;
   align-items: center;
   padding: 13px 14px;
-  background: color-mix(in srgb, #34d399 6%, var(--wm-ref-panel));
-  border: 1px solid color-mix(in srgb, #34d399 28%, var(--wm-ref-border));
+  background: color-mix(in srgb, var(--wm-success) 6%, var(--wm-ref-panel));
+  border: 1px solid color-mix(in srgb, var(--wm-success) 28%, var(--wm-ref-border));
   border-radius: 11px;
-  color: #34d399;
+  color: var(--wm-success);
 }
 
 .wm-rec-uc-covered > div {
@@ -8128,7 +8128,7 @@ html[data-wingman-route="discovery"] .wm-qs__help-text {
 .wm-governed-structured-field label { display: grid; gap: 4px; color: var(--wm-text-muted); font-size: .67rem; font-weight: 650; text-transform: uppercase; letter-spacing: .04em; }
 .wm-governed-structured-field textarea { min-height: 150px; padding: 8px; resize: vertical; border: 1px solid var(--wm-border); border-radius: 6px; background: #061521; color: #cde7ef; font: .69rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: none; letter-spacing: normal; }
 .wm-governed-structured-field button { justify-self: start; }
-.wm-governed-structured-field small { color: #fbbf24; }
+.wm-governed-structured-field small { color: var(--wm-warning); }
 .wm-governed-structured-field--guided { padding: 9px; border: 1px solid var(--wm-border); border-radius: 7px; background: var(--wm-surface); }
 .wm-governed-structured-field--guided h5 { margin: 0; font-size: .75rem; }
 .wm-governed-structured-field--guided > p { margin: 0; }
@@ -8156,7 +8156,7 @@ html[data-wingman-route="discovery"] .wm-qs__help-text {
 .wm-governed-confirm-fields small { margin-top: 2px; color: var(--wm-text-muted); font-size: .67rem; }
 .wm-governed-confirm-source { display: grid; gap: 5px; margin: 10px 0; color: var(--wm-text-muted); font-size: .68rem; font-weight: 650; text-transform: uppercase; letter-spacing: .04em; }
 .wm-governed-confirm-source input { height: 34px; padding: 0 9px; border: 1px solid var(--wm-border); border-radius: 6px; background: var(--wm-background); color: var(--wm-text); font: inherit; font-size: .75rem; text-transform: none; letter-spacing: normal; }
-.wm-governed-confirm [role='alert'] { margin: 8px 0 0; color: #fbbf24; font-size: .72rem; }
+.wm-governed-confirm [role='alert'] { margin: 8px 0 0; color: var(--wm-warning); font-size: .72rem; }
 .wm-data-placeholder { position: relative; }
 .wm-data-placeholder-cancel { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--wm-text-muted); font: inherit; font-size: .7rem; cursor: pointer; }
 .wm-data-placeholder-cancel svg { width: 15px; height: 15px; }
@@ -9206,7 +9206,7 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
 
 .wm-native-schematic-warnings svg {
   flex-shrink: 0;
-  color: #fbbf24;
+  color: var(--wm-warning);
   width: 16px;
   height: 16px;
   margin-top: 2px;
@@ -9225,7 +9225,7 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
 
 .wm-native-schematic-hints svg {
   flex-shrink: 0;
-  color: #34d399;
+  color: var(--wm-success);
   width: 16px;
   height: 16px;
   margin-top: 2px;
@@ -9662,12 +9662,12 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
 
 .wm-approval-badge--pending {
   background: rgba(251, 191, 36, 0.12);
-  color: #fbbf24;
+  color: var(--wm-warning);
 }
 
 .wm-approval-badge--approved {
   background: rgba(52, 211, 153, 0.12);
-  color: #34d399;
+  color: var(--wm-success);
 }
 
 .wm-approval-badge--rejected {
@@ -9682,7 +9682,7 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
 }
 
 .wm-approval-empty-icon {
-  color: #34d399;
+  color: var(--wm-success);
   margin-bottom: 12px;
 }
 
@@ -9767,7 +9767,7 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
 
 .wm-approval-card-tag--green {
   background: rgba(52, 211, 153, 0.1);
-  color: #34d399;
+  color: var(--wm-success);
 }
 
 .wm-approval-card-actions {
@@ -9806,7 +9806,7 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
 }
 
 .wm-approval-history-item--approved {
-  border-left-color: #34d399;
+  border-left-color: var(--wm-success);
 }
 
 .wm-approval-history-item--rejected {
@@ -9867,9 +9867,9 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
   gap: 6px;
 }
 
-.wm-proposal-approval-note--approved { color: #34d399; }
+.wm-proposal-approval-note--approved { color: var(--wm-success); }
 .wm-proposal-approval-note--rejected { color: #f87171; }
-.wm-proposal-approval-note--pending { color: #fbbf24; }
+.wm-proposal-approval-note--pending { color: var(--wm-warning); }
 
 .wm-proposal-approval-actions {
   display: flex;
@@ -9968,7 +9968,7 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="templates"] .wm-template
 
 .wm-drawer-search-role-badge--ok {
   background: rgba(52, 211, 153, 0.1);
-  color: #34d399;
+  color: var(--wm-success);
 }
 
 .wm-drawer-search-result--incompatible {

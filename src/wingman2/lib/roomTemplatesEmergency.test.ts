@@ -1,5 +1,5 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import productStore from "../../../data/wingman-canonical-product-store.json";
 import { roomTemplates } from "./roomTemplates";
 import { getTemplateApplicationProfile } from "./templateApplicationProfiles";
 
@@ -20,6 +20,10 @@ describe("Emergency Services room designs", () => {
   });
 
   it("uses currently governed WyreStorm SKUs and includes delivery scope", () => {
+    // Vitest global setup generates the catalog; type checking needs no generated files.
+    const productStore = JSON.parse(readFileSync("data/wingman-canonical-product-store.json", "utf8")) as {
+      products: Array<{ sku: string; doNotSpec?: boolean }>;
+    };
     for (const template of emergency) {
       for (const row of template.bom.filter((candidate) => !candidate.sku.startsWith("BY-OTHERS"))) {
         const product = productStore.products.find((candidate) => candidate.sku === row.sku);

@@ -48,6 +48,9 @@ const expectedMainCssImports = [
   "./wingman2/styles/wingman-polish-navigation.css",
   "./wingman2/styles/wingman-reference-global.css",
   "./wingman2/styles/wingman-product-tools-visual-weight.css",
+  "./wingman2/styles/wingman-ui-consistency.css",
+  "./wingman2/styles/wingman-sales-workspace.css",
+  "./wingman2/styles/wingman-voice-capture.css",
 ];
 const retiredPageStyleFiles = [
   "wingman-visual-polish.css",

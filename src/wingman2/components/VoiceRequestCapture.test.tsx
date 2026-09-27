@@ -50,7 +50,7 @@ describe("voice request capture", () => {
     expect((screen.getByRole('button', { name: 'Dictate my request' }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByLabelText('Upload a voice note')).toBeTruthy();
   });
-  it("transcribes an uploaded recording only after the user requests it", async () => {
+  it("transcribes an uploaded recording only after the salesperson requests it", async () => {
     const append = vi.fn(); const fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, text: 'A classroom.' }) });
     vi.stubGlobal('fetch', fetch); render(<VoiceRequestCapture onTranscript={append} />);
     fireEvent.change(screen.getByLabelText('Upload a voice note'), { target: { files: [new File(['audio'], 'note.m4a', { type: 'audio/mp4' })] } });

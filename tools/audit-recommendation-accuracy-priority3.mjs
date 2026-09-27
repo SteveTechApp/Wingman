@@ -98,7 +98,12 @@ const markerGuards = [
   createMarkerGuard({
     label: "Workflow page imports retained",
     relativePath: "src/wingman2/app/routes.tsx",
-    markers: ["../pages/DiscoveryPage", "../pages/ComparePageNew", "../pages/ProductPitchPage"],
+    markers: ["../pages/OpportunitiesPage", "../pages/ComparePageNew", "../pages/ProductPitchPage"],
+  }),
+  createMarkerGuard({
+    label: "Discovery workspace retained in Opportunities",
+    relativePath: "src/wingman2/pages/OpportunitiesPage.tsx",
+    markers: ["./DiscoveryPage", "<DiscoveryPage"],
   }),
   createMarkerGuard({
     label: "Priority workflow pages retained",
