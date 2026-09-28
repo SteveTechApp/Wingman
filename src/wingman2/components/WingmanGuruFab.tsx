@@ -7,6 +7,8 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { X } from "lucide-react";
+import { createPortal } from "react-dom";
 
 type WingmanGuruFabProps = {
   open: boolean;
@@ -121,6 +123,8 @@ export function WingmanGuruFab({
   hasContextualTransfer = false,
 }: WingmanGuruFabProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const dismissRef = useRef<HTMLButtonElement | null>(null);
+  const [dismissed, setDismissed] = useState(false);
   const activeDragRef = useRef<ActiveDrag | null>(null);
   const storedPositionRef = useRef<GuruPosition | null>(readStoredPosition());
   const preferredPositionRef = useRef<GuruPosition | null>(storedPositionRef.current);
@@ -161,6 +165,10 @@ export function WingmanGuruFab({
     button.style.setProperty("right", "auto", "important");
     button.style.setProperty("bottom", "auto", "important");
     button.style.setProperty("transform", "none", "important");
+    if (dismissRef.current) {
+      dismissRef.current.style.left = `${nextPosition.left + (button.getBoundingClientRect().width || 78) - 18}px`;
+      dismissRef.current.style.top = `${Math.max(0, nextPosition.top - 8)}px`;
+    }
   }, []);
 
   useEffect(() => {
@@ -173,7 +181,7 @@ export function WingmanGuruFab({
 
     applyPositionToButton(initial);
     setPosition(initial);
-  }, [applyPositionToButton, clampPosition]);
+  }, [applyPositionToButton, clampPosition, dismissed, open]);
 
   useEffect(() => {
     if (open) return;
@@ -199,7 +207,8 @@ export function WingmanGuruFab({
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => observer.disconnect();
-  }, [open]);
+  }, [open, dismissed]);
+  useEffect(() => { if (open) setDismissed(false); }, [open]);
 
   useEffect(() => {
     function handleResize() {
@@ -356,7 +365,8 @@ export function WingmanGuruFab({
     setPosition(next);
   }
 
-  return (
+  if (dismissed) return null;
+  return createPortal(<>
     <button
       ref={buttonRef}
       id="wingman-guru-launcher"
@@ -399,7 +409,14 @@ export function WingmanGuruFab({
         />
       </span>
     </button>
-  );
+    <button ref={dismissRef} type="button" className="wingman-guru-dismiss" aria-label="Dismiss Guru icon" title="Hide Guru for this session" onClick={() => {
+      if (clickTimerRef.current !== null) window.clearTimeout(clickTimerRef.current);
+      activeDragRef.current = null;
+      setDragging(false);
+      setDismissed(true);
+      if (open) onClick();
+    }}><X size={16} aria-hidden="true" /></button>
+  </>, document.body);
 }
 
 export default WingmanGuruFab;

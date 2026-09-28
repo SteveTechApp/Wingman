@@ -219,7 +219,7 @@ function buildExclusionsHtml(bomRows: BomRow[]) {
 
   const byOthersRows = bomRows.filter((row) => row.sku?.startsWith("BY-OTHERS"));
   const byOthersHtml = byOthersRows.length
-    ? `<p style="margin-top:10px;"><strong>Specifically excluded from this WyreStorm equipment schedule, provided by others:</strong></p><ul>${byOthersRows
+    ? `<p style="margin-top:10px;"><strong>Required to complete the AV system, supplied by the named third parties (outside the WyreStorm equipment supply):</strong></p><ul>${byOthersRows
         .map((row) => `<li>${escapeHtml(row.sku)} - ${escapeHtml(row.description)}</li>`)
         .join("")}</ul>`
     : "";

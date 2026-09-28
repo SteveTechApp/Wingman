@@ -26,7 +26,7 @@ describe("template workflow wiring", () => {
   });
 
   it("browses BOM-backed templates and opens the selected review page", () => {
-    const template = roomTemplates.find((candidate) => candidate.bom.some((row) => row.sku === "NHD-500-TX"));
+    const template = roomTemplates.find((candidate) => candidate.vertical === "Corporate" && candidate.bom.some((row) => row.sku === "MX-0404-HDMI"));
 
     expect(template).toBeDefined();
     renderTemplateRoutes();
@@ -34,7 +34,7 @@ describe("template workflow wiring", () => {
     fireEvent.click(screen.getByRole("button", { name: template!.name }));
     expect(screen.getByRole("heading", { name: template!.name, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Equipment" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByText("Editable WyreStorm BOM")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Equipment", level: 2 })).toBeInTheDocument();
   });
 
   it("shows a clear not-found state for an invalid template ID", () => {
@@ -64,7 +64,8 @@ describe("template workflow wiring", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Overview" }));
     expect(screen.getByRole("heading", { name: "Third-party scope" })).toBeVisible();
     expect(screen.getAllByText(profile.architectureFamily).length).toBeGreaterThan(0);
-    expect(screen.getByText(profile.sizingBasis[0])).toBeVisible();
+    expect(screen.getAllByText(profile.sizingBasis[0]).length).toBeGreaterThan(0);
+    expect(screen.getByRole("region", { name: "Room concept statement" })).toBeVisible();
   });
 
   it("saves an adjusted room design as a reusable custom template", () => {
@@ -94,17 +95,20 @@ describe("template workflow wiring", () => {
   });
 
   it("keeps an excluded WyreStorm option in its equipment group", () => {
-    renderTemplateRoutes("/wingman/templates/government-control-room-networkhd600");
+    const template = roomTemplates[0];
+    const optionalRow = { ...template.bom[0], id: "optional-dongle", sku: "APO-DG2", description: "Wireless presentation option", type: "Optional" as const, status: "optional" };
+    const saved = saveRoomTemplateCopy(template, [...template.bom, optionalRow]);
+    renderTemplateRoutes(`/wingman/templates/${saved.id}`);
 
     fireEvent.click(screen.getByRole("tab", { name: "Equipment" }));
     fireEvent.click(screen.getByRole("button", { name: "Optional equipment group" }));
 
-    const fibreRow = screen.getByText("NHD-600-TRXF").closest("article");
+    const fibreRow = screen.getByText("APO-DG2").closest("article");
     expect(fibreRow).not.toBeNull();
-    fireEvent.click(within(fibreRow!).getByRole("checkbox", { name: "Include NHD-600-TRXF" }));
+    fireEvent.click(within(fibreRow!).getByRole("checkbox", { name: "Include APO-DG2" }));
 
-    expect(screen.getByText("NHD-600-TRXF")).toBeInTheDocument();
+    expect(screen.getByText("APO-DG2")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Third-party scope equipment group" }));
-    expect(screen.queryByText("NHD-600-TRXF")).not.toBeInTheDocument();
+    expect(screen.queryByText("APO-DG2")).not.toBeInTheDocument();
   });
 });

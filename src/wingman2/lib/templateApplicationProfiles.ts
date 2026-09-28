@@ -85,6 +85,7 @@ function imageFor(template: RoomTemplate): string {
 }
 
 function architectureFor(template: RoomTemplate): TemplateArchitectureFamily {
+  if (template.concept) return template.concept.architectureFamily;
   const text = `${template.name} ${template.architecture}`.toLowerCase();
   if (/video wall|led wall|lcd wall/.test(text)) return "Video wall";
   if (/hybrid matrix/.test(text)) return "Hybrid";
@@ -96,6 +97,7 @@ function architectureFor(template: RoomTemplate): TemplateArchitectureFamily {
 }
 
 function capabilitiesFor(template: RoomTemplate): TemplateCapability[] {
+  if (template.concept) return template.concept.capabilities;
   const text = `${template.application} ${template.architecture} ${template.bom.map((row) => `${row.role} ${row.description}`).join(" ")}`.toLowerCase();
   const values = new Set<TemplateCapability>(["video"]);
   if (/audio|speaker|amplifier|dsp|dante|sound/.test(text)) values.add("audio");
@@ -115,6 +117,7 @@ function governedRows(template: RoomTemplate) {
 }
 
 function sizingBasisFor(template: RoomTemplate): string[] {
+  if (template.concept) return [template.concept.environment, `Occupancy: ${template.concept.occupancy}.`, `${template.concept.sourceCount} scheduled source positions; ${template.concept.outputCount} routed physical outputs.`, template.concept.rationale];
   const rows = governedRows(template);
   const relevant = rows.filter((row) => /core|controller|matrix|switcher|routing|processor|video bar|source|encoder|transmitter|input|display|decoder|receiver|output|camera/i.test(`${row.role} ${row.description}`));
   const concrete = relevant.filter((row, index) => relevant.findIndex((candidate) => candidate.id === row.id) === index).slice(0, 8);
@@ -160,5 +163,6 @@ function quantityForRoles(rows: TemplateBomRow[], pattern: RegExp) {
 
 export function templateDesignFacts(template: RoomTemplate): TemplateDesignFacts {
   const rows = governedRows(template);
+  if (template.concept) return { requiredSkuCount: rows.filter((row) => row.type === "Required").length, sourceEndpointCount: template.concept.sourceCount, outputEndpointCount: template.concept.outputCount, architectureFamily: template.concept.architectureFamily };
   return { requiredSkuCount: rows.filter((row) => row.type === "Required").length, sourceEndpointCount: quantityForRoles(rows, /source|encoder|transmitter|input/i), outputEndpointCount: quantityForRoles(rows, /display|decoder|receiver|output|projector/i), architectureFamily: getTemplateApplicationProfile(template).architectureFamily };
 }

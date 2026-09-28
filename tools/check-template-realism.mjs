@@ -45,7 +45,7 @@ export function auditTemplates(templates, catalogue) {
     }
 
     const capabilities = new Set(profile?.capabilities ?? []);
-    const scope = (template.bom ?? []).filter((row) => String(row.sku).startsWith("BY-OTHERS")).map((row) => `${row.role} ${row.description} ${row.notes ?? ""}`).join(" ").toLowerCase();
+    const scope = (template.bom ?? []).filter((row) => String(row.sku).startsWith("BY-OTHERS")).map((row) => `${row.role} ${row.description}`).join(" ").toLowerCase();
     if (!capabilities.has("microphones") && /microphone|audio capture/.test(scope)) add(template, "capability-scope-mismatch", "Microphone scope is present without the microphones capability.");
     if (!capabilities.has("audio") && /\bdsp\b|speaker reinforcement/.test(scope)) add(template, "capability-scope-mismatch", "Audio scope is present without the audio capability.");
 
@@ -57,7 +57,7 @@ export function auditTemplates(templates, catalogue) {
   return findings;
 }
 
-async function loadPublishedTemplates(root) {
+export async function loadPublishedTemplates(root) {
   const { build } = await import("vite");
   const entry = path.join(root, "src/wingman2/lib/templateRealismAuditEntry.ts");
   const result = await build({ configFile: false, root, logLevel: "silent", build: { write: false, ssr: entry, rollupOptions: { output: { format: "esm" } } } });

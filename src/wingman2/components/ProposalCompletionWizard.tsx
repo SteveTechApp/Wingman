@@ -371,7 +371,7 @@ function ProposalCompletionWizardContent({
     () =>
       buildSalesReadinessPackage({
         products: selectedProducts,
-        discovery: discoveryWithCompletion,
+        discovery: { ...discoveryWithCompletion, audioDesign: project.discoveryBrief?.roomModel?.audioDesign },
         assumptions:
           project.proposal?.verification
             ? project.proposal.assumptions
@@ -389,6 +389,7 @@ function ProposalCompletionWizardContent({
       profile.region,
       project.compareRuns,
       project.discoveryBrief?.topology,
+      project.discoveryBrief?.roomModel?.audioDesign,
       project.ingest,
       project.proposal,
       selectedProducts,
@@ -540,8 +541,9 @@ function ProposalCompletionWizardContent({
       products: selectedProducts,
       bomRows,
       assumptions: linesFromText(draft.assumptions),
+      audioDesign: project.discoveryBrief?.roomModel?.audioDesign,
     }),
-    [bomRows, discovery.architecture, discovery.projectTitle, discovery.summary, draft.architectureNarrative, draft.assumptions, draft.executiveSummary, project.discoveryBrief?.roomModel?.vertical, project.proposal?.applicationProposal, selectedProducts],
+    [bomRows, discovery.architecture, discovery.projectTitle, discovery.summary, draft.architectureNarrative, draft.assumptions, draft.executiveSummary, project.discoveryBrief?.roomModel?.vertical, project.discoveryBrief?.roomModel?.audioDesign, project.proposal?.applicationProposal, selectedProducts],
   );
 
   const discoveryPercent = Number(

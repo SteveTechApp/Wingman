@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { readRoomConcept } from "./roomTemplateDeployment";
 import type { StoredProject, StoredProposalBomRow } from "../data/projectStore";
 import type { RoomTemplate, TemplateBomRow, TemplateBomType } from "./roomTemplates";
 import { getTemplateApplicationProfile, type TemplateApplicationProfile } from "./templateApplicationProfiles";
@@ -146,6 +147,9 @@ function normalizeBomRow(row: unknown, index: number): TemplateBomRow | null {
     status: safeString(record.status, "included"),
     evidence: safeString(record.evidence, "Added from a user-created room template."),
     notes: safeString(record.notes, "Validate quantity, connectivity and installation scope before customer issue."),
+    manufacturer: safeString(record.manufacturer, ""),
+    model: safeString(record.model, ""),
+    owner: safeString(record.owner, "integrator"),
   };
 }
 
@@ -185,6 +189,7 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
       "Use this saved room design as the starting point for a customer-specific proposal.",
     ),
     architecture: safeString(record.architecture, "Confirm the room architecture, sources, displays, control and network requirements."),
+    concept: readRoomConcept(record.concept),
     bom: bom.length ? bom : [placeholderBomRow(id)],
     designNotes: Array.isArray(record.designNotes)
       ? record.designNotes

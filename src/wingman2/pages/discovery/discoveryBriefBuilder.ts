@@ -1,6 +1,7 @@
 import { routeCatalogByKey } from "../../app/routeCatalog";
 import type { StoredDiscoveryBrief } from "../../features/projects";
 import { buildDiscoveryRecommendationEvidence } from "../../lib/recommendationEvidence";
+import { deriveDiscoveryAudioDesign } from "../../lib/discoveryAudioDesign";
 import {
   generateProjectTopologyFromDiscovery,
   normaliseProjectTopology,
@@ -214,6 +215,7 @@ export function compileDiscoveryBrief({
     const networkSummary = projectTopologyNetworkSummary(activeTopology);
     const distanceInfrastructureNotes = topologySummary;
     const qualityTags = signalQualityTags(signalStandard);
+    const audioDesign = deriveDiscoveryAudioDesign(answers, notes);
     const processingNeeds = [
       wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") || wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output") ? "Video wall processing" : "",
       wmDiscoveryAnswerIncludes(answers["display-behaviour"], "multiview-on-one-output") ? "Multiview" : "",
@@ -221,6 +223,7 @@ export function compileDiscoveryBrief({
       ...multiviewDestinations.map((item) => `Multiview destination: ${item}`),
       ...multiviewOperation.map((item) => `Multiview operation: ${item}`),
       ...audioProcessing.map((item) => `Audio processing: ${item}`),
+      ...(audioDesign ? [audioDesign.direction, audioDesign.zoning, audioDesign.signalPath] : []),
     ].filter(Boolean);
     const missingInformationQuestions = progressiveMode === "expert"
       ? discoveryQuestions
@@ -246,6 +249,7 @@ export function compileDiscoveryBrief({
     projectTopologyMissingInformation(activeTopology).forEach((item) => {
       if (!missingInformation.includes(item)) missingInformation.push(item);
     });
+    missingInformation.push(...(audioDesign?.validation ?? []));
 
     if (selectedApplication === "av-over-ip" && !networkPath && !activeTopology.connections.some((connection) => ["ip-av-vlan", "shared-ip-network", "point-to-point-network"].includes(connection.transport))) {
       missingInformation.push("Confirm whether NetworkHD uses the customer network or a dedicated AV network design.");
@@ -308,6 +312,14 @@ export function compileDiscoveryBrief({
         usbNeeds,
         audioPath: audio,
         audioNeeds,
+        audioDesign,
+        audioDesignDirection: audioDesign?.direction,
+        audioSignalPath: audioDesign?.signalPath,
+        audioZoning: audioDesign?.zoning,
+        audioScope: audioDesign?.requiredScope.map((scope) => `${scope.description} by others: ${scope.notes}`),
+        audioZones: answerLabel("audio-zones"),
+        audioProgramme: answerLabels("audio-programme"),
+        roomAcoustics: answerLabels("room-acoustics"),
         controlNeeds,
         cableRun: longestRunMetres !== undefined ? `${longestRunMetres} m` : "Unknown",
         longestRun: longestRunMetres !== undefined ? `${longestRunMetres} m` : "Unknown",

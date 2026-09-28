@@ -224,7 +224,7 @@ describe("proposal safety standard", () => {
       },
     ]);
 
-    expect(html).toContain("Specifically excluded from this WyreStorm equipment schedule, provided by others");
+    expect(html).toContain("Required to complete the AV system, supplied by the named third parties");
     expect(html).toContain("BY-OTHERS-NETWORK-INFRASTRUCTURE");
   });
 });

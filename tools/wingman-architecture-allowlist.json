@@ -12,7 +12,6 @@
     "max-file-lines:src/wingman2/lib/productStoryEngine.ts": { "maxLines": 1302 },
     "max-file-lines:src/wingman2/lib/productTopology.ts": { "maxLines": 1217 },
     "max-file-lines:src/wingman2/lib/projectTopology.ts": { "maxLines": 1465 },
-    "max-file-lines:src/wingman2/lib/roomTemplates.ts": { "maxLines": 3377 },
     "max-file-lines:src/wingman2/pages/ComparePageNew.advanced.tsx": { "maxLines": 6418 },
     "max-file-lines:src/wingman2/pages/DiscoveryPage.tsx": { "maxLines": 1324 },
     "max-file-lines:src/wingman2/pages/ProductCallCardsPage.tsx": { "maxLines": 2012 },

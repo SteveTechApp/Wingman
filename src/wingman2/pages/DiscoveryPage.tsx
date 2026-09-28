@@ -7,6 +7,7 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { clearActiveProject, getCurrentWorkflowProject, readProjectStore, saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../features/projects";
 import { clearLatestDiscoverySnapshot, readLatestDiscoverySnapshot, resolveDiscoverySnapshotProject, writeLatestDiscoverySnapshot } from "../data/workflowHandoff";
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
+import { DiscoveryAudioDesignSummary } from "./discovery/DiscoveryAudioDesignSummary";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
 import { clearDiscoveryHandoff, readDiscoveryHandoff, type DiscoveryHandoffMode } from "../lib/discoveryTemplateHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
@@ -91,9 +92,7 @@ export function DiscoveryPage() {
   const hasExistingDiscoveryContent =
     Object.keys(draftAnswers).length > 0 ||
     Object.keys(draftNotes).length > 0 ||
-    Boolean(draftField("clientName").trim()) ||
-    Boolean(draftField("contactName").trim()) ||
-    Boolean(draftField("siteName").trim()) ||
+    ["clientName", "contactName", "siteName"].some((key) => draftField(key).trim()) ||
     Number(discoveryDraft?.brief?.capturedPercent ?? 0) > 0;
 
   const resumeExistingDiscoveryStorageKey = "wingman:resume-existing-discovery";
@@ -1175,6 +1174,7 @@ return (
         </details>
       ) : null}
 
+      <DiscoveryAudioDesignSummary answers={answers} notes={notes} />
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
           <strong>{discoveryMode === "template-edit" ? "Editing custom template" : "Creating a new custom template"}</strong>

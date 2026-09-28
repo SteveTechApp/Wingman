@@ -57,6 +57,7 @@ export const BASIC_MODE_REQUIRED_IDS = [
   "displays",            // How many displays? — drives output count
   "display-behaviour",   // How should displays behave? — key architectural decision
   "uc-purpose",          // Camera/mic workflows? — key for BYOM/BYOD
+  "audio", "audio-zones", "audio-programme", "room-acoustics",
 ] as const;
 
 const BASIC_MODE_REQUIRED_SET = new Set<string>(BASIC_MODE_REQUIRED_IDS);

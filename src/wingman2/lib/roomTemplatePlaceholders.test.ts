@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { designScopeRows } from "./roomTemplatePlaceholders";
 import { roomTemplates } from "./roomTemplates";
 import { getTemplateApplicationProfile } from "./templateApplicationProfiles";
 
@@ -30,21 +29,21 @@ describe("complete-room template placeholders", () => {
     }
   });
 
-  it("does not add third-party room-control hardware when WyreStorm control is selected", () => {
+  it("includes an operator interface alongside a NetworkHD route controller", () => {
     const controlled = roomTemplates.filter((template) => template.bom.some((row) => !row.sku.startsWith("BY-OTHERS") && /(?:^|-)ctl(?:-|$)|syn-touch/i.test(row.sku)));
     expect(controlled.length).toBeGreaterThan(0);
     for (const template of controlled) {
-      expect(template.bom.some((row) => row.sku.startsWith("BY-OTHERS") && /control processor|touch panel|room control by others|control user interface/i.test(`${row.description} ${row.role}`))).toBe(false);
+      expect(template.bom.some((row) => row.sku === "BY-OTHERS-ROOM-CONTROL")).toBe(true);
     }
   });
 
   it("does not add meeting-room audio scope to silent signage", () => {
-    const rows = designScopeRows("qsr", ["video", "signage", "network"]);
+    const rows = roomTemplates.find((template) => template.name.startsWith("Quick-Service"))!.bom;
     expect(rows.some((row) => /microphone|aec|audio capture/i.test(`${row.role} ${row.description}`))).toBe(false);
   });
 
   it("adds resilience and network validation to operational control rooms", () => {
-    const rows = designScopeRows("noc", ["video", "control", "network", "resilience"]);
+    const rows = roomTemplates.find((template) => template.id === "control-room-network-operations-centre-networkhd600")!.bom;
     expect(rows.some((row) => /redundan|failover|ups|recovery/i.test(`${row.description} ${row.notes}`))).toBe(true);
   });
 });

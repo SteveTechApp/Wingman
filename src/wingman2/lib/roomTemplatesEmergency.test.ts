@@ -6,16 +6,16 @@ import { getTemplateApplicationProfile } from "./templateApplicationProfiles";
 const emergency = roomTemplates.filter((template) => template.vertical === "Emergency Services");
 
 describe("Emergency Services room designs", () => {
-  it("offers four distinct spaces and transport architectures", () => {
+  it("sizes four distinct emergency-service spaces with local transport", () => {
     expect(emergency).toHaveLength(4);
     expect(new Set(emergency.map((template) => template.scale)).size).toBe(4);
-    expect(emergency.filter((template) => template.bom.some((row) => row.sku === "NHD-600-TRX"))).toHaveLength(1);
-    expect(new Set(emergency.map((template) => getTemplateApplicationProfile(template).architectureFamily)).size).toBe(3);
+    expect(emergency.filter((template) => template.bom.some((row) => row.sku.startsWith("NHD-")))).toHaveLength(0);
+    expect(new Set(emergency.map((template) => getTemplateApplicationProfile(template).architectureFamily)).size).toBe(2);
     expect(emergency.map((template) => template.bom.filter((row) => row.type === "Required" && !row.sku.startsWith("BY-OTHERS")).map((row) => row.sku))).toEqual([
       ["SW-130-TX-UK", "RX-700"],
-      ["MX-1007-HYB", "NHD-500-TX", "NHD-CTL-PRO-V2"],
-      ["NHD-600-TRX", "NHD-600-TRX", "NHD-CTL-PRO-V2"],
-      ["NHD-CTL-PRO-V2", "NHD-120-TX", "NHD-120-RX", "NHD-150-RX"],
+      ["MX-0404-HDMI", "EX-70-H2", "EX-70-H2"],
+      ["MX-0404-HDMI", "EX-70-H2"],
+      ["MX-0404-HDMI", "EX-70-H2"],
     ]);
   });
 

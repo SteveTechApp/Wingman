@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { roomTemplates } from "../src/wingman2/lib/roomTemplates";
+import { hasExplicitSharedContentIntent } from "./lib/template-shared-content-intent.mjs";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -79,33 +81,9 @@ const nhdEndpointPattern = /^NHD-\d+-(TX|RX|TRX|IW-TX)/i;
 const controllerPattern = /CTL-PRO|BY-OTHERS.*control/i;
 const multiviewPattern = /NHD-150-RX|NHD-0401-MV/i;
 
-// ── Extract all templates from roomTemplates.ts ──
-
-function extractTemplates() {
-  const source = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8");
-  const lines = source.split(/\r?\n/);
-  const templates = [];
-  let currentName = null;
-  let start = 0;
-
-  lines.forEach((line, index) => {
-    if (/^ {2}\{/.test(line)) {
-      if (currentName) templates.push({ name: currentName, start, end: index });
-      currentName = null;
-      start = index;
-    }
-    const nameMatch = line.match(/^ {4}name: "([^"]+)"/);
-    if (nameMatch && !currentName) currentName = nameMatch[1];
-  });
-  if (currentName) templates.push({ name: currentName, start, end: lines.length });
-
-  return { templates, lines };
-}
-
-function skusFromTemplate(lines, template) {
-  const body = lines.slice(template.start, template.end).join("\n");
-  return [...new Set([...body.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))];
-}
+// Inspect the materialised catalogue so all factory-built designs are covered.
+function extractTemplates() { return { templates: roomTemplates, lines: [] }; }
+function skusFromTemplate(_lines, template) { return [...new Set(template.bom.map((row) => row.sku))]; }
 
 // ── Guard 1: HDBaseT signal path ──
 
@@ -209,19 +187,11 @@ describe("template verify guards — live templates", () => {
   it("source/display ratio warnings are expected and documented", () => {
     const ratioWarnings = [];
     for (const template of templates) {
-      const body = lines.slice(template.start, template.end).join("\n");
-      const bomRows = [...body.matchAll(/sku: "([A-Z0-9-]+)"[\s\S]*?qty: (\d+)/g)].map((m) => ({
-        sku: m[1],
-        qty: parseInt(m[2], 10),
-      }));
+      const bomRows = template.bom;
       const result = checkSourceDisplayRatio(bomRows);
-      if (!result.ok) ratioWarnings.push(template.name);
+      if (!result.ok && !hasExplicitSharedContentIntent(template.assumptions)) ratioWarnings.push(template.name);
     }
-    // As of 2026-08-24 these 3 templates have known intentional ratios.
-    // Sports Bar and Gym are excluded because they include NHD-150-RX multiview.
-    expect(ratioWarnings).toContain("Retail Multi-Zone Signage - NetworkHD 100");
-    expect(ratioWarnings).toContain("Science / STEM Teaching Lab - Bench Camera and Demo Distribution");
-    expect(ratioWarnings).toContain("Clinic / Pharmacy Waiting - Patient Calling and Signage - NetworkHD 100");
+    expect(ratioWarnings).toEqual([]);
   });
 });
 
@@ -479,15 +449,11 @@ describe("guard 5 — phantom SKU (missing from profiles and catalogue)", () => 
     expect(result.ok).toBe(true);
   });
 
-  it("verifies all 43 live templates have no phantom SKUs", () => {
-    const source = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8");
-    const templateBlocks = source.split(/^ {2}\{/m).slice(1);
-    for (const block of templateBlocks) {
-      const nameMatch = block.match(/^ {4}name: "([^"]+)"/);
-      const name = nameMatch?.[1] ?? "unknown";
-      const skus = [...new Set([...block.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))];
-      const result = checkSkusInCatalogue(skus);
-      expect(result.ok, `Template "${name}" has phantom SKUs: ${result.missing.join(", ")}`).toBe(true);
+  it("verifies every published template has no phantom SKUs", () => {
+    expect(roomTemplates).toHaveLength(59);
+    for (const template of roomTemplates) {
+      const result = checkSkusInCatalogue(skusFromTemplate([], template));
+      expect(result.ok, `${template.name}: ${result.missing.join(", ")}`).toBe(true);
     }
   });
 });

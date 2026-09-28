@@ -1,4 +1,5 @@
 import type { StoredCompareRun, StoredIngestAnalysis, StoredProductSelection, StoredRecommendationFeedback } from "../data/projectStore";
+import { readDiscoveryAudioDesign } from "./discoveryAudioDesign";
 import {
   buildGovernedDependencies,
   governedDependencyToBomRow,
@@ -39,6 +40,7 @@ export type SalesReadinessInput = {
     distance: string;
     network?: string;
     audio?: string;
+    audioDesign?: unknown;
     control?: string;
     budget: string;
   };
@@ -234,6 +236,12 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
     "Escalate to pre-sales when any validate item affects architecture, USB, network, or wall behaviour.",
   ];
   const bomRows: SalesBomRow[] = [];
+  const audioDesign = readDiscoveryAudioDesign(input.discovery.audioDesign);
+  if (audioDesign) {
+    validationNotes.push(audioDesign.direction, audioDesign.zoning, audioDesign.signalPath);
+    governanceWarnings.push(...audioDesign.validation);
+    bomRows.push(...audioDesign.requiredScope.map((scope) => ({ item: 0, sku: `BY-OTHERS-DISCOVERY-AUDIO-${scope.key.toUpperCase()}`, description: scope.description, role: "Audio and room scope by others", qty: 1, type: "Required" as const, status: "included", evidence: `${audioDesign.direction} ${audioDesign.basis}`, notes: `${scope.notes} Quantity 1 is a complete measured package allowance; confirm all constituent quantities and supplier/model before pricing.` })));
+  }
 
   input.products.forEach((product, index) => {
     const productEvidence = product.evidence?.[0] || `Selected WyreStorm product carried from ${product.source || "Wingman workflow"}.`;

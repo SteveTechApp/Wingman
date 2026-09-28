@@ -92,9 +92,9 @@ describe("single Guru entry point", () => {
       );
     });
 
-    const motionLayer = container.querySelector<HTMLElement>(".wingman-guru-fab-motion");
-    const sweep = container.querySelector<HTMLElement>(".wingman-guru-fab-sweep");
-    const glow = container.querySelector<HTMLElement>(".wingman-guru-fab-glow");
+    const motionLayer = document.querySelector<HTMLElement>(".wingman-guru-fab-motion");
+    const sweep = document.querySelector<HTMLElement>(".wingman-guru-fab-sweep");
+    const glow = document.querySelector<HTMLElement>(".wingman-guru-fab-glow");
 
     expect(motionLayer).not.toBeNull();
     expect(sweep).not.toBeNull();
@@ -116,7 +116,7 @@ describe("single Guru entry point", () => {
       );
     });
 
-    const currentLauncher = container.querySelector<HTMLButtonElement>(
+    const currentLauncher = document.querySelector<HTMLButtonElement>(
       "#wingman-guru-launcher",
     );
     const visibleLaunchers = [...document.querySelectorAll<HTMLElement>(
@@ -146,7 +146,7 @@ describe("single Guru entry point", () => {
       );
     });
 
-    const button = container.querySelector<HTMLButtonElement>(
+    const button = document.querySelector<HTMLButtonElement>(
       "button.wingman-guru-fab",
     );
 
@@ -232,7 +232,7 @@ describe("single Guru entry point", () => {
       );
     });
 
-    const button = container.querySelector<HTMLButtonElement>(
+    const button = document.querySelector<HTMLButtonElement>(
       "button.wingman-guru-fab",
     );
 
@@ -263,19 +263,25 @@ describe("single Guru entry point", () => {
       root.render(createElement(WingmanGuruFab, { open: false, onClick }));
     });
 
-    expect(container.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(1);
+
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>('[aria-label="Dismiss Guru icon"]')!.click();
+    });
+    expect(document.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(0);
+    expect(onClick).not.toHaveBeenCalled();
 
     await act(async () => {
       root.render(createElement(WingmanGuruFab, { open: true, onClick }));
     });
 
-    expect(container.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(0);
+    expect(document.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(0);
 
     await act(async () => {
       root.render(createElement(WingmanGuruFab, { open: false, onClick }));
     });
 
-    const restoredLaunchers = container.querySelectorAll<HTMLButtonElement>(
+    const restoredLaunchers = document.querySelectorAll<HTMLButtonElement>(
       '[data-wingman-guru-launcher="true"]',
     );
 

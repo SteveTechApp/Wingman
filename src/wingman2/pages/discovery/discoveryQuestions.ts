@@ -7,6 +7,8 @@
 // baseQuestionStrategyByStep / getQuestionStrategy, which now live in this file.
 
 import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
+import { discoveryAudioQuestions } from "./discoveryAudioQuestions";
+import { discoveryHasAudio } from "../../lib/discoveryAudioDesign";
 
 export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
@@ -1035,6 +1037,7 @@ const operationalWorkflowQuestions: DiscoveryQuestion[] = [
 export const canonicalDiscoveryQuestions: DiscoveryQuestion[] = [
   ...baseDiscoveryQuestions,
   ...operationalWorkflowQuestions,
+  ...discoveryAudioQuestions,
   avoipProfileQuestion,
 ];
 
@@ -1066,6 +1069,7 @@ function getApplicationDiscoveryQuestions(selectedApplication: string): Discover
   insertAfter(questions, "source-connection", [byId("source-device-workflows"), byId("wireless-presentation-operation")]);
   insertAfter(questions, "display-behaviour", [byId("multiview-destination"), byId("multiview-operation")]);
   insertAfter(questions, "uc-microphones", [byId("uc-microphone-count"), byId("uc-audio-processing")]);
+  insertAfter(questions, "audio", discoveryAudioQuestions);
 
   if (selectedApplication === "video-wall") {
     insertAfter(questions, "scale", [byId("video-wall-technology"), byId("video-wall-purpose")]);
@@ -1133,6 +1137,7 @@ export function getVisibleDiscoveryQuestions(
   const wirelessRelevant = sourceProfileValues.some((value) => ["laptops-wireless-inputs", "mixed-hdmi-usbc", "network-video-sources"].includes(value)) || sourceDeviceValues.includes("wireless-casting-source");
 
   return withApplicationQuestions.filter((step) => {
+    if (discoveryAudioQuestions.some((question) => question.id === step.id) && !discoveryHasAudio(answers)) return false;
     if (step.id === "network-path" && selectedApplication !== "av-over-ip" && !["multi-room", "building-wide"].includes(String(answers.scale ?? ""))) return false;
     if (selectedApplication === "video-wall" && [
       "displays", "uc-purpose", "uc-platform", "mtr-av-integration", "uc-camera",
