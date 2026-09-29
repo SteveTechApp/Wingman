@@ -5,7 +5,8 @@ required" block all Phase D/E launch work. Each section below states what the
 codebase has already committed to, a **recommendation** with its cost/scope
 consequence, and the exact next action once decided. Answering all five takes
 one meeting; every downstream task (production Supabase, Render blueprint,
-UAT, key provisioning) is waiting on them.
+UAT, key provisioning) is waiting on them. For the meeting itself, tick
+through the one-page version: [`docs/LAUNCH_DECISIONS_CHECKLIST.md`](LAUNCH_DECISIONS_CHECKLIST.md).
 
 **Context that frames all five:** Wingman is a late-beta, ~300-product
 catalogue, auth-gated app for WyreStorm's internal sales team. The supported
@@ -39,8 +40,11 @@ against a production-like environment — pure churn.
   the same breath as the plan upgrade.
 
 **Cost consequence:** two paid starter instances ≈ tens of dollars/month.
-**Next action after sign-off:** create the Render Blueprint from `render.yaml`,
-set the paid plans, confirm region, wire uptime monitoring to `/api/health`.
+**Next action after sign-off:** create the Render Blueprint from `render.yaml`
+(exact clicks, secrets, and verification steps:
+[`docs/RENDER_STANDUP_RUNBOOK.md`](RENDER_STANDUP_RUNBOOK.md)),
+set the paid plans, confirm region, wire uptime monitoring to the API health
+endpoints.
 
 ---
 
@@ -157,7 +161,8 @@ generate that observation data: it doubles as the
    `mobile-sales-uat`
 4. Pilot begins → journey observation → closes
    `production-observation-window`
-5. Offline/reconnect UAT protocol → closes `offline-reconnect-uat`
+5. Offline/reconnect UAT protocol ([`docs/OFFLINE_RECONNECT_UAT_PLAN.md`](OFFLINE_RECONNECT_UAT_PLAN.md)) → closes
+   `offline-reconnect-uat`
 6. Dated go/no-go meeting for the v1.0 label
 
 **Next action:** record "internal sales pilot, external launch explicitly

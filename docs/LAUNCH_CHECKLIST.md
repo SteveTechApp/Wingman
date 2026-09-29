@@ -40,13 +40,15 @@ Run each end to end on staging, signed in and (where relevant) as a guest:
       model-backed agent is enabled separately, confirm its logs show no fallback warning.
 - [ ] **Compare:** returns honest pros/cons and a sensible WyreStorm match; handles an
       unknown competitor SKU gracefully.
-- [ ] **Projects:** save, reload, and edit a project against **Supabase** storage.
-
-## 4. Production Infrastructure (Blocker)
+- [ ] **Projects:** save, reload, and edit a project against **Supabase** storage.## 4. Production Infrastructure (Blocker)
 
 Deployment wiring is defined in the root `render.yaml` Blueprint. Render creates the
-frontend and backend services together, links them over its private network, waits for
-GitHub checks before automatic deployment, and checks `/` plus `/api/ready`.
+frontend and backend services together, links them over its private network, waits for GitHub
+checks before automatic deployment, and checks `/` plus `/api/ready`.
+Stand the staging deployment up with the exact-clicks runbook
+[`docs/RENDER_STANDUP_RUNBOOK.md`](RENDER_STANDUP_RUNBOOK.md) (Supabase
+provisioning, Blueprint launch, secrets, the §5 acceptance checks, and uptime
+monitoring).
 Use `.env.production.example` when promoting the trial deployment to persistent
 Supabase-backed production storage and follow the migration runbook in `OPERATIONS.md` §8.
 
@@ -93,6 +95,12 @@ closes the `mobile-sales-uat` criterion in
 [`release-evidence-manifest.json`](release-evidence/release-evidence-manifest.json)
 (fill [`MOBILE_UAT_RESULT_TEMPLATE.md`](MOBILE_UAT_RESULT_TEMPLATE.md)).
 
+Run the offline/reconnect leg per
+[`OFFLINE_RECONNECT_UAT_PLAN.md`](OFFLINE_RECONNECT_UAT_PLAN.md): airplane-mode
+offline edits, reconnect, duplicate/replay, and conflict preservation drills,
+filed as the evidence pack that closes the `offline-reconnect-uat` criterion
+in the same manifest.
+
 ## 8. Documentation & Handover
 
 - [ ] `README.md`, `DEPLOYMENT.md`, `OPERATIONS.md`, `SUPABASE_SETUP.md` reviewed and current.
@@ -122,7 +130,8 @@ See [`V1_RELEASE_EVIDENCE.md`](V1_RELEASE_EVIDENCE.md) for the open evidence and
 ## Decisions still required from Steve (unblock Phase D & E)
 
 Each has a grounded recommendation with cost and next actions in
-[`LAUNCH_DECISION_BRIEF.md`](LAUNCH_DECISION_BRIEF.md):
+[`LAUNCH_DECISION_BRIEF.md`](LAUNCH_DECISION_BRIEF.md) — for the meeting, tick
+through [`LAUNCH_DECISIONS_CHECKLIST.md`](LAUNCH_DECISIONS_CHECKLIST.md):
 
 1. **Hosting target** — where the app + API run (container host / VPS / cloud). _Recommended: Render Blueprint, paid tiers._
 2. **Database** — confirm Supabase (recommended, already coded) vs self-managed Postgres. _Recommended: Supabase paid project._

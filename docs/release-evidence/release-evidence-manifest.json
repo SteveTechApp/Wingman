@@ -53,6 +53,21 @@
       "approver": null,
       "owner": "Operations + product analytics",
       "closureCondition": "Attach a dated operational export after a representative production observation window."
+    },
+    {
+      "id": "product-index-split-waterfall",
+      "title": "Product-intelligence eager payload split (network waterfall audit)",
+      "evidenceType": "staging",
+      "claimedStatus": "pass",
+      "measuredAt": "2026-09-29",
+      "expiresAfterDays": 90,
+      "artifactPath": "docs/release-evidence/product-index-waterfall-2026-09-29.md",
+      "approver": {
+        "name": "Steve Goodwin",
+        "role": "Release owner"
+      },
+      "owner": "Engineering + release owner",
+      "closureCondition": "Attach a dated network-waterfall audit of a production build showing the eager payload is the summary plus manifest, per-SKU detail loads only on open, and the retired monolith is absent from the build output."
     }
   ]
 }

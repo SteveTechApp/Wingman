@@ -156,8 +156,8 @@ Rules the release owner applies when filling the manifest:
 ## 8. Related criteria this does NOT close
 
 - `offline-reconnect-uat` — Journey C step 3 is a smoke of backgrounding, not
-  the offline/reconnect/conflict criterion. That needs its own dedicated
-  airplane-mode protocol.
+  the offline/reconnect/conflict criterion. That closes via the airplane-mode
+  drills in [`docs/OFFLINE_RECONNECT_UAT_PLAN.md`](OFFLINE_RECONNECT_UAT_PLAN.md).
 - `production-like-load` — staging load measurement is separate.
 - `production-observation-window` — requires live production telemetry after
   a real observation window.

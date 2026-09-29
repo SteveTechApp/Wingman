@@ -14,13 +14,16 @@ _Last updated: 2026-09-17_
 | `docs/launch-readiness-report.md` | Superseded gate list, kept so links resolve. |
 | `docs/product-data-health.md` | Current product governance and data-risk summary. |
 | `docs/OPERATIONS.md` | Operational runbook. |
+| `docs/RENDER_STANDUP_RUNBOOK.md` | Exact-clicks Render stand-up: Supabase provisioning, Blueprint launch, secrets, staging acceptance checks, and uptime monitoring wiring. |
 | `docs/SUPABASE_SETUP.md` | Supabase setup guide, incl. the Supabase access rules (pagination invariant, file-db-only decisions) and the nightly RLS job runbook (sentinel seeds, secret setup, red-run triage). |
 | `docs/SUPABASE_SECRET_DRILL.md` | Secrets-configuration drill runbook: diagnose Supabase secret misconfiguration via the diagnostic workflow without a failing push. |
 | `docs/LAUNCH_CHECKLIST.md` | Launch checklist; use with current status file. |
 | `docs/LAUNCH_DECISION_BRIEF.md` | Decision brief for the five launch decisions (hosting, database, auth scope, API keys, audience) with grounded recommendations. |
+| `docs/LAUNCH_DECISIONS_CHECKLIST.md` | One-page tick-through of the five launch decisions for the go/no-go meeting, pre-filled with the recommended answers. |
 | `docs/LOAD_TESTING.md` | Load testing method. |
 | `docs/MOBILE_UAT_PLAN.md` | Real-device mobile UAT plan that closes the `mobile-sales-uat` criterion, with the required evidence pack. |
 | `docs/MOBILE_UAT_RESULT_TEMPLATE.md` | Fill-in session result template (becomes the evidence pack's `uat-summary.md`). |
+| `docs/OFFLINE_RECONNECT_UAT_PLAN.md` | Airplane-mode offline/reconnect UAT protocol that closes the `offline-reconnect-uat` criterion: offline persistence, duplicate/replay, conflict preservation and resolution drills, with the evidence pack and result template. |
 
 ## Standards / guidance
 

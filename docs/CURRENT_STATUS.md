@@ -15,6 +15,7 @@ _Generated from `docs/release-evidence/release-evidence-manifest.json` · Measur
 | Offline edit and reconnect UAT | **Blocked** | Evidence not supplied | Engineering + mobile tester | Attach dated real-device evidence covering reconnect, duplicate update, and conflict resolution. |
 | Production-like authenticated load | **Blocked** | Evidence not supplied | Infrastructure + performance owner | Attach authenticated staging measurements with p95, p99, and error rate. |
 | Production journey observation window | **Blocked** | Evidence not supplied | Operations + product analytics | Attach a dated operational export after a representative production observation window. |
+| Product-intelligence eager payload split (network waterfall audit) | **Pass** | [2026-09-29](release-evidence/product-index-waterfall-2026-09-29.md) | Engineering + release owner | Attach a dated network-waterfall audit of a production build showing the eager payload is the summary plus manifest, per-SKU detail loads only on open, and the retired monolith is absent from the build output. |
 <!-- release-evidence:end -->
 
 ## Engineering context
