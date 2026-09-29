@@ -121,8 +121,11 @@ See [`V1_RELEASE_EVIDENCE.md`](V1_RELEASE_EVIDENCE.md) for the open evidence and
 
 ## Decisions still required from Steve (unblock Phase D & E)
 
-1. **Hosting target** — where the app + API run (container host / VPS / cloud).
-2. **Database** — confirm Supabase (recommended, already coded) vs self-managed Postgres.
-3. **Auth scope** — email/password only at launch, or add SSO/OAuth?
-4. **Production API keys** — confirm Gemini (and optional Google CSE) keys and quotas.
-5. **Launch audience** — internal sales first, or external customers? (Sets the CSRF/UAT bar.)
+Each has a grounded recommendation with cost and next actions in
+[`LAUNCH_DECISION_BRIEF.md`](LAUNCH_DECISION_BRIEF.md):
+
+1. **Hosting target** — where the app + API run (container host / VPS / cloud). _Recommended: Render Blueprint, paid tiers._
+2. **Database** — confirm Supabase (recommended, already coded) vs self-managed Postgres. _Recommended: Supabase paid project._
+3. **Auth scope** — email/password only at launch, or add SSO/OAuth? _Recommended: email/password, admin-provisioned._
+4. **Production API keys** — confirm Gemini (and optional Google CSE) keys and quotas. _Recommended: Gemini now, CSE deferred._
+5. **Launch audience** — internal sales first, or external customers? (Sets the CSRF/UAT bar.) _Recommended: internal pilot only._

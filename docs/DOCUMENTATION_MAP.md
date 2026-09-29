@@ -17,6 +17,7 @@ _Last updated: 2026-09-17_
 | `docs/SUPABASE_SETUP.md` | Supabase setup guide, incl. the Supabase access rules (pagination invariant, file-db-only decisions) and the nightly RLS job runbook (sentinel seeds, secret setup, red-run triage). |
 | `docs/SUPABASE_SECRET_DRILL.md` | Secrets-configuration drill runbook: diagnose Supabase secret misconfiguration via the diagnostic workflow without a failing push. |
 | `docs/LAUNCH_CHECKLIST.md` | Launch checklist; use with current status file. |
+| `docs/LAUNCH_DECISION_BRIEF.md` | Decision brief for the five launch decisions (hosting, database, auth scope, API keys, audience) with grounded recommendations. |
 | `docs/LOAD_TESTING.md` | Load testing method. |
 | `docs/MOBILE_UAT_PLAN.md` | Real-device mobile UAT plan that closes the `mobile-sales-uat` criterion, with the required evidence pack. |
 | `docs/MOBILE_UAT_RESULT_TEMPLATE.md` | Fill-in session result template (becomes the evidence pack's `uat-summary.md`). |
