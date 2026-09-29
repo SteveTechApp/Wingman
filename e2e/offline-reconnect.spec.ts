@@ -233,6 +233,80 @@ test("sync conflict surfaces the in-app banner and Keep server copy resolves it"
   await seatB.close();
 });
 
+// Drill C's alternate path: Keep my edits re-bases the dirty local value on
+// the server's current revision and pushes it in one tap, so the field
+// measurement wins without the tester re-making the edit. Same conflict
+// script as the Keep-server test (12 → 18 → dirty 42) — the outcome differs:
+// the server must end at 42 and the local record synced, with no DevTools.
+test("sync conflict Keep my edits re-bases the local value and pushes it", async ({ browser }) => {
+  const email = "offline-uat-keepmine@example.com";
+  const seatA = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const seatB = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const pageA = await seatA.newPage();
+  const pageB = await seatB.newPage();
+  await openHarness(pageA);
+  await openHarness(pageB);
+
+  // Seat A lands revision 1 (12); seat B adopts it and goes dirty/offline at
+  // 42; seat A lands revision 2 (18) behind seat B's back — identical setup
+  // to the Keep-server test, one shared workspace-scoped account.
+  await authenticate(pageA, "signup", email);
+  await pageA.evaluate(async (projectId) => {
+    const { storage } = (window as any).__surveyHarness;
+    storage.setCableLength(projectId, "route-a", 12);
+    storage.setCableConfirmed(projectId, "route-a", true);
+  }, PROJECT_ID);
+  expect(await apiSync(pageA, PROJECT_ID)).toMatchObject({ outcome: "synced" });
+  const revision1 = await (await pageA.request.get(`/api/wingman/site-survey/sync?projectId=${encodeURIComponent(PROJECT_ID)}`)).json();
+  await authenticate(pageB, "login", email);
+  await pageB.evaluate(({ key, projectId, revision }) => {
+    localStorage.setItem(key, JSON.stringify({ [projectId]: {
+      projectId, cableEdits: {}, deviceEdits: {}, locationEdits: {},
+      lastModified: "2026-09-10T12:00:00.000Z", synced: true, serverTimestamp: revision,
+    } }));
+  }, { key: STORAGE_KEY, projectId: PROJECT_ID, revision: revision1.serverTimestamp });
+  await seatB.setOffline(true);
+  await expect(editAndSync(pageB, 42)).resolves.toMatchObject({ outcome: "error", error: "offline" });
+  await authenticate(pageA, "login", email);
+  await pageA.evaluate(async (projectId) => (window as any).__surveyHarness.storage.setCableLength(projectId, "route-a", 18), PROJECT_ID);
+  expect(await apiSync(pageA, PROJECT_ID)).toMatchObject({ outcome: "synced" });
+
+  await seatB.setOffline(false);
+  await authenticate(pageB, "login", email);
+  await openChecklistPage(pageB);
+
+  const banner = pageB.getByTestId("survey-conflict-banner");
+  await expect(banner).toBeVisible();
+  const lengthInput = pageB.getByLabel(/Actual:/).first();
+  await expect(lengthInput).toHaveValue("42");
+
+  // Resolve through the UI: Keep my edits re-bases 42 on the server revision
+  // and re-pushes through the normal path. The banner must clear on success
+  // and the field value must survive untouched — that is the point of the
+  // button: the measurement taken on site wins.
+  await banner.getByRole("button", { name: "Keep my edits" }).click();
+  await expect(banner).toBeHidden();
+  await expect(lengthInput).toHaveValue("42");
+  const resolved = await pageB.evaluate(async (projectId) => {
+    const { storage } = (window as any).__surveyHarness;
+    return storage.getProjectEdits(projectId);
+  }, PROJECT_ID);
+  expect(resolved.cableEdits["route-a"].actualLengthMetres).toBe(42);
+  expect(resolved.synced).toBe(true);
+  const serverAfterResolve = await (await pageB.request.get(`/api/wingman/site-survey/sync?projectId=${encodeURIComponent(PROJECT_ID)}`)).json();
+  expect(serverAfterResolve.edits.cableEdits["route-a"].actualLengthMetres).toBe(42);
+  expect(resolved.serverTimestamp).toBe(serverAfterResolve.serverTimestamp);
+
+  // The project is left in a clean state: a further small edit syncs without
+  // any 409 residue.
+  await expect(editAndSync(pageB, 44)).resolves.toMatchObject({ outcome: "synced" });
+  const serverCopy = await (await pageB.request.get(`/api/wingman/site-survey/sync?projectId=${encodeURIComponent(PROJECT_ID)}`)).json();
+  expect(serverCopy.edits.cableEdits["route-a"].actualLengthMetres).toBe(44);
+
+  await seatA.close();
+  await seatB.close();
+});
+
 const responsiveCases = [
   { name: "mobile", width: 390, height: 844, touch: true },
   { name: "tablet", width: 768, height: 1024, touch: true },

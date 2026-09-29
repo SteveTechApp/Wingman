@@ -93,7 +93,7 @@ an error badge, it does not hang the page).
 ## 5. Before the session (facilitator checklist)
 
 - [ ] Staging deployed from the nominated commit; `/api/health` green; footer hash recorded.
-- [ ] Automation gate run and passing: `node tools/run-windows-critical-e2e.mjs --offline` (5/5 Chromium — the suite pins offline persistence, replay, the API-level conflict, the in-app banner resolution, and responsive layouts). Do **not** run the spec with a bare `npx playwright test` — that invocation starts no API and fails on connection-refused (documented in `late-beta-v1-candidate.md`).
+- [ ] Automation gate run and passing: `node tools/run-windows-critical-e2e.mjs --offline` (6/6 Chromium — the suite pins offline persistence, replay, the API-level conflict, both in-app banner resolutions (Keep server copy and Keep my edits), and responsive layouts). Do **not** run the spec with a bare `npx playwright test` — that invocation starts no API and fails on connection-refused (documented in `late-beta-v1-candidate.md`).
 - [ ] UAT workspace + two named accounts created; one test project with a topology (cables visible in the site-survey checklist) seeded.
 - [ ] Project backend sync enabled on staging (`VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC`) — Drill D needs it.
 - [ ] Defect log opened (`defects.csv`); screenshots possible on every device; airplane mode reachable in one gesture on each phone.
@@ -168,9 +168,9 @@ human evidence and automation describe one sequence.
    server now holds **42**. (Re-base-then-push is the same revision adoption
    the automated spec performs; the banner's **Keep my edits** button runs
    that sequence in one tap and is the alternate path — the automated suite
-   covers **Keep server copy** through the real banner UI, so human evidence
-   should focus on the Keep-my-edits path and on the banner appearing without
-   any manual gesture.)
+   covers **both banner buttons** through the real UI, so human evidence
+   should focus on the banner appearing without any manual gesture and on
+   which option the tester prefers and why.)
 8. Convergence: on the second seat, wait ≤ two poll intervals. Expected: checklist shows **42** (clean adoption, badge "Received updates from server").
 9. Adoption inverse (2 min): with the phone holding **no** unsynced edits, the second seat edits the cable again. Expected: the phone adopts the new value automatically within ~10 s — no conflict message.
 
