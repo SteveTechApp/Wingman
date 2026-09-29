@@ -118,12 +118,6 @@ export function TemplateReviewPage() {
   if (!selectedTemplate) return <div data-wingman-template-detail-page="true" className="pb-10"><PageHero eyebrow="Room templates" title="Template not found." purpose="The selected room design template could not be found." nextMove="Go back to the template library and pick a room design to review." actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]} /></div>;
 
   const template = selectedTemplate, applicationProfile = getTemplateApplicationProfile(selectedTemplate);
-  const counts = {
-    Required: selectedRows.filter((row) => row.type === "Required" && row.status !== "excluded").length,
-    Validate: selectedRows.filter((row) => row.type === "Validate" && row.status !== "excluded").length,
-    Optional: selectedRows.filter((row) => row.type === "Optional" && row.status !== "excluded").length,
-    Excluded: selectedRows.filter((row) => row.status === "excluded").length,
-  };
   const categories = ["All", ...Array.from(new Set(selectedRows.map((row) => row.role.split(" ")[0])))];
   const groupedRows = equipmentGroups.map((name) => ({
     name, rows: selectedRows.filter((row) => groupFor(row) === name && (filter === "All" || row.role.startsWith(filter))),
@@ -244,6 +238,7 @@ export function TemplateReviewPage() {
         {activeTab === "Overview" ? <div className="wm-template-overview">
           <section className="wm-template-overview-main">
             {template.concept ? <TemplateConceptOverview concept={template.concept} /> : null}
+            {!template.concept ? <>
             <div className="wm-template-section-heading"><div><span>System at a glance</span><h2>Signal flow</h2></div><span className="wm-status is-assumed">Template assumptions</span></div>
             <div className="wm-overview-flow">
               {["Sources", "WyreStorm core", "Transport", "Outputs"].map((stage, index) => <div key={stage}><small>0{index + 1}</small><strong>{stage}</strong><p>{index === 0 ? `${template.concept?.sourceCount ?? "Confirm"} source positions` : index === 1 ? template.bom[0]?.sku || "Core platform" : index === 2 ? applicationProfile.architectureFamily : `${template.concept?.outputCount ?? "Confirm"} output destinations`}</p></div>)}
@@ -263,13 +258,10 @@ export function TemplateReviewPage() {
               <section><h3>Assumptions</h3><ul>{template.assumptions.map((item) => <li key={item}>{item}</li>)}</ul></section>
               <section><h3>Site validation required</h3><ul>{template.validationItems.map((item) => <li key={item}>{item}</li>)}</ul></section>
             </div>
+            </> : null}
           </section>
           <aside className="wm-template-readiness">
-            <div><span>Template readiness</span><strong>{readinessScore}%</strong></div>
-            <div className="wm-readiness-bar"><i style={{ width: `${readinessScore}%` }} /></div>
-            <div className="wm-count-strip"><div><strong>{counts.Required}</strong><span>Required</span></div><div><strong>{counts.Validate}</strong><span>Validate</span></div><div><strong>{counts.Optional}</strong><span>Optional</span></div></div>
-            <h3>Priority validation</h3>
-            <ol>{template.validationItems.slice(0, 3).map((item) => <li key={item}><span>?</span>{item}</li>)}</ol>
+            <details><summary>Site checks ({template.validationItems.length})</summary><ol>{template.validationItems.map((item) => <li key={item}>{item}</li>)}</ol></details>
             <button className="wm-button is-primary is-full" type="button" onClick={() => setActiveTab("Equipment")}>Review validation items</button>
             <button className="wm-button is-secondary is-full" type="button" onClick={() => setActiveTab("Proposal")}>Continue with assumptions</button>
           </aside>

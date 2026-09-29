@@ -2,6 +2,72 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GovernedProfileBrowser } from "./GovernedProfileBrowser";
 
+// These tests exercise component BEHAVIOUR (download deferral, dialog editing,
+// admin confirmation), not the governed dataset - dataset coverage belongs to
+// the data gates (check:technical-data and friends). Rendering the full
+// 206-profile corpus made the dialog tests so heavy that they timed out
+// whenever the whole suite ran in parallel, an intermittent CI flake. A small
+// fixture keeps them hermetic and intrinsically fast.
+vi.mock("../../../../data/governance/wyrestorm-technical-profiles.json", () => ({
+  default: {
+    generatedAt: "2026-09-28T00:00:00.000Z",
+    profiles: [
+      {
+        sku: "AMP-2120",
+        name: "Amplifier 2120",
+        productClass: "AUDIO",
+        role: "Amplifier",
+        productType: "Power amplifier",
+        status: "review-required",
+        transport: ["Audio"],
+        ports: [{ count: 2, connector: "XLR/TRS", direction: "input", category: "audio", detail: "" }],
+        audio: ["DSP"],
+        power: ["IEC"],
+        specs: { powerOutput: "120W" },
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/amp-2120", reviewedOn: "2026-09-01" }],
+      },
+      {
+        sku: "AMP-260-DNT",
+        name: "Amplifier 260 Dante",
+        productClass: "AUDIO",
+        role: "Dante amplifier",
+        productType: "Power amplifier",
+        status: "verified-with-warning",
+        transport: ["Dante"],
+        ports: [{ count: 1, connector: "Terminal", direction: "output", category: "audio", detail: "" }],
+        features: { dante: true },
+        audio: ["DSP"],
+        power: ["IEC"],
+        specs: { powerOutput: "60W" },
+        dependencies: [],
+        checks: [],
+        warnings: ["Fan noise"],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/amp-260-dnt", reviewedOn: "2026-09-02" }],
+      },
+      {
+        sku: "APO-COM-MIC",
+        name: "Compact DSP microphone",
+        productClass: "AUDIO",
+        role: "Microphone",
+        productType: "Conference microphone",
+        status: "review-required",
+        transport: ["Dante"],
+        ports: [],
+        audio: ["Beamforming"],
+        power: ["PoE"],
+        specs: {},
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/apo-com-mic", reviewedOn: "2026-09-03" }],
+      },
+    ],
+  },
+}));
+
 // The GovernedProfileBrowser download handlers (Export CSV and Save Changes ->
 // JSON) revoke their blob URLs on a later task so the browser can begin the
 // download fetch against a still-live URL. These tests pin that deferral from

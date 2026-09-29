@@ -176,6 +176,7 @@ async function signInViaSettings(page) {
   //    API server and its Set-Cookie lands on the UI origin, exactly like a
   //    real user session - no cookie is injected for this flow.
   await page.goto(`${UI_BASE}/wingman/profile`, { waitUntil: "networkidle", timeout: 60_000 });
+  await page.getByRole("button", { name: "Workspace", exact: true }).click();
   const workspaceSection = page.locator('section[aria-labelledby="wingman-settings-workspace"]');
   await workspaceSection.waitFor({ state: "visible", timeout: 15_000 });
 

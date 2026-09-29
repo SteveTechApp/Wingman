@@ -198,6 +198,8 @@ describe("app-wide missing-tier copy consistency sweep", () => {
       { timeout: 5000 },
     );
 
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "APO-MIC-EXT" } });
+
     // A stripped card must render the canonical missing-tier badge - and the
     // real APO-COM-MIC card must NOT claim it (it resolves official data).
     const card = Array.from(document.querySelectorAll(".wm-catalog-product-card")).find(

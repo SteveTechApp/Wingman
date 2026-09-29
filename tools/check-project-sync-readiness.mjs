@@ -54,8 +54,10 @@ expectMarkers("src/wingman2/api/wingmanApi.ts", [
 ]);
 
 expectMarkers("src/wingman2/pages/ProfilePage.tsx", [
-  "Workspace sync",
-  "Live-call recovery",
+  "Workspace account",
+  "wingman-settings-workspace",
+  "handleSignIn",
+  "handleSignOut",
   "Create workspace",
   "hydrateProjectStoreFromBackend",
   "resetProjectBackendSyncSessionState",

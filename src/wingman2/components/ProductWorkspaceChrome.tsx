@@ -13,15 +13,13 @@ type ProductWorkspaceHeaderProps = {
 export function ProductWorkspaceHeader({
   title,
   description,
-  eyebrow = "Product workspace",
   actions,
 }: ProductWorkspaceHeaderProps) {
   return (
     <section className="wm-product-workspace-intro">
       <div className="wm-product-workspace-heading">
-        <p className="wm-ui-kicker">{eyebrow}</p>
         <h1 className="wm-ui-title">{title}</h1>
-        <p className="wm-ui-copy">{description}</p>
+        <details className="wingman-page-help"><summary>About this view</summary><p>{description}</p></details>
       </div>
       {actions ? <div className="wm-product-workspace-actions">{actions}</div> : null}
     </section>

@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CheckCircle2, Pencil, Save, Trash2, X } from "lucide-react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { CheckCircle2, Pencil, Save, Trash2, X } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { AuditLogPanel } from "../components/AuditLogPanel";
+import { WorkflowNavigation, useWorkflowPage } from "../components/WorkflowPages";
 import { PageHero } from "../components/PageHero";
 import { ProjectSyncConflictBanner } from "../components/SyncConflictBanner";
 import { SectionCard } from "../components/SectionCard";
-import { StatusChip } from "../components/StatusChip";
+
 import {
   removeProductSelectionFromProject,
   saveProjectRequirementsToProject,
   setActiveProjectId,
   updateStoredProject,
   type StoredCompareRun,
-  type StoredProject,
   type StoredRequirementRecord,
   useProjectStore,
 } from "../features/projects";
@@ -21,8 +21,7 @@ import { CrmSharePanel } from "../components/CrmSharePanel";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
 import { saveProjectAsRoomTemplate } from "../lib/customRoomTemplates";
-import { getProjectRequirementRecords, requirementReadiness } from "../lib/projectRequirements";
-import { getProductFamilyRankingReason } from "../lib/productFamilyShortlistRanking";
+import { getProjectRequirementRecords } from "../lib/projectRequirements";
 import { repTierLabelFromRun } from "../lib/repScript";
 import { RequirementsAccordion } from "./project/RequirementsAccordion";
 import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePanel";
@@ -40,12 +39,6 @@ function compareDeepLink(compareRun: StoredCompareRun, projectId?: string) {
   if (sku) params.set("sku", sku);
   const query = params.toString();
   return query ? `${routeCatalogByKey.compare.path}?${query}` : routeCatalogByKey.compare.path;
-}
-
-function projectStatusLabel(status: StoredProject["status"]) {
-  if (status === "recommended") return "On track";
-  if (status === "alternative") return "In progress";
-  return "Needs review";
 }
 
 function projectText(value: unknown, fallback = "Not captured") {
@@ -192,20 +185,16 @@ type ProjectReadinessGate = {
   route: string;
 };
 
-type ProjectDetailSection = "overview" | "capture" | "confirm" | "decide" | "handoff" | "audit";
-
-const projectDetailSections: Array<{
-  key: ProjectDetailSection;
-  label: string;
-  shortLabel: string;
-  description: string;
-}> = [
-  { key: "overview", label: "Overview", shortLabel: "Start", description: "See the decision and next action." },
-  { key: "capture", label: "Capture", shortLabel: "1", description: "Review where the customer information came from." },
-  { key: "confirm", label: "Confirm", shortLabel: "2", description: "Check requirements and settle open answers." },
-  { key: "decide", label: "Decide", shortLabel: "3", description: "Review the evidence behind the product direction." },
-  { key: "handoff", label: "Handoff", shortLabel: "4", description: "Prepare the response and share the project." },
-  { key: "audit", label: "Audit Log", shortLabel: "Log", description: "Track who changed what and when across this project." },
+const projectDetailSections = [
+  { id: "overview", label: "Overview" },
+  { id: "confirm", label: "Requirements" },
+  { id: "products", label: "Equipment" },
+  { id: "decide", label: "Product fit" },
+  { id: "capture", label: "Evidence" },
+  { id: "conversation", label: "Answers" },
+  { id: "history", label: "Saved work" },
+  { id: "handoff", label: "Handoff" },
+  { id: "audit", label: "Activity" },
 ];
 
 function formatProjectTimestamp(value: unknown) {
@@ -226,8 +215,8 @@ function formatProjectTimestamp(value: unknown) {
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
-  const location = useLocation();
-  const opensHistory = new URLSearchParams(location.search).get("view") === "history";
+
+
   const navigate = useNavigate();
   const { projects, deleteProject } = useProjectStore();
   const project = projects.find((item) => item.id === projectId) ?? null;
@@ -251,15 +240,13 @@ export function ProjectDetailPage() {
   const [requirements, setRequirements] = useState<StoredRequirementRecord[]>(initialRequirements);
   const [message, setMessage] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
-  const [showSupportingDetails, setShowSupportingDetails] = useState(opensHistory);
-  const [activeSection, setActiveSection] = useState<ProjectDetailSection>(opensHistory ? "capture" : "overview");
+  const { current: activeSection, go: setActiveSection } = useWorkflowPage(projectDetailSections);
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [projectDraft, setProjectDraft] = useState({ name: "", owner: "" });
   const [showBlockerReview, setShowBlockerReview] = useState(false);
   const [activeBlockerIndex, setActiveBlockerIndex] = useState(0);
   const [blockerDraft, setBlockerDraft] = useState("");
-  const readiness = useMemo(() => requirementReadiness(requirements), [requirements]);
   const recommendationEvidence = useMemo(
     () =>
       project
@@ -294,17 +281,6 @@ export function ProjectDetailPage() {
     return `${routeCatalogByKey.proposalVisuals.path}?${params.toString()}`;
   }, [selectedProducts]);
 
-  const selectedProductRankingReasons = useMemo(
-    () =>
-      selectedProducts
-        .map((product) => ({
-          sku: product.sku,
-          reason: getProductFamilyRankingReason(product, productFamilyScores),
-        }))
-        .filter((item) => Boolean(item.reason)),
-    [productFamilyScores, selectedProducts],
-  );
-  const latestCompareRun = project?.compareRuns?.[0] ?? null;
   const proposal = project?.proposal ?? null;
   const discoveryResume = discoveryResumeInfo(project?.discoveryBrief);
   const discoveryResumeInterview = Boolean(discoveryResume && discoveryResume.hasContent && !discoveryResume.complete);
@@ -319,63 +295,6 @@ export function ProjectDetailPage() {
 
     return dedupeText([...evidenceMissing, ...discoveryMissing, ...proposalWarnings, ...weakRequirements]);
   }, [project, proposal, recommendationEvidence, requirements]);
-
-  const commandCards = useMemo(() => {
-    if (!project) return [
-      {
-        label: "Ranking reason",
-        value: selectedProductRankingReasons[0]?.sku || "No ranked product",
-        detail:
-          selectedProductRankingReasons[0]?.reason ||
-          "No product-family ranking reason has been stored for the selected products yet.",
-      },];
-
-    const capturedPercent =
-      typeof project.discoveryBrief?.capturedPercent === "number"
-        ? `${project.discoveryBrief.capturedPercent}% captured`
-        : "Discovery not scored";
-
-    const compareLabel = latestCompareRun
-      ? projectText(
-          [
-            latestCompareRun.competitorBrand,
-            latestCompareRun.competitorSku || latestCompareRun.competitorName,
-          ]
-            .filter(Boolean)
-            .join(" "),
-          "Compare run saved",
-        )
-      : "No compare run saved";
-
-    const proposalLabel = proposal
-      ? projectText(proposal.outputPurpose?.motion || proposal.title, "Response draft saved")
-      : "No response draft saved";
-
-    return [
-      {
-        label: "Discovery brief",
-        value: capturedPercent,
-        detail: project.discoveryBrief?.nextBestQuestion || "Open Discovery to capture the next customer requirement.",
-      },
-      {
-        label: "Product direction",
-        value: recommendationEvidence?.productDirection || "Not selected",
-        detail: recommendationEvidence?.systemShape || "Use Recommendations or Product Positioning to create a safer product direction.",
-      },
-      {
-        label: "Compare evidence",
-        value: compareLabel,
-        detail: latestCompareRun?.summary || "No competitor comparison evidence has been saved to this project yet.",
-      },
-      {
-        label: "Response readiness",
-        value: proposalLabel,
-        detail:
-          recommendationEvidence?.quoteSafetyMessage ||
-          (proposal?.readinessScore ? `Response readiness score: ${proposal.readinessScore}%` : "Build a response after requirements are clearer."),
-      },
-    ];
-  }, [latestCompareRun, project, proposal, recommendationEvidence, selectedProductRankingReasons]);
 
   const projectEvidenceTimeline = useMemo<ProjectEvidenceTimelineItem[]>(() => {
     if (!project) return [];
@@ -777,15 +696,7 @@ export function ProjectDetailPage() {
         ]}
       />
 
-      <nav className="wm-project-detail-nav wm-ui-card" aria-label="Project review navigation">
-        <div className="wm-project-detail-nav__links">
-          <Link to={routeCatalogByKey.projects.path} className="wm-ui-button wm-ui-button-secondary">
-            <ArrowLeft className="h-4 w-4" /> All projects
-          </Link>
-          <a href="#project-overview" onClick={() => { setShowSupportingDetails(true); setActiveSection("overview"); }} className={`wm-ui-button ${activeSection === "overview" ? "wm-ui-button-primary" : "wm-ui-button-secondary"}`}>Overview</a>
-          <a href="#project-requirements" onClick={() => { setShowSupportingDetails(true); setActiveSection("confirm"); }} className={`wm-ui-button ${activeSection === "confirm" ? "wm-ui-button-primary" : "wm-ui-button-secondary"}`}>Requirements</a>
-          <a href="#project-evidence" onClick={() => { setShowSupportingDetails(true); setActiveSection("capture"); }} className={`wm-ui-button ${activeSection === "capture" ? "wm-ui-button-primary" : "wm-ui-button-secondary"}`}>Evidence</a>
-        </div>
+      <details className="wm-project-detail-actions"><summary>Project actions</summary><nav className="wm-project-detail-nav wm-ui-card" aria-label="Project review navigation">
         <div className="wm-project-detail-nav__actions">
           <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => setIsEditingProject((current) => !current)}>
             {isEditingProject ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
@@ -801,7 +712,7 @@ export function ProjectDetailPage() {
             {confirmDelete ? "Confirm delete" : "Delete"}
           </button>
         </div>
-      </nav>
+      </nav></details>
 
       <ProjectSyncConflictBanner conflict={project.syncConflict} />
 
@@ -821,6 +732,7 @@ export function ProjectDetailPage() {
         </section>
       ) : null}
 
+        <WorkflowNavigation pages={projectDetailSections} current={activeSection} onChange={setActiveSection} label="Project pages" />
       <div id="project-overview" className="wm-project-detail-stack space-y-6">
         {savedTemplatePath ? (
           <section className="rounded-2xl border p-3 text-sm wm-output-panel">
@@ -834,6 +746,7 @@ export function ProjectDetailPage() {
           </section>
         ) : null}
 
+        {activeSection === "overview" ? (
         <section className="wm-project-current-result rounded-3xl border p-5 wm-ui-card">
           <div className="wm-project-current-result__layout grid gap-4 lg:grid-cols-[1fr_280px] lg:items-center">
             <div className="wm-project-current-result__summary">
@@ -842,7 +755,7 @@ export function ProjectDetailPage() {
                 {selectedProducts[0]?.sku || leadingProductFamilyScore?.family || "No product direction selected"}
               </h2>
               <p className="mt-2 text-sm leading-6 wm-ui-copy">
-                {selectedProducts[0]?.title || selectedProducts[0]?.family || projectReadinessGate.summary}
+                {selectedProducts[0]?.title || selectedProducts[0]?.family || "Choose equipment after confirming the room requirements."}
               </p>
               {selectedProducts.length > 1 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -868,7 +781,7 @@ export function ProjectDetailPage() {
                   aria-expanded={showBlockerReview}
                   aria-controls="project-blocker-walkthrough"
                 >
-                  Review {projectReadinessGate.blockers.length} project blocker{projectReadinessGate.blockers.length === 1 ? "" : "s"}
+                  Resolve {projectReadinessGate.blockers.length} open question{projectReadinessGate.blockers.length === 1 ? "" : "s"}
                 </button>
               ) : (
                 <Link
@@ -892,11 +805,11 @@ export function ProjectDetailPage() {
                     <p className="wm-project-blocker-walkthrough__item">{activeBlocker}</p>
                     {activeBlockerCanAnswerInline ? (
                       <p className="wm-project-blocker-walkthrough__why">
-                        Answer here to update the project requirement without leaving this page.
+                        Save the answer to this project.
                       </p>
                     ) : (
                       <p className="wm-project-blocker-walkthrough__why">
-                        This blocker needs the linked Wingman workflow rather than a simple project answer.
+                        Open the linked tool to resolve this check.
                       </p>
                     )}
                   </div>
@@ -979,125 +892,12 @@ export function ProjectDetailPage() {
               ) : null}
             </div>
           </div>
-          <div className="wm-project-current-result__footer">
-            <button
-              type="button"
-              onClick={() => setShowSupportingDetails((current) => !current)}
-              className="rounded-full border px-4 py-2 text-sm font-black wm-ui-button wm-ui-button-secondary"
-              aria-expanded={showSupportingDetails}
-            >
-              {showSupportingDetails ? "Hide project detail" : "Review project detail"}
-            </button>
-          </div>
-        </section>
+        </section>) : null}
 
-        <section className="wm-project-stage-picker rounded-2xl border p-4 wm-ui-card" aria-label="Project review stages">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Review stages</p>
-              <p className="mt-1 text-sm wm-ui-copy">Follow the record from captured information to customer-ready output.</p>
-            </div>
-            <div className="flex flex-wrap gap-2" role="tablist" aria-label="Project review stages">
-              {projectDetailSections.map((section) => (
-                <button
-                  key={section.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeSection === section.key}
-                  className={`rounded-xl border px-3 py-2 text-xs font-black transition ${activeSection === section.key ? "wm-ui-button wm-ui-button-primary" : "wm-ui-button wm-ui-button-secondary"}`}
-                  onClick={() => { setShowSupportingDetails(true); setActiveSection(section.key); }}
-                >
-                  <span className="mr-1.5 opacity-60">{section.shortLabel}</span>{section.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <p className="mt-3 text-xs wm-ui-copy" role="status">
-            {projectDetailSections.find((section) => section.key === activeSection)?.description}
-          </p>
-        </section>
 
-        {showSupportingDetails ? (
-        <>
-        {activeSection === "overview" ? <>
-        {/* Compact project stats bar */}
-        <section className="rounded-2xl border p-4 wm-ui-card">
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Project info */}
-            <div className="flex items-center gap-3">
-              <div className="text-center">
-                <p className="text-2xl font-black wm-ui-copy">{readiness.score}%</p>
-                <p className="text-[10px] uppercase tracking-wider wm-ui-kicker">Ready</p>
-              </div>
-              <div className="h-8 w-px wm-ui-card" />
-              <div className="flex items-center gap-2">
-                <StatusChip label={projectStatusLabel(project.status)} variant={project.status} />
-                <span className="text-xs wm-ui-copy">{project.owner}</span>
-              </div>
-            </div>
 
-            {/* Quick stats */}
-            <div className="flex items-center gap-3 text-xs">
-              <span className="flex items-center gap-1">
-                <span className="font-bold wm-ui-copy">{readiness.confirmed}</span>
-                <span className="wm-ui-copy">confirmed</span>
-              </span>
-              {readiness.review > 0 && (
-                <span className="flex items-center gap-1">
-                  <span className="font-bold wm-ui-copy">{readiness.review}</span>
-                  <span className="wm-ui-copy">review</span>
-                </span>
-              )}
-              {readiness.unknown > 0 && (
-                <span className="flex items-center gap-1">
-                  <span className="font-bold wm-ui-copy">{readiness.unknown}</span>
-                  <span className="wm-ui-copy">unknown</span>
-                </span>
-              )}
-            </div>
-
-            {/* Actions */}
-            <div className="ml-auto flex items-center gap-2">
-              <button
-                type="button"
-                onClick={saveRequirements}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold wm-ui-button wm-ui-button-primary"
-              >
-                <Save className="h-3 w-3" />
-                Save
-              </button>
-              <Link
-                to={routeCatalogByKey.projects.path}
-                className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold wm-ui-button wm-ui-button-secondary"
-              >
-                <ArrowLeft className="h-3 w-3" />
-                Projects
-              </Link>
-            </div>
-          </div>
-          {message ? (
-            <p className="mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs wm-ui-card wm-ui-copy">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              {message}
-            </p>
-          ) : null}
-        </section>
-
-        {/* Compact command cards - always visible */}
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {commandCards.map((card) => (
-            <div key={card.label} className="rounded-xl border p-3 wm-ui-card">
-              <p className="text-[10px] font-black uppercase tracking-[0.14em] wm-ui-kicker">{card.label}</p>
-              <p className="mt-1.5 text-sm font-bold line-clamp-1 wm-ui-copy">{card.value}</p>
-              <p className="mt-1 text-xs line-clamp-2 wm-ui-copy">{card.detail}</p>
-            </div>
-          ))}
-        </section>
-        </> : null}
-
-        {/* Collapsible detailed view */}
-        {activeSection === "overview" ? <SectionCard
-          title="Opportunity details"
+        {activeSection === "products" ? <SectionCard
+          title="Equipment"
           subtitle="Discovery status, product direction, blockers, and workflow handoff."
         >
           {/* Product family decision */}
@@ -1199,8 +999,8 @@ export function ProjectDetailPage() {
           </div>
         </SectionCard> : null}
 
-        {activeSection === "overview" ? <SectionCard
-          title="Response readiness gate"
+        {activeSection === "handoff" ? <SectionCard
+          title="Ready to send?"
           subtitle="Use this as the commercial safety check before turning the project into a customer proposal or quote request."
         >
           <div
@@ -1242,49 +1042,6 @@ export function ProjectDetailPage() {
           </div>
         </SectionCard> : null}
 
-        {activeSection === "overview" ? (
-          <>
-            <SectionCard
-              title="Project evidence trace"
-              subtitle="A short preview of the latest captured source. Open Capture for the complete evidence trail."
-            >
-              <span id="project-evidence" className="wm-project-detail-anchor" aria-hidden="true" />
-              {projectEvidenceTimeline.length ? (
-                <div className="grid gap-2">
-                  {projectEvidenceTimeline.filter((item) => item.id.startsWith("compare-") || item.id === "recommendation-evidence").slice(-2).map((item) => (
-                    <div key={item.id} className="grid gap-2 rounded-xl border p-3 sm:grid-cols-[minmax(0,1fr)_auto] wm-ui-card">
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">{item.source}</p>
-                        <p className="mt-1 text-sm font-black wm-ui-copy">{item.label}</p>
-                        <p className="mt-1 text-xs leading-5 wm-ui-copy">{item.detail}</p>
-                      </div>
-                      <div className="flex items-center gap-2 sm:flex-col sm:items-end sm:justify-center">
-                        <span className="text-xs font-bold wm-ui-copy">{item.status}</span>
-                        <Link to={item.route} className="wm-ui-button wm-ui-button-secondary px-3 py-1.5 text-xs">Open</Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm wm-ui-copy">No saved evidence yet. Start with Capture to build the record.</p>
-              )}
-              <button type="button" className="mt-3 wm-ui-button wm-ui-button-secondary text-xs"              onClick={() => { setShowSupportingDetails(true); setActiveSection("capture"); }}>Review full evidence</button>
-
-            </SectionCard>
-
-            <SectionCard
-              title="Discovery conversation"
-              subtitle="A small preview of what was captured. Open Capture to review or correct the complete conversation."
-            >
-              <span id="project-discovery-conversation" className="wm-project-detail-anchor" aria-hidden="true" />
-              <DiscoveryConversationReview items={(project?.discoveryBrief?.discoveryConversation ?? []).slice(0, 3)} />
-              {(project?.discoveryBrief?.discoveryConversation?.length ?? 0) > 3 ? (
-                <button type="button" className="mt-3 wm-ui-button wm-ui-button-secondary text-xs" onClick={() => { setShowSupportingDetails(true); setActiveSection("capture"); }}>Review all captured answers</button>
-              ) : null}
-            </SectionCard>
-          </>
-        ) : null}
-
         {activeSection === "capture" ? <SectionCard
           title="Project evidence trace"
           subtitle="Trace what Wingman has actually captured, where it came from, what it proves, and which workflow should be opened next."
@@ -1318,7 +1075,7 @@ export function ProjectDetailPage() {
           )}
         </SectionCard> : null}
 
-        {activeSection === "capture" ? <SectionCard
+        {activeSection === "history" ? <SectionCard
           title="Saved comparisons"
           subtitle="Past decisions are kept with this project. Reopen one to check it against current product data."
         >
@@ -1344,7 +1101,7 @@ export function ProjectDetailPage() {
           ) : <p className="text-sm wm-ui-copy">No comparisons saved to this project yet.</p>}
         </SectionCard> : null}
 
-        {activeSection === "capture" ? <SectionCard
+        {activeSection === "history" ? <SectionCard
           title="Response versions"
           subtitle="Review earlier customer response drafts and restore a version when needed."
         >
@@ -1354,8 +1111,8 @@ export function ProjectDetailPage() {
           />
         </SectionCard> : null}
 
-        {activeSection === "capture" ? <SectionCard
-          title="Discovery conversation"
+        {activeSection === "conversation" ? <SectionCard
+          title="Captured answers"
           subtitle="The questions asked, the governed answers, and the customer's own wording — audit the trail and jump into Discovery to correct any row before it reaches a response."
         >
           <span id="project-discovery-conversation" className="wm-project-detail-anchor" aria-hidden="true" />
@@ -1373,6 +1130,8 @@ export function ProjectDetailPage() {
             requirements={requirements}
             onUpdate={updateRequirement}
           />
+          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={saveRequirements}>Save requirements</button>
+          {message ? <p role="status">{message}</p> : null}
         </SectionCard> : null}
 
         {activeSection === "decide" ? <SectionCard
@@ -1411,8 +1170,6 @@ export function ProjectDetailPage() {
           >
             <AuditLogPanel entries={project.auditTrail ?? []} />
           </SectionCard>
-        ) : null}
-        </>
         ) : null}
       </div>
     </main>

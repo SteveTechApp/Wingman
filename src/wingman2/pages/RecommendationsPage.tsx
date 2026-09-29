@@ -1,3 +1,4 @@
+import { useWorkflowPage } from "../components/WorkflowPages";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, PencilLine, Plus, RefreshCw, Route, ShieldCheck, XCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -235,7 +236,7 @@ export function RecommendationsPage() {
   const [message, setMessage] = useState("");
   const [editingCheck, setEditingCheck] = useState("");
   const [detailAnswers, setDetailAnswers] = useState<Record<string, string>>({});
-  const [stage, setStage] = useState<RecommendationStage>("overview");
+  const { current: stage, go: setStage } = useWorkflowPage(recommendationStages);
   const [showAlternatives, setShowAlternatives] = useState(false);
 
   useEffect(() => {
@@ -764,17 +765,14 @@ export function RecommendationsPage() {
     >
       <PageHero
         eyebrow="Discovery recommendations"
-        title="Build the complete system."
+        title="Recommended system"
         purpose="Wingman has translated the Discovery brief into the product roles, quantities and dependencies needed to make the design work as one system."
         nextMove="Review the proposed architecture, confirm unresolved checks, then add the complete system to the active project."
       />
 
       {brief && loadState === "ready" ? (
         <nav className="wm-rec-stage-picker" aria-label="Recommendation stages">
-          <div className="wm-rec-stage-picker__intro">
-            <span className="wm-ui-kicker">Recommendation review</span>
-            <strong>Move through the design in five focused steps.</strong>
-          </div>
+          
           <div className="wm-rec-stage-picker__tabs" role="tablist" aria-label="Recommendation review steps">
             {recommendationStages.map((item, index) => (
               <button
@@ -787,7 +785,7 @@ export function RecommendationsPage() {
               >
                 <span>{index + 1}</span>
                 <strong>{item.label}</strong>
-                <small>{item.description}</small>
+                
               </button>
             ))}
           </div>

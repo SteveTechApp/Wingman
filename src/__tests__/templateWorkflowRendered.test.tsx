@@ -62,9 +62,9 @@ describe("template workflow wiring", () => {
     renderTemplateRoutes(`/wingman/templates/${template.id}`);
     expect(screen.getByRole("img", { name: `${template.name} application` })).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "Overview" }));
-    expect(screen.getByRole("heading", { name: "Third-party scope" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Room concept" })).toBeVisible();
     expect(screen.getAllByText(profile.architectureFamily).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(profile.sizingBasis[0]).length).toBeGreaterThan(0);
+    expect(screen.getByText(template.concept!.statement)).toBeVisible();
     expect(screen.getByRole("region", { name: "Room concept statement" })).toBeVisible();
   });
 

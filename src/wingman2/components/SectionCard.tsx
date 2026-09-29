@@ -14,11 +14,9 @@ export function SectionCard({ title, subtitle, children, rightSlot, showHelp = t
     <section className="wingman-section-card wingman-surface" data-wm-card-level="standard">
       <header className="wingman-section-card-header">
         <div>
-          <p className="wingman-kicker">Wingman workspace</p>
           <div className="wingman-section-card-title-row">
             <div>
               <h2>{title}</h2>
-              {subtitle ? <p>{subtitle}</p> : null}
             </div>
             {subtitle && showHelp ? (
               <details className="wingman-section-help">

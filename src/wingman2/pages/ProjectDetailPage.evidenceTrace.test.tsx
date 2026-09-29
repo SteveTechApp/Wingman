@@ -79,7 +79,7 @@ describe("Project detail evidence trace contract", () => {
     ];
 
     renderDetail();
-    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
 
     const trace = traceSection();
     expect(within(trace).getByText("Barco CLICKSHARE-CX-30")).not.toBeNull();
@@ -112,7 +112,7 @@ describe("Project detail evidence trace contract", () => {
     ];
 
     renderDetail();
-    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
 
     const trace = traceSection();
     expect(within(trace).getByText("Kramer VS-42H")).not.toBeNull();

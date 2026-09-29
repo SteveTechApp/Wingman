@@ -417,7 +417,6 @@ export function AppShell({ children }: AppShellProps) {
             title={`${activeLabel}: ${activeSummary}`}
           >
             <strong className="wingman-topbar-page-label">{activeLabel}</strong>
-            <span className="wingman-topbar-page-summary">{activeSummary}</span>
           </div>
 
           {isGuided && <div className="wm-topbar-mode-toggle"><UiModeToggle /></div>}

@@ -1,3 +1,4 @@
+import { WorkflowPages } from "../components/WorkflowPages";
 import { useEffect, useRef, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import {
@@ -12,7 +13,7 @@ import {
   projectBackendSyncEnabled,
   resetProjectBackendSyncSessionState,
 } from "../data/projectStore";
-import { StatusChip } from "../components/StatusChip";
+
 import {
   readGlossaryHighlightsEnabled,
   writeGlossaryHighlightsEnabled,
@@ -287,31 +288,20 @@ export function ProfilePage() {
       <header className="wm-polish-hero wm-polish-aqua wm-settings-header">
         <span className="wm-polish-hero-icon" aria-hidden="true"><SlidersHorizontal /></span>
         <div className="wm-polish-hero-copy">
-          <p className="wm-polish-eyebrow wm-ui-kicker">Wingman settings</p>
-          <h1 className="wm-page-title">Local profile and proposal settings</h1>
-          <p className="wm-copy">
-            Compact local setup for branding, user details, region defaults, speech capture and workspace recovery.
-          </p>
+          <h1 className="wm-page-title">Settings</h1>
         </div>
 
         <div className="wm-settings-hero-actions wm-action-row" aria-label="Profile actions">
           <button className="wm-button wm-button-primary" type="button" onClick={saveProfile}>Save</button>
-          <button className="wm-button wm-button-secondary" type="button" onClick={printProfile}>Print</button>
+          <button className="wm-button wm-button-secondary" type="button" onClick={printProfile}>Print this page</button>
           <button className="wm-button wm-button-ghost" type="button" onClick={resetProfile}>Reset</button>
         </div>
       </header>
 
-      <div className="wm-settings-layout" role="group" aria-label="Settings sections">
-        <div className="wm-settings-column">
-          <div className="wm-output-panel wm-settings-status">
-            <StatusChip label="Status" variant="ready" />
-            <strong>{status}</strong>
-          </div>
-
-        <section className="wm-section-card" aria-labelledby="wingman-settings-brand">
-          <p className="wm-ui-kicker">Brand and company</p>
-          <h2 id="wingman-settings-brand" className="wm-card-title">Default proposal identity</h2>
-          <p className="wm-copy">Set the company defaults used when Wingman prepares proposals and response packs.</p>
+      <p role="status">{status}</p>
+      <WorkflowPages label="Settings pages" pages={[
+        { id: "company", label: "Company", content: <><section className="wm-section-card" aria-labelledby="wingman-settings-brand">
+          <h2 id="wingman-settings-brand" className="wm-card-title">Company details</h2>
 
           <div className="wm-form-grid">
             <button
@@ -364,14 +354,9 @@ export function ProfilePage() {
               </select>
             </label>
           </div>
-        </section>
-        </div>
-
-        <div className="wm-settings-column">
-        <section className="wm-section-card" aria-labelledby="wingman-settings-user">
-          <p className="wm-ui-kicker">User details</p>
-          <h2 id="wingman-settings-user" className="wm-card-title">Contact and output details</h2>
-          <p className="wm-copy">Keep the visible author and contact information consistent across generated sales material.</p>
+        </section></> },
+        { id: "contact", label: "Contact", content: <><section className="wm-section-card" aria-labelledby="wingman-settings-user">
+          <h2 id="wingman-settings-user" className="wm-card-title">Contact details</h2>
 
           <div className="wm-form-grid">
             <label className="wm-field">
@@ -399,12 +384,9 @@ export function ProfilePage() {
             Proposal footer
             <textarea className="wm-textarea" value={profile.footerText} onChange={(event) => updateField("footerText", event.target.value)} />
           </label>
-        </section>
-
-        <section className="wm-section-card" aria-labelledby="wingman-settings-defaults">
-          <p className="wm-ui-kicker">Defaults</p>
-          <h2 id="wingman-settings-defaults" className="wm-card-title">Language and intelligence control</h2>
-          <p className="wm-copy">Choose the regional defaults and how new product intelligence is handled.</p>
+        </section></> },
+        { id: "preferences", label: "Preferences", content: <><section className="wm-section-card" aria-labelledby="wingman-settings-defaults">
+          <h2 id="wingman-settings-defaults" className="wm-card-title">Preferences</h2>
 
           <div className="wm-form-grid">
             <label className="wm-field">
@@ -434,9 +416,7 @@ export function ProfilePage() {
             <span>Stage new product and competitor findings for review before Finder, Compare or Proposal use them as trusted data.</span>
           </div>
         </section>
-
-        <section className="wm-section-card" aria-labelledby="wingman-settings-reading">
-          <p className="wm-ui-kicker">Reading assistance</p>
+<section className="wm-section-card" aria-labelledby="wingman-settings-reading">
           <h2 id="wingman-settings-reading" className="wm-card-title">Guru glossary links</h2>
           <p className="wm-copy">
             Highlight AV terms such as HDBaseT, EDID and HDR so they open the matching Guru glossary entry.
@@ -454,13 +434,9 @@ export function ProfilePage() {
               <small>Turn this off for uninterrupted plain text across Wingman pages.</small>
             </span>
           </label>
-        </section>
-        </div>
-
-        <div className="wm-settings-column">
-        <section className="wm-section-card" aria-labelledby="wingman-settings-workspace">
-          <p className="wm-ui-kicker">Workspace sync</p>
-          <h2 id="wingman-settings-workspace" className="wm-card-title">Live-call recovery</h2>
+        </section></> },
+        { id: "workspace", label: "Workspace", content: <><section className="wm-section-card" aria-labelledby="wingman-settings-workspace">
+          <h2 id="wingman-settings-workspace" className="wm-card-title">Workspace account</h2>
           <p className="wm-copy">Control workspace sign-in for project recovery without changing local saved settings.</p>
 
           <div className="wm-output-panel">
@@ -508,9 +484,8 @@ export function ProfilePage() {
               </>
             )}
           </div>
-        </section>
-        </div>
-      </div>
+        </section></> },
+      ]} />
     </main>
   );
 }

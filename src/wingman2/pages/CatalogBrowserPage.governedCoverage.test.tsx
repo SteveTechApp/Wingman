@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import index from "../../../public/product-intelligence-summary.json";
@@ -80,7 +80,13 @@ describe("catalog browser governed-coverage render", () => {
       { timeout: 5000 },
     );
 
-    const cards = document.querySelectorAll(".wm-catalog-product-card");
+    const cards: Element[] = [];
+    for (let page = 0; page < index.products.length; page += 1) {
+      cards.push(...document.querySelectorAll(".wm-catalog-product-card"));
+      const next = screen.queryByRole<HTMLButtonElement>("button", { name: "Next results" });
+      if (!next || next.disabled) break;
+      fireEvent.click(next);
+    }
     expect(cards.length).toBeGreaterThan(0);
 
     let governedCards = 0;
@@ -134,7 +140,13 @@ describe("catalog browser governed-coverage render", () => {
       { timeout: 5000 },
     );
 
-    const cards = document.querySelectorAll(".wm-catalog-product-card");
+    const cards: Element[] = [];
+    for (let page = 0; page < index.products.length; page += 1) {
+      cards.push(...document.querySelectorAll(".wm-catalog-product-card"));
+      const next = screen.queryByRole<HTMLButtonElement>("button", { name: "Next results" });
+      if (!next || next.disabled) break;
+      fireEvent.click(next);
+    }
     let verifiedCards = 0;
     for (const card of cards) {
       const sku = normaliseSkuKey(card.querySelector(".wm-catalog-product-sku")?.textContent ?? "");

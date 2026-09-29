@@ -1722,7 +1722,7 @@ return (
 
               >
                 <strong>{tab.label}</strong>
-                <span>{tab.hint}</span>
+                
               </button>
             ))}
           </div>

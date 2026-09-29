@@ -1,3 +1,4 @@
+import { PagedItems } from "../components/PagedItems";
 import { projectPresentation } from "../lib/projectPresentation";
 import { useMemo, useState } from "react";
 import { AlertTriangle, Check, Cloud, Copy, Filter, LayoutTemplate, RotateCcw, Search, Trash2, Users } from "lucide-react";
@@ -140,7 +141,7 @@ function ProjectsListPage() {
   return (
     <div data-wingman-page="projects" className="wm-projects-page wm-polish-shell wm-project-gallery-page">
       <div className="wm-projects-page-toolbar" aria-label="Project actions">
-        <div className="wm-sales-page-intro"><h1>Bring your next space to life.</h1><p>Pick up a project and shape the next customer conversation.</p></div>
+        <div className="wm-sales-page-intro"><h1>Projects</h1></div>
         <div className="wm-projects-compact-actions">
           <Link to={routeCatalogByKey.discovery.path} className="wm-ui-button wm-ui-button-forward">
             Start discovery
@@ -323,9 +324,9 @@ function ProjectsListPage() {
               </button>
           </div>
 
-          <div className="wm-project-gallery">
+          <PagedItems items={filteredProjects} resetKey={`${searchQuery}:${teamFilter}:${memberFilter}`}>{(pageItems) => (<div className="wm-project-gallery">
                 {filteredProjects.length ? (
-                  filteredProjects.map((project) => {
+                  pageItems.map((project) => {
                     const presentation = projectPresentation(project.name);
                     const compareConfidence = latestCompareConfidence(project);
                     const ownerInitials = getMemberInitials(project.ownerId);
@@ -436,7 +437,7 @@ function ProjectsListPage() {
                     </div>
                   </article>
                 )}
-          </div>
+          </div>)}</PagedItems>
         </SectionCard>
 
         <SectionCard

@@ -1,3 +1,4 @@
+import { PagedItems } from "../components/PagedItems";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -124,6 +125,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`wm-catalog-chip ${active ? "is-active" : ""}`}
     >
       {label}
@@ -162,6 +164,7 @@ function Toggle({ label, active, onClick }: { label: string; active: boolean; on
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`wm-catalog-chip ${active ? "is-active" : ""}`}
     >
       {active ? "✓ " : ""}
@@ -170,7 +173,7 @@ function Toggle({ label, active, onClick }: { label: string; active: boolean; on
   );
 }
 
-function createTestingCatalogFilterState(): CatalogFilterState {
+function createBrowseCatalogFilterState(): CatalogFilterState {
   return {
     ...createDefaultCatalogFilterState(),
     includeAccessories: true,
@@ -188,7 +191,7 @@ export function CatalogBrowserPage() {
   const [rawBySku, setRawBySku] = useState<Map<string, Record<string, unknown>>>(new Map());
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const [state, setState] = useState<CatalogFilterState>(createTestingCatalogFilterState);
+  const [state, setState] = useState<CatalogFilterState>(createBrowseCatalogFilterState);
   const [session, setSession] = useState<WingmanWorkspaceSession | null>(null);
   const [editingProduct, setEditingProduct] = useState<CatalogProduct | null>(null);
   const [recordJson, setRecordJson] = useState("");
@@ -346,18 +349,13 @@ export function CatalogBrowserPage() {
 
       setRecordJson(JSON.stringify(saved, null, 2));
       clearProductIntelligenceIndexCache();
-      setCatalog((current) =>
-        current.map((product) =>
-          normaliseSkuKey(product.sku) === normaliseSkuKey(editingProduct.sku)
-            ? {
-                ...product,
-                name: String(saved.name ?? product.name),
-                family: String(saved.family ?? product.family),
-                summary: String(saved.summary ?? product.summary),
-              }
-            : product,
-        ),
-      );
+      const key = normaliseSkuKey(editingProduct.sku);
+      const raw = { ...rawBySku.get(key), ...saved };
+      const rebuilt = applyCatalogOverrides([raw]).map(withBusinessLifecycle)[0];
+      setRawBySku((current) => new Map(current).set(key, raw));
+      setCatalog((current) => rebuilt
+        ? current.map((product) => normaliseSkuKey(product.sku) === key ? rebuilt : product)
+        : current.filter((product) => normaliseSkuKey(product.sku) !== key));
       setEditorStatus(`Saved ${editingProduct.sku} to the WyreStorm product JSON.`);
     } catch (error) {
       setEditorStatus(error instanceof Error ? error.message : "Could not save the product record.");
@@ -428,8 +426,10 @@ export function CatalogBrowserPage() {
         </div>
         <div className="wm-catalog-facets">
           <FacetGroup title="Family" options={facets.families} selected={state.families} onToggle={(value) => patch({ families: toggle(state.families, value) })} />
+          <details><summary>Role and technology filters</summary>
           <FacetGroup title="Role" options={facets.roles} selected={state.roles} onToggle={(value) => patch({ roles: toggle(state.roles, value) })} />
           <FacetGroup title="Technology" options={facets.technologies} selected={state.technologies} onToggle={(value) => patch({ technologies: toggle(state.technologies, value) })} />
+          </details>
         </div>
       </ProductFilterPanel>
 
@@ -443,15 +443,15 @@ export function CatalogBrowserPage() {
         </p>
         <button className="wm-ui-button wm-ui-button-secondary"
           type="button"
-          onClick={() => setState(createTestingCatalogFilterState())}
+          onClick={() => setState(createBrowseCatalogFilterState())}
 
         >
           Reset filters
         </button>
       </section>
 
-      <div className="wm-catalog-product-grid">
-        {results.map((product) => {
+      <PagedItems pageSize={4} items={results} resetKey={JSON.stringify(state)}>{(pageItems) => (<div className="wm-catalog-product-grid">
+        {pageItems.map((product) => {
           const badges = getCatalogBadges(product);
           const reasons = getCatalogMatchReasons(product, state);
           const eol = product.lifecycle.excludeFromNewRecommendations;
@@ -507,7 +507,7 @@ export function CatalogBrowserPage() {
             </article>
           );
         })}
-      </div>
+      </div>)}</PagedItems>
 
       {loadError ? (
         <div className="wm-ui-card wm-ui-copy wm-catalog-empty">

@@ -130,36 +130,26 @@ describe("Project Detail rendered workflow evidence", () => {
     expect(mockSetActiveProjectId).toHaveBeenCalledWith("project-1");
     expect(screen.getAllByText("MX-0808-KIT").length).toBeGreaterThan(0);
     expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
-    fireEvent.click(screen.getByRole("button", { name: /Review .* project blockers?/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Resolve .* open question/ }));
     expect(screen.getByRole("region", { name: "Response blocker walkthrough" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Open full Discovery|Open Finder|Open Compare|Open Responses/ })).toBeInTheDocument();
 
-    // The evidence trace renders by default: the compare-run confidence chip is
-    // visible on the timeline without an extra click.
+    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
     expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
     expect(screen.getAllByText("Plausible — confirm").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Kramer VS-88H2A").length).toBeGreaterThan(0);
 
+    fireEvent.click(screen.getByRole("button", { name: "Equipment" }));
     expect(screen.getByText("Leading product family")).toBeInTheDocument();
     expect(screen.getAllByText("Matrix / HDBaseT").length).toBeGreaterThan(0);
   });
 
-  it("collapses and re-expands the detail body with the Review/Hide toggle", () => {
-    render(
-      <MemoryRouter initialEntries={["/wingman/projects/project-1"]}>
-        <Routes>
-          <Route path="/wingman/projects/:projectId" element={<ProjectDetailPage />} />
-        </Routes>
-      </MemoryRouter>,
-    );
-
+  it("shows one project page at a time", () => {
+    render(<MemoryRouter initialEntries={["/wingman/projects/project-1"]}><Routes><Route path="/wingman/projects/:projectId" element={<ProjectDetailPage />} /></Routes></MemoryRouter>);
     expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
+    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
     expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Hide project detail" }));
+    fireEvent.click(screen.getByRole("button", { name: "Overview" }));
     expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
-    expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
   });
 });

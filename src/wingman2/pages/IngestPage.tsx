@@ -649,7 +649,7 @@ export function IngestPage() {
             ) : null}
           </section>
 
-          <aside className="wm-ingest-panel wm-ingest-guidance-panel">
+          <details className="wm-ingest-panel wm-ingest-guidance-panel"><summary>How document review works</summary>
             <div className="wm-ingest-panel-heading">
               <div>
                 <span>{requestGuidance.title}</span>
@@ -686,11 +686,8 @@ export function IngestPage() {
               </article>
             </div>
 
-            <div className="wm-ingest-guidance-note">
-              <strong>No blank result panels</strong>
-              <p>Results stay hidden until Wingman has decoded usable customer content.</p>
-            </div>
-          </aside>
+            
+          </details>
         </main>
       ) : (
         <>

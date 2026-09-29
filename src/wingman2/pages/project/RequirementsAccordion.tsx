@@ -10,9 +10,8 @@ export function RequirementsAccordion({ requirements, onUpdate }: {
   onUpdate: (id: string, patch: Partial<StoredRequirementRecord>) => void;
 }) {
   const [open, setOpen] = useState<Set<string>>(() => {
-    const initial = new Set(requirements.filter((item) => item.status !== "confirmed").map((item) => item.category || "Other"));
-    if (!initial.size && requirements[0]) initial.add(requirements[0].category || "Other");
-    return initial;
+    const first = requirements.find((item) => item.status !== "confirmed") ?? requirements[0];
+    return new Set(first ? [first.category || "Other"] : []);
   });
   const groups = Array.from(requirements.reduce((map, item) => {
     const category = item.category || "Other";
@@ -30,13 +29,9 @@ export function RequirementsAccordion({ requirements, onUpdate }: {
 
   return <div className="grid gap-2">{groups.map(([category, items]) => {
     const expanded = open.has(category);
-    const toggle = () => setOpen((previous) => {
-      const next = new Set(previous);
-      if (expanded) next.delete(category); else next.add(category);
-      return next;
-    });
+    const toggle = () => setOpen(new Set(expanded ? [] : [category]));
     return <div key={category} className="rounded-2xl border overflow-hidden wm-ui-card">
-      <button type="button" onClick={toggle} className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-white/[0.03]">
+      <button type="button" aria-expanded={expanded} onClick={toggle} className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-white/[0.03]">
         <div className="flex items-center gap-3"><span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">{category}</span><span className="text-xs text-[#8fb8d0] wm-ui-copy">{items.length} {items.length === 1 ? "item" : "items"}</span></div>
         <div className="flex items-center gap-2">
           {(["confirmed", "review", "unknown"] as const).map((status) => {
@@ -50,7 +45,7 @@ export function RequirementsAccordion({ requirements, onUpdate }: {
       {expanded ? <div className="border-t border-white/[0.06] px-5 pb-4 pt-3 grid gap-3">{items.map((item) => <div key={item.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
         <div className="grid gap-3 lg:grid-cols-[1fr_160px]">
           <div><div className="flex items-center gap-3"><p className="text-sm font-black text-[#edf6ff] wm-ui-copy">{item.label}</p><span className="text-[10px] text-[#6a97b0] wm-ui-copy">{item.source}</span></div>
-            <label className="mt-2 block"><textarea className="min-h-14 w-full rounded-xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm leading-5 text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20" value={item.value} onChange={(event) => onUpdate(item.id, { value: event.target.value })} />{item.whyItMatters ? <span className="mt-1 block text-[11px] leading-4 text-[#6a97b0] wm-ui-copy">{item.whyItMatters}</span> : null}</label>
+            <label className="mt-2 block"><textarea aria-label={item.label} className="min-h-14 w-full rounded-xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm leading-5 text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20" value={item.value} onChange={(event) => onUpdate(item.id, { value: event.target.value })} />{item.whyItMatters ? <span className="mt-1 block text-[11px] leading-4 text-[#6a97b0] wm-ui-copy">{item.whyItMatters}</span> : null}</label>
           </div>
           <label className="grid content-start gap-1"><span className="text-[10px] font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Status</span><select className="rounded-xl border border-[#29465e] bg-[#0d2133] px-2 py-1.5 text-xs font-semibold text-[#edf6ff] outline-none focus:border-cyan-400" value={item.status} onChange={(event) => onUpdate(item.id, { status: event.target.value as StoredRequirementStatus })}>{statuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
         </div>

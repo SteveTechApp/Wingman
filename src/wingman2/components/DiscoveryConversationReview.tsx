@@ -1,3 +1,4 @@
+import { PagedItems } from "./PagedItems";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, MessagesSquare } from "lucide-react";
@@ -41,10 +42,7 @@ export function DiscoveryConversationReview({
         <MessagesSquare className="wm-discovery-conversation-review__icon" aria-hidden="true" />
         <div>
           <h3>Discovery Conversation</h3>
-          <p>
-            The questions asked, the closest governed answer, and the customer's
-            own wording — exactly as it will appear in the exported proposal.
-          </p>
+          
         </div>
       </div>
 
@@ -72,23 +70,21 @@ export function DiscoveryConversationReview({
           onClick={() => setFilter("low")}
         >
           <AlertTriangle aria-hidden="true" className="h-3 w-3" />
-          Re-verify low confidence ({lowCount})
+          Needs checking ({lowCount})
         </button>
       </div>
 
       {items.length === 0 ? (
         <p className="wm-discovery-conversation-review__empty">
-          No discovery answers have been captured yet. Run Discovery first so the
-          conversation behind the design can be reviewed here.
+          No answers saved. Start Discovery to capture the room requirements.
         </p>
       ) : visibleItems.length === 0 ? (
         <p className="wm-discovery-conversation-review__empty">
-          No low-confidence answers — nothing left to re-verify. The capture is
-          currently strong enough to quote.
+          No answers need a confidence check.
         </p>
       ) : (
-        <ul className="wm-discovery-conversation-review__list">
-          {visibleItems.map((item) => (
+        <PagedItems items={visibleItems} resetKey={filter}>{(pageItems) => (<ul className="wm-discovery-conversation-review__list">
+          {pageItems.map((item) => (
             <li key={item.stepId}>
               <div className="wm-discovery-conversation-review__row">
                 <span className="wm-discovery-conversation-review__question">
@@ -135,7 +131,7 @@ export function DiscoveryConversationReview({
               </Link>
             </li>
           ))}
-        </ul>
+        </ul>)}</PagedItems>
       )}
     </section>
   );

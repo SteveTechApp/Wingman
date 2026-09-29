@@ -1,3 +1,4 @@
+import { WorkflowPages } from "../components/WorkflowPages";
 /**
  * AnalyticsDashboardPage — Shows feature usage patterns, product quote
  * frequency, and win rates from local analytics data.
@@ -248,7 +249,7 @@ export default function AnalyticsDashboardPage() {
       />
 
       <div className="wm-analytics-content">
-        <OperationalJourneyEvidence refreshKey={refreshKey} />
+        <details><summary>Workflow activity</summary><OperationalJourneyEvidence refreshKey={refreshKey} /></details>
 
         {/* Summary Cards */}
         <section className="wm-analytics-summary" aria-label="Analytics summary">
@@ -261,16 +262,14 @@ export default function AnalyticsDashboardPage() {
         </section>
 
         {/* Feature Usage */}
-        <section className="wm-analytics-section" aria-label="Feature usage">
+        <WorkflowPages label="Analytics reports" parameter="report" pages={[
+{ id: "usage", label: "Usage", content: (<section className="wm-analytics-section" aria-label="Feature usage">
           <div className="wm-analytics-section__header">
             <div>
               <h2 className="wm-analytics-section__title">
                 <BarChart3 className="h-5 w-5" aria-hidden="true" />
                 Feature Usage Patterns
               </h2>
-              <p className="wm-analytics-section__subtitle">
-                Which Wingman features are used most often.
-              </p>
             </div>
           </div>
           <div className="wm-analytics-charts-row">
@@ -283,19 +282,14 @@ export default function AnalyticsDashboardPage() {
               <FeatureUsageTable data={data.featureUsage} />
             </div>
           </div>
-        </section>
-
-        {/* Product Quote Frequency */}
-        <section className="wm-analytics-section" aria-label="Product quote frequency">
+        </section>) },
+{ id: "products", label: "Products", content: (<section className="wm-analytics-section" aria-label="Product quote frequency">
           <div className="wm-analytics-section__header">
             <div>
               <h2 className="wm-analytics-section__title">
                 <Package className="h-5 w-5" aria-hidden="true" />
                 Product Quote Frequency
               </h2>
-              <p className="wm-analytics-section__subtitle">
-                Which WyreStorm products are quoted most often and their win rates.
-              </p>
             </div>
           </div>
           <div className="wm-analytics-charts-row">
@@ -308,19 +302,14 @@ export default function AnalyticsDashboardPage() {
               <ProductQuoteTable data={data.productQuotes} />
             </div>
           </div>
-        </section>
-
-        {/* Win Rates */}
-        <section className="wm-analytics-section" aria-label="Win rates">
+        </section>) },
+{ id: "outcomes", label: "Outcomes", content: (<section className="wm-analytics-section" aria-label="Win rates">
           <div className="wm-analytics-section__header">
             <div>
               <h2 className="wm-analytics-section__title">
                 <TrendingUp className="h-5 w-5" aria-hidden="true" />
                 Win Rates by Category
               </h2>
-              <p className="wm-analytics-section__subtitle">
-                Deal outcomes across project stages.
-              </p>
             </div>
           </div>
           <div className="wm-analytics-charts-row">
@@ -343,19 +332,14 @@ export default function AnalyticsDashboardPage() {
               <WinRateCards data={data.winRates} />
             </div>
           </div>
-        </section>
-
-        {/* Competitor Losses */}
-        <section className="wm-analytics-section" aria-label="Competitor losses">
+        </section>) },
+{ id: "competitors", label: "Competitors", content: (<section className="wm-analytics-section" aria-label="Competitor losses">
           <div className="wm-analytics-section__header">
             <div>
               <h2 className="wm-analytics-section__title">
                 <TrendingDown className="h-5 w-5" aria-hidden="true" />
                 Competitor Loss Patterns
               </h2>
-              <p className="wm-analytics-section__subtitle">
-                Which competitors appear most in lost deals and why.
-              </p>
             </div>
           </div>
           <div className="wm-analytics-charts-row">
@@ -368,7 +352,8 @@ export default function AnalyticsDashboardPage() {
               <CompetitorLossTable data={data.competitorLosses} />
             </div>
           </div>
-        </section>
+        </section>) },
+]} />
 
         {/* Actions */}
         <section className="wm-analytics-actions" aria-label="Analytics actions">

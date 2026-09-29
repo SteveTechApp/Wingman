@@ -10788,3 +10788,15 @@ html[data-wingman-route="discovery"] .wm-discovery-market-entry__heading h2 { fo
   html[data-wingman-ui-mode="guided"] .wm-topbar-mode-toggle .wm-mode-toggle button::after { content: "Focus"; font-size: .7rem; }
   html[data-wingman-ui-mode="guided"] .wm-topbar-mode-toggle .wm-mode-toggle button + button::after { content: "Full"; }
 }
+
+/* Focused workflow navigation */
+.wm-workflow-navigation { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin:12px 0; }
+.wm-workflow-navigation__pages { display:flex; flex-wrap:wrap; gap:6px; }
+.wm-workflow-navigation__arrows { display:flex; gap:6px; }
+.wm-workflow-navigation button { min-height:40px; padding:8px 12px; border:1px solid var(--wm-ref-border); border-radius:8px; background:transparent; color:inherit; font:inherit; cursor:pointer; }
+.wm-workflow-navigation button[aria-current="page"] { background:var(--wm-ref-aqua); color:var(--wm-ref-bg); font-weight:700; }
+.wm-workflow-navigation button:disabled { opacity:.35; cursor:default; }
+.wm-workflow-pages__body { display:grid; gap:16px; scroll-margin-top:16px; }
+.wingman-page-help { margin-top:8px; font-size:.8rem; max-width:65ch; }
+.wingman-page-help summary, .wm-feature-journey>summary { cursor:pointer; }
+.wingman-page-help p { margin-top:8px; }

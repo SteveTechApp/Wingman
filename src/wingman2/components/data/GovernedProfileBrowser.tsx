@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Search, ChevronDown, ChevronRight, CheckCircle, AlertTriangle, RotateCcw, Download, Pencil, Trash2 } from "lucide-react";
 import governedTechnicalProfiles from "../../../../data/governance/wyrestorm-technical-profiles.json";
 import { downloadBlob } from "../../lib/downloadBlob";
@@ -348,11 +348,18 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
 
   const toggleStatusFilter = useCallback((status: string) => {
     setStatusFilter((current) => current === status ? "" : status);
-  }, []);
-
-  const startEditing = useCallback((profile: GovernedProfile) => {
+  }, []);  const startEditing = useCallback((profile: GovernedProfile) => {
     setExpandedSku(null);
     setEditingProfile({ ...profile });
+  }, []);
+
+  const startEditingSku = useCallback((sku: string) => {
+    const profile = profiles.find((candidate) => candidate.sku === sku);
+    if (profile) startEditing(profile);
+  }, [profiles, startEditing]);
+
+  const toggleRowSku = useCallback((sku: string) => {
+    setExpandedSku((current) => current === sku ? null : sku);
   }, []);
 
   const saveEditedProfile = useCallback(() => {
@@ -361,17 +368,20 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
     setEditingProfile(null);
   }, [editingProfile]);
 
-  const deleteProfile = useCallback((profile: GovernedProfile) => {
-    if (!window.confirm(`Delete governed profile ${profile.sku} from this working set?`)) return;
-    setProfiles((current) => current.filter((candidate) => candidate.sku !== profile.sku));
+  // Sku-keyed and written with functional updates so its identity never
+  // changes — otherwise every dialog keystroke (which updates editingProfile)
+  // would re-render the whole 206-row table through this callback prop.
+  const deleteProfile = useCallback((sku: string) => {
+    if (!window.confirm(`Delete governed profile ${sku} from this working set?`)) return;
+    setProfiles((current) => current.filter((candidate) => candidate.sku !== sku));
     setSelectedSkus((current) => {
       const next = new Set(current);
-      next.delete(profile.sku);
+      next.delete(sku);
       return next;
     });
-    if (expandedSku === profile.sku) setExpandedSku(null);
-    if (editingProfile?.sku === profile.sku) setEditingProfile(null);
-  }, [editingProfile?.sku, expandedSku]);
+    setExpandedSku((current) => (current === sku ? null : current));
+    setEditingProfile((current) => (current?.sku === sku ? null : current));
+  }, []);
 
   return (
     <section className="wm-governed-browser">
@@ -552,12 +562,10 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
                     profile={profile}
                     isExpanded={isExpanded}
                     isSelected={selectedSkus.has(profile.sku)}
-                    onToggle={() =>
-                      setExpandedSku(isExpanded ? null : profile.sku)
-                    }
-                    onSelect={() => toggleSelect(profile.sku)}
-                    onEdit={() => startEditing(profile)}
-                    onDelete={() => deleteProfile(profile)}
+                    onToggle={toggleRowSku}
+                    onSelect={toggleSelect}
+                    onEdit={startEditingSku}
+                    onDelete={deleteProfile}
                   />
                 );
               })}
@@ -608,7 +616,10 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
 /*  Profile row (expandable)                                           */
 /* ------------------------------------------------------------------ */
 
-function ProfileRow({
+// A dialog edit types into this table's parent state; without memoization
+// every keystroke re-rendered all 206 rows and made the dialog sluggish in
+// jsdom (a measured test-suite flake source).
+const ProfileRow = memo(function ProfileRow({
   profile,
   isExpanded,
   isSelected,
@@ -620,10 +631,10 @@ function ProfileRow({
   profile: GovernedProfile;
   isExpanded: boolean;
   isSelected: boolean;
-  onToggle: () => void;
-  onSelect: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
+  onToggle: (sku: string) => void;
+  onSelect: (sku: string) => void;
+  onEdit: (sku: string) => void;
+  onDelete: (sku: string) => void;
 }) {
   const inp = inputCount(profile);
   const out = outputCount(profile);
@@ -632,15 +643,15 @@ function ProfileRow({
   return (
     <>
       <tr className="wm-governed-row">
-        <td onClick={(e) => e.stopPropagation()}>
+        <td onClick={(event) => event.stopPropagation()}>
           <input
             type="checkbox"
             aria-label={`Select ${profile.sku}`}
             checked={isSelected}
-            onChange={onSelect}
+            onChange={() => onSelect(profile.sku)}
           />
         </td>
-        <td onClick={onToggle}>
+        <td onClick={() => onToggle(profile.sku)}>
           <button
             type="button"
             className="wm-governed-expand"
@@ -650,38 +661,38 @@ function ProfileRow({
             {isExpanded ? <ChevronDown /> : <ChevronRight />}
           </button>
         </td>
-        <td onClick={onToggle}>
+        <td onClick={() => onToggle(profile.sku)}>
           <strong>{profile.sku}</strong>
           <small>{profile.role}</small>
         </td>
-        <td onClick={onToggle}>
+        <td onClick={() => onToggle(profile.sku)}>
           <span className="wm-governed-class-badge">
             {profile.productClass}
           </span>
         </td>
-        <td onClick={onToggle}>
+        <td onClick={() => onToggle(profile.sku)}>
           <span className={`wm-status ${statusClass(profile.status)}`}>
             {statusLabel(profile.status)}
           </span>
         </td>
-        <td onClick={onToggle}>
+        <td onClick={() => onToggle(profile.sku)}>
           <small>{profile.transport?.join(", ") || "—"}</small>
         </td>
-        <td onClick={onToggle}>
+        <td onClick={() => onToggle(profile.sku)}>
           <small>{ioStr}</small>
         </td>
-        <td onClick={onToggle}>
+        <td onClick={() => onToggle(profile.sku)}>
           <small>{profile.maxResolution || "—"}</small>
         </td>
-        <td onClick={onToggle}>
+        <td onClick={() => onToggle(profile.sku)}>
           <small>{profile.status || "—"}</small>
         </td>
         <td>
           <div className="wm-governed-row-actions">
-            <button type="button" onClick={onEdit} aria-label={`Edit ${profile.sku}`} title={`Edit ${profile.sku}`}>
+            <button type="button" onClick={() => onEdit(profile.sku)} aria-label={`Edit ${profile.sku}`} title={`Edit ${profile.sku}`}>
               <Pencil aria-hidden="true" />
             </button>
-            <button type="button" className="is-delete" onClick={onDelete} aria-label={`Delete ${profile.sku}`} title={`Delete ${profile.sku}`}>
+            <button type="button" className="is-delete" onClick={() => onDelete(profile.sku)} aria-label={`Delete ${profile.sku}`} title={`Delete ${profile.sku}`}>
               <Trash2 aria-hidden="true" />
             </button>
           </div>
@@ -795,7 +806,7 @@ function ProfileRow({
       ) : null}
     </>
   );
-}
+});
 
 function ProfileEditor({ profile, reviewer, onChange, onSave, onCancel, onConfirmed }: {
   profile: GovernedProfile;

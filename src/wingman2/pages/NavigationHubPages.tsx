@@ -1,4 +1,5 @@
-import { ArrowRight, FileSearch, FileText, Sparkles } from "lucide-react";
+import { PagedItems } from "../components/PagedItems";
+import { ArrowRight, FileSearch, FileText } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { lazy, Suspense, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -105,10 +106,10 @@ export function HubCard({ item, workflowId }: { item: HubAction; workflowId?: Ca
       </span>
 
       <span className="wm-sh-choice-content wm-polish-card-copy">
-        <span className="wm-sh-choice-eyebrow wm-polish-card-kicker">{item.action}</span>
+        
         <span className="wm-sh-choice-title wm-polish-card-title">{item.title}</span>
         <span className="wm-sh-choice-body wm-polish-card-body">{item.intent}</span>
-        {item.note ? <small className="wm-polish-card-note">{item.note}</small> : null}
+        
         <span className="wm-sh-choice-action wm-polish-card-link">
           {item.linkLabel ?? "Open in Wingman"}
           <ArrowRight aria-hidden="true" />
@@ -126,7 +127,7 @@ export function HubCard({ item, workflowId }: { item: HubAction; workflowId?: Ca
 }
 
 function HubPage({
-  eyebrow,
+  eyebrow: _eyebrow,
   title,
   intent,
   primaryActions,
@@ -161,25 +162,20 @@ function HubPage({
         </span>
 
         <div className="wm-polish-hero-copy">
-          <p className="wm-polish-eyebrow">{eyebrow}</p>
+          
           <h1 id="wingman-navhub-title">{title}</h1>
           <p>{intent}</p>
         </div>
       </section>
 
       <section className="wm-sh-page-section" aria-label={`${title} actions`}>
-        <div className="wm-sh-card-grid wm-polish-grid">
-          {actions.map((item) => (
+        <PagedItems items={actions} pageSize={4} resetKey={title}>{(pageItems) => (<div className="wm-sh-card-grid wm-polish-grid">
+          {pageItems.map((item) => (
             <HubCard key={item.title} item={item} workflowId={workflowId} />
           ))}
-        </div>
+        </div>)}</PagedItems>
 
-        <div className="wm-polish-tip">
-          <Sparkles aria-hidden="true" />
-          <span>
-            <strong>{workflowId ? "Canonical next action:" : "Suggested starting point:"}</strong> {tip}
-          </span>
-        </div>
+        <details><summary>Help choosing a tool</summary><p>{tip}</p></details>
       </section>
     </main>
   );
@@ -220,9 +216,9 @@ export function CallCoachPage() {
 
   return <div className="wm-polish-shell wm-call-coach-workspace">
     <section className="wm-sh-page-section" aria-label="Call Coach workflows">
-      <div className="wm-sh-card-grid wm-polish-grid">
-        {governedStartingPoints.map((item) => <HubCard key={item.routeKey} item={item} workflowId="sales-conversation" />)}
-      </div>
+      <PagedItems items={governedStartingPoints} pageSize={4} resetKey="call-coach">{(pageItems) => (<div className="wm-sh-card-grid wm-polish-grid">
+        {pageItems.map((item) => <HubCard key={item.routeKey} item={item} workflowId="sales-conversation" />)}
+      </div>)}</PagedItems>
     </section>
     <SalesHelperPage />
   </div>;

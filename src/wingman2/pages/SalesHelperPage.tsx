@@ -1,3 +1,4 @@
+import { PagedItems } from "../components/PagedItems";
 import {
   ArrowRight,
   Building2,
@@ -46,7 +47,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "Meeting rooms, classrooms, training rooms or general AV enquiry",
     title: "Room requirement",
-    body: "Use when the customer needs AV for a room but the system shape is not clear yet. Start with room purpose, displays, sources, USB, audio, control and distance.",
+    body: "Plan the screens, sound and controls for a room.",
     routeKey: "discovery",
     discoverySeed: roomRequirementSeed,
     icon: Building2,
@@ -56,7 +57,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "Display, projector, signage or LFD refresh opportunity",
     title: "Display / projector attach",
-    body: "Use when the opportunity starts from screens, projectors, signage or LFDs and there is no video wall involved. Work backwards into signal management, switching, extension, control and content behaviour.",
+    body: "Connect new screens or projectors to the right sources.",
     routeKey: "discovery",
     discoverySeed:
       "Sales Helper starting point: display-led opportunity. The customer is discussing displays, projectors, signage or LFDs. Work backwards into content behaviour, source count, routing, distance, control and processing.",
@@ -67,7 +68,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "Video wall, LED wall, LCD wall or multiview canvas opportunity",
     title: "Video wall / LED wall",
-    body: "Use when the opportunity is an LED or LCD wall. Opens the Video Wall Builder to size the canvas and get a processor recommendation before Discovery.",
+    body: "Plan an LED wall or a group of LCD screens.",
     routeKey: "videowall",
     icon: LayoutGrid,
     accent: "violet",
@@ -76,7 +77,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "HDMI extender, switcher, splitter, matrix or signal product enquiry",
     title: "HDMI / extender / matrix enquiry",
-    body: "Use when the customer asks for a signal product but has not provided enough design information. Capture I/O, distance, resolution, USB, audio and control needs before opening product recommendations.",
+    body: "Choose how to switch or extend audio and video connections.",
     routeKey: "discovery",
     discoverySeed:
       "Sales Helper starting point: HDMI, extender, splitter, switcher or matrix enquiry. Confirm the required input and routed output counts, source and display locations, cable distance, resolution, USB, audio and control before recommending a product.",
@@ -87,7 +88,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "UC, BYOD, BYOM, camera, microphone or USB device enquiry",
     title: "BYOD / conferencing / USB",
-    body: "Use when Teams, Zoom, cameras, microphones, PTZ, touch panels or USB transport are involved. Jumps straight to the UC requirement question instead of the full room-shape flow.",
+    body: "Plan laptops, cameras, microphones and two-way meeting audio.",
     routeKey: "discovery",
     handoff: {
       mode: "standard",
@@ -107,7 +108,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "Competitor replacement, tender equivalence or channel product match",
     title: "Competitor SKU",
-    body: "Use when the customer asks for a match to Extron, Kramer, AVPro Edge, Blustream, HDA, J+P or another brand. Compare architecture first, then product fit.",
+    body: "Find a WyreStorm alternative to a named competitor product.",
     routeKey: "compare",
     icon: Scale,
     accent: "amber",
@@ -116,7 +117,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "Account development, attach opportunity or sales enablement conversation",
     title: "Channel and customer growth conversation",
-    body: "Use the Products workspace to explore credible WyreStorm attachment routes, product families, known SKUs and competitor-led opportunities without looping back through Call Coach.",
+    body: "Find related products for an existing customer.",
     routeKey: "products",
     icon: TrendingUp,
     accent: "green",
@@ -125,7 +126,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "After discovery, after a product shortlist, after a proposal draft or before escalation",
     title: "Proposal / closing follow-up",
-    body: "Use when the call needs to end with clear actions, assumptions, next steps and quote-safe wording for a customer or internal handover.",
+    body: "Prepare a customer response from their requirements.",
     routeKey: "proposal",
     icon: FileCheck2,
     accent: "amber",
@@ -164,18 +165,15 @@ export function SalesHelperPage() {
         </span>
 
         <div className="wm-polish-hero-copy">
-          <p className="wm-polish-eyebrow">Wingman / Call Coach</p>
+          
           <h1 id="call-coach-title">Choose the conversation type</h1>
-          <p>
-            Pick the closest starting point. Wingman will carry that context into the next workflow,
-            narrow the next question, and keep the conversation application-led.
-          </p>
+          
         </div>
       </section>
 
       <section className="wm-sh-page-section" aria-label="Sales conversation starting points">
-        <div className="wm-sh-card-grid wm-polish-grid">
-          {conversationCards.map((card) => {
+        <PagedItems items={conversationCards} pageSize={4} resetKey={""}>{(pageItems) => (<div className="wm-sh-card-grid wm-polish-grid">
+          {pageItems.map((card) => {
             const Icon = card.icon;
 
             return (
@@ -191,11 +189,11 @@ export function SalesHelperPage() {
                 </span>
 
                 <span className="wm-sh-choice-content wm-polish-card-copy">
-                  <span className="wm-sh-choice-eyebrow wm-polish-card-kicker">{card.eyebrow}</span>
+                  
                   <span className="wm-sh-choice-title wm-polish-card-title">{card.title}</span>
                   <span className="wm-sh-choice-body wm-polish-card-body">{card.body}</span>
                   <span className="wm-sh-choice-action wm-polish-card-link">
-                    Open in Wingman
+                    Start
                     <ArrowRight aria-hidden="true" />
                   </span>
                 </span>
@@ -206,7 +204,7 @@ export function SalesHelperPage() {
               </button>
             );
           })}
-        </div>
+        </div>)}</PagedItems>
 
         <button
           className="wm-polish-tip"
@@ -216,9 +214,7 @@ export function SalesHelperPage() {
         >
           <Sparkles aria-hidden="true" />
           <span>
-            <strong>Tip:</strong> Not sure which to pick? Start with{" "}
-            <span className="wm-polish-tip-highlight">Room requirement.</span> You can always pivot as the
-            conversation evolves.
+            Not sure? Start with a room.
           </span>
         </button>
       </section>

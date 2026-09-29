@@ -213,7 +213,7 @@ const roomTemplatesSource = readFileSync(
 
 for (const marker of [
   "roomTemplates",
-  "Editable WyreStorm BOM",
+  "wm-equipment-row",
   "saveTemplateProject",
   "exportTemplateBom",
   "Other AV design scope",
