@@ -26,7 +26,7 @@ const protectedExactPaths = new Set([
   "README.md",
   "docs/wingman-sales-copy-style.md",
   "public/template-photos/README.md",
-  "public/product-intelligence-index.json",
+  "public/product-intelligence-summary.json",
   "public/wyrestorm-product-update-check.json",
   "src/wingman2/styles/CSS_MIGRATION_REGISTER.md",
   "src/wingman2/styles/legacy-overrides/README.md",
@@ -41,7 +41,7 @@ const protectedPrefixes = [
 ];
 
 const generatedPathMarkers = [
-  "public/product-intelligence-index.json",
+  "public/product-intelligence-summary.json",
   "reports/",
   "dist/",
 ];
@@ -365,7 +365,7 @@ const md = [
   "- Protected paths are never moved automatically.",
   "- Only unreferenced files under backups/ or exports/ are eligible for automatic archive movement.",
   "- Root config files, public files, source files, docs and data/backend files are protected.",
-  "- Generated files such as public/product-intelligence-index.json are build outputs, not source-of-truth data.",
+  "- Generated files such as public/product-intelligence-summary.json are build outputs, not source-of-truth data.",
   "- After any archive apply, run npm run typecheck, npm run build and npm run verify.",
   "",
 ].join("\n");

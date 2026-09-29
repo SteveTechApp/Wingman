@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { fullProductIndexRecords } from "../lib/testHelpers/fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
+import { loadProductIntelligenceIndex, loadProductIntelligenceSummary } from "../lib/productIntelligenceIndexCache";
 import { governedProfilesWithoutSkus } from "../lib/testHelpers/governedProfilesHarness";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { ProductPitchPage } from "./ProductPitchPage";
@@ -14,9 +15,15 @@ import governedProfiles from "../../../data/governance/wyrestorm-technical-profi
 // The real product-intelligence index drives the same hydration the live app
 // uses (hydrateProductSpecWithTechnicalData), so the badge on every result row
 // and workspace header reflects the governed data behind the card.
-vi.mock("../lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
-}));
+vi.mock("../lib/productIntelligenceIndexCache", async () => {
+  const { fullProductIndexRecords } = await import("../lib/testHelpers/fullProductIndexRecords");
+  const index = { products: fullProductIndexRecords };
+  return {
+    loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue(index),
+  };
+});
 
 // Simulate a coverage loss at the data source for MX-0402-MST (see the harness
 // JSDoc for the mock-path depth rule): its governed profile disappears, so its
@@ -212,7 +219,9 @@ describe("product pitch governed-coverage render", () => {
         p.sku === "MX-0402-MST" ? { ...p, technicalProfile: undefined } : p,
       ),
     } as typeof index;
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValueOnce(indexWithoutProfile);
+    // The page reads the summary payload; the one-shot stripped index must
+    // flow through the same loader.
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValueOnce(indexWithoutProfile);
 
     render(
       <MemoryRouter initialEntries={["/wingman/product-pitch"]}>

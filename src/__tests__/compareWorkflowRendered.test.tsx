@@ -6,6 +6,8 @@ import ComparePageNew from "@/wingman2/pages/ComparePageNew";
 
 vi.mock("@/wingman2/lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockResolvedValue({ products: [] }),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue({ products: [] }),
+  loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue({ products: [] }),
 }));
 
 function renderPage() {

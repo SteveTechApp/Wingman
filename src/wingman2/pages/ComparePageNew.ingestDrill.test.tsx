@@ -5,6 +5,8 @@ import ComparePageNew from "./ComparePageNew";
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockResolvedValue({ products: [] }),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue({ products: [] }),
+  loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue({ products: [] }),
 }));
 
 it("opens a single-SKU Compare drill-down from document ingest query parameters", async () => {

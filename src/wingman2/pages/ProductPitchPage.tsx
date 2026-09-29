@@ -26,7 +26,7 @@ import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
 import { ProductApplicationVisuals } from "../components/ProductApplicationVisuals";
 import { ProductTechnicalSpecTab } from "../components/ProductTechnicalSpecTab";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceSummary } from "../lib/productIntelligenceIndexCache";
 import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
 import { hydrateProductSpecWithTechnicalData } from "../lib/governedProductTechnicalData";
 import { selectWingmanProducts, type ProductSelectorDecision } from "../lib/productSelectorEngine";
@@ -1174,7 +1174,10 @@ export function ProductPitchPage() {
   useEffect(() => {
     let cancelled = false;
 
-    loadProductIntelligenceIndex()
+    // Summary payload: the governed-profile store covers specifiable lead
+    // SKUs, and remaining SKUs degrade to base catalogue fields until a
+    // focused technical-data hydration is requested for them.
+    loadProductIntelligenceSummary()
       .then((data) => {
         if (cancelled) return;
 

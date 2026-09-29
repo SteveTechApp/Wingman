@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import rawProductIndex from "../../../public/product-intelligence-index.json";
+import rawProductIndex from "../../../public/product-intelligence-summary.json";
 import {
   normaliseCompareProducts,
   runCompareRuntimePipeline,

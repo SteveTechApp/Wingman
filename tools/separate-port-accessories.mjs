@@ -41,7 +41,7 @@ const apply = process.argv.includes("--apply");
 const FILES = [
   { path: "data-sources/wyrestorm/enrichment.json", pretty: true },
   { path: "data/wingman-canonical-product-store.json", pretty: true },
-  { path: "public/product-intelligence-index.json", pretty: false },
+  { path: "public/product-intelligence-summary.json", pretty: false },
 ];
 
 // A row describes a physical connector when its text carries a connector

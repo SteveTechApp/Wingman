@@ -5,6 +5,7 @@ import {
   resolveRoleFromText,
   type ProductClassificationFacts,
 } from "./productRoleResolution";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
 import {
   extractRawProducts,
   normaliseProductRecord,
@@ -121,7 +122,7 @@ describe("text fallback is a guarded last resort", () => {
 });
 
 describe("against the real catalogue", () => {
-  const idx = JSON.parse(readFileSync("public/product-intelligence-index.json", "utf8"));
+  const idx = { products: fullProductIndexRecords };
   const specs = (extractRawProducts(idx) as unknown[])
     .map((raw, i) => normaliseProductRecord(raw, i))
     .filter((spec): spec is NonNullable<typeof spec> => Boolean(spec));

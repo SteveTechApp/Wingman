@@ -15,7 +15,8 @@ const CALL_CARDS_CACHE = `${CACHE_PREFIX}call-cards-${SW_VERSION}`;
 const PRECACHE_URLS = [
   "/",
   "/index.html",
-  "/product-intelligence-index.json",
+  "/product-intelligence-summary.json",
+  "/product-intelligence-details.json",
   "/product-call-card-products.json",
   "/data/catalog/competitor-products.generated.json",
   "/data/catalog/battle-cards.generated.json",
@@ -72,7 +73,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Cache-first for call cards data
-  if (url.pathname.includes("call-card-products") || url.pathname.includes("product-intelligence-index")) {
+  if (url.pathname.includes("call-card-products") || url.pathname.includes("product-intelligence-")) {
     event.respondWith(cacheFirstThenNetwork(event.request, CALL_CARDS_CACHE));
     return;
   }

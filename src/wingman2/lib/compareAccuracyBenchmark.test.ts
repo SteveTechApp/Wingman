@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import rawProductIndex from "../../../public/product-intelligence-index.json";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
+const rawProductIndex = { products: fullProductIndexRecords };
 import goldenSet from "../data/compareAccuracyGoldenSet.json";
 import {
   normaliseCompareProducts,

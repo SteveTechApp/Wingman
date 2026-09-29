@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
 import { classifyWingmanProduct, matchedGateReasons, type WingmanFinderNeedLike } from "./productClassification";
 import { selectWingmanProducts } from "./productSelectorEngine";
 

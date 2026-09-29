@@ -4,7 +4,7 @@
  * Deterministic, field-by-field comparison between a competitor product from
  * the curated catalogue (data/catalog/competitor-products.generated.json) and
  * WyreStorm products from the real intelligence index
- * (public/product-intelligence-index.json).
+ * (public/product-intelligence-summary.json).
  *
  * No keyword scoring. A match can only be claimed from evidenced spec fields:
  *  - Hard blockers (wrong technology class, wrong role, insufficient routed
@@ -21,7 +21,7 @@
 
 import competitorCatalogRaw from "../../../data/catalog/competitor-products.generated.json";
 import governedTechnicalProfilesRaw from "../../../data/governance/wyrestorm-technical-profiles.json";
-import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
+import { loadProductIntelligenceDetailRecords } from "./productIntelligenceIndexCache";
 import { extractRawProducts } from "./productStoryEngine";
 import { resolutionRank as rankResolution, chromaRank as rankChroma } from "./compareResolution";
 
@@ -656,13 +656,13 @@ type WsEntry = Record<string, unknown> & {
 
 let wsIndexPromise: Promise<WsEntry[]> | null = null;
 
-// Reuses productIntelligenceIndexCache's shared fetch/parse of the ~11MB
-// product-intelligence-index.json instead of independently re-fetching and
-// re-parsing the same file (previously a second, uncached ~11MB round trip
-// on any flow - e.g. Compare - that also touched the product selector).
+// Compare derives port-level evidence from every candidate's deferred
+// technicalProfile, so it hydrates the detail records. This reuses the cache
+// module's shared fetch of the summary + per-SKU detail files instead of the
+// former single ~10MB eager catalogue download.
 export function loadWyrestormIndex(): Promise<WsEntry[]> {
   if (!wsIndexPromise) {
-    wsIndexPromise = loadProductIntelligenceIndex()
+    wsIndexPromise = loadProductIntelligenceDetailRecords()
       .then((data) => extractRawProducts(data) as WsEntry[])
       .catch((error) => {
         console.error("[wingman] compareSpecEngine: loadWyrestormIndex failed", error);

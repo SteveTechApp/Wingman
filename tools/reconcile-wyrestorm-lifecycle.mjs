@@ -30,7 +30,7 @@ import { successorAcceptabilityProblem } from "./check-lifecycle-successor-refs.
  */
 
 const repoRoot = process.cwd();
-const indexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
+const indexPath = path.join(repoRoot, "public", "product-intelligence-summary.json");
 const storiesPath = path.join(repoRoot, "src", "wingman2", "data", "productStories.ts");
 const reportPath = path.join(repoRoot, "docs", "wyrestorm-lifecycle-reconciliation.md");
 

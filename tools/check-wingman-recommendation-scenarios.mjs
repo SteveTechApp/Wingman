@@ -6,7 +6,7 @@ const ROOT = process.cwd();
 
 const SCENARIO_PATH = path.join(ROOT, "data", "wingman-real-av-scenarios.json");
 const BLIND_SCENARIO_PATH = path.join(ROOT, "data", "wingman-blind-recommendation-scenarios.json");
-const PRODUCT_INDEX_PATH = path.join(ROOT, "public", "product-intelligence-index.json");
+const PRODUCT_INDEX_PATH = path.join(ROOT, "public", "product-intelligence-summary.json");
 const QUOTE_SAFETY_RULES_PATH = path.join(ROOT, "data", "wingman-quote-safety-rules.json");
 
 const failures = [];
@@ -416,7 +416,7 @@ if (scenarios.length === 0) {
 }
 
 if (products.length === 0) {
-  fail("No product records found in public/product-intelligence-index.json");
+  fail("No product records found in public/product-intelligence-summary.json");
 }
 
 console.log(`[wingman-recommendation-scenarios] Scenarios: ${scenarios.length}`);

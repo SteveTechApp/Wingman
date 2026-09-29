@@ -4,7 +4,7 @@ import { atomicWriteJson } from "./lib/atomic-json-writer.mjs";
 
 const repoRoot = process.cwd();
 
-const productIndexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
+const productIndexPath = path.join(repoRoot, "public", "product-intelligence-summary.json");
 const reportPath = path.join(repoRoot, "public", "wyrestorm-product-update-check.json");
 const candidatePath = path.join(repoRoot, "data", "wyrestorm-product-update-candidates.json");
 

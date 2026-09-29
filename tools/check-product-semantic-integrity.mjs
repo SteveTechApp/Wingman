@@ -8,6 +8,7 @@ import {
   isExplicitAudioOutputEvidence,
   isEthernetConnector,
 } from "./lib/product-port-semantics.mjs";
+import { loadFullProductRecords } from "./lib/wingman-product-index-records.mjs";
 
 const ROOT = process.cwd();
 const failures = [];
@@ -88,14 +89,16 @@ function isSplitter(sku, title, extra = "") {
     /distribution amplifier|\bhdmi splitter\b|\bsplitter\b|\bduplicator\b|\bdistribution\b/i.test(`${title} ${extra}`);
 }
 
-for (const rel of [
-  "data/governance/wyrestorm-technical-profiles.json",
-  "data-sources/wyrestorm/enrichment.json",
-  "data/wingman-canonical-product-store.json",
-  "public/product-intelligence-index.json",
-  "src/wingman2/lib/__fixtures__/productIntelligenceIndexSample.json",
+// The public index is no longer shipped as one file; the same records are
+// reassembled from the summary + per-SKU detail artifacts.
+const publicIndexRecords = loadFullProductRecords(ROOT);
+for (const [rel, payload] of [
+  ["data/governance/wyrestorm-technical-profiles.json", readJson("data/governance/wyrestorm-technical-profiles.json")],
+  ["data-sources/wyrestorm/enrichment.json", readJson("data-sources/wyrestorm/enrichment.json")],
+  ["data/wingman-canonical-product-store.json", readJson("data/wingman-canonical-product-store.json")],
+  ["public/product-intelligence-summary.json + details", publicIndexRecords],
+  ["src/wingman2/lib/__fixtures__/productIntelligenceIndexSample.json", readJson("src/wingman2/lib/__fixtures__/productIntelligenceIndexSample.json")],
 ]) {
-  const payload = readJson(rel);
   for (const product of payloadArray(payload)) {
     const sku = clean(product.sku || product.id);
     const title = clean(product.name || product.title || product.summary);

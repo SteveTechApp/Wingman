@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadRoutedIoEvidence } from "./lib/routed-io-evidence.mjs";
+import { loadFullProductRecords } from "./lib/wingman-product-index-records.mjs";
 import {
   materialiseTechnologyProfiles,
   rowsFrom,
@@ -12,7 +13,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 
 const competitorPath = path.join(root, "data", "catalog", "competitor-products.generated.json");
-const wyrestormPath = path.join(root, "public", "product-intelligence-index.json");
+// Full records: the technology normalizer matches on technicalProfile/spec
+// text, which the summary payload alone does not carry.
+const wyrestormRecords = loadFullProductRecords(root);
+const wyrestormPath = "public/product-intelligence-summary.json + product-intelligence-details/";
 const materializedPath = path.join(root, "data", "catalog", "product-technology-profiles.generated.json");
 const auditPath = path.join(root, "data", "governance", "product-technology-normalization-audit.generated.json");
 
@@ -74,7 +78,7 @@ function unresolvedNamedTechnology(records) {
 
 const routedIoEvidence = loadRoutedIoEvidence();
 const competitorRows = rowsFrom(await readJson(competitorPath, []));
-const wyrestormRows = rowsFrom(await readJson(wyrestormPath, []));
+const wyrestormRows = wyrestormRecords;
 
 const records = materialiseTechnologyProfiles(competitorRows, wyrestormRows, routedIoEvidence);
 

@@ -4,7 +4,8 @@ import type { StoredDiscoveryBrief, StoredProject } from "../projects";
 import { clearProductIntelligenceIndexCache } from "../../lib/productIntelligenceIndexCache";
 import { compileRecommendedDesignProject } from "./compileRecommendedDesignProject";
 
-const catalog = JSON.parse(readFileSync("public/product-intelligence-index.json", "utf8"));
+import { fullProductIndexRecords } from "../../lib/testHelpers/fullProductIndexRecords";
+const catalog = { products: fullProductIndexRecords };
 beforeAll(() => { vi.stubGlobal("fetch", vi.fn(async (request: string | URL | Request) => String(request).includes("/api/product-intelligence") ? new Response(JSON.stringify({ records: [] }), { status: 200 }) : new Response(JSON.stringify(catalog), { status: 200 }))); clearProductIntelligenceIndexCache(); });
 
 describe("blind requirement to Design Project graph", () => {

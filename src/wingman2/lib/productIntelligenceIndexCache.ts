@@ -9,6 +9,14 @@ function skuKey(value: unknown) {
   return String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
 }
 
+function summaryProductList(payload: ProductIndexPayload): Array<Record<string, unknown>> {
+  return Array.isArray(payload) ? payload : payload.products ?? [];
+}
+
+function payloadWithProducts(payload: ProductIndexPayload, products: Array<Record<string, unknown>>): ProductIndexPayload {
+  return Array.isArray(payload) ? products : { ...payload, products };
+}
+
 async function loadRuntimeAdminRecords() {
   try {
     const response = await fetch("/api/product-intelligence?vendorType=wyrestorm&limit=1000", {
@@ -76,11 +84,11 @@ export function applyRuntimeAdminRecords(
 export async function loadProductIntelligenceIndex(): Promise<unknown> {
   if (!productIntelligenceIndexPromise) {
     productIntelligenceIndexPromise = Promise.all([
-      fetchJson<ProductIndexPayload>("/product-intelligence-index.json"),
+      fetchJson<ProductIndexPayload>("/product-intelligence-summary.json"),
       loadRuntimeAdminRecords(),
     ]).then(([payload, runtimeRecords]) => applyRuntimeAdminRecords(payload, runtimeRecords))
       .catch(async () => applyRuntimeAdminRecords(
-        await fetchJson<ProductIndexPayload>("/product-intelligence-index.json"),
+        await fetchJson<ProductIndexPayload>("/product-intelligence-summary.json"),
         await loadRuntimeAdminRecords(),
       ))
       .catch((error) => {
@@ -101,7 +109,7 @@ async function fetchJson<T>(url: string): Promise<T> {
 export function loadProductIntelligenceSummary(): Promise<ProductIndexPayload> {
   if (!productIntelligenceSummaryPromise) {
     productIntelligenceSummaryPromise = fetchJson<ProductIndexPayload>("/product-intelligence-summary.json")
-      .catch(() => fetchJson<ProductIndexPayload>("/product-intelligence-index.json"))
+      .catch(() => fetchJson<ProductIndexPayload>("/product-intelligence-summary.json"))
       .then(async (payload) => applyRuntimeAdminRecords(payload, await loadRuntimeAdminRecords()))
       .catch((error) => { productIntelligenceSummaryPromise = null; throw error; });
   }
@@ -133,6 +141,48 @@ export async function loadProductIntelligenceDetail(sku: string): Promise<Record
   } catch {
     return product;
   }
+}
+
+/**
+ * Summary-first replacement for the former whole-index load.
+ *
+ * The 10 MB product-intelligence-index.json shipped every product's
+ * technicalProfile/salesLanguage/dataMaintenance/sourceCatalog, so any route
+ * that merely needed catalogue browsing paid for all of it. The runtime now
+ * reads product-intelligence-summary.json (same shape, deferred fields
+ * stripped) and hydrates those fields only for the SKUs a caller names.
+ * Consumers that genuinely need every product's detail (today: the admin
+ * record editor) use loadProductIntelligenceDetailRecords().
+ */
+export async function loadProductIntelligenceSummaryWithDetail(skus: Array<string>): Promise<ProductIndexPayload> {
+  const payload = await loadProductIntelligenceSummary();
+  const wanted = new Set(skus.map((sku) => skuKey(sku)).filter(Boolean));
+  if (wanted.size === 0) return payload;
+
+  await Promise.all([...wanted].map((key) => loadProductIntelligenceDetail(key).catch(() => null)));
+
+  const detailsByKey = new Map<string, Record<string, unknown>>();
+  for (const key of wanted) {
+    const detail = await productIntelligenceDetailPromises.get(key);
+    if (detail) detailsByKey.set(key, detail);
+  }
+
+  return payloadWithProducts(payload, summaryProductList(payload).map((product) => {
+    const detail = detailsByKey.get(skuKey(product.sku));
+    return detail ? { ...product, ...detail } : product;
+  }));
+}
+
+/** Every product with its deferred detail fields hydrated (admin surface). */
+export async function loadProductIntelligenceDetailRecords(): Promise<ProductIndexPayload> {
+  const payload = await loadProductIntelligenceSummary();
+  const products = summaryProductList(payload);
+  const keys = products.map((product) => skuKey(product.sku)).filter(Boolean);
+  await Promise.all(keys.map((key) => loadProductIntelligenceDetail(key).catch(() => null)));
+  return payloadWithProducts(payload, await Promise.all(products.map(async (product) => {
+    const detail = await productIntelligenceDetailPromises.get(skuKey(product.sku));
+    return detail ? { ...product, ...detail } : product;
+  })));
 }
 
 export function clearProductIntelligenceIndexCache(): void {

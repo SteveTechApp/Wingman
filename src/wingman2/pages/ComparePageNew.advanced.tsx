@@ -9,7 +9,7 @@ import {
   type NetworkHdAvoipMember,
   type NetworkHdAvoipRecommendation,
 } from "../lib/networkHdAvoipEquivalence";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceDetailRecords } from "../lib/productIntelligenceIndexCache";
 import {
   compareVerdictTier,
   uniqueText,
@@ -723,7 +723,7 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
  * WYRESTORM_PRODUCTS above is a ~45-item hand-typed subset with only free-text
  * productClass/role/transport/tags - it drove every compare recommendation,
  * while the real, structured 310-product catalogue at
- * public/product-intelligence-index.json (generated from
+ * public/product-intelligence-summary.json (generated from
  * data/wingman-canonical-product-store.json, already loaded via
  * loadProductIntelligenceIndex() below but previously discarded) sat unused.
  * Every real entry also carries a `technicalProfile` with genuine port-level
@@ -5573,7 +5573,10 @@ function ComparePageNew() {
   useEffect(() => {
     let cancelled = false;
 
-    loadProductIntelligenceIndex()
+    // Compare derives port-level technical evidence from the deferred
+    // technicalProfile fields, so it hydrates the detail records rather than
+    // the summary-only catalogue.
+    loadProductIntelligenceDetailRecords()
       .then((indexPayload) => {
         if (cancelled) return;
 

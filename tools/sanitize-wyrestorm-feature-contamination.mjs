@@ -8,7 +8,7 @@ const targets = process.argv.slice(2).length
   : [
       "data-sources/wyrestorm/enrichment.json",
       "data/wingman-canonical-product-store.json",
-      "public/product-intelligence-index.json",
+      "public/product-intelligence-summary.json",
     ];
 
 const suspectFeatures = [

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import index from "../../../../public/product-intelligence-index.json";
+import { fullProductIndexRecords } from "./fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
 import {
   governedProfilesWithStatus,
   governedProfilesWithoutSkus,

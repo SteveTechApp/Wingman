@@ -20,7 +20,7 @@ const protectedExactPaths = new Set([
   "postcss.config.js",
   "tailwind.config.js",
   "README.md",
-  "public/product-intelligence-index.json",
+  "public/product-intelligence-summary.json",
   "public/wyrestorm-product-update-check.json",
 ]);
 

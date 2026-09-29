@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
 import {
   buildProductNarrative,
   buildProductFeatureBenefits,

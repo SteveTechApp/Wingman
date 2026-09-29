@@ -1,3 +1,4 @@
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -9,6 +10,11 @@ function readJson(relativePath: string): JsonRecord {
 }
 
 function productFrom(relativePath: string): JsonRecord {
+  if (relativePath === "__FULL_RECORDS__") {
+    const product = fullProductIndexRecords.find((item) => item.sku === "NHD-0401-MV");
+    expect(product, "summary+details records must contain NHD-0401-MV").toBeTruthy();
+    return product as JsonRecord;
+  }
   const payload = readJson(relativePath);
   const products = payload.products ?? payload.records ?? payload;
   const product = products.find((item: JsonRecord) => item.sku === "NHD-0401-MV");
@@ -20,7 +26,7 @@ describe("NHD-0401-MV governed product integrity", () => {
   it.each([
     "data-sources/wyrestorm/enrichment.json",
     "data/wingman-canonical-product-store.json",
-    "public/product-intelligence-index.json",
+    "__FULL_RECORDS__",
   ])("keeps the local-HDMI architecture in %s", (relativePath) => {
     const product = productFrom(relativePath);
 

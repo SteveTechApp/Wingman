@@ -19,7 +19,7 @@ function arrayify(value) {
   return [];
 }
 
-const index = readJson(path.join(root, "public/product-intelligence-index.json"));
+const index = readJson(path.join(root, "public/product-intelligence-summary.json"));
 const products = arrayify(index);
 
 const contexts = [

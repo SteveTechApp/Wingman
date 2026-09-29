@@ -108,7 +108,7 @@ const files = {
   competitorIntelligence: "src/wingman2/lib/competitorProductIntelligence.ts",
   avDecision: "src/wingman2/lib/avDecisionEvidence.ts",
   recommendationEvidence: "src/wingman2/lib/recommendationEvidence.ts",
-  productIndex: "public/product-intelligence-index.json",
+  productIndex: "public/product-intelligence-summary.json",
 };
 
 const compare = read(files.comparePage);

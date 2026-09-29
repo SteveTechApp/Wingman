@@ -175,15 +175,15 @@ function sanitise(value) {
   return value;
 }
 
-const indexPath = indexPaths[0];
-if (!fs.existsSync(indexPath)) throw new Error(`Missing public index: ${indexPath}`);
-const before = indexPaths.filter(fs.existsSync).map((filePath) => fs.readFileSync(filePath, "utf8")).join("\n");
+const presentPaths = indexPaths.filter(fs.existsSync);
+if (presentPaths.length === 0) throw new Error("Missing public product intelligence artifacts (summary/details).");
+const before = presentPaths.map((filePath) => fs.readFileSync(filePath, "utf8")).join("\n");
 const beforeMatches = suppressedSkus.filter((sku) => before.toUpperCase().includes(sku));
 
 console.log(`[product-intelligence-sanitise] Suppressed SKUs: ${suppressedSkus.join(", ") || "none"}`);
 console.log(`[product-intelligence-sanitise] Matches before: ${beforeMatches.join(", ") || "none"}`);
 
-for (const filePath of indexPaths.filter(fs.existsSync)) writeJson(filePath, sanitise(readJson(filePath)));
+for (const filePath of presentPaths) writeJson(filePath, sanitise(readJson(filePath)));
 const after = indexPaths.filter(fs.existsSync).map((filePath) => fs.readFileSync(filePath, "utf8")).join("\n");
 const afterMatches = suppressedSkus.filter((sku) => after.toUpperCase().includes(sku));
 

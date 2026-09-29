@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 const repoRoot = process.cwd();
-const indexPath = resolve(repoRoot, "public/product-intelligence-index.json");
+const indexPath = resolve(repoRoot, "public/product-intelligence-summary.json");
 
 const outCsv = resolve(repoRoot, "reports/wingman-strict-matrix-output-topology-audit.csv");
 const outMd = resolve(repoRoot, "reports/wingman-strict-matrix-output-topology-audit.md");
@@ -264,7 +264,7 @@ function writeCsv(path, headers, rows) {
 }
 
 if (!existsSync(indexPath)) {
-  console.error("[strict-matrix-audit] Missing public/product-intelligence-index.json");
+  console.error("[strict-matrix-audit] Missing public/product-intelligence-summary.json");
   console.error("[strict-matrix-audit] Run npm run data:product-intelligence-index first.");
   process.exit(1);
 }

@@ -70,7 +70,7 @@ export async function loadPublishedTemplates(root) {
 export async function runTemplateRealismAudit(root = process.cwd()) {
   const [templates, catalogue] = await Promise.all([
     loadPublishedTemplates(root),
-    fs.readFile(path.join(root, "public/product-intelligence-index.json"), "utf8").then(JSON.parse),
+    fs.readFile(path.join(root, "public/product-intelligence-summary.json"), "utf8").then(JSON.parse),
   ]);
   return auditTemplates(templates, catalogue);
 }

@@ -1,4 +1,4 @@
-import type { FormEvent } from "react";
+import type { Dispatch, FormEvent, SetStateAction } from "react";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ClipboardCopy, Database, History, House, MessageSquareText, Plus, Send, X } from "lucide-react";
@@ -7,7 +7,7 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { createGuruConversation, guruConversationTitle, loadGuruHistory, saveGuruHistory } from "./guruConversationHistory";
 import { GuruMessageContent, guruMessageTone } from "./GuruMessageContent";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceSummary, loadProductIntelligenceDetail } from "../lib/productIntelligenceIndexCache";
 import { postWingmanJson } from "../api/wingmanApi";
 import {
   getProductAssurance,
@@ -929,6 +929,19 @@ function answerReceiverQuestion(question: string, products: ProductEntry[]) {
   ].join("\n");
 }
 
+function hydrateGuruProductDetail(
+  sku: string,
+  products: ProductEntry[],
+  setProducts: Dispatch<SetStateAction<ProductEntry[]>>,
+) {
+  if (products.find((product) => product.sku === sku)?.salesLanguage) return;
+  void loadProductIntelligenceDetail(sku).then((hydrated) => {
+    const language = hydrated ? salesLanguageFromRecord(hydrated) : undefined;
+    if (!language) return;
+    setProducts((current) => current.map((product) => product.sku === sku ? { ...product, salesLanguage: language } : product));
+  }).catch(() => { /* base answer stands without sales-language detail */ });
+}
+
 function answerProductQuestion(question: string, products: ProductEntry[]) {
   const skus = extractSkus(question);
   const sku = skus[0];
@@ -1428,9 +1441,17 @@ async function answerQuestion(
   products: ProductEntry[],
   activityContext?: GuruActivityContext,
   compareContext?: string,
+  setProducts?: Dispatch<SetStateAction<ProductEntry[]>>,
 ) {
   const lower = question.toLowerCase();
   const skus = extractSkus(question);
+
+  // Product answers are the only branch that uses the deferred salesLanguage
+  // detail; hydrate the named SKU's record so the answer can render the
+  // sales-voice lines (no-op once hydrated; no per-keystroke fetch loop).
+  if (setProducts && skus.length && products.some((product) => product.sku === skus[0])) {
+    hydrateGuruProductDetail(skus[0], products, setProducts);
+  }
 
   if ((lower.includes("receiver") || lower.includes("rx")) && skus.length) {
     return answerReceiverQuestion(question, products);
@@ -1549,7 +1570,10 @@ export function WingmanGuruDrawer({
 
     let active = true;
 
-    loadProductIntelligenceIndex()
+    // Summary payload for matching; the drawer records which SKUs actually
+    // carried an answer so their deferred salesLanguage detail can hydrate
+    // below without shipping detail for the whole catalogue.
+    loadProductIntelligenceSummary()
       .then((data) => {
         if (!active) {
           return;
@@ -1614,7 +1638,7 @@ export function WingmanGuruDrawer({
       let answer: string;
       try {
         answer = compactLiveAnswer(
-          await answerQuestion(prompt, products, activityContext, compareContextRef.current ?? undefined),
+          await answerQuestion(prompt, products, activityContext, compareContextRef.current ?? undefined, setProducts),
           prompt,
         );
       } catch (error) {

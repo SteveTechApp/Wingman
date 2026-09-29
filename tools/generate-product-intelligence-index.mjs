@@ -41,9 +41,12 @@ function applyClassificationCorrection(sku, classification) {
   };
 }
 
-const outputTargets = [
-  { type: "json", path: "public/product-intelligence-index.json" },
-];
+// The browser runtime reads product-intelligence-summary.json plus per-SKU
+// detail records from product-intelligence-details/ (see
+// src/wingman2/lib/productIntelligenceIndexCache.ts). The former single
+// ~10MB public/product-intelligence-index.json duplicated summary + detail
+// for the whole catalogue in one eager download and is no longer emitted.
+const outputTargets = [];
 const deferredDetailFields = new Set(["technicalProfile", "salesLanguage", "dataMaintenance", "sourceCatalog"]);
 
 const generatedAt = "source-controlled";

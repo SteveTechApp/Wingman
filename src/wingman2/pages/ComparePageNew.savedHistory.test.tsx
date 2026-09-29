@@ -6,6 +6,8 @@ import { readProjectStore, resetProjectStore, saveCompareRunToProject } from "..
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockResolvedValue({ products: [] }),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue({ products: [] }),
+  loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue({ products: [] }),
 }));
 
 describe("saved comparison handoff", () => {

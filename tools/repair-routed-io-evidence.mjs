@@ -34,7 +34,7 @@ const REPORT_MD = path.join(REPORT_DIR, "routed-io-repair-report.md");
 const SEARCH_TARGETS = [
   "data/wingman-canonical-product-store.json",
   "data/catalog/competitor-products.generated.json",
-  "public/product-intelligence-index.json",
+  "public/product-intelligence-summary.json",
 ];
 
 const EXCLUDED_DIRS = new Set([

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { applyCatalogOverrides, createDefaultCatalogFilterState } from "../../features/catalog/catalogIntelligence";
 import { extractRawProducts } from "../lib/productStoryEngine";
 import { withBusinessLifecycle, selectCatalogResults } from "./CatalogBrowserPage";
-import index from "../../../public/product-intelligence-index.json";
+import index from "../../../public/product-intelligence-summary.json";
 
 const catalog = applyCatalogOverrides(extractRawProducts(index)).map(withBusinessLifecycle);
 const has = (list: { sku: string }[], sku: string) => list.some((p) => p.sku.toUpperCase() === sku);

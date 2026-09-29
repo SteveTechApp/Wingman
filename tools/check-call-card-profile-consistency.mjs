@@ -15,14 +15,14 @@ import path from "node:path";
 
 const root = process.cwd();
 const callCardPath = path.join(root, "public", "product-call-card-products.json");
-const indexPath = path.join(root, "public", "product-intelligence-index.json");
+const indexPath = path.join(root, "public", "product-intelligence-summary.json");
 
 if (!fs.existsSync(callCardPath)) {
   console.error("[profile-consistency] Missing product-call-card-products.json");
   process.exit(1);
 }
 if (!fs.existsSync(indexPath)) {
-  console.error("[profile-consistency] Missing product-intelligence-index.json");
+  console.error("[profile-consistency] Missing product-intelligence-summary.json");
   process.exit(1);
 }
 

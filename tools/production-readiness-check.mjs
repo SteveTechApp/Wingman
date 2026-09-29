@@ -14,7 +14,7 @@ const requiredFiles = [
   path.join(projectRoot, "data", "catalog", "competitor-products.generated.json"),
   path.join(projectRoot, "data", "catalog", "product-data-manifest.generated.json"),
   path.join(projectRoot, "data", "governance", "wingman-governance.json"),
-  path.join(projectRoot, "public", "product-intelligence-index.json"),
+  path.join(projectRoot, "public", "product-intelligence-summary.json"),
 ];
 
 const errors = [];
@@ -26,7 +26,7 @@ for (const filePath of requiredFiles) {
   }
 }
 
-const publicIndexPath = path.join(projectRoot, "public", "product-intelligence-index.json");
+const publicIndexPath = path.join(projectRoot, "public", "product-intelligence-summary.json");
 if (existsSync(publicIndexPath)) {
   const index = JSON.parse(readFileSync(publicIndexPath, "utf8"));
   const products = Array.isArray(index?.products) ? index.products : [];

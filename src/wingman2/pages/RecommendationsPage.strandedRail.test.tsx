@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import index from "../../../public/product-intelligence-summary.json";
 import {
   DISCOVERY_BRIEF_KEY,
   DISCOVERY_SNAPSHOT_KEY,
@@ -10,6 +10,8 @@ import { RecommendationsPage } from "./RecommendationsPage";
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
+  loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue(index),
 }));
 
 // A brief whose room model pairs one display with independent routing: the

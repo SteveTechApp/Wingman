@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 
 const repoRoot = process.cwd();
-const indexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
+const indexPath = path.join(repoRoot, "public", "product-intelligence-summary.json");
 const selectorEnginePath = path.join(repoRoot, "src", "wingman2", "lib", "productSelectorEngine.ts");
 
 const neutralValues = new Set(["", "unknown", "no audio requirement", "no processing", "no control", "not required"]);
@@ -114,7 +114,7 @@ function verifySharedSelectorMatching() {
     "export function selectWingmanProducts",
     "export async function loadWingmanProductSelectorDecisions",
     "isWingmanProductEligibleForFinderNeed",
-    "loadProductIntelligenceIndex",
+    "loadProductIntelligenceSummary",
     '| "recommendations"',
   ];
 
