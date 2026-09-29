@@ -87,6 +87,12 @@ Per the WyreStorm design rule, **all standard designs are workshop-tested before
 - [ ] Feedback captured; any blocking usability issues fixed.
 - [ ] Sign-off recorded.
 
+Run the mobile leg per [`MOBILE_UAT_PLAN.md`](MOBILE_UAT_PLAN.md): real
+phones/tablets against staging, results filed as the evidence pack that
+closes the `mobile-sales-uat` criterion in
+[`release-evidence-manifest.json`](release-evidence/release-evidence-manifest.json)
+(fill [`MOBILE_UAT_RESULT_TEMPLATE.md`](MOBILE_UAT_RESULT_TEMPLATE.md)).
+
 ## 8. Documentation & Handover
 
 - [ ] `README.md`, `DEPLOYMENT.md`, `OPERATIONS.md`, `SUPABASE_SETUP.md` reviewed and current.

@@ -18,6 +18,8 @@ _Last updated: 2026-09-17_
 | `docs/SUPABASE_SECRET_DRILL.md` | Secrets-configuration drill runbook: diagnose Supabase secret misconfiguration via the diagnostic workflow without a failing push. |
 | `docs/LAUNCH_CHECKLIST.md` | Launch checklist; use with current status file. |
 | `docs/LOAD_TESTING.md` | Load testing method. |
+| `docs/MOBILE_UAT_PLAN.md` | Real-device mobile UAT plan that closes the `mobile-sales-uat` criterion, with the required evidence pack. |
+| `docs/MOBILE_UAT_RESULT_TEMPLATE.md` | Fill-in session result template (becomes the evidence pack's `uat-summary.md`). |
 
 ## Standards / guidance
 
