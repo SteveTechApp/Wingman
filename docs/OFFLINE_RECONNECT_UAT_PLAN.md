@@ -47,7 +47,7 @@ The drills exercise the two offline persistence systems the app actually ships:
 | Role | Who (named before the session) | Responsibility |
 |---|---|---|
 | Release owner | _name_ | Accepts the evidence, decides blocker severity, updates the manifest |
-| Engineering owner | _name_ | Owns the expedite steps, runs the strict replay check |
+| Engineering owner | _name_ | Runs the strict replay check; supports any conflict-resolution edge cases |
 | Facilitator | _name_ | Runs the session on script; operates the desktop reference device |
 | Scribe | _name_ | Timestamps every finding with device + commit + repro step |
 | Testers (2) | Field-facing staff | Perform the drills on their own phone/tablet |
@@ -58,7 +58,7 @@ The drills exercise the two offline persistence systems the app actually ships:
 |---|---|---|---|---|
 | Small phone | Tester's own phone | **Real airplane mode** | Drills A, B, C | Yes |
 | Tablet | iPad/Android tablet | Wi-Fi toggle off | Drill C second seat | Yes |
-| Desktop | Facilitator's laptop | DevTools only | Reference, cross-checks, expedite steps, Drill B strict replay | Yes |
+| Desktop | Facilitator's laptop | DevTools only | Reference, cross-checks, Drill B strict replay | Yes |
 
 - All devices test the **staging** deployment (same URL, same commit). Record
   the commit hash shown on the staging footer or `/api/health` per device.
@@ -82,6 +82,7 @@ Testers judge against these promises; the scribe quotes what actually showed.
 | Reconnect flush | A pending offline edit reaches the server on the **next edit** or a **page reload** (sync starts with an initial push). Reconnect alone does not flush it — the badge keeps the offline message until a flush gesture | `SiteSurveyChecklist.tsx` online listener; `startSurveySync` initial push |
 | Duplicate/replay | Pushing the identical edits payload twice is accepted once (`idempotent`) — no error, no duplicated effects, server timestamp unchanged | `decideSurveySync` hash check |
 | Conflict, dirty local | When the server copy is newer and local edits are unsynced: HTTP 409, badge "Sync conflict — local changes were preserved", **local value untouched**, polling never overwrites dirty local | `decideSurveySync`; `pollForUpdates` dirty guard |
+| Conflict resolution (in-app) | A dirty conflict raises an amber "Sync conflict" banner in the checklist with two buttons: **Keep server copy** (adopt the server revision) and **Keep my edits** (re-base on the server revision and push again). Successful resolution clears the banner and syncs; if the re-based push collides again, the banner stays up | `getSurveyConflict` / `resolveSurveyConflict` in `siteSurveySync.ts`; banner in `SiteSurveyChecklist.tsx` |
 | Conflict, clean local | With no unsynced local edits, a server-newer copy is adopted automatically within ~10 s (two poll intervals), badge "Received updates from server" | `pollForUpdates` adoption path |
 | Team-change conflict | When a colleague's sync lands between two of yours, the Projects row shows an amber "Team changed: …" badge and the project detail page shows the banner naming the changed lanes; it clears by itself after you reload and your next sync round-trips clean | ADR-0001 §1.2j |
 
@@ -92,13 +93,13 @@ an error badge, it does not hang the page).
 ## 5. Before the session (facilitator checklist)
 
 - [ ] Staging deployed from the nominated commit; `/api/health` green; footer hash recorded.
-- [ ] Automation gate run and passing: `node tools/run-windows-critical-e2e.mjs --offline` (4/4 Chromium). Do **not** run the spec with a bare `npx playwright test` — that invocation starts no API and fails on connection-refused (documented in `late-beta-v1-candidate.md`).
+- [ ] Automation gate run and passing: `node tools/run-windows-critical-e2e.mjs --offline` (5/5 Chromium — the suite pins offline persistence, replay, the API-level conflict, the in-app banner resolution, and responsive layouts). Do **not** run the spec with a bare `npx playwright test` — that invocation starts no API and fails on connection-refused (documented in `late-beta-v1-candidate.md`).
 - [ ] UAT workspace + two named accounts created; one test project with a topology (cables visible in the site-survey checklist) seeded.
 - [ ] Project backend sync enabled on staging (`VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC`) — Drill D needs it.
 - [ ] Defect log opened (`defects.csv`); screenshots possible on every device; airplane mode reachable in one gesture on each phone.
 - [ ] Consent: testers know the session output is recorded as release evidence.
 
-## 6. Session script (~95 minutes)
+## 6. Session script (~85 minutes)
 
 ### Setup (10 min, facilitator-led)
 
@@ -146,7 +147,7 @@ an error badge, it does not hang the page).
 
 **Artifact:** two identical pushes converge; no duplicate effects anywhere.
 
-### Drill C — Conflict: server newer while local is dirty (25 min, phone + second seat)
+### Drill C — Conflict: server newer while local is dirty (20 min, phone + second seat)
 
 Uses the same numbers as the automated spec (12 → desktop 18 → phone 42) so
 human evidence and automation describe one sequence.
@@ -156,27 +157,24 @@ human evidence and automation describe one sequence.
 3. Tablet or desktop (account B, same workspace, online): change the same cable to **18**; it syncs (server revision 2).
 4. Phone: airplane mode **off**. Wait ~10 s without touching anything. Expected: badge → "Sync conflict — local changes were preserved" (arrives via the poll's dirty guard; a manual edit produces the same message via the 409).
 5. **The core check:** the phone still shows **42**, every field unchanged. The second seat still shows **18**. Nothing was overwritten on either side.
-6. In-app resolution attempt: make one further edit on the phone (e.g. add a note). Expected today: the conflict message persists — the site-survey sync has no in-app resolve control, and a resent push hits the same 409 (the local revision basis still points before revision 2). Log this as a defect with the repro; the release owner decides severity.
-7. Expedited resolution (facilitator, phone DevTools — the same revision
-   adoption the automated spec performs): read the current server revision,
-   write it into the local copy, then let the tester re-make the 42 edit:
-
-   ```js
-   const key = "wingman-site-survey-edits";
-   const projectId = "<projectId>";
-   const record = await (await fetch(`/api/wingman/site-survey/sync?projectId=${encodeURIComponent(projectId)}`, { credentials: "include" })).json();
-   const all = JSON.parse(localStorage.getItem(key));
-   all[projectId].serverTimestamp = record.serverTimestamp;
-   localStorage.setItem(key, JSON.stringify(all));
-   ```
-
-   Expected: the tester's next edit (the UI re-reads local state on every
-   edit) pushes 42 against the current revision successfully; badge →
-   "Edits synced to server"; server now holds **42**.
+6. In-app resolution (the release affordance, no DevTools): with the phone
+   online, the checklist shows the amber **Sync conflict** banner offering
+   **Keep server copy** and **Keep my edits**. First tap **Keep server copy**.
+   Expected: banner clears; the phone now shows **18** (the server's value)
+   and the badge reads "Sync conflict resolved with the server copy".
+7. Re-make the field edit on the phone: set the cable back to **42** and
+   confirm. Expected: because the local copy is now based on revision 2, the
+   push lands cleanly (server revision 3); badge → "Edits synced to server";
+   server now holds **42**. (Re-base-then-push is the same revision adoption
+   the automated spec performs; the banner's **Keep my edits** button runs
+   that sequence in one tap and is the alternate path — the automated suite
+   covers **Keep server copy** through the real banner UI, so human evidence
+   should focus on the Keep-my-edits path and on the banner appearing without
+   any manual gesture.)
 8. Convergence: on the second seat, wait ≤ two poll intervals. Expected: checklist shows **42** (clean adoption, badge "Received updates from server").
 9. Adoption inverse (2 min): with the phone holding **no** unsynced edits, the second seat edits the cable again. Expected: the phone adopts the new value automatically within ~10 s — no conflict message.
 
-**Artifact:** local preserved through the conflict; both devices converge on 42 after the stated resolution; clean seats adopt without prompting.
+**Artifact:** local preserved through the conflict; both devices converge on 42 after the in-app resolution; clean seats adopt without prompting.
 
 ### Drill D — Team-change conflict on saved projects (15 min, desktop + phone)
 
@@ -213,7 +211,7 @@ containing exactly these files:
 | `uat-summary.md` | The completed result template (§9) with every row filled, the overall pass/fail, blocker list, and the named approver + date | Scribe + release owner |
 | `defects.csv` | One row per finding: id, drill, device, OS/browser, app commit, step, severity (blocker/ux/data), description, screenshot filename | Scribe |
 | `device-matrix.md` | Every device actually used: model, OS version, browser version, network control, service-worker state, app commit, timestamps | Facilitator |
-| `screenshots/` | At minimum: offline badge + banner, preserved 42 after conflict, converged 42 after resolution, team-change badge | Testers |
+| `screenshots/` | At minimum: offline badge + banner, preserved 42 after conflict, the in-app conflict banner, converged 42 after resolution, team-change badge | Testers |
 | `sign-off.md` | Named release-owner acceptance sentence: "I accept this dated evidence for the offline-reconnect-uat criterion" + name + date | Release owner |
 
 Then set

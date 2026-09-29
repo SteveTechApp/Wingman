@@ -131,7 +131,15 @@ assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
 assertSourceContains("src/wingman2/pages/ProjectDetailPage.tsx", [
   "Editable requirements",
   "saveProjectRequirementsToProject",
+  "RequirementsAccordion",
+]);
+// 448dbfd6 (focused workflows) moved requirements editing into the accordion
+// component; the page keeps the save wiring and the accordion keeps the
+// readiness display (restored there after the split dropped it), so pin both
+// halves of the moved wiring.
+assertSourceContains("src/wingman2/pages/project/RequirementsAccordion.tsx", [
   "requirementReadiness",
+  "requirements-readiness",
 ]);
 assertSourceContains("src/wingman2/lib/projectRequirements.ts", [
   "buildRequirementRecordsFromProject",
@@ -142,7 +150,10 @@ const templateWorkflowSource = [
   "src/wingman2/pages/TemplatesPage.tsx",
   "src/wingman2/pages/TemplateReviewPage.tsx",
 ].map((relativePath) => readFileSync(path.join(projectRoot, relativePath), "utf8")).join("\n");
-for (const marker of ["Editable WyreStorm BOM", "saveTemplateProject", "exportTemplateBom", "Other AV design scope"]) {
+// a395a3a2 (template AV-system modelling) intentionally reworded the review
+// page's BOM heading; the lowercase listing copy on TemplatesPage now carries
+// the wording, and the review page keeps export/save wiring.
+for (const marker of ["editable WyreStorm BOM", "saveTemplateProject", "exportTemplateBom", "Other AV design scope"]) {
   if (!templateWorkflowSource.includes(marker)) {
     errors.push(`Template workflow is missing marker: ${marker}`);
   }

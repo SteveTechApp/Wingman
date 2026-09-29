@@ -25316,6 +25316,55 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   50% { opacity: 0.6; }
 }
 
+/* In-app sync-conflict resolution (airplane-mode Drill C): offers an explicit
+   keep-server / keep-local choice instead of leaving the conflict stuck. */
+.wm-survey-conflict-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.wm-survey-conflict-banner__icon {
+  flex: none;
+  margin-top: 2px;
+  color: #f59e0b;
+}
+
+.wm-survey-conflict-banner__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.wm-survey-conflict-banner__copy strong {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.wm-survey-conflict-banner__copy span {
+  font-size: 11px;
+  color: rgba(226, 242, 255, 0.65);
+}
+
+.wm-survey-conflict-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.wm-survey-conflict-banner__button {
+  white-space: nowrap;
+}
+
 .wm-survey-progress {
   margin-bottom: 14px;
   padding: 10px 12px;

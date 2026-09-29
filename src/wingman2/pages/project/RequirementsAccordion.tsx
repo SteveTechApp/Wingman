@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { StoredRequirementRecord, StoredRequirementStatus } from "../../data/projectStore";
+import { requirementReadiness } from "../../lib/projectRequirements";
 
 const categoryOrder = ["ARCHITECTURE", "APPLICATION", "DISPLAYS", "DISPLAY BEHAVIOUR", "SOURCES", "SIGNAL TYPE", "USB", "AUDIO", "INFRASTRUCTURE", "CONTROL", "NETWORK", "BUDGET", "TIMELINE"];
 const statuses: StoredRequirementStatus[] = ["confirmed", "review", "unknown"];
@@ -24,10 +25,25 @@ export function RequirementsAccordion({ requirements, onUpdate }: {
     };
     return rank(a) - rank(b);
   });
+  // Readiness summary (Ready %, confirmed/review/unknown counts). This display
+  // used to live in ProjectDetailPage's overview strip; it rides with the
+  // accordion so the readiness numbers always sit next to the editable
+  // requirement statuses they summarise.
+  const readiness = useMemo(() => requirementReadiness(requirements), [requirements]);
 
   if (!groups.length) return <div className="rounded-2xl border p-6 text-sm wm-ui-card wm-ui-copy">No requirements captured yet. Run Discovery to populate the requirement record.</div>;
 
-  return <div className="grid gap-2">{groups.map(([category, items]) => {
+  return <div className="grid gap-2">
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border p-3 wm-ui-card" data-testid="requirements-readiness">
+      <div className="text-center">
+        <p className="text-2xl font-black wm-ui-copy">{readiness.score}%</p>
+        <p className="text-[10px] uppercase tracking-wider wm-ui-kicker">Ready</p>
+      </div>
+      <span className="flex items-center gap-1 text-xs wm-ui-copy"><span className="font-bold">{readiness.confirmed}</span> confirmed</span>
+      {readiness.review > 0 && <span className="flex items-center gap-1 text-xs wm-ui-copy"><span className="font-bold">{readiness.review}</span> review</span>}
+      {readiness.unknown > 0 && <span className="flex items-center gap-1 text-xs wm-ui-copy"><span className="font-bold">{readiness.unknown}</span> unknown</span>}
+    </div>
+    {groups.map(([category, items]) => {
     const expanded = open.has(category);
     const toggle = () => setOpen(new Set(expanded ? [] : [category]));
     return <div key={category} className="rounded-2xl border overflow-hidden wm-ui-card">

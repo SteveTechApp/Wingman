@@ -1,6 +1,11 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SiteSurveyChecklist } from "./SiteSurveyChecklist";
+import {
+  onSyncStatusChange,
+  resolveSurveyConflict,
+  type SurveySyncStatus,
+} from "../lib/siteSurveySync";
 import type { StoredDiscoveryBrief, StoredProject } from "../data/projectStore";
 
 // The sync module polls a backend and pushes edits on mount; this suite only
@@ -11,6 +16,8 @@ vi.mock("../lib/siteSurveySync", () => ({
   startSurveySync: vi.fn(),
   stopSurveySync: vi.fn(),
   onSyncStatusChange: vi.fn(() => () => {}),
+  getSurveyConflict: vi.fn(() => null),
+  resolveSurveyConflict: vi.fn(),
 }));
 
 // The checklist's action buttons only render when the discovery topology has
@@ -81,5 +88,78 @@ describe("SiteSurveyChecklist download deferral", () => {
     expect(revokeSpy).not.toHaveBeenCalled();
 
     await waitFor(() => expect(revokeSpy).toHaveBeenCalledWith("blob:wingman-test-survey-edits"));
+  });
+});
+
+// The in-app conflict affordance closes the airplane-mode Drill C gap: while a
+// sync conflict is active the checklist offers Keep server / Keep my edits, and
+// both buttons resolve through siteSurveySync's resolveSurveyConflict.
+describe("SiteSurveyChecklist sync conflict resolution", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function stubStatusListener() {
+    let listener: ((status: SurveySyncStatus) => void) | null = null;
+    vi.mocked(onSyncStatusChange).mockImplementation((next) => {
+      listener = next;
+      return () => {};
+    });
+    return () => {
+      listener?.({
+        state: "error",
+        message: "Sync conflict — local changes were preserved",
+        lastSyncedAt: null,
+        pendingChanges: 1,
+      });
+    };
+  }
+
+  it("hides the conflict banner while sync is healthy", () => {
+    render(<SiteSurveyChecklist project={project} />);
+
+    expect(screen.queryByTestId("survey-conflict-banner")).not.toBeInTheDocument();
+  });
+
+  it("offers keep-server and keep-local resolution once a conflict surfaces", async () => {
+    const raiseConflict = stubStatusListener();
+    vi.mocked(resolveSurveyConflict).mockResolvedValue({ outcome: "conflict" });
+
+    render(<SiteSurveyChecklist project={project} />);
+    act(() => raiseConflict());
+
+    const banner = await screen.findByTestId("survey-conflict-banner");
+    expect(banner).toHaveTextContent("Sync conflict");
+    expect(banner).toHaveTextContent("Nothing was overwritten");
+
+    fireEvent.click(screen.getByRole("button", { name: "Keep my edits" }));
+    await waitFor(() =>
+      expect(resolveSurveyConflict).toHaveBeenCalledWith(project.id, "keep-local"),
+    );
+
+    // The banner stays up when resolution reports the conflict unresolved
+    // (e.g. the re-based push collided again), so the choice remains offered.
+    expect(screen.getByTestId("survey-conflict-banner")).toBeInTheDocument();
+  });
+
+  it("clears the banner after a successful resolution", async () => {
+    const raiseConflict = stubStatusListener();
+    vi.mocked(resolveSurveyConflict).mockResolvedValue({ outcome: "synced" });
+
+    render(<SiteSurveyChecklist project={project} />);
+    act(() => raiseConflict());
+
+    await screen.findByTestId("survey-conflict-banner");
+    fireEvent.click(screen.getByRole("button", { name: "Keep server copy" }));
+
+    await waitFor(() => {
+      expect(resolveSurveyConflict).toHaveBeenCalledWith(project.id, "keep-server");
+      expect(screen.queryByTestId("survey-conflict-banner")).not.toBeInTheDocument();
+    });
   });
 });

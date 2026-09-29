@@ -51,6 +51,8 @@ import {
   startSurveySync,
   stopSurveySync,
   onSyncStatusChange,
+  getSurveyConflict,
+  resolveSurveyConflict,
   type SurveySyncStatus,
 } from "../lib/siteSurveySync";
 
@@ -74,6 +76,8 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
     lastSyncedAt: null,
     pendingChanges: 0,
   });
+  const [conflictActive, setConflictActive] = useState(false);
+  const [resolvingConflict, setResolvingConflict] = useState(false);
 
   const checklist = useMemo(
     () => buildSiteSurveyChecklist(project, productSelections),
@@ -124,6 +128,10 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
 
     const unsubscribe = onSyncStatusChange((status) => {
       setSyncStatus(status);
+      // The conflict flag follows the sync-error state: the module raises it
+      // whenever a 409 or the poll's dirty guard fires while edits are
+      // pending, and a successful resolve or sync clears it.
+      setConflictActive((current) => current || status.state === "error");
     });
 
     // Listen for server updates
@@ -202,6 +210,17 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
     setLocationNotes(project.id, locationId, value);
     refreshEdits();
   }
+
+  const handleResolveConflict = useCallback(async (resolution: "keep-local" | "keep-server") => {
+    setResolvingConflict(true);
+    try {
+      const result = await resolveSurveyConflict(project.id, resolution);
+      setConflictActive(result.outcome === "conflict");
+    } finally {
+      setResolvingConflict(false);
+      refreshEdits();
+    }
+  }, [project.id, refreshEdits]);
 
   function handleClearAll() {
     if (confirm("Clear all on-site survey edits for this project?")) {
@@ -327,6 +346,42 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
           Fill in actual cable lengths and verify equipment on-site. Changes save locally and work offline.
         </p>
       </header>
+
+      {/* Sync conflict — in-app resolution */}
+      {online && conflictActive && (
+        <div
+          className="wm-survey-conflict-banner"
+          role="alert"
+          data-testid="survey-conflict-banner"
+        >
+          <AlertTriangle size={16} className="wm-survey-conflict-banner__icon" aria-hidden="true" />
+          <div className="wm-survey-conflict-banner__copy">
+            <strong>Sync conflict</strong>
+            <span>
+              This device has unsent edits and the server holds a newer copy from someone else.
+              Nothing was overwritten. Keep one side to finish syncing.
+            </span>
+          </div>
+          <div className="wm-survey-conflict-banner__actions">
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-secondary wm-survey-conflict-banner__button"
+              onClick={() => void handleResolveConflict("keep-server")}
+              disabled={resolvingConflict}
+            >
+              Keep server copy
+            </button>
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-primary wm-survey-conflict-banner__button"
+              onClick={() => void handleResolveConflict("keep-local")}
+              disabled={resolvingConflict}
+            >
+              Keep my edits
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Photo capture for auto-population */}
       <SiteSurveyPhotoCapture

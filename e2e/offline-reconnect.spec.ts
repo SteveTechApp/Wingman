@@ -3,20 +3,25 @@ import { expect, test, type Page } from "@playwright/test";
 const PROJECT_ID = "offline-reconnect-uat";
 const STORAGE_KEY = "wingman-site-survey-edits";
 
-async function openHarness(page: Page) {
-  await page.goto("/wingman", { waitUntil: "networkidle" });
-  await page.evaluate(async (key) => {
-    localStorage.removeItem(key);
+async function injectHarness(page: Page) {
+  await page.evaluate(async () => {
     const storage = await import("/src/wingman2/lib/siteSurveyStorage.ts");
     const sync = await import("/src/wingman2/lib/siteSurveySync.ts");
     (window as any).__surveyHarness = { storage, sync };
-  }, STORAGE_KEY);
+  });
 }
 
-async function authenticate(page: Page, mode: "signup" | "login") {
+async function openHarness(page: Page) {
+  await page.goto("/wingman", { waitUntil: "networkidle" });
+  await page.evaluate((key) => localStorage.removeItem(key), STORAGE_KEY);
+  await injectHarness(page);
+}
+
+async function authenticate(page: Page, mode: "signup" | "login", email = "offline-uat@example.com") {
+  const password = "offline-uat-pass";
   const payload = mode === "signup"
-    ? { name: "Offline UAT", company: "Reconnect Lab", email: "offline-uat@example.com", password: "offline-uat-pass" }
-    : { email: "offline-uat@example.com", password: "offline-uat-pass" };
+    ? { name: "Offline UAT", company: "Reconnect Lab", email, password }
+    : { email, password };
   const response = await page.context().request.post(`/api/wingman/auth/${mode}`, { data: payload });
   expect(response.status(), await response.text()).toBe(200);
   const setCookie = response.headers()["set-cookie"] ?? "";
@@ -31,6 +36,45 @@ async function editAndSync(page: Page, length: number) {
     storage.setCableConfirmed(projectId, "route-a", true);
     return sync.pushEditsToBackend(projectId);
   }, { projectId: PROJECT_ID, value: length });
+}
+
+/**
+ * Seed the UAT project (its topology connection id must be "route-a" so the
+ * stored cable edits bind to the rendered checklist row) and open the proposal
+ * wizard far enough to render the real SiteSurveyChecklist UI.
+ */
+async function openChecklistPage(page: Page) {
+  await page.evaluate(async () => {
+    const projects = await import("/src/wingman2/data/projectStore.ts");
+    const timestamp = new Date().toISOString();
+    const candidate = {
+      id: "offline-reconnect-uat", name: "Offline Reconnect UAT", owner: "UAT", stage: "Proposal Builder", status: "recommended",
+      updated: "Just now", resumeTo: "/wingman/proposal", createdAt: timestamp, updatedAt: timestamp,
+      discoveryBrief: { savedAt: timestamp, roomModel: { clientName: "Reconnect Lab", siteName: "UAT Site" }, topology: {
+        schemaVersion: 1, mode: "advanced",
+        locations: [{ id: "loc-1", name: "Table", type: "table" }, { id: "loc-2", name: "Display Wall", type: "display-wall" }],
+        devices: [
+          { id: "dev-1", name: "Laptop", category: "Source", locationId: "loc-1", quantity: 1, thirdParty: true, status: "confirmed" },
+          { id: "dev-2", name: "Display", category: "Display", locationId: "loc-2", quantity: 1, thirdParty: true, status: "confirmed" },
+        ],
+        connections: [{ id: "route-a", fromDeviceId: "dev-1", toDeviceId: "dev-2", services: ["video"], transport: "hdmi", lengthMode: "estimated", lengthMetres: 12, estimateReason: "Confirm on site", status: "assumed" }],
+        generatedFromDiscovery: true, createdAt: timestamp, updatedAt: timestamp,
+      } },
+    };
+    projects.upsertStoredProject(candidate as any);
+    projects.setActiveProjectId(candidate.id);
+  });
+  await page.goto("/wingman/proposal", { waitUntil: "networkidle" });
+  // Navigation started a fresh document, so re-inject the storage/sync harness
+  // for the post-resolution localStorage assertions below.
+  await injectHarness(page);
+  const checklist = page.getByRole("heading", { name: "Site Survey Checklist" });
+  for (let step = 0; step < 6 && !(await checklist.isVisible().catch(() => false)); step += 1) {
+    const next = page.getByRole("button", { name: /Continue|Next/i }).last();
+    if (!(await next.isVisible().catch(() => false)) || !(await next.isEnabled())) break;
+    await next.click();
+  }
+  await expect(checklist).toBeVisible();
 }
 
 async function apiSync(page: Page, projectId: string) {
@@ -99,6 +143,94 @@ test("desktop and tablet preserve the offline edit when the server is newer", as
 
   await desktop.close();
   await tablet.close();
+});
+
+// Drill C's in-app resolution: a dirty-local conflict must surface the
+// checklist's Sync conflict banner, and resolving through it (no DevTools,
+// no localStorage surgery) must leave the project in a clean, re-syncable
+// state. This is the release affordance that replaced the localStorage
+// expedite step the UAT protocol used to require.
+test("sync conflict surfaces the in-app banner and Keep server copy resolves it", async ({ browser }) => {
+  // Distinct email per test: signup is one-shot per server boot, and the
+  // earlier conflict test already claims offline-uat@example.com. One account
+  // is shared across both seats (re-login per seat switch) because the survey
+  // store is workspace-scoped — separate accounts would never conflict.
+  const email = "offline-uat-banner@example.com";
+  const seatA = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const seatB = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const pageA = await seatA.newPage();
+  const pageB = await seatB.newPage();
+  await openHarness(pageA);
+  await openHarness(pageB);
+
+  // Seat A owns the project revision history (server revision 1 at length 12).
+  await authenticate(pageA, "signup", email);
+  await pageA.evaluate(async (projectId) => {
+    const { storage } = (window as any).__surveyHarness;
+    storage.setCableLength(projectId, "route-a", 12);
+    storage.setCableConfirmed(projectId, "route-a", true);
+  }, PROJECT_ID);
+  expect(await apiSync(pageA, PROJECT_ID)).toMatchObject({ outcome: "synced" });
+
+  // Seat B (same account, its own browser context — auth keeps one active
+  // session per account, so seat A is logged out when seat B signs in) adopts
+  // the server revision the way a clean adoption would, so its dirty 42 edit
+  // is based on revision 1 and the later 409 is a genuine conflict.
+  const revision1 = await (await pageA.request.get(`/api/wingman/site-survey/sync?projectId=${encodeURIComponent(PROJECT_ID)}`)).json();
+  await authenticate(pageB, "login", email);
+  await pageB.evaluate(({ key, projectId, revision }) => {
+    localStorage.setItem(key, JSON.stringify({ [projectId]: {
+      projectId, cableEdits: {}, deviceEdits: {}, locationEdits: {},
+      lastModified: "2026-09-10T12:00:00.000Z", synced: true, serverTimestamp: revision,
+    } }));
+  }, { key: STORAGE_KEY, projectId: PROJECT_ID, revision: revision1.serverTimestamp });
+
+  // Seat B's dirty edit (42) is held back while offline; seat A lands 18 as
+  // server revision 2 behind its back (re-login kills seat B's session, which
+  // is fine — seat B is offline and its session is restored below).
+  await seatB.setOffline(true);
+  await expect(editAndSync(pageB, 42)).resolves.toMatchObject({ outcome: "error", error: "offline" });
+  await authenticate(pageA, "login", email);
+  await pageA.evaluate(async (projectId) => (window as any).__surveyHarness.storage.setCableLength(projectId, "route-a", 18), PROJECT_ID);
+  expect(await apiSync(pageA, PROJECT_ID)).toMatchObject({ outcome: "synced" });
+
+  // Back online, seat B opens the REAL checklist UI: the dirty 42 is still
+  // local, the server holds 18, and the conflict must surface in-app.
+  await seatB.setOffline(false);
+  await authenticate(pageB, "login", email);
+  await openChecklistPage(pageB);
+
+  const banner = pageB.getByTestId("survey-conflict-banner");
+  await expect(banner).toBeVisible();
+  await expect(banner).toContainText("Sync conflict");
+  await expect(banner).toContainText("Keep server copy");
+  await expect(banner).toContainText("Keep my edits");
+  const lengthInput = pageB.getByLabel(/Actual:/).first();
+  await expect(lengthInput).toHaveValue("42");
+  // The dirty local value survived: resolution must never overwrite it
+  // silently — the banner exists precisely to offer the choice.
+
+  // Resolve through the UI: Keep server copy adopts 18 as a synced record.
+  await banner.getByRole("button", { name: "Keep server copy" }).click();
+  await expect(banner).toBeHidden();
+  await expect(lengthInput).toHaveValue("18");
+  const adopted = await pageB.evaluate(async (projectId) => {
+    const { storage } = (window as any).__surveyHarness;
+    return storage.getProjectEdits(projectId);
+  }, PROJECT_ID);
+  expect(adopted.cableEdits["route-a"].actualLengthMetres).toBe(18);
+  expect(adopted.synced).toBe(true);
+  // Compare against the server via seat B: seat A's session was consumed by
+  // the one-active-session policy when seat B re-logged-in above.
+  expect(adopted.serverTimestamp).toBe((await (await pageB.request.get(`/api/wingman/site-survey/sync?projectId=${encodeURIComponent(PROJECT_ID)}`)).json()).serverTimestamp);
+
+  // The re-made field edit (42) now pushes cleanly — no 409, no expedite.
+  await expect(editAndSync(pageB, 42)).resolves.toMatchObject({ outcome: "synced" });
+  const serverCopy = await (await pageB.request.get(`/api/wingman/site-survey/sync?projectId=${encodeURIComponent(PROJECT_ID)}`)).json();
+  expect(serverCopy.edits.cableEdits["route-a"].actualLengthMetres).toBe(42);
+
+  await seatA.close();
+  await seatB.close();
 });
 
 const responsiveCases = [
