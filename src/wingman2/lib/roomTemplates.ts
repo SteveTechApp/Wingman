@@ -120,6 +120,24 @@ const roomDesigns: RoomDeploymentDesign[] = [
     constraints: ["Include a lecture camera, capture input and agreed split/loop of presentation video; verify recorded audio/video synchronisation.","Specialist audio contractor to predict speech intelligibility and coverage, confirm array positions/model/module count and compare conventional loudspeakers if the measured acoustics are favourable."],
     recording: true,
     accessibility: true,
+    completion: {
+      humanFactors: {
+        farthestViewerMetres: 14, contentClass: "adm",
+        ambientLight: "daylight",
+        cameraFov: "The capture camera must hold the lectern presenter and the teaching screen in one frame; verify at the lectern with the projection lit and the room occupied.",
+      },
+      controlExperience: { operator: "teacher", scheduling: true, monitoring: "basic" },
+      environment: { rt60Target: "≤ 1.0 s occupied, verified with the acoustic specialist", acousticTreatment: "moderate", illuminationControls: true, rackThermal: "forced" },
+      assurance: {
+        acceptanceTest: true, trainingAudience: "lecturing staff and the Estates AV team",
+        warrantyTier: "on-site-nbd", sparesHeld: "One spare lectern microphone, presenter wireless receiver and capture-node power supply",
+      },
+      compliance: {
+        assistiveListening: "required",
+        recordingConsentPolicy: "Recordings carry standing notice at session start; accessibility capture requests are honoured and retention follows the institution's published policy.",
+        cameraPrivacy: "The capture camera frames the lectern and teaching wall only; it does not cover seating, doors or circulation.",
+      },
+    },
     audio: {"approach":"distributed","experience":"Digitally steerable column arrays direct speech and everyday programme towards the seating, limiting excitation of reflective walls and ceiling. This is a speech-led system, not a concert or cinema PA.","zones":[],"microphones":"Lectern/gooseneck and presenter wireless microphone positions","processing":"Microphone automixing, gain levelling, limiting and source mixing feed the array system. The array supplier configures beam steering and internal delays; the room processor supplies separately aligned recording, assistive-listening and overflow sends where scheduled. No conferencing/AEC function is inferred from beam steering.","connectivity":"Microphones and selected programme enter the room DSP; two balanced line outputs feed the powered front columns (or compatible Dante interfaces where selected). Provide local mains and control/data to each array. Keep the local audio path analogue unless networked audio provides a demonstrated benefit.","dante":false,"aec":false,"specialistSystems":[{"name":"Powered digitally steerable column array assembly","qty":2,"inputChannels":1,"reason":"The assumed long audience depth, reflective upper surfaces and restricted ceiling access make controlled vertical coverage a credible starting point. Confirm reverberation and coverage prediction; a treated room may instead suit conventional distributed speakers.","scope":"Two provisional front column positions. Each complete assembly includes the required array modules, integrated amplification/beam-steering DSP, approved mounting, mains isolation, signal/network interface and commissioning software. Model array height, aiming and coverage against every seating tier; add priced fills only where prediction requires them. These columns replace the generic main-room speaker/amp package; they are not connected to a 100V output."}],"programmeFeeds":1,"routing":"One selected programme feed serves this room; conferencing return and microphone processing remain separately defined where provided.","acousticTreatment":{"reason":"The assumed reflective surfaces and audience depth warrant an acoustic study. Beam steering improves coverage but does not remove the need to control reverberation and late reflections.","scope":"Survey reverberation, background/HVAC noise and early/late reflections in furnished and occupied conditions. Include appropriately rated wall panels and ceiling clouds/baffles or absorptive finishes where needed, with measured areas and safe structural fixing. Coordinate cleaning, fire performance, lighting, sprinklers and maintenance access with the venue. Set the speech/UC performance target with the acoustic specialist and verify after installation; reduce or omit new panels only where existing treatment meets that target."}},
   },
   {
@@ -486,6 +504,20 @@ const roomDesigns: RoomDeploymentDesign[] = [
     constraints: ["AV screens are not a substitute for certified evacuation or life-safety systems.","Engineer every fibre uplink, switch placement, environmental rating and public-message authorisation."],
     resilience: true,
     signage: true,
+    completion: {
+      humanFactors: {
+        ambientLight: "high-ambient",
+      },
+      controlExperience: { operator: "professional", scheduling: false, monitoring: "24-7-noc" },
+      assurance: {
+        acceptanceTest: true, warrantyTier: "24-7-mission-critical", monitoringContract: true,
+        sparesHeld: "Spare concourse display, decoder, PSU and switch per distribution cupboard; stock agrees with the UPS recovery plan",
+      },
+      compliance: {
+        lifeSafetyAudioPriority: true,
+        informationClassification: "Licensed event and signage feeds are rights-managed; public-message override follows the venue's authorisation workflow and screens never substitute certified evacuation systems.",
+      },
+    },
     audio: {"approach":"distributed","experience":"Four concourse zones provide intelligible event commentary; a separate hospitality circuit carries background programme. VIP screen audio is muted unless an independently engineered local room system is added.","zones":[{"name":"Concourse 1","purpose":"Even speech and background-audio coverage; full-range cinema reproduction is not assumed.","speakers":6,"topology":"100V","tapWatts":12,"amplifierWatts":120},{"name":"Concourse 2","purpose":"Even speech and background-audio coverage; full-range cinema reproduction is not assumed.","speakers":6,"topology":"100V","tapWatts":12,"amplifierWatts":120},{"name":"Concourse 3","purpose":"Even speech and background-audio coverage; full-range cinema reproduction is not assumed.","speakers":6,"topology":"100V","tapWatts":12,"amplifierWatts":120},{"name":"Concourse 4","purpose":"Even speech and background-audio coverage; full-range cinema reproduction is not assumed.","speakers":6,"topology":"100V","tapWatts":12,"amplifierWatts":120},{"name":"Hospitality background","purpose":"Even speech and background-audio coverage; full-range cinema reproduction is not assumed.","speakers":8,"topology":"100V","tapWatts":6,"amplifierWatts":120}],"microphones":"No room reinforcement microphones are included.","processing":"Provide source selection, gain structure, EQ, limiting and independently controlled output zones; apply delay where coverage overlaps. No AEC or conferencing function is inferred from an amplifier or video decoder.","connectivity":"Dante DSP sends five independent mixes to distributed Dante-capable amplifiers/interfaces. Include the copper/fibre audio network and environmental protection for public circulation positions; certified evacuation remains separate.","dante":true,"aec":false,"programmeFeeds":12,"routing":"12 available programme feeds enter the audio matrix. Each of the 5 zones independently selects a feed, with local volume/mute and an agreed maximum level; stereo feeds are downmixed for mono 100V zones. Presets may link zones for an event and restore independent service afterwards. Video route changes must not silently change unrelated audio zones."},
   },
   {
@@ -655,6 +687,22 @@ const roomDesigns: RoomDeploymentDesign[] = [
     alternative: "Compare a correctly sized fixed matrix/wall processor and point-to-point links if arbitrary source placement and output layouts are not needed; test latency with the selected screens.",
     constraints: ["Design wall viewing angles, multiview/window limits, source licences and auditable route permissions.","KVM control is excluded unless a separately approved host/device switching system is specified."],
     resilience: true,
+    completion: {
+      humanFactors: {
+        farthestViewerMetres: 20, contentClass: "bdm",
+        ambientLight: "controlled",
+      },
+      controlExperience: { operator: "professional", scheduling: false, monitoring: "24-7-noc" },
+      environment: { rackThermal: "hvac-cooled" },
+      assurance: {
+        acceptanceTest: true, warrantyTier: "24-7-mission-critical", monitoringContract: true,
+        sparesHeld: "Spare wall panel, decoder and PSU on site; 24/7 response restores the wall layout per the operations runbook",
+      },
+      compliance: {
+        cameraPrivacy: "The AV estate displays approved VMS outputs only; camera selection, retention and redaction stay inside the VMS and its permission model, never in the AV routing layer.",
+        informationClassification: "Route permissions are auditable per operator; incident dashboards carry the classification the VMS assigns and no feed leaves the secure room.",
+      },
+    },
     audio: {"approach":"distributed","experience":"Low-level shared briefing playback is distributed for intelligibility. Operator headsets, dispatch radio and critical alarm systems remain independent of the AV speakers.","zones":[{"name":"Operational briefing audio","purpose":"Even speech and background-audio coverage; full-range cinema reproduction is not assumed.","speakers":8,"topology":"100V","tapWatts":6,"amplifierWatts":60}],"microphones":"No room reinforcement microphones are included.","processing":"Provide source selection, gain structure, EQ, limiting and independently controlled output zones; apply delay where coverage overlaps. No AEC or conferencing function is inferred from an amplifier or video decoder.","connectivity":"Selected programme audio is extracted at the nominated source/receiver and mixed with the scheduled microphones, then sent by balanced line to each amplifier. Mute display loudspeakers to prevent duplicate delayed sound.","dante":false,"aec":false,"programmeFeeds":1,"routing":"One selected programme feed serves this room; conferencing return and microphone processing remain separately defined where provided.","acousticTreatment":{"reason":"Clear teaching, briefing or recorded speech depends on a controlled acoustic environment; confirm whether the existing finishes provide enough absorption for the stated use.","scope":"Survey reverberation, background/HVAC noise and early/late reflections in furnished and occupied conditions. Include appropriately rated wall panels and ceiling clouds/baffles or absorptive finishes where needed, with measured areas and safe structural fixing. Coordinate cleaning, fire performance, lighting, sprinklers and maintenance access with the venue. Set the speech/UC performance target with the acoustic specialist and verify after installation; reduce or omit new panels only where existing treatment meets that target."}},
   },
   {
@@ -716,6 +764,26 @@ const roomDesigns: RoomDeploymentDesign[] = [
     accessibility: true,
     inputExtensions: 2,
     additionalScope: [{"key":"discussion-system","description":"Delegated discussion/voting system: 30 seat units and controller","qty":1,"notes":"Base allowance for 30 councillor microphone/voting positions, central discussion controller, power/data cabling and official recording interface; coordinate with four additional lectern/chair/clerk microphone positions to prevent duplicate purchase."}],
+    completion: {
+      humanFactors: {
+        farthestViewerMetres: 16, contentClass: "adm",
+        ambientLight: "daylight",
+        speechPrivacy: true,
+      },
+      controlExperience: { operator: "facilitator", scheduling: true, monitoring: "basic" },
+      environment: { rt60Target: "≤ 1.2 s occupied, per the chamber acoustic study", acousticTreatment: "moderate", illuminationControls: true, rackThermal: "forced" },
+      assurance: {
+        acceptanceTest: true, trainingAudience: "clerks and committee support staff",
+        warrantyTier: "on-site-nbd", sparesHeld: "One spare delegate discussion unit, clerk microphone and chamber display input card",
+      },
+      compliance: {
+        assistiveListening: "required",
+        lifeSafetyAudioPriority: true,
+        recordingConsentPolicy: "Public and private sessions are announced and marked; the webcast and official record follow the authority's scheme-of-delegation and retention rules.",
+        cameraPrivacy: "Chamber cameras frame the chair, speakers and evidence display only; the public gallery is never filmed.",
+        informationClassification: "Approved evidence on chamber screens is public; confidential agenda papers stay on the clerk's restricted display path.",
+      },
+    },
     audio: {"approach":"distributed","experience":"Distributed ceiling audio supports intelligible proceedings and remote participants. The thirty-seat discussion system controls delegate microphones; additional lectern/chair inputs enter the conferencing DSP.","zones":[{"name":"Council chamber","purpose":"Even speech and background-audio coverage; full-range cinema reproduction is not assumed.","speakers":8,"topology":"100V","tapWatts":6,"amplifierWatts":120}],"microphones":"Additional lectern/chair/clerk microphone position","processing":"AEC conferencing DSP with USB, automixing and an approved discussion-controller interface. Thirty delegate seat microphones are mixed by the separately scheduled discussion controller; do not assume four DSP inputs directly serve thirty seats. Build a far-end-free transmit mix and reference all room playback for AEC.","connectivity":"Selected programme audio and microphone inputs enter the DSP; DSP USB connects bidirectionally to the active conferencing host, and balanced outputs feed the room amplifiers. Commission double-talk, echo cancellation, lip-sync and content-audio sharing.","dante":false,"aec":true,"programmeFeeds":1,"routing":"One selected programme feed serves this room; conferencing return and microphone processing remain separately defined where provided.","acousticTreatment":{"reason":"Reflections from glazing, table surfaces and hard walls can reduce microphone clarity and make remote speech tiring. AEC controls echo in the signal path but does not shorten the room reverberation.","scope":"Survey reverberation, background/HVAC noise and early/late reflections in furnished and occupied conditions. Include appropriately rated wall panels and ceiling clouds/baffles or absorptive finishes where needed, with measured areas and safe structural fixing. Coordinate cleaning, fire performance, lighting, sprinklers and maintenance access with the venue. Set the speech/UC performance target with the acoustic specialist and verify after installation; reduce or omit new panels only where existing treatment meets that target."}},
   },
   {
