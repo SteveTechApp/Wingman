@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  buildEvidenceArtifact,
   buildMarkerCleanupPlan,
   buildRunCleanupPlan,
   checkOwnerRows,
@@ -516,5 +517,49 @@ describe("verifySupabaseRunPersistence mode derivation", () => {
     const result = await verifySupabaseRunPersistence(verificationOptions([]));
     expect(result.ok).toBe(false);
     expect(result.checked).toBe(true);
+  });
+});
+
+describe("buildEvidenceArtifact", () => {
+  const storageDetails = { storageModeConfigured: "supabase-tables", storageModeActive: "supabase-tables" };
+  const passingAnalyses = [
+    { scenario: "health", isProbe: false, total: 100, successful: 100, successRate: "100.00", times: { p95: 42, p99: 88 } },
+    { scenario: "project-save", isProbe: false, total: 100, successful: 100, successRate: "100.00", times: { p95: 1200, p99: 3000 } },
+    { scenario: "payload-413", isProbe: true, total: 3, successful: 3, successRate: "100.00", times: { p95: 5, p99: 6 } },
+  ];
+
+  it("produces a dated artifact naming the criterion with per-scenario budget verdicts", () => {
+    const { fileName, content } = buildEvidenceArtifact({
+      criterionId: "production-like-load",
+      level: "standard",
+      users: 3,
+      payload: "standard",
+      storageDetails,
+      analyses: passingAnalyses,
+      measuredAtIso: "2026-09-30T09:00:00.000Z",
+    });
+    expect(fileName).toBe("load-test-standard-2026-09-30.md");
+    expect(content).toContain("production-like-load");
+    expect(content).toContain("| health | 100/100 | 42 | 88 | 0.00% | pass |");
+    expect(content).toContain("**yes**");
+    // The contract probe is never a budgeted evidence row.
+    expect(content).not.toContain("payload-413");
+    expect(content).toContain("configured=supabase-tables active=supabase-tables");
+  });
+
+  it("marks budget violations as FAIL so a red run can never read as evidence", () => {
+    const { content } = buildEvidenceArtifact({
+      criterionId: "production-like-load",
+      level: "standard",
+      users: 2,
+      payload: "standard",
+      storageDetails,
+      analyses: [
+        { scenario: "project-save", isProbe: false, total: 100, successful: 100, successRate: "100.00", times: { p95: 2500, p99: 5000 } },
+      ],
+      measuredAtIso: "2026-09-30T09:00:00.000Z",
+    });
+    expect(content).toContain("| project-save | 100/100 | 2500 | 5000 | 0.00% | FAIL |");
+    expect(content).toContain("**NO**");
   });
 });
