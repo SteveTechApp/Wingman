@@ -71,15 +71,16 @@ resilience) and four still blocked — all on external evidence, none on missing
 tooling. Critical path and owners:
 
 ```
-Governed-review backlog (A1, ~90 profiles)
-  └─ unblocks PR #246 merge → Render stand-up (A2)
-        └─ staging exists → load test (A3)  ‖  device UAT (A4, parallel)
-                                            └─ production → 30-day window (A5)
+Governed-review backlog (A1)  ✅ worked 2026-09-30 — 206/206 profiles human-verified, zero overdue
+  └─ dependency satisfied → PR #246 MERGED 2026-09-30 (72e1eaf6), all CI gates green
+        → Render stand-up (A2)  ◀ the critical path now runs through here
+              └─ staging exists → load test (A3)  ‖  device UAT (A4, parallel)
+                                                  └─ production → 30-day window (A5)
 ```
 
 | # | Action | Closes | Owner | When |
 |---|---|---|---|---|
-| A1 ✅ 2026-09-30 | Governed-profile confirmation backlog — DONE: 90 SKUs confirmed batch-wise R1–R5 (reviewer of record Steve Goodwin), zero overdue; `check:technical-data:strict` exits 0 | unblocked `Verify (data)` → **PR #246 merge** | Engineering reviewer (Steve delegates) | worked 2026-09-30 — clock no longer compounding |
+| A1 ✅ 2026-09-30 | Governed-profile confirmation backlog — DONE: 90 SKUs confirmed batch-wise R1–R5 (reviewer of record Steve Goodwin), zero overdue; `check:technical-data:strict` exits 0 | unblocked `Verify (data)` → **PR #246 merged** (2026-09-30, CI green) | Engineering reviewer (Steve delegates) | worked 2026-09-30 — dependency satisfied |
 | A2 | Render stand-up per [`RENDER_STANDUP_RUNBOOK.md`](RENDER_STANDUP_RUNBOOK.md) §1–§5, including the §5 acceptance checks | produces staging (dependency of A3–A4) | Infrastructure | day of merge |
 | A3 | Authenticated staging load test: `npm run load-test` `--strict` against staging with the manifest budgets (p95 ≤ 1000 ms, p99 ≤ 2000 ms, error ≤ 1%) | `production-like-load` | Infrastructure + performance owner | within 30 days of launch date, not banked early |
 | A4 | Device UAT sessions per [`MOBILE_UAT_PLAN.md`](MOBILE_UAT_PLAN.md): two named accounts, three devices, Drills A–D, signed dated result | `mobile-sales-uat` + `offline-reconnect-uat` | Sales lead + mobile tester | within 90 days; any time staging is stable |
@@ -90,5 +91,17 @@ launch; the two 90-day human criteria can be banked as soon as staging is
 stable. No new tooling is required — every criterion already has its
 instrument; the bottleneck is human sign-off, not code. Transfer outcomes to
 [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) §4 as each row closes.
+
+**Standing dependency (why the confirmation backlog stays on this page after
+A1):** the confirmation-aging gate is calendar-driven required CI on `main`
+(`Verify (data)` + `Governed Data Gate`). It fails on **every** merge — any
+branch, any PR — once a machine-transcribed profile sits 30 days past its
+evidence date, because the gate runs against main's tracked data. A1 cleared
+the 2026-09-30 backlog, but the dependency recurs whenever new unconfirmed
+profiles land. Keep it green: confirm new profiles within 30 days, via the
+triage doc's groupings (R1–R5 sittings or T1–T10 families — both render in the
+dashboard's Governed Profiles confirmation strip) and the batch apply tool
+(`node tools/apply-governed-review-pass.mjs`, which prompts for a reviewer of
+record). A stale backlog blocks launches, not just PRs.
 
 Sign-off: Steve ______________ date __________ · Transfer results to [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) (§4 go/no-go + §"Decisions still required") before leaving the meeting.
