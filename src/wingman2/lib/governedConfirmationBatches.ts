@@ -1,40 +1,43 @@
 /**
- * Reviewer-batch grouping over the governed confirmation backlog.
+ * Grouping views over the governed confirmation backlog.
  *
  * The confirmation triage (docs/governed-profile-confirmation-triage-2026-09-30.md)
- * assigns every overdue machine-transcribed profile to one of five reviewer
- * batches (R1–R5: commodity cables, power/converters, Apollo/Halo/UC,
- * displays/racks, cameras/control). This module joins those batch definitions
- * with the backlog's awaiting/verified profiles so a reviewer working the
- * backlog sees one batch at a time instead of a flat 90-row list.
+ * assigns every overdue machine-transcribed profile to reviewer batches
+ * (R1–R5: reviewer sittings) and product families (T1–T10: commodity cables,
+ * power/converters, Apollo/Halo/UC, displays, cameras, control...). This
+ * module joins those groupings with the backlog's awaiting/verified profiles
+ * so a reviewer working the backlog sees one group at a time instead of a
+ * flat 90-row list - by sitting or by family, whichever fits the task.
  *
- * Batches are data (governedConfirmationBatches.json), generated from the
+ * Groupings are data (governedConfirmationBatches.json), generated from the
  * triage document, so the doc remains the source of truth. SKUs listed in the
  * triage but absent from the governed set, and awaiting profiles outside
- * every batch, both surface explicitly rather than being dropped.
+ * every group, both surface explicitly rather than being dropped.
  */
 
-import batchData from "./governedConfirmationBatches.json";
+import groupingsData from "./governedConfirmationBatches.json";
 import governedTechnicalProfilesRaw from "../../../data/governance/wyrestorm-technical-profiles.json";
 import { governedConfirmationBacklog, type AwaitingProfile } from "./governedConfirmationBacklog";
 
-export type ConfirmationBatchId = string;
+export type GroupingKind = "batches" | "families";
 
-export type ConfirmationBatch = {
-  /** Stable batch id from the triage document ("R1".."R5"). */
-  id: ConfirmationBatchId;
+export type ConfirmationGroupId = string;
+
+export type ConfirmationGroup = {
+  /** Stable group id from the triage document ("R1".."R5", "T1".."T10"). */
+  id: ConfirmationGroupId;
   /** Scope line from the triage document. */
   scope: string;
-  /** Reviewer-batch SKUs that exist in the governed profile set. */
+  /** Group SKUs that exist in the governed profile set. */
   skus: string[];
   /** Triage SKUs with no governed profile - listed so the mismatch is visible. */
   unknownSkus: string[];
 };
 
-export type ConfirmationBatchProgress = ConfirmationBatch & {
-  /** Backlog members of this batch still awaiting confirmation, sorted like the backlog. */
+export type ConfirmationGroupProgress = ConfirmationGroup & {
+  /** Backlog members of this group still awaiting confirmation, sorted like the backlog. */
   awaiting: AwaitingProfile[];
-  /** Batch members already human-verified. */
+  /** Group members already human-verified. */
   verifiedCount: number;
   /** Members awaiting confirmation with no missing data. */
   readyToConfirm: number;
@@ -44,14 +47,16 @@ export type ConfirmationBatchProgress = ConfirmationBatch & {
   agingOrOverdue: number;
 };
 
-export type ConfirmationBatchView = {
-  batches: ConfirmationBatchProgress[];
-  /** Awaiting profiles not assigned to any batch (never dropped silently). */
-  unbatched: AwaitingProfile[];
+export type ConfirmationGroupView = {
+  kind: GroupingKind;
+  groups: ConfirmationGroupProgress[];
+  /** Awaiting profiles not assigned to any group (never dropped silently). */
+  ungrouped: AwaitingProfile[];
   totalAwaiting: number;
 };
 
-const rawBatches = (batchData as { batches?: Array<{ id?: string; scope?: string; skus?: string[] }> }).batches ?? [];
+type RawGroup = { id?: string; scope?: string; skus?: string[] };
+type RawGroupings = { groupings?: { batches?: RawGroup[]; families?: RawGroup[] } };
 
 function governedSkuSet(): Set<string> {
   const payload = governedTechnicalProfilesRaw as { profiles?: Array<{ sku?: string }> };
@@ -59,37 +64,45 @@ function governedSkuSet(): Set<string> {
   return new Set(profiles.map((profile) => String(profile.sku ?? "")).filter(Boolean));
 }
 
-export function confirmationBatches(): ConfirmationBatch[] {
+/**
+ * The triage groups of one kind, with unknown SKUs split out of the live list.
+ */
+export function confirmationGroups(kind: GroupingKind): ConfirmationGroup[] {
+  return groupsOfKind(kind);
+}
+
+function groupsOfKind(kind: GroupingKind): ConfirmationGroup[] {
+  const raw = (groupingsData as RawGroupings).groupings?.[kind] ?? [];
   const governedSkus = governedSkuSet();
-  return rawBatches
-    .filter((batch): batch is { id: string; scope: string; skus: string[] } => Boolean(batch.id && batch.scope && Array.isArray(batch.skus)))
-    .map((batch) => {
+  return raw
+    .filter((group): group is { id: string; scope: string; skus: string[] } => Boolean(group.id && group.scope && Array.isArray(group.skus)))
+    .map((group) => {
       const skus: string[] = [];
       const unknownSkus: string[] = [];
-      for (const sku of batch.skus) {
+      for (const sku of group.skus) {
         (governedSkus.has(sku) ? skus : unknownSkus).push(sku);
       }
-      return { id: batch.id, scope: batch.scope, skus, unknownSkus };
+      return { id: group.id, scope: group.scope, skus, unknownSkus };
     });
 }
 
 /**
- * The batch view for the current governed data: per-batch awaiting/verified
- * splits plus the unbatched catch-all. Awaiting profiles keep the backlog's
- * actionability sort, so the first rows of every batch are the ones a reviewer
+ * The group view for the current governed data: per-group awaiting/verified
+ * splits plus the ungrouped catch-all. Awaiting profiles keep the backlog's
+ * actionability sort, so the first rows of every group are the ones a reviewer
  * should confirm first.
  */
-export function governedConfirmationBatchView(): ConfirmationBatchView {
+export function confirmationGroupView(kind: GroupingKind = "batches"): ConfirmationGroupView {
   const backlog = governedConfirmationBacklog();
-  const batches = confirmationBatches();
+  const groups = groupsOfKind(kind);
   const bySku = new Map(backlog.awaiting.map((profile) => [profile.sku, profile]));
   const verifiedSkus = new Set(backlog.verified.map((profile) => profile.sku));
 
   const assigned = new Set<string>();
-  const progress: ConfirmationBatchProgress[] = batches.map((batch) => {
+  const progress: ConfirmationGroupProgress[] = groups.map((group) => {
     const awaiting: AwaitingProfile[] = [];
     let verifiedCount = 0;
-    for (const sku of batch.skus) {
+    for (const sku of group.skus) {
       const awaitingProfile = bySku.get(sku);
       if (awaitingProfile) {
         awaiting.push(awaitingProfile);
@@ -103,22 +116,28 @@ export function governedConfirmationBatchView(): ConfirmationBatchView {
     const readyToConfirm = awaiting.filter((profile) => profile.missingData.length === 0).length;
     const needDataWork = awaiting.length - readyToConfirm;
     const agingOrOverdue = awaiting.filter((profile) => profile.aging === "aging" || profile.aging === "overdue").length;
-    return { ...batch, awaiting, verifiedCount, readyToConfirm, needDataWork, agingOrOverdue };
+    return { ...group, awaiting, verifiedCount, readyToConfirm, needDataWork, agingOrOverdue };
   });
 
-  const unbatched = backlog.awaiting.filter((profile) => !assigned.has(profile.sku));
-  return { batches: progress, unbatched, totalAwaiting: backlog.awaiting.length };
+  const ungrouped = backlog.awaiting.filter((profile) => !assigned.has(profile.sku));
+  return { kind, groups: progress, ungrouped, totalAwaiting: backlog.awaiting.length };
 }
 
 /**
- * Batch membership lookup for UI surfaces that need to tag rows: the triage
- * batch id for a SKU, or null when the SKU is not in any batch.
+ * Group membership lookup for UI surfaces that need to tag rows: the group id
+ * for a SKU within a grouping, or null when the SKU is not in any group.
  */
-export function confirmationBatchForSku(sku: string): string | null {
-  for (const batch of batches) {
-    if (batch.skus.includes(sku)) return batch.id;
+export function confirmationGroupForSku(sku: string, kind: GroupingKind = "batches"): string | null {
+  for (const group of groupsOfKind(kind)) {
+    if (group.skus.includes(sku)) return group.id;
   }
   return null;
 }
 
-const batches = confirmationBatches();
+/**
+ * Family id ("T1".."T10") for a SKU - the product-family grouping the
+ * triage tables used, offered alongside the reviewer batches.
+ */
+export function confirmationFamilyForSku(sku: string): string | null {
+  return confirmationGroupForSku(sku, "families");
+}

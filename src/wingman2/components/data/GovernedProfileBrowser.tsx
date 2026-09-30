@@ -4,7 +4,7 @@ import governedTechnicalProfiles from "../../../../data/governance/wyrestorm-tec
 import { downloadBlob } from "../../lib/downloadBlob";
 import { confirmGovernedProfile } from "../../api/wingmanApi";
 import { governedProfileFieldApplicability } from "../../lib/governedConfirmationBacklog";
-import { governedConfirmationBatchView } from "../../lib/governedConfirmationBatches";
+import { confirmationGroupView, confirmationGroupForSku, type GroupingKind } from "../../lib/governedConfirmationBatches";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -226,20 +226,22 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
   const [classFilter, setClassFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState<string>("");
+  const [grouping, setGrouping] = useState<GroupingKind>("batches");
   const [expandedSku, setExpandedSku] = useState<string | null>(null);
   const [editingProfile, setEditingProfile] = useState<GovernedProfile | null>(null);
   const [selectedSkus, setSelectedSkus] = useState<Set<string>>(new Set());
   const [profiles, setProfiles] = useState<GovernedProfile[]>(allProfiles);
 
-  // Reviewer-batch grouping from the confirmation triage: one button per
-  // batch with its live awaiting/verified split, so the backlog is worked
-  // batch by batch. Computed from the raw payload, not the editable state,
-  // because the batch view is the review-workflow lens over the tracked data.
-  const batchView = useMemo(() => governedConfirmationBatchView(), []);
+  // Confirmation triage groupings (reviewer batches R1-R5, product families
+  // T1-T10): one chip per group with its live awaiting/verified split, so the
+  // backlog is worked group by group - by sitting or by family. Computed from
+  // the raw payload, not the editable state, because the grouping is the
+  // review-workflow lens over the tracked data.
+  const groupView = useMemo(() => confirmationGroupView(grouping), [grouping]);
   const batchScope = useMemo(() => {
     if (!batchFilter) return null;
-    return batchView.batches.find((batch) => batch.id === batchFilter) ?? null;
-  }, [batchFilter, batchView]);
+    return groupView.groups.find((group) => group.id === batchFilter) ?? null;
+  }, [batchFilter, groupView]);
 
 
 
@@ -409,7 +411,7 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
         </span>
         {batchScope ? (
           <span className="wm-governed-summary-detail">
-            {batchScope.awaiting.length} awaiting · {batchScope.verifiedCount} confirmed in this batch
+            {batchScope.awaiting.length} awaiting · {batchScope.verifiedCount} confirmed in this group
             {batchScope.scope ? ` — ${batchScope.scope}` : ""}
           </span>
         ) : (
@@ -439,36 +441,54 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
         )}
       </div>
 
-      {/* Reviewer-batch confirmation strip (triage R1-R5) */}
-      {batchView.batches.length > 0 ? (
-        <div className="wm-governed-batches" role="group" aria-label="Confirmation triage batches">
-          {batchView.batches.map((batch) => (
+      {/* Confirmation triage group strip (reviewer batches R1-R5 / families T1-T10) */}
+      {groupView.groups.length > 0 ? (
+        <div className="wm-governed-batches" role="group" aria-label="Confirmation triage groups">
+          <div className="wm-governed-batches__toggle" role="radiogroup" aria-label="Grouping">
             <button
-              key={batch.id}
               type="button"
-              className={`wm-governed-batch ${batchFilter === batch.id ? "is-active" : ""}`}
-              aria-pressed={batchFilter === batch.id}
-              disabled={batch.awaiting.length === 0 && batch.unknownSkus.length === 0}
-              title={batch.awaiting.length === 0 ? "Every profile in this batch is human-verified" : `Scope: ${batch.scope}`}
-              onClick={() => setBatchFilter((current) => (current === batch.id ? "" : batch.id))}
+              className={`wm-governed-batches__toggle-option ${grouping === "batches" ? "is-active" : ""}`}
+              aria-pressed={grouping === "batches"}
+              onClick={() => { setGrouping("batches"); setBatchFilter(""); }}
             >
-              <span className="wm-governed-batch__id">{batch.id}</span>
+              Reviewer batches
+            </button>
+            <button
+              type="button"
+              className={`wm-governed-batches__toggle-option ${grouping === "families" ? "is-active" : ""}`}
+              aria-pressed={grouping === "families"}
+              onClick={() => { setGrouping("families"); setBatchFilter(""); }}
+            >
+              Product families
+            </button>
+          </div>
+          {groupView.groups.map((group) => (
+            <button
+              key={group.id}
+              type="button"
+              className={`wm-governed-batch ${batchFilter === group.id ? "is-active" : ""}`}
+              aria-pressed={batchFilter === group.id}
+              disabled={group.awaiting.length === 0 && group.unknownSkus.length === 0}
+              title={group.awaiting.length === 0 ? "Every profile in this group is human-verified" : `Scope: ${group.scope}`}
+              onClick={() => setBatchFilter((current) => (current === group.id ? "" : group.id))}
+            >
+              <span className="wm-governed-batch__id">{group.id}</span>
               <span className="wm-governed-batch__count">
-                {batch.awaiting.length === 0
-                  ? `${batch.verifiedCount} confirmed`
-                  : `${batch.awaiting.length} awaiting · ${batch.verifiedCount} confirmed`}
+                {group.awaiting.length === 0
+                  ? `${group.verifiedCount} confirmed`
+                  : `${group.awaiting.length} awaiting · ${group.verifiedCount} confirmed`}
               </span>
-              {batch.unknownSkus.length > 0 ? (
-                <span className="wm-governed-batch__unknown" title={`Not in the governed set: ${batch.unknownSkus.join(", ")}`}>
-                  {batch.unknownSkus.length} unknown
+              {group.unknownSkus.length > 0 ? (
+                <span className="wm-governed-batch__unknown" title={`Not in the governed set: ${group.unknownSkus.join(", ")}`}>
+                  {group.unknownSkus.length} unknown
                 </span>
               ) : null}
             </button>
           ))}
-          {batchView.unbatched.length > 0 ? (
-            <span className="wm-governed-batch wm-governed-batch--unbatched" title={`Awaiting confirmation but not assigned to any triage batch: ${batchView.unbatched.map((profile) => profile.sku).join(", ")}`}>
+          {groupView.ungrouped.length > 0 ? (
+            <span className="wm-governed-batch wm-governed-batch--unbatched" title={`Awaiting confirmation but not assigned to any group: ${groupView.ungrouped.map((profile) => profile.sku).join(", ")}`}>
               <span className="wm-governed-batch__id">—</span>
-              <span className="wm-governed-batch__count">{batchView.unbatched.length} unbatched</span>
+              <span className="wm-governed-batch__count">{groupView.ungrouped.length} ungrouped</span>
             </span>
           ) : null}
         </div>

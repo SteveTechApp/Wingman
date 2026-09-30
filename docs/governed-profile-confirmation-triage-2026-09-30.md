@@ -148,3 +148,22 @@ Reviewer: senior reviewer (highest field counts). Spec-critical fields to confir
 - [x] SYN-KEY12-UK-EU (31d)
 - [x] SYN-TP10-B (31d)
 
+
+## Appendix — T1–T10 product-family grouping
+
+The same 90 SKUs grouped by product family (the assignment the original
+triage tables used). The dashboard batch-confirmation view offers both
+groupings; SKUs carry their R-batch membership for the apply tool.
+
+| Family | Scope | SKUs | R-batch overlap |
+|---|---|---|---|
+| T1 | Commodity HDMI / USB-C cables | 11 | R1 |
+| T2 | HDMI/optical patch leads + audio converter | 13 | R1, R2 |
+| T3 | Power supplies + fibre optics | 8 | R2 |
+| T4 | Format converters (analog ↔ Dante/XLR/USB-C) | 5 | R2 |
+| T5 | Apollo / UC accessories | 9 | R3 |
+| T6 | Halo bars, microphones + NetworkHD Touch | 6 | R3 |
+| T7 | Interactive displays + caddies | 12 | R4 |
+| T8 | Cameras | 5 | R5 |
+| T9 | NetworkHD + racks + wallplates + extenders | 10 | R4, R5 |
+| T10 | Control + DSP + scalers + multiview | 11 | R2, R5 |

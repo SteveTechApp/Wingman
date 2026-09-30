@@ -199,13 +199,11 @@ describe("GovernedProfileBrowser download deferral", () => {
     expect(record.transport).toContain("Audio");
   });
 
-  it("groups the confirmation triage batches and filters the table to a batch", () => {
+  it("groups the confirmation triage batches and filters the table to a group", () => {
     render(<GovernedProfileBrowser />);
 
-    // The strip renders one button per triage batch with its live split from
-    // the fixture: the two amplifier SKUs sit outside every batch (unbatched),
-    // and APO-COM-MIC is a triage batch member.
-    const strip = screen.getByRole("group", { name: "Confirmation triage batches" });
+    // The strip defaults to the reviewer-batch grouping: one chip per R-batch.
+    const strip = screen.getByRole("group", { name: "Confirmation triage groups" });
     expect(strip).toBeDefined();
     for (const batchId of ["R1", "R2", "R3", "R4", "R5"]) {
       expect(within(strip).getByRole("button", { name: new RegExp(`^${batchId} `) })).toBeDefined();
@@ -221,6 +219,20 @@ describe("GovernedProfileBrowser download deferral", () => {
     fireEvent.click(r3);
     expect(screen.getByText(/governed profiles/)).toBeDefined();
     expect(screen.queryByText(/governed profiles in R3/)).toBeNull();
+
+    // Switching to the product-family grouping swaps the chips for T1-T10.
+    fireEvent.click(within(strip).getByRole("button", { name: "Product families" }));
+    for (let t = 1; t <= 10; t += 1) {
+      expect(within(strip).getByRole("button", { name: new RegExp(`^T${t} `) })).toBeDefined();
+    }
+    expect(within(strip).queryByRole("button", { name: /^R1 / })).toBeNull();
+
+    // A family chip scopes the table the same way, then the toggle back to
+    // reviewer batches clears the scope (a family id is not a batch id).
+    fireEvent.click(within(strip).getByRole("button", { name: /^T5 / }));
+    expect(screen.getByText(/governed profiles in T5/)).toBeDefined();
+    fireEvent.click(within(strip).getByRole("button", { name: "Reviewer batches" }));
+    expect(screen.queryByText(/governed profiles in T5/)).toBeNull();
   });
 
   it("requires confirmation before deleting a row", () => {

@@ -8065,6 +8065,10 @@ html[data-wingman-route="discovery"] .wm-qs__help-text {
 /* Reviewer-batch confirmation strip (triage R1-R5) - reuses the summary's
    surface language; batch buttons mirror the summary-filter affordance. */
 .wm-governed-batches { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 15px; margin-bottom: 10px; border: 1px solid var(--wm-border); border-radius: 9px; background: var(--wm-surface); font-size: .74rem; }
+.wm-governed-batches__toggle { display: inline-flex; margin-right: 6px; border: 1px solid var(--wm-border); border-radius: 7px; overflow: hidden; }
+.wm-governed-batches__toggle-option { padding: 4px 9px; border: 0; background: transparent; color: var(--wm-text-muted); font: inherit; cursor: pointer; transition: background .12s ease, color .12s ease; }
+.wm-governed-batches__toggle-option:hover { color: var(--wm-text); background: rgba(83, 224, 255, 0.08); }
+.wm-governed-batches__toggle-option.is-active { background: rgba(83, 224, 255, 0.12); color: var(--wm-accent, #53e0ff); font-weight: 650; }
 .wm-governed-batch { display: inline-flex; align-items: center; gap: 7px; padding: 4px 9px; border: 1px solid var(--wm-border); border-radius: 7px; background: transparent; color: var(--wm-text); font: inherit; cursor: pointer; transition: border-color .12s ease, background .12s ease, color .12s ease; }
 .wm-governed-batch:hover:not(:disabled) { border-color: var(--wm-accent, #53e0ff); background: rgba(83, 224, 255, 0.08); }
 .wm-governed-batch[aria-pressed='true'] { border-color: var(--wm-accent, #53e0ff); background: rgba(83, 224, 255, 0.12); color: var(--wm-accent, #53e0ff); font-weight: 650; }
