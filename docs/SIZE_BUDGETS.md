@@ -117,6 +117,22 @@ have no exception path at all — see
 
 ## Approved exceptions
 
+### 2026-09-30 — Phase 8 dead route-override consolidation (total:css lower)
+
+The remediation named in the 2026-09-30 raise landed: mechanical removal of
+route-scoped blocks whose selectors require routes absent from the live route
+union (`route-manifest.json` segments + the `WingmanRouteKey` union — retired
+`home`, `finder`, `visualDesign`, `visualStudio`, `intelligence`), with
+mixed live/dead selector lists split rather than removed wholesale, plus
+byte-identical duplicate-rule merging. **`total:css` lowered 978,389 →
+973,399 bytes** (−4,990 B emitted; −8,607 source bytes across 54 removed and
+~145 split blocks, 2 duplicates merged) via
+`tools/consolidate-route-overrides.mjs` (report mode is the audit trail).
+The consolidation is repeatable — re-run the tool after future route
+retirements. The remaining gap to the pre-exception 916,258 baseline is live
+launch-feature styling and duplicate-rule headroom the byte-identical pass
+deliberately does not touch.
+
 ### 2026-09-30 — Launch-prep governed-workflow styles (total:css raise)
 
 Reviewed exception recorded in `tools/wingman-size-budgets.json` for the

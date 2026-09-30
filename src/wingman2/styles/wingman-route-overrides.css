@@ -42,8 +42,7 @@ html[data-wingman-route="compare"] .compare-native-history-export [role="menuite
     right: auto;
     left: 0;
     min-width: min(12rem, calc(100vw - 2rem));
-  }
-}
+  }}
 
 /* Saved comparison delete dialog polish */
 .wm-data-editor-backdrop[role="presentation"] {
@@ -74,8 +73,7 @@ html[data-wingman-route="compare"] .compare-native-history-export [role="menuite
   .wm-data-editor-backdrop[role="presentation"],
   .wm-data-editor-backdrop[role="presentation"] > [role="dialog"] {
     animation: none;
-  }
-}
+  }}
 
 /* ==========================================================================
    Wingman Route Overrides
@@ -238,12 +236,8 @@ header.wm-header {
   background: rgba(20, 184, 166, 0.14);
   border-color: rgba(94, 234, 212, 0.28);
   color: #f8fafc;
-}
-
-/* Dashboard/home route should now use the workspace area */
-html[data-wingman-route="dashboard"] .wingman-page-host,
-html[data-wingman-route="home"] .wingman-page-host,
-.wm-route-dashboard .wingman-page-host {
+}/* Dashboard/home route should now use the workspace area */
+html[data-wingman-route="dashboard"] .wingman-page-host, .wm-route-dashboard .wingman-page-host {
   width: 100%;
   max-width: none;
 }
@@ -518,8 +512,7 @@ main aside:not(.wingman-sidebar):not(.wm-sidebar),
 
   .wm-dashboard-rail-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 980px) {
   .wm-dashboard-grid,
@@ -529,8 +522,7 @@ main aside:not(.wingman-sidebar):not(.wm-sidebar),
 
   .wm-dashboard-rail-actions {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 /* === WINGMAN DASHBOARD VISUAL CORRECTION PASS END === */
 
 /* === Wingman CSS-rendered Guru launcher start === */
@@ -946,8 +938,7 @@ button.wingman-guru-fab[data-support-available="true"] .wingman-guru-fab-image,
   button.wingman-guru-fab[data-support-available="true"] > .wingman-guru-fab-status,
   .wingman-guru-fab[data-support-available="true"] > .wingman-guru-fab-status {
     display: none;
-  }
-}
+  }}
 
 @keyframes wingmanGuruSweep {
   from {
@@ -1311,8 +1302,7 @@ html[data-wingman-route] .wm-vs-list li + li {
 
   html[data-wingman-route] .wm-vs-summary-panel {
     grid-column: 1 / -1;
-  }
-}
+  }}
 
 @media (max-width: 1050px) {
   html[data-wingman-route] .wm-vs-header,
@@ -1331,8 +1321,7 @@ html[data-wingman-route] .wm-vs-list li + li {
   html[data-wingman-route] .wm-vs-canvas {
     min-height: 520px;
     height: 60vh;
-  }
-}
+  }}
 /* === Wingman Visual Studio compact layout repair end === */
 
 /* === Wingman Visual Studio print / A4-A3 scale-to-fit start === */
@@ -1393,8 +1382,7 @@ html[data-wingman-route] .wm-vs-list li + li {
 
   html[data-wingman-route] .wm-vs-canvas .react-flow {
     background: #ffffff;
-  }
-}
+  }}
 /* === Wingman Visual Studio print / A4-A3 scale-to-fit end === */
 
 /* ==========================================================================
@@ -2320,15 +2308,11 @@ html[data-wingman-route] .wm-vs-list li + li {
 
   .wm-template-detail-actions {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
+    }}
 @media (max-width: 640px) {
   .wm-template-detail-actions {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 .wm-decision-details {
   overflow: visible;
   border: 1px solid rgba(148, 163, 184, 0.3);
@@ -2525,9 +2509,7 @@ html[data-wingman-route] .wm-vs-list li + li {
   .wm-template-detail-actions {
       justify-content: flex-start;
       max-width: none;
-    }
-
-}
+    }}
 @media (max-width: 980px) {
   .wm-template-detail-hero {
       min-height: 240px;
@@ -2537,9 +2519,7 @@ html[data-wingman-route] .wm-vs-list li + li {
   .wm-template-detail-actions button {
       min-width: 0;
       flex: 1 1 160px;
-    }
-
-}
+    }}
 .wm-template-schematic {
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.3);
@@ -2735,8 +2715,7 @@ html[data-wingman-route] .wm-vs-list li + li {
   .wm-template-header-actions { flex-wrap: wrap; }
   .wm-template-connectivity, .wm-proposal-handoff { grid-template-columns: 1fr; }
   .wm-template-cable-schedule { grid-column: auto; }
-  .wm-equipment-toolbar { align-items: flex-start; flex-direction: column; }
-}
+  .wm-equipment-toolbar { align-items: flex-start; flex-direction: column; }}
 
 @media (max-width: 760px) {
   .wm-template-overview { grid-template-columns: 1fr; }
@@ -2750,8 +2729,7 @@ html[data-wingman-route] .wm-vs-list li + li {
   .wm-template-lane-stages { align-items: stretch; flex-direction: column; gap: 4px; }
   .wm-template-lane-stage-wrap { width: 100%; }.wm-template-lane-stage-wrap i { display: none; }
   .wm-equipment-row { grid-template-columns: 24px minmax(0, 1fr) 95px 34px; }.wm-equipment-role { display: none; }.wm-equipment-row > .wm-status { display: none; }
-  .wm-template-header-actions .wm-button { flex: 1 1 150px; }
-}
+  .wm-template-header-actions .wm-button { flex: 1 1 150px; }}
 
 .wm-template-schematic-node {
   min-width: 210px;
@@ -3088,15 +3066,11 @@ html[data-wingman-route] .wm-vs-list li + li {
 @media (min-width: 1680px) {
   .wm-finder-results-panel {
       grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr));
-    }
-
-}
+    }}
 @media (max-width: 1320px) {
   .wm-finder-results-panel {
       grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
-    }
-
-}
+    }}
 @media (max-height: 820px) {
   .wm-finder-redesign-page .wingman-page-hero {
       padding: 10px 14px;
@@ -3112,9 +3086,7 @@ html[data-wingman-route] .wm-vs-list li + li {
 
   .wm-finder-result-card {
       min-height: 190px;
-    }
-
-}
+    }}
 @media (max-width: 860px) {
   .wm-finder-redesign-page {
       height: auto;
@@ -3129,9 +3101,7 @@ html[data-wingman-route] .wm-vs-list li + li {
 
   .wm-finder-results-panel {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 .wm-finder-redesign-page .wm-finder-filter-panel {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: stretch;
@@ -3216,9 +3186,7 @@ html[data-wingman-route] .wm-vs-list li + li {
     .wm-finder-redesign-page .wm-finder-filter-group input {
       height: 31px;
       min-height: 31px;
-    }
-
-}
+    }}
 @media (max-width: 760px) {
   .wm-finder-redesign-page {
       height: auto;
@@ -3269,9 +3237,7 @@ html[data-wingman-route] .wm-vs-list li + li {
   .wm-finder-redesign-page .wm-finder-results-panel,
     .wm-finder-redesign-page .wm-finder-support-panel {
       overflow: visible;
-    }
-
-}
+    }}
 @media (max-height: 820px) and (max-width: 760px) {
   .wm-finder-redesign-page .wingman-hero-purpose,
     .wm-finder-redesign-page .wingman-hero-next {
@@ -3280,9 +3246,7 @@ html[data-wingman-route] .wm-vs-list li + li {
 
   .wm-finder-redesign-page .wingman-page-hero {
       padding: 12px;
-    }
-
-}
+    }}
 .wm-product-knowledge-header p,
 .wm-product-knowledge-summary p,
 .wm-product-in-situ-header p {
@@ -3452,9 +3416,7 @@ html[data-wingman-route] .wm-vs-list li + li {
       top: auto;
       bottom: -1px;
       transform: translateX(-50%) rotate(135deg);
-    }
-
-}
+    }}
 .wm-product-conversation-panel {
   display: grid;
   gap: 14px;
@@ -3774,9 +3736,7 @@ html[data-wingman-route] .wm-vs-list li + li {
   .wm-product-conversation-modal-head,
     .wm-product-conversation-modal-body {
       padding: 14px;
-    }
-
-}
+    }}
 .wm-product-pitch-page .wm-product-conversation-panel {
   margin-top: 12px;
   padding: 14px;
@@ -4087,9 +4047,7 @@ html[data-wingman-route] .wm-vs-list li + li {
 
   .wm-coach-panel[data-compact="true"] .wm-coach-grid {
       display: none;
-    }
-
-}
+    }}
 .wm-finder-redesign-page .wingman-page-hero,
 .wm-finder-redesign-page .wingman-section-card {
   position: relative;
@@ -4110,43 +4068,6 @@ html[data-wingman-route] .wm-vs-list li + li {
 .wm-finder-result-card {
   border-color: rgba(148, 163, 184, 0.22);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
-}
-
-html[data-wingman-route="finder"] .wm-finder-redesign-page {
-  width: min(100%, 1480px);
-  max-width: 1480px;
-  margin: 0 auto;
-  display: grid;
-  gap: 14px;
-}
-
-html[data-wingman-route="finder"] .wm-finder-quickstart {
-  width: 100%;
-  border-radius: 18px;
-  padding: 14px;
-}
-
-html[data-wingman-route="finder"] .wm-coach-panel {
-  width: 100%;
-  border-radius: 18px;
-}
-
-html[data-wingman-route="finder"] .wm-coach-funnel,
-html[data-wingman-route="finder"] .wm-coach-grid,
-html[data-wingman-route="finder"] .wm-coach-localization,
-html[data-wingman-route="finder"] .wm-coach-visuals {
-  display: none;
-}
-
-html[data-wingman-route="finder"] .wm-finder-results-panel {
-  min-width: 0;
-  border-radius: 20px;
-}
-
-html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.right-5 {
-  right: 24px;
-  bottom: 96px;
-  max-width: 360px;
 }
 
 .wm-visual-design-page,
@@ -4619,41 +4540,14 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 
   .wm-glossary-results {
       max-height: none;
-    }
-
-}
+    }}
 @media (max-width: 720px) {
   .wm-diagram-preview-head,
     .wm-glossary-detail-head {
       display: grid;
-    }
-
-}
-html[data-wingman-route="finder"] .wm-finder-results-panel + aside,
-html[data-wingman-route="finder"] aside[aria-label="Finder guidance"] {
-  display: none;
-}
-
-html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.right-5 {
-  right: 104px;
-  bottom: 24px;
-}
+    }}
 
 html[data-wingman-route="videowall"] .wm-decision-details {
-  display: none;
-}
-
-html[data-wingman-route="visualDesign"] .wm-diagram-studio-shell {
-  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
-}
-
-html[data-wingman-route="visualDesign"] .wm-diagram-card {
-  padding: 14px;
-}
-
-html[data-wingman-route="visualDesign"] .wm-diagram-coverage-grid,
-html[data-wingman-route="visualDesign"] .wm-diagram-review-grid,
-html[data-wingman-route="visualDesign"] .wm-diagram-next-action {
   display: none;
 }
 
@@ -4666,13 +4560,9 @@ html[data-wingman-route="glossary"] .wm-glossary-workspace {
   grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
 }
 
-@media (max-width: 1180px) {
-  html[data-wingman-route="visualDesign"] .wm-diagram-studio-shell,
-    html[data-wingman-route="glossary"] .wm-glossary-workspace {
+@media (max-width: 1180px) {html[data-wingman-route="glossary"] .wm-glossary-workspace {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 html[data-wingman-route] .wingman-page-host :where(
   .wingman-panel,
   .wingman-section-card,
@@ -4841,9 +4731,7 @@ main :is(
   .wm-template-library-page.is-name-only-mode .wm-template-card-grid,
     .wm-template-library-workspace.is-name-only-mode .wm-template-card-grid {
       grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
-    }
-
-}
+    }}
 .wm-template-library-page:not(.is-name-only-mode) .wm-template-card-grid {
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
@@ -4899,9 +4787,7 @@ main :is(
 @media (max-width: 820px) {
   .wm-template-library-page .wm-template-card-grid {
       grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
-    }
-
-}
+    }}
 
 .wm-home-start-grid {
   display: grid;
@@ -5079,58 +4965,24 @@ html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar .bg-s
 html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar .bg-slate-100 {
   background: rgba(8, 22, 38, 0.96);
   color: rgba(255, 255, 255, 0.9);
-}
-
-html[data-wingman-route="glossary"] main,
-html[data-wingman-route="intelligence"] main,
-.wm-route-glossary main,
-.wm-route-intelligence main,
-main[data-wingman-page="glossary"],
-main[data-wingman-page="intelligence"],
-.wm-glossary-page,
-.wm-intelligence-page {
+}html[data-wingman-route="glossary"] main, .wm-route-glossary main, main[data-wingman-page="glossary"], main[data-wingman-page="intelligence"], .wm-glossary-page, .wm-intelligence-page {
   font-family: inherit;
   color: rgba(255, 255, 255, 0.9);
   background: transparent;
-}
-
-html[data-wingman-route="glossary"] .wingman-page-hero,
-html[data-wingman-route="intelligence"] .wingman-page-hero,
-html[data-wingman-route="glossary"] .wm-page-hero,
-html[data-wingman-route="intelligence"] .wm-page-hero,
-html[data-wingman-route="glossary"] .wingman-panel,
-html[data-wingman-route="intelligence"] .wingman-panel,
-main[data-wingman-page="glossary"] .wingman-page-hero,
-main[data-wingman-page="intelligence"] .wingman-page-hero,
-main[data-wingman-page="glossary"] .wm-page-hero,
-main[data-wingman-page="intelligence"] .wm-page-hero {
+}html[data-wingman-route="glossary"] .wingman-page-hero, html[data-wingman-route="glossary"] .wm-page-hero, html[data-wingman-route="glossary"] .wingman-panel, main[data-wingman-page="glossary"] .wingman-page-hero, main[data-wingman-page="intelligence"] .wingman-page-hero, main[data-wingman-page="glossary"] .wm-page-hero, main[data-wingman-page="intelligence"] .wm-page-hero {
   background: linear-gradient(135deg, rgba(7, 20, 34, 0.96), rgba(4, 13, 24, 0.96));
   border: 1px solid rgba(64, 224, 208, 0.22);
   border-radius: 24px;
   box-shadow: 0 20px 54px rgba(0, 0, 0, 0.24);
   color: rgba(255, 255, 255, 0.9);
-}
-
-html[data-wingman-route="glossary"] h1,
-html[data-wingman-route="intelligence"] h1,
-main[data-wingman-page="glossary"] h1,
-main[data-wingman-page="intelligence"] h1,
-.wm-glossary-page h1,
-.wm-intelligence-page h1 {
+}html[data-wingman-route="glossary"] h1, main[data-wingman-page="glossary"] h1, main[data-wingman-page="intelligence"] h1, .wm-glossary-page h1, .wm-intelligence-page h1 {
   color: var(--wm-consistency-text);
   font-family: inherit;
   font-size: clamp(2.1rem, 3vw, 3rem);
   line-height: 1.05;
   letter-spacing: -0.04em;
   text-transform: none;
-}
-
-html[data-wingman-route="glossary"] .wingman-page-hero p:first-child,
-html[data-wingman-route="intelligence"] .wingman-page-hero p:first-child,
-html[data-wingman-route="glossary"] [class*="eyebrow"],
-html[data-wingman-route="intelligence"] [class*="eyebrow"],
-main[data-wingman-page="glossary"] [class*="eyebrow"],
-main[data-wingman-page="intelligence"] [class*="eyebrow"] {
+}html[data-wingman-route="glossary"] .wingman-page-hero p:first-child, html[data-wingman-route="glossary"] [class*="eyebrow"], main[data-wingman-page="glossary"] [class*="eyebrow"], main[data-wingman-page="intelligence"] [class*="eyebrow"] {
   color: #66f2e4;
   font-family: inherit;
   font-size: 0.72rem;
@@ -5173,73 +5025,29 @@ main[data-wingman-page="glossary"] button *,
 .wm-glossary-page button * {
   color: inherit;
   text-shadow: none;
-}
-
-html[data-wingman-route="intelligence"] .wingman-card,
-html[data-wingman-route="intelligence"] .wingman-panel,
-html[data-wingman-route="intelligence"] section,
-html[data-wingman-route="intelligence"] article,
-main[data-wingman-page="intelligence"] .wingman-card,
-main[data-wingman-page="intelligence"] .wingman-panel,
-main[data-wingman-page="intelligence"] section,
-main[data-wingman-page="intelligence"] article,
-.wm-intelligence-page .wingman-card,
-.wm-intelligence-page .wingman-panel,
-.wm-intelligence-page section,
-.wm-intelligence-page article {
+}main[data-wingman-page="intelligence"] .wingman-card, main[data-wingman-page="intelligence"] .wingman-panel, main[data-wingman-page="intelligence"] section, main[data-wingman-page="intelligence"] article, .wm-intelligence-page .wingman-card, .wm-intelligence-page .wingman-panel, .wm-intelligence-page section, .wm-intelligence-page article {
   background: rgba(8, 22, 38, 0.92);
   background-image: linear-gradient(135deg, rgba(9, 28, 46, 0.96), rgba(5, 14, 26, 0.96));
   border: 1px solid rgba(64, 224, 208, 0.2);
   border-radius: 20px;
   color: rgba(255, 255, 255, 0.9);
-}
-
-html[data-wingman-route="intelligence"] button,
-main[data-wingman-page="intelligence"] button,
-.wm-intelligence-page button {
+}main[data-wingman-page="intelligence"] button, .wm-intelligence-page button {
   background: rgba(8, 22, 38, 0.96);
   background-image: none;
   border: 1px solid rgba(64, 224, 208, 0.24);
   color: rgba(255, 255, 255, 0.9);
-}
-
-html[data-wingman-route="intelligence"] button *,
-main[data-wingman-page="intelligence"] button *,
-.wm-intelligence-page button * {
+}main[data-wingman-page="intelligence"] button *, .wm-intelligence-page button * {
   color: inherit;
-}
-
-html[data-wingman-route="settings"] .wingman-page-hero,
-html[data-wingman-route="settings"] .wm-page-hero,
-html[data-wingman-route="settings"] section:first-of-type,
-.wm-route-settings .wingman-page-hero,
-.wm-route-settings .wm-page-hero,
-.wm-route-settings section:first-of-type,
-main[data-wingman-page="settings"] .wingman-page-hero,
-main[data-wingman-page="settings"] .wm-page-hero {
+}.wm-route-settings .wingman-page-hero, .wm-route-settings .wm-page-hero, .wm-route-settings section:first-of-type, main[data-wingman-page="settings"] .wingman-page-hero, main[data-wingman-page="settings"] .wm-page-hero {
   background: linear-gradient(135deg, rgba(7, 20, 34, 0.96), rgba(4, 13, 24, 0.96));
   border: 1px solid rgba(64, 224, 208, 0.22);
   border-radius: 24px;
   box-shadow: 0 20px 54px rgba(0, 0, 0, 0.24);
   color: rgba(255, 255, 255, 0.9);
-}
-
-html[data-wingman-route="settings"] .wingman-page-hero,
-html[data-wingman-route="settings"] .wm-page-hero,
-.wm-route-settings .wingman-page-hero,
-.wm-route-settings .wm-page-hero,
-main[data-wingman-page="settings"] .wingman-page-hero,
-main[data-wingman-page="settings"] .wm-page-hero {
+}.wm-route-settings .wingman-page-hero, .wm-route-settings .wm-page-hero, main[data-wingman-page="settings"] .wingman-page-hero, main[data-wingman-page="settings"] .wm-page-hero {
   padding: 24px 28px;
   margin-bottom: 16px;
-}
-
-html[data-wingman-route="settings"] main > section:first-child,
-html[data-wingman-route="settings"] .wingman-page-hero,
-html[data-wingman-route="settings"] .wm-page-hero,
-.wm-route-settings main > section:first-child,
-.wm-route-settings .wingman-page-hero,
-.wm-route-settings .wm-page-hero {
+}.wm-route-settings main > section:first-child, .wm-route-settings .wingman-page-hero, .wm-route-settings .wm-page-hero {
   background: linear-gradient(135deg, rgba(7, 20, 34, 0.98), rgba(4, 13, 24, 0.98));
   background-image: linear-gradient(135deg, rgba(7, 20, 34, 0.98), rgba(4, 13, 24, 0.98));
   border: 1px solid rgba(64, 224, 208, 0.24);
@@ -5248,14 +5056,7 @@ html[data-wingman-route="settings"] .wm-page-hero,
   color: rgba(255, 255, 255, 0.9);
   padding: 22px 26px;
   margin-bottom: 16px;
-}
-
-html[data-wingman-route="settings"] main > section:first-child *,
-html[data-wingman-route="settings"] .wingman-page-hero *,
-html[data-wingman-route="settings"] .wm-page-hero *,
-.wm-route-settings main > section:first-child *,
-.wm-route-settings .wingman-page-hero *,
-.wm-route-settings .wm-page-hero * {
+}.wm-route-settings main > section:first-child *, .wm-route-settings .wingman-page-hero *, .wm-route-settings .wm-page-hero * {
   color: inherit;
   text-shadow: none;
 }
@@ -5605,9 +5406,7 @@ html[data-wingman-route="templates"] .wingman-page-host [class*="signal-flow"] >
     .wm-pitch-two-column,
     .wm-pitch-objection-list {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 .wm-pcc-hero,
 .wm-pcc-panel,
 .wm-pcc-card,
@@ -5706,9 +5505,7 @@ html[data-wingman-route="templates"] .wingman-page-host [class*="signal-flow"] >
     .wm-pcc-product-hero,
     .wm-pcc-modal-grid {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 html[data-wingman-screen-fit] .wm-page-hero,
 html[data-wingman-screen-fit] .wm-pcc-hero {
   padding: 12px 16px;
@@ -5808,9 +5605,7 @@ html[data-wingman-screen-fit] .wm-diagram-card {
   html[data-wingman-screen-fit] .wm-pcc-grid,
     html[data-wingman-screen-fit] .wm-pcc-dashboard-overview {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 /* ===== Product Call Cards - preview panel (consolidated) =====
    Previously ~5 appended waves of `body .wm-pcc-preview .*` rules plus three
    duplicate `@media (max-width: 1500px)` blocks fought via source order. This
@@ -6012,8 +5807,7 @@ body .wm-pcc-preview .wm-pcc-actions button {
 
   body .wm-pcc-preview .wm-pcc-response-copy {
     font-size: 1rem;
-  }
-}
+  }}
 .wm-discovery-capture-page {
   width: min(100%, 1180px);
   min-height: auto;
@@ -6343,9 +6137,7 @@ body .wm-pcc-preview .wm-pcc-actions button {
 
   .wm-discovery-capture-card {
       position: static;
-    }
-
-}
+    }}
 @media (max-width: 720px) {
   .wm-discovery-capture-page {
       padding-inline: 12px;
@@ -6362,9 +6154,7 @@ body .wm-pcc-preview .wm-pcc-actions button {
   .wm-discovery-step-pills,
     .wm-discovery-summary-grid {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 .wm-discovery-application-guidance ul {
   margin: 10px 0 0;
   padding-left: 18px;
@@ -6442,68 +6232,6 @@ html[data-wingman-route] .wm-vs-seed-note {
   color: #67e8f9;
   font-size: 0.72rem;
   font-weight: 900;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-canvas-stage {
-  position: relative;
-  min-height: 0;
-  background:
-    radial-gradient(circle at 12% 10%, rgba(15, 23, 42, 0.045), transparent 18%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 246, 249, 0.98));
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-schematic-footer {
-  display: grid;
-  grid-template-columns: 1.05fr 2fr 1.15fr 1.7fr 1.2fr;
-  border-top: 1.5px solid #1f2937;
-  background: var(--wm-consistency-text);
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-schematic-footer > div {
-  min-width: 0;
-  padding: 7px 9px 8px;
-  border-right: 1px solid #1f2937;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-schematic-footer > div:last-child {
-  border-right: 0;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-schematic-footer span {
-  display: block;
-  color: #64748b;
-  font-size: 0.55rem;
-  font-weight: 800;
-  line-height: 1.1;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-schematic-footer strong {
-  display: block;
-  margin-top: 4px;
-  color: #111827;
-  font-size: 0.68rem;
-  line-height: 1.18;
-  font-weight: 900;
-  white-space: normal;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-risk-panel,
-html[data-wingman-route="visualStudio"] .wm-vs-warning-panel {
-  padding-top: 7px;
-  padding-bottom: 7px;
-}
-
-@media (max-width: 1050px) {
-  html[data-wingman-route="visualStudio"] .wm-vs-schematic-footer {
-      grid-template-columns: 1fr 1fr;
-    }
-
-  html[data-wingman-route="visualStudio"] .wm-vs-schematic-footer > div:nth-child(2n) {
-      border-right: 0;
-    }
-
 }
 body .wm-pcc-preview .wm-pcc-section-tab {
   border: 1px solid #29465e;
@@ -6676,9 +6404,7 @@ body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab span {
 @media (min-width: 1180px) {
   .wm-product-family-rules-grid {
       grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-
-}
+    }}
 @media (min-width: 1180px) and (max-width: 1480px) {
   .wm-product-family-rules-grid {
       gap: 8px;
@@ -6708,9 +6434,7 @@ body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab span {
   .wm-product-family-rule-body {
       font-size: 0.76rem;
       line-height: 1.34;
-    }
-
-}
+    }}
 @media (max-width: 760px) {
   .wm-product-family-page .wingman-section-card-title-row {
       align-items: flex-start;
@@ -6729,9 +6453,7 @@ body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab span {
 
   .wm-product-family-rules-grid {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 html[data-wingman-route="proposal"] .wm-coach-panel {
   background:
     radial-gradient(circle at 12% 0%, rgba(101, 215, 244, 0.14), transparent 34%),
@@ -6967,9 +6689,7 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
 
   html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
   width: min(1240px, calc(100vw - 292px));
   max-width: 1240px;
@@ -7103,9 +6823,7 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
 @media (max-width: 1280px) {
   html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
       width: min(1180px, calc(100vw - 272px));
-    }
-
-}
+    }}
 @media (max-width: 1180px) {
   html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
       width: 100%;
@@ -7117,9 +6835,7 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
 
   html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card {
       min-height: 0;
-    }
-
-}
+    }}
 html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
   display: flex;
   flex-direction: column;
@@ -7209,9 +6925,7 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
 @media (max-width: 1180px) {
   html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
       min-height: 0;
-    }
-
-}
+    }}
 :where(
   .wm-page-hero,
   .wm-hero,
@@ -7397,9 +7111,7 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
 @media (max-width: 1450px) {
   .wm-template-card-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
+    }}
 @media (max-width: 920px) {
   .wm-template-card-grid {
       grid-template-columns: 1fr;
@@ -7407,9 +7119,7 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
 
   .wm-template-actions {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 .wm-templates-page .wm-template-hero-stat {
   display: none;
 }
@@ -7470,9 +7180,7 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
       grid-template-columns: 1fr;
       min-height: 0;
       gap: 0.75rem;
-    }
-
-}
+    }}
 .wm-template-seed-kicker {
   margin: 0 0 0.35rem;
   color: var(--wm-consistency-title, #63f3ff);
@@ -7542,18 +7250,14 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
     .wm-template-seed-summary-grid,
     .wm-template-seed-bottom-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
+    }}
 @media (max-width: 820px) {
   .wm-template-seed-grid,
     .wm-template-seed-wide-grid,
     .wm-template-seed-summary-grid,
     .wm-template-seed-bottom-grid {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 .wm-template-solution-builder {
   display: grid;
   gap: 1rem;
@@ -7701,9 +7405,7 @@ html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .w
 
   .wm-template-pack-grid {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 body.wm-template-builder-active [data-wingman-page="discovery"] .wm-template-solution-builder ~ *,
 body.wm-template-builder-active [data-wingman-page="discovery"] > section:not(.wm-template-solution-builder):not(:has(.wm-template-solution-builder)),
 body.wm-template-builder-active [data-wingman-page="discovery"] > div:not(.wm-template-solution-builder):not(:has(.wm-template-solution-builder)) {
@@ -7757,15 +7459,11 @@ body.wm-template-builder-active [data-wingman-page="discovery"] .wm-template-sol
 @media (max-width: 1500px) {
   .wm-template-pack-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
+    }}
 @media (max-width: 900px) {
   .wm-template-pack-grid {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 .wm-template-proposal-page {
   display: grid;
   gap: 1rem;
@@ -7948,9 +7646,7 @@ body.wm-template-builder-active [data-wingman-page="discovery"] .wm-template-sol
   .wm-template-proposal-grid,
     .wm-template-proposal-meta {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 [data-template-staged="true"] .wm-template-actions {
   position: relative;
   padding: 0.45rem;
@@ -8450,9 +8146,7 @@ main.wm-templates-page .wm-template-card.wm-ui-card[data-template-staged="true"]
 
   .wm-template-actions.wm-ui-action-row {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 main.wm-templates-page .wm-template-card.wm-ui-card {
   min-height: 0;
   padding: 14px;
@@ -8766,9 +8460,7 @@ html[data-wingman-route="discovery"] .wm-ui-button {
 
   .wm-generated-schematic-summary {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
+    }}
 .wm-legacy-schematic-shell {
   margin-top: 1rem;
   border-color: var(--wm-consistency-accent, currentColor)33;
@@ -8842,9 +8534,7 @@ html[data-wingman-route="discovery"] .wm-ui-button {
     .wm-dashboard-visual-root[data-wingman-home="true"],
     .wingman-page-host[data-wingman-page="home"] {
       grid-template-columns: 1fr;
-    }
-
-}
+    }}
 .wm-dashboard-shell .wm-dashboard-projects-section {
   display: block;
   min-height: 0;
@@ -8915,9 +8605,7 @@ html[data-wingman-route="discovery"] .wm-ui-button {
       grid-template-areas:
         "projectHead"
         "projectCards";
-    }
-
-}
+    }}
 html[data-wingman-route="dashboard"] .wingman-page-host,
 html[data-wingman-route="dashboard"] .wm-dashboard-shell,
 html[data-wingman-route="dashboard"] .wm-dashboard-visual-root {
@@ -8968,9 +8656,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-projects-section .wm-ui-title
       grid-template-areas:
         "projectHead"
         "projectCards";
-    }
-
-}
+    }}
 html[data-wingman-route="dashboard"] .wm-dashboard-brand,
 html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
   display: none;
@@ -9430,9 +9116,7 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
       .wm-sh-page-hero, .wm-support-landing__hero
     ) {
       padding: 1rem;
-    }
-
-}
+    }}
 .wm-ui-hero:not(.wm-dashboard-resume-card) {
   display: grid;
   min-height: 168px;
@@ -9817,9 +9501,7 @@ details.wm-ui-guidance-card:not([open]) {
 @media (min-width: 1200px) {
   .wm-templates-page .wm-template-card-grid {
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
-
-}
+    }}
 .wm-templates-page .wm-template-card,
 .wm-templates-page .wm-action-card.wm-template-card {
   display: flex;
@@ -10297,8 +9979,7 @@ details.wm-ui-guidance-card:not([open]) {
 @media (max-width: 900px) {
   .wm-support-landing__body {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 /* Catalogue Browser uses governed classes rather than relying on a Tailwind
    utility layer that is not loaded by the application stylesheet. */
@@ -10616,8 +10297,7 @@ details.wm-ui-guidance-card:not([open]) {
 @media (max-width: 1180px) {
   .wm-catalog-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 720px) {
   .wm-catalog-panel {
@@ -10630,8 +10310,7 @@ details.wm-ui-guidance-card:not([open]) {
 
   .wm-catalog-results-head {
     align-items: flex-start;
-  }
-}
+  }}
 
 /* --------------------------------------------------------------------------
    Visual Studio canvas - node detail & schematic sheet header
@@ -10699,142 +10378,6 @@ html[data-wingman-route] .wm-vs-node-status span {
   height: 7px;
   border-radius: 999px;
   background: #34d399;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-header {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 12px;
-  border-bottom: 1.5px solid #1f2937;
-  background: var(--wm-consistency-text);
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-brand span {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #0f766e, #14b8a6);
-  color: #ecfeff;
-  font-weight: 900;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-brand strong {
-  display: block;
-  color: #111827;
-  font-size: 0.78rem;
-  font-weight: 900;
-  line-height: 1.1;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-brand small {
-  display: block;
-  color: #64748b;
-  font-size: 0.56rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-title {
-  min-width: 0;
-  text-align: center;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-title strong {
-  display: block;
-  color: #111827;
-  font-size: 0.86rem;
-  font-weight: 900;
-  line-height: 1.15;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-title span {
-  display: block;
-  margin-top: 2px;
-  color: #64748b;
-  font-size: 0.68rem;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-number {
-  text-align: right;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-number span {
-  display: block;
-  color: #64748b;
-  font-size: 0.56rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-sheet-number strong {
-  display: block;
-  margin-top: 2px;
-  color: #111827;
-  font-size: 0.74rem;
-  font-weight: 900;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-signal-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 6px 12px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.7);
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-signal-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  color: #475569;
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  background: #94a3b8;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="video"] { background: #2563eb; }
-html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="usb"] { background: #f59e0b; }
-html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="network"] { background: #22d3ee; }
-html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="audio"] { background: #a855f7; }
-html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="control"] { background: #34d399; }
-
-html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand span {
-  display: block;
-  color: #64748b;
-  font-size: 0.55rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand strong {
-  display: block;
-  margin-top: 4px;
-  color: #0f766e;
-  font-size: 0.7rem;
-  font-weight: 900;
 }
 
 /* --------------------------------------------------------------------------
@@ -10946,8 +10489,7 @@ html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand strong {
     height: 20px;
     margin: 4px 0 4px 20px;
     background: repeating-linear-gradient(180deg, #14b8a6 0 6px, transparent 6px 10px);
-  }
-}
+  }}
 
 /* --------------------------------------------------------------------------
    Small remaining polish
@@ -11052,8 +10594,7 @@ main.wm-page,
   [data-wingman-template-detail-page="true"],
   [data-wingman-request-decoder="true"] {
     padding: 14px;
-  }
-}
+  }}
 
 /* --------------------------------------------------------------------------
    Compare page audit/guard markers - retained in the DOM for source-level
@@ -12418,8 +11959,7 @@ main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step {
   html[data-wingman-route="dashboard"] .wm-dashboard-rail-actions,
   main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 760px) {
   html[data-wingman-route="dashboard"] .wm-dashboard-rail-actions,
@@ -12429,8 +11969,7 @@ main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step {
   main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid,
   main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 /* ==========================================================================
    Active redesign foundation
@@ -12691,8 +12230,7 @@ main.wingman-app-main > .wingman-page-host,
 
   .wingman-nav-tooltip {
     display: none;
-  }
-}
+  }}
 
 .wm-verify-before-quote {
   display: flex;
@@ -12848,16 +12386,8 @@ main.wingman-app-main > .wingman-page-host {
   min-height: 100%;
   padding: var(--wm-density-page-pad);
   overflow: visible;
-}
-
-html[data-wingman-route="dashboard"] .wingman-app-main > .wingman-page-host,
-html[data-wingman-route="home"] .wingman-app-main > .wingman-page-host {
+}html[data-wingman-route="dashboard"] .wingman-app-main > .wingman-page-host {
   padding: 0;
-}
-
-.wingman-page-host > :is(main, section, article) {
-  width: 100%;
-  max-width: none;
 }
 
 #root > .wingman-shell > .wingman-sidebar,
@@ -13166,8 +12696,7 @@ main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step svg {
   html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail,
   main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail {
     min-height: 0;
-  }
-}
+  }}
 
 @media (max-width: 980px) {
   :root {
@@ -13209,8 +12738,7 @@ main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step svg {
   .wingman-app-main > .wingman-page-host,
   main.wingman-app-main > .wingman-page-host {
     padding: 10px;
-  }
-}
+  }}
 
 /* Final viewport tightening: remove legacy workspace gutters from the live shell. */
 html[data-wingman-route] .wingman-workspace,
@@ -13503,8 +13031,7 @@ html[data-wingman-route] .wingman-page-host .wm-settings-logo-button {
 
   .wm-template-search {
     grid-column: 1 / -1;
-  }
-}
+  }}
 
 @media (max-width: 760px) {
   .wm-settings-header,
@@ -13515,8 +13042,7 @@ html[data-wingman-route] .wingman-page-host .wm-settings-logo-button {
 
   .wm-settings-header .wm-action-row {
     justify-content: flex-start;
-  }
-}
+  }}
 
 html[data-wingman-route] .wingman-page-host button.wm-settings-logo-button.wm-settings-logo-button {
   min-height: 4.25rem;
@@ -13585,14 +13111,12 @@ html[data-wingman-route] .wingman-page-host button.wm-settings-logo-button.wm-se
 
   .wm-custom-template-panel .wm-action-row {
     justify-content: flex-start;
-  }
-}
+  }}
 
 @media (max-width: 760px) {
   .wm-custom-template-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
+  }}
 
 /* Wingman settings 2x2 grid override - START */
 main.wm-settings-page .wm-settings-layout {
@@ -13685,8 +13209,7 @@ main.wm-settings-page .wm-section-card h3 {
     grid-column: auto;
     grid-row: auto;
     min-height: auto;
-  }
-}
+  }}
 /* Wingman settings 2x2 grid override - END */
 
 /* Wingman compact navigation pages - START */
@@ -13831,8 +13354,7 @@ html[data-wingman-route="call-coach"] main.wm-page [class*="grid"] {
   .wingman-workspace main.wm-page:not(.wm-settings-page) > div > a.wm-section-card {
     min-height: auto;
     max-height: none;
-  }
-}
+  }}
 
 /* Wingman compact action/utility pages - END */
 
@@ -14085,8 +13607,7 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
   html[data-wingman-route="projects"] .wm-project-current-result__footer,
   html[data-wingman-route="projects"] .wm-project-current-result__footer .wm-ui-button {
     width: 100%;
-  }
-}
+  }}
 
 /* Applies to Call Coach, Products, Documents, Learn and other nav-hub style pages */
 
@@ -14216,8 +13737,7 @@ html[data-wingman-route] .wingman-page-host [class*="NavHubCard"] {
 
   .wm-template-filter-panel .wm-template-filter-strip {
     flex-wrap: wrap;
-  }
-}
+  }}
 /* Wingman templates compact filter panel - END */
 
 /* Wingman compare template-aligned layout - START */
@@ -14428,8 +13948,7 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] button,
 @media (max-width: 1180px) {
   .wm-product-pitch-safety-grid {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 /* Wingman Product Pitch tester-readiness safety panel - END */
 
@@ -14646,8 +14165,7 @@ main.wm-product-pitch-page .wm-product-pitch-result-list > .wm-product-pitch-res
 
   .wm-product-pitch-page .wm-product-pitch-result-prelude {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 /* Wingman Product Pitch guided selector - END */
 
@@ -14814,8 +14332,7 @@ main.wm-product-pitch-page .wm-product-pitch-result-list > .wm-product-pitch-res
 
   .wm-compare-page .compare-native-core-matrix {
     min-width: 860px;
-  }
-}
+  }}
 
 /* Wingman Compare result matrix repair - END */
 
@@ -15226,8 +14743,7 @@ html[data-wingman-route="projects"] .wm-project-draft-open {
 @media (max-width: 980px) {
   html[data-wingman-route="projects"] .wm-project-draft-grid {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 /* Wingman Projects draft action tiles - END */
 
@@ -15310,8 +14826,7 @@ html[data-wingman-route="projects"] .wm-projects-compact-actions a {
 
   html[data-wingman-route="projects"] .wm-projects-compact-actions {
     justify-content: flex-start;
-  }
-}
+  }}
 
 /* Wingman Projects compact native hero - END */
 
@@ -15538,8 +15053,7 @@ body.wm-product-pitch-page-open .wm-product-pitch-browse-all {
 
   body.wm-product-pitch-page-open .wm-product-pitch-family-panel {
     grid-column: auto;
-  }
-}
+  }}
 
 @media (max-width: 860px) {
   body.wm-product-pitch-page-open .wm-product-pitch-page {
@@ -15592,8 +15106,7 @@ body.wm-product-pitch-page-open .wm-product-pitch-browse-all {
 
   body.wm-product-pitch-page-open .wm-product-pitch-result-status {
     justify-self: start;
-  }
-}
+  }}
 
 /* WINGMAN PRODUCT PITCH SELECTOR REPAIR END */
 /* WINGMAN PRODUCT CALL CARDS WORKSPACE LAYOUT RESTORE START */
@@ -15718,8 +15231,7 @@ body.wm-product-pitch-page-open .wm-product-pitch-browse-all {
 
   .wm-pcc-select-shell .wm-pcc-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 640px) {
   .wm-pcc-select-shell .wm-pcc-product-grid {
@@ -15728,8 +15240,7 @@ body.wm-product-pitch-page-open .wm-product-pitch-browse-all {
 
   .wm-pcc-select-shell .wm-pcc-product {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
+  }}
 /* WINGMAN PRODUCT CALL CARDS WORKSPACE LAYOUT RESTORE END */
 
 /* WINGMAN PRODUCT PITCH VIEWPORT FILL START */
@@ -15955,9 +15466,7 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
   [data-product-pitch-view="workspace"]
     .wm-product-pitch-safety-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-}
+  }}
 
 /* WINGMAN PRODUCT PITCH VIEWPORT FILL END */
 /* ==========================================================================
@@ -16727,8 +16236,7 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
 
   .wingman-guru-send span {
     display: none;
-  }
-}
+  }}
 
 /* Wingman Guru structured conversation UI v2 end */
 /* PRODUCT FAMILY LAYOUT REPAIR 2026-07-11 */
@@ -16831,14 +16339,12 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
 
   .wm-product-family-picker-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 720px) {
   .wm-product-family-picker-list {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
+  }}
 /* PRODUCT FAMILY SEMANTIC REBUILD 2026-07-11 */
 .wm-product-family-page {
   display: grid;
@@ -17325,8 +16831,7 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
 
   .wm-product-family-rules-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 900px) {
   .wm-product-family-summary-grid,
@@ -17342,8 +16847,7 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
 
   .wm-product-family-range-link {
     justify-self: start;
-  }
-}
+  }}
 
 @media (max-width: 640px) {
   .wm-product-family-picker-list,
@@ -17355,8 +16859,7 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
   .wm-product-family-detail-header,
   .wm-product-family-detail-body {
     padding: 16px;
-  }
-}
+  }}
 /* PRODUCT FAMILY PICKER TEXT FLOW FIX 2026-07-11 */
 .wm-product-family-page .wm-product-family-picker {
   display: grid;
@@ -17623,8 +17126,7 @@ button.wingman-guru-fab {
   .wingman-workspace::before,
   .wingman-workspace::after {
     animation: none;
-  }
-}
+  }}
 
 /* ==========================================================================
    Wingman home command centre
@@ -18112,14 +17614,12 @@ button.wingman-guru-fab {
 @media (min-width: 1381px) {
   .wm-dashboard-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 1380px) {
   .wm-dashboard-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 1180px) {
   .wm-dashboard-page.wm-dashboard-shell {
@@ -18152,8 +17652,7 @@ button.wingman-guru-fab {
 
   .wm-dashboard-main {
     overflow: visible;
-  }
-}
+  }}
 
 @media (max-width: 820px) {
   .wm-dashboard-resume-head,
@@ -18172,8 +17671,7 @@ button.wingman-guru-fab {
 
   .wm-dashboard-signal-map {
     display: none;
-  }
-}
+  }}
 
 @media (max-height: 760px) and (min-width: 1181px) {
   .wm-dashboard-rail {
@@ -18204,8 +17702,7 @@ button.wingman-guru-fab {
 
   .wm-dashboard-project-card {
     min-height: 8.7rem;
-  }
-}
+  }}
 
 @media (max-width: 980px) {
   #root > .wingman-shell,
@@ -18313,29 +17810,25 @@ button.wingman-guru-fab {
   main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid,
   main.wm-dashboard-shell[data-wingman-page="home"] section.wm-dashboard-projects-section .wm-dashboard-project-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
+  }}
 
 @media (prefers-reduced-motion: reduce) and (max-width: 980px) {
   .wingman-sidebar,
   .wingman-mobile-shade {
     transition: none;
-  }
-}
+  }}
 
 @media (max-width: 1380px) and (min-width: 981px) {
   .wm-dashboard-project-grid,
   main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid,
   main.wm-dashboard-shell[data-wingman-page="home"] section.wm-dashboard-projects-section .wm-dashboard-project-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 640px) {
   .wm-dashboard-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
+  }}
 
 html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] a.wm-dashboard-destination-card .wm-dashboard-card-copy {
   display: -webkit-box;
@@ -18352,14 +17845,12 @@ html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="
 @media (min-width: 1181px) {
   html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] {
     padding-right: max(var(--wm-density-page-pad), clamp(88px, 7vw, 112px));
-  }
-}
+  }}
 
 @media (min-width: 741px) and (max-width: 980px) {
   html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] {
     padding-right: max(var(--wm-density-page-pad), 92px);
-  }
-}
+  }}
 
 /* WINGMAN APP-WIDE STYLE CONSISTENCY SWEEP START */
 :root {
@@ -18577,8 +18068,7 @@ html[data-wingman-route="compare"] .compare-decision-result-strip .compare-nativ
 
   html[data-wingman-route="compare"] .compare-decision-button {
     width: 100%;
-  }
-}
+  }}
 
 
 /* COMPARE_SELECTED_DECISION_HIGHLIGHT_V1
@@ -18946,8 +18436,7 @@ html[data-wingman-route="compare"] .compare-decision-result-strip .compare-nativ
   .compare-compact-next-action {
     align-items: stretch;
     flex-direction: column;
-  }
-}
+  }}
 
 @media (max-width: 620px) {
   .compare-reported-status-rail {
@@ -18961,8 +18450,7 @@ html[data-wingman-route="compare"] .compare-decision-result-strip .compare-nativ
   .compare-compact-result__reason,
   .compare-compact-result__next {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 /* COMPARE_RESULT_FOCUS_LAYOUT_V2
    Result-only overrides keep the capture flow unchanged and give the product
@@ -19244,8 +18732,7 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
 
   main.wm-compare-page[data-compare-state="result"] .compare-compact-result__warnings {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 @media (max-width: 620px) {
   main.wm-compare-page[data-compare-state="result"] .compare-result-tabs {
@@ -19276,8 +18763,7 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
   main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar__actions {
     grid-column: auto;
     flex-wrap: wrap;
-  }
-}
+  }}
 
 /* WINGMAN_LOCATIONS_CONNECTIONS_START */
 .wm-topology-editor { display: grid; gap: 16px; padding: 16px; border: 1px solid var(--wm-border, rgba(148, 163, 184, .22)); border-radius: 14px; background: rgba(7, 18, 32, .62); }
@@ -19309,8 +18795,8 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
 .wm-topology-checks, .wm-topology-ready { margin: 0; padding: 11px 13px; border: 1px solid rgba(167, 139, 250, .32); border-radius: 10px; background: rgba(76, 29, 149, .12); }
 .wm-topology-checks ul { margin: 7px 0 0; padding-left: 19px; color: var(--wm-muted, #cbd5e1); }
 .wm-topology-ready { border-color: rgba(45, 212, 191, .3); background: rgba(13, 148, 136, .1); }
-@media (max-width: 1100px) { .wm-topology-device-row, .wm-topology-connection-fields, .wm-topology-advanced-path-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wm-topology-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 720px) { .wm-topology-editor-head, .wm-topology-section-head, .wm-topology-connection-title { flex-direction: column; } .wm-topology-device-row, .wm-topology-connection-fields, .wm-topology-advanced-path-fields { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) { .wm-topology-device-row, .wm-topology-connection-fields, .wm-topology-advanced-path-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wm-topology-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+@media (max-width: 720px) { .wm-topology-editor-head, .wm-topology-section-head, .wm-topology-connection-title { flex-direction: column; } .wm-topology-device-row, .wm-topology-connection-fields, .wm-topology-advanced-path-fields { grid-template-columns: 1fr; }}
 /* WINGMAN_LOCATIONS_CONNECTIONS_END */
 /* WINGMAN_PRODUCT_CALL_CARDS_FOCUSED_WORKSPACE_START
    Two-state Product Call Cards workflow:
@@ -19690,8 +19176,7 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-visual-studio-button {
 
   .wm-pcc-product-mode .wm-pcc-section-tabs {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 760px) {
   .wm-pcc-shell-selection-mode .wm-pcc-header,
@@ -19714,8 +19199,7 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-visual-studio-button {
   .wm-pcc-product-mode .wm-pcc-preview,
   .wm-pcc-product-mode .wm-pcc-focus-panel {
     padding: 14px;
-  }
-}
+  }}
 
 /* WINGMAN_PRODUCT_CALL_CARDS_FOCUSED_WORKSPACE_END */
 /* ==========================================================================
@@ -20233,8 +19717,7 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-visual-studio-button {
   .wm-ingest-results-grid > :last-child {
     grid-column: 1 / -1;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 840px) {
   .wm-ingest-page {
@@ -20255,8 +19738,7 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-visual-studio-button {
   .wm-ingest-upload-grid,
   .wm-ingest-results-grid > :last-child {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 @media (max-width: 560px) {
   .wm-ingest-request-controls {
@@ -20272,8 +19754,7 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-visual-studio-button {
   .wm-ingest-header-actions .wm-ingest-button,
   .wm-ingest-result-toolbar-actions .wm-ingest-button {
     flex: 1;
-  }
-}
+  }}
 
 
 /* COMPARE_BATTLE_CARDS_START */
@@ -21041,8 +20522,7 @@ a.wm-proof__provenance--verified:hover {
   .wm-showdown .wm-showdown__face-off > .wm-battle-card {
     max-width: none;
     flex-basis: 440px;
-  }
-}
+  }}
 
 @media (max-width: 760px) {
   .wm-showdown .wm-battle-card__body {
@@ -21055,8 +20535,7 @@ a.wm-proof__provenance--verified:hover {
 
   .wm-showdown .wm-battle-card__stats {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 /* WINGMAN_BATTLE_CARD_SPACE_EXPANSION_END */
 
 /* Compact glossary workspace. Kept in the governed Wingman style stack so the
@@ -21353,8 +20832,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 
   .wm-glossary-definition-grid {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 @media (max-width: 720px) {
   .wm-glossary-intro {
@@ -21376,8 +20854,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   .wm-glossary-alias-row {
     max-width: none;
     text-align: left;
-  }
-}
+  }}
 
 /* WINGMAN_EXISTING_DISCOVERY_WARNING_STYLES_START */
 .wm-existing-discovery-warning-backdrop {
@@ -21522,8 +20999,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 
   .wm-existing-discovery-warning-actions .wm-ui-button:last-child {
     grid-column: auto;
-  }
-}
+  }}
 /* WINGMAN_EXISTING_DISCOVERY_WARNING_STYLES_END */
 /* Shared cross-answer technical safeguard for guided workflows. */
 .wm-decision-compatibility-alert { display:grid; gap:9px; padding:12px; color:#ffe8bd; background:#3b2a0c73; border:1px solid #f5a52457; border-radius:11px; box-shadow:inset 3px 0 #f5a524; }
@@ -22671,8 +22147,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   }
   .wm-safety-project-badges {
     width: 100%;
-  }
-}
+  }}
 
 /* ==========================================================================
    MOBILE-RESPONSIVE BREAKPOINTS
@@ -22772,8 +22247,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   .wm-discovery-trail-topline {
     flex-wrap: wrap;
     gap: 8px;
-  }
-}
+  }}
 
 @media (max-width: 640px) {
   /* Discovery: phone layout */
@@ -22789,8 +22263,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   .wm-discovery-why-card {
     margin: 10px 0;
     padding: 10px;
-  }
-}
+  }}
 
 /* ─── Product Call Cards Responsive ────────────────────────────────────────── */
 
@@ -22895,8 +22368,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 
   .wm-pcc-modal-grid {
     grid-template-columns: 1fr;
-  }
-}
+  }}
 
 @media (max-width: 640px) {
   /* PCC: phone layout */
@@ -22930,8 +22402,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 
   .wm-pcc-quick-heading {
     font-size: 0.8rem;
-  }
-}
+  }}
 
 /* ─── Battle Cards Responsive ──────────────────────────────────────────────── */
 
@@ -23027,8 +22498,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   .wm-battle-talk-track {
     padding: 10px;
     font-size: 0.85rem;
-  }
-}
+  }}
 
 @media (max-width: 640px) {
   /* Battle Cards: phone layout */
@@ -23070,8 +22540,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 
   .wm-battle-equivalent h3 {
     font-size: 0.9rem;
-  }
-}
+  }}
 
 /* ─── Global Touch-Friendly Overrides ──────────────────────────────────────── */
 
@@ -23533,11 +23002,6 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   cursor: not-allowed;
 }
 
-.wm-discovery-batch-step-banner__nav:focus-visible {
-  outline: 2px solid rgba(83, 224, 255, 0.6);
-  outline-offset: 1px;
-}
-
 /* Active question content card */
 .wm-discovery-batch-question {
   padding: 12px 14px;
@@ -23668,8 +23132,7 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 
   .wm-discovery-batch-step-banner__chevron {
     margin: 0 4px;
-  }
-}
+  }}
 
 /* ==========================================================================
    PRODUCT ASSURANCE BADGES
@@ -26300,8 +25763,7 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
 
   html[data-wingman-route="projects"] .wm-project-stage-picker [role="tab"] {
     width: 100%;
-  }
-}
+  }}
 
 /* --- Recommendations page: stack role cards on mobile --- */
 @media (max-width: 760px) {
@@ -26693,5 +26155,4 @@ html[data-wingman-route] .wingman-new-project-button:focus-visible {
   html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, a[role="button"]):not(.wm-discovery-option),
   html[data-wingman-route] .wingman-new-project-button {
     transition: none;
-  }
-}
+  }}
