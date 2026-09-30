@@ -8062,6 +8062,18 @@ html[data-wingman-route="discovery"] .wm-qs__help-text {
 .wm-governed-summary { display: flex; align-items: center; gap: 14px; padding: 10px 15px; margin-bottom: 10px; border: 1px solid var(--wm-border); border-radius: 9px; background: var(--wm-surface); font-size: .76rem; }
 .wm-governed-summary-count { font-weight: 650; }
 .wm-governed-summary-detail { color: var(--wm-text-muted); }
+/* Reviewer-batch confirmation strip (triage R1-R5) - reuses the summary's
+   surface language; batch buttons mirror the summary-filter affordance. */
+.wm-governed-batches { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 15px; margin-bottom: 10px; border: 1px solid var(--wm-border); border-radius: 9px; background: var(--wm-surface); font-size: .74rem; }
+.wm-governed-batch { display: inline-flex; align-items: center; gap: 7px; padding: 4px 9px; border: 1px solid var(--wm-border); border-radius: 7px; background: transparent; color: var(--wm-text); font: inherit; cursor: pointer; transition: border-color .12s ease, background .12s ease, color .12s ease; }
+.wm-governed-batch:hover:not(:disabled) { border-color: var(--wm-accent, #53e0ff); background: rgba(83, 224, 255, 0.08); }
+.wm-governed-batch[aria-pressed='true'] { border-color: var(--wm-accent, #53e0ff); background: rgba(83, 224, 255, 0.12); color: var(--wm-accent, #53e0ff); font-weight: 650; }
+.wm-governed-batch:disabled { opacity: .55; cursor: default; }
+.wm-governed-batch__id { font-weight: 700; letter-spacing: .04em; }
+.wm-governed-batch__count { color: var(--wm-text-muted); }
+.wm-governed-batch[aria-pressed='true'] .wm-governed-batch__count { color: currentColor; }
+.wm-governed-batch__unknown { padding: 1px 6px; border-radius: 999px; background: rgba(232, 93, 4, 0.16); color: var(--wm-accent, #e85d04); font-size: .66rem; }
+.wm-governed-batch--unbatched { cursor: default; border-style: dashed; }
 .wm-governed-summary-filter { appearance: none; padding: 2px 4px; border: 0; border-radius: 4px; background: transparent; font: inherit; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(83, 224, 255, 0.42); text-underline-offset: 3px; transition: color .12s ease, background .12s ease, text-decoration-color .12s ease; }
 .wm-governed-summary-filter:hover { color: var(--wm-text); background: rgba(83, 224, 255, 0.08); text-decoration-color: var(--wm-accent, #53e0ff); }
 .wm-governed-summary-filter[aria-pressed='true'] { color: var(--wm-accent, #53e0ff); background: rgba(83, 224, 255, 0.12); text-decoration-color: currentColor; }

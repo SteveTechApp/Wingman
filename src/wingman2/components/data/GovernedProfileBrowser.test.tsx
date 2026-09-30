@@ -199,6 +199,30 @@ describe("GovernedProfileBrowser download deferral", () => {
     expect(record.transport).toContain("Audio");
   });
 
+  it("groups the confirmation triage batches and filters the table to a batch", () => {
+    render(<GovernedProfileBrowser />);
+
+    // The strip renders one button per triage batch with its live split from
+    // the fixture: the two amplifier SKUs sit outside every batch (unbatched),
+    // and APO-COM-MIC is a triage batch member.
+    const strip = screen.getByRole("group", { name: "Confirmation triage batches" });
+    expect(strip).toBeDefined();
+    for (const batchId of ["R1", "R2", "R3", "R4", "R5"]) {
+      expect(within(strip).getByRole("button", { name: new RegExp(`^${batchId} `) })).toBeDefined();
+    }
+
+    // Activating a batch scopes the table: the summary names the batch and
+    // only that batch's SKUs remain.
+    const r3 = within(strip).getByRole("button", { name: /^R3 / });
+    fireEvent.click(r3);
+    expect(screen.getByText(/governed profiles in R3/)).toBeDefined();
+
+    // Toggling the active batch off restores the unscoped summary.
+    fireEvent.click(r3);
+    expect(screen.getByText(/governed profiles/)).toBeDefined();
+    expect(screen.queryByText(/governed profiles in R3/)).toBeNull();
+  });
+
   it("requires confirmation before deleting a row", () => {
     const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValueOnce(true);
     render(<GovernedProfileBrowser />);

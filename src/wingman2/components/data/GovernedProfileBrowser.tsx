@@ -4,6 +4,7 @@ import governedTechnicalProfiles from "../../../../data/governance/wyrestorm-tec
 import { downloadBlob } from "../../lib/downloadBlob";
 import { confirmGovernedProfile } from "../../api/wingmanApi";
 import { governedProfileFieldApplicability } from "../../lib/governedConfirmationBacklog";
+import { governedConfirmationBatchView } from "../../lib/governedConfirmationBatches";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -224,10 +225,21 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
   const [query, setQuery] = useState("");
   const [classFilter, setClassFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [batchFilter, setBatchFilter] = useState<string>("");
   const [expandedSku, setExpandedSku] = useState<string | null>(null);
   const [editingProfile, setEditingProfile] = useState<GovernedProfile | null>(null);
   const [selectedSkus, setSelectedSkus] = useState<Set<string>>(new Set());
   const [profiles, setProfiles] = useState<GovernedProfile[]>(allProfiles);
+
+  // Reviewer-batch grouping from the confirmation triage: one button per
+  // batch with its live awaiting/verified split, so the backlog is worked
+  // batch by batch. Computed from the raw payload, not the editable state,
+  // because the batch view is the review-workflow lens over the tracked data.
+  const batchView = useMemo(() => governedConfirmationBatchView(), []);
+  const batchScope = useMemo(() => {
+    if (!batchFilter) return null;
+    return batchView.batches.find((batch) => batch.id === batchFilter) ?? null;
+  }, [batchFilter, batchView]);
 
 
 
@@ -260,13 +272,18 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
       list = list.filter((p) => p.status === statusFilter);
     }
 
+    if (batchScope) {
+      const batchSkus = new Set(batchScope.skus);
+      list = list.filter((p) => batchSkus.has(p.sku));
+    }
+
     return [...list].sort((a, b) => {
       const sa = STATUS_ORDER[a.status ?? ""] ?? 9;
       const sb = STATUS_ORDER[b.status ?? ""] ?? 9;
       if (sa !== sb) return sa - sb;
       return a.sku.localeCompare(b.sku);
     });
-  }, [query, classFilter, statusFilter, profiles]);
+  }, [query, classFilter, statusFilter, batchScope, profiles]);
 
   const toggleSelect = useCallback((sku: string) => {
     setSelectedSkus((prev) => {
@@ -388,30 +405,74 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
       {/* Summary chips */}
       <div className="wm-governed-summary">
         <span className="wm-governed-summary-count">
-          <strong>{profiles.length}</strong> governed profiles
+          <strong>{batchScope ? batchScope.skus.length : profiles.length}</strong> {batchScope ? `governed profiles in ${batchScope.id}` : "governed profiles"}
         </span>
-        <span className="wm-governed-summary-detail">
-          {statusCounts["verified"] ?? 0} verified
-        </span>
-        <button
-          type="button"
-          className="wm-governed-summary-detail wm-governed-summary-filter"
-          aria-label={`Filter by Warning status (${statusCounts["verified-with-warning"] ?? 0} profiles)`}
-          aria-pressed={statusFilter === "verified-with-warning"}
-          onClick={() => toggleStatusFilter("verified-with-warning")}
-        >
-          {statusCounts["verified-with-warning"] ?? 0} warnings
-        </button>
-        <button
-          type="button"
-          className="wm-governed-summary-detail wm-governed-summary-filter"
-          aria-label={`Filter by Review required status (${statusCounts["review-required"] ?? 0} profiles)`}
-          aria-pressed={statusFilter === "review-required"}
-          onClick={() => toggleStatusFilter("review-required")}
-        >
-          {statusCounts["review-required"] ?? 0} review required
-        </button>
+        {batchScope ? (
+          <span className="wm-governed-summary-detail">
+            {batchScope.awaiting.length} awaiting · {batchScope.verifiedCount} confirmed in this batch
+            {batchScope.scope ? ` — ${batchScope.scope}` : ""}
+          </span>
+        ) : (
+          <>
+            <span className="wm-governed-summary-detail">
+              {statusCounts["verified"] ?? 0} verified
+            </span>
+            <button
+              type="button"
+              className="wm-governed-summary-detail wm-governed-summary-filter"
+              aria-label={`Filter by Warning status (${statusCounts["verified-with-warning"] ?? 0} profiles)`}
+              aria-pressed={statusFilter === "verified-with-warning"}
+              onClick={() => toggleStatusFilter("verified-with-warning")}
+            >
+              {statusCounts["verified-with-warning"] ?? 0} warnings
+            </button>
+            <button
+              type="button"
+              className="wm-governed-summary-detail wm-governed-summary-filter"
+              aria-label={`Filter by Review required status (${statusCounts["review-required"] ?? 0} profiles)`}
+              aria-pressed={statusFilter === "review-required"}
+              onClick={() => toggleStatusFilter("review-required")}
+            >
+              {statusCounts["review-required"] ?? 0} review required
+            </button>
+          </>
+        )}
       </div>
+
+      {/* Reviewer-batch confirmation strip (triage R1-R5) */}
+      {batchView.batches.length > 0 ? (
+        <div className="wm-governed-batches" role="group" aria-label="Confirmation triage batches">
+          {batchView.batches.map((batch) => (
+            <button
+              key={batch.id}
+              type="button"
+              className={`wm-governed-batch ${batchFilter === batch.id ? "is-active" : ""}`}
+              aria-pressed={batchFilter === batch.id}
+              disabled={batch.awaiting.length === 0 && batch.unknownSkus.length === 0}
+              title={batch.awaiting.length === 0 ? "Every profile in this batch is human-verified" : `Scope: ${batch.scope}`}
+              onClick={() => setBatchFilter((current) => (current === batch.id ? "" : batch.id))}
+            >
+              <span className="wm-governed-batch__id">{batch.id}</span>
+              <span className="wm-governed-batch__count">
+                {batch.awaiting.length === 0
+                  ? `${batch.verifiedCount} confirmed`
+                  : `${batch.awaiting.length} awaiting · ${batch.verifiedCount} confirmed`}
+              </span>
+              {batch.unknownSkus.length > 0 ? (
+                <span className="wm-governed-batch__unknown" title={`Not in the governed set: ${batch.unknownSkus.join(", ")}`}>
+                  {batch.unknownSkus.length} unknown
+                </span>
+              ) : null}
+            </button>
+          ))}
+          {batchView.unbatched.length > 0 ? (
+            <span className="wm-governed-batch wm-governed-batch--unbatched" title={`Awaiting confirmation but not assigned to any triage batch: ${batchView.unbatched.map((profile) => profile.sku).join(", ")}`}>
+              <span className="wm-governed-batch__id">—</span>
+              <span className="wm-governed-batch__count">{batchView.unbatched.length} unbatched</span>
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       {/* Bulk action bar */}
       {selectedSkus.size > 0 ? (
