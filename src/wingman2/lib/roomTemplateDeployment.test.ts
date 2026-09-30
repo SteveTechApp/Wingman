@@ -1,10 +1,97 @@
 import { describe, expect, it } from "vitest";
 import { roomTemplates } from "./roomTemplates";
+import { createDeploymentTemplate, type ScheduleItem } from "./roomTemplateDeployment";
 import { compileTemplateApplicationProposal } from "./proposalCompiler";
 import { templateBomToSchematicBrief } from "./schematic/templateBomToSchematicBrief";
 import { getCustomRoomTemplates, saveRoomTemplateCopy } from "./customRoomTemplates";
 
 describe("complete deployment concepts", () => {
+  // The whole-room completion layers (docs/AV_COMPLETE_ROOM_DESIGN_REFERENCE.md):
+  // an authored completion block must emit labelled design notes plus the
+  // corresponding BY-OTHERS allowance rows, and absence must change nothing.
+  it("emits whole-room guidance rows and notes only for populated completion blocks", () => {
+    const base = {
+      id: "completion-test", name: "Completion Test", vertical: "Corporate",
+      space: "A 9m × 6m test room with two displays and a controlled ceiling.",
+      construction: "Assume reinforced display walls, an accessible suspended ceiling and controlled daylight.",
+      occupancy: "12–16 people",
+      activity: "Presenters share content and join calls using the room system.",
+      transport: "matrix4" as const,
+      sources: [["Room PC HDMI output", 1, "credenza"]] as ScheduleItem[],
+      outputs: [["75-inch front display", 2, "front wall"]] as ScheduleItem[],
+      speakers: 0,
+      microphones: 0,
+      audio: {
+        approach: "silent" as const,
+        experience: "No audio system is included.",
+        zones: [],
+        microphones: "No room reinforcement microphones are included.",
+        processing: "No audio processing is included.",
+        connectivity: "No audio connectivity is included.",
+        dante: false,
+        aec: false,
+        programmeFeeds: 0,
+        routing: "No audio routing is included.",
+      },
+      rationale: "One source and two mirrored outputs need a fixed matrix and nothing more.",
+      alternative: "A switcher and splitter could replace the matrix for a single shared picture.",
+      constraints: ["Confirm display cable lengths by survey."],
+    };
+
+    const plain = createDeploymentTemplate(base);
+    expect(plain.designNotes.some((note) => note.label === "Image size and reading distance")).toBe(false);
+    expect(plain.bom.some((r) => r.sku === "BY-OTHERS-ASSISTIVE-LISTENING")).toBe(false);
+
+    const complete = createDeploymentTemplate({
+      ...base,
+      completion: {
+        humanFactors: { farthestViewerMetres: 9, contentClass: "adm", speechPrivacy: true },
+        controlExperience: { operator: "facilitator", scheduling: true, monitoring: "24-7-noc" },
+        environment: { rt60Target: "≤0.6 s", illuminationControls: true, rackThermal: "forced" },
+        assurance: { warrantyTier: "on-site-nbd", sparesHeld: "one spare endpoint and PSU per 10", trainingAudience: "the facilitator team" },
+        compliance: { assistiveListening: "required", lifeSafetyAudioPriority: true, informationClassification: "Internal — approved feeds only" },
+      },
+    });
+
+    const noteLabels = complete.designNotes.map((note) => note.label);
+    for (const label of [
+      "Image size and reading distance",
+      "Speech privacy",
+      "Who operates this room",
+      "Room scheduling",
+      "Monitoring and response",
+      "Reverberation target",
+      "Rack thermal design",
+      "Warranty and support tier",
+      "Training",
+      "Assistive listening",
+      "Life-safety audio priority",
+      "Information classification",
+    ]) {
+      expect(noteLabels, label).toContain(label);
+    }
+    const completionSkus = [
+      "BY-OTHERS-SOUND-MASKING",
+      "BY-OTHERS-SCHEDULING-PANEL",
+      "BY-OTHERS-MONITORING-NOC",
+      "BY-OTHERS-LIGHTING-INTERFACE",
+      "BY-OTHERS-SPARES",
+      "BY-OTHERS-ASSISTIVE-LISTENING",
+      "BY-OTHERS-VA-PAGING-INTERFACE",
+    ];
+    for (const sku of completionSkus) {
+      const scope = complete.bom.find((r) => r.sku === sku);
+      expect(scope, sku).toMatchObject({ type: "Required", owner: "integrator" });
+      expect(scope!.qty).toBeGreaterThan(0);
+    }
+    // Completion rows must not collide with the base manifest ids.
+    expect(new Set(complete.bom.map((r) => r.id)).size).toBe(complete.bom.length);
+    // The DISCAS note carries the measured distance and content class.
+    const discas = complete.designNotes.find((note) => note.label === "Image size and reading distance")!;
+    expect(discas.description).toContain("9 m");
+    expect(discas.description).toContain("analytical decision-making");
+  });
+
   it("gives all 59 designs a physical environment, explicit I/O and a complete editable system scope", () => {
     expect(roomTemplates).toHaveLength(59);
     expect(new Set(roomTemplates.map((t) => t.id)).size).toBe(59);

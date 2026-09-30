@@ -4,6 +4,46 @@ import { audioDesignNotes, roomAudioBom, validRoomAudio, type RoomAudioDesign } 
 
 export type RoomTransport = "apollo" | "hdbt" | "matrix4" | "matrix8" | "hybrid" | "nhd100" | "nhd500" | "nhd600" | "wall" | "studio" | "pods";
 export type ScheduleItem = readonly [description: string, qty: number, location: string];
+/**
+ * Optional whole-room guidance beyond signal transport (see
+ * docs/AV_COMPLETE_ROOM_DESIGN_REFERENCE.md §6). Every key is optional and an
+ * unpopulated block emits nothing, so authored designs adopt layers gradually
+ * without regressing the existing catalogue.
+ */
+export type RoomCompletionDesign = {
+  humanFactors?: {
+    farthestViewerMetres?: number;
+    contentClass?: "bdm" | "adm";
+    ambientLight?: "controlled" | "daylight" | "high-ambient" | "outdoor";
+    speechPrivacy?: boolean;
+    cameraFov?: string;
+  };
+  controlExperience?: {
+    operator: "teacher" | "facilitator" | "volunteer" | "professional" | "public";
+    scheduling?: boolean;
+    monitoring?: "none" | "basic" | "24-7-noc";
+  };
+  environment?: {
+    rt60Target?: string;
+    acousticTreatment?: "none" | "light" | "moderate" | "heavy";
+    illuminationControls?: boolean;
+    rackThermal?: "passive" | "forced" | "hvac-cooled";
+  };
+  assurance?: {
+    acceptanceTest?: boolean;
+    trainingAudience?: string;
+    warrantyTier?: "return-to-base" | "advance-replacement" | "on-site-nbd" | "24-7-mission-critical";
+    monitoringContract?: boolean;
+    sparesHeld?: string;
+  };
+  compliance?: {
+    assistiveListening?: "required" | "recommended" | "not-required";
+    lifeSafetyAudioPriority?: boolean;
+    recordingConsentPolicy?: string;
+    cameraPrivacy?: string;
+    informationClassification?: string;
+  };
+};
 export type RoomDeploymentDesign = {
   id: string; name: string; vertical: string; space: string; construction: string; occupancy: string;
   activity: string; transport: RoomTransport; sources: ScheduleItem[]; outputs: ScheduleItem[];
@@ -12,6 +52,7 @@ export type RoomDeploymentDesign = {
   inputExtensions?: number;
   additionalScope?: Array<{ key: string; description: string; qty: number; notes: string }>;
   rationale: string; alternative: string; constraints: string[];
+  completion?: RoomCompletionDesign;
 };
 export type RoomConcept = {
   statement: string; environment: string; construction: string; occupancy: string;
@@ -19,6 +60,8 @@ export type RoomConcept = {
   transport: RoomTransport; architectureFamily: TemplateArchitectureFamily;
   rationale: string; alternative: string; signalFlow: string[]; capabilities: TemplateCapability[];
   audio?: RoomAudioDesign;
+  /** Authored whole-room completion block, preserved for the checklist surface. */
+  completion?: RoomCompletionDesign;
 };
 export function readRoomConcept(value: unknown): RoomConcept | undefined {
   if (!value || typeof value !== "object") return undefined;
@@ -31,7 +74,11 @@ export function readRoomConcept(value: unknown): RoomConcept | undefined {
   const allowed = new Set(["video", "audio", "microphones", "uc", "control", "network", "recording", "signage", "resilience", "accessibility"]);
   if (!c.capabilities.every((capability) => allowed.has(capability))) return undefined;
   if (c.audio !== undefined && !validRoomAudio(c.audio)) return undefined;
-  return c;
+  // The completion block only drives whole-room guidance display, so it is
+  // preserved leniently: a plain object passes through, junk is dropped
+  // rather than rejecting an otherwise valid stored concept.
+  const completion = c.completion && typeof c.completion === "object" && !Array.isArray(c.completion) ? c.completion : undefined;
+  return completion ? { ...c, completion } : c;
 }
 const total = (items: ScheduleItem[]) => items.reduce((count, item) => count + item[1], 0);
 const families: Record<RoomTransport, TemplateArchitectureFamily> = {
@@ -111,8 +158,135 @@ function completeScope(d: RoomDeploymentDesign): TemplateBomRow[] {
   return rows;
 }
 
+const warrantyLabels: Record<NonNullable<NonNullable<RoomCompletionDesign["assurance"]>["warrantyTier"]>, string> = {
+  "return-to-base": "return-to-base repair",
+  "advance-replacement": "advance replacement",
+  "on-site-nbd": "on-site next-business-day",
+  "24-7-mission-critical": "24/7 mission-critical response",
+};
+
+/**
+ * Whole-room guidance rows and notes from the optional completion block
+ * (docs/AV_COMPLETE_ROOM_DESIGN_REFERENCE.md §2/§6): experience and human
+ * factors, control experience, environment, assurance and compliance. An
+ * unpopulated block contributes nothing, so designs adopt layers gradually.
+ */
+function completionScope(d: RoomDeploymentDesign): { rows: TemplateBomRow[]; notes: Array<{ label: string; description: string }> } {
+  const rows: TemplateBomRow[] = [];
+  const notes: Array<{ label: string; description: string }> = [];
+  const completion = d.completion;
+  if (!completion) return { rows, notes };
+  const add = (key: string, description: string, qty: number, notes: string) => {
+    rows.push({ ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes), owner: "integrator", manufacturer: "", model: "" });
+  };
+
+  const hf = completion.humanFactors;
+  if (hf) {
+    const viewer = hf.farthestViewerMetres;
+    if (viewer !== undefined) {
+      const className = hf.contentClass === "adm" ? "analytical decision-making content" : "basic decision-making content";
+      notes.push({ label: "Image size and reading distance", description: `The farthest viewer sits about ${viewer} m away. Size the display for ${className} at that distance using AVIXA DISCAS (V202.01) before fixing the model; a larger room or denser content pushes the image size up, not the resolution.` });
+    }
+    const ambient = hf.ambientLight;
+    if (ambient && ambient !== "controlled") {
+      const brightness: Record<Exclude<NonNullable<typeof ambient>, "controlled">, string> = {
+        daylight: "daylight-controlled spaces typically need 500–700 nit-class panels with strong anti-reflection handling",
+        "high-ambient": "high-ambient/shopfront positions typically need 2,000–2,500+ nit panels or shading",
+        outdoor: "outdoor positions need high-nit, temperature-rated direct-view LED with service access",
+      };
+      notes.push({ label: "Brightness versus ambient light", description: `The stated ambient condition (${ambient}) drives panel brightness: ${brightness[ambient]}. Confirm the measured ambient level on survey; a domestic-grade panel will look washed out and reflects the room back at the audience.` });
+    }
+    if (hf.speechPrivacy) {
+      add("sound-masking", "Sound masking / speech-privacy system (emitters, control and tuning)", 1, "One measured allowance: emitters and control tuned to the stated privacy requirement, with comfort and acoustic survey. Isolation (wall/floor construction) is a building scope decision and is separate from masking.");
+      notes.push({ label: "Speech privacy", description: "The design assumes conversations must not be intelligible outside the room. Masking emitters plus partition/isolation scope deliver that; a conferencing bar or DSP does not." });
+    }
+    if (hf.cameraFov) {
+      notes.push({ label: "Camera field of view", description: `${hf.cameraFov}. Verify at the table/room in furnished conditions: a camera that crops the farthest participant defeats the conferencing investment regardless of video quality.` });
+    }
+  }
+
+  const control = completion.controlExperience;
+  if (control) {
+    const operatorGuidance: Record<typeof control.operator, string> = {
+      teacher: "The daily operator is a teacher with no AV training: input select, volume and one call/presentation action must be reachable in one gesture each, labelled in plain language.",
+      facilitator: "The daily operator is a trained facilitator: presets for the named activity modes are expected, with a documented reset-to-default action.",
+      volunteer: "The daily operator is an untrained volunteer: everything above mute/volume must run from presets; document a start-up and shut-down card kept in the room.",
+      professional: "The daily operator is a professional control-room/operator audience: role-based access, per-operator presets and an operations runbook are part of acceptance.",
+      public: "Some interaction is public-facing: self-explanatory interfaces only, with nothing operator-sensitive reachable from the public surface.",
+    };
+    notes.push({ label: "Who operates this room", description: operatorGuidance[control.operator] });
+    if (control.scheduling) {
+      add("scheduling-panel", "Room scheduling panel and calendar/licence integration", 1, "One allowance per room: door/outside-panel, PoE, platform integration and licensing. Booking data prevents ghost bookings and is a common omission in first-time room builds.");
+      notes.push({ label: "Room scheduling", description: "A scheduling panel tied to the room's calendar is scheduled scope: without it, ad-hoc use collides with booked meetings and the room appears permanently busy or permanently free." });
+    }
+    if (control.monitoring === "24-7-noc") {
+      add("monitoring-noc", "24/7 monitoring and response contract (NOC/SLA)", 1, "One contractual allowance: device health, licence expiry, alert routing, response times and escalation. 24/7 rooms are operated, not just installed; an unmonitored critical room fails silently.");
+      notes.push({ label: "Monitoring and response", description: "This room is stated as continuously operated: specify a monitoring/NOC arrangement with defined response times. Remote health dashboards without a contracted response are not monitoring." });
+    } else if (control.monitoring === "basic") {
+      notes.push({ label: "Basic monitoring", description: "Provide at minimum a documented routine check (display power, source availability, call test) and an owner for fault reporting; record it in the handover documentation." });
+    }
+  }
+
+  const environment = completion.environment;
+  if (environment) {
+    if (environment.rt60Target) {
+      notes.push({ label: "Reverberation target", description: `The design target is ${environment.rt60Target}. Acoustic treatment scope in this template exists to reach that measured target; verify after fit-out with the space furnished, because AEC and DSP shape the signal path but cannot shorten room reverberation.` });
+    }
+    if (environment.illuminationControls) {
+      add("lighting-interface", "Lighting/blind scene integration with the AV control system", 1, "One integration allowance: contact/driver interfaces, scene programming and commissioning with the lighting contractor. Confirm which trade owns dimming drivers before pricing.");
+    }
+    if (environment.rackThermal && environment.rackThermal !== "passive") {
+      notes.push({ label: "Rack thermal design", description: environment.rackThermal === "hvac-cooled"
+        ? "The equipment load requires space cooling or a dedicated cooling allowance: calculate rack BTU from the final schedule and agree responsibility with the mechanical contractor."
+        : "The equipment load requires forced ventilation in the rack: calculate rack BTU from the final schedule and select fans/venting accordingly; a sealed cupboard will thermally throttle or shorten equipment life." });
+    }
+  }
+
+  const assurance = completion.assurance;
+  if (assurance) {
+    if (assurance.warrantyTier) {
+      notes.push({ label: "Warranty and support tier", description: `State ${warrantyLabels[assurance.warrantyTier]} for the WyreStorm core and the selected third-party lines. Support tier is a design decision that changes price and should be agreed with the client before quotation, not discovered at first fault.` });
+    }
+    if (assurance.monitoringContract && !(control?.monitoring === "24-7-noc")) {
+      add("monitoring-noc", "Monitoring and response contract (NOC/SLA)", 1, "One contractual allowance: device health, licence expiry, alert routing, response times and escalation.");
+    }
+    if (assurance.sparesHeld) {
+      add("spares", "Operational spares package", 1, `One spares allowance per the stated holding (${assurance.sparesHeld}): select items by failure impact and lead time, and record their storage location and refresh date in the handover pack.`);
+    }
+    if (assurance.trainingAudience) {
+      notes.push({ label: "Training", description: `Commissioning includes operator training for ${assurance.trainingAudience}, with a written quick-start guide kept in the room. Training is part of the delivery, not an optional extra.` });
+    }
+  }
+
+  const compliance = completion.compliance;
+  if (compliance) {
+    if (compliance.assistiveListening === "required") {
+      add("assistive-listening", "Assistive listening system (induction loop / IR / radio) and signage", 1, "One measured allowance: coverage of the stated seating area, feed from the audio system, user signage and commissioning. Assistive listening is a legal accessibility requirement in many jurisdictions; confirm the governing requirement for this venue.");
+      notes.push({ label: "Assistive listening", description: "The stated use requires assistive listening provision. Treat it as a required system (feed from the programme/microphone audio, coverage and signage), not an accessory." });
+    } else if (compliance.assistiveListening === "recommended") {
+      notes.push({ label: "Assistive listening (recommended)", description: "Assistive listening is not mandated for this application but is commonly expected: confirm with the venue whether to include it, and price it as an option if not required." });
+    }
+    if (compliance.lifeSafetyAudioPriority) {
+      add("va-paging-interface", "Voice-alarm / paging priority interface (life-safety mute and override)", 1, "One engineered interface allowance: emergency/voice-alarm override of programme audio, priority hierarchy and mute contacts, designed with the fire/life-safety contractor. Programme audio must always yield to life-safety announcements.");
+      notes.push({ label: "Life-safety audio priority", description: "Programme audio in this space must yield to life-safety/voice-alarm announcements. That interface is a governed, engineered connection designed with the fire/life-safety authority — it is never a software setting on an amplifier." });
+    }
+    if (compliance.recordingConsentPolicy) {
+      notes.push({ label: "Recording consent and retention", description: compliance.recordingConsentPolicy });
+    }
+    if (compliance.cameraPrivacy) {
+      notes.push({ label: "Camera privacy", description: compliance.cameraPrivacy });
+    }
+    if (compliance.informationClassification) {
+      notes.push({ label: "Information classification", description: compliance.informationClassification });
+    }
+  }
+
+  return { rows, notes };
+}
+
 export function createDeploymentTemplate(d: RoomDeploymentDesign): RoomTemplate {
   const sourceCount = total(d.sources), outputCount = total(d.outputs);
+  const completion = completionScope(d);
   const capabilities: TemplateCapability[] = ["video", "control"];
   if (d.audio.approach !== "silent") capabilities.push("audio");
   if (d.microphones || d.transport === "apollo") capabilities.push("microphones");
@@ -129,12 +303,13 @@ export function createDeploymentTemplate(d: RoomDeploymentDesign): RoomTemplate 
     sources: d.sources, outputs: d.outputs, sourceCount, outputCount, transport: d.transport,
     architectureFamily: families[d.transport], rationale: d.rationale, alternative: d.alternative, capabilities, audio: d.audio,
     signalFlow: [schedule(d.sources), descriptions[d.transport], schedule(d.outputs)],
+    completion: d.completion,
   };
   return {
     id: d.id, name: d.name, vertical: d.vertical, application: d.activity, scale: `${d.occupancy} · ${sourceCount} source positions · ${outputCount} outputs`,
     summary: d.activity, customerNarrative: statement, architecture: descriptions[d.transport], concept,
-    bom: [...core(d), ...(d.inputExtensions ? [row(`${d.id}-source-extension`, "EX-70-H2", "Complete source-to-rack HDBaseT extender set (TX and RX)", "Remote source input extension", d.inputExtensions, "One transmitter at each remote source and one receiver into rack HDMI. Use dedicated category cable; baseline 1080p60 and routes at or below 35m, with higher formats confirmed separately. These are additional to the display extension sets.")] : []), ...completeScope(d)],
-    designNotes: [{ label: "Concept statement", description: statement }, { label: "Source schedule", description: schedule(d.sources) }, { label: "Output schedule", description: schedule(d.outputs) }, { label: "Audio experience and signal path", description: audioDesignNotes(d.audio) }, { label: "Architecture choice", description: d.rationale }, { label: "Alternative approach", description: d.alternative }],
+    bom: [...core(d), ...(d.inputExtensions ? [row(`${d.id}-source-extension`, "EX-70-H2", "Complete source-to-rack HDBaseT extender set (TX and RX)", "Remote source input extension", d.inputExtensions, "One transmitter at each remote source and one receiver into rack HDMI. Use dedicated category cable; baseline 1080p60 and routes at or below 35m, with higher formats confirmed separately. These are additional to the display extension sets.")] : []), ...completeScope(d), ...completion.rows],
+    designNotes: [{ label: "Concept statement", description: statement }, { label: "Source schedule", description: schedule(d.sources) }, { label: "Output schedule", description: schedule(d.outputs) }, { label: "Audio experience and signal path", description: audioDesignNotes(d.audio) }, { label: "Architecture choice", description: d.rationale }, { label: "Alternative approach", description: d.alternative }, ...completion.notes],
     assumptions: [d.space, d.construction, `Occupancy: ${d.occupancy}.`, `${sourceCount} physical video source positions and ${outputCount} physical outputs; spare product ports are not extra sources or displays.`, ...(outputCount > sourceCount ? [`Shared content is intentional: ${sourceCount} scheduled source feeds repeat across ${outputCount} displays; independent content requires additional sources.`] : []), "Required third-party rows are part of the complete system; supplier/model and measured allowances must be completed before pricing."],
     validationItems: [...d.constraints, "Confirm dimensions, cable lengths, structure, sightlines, acoustics and mains provision by site survey.", "Replace third-party placeholders with supplier/model and confirm quantities, interfaces, licences and delivery ownership.", "Test the complete signal format, HDCP/EDID, audio, USB and control path before customer acceptance."],
     upgradePaths: [d.alternative, "Re-engineer endpoint, processing, cabling, power and control quantities when the source/output schedule changes."],
