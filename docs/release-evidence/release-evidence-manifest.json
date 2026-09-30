@@ -68,6 +68,36 @@
       },
       "owner": "Engineering + release owner",
       "closureCondition": "Attach a dated network-waterfall audit of a production build showing the eager payload is the summary plus manifest, per-SKU detail loads only on open, and the retired monolith is absent from the build output."
+    },
+    {
+      "id": "outbound-ssrf-guard-coverage",
+      "title": "Outbound fetch SSRF guard coverage (special-purpose IP classification)",
+      "evidenceType": "staging",
+      "claimedStatus": "pass",
+      "measuredAt": "2026-09-30",
+      "expiresAfterDays": 90,
+      "artifactPath": "docs/release-evidence/outbound-ssrf-guard-coverage-2026-09-30.md",
+      "approver": {
+        "name": "Steve Goodwin",
+        "role": "Release owner"
+      },
+      "owner": "Engineering + release owner",
+      "closureCondition": "Attach a dated audit showing every first-party outbound fetch path classifies its target against the special-purpose address registry, with the gap matrix pinned by the guard test suites."
+    },
+    {
+      "id": "offline-sync-resilience",
+      "title": "Offline sync resilience (banner conflict resolution and revision trail)",
+      "evidenceType": "staging",
+      "claimedStatus": "pass",
+      "measuredAt": "2026-09-30",
+      "expiresAfterDays": 90,
+      "artifactPath": "docs/release-evidence/offline-sync-resilience-2026-09-30.md",
+      "approver": {
+        "name": "Steve Goodwin",
+        "role": "Release owner"
+      },
+      "owner": "Engineering + release owner",
+      "closureCondition": "Attach a dated critical-e2e run showing 409 conflicts resolve in-app through both banner paths and the revision trail stays one-per-edit; human device UAT remains a separate criterion."
     }
   ]
 }
