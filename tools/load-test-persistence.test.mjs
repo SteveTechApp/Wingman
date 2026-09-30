@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  assessRttAgainstBudgets,
   buildEvidenceArtifact,
   buildEvidenceMetrics,
   buildManifestRowTemplate,
@@ -519,6 +520,39 @@ describe("verifySupabaseRunPersistence mode derivation", () => {
     const result = await verifySupabaseRunPersistence(verificationOptions([]));
     expect(result.ok).toBe(false);
     expect(result.checked).toBe(true);
+  });
+});
+
+describe("assessRttAgainstBudgets", () => {
+  it("clears loopback and co-located venues without a warning", () => {
+    expect(assessRttAgainstBudgets(2)).toBeNull();
+    expect(assessRttAgainstBudgets(0)).toBeNull();
+    // Exactly at the tightest budget's edge is still reachable, not a warning.
+    expect(assessRttAgainstBudgets(49)).toBeNull();
+  });
+
+  it("warns when RTT exceeds the tightest recorded budget - the strict gate cannot pass there", () => {
+    const warning = assessRttAgainstBudgets(400);
+    expect(warning).toContain("400ms already exceeds the tightest recorded budget");
+    expect(warning).toContain("health: p95 <= 150ms");
+    expect(warning).toContain("CANNOT pass");
+    // The dev-box-to-cloud case measured during A3 prep: ~143ms REST RTT
+    // against a 150ms p95 budget - under the ceiling but unpassable in
+    // practice, so it lands in the soft-inflation lane, not the hard refusal.
+    expect(assessRttAgainstBudgets(143)).toContain("more than a third");
+  });
+
+  it("warns softly when RTT eats a large share of the tightest budget without breaking it", () => {
+    // Over 1/3 of 150ms = inflation warning, but the gate remains passable.
+    const soft = assessRttAgainstBudgets(80);
+    expect(soft).toContain("more than a third");
+    expect(soft).not.toContain("CANNOT pass");
+    expect(assessRttAgainstBudgets(50)).toBeNull();
+  });
+
+  it("ignores invalid samples", () => {
+    expect(assessRttAgainstBudgets(-1)).toBeNull();
+    expect(assessRttAgainstBudgets(Number.NaN)).toBeNull();
   });
 });
 
