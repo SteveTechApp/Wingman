@@ -304,6 +304,11 @@ if (!fs.existsSync(agingConfigPath)) {
 const agingConfig = readJson(agingConfigPath);
 const WARN_AFTER_DAYS = Number(agingConfig.warnAfterDays) || 14;
 const FAIL_AFTER_DAYS = Number(agingConfig.failAfterDays) || 30;
+// Evidence-freshness lanes for HUMAN-VERIFIED profiles (independent of the
+// confirmation clock above: a confirmed profile still ages - its official-page
+// evidence can go stale, move, or rot, and a human re-check is the only cure).
+const VERIFIED_EVIDENCE_WARN_AFTER_DAYS = Number(agingConfig.verifiedEvidenceWarnAfterDays) || 60;
+const VERIFIED_EVIDENCE_FAIL_AFTER_DAYS = Number(agingConfig.verifiedEvidenceFailAfterDays) || 120;
 
 const DAY_MS = 86_400_000;
 
@@ -354,6 +359,60 @@ if (overdueList.length) {
       "spec-critical fields and records verifiedBy. Confirm the overdue profiles (dashboard confirmation\n" +
       "card, or npm run check:governed-review-pass) before the next batch - the backlog must be worked,\n" +
       "not parked.",
+  );
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Evidence-freshness gate (human-verified profiles)
+// ---------------------------------------------------------------------------
+// Confirmation and freshness are different clocks. The confirmation-aging gate
+// above enforces that a human has signed off; THIS gate enforces that the
+// signed-off claim is not ancient: official product pages move and rot (the
+// liveness gate catches today's 404s, this catches the slower decay - a page
+// that is still live but no longer states what was confirmed against it 4
+// months ago). A verified profile whose newest evidence ages past the warn
+// threshold is flagged for a refresh pass; past the fail threshold the gate
+// hard-fails until a human re-checks the live official page and records a NEW
+// dated evidence entry (the re-check refreshes the profile's evidence clock -
+// no value change is required, only a fresh look with today's date).
+
+const verifiedProfiles = payload.profiles.filter(
+  (profile) => profile.status === "verified" && String(profile.verifiedBy ?? "").trim(),
+);
+const verifiedAges = verifiedProfiles
+  .map((profile) => ({ sku: normaliseSku(profile.sku), ageDays: profileAgeDays(profile) }))
+  .sort((a, b) => (b.ageDays ?? -1) - (a.ageDays ?? -1) || a.sku.localeCompare(b.sku));
+const evidenceStaleList = verifiedAges.filter((entry) => entry.ageDays !== null && entry.ageDays >= VERIFIED_EVIDENCE_WARN_AFTER_DAYS);
+const evidenceExpiredList = verifiedAges.filter((entry) => entry.ageDays === null || entry.ageDays >= VERIFIED_EVIDENCE_FAIL_AFTER_DAYS);
+
+if (verifiedAges.length) {
+  console.log(
+    `[technical-data] Evidence freshness: ${verifiedAges.length} human-verified profile(s); ` +
+      `${evidenceStaleList.length} past the ${VERIFIED_EVIDENCE_WARN_AFTER_DAYS}-day warn threshold, ` +
+      `${evidenceExpiredList.length} past the ${VERIFIED_EVIDENCE_FAIL_AFTER_DAYS}-day fail threshold.`,
+  );
+  if (evidenceStaleList.length) {
+    console.warn(
+      `[technical-data] WARNING - verified evidence aging, schedule a refresh pass (${evidenceStaleList.length}): ` +
+        evidenceStaleList.slice(0, 20).map(describeAge).join(", ") +
+        (evidenceStaleList.length > 20 ? `, … and ${evidenceStaleList.length - 20} more` : ""),
+    );
+  }
+}
+
+if (evidenceExpiredList.length) {
+  console.error(
+    `[technical-data] Evidence freshness FAILED: ${evidenceExpiredList.length} verified profile(s) carry evidence ` +
+      `older than ${VERIFIED_EVIDENCE_FAIL_AFTER_DAYS} days (or undatable):\n  ` +
+      evidenceExpiredList.slice(0, 20).map(describeAge).join("\n  ") +
+      (evidenceExpiredList.length > 20 ? `\n  … and ${evidenceExpiredList.length - 20} more` : ""),
+  );
+  console.error(
+    "A verified profile's claim is only as current as its evidence: re-check the profile's official page\n" +
+      "(a liveness-approved URL) and record a new dated evidence entry - via the dashboard confirmation\n" +
+      "desk or a review pass with the refresh date. A re-check requires no value change, only a fresh\n" +
+      "human look; the profile's evidence clock then resets.",
   );
   process.exit(1);
 }

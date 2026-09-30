@@ -66,13 +66,17 @@ Cost: none. Unblocks: the launch sequence and the observation-window evidence.
 ## 6 · Evidence criteria action plan (added 2026-09-30)
 
 The [`release-evidence-manifest.json`](release-evidence/release-evidence-manifest.json)
-holds three closed criteria (waterfall split, SSRF guard coverage, offline sync
-resilience) and four still blocked — all on external evidence, none on missing
-tooling. Critical path and owners:
+holds four closed criteria (governed-profile confirmation, waterfall split,
+SSRF guard coverage, offline sync resilience) and four still blocked — all on
+external evidence, none on missing tooling. Critical path and owners:
 
 ```
-Governed-review backlog (A1)  ✅ worked 2026-09-30 — 206/206 profiles human-verified, zero overdue
+Governed-review backlog (A1)  ✅ closed 2026-09-30 — 206/206 profiles human-verified, zero overdue
+  (evidence: release-evidence/governed-profile-confirmation-2026-09-30.md, manifest row `governed-profile-confirmation`)
   └─ dependency satisfied → PR #246 MERGED 2026-09-30 (72e1eaf6), all CI gates green
+  │    post-merge on main (2026-09-30): Verify (data) ✅ + Governed Data Gate ✅
+  │    PR #251 MERGED 2026-09-30 (51120195): Verify (data) ✅; Data Gate not
+  │    triggered — its diff touched no data/governance|data-sources paths
         → Render stand-up (A2)  ◀ the critical path now runs through here
               └─ staging exists → load test (A3)  ‖  device UAT (A4, parallel)
                                                   └─ production → 30-day window (A5)
@@ -80,12 +84,12 @@ Governed-review backlog (A1)  ✅ worked 2026-09-30 — 206/206 profiles human-v
 
 | # | Action | Closes | Owner | When |
 |---|---|---|---|---|
-| A1 ✅ 2026-09-30 | Governed-profile confirmation backlog — DONE: 90 SKUs confirmed batch-wise R1–R5 (reviewer of record Steve Goodwin), zero overdue; `check:technical-data:strict` exits 0 | unblocked `Verify (data)` → **PR #246 merged** (2026-09-30, CI green) | Engineering reviewer (Steve delegates) | worked 2026-09-30 — dependency satisfied |
+| A1 ✅ closed 2026-09-30 | Governed-profile confirmation backlog — CLOSED: 206/206 profiles human-verified, all attributed to the reviewer of record Steve Goodwin (116 @ 2026-08-16 batches 1–2 + 90 @ 2026-09-30 R1–R5; the 2026-08-16 attribution re-signed from the bare "Steve" the same day), zero overdue; evidence recorded in [`release-evidence/governed-profile-confirmation-2026-09-30.md`](release-evidence/governed-profile-confirmation-2026-09-30.md) and as manifest criterion `governed-profile-confirmation` (pass) in [`release-evidence-manifest.json`](release-evidence/release-evidence-manifest.json) | unblocked `Verify (data)` → **PR #246 merged** (2026-09-30, CI green) | Engineering reviewer (Steve delegates) | closed 2026-09-30 — evidence filed |
 | A1b ✅ 2026-09-30 | Data-side blockers before the #246 merge — CLOSED: both `Verify (data)` and `Governed Data Gate` green on the confirmation commits (gate runs 11:42/11:53 UTC); the only non-data blocker was the CSS size budget, cleared by its reviewed exception (`34a43c91`) | **#246 merged** (2026-09-30 11:57 UTC, `72e1eaf6`) with all checks green, incl. main's own gate run | Release owner (Steve) | recorded 2026-09-30 — see the triage doc's outcome note |
-| A2 ◐ 2026-09-30 | Render stand-up per [`RENDER_STANDUP_RUNBOOK.md`](RENDER_STANDUP_RUNBOOK.md) §1–§5, including the §5 acceptance checks — PREPARED: pre-flight done (deploy commit `72e1eaf6` verified, hygiene check clean, harness green), acceptance script + staging record filed in [`staging/`](staging/A2-staging-record-2026-09-30.md); dashboard steps (Supabase project, Blueprint apply, secrets, monitoring) awaiting Steve's clicks | produces staging (dependency of A3–A4) | Infrastructure (dashboard) + agent (prep/verification) | in progress — click-path ready |
-| A3 | Authenticated staging load test: `npm run load-test` `--strict` against staging with the manifest budgets (p95 ≤ 1000 ms, p99 ≤ 2000 ms, error ≤ 1%) | `production-like-load` | Infrastructure + performance owner | within 30 days of launch date, not banked early |
-| A4 | Device UAT sessions per [`MOBILE_UAT_PLAN.md`](MOBILE_UAT_PLAN.md): two named accounts, three devices, Drills A–D, signed dated result | `mobile-sales-uat` + `offline-reconnect-uat` | Sales lead + mobile tester | within 90 days; any time staging is stable |
-| A5 | Production deploy, then agree window length + operational export with Operations | `production-observation-window` | Operations + product analytics | last; only after first real deploy |
+| A2 ◐ 2026-09-30 | Render stand-up per [`RENDER_STANDUP_RUNBOOK.md`](RENDER_STANDUP_RUNBOOK.md) §1–§5, including the §5 acceptance checks — PREPARED: pre-flight done (deploy commit `51120195` verified — CI 16/16 on the merge commit; hygiene check clean; harness green), acceptance script + staging record filed in [`staging/`](staging/A2-staging-record-2026-09-30.md) — that record doubles as A2's working log (dated entries per runbook step, same discipline as A1's triage record); dashboard steps (Supabase project, Blueprint apply, secrets, monitoring) awaiting Steve's clicks — RECORD ON COMPLETION: §5 pass states + the `storage.mode.resolved` line into the staging record, then tick this row and transfer the staging entry to [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) §4 | produces staging (dependency of A3–A4) | Infrastructure (dashboard) + agent (prep/verification) | in progress — click-path ready |
+| A3 ☐ awaiting A2 | Authenticated staging load test: `npm run load-test` `--strict` against staging with the manifest budgets (p95 ≤ 1000 ms, p99 ≤ 2000 ms, error ≤ 1%) — RECORD ON COMPLETION: a strict-clean run auto-writes the dated artifact + sidecar (`docs/release-evidence/load-test-<level>-<date>.md`) and prints the paste-ready row; fill the `production-like-load` manifest row with it (approver = reviewer of record) and re-run `generate:release-docs` + `check:release-evidence` | `production-like-load` | Infrastructure + performance owner | within 30 days of launch date, not banked early |
+| A4 ☐ awaiting A2 | Device UAT sessions per [`MOBILE_UAT_PLAN.md`](MOBILE_UAT_PLAN.md) + [`OFFLINE_RECONNECT_UAT_PLAN.md`](OFFLINE_RECONNECT_UAT_PLAN.md): two named accounts, three devices, Drills A–D, signed dated result — RECORD ON COMPLETION: fill both manifest rows from the dated evidence folders (`mobile-uat-<date>/`, `offline-reconnect-uat-<date>/` — uat-summary, defects, device-matrix, screenshots, sign-off) and re-run `generate:release-docs` + `check:release-evidence` | `mobile-sales-uat` + `offline-reconnect-uat` | Sales lead + mobile tester | within 90 days; any time staging is stable |
+| A5 ☐ last | Production deploy, then agree window length + operational export with Operations — RECORD ON COMPLETION: fill the `production-observation-window` manifest row from the dated operational export (30-day expiry from measuredAt) and re-run `generate:release-docs` + `check:release-evidence` | `production-observation-window` | Operations + product analytics | only after first real deploy |
 
 Sequencing rules: the two 30-day expiries mean A3 and A5 are measured **near**
 launch; the two 90-day human criteria can be banked as soon as staging is
@@ -104,5 +108,17 @@ triage doc's groupings (R1–R5 sittings or T1–T10 families — both render in
 dashboard's Governed Profiles confirmation strip) and the batch apply tool
 (`node tools/apply-governed-review-pass.mjs`, which prompts for a reviewer of
 record). A stale backlog blocks launches, not just PRs.
+
+**Second standing dependency (evidence freshness, added 2026-09-30):** for
+already-verified profiles a *different* clock now runs: the technical-data
+strict gate warns when a verified profile's newest evidence ages past 60 days
+and hard-fails past 120 (thresholds in `profile-confirmation-aging.json`).
+Confirmation proves a human looked; freshness proves the look is still
+current — official pages move and rot (the daily liveness gate catches
+today's 404s, e.g. the 27 dead pages it found on 2026-09-30; the freshness
+gate catches the slower decay). The cure is a refresh pass: re-check the
+official page and record a new dated evidence entry — no value change
+required, the profile's evidence clock then resets. First refresh pass is due
+around **2026-11-29** (60 days after the 2026-09-30 confirmations).
 
 Sign-off: Steve ______________ date __________ · Transfer results to [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) (§4 go/no-go + §"Decisions still required") before leaving the meeting.

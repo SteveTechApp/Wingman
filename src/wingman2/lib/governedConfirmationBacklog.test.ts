@@ -92,10 +92,12 @@ describe("governed confirmation backlog", () => {
     }
 
     // A concrete entry: the camera confirmed in the 2026-08-16 review pass
-    // carries the reviewer of record and the official source page.
+    // carries the reviewer of record and the official source page. (The pass
+    // was recorded under the bare "Steve" until the 2026-09-30 re-signature
+    // unified every attribution on the reviewer of record's full name.)
     const cam = backlog.verified.find((profile) => profile.sku === "CAM-210-PTZ");
     expect(cam).toMatchObject({
-      verifiedBy: "Steve",
+      verifiedBy: "Steve Goodwin",
       reviewedOn: "2026-08-16",
       confirmedFields: ["max-resolution", "routed-io", "power"],
     });

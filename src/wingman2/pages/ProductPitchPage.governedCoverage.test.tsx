@@ -124,7 +124,7 @@ describe("product pitch governed-coverage render", () => {
     // who confirmed, which fields, and the official source.
     const trail = await screen.findByLabelText("Human confirmation trail");
 
-    expect(trail.textContent).toContain("Confirmed by Steve · 2026-08-16");
+    expect(trail.textContent).toContain("Confirmed by Steve Goodwin · 2026-08-16");
     expect(trail.textContent).toContain("Max resolution · Routed I/O · Power");
     const evidenceLink = within(trail).getByRole("link");
     expect(evidenceLink.getAttribute("href")).toBe("https://www.wyrestorm.com/product/mx-0808-scl/");
@@ -167,7 +167,7 @@ describe("product pitch governed-coverage render", () => {
     // The same reviewer trail as the workspace hero: who, which fields, source.
     const trail = row!.querySelector(".wm-governed-reviewer-trail");
     expect(trail).not.toBeNull();
-    expect(trail!.textContent).toContain("Confirmed by Steve · 2026-08-16");
+    expect(trail!.textContent).toContain("Confirmed by Steve Goodwin · 2026-08-16");
     expect(trail!.textContent).toContain("Max resolution · Routed I/O · Power");
     const evidenceLink = trail!.querySelector("a");
     expect(evidenceLink?.getAttribute("href")).toBe("https://www.wyrestorm.com/product/mx-0808-scl/");

@@ -15,7 +15,21 @@
       "artifactPath": null,
       "approver": null,
       "owner": "Sales lead + release owner",
-      "closureCondition": "Attach a dated, signed result from the agreed phones and tablets."
+      "closureCondition": "Attach a dated, signed result from the agreed phones and tablets.",
+      "closureRecipe": {
+        "plan": "docs/MOBILE_UAT_PLAN.md (journeys, pass rules, session script)",
+        "session": "One facilitated session against staging: 3 testers x 3 device classes (small phone, large phone, tablet) x 3 money-path journeys, ~half a day",
+        "artifactConvention": "docs/release-evidence/mobile-uat-<YYYY-MM-DD>/ folder — uat-summary.md (from MOBILE_UAT_RESULT_TEMPLATE.md), defects.csv, device-matrix.md, screenshots/, sign-off.md",
+        "steps": [
+          "A2 done: staging live with backend sync enabled (VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=true).",
+          "Run the session per the plan's script; scribe fills the result template and defect log live.",
+          "Create the dated evidence folder with all five files; the release owner signs sign-off.md.",
+          "Fill THIS row: artifactPath -> the folder's uat-summary.md, measuredAt -> session date, approver -> release owner, claimedStatus -> pass ONLY if all journeys passed unaided on all device classes with zero open blockers.",
+          "Run npm run generate:release-docs && npm run check:release-docs && npm run check:release-evidence."
+        ],
+        "passRule": "All journeys passed unaided on every device class; any 'partially' row, open blocker, or missing provenance keeps the criterion blocked. 90-day expiry applies from measuredAt.",
+        "note": "Real devices only — desktop browsers, mobile-width Playwright specs and axe runs are not UAT. Also does NOT close offline-reconnect-uat (Journey C step 3 is a smoke only)."
+      }
     },
     {
       "id": "offline-reconnect-uat",
@@ -27,7 +41,21 @@
       "artifactPath": null,
       "approver": null,
       "owner": "Engineering + mobile tester",
-      "closureCondition": "Attach dated real-device evidence covering reconnect, duplicate update, and conflict resolution."
+      "closureCondition": "Attach dated real-device evidence covering reconnect, duplicate update, and conflict resolution.",
+      "closureRecipe": {
+        "plan": "docs/OFFLINE_RECONNECT_UAT_PLAN.md (Drills A-D, expected behaviour from the code, session script)",
+        "session": "One facilitated session (~85 min script) against staging: airplane-mode edit/reconnect (A), duplicate update (B, real device + strict desktop replay), conflict banner resolution (C, both buttons), team-change conflict (D)",
+        "artifactConvention": "docs/release-evidence/offline-reconnect-uat-<YYYY-MM-DD>/ folder — uat-summary.md (from the plan's result template §9), defects.csv, device-matrix.md, screenshots/, sign-off.md",
+        "steps": [
+          "A2 done: staging live with backend sync enabled and the app commit's service worker current.",
+          "Run the drills per the plan's script on the real-device matrix (small phone real airplane mode; tablet Wi-Fi toggle; desktop as reference only).",
+          "Create the dated evidence folder with all five files; the release owner signs sign-off.md.",
+          "Fill THIS row: artifactPath -> the folder's uat-summary.md, measuredAt -> session date, approver -> release owner, claimedStatus -> pass ONLY if Drills A/C/D passed on real devices, Drill B passed with its strict replay, and zero blockers are open.",
+          "Run npm run generate:release-docs && npm run check:release-docs && npm run check:release-evidence."
+        ],
+        "passRule": "Drills A/C/D on real devices + Drill B strict replay; any core-check failure, open blocker, or missing provenance keeps the criterion blocked. 90-day expiry applies from measuredAt.",
+        "note": "Automation (6/6 Chromium e2e, criterion offline-sync-resilience) is NOT human UAT - it complements this session. Real airplane mode is the honest offline; DevTools offline is a desktop reference leg only."
+      }
     },
     {
       "id": "production-like-load",
@@ -65,6 +93,20 @@
       "approver": null,
       "owner": "Operations + product analytics",
       "closureCondition": "Attach a dated operational export after a representative production observation window."
+    },
+    {
+      "id": "governed-profile-confirmation",
+      "title": "Governed-profile confirmation pass (human-verified technical data)",
+      "evidenceType": "human",
+      "claimedStatus": "pass",
+      "measuredAt": "2026-09-30",
+      "artifactPath": "docs/release-evidence/governed-profile-confirmation-2026-09-30.md",
+      "approver": {
+        "name": "Steve Goodwin",
+        "role": "Release owner"
+      },
+      "owner": "Engineering reviewer + release owner",
+      "closureCondition": "Attach a dated confirmation ledger: every governed technical profile human-verified with a named reviewer and confirmation date, zero awaiting or overdue, and the standing confirmation-aging, evidence-freshness, and evidence-liveness gates green."
     },
     {
       "id": "product-index-split-waterfall",

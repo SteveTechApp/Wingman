@@ -8098,6 +8098,10 @@ html[data-wingman-route="discovery"] .wm-qs__help-text {
 .wm-governed-row-actions svg { width: 14px; height: 14px; }
 .wm-governed-row { cursor: pointer; transition: background .12s; }
 .wm-governed-row:hover { background: var(--wm-surface-muted); }
+.wm-governed-row-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.wm-governed-row-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: .62rem; font-weight: 600; letter-spacing: .03em; border: 1px solid transparent; }
+.wm-governed-row-tag--batches { background: rgba(83, 224, 255, 0.1); color: var(--wm-accent, #53e0ff); border-color: rgba(83, 224, 255, 0.22); }
+.wm-governed-row-tag--families { background: rgba(148, 163, 184, 0.12); color: var(--wm-text); border-color: rgba(148, 163, 184, 0.24); }
 .wm-governed-expand { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border: 0; background: transparent; color: var(--wm-text-muted); cursor: pointer; padding: 0; }
 .wm-governed-expand svg { width: 14px; height: 14px; }
 .wm-governed-class-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; background: rgba(83, 224, 255, 0.12); color: var(--wm-accent, #53e0ff); }

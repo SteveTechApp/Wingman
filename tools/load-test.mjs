@@ -143,6 +143,34 @@ const STRICT_BUDGETS = {
   compare: { p95: 2000, p99: 6000, errorPct: 0 },
 };
 
+/**
+ * The network floor: a target whose bare round-trip already eats a budget can
+ * never meet it, so a preflight probe of /api/health predicts the verdict.
+ * Returns a warning string when measured RTT makes the recorded budgets
+ * physically unreachable, or null when the venue looks sane.
+ */
+export function assessRttAgainstBudgets(rttMs, budgets = STRICT_BUDGETS) {
+  const tightest = Math.min(...Object.values(budgets).map((budget) => budget.p95));
+  if (!Number.isFinite(rttMs) || rttMs < 0) return null;
+  if (rttMs > tightest) {
+    const worstScenario = Object.entries(budgets)
+      .sort((a, b) => a[1].p95 - b[1].p95)[0][0];
+    return (
+      `measured RTT ${Math.round(rttMs)}ms already exceeds the tightest recorded budget ` +
+      `(${worstScenario}: p95 <= ${tightest}ms). The strict gate CANNOT pass from this venue ` +
+      `- budgets are calibrated for co-located staging. A red run here proves nothing about ` +
+      `the application; run against a venue whose RTT fits the budgets.`
+    );
+  }
+  if (rttMs > tightest / 3) {
+    return (
+      `measured RTT ${Math.round(rttMs)}ms consumes more than a third of the tightest budget ` +
+      `(${tightest}ms p95) - expect heavy p95/p99 inflation from network overhead alone.`
+    );
+  }
+  return null;
+}
+
 const ALL_SCENARIOS = ["health", "project-list", "project-save", "compare", "payload-413"];
 
 // Opt-in post-run benchmark (NOT part of the default scenario loop): measures
@@ -379,6 +407,30 @@ async function waitForHealth(baseUrl, label, timeoutMs = 30_000) {
     await new Promise((resolve) => setTimeout(resolve, 400));
   }
   throw new Error(`[load-test] ${label} did not become healthy in time (${lastError}).`);
+}
+
+/**
+ * Preflight RTT probe against an EXTERNAL target: the best of three /api/health
+ * round-trips (spawned local servers skip this - loopback has no meaningful
+ * RTT). Warns - does not block - when the venue's network floor makes the
+ * recorded budgets unreachable, so nobody burns a full standard/stress run to
+ * rediscover that WAN latency already ate the budget.
+ */
+async function preflightRttWarning(baseUrl) {
+  const samples = [];
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const started = Date.now();
+    try {
+      const res = await fetch(`${baseUrl}/api/health`);
+      await res.arrayBuffer();
+      if (res.ok) samples.push(Date.now() - started);
+    } catch {
+      // Unreachable is waitForHealth's problem, not this warning's.
+    }
+  }
+  if (samples.length === 0) return null;
+  const best = Math.min(...samples);
+  return assessRttAgainstBudgets(best);
 }
 
 async function fetchServerDetails(baseUrl) {
@@ -2168,6 +2220,14 @@ async function main() {
     } else {
       console.log(`\nUsing external server at ${baseUrl} (no spawn).`);
       await waitForHealth(baseUrl, "external server", 10_000);
+      // Preflight venue check: a remote target whose RTT already exceeds the
+      // tightest budget (dev box -> cloud DB, cross-region staging) cannot
+      // pass --strict. Warn loudly before the run, never block: the red verdict
+      // itself is still the gate's job.
+      const rttWarning = await preflightRttWarning(baseUrl);
+      if (rttWarning) {
+        console.log(`\n[load-test] PREFLIGHT RTT WARNING: ${rttWarning}`);
+      }
     }
 
     const storageDetails = await fetchServerDetails(baseUrl);

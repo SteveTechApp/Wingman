@@ -1,6 +1,6 @@
 {
   "version": 12,
-  "updatedAt": "2026-09-30T11:10:45.161Z",
+  "updatedAt": "2026-09-30T00:00:00.000Z",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -110,12 +110,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/amp-2120/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.037Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.037Z",
       "confirmedFields": [
         "routed-io"
@@ -214,9 +214,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/amp-2120-dnt/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.043Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -224,7 +224,7 @@
         "poe": false,
         "powerSupply": "24V DC 5A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.043Z",
       "confirmedFields": [
         "routed-io",
@@ -370,12 +370,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/amp-260-dnt/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.048Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.048Z",
       "confirmedFields": [
         "routed-io",
@@ -542,12 +542,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/apo-210-uc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.052Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.052Z",
       "confirmedFields": [
         "max-resolution",
@@ -758,12 +758,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/apo-dg2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.056Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.056Z",
       "confirmedFields": [
         "power"
@@ -1052,12 +1052,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-uc-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.060Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.060Z",
       "confirmedFields": [
         "max-resolution",
@@ -1156,16 +1156,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-brg/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.067Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V DC 3A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.067Z",
       "confirmedFields": [
         "max-resolution",
@@ -1289,16 +1289,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-ndi-brg/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.072Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V DC 3A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.072Z",
       "confirmedFields": [
         "max-resolution",
@@ -1429,9 +1429,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cam-210-ndi-ptz/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.078Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -1439,7 +1439,7 @@
         "poe": true,
         "powerSupply": "12V DC 2A; PoE"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.078Z",
       "confirmedFields": [
         "max-resolution",
@@ -1564,12 +1564,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cam-210-ptz/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.957Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.957Z",
       "confirmedFields": [
         "max-resolution",
@@ -1700,12 +1700,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cam-420-ptz/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.083Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.083Z",
       "confirmedFields": [
         "max-resolution",
@@ -1850,12 +1850,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/com-mic-hub/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.087Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.087Z",
       "confirmedFields": [
         "routed-io"
@@ -1976,12 +1976,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-g2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.092Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.092Z",
       "confirmedFields": [
         "max-resolution"
@@ -2102,12 +2102,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-h2-earc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.097Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.097Z",
       "confirmedFields": [
         "max-resolution",
@@ -2201,13 +2201,13 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-iw-usbc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.101Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "maxResolution": "3840x2160p @60Hz 4:2:0 via USB-C video input (EX-100 platform 100m HDBaseT)",
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.101Z",
       "confirmedFields": [
         "max-resolution",
@@ -2346,12 +2346,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.105Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.105Z",
       "confirmedFields": [
         "max-resolution",
@@ -2487,12 +2487,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-8k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.110Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.110Z",
       "confirmedFields": [
         "max-resolution"
@@ -2618,12 +2618,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-ip/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.115Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.115Z",
       "confirmedFields": [
         "max-resolution",
@@ -2729,12 +2729,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-usb3/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.119Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.119Z",
       "confirmedFields": [
         "routed-io"
@@ -2868,12 +2868,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-35-8k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.124Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.124Z",
       "confirmedFields": [
         "max-resolution",
@@ -2938,12 +2938,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-ex-35-g2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.129Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.129Z",
       "confirmedFields": [
         "max-resolution",
@@ -3068,12 +3068,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-35-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.133Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.133Z",
       "confirmedFields": [
         "max-resolution",
@@ -3180,12 +3180,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-35-h2-arc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.137Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.137Z",
       "confirmedFields": [
         "max-resolution",
@@ -3275,12 +3275,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-40-g3/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.141Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.141Z",
       "confirmedFields": [
         "max-resolution",
@@ -3408,12 +3408,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-40-h2-arc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.147Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.147Z",
       "confirmedFields": [
         "max-resolution",
@@ -3584,12 +3584,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-40-kvm-5k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.152Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.152Z",
       "confirmedFields": [
         "max-resolution",
@@ -3683,12 +3683,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-60-usb2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.158Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.158Z",
       "confirmedFields": [
         "routed-io"
@@ -3801,12 +3801,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-60d-kvm/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.166Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.166Z",
       "confirmedFields": [
         "max-resolution",
@@ -3919,12 +3919,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-70-g2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.171Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.171Z",
       "confirmedFields": [
         "max-resolution",
@@ -4066,12 +4066,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-70-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.176Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.176Z",
       "confirmedFields": [
         "max-resolution",
@@ -4187,12 +4187,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-70-h2c/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.180Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.180Z",
       "confirmedFields": [
         "max-resolution"
@@ -4301,12 +4301,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex3-100-earc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.185Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.185Z",
       "confirmedFields": [
         "max-resolution",
@@ -4399,13 +4399,13 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exa-100-earc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.189Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "maxResolution": "3840x2160p @60Hz (HDMI 2.0 passthrough; eARC audio extender)",
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.189Z",
       "confirmedFields": [
         "max-resolution",
@@ -4507,12 +4507,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exf-10km-5k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.194Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.194Z",
       "confirmedFields": [
         "max-resolution",
@@ -4628,12 +4628,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exf-300-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.198Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.198Z",
       "confirmedFields": [
         "max-resolution",
@@ -4729,16 +4729,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-mx-0402-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.204Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "5V DC 1A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.204Z",
       "confirmedFields": [
         "max-resolution",
@@ -4813,9 +4813,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0102-8k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.208Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 1,
@@ -4832,7 +4832,7 @@
       "physicalOutputCount": 2,
       "mirroredOutputs": 2,
       "mirroredOutputCount": 2,
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.208Z",
       "confirmedFields": [
         "max-resolution",
@@ -4902,9 +4902,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0102-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.213Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 1,
@@ -4921,7 +4921,7 @@
       "physicalOutputCount": 2,
       "mirroredOutputs": 2,
       "mirroredOutputCount": 2,
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.213Z",
       "confirmedFields": [
         "max-resolution",
@@ -4992,9 +4992,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0104-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.218Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 1,
@@ -5011,7 +5011,7 @@
       "physicalOutputCount": 4,
       "mirroredOutputs": 4,
       "mirroredOutputCount": 4,
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.218Z",
       "confirmedFields": [
         "max-resolution",
@@ -5124,12 +5124,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.222Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.222Z",
       "confirmedFields": [
         "max-resolution"
@@ -5231,16 +5231,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.226Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC 1A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.226Z",
       "confirmedFields": [
         "max-resolution",
@@ -5333,12 +5333,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0401-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.230Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.230Z",
       "confirmedFields": [
         "max-resolution",
@@ -5797,16 +5797,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/halo-80/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.234Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.234Z",
       "confirmedFields": [
         "power"
@@ -6031,16 +6031,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-300-btn/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.239Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "100-250VAC"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.239Z",
       "confirmedFields": [
         "max-resolution",
@@ -6346,9 +6346,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0402-mst/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.905Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 4,
@@ -6361,7 +6361,7 @@
       "matrixSizeEvidence": "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote",
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.905Z",
       "confirmedFields": [
         "max-resolution",
@@ -6520,9 +6520,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0403-h3-mst/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.244Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 4,
@@ -6539,7 +6539,7 @@
         "externalPsu": true,
         "powerSupply": "20V 10A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.244Z",
       "confirmedFields": [
         "max-resolution",
@@ -6646,9 +6646,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-hdmi/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.911Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 4,
@@ -6665,7 +6665,7 @@
         "externalPsu": true,
         "powerSupply": "12V DC 2A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.911Z",
       "confirmedFields": [
         "max-resolution",
@@ -6787,16 +6787,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-kit/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.136Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.136Z",
       "confirmedFields": [
         "max-resolution",
@@ -6904,9 +6904,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-scl/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.916Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "matrixInputs": 4,
@@ -6919,7 +6919,7 @@
         "externalPsu": true,
         "powerSupply": "12V DC"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.916Z",
       "confirmedFields": [
         "max-resolution",
@@ -7079,9 +7079,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0804-edc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.922Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "matrixInputs": 8,
@@ -7094,7 +7094,7 @@
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.922Z",
       "confirmedFields": [
         "max-resolution",
@@ -7271,12 +7271,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-h2a-mk2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.249Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.249Z",
       "confirmedFields": [
         "max-resolution",
@@ -7434,9 +7434,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-kit-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.927Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 8,
@@ -7448,7 +7448,7 @@
       "quoteSafety": "verify-before-quote",
       "mirroredOutputs": 4,
       "mirroredOutputCount": 4,
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.927Z",
       "confirmedFields": [
         "max-resolution",
@@ -7590,9 +7590,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-scl/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.933Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 8,
@@ -7602,7 +7602,7 @@
       "matrixSizeEvidence": "SKU evidence: MX-0808-SCL",
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote",
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.933Z",
       "confirmedFields": [
         "max-resolution",
@@ -7713,9 +7713,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-scl-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.938Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "matrixInputs": 8,
@@ -7728,7 +7728,7 @@
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.938Z",
       "confirmedFields": [
         "max-resolution",
@@ -7858,9 +7858,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0812-scl/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.943Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "matrixInputs": 8,
@@ -7873,7 +7873,7 @@
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.943Z",
       "confirmedFields": [
         "max-resolution",
@@ -8096,9 +8096,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-1007-hyb/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.141Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 10,
@@ -8108,7 +8108,7 @@
       "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote",
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.141Z",
       "confirmedFields": [
         "max-resolution",
@@ -8199,9 +8199,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-1616-scl/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.146Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "matrixInputs": 16,
@@ -8213,7 +8213,7 @@
       "specs": {
         "powerSupply": "Local power via 4-pin Phoenix"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.146Z",
       "confirmedFields": [
         "max-resolution",
@@ -8320,16 +8320,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0404-h2a-kit/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.152Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.152Z",
       "confirmedFields": [
         "max-resolution",
@@ -8451,9 +8451,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0404-h2a-kit/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.157Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "matrixInputs": 4,
@@ -8470,7 +8470,7 @@
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.157Z",
       "confirmedFields": [
         "max-resolution",
@@ -8593,9 +8593,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-70-v3/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.162Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "matrixInputs": 8,
@@ -8608,7 +8608,7 @@
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.162Z",
       "confirmedFields": [
         "max-resolution",
@@ -8731,16 +8731,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-kit/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.168Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.168Z",
       "confirmedFields": [
         "max-resolution",
@@ -8870,16 +8870,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-70-v3/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.254Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.254Z",
       "confirmedFields": [
         "max-resolution",
@@ -8952,12 +8952,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-000-rack4/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.258Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.258Z",
       "confirmedFields": [
         "power"
@@ -9114,12 +9114,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-0401-mv/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.262Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.262Z",
       "confirmedFields": [
         "max-resolution",
@@ -9211,9 +9211,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-iw-tx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.267Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -9221,7 +9221,7 @@
         "poe": true,
         "powerSupply": "12V DC 1A; 802.3af PoE"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.267Z",
       "confirmedFields": [
         "max-resolution",
@@ -9390,12 +9390,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-rx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.270Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.270Z",
       "confirmedFields": [
         "max-resolution",
@@ -9551,12 +9551,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.276Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.276Z",
       "confirmedFields": [
         "max-resolution",
@@ -9674,12 +9674,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-124-tx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.279Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.279Z",
       "confirmedFields": [
         "max-resolution",
@@ -9794,12 +9794,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-128-ndi-trx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.285Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.285Z",
       "confirmedFields": [
         "max-resolution",
@@ -9943,12 +9943,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-150-rx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.290Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.290Z",
       "confirmedFields": [
         "max-resolution",
@@ -10072,9 +10072,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-dnt-tx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.294Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -10082,7 +10082,7 @@
         "poe": true,
         "powerSupply": "12V DC 1A; 802.3af PoE"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.294Z",
       "confirmedFields": [
         "max-resolution",
@@ -10162,9 +10162,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-e/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.299Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -10172,7 +10172,7 @@
         "poe": true,
         "powerSupply": "12V DC 1A; 802.3af PoE"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.299Z",
       "confirmedFields": [
         "max-resolution",
@@ -10259,9 +10259,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-e/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.303Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -10269,7 +10269,7 @@
         "poe": true,
         "powerSupply": "12V DC 1A; 802.3af PoE"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.303Z",
       "confirmedFields": [
         "max-resolution",
@@ -10370,9 +10370,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-iw-tx-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.307Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -10380,7 +10380,7 @@
         "poe": true,
         "powerSupply": "20V DC 6A; 802.3af PoE"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.307Z",
       "confirmedFields": [
         "max-resolution",
@@ -10564,12 +10564,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.313Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.313Z",
       "confirmedFields": [
         "max-resolution",
@@ -10763,12 +10763,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.317Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.317Z",
       "confirmedFields": [
         "max-resolution",
@@ -10885,9 +10885,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-510-tx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.326Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -10895,7 +10895,7 @@
         "poe": true,
         "powerSupply": "20V 6A; 802.3at PoE+"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.326Z",
       "confirmedFields": [
         "max-resolution",
@@ -10975,16 +10975,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.331Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "poe": true,
         "powerSupply": "802.3at PoE+"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.331Z",
       "confirmedFields": [
         "max-resolution",
@@ -11071,16 +11071,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.336Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "poe": true,
         "powerSupply": "802.3at PoE+"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.336Z",
       "confirmedFields": [
         "max-resolution",
@@ -11257,12 +11257,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.341Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.341Z",
       "confirmedFields": [
         "max-resolution",
@@ -11423,12 +11423,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.347Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.347Z",
       "confirmedFields": [
         "max-resolution",
@@ -11588,12 +11588,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-trxf/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.352Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.352Z",
       "confirmedFields": [
         "max-resolution",
@@ -11725,9 +11725,9 @@
           "sourceUrl": "https://www.wyrestorm.com/global/product/nhd-610/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.357Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -11735,7 +11735,7 @@
         "externalPsu": true,
         "powerSupply": "PoE; 12V DC"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.357Z",
       "confirmedFields": [
         "max-resolution",
@@ -12058,9 +12058,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-610-tx-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.361Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -12068,7 +12068,7 @@
         "poe": true,
         "powerSupply": "12V 2A DC; 802.3at PoE+"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.361Z",
       "confirmedFields": [
         "max-resolution",
@@ -12183,12 +12183,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-ctl-pro-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.366Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.366Z",
       "confirmedFields": [
         "power"
@@ -12273,9 +12273,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-usb-trx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.372Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -12283,7 +12283,7 @@
         "externalPsu": true,
         "powerSupply": "12V DC / PoE+"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.372Z",
       "confirmedFields": [
         "routed-io",
@@ -12379,12 +12379,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rx-35-poh/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.377Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.377Z",
       "confirmedFields": [
         "max-resolution"
@@ -12514,12 +12514,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rx-500/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.382Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.382Z",
       "confirmedFields": [
         "max-resolution",
@@ -12659,12 +12659,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rx-70-4k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.387Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.387Z",
       "confirmedFields": [
         "max-resolution",
@@ -12806,12 +12806,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rx-70-4k-arc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.392Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.392Z",
       "confirmedFields": [
         "max-resolution",
@@ -12968,12 +12968,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rx-700/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.173Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.173Z",
       "confirmedFields": [
         "max-resolution",
@@ -13073,16 +13073,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rx3-100/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.178Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V DC 3A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.178Z",
       "confirmedFields": [
         "max-resolution",
@@ -13210,12 +13210,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-35-4k/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.398Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.398Z",
       "confirmedFields": [
         "max-resolution",
@@ -13324,12 +13324,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-35-scl/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.403Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.403Z",
       "confirmedFields": [
         "max-resolution",
@@ -13421,12 +13421,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-4k-arc/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.408Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.408Z",
       "confirmedFields": [
         "max-resolution"
@@ -13543,12 +13543,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-4k-g2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.412Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.412Z",
       "confirmedFields": [
         "max-resolution",
@@ -13652,12 +13652,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-g2-scl/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.416Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.416Z",
       "confirmedFields": [
         "max-resolution",
@@ -13721,9 +13721,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sp-0104-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.423Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 1,
@@ -13740,7 +13740,7 @@
       "physicalOutputCount": 4,
       "mirroredOutputs": 4,
       "mirroredOutputCount": 4,
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.423Z",
       "confirmedFields": [
         "max-resolution",
@@ -13825,9 +13825,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sp-0108-scl/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.429Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 1,
@@ -13844,7 +13844,7 @@
       "physicalOutputCount": 8,
       "mirroredOutputs": 8,
       "mirroredOutputCount": 8,
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.429Z",
       "confirmedFields": [
         "max-resolution",
@@ -13940,16 +13940,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-0204-vw/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.433Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V 3A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.433Z",
       "confirmedFields": [
         "max-resolution",
@@ -14082,12 +14082,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-0206-vw/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.438Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.438Z",
       "confirmedFields": [
         "max-resolution",
@@ -14177,9 +14177,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0401-h2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.443Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 4,
@@ -14196,7 +14196,7 @@
         "externalPsu": true,
         "powerSupply": "12V DC 1A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.443Z",
       "confirmedFields": [
         "max-resolution",
@@ -14350,12 +14350,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-120-tx3/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T09:07:59.182Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T09:07:59.182Z",
       "confirmedFields": [
         "max-resolution",
@@ -14490,16 +14490,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-120-tx3-uk/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.449Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "poh": true,
         "powerSupply": "2-way PoH; USB-C charging"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.449Z",
       "confirmedFields": [
         "max-resolution",
@@ -14771,12 +14771,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-130-tx-uk/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.453Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.453Z",
       "confirmedFields": [
         "max-resolution",
@@ -14896,16 +14896,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-220-tx-w/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.458Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.458Z",
       "confirmedFields": [
         "max-resolution",
@@ -15032,16 +15032,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-510-tx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.462Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC 2A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.462Z",
       "confirmedFields": [
         "max-resolution",
@@ -15178,16 +15178,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-515-rx/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.468Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC 2A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.468Z",
       "confirmedFields": [
         "max-resolution",
@@ -15358,16 +15358,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.474Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V 10A DC"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.474Z",
       "confirmedFields": [
         "max-resolution",
@@ -15498,9 +15498,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-640l-tx-w/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T08:41:50.952Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "routedInputs": 4,
@@ -15517,7 +15517,7 @@
         "externalPsu": true,
         "powerSupply": "20V 10A"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T08:41:50.952Z",
       "confirmedFields": [
         "max-resolution",
@@ -15636,9 +15636,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.480Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -15646,7 +15646,7 @@
         "poe": true,
         "powerSupply": "12V DC; PoE"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.480Z",
       "confirmedFields": [
         "power"
@@ -15731,9 +15731,9 @@
           "sourceUrl": "https://www.wyrestorm.com/product/syn-key10/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.485Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
       "specs": {
@@ -15741,7 +15741,7 @@
         "poe": true,
         "powerSupply": "12V DC 0.5A; PoE 802.3af"
       },
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.485Z",
       "confirmedFields": [
         "routed-io",
@@ -15862,12 +15862,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10-v2/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.491Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.491Z",
       "confirmedFields": [
         "max-resolution",
@@ -15978,12 +15978,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iw/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.497Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.497Z",
       "confirmedFields": [
         "max-resolution",
@@ -16115,12 +16115,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iw-kvm/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.504Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.504Z",
       "confirmedFields": [
         "max-resolution",
@@ -16250,12 +16250,12 @@
           "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iwc-kvm/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-08-16T10:23:16.510Z",
-          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
           "reviewedOn": "2026-08-16",
-          "reviewer": "Steve"
+          "reviewer": "Steve Goodwin"
         }
       ],
-      "verifiedBy": "Steve",
+      "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-08-16T10:23:16.510Z",
       "confirmedFields": [
         "max-resolution",
@@ -16898,15 +16898,6 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "4K30Hz 2x2 Wireless Presentation Switcher | 4K30Hz 4:4:4 | 2 HDMI Inputs | 2 HDMI Outputs | Seamless Switching | Multiview | USB-B Ethernet | Audio De-embed | USB 3.0 |  Airplay & Miracast | Wireless Casting & Conferencing (work with APO-DG2 & APO-DG2-PRO) | Sygma Cloud Management",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/sw-620l-tx-w",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
           "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
           "sourceType": "manufacturer",
           "checkedAt": "2026-09-30T11:10:45.104Z",
@@ -17132,21 +17123,20 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "Compact In-Desk Connectivity | HDMI & USB-C Passthrough | USB Charging | Multi-Standard Mains Outlet",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-200-ms",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "sourceType": "manufacturer",
+          "sourceUrl": "https://web.archive.org/web/20211205054437/https://www.wyrestorm.com/product/idb-200-ms/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-200-ms was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+          "reviewer": "Steve Goodwin",
+          "reviewedOn": "2026-09-30"
         },
         {
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-200-ms",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.776Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://web.archive.org/web/20211205054437/https://www.wyrestorm.com/product/idb-200-ms/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-200-ms was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -17283,21 +17273,20 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug)",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-sch",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "sourceType": "manufacturer",
+          "sourceUrl": "https://web.archive.org/web/20211205044459/https://www.wyrestorm.com/product/idb-pwr-sch/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-pwr-sch was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+          "reviewer": "Steve Goodwin",
+          "reviewedOn": "2026-09-30"
         },
         {
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-sch",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.830Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://web.archive.org/web/20211205044459/https://www.wyrestorm.com/product/idb-pwr-sch/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-pwr-sch was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -17333,21 +17322,20 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug)",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-uk",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "sourceType": "manufacturer",
+          "sourceUrl": "https://web.archive.org/web/20211205040608/https://www.wyrestorm.com/product/idb-pwr-uk/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-pwr-uk was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+          "reviewer": "Steve Goodwin",
+          "reviewedOn": "2026-09-30"
         },
         {
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-uk",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.837Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://web.archive.org/web/20211205040608/https://www.wyrestorm.com/product/idb-pwr-uk/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-pwr-uk was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -17434,21 +17422,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "RJ45 CAT6 | Passthrough coupling socket | Front RJ45 female | Back RJ45 female | Unshielded",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-rj45-c",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-rj45-c",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.844Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-na/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/idb-rj45-c) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (IDB-400 in-desk series page (series connectivity options)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -17484,21 +17463,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "HDMI | Passthrough coupling socket | Front HDMI female | Back HDMI female",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-hdmi-c",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-hdmi-c",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.814Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-na/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/idb-hdmi-c) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (IDB-400 in-desk series page (series connectivity options)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -17535,21 +17505,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "Carrier Keystone 2 ports | 45mm X 45mm | Black color",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-k2-c",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/idb-k2-c",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.821Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-na/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/idb-k2-c) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (IDB-400 in-desk series page (series connectivity options)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -18284,21 +18245,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "4K60Hz HDMI Scaling Output Card for MX-1616-SCL | 4K60Hz 4:4:4 | HDR | Audio De-embed(4K: 100m/328ft)",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdmi",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdmi",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.364Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-1616-scl/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/tx-scl-hdmi) was pruned (404, caught by the liveness gate). Replaced with the live official page that names this SKU verbatim (the official MX-1616-SCL matrix chassis page, whose card list enumerates TX-SCL-HDBT and TX-SCL-HDMI as the 16 output cards); no Wayback snapshot of the pruned page exists. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -18345,22 +18297,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "4K60H HDBaseT Scaling  Output Card for MX-1616-SCL | 4K60Hz 4:2:0 | HDR | PoH | Audio De-Embed (4K: 100m/328ft)",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdbt",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team",
-          "note": "Power facts from the official-page capture; structured for the compare power gate."
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdbt",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.357Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-1616-scl/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/tx-scl-hdbt) was pruned (404, caught by the liveness gate). Replaced with the live official page that names this SKU verbatim (the official MX-1616-SCL matrix chassis page, whose card list enumerates TX-SCL-HDBT and TX-SCL-HDMI as the 16 output cards); no Wayback snapshot of the pruned page exists. The card's HDBaseT reach (4K: 100m/328ft) is carried over from the pruned page's own capture; confirm HDBaseT class and reach against the next official card documentation. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -18407,21 +18349,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "Free iPad & Android Control App for NetworkHD 100, 200, 400, 500 and 600 Series",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/networkhd-touch™",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/networkhd-touch™",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.627Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-touch/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/networkhd-touch™) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (NetworkHD Touch free touchscreen control app page for the NetworkHD 100/400/500/600 Series). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -18544,22 +18477,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "Synergy Control Hub | 6x IR | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-ir-06",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team",
-          "note": "Power facts from the official-page capture; structured for the compare power gate."
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-ir-06",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:45.132Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/syn-ctl-hub-ir-06) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (SYN-CTL-HUB control-hub product line page (the variants are its option modules)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -18615,22 +18538,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "Synergy Control Hub | 4x Relay | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rl-04",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team",
-          "note": "Power facts from the official-page capture; structured for the compare power gate."
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rl-04",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:45.139Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/syn-ctl-hub-rl-04) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (SYN-CTL-HUB control-hub product line page (the variants are its option modules)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -18686,22 +18599,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "Synergy Control Hub | RS-232 | RS-422 | RS-485 | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rs-03",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team",
-          "note": "Power facts from the official-page capture; structured for the compare power gate."
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rs-03",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:45.147Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/syn-ctl-hub-rs-03) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (SYN-CTL-HUB control-hub product line page (the variants are its option modules)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -18757,22 +18660,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "Synergy Control Hub | 10x GPIO | PoE",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-io-10",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team",
-          "note": "Power facts from the official-page capture; structured for the compare power gate."
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-io-10",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:45.125Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/syn-ctl-hub-io-10) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (SYN-CTL-HUB control-hub product line page (the variants are its option modules)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19286,21 +19179,20 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "10m/32.8ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-10",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "sourceType": "manufacturer",
+          "sourceUrl": "https://web.archive.org/web/20210921021327/https://www.wyrestorm.com/product/cab-haoc-frl-10/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/cab-haoc-frl-10 was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+          "reviewer": "Steve Goodwin",
+          "reviewedOn": "2026-09-30"
         },
         {
-          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-10",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:43.966Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://web.archive.org/web/20210921021327/https://www.wyrestorm.com/product/cab-haoc-frl-10/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/cab-haoc-frl-10 was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19348,21 +19240,20 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-15",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "sourceType": "manufacturer",
+          "sourceUrl": "https://web.archive.org/web/20210921020949/https://www.wyrestorm.com/product/cab-haoc-frl-15/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/cab-haoc-frl-15 was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+          "reviewer": "Steve Goodwin",
+          "reviewedOn": "2026-09-30"
         },
         {
-          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-15",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:43.973Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://web.archive.org/web/20210921020949/https://www.wyrestorm.com/product/cab-haoc-frl-15/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/cab-haoc-frl-15 was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19592,21 +19483,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "0.5m/1.5ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-0.5",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-0.5",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.003Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-05) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19653,21 +19535,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "1m/3.2ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-1.0",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-1.0",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.010Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-10) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19714,21 +19587,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "2m/6.5ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-2.0",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-2.0",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.016Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-20) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19775,21 +19639,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "3m/9.8ft HDMI 2.0 Cable| 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-3.0",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-3.0",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.023Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-30) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19836,21 +19691,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "5m/16.4ft HDMI 2.0 Cable| 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-5.0",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-5.0",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.029Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-50) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19898,21 +19744,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "0.5m/1.5ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-0.5",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-0.5",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.037Z",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
           "reviewedOn": "2026-09-30",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-8kuhd-05) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-8KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -19960,21 +19797,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "1m/3.2ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-1.0",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-1.0",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.044Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the product's own page (https://www.wyrestorm.com/product/exp-8kuhd-1.0) was pruned (404, caught by the liveness gate); replaced with the live official family/configure-to-order page, which lists this SKU verbatim in its documentation. Spec values were confirmed at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -20022,21 +19850,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "2m/6.5ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-2.0",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-2.0",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.051Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the product's own page (https://www.wyrestorm.com/product/exp-8kuhd-2.0) was pruned (404, caught by the liveness gate); replaced with the live official family/configure-to-order page, which lists this SKU verbatim in its documentation. Spec values were confirmed at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -20084,21 +19903,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "3m/9.8ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-3.0",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-3.0",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.057Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-x/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the product's own page (https://www.wyrestorm.com/product/exp-8kuhd-3.0) was pruned (404, caught by the liveness gate); replaced with the live official family/configure-to-order page, which lists this SKU verbatim in its documentation. Spec values were confirmed at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -20210,21 +20020,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps(10Gbps/Lane) | 5K60Hz | 4K120Hz Alt Mode | USB3.2 Gen 2x2 |100w PD",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-1m",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-1m",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.066Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-xm/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the product's own page (https://www.wyrestorm.com/product/exp-cab-usbc-1m) was pruned (404, caught by the liveness gate); replaced with the live official family/configure-to-order page, which lists this SKU verbatim in its documentation. Spec values were confirmed at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -20274,21 +20075,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps(10Gbps/Lane) | 5K60Hz | 4K120Hz Alt Mode | USB3.2 Gen 2x2 | 100w PD",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-2m",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-2m",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.075Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-xm/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the product's own page (https://www.wyrestorm.com/product/exp-cab-usbc-2m) was pruned (404, caught by the liveness gate); replaced with the live official family/configure-to-order page, which lists this SKU verbatim in its documentation. Spec values were confirmed at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -20560,21 +20352,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "12V 1A Power Supply *Utilized by most of NetworkHD*",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-1a",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-1a",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.296Z",
-          "reviewedOn": "2026-09-30",
+          "sourceUrl": "https://web.archive.org/web/20240526033307/https://www.wyrestorm.com/product/psu-12v-1a/",
+          "checkedAt": "2026-09-30T00:00:00.000Z",
+          "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/psu-12v-1a was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
           "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-09-30"
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",

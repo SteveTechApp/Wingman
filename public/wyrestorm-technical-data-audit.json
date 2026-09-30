@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-09-30T11:13:20.772Z",
+  "generatedAt": "input-d13980dc0870",
+  "inputsHash": "d13980dc08709e8e3974c372164505f6afa1aa39e62da7e80013c34189fd5f81",
   "status": "passed",
   "passed": [
     "MX-0808-H2A-MK2 governed profile exists",

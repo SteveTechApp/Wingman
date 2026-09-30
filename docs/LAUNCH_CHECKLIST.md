@@ -25,6 +25,12 @@ Already verified via the repo's check suite — re-run before launch to confirm:
 - [ ] `npm run check:av-decisions` passes (AV safety rules + recommendation evidence).
 - [ ] `npm run check:data-sources` passes (canonical WyreStorm catalogue currently 314 products).
 - [ ] `npm run check:competitor-intelligence` passes.
+- [ ] Governed-profile confirmation current: every governed technical profile
+      human-verified with a named reviewer and date — recorded as evidence
+      criterion `governed-profile-confirmation`
+      ([2026-09-30 ledger](release-evidence/governed-profile-confirmation-2026-09-30.md):
+      206/206 verified; standing confirmation-aging / evidence-freshness /
+      evidence-liveness gates keep it current).
 - [ ] EXP guardrail spot-check: confirm no EXP-prefixed SKU is proposed as a **primary**
       switcher in a generated design (only as optional local/lectern switching or cables).
 - [ ] UC caveat appears where relevant: WyreStorm UC is Zoom-certified, **not** Teams-certified;

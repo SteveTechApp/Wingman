@@ -119,7 +119,11 @@ files against `lifecycle.csv`:
 3. `wingman-product-role-overrides.json`: recommendation eligibility requires
    an active/review match (or a family prefix with active members);
 4. `wingman-product-suppression-list.json` must not suppress a lifecycle-active
-   SKU.
+   SKU;
+5. governed profiles carry no bare-constant or placeholder `verifiedBy` — a
+   confirmation is attributed to the reviewer of record's full, byte-consistent
+   name (the 2026-08-16 "Steve" → "Steve Goodwin" re-signature is the
+   regression class; rule in `tools/lib/reviewer-attribution.mjs`).
 
 No exception path — reconcile the governance JSON with lifecycle, then re-run
 the gate (and `check:generated-manifests`, since governed profiles feed the
