@@ -30,8 +30,17 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { rejectBareReviewerAttributions, describeRejection } from "./lib/reviewer-attribution.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(__dirname, "..");
+// root honours WINGMAN_GOVERNANCE_ROOT so a test sandbox can redirect every
+// data path (same hermetic-override pattern as WINGMAN_PROFILES_FILE in the
+// review-pass tool); the gate must evaluate the sandbox's data, never fall
+// back to the real checkout - a mutation test that silently reads live data
+// would false-green.
+const root = process.env.WINGMAN_GOVERNANCE_ROOT
+  ? path.resolve(process.env.WINGMAN_GOVERNANCE_ROOT)
+  : path.resolve(__dirname, "..");
 
 function readJson(relativePath) {
   return JSON.parse(readFileSync(path.join(root, relativePath), "utf8"));
@@ -136,6 +145,18 @@ for (const entry of suppression.suppressedSkus ?? []) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// 5. Reviewer attribution: no bare constants or placeholder sign-offs.
+//    The 2026-08-16 passes were recorded `verifiedBy: "Steve"` and re-signed
+//    to "Steve Goodwin" on 2026-09-30; this section is the permanent guard
+//    against that regression class landing again. Rule lives in
+//    tools/lib/reviewer-attribution.mjs so the unit tests pin the exact
+//    rejection semantics the gate enforces.
+// ---------------------------------------------------------------------------
+for (const rejection of rejectBareReviewerAttributions(profiles)) {
+  fail(describeRejection(rejection));
+}
+
 if (problems.length) {
   console.error("[governance-data] Failed:");
   for (const problem of problems) console.error(`- ${problem}`);
@@ -146,5 +167,6 @@ console.log(
   `[governance-data] OK: ${profiles.profiles.length} profiles resolve to lifecycle, ` +
     `${Object.keys(wyrestormOverrides.exactSkuOverrides ?? {}).length} wyrestorm role overrides and ` +
     `${(wingmanOverrides.rules ?? []).length} wingman role overrides consistent with lifecycle, ` +
-    `${(suppression.suppressedSkus ?? []).length} suppression entries consistent.`,
+    `${(suppression.suppressedSkus ?? []).length} suppression entries consistent, ` +
+    `${profiles.profiles.filter((profile) => profile.verifiedBy).length} attributed sign-offs clean.`,
 );
