@@ -27,6 +27,39 @@ describe("site survey reconnect", () => {
     expect(getProjectEdits("project-offline").cableEdits["cable-1"].actualLengthMetres).toBe(18);
   });
 
+  it("suppresses the echo re-push when an adoption save lands", async () => {
+    setCableLength("project-echo", "cable-1", 21);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      ok: false,
+      outcome: "conflict",
+      error: "server revision is newer",
+      serverTimestamp: "2026-09-10T13:00:00.000Z",
+      edits: {
+        projectId: "project-echo",
+        cableEdits: { "cable-1": { cableId: "cable-1", actualLengthMetres: 18, confirmed: true } },
+        deviceEdits: {},
+        locationEdits: {},
+      },
+    }), { status: 409, headers: { "content-type": "application/json" } })));
+    expect((await pushEditsToBackend("project-echo")).outcome).toBe("conflict");
+
+    const fetchSpy = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      ok: true,
+      outcome: "synced",
+      serverTimestamp: "2026-09-10T13:30:00.000Z",
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchSpy);
+
+    await expect(resolveSurveyConflict("project-echo", "keep-server")).resolves.toMatchObject({ outcome: "synced" });
+    // Adoption is a local re-save of the server's own copy: nothing to push.
+    // Waiting past the 1s debounce proves the adoption echo schedules no
+    // re-push — previously it minted a phantom revision on the server.
+    await new Promise((resolve) => setTimeout(resolve, 1_100));
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(getProjectEdits("project-echo").cableEdits["cable-1"].actualLengthMetres).toBe(18);
+    expect(getProjectEdits("project-echo").synced).toBe(true);
+  });
+
   it("returns error and preserves local data after a failed upload", async () => {
     setCableLength("project-failure", "cable-1", 19);
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network unavailable")));

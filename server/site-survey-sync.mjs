@@ -14,8 +14,18 @@ function withLock(work) {
   return run;
 }
 
+// Bookkeeping is volatile local state: it changes on every save, adoption and
+// poll merge without the survey content changing. Hashing only the content
+// keeps replays (lost responses) and adoption echoes idempotent, so the
+// revision trail stays one revision per real edit.
+const CONTENT_EXCLUDED_KEYS = new Set(["projectId", "lastModified", "synced", "serverTimestamp"]);
+
 function fingerprint(edits) {
-  return crypto.createHash("sha256").update(JSON.stringify(edits ?? {})).digest("hex");
+  const content = {};
+  for (const [key, value] of Object.entries(edits ?? {})) {
+    if (!CONTENT_EXCLUDED_KEYS.has(key)) content[key] = value;
+  }
+  return crypto.createHash("sha256").update(JSON.stringify(content)).digest("hex");
 }
 
 async function readStore() {

@@ -15,6 +15,14 @@ describe("site survey sync contract", () => {
     expect(replay).toMatchObject({ outcome: "synced", idempotent: true, record: { serverTimestamp: "r1" } });
   });
 
+  it("keeps the revision trail one-per-edit when bookkeeping-only replays arrive", () => {
+    // Adoption/poll-ack echoes re-save the same survey content with fresh
+    // local bookkeeping; none of that is a new edit, so no revision is minted.
+    const first = decideSurveySync(undefined, { edits: edits(18) }, "r1").record;
+    const echo = decideSurveySync(first, { edits: { ...edits(18), lastModified: "2026-09-11T11:11:11.000Z", synced: true, serverTimestamp: "r1" } }, "r2");
+    expect(echo).toMatchObject({ outcome: "synced", idempotent: true, record: { serverTimestamp: "r1" } });
+  });
+
   it("rejects a stale different edit and returns the current record", () => {
     const current = decideSurveySync(undefined, { edits: edits(18) }, "r2").record;
     const stale = decideSurveySync(current, { edits: edits(42), baseServerTimestamp: "r1" }, "r3");

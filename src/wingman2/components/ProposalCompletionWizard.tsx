@@ -355,14 +355,19 @@ function ProposalCompletionWizardContent({
   // and are written by SiteSurveyChecklist / siteSurveyStorage. Tick on the
   // shared survey-edited event and cross-tab storage events so the
   // needs-site-survey flag below reflects the latest on-site confirmation
-  // state instead of going stale after a checkbox is toggled.
+  // state instead of going stale after a checkbox is toggled. Conflict
+  // adoptions and poll merges save from the server side and deliberately do
+  // not announce themselves as local edits, so tick on the sync-update event
+  // they dispatch as well.
   const [surveyTick, setSurveyTick] = useState(0);
   useEffect(() => {
     const refresh = () => setSurveyTick((tick) => tick + 1);
     window.addEventListener("wingman:survey-edited", refresh);
+    window.addEventListener("wingman:survey-sync-update", refresh);
     window.addEventListener("storage", refresh);
     return () => {
       window.removeEventListener("wingman:survey-edited", refresh);
+      window.removeEventListener("wingman:survey-sync-update", refresh);
       window.removeEventListener("storage", refresh);
     };
   }, []);
