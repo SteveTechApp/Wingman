@@ -180,6 +180,7 @@
     "check:governed-copy": "vitest run src/wingman2/pages/GovernedCopyConsistency.test.tsx",
     "check:governed-drift": "node tools/review-governed-profile-drift.mjs --strict",
     "check:evidence-liveness": "node tools/check-wyrestorm-evidence-liveness.mjs",
+    "report:confirmation-aging": "node tools/report-confirmation-aging.mjs",
     "check:competitor-evidence-liveness": "node tools/check-competitor-evidence-liveness.mjs",
     "check:governed-review-pass": "node tools/apply-governed-review-pass.mjs --check",
     "snapshot:competitor-decisions": "node tools/snapshot-competitor-match-decisions.mjs",

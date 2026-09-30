@@ -14,7 +14,11 @@ name: WyreStorm Evidence Freshness
 # dead or has moved to a different product slug (either side), when the
 # committed profiles carry field drift / a half-applied confirmation batch,
 # or when an approved competitor decision's outcome has flipped against the
-# current engine.
+# current engine. The sixth lane is deliberately report-only: the
+# confirmation-aging count is posted nightly so a recurring machine-tier
+# backlog is caught at the WARN threshold (14 days) - while the merge gate
+# that fires at the FAIL threshold (30 days) is still more than two weeks
+# away.
 
 on:
   schedule:
@@ -75,6 +79,19 @@ jobs:
         continue-on-error: true
         run: npm run check:governed-review-pass
 
+      # Confirmation-aging early warning (report-only): posts the unconfirmed /
+      # aging / overdue counts for machine-tier profiles so a recurring backlog
+      # surfaces here nightly, ~2 weeks before the 30-day merge gate would go
+      # red. It never fails on a non-zero count - ::warning:: annotations and
+      # this table row carry the signal; the technical-data gate on main
+      # remains the enforcement. The step CAN fail the job (via the summary
+      # check below) only when the reporter itself crashes - a blind early
+      # warning is a defect, not a clean zero.
+      - name: Report confirmation-aging counts
+        id: gate-aging-report
+        continue-on-error: true
+        run: npm run report:confirmation-aging -- --github-output --summary
+
       # The competitor-decision drift gate: the committed golden baseline in
       # data/governance/competitor-match-decisions.json must match the live
       # engine's outcome for every approved competitor row. An outcome flip
@@ -113,12 +130,14 @@ jobs:
             echo "| Evidence page liveness (WyreStorm) | ${{ steps.gate-liveness.outcome }} |"
             echo "| Governed field drift | ${{ steps.gate-drift.outcome }} |"
             echo "| Governed confirmation baseline | ${{ steps.gate-review-pass.outcome }} |"
+            echo "| Confirmation backlog (report-only) | ${{ steps.gate-aging-report.outputs.count_unconfirmed || 'n/a' }} unconfirmed · ${{ steps.gate-aging-report.outputs.count_aging || 'n/a' }} aging · ${{ steps.gate-aging-report.outputs.count_overdue || 'n/a' }} overdue — ${{ steps.gate-aging-report.outcome }} |"
             echo "| Competitor decision drift | ${{ steps.gate-competitor.outcome }} |"
             echo "| Approved competitor evidence liveness | ${{ steps.gate-evidence-competitor.outcome }} |"
           } >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ steps.gate-liveness.outcome }}" != "success" ] || \
              [ "${{ steps.gate-drift.outcome }}" != "success" ] || \
              [ "${{ steps.gate-review-pass.outcome }}" != "success" ] || \
+             [ "${{ steps.gate-aging-report.outcome }}" != "success" ] || \
              [ "${{ steps.gate-competitor.outcome }}" != "success" ] || \
              [ "${{ steps.gate-evidence-competitor.outcome }}" != "success" ]; then
             echo "::error::One or more freshness gates failed - see the run summary."
