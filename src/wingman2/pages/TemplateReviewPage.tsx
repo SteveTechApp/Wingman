@@ -29,10 +29,11 @@ import { proposalReadiness, type ProposalReadiness } from "../lib/proposalReadin
 import { searchProducts, type ProductSearchResult } from "../lib/productSearch";
 import { classifyProduct, checkRoleCompatibility } from "../lib/roleCompatibility";
 import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
+import { TemplateCompletionChecklist } from "../components/TemplateCompletionChecklist";
 import { templateImageFor } from "../lib/templateImages";
 import { templateBomRows, templateProducts, buildTemplateProposal, buildTemplateProject } from "../lib/templateReviewProposal";
 const includedStatuses = new Set(["included", "optional", "validate"]);
-const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
+const tabs = ["Overview", "Connectivity", "Equipment", "Complete room", "Proposal"] as const;
 type Tab = (typeof tabs)[number];
 const equipmentGroups = ["Required", "Requires validation", "Optional", "Third-party scope"] as const;
 type EquipmentGroup = (typeof equipmentGroups)[number];
@@ -318,6 +319,8 @@ export function TemplateReviewPage() {
             </section>
           </div>
         </div> : null}
+
+        {activeTab === "Complete room" ? <TemplateCompletionChecklist template={template} /> : null}
 
         {activeTab === "Proposal" ? <div className="wm-proposal-handoff">
           <section><span className="wm-status is-validate">{template.validationItems.length} unresolved</span><h2>{exportValidation.allowed ? "Proposal is ready with assumptions" : "Export blocked — resolve blockers first"}</h2><p>{exportValidation.allowed ? "The equipment schedule can move forward, but the following points remain unverified and will be labelled as assumptions." : "The proposal export validator has found issues that must be resolved before this template can be exported."}</p><div className="wm-proposal-readiness"><strong>{readinessScore}%</strong><span>Proposal readiness</span></div></section>
