@@ -117,6 +117,38 @@ have no exception path at all — see
 
 ## Approved exceptions
 
+### 2026-09-30 — Launch-prep governed-workflow styles (total:css raise)
+
+Reviewed exception recorded in `tools/wingman-size-budgets.json` for the
+`total:css` limit: **916,258 → 978,389 bytes** (+62,131 B, +6.8%; measured
+955.46 KiB emitted across 3 files). The 2026-09-07 baseline predated the
+launch-prep UI programme; the branch's stylesheet work since it nets
++561 source lines (+2,641/−2,080), concentrated in the governed workflow
+stylesheet:
+
+| Stylesheet | Net lines | Cause |
+|---|---|---|
+| `wingman-workflow-theme.css` | +1,407 | compare verdict-lead banner descendant selectors, the Complete-room checklist tab and coverage sections, the offline-sync conflict banner, and page-hero / workspace-chrome / navigation / analytics launch-prep styling, scoped under `html[data-wingman-route="compare"]` and sibling routes per the compare styling rules |
+| `wingman-route-overrides.css` | −1,022 | Phase-8-direction consolidation INTO the layered theme — the net growth is already after this reduction |
+| `wingman-sales-workspace.css` | +108 | sales workspace chrome for the launch flows |
+| `wingman-ui-consistency.css` | +54 | cross-page consistency pass |
+| `wingman-reference-theme.css` | +56 | reference-theme tokens for the new surfaces |
+| `wingman-voice-capture.css` | +17 | voice-capture affordances |
+
+The growth is the styling of shipped launch features (the Complete-room
+checklist tab, verdict banners, the conflict banner) and has no lighter
+option short of dropping the features. What was tried or rejected: the
+route-override consolidation already landed in the same window (−1,022
+lines); moving rules between files cannot reduce emitted bytes because every
+stylesheet ships; and duplicating page-scoped blocks is barred by the
+style-drift `pageSections` baseline. This raise is the one reviewed decision
+covering increments that accumulated across the programme without per-PR
+budget review — the ratchet's no-silent-growth purpose is preserved by
+pairing the raise with this cause list. The limit should travel back
+downward as the Phase 8 consolidation named in the budget's own remediation
+line lands (dead route-override removal and duplicate-rule consolidation once
+the stylesheet is fully layered).
+
 ### 2026-09-07 — Consolidated training and canonical design workflow
 
 Reviewed exception recorded for the AV technology training portal and the
