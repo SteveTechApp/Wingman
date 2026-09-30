@@ -13,7 +13,7 @@ import { specCriticalFieldLabel } from "../lib/governedConfirmationBacklog";
 function confirmedFieldLabel(field: string): string {
   // The review pass only records spec-critical keys; anything unexpected
   // renders as-is rather than being silently relabelled.
-  if (field === "max-resolution" || field === "routed-io" || field === "power") {
+  if (field === "max-resolution" || field === "routed-io" || field === "power" || field === "profile-scope") {
     return specCriticalFieldLabel(field);
   }
   return field;

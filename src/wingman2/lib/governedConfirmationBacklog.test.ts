@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   governedConfirmationBacklog,
   governedProfileFieldApplicability,
@@ -8,16 +8,32 @@ import {
   type AgingState,
 } from "./governedConfirmationBacklog";
 
+// The 2026-09-30 confirmation pass verified every profile in the tracked data,
+// so the real payload no longer contains an awaiting backlog. Demote two
+// SKUs (one passive cable, one UC device missing power data) back to the
+// machine-transcribed tier so the backlog classification, aging, and trail
+// scenarios below stay exercisable against a realistic mix.
+vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () => {
+  const actual = (await vi.importActual(
+    "../../../data/governance/wyrestorm-technical-profiles.json",
+  )) as { default: { profiles: Array<Record<string, unknown>> } };
+  const { governedProfilesWithStatus } = await import("./testHelpers/governedProfilesHarness");
+  return {
+    default: governedProfilesWithStatus(actual.default as never, ["CAB-HAOC-10", "HALO-30"], "verified-with-warning"),
+  };
+});
+
 describe("governed confirmation backlog", () => {
   it("reports every profile awaiting human confirmation, separating human-confirmed profiles", () => {
     const backlog = governedConfirmationBacklog();
 
     // The governed profile set (207 today: the governance audit merged the
     // NHD-500-TX-V2 / NHD-500-RX v2 / SYN-TOUCH10 v3 variant rows into their
-    // canonical profiles). 116 were human-verified; the rest are pending.
+    // canonical profiles). Every profile is human-verified since the
+    // 2026-09-30 pass, except the two the module mock above demotes.
     expect(backlog.total).toBe(206);
-    expect(backlog.humanVerified).toBe(116);
-    expect(backlog.awaiting.length).toBeGreaterThanOrEqual(22);
+    expect(backlog.humanVerified).toBe(204);
+    expect(backlog.awaiting.length).toBe(2);
   });
 
   it("splits the backlog into ready-to-confirm and need-data-work with consistent per-profile fields", () => {
@@ -25,7 +41,8 @@ describe("governed confirmation backlog", () => {
 
     expect(backlog.readyToConfirm + backlog.needDataWork).toBe(backlog.awaiting.length);
     // Applicability-aware review keeps passive/accessory records out of
-    // irrelevant resolution, routing and power queues.
+    // irrelevant resolution, routing and power queues: the demoted cable is
+    // ready (a profile-scope review), the UC device needs power data work.
     expect(backlog.readyToConfirm).toBeGreaterThan(0);
     expect(backlog.needDataWork).toBeGreaterThan(0);
 
@@ -65,7 +82,7 @@ describe("governed confirmation backlog", () => {
   it("exposes the reviewer trail for every human-confirmed profile", () => {
     const backlog = governedConfirmationBacklog();
 
-    expect(backlog.verified.length).toBe(116);
+    expect(backlog.verified.length).toBe(204);
     for (const profile of backlog.verified) {
       expect(profile.sku).toBeTruthy();
       expect(profile.verifiedBy).toBeTruthy();

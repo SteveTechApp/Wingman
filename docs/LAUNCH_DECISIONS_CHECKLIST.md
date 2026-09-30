@@ -79,7 +79,7 @@ Governed-review backlog (A1, ~90 profiles)
 
 | # | Action | Closes | Owner | When |
 |---|---|---|---|---|
-| A1 | Work the governed-profile confirmation backlog (90 SKUs, batches T1–T10 in the 2026-09-30 triage; `npm run check:governed-review-pass`) | unblocks `Verify (data)` → **PR #246 merge** | Engineering reviewer (Steve delegates) | now — the aging clock compounds daily |
+| A1 ✅ 2026-09-30 | Governed-profile confirmation backlog — DONE: 90 SKUs confirmed batch-wise R1–R5 (reviewer of record Steve Goodwin), zero overdue; `check:technical-data:strict` exits 0 | unblocked `Verify (data)` → **PR #246 merge** | Engineering reviewer (Steve delegates) | worked 2026-09-30 — clock no longer compounding |
 | A2 | Render stand-up per [`RENDER_STANDUP_RUNBOOK.md`](RENDER_STANDUP_RUNBOOK.md) §1–§5, including the §5 acceptance checks | produces staging (dependency of A3–A4) | Infrastructure | day of merge |
 | A3 | Authenticated staging load test: `npm run load-test` `--strict` against staging with the manifest budgets (p95 ≤ 1000 ms, p99 ≤ 2000 ms, error ≤ 1%) | `production-like-load` | Infrastructure + performance owner | within 30 days of launch date, not banked early |
 | A4 | Device UAT sessions per [`MOBILE_UAT_PLAN.md`](MOBILE_UAT_PLAN.md): two named accounts, three devices, Drills A–D, signed dated result | `mobile-sales-uat` + `offline-reconnect-uat` | Sales lead + mobile tester | within 90 days; any time staging is stable |

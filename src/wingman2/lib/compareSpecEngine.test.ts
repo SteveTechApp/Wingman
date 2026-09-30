@@ -183,11 +183,17 @@ describe("runSpecShowdown", () => {
     // The same trail is visible in the evidence-sources citations.
     expect(sheet.citations.some((citation) => citation.label === "WyreStorm human-reviewed source" && citation.url === sheet.reviewerEvidence?.url)).toBe(true);
 
-    // An awaiting (machine-transcribed) profile never claims a reviewer trail:
-    // FOCUS-100 has a governed profile but no reviewer has recorded verifiedBy.
+    // A machine-transcribed profile never claims a reviewer trail - that
+    // honesty rule is pinned hermetically in
+    // governedProductTechnicalData.humanVerified.test.ts. FOCUS-100 was
+    // confirmed in confirmation pass 3 (2026-09-30), so its sheet now carries
+    // the real trail the pass recorded.
     const focus = entries.find((candidate) => candidate.sku === "FOCUS-100");
     expect(focus).toBeDefined();
-    expect(normalizeWyrestorm(focus!).reviewerEvidence).toBeUndefined();
+    expect(normalizeWyrestorm(focus!).reviewerEvidence).toMatchObject({
+      reviewer: "Steve Goodwin",
+      reviewedOn: "2026-09-30",
+    });
   });
 
   it("does not confuse a paired receiver reference with a complete extender kit", async () => {

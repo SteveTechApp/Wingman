@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-02T08:09:00.388Z",
+  "generatedAt": "2026-09-30T11:13:20.772Z",
   "status": "passed",
   "passed": [
     "MX-0808-H2A-MK2 governed profile exists",
@@ -26,6 +26,8 @@
     "Canonical CSV does not claim USB support",
     "Canonical CSV explicitly excludes HDBaseT outputs"
   ],
-  "warnings": [],
+  "warnings": [
+    "TX-SCL-HDMI: verified matrix lacks connector-level video input/output data"
+  ],
   "errors": []
 }

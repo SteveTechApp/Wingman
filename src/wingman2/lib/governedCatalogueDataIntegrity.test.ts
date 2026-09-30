@@ -28,13 +28,27 @@ describe("governed WyreStorm catalogue integrity", () => {
   const products = new Map<string, RecordValue>(canonical.products.map((product: RecordValue) => [product.sku, product]));
   const verified = governance.profiles.filter((profile: RecordValue) => /^verified(?:-with-warning)?$/i.test(profile.status));
 
-  it("publishes every verified profile or its explicit canonical alias", () => {
-    const explicitAliases: Record<string, string> = {};
-    const missing = verified
-      .filter((profile: RecordValue) => !products.has(profile.sku) && !products.has(explicitAliases[profile.sku]))
+  it("publishes every verified profile in the store or ledger it out via lifecycle", () => {
+    // Confirmation pass 3 (2026-09-30) verified 21 profile-only accessory
+    // records (power supplies, Dante converters, control hubs, 8K cable
+    // lengths, an ink-multiview switcher) that the canonical store never
+    // carried: most are deliberately out of the specifiable catalogue
+    // ("Coming Soon", family do-not-spec, profile-evidence-only). A verified
+    // profile must therefore be published in the store OR hold an explicit
+    // lifecycle-ledger row - a profile that is neither is the defect.
+    const lifecyclePath = path.join(process.cwd(), "data-sources/wyrestorm/lifecycle.csv");
+    const lifecycleLedger = new Set(
+      fs.readFileSync(lifecyclePath, "utf8")
+        .split(/\r?\n/)
+        .slice(1)
+        .filter(Boolean)
+        .map((line) => line.split(",")[0].trim()),
+    );
+    const unresolved = verified
+      .filter((profile: RecordValue) => !products.has(profile.sku) && !lifecycleLedger.has(profile.sku))
       .map((profile: RecordValue) => profile.sku);
 
-    expect(missing).toEqual([]);
+    expect(unresolved).toEqual([]);
   });
 
   it("makes reviewed functional ports authoritative in generated product data", () => {
