@@ -58,6 +58,12 @@ function manifestScopes(root = DEFAULT_PROJECT_ROOT) {
 // row to one manifest's overrides block (default "root").
 const OVERRIDE_FLOORS = [
   {
+    overrideKey: "brace-expansion",
+    packageName: "brace-expansion",
+    floor: "1.1.21",
+    why: "brace-expansion GHSA-q2hr-2g5m-vwhr / GHSA-qhr7-859c-m2p7 / GHSA-6j4f-fj2g-mc7p (ReDoS and stack-exhaustion DoS in brace rewriting) were fixed by 1.1.19/1.1.20/1.1.21 on the 1.x line; the family override also lifts the nested 5.x copies, which have their own fixed releases",
+  },
+  {
     manifest: "server",
     overrideKey: "qs",
     packageName: "qs",
