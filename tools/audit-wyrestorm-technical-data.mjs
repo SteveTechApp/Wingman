@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { deterministicGeneratedAt, inputsHashOf, writeDeterministicArtifactPair } from "./lib/deterministic-artifact-writer.mjs";
 
 const root = process.cwd();
 const governancePath = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
@@ -7,8 +8,13 @@ const productsPath = path.join(root, "data-sources", "wyrestorm", "products.csv"
 const jsonOutput = path.join(root, "public", "wyrestorm-technical-data-audit.json");
 const markdownOutput = path.join(root, "docs", "wyrestorm-technical-data-audit.md");
 
-const governance = JSON.parse(fs.readFileSync(governancePath, "utf8"));
+const governanceRaw = fs.readFileSync(governancePath, "utf8");
 const productsCsv = fs.readFileSync(productsPath, "utf8");
+const governance = JSON.parse(governanceRaw);
+// Deterministic provenance: the artifact's timestamp is derived from the
+// hashed INPUT bytes, not the wall clock, so an unchanged-data rerun renders
+// byte-identical artifacts and writes nothing (no git churn).
+const inputsHash = inputsHashOf(governanceRaw, productsCsv);
 
 const errors = [];
 const warnings = [];
@@ -147,21 +153,18 @@ if (targetLine) {
 }
 
 const result = {
-  generatedAt: new Date().toISOString(),
+  generatedAt: deterministicGeneratedAt({ inputsHash }),
+  inputsHash,
   status: errors.length ? "failed" : "passed",
   passed,
   warnings,
   errors,
 };
 
-fs.mkdirSync(path.dirname(jsonOutput), { recursive: true });
-fs.mkdirSync(path.dirname(markdownOutput), { recursive: true });
-fs.writeFileSync(jsonOutput, `${JSON.stringify(result, null, 2)}\n`, "utf8");
-
 const markdown = [
   "# WyreStorm Technical Data Audit",
   "",
-  `Generated: ${result.generatedAt}`,
+  `Generated: ${result.generatedAt} (inputs ${inputsHash.slice(0, 12)})`,
   "",
   `Status: **${result.status.toUpperCase()}**`,
   "",
@@ -179,7 +182,10 @@ const markdown = [
   "",
 ].join("\n");
 
-fs.writeFileSync(markdownOutput, markdown, "utf8");
+const write = writeDeterministicArtifactPair({ jsonPath: jsonOutput, markdownPath: markdownOutput, payload: result, markdown });
+if (!write.changed) {
+  console.log(`[wyrestorm-technical-data] artifacts unchanged - no write (deterministic rerun)`);
+}
 
 console.log(`[wyrestorm-technical-data] ${result.status.toUpperCase()}`);
 console.log(`[wyrestorm-technical-data] ${passed.length} passed, ${warnings.length} warnings, ${errors.length} errors`);
