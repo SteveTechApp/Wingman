@@ -173,10 +173,11 @@ describe("runSpecShowdown", () => {
 
     const sheet = normalizeWyrestorm(entry!);
     // Human-verified governed profile: the tier and the reviewer trail travel
-    // together, with the official source the reviewer confirmed against.
+    // together, with the official source the reviewer confirmed against. (The
+    // 2026-08-16 pass was re-signed to the reviewer of record's full name.)
     expect(sheet.verificationStatus).toBe("verified");
     expect(sheet.reviewerEvidence).toMatchObject({
-      reviewer: "Steve",
+      reviewer: "Steve Goodwin",
       reviewedOn: "2026-08-16",
     });
     expect(sheet.reviewerEvidence?.url).toContain("wyrestorm.com/product/mx-0808-scl");

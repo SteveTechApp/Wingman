@@ -95,6 +95,20 @@
       "closureCondition": "Attach a dated operational export after a representative production observation window."
     },
     {
+      "id": "governed-profile-confirmation",
+      "title": "Governed-profile confirmation pass (human-verified technical data)",
+      "evidenceType": "human",
+      "claimedStatus": "pass",
+      "measuredAt": "2026-09-30",
+      "artifactPath": "docs/release-evidence/governed-profile-confirmation-2026-09-30.md",
+      "approver": {
+        "name": "Steve Goodwin",
+        "role": "Release owner"
+      },
+      "owner": "Engineering reviewer + release owner",
+      "closureCondition": "Attach a dated confirmation ledger: every governed technical profile human-verified with a named reviewer and confirmation date, zero awaiting or overdue, and the standing confirmation-aging, evidence-freshness, and evidence-liveness gates green."
+    },
+    {
       "id": "product-index-split-waterfall",
       "title": "Product-intelligence eager payload split (network waterfall audit)",
       "evidenceType": "staging",
