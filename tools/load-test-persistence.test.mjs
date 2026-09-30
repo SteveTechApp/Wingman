@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildEvidenceArtifact,
+  buildEvidenceMetrics,
+  buildManifestRowTemplate,
   buildMarkerCleanupPlan,
   buildRunCleanupPlan,
   checkOwnerRows,
@@ -561,5 +563,49 @@ describe("buildEvidenceArtifact", () => {
     });
     expect(content).toContain("| project-save | 100/100 | 2500 | 5000 | 0.00% | FAIL |");
     expect(content).toContain("**NO**");
+  });
+
+  it("emits a same-stem JSON sidecar whose aggregate is the worst budgeted scenario", () => {
+    const { sidecar, metrics } = buildEvidenceArtifact({
+      criterionId: "production-like-load",
+      level: "standard",
+      users: 3,
+      payload: "standard",
+      storageDetails,
+      analyses: passingAnalyses,
+      measuredAtIso: "2026-09-30T09:00:00.000Z",
+    });
+    expect(sidecar.fileName).toBe("load-test-standard-2026-09-30.json");
+    const sidecarData = JSON.parse(sidecar.content);
+    expect(sidecarData.criterionId).toBe("production-like-load");
+    expect(sidecarData.measuredAt).toBe("2026-09-30T09:00:00.000Z");
+    expect(sidecarData.allBudgetsMet).toBe(true);
+    // Worst case governs: p95/p99/error are the maxima across budgeted rows.
+    expect(sidecarData.metrics).toEqual({ p95Ms: 1200, p99Ms: 3000, errorRate: 0 });
+    expect(sidecarData.perScenario).toHaveLength(2);
+    expect(sidecarData.perScenario.some((row) => row.scenario === "payload-413")).toBe(false);
+    expect(metrics.aggregate).toEqual(sidecarData.metrics);
+  });
+
+  it("builds the paste-ready manifest row with the recorded budgets and run metrics", () => {
+    const row = JSON.parse(
+      buildManifestRowTemplate({
+        criterionId: "production-like-load",
+        artifactPath: "docs/release-evidence/load-test-standard-2026-09-30.md",
+        measuredAtIso: "2026-09-30T09:00:00.000Z",
+        metrics: { aggregate: { p95Ms: 1200, p99Ms: 3000, errorRate: 0 } },
+      }),
+    );
+    expect(row).toMatchObject({
+      id: "production-like-load",
+      claimedStatus: "pass",
+      measuredAt: "2026-09-30T09:00:00.000Z",
+      artifactPath: "docs/release-evidence/load-test-standard-2026-09-30.md",
+      budgets: { maxP95Ms: 1000, maxP99Ms: 2000, maxErrorRate: 0.01 },
+      metrics: { p95Ms: 1200, p99Ms: 3000, errorRate: 0 },
+    });
+    // The only blank the reviewer fills: the approver name.
+    expect(row.approver.name).toContain("REVIEWER NAME");
+    expect(row.approver.role).toBeTruthy();
   });
 });
