@@ -4,7 +4,7 @@ import governedTechnicalProfiles from "../../../../data/governance/wyrestorm-tec
 import { downloadBlob } from "../../lib/downloadBlob";
 import { confirmGovernedProfile } from "../../api/wingmanApi";
 import { governedProfileFieldApplicability } from "../../lib/governedConfirmationBacklog";
-import { confirmationGroupView, confirmationGroupForSku, type GroupingKind } from "../../lib/governedConfirmationBatches";
+import { confirmationGroupView, confirmationRowTagsForSku, type GroupingKind } from "../../lib/governedConfirmationBatches";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -105,6 +105,11 @@ const STATUS_ORDER: Record<string, number> = {
   "verified-with-warning": 1,
   "review-required": 2,
 };
+
+// Row provenance tags (R-batch + T-family chips) come from the groupings
+// data, so the map is static for the life of the session - build it once and
+// give memoized rows a stable lookup function as a module-level identity.
+const rowTagsForSku = (sku: string) => confirmationRowTagsForSku(sku);
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -745,6 +750,18 @@ const ProfileRow = memo(function ProfileRow({
         <td onClick={() => onToggle(profile.sku)}>
           <strong>{profile.sku}</strong>
           <small>{profile.role}</small>
+          {rowTagsForSku(profile.sku).length > 0 ? (
+            <span
+              className="wm-governed-row-tags"
+              title="Triage provenance: reviewer batch (R) and product family (T) from the confirmation triage"
+            >
+              {rowTagsForSku(profile.sku).map((tag) => (
+                <span key={tag.kind + tag.id} className={`wm-governed-row-tag wm-governed-row-tag--${tag.kind}`}>
+                  {tag.id}
+                </span>
+            ))}
+            </span>
+          ) : null}
         </td>
         <td onClick={() => onToggle(profile.sku)}>
           <span className="wm-governed-class-badge">

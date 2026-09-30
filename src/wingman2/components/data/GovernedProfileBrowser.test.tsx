@@ -235,6 +235,32 @@ describe("GovernedProfileBrowser download deferral", () => {
     expect(screen.queryByText(/governed profiles in T5/)).toBeNull();
   });
 
+  it("shows triage provenance chips on grouped rows and none on ungrouped rows", () => {
+    render(<GovernedProfileBrowser />);
+
+    // APO-COM-MIC is a triage-listed SKU (R3 batch, T5 family): its row shows
+    // both provenance chips regardless of which grouping is active, since the
+    // chips are static dual provenance rather than a reflection of the strip.
+    const micRow = screen.getByRole("button", { name: "Edit APO-COM-MIC" }).closest("tr") as HTMLTableRowElement;
+    const micChips = Array.from(micRow.querySelectorAll(".wm-governed-row-tag")).map((chip) => chip.textContent);
+    expect(micChips).toEqual(["R3", "T5"]);
+
+    // The batch/family strip SKUs are not distinguishable by grouping: switch
+    // the strip to families and the chips are unchanged (provenance, not
+    // view state).
+    fireEvent.click(screen.getByRole("button", { name: "Product families" }));
+    const micChipsAfterToggle = Array.from(
+      (screen.getByRole("button", { name: "Edit APO-COM-MIC" }).closest("tr") as HTMLTableRowElement).querySelectorAll(".wm-governed-row-tag"),
+    ).map((chip) => chip.textContent);
+    expect(micChipsAfterToggle).toEqual(["R3", "T5"]);
+
+    // The AMP fixture SKUs are confirmed outside any triage grouping - no
+    // invented provenance, the honest state is no chip.
+    const ampRow = screen.getByRole("button", { name: "Edit AMP-2120" }).closest("tr") as HTMLTableRowElement;
+    expect(ampRow.querySelectorAll(".wm-governed-row-tag").length).toBe(0);
+    expect(ampRow.querySelector(".wm-governed-row-tags")).toBeNull();
+  });
+
   it("requires confirmation before deleting a row", () => {
     const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValueOnce(true);
     render(<GovernedProfileBrowser />);
