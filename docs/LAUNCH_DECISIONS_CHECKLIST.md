@@ -61,4 +61,34 @@ Cost: none. Unblocks: the launch sequence and the observation-window evidence.
 ☐ **All five approved as recommended** → start [`RENDER_STANDUP_RUNBOOK.md`](RENDER_STANDUP_RUNBOOK.md) this week.
 ☐ **Any override** → re-run the affected section of the brief before the stand-up is scheduled.
 
+---
+
+## 6 · Evidence criteria action plan (added 2026-09-30)
+
+The [`release-evidence-manifest.json`](release-evidence/release-evidence-manifest.json)
+holds three closed criteria (waterfall split, SSRF guard coverage, offline sync
+resilience) and four still blocked — all on external evidence, none on missing
+tooling. Critical path and owners:
+
+```
+Governed-review backlog (A1, ~90 profiles)
+  └─ unblocks PR #246 merge → Render stand-up (A2)
+        └─ staging exists → load test (A3)  ‖  device UAT (A4, parallel)
+                                            └─ production → 30-day window (A5)
+```
+
+| # | Action | Closes | Owner | When |
+|---|---|---|---|---|
+| A1 | Work the governed-profile confirmation backlog (90 SKUs, batches T1–T10 in the 2026-09-30 triage; `npm run check:governed-review-pass`) | unblocks `Verify (data)` → **PR #246 merge** | Engineering reviewer (Steve delegates) | now — the aging clock compounds daily |
+| A2 | Render stand-up per [`RENDER_STANDUP_RUNBOOK.md`](RENDER_STANDUP_RUNBOOK.md) §1–§5, including the §5 acceptance checks | produces staging (dependency of A3–A4) | Infrastructure | day of merge |
+| A3 | Authenticated staging load test: `npm run load-test` `--strict` against staging with the manifest budgets (p95 ≤ 1000 ms, p99 ≤ 2000 ms, error ≤ 1%) | `production-like-load` | Infrastructure + performance owner | within 30 days of launch date, not banked early |
+| A4 | Device UAT sessions per [`MOBILE_UAT_PLAN.md`](MOBILE_UAT_PLAN.md): two named accounts, three devices, Drills A–D, signed dated result | `mobile-sales-uat` + `offline-reconnect-uat` | Sales lead + mobile tester | within 90 days; any time staging is stable |
+| A5 | Production deploy, then agree window length + operational export with Operations | `production-observation-window` | Operations + product analytics | last; only after first real deploy |
+
+Sequencing rules: the two 30-day expiries mean A3 and A5 are measured **near**
+launch; the two 90-day human criteria can be banked as soon as staging is
+stable. No new tooling is required — every criterion already has its
+instrument; the bottleneck is human sign-off, not code. Transfer outcomes to
+[`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) §4 as each row closes.
+
 Sign-off: Steve ______________ date __________ · Transfer results to [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) (§4 go/no-go + §"Decisions still required") before leaving the meeting.
