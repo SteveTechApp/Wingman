@@ -157802,7 +157802,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [],
         "evidence": []
       },
@@ -158019,6 +158021,13 @@
         "confirmedFields": [
           "profile-scope"
         ]
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": null,
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": null
       }
     },
     "salesLanguage": {
@@ -158218,7 +158227,22 @@
         "NetworkHD controller (NHD-CTL-PRO-V2) on the same managed 1GbE network for route and device control"
       ],
       "compatibleFamilies": [],
-      "quoteWarnings": ""
+      "quoteWarnings": "",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": null,
+      "evidenceUrl": null
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     }
   },
   {
