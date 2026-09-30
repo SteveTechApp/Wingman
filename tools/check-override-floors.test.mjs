@@ -42,6 +42,7 @@ describe("specFloor", () => {
 
 const CLEAN_PACKAGE = {
   overrides: {
+    "brace-expansion": "^1.1.21",
     browserslist: "^4.28.8",
     "postcss-selector-parser@^6.0.10": "^6.1.4",
     "fast-uri": "^3.1.7",
@@ -51,6 +52,7 @@ const CLEAN_PACKAGE = {
 
 const CLEAN_LOCK = {
   packages: {
+    "node_modules/brace-expansion": { version: "1.1.21" },
     "node_modules/browserslist": { version: "4.28.8" },
     "node_modules/postcss-selector-parser": { version: "6.1.4" },
     "node_modules/fast-uri": { version: "3.1.7" },
@@ -81,7 +83,7 @@ describe("collectOverrideFloorProblems", () => {
 
   it("fails when the browserslist override is removed entirely", () => {
     const { overrides, ...rest } = CLEAN_PACKAGE;
-    expectOneProblemMatching({ ...rest, overrides: { "postcss-selector-parser@^6.0.10": "^6.1.4" } }, CLEAN_LOCK, /browserslist/);
+    expectOneProblemMatching({ ...rest, overrides: { "brace-expansion": overrides["brace-expansion"], "postcss-selector-parser@^6.0.10": "^6.1.4" } }, CLEAN_LOCK, /browserslist/);
   });
 
   it("fails when the postcss-selector-parser override is removed entirely", () => {
@@ -288,7 +290,9 @@ function sandboxPackageJson(overrides) {
   return {
     name: "override-floor-drill-fixture",
     private: true,
-    overrides: { "js-yaml": "^4.3.2", ...overrides },
+    // Mirrors the real manifest: every floor row present and at its floor,
+    // so a drill's under-floor scenario is the only thing that can trip.
+    overrides: { "brace-expansion": "^1.1.21", "js-yaml": "^4.3.2", ...overrides },
     dependencies: { autoprefixer: "^10.4.20" },
   };
 }
