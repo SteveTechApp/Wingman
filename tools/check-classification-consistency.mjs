@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
-const indexPath = path.join(projectRoot, "public", "product-intelligence-index.json");
+const indexPath = path.join(projectRoot, "public", "product-intelligence-summary.json");
 
 function lower(value) {
   return String(value ?? "").toLowerCase();

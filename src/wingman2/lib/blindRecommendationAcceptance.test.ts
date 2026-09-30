@@ -11,7 +11,8 @@ type CustomerInput = { application: string; sourceCount?: number; displayCount?:
 type Scenario = { id: string; input: CustomerInput; expected: { architecture: string; bom: Array<{ sku: string; quantity: number }>; requiredDependencies: string[]; forbidden: string[]; missingInformation: string[]; quoteSafety: "quote-ready" | "validate-before-quote" | "do-not-quote-yet" } };
 
 const scenarios = (JSON.parse(readFileSync("data/wingman-blind-recommendation-scenarios.json", "utf8")) as { scenarios: Scenario[] }).scenarios;
-const catalog = JSON.parse(readFileSync("public/product-intelligence-index.json", "utf8"));
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
+const catalog = { products: fullProductIndexRecords };
 
 function toBrief(input: CustomerInput): StoredDiscoveryBrief {
   const endpoint = input.distancesByScope?.endpointRouteMetres;
@@ -29,7 +30,7 @@ function bomDiagnostic(expected: Scenario["expected"]["bom"], actual: Array<{ sk
 }
 
 beforeAll(() => {
-  vi.stubGlobal("fetch", vi.fn(async (request: string | URL | Request) => String(request).includes("/api/product-intelligence") ? new Response(JSON.stringify({ records: [] }), { status: 200 }) : String(request).includes("/product-intelligence-index.json") ? new Response(JSON.stringify(catalog), { status: 200 }) : new Response("not found", { status: 404 })));
+  vi.stubGlobal("fetch", vi.fn(async (request: string | URL | Request) => String(request).includes("/api/product-intelligence") ? new Response(JSON.stringify({ records: [] }), { status: 200 }) : String(request).includes("/product-intelligence-summary.json") ? new Response(JSON.stringify(catalog), { status: 200 }) : new Response("not found", { status: 404 })));
   clearProductIntelligenceIndexCache();
 });
 

@@ -45,7 +45,7 @@ function requireCondition(condition, message, errors) {
 async function main() {
   const errors = [];
   const canonical = await readJson("data/wingman-canonical-product-store.json");
-  const index = await readJson("public/product-intelligence-index.json");
+  const index = await readJson("public/product-intelligence-summary.json");
   const queue = await readJson("data/wingman-data-maintenance-queue.json");
   const report = await readJson("reports/wingman-data-maintenance-report.json");
   const manifest = await readJson("data/catalog/product-data-manifest.generated.json");

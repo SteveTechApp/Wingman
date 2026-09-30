@@ -34,6 +34,8 @@ const KNOWN_DYNAMIC_ALLOWLIST = new Set([
   "src/wingman2/lib/competitorMatchDecisionSnapshot.ts",
   // Audit entrypoint bundled and dynamically imported by tools/check-template-realism.mjs, never by live pages.
   "src/wingman2/lib/templateRealismAuditEntry.ts",
+  // Test-only fixture world: summary + per-SKU detail merged into full records for spec-asserting tests (see tools/lib/wingman-product-index-records.mjs for the Node twin).
+  "src/wingman2/lib/testHelpers/fullProductIndexRecords.ts",
 ]);
 
 function isTestFile(filePath) {

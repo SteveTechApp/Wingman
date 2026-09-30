@@ -1,15 +1,22 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import { fullProductIndexRecords } from "../lib/testHelpers/fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
 import { DISCOVERY_BRIEF_KEY } from "../data/workflowHandoff";
 import { RecommendationsPage } from "./RecommendationsPage";
 
 // The real product-intelligence index drives the same selector the live app
 // uses, so the match cards carry real governed spec evidence.
-vi.mock("../lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
-}));
+vi.mock("../lib/productIntelligenceIndexCache", async () => {
+  const { fullProductIndexRecords } = await import("../lib/testHelpers/fullProductIndexRecords");
+  const index = { products: fullProductIndexRecords };
+  return {
+    loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue(index),
+  };
+});
 
 // A room brief that maps to a 3-4-in / 2-out, USB 3.x presentation switcher
 // requirement - exactly the profile SW-640L-TX-W passes via governed evidence.

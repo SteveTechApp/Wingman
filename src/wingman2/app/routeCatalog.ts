@@ -113,15 +113,22 @@ export const routeCatalogByKey = Object.fromEntries(
 
 export const consolidatedPrimaryNavKeys = [
   "dashboard",
-  "callCoach",
+  "discovery",
   "products",
-  "templates",
   "compare",
-  "documents",
+  "responsePack",
   "projects",
-  "learn",
-  "profile",
 ] as const satisfies readonly WingmanRouteKey[];
+
+export function primarySectionForRoute(key: WingmanRouteKey): (typeof consolidatedPrimaryNavKeys)[number] | null {
+  if (consolidatedPrimaryNavKeys.some((item) => item === key)) return key as (typeof consolidatedPrimaryNavKeys)[number];
+  if (["callCoach", "salesHelper", "callCards", "templates", "videowall"].includes(key)) return "discovery";
+  if (["catalogBrowser", "productFamilies", "productCallCards", "productPitch", "recommendations"].includes(key)) return "products";
+  if (key === "battleCards") return "compare";
+  if (["documents", "ingest", "proposal", "proposalVisuals"].includes(key)) return "responsePack";
+  if (key === "quoteSafetyDashboard") return "projects";
+  return null;
+}
 
 export const consolidatedRouteGroups = {
   callCoach: ["productCallCards", "discovery", "compare"],

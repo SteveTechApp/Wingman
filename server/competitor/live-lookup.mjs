@@ -3,6 +3,7 @@ import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { writeJsonFileAtomic } from "../atomic-json-file.mjs";
 import { COMPETITOR_LIVE_LOOKUP_DB_FILE as LIVE_LOOKUP_DB_FILE } from "../catalog/files.mjs";
 import { normaliseProductTechnology } from "./technology-normalizer.mjs";
+import { assertSyncFetchTarget } from "../security/safe-fetch-target.mjs";
 
 const LIVE_LOOKUP_MEMORY_CACHE = new Map();
 /* COMPETITOR-LIVE-LOOKUP-ALLOWLIST-GUARD-START */
@@ -464,6 +465,9 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_TIMEOUT_M
 
   try {
     assertAllowedCompetitorLookupUrl(url);
+    // Sync pre-flight: IP literals (any spelling, incl. embedded-IPv4 forms)
+    // and local names are refused before the allowlist fetch begins.
+    assertSyncFetchTarget(url);
     return await fetch(url, {
       ...options,
       signal: controller.signal,

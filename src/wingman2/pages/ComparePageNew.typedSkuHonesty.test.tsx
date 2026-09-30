@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import { fullProductIndexRecords } from "../lib/testHelpers/fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
 
 const { runCompetitorMatchMock } = vi.hoisted(() => ({
   runCompetitorMatchMock: vi.fn(),
@@ -21,9 +22,15 @@ vi.mock("../api/wingmanApi", async () => {
   };
 });
 
-vi.mock("../lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
-}));
+vi.mock("../lib/productIntelligenceIndexCache", async () => {
+  const { fullProductIndexRecords } = await import("../lib/testHelpers/fullProductIndexRecords");
+  const index = { products: fullProductIndexRecords };
+  return {
+    loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue(index),
+  };
+});
 
 import ComparePageNew from "./ComparePageNew";
 

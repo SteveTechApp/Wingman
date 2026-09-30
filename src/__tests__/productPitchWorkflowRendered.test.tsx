@@ -4,13 +4,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { saveProductSelectionToCurrentProject } from "@/wingman2/data/projectStore";
 import { readProductWorkspaceHandoff, writeProductWorkspaceHandoff } from "@/wingman2/data/productWorkspaceHandoff";
-import { loadProductIntelligenceIndex } from "@/wingman2/lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceIndex, loadProductIntelligenceSummary } from "@/wingman2/lib/productIntelligenceIndexCache";
 import { buildProductPitchSalesGuidance } from "@/wingman2/lib/productPitchGuidance";
 import type { ProductNarrative, ProductSpec } from "@/wingman2/lib/productStoryEngine";
 import ProductPitchPage from "@/wingman2/pages/ProductPitchPage";
 
 vi.mock("@/wingman2/lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockRejectedValue(new Error("offline test fallback")),
+  loadProductIntelligenceIndex: vi.fn().mockImplementation(() => Promise.resolve(undefined)),
+  loadProductIntelligenceSummary: vi.fn().mockImplementation(() => Promise.resolve(undefined)),
+  loadProductIntelligenceDetailRecords: vi.fn().mockImplementation(() => Promise.resolve(undefined)).mockRejectedValue(new Error("offline test fallback")),
 }));
 
 vi.mock("@/wingman2/data/productMedia", () => ({
@@ -182,7 +184,7 @@ describe("Product Pitch rendered workflow", () => {
   });
 
   it("empty search does not render the general catalogue list", async () => {
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
       products: [
         makeProduct("MXV-0404-H2A-KIT", {
           name: "4x4 HDBaseT Matrix Kit",
@@ -219,7 +221,7 @@ describe("Product Pitch rendered workflow", () => {
   });
 
   it("two-character search activates results while hiding cables and accessories by default", async () => {
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
       products: [
         makeProduct("MXV-0404-H2A-KIT", {
           name: "4x4 HDBaseT Matrix Kit",
@@ -258,7 +260,7 @@ describe("Product Pitch rendered workflow", () => {
   });
 
   it("supports direct and partial SKU search with separated result metadata", async () => {
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
       products: [
         makeProduct("MXV-0404-H2A-KIT", {
           name: "4x4 HDBaseT Matrix Kit",
@@ -311,7 +313,7 @@ describe("Product Pitch rendered workflow", () => {
       category: "AVoIP",
       productType: "10GbE SDVoE fiber transceiver",
     });
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
       products: [
         projectProduct,
         recentProduct,
@@ -352,7 +354,7 @@ describe("Product Pitch rendered workflow", () => {
       category: "Control",
       productType: "Touch panel",
     });
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
       products: [discontinued],
     });
     saveProductSelectionToCurrentProject({ sku: discontinued.sku, title: discontinued.name });
@@ -373,7 +375,7 @@ describe("Product Pitch rendered workflow", () => {
   });
 
   it("opens the workspace when a result is selected and lets the rep change product", async () => {
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
       products: [
         makeProduct("NHD-600-TRXF", {
           name: "NetworkHD 600 Series Fiber Transceiver",
@@ -403,7 +405,7 @@ describe("Product Pitch rendered workflow", () => {
   });
 
   it("opens a supplied SKU directly without rendering the selector first", async () => {
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
       products: [
         makeProduct("NHD-600-TRXF", {
           name: "NetworkHD 600 Series Fiber Transceiver",
@@ -425,7 +427,7 @@ describe("Product Pitch rendered workflow", () => {
   });
 
   it("limits initial rendered catalogue results and show more reveals additional products", async () => {
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
       products: Array.from({ length: 24 }, (_, index) => makeProduct(`MX-9${String(index).padStart(3, "0")}-SCL`, {
         name: `Matrix result ${index}`,
         family: "MX",

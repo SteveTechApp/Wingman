@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
 import {
   classifyProductCallCard,
   primaryProductCallCardHeading,
@@ -13,7 +14,7 @@ type ProductIndex = {
 };
 
 const productIndex = JSON.parse(
-  readFileSync(join(process.cwd(), "public/product-intelligence-index.json"), "utf8"),
+  JSON.stringify({ products: fullProductIndexRecords }),
 ) as ProductIndex;
 
 function headingsFor(sku: string) {

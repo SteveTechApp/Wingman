@@ -43,7 +43,7 @@ const relationships: Partial<Record<WingmanRouteKey, readonly RelatedFeature[]>>
   productPitch: [
     { routeKey: "callCoach", label: "Coach the conversation", reason: "Use the product positioning with safer customer prompts." },
     { routeKey: "discovery", label: "Validate in Discovery", reason: "Confirm dependencies and room requirements." },
-    { routeKey: "proposal", label: "Add to response", reason: "Carry the selected product into Publication." },
+    { routeKey: "responsePack", label: "Add to response", reason: "Carry the selected product into the customer response." },
   ],
   discovery: [
     { routeKey: "callCoach", label: "Get conversation help", reason: "Use prompts when the customer requirement is unclear." },
@@ -53,12 +53,11 @@ const relationships: Partial<Record<WingmanRouteKey, readonly RelatedFeature[]>>
   recommendations: [
     { routeKey: "products", label: "Inspect product detail", reason: "Review the selected SKU in Product Workspace." },
     { routeKey: "compare", label: "Check competitor fit", reason: "Validate a competitor-led alternative." },
-    { routeKey: "proposal", label: "Build the response", reason: "Carry the recommendation into Publication." },
+    { routeKey: "responsePack", label: "Build the response", reason: "Carry the recommendation into the customer response." },
   ],
   compare: [
-    { routeKey: "battleCards", label: "Review objections", reason: "Use battle-card guidance for the current competitor." },
     { routeKey: "products", label: "Inspect the WyreStorm option", reason: "Open governed product detail and positioning." },
-    { routeKey: "proposal", label: "Add to response", reason: "Carry the comparison decision into Publication." },
+    { routeKey: "responsePack", label: "Add to response", reason: "Carry the comparison decision into the customer response." },
   ],
   battleCards: [
     { routeKey: "compare", label: "Run governed Compare", reason: "Validate equivalence rather than relying on talking points." },
@@ -71,21 +70,20 @@ const relationships: Partial<Record<WingmanRouteKey, readonly RelatedFeature[]>>
   ],
   templates: [
     { routeKey: "discovery", label: "Personalise in Discovery", reason: "Adapt the template to the real room and customer." },
-    { routeKey: "proposal", label: "Build the response", reason: "Use the selected design in Publication." },
+    { routeKey: "responsePack", label: "Build the response", reason: "Use the selected design in the customer response." },
     { routeKey: "projects", label: "Open Projects", reason: "Review saved template-based opportunities." },
   ],
   documents: [
     { routeKey: "ingest", label: "Decode a document", reason: "Extract requirements, products, and unknowns." },
     { routeKey: "compare", label: "Check substitutions", reason: "Validate competitor items found in the request." },
-    { routeKey: "proposal", label: "Build the response", reason: "Publish a customer-safe response from the evidence." },
+    { routeKey: "responsePack", label: "Build the response", reason: "Publish a customer-safe response from the evidence." },
   ],
   ingest: [
     { routeKey: "discovery", label: "Continue Discovery", reason: "Resolve missing requirements from the document." },
     { routeKey: "compare", label: "Compare extracted products", reason: "Check competitor substitutions with governed evidence." },
-    { routeKey: "proposal", label: "Create response", reason: "Turn decoded requirements into Publication." },
+    { routeKey: "responsePack", label: "Create response", reason: "Turn decoded requirements into a customer response." },
   ],
   responsePack: [
-    { routeKey: "proposal", label: "Build response pack", reason: "Create the customer-facing publication." },
     { routeKey: "proposalVisuals", label: "Create a visual", reason: "Add a governed diagram or room concept." },
     { routeKey: "projects", label: "Review the project", reason: "Check evidence and readiness before issue." },
   ],
@@ -95,13 +93,13 @@ const relationships: Partial<Record<WingmanRouteKey, readonly RelatedFeature[]>>
     { routeKey: "approvalQueue", label: "Request approval", reason: "Move the publication through its review gate." },
   ],
   proposalVisuals: [
-    { routeKey: "proposal", label: "Return to response", reason: "Use the saved visual in Publication." },
+    { routeKey: "responsePack", label: "Return to response", reason: "Use the saved visual in the customer response." },
     { routeKey: "projects", label: "Open the project", reason: "Review the evidence that generated this visual." },
   ],
   projects: [
     { routeKey: "discovery", label: "Start Discovery", reason: "Capture a new opportunity or resume missing evidence." },
     { routeKey: "quoteSafetyDashboard", label: "Review quote readiness", reason: "See blockers and stale projects across the portfolio." },
-    { routeKey: "proposal", label: "Open Publication", reason: "Build the active project's customer response." },
+    { routeKey: "responsePack", label: "Open response", reason: "Build the active project's customer response." },
   ],
   quoteSafetyDashboard: [
     { routeKey: "projects", label: "Open Projects", reason: "Resolve blockers in the owning project records." },
@@ -134,7 +132,7 @@ function contextualPath(routeKey: WingmanRouteKey, context: FeatureJourneyContex
   const params = new URLSearchParams();
   if (mode) params.set("mode", mode);
   if (context.sku && ["products", "productPitch", "productCallCards"].includes(routeKey)) params.set("sku", context.sku);
-  if (context.projectId && ["proposal", "proposalVisuals", "discovery", "recommendations"].includes(routeKey)) params.set("projectId", context.projectId);
+  if (context.projectId && ["proposal", "responsePack", "proposalVisuals", "discovery", "recommendations"].includes(routeKey)) params.set("projectId", context.projectId);
   const query = params.toString();
   return `${route.path}${query ? `?${query}` : ""}`;
 }

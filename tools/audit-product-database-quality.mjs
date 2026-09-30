@@ -10,7 +10,7 @@ const reportMdPath = path.join(reportsDir, "product-database-quality-audit.md");
 const sources = [
   { name: "canonical-product-store", path: "data/wingman-canonical-product-store.json", productKey: "products" },
   { name: "wyrestorm-source-enrichment", path: "data-sources/wyrestorm/enrichment.json" },
-  { name: "public-product-intelligence-index", path: "public/product-intelligence-index.json", productKey: "products" },
+  { name: "public-product-intelligence-index", path: "public/product-intelligence-summary.json", productKey: "products" },
   { name: "competitor-products-generated", path: "data/catalog/competitor-products.generated.json" },
 ];
 

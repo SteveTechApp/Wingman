@@ -39,8 +39,8 @@ export function DiscoveryQuickStartEntry({ onAnswers }: { onAnswers: (answers: D
       <button type="button" onClick={() => setOpen(true)} className="wm-qs-entry__button">
         <span className="wm-qs-entry__icon" aria-hidden="true">&#9889;</span>
         <div>
-          <p className="wm-qs-entry__title">Quick Start available</p>
-          <p className="wm-qs-entry__subtitle">Pre-fill common settings for meeting rooms, classrooms and more</p>
+          <p className="wm-qs-entry__title">Quick start</p>
+          <p className="wm-qs-entry__subtitle">Use room presets</p>
         </div>
       </button>
     </div>

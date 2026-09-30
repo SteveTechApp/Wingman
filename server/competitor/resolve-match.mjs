@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
 import { writeJsonFileAtomic } from "../atomic-json-file.mjs";
 import { normaliseProductTechnology } from "./technology-normalizer.mjs";
+import { assertSyncFetchTarget } from "../security/safe-fetch-target.mjs";
 import {
   COMPETITOR_CATALOG_FILE,
   COMPETITOR_DECISION_LEDGER_FILE,
@@ -58,6 +59,10 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
+    // Sync pre-flight: the URL is built from a constant host, but an
+    // attacker-chosen sku must never become an IP-literal host via string
+    // interpolation — classify before the request.
+    assertSyncFetchTarget(url);
     return await fetch(url, {
       ...options,
       signal: controller.signal,

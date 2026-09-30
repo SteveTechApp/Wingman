@@ -5,7 +5,8 @@ import { clearProductIntelligenceIndexCache } from "./productIntelligenceIndexCa
 import { extractRawProducts } from "./productStoryEngine";
 
 // Real catalogue + runtime index: the same data the running app classifies.
-const indexJson = readFileSync("public/product-intelligence-index.json", "utf8");
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
+const indexJson = JSON.stringify({ products: fullProductIndexRecords });
 const products = extractRawProducts(JSON.parse(indexJson)) as Array<Record<string, unknown>>;
 
 function product(sku: string) {
@@ -17,7 +18,7 @@ function product(sku: string) {
 beforeEach(() => {
   vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
-    if (url.endsWith("/product-intelligence-index.json")) {
+    if (url.endsWith("/product-intelligence-summary.json")) {
       return new Response(indexJson, { status: 200 });
     }
     if (url.includes("/api/product-intelligence")) {

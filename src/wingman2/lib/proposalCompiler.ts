@@ -1,4 +1,5 @@
 import { getProductStory } from "../data/productStories";
+import { readDiscoveryAudioDesign } from "./discoveryAudioDesign";
 import type {
   StoredApplicationProposal,
   StoredProductSelection,
@@ -54,8 +55,8 @@ function productSpecifications(rows: Array<TemplateBomRow | SalesBomRow>): Store
 function thirdPartyScope(rows: Array<TemplateBomRow | SalesBomRow>): StoredProposalScopeItem[] {
   const mapped: StoredProposalScopeItem[] = rows.filter((row) => row.sku.startsWith("BY-OTHERS")).map((row) => ({
     category: row.role,
-    description: row.description,
-    responsibility: "Integrator / customer / appointed specialist",
+    description: [row.description, "manufacturer" in row ? row.manufacturer : "", "model" in row ? row.model : ""].filter(Boolean).join(" · "),
+    responsibility: "owner" in row && row.owner ? row.owner : "Integrator / customer / appointed specialist",
     status: "by-others" as const,
     quantity: row.qty,
     notes: row.notes,
@@ -89,7 +90,7 @@ export function compileTemplateApplicationProposal(template: RoomTemplate, rows:
     application: template.application,
     executiveSummary: `${template.customerNarrative} The proposal is designed to deliver ${value}.`,
     customerNeed: template.summary,
-    solutionOverview: template.architecture,
+    solutionOverview: [template.concept?.rationale, template.architecture, template.concept?.audio?.experience].filter(Boolean).join(" "),
     benefits: [
       { title: "Operational outcome", detail: value },
       { title: "User experience", detail: "A clear, repeatable workflow with specialist complexity kept behind the agreed control experience." },
@@ -105,7 +106,7 @@ export function compileTemplateApplicationProposal(template: RoomTemplate, rows:
       "The customer receives training, test results and agreed handover documentation.",
     ],
     visualBriefs: [{ title: `${template.name} room concept`, purpose: "Illustrate the intended market application and operating environment." }],
-    verifiedDesignParameters: template.designNotes.map((note) => note.label),
+    verifiedDesignParameters: template.concept ? [] : template.designNotes.map((note) => note.label),
     deploymentConditions: [...template.assumptions, ...template.validationItems.map((item) => `Validate: ${item}`)],
     marketStory: `For this ${template.vertical.toLowerCase()} application, success is measured by ${value}. The technology therefore supports the room's operational story rather than acting as an isolated equipment list.`,
     roomVisualUrl: visualFor(template),
@@ -122,18 +123,20 @@ export function compileProjectApplicationProposal(input: {
   products: StoredProductSelection[];
   bomRows: SalesBomRow[];
   assumptions: string[];
+  audioDesign?: unknown;
 }): StoredApplicationProposal {
   const rows = input.bomRows;
+  const audioDesign = readDiscoveryAudioDesign(input.audioDesign);
   const value = marketValue(input.vertical || input.application);
   return {
     vertical: input.vertical || "Commercial AV",
     application: input.application,
     executiveSummary: `${input.summary} The recommended approach is intended to deliver ${value}.`,
     customerNeed: input.summary,
-    solutionOverview: input.architecture,
+    solutionOverview: [input.architecture, audioDesign?.direction, audioDesign?.zoning].filter(Boolean).join(" "),
     benefits: [{ title: "Business value", detail: value }, { title: "Supportability", detail: "Explicit ownership, assumptions and acceptance criteria reduce delivery and handover risk." }],
     userJourney: ["Enter and prepare the room.", "Select the required source or meeting workflow.", "Use the agreed displays, audio, camera and control experience.", "Close the session and return the room to its standard state."],
-    technicalFacts: rows.map((row) => `${row.sku}: ${row.role}`),
+    technicalFacts: [...rows.map((row) => `${row.sku}: ${row.role}`), ...(audioDesign ? [audioDesign.basis, audioDesign.signalPath] : [])],
     architectureDiagram: rows.map((row) => `${row.role}: ${row.qty} × ${row.sku}`).join(" → "),
     acceptanceCriteria: ["Signal routing and room modes operate as approved.", "Third-party interfaces and responsibilities are validated.", "Training and documentation are complete."],
     visualBriefs: [], verifiedDesignParameters: [], deploymentConditions: input.assumptions,

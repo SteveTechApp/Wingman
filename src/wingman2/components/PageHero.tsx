@@ -23,22 +23,14 @@ function actionClass(variant: PageHeroAction["variant"]) {
   ].join(" ");
 }
 
-export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHeroProps) {
+export function PageHero({ title, purpose, nextMove, actions }: PageHeroProps) {
   return (
     <section
       className="wm-page-hero wingman-page-hero wingman-page-hero-compact wingman-panel wingman-grid"
-      aria-describedby="wingman-page-purpose"
     >
       <div className="wingman-hero-copy">
-        <p className="wingman-kicker">{eyebrow}</p>
         <h1 className="wingman-display">{title}</h1>
-        <p id="wingman-page-purpose" className="wingman-hero-purpose">
-          {purpose}
-        </p>
-        <div className="wingman-hero-next" role="note" aria-label="Recommended next step">
-          <span>Next step</span>
-          <strong>{nextMove}</strong>
-        </div>
+        <details className="wingman-page-help"><summary>About this page</summary><p>{purpose}</p><p>{nextMove}</p></details>
       </div>
 
       {actions?.length ? (

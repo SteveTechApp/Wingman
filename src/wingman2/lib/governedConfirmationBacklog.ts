@@ -20,7 +20,7 @@ import agingConfig from "../../../data/governance/profile-confirmation-aging.jso
 export const PROFILE_CONFIRMATION_WARN_AFTER_DAYS = Number(agingConfig.warnAfterDays) || 14;
 export const PROFILE_CONFIRMATION_FAIL_AFTER_DAYS = Number(agingConfig.failAfterDays) || 30;
 
-export type SpecCriticalField = "max-resolution" | "routed-io" | "power";
+export type SpecCriticalField = "max-resolution" | "routed-io" | "power" | "profile-scope";
 
 export type AgingState = "fresh" | "aging" | "overdue";
 
@@ -100,6 +100,9 @@ const PLACEHOLDER_PATTERNS = [
 ];
 
 const VIDEO_CLASSES = new Set(["AVOIP", "MATRIX", "VIDEO_WALL", "MULTIVIEW", "HDBASET", "PRESENTATION"]);
+const ROUTING_CLASSES = new Set(["AVOIP", "MATRIX", "VIDEO_WALL", "MULTIVIEW", "HDBASET", "PRESENTATION"]);
+const PASSIVE_CLASSES = new Set(["CABLE", "ACCESSORY"]);
+const PASSIVE_ROLE = /\b(cable|mount|bracket|rack shelf|blanking plate|faceplate)\b/i;
 
 const POWER_SPEC_KEYS = ["poe", "poh", "poc", "internalPsu", "externalPsu", "powerSupply"];
 
@@ -107,6 +110,7 @@ const FIELD_LABEL: Record<SpecCriticalField, string> = {
   "max-resolution": "Max resolution",
   "routed-io": "Routed I/O",
   power: "Power",
+  "profile-scope": "Profile scope / N/A fields",
 };
 
 export function specCriticalFieldLabel(field: SpecCriticalField): string {
@@ -156,7 +160,8 @@ function powerValue(profile: ProfileRecord): string {
 function specFieldValue(profile: ProfileRecord, field: SpecCriticalField): string {
   if (field === "max-resolution") return text(profile.maxResolution);
   if (field === "routed-io") return routedIoValue(profile);
-  return powerValue(profile);
+  if (field === "power") return powerValue(profile);
+  return [text(profile.productClass), text(profile.role)].filter(Boolean).join(" · ");
 }
 
 function isHumanConfirmed(profile: ProfileRecord): boolean {
@@ -165,9 +170,40 @@ function isHumanConfirmed(profile: ProfileRecord): boolean {
 
 /** Max resolution is spec-critical when the product carries video I/O or a mandatory host dependency. */
 function maxResolutionRequired(profile: ProfileRecord): boolean {
+  const productClass = text(profile.productClass).toUpperCase();
+  const role = text(profile.role);
+  if (productClass === "AUDIO" || /\b(amplifier|microphone|speakerphone|audio)\b/i.test(role)) return false;
   const hasVideoIo = (profile.ports ?? []).some((port) => port.category === "video");
   const hasMandatoryDependency = (profile.dependencies ?? []).length > 0;
-  return hasVideoIo || hasMandatoryDependency || VIDEO_CLASSES.has(text(profile.productClass));
+  return hasVideoIo || hasMandatoryDependency || VIDEO_CLASSES.has(productClass);
+}
+
+/** Fields are governed only when they describe a capability the SKU can have. */
+export function governedProfileFieldApplicability(profile: {
+  productClass?: unknown;
+  role?: unknown;
+  ports?: Array<{ category?: unknown; direction?: unknown }>;
+  dependencies?: unknown[];
+  inputCount?: unknown;
+  outputCount?: unknown;
+  power?: unknown[];
+  specs?: Record<string, unknown>;
+}): Record<SpecCriticalField, boolean> {
+  const productClass = text(profile.productClass).toUpperCase();
+  const role = text(profile.role);
+  const ports = profile.ports ?? [];
+  const hasRoutedIo = Number(profile.inputCount) > 0 || Number(profile.outputCount) > 0 || ports.some((port) => /^(input|output)$/i.test(text(port.direction)));
+  const hasPowerEvidence = (profile.power ?? []).some((item) => Boolean(text(item))) || POWER_SPEC_KEYS.some((key) => {
+    const value = profile.specs?.[key];
+    return value !== undefined && value !== null && text(value) !== "" && value !== false;
+  });
+  const passive = PASSIVE_CLASSES.has(productClass) && PASSIVE_ROLE.test(role);
+  return {
+    "max-resolution": maxResolutionRequired(profile as ProfileRecord),
+    "routed-io": hasRoutedIo || ROUTING_CLASSES.has(productClass),
+    power: hasPowerEvidence || !passive,
+    "profile-scope": false,
+  };
 }
 
 function maxResolutionReadable(profile: ProfileRecord): boolean {
@@ -208,8 +244,10 @@ function specFieldState(profile: ProfileRecord): {
   if (maxResolutionRequired(profile)) {
     (maxResolutionReadable(profile) ? awaitingConfirmation : missingData).push("max-resolution");
   }
-  (routedIoReadable(profile) ? awaitingConfirmation : missingData).push("routed-io");
-  (powerReadable(profile) ? awaitingConfirmation : missingData).push("power");
+  const applicable = governedProfileFieldApplicability(profile);
+  if (applicable["routed-io"]) (routedIoReadable(profile) ? awaitingConfirmation : missingData).push("routed-io");
+  if (applicable.power) (powerReadable(profile) ? awaitingConfirmation : missingData).push("power");
+  if (awaitingConfirmation.length === 0 && missingData.length === 0) awaitingConfirmation.push("profile-scope");
 
   return { awaitingConfirmation, missingData };
 }
@@ -279,6 +317,7 @@ export function governedConfirmationBacklog(): ConfirmationBacklog {
         "max-resolution": specFieldValue(profile, "max-resolution"),
         "routed-io": specFieldValue(profile, "routed-io"),
         power: specFieldValue(profile, "power"),
+        "profile-scope": specFieldValue(profile, "profile-scope"),
       },
       ageDays,
       aging: agingStateFor(ageDays),

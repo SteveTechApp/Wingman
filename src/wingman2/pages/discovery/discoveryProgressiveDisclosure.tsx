@@ -2,7 +2,7 @@
  * DiscoveryProgressiveDisclosure — Shows questions in batches with smart defaults.
  *
  * Two modes:
- *   • **Basic** — template-first: asks only 6 high-impact questions that drive
+ *   • **Basic** — template-first: asks high-impact questions that drive
  *     the architecture decision. All other questions receive smart defaults from
  *     the selected template. Escalates to Expert automatically when the customer's
  *     requirements depart from the template assumptions.
@@ -20,7 +20,7 @@ import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
 export type DiscoveryMode = "basic" | "expert";
 
 export const DISCOVERY_DEPTH_PRESENTATION: Record<DiscoveryMode, { label: string; description: string }> = {
-  basic: { label: "Essential", description: "6 essential questions — get a product direction fast" },
+  basic: { label: "Essential", description: "Core questions, plus network path when relevant" },
   expert: { label: "Detailed", description: "All questions — capture full requirements" },
 };
 
@@ -45,17 +45,19 @@ type QuestionBatch = {
 // ─── Basic Mode Configuration ─────────────────────────────────────────────────
 
 /**
- * The 6 questions that drive the architecture decision in Basic mode.
+ * The core questions that drive the architecture decision in Basic mode.
  * These are the minimum viable inputs for Wingman to produce a product
  * direction. Everything else gets a smart default from the template.
  */
 export const BASIC_MODE_REQUIRED_IDS = [
   "opportunity",         // What type of room? — drives template selection
   "scale",               // How big? — drives system complexity
+  "network-path",        // Corporate AV VLAN or dedicated physical AV LAN, when distributed
   "sources",             // How many sources? — drives input count
   "displays",            // How many displays? — drives output count
   "display-behaviour",   // How should displays behave? — key architectural decision
   "uc-purpose",          // Camera/mic workflows? — key for BYOM/BYOD
+  "audio", "audio-zones", "audio-programme", "room-acoustics",
 ] as const;
 
 const BASIC_MODE_REQUIRED_SET = new Set<string>(BASIC_MODE_REQUIRED_IDS);

@@ -52,6 +52,11 @@ try {
     WINGMAN_DATA_DIR: path.join(runDir, "data"),
     WINGMAN_STORAGE_MODE: "file",
     WINGMAN_SESSION_COOKIE_SECURE: "false",
+    // Two banner tests re-authenticate per seat switch from one loopback
+    // address; the default 8 sign-ins/60 s production bucket tripped mid-run.
+    // Tests use a dedicated account set, never production credentials, and
+    // deployments keep the production default because this env is not set.
+    WINGMAN_AUTH_RATE_LIMIT_MAX_REQUESTS: "100",
   }, path.join(runDir, "api.out.log"), path.join(runDir, "api.err.log"), "api");
   await waitFor(`http://127.0.0.1:${API_PORT}/api/health`, "API");
   uiPid = start(process.execPath, ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", String(UI_PORT), "--strictPort"], {

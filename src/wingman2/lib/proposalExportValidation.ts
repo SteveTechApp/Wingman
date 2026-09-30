@@ -279,7 +279,7 @@ function validateChainCompleteness(
       fix: "Replace TBC placeholders with actual products or confirm they are by-others.",
     });
   }
-  const byOthersRows = bomRows.filter((row) => row.type === "Validate" && !row.sku?.startsWith("TBC-"));
+  const byOthersRows = bomRows.filter((row) => (row.sku?.startsWith("BY-OTHERS") || row.type === "Validate") && !row.sku?.startsWith("TBC-"));
   if (byOthersRows.length > 0) {
     blockers.push({
       id: "chain-by-others-scope",

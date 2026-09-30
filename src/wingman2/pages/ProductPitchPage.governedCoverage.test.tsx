@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { fullProductIndexRecords } from "../lib/testHelpers/fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
+import { loadProductIntelligenceIndex, loadProductIntelligenceSummary } from "../lib/productIntelligenceIndexCache";
 import { governedProfilesWithoutSkus } from "../lib/testHelpers/governedProfilesHarness";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { ProductPitchPage } from "./ProductPitchPage";
@@ -14,20 +15,26 @@ import governedProfiles from "../../../data/governance/wyrestorm-technical-profi
 // The real product-intelligence index drives the same hydration the live app
 // uses (hydrateProductSpecWithTechnicalData), so the badge on every result row
 // and workspace header reflects the governed data behind the card.
-vi.mock("../lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
-}));
+vi.mock("../lib/productIntelligenceIndexCache", async () => {
+  const { fullProductIndexRecords } = await import("../lib/testHelpers/fullProductIndexRecords");
+  const index = { products: fullProductIndexRecords };
+  return {
+    loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue(index),
+  };
+});
 
-// Simulate a coverage loss at the data source for MX-0402-MST (see the harness
-// JSDoc for the mock-path depth rule): its governed profile disappears, so its
-// card must honestly downgrade instead of claiming verified data. The one-shot
-// index mock in the text-inferred test strips the official-page technicalProfile
-// too, leaving only marketing text and catalogue evidence.
+// Simulate coverage losses at the data source (see the harness JSDoc for the
+// mock-path depth rule): MX-0402-MST loses its governed profile so its card
+// must honestly downgrade to text-inferred, and HALO-30 / APO-COM-MIC lose
+// theirs so the review-required badge scenarios below stay exercisable now
+// that the confirmation pass has verified every profile in the tracked data.
 vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () => {
   const actual = (await vi.importActual(
     "../../../data/governance/wyrestorm-technical-profiles.json",
   )) as { default: { profiles: Array<{ sku: string }> } };
-  return { default: governedProfilesWithoutSkus(actual.default, ["MX-0402-MST"]) };
+  return { default: governedProfilesWithoutSkus(actual.default, ["MX-0402-MST", "HALO-30", "APO-COM-MIC"]) };
 });
 
 describe("product pitch governed-coverage render", () => {
@@ -173,9 +180,9 @@ describe("product pitch governed-coverage render", () => {
       </MemoryRouter>,
     );
 
-    // HALO-30 has a governed profile that no reviewer has confirmed yet
-    // (verified-with-warning, no verifiedBy), so its workspace hero must
-    // render the official-structured tier - never the verified badge.
+    // HALO-30's governed profile is stripped by the module mock above, so its
+    // workspace hero must render the official-structured tier - never the
+    // verified badge.
     const badge = await screen.findByText("Official data - review required");
     expect(badge.className).toContain("is-warn");
     expect(badge.className).not.toContain("is-verified");
@@ -191,9 +198,10 @@ describe("product pitch governed-coverage render", () => {
       </MemoryRouter>,
     );
 
-    // APO-COM-MIC has no governed profile, so its card must not claim verified
-    // data. With official-page technicalProfile remaining in the catalogue the
-    // honest tier is official-structured (amber review badge); the literal
+    // APO-COM-MIC's governed profile is stripped by the module mock above, so
+    // its card must not claim verified data. With official-page
+    // technicalProfile remaining in the catalogue the honest tier is
+    // official-structured (amber review badge); the literal
     // "Technical data not resolved" copy is pinned at the shared badge and
     // resolver level (GovernedDataBadge.test.tsx, governedProfilesHarness.test.ts).
     const badge = await screen.findByText("Official data - review required");
@@ -212,7 +220,9 @@ describe("product pitch governed-coverage render", () => {
         p.sku === "MX-0402-MST" ? { ...p, technicalProfile: undefined } : p,
       ),
     } as typeof index;
-    vi.mocked(loadProductIntelligenceIndex).mockResolvedValueOnce(indexWithoutProfile);
+    // The page reads the summary payload; the one-shot stripped index must
+    // flow through the same loader.
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValueOnce(indexWithoutProfile);
 
     render(
       <MemoryRouter initialEntries={["/wingman/product-pitch"]}>

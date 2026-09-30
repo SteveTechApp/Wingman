@@ -13,40 +13,30 @@ const ExcalidrawBlockSchematic = lazy(() =>
   import("../components/ExcalidrawBlockSchematic"),
 );
 import { TemplateSchematic } from "../components/TemplateSchematic";
+import { TemplateConceptOverview } from "../components/TemplateConceptOverview";
 import { NativeTemplateSchematic } from "../components/NativeTemplateSchematic";
 import VisualStudioCanvas from "../components/VisualStudioCanvas";
 import { InDeskConnectivityWizard } from "../components/InDeskConnectivityWizard";
 import { buildTemplateVisualDiagram } from "../lib/schematic/templateVisualDiagram";
-import { upsertStoredProject, type StoredProductSelection, type StoredProject, type StoredProjectProposal } from "../data/projectStore";
+import { upsertStoredProject } from "../data/projectStore";
 import { exportBomCsv } from "../lib/proposalExport";
 import { exportProposalDocx } from "../lib/proposalDocxExport";
 import { createProposalWizardDefaults } from "../lib/proposalWizard";
-import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { saveRoomTemplateCopy, useCustomRoomTemplates } from "../lib/customRoomTemplates";
-import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
-import type { SalesBomRow } from "../lib/salesReadiness";
-import { compileTemplateApplicationProposal } from "../lib/proposalCompiler";
-import { loadTemplateDraft } from "../lib/solutionTemplates";
+import { roomTemplates, type TemplateBomRow } from "../lib/roomTemplates";
 import { validateProposalExport, type ExportValidationResult } from "../lib/proposalExportValidation";
 import { proposalReadiness, type ProposalReadiness } from "../lib/proposalReadiness";
 import { searchProducts, type ProductSearchResult } from "../lib/productSearch";
 import { classifyProduct, checkRoleCompatibility } from "../lib/roleCompatibility";
 import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
+import { TemplateCompletionChecklist } from "../components/TemplateCompletionChecklist";
 import { templateImageFor } from "../lib/templateImages";
+import { templateBomRows, templateProducts, buildTemplateProposal, buildTemplateProject } from "../lib/templateReviewProposal";
 const includedStatuses = new Set(["included", "optional", "validate"]);
-const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
+const tabs = ["Overview", "Connectivity", "Equipment", "Complete room", "Proposal"] as const;
 type Tab = (typeof tabs)[number];
 const equipmentGroups = ["Required", "Requires validation", "Optional", "Third-party scope"] as const;
 type EquipmentGroup = (typeof equipmentGroups)[number];
-
-/** Step-by-step guidance shown at the top of the Equipment tab */
-const STEPS = [
-  { label: "Required", desc: "Core products are included. Check quantities match the room." },
-  { label: "Validate", desc: "Site-specific items — confirm against the real room before quoting." },
-  { label: "Optional", desc: "Add only when the room needs them. Remove extras to keep the BOM tight." },
-  { label: "Third-party", desc: "Design scope for others — review but don't include in the WyreStorm quote." },
-  { label: "Proposal", desc: "Ready to go. Continue to proposal when the equipment list is finalised." },
-];
 
 const groupCaptions: Record<string, string> = {
   Required: "Core WyreStorm products.",
@@ -58,90 +48,12 @@ const groupCaptions: Record<string, string> = {
 function cloneRows(rows: TemplateBomRow[]) { return rows.map((row) => ({ ...row })); }
 function groupFor(row: TemplateBomRow) {
   const role = row.role.toLowerCase();
-  const isThirdParty = row.sku === "BY-OTHERS" || role.includes("third-party") || role.includes("by others");
+  const isThirdParty = row.sku.startsWith("BY-OTHERS") || role.includes("third-party") || role.includes("by others");
   if (isThirdParty) return "Third-party scope";
   if (row.type === "Required") return "Required";
   if (row.type === "Validate") return "Requires validation";
   return "Optional";
 }
-function templateBomRows(template: RoomTemplate, rows: TemplateBomRow[]): SalesBomRow[] {
-  return rows.filter((row) => includedStatuses.has(row.status) && row.qty > 0).map((row, index) => ({
-    item: index + 1, sku: row.sku, description: row.description, role: row.role, qty: row.qty,
-    type: row.type, status: row.status, evidence: row.evidence, notes: `${row.notes} Template: ${template.name}.`,
-  }));
-}
-function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
-  return rows.filter((row) => includedStatuses.has(row.status) && row.qty > 0 && !row.sku.startsWith("BY-OTHERS")).map((row) => ({
-    sku: row.sku, quantity: row.qty, title: row.description, category: row.role,
-    status: row.type === "Required" ? "recommended" : "alternative",
-    source: "Room Template", evidence: [row.evidence], cautions: [row.notes], addedAt: new Date().toISOString(),
-  }));
-}
-function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): StoredProjectProposal {
-  const bomRows = templateBomRows(template, rows);
-  const products = templateProducts(rows);
-  // Use the unified readiness scorer — no hard-coded fallback.
-  const readiness = proposalReadiness({
-    products, bomRows,
-    assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)],
-    validationItems: template.validationItems,
-  });
-  const readinessScore = readiness.score;
-  const coach = buildWingmanCoachState({
-    source: "proposal-template", audience: "dealer",
-    discovery: { projectTitle: template.name, summary: template.customerNarrative, roomSize: template.application, displays: template.vertical },
-    selectedProducts: products, bomRows, assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)], readinessScore,
-  });
-  const personalisation = loadTemplateDraft(template.id)?.personalisation;
-  return {
-    title: personalisation?.documentTitle || template.name,
-    summary: personalisation?.executiveSummary || template.customerNarrative,
-    sections: ["Cover", "Application", "Architecture", "WyreStorm BOM", "Design Scope", "Assumptions", "Validation", "Upgrade Paths"],
-    products, assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)],
-    outputPurpose: {
-      motion: "Room/tender BOM", summary: `Use this as a ${template.vertical} ${template.application.toLowerCase()} boilerplate.`,
-      customerOutput: "A pre-populated WyreStorm BOM with supporting AV design notes, assumptions, and validation points.",
-      nextAction: "Adjust quantities and optional rows, then validate site-specific dependencies before customer issue.",
-    },
-    governedDependencies: [], bomRows, evidence: bomRows.map((row) => `${row.sku}: ${row.evidence}`),
-    repGuidance: ["Use the template as a real-room starting point rather than a discovery questionnaire.", "Adjust only quantities and optional rows that differ from the known room.", "Escalate when room behaviour departs from the template architecture."],
-    governanceWarnings: template.validationItems, validationNotes: template.designNotes.map((item) => `${item.label}: ${item.description}`),
-    visualBlocks: coach.visualBlocks,
-    applicationProposal: compileTemplateApplicationProposal(template, rows),
-    proposalFooter: personalisation?.footer,
-    readinessScore, updatedAt: new Date().toISOString(),
-  };
-}
-function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): StoredProject {
-  const timestamp = new Date().toISOString();
-  const proposal = buildTemplateProposal(template, rows);
-  return {
-    id: `template-${template.id}-${Date.now()}`, name: template.name, owner: "Wingman user", stage: "Templates",
-    status: "recommended", updated: "Just now", resumeTo: `${routeCatalogByKey.templates.path}/${template.id}`,
-    createdAt: timestamp, updatedAt: timestamp, productSelections: proposal.products, proposal,
-    discoveryBrief: {
-      savedAt: timestamp,
-      capturedPercent: 72,
-      roomModel: {
-        clientName: loadTemplateDraft(template.id)?.personalisation.customerName || "",
-        siteName: loadTemplateDraft(template.id)?.personalisation.site || "",
-        application: template.application,
-        vertical: template.vertical,
-        roomType: template.name,
-        scale: template.scale,
-        summary: template.customerNarrative,
-        inferredArchitectureDirection: template.architecture,
-        sourceTemplateId: template.id,
-        sourceTemplateName: template.name,
-      },
-      inference: { summary: template.customerNarrative, architecture: template.architecture },
-      missingInformation: template.validationItems,
-      nextBestQuestion: template.validationItems[0] || "Confirm the final room scope.",
-    },
-    workflow: { source: "Room Templates", lastStep: "Template review page", nextRoute: routeCatalogByKey.proposal.path, updatedAt: timestamp },
-  };
-}
-
 export function TemplateReviewPage() {
   const { templateId } = useParams();
   const navigate = useNavigate();
@@ -207,12 +119,6 @@ export function TemplateReviewPage() {
   if (!selectedTemplate) return <div data-wingman-template-detail-page="true" className="pb-10"><PageHero eyebrow="Room templates" title="Template not found." purpose="The selected room design template could not be found." nextMove="Go back to the template library and pick a room design to review." actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]} /></div>;
 
   const template = selectedTemplate, applicationProfile = getTemplateApplicationProfile(selectedTemplate);
-  const counts = {
-    Required: selectedRows.filter((row) => row.type === "Required" && row.status !== "excluded").length,
-    Validate: selectedRows.filter((row) => row.type === "Validate" && row.status !== "excluded").length,
-    Optional: selectedRows.filter((row) => row.type === "Optional" && row.status !== "excluded").length,
-    Excluded: selectedRows.filter((row) => row.status === "excluded").length,
-  };
   const categories = ["All", ...Array.from(new Set(selectedRows.map((row) => row.role.split(" ")[0])))];
   const groupedRows = equipmentGroups.map((name) => ({
     name, rows: selectedRows.filter((row) => groupFor(row) === name && (filter === "All" || row.role.startsWith(filter))),
@@ -295,7 +201,7 @@ export function TemplateReviewPage() {
         <div className="wm-template-breadcrumb"><Link to={routeCatalogByKey.templates.path}>Templates</Link><ChevronRight /> <span>{template.name}</span></div>
         <div className="wm-template-header-row">
           <div>
-            <div className="wm-template-title-line"><h1>{template.name}</h1><span className="wm-status is-confirmed">Ready to configure</span>{dirty ? <span className="wm-status is-unsaved">Unsaved changes</span> : <span className="wm-status is-saved"><Check /> Saved</span>}</div>
+            <div className="wm-template-title-line"><h1>{template.name}</h1>{dirty ? <span className="wm-status is-unsaved">Unsaved changes</span> : <span className="wm-status is-saved"><Check /> Saved</span>}</div>
             <p>{template.summary}</p>
           </div>
           <div className="wm-template-header-actions">
@@ -310,8 +216,8 @@ export function TemplateReviewPage() {
             </div></details>
           </div>
         </div>
-        <div className="wm-template-detail-hero"><img src={templateImageFor(template)} alt={`${template.name} application`} />
-          <div><span>{applicationProfile.canonicalMarket} · {template.scale}</span><strong>{applicationProfile.architectureFamily}</strong><p>{applicationProfile.userJourney}</p></div>
+        <div className="wm-template-context-strip"><img src={templateImageFor(template)} alt={`${template.name} application`} />
+          <div><span>{applicationProfile.canonicalMarket} · {template.scale}</span><strong>{applicationProfile.architectureFamily}</strong></div>
         </div>
       </header>
 
@@ -326,17 +232,17 @@ export function TemplateReviewPage() {
         <div className="wm-template-tabs" role="tablist" aria-label="Template workspace">
           {tabs.map((tab, index) => <button key={tab} ref={(node) => { tabRefs.current[index] = node; }} type="button" role="tab" id={`template-tab-${tab}`} aria-selected={activeTab === tab} aria-controls={`template-panel-${tab}`} tabIndex={activeTab === tab ? 0 : -1} onClick={() => { setActiveTab(tab); if (tab === "Equipment") setEquipmentGroup("Required"); }} onKeyDown={(event) => onTabKeyDown(event, index)}>{tab}{tab === "Equipment" && dirty ? <i aria-label="Unsaved changes" /> : null}</button>)}
         </div>
-        {activeTab === "Equipment" ? <nav className="wm-equipment-scope-switcher" aria-label="Equipment scope">
-          {equipmentGroups.slice(1).map((group) => <button type="button" key={group} aria-label={`${group} equipment group`} className={equipmentGroup === group ? "is-active" : ""} aria-pressed={equipmentGroup === group} onClick={() => setEquipmentGroup(group)}><span>{group}</span><small>{groupedRows.find((item) => item.name === group)?.rows.length ?? 0}</small></button>)}
-        </nav> : null}
+
       </div>
 
       <main id={`template-panel-${activeTab}`} role="tabpanel" aria-labelledby={`template-tab-${activeTab}`} tabIndex={0}>
         {activeTab === "Overview" ? <div className="wm-template-overview">
           <section className="wm-template-overview-main">
+            {template.concept ? <TemplateConceptOverview concept={template.concept} /> : null}
+            {!template.concept ? <>
             <div className="wm-template-section-heading"><div><span>System at a glance</span><h2>Signal flow</h2></div><span className="wm-status is-assumed">Template assumptions</span></div>
             <div className="wm-overview-flow">
-              {["Sources", "WyreStorm core", "Transport", "Outputs"].map((stage, index) => <div key={stage}><small>0{index + 1}</small><strong>{stage}</strong><p>{index === 0 ? "Room inputs and UC" : index === 1 ? template.bom[0]?.sku || "Core platform" : index === 2 ? "AVoIP / extension" : "Displays and room systems"}</p></div>)}
+              {["Sources", "WyreStorm core", "Transport", "Outputs"].map((stage, index) => <div key={stage}><small>0{index + 1}</small><strong>{stage}</strong><p>{index === 0 ? `${template.concept?.sourceCount ?? "Confirm"} source positions` : index === 1 ? template.bom[0]?.sku || "Core platform" : index === 2 ? applicationProfile.architectureFamily : `${template.concept?.outputCount ?? "Confirm"} output destinations`}</p></div>)}
             </div>
             <div className="wm-secondary-paths">
               {["USB", "Camera", "Audio", "Control", "Third-party scope"].map((path, index) => <div key={path}><span className={index === 4 ? "is-others" : index < 2 ? "is-validate" : "is-assumed"} /> <strong>{path}</strong><small>{index === 4 ? "By others" : index < 2 ? "Validate" : "Assumed"}</small></div>)}
@@ -353,13 +259,10 @@ export function TemplateReviewPage() {
               <section><h3>Assumptions</h3><ul>{template.assumptions.map((item) => <li key={item}>{item}</li>)}</ul></section>
               <section><h3>Site validation required</h3><ul>{template.validationItems.map((item) => <li key={item}>{item}</li>)}</ul></section>
             </div>
+            </> : null}
           </section>
           <aside className="wm-template-readiness">
-            <div><span>Template readiness</span><strong>{readinessScore}%</strong></div>
-            <div className="wm-readiness-bar"><i style={{ width: `${readinessScore}%` }} /></div>
-            <div className="wm-count-strip"><div><strong>{counts.Required}</strong><span>Required</span></div><div><strong>{counts.Validate}</strong><span>Validate</span></div><div><strong>{counts.Optional}</strong><span>Optional</span></div></div>
-            <h3>Priority validation</h3>
-            <ol>{template.validationItems.slice(0, 3).map((item) => <li key={item}><span>?</span>{item}</li>)}</ol>
+            <details><summary>Site checks ({template.validationItems.length})</summary><ol>{template.validationItems.map((item) => <li key={item}>{item}</li>)}</ol></details>
             <button className="wm-button is-primary is-full" type="button" onClick={() => setActiveTab("Equipment")}>Review validation items</button>
             <button className="wm-button is-secondary is-full" type="button" onClick={() => setActiveTab("Proposal")}>Continue with assumptions</button>
           </aside>
@@ -388,39 +291,19 @@ export function TemplateReviewPage() {
         ) : null}
 
         {activeTab === "Equipment" ? <div className="wm-equipment-workspace">
-          <div className="wm-template-section-heading"><div><span>Equipment schedule</span><h2>Editable WyreStorm BOM</h2></div><span className="wm-status is-assumed">Edit quantities and scope</span></div>
-          <div className="wm-template-steps" aria-label="Template configuration steps">
-            {STEPS.map((step, index) => {
-              const isActive = equipmentGroup === step.label ||
-                (step.label === "Required" && equipmentGroup === "Required") ||
-                (step.label === "Validate" && equipmentGroup === "Requires validation");
-              const stepGroup = step.label === "Validate" ? "Requires validation" : step.label;
-              return (
-                <button
-                  key={step.label}
-                  type="button"
-                  aria-label={`Step ${index + 1}: ${step.label}`}
-                  className={`wm-template-step ${isActive ? "is-active" : ""} ${index < STEPS.length - 1 ? "has-connector" : ""}`}
-                  onClick={() => {
-                    setEquipmentGroup(stepGroup as EquipmentGroup);
-                    if (step.label === "Proposal") setActiveTab("Proposal");
-                  }}
-                >
-                  <span className="wm-template-step-num">{index + 1}</span>
-                  <span className="wm-template-step-label">{step.label}</span>
-                  <span className="wm-template-step-desc">{step.desc}</span>
-                </button>
-              );
-            })}
+          <div className="wm-template-section-heading"><h2>Equipment</h2>
+            <details className="wm-equipment-guide"><summary>Equipment guide</summary><p>Check quantities and use the pencil to edit an item. Required items are included; add options only when needed. Third-party scope completes the system and is supplied by others.</p></details>
           </div>
-          <div className="wm-equipment-summary">{Object.entries(counts).map(([label, count]) => <div key={label}><strong>{count}</strong><span>{label}</span></div>)}</div>
+          <nav className="wm-equipment-scope-switcher" aria-label="Equipment scope">
+            {equipmentGroups.map((group) => <button type="button" key={group} aria-label={`${group} equipment group`} className={equipmentGroup === group ? "is-active" : ""} aria-pressed={equipmentGroup === group} onClick={() => setEquipmentGroup(group)}><span>{group === "Required" ? "WyreStorm" : group === "Requires validation" ? "To confirm" : group === "Third-party scope" ? "By others" : group}</span><small>{groupedRows.find((item) => item.name === group)?.rows.length ?? 0}</small></button>)}
+          </nav>
           <div className="wm-equipment-toolbar">
             <div className="wm-equipment-toolbar-cluster"><div className="wm-category-filters" aria-label="Equipment category filters">{categories.slice(0, 6).map((category) => <button type="button" key={category} className={filter === category ? "is-active" : ""} onClick={() => setFilter(category)}>{category}</button>)}</div></div>
             <div className="wm-equipment-toolbar-cluster"><div><button type="button" onClick={() => addPlaceholder(false)}><Plus /> Add product</button><button type="button" onClick={() => addPlaceholder(true)}><Plus /> Add third-party</button><button type="button" onClick={resetEquipment}><RotateCcw /> Reset</button><button type="button" onClick={exportTemplateBom}><Download /> Export</button><button className="is-primary" type="button" onClick={() => setDirty(false)}><Save /> Save</button></div></div>
           </div>
           <div className="wm-equipment-groups">
             <section key={visibleEquipmentGroup.name}>
-              <header className="wm-equipment-group-heading"><span><strong>{visibleEquipmentGroup.name}</strong><em>{groupCaptions[visibleEquipmentGroup.name]}</em></span><small>{visibleEquipmentGroup.rows.length}</small></header>
+              <header className="wm-equipment-group-heading" title={groupCaptions[visibleEquipmentGroup.name]}><span><strong>{visibleEquipmentGroup.name}</strong></span><small>{visibleEquipmentGroup.rows.length}</small></header>
               <div>{visibleEquipmentGroup.rows.map((row) => {
                 const enabled = includedStatuses.has(row.status);
                 const thirdParty = visibleEquipmentGroup.name === "Third-party scope";
@@ -436,6 +319,8 @@ export function TemplateReviewPage() {
             </section>
           </div>
         </div> : null}
+
+        {activeTab === "Complete room" ? <TemplateCompletionChecklist template={template} /> : null}
 
         {activeTab === "Proposal" ? <div className="wm-proposal-handoff">
           <section><span className="wm-status is-validate">{template.validationItems.length} unresolved</span><h2>{exportValidation.allowed ? "Proposal is ready with assumptions" : "Export blocked — resolve blockers first"}</h2><p>{exportValidation.allowed ? "The equipment schedule can move forward, but the following points remain unverified and will be labelled as assumptions." : "The proposal export validator has found issues that must be resolved before this template can be exported."}</p><div className="wm-proposal-readiness"><strong>{readinessScore}%</strong><span>Proposal readiness</span></div></section>
@@ -481,7 +366,7 @@ export function TemplateReviewPage() {
         <span className="wm-status is-assumed">{detailRow.type}</span><h2 id="equipment-drawer-title">{detailRow.sku}</h2><p>{detailRow.description}</p>
         <dl><div><dt>System role</dt><dd>{detailRow.role}</dd></div><div><dt>Evidence</dt><dd>{detailRow.evidence}</dd></div><div><dt>Notes</dt><dd>{detailRow.notes}</dd></div></dl>
         <label>Quantity<input type="number" min="0" max="99" value={selectedRows.find((row) => row.id === detailRow.id)?.qty ?? 0} onChange={(event) => updateRowQty(detailRow.id, Number(event.target.value))} /></label>
-        {(detailRow.sku === "BY-OTHERS" || detailRow.sku === "CUSTOM") && (
+        {(detailRow.sku.startsWith("BY-OTHERS") || detailRow.sku.startsWith("CUSTOM")) && (
           <div className="wm-drawer-fields">
             <h4>Replace placeholder</h4>
             <label>Manufacturer<input type="text" value={detailRow.manufacturer ?? ""} placeholder="e.g. Crestron, Extron" onChange={(event) => { updateRowField(detailRow.id, "manufacturer", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, manufacturer: event.target.value } : prev); }} /></label>

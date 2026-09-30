@@ -1,17 +1,18 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Database, Menu, Plus, X, CheckCircle } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { UiModeToggle } from "../components/UiModeToggle";
 import { useUiMode } from "../data/uiMode";
 
 import {
   consolidatedPrimaryNavKeys,
+  primarySectionForRoute,
   routeByPath,
   routeCatalog,
   routeCatalogByKey,
   type WingmanRouteKey,
 } from "../app/routeCatalog";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
+import { UiModeToggle } from "../components/UiModeToggle";
 import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
 import { FeatureJourneyStrip } from "../components/FeatureJourneyStrip";
 import {
@@ -199,10 +200,14 @@ const GURU_SUPPORT_BY_ROUTE: Partial<Record<WingmanRouteKey, GuruSupportCue>> = 
 
 export function AppShell({ children }: AppShellProps) {
   const [guruOpen, setGuruOpen] = useState(false);
+  const [guruMounted, setGuruMounted] = useState(false);
   const [guruSeedPrompt, setGuruSeedPrompt] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pageResetVersion, setPageResetVersion] = useState(0);
   const [workspaceSession, setWorkspaceSession] = useState<WingmanWorkspaceSession | null>(null);
+  useEffect(() => {
+    if (guruOpen) setGuruMounted(true);
+  }, [guruOpen]);
   const location = useLocation();
   const navigate = useNavigate();
   const { uiText } = useWingmanLanguage();
@@ -289,7 +294,7 @@ export function AppShell({ children }: AppShellProps) {
     function handleNewProjectRequest() {
       clearStoredProjectContext();
       setPageResetVersion((current) => current + 1);
-      navigate(routeCatalogByKey.projects.path);
+      navigate(routeCatalogByKey.discovery.path);
       window.setTimeout(resetMainScrollPosition, 0);
     }
 
@@ -300,7 +305,7 @@ export function AppShell({ children }: AppShellProps) {
   function handleNewProject() {
     clearStoredProjectContext();
     setPageResetVersion((current) => current + 1);
-    navigate(routeCatalogByKey.projects.path);
+    navigate(routeCatalogByKey.discovery.path);
     window.setTimeout(resetMainScrollPosition, 0);
   }
 
@@ -353,10 +358,11 @@ export function AppShell({ children }: AppShellProps) {
             <NavLink
               key={path}
               to={path}
+              end={key === "dashboard"}
               title={summary}
               aria-label={`${navLabel}: ${summary}`}
-              className={({ isActive }) =>
-                ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")
+              className={() =>
+                ["wingman-nav-link", activeRoute && primarySectionForRoute(activeRoute.key) === key ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")
               }
             >
               <Icon className="wingman-nav-icon" />
@@ -372,6 +378,10 @@ export function AppShell({ children }: AppShellProps) {
         </nav>
 
         <div className="wingman-sidebar-footer">
+          {!isGuided && <UiModeToggle />}
+          <NavLink to={routeCatalogByKey.profile.path} title="Account and workspace settings" aria-label="Settings" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
+            Settings
+          </NavLink>
           <NavLink to={routeCatalogByKey.terms.path} title="Terms & legal disclaimer" aria-label="Terms and legal disclaimer" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
             Terms &amp; legal
           </NavLink>
@@ -407,13 +417,10 @@ export function AppShell({ children }: AppShellProps) {
             title={`${activeLabel}: ${activeSummary}`}
           >
             <strong className="wingman-topbar-page-label">{activeLabel}</strong>
-            <span className="wingman-topbar-page-summary">{activeSummary}</span>
           </div>
 
+          {isGuided && <div className="wm-topbar-mode-toggle"><UiModeToggle /></div>}
           <WingmanViewportFitControl />
-          <div className="wm-topbar-mode-toggle">
-            <UiModeToggle />
-          </div>
           {activeRoute?.key !== "dashboard" && (
             <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">
               <Plus className="h-4 w-4" />
@@ -451,7 +458,7 @@ export function AppShell({ children }: AppShellProps) {
           onClick={() => setGuruOpen((current) => !current)}
           hasContextualTransfer={Boolean(guruSupportCue)}
         />
-        {guruOpen && (
+        {guruMounted && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer
             open={guruOpen}

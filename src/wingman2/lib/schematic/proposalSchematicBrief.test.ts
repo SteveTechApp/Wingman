@@ -11,6 +11,23 @@ function makeProduct(overrides: Partial<StoredProductSelection>): StoredProductS
 }
 
 describe("proposalSchematicBrief", () => {
+  it("keeps inferred endpoints distinct from the encoder and decoder hardware", () => {
+    const brief = proposalSchematicBrief("Room", [makeProduct({ sku: "NHD-600-TX" }), makeProduct({ sku: "NHD-600-RX" })]);
+    expect(brief.sources?.[0]).toEqual({ label: "Source 1 (confirm)" });
+    expect(brief.displays?.[0]).toEqual({ label: "Display 1 (confirm)" });
+  });
+
+  it("uses edited equipment quantities instead of the earlier product selection", () => {
+    const brief = proposalSchematicBrief("Room", [makeProduct({ sku: "NHD-600-TX", quantity: 1 })], [{ sku: "NHD-600-TX", description: "Encoder", role: "Encoding", qty: 3 }]);
+    expect(brief.sources).toHaveLength(3);
+    expect(brief.products?.[0].quantity).toBe(3);
+  });
+
+  it("does not add decoder capacity to explicitly supplied display quantities", () => {
+    const brief = proposalSchematicBrief("Room", [makeProduct({ sku: "NHD-600-RX", quantity: 4 }), makeProduct({ sku: "BY-OTHERS-DISPLAY", title: "Customer displays", quantity: 4 })]);
+    expect(brief.displays).toEqual([{ label: "Customer displays", quantity: 4 }]);
+  });
+
   it("creates 1 source and 1 display for a single encoder + decoder pair", () => {
     const products = [
       makeProduct({ sku: "NHD-ENC-TX", quantity: 1 }),

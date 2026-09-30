@@ -45,7 +45,7 @@ const CLEAN_PACKAGE = {
     "brace-expansion": "^1.1.21",
     browserslist: "^4.28.8",
     "postcss-selector-parser@^6.0.10": "^6.1.4",
-    "fast-uri": "^3.1.7",
+    "fast-uri": "^3.1.8",
     "js-yaml": "^4.3.2",
   },
 };
@@ -55,7 +55,7 @@ const CLEAN_LOCK = {
     "node_modules/brace-expansion": { version: "1.1.21" },
     "node_modules/browserslist": { version: "4.28.8" },
     "node_modules/postcss-selector-parser": { version: "6.1.4" },
-    "node_modules/fast-uri": { version: "3.1.7" },
+    "node_modules/fast-uri": { version: "3.1.8" },
     "node_modules/js-yaml": { version: "4.3.2" },
   },
 };
@@ -152,7 +152,7 @@ describe("collectOverrideFloorProblems", () => {
 
   it("fails when the lockfile records fast-uri below the floor (regeneration dropped the pin)", () => {
     const lock = { packages: { ...CLEAN_LOCK.packages, "node_modules/fast-uri": { version: "3.1.5" } } };
-    expectOneProblemMatching(CLEAN_PACKAGE, lock, /records fast-uri 3\.1\.5 .*below the 3\.1\.7 advisory floor/);
+    expectOneProblemMatching(CLEAN_PACKAGE, lock, /records fast-uri 3\.1\.5 .*below the 3\.1\.8 advisory floor/);
   });
 
   it("fails when the lockfile records an in-family postcss-selector-parser below the floor", () => {
@@ -303,7 +303,7 @@ describe("lockfile-regeneration drill", () => {
     try {
       const packageJson = sandboxPackageJson({
         browserslist: ">=4.28.7 <5",
-        "fast-uri": "^3.1.7",
+        "fast-uri": "^3.1.8",
         "postcss-selector-parser@^6.0.10": "^6.1.4",
       });
       const lock = {
@@ -333,7 +333,7 @@ describe("lockfile-regeneration drill", () => {
     try {
       const packageJson = sandboxPackageJson({
         browserslist: "^4.28.8",
-        "fast-uri": "^3.1.7",
+        "fast-uri": "^3.1.8",
         "postcss-selector-parser@^6.0.10": "^6.1.4",
       });
       const lock = {
@@ -383,7 +383,7 @@ describe("lockfile-regeneration drill", () => {
           root,
           sandboxPackageJson({
             browserslist: ">=4.28.7 <4.28.8",
-            "fast-uri": "^3.1.7",
+            "fast-uri": "^3.1.8",
             "postcss-selector-parser@^6.0.10": "^6.1.4",
           }),
           { name: "override-floor-drill-fixture", lockfileVersion: 1, requires: true, packages: {} },
@@ -418,7 +418,7 @@ describe("lockfile-regeneration drill", () => {
           root,
           sandboxPackageJson({
             browserslist: "^4.28.8",
-            "fast-uri": "^3.1.7",
+            "fast-uri": "^3.1.8",
             "postcss-selector-parser@^6.0.10": "^6.1.4",
           }),
           regenerated,

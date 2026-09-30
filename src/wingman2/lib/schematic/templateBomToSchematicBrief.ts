@@ -40,6 +40,9 @@ function inferSources(
   template: RoomTemplate,
   rows: TemplateBomRow[],
 ): SchematicEndpointBrief[] {
+  if (template.concept) return activeRows(rows)
+    .filter((row) => /^BY-OTHERS-SOURCE-\d+$/.test(row.sku))
+    .map((row) => ({ label: row.description, quantity: row.qty }));
   const sources: SchematicEndpointBrief[] = [];
 
   // Count encoder/switcher capacity: each encoder or switcher input is a
@@ -101,6 +104,9 @@ function inferDisplays(
   template: RoomTemplate,
   rows: TemplateBomRow[],
 ): SchematicEndpointBrief[] {
+  if (template.concept) return activeRows(rows)
+    .filter((row) => /^BY-OTHERS-DISPLAY-\d+$/.test(row.sku))
+    .map((row) => ({ label: row.description, quantity: row.qty }));
   const displays: SchematicEndpointBrief[] = [];
 
   // Count decoder/switcher capacity: each decoder output is a display slot.
@@ -241,6 +247,12 @@ function inferRequirements(
     .join(" ")
     .toLowerCase();
   const fullText = `${blob} ${skuBlob}`.toLowerCase();
+  if (template.concept) return {
+    usbRequired: template.concept.capabilities.includes("uc") || /USB|interactive/i.test(template.concept.sources.map(([label]) => label).join(" ")),
+    audioRequired: template.concept.capabilities.includes("audio"),
+    controlRequired: template.concept.capabilities.includes("control"),
+    networkAvailable: template.concept.capabilities.includes("network") || Boolean(template.concept.audio?.dante),
+  };
 
   const usbRequired =
     fullText.includes("usb") ||

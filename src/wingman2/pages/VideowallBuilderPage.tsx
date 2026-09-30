@@ -1,3 +1,4 @@
+import { WorkflowPages } from "../components/WorkflowPages";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DecisionCompatibilityAlert } from "../components/DecisionCompatibilityAlert";
@@ -838,12 +839,60 @@ export function VideoWallPage() {
     );
   }
 
+  const resultPanel = (<aside className="vw2-result-panel wm-ui-card">
+          <div className="vw2-result-content">
+            <div className="vw2-result-head wm-ui-card">
+              <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Recommended direction</p>
+              <h3 className="wm-ui-title">{recommendation.title}</h3>
+              <span className="vw2-status">{recommendation.quoteSafety}</span>
+            </div>
+
+            {wallType ? (
+              <>
+              <div className="vw2-summary-list wm-ui-card wm-ui-copy">
+                <FieldRow label="Wall type" value={wallType.toUpperCase()} />
+                <FieldRow label="Architecture" value={recommendation.architecture} />
+                <FieldRow label="Suggested products" value={recommendation.products.length ? recommendation.products.join(" + ") : "Not ready"} />
+              </div>
+
+              <section className="vw2-selection-summary" aria-label="Workflow selection summary">
+                <div className="vw2-selection-summary-head">
+                  <h4>Selection summary</h4>
+                  <span>{completedWorkflowItems} of {workflowSummary.length} complete</span>
+                </div>
+                <div className="vw2-selection-list">
+                  {workflowSummary.map((item) => (
+                    <div key={item.label} className={item.value ? "is-complete" : "is-pending"}>
+                      <span>{item.label}</span>
+                      <strong>{item.value || "To complete"}</strong>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+                {message ? <p className="vw2-saved-message wm-ui-copy">{message}</p> : null}
+              </>
+            ) : null}
+          </div>
+
+          {wallType ? (
+            <div className="vw2-action-grid">
+              <button type="button" className="vw2-button vw2-button-primary wm-ui-button wm-ui-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")} disabled={hasBlockingIssues}>Send to Proposal</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-primary" onClick={saveToProject}>Save to Project</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={copySummary}>Copy summary</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>
+              <button type="button" className="vw2-button vw2-button-danger wm-ui-button wm-ui-button-primary" onClick={restart}>Restart</button>
+            </div>
+          ) : null}
+        </aside>);
+
   return (
     <main className={`vw2-page wm-ui-page ${wallType ? "" : "is-landing"}`}>
       <section className="vw2-hero">
         <div>
           <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Video wall design workspace</p>
-          <h1 className="wm-ui-title">Design the wall first. Choose the signal path second.</h1>
+          <h1 className="wm-ui-title">Video wall design</h1>
           <p className="wm-ui-copy">
             Define the display technology, layout and source behaviour. Wingman will turn those
             decisions into a safe product and architecture direction.
@@ -865,7 +914,7 @@ export function VideoWallPage() {
         <span className={recommendation.products.length ? "is-active" : ""}>3 <strong>Design direction</strong></span>
       </div>
 
-      <section className={`vw2-workspace wm-ui-section ${wallType ? "" : "is-landing"}`}>
+      <section className="vw2-workspace wm-ui-section is-landing">
         <div className={`vw2-wizard-panel wm-ui-card ${wallType ? "" : "is-landing"}`}>
           {!wallType ? (
             <div className="vw2-empty-state">
@@ -912,9 +961,14 @@ export function VideoWallPage() {
 
               <DecisionCompatibilityAlert issues={compatibilityIssues} />
 
-              <ChoiceGrid eyebrow="Step 1" title="What does the customer need the LED wall to show?" options={ledBehaviourOptions} value={ledAnswers.behaviour} onChange={(value) => updateLed("behaviour", value)} />
-              <ChoiceGrid eyebrow="Step 2" title="How many visible windows are required?" options={ledWindowOptions} value={ledAnswers.windows} onChange={(value) => updateLed("windows", value)} />
-              <ChoiceGrid eyebrow="Step 3" title="Where are the sources?" options={sourceLocationOptions} value={ledAnswers.sourceLocation} onChange={(value) => updateLed("sourceLocation", value)} />
+              <WorkflowPages label="Video wall pages" parameter="wall-step" pages={[
+{ id: "step-1", label: "Content", content: <><ChoiceGrid eyebrow="Step 1" title="What does the customer need the LED wall to show?" options={ledBehaviourOptions} value={ledAnswers.behaviour} onChange={(value) => updateLed("behaviour", value)} />
+              </> },
+{ id: "step-2", label: "Windows", content: <><ChoiceGrid eyebrow="Step 2" title="How many visible windows are required?" options={ledWindowOptions} value={ledAnswers.windows} onChange={(value) => updateLed("windows", value)} />
+              </> },
+{ id: "step-3", label: "Sources", content: <><ChoiceGrid eyebrow="Step 3" title="Where are the sources?" options={sourceLocationOptions} value={ledAnswers.sourceLocation} onChange={(value) => updateLed("sourceLocation", value)} /></> },
+{ id: "result", label: "Review design", content: resultPanel },
+]} />
             </>
           ) : null}
 
@@ -927,7 +981,8 @@ export function VideoWallPage() {
 
               <DecisionCompatibilityAlert issues={compatibilityIssues} />
 
-              <ChoiceGrid eyebrow="Step 1" title="How many screens are in the LCD wall?" options={lcdScreenOptions} value={lcdAnswers.screenCount} onChange={(value) => updateLcd("screenCount", value)} />
+              <WorkflowPages label="Video wall pages" parameter="wall-step" pages={[
+{ id: "step-1", label: "Screens", content: <><ChoiceGrid eyebrow="Step 1" title="How many screens are in the LCD wall?" options={lcdScreenOptions} value={lcdAnswers.screenCount} onChange={(value) => updateLcd("screenCount", value)} />
 
               {lcdAnswers.screenCount === "custom" ? (
                 <label className="vw2-input-label wm-ui-kicker">
@@ -950,8 +1005,10 @@ export function VideoWallPage() {
                 </label>
               ) : null}
 
-              <ChoiceGrid eyebrow="Step 2" title="What is the orientation?" options={lcdOrientationOptions} value={lcdAnswers.orientation} onChange={(value) => updateLcd("orientation", value)} />
-              <ChoiceGrid eyebrow="Step 3" title="How is the LCD wall driven?" options={lcdDriveOptions} value={lcdAnswers.driveMethod} onChange={(value) => updateLcd("driveMethod", value)} />
+              </> },
+{ id: "step-2", label: "Orientation", content: <><ChoiceGrid eyebrow="Step 2" title="What is the orientation?" options={lcdOrientationOptions} value={lcdAnswers.orientation} onChange={(value) => updateLcd("orientation", value)} />
+              </> },
+{ id: "step-3", label: "Connections", content: <><ChoiceGrid eyebrow="Step 3" title="How is the LCD wall driven?" options={lcdDriveOptions} value={lcdAnswers.driveMethod} onChange={(value) => updateLcd("driveMethod", value)} />
               {lcdAnswers.driveMethod === "tile-mode" && dismissedDesignGuide !== "tile-mode" ? (
                 <section className="vw2-design-guide" data-guide="tile-mode">
                   <div className="vw2-design-guide-head">
@@ -1075,60 +1132,19 @@ export function VideoWallPage() {
                   </div>
                 </section>
               ) : null}
-              <ChoiceGrid eyebrow="Step 4" title="How many sources feed the wall?" options={lcdSourceOptions} value={lcdAnswers.sourceCount} onChange={(value) => updateLcd("sourceCount", value)} />
-              <ChoiceGrid eyebrow="Step 5" title="Where are the sources?" options={sourceLocationOptions} value={lcdAnswers.sourceLocation} onChange={(value) => updateLcd("sourceLocation", value)} />
-              <ChoiceGrid eyebrow="Step 6" title="What does the wall need to do?" options={lcdBehaviourOptions} value={lcdAnswers.behaviour} onChange={(value) => updateLcd("behaviour", value)} />
+              </> },
+{ id: "step-4", label: "Source count", content: <><ChoiceGrid eyebrow="Step 4" title="How many sources feed the wall?" options={lcdSourceOptions} value={lcdAnswers.sourceCount} onChange={(value) => updateLcd("sourceCount", value)} />
+              </> },
+{ id: "step-5", label: "Source locations", content: <><ChoiceGrid eyebrow="Step 5" title="Where are the sources?" options={sourceLocationOptions} value={lcdAnswers.sourceLocation} onChange={(value) => updateLcd("sourceLocation", value)} />
+              </> },
+{ id: "step-6", label: "Content", content: <><ChoiceGrid eyebrow="Step 6" title="What does the wall need to do?" options={lcdBehaviourOptions} value={lcdAnswers.behaviour} onChange={(value) => updateLcd("behaviour", value)} /></> },
+{ id: "result", label: "Review design", content: resultPanel },
+]} />
             </>
           ) : null}
         </div>
 
-        {wallType ? <aside className="vw2-result-panel wm-ui-card">
-          <div className="vw2-result-content">
-            <div className="vw2-result-head wm-ui-card">
-              <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Recommended direction</p>
-              <h3 className="wm-ui-title">{recommendation.title}</h3>
-              <span className="vw2-status">{recommendation.quoteSafety}</span>
-            </div>
-
-            {wallType ? (
-              <>
-              <div className="vw2-summary-list wm-ui-card wm-ui-copy">
-                <FieldRow label="Wall type" value={wallType.toUpperCase()} />
-                <FieldRow label="Architecture" value={recommendation.architecture} />
-                <FieldRow label="Suggested products" value={recommendation.products.length ? recommendation.products.join(" + ") : "Not ready"} />
-              </div>
-
-              <section className="vw2-selection-summary" aria-label="Workflow selection summary">
-                <div className="vw2-selection-summary-head">
-                  <h4>Selection summary</h4>
-                  <span>{completedWorkflowItems} of {workflowSummary.length} complete</span>
-                </div>
-                <div className="vw2-selection-list">
-                  {workflowSummary.map((item) => (
-                    <div key={item.label} className={item.value ? "is-complete" : "is-pending"}>
-                      <span>{item.label}</span>
-                      <strong>{item.value || "To complete"}</strong>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-                {message ? <p className="vw2-saved-message wm-ui-copy">{message}</p> : null}
-              </>
-            ) : null}
-          </div>
-
-          {wallType ? (
-            <div className="vw2-action-grid">
-              <button type="button" className="vw2-button vw2-button-primary wm-ui-button wm-ui-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
-              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")} disabled={hasBlockingIssues}>Send to Proposal</button>
-              <button type="button" className="vw2-button wm-ui-button wm-ui-button-primary" onClick={saveToProject}>Save to Project</button>
-              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={copySummary}>Copy summary</button>
-              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>
-              <button type="button" className="vw2-button vw2-button-danger wm-ui-button wm-ui-button-primary" onClick={restart}>Restart</button>
-            </div>
-          ) : null}
-        </aside> : null}
+        
       </section>
 
     </main>

@@ -113,12 +113,23 @@ describe("Discovery rendered workflow handoff", () => {
     window.sessionStorage.clear();
   });
 
+  function enterUnclassifiedMarketContext() {
+    fireEvent.click(screen.getByRole("button", { name: /Other \/ not sure/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Describe the environment/i }));
+    fireEvent.change(screen.getByRole("textbox", { name: /Describe the customer’s space or situation/i }), {
+      target: { value: "A customer room that still needs classification" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Continue with this environment" }));
+  }
+
   it("keeps the customer's exact wording in the live summary", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/discovery"]}>
         <DiscoveryPage />
       </MemoryRouter>,
     );
+
+    enterUnclassifiedMarketContext();
 
     const customerWording =
       "The lecturer must switch the room without calling support, and the rack stays in the comms room.";
@@ -136,6 +147,8 @@ describe("Discovery rendered workflow handoff", () => {
         <DiscoveryPage />
       </MemoryRouter>,
     );
+
+    enterUnclassifiedMarketContext();
 
     const noteBox = screen.getByRole("textbox", { name: /customer wording/i });
 

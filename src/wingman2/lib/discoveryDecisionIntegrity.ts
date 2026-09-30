@@ -222,6 +222,14 @@ export function evaluateDiscoveryDecisionIntegrity(
   // processor feed, both require more than one display), so it must block
   // completion instead of flowing silently into topology and brief text.
   const singleDisplay = has(answers, "displays", "one-display") && !values(answers, "displays").some((value) => value !== "one-display");
+  if (has(answers, "opportunity", "av-over-ip") && has(answers, "network-path", "no-network-distribution")) {
+    addContradiction(
+      ["opportunity", "network-path"],
+      "Network path contradicts distributed video",
+      "Distributed video over IP is selected, but the answer says no network distribution is planned.",
+      "Will AV signals use the organisation's AV VLAN, a dedicated AV LAN, or should the application be changed?",
+    );
+  }
   if (singleDisplay && has(answers, "display-behaviour", "independent-routing-per-display")) {
     addContradiction(
       ["displays", "display-behaviour"],

@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import index from "../../../public/product-intelligence-summary.json";
 import {
   governedProfilesHumanVerifiedExcept,
   governedProfilesWithoutSkus,
@@ -50,6 +50,7 @@ let indexForSweep: typeof index = index;
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockImplementation(() => Promise.resolve(indexForSweep)),
+  loadProductIntelligenceDetailRecords: vi.fn().mockImplementation(() => Promise.resolve(indexForSweep)),
   loadProductIntelligenceSummary: vi.fn().mockImplementation(() => Promise.resolve(indexForSweep)),
 }));
 
@@ -197,6 +198,8 @@ describe("app-wide missing-tier copy consistency sweep", () => {
       },
       { timeout: 5000 },
     );
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "APO-MIC-EXT" } });
 
     // A stripped card must render the canonical missing-tier badge - and the
     // real APO-COM-MIC card must NOT claim it (it resolves official data).

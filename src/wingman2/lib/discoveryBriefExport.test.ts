@@ -11,6 +11,8 @@ const briefWithTrail: StoredDiscoveryBrief = {
     displayCount: "2 displays / outputs",
     longestRun: "15 m",
     designDirection: "Matrix / HDBaseT",
+    audioDesignDirection: "Steerable columns for the tiered audience",
+    audioScope: ["Acoustic wall panels by others", "Independent overflow audio channel"],
   },
   missingInformation: ["Confirm the display mounting height", "Confirm IT network access for the displays"],
   nextBestQuestion: "Confirm the display mounting height",
@@ -40,6 +42,9 @@ describe("Discovery Brief HTML export", () => {
     const html = buildDiscoveryBriefHtml(briefWithTrail, { projectName: "Acme HQ Boardroom" });
 
     expect(html).toContain("Acme HQ Boardroom");
+    expect(html).toContain("Steerable columns for the tiered audience");
+    expect(html).toContain("Acoustic wall panels by others");
+    expect(html).toContain("Independent overflow audio channel");
     expect(html).toContain("What type of opportunity is this?");
     expect(html).toContain("Meeting room / boardroom");
     expect(html).toContain("The exec boardroom on the top floor.");

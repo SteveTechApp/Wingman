@@ -33,11 +33,7 @@ export function DiscoveryClientDetailsPanel({
 }: DiscoveryClientDetailsPanelProps) {
   return (
     <details className="wm-discovery-client-panel wm-ui-card">
-      <summary>Client &amp; project details (optional)</summary>
-      <p className="wm-discovery-client-panel-intro wm-ui-copy">
-        Not required to proceed — add these whenever they come up in the conversation. They travel with the brief
-        into the proposal.
-      </p>
+      <summary>Client details</summary>
       <div className="wm-discovery-client-grid">
         <label>
           Client / company name

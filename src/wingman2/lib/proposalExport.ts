@@ -1,3 +1,6 @@
+import { proposalDiagramSvg } from "./proposalDiagram";
+import { loadProductMediaIndex, type ProductMediaIndex } from "../data/productMedia";
+import { proposalProductCards, proposalSolutionStory } from "./proposalSalesContent";
 import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
 import { downloadBlob } from "./downloadBlob";
 import { powerBudgetSummary, type PowerBudgetSummary } from "./powerBudget";
@@ -61,11 +64,13 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
 
   // Try native schematic engine first, fall back to legacy
   let cableRowsHtml = "";
+  let nativeDiagram = "";
   try {
     const products = proposal.products ?? [];
-    const bomRowsForSchematic = (proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
+    const bomRowsForSchematic = (bomRows.length ? bomRows : proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
     const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic);
     const schematicModel = buildWingmanSchematic(brief);
+    nativeDiagram = proposalDiagramSvg(schematicModel) + `<p>Concept drawing: confirm physical connections and site interfaces before installation.</p><ul>${schematicModel.assumptions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}${schematicModel.warnings.map((item) => `<li>${escapeHtml(item.title)}: ${escapeHtml(item.message)}</li>`).join("")}</ul>`;
     const nativeCableRows = buildNativeCableSchedule(schematicModel);
     if (nativeCableRows.length > 0) {
       const statusColor: Record<string, string> = {
@@ -74,7 +79,7 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
         unknown: "#dc2626",
       };
       cableRowsHtml = nativeCableRows
-        .map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(nativeCableToneLabel(row.type))}</td><td>${row.maxLengthMetres != null ? `${row.maxLengthMetres}m` : "Unlimited"}</td><td>${escapeHtml(row.connectors || "TBC")}</td><td style="color:${statusColor[row.validationStatus] || "#475569"};font-weight:600;">${escapeHtml(cableValidationStatusLabel(row.validationStatus))}</td><td>${escapeHtml(row.reminder)}</td></tr>`)
+        .map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(nativeCableToneLabel(row.type))}</td><td>${row.maxLengthMetres != null ? `${row.maxLengthMetres}m` : "Not confirmed"}</td><td>${escapeHtml(row.connectors || "TBC")}</td><td style="color:${statusColor[row.validationStatus] || "#475569"};font-weight:600;">${escapeHtml(cableValidationStatusLabel(row.validationStatus))}</td><td>${escapeHtml(row.reminder)}</td></tr>`)
         .join("");
     }
   } catch {
@@ -98,7 +103,7 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
     .join("");
 
   return `
-    <div style="display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin-top:8px;">${nodesHtml}</div>
+    ${nativeDiagram || `<div style="display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin-top:8px;">${nodesHtml}</div>`}
     <p style="margin-top:14px;font-size:12px;color:#475569;">This diagram is derived directly from the equipment schedule below - it shows the assumed signal flow from source to display so the customer and installer share the same picture of how the room connects together. The cable schedule underneath lists the transport type, connectors, maximum length, and validation status for each connection.</p>
     <table>
       <thead><tr><th>Cable run</th><th>Transport</th><th>Max length</th><th>Connectors</th><th>Status</th><th>Validation reminder</th></tr></thead>
@@ -111,34 +116,8 @@ function buildPracticalOperationHtml(proposal: StoredProjectProposal, bomRows: B
     return "<p>Add equipment schedule rows to describe how this system will operate day to day.</p>";
   }
 
-  const architecture = inferSchematicArchitecture(proposalContextBlob(proposal), bomRows);
-  const items: string[] = [
-    "Users will select the source they need and it will appear on the assigned display(s) without reconnecting any equipment.",
-  ];
-
-  if (architecture.isMatrix) {
-    items.push("Routing runs through a fixed central matrix, so day-to-day source changes happen instantly and do not depend on the network team.");
-  }
-
-  if (architecture.isNhd600 || architecture.isNhd500 || architecture.isNhd100) {
-    items.push("Routing runs over the AV-over-IP network, so additional displays, sources or rooms can be added later within the same architecture.");
-  }
-
-  if (architecture.hasVideoWall) {
-    items.push("Where the video wall processor is used, content can be shown as one combined canvas or split back to independent displays.");
-  }
-
-  if (architecture.hasCamera || architecture.hasUsb || architecture.isApollo) {
-    items.push("Camera, microphone and USB conferencing access will be available to the connected laptop or room PC once the USB host path is confirmed.");
-  }
-
-  if (architecture.hasDanteAudio) {
-    items.push("Room audio will follow the selected source by default, unless a separate audio zone or DSP configuration is agreed.");
-  }
-
-  items.push("Day-to-day operation is intended to use simple named presets or a control interface rather than requiring the user to understand the underlying signal path.");
-
-  return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+  const story = proposalSolutionStory(proposal, bomRows);
+  return `<ul>${story.operation.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 }
 
 function buildBenefitsHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
@@ -150,11 +129,11 @@ function buildBenefitsHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   const items: string[] = ["A consistent, repeatable connection experience across the room(s) covered by this proposal."];
 
   if (architecture.isMatrix) {
-    items.push("Fixed, predictable routing keeps the system simple to support without an ongoing network dependency.");
+    items.push("Central routing provides one place to manage the agreed source-to-display connections; confirm control and network dependencies in the final design.");
   }
 
   if (architecture.isNhd600 || architecture.isNhd500 || architecture.isNhd100) {
-    items.push("An AV-over-IP architecture gives a clear, supported path to add displays, sources or rooms later without redesigning the system.");
+    items.push("AV-over-IP provides a potential expansion path, subject to compatible endpoints, network capacity and the final design.");
   }
 
   if (architecture.hasVideoWall) {
@@ -162,7 +141,7 @@ function buildBenefitsHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   }
 
   if (architecture.hasCamera || architecture.hasUsb || architecture.isApollo) {
-    items.push("Built-in conferencing support reduces the need for a separate room PC or standalone UC appliance.");
+    items.push("An agreed conferencing workflow helps users connect to room peripherals; the host computer and meeting platform remain part of the complete design.");
   }
 
   if (architecture.hasDanteAudio) {
@@ -240,7 +219,7 @@ function buildExclusionsHtml(bomRows: BomRow[]) {
 
   const byOthersRows = bomRows.filter((row) => row.sku?.startsWith("BY-OTHERS"));
   const byOthersHtml = byOthersRows.length
-    ? `<p style="margin-top:10px;"><strong>Specifically excluded from this WyreStorm equipment schedule, provided by others:</strong></p><ul>${byOthersRows
+    ? `<p style="margin-top:10px;"><strong>Required to complete the AV system, supplied by the named third parties (outside the WyreStorm equipment supply):</strong></p><ul>${byOthersRows
         .map((row) => `<li>${escapeHtml(row.sku)} - ${escapeHtml(row.description)}</li>`)
         .join("")}</ul>`
     : "";
@@ -332,7 +311,9 @@ function buildPowerStrategyHtml(products: StoredProductSelection[]): string {
   </table>${summaryHtml}`;
 }
 
-export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
+export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], media: ProductMediaIndex | null = null) {
+  const story = proposalSolutionStory(proposal, bomRows);
+  const cards = proposalProductCards(bomRows, media);
   const preparedBy = proposal.preparedBy || "";
   const companyName = proposal.companyName || "WyreStorm";
   const contactLine = [proposal.contactEmail, proposal.contactPhone].filter(Boolean).join(" | ");
@@ -568,8 +549,13 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
       : "<p>This document sets out the WyreStorm recommendation for this requirement, how it will work in use, the equipment involved, and what remains to be confirmed before it is issued as a final customer proposal.</p>"
   }
 
+  <h2>Solution Overview</h2>
+  <p>${escapeHtml(story.overview)}</p>
+  <h3>What successful delivery looks like</h3>
+  <ul>${story.acceptance.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+
   <h2>Customer Requirement</h2>
-  <p><strong>Confirmed requirement:</strong> ${escapeHtml(proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
+  <p><strong>Requirement to be agreed:</strong> ${escapeHtml(proposal.salesContent?.objectives || proposal.applicationProposal?.customerNeed || proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
   ${proposal.outputPurpose ? `<p><strong>Sales motion:</strong> ${escapeHtml(proposal.outputPurpose.motion)}</p>` : ""}
   ${buildDiscoveryConversationHtml(proposal)}
   ${buildUnresolvedDiscoveryHtml(proposal)}
@@ -595,6 +581,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   ${buildBenefitsHtml(proposal, bomRows)}
 
   <h2>Technical Architecture</h2>
+  ${proposal.salesContent?.architecture ? `<p>${escapeHtml(proposal.salesContent.architecture)}</p>` : ""}
   <p>The following diagram and cable schedule explain how the recommended solution connects together, derived directly from the equipment schedule below.</p>
   ${buildSchematicSectionHtml(proposal, bomRows)}
   ${
@@ -605,6 +592,12 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
         }).join("")}</div>`
       : ""
   }
+
+  <h2>Products in the Solution</h2>
+  <div class="visual-grid">${cards.map((card) => `<div class="visual-card">${card.imageUrl ? `<img src="${escapeHtml(card.imageUrl)}" alt="${escapeHtml(card.alt)}" style="width:100%;height:140px;object-fit:contain" />` : "<p>Product photograph unavailable.</p>"}<strong>${escapeHtml(card.sku)} — ${escapeHtml(card.name)}</strong><p>Role in this design: ${escapeHtml(card.role || "To be confirmed")}</p>${card.url ? `<a href="${escapeHtml(card.url)}" target="_blank" rel="noopener noreferrer">Manufacturer product page and documentation</a>` : "<p>Official product link to be confirmed.</p>"}</div>`).join("")}</div>
+  <h2>Complete System Design and Responsibilities</h2>
+  <p>The following items complete the wider solution. Unfilled entries are open design decisions, not supplied equipment or agreed services. Replace each [complete] with the agreed detail or mark it not applicable / excluded.</p>
+  <ul>${story.externalScope.split(/\r?\n/).filter(Boolean).map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>
 
   <h2>Equipment Schedule</h2>
   <table>
@@ -686,7 +679,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   <section data-wingman-proposal-safety-sections="true">
     <h2>Confirmed Requirement</h2>
-    <p>${escapeHtml(proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
+    <p>${escapeHtml(proposal.salesContent?.objectives || proposal.applicationProposal?.customerNeed || proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
 
     <h2>Design Assumptions</h2>
     <ul>${
@@ -736,8 +729,8 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 </html>`;
 }
 
-export function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
-  downloadBlob(new Blob([buildProposalHtml(proposal, bomRows, products)], { type: "text/html;charset=utf-8" }), `${fileBaseName(proposal.title)}.proposal.html`);
+export async function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
+  downloadBlob(new Blob([buildProposalHtml(proposal, bomRows, products, await loadProductMediaIndex())], { type: "text/html;charset=utf-8" }), `${fileBaseName(proposal.title)}.proposal.html`);
   trackDesignProjectExport(proposal.designRevision, "html");
 }
 
@@ -752,7 +745,7 @@ export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[])
  * every major OS/browser. Avoids pulling in a client-side PDF-generation
  * library purely to duplicate what the HTML export already renders.
  */
-export function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
+export async function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
   if (typeof window === "undefined") return;
 
   const printWindow = window.open("", "_blank");
@@ -761,12 +754,14 @@ export function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomR
     throw new Error("Pop-up blocked. Allow pop-ups for this site, or use Export HTML and print to PDF from your browser instead.");
   }
 
+  const media = await loadProductMediaIndex();
+  if (printWindow.closed) return;
   printWindow.document.open();
-  printWindow.document.write(buildProposalHtml(proposal, bomRows, products));
-  printWindow.document.close();
-  trackDesignProjectExport(proposal.designRevision, "pdf");
   printWindow.onload = () => {
     printWindow.focus();
     printWindow.print();
   };
+  printWindow.document.write(buildProposalHtml(proposal, bomRows, products, media));
+  printWindow.document.close();
+  trackDesignProjectExport(proposal.designRevision, "pdf");
 }

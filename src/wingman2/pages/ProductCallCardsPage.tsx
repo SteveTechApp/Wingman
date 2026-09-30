@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceSummary } from "../lib/productIntelligenceIndexCache";
+import { useFocusedCardDetailHydration } from "./useFocusedCardDetailHydration"; // summary-only grid; focused detail hydrates on demand
 import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
 import {
@@ -729,7 +730,7 @@ async function loadProductSeeds(): Promise<ProductSeed[]> {
   let intelligenceSeeds: ProductSeed[] = [];
 
   try {
-    const payload = await loadProductIntelligenceIndex();
+    const payload = await loadProductIntelligenceSummary();
     intelligenceSeeds = extractProductSeeds(payload);
   } catch {
     // Fall through to curated fallback products.
@@ -959,9 +960,8 @@ export default function ProductCallCardsPage() {
   const safePageIndex = Math.min(pageIndex, pageCount - 1);
   const pageProducts = filteredProducts.slice(safePageIndex * PAGE_SIZE, safePageIndex * PAGE_SIZE + PAGE_SIZE);
 
-  const selectedProduct = selectedSku
-    ? products.find((product) => product.sku === selectedSku) ?? null
-    : null;
+  const selectedProduct = selectedSku ? products.find((product) => product.sku === selectedSku) ?? null : null;
+  useFocusedCardDetailHydration<ProductCard>(selectedSku, setProducts);
   const competitorLandscape = useMemo(
     () => (selectedProduct ? getCompetitorLandscape(selectedProduct) : null),
     [selectedProduct],
@@ -1722,7 +1722,7 @@ return (
 
               >
                 <strong>{tab.label}</strong>
-                <span>{tab.hint}</span>
+                
               </button>
             ))}
           </div>

@@ -1,6 +1,6 @@
 # WyreStorm Technical Data Audit
 
-Generated: 2026-09-02T08:09:00.388Z
+Generated: 2026-09-30T11:13:20.772Z
 
 Status: **PASSED**
 
@@ -32,7 +32,7 @@ Status: **PASSED**
 
 ## Warnings
 
-- None
+- TX-SCL-HDMI: verified matrix lacks connector-level video input/output data
 
 ## Errors
 

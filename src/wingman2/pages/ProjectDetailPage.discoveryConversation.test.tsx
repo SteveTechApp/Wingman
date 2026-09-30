@@ -64,7 +64,7 @@ function renderDetail() {
 }
 
 function conversationSection() {
-  const section = screen.getByText("Discovery conversation").closest("section");
+  const section = screen.getByTestId("discovery-conversation-review-section");
   expect(section).not.toBeNull();
   return section!;
 }
@@ -72,7 +72,7 @@ function conversationSection() {
 describe("ProjectDetailPage discovery conversation", () => {
   it("shows the Q&A trail with confirmation status and edit links", () => {
     renderDetail();
-    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Answers" }));
 
     const section = conversationSection();
 
@@ -93,11 +93,11 @@ describe("ProjectDetailPage discovery conversation", () => {
   it("shows the empty state when no conversation has been captured", () => {
     storedProject.discoveryBrief.discoveryConversation = [];
     renderDetail();
-    fireEvent.click(screen.getByRole("tab", { name: /Capture/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Answers" }));
 
     const section = conversationSection();
     expect(
-      within(section).getByText(/No discovery answers have been captured yet/),
+      within(section).getByText(/No answers saved/),
     ).not.toBeNull();
   });
 });

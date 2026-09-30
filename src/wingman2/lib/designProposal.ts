@@ -106,9 +106,9 @@ export function compileDesignProposal(project: StoredProject, compiledAt = new D
   ]);
   const warnings = unique([...unresolved.filter((item) => item.state === "inferred").map((item) => `Confirm Wingman’s interpretation of ${item.customerStatement}.`), ...(project.proposal?.governanceWarnings ?? []), ...(project.proposal?.validationNotes ?? [])]);
   const customerRequirement = requirements.map((item) => item.customerStatement).join(" · ") || "Customer requirement not captured.";
-  const architecture = text(project.proposal?.applicationProposal?.solutionOverview, text(project.discoveryBrief?.inference?.architecture, "Architecture requires confirmation."));
+  const architecture = text(project.proposal?.salesContent?.architecture || project.proposal?.applicationProposal?.solutionOverview, text(project.discoveryBrief?.inference?.architecture, "Architecture requires confirmation."));
   const draft: StoredDesignProposalRevision = { schemaVersion: 1, revisionId: "", contentHash: "", projectId: project.id, projectName: project.name, compiledAt, customerRequirement, interpretedRequirement: requirements.map((item) => item.interpretation).join(" · ") || "Wingman cannot interpret the requirement yet.", architecture, requirements, roleCoverage: coverage, productOverviews: products, assumptions: unique(project.proposal?.assumptions ?? []), blockers, warnings, canIssue: blockers.length === 0 };
-  const contentHash = designProposalHash(draft);
+  const contentHash = designProposalHash(project.proposal?.salesContent ? { ...draft, salesContent: project.proposal.salesContent } : draft);
   return { ...draft, revisionId: contentHash, contentHash };
 }
 

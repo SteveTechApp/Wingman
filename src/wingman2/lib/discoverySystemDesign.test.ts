@@ -8,13 +8,14 @@ import {
 } from "./discoverySystemDesign";
 import { extractRawProducts, readClassificationFacts } from "./productStoryEngine";
 import type { StoredDiscoveryBrief } from "../data/projectStore";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
 
 function brief(roomModel: Record<string, unknown>): StoredDiscoveryBrief {
   return { roomModel } as unknown as StoredDiscoveryBrief;
 }
 
 const rawProducts = extractRawProducts(
-  JSON.parse(readFileSync("public/product-intelligence-index.json", "utf8")),
+  { products: fullProductIndexRecords },
 ) as Array<Record<string, unknown>>;
 
 function skusForSlot(slot: SystemSlot): string[] {

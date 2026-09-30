@@ -19,6 +19,8 @@ vi.mock("../api/wingmanApi", async () => {
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockResolvedValue(fixture),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue(fixture),
+  loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue(fixture),
 }));
 
 import ComparePageNew from "./ComparePageNew";

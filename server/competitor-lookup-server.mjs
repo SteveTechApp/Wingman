@@ -1,4 +1,5 @@
 import { handleAgentsRoute } from "./routes/agents.mjs";
+import { handleAudioTranscription } from "./audio-transcription.mjs";
 import { readAllSupabaseRows } from "./supabase-pagination.mjs";
 import {
   handleCompetitorDecisionApprovalPost,
@@ -8,6 +9,7 @@ import {
 import { handleProfileConfirmationPost } from "./governance/profile-confirmation.mjs";
 import { handleAffectedChecksPost, handleDataValidationPost } from "./governance/data-jobs.mjs";
 import { enforceCsrf, issueCsrf } from "./security/csrf.mjs";
+import { assertSyncFetchTarget } from "./security/safe-fetch-target.mjs";
 import { handleSiteSurveySyncGet, handleSiteSurveySyncPost } from "./site-survey-sync.mjs";
 import http from "node:http";
 import fs from "node:fs/promises";
@@ -1021,6 +1023,10 @@ async function fetchTextWithRetries(url, options = {}) {
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
+      // Sync pre-flight per attempt: URLs are built from adapter hosts and
+      // sku/query strings, so classify every target (any IP-literal spelling,
+      // local names) before the request begins.
+      assertSyncFetchTarget(url);
       const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -2172,6 +2178,13 @@ function matchRoute(method, url) {
 }
 
 const ROUTES = [
+  {
+    method: "POST",
+    path: "/api/wingman/audio/transcribe",
+    permission: "canEditProjects",
+    deniedMessage: "Sign in to your Wingman workspace to transcribe a voice note.",
+    handler: (req, res, url, helpers) => handleAudioTranscription(req, res, url, helpers),
+  },
   // --- Public introspection (no session required) ---
   {
     method: "GET",

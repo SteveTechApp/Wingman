@@ -52,7 +52,7 @@ const WORKSPACE_EMAIL = "e2esmoke@example.com";
 const WORKSPACE_PASSWORD = "e2e-smoke-pass";
 
 // Discovery walk: current question heading text → the option label to click.
-// Pinned to the six Basic-mode essential questions (discoveryQuestions.ts /
+// Pinned to the Essential-mode questions (discoveryQuestions.ts /
 // BASIC_MODE_REQUIRED_IDS); single-select steps auto-advance on click, the two
 // multi-select steps advance via Continue. Completion is the panel CTA
 // "Next: find matching products" (DiscoveryCompletionPanel).
@@ -63,6 +63,10 @@ const QUESTION_TO_OPTION = {
   "How many displays or outputs are needed?": "1 display / output",
   "How should the displays behave?": "Same content on all displays",
   "What camera, microphone or capture workflows are required?": "No camera or microphone requirements",
+  "How should room audio be connected and operated?": "Distributed 70 V / 100 V loudspeakers",
+  "Which areas need separate audio control?": "Several independently controlled areas",
+  "What must the audience hear?": "Speech and background programme",
+  "What physical conditions affect sound in this space?": "Hard surfaces or audible reverberation",
 };
 
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wingman-e2e-smoke-"));
@@ -172,6 +176,7 @@ async function signInViaSettings(page) {
   //    API server and its Set-Cookie lands on the UI origin, exactly like a
   //    real user session - no cookie is injected for this flow.
   await page.goto(`${UI_BASE}/wingman/profile`, { waitUntil: "networkidle", timeout: 60_000 });
+  await page.getByRole("button", { name: "Workspace", exact: true }).click();
   const workspaceSection = page.locator('section[aria-labelledby="wingman-settings-workspace"]');
   await workspaceSection.waitFor({ state: "visible", timeout: 15_000 });
 
@@ -226,7 +231,7 @@ async function saveDiscoveryProjectAndExportBrief(page) {
   }
   const briefPath = await briefDownload.path();
   const briefHtml = fs.readFileSync(briefPath, "utf8");
-  for (const expected of ["<!doctype html>", "Meeting room / boardroom"]) {
+  for (const expected of ["<!doctype html>", "Meeting room / boardroom", "Zoned 70/100V", "Acoustic survey and wall/ceiling treatment allowance", "independently selects"]) {
     if (!briefHtml.includes(expected)) {
       throw new Error(`[e2e-smoke] Discovery brief HTML export is missing "${expected}".`);
     }
@@ -243,9 +248,14 @@ async function walkDiscovery(page) {
   await page.reload({ waitUntil: "networkidle" });
   await page.waitForTimeout(600);
 
+  const marketEntry = page.getByRole("region", { name: "Opportunity context" });
+  await marketEntry.getByRole("button", { name: /Corporate & enterprise/ }).click();
+  await marketEntry.getByRole("button", { name: /Describe this environment for a custom design/ }).click();
+  await marketEntry.getByRole("button", { name: /Meeting or boardroom/ }).click();
+
   // Guided mode defaults to Basic (pressed); pin it in case a prior session
   // left Expert selected in the sticky settings.
-  const basicToggle = page.getByRole("button", { name: "Basic", exact: true });
+  const basicToggle = page.getByRole("button", { name: "Essential", exact: true });
   if (
     (await basicToggle.isVisible().catch(() => false)) &&
     (await basicToggle.getAttribute("aria-pressed")) !== "true"
@@ -258,7 +268,7 @@ async function walkDiscovery(page) {
     page.locator("button.wm-discovery-option").filter({ hasText: label }).first();
 
   let answered = 0;
-  for (let i = 0; i < 12; i += 1) {
+  for (let i = 0; i < 16; i += 1) {
     // Completion panel CTA appears once every essential question has an answer.
     const cta = page.getByRole("button", { name: "Next: find matching products", exact: true });
     if (await cta.isVisible({ timeout: 800 }).catch(() => false)) {
@@ -267,7 +277,14 @@ async function walkDiscovery(page) {
       break;
     }
 
-    const heading = page.locator("main h2").first();
+    const finish = page.getByRole("button", { name: "Finish discovery", exact: true });
+    if (await finish.isVisible().catch(() => false) && await finish.isEnabled()) {
+      await finish.click();
+      await page.waitForTimeout(350);
+      continue;
+    }
+
+    const heading = page.locator("[data-discovery-step] h2").first();
     if (!(await heading.isVisible({ timeout: 800 }).catch(() => false))) {
       throw new Error("[e2e-smoke] Discovery rendered neither a question nor the completion CTA.");
     }
@@ -309,7 +326,7 @@ async function walkDiscovery(page) {
     const bodyText = await page.locator("body").innerText().catch(() => "");
     throw new Error(
       `[e2e-smoke] Discovery walk did not land on Recommendations (answered ${answered} questions; ` +
-        `url=${page.url()}). ${bodyText.slice(0, 300)}`,
+        `url=${page.url()}). ${bodyText.slice(0, 5000)}`,
     );
   }
   console.log(`[e2e-smoke] Discovery walked (${answered} answers) → ${page.url()}`);
@@ -366,24 +383,19 @@ async function runCompare(page) {
   //    below). Open the panel if collapsed, then assert the DM-NVX-350
   //    snapshot row is present.
   await page.getByRole("button", { name: "Save comparison to history" }).click();
-  const historySection = page.locator('section[aria-label="Saved comparison history"]');
+  await page.getByRole("link", { name: "Review saved history in Project" }).click();
+  const historySection = page.locator('[aria-label="Saved comparison history"]');
   await historySection.waitFor({ state: "visible", timeout: 10_000 });
-  const savedCount = historySection.getByText(/\d+ snapshots saved\./);
-  if (!(await savedCount.isVisible({ timeout: 1_500 }).catch(() => false))) {
-    await historySection.locator("summary").click();
-    await savedCount.waitFor({ state: "visible", timeout: 8_000 });
-  }
   await historySection.getByText(/DM-NVX-350/).first().waitFor({ state: "visible", timeout: 8_000 });
   console.log("[e2e-smoke] Comparison saved to history via the Save comparison action (Crestron DM-NVX-350 snapshot visible).");
 
   // 4. Export the saved history as a CSV download blob and content-check it.
-  await historySection.getByRole("button", { name: "Export", exact: true }).click();
   const [csvDownload] = await Promise.all([
     page.waitForEvent("download", { timeout: 15_000 }),
-    page.getByRole("menuitem", { name: "Export CSV" }).click(),
+    historySection.getByRole("button", { name: "Export CSV", exact: true }).click(),
   ]);
   const csvFileName = csvDownload.suggestedFilename();
-  if (csvFileName !== "wingman-saved-comparisons.csv") {
+  if (!/^wingman-.+-comparisons\.csv$/.test(csvFileName)) {
     throw new Error(`[e2e-smoke] Compare history export produced unexpected file name "${csvFileName}".`);
   }
   const csvPath = await csvDownload.path();

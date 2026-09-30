@@ -7,7 +7,7 @@
 //     whole installable range on the fixed side).
 //   - postcss-selector-parser in the ^6.0.10 family must stay pinned at ^6.1.4
 //     (GHSA-w9m9-85wc-3x92, uncontrolled AST recursion, fixed in 6.1.3).
-//   - fast-uri must stay pinned at ^3.1.7 (host confusion / SSRF via IDN,
+//   - fast-uri must stay pinned at ^3.1.8 (host confusion / SSRF via IDN,
 //     IPv6 and percent-encoding normalization, fixed in 3.1.7).
 //
 // The server manifest (server/package.json) carries its own scoped floor row:
@@ -89,8 +89,8 @@ const OVERRIDE_FLOORS = [
   {
     overrideKey: "fast-uri",
     packageName: "fast-uri",
-    floor: "3.1.7",
-    why: "fast-uri GHSA-5jgf-p345-68v8 / GHSA-f65p-4m7j-42xc / GHSA-fph4-wmhf-6fwf / GHSA-jqff-g426-hqxp (host confusion / SSRF via IDN, IPv6 and percent-encoding normalization) were fixed in 3.1.7",
+    floor: "3.1.8",
+    why: "fast-uri GHSA-5jgf-p345-68v8 / GHSA-f65p-4m7j-42xc / GHSA-fph4-wmhf-6fwf / GHSA-jqff-g426-hqxp (host confusion / SSRF via IDN, IPv6 and percent-encoding normalization) were fixed in 3.1.7; GHSA-hrr3-gc8f-f4qj (inconsistent host case normalization via percent-encoded octets) was fixed in 3.1.8",
   },
   {
     overrideKey: "js-yaml",

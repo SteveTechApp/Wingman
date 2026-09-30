@@ -36,7 +36,7 @@ const compareSource = [
 
 assert(cacheSource.includes("productIntelligenceIndexPromise"), "Product index cache promise missing.");
 assert(cacheSource.includes('cache: "force-cache"'), "Product index fetch should use force-cache.");
-assert(compareSource.includes("loadProductIntelligenceIndex"), "Compare split implementation is not using cached product-intelligence loader.");
+assert(compareSource.includes("loadProductIntelligenceDetailRecords"), "Compare split implementation is not using cached product-intelligence loader.");
 
 console.log(`[wingman-performance-guard] CSS size ${cssMb.toFixed(2)} MB`);
 console.log("[wingman-performance-guard] Performance guard checks passed.");

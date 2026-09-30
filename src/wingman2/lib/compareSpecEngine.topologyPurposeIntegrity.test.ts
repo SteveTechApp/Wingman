@@ -1,9 +1,15 @@
-import index from "../../../public/product-intelligence-index.json";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("./productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
-}));
+vi.mock("./productIntelligenceIndexCache", async () => {
+  const { fullProductIndexRecords } = await import("./testHelpers/fullProductIndexRecords");
+  const index = { products: fullProductIndexRecords };
+  return {
+    loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+    loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue(index),
+  };
+});
 
 import {
   findCompetitorCatalogEntry,

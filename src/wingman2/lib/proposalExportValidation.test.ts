@@ -13,6 +13,10 @@ function run(discoveryConversation: DiscoveryConversationItem[]) {
 const NOTE_ONLY = "Captured note only";
 
 describe("validateProposalExport discovery-conversation gate", () => {
+  it("keeps third-party confirmation visible for required complete-system rows", () => {
+    const result = validateProposalExport({ products: [], bomRows: [{ item: 1, sku: "BY-OTHERS-AUDIO-SPEAKERS-1", description: "Dining speakers", role: "Audio", qty: 4, type: "Required", status: "included", evidence: "Concept", notes: "Confirm supplier." }] });
+    expect(result.warnings.some((warning) => warning.id === "chain-by-others-scope")).toBe(true);
+  });
   it("blocks export on a note-only capture that never mapped to a governed answer", () => {
     const result = run([
       {

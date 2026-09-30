@@ -981,6 +981,21 @@ button.wm-reference-quick-card {
   border-radius: 999px;
   box-shadow: none;
 }
+.wingman-guru-dismiss {
+  position: fixed;
+  z-index: 2147483647;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #7fded4;
+  border-radius: 50%;
+  color: #e8fffc;
+  background: #092334;
+  cursor: pointer;
+}
+.wingman-guru-dismiss:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 .wingman-guru-fab:active,
 .wingman-guru-fab[data-dragging="true"] {

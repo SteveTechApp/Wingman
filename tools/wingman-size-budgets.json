@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-07T13:16:26.377Z",
+  "updatedAt": "2026-09-30T11:48:28.754Z",
   "tolerancePct": 5,
   "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
   "limits": {
@@ -8,7 +8,7 @@
     "chunk:project-workflow": 251588,
     "initial:js": 544333,
     "total:js": 6859118,
-    "total:css": 916258,
+    "total:css": 978389,
     "source:style-stack-css": 431
   }
 }

@@ -2,12 +2,14 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { loadProductIntelligenceIndex } from "@/wingman2/lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceIndex, loadProductIntelligenceSummary } from "@/wingman2/lib/productIntelligenceIndexCache";
 import { ProductFamilyPage } from "@/wingman2/pages/ProductFamilyPage";
 import ProductPitchPage from "@/wingman2/pages/ProductPitchPage";
 
 vi.mock("@/wingman2/lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn(),
+  loadProductIntelligenceIndex: vi.fn().mockImplementation(() => Promise.resolve(undefined)),
+  loadProductIntelligenceSummary: vi.fn().mockImplementation(() => Promise.resolve(undefined)),
+  loadProductIntelligenceDetailRecords: vi.fn().mockImplementation(() => Promise.resolve(undefined)),
 }));
 
 vi.mock("@/wingman2/data/productMedia", () => ({
@@ -16,7 +18,7 @@ vi.mock("@/wingman2/data/productMedia", () => ({
 }));
 
 function mockIndex(skus: string[]) {
-  vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+  vi.mocked(loadProductIntelligenceSummary).mockResolvedValue({
     products: skus.map((sku) => ({
       sku,
       name: `${sku} product`,

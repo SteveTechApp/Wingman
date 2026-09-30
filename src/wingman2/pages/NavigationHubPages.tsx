@@ -1,4 +1,5 @@
-import { ArrowRight, Boxes, FileSearch, FileText, Sparkles } from "lucide-react";
+import { PagedItems } from "../components/PagedItems";
+import { ArrowRight, FileSearch, FileText } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { lazy, Suspense, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -105,10 +106,10 @@ export function HubCard({ item, workflowId }: { item: HubAction; workflowId?: Ca
       </span>
 
       <span className="wm-sh-choice-content wm-polish-card-copy">
-        <span className="wm-sh-choice-eyebrow wm-polish-card-kicker">{item.action}</span>
+        
         <span className="wm-sh-choice-title wm-polish-card-title">{item.title}</span>
         <span className="wm-sh-choice-body wm-polish-card-body">{item.intent}</span>
-        {item.note ? <small className="wm-polish-card-note">{item.note}</small> : null}
+        
         <span className="wm-sh-choice-action wm-polish-card-link">
           {item.linkLabel ?? "Open in Wingman"}
           <ArrowRight aria-hidden="true" />
@@ -126,7 +127,7 @@ export function HubCard({ item, workflowId }: { item: HubAction; workflowId?: Ca
 }
 
 function HubPage({
-  eyebrow,
+  eyebrow: _eyebrow,
   title,
   intent,
   primaryActions,
@@ -161,25 +162,20 @@ function HubPage({
         </span>
 
         <div className="wm-polish-hero-copy">
-          <p className="wm-polish-eyebrow">{eyebrow}</p>
+          
           <h1 id="wingman-navhub-title">{title}</h1>
           <p>{intent}</p>
         </div>
       </section>
 
       <section className="wm-sh-page-section" aria-label={`${title} actions`}>
-        <div className="wm-sh-card-grid wm-polish-grid">
-          {actions.map((item) => (
+        <PagedItems items={actions} pageSize={4} resetKey={title}>{(pageItems) => (<div className="wm-sh-card-grid wm-polish-grid">
+          {pageItems.map((item) => (
             <HubCard key={item.title} item={item} workflowId={workflowId} />
           ))}
-        </div>
+        </div>)}</PagedItems>
 
-        <div className="wm-polish-tip">
-          <Sparkles aria-hidden="true" />
-          <span>
-            <strong>{workflowId ? "Canonical next action:" : "Suggested starting point:"}</strong> {tip}
-          </span>
-        </div>
+        <details><summary>Help choosing a tool</summary><p>{tip}</p></details>
       </section>
     </main>
   );
@@ -218,93 +214,23 @@ export function CallCoachPage() {
     ),
   ];
 
-  return <>
+  return <div className="wm-polish-shell wm-call-coach-workspace">
     <section className="wm-sh-page-section" aria-label="Call Coach workflows">
-      <div className="wm-sh-card-grid wm-polish-grid">
-        {governedStartingPoints.map((item) => <HubCard key={item.routeKey} item={item} workflowId="sales-conversation" />)}
-      </div>
+      <PagedItems items={governedStartingPoints} pageSize={4} resetKey="call-coach">{(pageItems) => (<div className="wm-sh-card-grid wm-polish-grid">
+        {pageItems.map((item) => <HubCard key={item.routeKey} item={item} workflowId="sales-conversation" />)}
+      </div>)}</PagedItems>
     </section>
     <SalesHelperPage />
-  </>;
+  </div>;
 }
 
 export function ProductsPage() {
   const [searchParams] = useSearchParams();
   const view = searchParams.get("view");
-  if (view && ["catalogue", "families", "call-cards", "positioning"].includes(view)) return <ProductWorkspaceMode view={view} />;
-  return (
-    <HubPage
-      eyebrow="Wingman / Products"
-      title="Products"
-      intent="Find, understand, compare or position the right WyreStorm product."
-      heroIcon={Boxes}
-      accent="blue"
-      tip="Start with Find by Requirement when the product is unknown. Use Search a Known SKU when you already have a WyreStorm product code."
-      primaryActions={[
-        routeAction(
-          "catalogBrowser",
-          "Browse Catalogue",
-          "Search the governed WyreStorm catalogue by family, role, technology and lifecycle.",
-          "Browse products",
-          { accent: "blue", linkLabel: "Open catalogue" },
-        ),
-        routeAction(
-          "productFamilies",
-          "Explore Product Families",
-          "Understand the available WyreStorm technology routes before selecting a specific product.",
-          "Family-led research",
-          {
-            accent: "violet",
-            linkLabel: "Explore",
-          },
-        ),
-        routeAction(
-          "productCallCards",
-          "Search a Known SKU",
-          "Open the sales call card when you already know the WyreStorm product code.",
-          "SKU-led lookup",
-          {
-            accent: "aqua",
-            linkLabel: "Search",
-          },
-        ),
-        routeAction(
-          "compare",
-          "Compare a Competitor",
-          "Start with another manufacturer's SKU and identify the closest safe WyreStorm direction.",
-          "Competitor-led search",
-          {
-            accent: "amber",
-            linkLabel: "Compare",
-          },
-        ),
-      ]}
-      secondaryActions={[
-        routeAction(
-          "productPitch",
-          "Product Dashboard",
-          "Review product facts, I/O, positioning, qualification questions and checks before recommending.",
-          "Detailed product view",
-          {
-            accent: "green",
-            note: "Best used after selecting a WyreStorm SKU.",
-            linkLabel: "Open",
-          },
-        ),
-        routeAction(
-          "videowall",
-          "Videowall Builder",
-          "Design an LED or LCD wall signal-flow architecture when the requirement is display-wall led.",
-          "Display-wall workflow",
-          {
-            accent: "magenta",
-            linkLabel: "Build",
-            art: "videowall",
-          },
-        ),
-      ]}
-    />
-  );
+  const activeView = view && ["catalogue", "families", "call-cards", "positioning"].includes(view)
+    ? view
+    : searchParams.has("sku") ? "positioning" : "catalogue";
+  return <ProductWorkspaceMode view={activeView} />;
 }
 export function DocumentsPage() {
   const [searchParams] = useSearchParams();

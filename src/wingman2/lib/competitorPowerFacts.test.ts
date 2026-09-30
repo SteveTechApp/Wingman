@@ -5,7 +5,8 @@ import {
 } from "./competitorSpecRegistry";
 import { classifyCompetitorCompareDecision } from "./competitorCompareDecision";
 import { buildWyrestormCompareProfile } from "./wyrestormCompareProfile";
-import index from "../../../public/product-intelligence-index.json";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
+const index = { products: fullProductIndexRecords };
 
 // Competitor power program (2026-08): curated competitor rows carry power
 // facts as a nested free-form object ({"poe": "..."}, {"dc": "12V"},

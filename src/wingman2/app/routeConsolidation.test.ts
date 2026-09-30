@@ -10,7 +10,7 @@ describe("feature route consolidation", () => {
     ["sales-helper", "/wingman/call-coach"],
     ["call-cards", "/wingman/call-coach"],
     ["battle-cards", "/wingman/compare?mode=battle-cards"],
-    ["response-pack", "/wingman/documents?mode=publication"],
+    ["response-pack", "/wingman/responses"],
     ["support", "/wingman/call-coach"],
     ["quote-safety", "/wingman/projects?view=quote-safety"],
     ["analytics", "/wingman/admin/data-manager?view=analytics"],

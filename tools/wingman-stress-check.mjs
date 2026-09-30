@@ -101,7 +101,7 @@ function checkSkuAccuracy() {
 }
 
 function checkProductDataNoise() {
-  for (const file of ["data/wingman-canonical-product-store.json", "public/product-intelligence-index.json"]) {
+  for (const file of ["data/wingman-canonical-product-store.json", "public/product-intelligence-summary.json"]) {
     if (!exists(file)) {
       add("WARN", "Product data", `${file} missing`);
       continue;

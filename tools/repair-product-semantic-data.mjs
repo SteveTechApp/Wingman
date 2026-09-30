@@ -436,7 +436,7 @@ function repairStructuredJson(rel, stats) {
   for (const product of payloadArray(payload)) {
     cleanTechnicalIo(product, stats);
   }
-  if (APPLY) writeJson(rel, payload, rel !== "public/product-intelligence-index.json");
+  if (APPLY) writeJson(rel, payload, true);
 }
 
 function repairGovernedProfiles(stats) {

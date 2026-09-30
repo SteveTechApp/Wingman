@@ -11,6 +11,8 @@
 //   3. Rate-limited: max 50 events per session to prevent floods.
 //   4. No PII: only feature names, timestamps and session duration.
 
+import { trackFeatureUsage } from "./localFeatureEvents";
+
 const ANALYTICS_ENDPOINT = "/api/wingman/telemetry";
 const MAX_EVENTS_PER_SESSION = 50;
 const BATCH_INTERVAL_MS = 30_000; // 30 seconds
@@ -67,7 +69,11 @@ export function trackFeatureEvent(
   metadata?: Record<string, string | number | boolean>,
 ): void {
   try {
-    if (typeof window === "undefined" || sentCount >= MAX_EVENTS_PER_SESSION) return;
+    if (typeof window === "undefined") return;
+
+    // Local activity remains useful after the per-session telemetry cap.
+    trackFeatureUsage(kind, feature);
+    if (sentCount >= MAX_EVENTS_PER_SESSION) return;
 
     sentCount += 1;
 

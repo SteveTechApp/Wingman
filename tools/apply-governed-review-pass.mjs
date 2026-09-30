@@ -18,13 +18,24 @@
  * saveProfileConfirmation so the dashboard UI path and this batch path share
  * one validated write implementation.
  *
- * Usage: node tools/apply-governed-review-pass.mjs [--check]
+ * Usage: node tools/apply-governed-review-pass.mjs [--check] [--reviewer "Name"] [--only skus.txt]
  *
+ * --only <file> scopes the run to the newline-separated SKUs in <file> - how a
+ * triage batch (R1..R5) is applied one sitting at a time, each with its own
+ * reviewer of record. The gate (--check) always enforces the FULL batch, so a
+ * half-worked backlog still fails the chain until every batch lands. *
  * --check turns the pass into a gate step: it dry-runs the whole pass WITHOUT
  * writing anything - verifies no value fixes are pending and every
  * CONFIRMATION_BATCH SKU is present, readable, evidence-backed and already
  * human-verified. Exits non-zero on any violation, so the govern:wyrestorm
  * chain fails loudly when a confirmation batch is only half-applied.
+ *
+ * Apply mode signs the confirmations with a real reviewer of record. The name
+ * comes from --reviewer, else WINGMAN_REVIEWER, else an interactive prompt;
+ * a non-interactive run without one is refused whenever the batch still has
+ * confirmations pending - a confirmation must never be attributed to a
+ * constant or left anonymous. A re-run with nothing left to confirm needs no
+ * name (nothing is written under any attribution).
  *
  * Env overrides (for hermetic validation): WINGMAN_PROFILES_FILE,
  * WINGMAN_STORE_FILE.
@@ -32,6 +43,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 import { saveProfileConfirmation, readableSpecFields } from "../server/governance/profile-confirmation.mjs";
 
@@ -40,11 +52,49 @@ const PROFILES_FILE = process.env.WINGMAN_PROFILES_FILE ?? path.join(root, "data
 const STORE_FILE = process.env.WINGMAN_STORE_FILE ?? path.join(root, "data/wingman-canonical-product-store.json");
 const CHECK = process.argv.includes("--check");
 
-const REVIEWER_OF_RECORD = "Steve";
-const REVIEW_NOTE =
-  "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked " +
-  "field-by-field against the live official WyreStorm product page (canonical store captures with " +
-  "officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).";
+/**
+ * Resolve the human reviewer of record for an apply run: --reviewer flag,
+ * then WINGMAN_REVIEWER, then an interactive prompt on a TTY. A
+ * non-interactive run with neither is refused rather than falling back to a
+ * hard-coded name - attributions must be real or the run must not happen.
+ */
+async function resolveReviewerOfRecord(pendingCount) {
+  const flagIndex = process.argv.indexOf("--reviewer");
+  if (flagIndex !== -1) {
+    const value = text(process.argv[flagIndex + 1] ?? "");
+    if (!value || value.startsWith("--")) {
+      console.error('[review-pass] --reviewer requires a name, e.g. --reviewer "Steve Goodwin".');
+      process.exit(1);
+    }
+    return value;
+  }
+  const fromEnv = text(process.env.WINGMAN_REVIEWER);
+  if (fromEnv) return fromEnv;
+  if (!process.stdin.isTTY) {
+    console.error(
+      "[review-pass] no reviewer of record: pass --reviewer \"Name\" (or set WINGMAN_REVIEWER). " +
+        "A confirmation must be attributed to the real human who reviewed it.",
+    );
+    process.exit(1);
+  }
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    for (;;) {
+      const answer = text(await rl.question(`Reviewer of record for this pass (${pendingCount} pending confirmations): `));
+      if (answer) return answer;
+      console.log("A real reviewer name is required - confirmations are signed, not anonymous.");
+    }
+  } finally {
+    rl.close();
+  }
+}
+
+function reviewNote(reviewer) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `Confirmed in the ${today} structured review pass directed by ${reviewer}. Spec-critical fields cross-checked ` +
+    "field-by-field against the live official WyreStorm product page (canonical store captures with " +
+    "officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).";
+}
 
 function text(value) {
   return String(value ?? "").trim();
@@ -264,6 +314,45 @@ const VALUE_FIXES = [
     after: "3840x2160p @60Hz 4:2:0",
     evidence: "Canonical store capture: '4K60Hz 4:2:0 USB C Single Gang In-Wall'.",
   },
+  // Pass-3 (2026-09-30) prose-normalization fixes: the machine transcription
+  // mirrored the store page's marketing headline verbatim as maxResolution.
+  // A verified profile must keep a machine-readable value, so each is
+  // normalized to the parseable spec the same official page lists.
+  {
+    sku: "APO-VX20-UC",
+    field: "max-resolution",
+    before: "4K AI camera",
+    after: "3840x2160p @30Hz",
+    evidence: "Canonical store capture lists '3840x2160p 30Hz 4:4:4 8bit' alongside the 1080p60 path - '4K AI camera' is the page's product headline, not the spec.",
+  },
+  {
+    sku: "FOCUS-200",
+    field: "max-resolution",
+    before: "4K Webcam",
+    after: "4K UHD",
+    evidence: "Official page markets the camera as '4K Webcam'; the store's own evidence carries no refresh rate beyond '4K Ultra HD', so the value is normalized to the parseable 4K UHD family.",
+  },
+  {
+    sku: "FOCUS-210",
+    field: "max-resolution",
+    before: "4K Ultra-Wide Angle Webcam",
+    after: "4K UHD",
+    evidence: "Official page markets the camera as '4K Ultra-Wide Angle Webcam'; normalized to the parseable 4K UHD family for the same reason as FOCUS-200.",
+  },
+  {
+    sku: "HALO-90",
+    field: "max-resolution",
+    before: "4K HDMI output, USB 3",
+    after: "4K UHD",
+    evidence: "Official page states '4K HDMI output, USB 3' - the 4K applies to the HDMI output; normalized to the parseable 4K UHD family.",
+  },
+  {
+    sku: "HALO-VX10-V2",
+    field: "max-resolution",
+    before: "4K AI camera",
+    after: "4K UHD",
+    evidence: "Official page headline '4K AI camera'; normalized to the parseable 4K UHD family (page evidence lists no refresh rate).",
+  },
 ];
 
 /**
@@ -395,6 +484,112 @@ const CONFIRMATION_BATCH = [
   "TX-35-IW",
   "TX-35-IW-KVM",
   "TX-35-IWC-KVM",
+
+  // === Confirmation pass 3 (2026-09-30): the 90 profiles aged past the 30-day
+  // threshold. Staged for one reviewer session; see
+  // docs/governed-profile-confirmation-triage-2026-09-30.md for the per-batch
+  // working list. ===
+
+  // Batch R1 (2026-09-30): commodity cables and HDMI/optical patch leads
+    "CAB-HAOC-20",
+    "CAB-HAOC-10",
+    "CAB-HAOC-15",
+    "CAB-HAOC-15-C",
+    "CAB-HAOC-20-C",
+    "CAB-HAOC-30-C",
+    "CAB-HAOC-FRL-10",
+    "CAB-HAOC-FRL-15",
+    "CAB-UAOC-15-C",
+    "CAB-UAOC-USBC-10",
+    "CAB-USBC-15",
+    "EXP-4KUHD-05",
+    "EXP-4KUHD-10",
+    "EXP-4KUHD-20",
+    "EXP-4KUHD-30",
+    "EXP-4KUHD-50",
+    "EXP-8KUHD-05",
+    "EXP-8KUHD-1.0",
+    "EXP-8KUHD-2.0",
+    "EXP-8KUHD-3.0",
+    "EXP-CAB-USBC-1M",
+    "EXP-CAB-USBC-2M",
+    "EXP-CAB-USBC-5M",
+  
+    // Batch R2 (2026-09-30): power supplies, fibre optics, format converters
+    "CON-ANLG-DNT",
+    "CON-DNT-ANLG",
+    "CON-DNT-XLR",
+    "CON-USBC-DNT",
+    "CON-XLR-DNT",
+    "DSP-88-DNT",
+    "EXP-CON-AUD-H2",
+    "PSU-12V-1A",
+    "PSU-12V-2A",
+    "PSU-12V-3A",
+    "PSU-18V-1A",
+    "PSU-20V-6A-BOX",
+    "PSU-20V-6A-WP",
+    "SR-10G-MM-SFPP",
+    "SR-1G-MM-SFP",
+    "SW-0402N-INK",
+    "TX-SCL-HDBT",
+    "TX-SCL-HDMI",
+  
+    // Batch R3 (2026-09-30): Apollo, Halo and UC accessories
+    "APO-COM-MIC",
+    "APO-VX20-MNT",
+    "APO-DG-DOCK",
+    "APO-DG-HDMI",
+    "APO-DG1",
+    "APO-DG2-PRO",
+    "APO-MIC-EXT",
+    "APO-SKY-MIC",
+    "APO-VX20-UC",
+    "HALO-30",
+    "HALO-60",
+    "HALO-90",
+    "HALO-COM-MIC",
+    "HALO-VX10-V2",
+    "NETWORKHDTOUCHTM",
+  
+    // Batch R4 (2026-09-30): interactive displays, caddies, racks
+    "IDB-200-MS",
+    "IDB-300",
+    "IDB-400-MS",
+    "IDB-400-MS-C",
+    "IDB-CBL-SPINE",
+    "IDB-HDMI-C",
+    "IDB-K2-C",
+    "IDB-PWR-SCH",
+    "IDB-PWR-UK",
+    "IDB-RJ45-C",
+    "IDB-USBA-C",
+    "IDB-USBC-C",
+    "NHD-140-RACK-1U",
+    "NHD-610-TX",
+    "NHD-RACK-1U",
+    "NHD-RACK4-BLK",
+  
+    // Batch R5 (2026-09-30): cameras, wallplate switchers, KVM extenders, control
+    "EX-100-KVM-H2",
+    "EX-40-KVM-H2",
+    "EX-80-KVM",
+    "FOCUS-100",
+    "FOCUS-180A",
+    "FOCUS-200",
+    "FOCUS-200-PRO",
+    "FOCUS-210",
+    "SW-130-TX",
+    "SW-620L-TX-W",
+    "SW-660-TX-W",
+    "SYN-CTL-FL10",
+    "SYN-CTL-HUB-IO-10",
+    "SYN-CTL-HUB-IR-06",
+    "SYN-CTL-HUB-RL-04",
+    "SYN-CTL-HUB-RS-03",
+    "SYN-KEY12-UK-EU",
+    "SYN-TP10-B",
+  
 ];
 
 const URL_FALLBACKS = {
@@ -446,11 +641,11 @@ function applyValueFixes(profiles) {
   return fixes;
 }
 
-function verifyBatch(payload, storeBySku) {
+function verifyBatch(payload, storeBySku, batch = CONFIRMATION_BATCH) {
   const problems = [];
   let confirmable = 0;
   let verified = 0;
-  for (const sku of CONFIRMATION_BATCH) {
+  for (const sku of batch) {
     const storeEntry = storeBySku.get(sku.toUpperCase());
     const profile = payload.profiles.find((candidate) => text(candidate.sku).toUpperCase() === sku.toUpperCase());
     const url = officialUrl(sku, storeEntry, profile);
@@ -484,6 +679,46 @@ async function main() {
   }
   const store = readJson(STORE_FILE, { products: [] });
   const storeBySku = new Map(store.products.map((product) => [text(product.sku).toUpperCase(), product]));
+
+  // --only scopes apply runs to a triage batch; the gate always sees the full
+  // batch, so a half-worked backlog keeps the chain red until it is complete.
+  const onlyIndex = process.argv.indexOf("--only");
+  let runBatch = CONFIRMATION_BATCH;
+  if (onlyIndex !== -1) {
+    if (CHECK) {
+      console.error("[review-pass] --only applies to apply runs; the gate always checks the full batch.");
+      process.exit(1);
+    }
+    const onlyFile = process.argv[onlyIndex + 1] ?? "";
+    const skuList = onlyFile ? text(fs.readFileSync(onlyFile, "utf8")).split(/\r?\n/).map((line) => line.trim()).filter(Boolean) : [];
+    if (skuList.length === 0) {
+      console.error("[review-pass] --only requires a file of newline-separated SKUs.");
+      process.exit(1);
+    }
+    const batchSet = new Set(CONFIRMATION_BATCH.map((sku) => sku.toUpperCase()));
+    const unknown = skuList.filter((sku) => !batchSet.has(sku.toUpperCase()));
+    if (unknown.length > 0) {
+      console.error(`[review-pass] --only lists SKUs outside CONFIRMATION_BATCH: ${unknown.join(", ")}`);
+      process.exit(1);
+    }
+    runBatch = skuList;
+    console.log(`[review-pass] scoped run: ${runBatch.length} of ${CONFIRMATION_BATCH.length} batch SKUs (--only).`);
+  }
+  const batchForRun = runBatch;
+
+  // Resolve attribution before any write so an aborted run mutates nothing.
+  // Only runs that will actually confirm something need a name: a re-run or
+  // fix-only pass writes no confirmations, so it needs no attribution.
+  const pendingCount = batchForRun.filter((sku) => {
+    const profile = payload.profiles.find((candidate) => text(candidate.sku).toUpperCase() === sku.toUpperCase());
+    return profile && text(profile.status) !== "verified";
+  }).length;
+  const reviewer = CHECK || pendingCount === 0 ? null : await resolveReviewerOfRecord(pendingCount);
+  if (reviewer) {
+    console.log(`[review-pass] reviewer of record: ${reviewer}`);
+  } else if (!CHECK && pendingCount === 0) {
+    console.log("[review-pass] nothing left to confirm - no reviewer attribution needed.");
+  }
 
   if (CHECK) {
     // Dry-run on a copy: the gate never writes, it only verifies the file
@@ -519,13 +754,20 @@ async function main() {
   let confirmed = 0;
   let rejected = 0;
   let skipped = 0;
-  for (const sku of CONFIRMATION_BATCH) {
+  for (const sku of batchForRun) {
     const storeEntry = storeBySku.get(sku.toUpperCase());
     const profile = payload.profiles.find((candidate) => text(candidate.sku).toUpperCase() === sku.toUpperCase());
     const url = officialUrl(sku, storeEntry, profile);
     if (!profile) {
       console.error(`[review-pass] REJECTED ${sku}: no governed profile.`);
       rejected += 1;
+      continue;
+    }
+    // Mirror the writer's own guard: human-verified profiles are re-run
+    // no-ops, checked BEFORE attribution exists (a re-run needs no reviewer).
+    if (text(profile.status) === "verified" && text(profile.verifiedBy)) {
+      console.log(`[review-pass] SKIPPED ${sku}: already human-verified.`);
+      skipped += 1;
       continue;
     }
     const readable = readableSpecFields(profile);
@@ -544,12 +786,12 @@ async function main() {
     const result = await saveProfileConfirmation(
       {
         sku,
-        verifiedBy: REVIEWER_OF_RECORD,
+        verifiedBy: reviewer,
         confirmedFields,
         evidenceUrl: url,
       },
       PROFILES_FILE,
-      REVIEW_NOTE,
+      reviewNote(reviewer),
     );
     if (!result.ok) {
       // Already human-verified is a re-run no-op, not a failure: the batch

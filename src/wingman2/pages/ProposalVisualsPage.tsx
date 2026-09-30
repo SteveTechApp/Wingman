@@ -1,3 +1,4 @@
+import { WorkflowPages, useWorkflowPage } from "../components/WorkflowPages";
 import { useMemo, useState } from "react";
 import { Camera, Network, Sparkles, Workflow } from "lucide-react";
 import VisualStudioCanvas from "../components/VisualStudioCanvas";
@@ -13,6 +14,7 @@ const modes = [
 ];
 
 export function ProposalVisualsPage() {
+  const { go } = useWorkflowPage([{id:"type",label:"Visual type"},{id:"brief",label:"Project & audience"},{id:"preview",label:"Preview & save"}], "visual-step");
   const { activeProject } = useProjectStore();
   const [kind, setKind] = useState<ProposalVisualKind>(() => {
     const requested = new URLSearchParams(window.location.search).get("mode");
@@ -56,8 +58,8 @@ export function ProposalVisualsPage() {
       <header className="wm-vs-header grid items-center gap-6 rounded-3xl border p-6 lg:grid-cols-3">
         <div className="wm-vs-header-copy">
           <p className="wm-vs-eyebrow">Proposal Visuals</p>
-          <h1>Turn the active project into one clear visual</h1>
-          <p>Choose the drawing your audience needs, confirm its purpose, then generate a governed visual ready for review and reuse.</p>
+          <h1>Create a visual</h1>
+          
         </div>
         <div className="wm-pv-header-status grid gap-1 rounded-xl border-l-4 border-cyan-300 p-4 wm-ui-card lg:col-start-3" aria-label="Workflow status">
           <span className="text-xs font-extrabold uppercase tracking-wider text-cyan-300">Active source</span>
@@ -66,7 +68,8 @@ export function ProposalVisualsPage() {
         </div>
       </header>
 
-      <section className="wm-pv-step wm-pv-step--choose grid gap-4 rounded-3xl border p-5 wm-ui-card" aria-labelledby="proposal-visual-step-one">
+      <WorkflowPages label="Visual pages" parameter="visual-step" pages={[
+{ id: "type", label: "Visual type", content: <><section className="wm-pv-step wm-pv-step--choose grid gap-4 rounded-3xl border p-5 wm-ui-card" aria-labelledby="proposal-visual-step-one">
         <div className="wm-pv-step-heading flex items-center gap-3">
           <span className="wm-pv-step-number grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-300 font-black text-cyan-300">1</span>
           <div><p className="text-xs font-extrabold uppercase tracking-wider text-cyan-300">Choose the output</p><h2 id="proposal-visual-step-one">What should this visual explain?</h2></div>
@@ -78,9 +81,8 @@ export function ProposalVisualsPage() {
             </button>
           ); })}
         </div>
-      </section>
-
-      <section className="wm-pv-step wm-pv-generate-bar grid gap-4 rounded-3xl border p-5 wm-ui-card" aria-labelledby="proposal-visual-step-two">
+      </section></> },
+{ id: "brief", label: "Project & audience", content: <><section className="wm-pv-step wm-pv-generate-bar grid gap-4 rounded-3xl border p-5 wm-ui-card" aria-labelledby="proposal-visual-step-two">
         <div className="wm-pv-step-heading flex items-center gap-3">
           <span className="wm-pv-step-number grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-300 font-black text-cyan-300">2</span>
           <div><p className="text-xs font-extrabold uppercase tracking-wider text-cyan-300">Confirm the brief</p><h2 id="proposal-visual-step-two">Project source and audience</h2></div>
@@ -93,9 +95,10 @@ export function ProposalVisualsPage() {
               <option value="technical-review">Technical review</option><option value="handover">Internal handover</option>
             </select>
           </label>
-          <div className="wm-pv-generate-action flex items-center justify-end gap-3"><span className="wm-pv-step-number grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-300 font-black text-cyan-300">3</span><button type="button" aria-label={generatedKind === kind ? "Regenerate visual" : "Generate visual"} className="wm-vs-button wm-vs-button-primary min-h-14" disabled={!activeProject} onClick={() => { setGeneratedKind(kind); setGeneration((value) => value + 1); setMessage(""); }}><Sparkles aria-hidden="true" />{generatedKind === kind ? "Regenerate visual" : `Generate ${selectedMode.label.toLowerCase()}`}</button></div>
+          <div className="wm-pv-generate-action flex items-center justify-end gap-3"><span className="wm-pv-step-number grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-300 font-black text-cyan-300">3</span><button type="button" aria-label={generatedKind === kind ? "Regenerate visual" : "Generate visual"} className="wm-vs-button wm-vs-button-primary min-h-14" disabled={!activeProject} onClick={() => { setGeneratedKind(kind); setGeneration((value) => value + 1); setMessage(""); go("preview"); }}><Sparkles aria-hidden="true" />{generatedKind === kind ? "Regenerate visual" : `Generate ${selectedMode.label.toLowerCase()}`}</button></div>
         </div>
-      </section>
+      </section></> },
+{ id: "preview", label: "Preview & save", content: <>
 
       {kind === "room-concept" && generatedKind !== kind ? (
         <section className="wm-pv-concept-note">
@@ -111,6 +114,8 @@ export function ProposalVisualsPage() {
           <div className="grid gap-2"><p className="wm-vs-eyebrow">Ready to build</p><h2>{selectedMode.label}</h2><p className="wm-ui-copy">{selectedMode.copy} Wingman will use the active project data and flag assumptions that need review.</p><ul className="flex flex-wrap gap-2"><li className="rounded-full border px-3 py-1 text-sm wm-ui-copy">Project-derived content</li><li className="rounded-full border px-3 py-1 text-sm wm-ui-copy">Governed revision history</li><li className="rounded-full border px-3 py-1 text-sm wm-ui-copy">Review notes included</li></ul></div>
         </section>
       )}
+</> },
+]} />
     </main>
   );
 }

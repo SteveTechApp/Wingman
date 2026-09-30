@@ -3,7 +3,7 @@ import path from "node:path";
 import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
 
 const repoRoot = process.cwd();
-const productIndexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
+const productIndexPath = path.join(repoRoot, "public", "product-intelligence-summary.json");
 const outputPath = path.join(repoRoot, "public", "product-media-index.json");
 
 const imageUrlPattern = /https?:[^"'\s<>]+?\.(?:png|jpe?g|webp)(?:\?[^"'\s<>]*)?/gi;
@@ -235,7 +235,7 @@ async function main() {
   const output = {
     meta: {
       generatedAt: new Date().toISOString(),
-      source: "Official WyreStorm product pages listed in public/product-intelligence-index.json",
+      source: "Official WyreStorm product pages listed in public/product-intelligence-summary.json",
       productCount: products.length,
       mediaRecordCount: records.length,
       withFront,

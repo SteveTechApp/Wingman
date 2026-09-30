@@ -6,6 +6,10 @@ const drawerSource = readFileSync(
   resolve(process.cwd(), "src/wingman2/components/WingmanGuruDrawer.tsx"),
   "utf8",
 );
+const messageContentSource = readFileSync(
+  resolve(process.cwd(), "src/wingman2/components/GuruMessageContent.tsx"),
+  "utf8",
+);
 
 const cssSource = readFileSync(
   resolve(process.cwd(), "src/wingman2/styles/wingman-route-overrides.css"),
@@ -15,7 +19,7 @@ const cssSource = readFileSync(
 describe("Guru structured conversation UI", () => {
   it("renders structured message blocks rather than raw transcript text", () => {
     expect(drawerSource).toContain("GuruMessageContent");
-    expect(drawerSource).toContain("buildGuruContentBlocks");
+    expect(messageContentSource).toContain("buildContentBlocks");
     expect(drawerSource).not.toContain(
       '<div className="wingman-guru-message-bubble">{message.content}</div>',
     );

@@ -57,13 +57,17 @@ function readAllEdits(): Record<string, SurveyProjectEdits> {
   }
 }
 
-function writeAllEdits(edits: Record<string, SurveyProjectEdits>): void {
+function writeAllEdits(edits: Record<string, SurveyProjectEdits>, options: { silent?: boolean } = {}): void {
   if (typeof window === "undefined") return;
 
   try {
     localStorage.setItem(SURVEY_STORAGE_KEY, JSON.stringify(edits));
-    // Dispatch event for sync module to pick up
-    window.dispatchEvent(new CustomEvent("wingman:survey-edited"));
+    // Server-source saves (adoption, poll merge, sync acknowledgement) are
+    // bookkeeping the sync system already knows about: announcing them would
+    // schedule a redundant re-push of unchanged content.
+    if (!options.silent) {
+      window.dispatchEvent(new CustomEvent("wingman:survey-edited"));
+    }
   } catch {
     // Storage full or unavailable — silent fail
   }
@@ -101,7 +105,7 @@ export function saveProjectEdits(
     synced: fromServer,
     serverTimestamp: options.serverTimestamp ?? edits.serverTimestamp,
   };
-  writeAllEdits(all);
+  writeAllEdits(all, { silent: fromServer });
 }
 
 /** Persist an acknowledged server copy without turning it back into a local edit. */

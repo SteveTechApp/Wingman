@@ -10,6 +10,7 @@ import type {
 } from "../data/projectStore";
 import { STRANDED_BRIEF_QUOTE_SAFETY_MESSAGE } from "./strandedBriefQuoteSafety";
 import { buildSalesReadinessPackage } from "./salesReadiness";
+import { readDiscoveryAudioDesign } from "./discoveryAudioDesign";
 import { buildAvDecisionEvidence } from "./avDecisionEvidence";
 import {
   normaliseProjectTopology,
@@ -738,7 +739,8 @@ function requiredDependencies(input: RecommendationEvidenceInput) {
   const productBlob = productText(product);
   const requirementText = combinedRequirementText(input);
   const combined = `${productBlob} ${requirementText}`;
-  const dependencies: string[] = [...architectureDecision(input).requiredDependencies];
+  const audioDesign = readDiscoveryAudioDesign(roomModelFrom(input).audioDesign);
+  const dependencies: string[] = [...(audioDesign?.requiredScope.map((scope) => `${scope.description} by others: ${scope.notes}`) ?? []), ...architectureDecision(input).requiredDependencies];
 
   if (hasAny(combined, ["networkhd", "av over ip", "avoip"])) {
     dependencies.push("NHD-CTL-PRO control layer for NetworkHD projects.");
@@ -774,7 +776,7 @@ function requiredDependencies(input: RecommendationEvidenceInput) {
     dependencies.push(...readiness.governedDependencies.map((dependency) => `${dependency.sku}: ${dependency.customerSafeNote || dependency.validationQuestion}`));
   }
 
-  return unique(dependencies).slice(0, 8);
+  return unique(dependencies);
 }
 
 function optionalUpgrades(input: RecommendationEvidenceInput) {
@@ -940,6 +942,7 @@ function salesDiscovery(input: RecommendationEvidenceInput) {
     distance: text(roomModel.longestRun, text(roomModel.cableRun, "Unknown")),
     network: text(roomModel.networkAvailability, text(roomModel.network, "Unknown")),
     audio: text(roomModel.audioPath, list(roomModel.audioNeeds).join(", ") || "Unknown"),
+    audioDesign: roomModel.audioDesign,
     control: list(roomModel.controlNeeds).join(", ") || "Unknown",
     budget: "Unknown",
   };

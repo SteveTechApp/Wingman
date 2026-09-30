@@ -2721,17 +2721,6 @@ html[data-wingman-route] .wm-vs-list li + li {
 .wm-connectivity-view-switcher { grid-column: 1 / -1; display: flex; gap: 6px; padding: 6px; border: 1px solid var(--tr-border); border-radius: 12px; background: var(--tr-panel-strong); }.wm-connectivity-view-switcher button { flex: 1 1 0; padding: 8px 12px; border-radius: 8px; color: var(--tr-muted); font-size: .7rem; font-weight: 750; cursor: pointer; transition: color .15s, background .15s; }.wm-connectivity-view-switcher button.is-active { color: var(--tr-panel-strong); background: var(--tr-border); }
 .wm-excalidraw-wrap { grid-column: 1 / -1; padding: 14px; border-radius: 8px; background: var(--tr-panel); }.wm-excalidraw-sheet { overflow: auto; max-height: 620px; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,.28); }.wm-excalidraw-svg { display: block; width: 100%; height: auto; min-width: 760px; }.wm-excalidraw-note { margin: 10px 2px 0; color: var(--tr-muted); font-size: .68rem; line-height: 1.5; }.wm-excalidraw-empty { display: grid; min-height: 200px; place-items: center; color: var(--tr-muted); font-size: .78rem; }
 /* Step-by-step guidance banner */
-.wm-template-steps { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--tr-border); overflow-x: auto; scrollbar-width: none; }
-.wm-template-steps::-webkit-scrollbar { display: none; }
-.wm-template-step { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1 1 0; min-width: 100px; padding: 10px 8px 8px; border: 1px solid rgba(76,153,174,.18); border-radius: 10px; background: rgba(8,29,48,.55); color: var(--tr-muted); cursor: pointer; transition: all .15s; text-align: center; }
-.wm-template-step:hover { border-color: rgba(76,153,174,.35); background: rgba(10,38,58,.7); }
-.wm-template-step.is-active { border-color: #4af5e6; background: rgba(74,245,230,.08); color: #edf6ff; box-shadow: 0 0 12px rgba(74,245,230,.1); }
-.wm-template-step.has-connector::after { content: ''; position: absolute; top: 18px; right: -7px; width: 8px; height: 1px; background: rgba(76,153,174,.3); z-index: 1; }
-.wm-template-step-num { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.08); color: var(--tr-muted); font-size: .62rem; font-weight: 800; }
-.wm-template-step.is-active .wm-template-step-num { background: #4af5e6; color: #061e2e; }
-.wm-template-step-label { font-size: .68rem; font-weight: 750; }
-.wm-template-step-desc { font-size: .56rem; line-height: 1.3; opacity: .7; max-width: 120px; }
-.wm-equipment-summary { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--tr-border); }.wm-equipment-summary div { padding: 12px 16px; }.wm-equipment-summary div + div { border-left: 1px solid var(--tr-border); }.wm-equipment-summary strong { font-size: 1.15rem; }.wm-equipment-summary span { display: block; margin-top: 2px; color: var(--tr-muted); font-size: .65rem; }
 .wm-equipment-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--tr-border); padding: 9px 12px; }.wm-equipment-toolbar > div { display: flex; flex-wrap: wrap; gap: 5px; }.wm-equipment-toolbar button { min-height: 31px; padding: 0 9px; font-size: .68rem; }.wm-category-filters button.is-active { border-color: #4af5e6; color: #4af5e6; }
 .wm-equipment-groups section + section { border-top: 1px solid var(--tr-border); }.wm-equipment-group-heading { width: 100%; display: flex; align-items: center; gap: 8px; border: 0; padding: 9px 13px; color: #edf6ff; background: rgba(2,13,24,.35); text-align: left; }.wm-equipment-group-heading svg { width: 14px; height: 14px; transition: transform .15s; }.wm-equipment-group-heading[aria-expanded="false"] svg { transform: rotate(-90deg); }.wm-equipment-group-heading span { font-size: .75rem; font-weight: 800; }.wm-equipment-group-heading small { display: grid; place-items: center; min-width: 20px; height: 20px; margin-left: auto; border-radius: 10px; color: var(--tr-muted); background: rgba(255,255,255,.06); font-size: .62rem; }.wm-equipment-group-caption { margin: 0; padding: 6px 13px 8px; color: var(--tr-muted); background: rgba(2,13,24,.2); font-size: .72rem; line-height: 1.45; }
 .wm-equipment-row { min-height: 68px; display: grid; grid-template-columns: 26px minmax(180px, 1.35fr) minmax(140px, 1fr) 105px 90px 34px; align-items: center; gap: 12px; border-top: 1px solid rgba(126,157,182,.14); padding: 8px 13px; }.wm-equipment-row.is-excluded { opacity: .58; }.wm-equipment-row > input { width: 15px; height: 15px; accent-color: #4af5e6; }.wm-equipment-identity { min-width: 0; }.wm-equipment-identity strong { display: block; color: #fff; font-size: .75rem; }.wm-equipment-identity span, .wm-equipment-role { display: block; overflow: hidden; color: var(--tr-muted); font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }.wm-equipment-identity span { margin-top: 3px; }
@@ -6820,14 +6809,14 @@ html[data-wingman-route="proposal"] .wm-coach-visuals a {
   color: #f8fbff;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
   width: min(1380px, calc(100vw - 300px));
   max-width: 1380px;
   margin: 0 auto;
   padding: 28px 28px 64px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -6835,8 +6824,8 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-hero {
   margin-bottom: 24px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-kicker,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-kicker,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-eyebrow {
   margin: 0;
   color: #65d7f4;
   font-size: 0.72rem;
@@ -6846,7 +6835,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
   text-transform: uppercase;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero h1 {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero h1 {
   margin: 6px 0 4px;
   color: #65d7f4;
   font-size: clamp(1.7rem, 2.4vw, 2.65rem);
@@ -6854,8 +6843,8 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-hero h1 {
   font-weight: var(--wm-weight-heading);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero p,
-html[data-wingman-route="salesHelper"] .wm-sh-section-head p {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero p,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-section-head p {
   margin: 0;
   max-width: 920px;
   color: rgba(232, 244, 255, 0.84);
@@ -6863,14 +6852,14 @@ html[data-wingman-route="salesHelper"] .wm-sh-section-head p {
   line-height: 1.45;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-stepper {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-stepper {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin: 0 0 28px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -6885,37 +6874,37 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-step {
   color: #f8fbff;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step span {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step span {
   color: rgba(232, 244, 255, 0.72);
   font-size: 0.82rem;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step strong {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step strong {
   color: #f8fbff;
   font-size: 0.88rem;
   font-weight: var(--wm-weight-ui);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-section {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-section {
   display: grid;
   gap: 16px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-section-head h2 {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-section-head h2 {
   margin: 4px 0 4px;
   color: #65d7f4;
   font-size: 1.15rem;
   line-height: 1.15;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 14px;
   align-items: stretch;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card {
   appearance: none;
   display: flex;
   flex-direction: column;
@@ -6941,8 +6930,8 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
     box-shadow 120ms ease;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:hover,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card:hover,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card:focus-visible {
   transform: translateY(-1px);
   border-color: rgba(101, 215, 244, 0.62);
   background:
@@ -6951,7 +6940,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
   box-shadow: 0 20px 44px rgba(0, 0, 0, 0.26);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-title {
   display: block;
   color: #65d7f4;
   font-size: 1.08rem;
@@ -6959,7 +6948,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
   font-weight: 900;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-body {
   display: block;
   color: rgba(232, 244, 255, 0.84);
   font-size: 0.88rem;
@@ -6967,66 +6956,66 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
 }
 
 @media (max-width: 980px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-page {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
       width: 100%;
       padding: 22px 16px 48px;
     }
 
-  html[data-wingman-route="salesHelper"] .wm-sh-page-stepper {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-stepper {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-  html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
       grid-template-columns: 1fr;
     }
 
 }
-html[data-wingman-route="salesHelper"] .wm-sh-page {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
   width: min(1240px, calc(100vw - 292px));
   max-width: 1240px;
   padding-top: 20px;
   padding-bottom: 52px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero {
   margin-bottom: 18px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero p,
-html[data-wingman-route="salesHelper"] .wm-sh-section-head p {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-hero p,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-section-head p {
   max-width: 76ch;
   font-size: 1.03rem;
   line-height: 1.55;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-stepper {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-stepper {
   margin-bottom: 24px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step span {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step span {
   font-size: 0.88rem;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-page-step strong {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page-step strong {
   font-size: 0.94rem;
   line-height: 1.2;
   font-weight: var(--wm-weight-ui);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-section-head h2 {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-section-head h2 {
   font-size: 1.42rem;
   line-height: 1.14;
   font-weight: var(--wm-weight-heading);
   letter-spacing: var(--wm-tracking-heading);
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
   align-items: stretch;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-auto-rows: auto;
@@ -7038,7 +7027,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
   padding: 20px 22px 18px;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card > * {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card > * {
   display: block;
   width: 100%;
   max-width: none;
@@ -7047,7 +7036,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card > * {
   white-space: normal;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-head {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 8px;
@@ -7055,9 +7044,9 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-head {
   justify-items: start;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-eyebrow,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-title,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-body {
   width: 100%;
   max-width: none;
   min-width: 0;
@@ -7066,7 +7055,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
   white-space: normal;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-eyebrow {
   max-width: 32ch;
   color: #8feaff;
   font-size: 0.74rem;
@@ -7075,7 +7064,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
   line-height: 1.22;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-title {
   color: var(--wm-consistency-text);
   font-size: 1.18rem;
   line-height: 1.18;
@@ -7083,14 +7072,14 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
   letter-spacing: -0.012em;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-body {
   padding-right: 0;
   color: rgba(232, 244, 255, 0.85);
   font-size: 0.99rem;
   line-height: 1.54;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-action {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-action {
   display: inline-flex;
   width: auto;
   max-width: 100%;
@@ -7106,32 +7095,32 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-action {
   white-space: nowrap;
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:hover,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card:hover,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card:focus-visible {
   transform: translateY(-2px);
 }
 
 @media (max-width: 1280px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-page {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
       width: min(1180px, calc(100vw - 272px));
     }
 
 }
 @media (max-width: 1180px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-page {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-page {
       width: 100%;
     }
 
-  html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
       grid-template-columns: 1fr;
     }
 
-  html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-choice-card {
       min-height: 0;
     }
 
 }
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
   display: flex;
   flex-direction: column;
   grid-template-columns: none;
@@ -7145,12 +7134,12 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm
   overflow: hidden;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card > *,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-head,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-eyebrow,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-title,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-body,
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-action {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card > *,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-head,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-eyebrow,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-title,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-body,
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-action {
   display: block;
   width: 100%;
   max-width: none;
@@ -7164,13 +7153,13 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm
   text-align: left;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-head {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-head {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-eyebrow {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-eyebrow {
   color: #8feaff;
   font-size: 0.68rem;
   font-weight: var(--wm-weight-ui);
@@ -7179,7 +7168,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-eyebrow 
   text-transform: uppercase;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-title {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-title {
   color: var(--wm-consistency-text);
   font-size: 1.08rem;
   font-weight: var(--wm-weight-heading);
@@ -7187,7 +7176,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-title {
   letter-spacing: var(--wm-tracking-heading);
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-body {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-body {
   flex: 1 1 auto;
   color: rgba(232, 244, 255, 0.86);
   font-size: 0.88rem;
@@ -7198,7 +7187,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-body {
   text-overflow: clip;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-action {
   width: auto;
   align-self: flex-start;
   margin-top: auto;
@@ -7208,17 +7197,17 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action {
   line-height: 1;
 }
 
-html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action::after {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-choice-action::after {
   content: " \2192";
 }
 
-html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wm-sh-card-grid {
   grid-template-columns: repeat(2, minmax(360px, 1fr));
   gap: 16px;
 }
 
 @media (max-width: 1180px) {
-  html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
+  html:is([data-wingman-route="salesHelper"], [data-wingman-route="callCoach"]) .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
       min-height: 0;
     }
 
@@ -9312,9 +9301,7 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
 .compare-native-stage-card,
 .compare-native-results,
 .wingman-page-host .wingman-card,
-.wingman-page-host .wingman-panel,
-.wingman-page-host [class*="card"],
-.wingman-page-host [class*="panel"] {
+.wingman-page-host .wingman-panel {
   border-color: var(--wm-border-light);
   border-radius: var(--wm-radius-xl);
   background:
@@ -13930,8 +13917,8 @@ html[data-wingman-route="projects"] .wm-project-detail-stack > section:first-of-
 
 html[data-wingman-route="projects"] .wm-project-current-result {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  min-height: clamp(380px, calc(100dvh - 470px), 640px);
+  grid-template-rows: auto;
+  min-height: 0;
 }
 
 html[data-wingman-route="projects"] .wm-project-current-result__layout {
@@ -13946,7 +13933,7 @@ html[data-wingman-route="projects"] .wm-project-current-result__summary {
   min-width: 0;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(10px, 2vw, 30px);
+  padding: 16px;
 }
 
 html[data-wingman-route="projects"] .wm-project-current-result__summary h2 {
@@ -13962,10 +13949,10 @@ html[data-wingman-route="projects"] .wm-project-current-result__summary > p:last
 
 html[data-wingman-route="projects"] .wm-project-current-result__next {
   display: flex;
-  min-height: 100%;
+  min-height: 0;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(22px, 2.5vw, 36px);
+  padding: 16px;
 }
 
 html[data-wingman-route="projects"] .wm-project-current-result__next > p:nth-child(2) {
@@ -14092,7 +14079,7 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
   }
 
   html[data-wingman-route="projects"] .wm-project-current-result__summary {
-    padding: 10px 4px 18px;
+    padding: 16px;
   }
 
   html[data-wingman-route="projects"] .wm-project-current-result__footer,
@@ -16040,6 +16027,54 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
   border-bottom: 1px solid rgba(125, 211, 252, 0.15);
   background: rgba(5, 14, 27, 0.88);
 }
+
+.wingman-guru-navigation {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(125, 211, 252, 0.15);
+  background: rgba(5, 14, 27, 0.72);
+}
+
+.wingman-guru-navigation button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 9px;
+  background: rgba(16, 42, 59, 0.9);
+  color: var(--wm-text);
+  font-size: 0.78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.wingman-guru-navigation button:hover,
+.wingman-guru-navigation button:focus-visible {
+  border-color: #6de3e9;
+  background: rgba(37, 104, 120, 0.48);
+  outline: none;
+}
+
+.wingman-guru-navigation button[aria-pressed="true"] { border-color: #6de3e9; color: #9af2f3; }
+.wingman-guru-history { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 20px 18px; }
+.wingman-guru-history-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+.wingman-guru-history-heading span { color: #7de4e9; font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.wingman-guru-history-heading h3 { margin: 4px 0 0; color: #f1fbff; font-size: 1.15rem; }
+.wingman-guru-history-heading button { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; padding: 8px 10px; border: 1px solid #497183; border-radius: 8px; background: #102a3b; color: #d5f7f8; cursor: pointer; }
+.wingman-guru-history-list { display: grid; gap: 8px; }
+.wingman-guru-history-list > p { color: #afc6d3; line-height: 1.5; }
+.wingman-guru-history-list > button { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 13px; border: 1px solid #2d5265; border-radius: 10px; background: #102638; color: #e8f8fc; text-align: left; cursor: pointer; }
+.wingman-guru-history-list > button[aria-current="true"] { border-color: #60dfe6; background: #15394b; }
+.wingman-guru-history-list > button:hover, .wingman-guru-history-list > button:focus-visible, .wingman-guru-history-heading button:hover, .wingman-guru-history-heading button:focus-visible { border-color: #78e9ed; outline: none; }
+.wingman-guru-history-list > button svg { flex: 0 0 auto; margin-top: 2px; color: #73e4e9; }
+.wingman-guru-history-list > button span { display: grid; min-width: 0; gap: 5px; }
+.wingman-guru-history-list > button strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; }
+.wingman-guru-history-list > button small { color: #9eb9c8; font-size: .7rem; }
 
 .wingman-guru-drawer-heading {
   min-width: 0;
@@ -18358,1213 +18393,6 @@ html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="
 }
 /* WINGMAN APP-WIDE STYLE CONSISTENCY SWEEP END */
 
-/* WINGMAN HOME COMMAND CENTRE REDESIGN START */
-.wingman-workspace {
-  background:
-    radial-gradient(circle at 16% 12%, color-mix(in srgb, var(--wm-accent-discovery) 16%, transparent), transparent 30rem),
-    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--wm-accent-compare) 14%, transparent), transparent 34rem),
-    radial-gradient(circle at 72% 92%, color-mix(in srgb, var(--wm-accent-documents) 10%, transparent), transparent 30rem),
-    linear-gradient(145deg, #020713 0%, #06111f 42%, #081627 68%, #030814 100%);
-}
-
-.wingman-workspace::before {
-  background:
-    radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--wm-accent-discovery) 16%, transparent), transparent 18rem),
-    radial-gradient(circle at 80% 18%, color-mix(in srgb, var(--wm-accent-compare) 12%, transparent), transparent 24rem),
-    radial-gradient(circle at 32px 32px, color-mix(in srgb, var(--wm-accent-documents) 17%, transparent) 1px, transparent 1.8px),
-    linear-gradient(90deg, color-mix(in srgb, var(--wm-accent-documents) 8%, transparent) 1px, transparent 1px),
-    linear-gradient(color-mix(in srgb, var(--wm-accent-documents) 6%, transparent) 1px, transparent 1px);
-  background-size: auto, auto, 32px 32px, 64px 64px, 64px 64px;
-  opacity: 0.72;
-}
-
-.wingman-workspace::after {
-  background:
-    linear-gradient(116deg, transparent 0 29%, color-mix(in srgb, var(--wm-accent-documents) 12%, transparent) 29.2% 29.45%, transparent 29.7%),
-    linear-gradient(23deg, transparent 0 63%, color-mix(in srgb, var(--wm-accent-discovery) 12%, transparent) 63.2% 63.45%, transparent 63.7%),
-    linear-gradient(154deg, transparent 0 52%, color-mix(in srgb, var(--wm-accent-compare) 10%, transparent) 52.2% 52.42%, transparent 52.7%),
-    radial-gradient(circle at 19% 37%, color-mix(in srgb, var(--wm-accent-discovery) 30%, transparent) 0 2px, transparent 3px),
-    radial-gradient(circle at 49% 51%, color-mix(in srgb, var(--wm-accent-documents) 26%, transparent) 0 2px, transparent 3px),
-    radial-gradient(circle at 80% 38%, color-mix(in srgb, var(--wm-accent-compare) 25%, transparent) 0 2px, transparent 3px);
-  opacity: 0.5;
-}
-
-html[data-wingman-route="dashboard"] .wingman-app-main > .wingman-page-host,
-html[data-wingman-route="home"] .wingman-app-main > .wingman-page-host {
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--wm-accent-discovery) 10%, transparent), transparent 26rem),
-    linear-gradient(180deg, rgba(2, 7, 19, 0.08), rgba(2, 7, 19, 0.28));
-}
-
-.wm-dashboard-page.wm-dashboard-shell[data-wingman-page="home"] {
-  --wm-dashboard-command-min: clamp(250px, 34dvh, 330px);
-  --wm-dashboard-card-bg: rgba(6, 18, 33, 0.78);
-  --wm-dashboard-card-bg-strong: rgba(9, 28, 48, 0.9);
-
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(var(--wm-dashboard-command-min), auto) minmax(0, 1fr);
-  gap: clamp(12px, 1vw, 16px);
-  width: 100%;
-  max-width: none;
-  height: calc(100dvh - var(--wm-topbar-height, var(--wm-header)));
-  min-height: 0;
-  padding: clamp(14px, 1.2vw, 20px) clamp(88px, 5vw, 112px) clamp(14px, 1vw, 18px) clamp(14px, 1.2vw, 20px);
-  overflow: hidden;
-}
-
-.wm-dashboard-command-band {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(420px, 0.92fr) minmax(420px, 1.08fr);
-  gap: clamp(12px, 1vw, 16px);
-  min-width: 0;
-  min-height: 0;
-  overflow: visible;
-}
-
-.wm-dashboard-command-band::before {
-  position: absolute;
-  inset: 12% 16% auto 14%;
-  z-index: -1;
-  height: 1px;
-  pointer-events: none;
-  content: "";
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--wm-accent-discovery) 30%, transparent), color-mix(in srgb, var(--wm-accent-compare) 26%, transparent), transparent);
-  box-shadow: 0 0 34px color-mix(in srgb, var(--wm-accent-documents) 18%, transparent);
-}
-
-.wm-dashboard-command-band > .wm-dashboard-rail,
-.wm-dashboard-command-band > .wm-dashboard-resume-card {
-  height: auto;
-  min-height: var(--wm-dashboard-command-min);
-  align-self: stretch;
-}
-
-.wm-dashboard-command-band > .wm-dashboard-rail {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: clamp(12px, 1.1vw, 16px);
-  padding: clamp(20px, 1.8vw, 28px);
-  border-radius: 22px;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 15% 18%, color-mix(in srgb, var(--wm-accent-discovery) 24%, transparent), transparent 18rem),
-    linear-gradient(140deg, rgba(11, 43, 58, 0.92), rgba(5, 17, 32, 0.92) 48%, rgba(10, 18, 38, 0.86));
-  border: 1px solid color-mix(in srgb, var(--wm-accent-discovery) 44%, transparent);
-  box-shadow:
-    0 28px 70px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 color-mix(in srgb, #ffffff 8%, transparent);
-}
-
-.wm-dashboard-command-band > .wm-dashboard-rail::before {
-  position: absolute;
-  inset: auto -6% -34% 22%;
-  width: 74%;
-  aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--wm-accent-discovery) 20%, transparent);
-  border-radius: 999px;
-  pointer-events: none;
-  content: "";
-  background:
-    radial-gradient(circle, color-mix(in srgb, var(--wm-accent-discovery) 9%, transparent), transparent 62%),
-    repeating-conic-gradient(from 20deg, color-mix(in srgb, var(--wm-accent-documents) 10%, transparent) 0deg 1deg, transparent 1deg 20deg);
-  opacity: 0.66;
-}
-
-.wm-dashboard-hero-copy,
-.wm-dashboard-command-copy {
-  align-content: stretch;
-  align-items: stretch;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(11px, 1vw, 15px);
-  max-width: 46rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.wingman-page-host .wm-dashboard-command-band .wm-dashboard-hero-copy,
-.wingman-page-host .wm-dashboard-command-band .wm-dashboard-command-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  align-content: stretch;
-  width: 100%;
-  max-width: 46rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.wm-dashboard-brand-row {
-  gap: 0.75rem;
-}
-
-.wm-dashboard-brand {
-  width: 2.9rem;
-  height: 2.9rem;
-  border-radius: 14px;
-  color: #03121f;
-  background: linear-gradient(135deg, #5eead4, #67e8f9);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, #ffffff 22%, transparent),
-    0 18px 34px color-mix(in srgb, var(--wm-accent-discovery) 22%, transparent);
-}
-
-.wm-dashboard-rail-title {
-  max-width: 18ch;
-  color: #f8fafc;
-  font-size: clamp(2rem, 2.35vw, 3.15rem);
-  font-weight: 900;
-  line-height: 0.98;
-}
-
-.wm-dashboard-rail-copy {
-  max-width: 58ch;
-  color: rgba(226, 244, 255, 0.86);
-  font-size: clamp(0.9rem, 0.92vw, 1.02rem);
-  line-height: 1.45;
-}
-
-.wm-dashboard-flow {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0;
-  width: 100%;
-  max-width: 34rem;
-  justify-self: stretch;
-  margin-top: 0.2rem;
-  border: 1px solid color-mix(in srgb, var(--wm-accent-discovery) 24%, transparent);
-  border-radius: 14px;
-  overflow: hidden;
-  background: rgba(2, 9, 18, 0.42);
-}
-
-.wingman-page-host .wm-dashboard-command-band .wm-dashboard-flow {
-  width: 100%;
-  max-width: 34rem;
-  justify-self: stretch;
-}
-
-.wm-dashboard-flow-step {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.42rem;
-  min-height: 2.35rem;
-  padding: 0.42rem 0.58rem;
-  border: 0;
-  border-right: 1px solid color-mix(in srgb, var(--wm-accent-discovery) 16%, transparent);
-  border-radius: 0;
-  background: transparent;
-  color: #e8fbff;
-  font-size: clamp(0.66rem, 0.75vw, 0.78rem);
-  letter-spacing: 0;
-}
-
-.wm-dashboard-flow-step:last-child {
-  border-right: 0;
-}
-
-.wm-dashboard-flow-step:not(:last-child)::after {
-  display: none;
-}
-
-.wm-dashboard-flow-index {
-  display: inline-grid;
-  width: 1.35rem;
-  height: 1.35rem;
-  place-items: center;
-  border-radius: 999px;
-  color: #02111e;
-  background: color-mix(in srgb, var(--wm-accent-discovery) 82%, #ffffff);
-  font-size: 0.68rem;
-  font-weight: 900;
-}
-
-.wm-dashboard-system-strip {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.46rem;
-  width: 100%;
-  max-width: 34rem;
-  justify-self: stretch;
-}
-
-.wingman-page-host .wm-dashboard-command-band .wm-dashboard-system-strip {
-  width: 100%;
-  max-width: 34rem;
-  justify-self: stretch;
-}
-
-.wm-dashboard-system-strip span {
-  min-width: 0;
-  padding: 0.34rem 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--wm-accent-documents) 18%, transparent);
-  border-radius: 9px;
-  color: rgba(219, 241, 255, 0.72);
-  background: rgba(7, 20, 36, 0.48);
-  font-size: 0.68rem;
-  font-weight: 760;
-  text-align: center;
-}
-
-.wm-dashboard-signal-map {
-  right: clamp(16px, 2vw, 32px);
-  bottom: clamp(78px, 7vw, 112px);
-  width: min(25rem, 47%);
-  opacity: 0.72;
-}
-
-.wm-dashboard-signal-line {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--wm-accent-documents) 58%, transparent), color-mix(in srgb, var(--wm-accent-discovery) 58%, transparent), transparent);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--wm-accent-documents) 20%, transparent);
-}
-
-.wm-dashboard-signal-line-c {
-  top: 49%;
-  left: 20%;
-  width: 62%;
-  transform: rotate(30deg);
-}
-
-.wm-dashboard-signal-node {
-  width: 0.72rem;
-  height: 0.72rem;
-  background: color-mix(in srgb, var(--wm-accent-documents) 35%, #04111f);
-}
-
-.wm-dashboard-signal-node-e {
-  top: 60%;
-  left: 26%;
-}
-
-.wm-dashboard-rail-actions {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(160px, 0.75fr);
-  gap: 0.7rem;
-  margin-top: 0;
-  padding-top: 0;
-}
-
-.wm-dashboard-action-button {
-  width: 100%;
-  min-height: 42px;
-  border-radius: 12px;
-}
-
-.wm-dashboard-primary-action {
-  min-height: 50px;
-  padding-inline: 0.95rem;
-  font-size: 0.94rem;
-  box-shadow:
-    0 14px 32px color-mix(in srgb, var(--wm-accent-discovery) 20%, transparent),
-    inset 0 1px 0 color-mix(in srgb, #ffffff 16%, transparent);
-}
-
-.wm-dashboard-secondary-action {
-  min-height: 50px;
-  color: rgba(237, 249, 255, 0.9);
-  background: rgba(9, 20, 38, 0.64);
-}
-
-.wm-dashboard-command-band > .wm-dashboard-resume-card {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  gap: clamp(10px, 0.9vw, 14px);
-  padding: clamp(20px, 1.65vw, 28px);
-  border: 1px solid color-mix(in srgb, var(--wm-accent-projects) 52%, transparent);
-  border-left: 5px solid color-mix(in srgb, var(--wm-accent-projects) 80%, transparent);
-  border-radius: 22px;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 0% 12%, color-mix(in srgb, var(--wm-accent-projects) 22%, transparent), transparent 18rem),
-    linear-gradient(138deg, rgba(8, 34, 48, 0.94), rgba(5, 17, 31, 0.94) 54%, rgba(8, 15, 35, 0.9));
-  box-shadow:
-    0 30px 74px rgba(0, 0, 0, 0.46),
-    0 0 0 1px color-mix(in srgb, var(--wm-accent-projects) 10%, transparent);
-}
-
-.wm-dashboard-command-band > .wm-dashboard-resume-card::before {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  content: "";
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--wm-accent-projects) 18%, transparent), transparent 28%),
-    radial-gradient(circle at 86% 22%, color-mix(in srgb, var(--wm-accent-documents) 13%, transparent), transparent 16rem);
-  opacity: 0.9;
-}
-
-.wm-dashboard-command-band > .wm-dashboard-resume-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-.wm-dashboard-resume-title {
-  font-size: clamp(1.35rem, 1.55vw, 1.9rem);
-  line-height: 1.05;
-}
-
-.wm-dashboard-stage-pill {
-  min-width: 8.5rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--wm-accent-projects) 13%, transparent);
-}
-
-.wm-dashboard-command-band .wm-dashboard-next-step {
-  min-height: 4.5rem;
-  padding: 0.9rem 1rem;
-  border-color: color-mix(in srgb, var(--wm-accent-projects) 34%, transparent);
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--wm-accent-projects) 16%, transparent), rgba(2, 9, 18, 0.46));
-}
-
-.wm-dashboard-command-band .wm-dashboard-next-step svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.wm-dashboard-next-copy {
-  font-size: clamp(0.98rem, 1vw, 1.16rem);
-}
-
-.wm-dashboard-continue-action {
-  min-width: min(100%, 13rem);
-  min-height: 44px;
-}
-
-.wm-dashboard-page.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: clamp(12px, 1vw, 16px);
-  height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 2px 4px 0;
-}
-
-.wm-dashboard-section {
-  border-radius: 20px;
-  background:
-    linear-gradient(180deg, rgba(8, 22, 40, 0.72), rgba(5, 14, 27, 0.74));
-  border: 1px solid color-mix(in srgb, var(--wm-accent-documents) 18%, transparent);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
-}
-
-.wm-dashboard-section-head {
-  min-height: 0;
-}
-
-.wm-dashboard-section-head .wm-section-title {
-  font-size: clamp(1.02rem, 1vw, 1.25rem);
-}
-
-.wm-dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(10px, 0.85vw, 14px);
-}
-
-.wm-dashboard-destination-card {
-  position: relative;
-  min-height: 12rem;
-  padding: clamp(14px, 1vw, 18px);
-  border: 1px solid color-mix(in srgb, var(--wm-accent) 32%, transparent);
-  border-top: 3px solid color-mix(in srgb, var(--wm-accent) 70%, transparent);
-  border-left: 1px solid color-mix(in srgb, var(--wm-accent) 24%, transparent);
-  border-radius: 18px;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--wm-accent) 20%, transparent), transparent 12rem),
-    linear-gradient(180deg, rgba(9, 24, 43, 0.86), rgba(5, 15, 29, 0.92));
-  transition:
-    transform 140ms ease,
-    border-color 140ms ease,
-    box-shadow 140ms ease,
-    background 140ms ease;
-}
-
-.wm-dashboard-destination-card::after {
-  position: absolute;
-  inset: auto 0 0;
-  height: 36%;
-  pointer-events: none;
-  content: "";
-  background:
-    linear-gradient(120deg, transparent 0 38%, color-mix(in srgb, var(--wm-accent) 13%, transparent) 38.3% 39%, transparent 39.3%),
-    radial-gradient(circle at 88% 88%, color-mix(in srgb, var(--wm-accent) 16%, transparent), transparent 9rem);
-}
-
-.wm-dashboard-destination-card[data-wm-accent="products"] {
-  --wm-accent: var(--wm-accent-products);
-}
-
-.wm-dashboard-destination-card[data-wm-accent="compare"] {
-  --wm-accent: var(--wm-accent-compare);
-}
-
-.wm-dashboard-destination-card[data-wm-accent="documents"] {
-  --wm-accent: var(--wm-accent-documents);
-}
-
-.wm-dashboard-destination-card[data-wm-accent="response"] {
-  --wm-accent: var(--wm-accent-response);
-}
-
-.wm-dashboard-destination-card[data-wm-accent="projects"] {
-  --wm-accent: var(--wm-accent-projects);
-}
-
-.wm-dashboard-icon {
-  width: 2.55rem;
-  height: 2.55rem;
-  border-radius: 14px;
-  color: color-mix(in srgb, var(--wm-accent) 90%, #ffffff);
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--wm-accent) 24%, transparent), color-mix(in srgb, var(--wm-accent) 8%, transparent));
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent),
-    0 12px 26px color-mix(in srgb, var(--wm-accent) 12%, transparent);
-}
-
-.wm-dashboard-intent {
-  margin-top: 0.2rem;
-}
-
-.wm-dashboard-card-eyebrow {
-  color: color-mix(in srgb, var(--wm-accent) 86%, #ffffff);
-  font-size: 0.74rem;
-  font-weight: 850;
-}
-
-.wm-dashboard-card-title {
-  font-size: clamp(1.04rem, 1vw, 1.28rem);
-  line-height: 1.08;
-}
-
-.wm-dashboard-card-copy {
-  display: block;
-  color: rgba(223, 239, 255, 0.78);
-  font-size: 0.82rem;
-  line-height: 1.43;
-}
-
-.wm-dashboard-card-link {
-  position: relative;
-  z-index: 1;
-  min-height: 2rem;
-  padding-top: 0.4rem;
-  border-top: 1px solid color-mix(in srgb, var(--wm-accent) 18%, transparent);
-}
-
-.wm-dashboard-destination-card:hover,
-.wm-dashboard-destination-card:focus-visible,
-.wm-dashboard-project-card:hover,
-.wm-dashboard-project-card:focus-visible {
-  transform: translateY(-3px);
-  text-decoration: none;
-}
-
-.wm-dashboard-projects-section {
-  min-height: 0;
-}
-
-.wm-dashboard-project-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(10px, 0.85vw, 14px);
-  min-height: 0;
-}
-
-.wm-dashboard-project-card {
-  min-height: 12rem;
-  padding: clamp(14px, 1vw, 18px);
-  border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--wm-status-color, var(--wm-accent-projects)) 34%, transparent);
-  border-left: 4px solid var(--wm-status-color, var(--wm-accent-projects));
-  background:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--wm-status-color, var(--wm-accent-projects)) 16%, transparent), transparent 12rem),
-    linear-gradient(180deg, rgba(8, 24, 42, 0.86), rgba(5, 15, 29, 0.94));
-}
-
-.wm-dashboard-project-stage {
-  width: fit-content;
-  padding: 0.35rem 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--wm-status-color, var(--wm-accent-projects)) 30%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--wm-status-color, var(--wm-accent-projects)) 10%, transparent);
-}
-
-.wm-dashboard-project-card .wm-dashboard-next-step {
-  margin-top: auto;
-  border-color: color-mix(in srgb, var(--wm-status-color, var(--wm-accent-projects)) 22%, transparent);
-  background: rgba(3, 11, 22, 0.48);
-}
-
-@media (max-width: 1380px) {
-  .wm-dashboard-page.wm-dashboard-shell[data-wingman-page="home"] {
-    --wm-dashboard-command-min: clamp(240px, 31dvh, 300px);
-    padding-right: clamp(82px, 6vw, 104px);
-  }
-
-  .wm-dashboard-command-band {
-    grid-template-columns: minmax(360px, 0.86fr) minmax(400px, 1.14fr);
-  }
-
-  .wm-dashboard-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .wm-dashboard-project-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 1180px) {
-  .wm-dashboard-page.wm-dashboard-shell[data-wingman-page="home"] {
-    grid-template-rows: auto auto;
-    height: auto;
-    min-height: calc(100dvh - var(--wm-topbar-height, var(--wm-header)));
-    overflow: visible;
-  }
-
-  .wm-dashboard-command-band {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .wm-dashboard-command-band > .wm-dashboard-rail,
-  .wm-dashboard-command-band > .wm-dashboard-resume-card {
-    min-height: 0;
-  }
-
-  .wm-dashboard-page.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main {
-    height: auto;
-    overflow: visible;
-  }
-}
-
-@media (max-width: 980px) {
-  .wm-dashboard-page.wm-dashboard-shell[data-wingman-page="home"] {
-    padding: 12px 86px 18px 12px;
-  }
-
-  .wm-dashboard-command-band > .wm-dashboard-rail {
-    min-height: 320px;
-    padding: 20px;
-  }
-
-  .wm-dashboard-command-band .wm-dashboard-command-copy {
-    width: 100%;
-    max-width: none;
-  }
-
-  .wm-dashboard-command-band .wm-dashboard-signal-map {
-    display: none;
-  }
-
-  .wm-dashboard-rail-title {
-    max-width: 22ch;
-    font-size: clamp(1.65rem, 4.8vw, 2.35rem);
-  }
-
-  .wm-dashboard-rail-copy {
-    max-width: 62ch;
-  }
-
-  .wm-dashboard-grid,
-  main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .wm-dashboard-project-grid,
-  main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .wm-dashboard-rail-actions {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .wm-dashboard-flow,
-  .wm-dashboard-system-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .wm-dashboard-page.wm-dashboard-shell[data-wingman-page="home"] {
-    padding-right: 12px;
-  }
-
-  .wm-dashboard-grid,
-  main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .wm-dashboard-resume-head,
-  .wm-dashboard-resume-actions,
-  .wm-dashboard-resume-meta {
-    display: grid;
-    justify-content: stretch;
-  }
-}
-
-@media (max-height: 760px) and (min-width: 1181px) {
-  .wm-dashboard-page.wm-dashboard-shell[data-wingman-page="home"] {
-    --wm-dashboard-command-min: clamp(220px, 31dvh, 265px);
-    gap: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
-  .wm-dashboard-command-band > .wm-dashboard-rail,
-  .wm-dashboard-command-band > .wm-dashboard-resume-card {
-    padding: 16px;
-  }
-
-  .wm-dashboard-rail-title {
-    font-size: clamp(1.65rem, 2vw, 2.3rem);
-  }
-
-  .wm-dashboard-rail-copy {
-    font-size: 0.82rem;
-  }
-
-  .wm-dashboard-flow-step {
-    min-height: 2rem;
-  }
-
-  .wm-dashboard-system-strip {
-    display: none;
-  }
-
-  .wm-dashboard-destination-card,
-  .wm-dashboard-project-card {
-    min-height: 10.5rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wm-dashboard-destination-card,
-  .wm-dashboard-project-card,
-  .wm-dashboard-action-button {
-    transition: none;
-  }
-}
-
-main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(var(--wm-dashboard-command-min), auto) minmax(0, 1fr);
-  align-items: stretch;
-  height: calc(100dvh - var(--wm-topbar-height, var(--wm-header)));
-  min-height: 0;
-  overflow: hidden;
-}
-
-main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] > .wm-dashboard-command-band,
-main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] > .wm-dashboard-main {
-  grid-column: 1 / -1;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-}
-
-@media (max-width: 1180px) {
-  main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
-    grid-template-rows: auto auto;
-    height: auto;
-    min-height: calc(100dvh - var(--wm-topbar-height, var(--wm-header)));
-    overflow: visible;
-  }
-}
-
-@media (max-width: 980px) {
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    min-height: calc(100dvh - var(--wm-topbar-height, var(--wm-header)));
-    overflow: visible;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] > .wm-dashboard-command-band,
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] > .wm-dashboard-main {
-    flex: 0 0 auto;
-    height: auto;
-    overflow: visible;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] .wm-dashboard-command-band > aside.wm-dashboard-rail {
-    height: auto;
-    min-height: 320px;
-    padding: 20px;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] .wm-dashboard-command-band > article.wm-dashboard-resume-card {
-    height: auto;
-    min-height: 270px;
-    grid-template-rows: none;
-    align-content: start;
-    gap: 12px;
-    overflow: visible;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] .wm-dashboard-flow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 0;
-    min-height: 76px;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] .wm-dashboard-flow-step {
-    min-height: 38px;
-    line-height: 1.1;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] .wm-dashboard-command-copy {
-    width: 100%;
-    max-width: none;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] .wm-dashboard-signal-map {
-    display: none;
-  }
-}
-
-
-/* WINGMAN HOME VIEWPORT FIT LAYOUT START */
-@media (min-width: 1100px) and (min-height: 760px) {
-  html[data-wingman-route="dashboard"],
-  html[data-wingman-route="dashboard"] body,
-  html[data-wingman-route="dashboard"] #root,
-  html[data-wingman-route="home"],
-  html[data-wingman-route="home"] body,
-  html[data-wingman-route="home"] #root {
-    height: 100dvh;
-    max-height: 100dvh;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] #root > .wingman-shell,
-  html[data-wingman-route="dashboard"] .wingman-shell,
-  html[data-wingman-route="home"] #root > .wingman-shell,
-  html[data-wingman-route="home"] .wingman-shell {
-    height: 100dvh;
-    max-height: 100dvh;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] .wingman-sidebar,
-  html[data-wingman-route="home"] .wingman-sidebar {
-    height: 100dvh;
-    max-height: 100dvh;
-    min-height: 0;
-  }
-
-  html[data-wingman-route="dashboard"] .wingman-workspace,
-  html[data-wingman-route="home"] .wingman-workspace {
-    height: 100dvh;
-    max-height: 100dvh;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] .wingman-workspace .wingman-app-main,
-  html[data-wingman-route="dashboard"] main.wingman-app-main,
-  html[data-wingman-route="home"] .wingman-workspace .wingman-app-main,
-  html[data-wingman-route="home"] main.wingman-app-main {
-    height: calc(100dvh - var(--wm-topbar-height, var(--wm-header)));
-    max-height: calc(100dvh - var(--wm-topbar-height, var(--wm-header)));
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] .wingman-app-main > .wingman-page-host,
-  html[data-wingman-route="home"] .wingman-app-main > .wingman-page-host {
-    height: 100%;
-    min-height: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"],
-  html[data-wingman-route="home"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
-    display: grid;
-    grid-template-columns: minmax(245px, 0.28fr) minmax(0, 1fr);
-    grid-template-rows: minmax(270px, 1.35fr) minmax(104px, auto) minmax(190px, 0.85fr);
-    align-items: stretch;
-    align-content: stretch;
-    gap: 12px;
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
-    min-height: 0;
-    padding: 12px clamp(76px, 5vw, 104px) 12px 14px;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail {
-    grid-column: 1;
-    grid-row: 1;
-    align-self: stretch;
-    display: flex;
-    flex-direction: column;
-    gap: 0.48rem;
-    height: 100%;
-    min-height: 0;
-    padding: 16px;
-    border-radius: 14px;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main {
-    display: contents;
-    height: auto;
-    min-height: 0;
-    padding: 0;
-    overflow: visible;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-card,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-card {
-    grid-column: 2;
-    grid-row: 1;
-    align-self: stretch;
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    gap: 0.55rem;
-    height: 100%;
-    min-height: 0;
-    padding: 16px;
-    border-radius: 14px;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main > .wm-dashboard-section:first-of-type,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main > .wm-dashboard-section:first-of-type {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-projects-section,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-projects-section {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section {
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-    align-content: stretch;
-    gap: 0.45rem;
-    height: 100%;
-    min-height: 0;
-    padding: 10px 12px;
-    border-radius: 14px;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section-head,
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-projects-section > .wm-dashboard-section-head,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section-head,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-projects-section > .wm-dashboard-section-head {
-    align-items: center;
-    gap: 0.55rem;
-    min-height: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    align-items: stretch;
-    height: 100%;
-    min-height: 0;
-    gap: 10px;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: stretch;
-    height: 100%;
-    min-height: 0;
-    gap: 10px;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-brand,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-brand {
-    width: 2.15rem;
-    height: 2.15rem;
-    margin: 0;
-    font-size: 0.95rem;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-title,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-title {
-    margin: 0.12rem 0 0;
-    font-size: clamp(1.22rem, 1.32vw, 1.72rem);
-    line-height: 1.02;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-copy,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-copy {
-    margin: 0.12rem 0 0;
-    font-size: 0.73rem;
-    line-height: 1.28;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-actions,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-actions {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.42rem;
-    margin-top: auto;
-    padding-top: 0.45rem;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-action-button,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-action-button {
-    min-height: 34px;
-    padding: 0.34rem 0.52rem;
-    font-size: 0.75rem;
-    line-height: 1.05;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-head,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-head {
-    align-items: center;
-    gap: 0.65rem;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-title,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-title {
-    font-size: clamp(1rem, 1.05vw, 1.28rem);
-    line-height: 1.08;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step {
-    gap: 0.38rem;
-    min-height: 0;
-    margin-top: auto;
-    padding-top: 0.42rem;
-    font-size: 0.74rem;
-    line-height: 1.12;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step svg,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step svg {
-    width: 0.92rem;
-    height: 0.92rem;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-destination-card,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-destination-card {
-    display: grid;
-    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
-    gap: 0.25rem;
-    height: 100%;
-    min-height: 0;
-    padding: 9px 10px;
-    border-radius: 11px;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-card,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-card {
-    display: grid;
-    grid-template-rows: auto auto auto minmax(30px, auto);
-    gap: 0.34rem;
-    height: 100%;
-    min-height: 0;
-    padding: 9px 10px;
-    border-radius: 11px;
-    overflow: hidden;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-icon,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-icon {
-    width: 1.48rem;
-    height: 1.48rem;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-icon svg,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-icon svg {
-    width: 0.9rem;
-    height: 0.9rem;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-badge,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-badge {
-    min-height: 1.15rem;
-    padding: 0.12rem 0.38rem;
-    font-size: 0.62rem;
-    line-height: 1;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-section-title,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-section-title {
-    margin-top: 0.28rem;
-    font-size: 0.9rem;
-    line-height: 1.12;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-eyebrow,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-eyebrow,
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-kicker,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-kicker {
-    font-size: 0.6rem;
-    line-height: 1.05;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-title,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-title {
-    font-size: clamp(0.82rem, 0.78vw, 0.95rem);
-    line-height: 1.08;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-copy,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-copy,
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-card span,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-card span,
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-copy span,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-copy span {
-    font-size: 0.69rem;
-    line-height: 1.22;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-link,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-link {
-    font-size: 0.68rem;
-    line-height: 1.1;
-  }
-}
-
-@media (min-width: 1100px) and (max-height: 850px) {
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"],
-  html[data-wingman-route="home"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
-    grid-template-columns: minmax(230px, 0.26fr) minmax(0, 1fr);
-    grid-template-rows: minmax(240px, 1.2fr) minmax(96px, auto) minmax(172px, 0.82fr);
-    gap: 10px;
-    padding: 10px clamp(72px, 5vw, 96px) 10px 12px;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail,
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-card,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-card {
-    padding: 13px;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-copy,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-copy {
-    font-size: 0.68rem;
-    line-height: 1.2;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section {
-    padding: 8px 10px;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid,
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid {
-    gap: 8px;
-  }
-}
-
-@media (min-width: 1100px) and (max-height: 759px) {
-  html[data-wingman-route="dashboard"] .wingman-workspace .wingman-app-main,
-  html[data-wingman-route="dashboard"] main.wingman-app-main,
-  html[data-wingman-route="home"] .wingman-workspace .wingman-app-main,
-  html[data-wingman-route="home"] main.wingman-app-main {
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-  }
-
-  html[data-wingman-route="dashboard"] .wingman-app-main > .wingman-page-host,
-  html[data-wingman-route="home"] .wingman-app-main > .wingman-page-host {
-    height: auto;
-    min-height: 100%;
-    overflow: visible;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"],
-  html[data-wingman-route="home"] main.wm-dashboard-page.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
-    grid-template-columns: minmax(230px, 0.26fr) minmax(0, 1fr);
-    grid-template-rows: auto;
-    height: auto;
-    min-height: calc(100dvh - var(--wm-topbar-height, var(--wm-header)));
-    overflow: visible;
-  }
-
-  html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main,
-  html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main {
-    display: grid;
-    grid-column: 2;
-    grid-row: 1;
-    grid-template-rows: auto auto auto;
-    gap: 10px;
-    height: auto;
-    overflow: visible;
-  }
-}
-/* WINGMAN HOME VIEWPORT FIT LAYOUT END */
-/* WINGMAN HOME STAGE INDICATOR SPACING START */
-html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-flow,
-html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-flow {
-  grid-template-columns: repeat(4, minmax(118px, 1fr));
-  gap: 0.5rem;
-  width: 100%;
-  max-width: none;
-  border: 0;
-  overflow: visible;
-  background: transparent;
-}
-
-html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-flow-step,
-html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-flow-step {
-  min-width: 0;
-  min-height: 2.45rem;
-  gap: 0.56rem;
-  padding: 0.48rem 0.78rem;
-  border: 1px solid color-mix(in srgb, var(--wm-accent-discovery) 22%, transparent);
-  border-radius: 999px;
-  background: rgba(2, 9, 18, 0.46);
-}
-
-html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-flow-step:last-child,
-html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-flow-step:last-child {
-  border-right: 1px solid color-mix(in srgb, var(--wm-accent-discovery) 22%, transparent);
-}
-
-html[data-wingman-route="dashboard"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-flow-index,
-html[data-wingman-route="home"] main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-flow-index {
-  width: 1.5rem;
-  height: 1.5rem;
-}
-/* WINGMAN HOME STAGE INDICATOR SPACING END */
-/* WINGMAN HOME COMMAND CENTRE REDESIGN END */
 
 
 /* WINGMAN_COMPARE_SEMANTIC_DECISION_COLOURS_V1 */
@@ -26488,6 +25316,55 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   50% { opacity: 0.6; }
 }
 
+/* In-app sync-conflict resolution (airplane-mode Drill C): offers an explicit
+   keep-server / keep-local choice instead of leaving the conflict stuck. */
+.wm-survey-conflict-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.wm-survey-conflict-banner__icon {
+  flex: none;
+  margin-top: 2px;
+  color: #f59e0b;
+}
+
+.wm-survey-conflict-banner__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.wm-survey-conflict-banner__copy strong {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.wm-survey-conflict-banner__copy span {
+  font-size: 11px;
+  color: rgba(226, 242, 255, 0.65);
+}
+
+.wm-survey-conflict-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.wm-survey-conflict-banner__button {
+  white-space: nowrap;
+}
+
 .wm-survey-progress {
   margin-bottom: 14px;
   padding: 10px 12px;
@@ -27408,7 +26285,7 @@ html[data-wingman-route="projects"] .wm-project-detail-page > .wm-project-detail
 }
 
 html[data-wingman-route="projects"] .wm-project-detail-page > .wm-project-detail-stack > .wm-project-current-result {
-  min-height: clamp(300px, calc(100dvh - 560px), 480px);
+  min-height: 0;
 }
 
 html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conversation-review__list {
@@ -27717,3 +26594,104 @@ html[data-wingman-route="projects"] .wm-project-detail-page .wm-discovery-conver
 .wm-drawer-resolved { margin-top: 8px; padding: 10px 12px; border-radius: 8px; background: rgba(74,245,230,.08); border: 1px solid rgba(74,245,230,.2); }
 .wm-drawer-resolved strong { color: #4af5e6; font-size: .85rem; }
 .wm-drawer-resolved small { color: var(--tr-muted); font-size: .72rem; }
+
+/* ==========================================================================
+   Unified interaction finish — shared graphical language for Wingman actions
+   ========================================================================== */
+
+html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, a[role="button"]):not(.wm-discovery-option):not(.wm-settings-logo-button),
+html[data-wingman-route] .wingman-new-project-button {
+  border-color: color-mix(in srgb, var(--wm-aqua, #4af5e6) 28%, rgba(121, 157, 184, 0.24));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 4px 12px rgba(0, 8, 18, 0.16);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.34);
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease;
+}
+
+html[data-wingman-route] .wingman-page-host :is(.wm-ui-button, .wm-button, .wingman-hero-action):not(.wm-ui-button-primary):not(.wm-ui-button-forward):not(.wm-button-primary),
+html[data-wingman-route] .wingman-page-host button[type="button"]:not(.wm-discovery-option):not([aria-pressed="true"]):not(.is-active):not(.is-selected) {
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(74, 245, 230, 0.035) 46%, rgba(0, 8, 18, 0.14));
+}
+
+html[data-wingman-route] .wingman-page-host :is(.wm-ui-button-primary, .wm-ui-button-forward, .wm-button-primary, button[type="submit"]),
+html[data-wingman-route] .wingman-new-project-button {
+  color: #031317;
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.42), transparent 34%),
+    linear-gradient(135deg, #4af5e6, #22b8cf 58%, #1687a7);
+  border-color: rgba(110, 255, 243, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.46),
+    inset 0 -2px 0 rgba(0, 71, 84, 0.32),
+    0 8px 20px rgba(34, 211, 238, 0.2);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, a[role="button"]):not(.wm-discovery-option):not(:disabled):hover,
+html[data-wingman-route] .wingman-new-project-button:hover {
+  border-color: color-mix(in srgb, var(--wm-aqua, #4af5e6) 72%, white 8%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 9px 22px rgba(0, 216, 211, 0.17),
+    0 0 0 1px rgba(74, 245, 230, 0.08);
+  transform: translateY(-2px);
+}
+
+html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, a[role="button"]):not(.wm-discovery-option):not(:disabled):active {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 7, 16, 0.42),
+    0 2px 7px rgba(0, 8, 18, 0.16);
+  transform: translateY(0) scale(0.985);
+}
+
+html[data-wingman-route] .wingman-page-host :is(button[aria-pressed="true"], button[aria-selected="true"], button.is-active, button.is-selected):not(.wm-discovery-option) {
+  color: #efffff;
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 38%),
+    linear-gradient(135deg, rgba(19, 116, 139, 0.94), rgba(8, 48, 69, 0.98));
+  border-color: rgba(74, 245, 230, 0.72);
+  box-shadow:
+    inset 3px 0 0 #4af5e6,
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 18px rgba(74, 245, 230, 0.13);
+}
+
+html[data-wingman-route] .wingman-page-host button:not([aria-label]):not(.wm-discovery-option):has(> svg) > svg,
+html[data-wingman-route] .wingman-new-project-button > svg {
+  box-sizing: content-box;
+  padding: 3px;
+  color: currentColor;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 5px 5px 5px 2px;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.28));
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+
+html[data-wingman-route] .wingman-page-host button:not([aria-label]):not(.wm-discovery-option):has(> svg):not(:disabled):hover > svg,
+html[data-wingman-route] .wingman-new-project-button:hover > svg {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  transform: scale(1.08);
+}
+
+html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, a[role="button"]):not(.wm-discovery-option):focus-visible,
+html[data-wingman-route] .wingman-new-project-button:focus-visible {
+  outline: 2px solid #8ffbf2;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(74, 245, 230, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, a[role="button"]):not(.wm-discovery-option),
+  html[data-wingman-route] .wingman-new-project-button {
+    transition: none;
+  }
+}

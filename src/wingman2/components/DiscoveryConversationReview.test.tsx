@@ -84,7 +84,7 @@ describe("DiscoveryConversationReview", () => {
   it("shows a guidance message when nothing has been captured", () => {
     renderReview([]);
     expect(screen.getByText("Discovery Conversation")).toBeTruthy();
-    expect(screen.getByText(/No discovery answers have been captured yet/i)).toBeTruthy();
+    expect(screen.getByText(/No answers saved/i)).toBeTruthy();
   });
 
   it("carries the capture confidence and flags low-confidence rows for re-verification", () => {
@@ -155,7 +155,7 @@ describe("DiscoveryConversationReview", () => {
     expect(screen.getByText(/Meeting room \/ boardroom — to be confirmed/)).toBeTruthy();
 
     // The filter chip reports the amber count and narrows to only those rows.
-    const chip = screen.getByRole("button", { name: /Re-verify low confidence/ });
+    const chip = screen.getByRole("button", { name: /Needs checking/ });
     fireEvent.click(chip);
 
     expect(screen.getByText(/Single large room — to be confirmed/)).toBeTruthy();
@@ -173,9 +173,9 @@ describe("DiscoveryConversationReview", () => {
       },
     ]);
 
-    fireEvent.click(screen.getByRole("button", { name: /Re-verify low confidence/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Needs checking/ }));
     expect(
-      screen.getByText(/No low-confidence answers.*nothing left to re-verify/i),
+      screen.getByText(/No answers need a confidence check/i),
     ).toBeTruthy();
   });
 });

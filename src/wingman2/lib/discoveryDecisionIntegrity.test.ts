@@ -20,6 +20,12 @@ const question = (id: string, required = true): DiscoveryQuestion => ({
 });
 
 describe("evaluateDiscoveryDecisionIntegrity", () => {
+  it("blocks distributed-video recommendations when no network distribution is planned", () => {
+    const result = evaluateDiscoveryDecisionIntegrity([], { opportunity: "av-over-ip", "network-path": "no-network-distribution" });
+    expect(result.contradictions.some((issue) => issue.questionIds.includes("network-path"))).toBe(true);
+    expect(result.canProceedToRecommendation).toBe(false);
+  });
+
   it("flags mutually exclusive UC answers", () => {
     const result = evaluateDiscoveryDecisionIntegrity(
       [question("uc-purpose")],

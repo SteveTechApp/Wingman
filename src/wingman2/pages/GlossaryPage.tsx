@@ -1,3 +1,4 @@
+import { PagedItems } from "../components/PagedItems";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, BookOpen, Lightbulb, Search, Sparkles } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -178,8 +179,8 @@ export function GlossaryPage() {
             <span>{filteredTerms.length} shown</span>
           </div>
 
-          <div className="wm-glossary-term-list">
-            {filteredTerms.map((term) => (
+          <PagedItems items={filteredTerms} resetKey={`${activeCategory}:${query}`}>{(pageItems) => (<div className="wm-glossary-term-list">
+            {pageItems.map((term) => (
               <button
                 key={term.id}
                 type="button"
@@ -194,7 +195,7 @@ export function GlossaryPage() {
                 <span className="wm-glossary-term-summary">{term.plainEnglish}</span>
               </button>
             ))}
-          </div>
+          </div>)}</PagedItems>
 
           {!filteredTerms.length ? (
             <div className="wm-glossary-empty">

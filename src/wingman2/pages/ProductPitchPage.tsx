@@ -25,8 +25,8 @@ import { ReportProblemButton } from "../components/ReportProblemButton";
 import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
 import { ProductApplicationVisuals } from "../components/ProductApplicationVisuals";
-import { validateUsbPath, usbValidationIsRequired } from "../logic/usbPathValidator";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { ProductTechnicalSpecTab } from "../components/ProductTechnicalSpecTab";
+import { loadProductIntelligenceSummary } from "../lib/productIntelligenceIndexCache";
 import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
 import { hydrateProductSpecWithTechnicalData } from "../lib/governedProductTechnicalData";
 import { selectWingmanProducts, type ProductSelectorDecision } from "../lib/productSelectorEngine";
@@ -35,6 +35,7 @@ import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
 import { getCompetitorLandscape } from "../lib/competitorLandscape";
+import { buildTechnologySalesPositioning, buildTechnologySpeakingCues } from "../lib/technologySalesPositioning";
 
 
 function useProductPitchDensityClass() {
@@ -653,6 +654,10 @@ function OverviewTab({
   context: ProductSalesContext;
 }) {
   const guidance = buildProductPitchSalesGuidance(product, narrative, context);
+  const technologyPositioning = useMemo(() => buildTechnologySalesPositioning(product), [product]);
+  const [activeTechnologyPrompt, setActiveTechnologyPrompt] = useState(0);
+  const activePrompt = technologyPositioning?.prompts[activeTechnologyPrompt];
+  const speakingCues = activePrompt ? buildTechnologySpeakingCues(activePrompt) : [];
   const topBenefits = cleanUsefulList(guidance.featureBenefits, 3)
     .map((benefit) => conciseSalesCopy(benefit, 18));
 
@@ -683,11 +688,72 @@ function OverviewTab({
       </div>
 
       <section className="wm-product-pitch-talk-track wm-ui-section rounded-lg border p-5 wm-ui-card">
-        <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Say it like this</p>
-        <p className="mt-2 max-w-5xl text-base leading-6 wm-ui-copy">
-          “{conciseSalesCopy(guidance.customerSafeWording, 36)}”
-        </p>
+        <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Conversation anchors</p>
+        <h3>Remember the shape of the answer—not a script</h3>
+        <div className="wm-product-pitch-talk-track__anchors">
+          <p><span>Problem</span>{conciseSalesCopy(guidance.customerProblem, 16)}</p>
+          <p><span>Outcome</span>{conciseSalesCopy(guidance.plainDescription, 18)}</p>
+          <p><span>Proof</span>{topBenefits[0] ?? conciseSalesCopy(guidance.customerSafeWording, 18)}</p>
+        </div>
       </section>
+
+      {technologyPositioning ? (
+        <section className="wm-product-pitch-tech-conversation wm-ui-section rounded-lg border p-5 wm-ui-card">
+          <header className="wm-product-pitch-tech-conversation__header">
+            <div>
+              <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Technology conversation</p>
+              <h2>{technologyPositioning.label}</h2>
+              <p>{technologyPositioning.decisionHeadline}</p>
+            </div>
+            <span>Talk outcome first</span>
+          </header>
+
+          <div className="wm-product-pitch-tech-conversation__frame">
+            <article>
+              <span>Lead with</span>
+              <p>{technologyPositioning.leadWith}</p>
+            </article>
+            <article>
+              <span>Be honest about</span>
+              <p>{technologyPositioning.tradeOff}</p>
+            </article>
+            <article>
+              <span>Evidence anchor</span>
+              <p>{technologyPositioning.proofPoint}</p>
+            </article>
+          </div>
+
+          <div className="wm-product-pitch-tech-conversation__coach">
+            <div className="wm-product-pitch-tech-conversation__prompts" role="tablist" aria-label="Common customer objections">
+              {technologyPositioning.prompts.map((prompt, index) => (
+                <button
+                  key={prompt.customerSays}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTechnologyPrompt === index}
+                  onClick={() => setActiveTechnologyPrompt(index)}
+                >
+                  “{prompt.customerSays}”
+                </button>
+              ))}
+            </div>
+            <div className="wm-product-pitch-tech-conversation__answer" role="tabpanel">
+              <span>Speaking cues</span>
+              <p className="wm-product-pitch-tech-conversation__delivery-note">Glance at the sequence, then use your own words.</p>
+              <ol className="wm-product-pitch-tech-conversation__cue-list">
+                {speakingCues.map((cue) => (
+                  <li key={`${cue.label}-${cue.text}`}>
+                    <span>{cue.label}</span>
+                    <p>{cue.text}</p>
+                  </li>
+                ))}
+              </ol>
+              <strong>Ask next</strong>
+              <p>{activePrompt?.askNext}</p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <details className="wm-product-pitch-technical wm-ui-card rounded-lg border p-5">
         <summary className="cursor-pointer font-extrabold">
@@ -820,122 +886,6 @@ function CompetitorsTab({ product }: { product: ProductSpec }) {
   );
 }
 
-function SpecTable({ product }: { product: ProductSpec }) {
-  const technical = product.technicalData;
-  const rows = [
-    [
-      "Data status",
-      technical
-        ? [`${technical.statusLabel} - ${technical.completeness}% complete`]
-        : [],
-    ],
-    ["Product class", technical?.productClass ? [technical.productClass] : []],
-    ["Endpoint / system role", technical?.role ? [technical.role] : []],
-    ["Transport", technical?.transport ?? []],
-    ["Product type", [product.productType]],
-    ["I/O summary", product.ioSummary],
-    ["Video / signal", product.video],
-    ["Audio", product.audio],
-    ["USB", product.usb],
-    ["Network", product.network],
-    ["Control / integration", product.control],
-    ["Power", product.power],
-    ["Physical / install", product.physical],
-    ["Required dependencies", technical?.dependencies ?? []],
-    ["Compatible families", technical?.compatibleFamilies ?? []],
-    ["Evidence", technical?.evidence ?? []],
-    [
-      "Missing / needs review",
-      [...(technical?.missingFields ?? []), ...(technical?.warnings ?? [])],
-    ],
-    ["Checks before recommending", product.checks],
-  ] as const;
-
-  return (
-    <dl className="wm-product-spec-groups grid grid-cols-1 gap-3 md:grid-cols-2">
-      {rows.map(([label, rawItems]) => {
-        // Technical overview is the detailed record view. Do not apply the
-        // short sales-card limit here: doing so silently hides stored facts.
-        const items = cleanUsefulList([...rawItems], Number.MAX_SAFE_INTEGER);
-        const displayItems = items.length ? items : ["Not confirmed"];
-        const isUnconfirmed = items.length === 0;
-
-        return (
-          <div key={label} data-spec-group={label.toLowerCase().replace(/[^a-z0-9]+/g, "-")} className="wm-product-spec-group min-w-0 rounded-2xl border p-4 wm-ui-card">
-            <dt className="mb-2 wm-ui-kicker text-cyan-300">{label}</dt>
-            <dd>
-              <ul className={`grid gap-2 ${isUnconfirmed ? "is-unconfirmed italic opacity-70" : ""}`}>
-                {displayItems.map((item) => (
-                  <li className="break-words wm-ui-copy" key={item}>{item}</li>
-                ))}
-              </ul>
-            </dd>
-          </div>
-        );
-      })}
-    </dl>
-  );
-}
-
-function SpecTab({ product }: { product: ProductSpec }) {
-  const usbContextText = [product.category, product.productType, product.name, ...(product.applications ?? [])].join(" ");
-  const usbResult = usbValidationIsRequired(usbContextText)
-    ? validateUsbPath({ path: [{ sku: product.sku }] })
-    : null;
-
-  return (
-    <div className="wm-product-pitch-spec">
-      <section className="wm-product-pitch-section-intro rounded-3xl border p-5 wm-ui-section wm-ui-card">
-        <p className="wm-ui-kicker">Governed product record</p>
-        <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>Technical specification view</h2>
-        <p className="mt-2 text-sm leading-6 wm-ui-copy">
-          Use this tab to confirm details. It is separated from the sales view so the salesperson is not forced to interpret technical data during a live conversation.
-        </p>
-      </section>
-
-      {product.technicalData && !product.technicalData.compareReady ? (
-        <section className="wm-product-pitch-spec__notice rounded-3xl border p-5 wm-ui-section wm-ui-card">
-          <h3 className={PRODUCT_PITCH_CARD_TITLE_CLASS}>Technical data review required</h3>
-          <p className="mt-2 text-sm leading-6 wm-ui-copy">
-            This SKU does not yet have enough verified structured data for automatic
-            competitor-equivalence use. Product Pitch may show available official facts,
-            but Compare must remain review-only until the missing fields are resolved.
-          </p>
-        </section>
-      ) : null}
-
-      {usbResult ? (
-        <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-          <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>USB path check</h3>
-          <p className="mt-1 text-sm leading-6 wm-ui-copy">
-            USB standard <strong className="text-white">{usbResult.usbStandardUsed}</strong> · up to{" "}
-            {usbResult.maxAllowedTiers} cascaded tier{usbResult.maxAllowedTiers === 1 ? "" : "s"}
-            {usbResult.downstreamHubLimit ? ` · hub limit ${usbResult.downstreamHubLimit}` : ""}.
-          </p>
-          {usbResult.warnings.length > 0 ? (
-            <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
-              {usbResult.warnings.map((warning) => (
-                <li key={warning}>Warning: {warning}</li>
-              ))}
-            </ul>
-          ) : null}
-          {usbResult.blockers.length > 0 ? (
-            <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
-              {usbResult.blockers.map((blocker) => (
-                <li key={blocker}>Blocked: {blocker}</li>
-              ))}
-            </ul>
-          ) : null}
-          {usbResult.recommendationImpact ? (
-            <p className="mt-2 text-sm leading-6 wm-ui-copy">{usbResult.recommendationImpact}</p>
-          ) : null}
-        </section>
-      ) : null}
-
-      <SpecTable product={product} />
-    </div>
-  );
-}
 
 function likelyLocation(product: ProductSpec) {
   const text = [product.productType, product.category, ...product.physical].join(" ").toLowerCase();
@@ -1177,7 +1127,7 @@ function ProductWorkspace({
         {activeTab === "features" ? <FeaturesTab product={product} narrative={narrative} context={salesContext} /> : null}
         {activeTab === "design" ? <DesignTab product={product} narrative={narrative} /> : null}
         {activeTab === "competitors" ? <CompetitorsTab product={product} /> : null}
-        {activeTab === "spec" ? <SpecTab product={product} /> : null}
+          {activeTab === "spec" ? <ProductTechnicalSpecTab product={product} /> : null}
         {activeTab === "workflow" ? <WorkflowTab product={product} narrative={narrative} /> : null}
       </section>
     </main>
@@ -1224,7 +1174,10 @@ export function ProductPitchPage() {
   useEffect(() => {
     let cancelled = false;
 
-    loadProductIntelligenceIndex()
+    // Summary payload: the governed-profile store covers specifiable lead
+    // SKUs, and remaining SKUs degrade to base catalogue fields until a
+    // focused technical-data hydration is requested for them.
+    loadProductIntelligenceSummary()
       .then((data) => {
         if (cancelled) return;
 

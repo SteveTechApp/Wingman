@@ -37,7 +37,7 @@ function isProductMediaIndex(value: unknown): value is ProductMediaIndex {
 async function fetchProductMediaIndex(): Promise<ProductMediaIndex | null> {
   for (const source of mediaIndexSources) {
     try {
-      const response = await fetch(source, { cache: "no-store" });
+      const response = await fetch(source, { cache: "no-store", signal: AbortSignal.timeout(8000) });
 
       if (!response.ok) {
         continue;

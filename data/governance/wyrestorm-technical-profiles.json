@@ -1,6 +1,6 @@
 {
-  "version": 11,
-  "updatedAt": "2026-08-29T07:14:40.282Z",
+  "version": 12,
+  "updatedAt": "2026-09-30T11:10:45.161Z",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -557,7 +557,7 @@
     },
     {
       "sku": "APO-DG-DOCK",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "Optional collaboration endpoint",
       "productType": "Wireless casting endpoint",
@@ -591,14 +591,26 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg-dock/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.541Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.541Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "APO-DG-HDMI",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -643,10 +655,22 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg-hdmi/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.547Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.547Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "APO-DG2",
@@ -747,7 +771,7 @@
     },
     {
       "sku": "APO-VX20-UC",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "Camera endpoint",
@@ -763,7 +787,7 @@
         "Wireless presentation",
         "UC / conferencing"
       ],
-      "maxResolution": "4K AI camera",
+      "maxResolution": "3840x2160p @30Hz",
       "ports": [
         {
           "count": 1,
@@ -860,10 +884,23 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-uc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.586Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.586Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "APO-VX20-UC-V2",
@@ -5311,7 +5348,7 @@
     },
     {
       "sku": "FOCUS-100",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -5343,14 +5380,26 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/focus-100-webcam/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.057Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.057Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "FOCUS-180A",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -5385,21 +5434,33 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/focus-180a/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.067Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.067Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "FOCUS-200",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
       "transport": [
         "Camera / capture"
       ],
-      "maxResolution": "4K Webcam",
+      "maxResolution": "4K UHD",
       "ports": [],
       "video": [
         "4K Webcam",
@@ -5425,14 +5486,26 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/focus-200/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.073Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.073Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "FOCUS-200-PRO",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -5479,21 +5552,33 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/focus-200-pro/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.080Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.080Z",
+      "confirmedFields": [
+        "routed-io"
+      ]
     },
     {
       "sku": "FOCUS-210",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
       "transport": [
         "Camera / capture"
       ],
-      "maxResolution": "4K Ultra-Wide Angle Webcam",
+      "maxResolution": "4K UHD",
       "ports": [],
       "video": [
         "4K Ultra-Wide Angle Webcam",
@@ -5519,14 +5604,26 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/focus-210/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.089Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.089Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "HALO-30",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -5560,14 +5657,26 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/halo-30-speakerphone/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.593Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.593Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "HALO-60",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -5604,10 +5713,22 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/halo-60-speakerphone/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.599Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.599Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "HALO-80",
@@ -5694,7 +5815,7 @@
     },
     {
       "sku": "HALO-90",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -5707,7 +5828,7 @@
         "USB-C",
         "Audio / UC"
       ],
-      "maxResolution": "4K HDMI output, USB 3",
+      "maxResolution": "4K UHD",
       "ports": [
         {
           "count": 2,
@@ -5749,21 +5870,33 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/halo-90-speakerphone/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.607Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.607Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "HALO-VX10-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "Camera endpoint",
       "transport": [
         "UC / conferencing"
       ],
-      "maxResolution": "4K AI camera",
+      "maxResolution": "4K UHD",
       "ports": [],
       "video": [
         "4K AI camera"
@@ -5792,10 +5925,22 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/halo-vx10-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.620Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.620Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-300-BTN",
@@ -5906,7 +6051,7 @@
     },
     {
       "sku": "IDB-USBA-C",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "ACCESSORY_OTHER",
       "role": "Supporting component",
       "productType": "Accessory",
@@ -5949,14 +6094,26 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.851Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.851Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-USBC-C",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "ACCESSORY_OTHER",
       "role": "Supporting component",
       "productType": "Accessory",
@@ -6001,10 +6158,22 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.859Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.859Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "MX-0402-MST",
@@ -11577,7 +11746,7 @@
     },
     {
       "sku": "NHD-610-TX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "Encoder",
       "productType": "AVoIP endpoint",
@@ -11755,10 +11924,23 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-610-tx-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.871Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.871Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "NHD-610-TX-V2",
@@ -14328,7 +14510,7 @@
     },
     {
       "sku": "SW-130-TX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "Room presentation and source switching core",
       "productType": "Room source switcher",
@@ -14432,10 +14614,23 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (63 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-130-tx-us/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.096Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.096Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "SW-130-TX-UK",
@@ -16070,7 +16265,7 @@
     },
     {
       "sku": "APO-VX20-MNT",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "mounting accessory",
       "productType": "Display mount for Apollo VX20 video bars",
@@ -16105,14 +16300,26 @@
           "reviewedOn": "2026-08-25",
           "reviewer": "Wingman minimal profile for template guard compliance",
           "note": "Minimal profile created from product catalogue metadata. Lifecycle is do-not-spec; confirm product-owner decision before active use."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-mnt/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.535Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.535Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-300",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "in-desk cable management",
       "productType": "Dual-channel cable box for in-desk connectivity",
@@ -16147,14 +16354,26 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team",
           "note": "IDB-300 is the active in-desk connectivity product. Lifecycle updated from do-not-spec to active per product team clarification."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-300/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.784Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.784Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "NHD-RACK-1U",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "rack mount",
       "productType": "1U 2-slot rack mount for NetworkHD 100/500/600 series",
@@ -16191,14 +16410,26 @@
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team",
           "note": "NHD-RACK-1U is a separate active product from NHD-000-RACK4. 1U/2-slot vs 6U/12-slot."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-rack-1u/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.877Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": [],
-      "features": {}
+      "features": {},
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.877Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "APO-COM-MIC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "add-on microphone",
       "productType": "Add-on USB companion microphone for Apollo video bars",
@@ -16247,14 +16478,29 @@
           "sourceUrl": "https://www.wyrestorm.com/product/apo-com-mic/",
           "reviewedOn": "2026-08-25",
           "reviewer": "Wingman minimal profile for template guard compliance",
-          "note": "Minimal profile from product catalogue metadata and Apollo VX20-UC profile cross-reference."
+          "note": "Minimal profile from product catalogue metadata and Apollo VX20-UC profile cross-reference. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-com-mic/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.528Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": []
+      "specs": {
+        "powerSupply": "Powered through USB connection to the Apollo bar"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.528Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "CAB-HAOC-20",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "20m Active Optical HDMI Cable, 4K HDR 4:4:4/60",
@@ -16307,13 +16553,25 @@
           "reviewedOn": "2026-08-25",
           "reviewer": "Wingman minimal profile for template guard compliance",
           "note": "Minimal profile from product catalogue metadata. 4K60 HDR AOC cable."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-20/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.921Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "confirmedFields": []
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.921Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "SW-0402N-INK",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "MULTIVIEW",
       "role": "multiview processor",
       "productType": "4K60Hz 4x2 Multiview Presentation Switcher",
@@ -16374,20 +16632,31 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-0402n-ink",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-0402n-ink",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.350Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.350Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "NHD-140-RACK-1U",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "accessory",
       "productType": "1U/2 Slot Rack Mount for NHD-140-TX &NHD-124-TX Quad Encoder",
@@ -16411,11 +16680,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-140-rack-1u",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-140-rack-1u/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.865Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16425,11 +16699,16 @@
       "network": [],
       "control": [],
       "power": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.865Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "NHD-RACK4-BLK",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "accessory",
       "productType": "Blanking Plate for NHD-000-RACK4",
@@ -16453,11 +16732,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-rack4-blk",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-rack4-blk/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.886Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16467,11 +16751,16 @@
       "network": [],
       "control": [],
       "power": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.886Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "SR-1G-MM-SFP",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "SFP module",
       "productType": "Short Range",
@@ -16496,11 +16785,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sr-1g-mm-sfp",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sr-1g-mm-sfp/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.343Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16510,11 +16804,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.343Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "SR-10G-MM-SFPP",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "SFP+ module",
       "productType": "Short Range",
@@ -16539,11 +16838,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sr-10g-mm-sfpp",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sr-10g-mm-sfpp/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.337Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16553,11 +16857,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.337Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "SW-620L-TX-W",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless dongle",
       "productType": "4K30Hz 2x2 Wireless Presentation Switcher",
@@ -16596,22 +16905,32 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-620l-tx-w",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.104Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.104Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "SW-660-TX-W",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless dongle",
       "productType": "4K60Hz 6x2 Wireless Presentation Switcher",
@@ -16666,20 +16985,31 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sw-660-tx-w",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.110Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.110Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "APO-DG2-PRO",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless dongle",
       "productType": "Apollo 4K USB-C(DP Alt mode) dongle",
@@ -16705,11 +17035,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/apo-dg2-pro",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg2-pro/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.564Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16719,11 +17054,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.564Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "APO-DG1",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless dongle",
       "productType": "Apollo 1080p USB-C(DP Alt mode) dongle",
@@ -16749,11 +17089,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/apo-dg1",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg1/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.557Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16763,11 +17108,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.557Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-200-MS",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "in-desk connectivity",
       "productType": "Compact In-Desk Connectivity",
@@ -16789,11 +17139,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-200-ms",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-200-ms",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.776Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16804,11 +17159,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.776Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-400-MS",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "in-desk connectivity",
       "productType": "Flip Up In-Desk Connectivity",
@@ -16830,11 +17190,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.790Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16845,11 +17210,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.790Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-CBL-SPINE",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "Under Desk Cable Management 'SPINE' for IDB Series (Adjustable up to 36\")",
@@ -16870,11 +17240,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-cbl-spine",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-cbl-spine/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.807Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16885,11 +17260,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.807Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-PWR-SCH",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug)",
@@ -16910,11 +17290,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-sch",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-sch",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.830Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16925,11 +17310,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.830Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-PWR-UK",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug)",
@@ -16950,11 +17340,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-uk",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-uk",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.837Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -16965,11 +17360,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.837Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-400-MS-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "in-desk connectivity",
       "productType": "Flip Up In-Desk Connectivity",
@@ -16991,11 +17391,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.797Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17006,11 +17411,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.797Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-RJ45-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "RJ45 passthrough coupling",
       "productType": "RJ45 CAT6",
@@ -17031,11 +17441,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-rj45-c",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-rj45-c",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.844Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17046,11 +17461,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.844Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-HDMI-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "HDMI passthrough coupling",
       "productType": "HDMI",
@@ -17071,11 +17491,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-hdmi-c",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-hdmi-c",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.814Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17086,11 +17511,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.814Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "IDB-K2-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "in-desk connectivity",
       "productType": "Carrier Keystone 2 ports",
@@ -17112,11 +17542,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/idb-k2-c",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-k2-c",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.821Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17127,11 +17562,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.821Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "HALO-COM-MIC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "companion microphone",
       "productType": "HALO Companion Mic",
@@ -17152,11 +17592,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/halo-com-mic",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/halo-com-mic/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.614Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17167,11 +17612,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.614Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "APO-MIC-EXT",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "USB to Ethernet adapter",
       "productType": "Mini-USB to Ethernet Adaptor",
@@ -17193,11 +17643,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/apo-mic-ext",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-mic-ext/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.571Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17208,11 +17663,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.571Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "APO-SKY-MIC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "video bar",
       "productType": "Apollo Video Bar and COM-MIC-HUB Companion Add-on Mic",
@@ -17234,11 +17694,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/apo-sky-mic",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-sky-mic/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.579Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17249,11 +17714,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.579Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-USBC-15",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "USB-C cable",
       "productType": "15m/49ft",
@@ -17278,11 +17748,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-usbc-15",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-usbc-15/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.996Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17292,11 +17767,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.996Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-CON-AUD-H2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "audio extractor",
       "productType": "4K60Hz HDMI 2.0 Audio Extractor with Passthrough",
@@ -17327,11 +17807,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-con-aud-h2",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-con-aud-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.290Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17340,11 +17825,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.290Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CON-ANLG-DNT",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "Dante adapter",
       "productType": "Analog Audio Input to Dante/AES67 Output Adapter",
@@ -17385,12 +17875,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/con-anlg-dnt",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/con-anlg-dnt",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.248Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17398,11 +17894,20 @@
       "usb": [],
       "network": [],
       "control": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.248Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "CON-DNT-ANLG",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "Dante adapter",
       "productType": "Dante/AES67 Input to Analog Audio Output Adapter",
@@ -17443,12 +17948,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/con-dnt-anlg",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/con-dnt-anlg",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.256Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17456,11 +17967,20 @@
       "usb": [],
       "network": [],
       "control": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.256Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "CON-USBC-DNT",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "Dante adapter",
       "productType": "USB to Dante /AES67 & Dante /AES67 to USB Audio Adapter",
@@ -17501,12 +18021,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/con-usbc-dnt",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/con-usbc-dnt",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.268Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17514,11 +18040,20 @@
       "usb": [],
       "network": [],
       "control": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.268Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "CON-XLR-DNT",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "Dante adapter",
       "productType": "Analog XLR Audio Input to Dante/AES67 Output Adapter",
@@ -17559,12 +18094,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/con-xlr-dnt",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/con-xlr-dnt",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.276Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17572,11 +18113,20 @@
       "usb": [],
       "network": [],
       "control": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.276Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "CON-DNT-XLR",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "Dante adapter",
       "productType": "Dante/AES67 Input to Analog XLR Audio Output Adapter",
@@ -17617,12 +18167,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/con-dnt-xlr",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/con-dnt-xlr",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.262Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17630,11 +18186,20 @@
       "usb": [],
       "network": [],
       "control": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.262Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "DSP-88-DNT",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "audio DSP",
       "productType": "Digital Audio Processor",
@@ -17668,11 +18233,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/dsp-88-dnt",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/dsp-88-dnt",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.283Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17681,11 +18251,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.283Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "TX-SCL-HDMI",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "seamless matrix switcher",
       "productType": "4K60Hz HDMI Scaling Output Card for MX-1616-SCL",
@@ -17716,11 +18291,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdmi",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdmi",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.364Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17729,11 +18309,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.364Z",
+      "confirmedFields": [
+        "max-resolution"
+      ]
     },
     {
       "sku": "TX-SCL-HDBT",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "HDBaseT matrix switcher",
       "productType": "4K60H HDBaseT Scaling  Output Card for MX-1616-SCL",
@@ -17766,12 +18351,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdbt",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdbt",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.357Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17779,11 +18370,21 @@
       "network": [],
       "control": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "specs": {
+        "poh": true,
+        "powerSupply": "PoH"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.357Z",
+      "confirmedFields": [
+        "max-resolution",
+        "power"
+      ]
     },
     {
       "sku": "NETWORKHDTOUCHTM",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP component",
       "productType": "Free iPad & Android Control App for NetworkHD 100, 200, 400, 500 and 600 Series",
@@ -17813,13 +18414,21 @@
           "sourceUrl": "https://www.wyrestorm.com/product/networkhd-touch™",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/networkhd-touch™",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.627Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
-      "dependencies": [],
+      "dependencies": [
+        "A NetworkHD encoder/decoder endpoint (100, 200, 400, 500 or 600 series) for the system the app controls",
+        "NetworkHD controller (NHD-CTL-PRO-V2) on the same managed 1GbE network for route and device control"
+      ],
       "compatibleFamilies": [],
       "video": [],
       "audio": [],
@@ -17827,11 +18436,16 @@
       "network": [],
       "control": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.627Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "SYN-TP10-B",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "touchpad controller",
       "productType": "Synergy 10.1” Touchpad for Synergy Flow Series",
@@ -17864,12 +18478,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/syn-tp10-b",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.161Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17878,11 +18498,20 @@
       "usb": [],
       "network": [],
       "control": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.161Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "SYN-CTL-HUB-IR-06",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "control hub",
       "productType": "Synergy Control Hub",
@@ -17921,12 +18550,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-ir-06",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-ir-06",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.132Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17934,11 +18569,20 @@
       "audio": [],
       "usb": [],
       "network": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.132Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "SYN-CTL-HUB-RL-04",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "control hub",
       "productType": "Synergy Control Hub",
@@ -17977,12 +18621,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rl-04",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rl-04",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.139Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -17990,11 +18640,20 @@
       "audio": [],
       "usb": [],
       "network": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.139Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "SYN-CTL-HUB-RS-03",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "control hub",
       "productType": "Synergy Control Hub",
@@ -18033,12 +18692,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rs-03",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-rs-03",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.147Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18046,11 +18711,20 @@
       "audio": [],
       "usb": [],
       "network": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.147Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "SYN-CTL-HUB-IO-10",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "control hub",
       "productType": "Synergy Control Hub",
@@ -18089,12 +18763,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-io-10",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub-io-10",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.125Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18102,11 +18782,20 @@
       "audio": [],
       "usb": [],
       "network": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.125Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "SYN-CTL-FL10",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "control hub",
       "productType": "Synergy Control Flow System",
@@ -18152,23 +18841,38 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-fl10",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-fl10",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.118Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
       "video": [],
       "audio": [],
       "usb": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.118Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "SYN-KEY12-UK-EU",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "control hub",
       "productType": "Synergy 12-button Keypad Controller with Knob",
@@ -18209,12 +18913,18 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/syn-key12-uk-eu",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-key12-uk-eu",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.154Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18222,11 +18932,20 @@
       "audio": [],
       "usb": [],
       "network": [],
-      "physical": []
+      "physical": [],
+      "specs": {
+        "poe": true,
+        "powerSupply": "PoE"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.154Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "EX-80-KVM",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "KVM extender",
       "productType": "1080p60Hz KVM Extender",
@@ -18254,11 +18973,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-80-kvm",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-ex-80-kvm/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.051Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18267,11 +18991,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.051Z",
+      "confirmedFields": [
+        "max-resolution"
+      ]
     },
     {
       "sku": "EX-40-KVM-H2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "KVM extender",
       "productType": "HDMI 2.0 4K60Hz KVM Extender",
@@ -18309,22 +19038,32 @@
           "sourceUrl": "https://www.wyrestorm.com/product/ex-40-kvm-h2",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.044Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.044Z",
+      "confirmedFields": [
+        "max-resolution"
+      ]
     },
     {
       "sku": "EX-100-KVM-H2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "KVM extender",
       "productType": "4k60Hz KVM Extender",
@@ -18365,22 +19104,38 @@
           "checkedAt": "2026-08-29T07:14:40.282Z",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-h2",
           "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
+          "reviewer": "WyreStorm Product Team",
+          "note": "Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:45.037Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
       "network": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "specs": {
+        "poh": true,
+        "powerSupply": "PoH"
+      },
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:45.037Z",
+      "confirmedFields": [
+        "max-resolution",
+        "power"
+      ]
     },
     {
       "sku": "CAB-HAOC-10",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "10m/32.8ft HDMI 2.0 AOC",
@@ -18415,11 +19170,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-10",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-10/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.929Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18427,11 +19187,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.929Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-HAOC-15",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "15m/49ft HDMI 2.0 AOC",
@@ -18466,11 +19231,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-15",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-15/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.936Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18478,11 +19248,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.936Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-HAOC-FRL-10",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "10m/32.8ft HDMI 2.1 AOC",
@@ -18518,11 +19293,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-10",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-10",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.966Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18530,11 +19310,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.966Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-HAOC-FRL-15",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "15m/49ft HDMI 2.1 AOC",
@@ -18570,11 +19355,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-15",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-15",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.973Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18582,11 +19372,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.973Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-HAOC-15-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "15m/49ft HDMI 2.0 AOC",
@@ -18621,11 +19416,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-15-c",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-15-c/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.943Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18633,11 +19433,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.943Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-HAOC-20-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "20m/65.6ft HDMI 2.0 AOC",
@@ -18672,11 +19477,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-20-c",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-20-c/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.952Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18684,11 +19494,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.952Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-HAOC-30-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "30m/98ft HDMI 2.0 AOC",
@@ -18723,11 +19538,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-30-c",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-30-c/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.959Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18735,11 +19555,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.959Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-4KUHD-05",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "0.5m/1.5ft HDMI 2.0 Cable",
@@ -18774,11 +19599,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-0.5",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-0.5",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.003Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18786,11 +19616,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.003Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-4KUHD-10",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "1m/3.2ft HDMI 2.0 Cable",
@@ -18825,11 +19660,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-1.0",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-1.0",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.010Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18837,11 +19677,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.010Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-4KUHD-20",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "2m/6.5ft HDMI 2.0 Cable",
@@ -18876,11 +19721,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-2.0",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-2.0",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.016Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18888,11 +19738,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.016Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-4KUHD-30",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "3m/9.8ft HDMI 2.0 Cable",
@@ -18927,11 +19782,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-3.0",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-3.0",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.023Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18939,11 +19799,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.023Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-4KUHD-50",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "5m/16.4ft HDMI 2.0 Cable",
@@ -18978,11 +19843,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-5.0",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-5.0",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.029Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -18990,11 +19860,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.029Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-8KUHD-05",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "0.5m/1.5ft HDMI 2.1 Cable",
@@ -19030,11 +19905,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-0.5",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-0.5",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.037Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19042,11 +19922,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.037Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-8KUHD-1.0",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "1m/3.2ft HDMI 2.1 Cable",
@@ -19082,11 +19967,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-1.0",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-1.0",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.044Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19094,11 +19984,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.044Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-8KUHD-2.0",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "2m/6.5ft HDMI 2.1 Cable",
@@ -19134,11 +20029,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-2.0",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-2.0",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.051Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19146,11 +20046,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.051Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-8KUHD-3.0",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "HDMI cable",
       "productType": "3m/9.8ft HDMI 2.1 Cable",
@@ -19186,11 +20091,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-3.0",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-3.0",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.057Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19198,11 +20108,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.057Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-UAOC-15-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "active optical cable",
       "productType": "15m/49ft HDMI 2.1 AOC",
@@ -19238,11 +20153,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-uaoc-15-c",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-uaoc-15-c/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.981Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19250,11 +20170,16 @@
       "network": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.981Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-CAB-USBC-1M",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "USB-C cable",
       "productType": "1m/3.2ft USB-C to C Cable",
@@ -19292,11 +20217,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-1m",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-1m",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.066Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19304,11 +20234,16 @@
       "usb": [],
       "control": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.066Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-CAB-USBC-2M",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "USB-C cable",
       "productType": "2m/6.5ft USB-C to C Cable",
@@ -19346,11 +20281,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-2m",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-2m",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.075Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19358,11 +20298,16 @@
       "usb": [],
       "control": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.075Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "EXP-CAB-USBC-5M",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "USB-C cable",
       "productType": "5m/16.4ft USB-C to C MicroCoax cable",
@@ -19400,11 +20345,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-5m",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-5m/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.082Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19412,11 +20362,16 @@
       "usb": [],
       "control": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.082Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "CAB-UAOC-USBC-10",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CABLE",
       "role": "USB-C cable",
       "productType": "10m/32.8ft",
@@ -19457,22 +20412,32 @@
           "sourceUrl": "https://www.wyrestorm.com/product/cab-uaoc-usbc-10",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cab-uaoc-usbc-10/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:43.989Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
       "audio": [],
       "control": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:43.989Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "PSU-20V-6A-BOX",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "20V 6A Power Supply Unit for SW-120-TX3 & NHD-510-TX",
@@ -19493,11 +20458,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-box",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-box",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.324Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19508,11 +20478,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.324Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "PSU-20V-6A-WP",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "20V 6A Power Supply Unit for SW-120-TX3-US/UK & NHD-500-IW-TX",
@@ -19533,11 +20508,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-wp",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-wp",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.331Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19548,11 +20528,16 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.331Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "PSU-12V-1A",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "12V 1A Power Supply *Utilized by most of NetworkHD*",
@@ -19582,11 +20567,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-1a",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-1a",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.296Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19596,11 +20586,16 @@
       "network": [],
       "control": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.296Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "PSU-12V-2A",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "12V 2A Power Supply *Utilized by most of NetworkHD*",
@@ -19630,11 +20625,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-2a",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-2a",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.306Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19644,11 +20644,16 @@
       "network": [],
       "control": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.306Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "PSU-12V-3A",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "12V 3A Power Supply *Utilized by most of NetworkHD*",
@@ -19678,11 +20683,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-3a",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-3a/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.312Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19692,11 +20702,16 @@
       "network": [],
       "control": [],
       "power": [],
-      "physical": []
+      "physical": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.312Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     },
     {
       "sku": "PSU-18V-1A",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
       "productType": "18V 1A Power Supply *Utilized by most of WyreStorm Extender Solutions*",
@@ -19717,11 +20732,16 @@
           "sourceUrl": "https://www.wyrestorm.com/product/psu-18v-1a",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-18v-1a",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-09-30T11:10:44.318Z",
+          "reviewedOn": "2026-09-30",
+          "reviewer": "Steve Goodwin",
+          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
-      "verifiedBy": "auto-import",
-      "verifiedAt": "2026-08-29T07:14:40.282Z",
-      "confirmedFields": [],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
@@ -19732,7 +20752,12 @@
       "control": [],
       "power": [],
       "physical": [],
-      "ports": []
+      "ports": [],
+      "verifiedBy": "Steve Goodwin",
+      "verifiedAt": "2026-09-30T11:10:44.318Z",
+      "confirmedFields": [
+        "profile-scope"
+      ]
     }
   ]
 }

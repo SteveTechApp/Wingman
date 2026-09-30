@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
+import { VoiceRequestCapture } from "../components/VoiceRequestCapture";
 import { saveIngestAnalysisToProject } from "../data/projectStore";
 import { extractDocuments } from "../lib/documentExtract";
 import { analyzeRequirementsText } from "../lib/requirementsParser";
@@ -166,6 +167,7 @@ export function IngestPage() {
   const [extractState, setExtractState] = useState<"idle" | "extracting" | "complete" | "error">("idle");
   const [requestType, setRequestType] = useState<RequestType>("Email / message");
   const [pastedText, setPastedText] = useState("");
+  const [voiceBusy, setVoiceBusy] = useState(false);
   const [bulkAnalysis, setBulkAnalysis] = useState<MultiSkuCompetitorAnalysis | null>(null);
   const [analysis, setAnalysis] = useState<IngestAnalysis>({
     requirements: [],
@@ -186,9 +188,9 @@ export function IngestPage() {
   const nextStep = useMemo(() => {
     if (requestType === "BOM / competitor list" || requestType === "Formal RFQ") {
       return {
-        label: "Next: build proposal",
-        path: routeCatalogByKey.proposal.path,
-        summary: "Take the extracted product requirement straight into the proposal workflow.",
+        label: "Next: build response",
+        path: routeCatalogByKey.responsePack.path,
+        summary: "Take the extracted product requirement straight into the customer response.",
       };
     }
 
@@ -304,9 +306,9 @@ export function IngestPage() {
     });
   };
 
-  const continueBulkToProposal = () => {
+  const continueBulkToResponse = () => {
     saveBulkOpportunity();
-    navigate(routeCatalogByKey.proposal.path);
+    navigate(routeCatalogByKey.responsePack.path);
   };
 
   const handleAttachmentChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -448,9 +450,9 @@ export function IngestPage() {
         <PageHero
           eyebrow="Request Decoder"
           title="Bulk enquiry ready"
-          purpose="Wingman separated the competitor product list from supporting analysis. Review the WyreStorm direction, then carry it into the proposal."
-          nextMove="Carry the batch-eligible items into the proposal workflow."
-          actions={[{ label: "Continue to proposal", onClick: continueBulkToProposal }]}
+          purpose="Wingman separated the competitor product list from supporting analysis. Review the WyreStorm direction, then carry it into the customer response."
+          nextMove="Carry the batch-eligible items into Responses."
+          actions={[{ label: "Continue to response", onClick: continueBulkToResponse }]}
         />
         {saveWarning ? (
           <div className="wm-ingest-inline-alert" role="alert">
@@ -485,7 +487,7 @@ export function IngestPage() {
           <h1>{showCaptureWorkspace ? "Decode the incoming request" : "Decoded request"}</h1>
           <p>
             {showCaptureWorkspace
-              ? "Paste or upload the customer wording, then let Wingman separate requirements from missing information."
+              ? "Speak, paste or upload the customer request, then let Wingman separate requirements from missing information."
               : "Review the requirements, system direction and open questions before moving into the next workflow."}
           </p>
         </div>
@@ -498,14 +500,6 @@ export function IngestPage() {
           >
             {nextStep.label}
           </Link>
-          {showCaptureWorkspace ? (
-            <Link
-              className="wm-ingest-button wm-ingest-button-secondary"
-              to={nextStep.path}
-            >
-              {nextStep.label}
-            </Link>
-          ) : null}
           {hasDecodedResult && !showCaptureWorkspace ? (
             <>
               <button
@@ -558,7 +552,7 @@ export function IngestPage() {
               <button
                 type="button"
                 onClick={runPasteAnalysis}
-                disabled={!pastedText.trim() || extractState === "extracting"}
+                disabled={!pastedText.trim() || extractState === "extracting" || voiceBusy}
                 className="wm-ingest-button wm-ingest-button-primary wm-ingest-decode-button"
 
               aria-label="Decode pasted request">
@@ -566,6 +560,7 @@ export function IngestPage() {
               </button>
             </div>
 
+            <VoiceRequestCapture disabled={extractState === "extracting"} onBusyChange={setVoiceBusy} onTranscript={(text) => setPastedText((current) => [current.trimEnd(), text].filter(Boolean).join("\n"))} />
             <label className="wm-ingest-textarea-label">
               <span>Customer wording</span>
               <textarea
@@ -581,6 +576,7 @@ export function IngestPage() {
                 <input
                   ref={fileInputRef}
                   type="file"
+                  aria-label="Upload readable documents"
                   multiple
                   className="hidden"
                   onChange={handleFileChange}
@@ -607,6 +603,7 @@ export function IngestPage() {
                 <input
                   ref={attachmentInputRef}
                   type="file"
+                  aria-label="Upload photos or diagrams"
                   multiple
                   className="hidden"
                   onChange={handleAttachmentChange}
@@ -652,7 +649,7 @@ export function IngestPage() {
             ) : null}
           </section>
 
-          <aside className="wm-ingest-panel wm-ingest-guidance-panel">
+          <details className="wm-ingest-panel wm-ingest-guidance-panel"><summary>How document review works</summary>
             <div className="wm-ingest-panel-heading">
               <div>
                 <span>{requestGuidance.title}</span>
@@ -689,11 +686,8 @@ export function IngestPage() {
               </article>
             </div>
 
-            <div className="wm-ingest-guidance-note">
-              <strong>No blank result panels</strong>
-              <p>Results stay hidden until Wingman has decoded usable customer content.</p>
-            </div>
-          </aside>
+            
+          </details>
         </main>
       ) : (
         <>

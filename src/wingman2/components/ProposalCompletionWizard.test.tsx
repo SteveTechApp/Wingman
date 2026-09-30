@@ -42,7 +42,7 @@ describe("ProposalCompletionWizard", () => {
   it("prompts to open a project when there is no active project", () => {
     renderWizard();
 
-    expect(screen.getByText("Open a project before building a proposal")).not.toBeNull();
+    expect(screen.getByText("Open a project before building a response")).not.toBeNull();
     expect(screen.getByRole("link", { name: "Open projects" })).not.toBeNull();
     expect(screen.getByRole("link", { name: "Start Discovery" })).not.toBeNull();
   });
@@ -51,8 +51,8 @@ describe("ProposalCompletionWizard", () => {
     seedActiveProject();
     renderWizard();
 
-    expect(screen.getByText("Complete and export the customer proposal")).not.toBeNull();
-    expect(screen.getByRole("navigation", { name: "Proposal completion steps" })).not.toBeNull();
+    expect(screen.getByText("Make the proposal yours.")).not.toBeNull();
+    expect(screen.getByRole("navigation", { name: "Response completion steps" })).not.toBeNull();
     expect(screen.getByText(/% complete/)).not.toBeNull();
   });
 

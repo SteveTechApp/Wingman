@@ -10,6 +10,8 @@
  */
 import type { StoredProject } from "../data/projectStore";
 import { readProjectStore } from "../data/projectStore";
+import { clearStoredFeatureEvents, getStoredFeatureEvents, type StoredFeatureEvent } from "./localFeatureEvents";
+export { trackFeatureUsage } from "./localFeatureEvents";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,71 +62,13 @@ export type AnalyticsDashboardData = {
   };
 };
 
-// ─── Storage Keys ─────────────────────────────────────────────────────────────
-
-const ANALYTICS_STORAGE_KEY = "wingman:analytics-events";
-const MAX_EVENTS = 1000;
-const RETENTION_DAYS = 90;
-
-// ─── Event Storage ────────────────────────────────────────────────────────────
-
-type StoredEvent = {
-  kind: string;
-  feature: string;
-  timestamp: string;
-  metadata?: Record<string, string | number | boolean>;
-};
-
-function getStoredEvents(): StoredEvent[] {
-  try {
-    if (typeof window === "undefined") return [];
-    const raw = localStorage.getItem(ANALYTICS_STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as StoredEvent[];
-  } catch {
-    return [];
-  }
-}
-
-function storeEvent(event: StoredEvent): void {
-  try {
-    if (typeof window === "undefined") return;
-    const events = getStoredEvents();
-    events.push(event);
-
-    // Trim old events
-    const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
-    const filtered = events.filter((e) => e.timestamp > cutoff).slice(-MAX_EVENTS);
-
-    localStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(filtered));
-  } catch {
-    // Storage may be full or unavailable
-  }
-}
-
-/**
- * Track a feature usage event and store it locally.
- */
-export function trackFeatureUsage(
-  kind: string,
-  feature: string,
-  metadata?: Record<string, string | number | boolean>,
-): void {
-  storeEvent({
-    kind,
-    feature,
-    timestamp: new Date().toISOString(),
-    metadata,
-  });
-}
-
 // ─── Dashboard Data ───────────────────────────────────────────────────────────
 
 /**
  * Build the analytics dashboard data from local storage and project store.
  */
 export function buildAnalyticsDashboard(): AnalyticsDashboardData {
-  const events = getStoredEvents();
+  const events = getStoredFeatureEvents();
   const projects = readProjectStore().projects ?? [];
 
   const featureUsage = aggregateFeatureUsage(events);
@@ -154,10 +98,11 @@ export function buildAnalyticsDashboard(): AnalyticsDashboardData {
 
 // ─── Aggregation Functions ────────────────────────────────────────────────────
 
-function aggregateFeatureUsage(events: StoredEvent[]): FeatureUsage[] {
+function aggregateFeatureUsage(events: StoredFeatureEvent[]): FeatureUsage[] {
   const usageMap = new Map<string, FeatureUsage>();
 
   for (const event of events) {
+    if (event.kind !== "feature_open" && event.kind !== "export" && event.kind !== "search") continue;
     const existing = usageMap.get(event.feature) ?? {
       feature: event.feature,
       opens: 0,
@@ -348,11 +293,5 @@ export function formatAnalyticsNumber(num: number): string {
  * Clear all analytics data.
  */
 export function clearAnalyticsData(): void {
-  try {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(ANALYTICS_STORAGE_KEY);
-    }
-  } catch {
-    // Swallowed
-  }
+  clearStoredFeatureEvents();
 }

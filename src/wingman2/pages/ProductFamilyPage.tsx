@@ -10,7 +10,7 @@ import {
 } from "../components/ProductWorkspaceChrome";
 import { ProductWhyFlashCard } from "../components/ProductWhyFlashCard";
 import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceSummary } from "../lib/productIntelligenceIndexCache";
 import { extractRawProducts } from "../lib/productStoryEngine";
 
 type ProductFamilyGuide = {
@@ -744,7 +744,7 @@ function useKnownProductSkus(): Set<string> | null {
   useEffect(() => {
     let cancelled = false;
 
-    loadProductIntelligenceIndex()
+    loadProductIntelligenceSummary()
       .then((data) => {
         if (cancelled) return;
         const skus = new Set(

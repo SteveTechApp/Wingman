@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, "..");
 const required = [
   "tools/audit-wingman-data-sources.mjs",
   "tools/archive-wingman-stale-data.mjs",
-  "public/product-intelligence-index.json",
+  "public/product-intelligence-summary.json",
 ];
 
 const missing = required.filter((relativePath) => !existsSync(path.join(root, relativePath)));
@@ -40,7 +40,7 @@ if (missingMarkers.length) {
   process.exit(1);
 }
 
-const index = JSON.parse(readFileSync(path.join(root, "public/product-intelligence-index.json"), "utf8").replace(/^\uFEFF/, ""));
+const index = JSON.parse(readFileSync(path.join(root, "public/product-intelligence-summary.json"), "utf8").replace(/^\uFEFF/, ""));
 const products = Array.isArray(index)
   ? index
   : Array.isArray(index.products)

@@ -10,7 +10,7 @@ import type { WyreStormProduct } from "../lib/compareVerdictPipeline";
 import fixture from "../lib/__fixtures__/productIntelligenceIndexSample.json";
 
 // This fixture is a trimmed sample of real entries from
-// public/product-intelligence-index.json (regenerated from
+// public/product-intelligence-summary.json (regenerated from
 // data/wingman-canonical-product-store.json), covering: an audio product
 // (AMP-2120), an active PTZ camera not present in the hand-typed
 // WYRESTORM_PRODUCTS list (CAM-210-PTZ), a discontinued/do-not-spec PTZ camera

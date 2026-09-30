@@ -10,7 +10,7 @@ import {
   type WingmanProductProfile,
 } from "./productClassification";
 import { collectDealOutcomes } from "./feedbackInformedGuidance";
-import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
+import { loadProductIntelligenceSummary } from "./productIntelligenceIndexCache";
 import { extractRawProducts } from "./productStoryEngine";
 import { normaliseSkuKey, resolveWyrestormSkuAlias } from "./skuAliasResolver";
 import { resolveProductLifecycle } from "./wyrestormProductLifecycle";
@@ -532,7 +532,9 @@ export function selectWingmanProducts<TProduct extends WingmanProductLike>(
 export async function loadWingmanProductSelectorDecisions(
   request: ProductSelectorRequest,
 ): Promise<ProductSelectorDecision<IndexedProduct>[]> {
-  const payload = await loadProductIntelligenceIndex();
+  // Selection ranks catalogue-level fields (role, tags, features), not the
+  // deferred technical detail, so the lightweight summary payload suffices.
+  const payload = await loadProductIntelligenceSummary();
   const products = extractRawProducts(payload) as IndexedProduct[];
   return selectWingmanProducts(products, request);
 }

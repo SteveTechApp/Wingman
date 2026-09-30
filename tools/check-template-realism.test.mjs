@@ -10,6 +10,13 @@ const fixture = (overrides = {}) => ({
 });
 
 describe("template realism audit", () => {
+  it("checks supplied microphone scope without mistaking interface guidance for a microphone purchase", () => {
+    const base = fixture();
+    const audio = { ...base.applicationProfile, capabilities: ["video", "audio"] };
+    const processor = { sku: "BY-OTHERS-DSP", role: "Audio DSP", description: "Zone processor", notes: "Analogue microphones need separate interfaces if added." };
+    expect(auditTemplates([fixture({ applicationProfile: audio, bom: [...base.bom, processor] })], catalogue)).toEqual([]);
+    expect(auditTemplates([fixture({ applicationProfile: audio, bom: [...base.bom, { ...processor, description: "Lectern microphone" }] })], catalogue)).toContainEqual(expect.objectContaining({ code: "capability-scope-mismatch" }));
+  });
   it("rejects an unknown required SKU", () => {
     const template = fixture({ bom: [{ id: "bad", sku: "NOT-A-SKU", role: "Core", description: "Core", qty: 1, type: "Required" }] });
     expect(auditTemplates([template], catalogue)).toContainEqual(expect.objectContaining({ code: "unknown-sku", severity: "error" }));

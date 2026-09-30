@@ -10,6 +10,8 @@ const brief: StoredDiscoveryBrief = {
   roomModel: {
     applicationType: "Meeting room / boardroom",
     longestRun: "15 m",
+    audioDesignDirection: "Steerable columns for the tiered audience",
+    audioScope: ["Acoustic wall panels by others", "Independent overflow audio channel"],
   },
   missingInformation: ["Confirm the display mounting height"],
   nextBestQuestion: "Confirm the display mounting height",
@@ -47,6 +49,9 @@ describe("Discovery Brief DOCX export", () => {
 
     expect(text).toContain("DISCOVERY BRIEF");
     expect(text).toContain("Acme HQ Boardroom");
+    expect(text).toContain("Steerable columns for the tiered audience");
+    expect(text).toContain("Acoustic wall panels by others");
+    expect(text).toContain("Independent overflow audio channel");
     expect(text).toContain("Prepared by: Steve");
     expect(text).toContain("Purpose of this Brief");
     expect(text).toContain("Captured Requirement");

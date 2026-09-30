@@ -1,9 +1,13 @@
-import type { FormEvent } from "react";
+import type { Dispatch, FormEvent, SetStateAction } from "react";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ClipboardCopy, Database, MessageSquareText, RotateCcw, Send, X } from "lucide-react";
+import { ClipboardCopy, Database, History, House, MessageSquareText, Plus, Send, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { routeCatalogByKey } from "../app/routeCatalog";
+import { createGuruConversation, guruConversationTitle, loadGuruHistory, saveGuruHistory } from "./guruConversationHistory";
+import { GuruMessageContent, guruMessageTone } from "./GuruMessageContent";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceSummary, loadProductIntelligenceDetail } from "../lib/productIntelligenceIndexCache";
 import { postWingmanJson } from "../api/wingmanApi";
 import {
   getProductAssurance,
@@ -925,6 +929,19 @@ function answerReceiverQuestion(question: string, products: ProductEntry[]) {
   ].join("\n");
 }
 
+function hydrateGuruProductDetail(
+  sku: string,
+  products: ProductEntry[],
+  setProducts: Dispatch<SetStateAction<ProductEntry[]>>,
+) {
+  if (products.find((product) => product.sku === sku)?.salesLanguage) return;
+  void loadProductIntelligenceDetail(sku).then((hydrated) => {
+    const language = hydrated ? salesLanguageFromRecord(hydrated) : undefined;
+    if (!language) return;
+    setProducts((current) => current.map((product) => product.sku === sku ? { ...product, salesLanguage: language } : product));
+  }).catch(() => { /* base answer stands without sales-language detail */ });
+}
+
 function answerProductQuestion(question: string, products: ProductEntry[]) {
   const skus = extractSkus(question);
   const sku = skus[0];
@@ -1424,9 +1441,17 @@ async function answerQuestion(
   products: ProductEntry[],
   activityContext?: GuruActivityContext,
   compareContext?: string,
+  setProducts?: Dispatch<SetStateAction<ProductEntry[]>>,
 ) {
   const lower = question.toLowerCase();
   const skus = extractSkus(question);
+
+  // Product answers are the only branch that uses the deferred salesLanguage
+  // detail; hydrate the named SKU's record so the answer can render the
+  // sales-voice lines (no-op once hydrated; no per-keystroke fetch loop).
+  if (setProducts && skus.length && products.some((product) => product.sku === skus[0])) {
+    hydrateGuruProductDetail(skus[0], products, setProducts);
+  }
 
   if ((lower.includes("receiver") || lower.includes("rx")) && skus.length) {
     return answerReceiverQuestion(question, products);
@@ -1473,108 +1498,6 @@ async function answerQuestion(
 }
 
 
-type GuruContentBlock =
-  | { type: "heading"; text: string }
-  | { type: "paragraph"; text: string }
-  | { type: "list"; items: string[] };
-
-function isGuruSectionHeading(line: string, index: number, lines: string[]) {
-  const text = line.replace(/:$/, "").trim();
-
-  if (!text || text.length > 72) {
-    return false;
-  }
-
-  if (line.endsWith(":")) {
-    return true;
-  }
-
-  return index === 0 && lines[index + 1] === "" && !/[.!?]$/.test(line);
-}
-
-function buildGuruContentBlocks(content: string): GuruContentBlock[] {
-  const lines = content
-    .replace(/\r/g, "")
-    .replace(/\s+-\s+(?=(?:Is|What|Which|Where|How|Why|Confirm|Check|Use|Ask|Do|Does)\b)/g, "\n- ")
-    .split("\n")
-    .map((line) => line.trim());
-
-  const blocks: GuruContentBlock[] = [];
-  let paragraph: string[] = [];
-  let list: string[] = [];
-
-  const flushParagraph = () => {
-    const text = paragraph.join(" ").trim();
-
-    if (text) {
-      blocks.push({ type: "paragraph", text });
-    }
-
-    paragraph = [];
-  };
-
-  const flushList = () => {
-    if (list.length) {
-      blocks.push({ type: "list", items: [...list] });
-    }
-
-    list = [];
-  };
-
-  lines.forEach((line, index) => {
-    if (!line) {
-      flushParagraph();
-      flushList();
-      return;
-    }
-
-    const bullet = line.match(/^[-*\u2022]\s+(.+)$/);
-
-    if (bullet) {
-      flushParagraph();
-      list.push(bullet[1].trim());
-      return;
-    }
-
-    flushList();
-
-    if (isGuruSectionHeading(line, index, lines)) {
-      flushParagraph();
-      blocks.push({ type: "heading", text: line.replace(/:$/, "").trim() });
-      return;
-    }
-
-    paragraph.push(line);
-  });
-
-  flushParagraph();
-  flushList();
-
-  return blocks.length ? blocks : [{ type: "paragraph", text: content.trim() }];
-}
-
-function guruMessageTone(content: string) {
-  const text = content.toLowerCase();
-
-  if (text.includes("checking guru knowledge")) {
-    return "loading";
-  }
-
-  if (
-    /do not know|do not have a confirmed|not confirmed|needs verification|wrong tx\/rx|before quoting|before customer issue|confirm:/.test(
-      text,
-    )
-  ) {
-    return "caution";
-  }
-
-  if (/recommended answer|why this fits|sales use|practical selection rule|use .* with/.test(text)) {
-    return "guidance";
-  }
-
-  return "standard";
-}
-
 function compactLiveAnswer(content: string, question: string) {
   if (/\b(detail|detailed|engineering|technical|full explanation|expand)\b/i.test(question)) {
     return content;
@@ -1597,49 +1520,6 @@ function compactLiveAnswer(content: string, question: string) {
   ].filter(Boolean))).join("\n");
 }
 
-function GuruMessageContent({ content }: { content: string }) {
-  const blocks = buildGuruContentBlocks(content);
-  const loading = guruMessageTone(content) === "loading";
-
-  if (loading) {
-    return (
-      <div className="wingman-guru-loading" role="status">
-        <span className="wingman-guru-loading-dot" />
-        <span>Checking local Guru knowledge...</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="wingman-guru-rich-content">
-      {blocks.map((block, index) => {
-        if (block.type === "heading") {
-          return (
-            <h4 key={`heading-${index}-${block.text}`} className="wingman-guru-rich-heading">
-              {block.text}
-            </h4>
-          );
-        }
-
-        if (block.type === "list") {
-          return (
-            <ul key={`list-${index}`} className="wingman-guru-rich-list">
-              {block.items.map((item) => (
-                <li key={`${index}-${item}`}>{item}</li>
-              ))}
-            </ul>
-          );
-        }
-
-        return (
-          <p key={`paragraph-${index}-${block.text.slice(0, 24)}`} className="wingman-guru-rich-paragraph">
-            {block.text}
-          </p>
-        );
-      })}
-    </div>
-  );
-}
 const openingMessage = createMessage(
   "assistant",
   GURU_EXTERNAL_LOOKUP_ENABLED
@@ -1654,28 +1534,46 @@ export function WingmanGuruDrawer({
   seedPrompt,
   onSeedHandled,
 }: WingmanGuruDrawerProps) {
+  const navigate = useNavigate();
   const [portalReady, setPortalReady] = useState(false);
 
   useEffect(() => {
     setPortalReady(true);
   }, []);
-  const [messages, setMessages] = useState<GuruMessage[]>([openingMessage]);
+  const [history, setHistory] = useState(() => loadGuruHistory(openingMessage));
+  const [showHistory, setShowHistory] = useState(false);
+  const messages = history.conversations.find((conversation) => conversation.id === history.activeId)?.messages ?? [openingMessage];
   const [draft, setDraft] = useState("");
   const [products, setProducts] = useState<ProductEntry[]>([]);
   const [indexStatus, setIndexStatus] = useState("Loading product intelligence...");
   const [memoryCount, setMemoryCount] = useState(0);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const messagesRef = useRef<HTMLDivElement | null>(null);
+  const drawerRef = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const handledSeedPromptRef = useRef<string | null>(null);
   const compareContextRef = useRef<string | null>(null);
+
+  useEffect(() => saveGuruHistory(history), [history]);
+
+  const updateConversationMessages = useCallback((conversationId: string, update: (current: GuruMessage[]) => GuruMessage[]) => {
+    setHistory((current) => ({
+      ...current,
+      conversations: current.conversations.map((conversation) => conversation.id === conversationId
+        ? { ...conversation, updatedAt: Date.now(), messages: update(conversation.messages) }
+        : conversation),
+    }));
+  }, []);
 
   useEffect(() => {
     setMemoryCount(cacheCount());
 
     let active = true;
 
-    loadProductIntelligenceIndex()
+    // Summary payload for matching; the drawer records which SKUs actually
+    // carried an answer so their deferred salesLanguage detail can hydrate
+    // below without shipping detail for the whole catalogue.
+    loadProductIntelligenceSummary()
       .then((data) => {
         if (!active) {
           return;
@@ -1699,6 +1597,10 @@ export function WingmanGuruDrawer({
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (drawerRef.current) drawerRef.current.inert = !open;
+  }, [open, portalReady]);
 
   useEffect(() => {
     if (!open) {
@@ -1728,21 +1630,29 @@ export function WingmanGuruDrawer({
         compareContextRef.current = prompt;
       }
 
-      setMessages((current) => [...current, userMessage, pendingMessage]);
+      const conversationId = history.activeId;
+      updateConversationMessages(conversationId, (current) => [...current, userMessage, pendingMessage]);
       setDraft("");
+      setShowHistory(false);
 
-      const answer = compactLiveAnswer(
-        await answerQuestion(prompt, products, activityContext, compareContextRef.current ?? undefined),
-        prompt,
-      );
+      let answer: string;
+      try {
+        answer = compactLiveAnswer(
+          await answerQuestion(prompt, products, activityContext, compareContextRef.current ?? undefined, setProducts),
+          prompt,
+        );
+      } catch (error) {
+        console.error("[wingman] Guru could not answer the question", error);
+        answer = "I couldn't complete that answer. Please try again, or add the product SKU and the room or signal-path context so I can narrow it down.";
+      }
 
-      setMessages((current) =>
+      updateConversationMessages(conversationId, (current) =>
         current.map((message) => (message.id === pendingMessage.id ? { ...message, content: answer } : message))
       );
 
       setMemoryCount(cacheCount());
     },
-    [activityContext, products],
+    [activityContext, history.activeId, products, updateConversationMessages],
   );
 
   useEffect(() => {
@@ -1771,9 +1681,19 @@ export function WingmanGuruDrawer({
     void sendMessage(draft);
   }
 
-  function clearConversation() {
-    setMessages([openingMessage]);
+  function startNewConversation() {
+    const next = createGuruConversation(createMessage("assistant", openingMessage.content));
+    setHistory((current) => ({ activeId: next.id, conversations: [next, ...current.conversations].slice(0, 20) }));
+    setShowHistory(false);
+    setDraft("");
     setCopiedMessageId(null);
+    compareContextRef.current = null;
+  }
+
+  function openConversation(conversationId: string) {
+    setHistory((current) => ({ ...current, activeId: conversationId }));
+    setShowHistory(false);
+    setDraft("");
     compareContextRef.current = null;
   }
 
@@ -1798,7 +1718,7 @@ export function WingmanGuruDrawer({
       "Use this as discovery context only. Validate the room, signal path, USB, audio, control, distance and product dependencies before quoting.",
     ].join("\n");
 
-    window.sessionStorage.setItem("wingman-guru-call-notes-transcript", handoff);
+    window.sessionStorage.setItem("wingman:use-call-notes-in-discovery", handoff);
     window.dispatchEvent(
       new CustomEvent("wingman:use-call-notes-in-discovery", {
         detail: handoff,
@@ -1821,9 +1741,11 @@ export function WingmanGuruDrawer({
       />
 
       <aside
+        ref={drawerRef}
         className="wingman-guru-drawer"
         data-wingman-guru-drawer="true"
         data-open={open ? "true" : "false"}
+        aria-hidden={!open}
       >
                 <header className="wingman-guru-drawer-header">
           <div className="wingman-guru-drawer-heading">
@@ -1846,10 +1768,10 @@ export function WingmanGuruDrawer({
               <button
                 type="button"
                 className="wingman-guru-header-button"
-                onClick={clearConversation}
+                onClick={startNewConversation}
               >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span>Clear chat</span>
+                <Plus className="h-3.5 w-3.5" />
+                <span>New chat</span>
               </button>
             ) : null}
 
@@ -1864,6 +1786,40 @@ export function WingmanGuruDrawer({
           </div>
         </header>
 
+        <nav className="wingman-guru-navigation" aria-label="Guru navigation">
+          <button type="button" onClick={() => { onClose(); navigate(routeCatalogByKey.dashboard.path); }}>
+            <House size={16} aria-hidden="true" /> Home
+          </button>
+          <button type="button" aria-pressed={showHistory} onClick={() => setShowHistory((current) => !current)}>
+            <History size={16} aria-hidden="true" /> {showHistory ? "Conversation" : "History"}
+          </button>
+          <button type="button" onClick={onClose}>
+            <X size={16} aria-hidden="true" /> Close Guru
+          </button>
+        </nav>
+
+        {showHistory ? (
+          <section className="wingman-guru-history" aria-label="Previous Guru conversations">
+            <div className="wingman-guru-history-heading">
+              <div><span>Saved on this device</span><h3>Previous conversations</h3></div>
+              <button type="button" onClick={startNewConversation}><Plus size={16} aria-hidden="true" /> New chat</button>
+            </div>
+            <div className="wingman-guru-history-list">
+              {history.conversations.filter((conversation) => conversation.messages.some((message) => message.role === "user")).length === 0 ? (
+                <p>Your previous chats will appear here after you ask Guru a question.</p>
+              ) : history.conversations
+                .filter((conversation) => conversation.messages.some((message) => message.role === "user"))
+                .sort((left, right) => right.updatedAt - left.updatedAt)
+                .map((conversation) => (
+                  <button type="button" key={conversation.id} aria-current={conversation.id === history.activeId ? "true" : undefined}
+                    onClick={() => openConversation(conversation.id)}>
+                    <MessageSquareText size={17} aria-hidden="true" />
+                    <span><strong>{guruConversationTitle(conversation)}</strong><small>{new Date(conversation.updatedAt).toLocaleString()} · {conversation.messages.filter((message) => message.role === "user").length} question{conversation.messages.filter((message) => message.role === "user").length === 1 ? "" : "s"}</small></span>
+                  </button>
+                ))}
+            </div>
+          </section>
+        ) : (
         <section className="wingman-guru-conversation" aria-label="Guru conversation">
           <div className="wingman-guru-conversation-header">
             <MessageSquareText className="h-4 w-4" />
@@ -1874,7 +1830,7 @@ export function WingmanGuruDrawer({
           </div>
 
           <div className="wingman-guru-messages" ref={messagesRef}>
-            {messages.map((message) => {
+            {messages.map((message, index) => {
               const tone = guruMessageTone(message.content);
               const isPending = tone === "loading";
 
@@ -1899,7 +1855,7 @@ export function WingmanGuruDrawer({
                     <GuruMessageContent content={message.content} />
                   </div>
 
-                  {message.role === "assistant" && !isPending ? (
+                  {message.role === "assistant" && !isPending && index > 0 ? (
                     <div className="wingman-guru-message-actions">
                       <button
                         type="button"
@@ -1921,6 +1877,9 @@ export function WingmanGuruDrawer({
           </div>
         </section>
 
+        )}
+
+        {!showHistory && (
         <form className="wingman-guru-composer" onSubmit={handleSubmit}>
           <div className="wingman-guru-input-shell">
             <label className="sr-only" htmlFor="wingman-guru-question">
@@ -1956,6 +1915,7 @@ export function WingmanGuruDrawer({
             <span>Send</span>
           </button>
         </form>
+        )}
       </aside>
         </>,
         document.body,

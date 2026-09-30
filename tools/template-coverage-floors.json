@@ -1,0 +1,12 @@
+{
+  "updatedAt": "2026-09-30T08:30:00.000Z",
+  "rule": "Per-layer minimum counts of addressed templates (covered + by-others + not-applicable) across the published catalogue, measured by check:template-realism via the same derivation the Complete-room checklist UI renders. Falling below any floor fails the gate. Raising a floor (or changing this rule) follows the documented exception process in docs/SIZE_BUDGETS.md.",
+  "layers": {
+    "transport": 59,
+    "humanFactors": 4,
+    "controlExperience": 4,
+    "environment": 3,
+    "assurance": 4,
+    "compliance": 4
+  }
+}

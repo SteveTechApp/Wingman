@@ -9,12 +9,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DISCOVERY_BRIEF_KEY } from "@/wingman2/data/workflowHandoff";
 import { readProjectStore } from "@/wingman2/data/projectStore";
-import { loadProductIntelligenceIndex } from "@/wingman2/lib/productIntelligenceIndexCache";
+import { loadProductIntelligenceIndex, loadProductIntelligenceSummary } from "@/wingman2/lib/productIntelligenceIndexCache";
 import { RecommendationsPage } from "@/wingman2/pages/RecommendationsPage";
-import productIntelligenceIndex from "../../public/product-intelligence-index.json";
+import productIntelligenceIndex from "../../public/product-intelligence-summary.json";
 
 vi.mock("@/wingman2/lib/productIntelligenceIndexCache", () => ({
-  loadProductIntelligenceIndex: vi.fn(),
+  loadProductIntelligenceIndex: vi.fn().mockImplementation(() => Promise.resolve(undefined)),
+  loadProductIntelligenceSummary: vi.fn().mockImplementation(() => Promise.resolve(undefined)),
+  loadProductIntelligenceDetailRecords: vi.fn().mockImplementation(() => Promise.resolve(undefined)),
 }));
 
 describe("Recommendations Discovery handoff", () => {
@@ -23,6 +25,8 @@ describe("Recommendations Discovery handoff", () => {
     window.sessionStorage.clear();
     vi.mocked(loadProductIntelligenceIndex).mockReset();
     vi.mocked(loadProductIntelligenceIndex).mockResolvedValue(productIntelligenceIndex);
+    vi.mocked(loadProductIntelligenceSummary).mockReset();
+    vi.mocked(loadProductIntelligenceSummary).mockResolvedValue(productIntelligenceIndex);
   });
 
   it("turns a full Discovery brief into core product paths instead of zero results", async () => {

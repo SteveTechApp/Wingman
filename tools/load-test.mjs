@@ -78,6 +78,12 @@
  *                        (--keep-db-data opts out).
  *   --strict             Fail (exit 2) when p95/p99/error-rate exceed the
  *                        recorded budgets in docs/LOAD_TESTING.md
+ *   --evidence <criterion>  With --strict on a PASSING run: write a dated
+ *                        evidence artifact for the named release criterion to
+ *                        docs/release-evidence/ and print its path, ready to
+ *                        wire into release-evidence-manifest.json. No artifact
+ *                        is written on violations or failures — evidence only
+ *                        exists for measured, budget-clean runs.
  *   --keep-data          Keep the throwaway data dir + server logs on success
  *   --keep-db-data       Keep this run's Supabase rows after a verified pass
  *   --cleanup-only       Delete leftover load-test artifacts (signups,
@@ -184,6 +190,12 @@ Options:
   --timeout <ms>       Request timeout (default ${DEFAULT_TIMEOUT})
   --cookie <value>     Reuse a wingman_session cookie instead of signing up
   --strict             Enforce the recorded p95/p99/error budgets
+  --evidence <criterion>  With --strict on a PASSING run: write a dated
+                       evidence artifact for the named release criterion to
+                       docs/release-evidence/ (no artifact on violations)
+  --evidence <criterion>  With --strict on a PASSING run: write a dated
+                       evidence artifact for the named release criterion to
+                       docs/release-evidence/ (no artifact on violations)
   --keep-data          Keep data dir + logs after a successful run
   --keep-db-data       Keep this run's Supabase rows after a verified pass
   --cleanup-only       Cleanup MODE (no server, no signups): delete leftover
@@ -236,6 +248,7 @@ function parseCliArgs() {
       timeout: { type: "string", default: String(DEFAULT_TIMEOUT) },
       cookie: { type: "string", default: "" },
       strict: { type: "boolean", default: false },
+      evidence: { type: "string", default: "" },
       "keep-data": { type: "boolean", default: false },
       "keep-db-data": { type: "boolean", default: false },
       "cleanup-only": { type: "boolean", default: false },
@@ -323,6 +336,7 @@ function parseCliArgs() {
     timeout: Number.isFinite(parseInt(values.timeout, 10)) ? parseInt(values.timeout, 10) : DEFAULT_TIMEOUT,
     cookie: values.cookie,
     strict: values.strict,
+    evidenceCriterion: values.evidence || "",
     keepData: values["keep-data"],
     keepDbData: values["keep-db-data"],
     cleanupOnly: values["cleanup-only"],
@@ -1104,6 +1118,93 @@ function printSummary(analyses, { level, users, payload, storageDetails, strict 
     }
     console.log(violations === 0 ? "  All recorded budgets met." : `  ${violations} scenario(s) exceeded recorded budgets.`);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Release-evidence artifact
+// ---------------------------------------------------------------------------
+
+/**
+ * Emit a dated evidence artifact for a strict, budget-clean run (criterion
+ * `production-like-load` and friends): the same measured numbers the summary
+ * printed, in the house evidence format the release-evidence manifest links
+ * to. Written ONLY when --strict passed — evidence exists for measured,
+ * budget-clean runs, never for red ones. Returns the artifact path.
+ */
+export function buildEvidenceArtifact({ criterionId, level, users, payload, storageDetails, analyses, measuredAtIso, budgets = STRICT_BUDGETS }) {
+  const measuredAt = measuredAtIso.slice(0, 10);
+  const benchmarks = analyses.filter((a) => !a.isProbe);
+  const modeLabel = `configured=${storageDetails?.storageModeConfigured ?? "unknown"} active=${storageDetails?.storageModeActive ?? "unknown"}`;
+
+  const rows = benchmarks.map((a) => {
+    const budget = budgets[a.scenario];
+    const p95 = Math.round(a.times.p95);
+    const p99 = Math.round(a.times.p99);
+    const errorPct = (100 - parseFloat(a.successRate)).toFixed(2);
+    const meets = budget
+      ? p95 <= budget.p95 && p99 <= budget.p99 && parseFloat(errorPct) <= budget.errorPct
+      : null;
+    return `| ${a.scenario} | ${a.successful}/${a.total} | ${p95} | ${p99} | ${errorPct}% | ${budget ? `${meets ? "pass" : "FAIL"}` : "n/a"} |`;
+  });
+
+  const allBudgetsMet = benchmarks.every((a) => {
+    const budget = budgets[a.scenario];
+    if (!budget) return true;
+    const errorPct = 100 - parseFloat(a.successRate);
+    return Math.round(a.times.p95) <= budget.p95 && Math.round(a.times.p99) <= budget.p99 && errorPct <= budget.errorPct;
+  });
+
+  return {
+    fileName: `load-test-${level}-${measuredAt}.md`,
+    content: `# Load test evidence — ${criterionId} — measured ${measuredAt}
+
+Evidence for release criterion '${criterionId}'. Dated '--strict' load run against
+a real server: every budgeted scenario met its recorded p95/p99/error budget,
+so the run is attributable evidence, not a best-effort sample.
+
+## Run configuration
+
+- Level: **${level}** (concurrency per level), ${users} virtual workspace session(s)
+- project-save payload preset: **${payload}**
+- Server storage mode (server /api/wingman/health): ${modeLabel}
+- Measured at: ${measuredAtIso}
+
+## Measured results (--strict budgets enforced)
+
+| Scenario | Requests OK | p95 (ms) | p99 (ms) | Error rate | Budget |
+|---|---|---|---|---|---|
+${rows.join("\n")}
+
+Budgets recorded in docs/LOAD_TESTING.md and mirrored by the manifest's
+maxP95Ms / maxP99Ms / maxErrorRate fields; the '--strict' gate exits non-zero
+on any violation, so this artifact cannot exist for a red run.
+
+## Verification
+
+- Command: 'node tools/load-test.mjs --strict --evidence ${criterionId}' (full argv in the run log)
+- All budgeted scenarios met their recorded budgets: **${allBudgetsMet ? "yes" : "NO"}**
+- Harness enforces authenticated sessions, warm-up-excluded steady-state
+  measurement, and (supabase-tables mode) direct-from-Postgres persistence
+  read-back before a run can pass.
+`,
+  };
+}
+
+function writeEvidenceArtifact(config, analyses, storageDetails) {
+  const { fileName, content } = buildEvidenceArtifact({
+    criterionId: config.evidenceCriterion,
+    level: config.level,
+    users: config.users,
+    payload: config.payload,
+    storageDetails,
+    analyses,
+    measuredAtIso: new Date().toISOString(),
+  });
+  const evidenceDir = path.join(projectRoot, "docs", "release-evidence");
+  fs.mkdirSync(evidenceDir, { recursive: true });
+  const artifactPath = path.join(evidenceDir, fileName);
+  fs.writeFileSync(artifactPath, content);
+  return artifactPath;
 }
 
 // ---------------------------------------------------------------------------
@@ -2053,6 +2154,15 @@ async function main() {
         console.error(`\n[load-test] --strict: ${violations.length} scenario(s) exceeded recorded budgets.`);
         process.exitCode = 2;
         return;
+      }
+
+      // --evidence: a strict-clean run IS the measurement, so capture it as a
+      // dated release-evidence artifact. Only reachable when zero violations:
+      // evidence exists for measured, budget-clean runs, never for red ones.
+      if (config.evidenceCriterion) {
+        const artifactPath = writeEvidenceArtifact(config, analyses, storageDetails);
+        console.log(`\n[load-test] Evidence artifact written: ${path.relative(projectRoot, artifactPath)}`);
+        console.log("[load-test] Wire it into docs/release-evidence/release-evidence-manifest.json (artifactPath + measuredAt + approver).");
       }
     }
 

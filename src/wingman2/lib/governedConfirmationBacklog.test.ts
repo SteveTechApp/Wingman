@@ -1,11 +1,27 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   governedConfirmationBacklog,
+  governedProfileFieldApplicability,
   PROFILE_CONFIRMATION_FAIL_AFTER_DAYS,
   PROFILE_CONFIRMATION_WARN_AFTER_DAYS,
   specCriticalFieldLabel,
   type AgingState,
 } from "./governedConfirmationBacklog";
+
+// The 2026-09-30 confirmation pass verified every profile in the tracked data,
+// so the real payload no longer contains an awaiting backlog. Demote two
+// SKUs (one passive cable, one UC device missing power data) back to the
+// machine-transcribed tier so the backlog classification, aging, and trail
+// scenarios below stay exercisable against a realistic mix.
+vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () => {
+  const actual = (await vi.importActual(
+    "../../../data/governance/wyrestorm-technical-profiles.json",
+  )) as { default: { profiles: Array<Record<string, unknown>> } };
+  const { governedProfilesWithStatus } = await import("./testHelpers/governedProfilesHarness");
+  return {
+    default: governedProfilesWithStatus(actual.default as never, ["CAB-HAOC-10", "HALO-30"], "verified-with-warning"),
+  };
+});
 
 describe("governed confirmation backlog", () => {
   it("reports every profile awaiting human confirmation, separating human-confirmed profiles", () => {
@@ -13,29 +29,30 @@ describe("governed confirmation backlog", () => {
 
     // The governed profile set (207 today: the governance audit merged the
     // NHD-500-TX-V2 / NHD-500-RX v2 / SYN-TOUCH10 v3 variant rows into their
-    // canonical profiles). 116 were human-verified; the rest are pending.
+    // canonical profiles). Every profile is human-verified since the
+    // 2026-09-30 pass, except the two the module mock above demotes.
     expect(backlog.total).toBe(206);
-    expect(backlog.humanVerified).toBe(116);
-    expect(backlog.awaiting.length).toBeGreaterThanOrEqual(22);
+    expect(backlog.humanVerified).toBe(204);
+    expect(backlog.awaiting.length).toBe(2);
   });
 
   it("splits the backlog into ready-to-confirm and need-data-work with consistent per-profile fields", () => {
     const backlog = governedConfirmationBacklog();
 
     expect(backlog.readyToConfirm + backlog.needDataWork).toBe(backlog.awaiting.length);
-    // The 2026-08 batch confirmed every profile that was ready (readable
-    // spec-critical fields) - the remaining 17 all need data work first, so
-    // readyToConfirm is honestly zero rather than showing a fake queue.
-    expect(backlog.readyToConfirm).toBe(0);
+    // Applicability-aware review keeps passive/accessory records out of
+    // irrelevant resolution, routing and power queues: the demoted cable is
+    // ready (a profile-scope review), the UC device needs power data work.
+    expect(backlog.readyToConfirm).toBeGreaterThan(0);
     expect(backlog.needDataWork).toBeGreaterThan(0);
 
     for (const profile of backlog.awaiting) {
       expect(profile.sku).toBeTruthy();
-      // Every spec-critical field is classified exactly once (at most three;
-      // non-video products have no max-resolution requirement).
+      // Every applicable field is classified exactly once. Passive products
+      // may instead carry one profile-scope review.
       const awaiting = new Set(profile.awaitingConfirmation);
       const missing = new Set(profile.missingData);
-      expect(awaiting.size + missing.size).toBeLessThanOrEqual(3);
+      expect(awaiting.size + missing.size).toBeLessThanOrEqual(4);
       for (const field of awaiting) expect(missing.has(field)).toBe(false);
     }
   });
@@ -65,7 +82,7 @@ describe("governed confirmation backlog", () => {
   it("exposes the reviewer trail for every human-confirmed profile", () => {
     const backlog = governedConfirmationBacklog();
 
-    expect(backlog.verified.length).toBe(116);
+    expect(backlog.verified.length).toBe(204);
     for (const profile of backlog.verified) {
       expect(profile.sku).toBeTruthy();
       expect(profile.verifiedBy).toBeTruthy();
@@ -110,5 +127,16 @@ describe("governed confirmation backlog", () => {
     expect(specCriticalFieldLabel("max-resolution")).toBe("Max resolution");
     expect(specCriticalFieldLabel("routed-io")).toBe("Routed I/O");
     expect(specCriticalFieldLabel("power")).toBe("Power");
+    expect(specCriticalFieldLabel("profile-scope")).toBe("Profile scope / N/A fields");
+  });
+
+  it("does not request video resolution for amplifiers, microphones, or passive mounts", () => {
+    expect(governedProfileFieldApplicability({ productClass: "AUDIO", role: "power amplifier", dependencies: ["host"], ports: [{ category: "video" }] })["max-resolution"]).toBe(false);
+    expect(governedProfileFieldApplicability({ productClass: "AUDIO", role: "conference microphone", dependencies: ["hub"] })["max-resolution"]).toBe(false);
+    expect(governedProfileFieldApplicability({ productClass: "ACCESSORY", role: "mounting bracket" })).toMatchObject({
+      "max-resolution": false,
+      "routed-io": false,
+      power: false,
+    });
   });
 });

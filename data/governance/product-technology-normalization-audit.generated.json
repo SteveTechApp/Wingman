@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-09T05:58:10.190Z",
+  "generatedAt": "2026-09-29T09:37:57.490Z",
   "sources": {
     "competitor": "data/catalog/competitor-products.generated.json",
-    "wyrestorm": "public/product-intelligence-index.json"
+    "wyrestorm": "public/product-intelligence-summary.json + product-intelligence-details"
   },
   "totals": {
     "records": 668,

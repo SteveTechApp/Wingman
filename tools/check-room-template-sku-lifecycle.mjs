@@ -24,6 +24,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadPublishedTemplates } from "./check-template-realism.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -72,9 +73,8 @@ function resolveStatus(sku, lifecycle) {
 }
 
 const lifecycle = loadLifecycle();
-const templateSource = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8")
-  + "\n" + readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplatesExtra.ts"), "utf8");
-const skus = [...new Set([...templateSource.matchAll(/sku:\s*["']([A-Z0-9-]+)["']/g)].map((m) => m[1]))];
+const templates = await loadPublishedTemplates(projectRoot);
+const skus = [...new Set(templates.flatMap((template) => template.bom.map((row) => row.sku)))];
 
 const failures = [];
 const outstanding = [];

@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 
 const root = process.cwd();
-const sourcePath = `${root}/public/product-intelligence-index.json`;
+const sourcePath = `${root}/public/product-intelligence-summary.json`;
 const outputPath = `${root}/public/product-call-card-products.json`;
 
 const SOURCE_KEYS = {
@@ -434,7 +434,7 @@ await fs.writeFile(
     {
       ...existingPayload,
       generatedAt: existingPayload.generatedAt || new Date().toISOString(),
-      source: "product-intelligence-index.json",
+      source: "product-intelligence-summary.json",
       count: products.length,
       lastToppedUpAt: new Date().toISOString(),
       addedCount: additions.length,

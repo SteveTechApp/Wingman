@@ -27,6 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadRoutedIoEvidence } from "./lib/routed-io-evidence.mjs";
+import { loadFullProductRecords } from "./lib/wingman-product-index-records.mjs";
 import {
   materialiseTechnologyProfiles,
   rowsFrom,
@@ -174,7 +175,9 @@ export function checkGeneratedManifestDrift(rootDir = REPO_ROOT) {
     }
     if (committed) {
       const competitor = rowsFrom(JSON.parse(readText(rootDir, "data/catalog/competitor-products.generated.json") ?? "[]"));
-      const wyrestorm = rowsFrom(JSON.parse(readText(rootDir, "public/product-intelligence-index.json") ?? "[]"));
+      // Full records: the drift check must regenerate from the same input the
+      // audit used (summary + per-SKU detail), not the stripped summary alone.
+      const wyrestorm = loadFullProductRecords(rootDir);
       let routedIoEvidence;
       try {
         routedIoEvidence = loadRoutedIoEvidence();

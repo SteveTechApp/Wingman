@@ -127,7 +127,9 @@ describe("New Custom Template creation via Discovery", () => {
     fireEvent.click(screen.getByRole("button", { name: "+ New Custom Template" }));
 
     fireEvent.change(screen.getByLabelText("Template name"), { target: { value: "Divisible Training Room" } });
-    fireEvent.click(screen.getByRole("button", { name: /Meeting room \/ boardroom/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Corporate & enterprise/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Describe this environment for a custom design/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Meeting or boardroom/i }));
 
     fireEvent.click(screen.getByRole("button", { name: "Save Custom Template" }));
 
@@ -149,7 +151,9 @@ describe("New Custom Template creation via Discovery", () => {
     fireEvent.change(screen.getByLabelText("Template name"), { target: { value: "Unfinished Room" } });
     expect(screen.getByRole("button", { name: "Save Custom Template" })).toBeDisabled();
 
-    fireEvent.click(screen.getByRole("button", { name: /Meeting room \/ boardroom/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Corporate & enterprise/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Describe this environment for a custom design/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Meeting or boardroom/i }));
     expect(screen.getByRole("button", { name: "Save Custom Template" })).toBeEnabled();
   });
 });

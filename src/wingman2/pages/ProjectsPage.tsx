@@ -1,3 +1,5 @@
+import { PagedItems } from "../components/PagedItems";
+import { projectPresentation } from "../lib/projectPresentation";
 import { useMemo, useState } from "react";
 import { AlertTriangle, Check, Cloud, Copy, Filter, LayoutTemplate, RotateCcw, Search, Trash2, Users } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -137,14 +139,15 @@ function ProjectsListPage() {
   const realDraftCount = proposalDrafts.filter((draft) => !draft.isDemo).length;
 
   return (
-    <div data-wingman-page="projects" className="wm-projects-page wm-polish-shell">
+    <div data-wingman-page="projects" className="wm-projects-page wm-polish-shell wm-project-gallery-page">
       <div className="wm-projects-page-toolbar" aria-label="Project actions">
+        <div className="wm-sales-page-intro"><h1>Projects</h1></div>
         <div className="wm-projects-compact-actions">
           <Link to={routeCatalogByKey.discovery.path} className="wm-ui-button wm-ui-button-forward">
             Start discovery
           </Link>
-          <Link to={routeCatalogByKey.proposal.path} className="wm-ui-button wm-ui-button-secondary">
-            Open proposal
+          <Link to={routeCatalogByKey.responsePack.path} className="wm-ui-button wm-ui-button-secondary">
+            Open response
           </Link>
           <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setTemplatePickerOpen(true)}>
             <LayoutTemplate className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
@@ -207,7 +210,7 @@ function ProjectsListPage() {
       <div className="wm-projects-sections">
         <SectionCard
           title={teamFilter === "team" ? "Team projects" : teamFilter === "all" ? "All projects" : "My projects"}
-          subtitle="Use this table to reopen active opportunities, copy useful examples, or remove stale project lines."
+          subtitle="Your spaces, plans and next steps."
           showHelp={false}
         >
           {/* Team filter tabs */}
@@ -295,7 +298,7 @@ function ProjectsListPage() {
               <StatusChip
                 className="max-w-xl"
                 variant={syncStatusVariant(syncStatus.state)}
-                label={syncStatus.message}
+                label={syncStatus.state === "local" ? "Saved in this browser" : syncStatus.message}
                 title={syncStatus.message}
                 icon={syncStatus.state === "synced" ? (
                   <Check className="h-4 w-4" />
@@ -321,37 +324,19 @@ function ProjectsListPage() {
               </button>
           </div>
 
-          <div className="wm-projects-table-wrap rounded-xl border wm-ui-card">
-            <table className="text-left text-sm wm-ui-copy">
-              <colgroup>
-                <col className="wm-projects-col-project" />
-                <col className="wm-projects-col-owner" />
-                <col className="wm-projects-col-stage" />
-                <col className="wm-projects-col-status" />
-                <col className="wm-projects-col-updated" />
-                <col className="wm-projects-col-actions" />
-              </colgroup>
-              <thead className="text-[#edf6ff] wm-ui-card">
-                <tr>
-                  <th className="px-4 py-3 font-bold">Project</th>
-                  <th className="px-4 py-3 font-bold">Owner</th>
-                  <th className="px-4 py-3 font-bold">Stage</th>
-                  <th className="px-4 py-3 font-bold">Status</th>
-                  <th className="px-4 py-3 font-bold">Last updated</th>
-                  <th className="px-4 py-3 font-bold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <PagedItems items={filteredProjects} resetKey={`${searchQuery}:${teamFilter}:${memberFilter}`}>{(pageItems) => (<div className="wm-project-gallery">
                 {filteredProjects.length ? (
-                  filteredProjects.map((project) => {
+                  pageItems.map((project) => {
+                    const presentation = projectPresentation(project.name);
                     const compareConfidence = latestCompareConfidence(project);
                     const ownerInitials = getMemberInitials(project.ownerId);
                     const ownerDisplayName = project.ownerId ? getMemberName(project.ownerId) : project.owner;
                     return (
-                    <tr key={project.id} className="border-t wm-ui-card">
-                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Project">
+                    <article key={project.id} className="wm-project-visual-card" aria-label={project.name}>
+                      <div className="wm-project-card-image">{presentation.image ? <img src={presentation.image} alt={`${presentation.label} application illustration`} loading="lazy" /> : <LayoutTemplate aria-hidden="true" />}<span>{presentation.label}</span></div>
+                      <div className="wm-project-card-name" data-label="Project">
                         <div className="flex flex-col items-start gap-1">
-                          <span className="font-semibold">{project.name}</span>
+                          <h3>{project.name}</h3>
                           {project.syncConflict?.fields?.length ? (
                             <StatusChip
                               variant="warning"
@@ -362,8 +347,8 @@ function ProjectsListPage() {
                             />
                           ) : null}
                         </div>
-                      </td>
-                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Owner">
+                      </div>
+                      <div className="wm-project-card-owner" data-label="Owner">
                         <div className="wm-projects-owner-cell">
                           <span className="wm-projects-owner-avatar" aria-hidden="true">
                             {ownerInitials}
@@ -373,8 +358,8 @@ function ProjectsListPage() {
                             <span className="wm-projects-team-badge">Team</span>
                           )}
                         </div>
-                      </td>
-                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Stage">
+                      </div>
+                      <div className="wm-project-card-stage" data-label="Stage">
                         <div className="flex flex-col items-start gap-1">
                           <span>{project.stage}</span>
                           {compareConfidence ? (
@@ -386,15 +371,15 @@ function ProjectsListPage() {
                             />
                           ) : null}
                         </div>
-                      </td>
-                      <td className="px-4 py-3" data-label="Status">
+                      </div>
+                      <div className="wm-project-card-status" data-label="Status">
                         <StatusChip
                           label={projectStatusLabel(project.status)}
                           variant={project.status}
                         />
-                      </td>
-                      <td className="px-4 py-3 text-[#edf6ff]" data-label="Updated">{project.updated}</td>
-                      <td className="px-4 py-3" data-label="Actions">
+                      </div>
+                      <div className="wm-project-card-updated" data-label="Updated">{project.updated}</div>
+                      <div className="wm-project-card-actions" data-label="Actions">
                         <div className="wm-project-row-actions">
                           <Link
                             to={`${routeCatalogByKey.projects.path}/${project.id}`}
@@ -437,35 +422,34 @@ function ProjectsListPage() {
                             {confirmDeleteProjectId === project.id ? <AlertTriangle className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                           </button>
                         </div>
-                      </td>
-                    </tr>
+                      </div>
+                    </article>
                     );
                   })
                 ) : (
-                  <tr>
-                    <td className="px-5 py-8 text-center text-[#cfe6f7]" colSpan={6}>
+                  <article className="wm-project-gallery-empty">
+                    <div>
                       {teamFilter === "mine"
                         ? "No projects found for you. Create a new project or switch to Team view."
                         : teamFilter === "team"
                           ? "No team projects found. Team members need to create projects in a shared workspace."
                           : "No active projects are currently listed. Use Reset sample store to restore the starter examples."}
-                    </td>
-                  </tr>
+                    </div>
+                  </article>
                 )}
-              </tbody>
-            </table>
-          </div>
+          </div>)}</PagedItems>
         </SectionCard>
 
         <SectionCard
           title="Proposal-ready drafts"
-          subtitle="Draft copy/delete actions also persist using the same project store."
+          subtitle="Continue shaping your customer documents."
           showHelp={false}
         >
           {proposalDrafts.length ? (
             <div className="wm-project-draft-grid">
               {proposalDrafts.map((draft) => (
                 <div key={draft.id} className="wm-project-draft-tile wm-ui-card">
+                  <div className="wm-draft-paper-icon" aria-hidden="true"><span /><span /><span /></div>
                   <div className="wm-project-draft-main">
                     <p className="wm-project-draft-customer wm-ui-copy">{draft.customer}</p>
                     <h3 className="wm-project-draft-title wm-ui-title">{draft.name}</h3>
@@ -474,7 +458,7 @@ function ProjectsListPage() {
 
                   <div className="wm-project-draft-actions">
                     <Link
-                      to={routeCatalogByKey.proposal.path}
+                      to={routeCatalogByKey.responsePack.path}
                       className={`wm-project-draft-open ${PROJECTS_DARK_BUTTON_CLASS}`}
                     >
                       Open

@@ -37,6 +37,30 @@ export function DiscoveryOpportunityGraphic({ option }: { option: string }) {
 export function DiscoveryOptionGraphic({ option, step, label }: { option: string; step: string; label: string }) {
   if (step === "opportunity") return <DiscoveryOpportunityGraphic option={option} />;
 
+  if (step === "sources") {
+    const sourceCounts: Record<string, number | "unknown"> = {
+      "one-source": 1,
+      "two-four-sources": 3,
+      "five-eight-sources": 6,
+      "nine-plus-sources": 9,
+      "unknown-sources": "unknown",
+    };
+    const count = sourceCounts[option] ?? "unknown";
+    return (
+      <span className="wm-discovery-source-count-graphic" aria-hidden="true">
+        <span className="wm-discovery-source-count-devices">
+          {count === "unknown" ? (
+            <CircleHelp />
+          ) : (
+            Array.from({ length: count }, (_, index) => <Laptop key={index} />)
+          )}
+        </span>
+        <strong>{count === 9 ? "9+" : count === "unknown" ? "?" : count}</strong>
+        <small>{count === "unknown" ? "TO CONFIRM" : count === 1 ? "SOURCE" : "SOURCES"}</small>
+      </span>
+    );
+  }
+
   const meaning = `${option} ${label}`.toLowerCase();
   let Icon: LucideIcon = Hash;
 

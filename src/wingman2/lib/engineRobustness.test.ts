@@ -19,6 +19,7 @@ import {
 } from "./productStoryEngine";
 import { gateCompareCandidate } from "./compareCandidateGate";
 import type { StoredDiscoveryBrief } from "../data/projectStore";
+import { fullProductIndexRecords } from "./testHelpers/fullProductIndexRecords";
 
 // Robustness suite.
 //
@@ -30,7 +31,7 @@ import type { StoredDiscoveryBrief } from "../data/projectStore";
 // catalogue rather than on one hand-picked SKU.
 
 const rawProducts = extractRawProducts(
-  JSON.parse(readFileSync("public/product-intelligence-index.json", "utf8")),
+  { products: fullProductIndexRecords },
 ) as Array<Record<string, unknown>>;
 
 const specs = rawProducts

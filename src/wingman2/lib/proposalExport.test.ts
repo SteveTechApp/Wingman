@@ -224,7 +224,7 @@ describe("proposal safety standard", () => {
       },
     ]);
 
-    expect(html).toContain("Specifically excluded from this WyreStorm equipment schedule, provided by others");
+    expect(html).toContain("Required to complete the AV system, supplied by the named third parties");
     expect(html).toContain("BY-OTHERS-NETWORK-INFRASTRUCTURE");
   });
 });
@@ -320,7 +320,7 @@ describe("proposal download (blob URL lifecycle)", () => {
         assumptions: [],
         updatedAt: "2026-08-26T00:00:00.000Z",
       };
-      exportProposalHtml(proposal, []);
+      await exportProposalHtml(proposal, []);
 
       // Inside the synchronous handler the URL must still be live: the revoke
       // is deferred to the next task so the browser can begin the download

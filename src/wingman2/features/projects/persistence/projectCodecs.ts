@@ -326,9 +326,11 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
   const record = objectRecord(value);
   if (!record) return undefined;
   const outputPurpose = objectRecord(record.outputPurpose);
+  const salesContent = objectRecord(record.salesContent);
 
   return {
     title: stringValue(record.title, "Untitled Proposal"),
+    salesContent: salesContent ? { objectives: stringValue(salesContent.objectives), solutionOverview: stringValue(salesContent.solutionOverview), architecture: typeof salesContent.architecture === "string" ? salesContent.architecture : undefined, externalScope: stringValue(salesContent.externalScope) } : undefined,
     summary: stringValue(record.summary),
     sections: stringArray(record.sections),
     products: normalizeProductSelections(record.products),

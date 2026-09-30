@@ -4,7 +4,7 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 
-const INDEX_PATH = "public/product-intelligence-index.json";
+const INDEX_PATH = "public/product-intelligence-summary.json";
 const data = JSON.parse(readFileSync(INDEX_PATH, "utf8"));
 const products = data.products || [];
 let fixCount = 0;

@@ -12,7 +12,6 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { HubCard, routeAction } from "./NavigationHubPages";
 import { StatusChip } from "../components/StatusChip";
 import { GuidedDashboard } from "../components/GuidedDashboard";
-import { UiModeToggle } from "../components/UiModeToggle";
 import { useUiMode } from "../data/uiMode";
 import {
   confirmGovernedProfile,
@@ -42,7 +41,7 @@ import type { StatusVariant } from "../types";
 const primaryActions = [
   routeAction(
     "discovery",
-    "Start Discovery",
+    "New Opportunity",
     "Answer a few questions and get a clear product direction.",
     "GUIDED REQUIREMENT CAPTURE",
     { accent: "aqua", linkLabel: "Start discovery", art: "discovery" },
@@ -62,11 +61,11 @@ const primaryActions = [
     { accent: "amber", linkLabel: "Compare products", art: "competitor" },
   ),
   routeAction(
-    "templates",
-    "Browse Templates",
-    "Start from a ready-made room or application design.",
-    "ROOM & APPLICATION TEMPLATES",
-    { accent: "violet", linkLabel: "Browse templates", art: "templates" },
+    "responsePack",
+    "Build Response",
+    "Turn project evidence into a customer-ready response.",
+    "CUSTOMER RESPONSE",
+    { accent: "blue", linkLabel: "Build response", art: "proposal" },
   ),
   routeAction(
     "projects",
@@ -789,7 +788,6 @@ export function DashboardPage() {
         </div>
 
         <div className="wm-dashboard-heading-actions">
-          <UiModeToggle />
           <button
             type="button"
             className="wingman-new-project-button"

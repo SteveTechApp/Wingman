@@ -1,9 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { buildCoverageScorecard, floorViolations, loadChecklistScorer, measuredFloors } from "./lib/template-coverage-scorecard.mjs";
 
 export const CANONICAL_TEMPLATE_MARKETS = new Set([
-  "Corporate", "Education", "Government", "Healthcare", "Hospitality", "Retail",
+  "Corporate", "Education", "Government", "Emergency Services", "Energy / Oil & Gas",
+  "Manufacturing / Logistics", "Healthcare", "Hospitality", "Retail",
   "Sports & Leisure", "House of Worship", "Control Rooms", "Transportation",
   "Broadcast / Media", "Residential",
 ]);
@@ -44,7 +46,7 @@ export function auditTemplates(templates, catalogue) {
     }
 
     const capabilities = new Set(profile?.capabilities ?? []);
-    const scope = (template.bom ?? []).filter((row) => String(row.sku).startsWith("BY-OTHERS")).map((row) => `${row.role} ${row.description} ${row.notes ?? ""}`).join(" ").toLowerCase();
+    const scope = (template.bom ?? []).filter((row) => String(row.sku).startsWith("BY-OTHERS")).map((row) => `${row.role} ${row.description}`).join(" ").toLowerCase();
     if (!capabilities.has("microphones") && /microphone|audio capture/.test(scope)) add(template, "capability-scope-mismatch", "Microphone scope is present without the microphones capability.");
     if (!capabilities.has("audio") && /\bdsp\b|speaker reinforcement/.test(scope)) add(template, "capability-scope-mismatch", "Audio scope is present without the audio capability.");
 
@@ -56,7 +58,7 @@ export function auditTemplates(templates, catalogue) {
   return findings;
 }
 
-async function loadPublishedTemplates(root) {
+export async function loadPublishedTemplates(root) {
   const { build } = await import("vite");
   const entry = path.join(root, "src/wingman2/lib/templateRealismAuditEntry.ts");
   const result = await build({ configFile: false, root, logLevel: "silent", build: { write: false, ssr: entry, rollupOptions: { output: { format: "esm" } } } });
@@ -69,17 +71,38 @@ async function loadPublishedTemplates(root) {
 export async function runTemplateRealismAudit(root = process.cwd()) {
   const [templates, catalogue] = await Promise.all([
     loadPublishedTemplates(root),
-    fs.readFile(path.join(root, "public/product-intelligence-index.json"), "utf8").then(JSON.parse),
+    fs.readFile(path.join(root, "public/product-intelligence-summary.json"), "utf8").then(JSON.parse),
   ]);
   return auditTemplates(templates, catalogue);
 }
 
+/** Full audit plus the complete-room coverage scorecard with floor enforcement. */
+export async function runTemplateRealismAuditWithScorecard(root = process.cwd()) {
+  const [templates, catalogue, scorer] = await Promise.all([
+    loadPublishedTemplates(root),
+    fs.readFile(path.join(root, "public/product-intelligence-summary.json"), "utf8").then(JSON.parse),
+    loadChecklistScorer(root),
+  ]);
+  const findings = auditTemplates(templates, catalogue);
+  const scorecard = buildCoverageScorecard(templates, scorer);
+  const floors = JSON.parse(await fs.readFile(path.join(root, "tools/template-coverage-floors.json"), "utf8"));
+  return { findings, scorecard, floors, violations: floorViolations(scorecard, floors) };
+}
+
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
-  const findings = await runTemplateRealismAudit();
+  const { findings, scorecard, violations } = await runTemplateRealismAuditWithScorecard();
   for (const finding of findings) console.log(`${finding.severity.toUpperCase()} ${finding.code} ${finding.templateId}: ${finding.message}`);
   const errors = findings.filter((finding) => finding.severity === "error");
-  if (errors.length) {
-    console.error(`Template realism audit failed with ${errors.length} error(s).`);
+  console.log(
+    "Complete-room coverage: " +
+    Object.entries(scorecard.layers).map(([layer, counts]) => `${layer} ${counts.addressed}/${scorecard.templateCount}`).join(" · ") +
+    " (addressed = covered + by-others + not-applicable)",
+  );
+  for (const violation of violations) {
+    console.error(`COVERAGE-FLOOR ${violation.layer}: ${violation.measured} addressed templates is below the floor of ${violation.floor}.`);
+  }
+  if (errors.length || violations.length) {
+    console.error(`Template realism audit failed with ${errors.length} error(s) and ${violations.length} coverage-floor violation(s).`);
     process.exitCode = 1;
   } else console.log(`Template realism audit passed (${findings.length} warning(s)).`);
 }

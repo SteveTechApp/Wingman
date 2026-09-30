@@ -1,11 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { PageHero } from "@/wingman2/components/PageHero";
 
 describe("PageHero guidance", () => {
-  it("shows the recommended next step as visible page guidance", () => {
+  it("keeps guidance available on request and the next action visible", () => {
     render(
       <MemoryRouter>
         <PageHero
@@ -18,8 +18,11 @@ describe("PageHero guidance", () => {
       </MemoryRouter>,
     );
 
-    const guidance = screen.getByRole("note", { name: "Recommended next step" });
-    expect(guidance).toHaveTextContent("Next step");
+    const summary = screen.getByText("About this page");
+    const guidance = summary.closest("details")!;
+    expect(guidance.open).toBe(false);
+    fireEvent.click(summary);
+    expect(guidance.open).toBe(true);
     expect(guidance).toHaveTextContent("Continue to proposal with the selected SKU.");
     expect(screen.getByRole("link", { name: "Continue" })).toHaveAttribute("href", "/wingman/proposal");
   });

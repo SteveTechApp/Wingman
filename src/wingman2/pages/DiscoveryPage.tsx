@@ -4,26 +4,12 @@ import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { DiscoverySessionHero, DiscoverySessionPaceSwitch, type DiscoveryPace } from "../components/DiscoverySessionPaceSwitch";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import {
-  clearActiveProject,
-  getCurrentWorkflowProject,
-  readProjectStore,
-  saveDiscoveryBriefToProject,
-  type StoredDiscoveryBrief,
-} from "../features/projects";
-import {
-  clearLatestDiscoverySnapshot,
-  readLatestDiscoverySnapshot,
-  resolveDiscoverySnapshotProject,
-  writeLatestDiscoverySnapshot,
-} from "../data/workflowHandoff";
+import { clearActiveProject, getCurrentWorkflowProject, readProjectStore, saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../features/projects";
+import { clearLatestDiscoverySnapshot, readLatestDiscoverySnapshot, resolveDiscoverySnapshotProject, writeLatestDiscoverySnapshot } from "../data/workflowHandoff";
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
+import { DiscoveryAudioDesignSummary } from "./discovery/DiscoveryAudioDesignSummary";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
-import {
-  clearDiscoveryHandoff,
-  readDiscoveryHandoff,
-  type DiscoveryHandoffMode,
-} from "../lib/discoveryTemplateHandoff";
+import { clearDiscoveryHandoff, readDiscoveryHandoff, type DiscoveryHandoffMode } from "../lib/discoveryTemplateHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
@@ -38,16 +24,16 @@ import {
   type ProjectTopology,
 } from "../lib/projectTopology";
 
-import type {
-  DiscoveryAnswers,
-  DiscoveryNotes,
-} from "./discovery/discoveryTypes";
+import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
 import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
 import { BASIC_MODE_REQUIRED_IDS, DISCOVERY_DEPTH_PRESENTATION, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
-import { DiscoveryGuidedInterview, DiscoveryEntryRail } from "./discovery/DiscoveryGuidedInterview";
+import { DiscoveryGuidedInterview } from "./discovery/DiscoveryGuidedInterview";
+import { DiscoveryMarketEntry } from "./discovery/DiscoveryMarketEntry";
+import { DiscoveryMarketContextSummary } from "./discovery/DiscoveryMarketContextSummary";
+import { changeDiscoveryApplication, DISCOVERY_TEMPLATE_MARKET } from "./discovery/discoveryMarketContext";
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { DiscoveryQuestionSection } from "./discovery/DiscoveryQuestionSection";
 import { compileDiscoveryBrief } from "./discovery/discoveryBriefBuilder";
@@ -90,8 +76,6 @@ const discoveryAuditMarkers = [
   "applicationSpecificDiscoveryQuestionGuidance",
 ] as const;
 
-
-
 export function DiscoveryPage() {
   const { isGuided } = useUiMode();
   const [searchParams] = useSearchParams();
@@ -108,9 +92,7 @@ export function DiscoveryPage() {
   const hasExistingDiscoveryContent =
     Object.keys(draftAnswers).length > 0 ||
     Object.keys(draftNotes).length > 0 ||
-    Boolean(draftField("clientName").trim()) ||
-    Boolean(draftField("contactName").trim()) ||
-    Boolean(draftField("siteName").trim()) ||
+    ["clientName", "contactName", "siteName"].some((key) => draftField(key).trim()) ||
     Number(discoveryDraft?.brief?.capturedPercent ?? 0) > 0;
 
   const resumeExistingDiscoveryStorageKey = "wingman:resume-existing-discovery";
@@ -185,6 +167,7 @@ export function DiscoveryPage() {
   const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
   const [isReviewingAnswers, setIsReviewingAnswers] = useState(false);
   const [answers, setAnswers] = useState<DiscoveryAnswers>(() => (draftState.answers as DiscoveryAnswers | undefined) ?? {});
+  const [editingMarketContext, setEditingMarketContext] = useState(false);
   const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
     () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
   );
@@ -212,6 +195,7 @@ export function DiscoveryPage() {
   const [micSupported, setMicSupported] = useState(false);
   const [micError, setMicError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
+  const [completionRequested, setCompletionRequested] = useState(false);
   const [hasVideoWallBuilderHandoff] = useState(() =>
     typeof window !== "undefined" && Boolean(window.sessionStorage.getItem("wingman:video-wall-discovery")),
   );
@@ -301,6 +285,9 @@ export function DiscoveryPage() {
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
+  const marketId = wmDiscoveryAnswerToText(answers.market);
+  const environmentId = wmDiscoveryAnswerToText(answers.environment);
+  const showMarketContext = editingMarketContext || (!environmentId && (Boolean(marketId) || !selectedApplication));
   const discoveryQuestions = useMemo(
     () =>
       wmDiscoveryFilterUnifiedCommsQuestions(
@@ -403,7 +390,7 @@ export function DiscoveryPage() {
     [answers, appliedDefaults, discoveryQuestions, integrityQuestions, notes, quickStartSeed],
   );
   const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
-  const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
+  const showCompletionPanel = isDiscoveryComplete && completionRequested && !isReviewingAnswers;
 
   const selectedAnswerLabel = (stepId: string): string => {
     const step = modeQuestions.find((candidate) => candidate.id === stepId);
@@ -457,7 +444,7 @@ export function DiscoveryPage() {
   }, [answers, notes, selectedApplication, modeQuestions, opportunityDescription, topology, confirmedSteps]);
 
   useEffect(() => {
-    if (answeredCount === 0 && Object.keys(notes).length === 0) {
+    if (answeredCount === 0 && Object.keys(notes).length === 0 && !marketId) {
       return;
     }
 
@@ -637,10 +624,12 @@ export function DiscoveryPage() {
       opportunity: current.opportunity ? current.opportunity : cleanCallNotes,
     }));
 
-    setAnswers((current) => ({
-      ...current,
-      opportunity: current.opportunity ? current.opportunity : "not-sure",
-    }));
+    if (!cleanCallNotes.startsWith("Guru assistant handoff")) {
+      setAnswers((current) => ({
+        ...current,
+        opportunity: current.opportunity ? current.opportunity : "not-sure",
+      }));
+    }
 
     window.sessionStorage.removeItem(callNotesStorageKey);
   }, []);
@@ -726,7 +715,7 @@ export function DiscoveryPage() {
 
     setAnswers((previous) => {
       if (currentStep.id === "opportunity" && previous.opportunity !== value) {
-        return { opportunity: value };
+        return changeDiscoveryApplication(previous, value);
       }
 
       const updated: DiscoveryAnswers = {
@@ -759,7 +748,7 @@ export function DiscoveryPage() {
       const nextNotes: DiscoveryNotes = opportunityNote ? { opportunity: opportunityNote } : {};
       setNotes(nextNotes);
       setTopology(generateProjectTopologyFromDiscovery({
-        answers: { opportunity: value },
+        answers: { market: marketId, environment: environmentId, opportunity: value },
         notes: nextNotes,
         application: value,
       }));
@@ -778,12 +767,7 @@ export function DiscoveryPage() {
 
     setSavedMessage("");
 
-    if (isLastStep && completesDiscovery) {
-      window.setTimeout(() => {
-        completionPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-      return;
-    }
+    if (isLastStep && completesDiscovery) return;
 
     if (!isLastStep) {
       moveNext();
@@ -812,6 +796,7 @@ export function DiscoveryPage() {
     handleTopologyChange(completedTopology);
 
     if (isLastStep) {
+      setCompletionRequested(true);
       window.setTimeout(() => {
         completionPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 80);
@@ -865,6 +850,7 @@ export function DiscoveryPage() {
       setActiveIndex((index) => Math.min(modeQuestions.length - 1, index + 1));
 
       if (completesDiscovery) {
+        setCompletionRequested(true);
         completionPanelRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
         completionPanelRef.current?.focus({ preventScroll: true });
       }
@@ -944,6 +930,7 @@ export function DiscoveryPage() {
     setTopology(createBlankProjectTopology());
     setActiveIndex(0);
     setIsReviewingAnswers(false);
+    setCompletionRequested(false);
     setSavedMessage("");
     setDiscoveryMode("standard");
     setTemplateEditId(undefined);
@@ -1142,9 +1129,24 @@ return (
         : null}
       <DiscoverySessionHero pace={discoveryPace} clientName={clientName} siteName={siteName} completionPercent={completionPercent} answeredCount={answeredCount} questionCount={modeQuestions.length} />
 
-      <DiscoverySessionPaceSwitch pace={discoveryPace} onChange={setDiscoveryPace} />
-
-      {!interviewActive && discoveryMode === "standard" && !isGuided ? (<DiscoveryEntryRail onStart={() => { setReviewScope("all"); setInterviewActive(true); }} onStartReviewOpen={() => { setReviewScope("open"); setInterviewActive(true); }} onQuickStart={applyQuickStartSeeded} answeredCount={answeredCount} total={modeQuestions.length} openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length} />) : null}
+      {!isGuided && (
+        <div className="wm-discovery-tool-row">
+          <DiscoverySessionPaceSwitch pace={discoveryPace} onChange={setDiscoveryPace} />
+          <DiscoveryClientDetailsPanel
+            clientName={clientName}
+            onClientNameChange={setClientName}
+            contactName={contactName}
+            onContactNameChange={setContactName}
+            siteName={siteName}
+            onSiteNameChange={setSiteName}
+            budgetLevel={budgetLevel}
+            onBudgetLevelChange={setBudgetLevel}
+            budgetInputRef={budgetInputRef}
+            timeline={timeline}
+            onTimelineChange={setTimeline}
+          />
+        </div>
+      )}
 
       {isGuided ? (
         <details className="wm-discovery-client-compact" data-wingman-client-compact="true">
@@ -1170,22 +1172,9 @@ return (
             />
           </div>
         </details>
-      ) : (
-        <DiscoveryClientDetailsPanel
-          clientName={clientName}
-          onClientNameChange={setClientName}
-          contactName={contactName}
-          onContactNameChange={setContactName}
-          siteName={siteName}
-          onSiteNameChange={setSiteName}
-          budgetLevel={budgetLevel}
-          onBudgetLevelChange={setBudgetLevel}
-          budgetInputRef={budgetInputRef}
-          timeline={timeline}
-          onTimelineChange={setTimeline}
-        />
-      )}
+      ) : null}
 
+      <DiscoveryAudioDesignSummary answers={answers} notes={notes} />
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
           <strong>{discoveryMode === "template-edit" ? "Editing custom template" : "Creating a new custom template"}</strong>
@@ -1203,7 +1192,36 @@ return (
         </section>
       ) : null}
 
-      {interviewActive ? (
+      {!showMarketContext && marketId && environmentId && <DiscoveryMarketContextSummary
+        marketId={marketId}
+        environmentId={environmentId}
+        environmentDetail={wmDiscoveryAnswerToText(answers["environment-detail"])}
+        onEdit={() => setEditingMarketContext(true)}
+      />}
+
+      {showMarketContext ? (
+        <DiscoveryMarketEntry
+          marketId={marketId}
+          environmentId={environmentId}
+          onMarketChange={(nextMarket) => {
+            setAnswers((current) => {
+              const next: DiscoveryAnswers = { ...current, market: nextMarket };
+              delete next.environment;
+              return next;
+            });
+            if (DISCOVERY_TEMPLATE_MARKET[nextMarket]) setTemplateDraftMarket(DISCOVERY_TEMPLATE_MARKET[nextMarket]);
+          }}
+          onEnvironmentSelect={(nextEnvironment, suggestedApplication, description) => {
+            setAnswers((current) => ({
+              ...current,
+              environment: nextEnvironment,
+              "environment-detail": description ?? "",
+              ...(!wmDiscoveryHasAnswer(current.opportunity) && suggestedApplication ? { opportunity: suggestedApplication } : {}),
+            }));
+            setEditingMarketContext(false);
+          }}
+        />
+      ) : interviewActive ? (
         <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} strandedQuickStart={strandedQuickStart} applicationDrift={quickStartDrift} onOpenStrandedStep={openStrandedStep} onRemoveStranded={removeStrandedQuickStart} />
       ) : showCompletionPanel ? (
         <DiscoveryCompletionPanel
@@ -1219,7 +1237,10 @@ return (
             setActiveIndex(Math.max(modeQuestions.length - 1, 0));
             setIsReviewingAnswers(true);
           }}
-          onUnlockExpert={() => setProgressiveMode("expert")}
+          onUnlockExpert={() => {
+            setCompletionRequested(false);
+            setProgressiveMode("expert");
+          }}
           onSave={saveDiscoveryToProject}
           onExportBrief={async () =>
             (await import("../lib/discoveryBriefExport")).exportDiscoveryBriefHtml(buildDiscoveryBrief(), {
@@ -1279,7 +1300,10 @@ return (
           onAnswersChange={setAnswers}
           onActiveIndexChange={setActiveIndex}
           mode={progressiveMode}
-          onModeChange={setProgressiveMode}
+          onModeChange={(mode) => {
+            setCompletionRequested(false);
+            setProgressiveMode(mode);
+          }}
           isReviewingAnswers={isReviewingAnswers}
           showModeToggle={answeredCount < 3}
           showBatchControls={answeredCount === 0}
@@ -1296,7 +1320,8 @@ return (
         videoWallConfigured={videoWallConfigured} strandedQuickStart={strandedQuickStart} quickStartDrift={quickStartDrift}
         setIsReviewingAnswers={setIsReviewingAnswers} setConfirmedSteps={setConfirmedSteps} onReset={resetDiscovery}
         onSelectAnswer={handleSelectAnswer} onTopologyChange={handleTopologyChange} onCompleteTopology={completeTopologyStep}
-        onMovePrevious={movePrevious} onMoveNext={moveNext} onCaptureChange={handleCaptureChange}
+        onMovePrevious={movePrevious} onMoveNext={moveNext} onFinishDiscovery={() => setCompletionRequested(true)}
+        answeredCount={answeredCount} onCaptureChange={handleCaptureChange}
         onConfirmCaptureSuggestion={confirmCaptureSuggestion} onSaveCapture={saveCaptureAsAnswer}
         onSaveDiscovery={saveDiscoveryToProject} onToggleMicrophone={toggleMicrophone}
         onConfigureVideoWall={openVideoWallConfiguration} onOpenStrandedStep={openStrandedStep}

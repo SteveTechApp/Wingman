@@ -34,7 +34,7 @@ describe("IngestPage multi-SKU competitor intelligence", () => {
     expect(screen.getByRole("tab", { name: /Products/ }).getAttribute("aria-selected")).toBe("true");
     expect(screen.queryByPlaceholderText(/Paste the email, RFQ text/i)).toBeNull();
     expect(screen.queryByText("Open Recommendations")).toBeNull();
-    expect(screen.getAllByRole("button", { name: "Continue to proposal" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "Continue to response" }).length).toBeGreaterThan(0);
 
     const skuTable = screen.getByText("Product selection").closest("section");
     expect(skuTable).not.toBeNull();
@@ -81,7 +81,7 @@ describe("IngestPage multi-SKU competitor intelligence", () => {
     expect(screen.getByText(/Competitor SKUs were not added to the WyreStorm BOM/i)).not.toBeNull();
   });
 
-  it("uses Proposal as the primary next step for a bulk enquiry", () => {
+  it("uses Responses as the primary next step for a bulk enquiry", () => {
     render(
       <MemoryRouter initialEntries={["/wingman/ingest"]}>
         <IngestPage />
@@ -93,9 +93,9 @@ describe("IngestPage multi-SKU competitor intelligence", () => {
       target: { value: BLUSTREAM_PACIFIC_EMAIL_FIXTURE },
     });
     fireEvent.click(screen.getByRole("button", { name: "Decode pasted request" }));
-    fireEvent.click(screen.getAllByRole("button", { name: "Continue to proposal" })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Continue to response" })[0]);
 
-    expect(screen.getByTestId("location").textContent).toBe("/wingman/proposal");
+    expect(screen.getByTestId("location").textContent).toBe("/wingman/responses");
     expect(readProjectStore().projects[0].ingest?.multiSkuIntelligence?.triage.batchEligibleRowIds.length).toBeGreaterThan(0);
   });
 

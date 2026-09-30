@@ -1,11 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-import index from "../../../public/product-intelligence-index.json";
+import index from "../../../public/product-intelligence-summary.json";
 import ComparePageNew from "./ComparePageNew";
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
+  loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
+  loadProductIntelligenceDetailRecords: vi.fn().mockResolvedValue(index),
 }));
 
 const ALLOWED_BADGES = [

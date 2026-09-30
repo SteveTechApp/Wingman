@@ -626,7 +626,7 @@ export default function ProductPitchPage() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/product-intelligence-index.json", { cache: "no-store" })
+    fetch("/product-intelligence-summary.json", { cache: "no-store" })
       .then((response) => {
         if (!response.ok) throw new Error("Product intelligence index was not available.");
         return response.json() as Promise<unknown>;

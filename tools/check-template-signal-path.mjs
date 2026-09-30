@@ -22,6 +22,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadPublishedTemplates } from "./check-template-realism.mjs";
 import { hasExplicitSharedContentIntent } from "./lib/template-shared-content-intent.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -112,32 +113,14 @@ function canDriveHdbaset(sku) {
   return false;
 }
 
-// Split roomTemplates.ts + roomTemplatesExtra.ts into templates by top-level object boundaries.
-const sourceCore = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"), "utf8");
-const sourceExtra = readFileSync(path.join(projectRoot, "src", "wingman2", "lib", "roomTemplatesExtra.ts"), "utf8");
-const source = sourceCore + "\n" + sourceExtra;
-const lines = source.split(/\r?\n/);
-const templates = [];
-let currentName = null;
-let start = 0;
-
-lines.forEach((line, index) => {
-  if (/^ {2}\{/.test(line)) {
-    if (currentName) templates.push({ name: currentName, start, end: index });
-    currentName = null;
-    start = index;
-  }
-  const nameMatch = line.match(/^ {4}name: "([^"]+)"/);
-  if (nameMatch && !currentName) currentName = nameMatch[1];
-});
-if (currentName) templates.push({ name: currentName, start, end: lines.length });
+// Audit the actual published catalogue, including factory-built and emergency designs.
+const templates = await loadPublishedTemplates(projectRoot);
 
 const failures = [];
 const known = [];
 
 for (const template of templates) {
-  const body = lines.slice(template.start, template.end).join("\n");
-  const skus = [...new Set([...body.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))]
+  const skus = [...new Set(template.bom.map((row) => row.sku))]
     .filter((sku) => !sku.startsWith("BY-OTHERS"));
 
   const receivers = skus.filter(isHdbasetReceiver);
@@ -184,8 +167,7 @@ const hybridMatrixPattern = /^MX-\d+-HYB$/i;
 
 const orphanFailures = [];
 for (const template of templates) {
-  const body = lines.slice(template.start, template.end).join("\n");
-  const skus = [...new Set([...body.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))]
+  const skus = [...new Set(template.bom.map((row) => row.sku))]
     .filter((sku) => !sku.startsWith("BY-OTHERS"));
 
   const displayEndpoints = skus.filter((sku) => displayEndpointPattern.test(sku));
@@ -228,8 +210,7 @@ const controllerPattern = /CTL-PRO|BY-OTHERS.*control/i;
 
 const controllerFailures = [];
 for (const template of templates) {
-  const body = lines.slice(template.start, template.end).join("\n");
-  const skus = [...new Set([...body.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))];
+  const skus = [...new Set(template.bom.map((row) => row.sku))];
 
   const nhdEndpoints = skus.filter((sku) => nhdEndpointPattern.test(sku));
   if (nhdEndpoints.length === 0) continue;
@@ -263,13 +244,9 @@ const multiviewPattern = /NHD-150-RX|NHD-0401-MV/i;
 const ratioWarnings = [];
 
 for (const template of templates) {
-  const body = lines.slice(template.start, template.end).join("\n");
 
   // Extract SKU+qty pairs (not deduplicated) to count total endpoint quantities
-  const bomRows = [...body.matchAll(/sku: "([A-Z0-9-]+)"[\s\S]*?qty: (\d+)/g)].map((m) => ({
-    sku: m[1],
-    qty: parseInt(m[2], 10),
-  })).filter((row) => !row.sku.startsWith("BY-OTHERS"));
+  const bomRows = template.bom.filter((row) => !row.sku.startsWith("BY-OTHERS"));
 
   // Skip transceiver-only designs (NHD-600-TRX) — each TRX serves dual roles
   if (bomRows.some((row) => transceiverPattern.test(row.sku))) continue;
@@ -284,8 +261,7 @@ for (const template of templates) {
     .reduce((sum, row) => sum + row.qty, 0);
 
   const hasMultiview = bomRows.some((row) => multiviewPattern.test(row.sku));
-  const assumptionsBody = body.match(/assumptions:\s*\[([\s\S]*?)\]/)?.[1] ?? "";
-  const assumptions = [...assumptionsBody.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+  const assumptions = template.assumptions;
   const hasSharedContentIntent = hasExplicitSharedContentIntent(assumptions);
 
   const ratio = totalSources > 0 ? totalDisplays / totalSources : totalDisplays;
@@ -314,8 +290,7 @@ if (ratioWarnings.length) {
 // are exempt.
 const phantomFailures = [];
 for (const template of templates) {
-  const body = lines.slice(template.start, template.end).join("\n");
-  const skus = [...new Set([...body.matchAll(/sku: "([A-Z0-9-]+)"/g)].map((m) => m[1]))]
+  const skus = [...new Set(template.bom.map((row) => row.sku))]
     .filter((sku) => !sku.startsWith("BY-OTHERS") && !sku.startsWith("CAB-"));
 
   const missingSkus = [];
