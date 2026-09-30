@@ -1,0 +1,279 @@
+{
+  "source": "docs/governed-profile-confirmation-triage-2026-09-30.md#appendix",
+  "groupings": {
+    "batches": [
+      {
+        "id": "R1",
+        "scope": "Commodity cables, HDMI/optical patch leads",
+        "skus": [
+          "CAB-HAOC-20",
+          "CAB-HAOC-10",
+          "CAB-HAOC-15",
+          "CAB-HAOC-15-C",
+          "CAB-HAOC-20-C",
+          "CAB-HAOC-30-C",
+          "CAB-HAOC-FRL-10",
+          "CAB-HAOC-FRL-15",
+          "CAB-UAOC-15-C",
+          "CAB-UAOC-USBC-10",
+          "CAB-USBC-15",
+          "EXP-4KUHD-05",
+          "EXP-4KUHD-10",
+          "EXP-4KUHD-20",
+          "EXP-4KUHD-30",
+          "EXP-4KUHD-50",
+          "EXP-8KUHD-05",
+          "EXP-8KUHD-1.0",
+          "EXP-8KUHD-2.0",
+          "EXP-8KUHD-3.0",
+          "EXP-CAB-USBC-1M",
+          "EXP-CAB-USBC-2M",
+          "EXP-CAB-USBC-5M"
+        ]
+      },
+      {
+        "id": "R2",
+        "scope": "Power supplies, fibre optics, format converters",
+        "skus": [
+          "CON-ANLG-DNT",
+          "CON-DNT-ANLG",
+          "CON-DNT-XLR",
+          "CON-USBC-DNT",
+          "CON-XLR-DNT",
+          "DSP-88-DNT",
+          "EXP-CON-AUD-H2",
+          "PSU-12V-1A",
+          "PSU-12V-2A",
+          "PSU-12V-3A",
+          "PSU-18V-1A",
+          "PSU-20V-6A-BOX",
+          "PSU-20V-6A-WP",
+          "SR-10G-MM-SFPP",
+          "SR-1G-MM-SFP",
+          "SW-0402N-INK",
+          "TX-SCL-HDBT",
+          "TX-SCL-HDMI"
+        ]
+      },
+      {
+        "id": "R3",
+        "scope": "Apollo, Halo and UC accessories",
+        "skus": [
+          "APO-COM-MIC",
+          "APO-VX20-MNT",
+          "APO-DG-DOCK",
+          "APO-DG-HDMI",
+          "APO-DG1",
+          "APO-DG2-PRO",
+          "APO-MIC-EXT",
+          "APO-SKY-MIC",
+          "APO-VX20-UC",
+          "HALO-30",
+          "HALO-60",
+          "HALO-90",
+          "HALO-COM-MIC",
+          "HALO-VX10-V2",
+          "NETWORKHDTOUCHTM"
+        ]
+      },
+      {
+        "id": "R4",
+        "scope": "Interactive displays, caddies, racks",
+        "skus": [
+          "IDB-200-MS",
+          "IDB-300",
+          "IDB-400-MS",
+          "IDB-400-MS-C",
+          "IDB-CBL-SPINE",
+          "IDB-HDMI-C",
+          "IDB-K2-C",
+          "IDB-PWR-SCH",
+          "IDB-PWR-UK",
+          "IDB-RJ45-C",
+          "IDB-USBA-C",
+          "IDB-USBC-C",
+          "NHD-140-RACK-1U",
+          "NHD-610-TX",
+          "NHD-RACK-1U",
+          "NHD-RACK4-BLK"
+        ]
+      },
+      {
+        "id": "R5",
+        "scope": "Cameras, wallplate switchers, KVM extenders, control",
+        "skus": [
+          "EX-100-KVM-H2",
+          "EX-40-KVM-H2",
+          "EX-80-KVM",
+          "FOCUS-100",
+          "FOCUS-180A",
+          "FOCUS-200",
+          "FOCUS-200-PRO",
+          "FOCUS-210",
+          "SW-130-TX",
+          "SW-620L-TX-W",
+          "SW-660-TX-W",
+          "SYN-CTL-FL10",
+          "SYN-CTL-HUB-IO-10",
+          "SYN-CTL-HUB-IR-06",
+          "SYN-CTL-HUB-RL-04",
+          "SYN-CTL-HUB-RS-03",
+          "SYN-KEY12-UK-EU",
+          "SYN-TP10-B"
+        ]
+      }
+    ],
+    "families": [
+      {
+        "id": "T1",
+        "scope": "Commodity HDMI / USB-C cables",
+        "skus": [
+          "CAB-HAOC-20",
+          "CAB-HAOC-10",
+          "CAB-HAOC-15",
+          "CAB-HAOC-15-C",
+          "CAB-HAOC-20-C",
+          "CAB-HAOC-30-C",
+          "CAB-HAOC-FRL-10",
+          "CAB-HAOC-FRL-15",
+          "CAB-UAOC-15-C",
+          "CAB-UAOC-USBC-10",
+          "CAB-USBC-15"
+        ]
+      },
+      {
+        "id": "T2",
+        "scope": "HDMI/optical patch leads + audio converter",
+        "skus": [
+          "EXP-4KUHD-05",
+          "EXP-4KUHD-10",
+          "EXP-4KUHD-20",
+          "EXP-4KUHD-30",
+          "EXP-4KUHD-50",
+          "EXP-8KUHD-05",
+          "EXP-8KUHD-1.0",
+          "EXP-8KUHD-2.0",
+          "EXP-8KUHD-3.0",
+          "EXP-CAB-USBC-1M",
+          "EXP-CAB-USBC-2M",
+          "EXP-CAB-USBC-5M",
+          "EXP-CON-AUD-H2"
+        ]
+      },
+      {
+        "id": "T3",
+        "scope": "Power supplies + fibre optics",
+        "skus": [
+          "PSU-12V-1A",
+          "PSU-12V-2A",
+          "PSU-12V-3A",
+          "PSU-18V-1A",
+          "PSU-20V-6A-BOX",
+          "PSU-20V-6A-WP",
+          "SR-1G-MM-SFP",
+          "SR-10G-MM-SFPP"
+        ]
+      },
+      {
+        "id": "T4",
+        "scope": "Format converters (analog ↔ Dante/XLR/USB-C)",
+        "skus": [
+          "CON-ANLG-DNT",
+          "CON-DNT-ANLG",
+          "CON-DNT-XLR",
+          "CON-USBC-DNT",
+          "CON-XLR-DNT"
+        ]
+      },
+      {
+        "id": "T5",
+        "scope": "Apollo / UC accessories",
+        "skus": [
+          "APO-COM-MIC",
+          "APO-VX20-MNT",
+          "APO-DG-DOCK",
+          "APO-DG-HDMI",
+          "APO-DG1",
+          "APO-DG2-PRO",
+          "APO-MIC-EXT",
+          "APO-SKY-MIC",
+          "APO-VX20-UC"
+        ]
+      },
+      {
+        "id": "T6",
+        "scope": "Halo bars, microphones + NetworkHD Touch",
+        "skus": [
+          "HALO-30",
+          "HALO-60",
+          "HALO-90",
+          "HALO-COM-MIC",
+          "HALO-VX10-V2",
+          "NETWORKHDTOUCHTM"
+        ]
+      },
+      {
+        "id": "T7",
+        "scope": "Interactive displays + caddies",
+        "skus": [
+          "IDB-200-MS",
+          "IDB-300",
+          "IDB-400-MS",
+          "IDB-400-MS-C",
+          "IDB-CBL-SPINE",
+          "IDB-HDMI-C",
+          "IDB-K2-C",
+          "IDB-PWR-SCH",
+          "IDB-PWR-UK",
+          "IDB-RJ45-C",
+          "IDB-USBA-C",
+          "IDB-USBC-C"
+        ]
+      },
+      {
+        "id": "T8",
+        "scope": "Cameras",
+        "skus": [
+          "FOCUS-100",
+          "FOCUS-180A",
+          "FOCUS-200",
+          "FOCUS-200-PRO",
+          "FOCUS-210"
+        ]
+      },
+      {
+        "id": "T9",
+        "scope": "NetworkHD + racks + wallplates + extenders",
+        "skus": [
+          "NHD-140-RACK-1U",
+          "NHD-610-TX",
+          "NHD-RACK-1U",
+          "NHD-RACK4-BLK",
+          "SW-130-TX",
+          "SW-620L-TX-W",
+          "SW-660-TX-W",
+          "EX-40-KVM-H2",
+          "EX-100-KVM-H2",
+          "EX-80-KVM"
+        ]
+      },
+      {
+        "id": "T10",
+        "scope": "Control + DSP + scalers + multiview",
+        "skus": [
+          "DSP-88-DNT",
+          "SW-0402N-INK",
+          "TX-SCL-HDBT",
+          "TX-SCL-HDMI",
+          "SYN-CTL-FL10",
+          "SYN-CTL-HUB-IO-10",
+          "SYN-CTL-HUB-IR-06",
+          "SYN-CTL-HUB-RL-04",
+          "SYN-CTL-HUB-RS-03",
+          "SYN-KEY12-UK-EU",
+          "SYN-TP10-B"
+        ]
+      }
+    ]
+  }
+}

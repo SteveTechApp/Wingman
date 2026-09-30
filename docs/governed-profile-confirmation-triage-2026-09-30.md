@@ -33,6 +33,19 @@ five max-resolution prose normalizations the drift gate required before
 sign-off. The strict gate reports zero overdue profiles; the backlog this
 document tracked is cleared and the per-SKU checkboxes above are the record.
 
+**Outcome — the unblock condition was met and the merge happened** (status
+recorded 2026-09-30): CI re-ran on the confirmation commits and both `Verify
+(data)` and the `Governed Data Gate` flipped green (gate runs 11:42 and 11:53
+UTC, success), after which **PR #246 merged at 11:57 UTC** (`72e1eaf6`) with
+all checks green — including main's own post-merge gate run at 11:57:48 UTC.
+`main` now carries all 206 human-verified profiles, so the calendar-driven
+aging gate has nothing to flag on any future merge. What remained before the
+merge was only the second, independent debt ratchet — the CSS size budget,
+cleared by its reviewed exception (`34a43c91`) — and nothing data-side. This
+document is now the historical record of A1; its groupings (R1–R5 sittings,
+T1–T10 families in the appendix) remain the working pattern for the next
+pass whenever new unconfirmed profiles land.
+
 ## R1 — Commodity cables, HDMI/optical patch leads
 
 Reviewer: any engineering reviewer. Spec-critical fields to confirm: length, gauge, connector gender, resolution rating, fibre mode.
@@ -148,3 +161,22 @@ Reviewer: senior reviewer (highest field counts). Spec-critical fields to confir
 - [x] SYN-KEY12-UK-EU (31d)
 - [x] SYN-TP10-B (31d)
 
+
+## Appendix — T1–T10 product-family grouping
+
+The same 90 SKUs grouped by product family (the assignment the original
+triage tables used). The dashboard batch-confirmation view offers both
+groupings; SKUs carry their R-batch membership for the apply tool.
+
+| Family | Scope | SKUs | R-batch overlap |
+|---|---|---|---|
+| T1 | Commodity HDMI / USB-C cables | 11 | R1 |
+| T2 | HDMI/optical patch leads + audio converter | 13 | R1, R2 |
+| T3 | Power supplies + fibre optics | 8 | R2 |
+| T4 | Format converters (analog ↔ Dante/XLR/USB-C) | 5 | R2 |
+| T5 | Apollo / UC accessories | 9 | R3 |
+| T6 | Halo bars, microphones + NetworkHD Touch | 6 | R3 |
+| T7 | Interactive displays + caddies | 12 | R4 |
+| T8 | Cameras | 5 | R5 |
+| T9 | NetworkHD + racks + wallplates + extenders | 10 | R4, R5 |
+| T10 | Control + DSP + scalers + multiview | 11 | R2, R5 |

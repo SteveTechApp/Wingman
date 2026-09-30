@@ -1154,6 +1154,8 @@ export function buildEvidenceArtifact({ criterionId, level, users, payload, stor
     return Math.round(a.times.p95) <= budget.p95 && Math.round(a.times.p99) <= budget.p99 && errorPct <= budget.errorPct;
   });
 
+  const metrics = buildEvidenceMetrics(benchmarks, budgets);
+
   return {
     fileName: `load-test-${level}-${measuredAt}.md`,
     content: `# Load test evidence — ${criterionId} — measured ${measuredAt}
@@ -1186,12 +1188,95 @@ on any violation, so this artifact cannot exist for a red run.
 - Harness enforces authenticated sessions, warm-up-excluded steady-state
   measurement, and (supabase-tables mode) direct-from-Postgres persistence
   read-back before a run can pass.
+
+The same-stem .json sidecar carries the machine-readable measured metrics
+this artifact summarizes; the manifest row's closureRecipe describes how to
+fill the production-like-load row from it.
 `,
+    sidecar: {
+      fileName: `load-test-${level}-${measuredAt}.json`,
+      content: `${JSON.stringify(
+        {
+          criterionId,
+          measuredAt: measuredAtIso,
+          level,
+          users,
+          payloadPreset: payload,
+          storageMode: storageDetails ?? null,
+          // Aggregate across budgeted scenarios: the WORST case governs the
+          // manifest row, so the row can never claim better than any scenario.
+          metrics: metrics.aggregate,
+          perScenario: metrics.perScenario,
+          allBudgetsMet,
+        },
+        null,
+        2,
+      )}\n`,
+    },
+    metrics,
   };
 }
 
+/**
+ * Manifest-shaped measured metrics for a strict-clean run. The manifest row
+ * carries one aggregate p95/p99/error triple, so the aggregate is the worst
+ * value across budgeted scenarios (maxP95 = slowest scenario's p95, etc.) -
+ * the gate then proves every scenario is inside the criterion budget.
+ */
+export function buildEvidenceMetrics(benchmarks, budgets = STRICT_BUDGETS) {
+  const perScenario = benchmarks
+    .filter((a) => budgets[a.scenario])
+    .map((a) => ({
+      scenario: a.scenario,
+      p95Ms: Math.round(a.times.p95),
+      p99Ms: Math.round(a.times.p99),
+      errorRate: Number((100 - parseFloat(a.successRate)) / 100),
+    }));
+  const aggregate = {
+    p95Ms: perScenario.reduce((worst, row) => Math.max(worst, row.p95Ms), 0),
+    p99Ms: perScenario.reduce((worst, row) => Math.max(worst, row.p99Ms), 0),
+    errorRate: perScenario.reduce((worst, row) => Math.max(worst, row.errorRate), 0),
+  };
+  return { aggregate, perScenario };
+}
+
+/**
+ * The production-like-load manifest row as a strict-clean run should fill it:
+ * measured metrics come from the run; the reviewer fills approver.name (and
+ * may adjust approver.role) before replacing the manifest's template row.
+ * Mirrors the closureRecipe on the manifest row itself, so the printed
+ * template and the checked-in recipe can never drift apart in shape.
+ */
+export function buildManifestRowTemplate({ criterionId, artifactPath, measuredAtIso, metrics, approverRole = "Release owner" }) {
+  return JSON.stringify(
+    {
+      id: criterionId,
+      title: "Production-like authenticated load",
+      evidenceType: "staging",
+      claimedStatus: "pass",
+      measuredAt: measuredAtIso,
+      expiresAfterDays: 30,
+      artifactPath,
+      approver: { name: "<REVIEWER NAME>", role: approverRole },
+      owner: "Infrastructure + performance owner",
+      budgets: { maxP95Ms: 1000, maxP99Ms: 2000, maxErrorRate: 0.01 },
+      metrics: metrics.aggregate,
+      closureCondition: "Authenticated staging measurements attached; p95, p99 and error rate inside the recorded budgets.",
+    },
+    null,
+    2,
+  );
+}
+
+function printManifestRowTemplate(criterionId, artifactPath, analyses, measuredAtIso) {
+  const benchmarks = analyses.filter((a) => !a.isProbe);
+  const { aggregate } = buildEvidenceMetrics(benchmarks);
+  console.log(buildManifestRowTemplate({ criterionId, artifactPath, measuredAtIso, metrics: { aggregate } }));
+  console.log("");
+}
+
 function writeEvidenceArtifact(config, analyses, storageDetails) {
-  const { fileName, content } = buildEvidenceArtifact({
+  const { fileName, content, sidecar } = buildEvidenceArtifact({
     criterionId: config.evidenceCriterion,
     level: config.level,
     users: config.users,
@@ -1204,6 +1289,9 @@ function writeEvidenceArtifact(config, analyses, storageDetails) {
   fs.mkdirSync(evidenceDir, { recursive: true });
   const artifactPath = path.join(evidenceDir, fileName);
   fs.writeFileSync(artifactPath, content);
+  if (sidecar) {
+    fs.writeFileSync(path.join(evidenceDir, sidecar.fileName), sidecar.content);
+  }
   return artifactPath;
 }
 
@@ -2162,7 +2250,8 @@ async function main() {
       if (config.evidenceCriterion) {
         const artifactPath = writeEvidenceArtifact(config, analyses, storageDetails);
         console.log(`\n[load-test] Evidence artifact written: ${path.relative(projectRoot, artifactPath)}`);
-        console.log("[load-test] Wire it into docs/release-evidence/release-evidence-manifest.json (artifactPath + measuredAt + approver).");
+        console.log("[load-test] Paste-ready manifest row (fill approver.name, then replace the production-like-load row):\n");
+        printManifestRowTemplate(config.evidenceCriterion, path.relative(projectRoot, artifactPath), analyses, new Date().toISOString());
       }
     }
 

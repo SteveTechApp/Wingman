@@ -40,7 +40,19 @@
       "approver": null,
       "owner": "Infrastructure + performance owner",
       "budgets": { "maxP95Ms": 1000, "maxP99Ms": 2000, "maxErrorRate": 0.01 },
-      "closureCondition": "Attach authenticated staging measurements with p95, p99, and error rate."
+      "closureCondition": "Attach authenticated staging measurements with p95, p99, and error rate.",
+      "closureRecipe": {
+        "command": "node tools/load-test.mjs --base-url https://<staging-host> --cookie <wingman_session=...> --level standard --strict --evidence production-like-load",
+        "artifactConvention": "docs/release-evidence/load-test-<level>-<YYYY-MM-DD>.md (same-stem .json sidecar carries the machine-readable metrics)",
+        "steps": [
+          "A2 done: staging exists and /api/wingman/health reports the expected storage mode.",
+          "Run the command above against staging (measure within 30 days of the launch date; the evidence expires 30 days after measuredAt).",
+          "On a strict-clean run the harness writes the dated artifact + sidecar and prints a paste-ready version of THIS row with metrics filled.",
+          "Set approver.name (reviewer of record), keep claimedStatus pass, replace this row, then run npm run generate:release-docs and npm run check:release-evidence."
+        ],
+        "pasteReadyCommand": "node tools/load-test-paste-row.mjs",
+        "note": "The printed template mirrors this recipe's shape (buildManifestRowTemplate); metrics are the worst case across budgeted scenarios, so the row can never claim better than any single scenario. A red run writes nothing."
+      }
     },
     {
       "id": "production-observation-window",
