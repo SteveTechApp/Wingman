@@ -105,4 +105,16 @@ dashboard's Governed Profiles confirmation strip) and the batch apply tool
 (`node tools/apply-governed-review-pass.mjs`, which prompts for a reviewer of
 record). A stale backlog blocks launches, not just PRs.
 
+**Second standing dependency (evidence freshness, added 2026-09-30):** for
+already-verified profiles a *different* clock now runs: the technical-data
+strict gate warns when a verified profile's newest evidence ages past 60 days
+and hard-fails past 120 (thresholds in `profile-confirmation-aging.json`).
+Confirmation proves a human looked; freshness proves the look is still
+current — official pages move and rot (the daily liveness gate catches
+today's 404s, e.g. the 27 dead pages it found on 2026-09-30; the freshness
+gate catches the slower decay). The cure is a refresh pass: re-check the
+official page and record a new dated evidence entry — no value change
+required, the profile's evidence clock then resets. First refresh pass is due
+around **2026-11-29** (60 days after the 2026-09-30 confirmations).
+
 Sign-off: Steve ______________ date __________ · Transfer results to [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) (§4 go/no-go + §"Decisions still required") before leaving the meeting.
