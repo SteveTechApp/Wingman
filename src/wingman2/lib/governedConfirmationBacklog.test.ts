@@ -2,10 +2,15 @@ import { describe, expect, it, vi } from "vitest";
 import {
   governedConfirmationBacklog,
   governedProfileFieldApplicability,
+  profileEvidenceAgeDays,
   PROFILE_CONFIRMATION_FAIL_AFTER_DAYS,
   PROFILE_CONFIRMATION_WARN_AFTER_DAYS,
   specCriticalFieldLabel,
+  VERIFIED_EVIDENCE_FAIL_AFTER_DAYS,
+  VERIFIED_EVIDENCE_WARN_AFTER_DAYS,
+  verifiedEvidenceFreshnessStateFor,
   type AgingState,
+  type EvidenceFreshnessState,
 } from "./governedConfirmationBacklog";
 
 // The 2026-09-30 confirmation pass verified every profile in the tracked data,
@@ -107,6 +112,51 @@ describe("governed confirmation backlog", () => {
     for (const profile of backlog.verified) {
       expect(backlog.awaiting.find((p) => p.sku === profile.sku)).toBeUndefined();
     }
+  });
+
+  it("carries a gate-consistent evidence-freshness lane on every verified profile", () => {
+    const backlog = governedConfirmationBacklog();
+
+    for (const profile of backlog.verified) {
+      const expected: EvidenceFreshnessState =
+        profile.evidenceAgeDays === null
+          ? "expired"
+          : profile.evidenceAgeDays >= VERIFIED_EVIDENCE_FAIL_AFTER_DAYS
+            ? "expired"
+            : profile.evidenceAgeDays >= VERIFIED_EVIDENCE_WARN_AFTER_DAYS
+              ? "stale"
+              : "fresh";
+      expect(profile.evidenceFreshness).toBe(expected);
+      expect(backlog.verifiedEvidenceStale).toBe(
+        backlog.verified.filter((p) => p.evidenceFreshness === "stale").length,
+      );
+      expect(backlog.verifiedEvidenceExpired).toBe(
+        backlog.verified.filter((p) => p.evidenceFreshness === "expired").length,
+      );
+    }
+  });
+
+  it("lanes verified evidence freshness at the gate thresholds with undatable profiles expiring", () => {
+    // Boundary math pinned directly (mirrors check-wyrestorm-technical-data.mjs):
+    // stale at the warn threshold, expired at the fail threshold, undatable
+    // profiles expire because their evidence cannot be proven current.
+    expect(verifiedEvidenceFreshnessStateFor(null)).toBe("expired");
+    expect(verifiedEvidenceFreshnessStateFor(VERIFIED_EVIDENCE_WARN_AFTER_DAYS - 1)).toBe("fresh");
+    expect(verifiedEvidenceFreshnessStateFor(VERIFIED_EVIDENCE_WARN_AFTER_DAYS)).toBe("stale");
+    expect(verifiedEvidenceFreshnessStateFor(VERIFIED_EVIDENCE_FAIL_AFTER_DAYS - 1)).toBe("stale");
+    expect(verifiedEvidenceFreshnessStateFor(VERIFIED_EVIDENCE_FAIL_AFTER_DAYS)).toBe("expired");
+    expect(verifiedEvidenceFreshnessStateFor(VERIFIED_EVIDENCE_FAIL_AFTER_DAYS + 500)).toBe("expired");
+  });
+
+  it("computes evidence age from the newest reviewedOn/checkedAt date and expires undatable profiles", () => {
+    const now = new Date("2026-09-30T12:00:00.000Z");
+    expect(profileEvidenceAgeDays([{ reviewedOn: "2026-09-01" }, { checkedAt: "2026-09-15T08:00:00.000Z" }], now)).toBe(15);
+    expect(profileEvidenceAgeDays([{ checkedAt: "2026-09-01" }, { reviewedOn: "2026-09-15" }], now)).toBe(15);
+    expect(profileEvidenceAgeDays([{ reviewedOn: "garbage" }, { checkedAt: "also-bad" }], now)).toBeNull();
+    expect(profileEvidenceAgeDays([], now)).toBeNull();
+    expect(profileEvidenceAgeDays(undefined, now)).toBeNull();
+    // Future dates are not younger than zero days old.
+    expect(profileEvidenceAgeDays([{ reviewedOn: "2026-10-01" }], now)).toBeNull();
   });
 
   it("keeps a human-confirmed matrix out of the backlog and flags an audio amp as missing power data", () => {
