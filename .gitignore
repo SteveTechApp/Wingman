@@ -129,6 +129,20 @@ _release/
 release/
 _wingman_backup_*/
 
+# --- One-off fix evidence screenshots (never consumed; regenerate on demand) ---
+artifacts/
+
+# --- Supabase backend seed stores (obsolete file-mode store; replaced by
+# --- supabase-tables mode + remote tables; last touched 2026-03) ---
+data/backend/
+
+# --- One-off repair/enrichment audit outputs from call-card repair tools ---
+public/product-call-card-accessory-language-audit.json
+public/product-call-card-copy-repair-audit.json
+public/product-call-card-practical-copy-audit.json
+public/product-call-card-targeted-questions-audit.json
+public/product-call-card-products.official-audit.json
+
 # --- Nested duplicate project protection ---
 wingman/node_modules/
 wingman/dist/
