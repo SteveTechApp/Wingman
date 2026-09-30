@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { assessConfirmationAging } from "./report-confirmation-aging.mjs";
@@ -102,12 +104,42 @@ describe("confirmation-aging reporter CLI", () => {
     expect(stdout).toContain("unconfirmed machine-tier profile(s)");
   });
 
-  it("emits GitHub-output pairs on demand", () => {
-    const stdout = execFileSync("node", [TOOL, "--github-output", "--summary"], { encoding: "utf8" });
+  it("emits GitHub-output pairs on stdout when GITHUB_OUTPUT is unset", () => {
+    // The workflow consumes steps.<id>.outputs.*, which Actions fills from
+    // $GITHUB_OUTPUT; callers that redirect stdout (>> "$GITHUB_OUTPUT")
+    // need the pairs on stdout, so the script must only use the file when
+    // the variable is actually present. Pin the no-file path explicitly:
+    // a runner where GITHUB_OUTPUT is always set must not hide this branch.
+    const env = { ...process.env };
+    delete env.GITHUB_OUTPUT;
+    const stdout = execFileSync("node", [TOOL, "--github-output", "--summary"], { encoding: "utf8", env });
     expect(stdout).toContain("count_unconfirmed=");
     expect(stdout).toContain("count_aging=");
     expect(stdout).toContain("count_overdue=");
     expect(stdout).toContain("aging (≥14d)");
+    expect(stdout).not.toMatch(/^ {2}(OVERDUE|aging)\b/m); // bucket lines go to stderr in this mode
+  });
+
+  it("appends the pairs to $GITHUB_OUTPUT when the variable is set", () => {
+    // Runner-native path: when the variable exists the pairs go to the file
+    // (append, never truncate) and stdout stays clean for any summary text.
+    const dir = mkdtempSync(path.join(tmpdir(), "aging-out-"));
+    const outputFile = path.join(dir, "github-output.txt");
+    writeFileSync(outputFile, "pre_existing=1\n", "utf8");
+    try {
+      const stdout = execFileSync("node", [TOOL, "--github-output"], {
+        encoding: "utf8",
+        env: { ...process.env, GITHUB_OUTPUT: outputFile },
+      });
+      expect(stdout).not.toContain("count_unconfirmed=");
+      const written = readFileSync(outputFile, "utf8");
+      expect(written).toContain("pre_existing=1"); // append, not truncate
+      expect(written).toContain("count_unconfirmed=");
+      expect(written).toContain("count_aging=");
+      expect(written).toContain("count_overdue=");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("fails loudly on a missing input file instead of reporting a fake zero", () => {
