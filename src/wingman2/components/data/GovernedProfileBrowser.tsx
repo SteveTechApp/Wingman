@@ -3,7 +3,14 @@ import { Search, ChevronDown, ChevronRight, CheckCircle, AlertTriangle, RotateCc
 import governedTechnicalProfiles from "../../../../data/governance/wyrestorm-technical-profiles.json";
 import { downloadBlob } from "../../lib/downloadBlob";
 import { confirmGovernedProfile } from "../../api/wingmanApi";
-import { governedProfileFieldApplicability } from "../../lib/governedConfirmationBacklog";
+import {
+  governedProfileFieldApplicability,
+  VERIFIED_EVIDENCE_WARN_AFTER_DAYS,
+  VERIFIED_EVIDENCE_FAIL_AFTER_DAYS,
+  verifiedEvidenceFreshnessFor,
+  verifiedEvidenceFreshnessLabel,
+  type EvidenceFreshnessState,
+} from "../../lib/governedConfirmationBacklog";
 import { confirmationGroupView, confirmationRowTagsForSku, type GroupingKind } from "../../lib/governedConfirmationBatches";
 
 /* ------------------------------------------------------------------ */
@@ -236,6 +243,7 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
   const [editingProfile, setEditingProfile] = useState<GovernedProfile | null>(null);
   const [selectedSkus, setSelectedSkus] = useState<Set<string>>(new Set());
   const [profiles, setProfiles] = useState<GovernedProfile[]>(allProfiles);
+  const [freshnessFilter, setFreshnessFilter] = useState<"" | EvidenceFreshnessState>("");
 
   // Confirmation triage groupings (reviewer batches R1-R5, product families
   // T1-T10): one chip per group with its live awaiting/verified split, so the
@@ -279,6 +287,10 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
       list = list.filter((p) => p.status === statusFilter);
     }
 
+    if (freshnessFilter) {
+      list = list.filter((p) => verifiedEvidenceFreshnessFor(p) === freshnessFilter);
+    }
+
     if (batchScope) {
       const batchSkus = new Set(batchScope.skus);
       list = list.filter((p) => batchSkus.has(p.sku));
@@ -290,7 +302,7 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
       if (sa !== sb) return sa - sb;
       return a.sku.localeCompare(b.sku);
     });
-  }, [query, classFilter, statusFilter, batchScope, profiles]);
+  }, [query, classFilter, statusFilter, freshnessFilter, batchScope, profiles]);
 
   const toggleSelect = useCallback((sku: string) => {
     setSelectedSkus((prev) => {
@@ -370,6 +382,19 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
     return counts;
   }, [profiles]);
 
+  // Evidence-freshness lanes over the confirmed backlog: a human-verified
+  // profile still ages, and its official-page evidence can go stale or rot.
+  // Same thresholds the CI gate enforces, so the dashboard and the gate can
+  // never disagree on which profiles need a refresh pass.
+  const freshnessCounts = useMemo(() => {
+    const counts: Record<string, number> = { stale: 0, expired: 0 };
+    for (const p of profiles) {
+      const lane = verifiedEvidenceFreshnessFor(p);
+      if (lane) counts[lane] += 1;
+    }
+    return counts as Record<EvidenceFreshnessState, number>;
+  }, [profiles]);
+
   const toggleStatusFilter = useCallback((status: string) => {
     setStatusFilter((current) => current === status ? "" : status);
   }, []);  const startEditing = useCallback((profile: GovernedProfile) => {
@@ -442,6 +467,16 @@ export function GovernedProfileBrowser({ reviewer = "ADMIN" }: { reviewer?: stri
             >
               {statusCounts["review-required"] ?? 0} review required
             </button>
+            {freshnessCounts.stale > 0 ? (
+              <button type="button" className="wm-governed-summary-detail wm-governed-summary-filter" aria-label={`Filter by evidence aging status (${freshnessCounts.stale} profiles)`} aria-pressed={freshnessFilter === "stale"} title={`Verified profiles whose newest official evidence is ${VERIFIED_EVIDENCE_WARN_AFTER_DAYS}+ days old - a refresh pass is due`} onClick={() => setFreshnessFilter((current) => (current === "stale" ? "" : "stale"))}>
+                {freshnessCounts.stale} evidence aging
+              </button>
+            ) : null}
+            {freshnessCounts.expired > 0 ? (
+              <button type="button" className="wm-governed-summary-detail wm-governed-summary-filter" aria-label={`Filter by evidence expired status (${freshnessCounts.expired} profiles)`} aria-pressed={freshnessFilter === "expired"} title={`Verified profiles whose newest official evidence is ${VERIFIED_EVIDENCE_FAIL_AFTER_DAYS}+ days old (or undatable) - the technical-data gate hard-fails until a fresh dated evidence entry is recorded`} onClick={() => setFreshnessFilter((current) => (current === "expired" ? "" : "expired"))}>
+                {freshnessCounts.expired} evidence expired
+              </button>
+            ) : null}
           </>
         )}
       </div>
@@ -772,6 +807,22 @@ const ProfileRow = memo(function ProfileRow({
           <span className={`wm-status ${statusClass(profile.status)}`}>
             {statusLabel(profile.status)}
           </span>
+          {(() => {
+            const freshness = verifiedEvidenceFreshnessFor(profile);
+            if (!freshness) return null;
+            const expired = freshness === "expired";
+            return (
+              <span className="wm-governed-row-tags">
+                <span
+                  className="wm-governed-row-tag"
+                  style={expired ? { background: "rgba(239, 68, 68, 0.14)", color: "var(--wm-danger, #ef4444)", borderColor: "rgba(239, 68, 68, 0.3)" } : { background: "rgba(245, 165, 36, 0.14)", color: "var(--wm-warning, #f5a524)", borderColor: "rgba(245, 165, 36, 0.3)" }}
+                  title={expired ? `Newest official evidence is ${VERIFIED_EVIDENCE_FAIL_AFTER_DAYS}+ days old (or undatable) - the technical-data gate hard-fails until a fresh dated evidence entry is recorded` : `Newest official evidence is ${VERIFIED_EVIDENCE_WARN_AFTER_DAYS}+ days old - schedule a refresh pass`}
+                >
+                  {verifiedEvidenceFreshnessLabel(freshness)}
+                </span>
+              </span>
+            );
+          })()}
         </td>
         <td onClick={() => onToggle(profile.sku)}>
           <small>{profile.transport?.join(", ") || "—"}</small>
