@@ -20,6 +20,19 @@ import agingConfig from "../../../data/governance/profile-confirmation-aging.jso
 export const PROFILE_CONFIRMATION_WARN_AFTER_DAYS = Number(agingConfig.warnAfterDays) || 14;
 export const PROFILE_CONFIRMATION_FAIL_AFTER_DAYS = Number(agingConfig.failAfterDays) || 30;
 
+/**
+ * Evidence-freshness thresholds for HUMAN-VERIFIED profiles, shared with the
+ * CI gate (check-wyrestorm-technical-data.mjs). Confirmation and freshness
+ * are different clocks: a confirmed profile still ages, and its official-page
+ * evidence can go stale, move, or rot. Past the warn threshold a refresh pass
+ * is due; past the fail threshold the gate hard-fails until a human re-checks
+ * the live official page and records a new dated evidence entry.
+ */
+export const VERIFIED_EVIDENCE_WARN_AFTER_DAYS = Number(agingConfig.verifiedEvidenceWarnAfterDays) || 60;
+export const VERIFIED_EVIDENCE_FAIL_AFTER_DAYS = Number(agingConfig.verifiedEvidenceFailAfterDays) || 120;
+
+export type EvidenceFreshnessState = "fresh" | "stale" | "expired";
+
 export type SpecCriticalField = "max-resolution" | "routed-io" | "power" | "profile-scope";
 
 export type AgingState = "fresh" | "aging" | "overdue";
@@ -51,6 +64,10 @@ export type VerifiedProfile = {
   confirmedFields: SpecCriticalField[];
   /** Official source the reviewer confirmed against. */
   evidenceUrl: string;
+  /** Days since the profile's newest evidence timestamp; null when undatable. */
+  evidenceAgeDays: number | null;
+  /** Evidence-freshness lane for the verified profile (mirrors the CI gate). */
+  evidenceFreshness: EvidenceFreshnessState;
 };
 
 export type ConfirmationBacklog = {
@@ -67,6 +84,10 @@ export type ConfirmationBacklog = {
   aging: number;
   /** Unconfirmed profiles past the fail threshold, or undatable (gate-enforced). */
   overdue: number;
+  /** Verified profiles whose newest evidence is past the warn threshold (refresh pass due). */
+  verifiedEvidenceStale: number;
+  /** Verified profiles whose newest evidence is past the fail threshold, or undatable (gate-enforced). */
+  verifiedEvidenceExpired: number;
 };
 
 type EvidenceRecord = { sourceUrl?: string; reviewedOn?: string; checkedAt?: string; reviewer?: string };
@@ -257,16 +278,6 @@ function latestEvidence(profile: ProfileRecord): EvidenceRecord {
   return list[list.length - 1] ?? {};
 }
 
-/** Newest evidence date (YYYY-MM-DD) across all entries; "" when undatable. */
-function newestEvidenceDate(profile: ProfileRecord): string {
-  let newest = "";
-  for (const evidence of Array.isArray(profile.evidence) ? (profile.evidence as EvidenceRecord[]) : []) {
-    const date = text(evidence.reviewedOn) || text(evidence.checkedAt).slice(0, 10);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date > newest) newest = date;
-  }
-  return newest;
-}
-
 function agingStateFor(ageDays: number | null): AgingState {
   if (ageDays === null) return "overdue";
   if (ageDays >= PROFILE_CONFIRMATION_FAIL_AFTER_DAYS) return "overdue";
@@ -274,7 +285,63 @@ function agingStateFor(ageDays: number | null): AgingState {
   return "fresh";
 }
 
-function toVerifiedProfile(profile: ProfileRecord): VerifiedProfile {
+/**
+ * Evidence-freshness lane for a HUMAN-VERIFIED profile, mirroring the CI
+ * gate's verified-evidence check exactly: stale at the warn threshold,
+ * expired at the fail threshold (or undatable - a claim whose evidence
+ * cannot be dated can never be proven current, so it lanes as expired).
+ */
+export function verifiedEvidenceFreshnessStateFor(ageDays: number | null): EvidenceFreshnessState {
+  if (ageDays === null) return "expired";
+  if (ageDays >= VERIFIED_EVIDENCE_FAIL_AFTER_DAYS) return "expired";
+  if (ageDays >= VERIFIED_EVIDENCE_WARN_AFTER_DAYS) return "stale";
+  return "fresh";
+}
+
+/**
+ * Evidence-freshness lane for a profile-shaped record, for dashboard
+ * surfaces: verified rows lane as "stale"/"expired" exactly like the CI
+ * gate; anything not human-verified has no freshness lane (null) because its
+ * clock is the confirmation backlog, not evidence decay.
+ */
+export function verifiedEvidenceFreshnessFor(profile: {
+  status?: unknown;
+  verifiedBy?: unknown;
+  evidence?: readonly unknown[];
+}): EvidenceFreshnessState | null {
+  if (profile.status !== "verified" || !String(profile.verifiedBy ?? "").trim()) return null;
+  const state = verifiedEvidenceFreshnessStateFor(profileEvidenceAgeDays(profile.evidence));
+  return state === "fresh" ? null : state;
+}
+
+/** Dashboard copy for a freshness lane ("fresh" never surfaces). */
+export function verifiedEvidenceFreshnessLabel(state: EvidenceFreshnessState): string {
+  return state === "expired" ? "evidence expired" : "evidence aging";
+}
+
+/**
+ * Newest evidence age in days for a profile-shaped record (same computation
+ * the CI gate applies: newest `reviewedOn`/`checkedAt` date across all
+ * evidence entries). Null when no entry carries a parsable date - the caller
+ * decides whether that means overdue (confirmation clock) or expired
+ * (evidence clock).
+ */
+export function profileEvidenceAgeDays(
+  evidence: readonly unknown[] | undefined,
+  now: Date = new Date(),
+): number | null {
+  let newest = "";
+  for (const item of evidence ?? []) {
+    const record = item as { reviewedOn?: unknown; checkedAt?: unknown } | null | undefined;
+    const date = String(record?.reviewedOn ?? "").trim() || String(record?.checkedAt ?? "").slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date > newest) newest = date;
+  }
+  if (!newest) return null;
+  const age = Math.floor((now.getTime() - Date.parse(`${newest}T00:00:00Z`)) / 86_400_000);
+  return Number.isFinite(age) && age >= 0 ? age : null;
+}
+
+function toVerifiedProfile(profile: ProfileRecord, ageDays: number | null): VerifiedProfile {
   const evidence = latestEvidence(profile);
   const confirmedFields = (Array.isArray(profile.confirmedFields) ? profile.confirmedFields : []) as SpecCriticalField[];
   return {
@@ -285,6 +352,8 @@ function toVerifiedProfile(profile: ProfileRecord): VerifiedProfile {
     reviewedOn: text(evidence.reviewedOn) || text(profile.verifiedAt).slice(0, 10),
     confirmedFields,
     evidenceUrl: text(evidence.sourceUrl),
+    evidenceAgeDays: ageDays,
+    evidenceFreshness: verifiedEvidenceFreshnessStateFor(ageDays),
   };
 }
 
@@ -298,15 +367,12 @@ export function governedConfirmationBacklog(): ConfirmationBacklog {
 
   for (const profile of profiles) {
     if (isHumanConfirmed(profile)) {
-      verified.push(toVerifiedProfile(profile));
+      verified.push(toVerifiedProfile(profile, profileEvidenceAgeDays(profile.evidence)));
       humanVerified += 1;
       continue;
     }
     const { awaitingConfirmation, missingData } = specFieldState(profile);
-    const newestDate = newestEvidenceDate(profile);
-    const ageDays = newestDate
-      ? Math.max(0, Math.floor((Date.now() - Date.parse(`${newestDate}T00:00:00Z`)) / 86_400_000))
-      : null;
+    const ageDays = profileEvidenceAgeDays(profile.evidence);
     awaiting.push({
       sku: text(profile.sku),
       productClass: text(profile.productClass) || "Unknown class",
@@ -347,5 +413,7 @@ export function governedConfirmationBacklog(): ConfirmationBacklog {
     needDataWork: awaiting.length - readyToConfirm,
     aging: awaiting.filter((profile) => profile.aging === "aging").length,
     overdue: awaiting.filter((profile) => profile.aging === "overdue").length,
+    verifiedEvidenceStale: verified.filter((profile) => profile.evidenceFreshness === "stale").length,
+    verifiedEvidenceExpired: verified.filter((profile) => profile.evidenceFreshness === "expired").length,
   };
 }

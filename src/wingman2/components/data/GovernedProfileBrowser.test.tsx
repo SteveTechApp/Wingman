@@ -8,6 +8,14 @@ import { GovernedProfileBrowser } from "./GovernedProfileBrowser";
 // 206-profile corpus made the dialog tests so heavy that they timed out
 // whenever the whole suite ran in parallel, an intermittent CI flake. A small
 // fixture keeps them hermetic and intrinsically fast.
+// Fixture evidence dates are computed relative to test-run time so the
+// freshness lanes stay stable as the calendar advances (warn 60d / fail 120d).
+// vi.hoisted is required: the vi.mock factory below executes during import
+// resolution, before this module's body initializes.
+const { mockDaysAgo } = vi.hoisted(() => ({
+  mockDaysAgo: (days: number) => new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10),
+}));
+
 vi.mock("../../../../data/governance/wyrestorm-technical-profiles.json", () => ({
   default: {
     generatedAt: "2026-09-28T00:00:00.000Z",
@@ -63,6 +71,51 @@ vi.mock("../../../../data/governance/wyrestorm-technical-profiles.json", () => (
         checks: [],
         warnings: [],
         evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/apo-com-mic", reviewedOn: "2026-09-03" }],
+      },
+      {
+        // Verified with 60+ day old evidence: the stale lane (refresh pass due).
+        sku: "CAM-EDGE-STALE",
+        productClass: "CAMERA",
+        role: "PTZ camera",
+        status: "verified",
+        verifiedBy: "Fixture Reviewer",
+        verifiedAt: `${mockDaysAgo(61)}T09:00:00.000Z`,
+        ports: [{ count: 1, connector: "RJ45", direction: "input", category: "network", detail: "" }],
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/cam-edge-stale", reviewedOn: mockDaysAgo(61) }],
+      },
+      {
+        // Verified but undatable evidence (no reviewedOn/checkedAt): the
+        // expired lane - a claim whose evidence cannot be dated cannot be
+        // proven current, mirroring the CI gate.
+        sku: "CAM-EDGE-EXPIRED",
+        productClass: "CAMERA",
+        role: "PTZ camera",
+        status: "verified",
+        verifiedBy: "Fixture Reviewer",
+        verifiedAt: `${mockDaysAgo(61)}T09:00:00.000Z`,
+        ports: [{ count: 1, connector: "RJ45", direction: "input", category: "network", detail: "" }],
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/cam-edge-expired" }],
+      },
+      {
+        // Verified with evidence dated today relative to the stale fixture:
+        // the fresh lane - no freshness chip.
+        sku: "CAM-EDGE-FRESH",
+        productClass: "CAMERA",
+        role: "PTZ camera",
+        status: "verified",
+        verifiedBy: "Fixture Reviewer",
+        verifiedAt: `${mockDaysAgo(0)}T09:00:00.000Z`,
+        ports: [{ count: 1, connector: "RJ45", direction: "input", category: "network", detail: "" }],
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/cam-edge-fresh", reviewedOn: mockDaysAgo(0) }],
       },
     ],
   },
@@ -259,6 +312,48 @@ describe("GovernedProfileBrowser download deferral", () => {
     const ampRow = screen.getByRole("button", { name: "Edit AMP-2120" }).closest("tr") as HTMLTableRowElement;
     expect(ampRow.querySelectorAll(".wm-governed-row-tag").length).toBe(0);
     expect(ampRow.querySelector(".wm-governed-row-tags")).toBeNull();
+  });
+
+  it("surfaces evidence-freshness lanes in the summary strip and scopes the table", () => {
+    render(<GovernedProfileBrowser />);
+
+    // Verified fixtures land in two lanes; the fresh one never counts.
+    const agingChip = screen.getByRole("button", { name: /Filter by evidence aging status/ });
+    const expiredChip = screen.getByRole("button", { name: /Filter by evidence expired status/ });
+    expect(agingChip.textContent).toContain("1 evidence aging");
+    expect(expiredChip.textContent).toContain("1 evidence expired");
+
+    fireEvent.click(agingChip);
+    expect(screen.getByRole("button", { name: "Edit CAM-EDGE-STALE" })).not.toBeNull();
+    expect(screen.queryByRole("button", { name: "Edit CAM-EDGE-EXPIRED" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Edit CAM-EDGE-FRESH" })).toBeNull();
+    expect(agingChip.getAttribute("aria-pressed")).toBe("true");
+
+    // Toggling off restores the full table.
+    fireEvent.click(agingChip);
+    expect(screen.getByRole("button", { name: "Edit CAM-EDGE-EXPIRED" })).not.toBeNull();
+
+    // The expired lane scopes to its own profile only.
+    fireEvent.click(expiredChip);
+    expect(screen.getByRole("button", { name: "Edit CAM-EDGE-EXPIRED" })).not.toBeNull();
+    expect(screen.queryByRole("button", { name: "Edit CAM-EDGE-STALE" })).toBeNull();
+  });
+
+  it("chips verified rows by freshness lane and leaves fresh rows unchipped", () => {
+    render(<GovernedProfileBrowser />);
+
+    const chipsFor = (sku: string) =>
+      Array.from(
+        (screen.getByRole("button", { name: `Edit ${sku}` }).closest("tr") as HTMLTableRowElement).querySelectorAll(
+          ".wm-governed-row-tag",
+        ),
+      ).map((chip) => chip.textContent);
+
+    expect(chipsFor("CAM-EDGE-STALE")).toContain("evidence aging");
+    expect(chipsFor("CAM-EDGE-EXPIRED")).toContain("evidence expired");
+    expect(chipsFor("CAM-EDGE-FRESH")).toEqual([]);
+    // Unverified rows never carry a freshness chip.
+    expect(chipsFor("AMP-2120")).toEqual([]);
   });
 
   it("requires confirmation before deleting a row", () => {
