@@ -23,6 +23,7 @@ const ALLOWED_VENDOR_HOSTS = new Set([
   "en.wikipedia.org",
 
   // Core competitor manufacturers
+  "wyrestorm.com",
   "crestron.com",
   "www.crestron.com",
   "extron.com",
@@ -127,7 +128,17 @@ for (const host of String(process.env.LOOKUP_ALLOWED_SOURCE_HOSTS || "")
   ALLOWED_VENDOR_HOSTS.add(host);
 }
 
-function normalizeAllowedProductUrl(rawUrl, baseUrl = "") {
+function normalizedUserSourceHost(host) {
+  return String(host || "").toLowerCase().replace(/^www\d*\./, "");
+}
+
+function matchesUserSourceHost(host, allowedHost) {
+  const normalizedHost = normalizedUserSourceHost(host);
+  const normalizedAllowedHost = normalizedUserSourceHost(allowedHost);
+  return Boolean(normalizedAllowedHost && (normalizedHost === normalizedAllowedHost || normalizedHost.endsWith(`.${normalizedAllowedHost}`)));
+}
+
+function normalizeAllowedProductUrl(rawUrl, baseUrl = "", userSourceHost = "") {
   const value = tidy(rawUrl);
   if (!value) return "";
 
@@ -143,7 +154,7 @@ function normalizeAllowedProductUrl(rawUrl, baseUrl = "") {
     parsed.hash = "";
 
     const host = parsed.hostname.toLowerCase();
-    let allowed = ALLOWED_VENDOR_HOSTS.has(host);
+    let allowed = ALLOWED_VENDOR_HOSTS.has(host) || matchesUserSourceHost(host, userSourceHost);
 
     if (!allowed) {
       for (const allowedHost of ALLOWED_VENDOR_HOSTS) {
@@ -179,6 +190,7 @@ function assertAllowedCompetitorLookupUrl(rawUrl) {
 const DEFAULT_TIMEOUT_MS = Math.max(3500, Number(process.env.LOOKUP_TIMEOUT_MS || 9000));
 const LIVE_DB_TTL_MS = Math.max(60_000, Number(process.env.LOOKUP_LIVE_DB_TTL_MS || 30 * 24 * 60 * 60 * 1000));
 const MAX_FETCH_ATTEMPTS = Math.max(3, Number(process.env.LOOKUP_LIVE_MAX_ATTEMPTS || 14));
+const MAX_LOOKUP_PAGE_BYTES = 12 * 1024 * 1024;
 
 
 const BRAND_ADAPTERS = {
@@ -459,32 +471,43 @@ function isBlockedVendorPage(text, html) {
   );
 }
 
-async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
+async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_TIMEOUT_MS, userSourceHost = "") {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    assertAllowedCompetitorLookupUrl(url);
-    // Sync pre-flight: IP literals (any spelling, incl. embedded-IPv4 forms)
-    // and local names are refused before the allowlist fetch begins.
-    assertSyncFetchTarget(url);
-    return await fetch(url, {
-      ...options,
-      signal: controller.signal,
-      redirect: "follow",
-      headers: {
-        "User-Agent": "Mozilla/5.0 WingmanLiveLookup/2.0",
-        Accept: "text/html, text/plain, application/xhtml+xml, application/pdf;q=0.8, */*;q=0.5",
-        ...(options.headers || {}),
-      },
-    });
+    let currentUrl = url;
+    for (let redirects = 0; redirects <= 5; redirects += 1) {
+      if (!isAllowedCompetitorLookupUrl(currentUrl) && !matchesUserSourceHost(new URL(currentUrl).hostname, userSourceHost)) {
+        throw new Error("Manufacturer page redirected outside its public source.");
+      }
+      // Recheck every redirect destination: an allowed vendor page must not
+      // be able to redirect the server to a private or unapproved host.
+      assertSyncFetchTarget(currentUrl);
+      const response = await fetch(currentUrl, {
+        ...options,
+        signal: controller.signal,
+        redirect: "manual",
+        headers: {
+          "User-Agent": "Mozilla/5.0 WingmanLiveLookup/2.0",
+          Accept: "text/html, text/plain, application/xhtml+xml, application/pdf;q=0.8, */*;q=0.5",
+          ...(options.headers || {}),
+        },
+      });
+      if (![301, 302, 303, 307, 308].includes(response.status)) return response;
+      const location = response.headers.get("location");
+      if (!location) return response;
+      if (redirects === 5) throw new Error("Manufacturer page redirected too many times.");
+      currentUrl = new URL(location, currentUrl).toString();
+    }
+    throw new Error("Manufacturer page redirected too many times.");
   } finally {
     clearTimeout(timer);
   }
 }
 
-function normalizeHttpsUrl(rawUrl, baseUrl = "") {
-  return normalizeAllowedProductUrl(rawUrl, baseUrl);
+function normalizeHttpsUrl(rawUrl, baseUrl = "", userSourceHost = "") {
+  return normalizeAllowedProductUrl(rawUrl, baseUrl, userSourceHost);
 }
 
 function buildSearchEngineUrls(adapter, sku) {
@@ -529,13 +552,17 @@ function buildTrustedReferenceSourceUrls(manufacturer, model) {
   ];
 }
 
-function buildInitialUrls(manufacturer, model, productUrl) {
+function buildInitialUrls(manufacturer, model, productUrl, { allowExternalProductUrl = false } = {}) {
   const adapter = adapterForManufacturer(manufacturer);
   const sku = tidy(model);
 
   const urls = [];
-  const explicit = normalizeHttpsUrl(productUrl);
-  if (explicit) urls.push({ url: explicit, kind: "explicit-url" });
+  let userSourceHost = "";
+  if (allowExternalProductUrl) {
+    try { userSourceHost = normalizedUserSourceHost(new URL(productUrl).hostname); } catch { userSourceHost = ""; }
+  }
+  const explicit = normalizeHttpsUrl(productUrl, "", userSourceHost);
+  if (explicit) urls.push({ url: explicit, kind: "explicit-url", userSourceHost });
 
   if (adapter && sku) {
     for (const url of adapter.productUrls?.(sku) || []) {
@@ -596,7 +623,7 @@ function unwrapSearchRedirect(rawUrl) {
   return value;
 }
 
-function extractCandidateLinks(html, currentUrl, adapter, model) {
+function extractCandidateLinks(html, currentUrl, adapter, model, userSourceHost = "") {
   const skuSquash = normalizeId(model);
   const links = [];
 
@@ -607,10 +634,10 @@ function extractCandidateLinks(html, currentUrl, adapter, model) {
     } catch {
     }
     const unwrapped = unwrapSearchRedirect(absoluteHref);
-    const normalized = normalizeHttpsUrl(unwrapped, currentUrl);
+    const normalized = normalizeHttpsUrl(unwrapped, currentUrl, userSourceHost);
     if (!normalized) continue;
 
-    // The URL has already passed the public-source allowlist guard.
+    // The URL has already passed the public-source allowlist or supplied-host guard.
     // Do not restrict discovered links to only the primary vendor domain, because source pages
     // such as AVITdirect, distributor catalogues and search result pages can legitimately point
     // to useful product pages, datasheets and manufacturer records.
@@ -833,12 +860,41 @@ async function extractPdfDocument(buffer) {
   };
 }
 
+async function readBoundedResponse(response) {
+  const declaredLength = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_LOOKUP_PAGE_BYTES) {
+    await response.body?.cancel();
+    throw new Error("Product page exceeds the lookup size limit.");
+  }
+  if (!response.body) return Buffer.alloc(0);
+  const reader = response.body.getReader();
+  const chunks = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > MAX_LOOKUP_PAGE_BYTES) {
+        await reader.cancel();
+        throw new Error("Product page exceeds the lookup size limit.");
+      }
+      chunks.push(Buffer.from(value));
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return Buffer.concat(chunks, size);
+}
+
 async function fetchCandidatePage(item, adapter, model) {
   const startedAt = Date.now();
 
   try {
-    assertAllowedCompetitorLookupUrl(item.url);
-    const response = await fetchWithTimeout(item.url);
+    if (!isAllowedCompetitorLookupUrl(item.url) && !matchesUserSourceHost(new URL(item.url).hostname, item.userSourceHost)) {
+      assertAllowedCompetitorLookupUrl(item.url);
+    }
+    const response = await fetchWithTimeout(item.url, {}, DEFAULT_TIMEOUT_MS, item.userSourceHost);
     const status = response.status;
     const contentType = response.headers.get("content-type") || "";
 
@@ -869,8 +925,9 @@ async function fetchCandidatePage(item, adapter, model) {
       };
     }
 
-    const html = isPdf ? "" : await response.text();
-    const pdf = isPdf ? await extractPdfDocument(await response.arrayBuffer()) : null;
+    const pageBytes = await readBoundedResponse(response);
+    const html = isPdf ? "" : pageBytes.toString("utf8");
+    const pdf = isPdf ? await extractPdfDocument(pageBytes) : null;
     const text = isPdf ? pdf.text : flattenHtmlToText(html);
     const identityTitle = isPdf ? pdf.metadataTitle : extractTitle(html, "");
     const title = identityTitle || (isPdf ? "Technical document" : tidy(model));
@@ -888,7 +945,7 @@ async function fetchCandidatePage(item, adapter, model) {
     }
 
     const score = scorePage({ url: item.url, title: identityTitle, text, model, kind: item.kind });
-    const discoveredLinks = extractCandidateLinks(html, item.url, adapter, model);
+    const discoveredLinks = extractCandidateLinks(html, item.url, adapter, model, item.userSourceHost);
 
     return {
       ok: true,
@@ -987,7 +1044,7 @@ function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts })
   };
 }
 
-export async function resolveCompetitorLiveLookup(payload = {}) {
+export async function resolveCompetitorLiveLookup(payload = {}, { persist = true, allowExternalProductUrl = false } = {}) {
   const manufacturer = tidy(payload.manufacturer || payload.brand);
   const model = tidy(payload.model || payload.sku);
   const productUrl = tidy(payload.productUrl || payload.url);
@@ -1004,14 +1061,14 @@ export async function resolveCompetitorLiveLookup(payload = {}) {
   }
 
   const key = makeLookupKey(manufacturer, model, productUrl);
-  const memoryRecord = LIVE_LOOKUP_MEMORY_CACHE.get(key);
+  const memoryRecord = persist ? LIVE_LOOKUP_MEMORY_CACHE.get(key) : undefined;
 
   if (!forceRefresh && memoryRecord && isFreshRecord(memoryRecord)) {
     return asCachedPayload(memoryRecord, "memory");
   }
 
-  const db = await readLiveDb();
-  const dbRecord = db.records?.[key];
+  const db = persist ? await readLiveDb() : { records: {} };
+  const dbRecord = persist ? db.records?.[key] : undefined;
 
   if (!forceRefresh && dbRecord && isFreshRecord(dbRecord)) {
     LIVE_LOOKUP_MEMORY_CACHE.set(key, dbRecord);
@@ -1019,7 +1076,7 @@ export async function resolveCompetitorLiveLookup(payload = {}) {
   }
 
   const adapter = adapterForManufacturer(manufacturer);
-  const queue = buildInitialUrls(manufacturer, model, productUrl);
+  const queue = buildInitialUrls(manufacturer, model, productUrl, { allowExternalProductUrl });
   const seen = new Set(queue.map((item) => item.url));
   const attempts = [];
   const pages = [];
@@ -1042,7 +1099,7 @@ export async function resolveCompetitorLiveLookup(payload = {}) {
         // Put exact-SKU discoveries immediately after the current attempt instead
         // of behind the long tail of generic fallback searches, which otherwise
         // exhausts MAX_FETCH_ATTEMPTS before a product page is reached.
-        queue.splice(cursor, 0, { url: discovered, kind: "discovered-product-link" });
+        queue.splice(cursor, 0, { url: discovered, kind: "discovered-product-link", userSourceHost: item.userSourceHost || "" });
       }
     }
   }
@@ -1054,12 +1111,14 @@ export async function resolveCompetitorLiveLookup(payload = {}) {
   };
 
   if (result.ok) {
-    LIVE_LOOKUP_MEMORY_CACHE.set(key, recordForDb);
-    await saveLookupRecord(key, recordForDb);
+    if (persist) {
+      LIVE_LOOKUP_MEMORY_CACHE.set(key, recordForDb);
+      await saveLookupRecord(key, recordForDb);
+    }
     return result;
   }
 
-  await saveLookupRecord(key, {
+  if (persist) await saveLookupRecord(key, {
     ...recordForDb,
     error: "No usable live source could be resolved.",
   });

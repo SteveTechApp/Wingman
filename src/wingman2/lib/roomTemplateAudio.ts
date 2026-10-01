@@ -24,8 +24,10 @@ export function roomAudioBom(id: string, audio: RoomAudioDesign, microphoneCount
   const rows: TemplateBomRow[] = [];
   const add = (key: string, description: string, qty: number, notes: string, sku?: string) => rows.push({
     id: `${id}-audio-${key}`, sku: sku ?? `BY-OTHERS-AUDIO-${key.toUpperCase()}`, description,
-    role: description, qty, type: "Required", status: "included", notes,
-    evidence: "Concept audio schedule; confirm coverage, acoustic performance and final interfaces by survey.",
+    role: description, qty, type: sku ? "Required" : "Validate", status: sku ? "included" : "validate", notes,
+    evidence: sku
+      ? "WyreStorm product selected for this audio role; verify room coverage and final interfaces by survey."
+      : "Scope allowance only. Select and verify a compatible manufacturer and model before quotation; confirm coverage and interfaces by survey.",
     owner: sku ? "wyrestorm" : "integrator", manufacturer: sku ? "WyreStorm" : "", model: sku ?? "",
   });
   audio.zones.forEach((z, i) => {

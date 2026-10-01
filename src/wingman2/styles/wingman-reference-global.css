@@ -738,12 +738,6 @@ html[data-wingman-route="dashboard"] .wm-dashboard-content-grid {
   }
 }
 
-@media (min-width: 981px) {
-  html:not([data-wingman-ui-mode="guided"])[data-wingman-route="dashboard"] .wingman-topbar {
-    display: none !important;
-  }
-}
-
 [data-wingman-guru-duplicate="true"] {
   display: none !important;
   pointer-events: none !important;

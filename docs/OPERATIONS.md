@@ -1,5 +1,9 @@
 # Wingman Operations Runbook
 
+Current default: Wingman uses local file storage and does not require Supabase.
+The database-backed deployment procedures below are retained for later use.
+See [data revision mode](DATA_REVISION_MODE.md) for current defaults and restoring gates.
+
 Operational procedures for running Wingman in production: secrets, key rotation,
 storage, monitoring, incident response, and the outstanding security hardening item (CSRF).
 
@@ -12,11 +16,11 @@ This complements `DEPLOYMENT.md` (how to deploy) and `SUPABASE_SETUP.md` (databa
 All secrets are supplied via environment variables — **never commit a populated `.env`**.
 Use the host's secret manager (the platform's "secrets"/"variables" settings, or a vault).
 
-### Required for production
+### Database-backed deployment configuration (optional)
 
 | Variable | Purpose |
 |----------|---------|
-| `NODE_ENV=production` | Enables secure defaults (secure cookies, storage fail-closed). |
+| `NODE_ENV=production` | Enables secure cookie defaults. Storage fail-closed is explicitly configured. |
 | `SUPABASE_URL` | Supabase project URL (production storage). |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-side Supabase access. **High-privilege — protect closely.** |
 | `WINGMAN_STORAGE_MODE=supabase-tables` | Forces normalized production database storage (not the file store). |

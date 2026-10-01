@@ -17,6 +17,8 @@ import { TemplateConceptOverview } from "../components/TemplateConceptOverview";
 import { NativeTemplateSchematic } from "../components/NativeTemplateSchematic";
 import VisualStudioCanvas from "../components/VisualStudioCanvas";
 import { InDeskConnectivityWizard } from "../components/InDeskConnectivityWizard";
+import { EquipmentLibraryPanel } from "../components/EquipmentLibraryPanel";
+import { canonicalManufacturerName, isWyreStormManufacturer } from "../lib/equipmentLibrary";
 import { buildTemplateVisualDiagram } from "../lib/schematic/templateVisualDiagram";
 import { upsertStoredProject } from "../data/projectStore";
 import { exportBomCsv } from "../lib/proposalExport";
@@ -46,9 +48,16 @@ const groupCaptions: Record<string, string> = {
 };
 
 function cloneRows(rows: TemplateBomRow[]) { return rows.map((row) => ({ ...row })); }
+function normalizeProductIdentity(row: TemplateBomRow): TemplateBomRow {
+  if (!row.manufacturer?.trim()) return row;
+  const manufacturer = canonicalManufacturerName(row.manufacturer);
+  if (isWyreStormManufacturer(manufacturer)) return { ...row, manufacturer, productRelationship: undefined };
+  return { ...row, manufacturer, owner: row.owner === "wyrestorm" ? "integrator" : row.owner, productRelationship: row.productRelationship || "complementary" };
+}
 function groupFor(row: TemplateBomRow) {
   const role = row.role.toLowerCase();
-  const isThirdParty = row.sku.startsWith("BY-OTHERS") || role.includes("third-party") || role.includes("by others");
+  const hasExternalManufacturer = Boolean(row.manufacturer?.trim() && !isWyreStormManufacturer(row.manufacturer));
+  const isThirdParty = hasExternalManufacturer || row.sku.startsWith("BY-OTHERS") || role.includes("third-party") || role.includes("by others");
   if (isThirdParty) return "Third-party scope";
   if (row.type === "Required") return "Required";
   if (row.type === "Validate") return "Requires validation";
@@ -60,7 +69,7 @@ export function TemplateReviewPage() {
   const customTemplates = useCustomRoomTemplates();
   const availableTemplates = useMemo(() => [...customTemplates, ...roomTemplates], [customTemplates]);
   const selectedTemplate = useMemo(() => availableTemplates.find((template) => template.id === templateId), [availableTemplates, templateId]);
-  const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() => selectedTemplate ? cloneRows(selectedTemplate.bom) : []);
+  const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() => selectedTemplate ? cloneRows(selectedTemplate.bom).map(normalizeProductIdentity) : []);
   const [activeTab, setActiveTab] = useState<Tab>("Equipment");
   const [dirty, setDirty] = useState(false);
   const [savedProjectPath, setSavedProjectPath] = useState("");
@@ -125,7 +134,7 @@ export function TemplateReviewPage() {
   }));
   const visibleEquipmentGroup = groupedRows.find((group) => group.name === equipmentGroup)!;
 
-  function mutateRows(updater: (rows: TemplateBomRow[]) => TemplateBomRow[]) { setSelectedRows(updater); setDirty(true); }
+  function mutateRows(updater: (rows: TemplateBomRow[]) => TemplateBomRow[]) { setSelectedRows((current) => updater(current).map(normalizeProductIdentity)); setDirty(true); }
   function updateRowQty(rowId: string, qty: number) {
     const safeQty = Math.max(0, Math.min(99, Number.isFinite(qty) ? qty : 0));
     mutateRows((current) => current.map((row) => row.id !== rowId ? row : {
@@ -135,11 +144,19 @@ export function TemplateReviewPage() {
   function updateRowField(rowId: string, field: string, value: string) {
     mutateRows((current) => current.map((row) => row.id !== rowId ? row : { ...row, [field]: value }));
   }
+  function updateManufacturer(rowId: string, manufacturer: string) {
+    manufacturer = canonicalManufacturerName(manufacturer);
+    const wyreStormProduct = isWyreStormManufacturer(manufacturer);
+    const nextOwner = wyreStormProduct ? "wyrestorm" : detailRow?.owner === "wyrestorm" ? "integrator" : detailRow?.owner || "integrator";
+    const nextRelationship = wyreStormProduct ? undefined : detailRow?.productRelationship || "complementary";
+    mutateRows((current) => current.map((row) => row.id !== rowId ? row : { ...row, manufacturer, owner: nextOwner, productRelationship: nextRelationship }));
+    setDetailRow((previous) => previous && previous.id === rowId ? { ...previous, manufacturer, owner: nextOwner, productRelationship: nextRelationship } : previous);
+  }
 
   function selectSearchResult(rowId: string, result: ProductSearchResult) {
-    updateRowField(rowId, "manufacturer", result.brand || "WyreStorm");
+    updateManufacturer(rowId, result.brand || "WyreStorm");
     updateRowField(rowId, "model", result.sku);
-    setDetailRow((prev) => prev && prev.id === rowId ? { ...prev, manufacturer: result.brand || "WyreStorm", model: result.sku } : prev);
+    setDetailRow((prev) => prev && prev.id === rowId ? { ...prev, model: result.sku } : prev);
     setModelSearchResults([]);
   }
 
@@ -150,7 +167,7 @@ export function TemplateReviewPage() {
       return { ...row, status, qty: status === "excluded" ? 0 : Math.max(1, row.qty) };
     }));
   }
-  function resetEquipment() { setSelectedRows(cloneRows(template.bom)); setDirty(false); setDetailRow(null); }
+  function resetEquipment() { setSelectedRows(cloneRows(template.bom).map(normalizeProductIdentity)); setDirty(false); setDetailRow(null); }
   function exportTemplateBom() { exportBomCsv(buildTemplateProposal(template, selectedRows), bomRows); }
   async function exportTemplateProposal() {
     const proposal = buildTemplateProposal(template, selectedRows);
@@ -291,6 +308,19 @@ export function TemplateReviewPage() {
         ) : null}
 
         {activeTab === "Equipment" ? <div className="wm-equipment-workspace">
+          <details><summary>Use your saved equipment</summary>
+            <EquipmentLibraryPanel locations={[{ id: "room", name: template.name }]} onSelect={(item, _location, quantity) => {
+              const wyreStormProduct = isWyreStormManufacturer(item.manufacturer);
+              mutateRows(rows => [...rows, { id: crypto.randomUUID(), sku: wyreStormProduct ? item.model : `BY-OTHERS:${item.model}`,
+                description: `${item.manufacturer} ${item.model}`, role: item.role, qty: quantity, type: "Validate", status: "validate",
+                manufacturer: item.manufacturer, model: item.model, owner: wyreStormProduct ? "wyrestorm" : "integrator",
+                productRelationship: wyreStormProduct ? undefined : item.relationship,
+                evidence: item.sourceUrl || "Specifications to confirm", notes: ["Selected from saved equipment; suitability to confirm.",
+                  !wyreStormProduct && item.relationship === "competitor" ? "Competitor alternative: assess as a replacement for relevant WyreStorm functionality; do not treat it as WyreStorm equipment." : "Complementary third-party equipment: completes the room design alongside the WyreStorm system.",
+                  item.description, item.connections, item.specifications, item.accessories, item.notes].filter(Boolean).join("; ") }]);
+              setEquipmentGroup(wyreStormProduct ? "Requires validation" : "Third-party scope");
+            }} />
+          </details>
           <div className="wm-template-section-heading"><h2>Equipment</h2>
             <details className="wm-equipment-guide"><summary>Equipment guide</summary><p>Check quantities and use the pencil to edit an item. Required items are included; add options only when needed. Third-party scope completes the system and is supplied by others.</p></details>
           </div>
@@ -309,8 +339,8 @@ export function TemplateReviewPage() {
                 const thirdParty = visibleEquipmentGroup.name === "Third-party scope";
                 return <article className={`wm-equipment-row ${enabled ? "" : "is-excluded"} ${thirdParty ? "is-third-party" : ""}`} key={row.id}>
                   <input type="checkbox" checked={enabled} onChange={() => toggleRow(row.id)} aria-label={`Include ${row.sku}`} />
-                  <div className="wm-equipment-identity"><strong>{thirdParty ? row.description : row.sku}</strong><span>{thirdParty ? row.role : row.description}</span></div>
-                  <span className="wm-equipment-role">{thirdParty ? "By others" : row.role}</span>
+                  <div className="wm-equipment-identity"><strong>{thirdParty ? row.description : row.sku}</strong><span>{thirdParty ? `${row.role}${row.productRelationship === "competitor" ? " · Competitor alternative" : row.productRelationship === "complementary" ? " · Complements the room system" : ""}` : row.description}</span></div>
+                  <span className="wm-equipment-role">{thirdParty ? row.productRelationship === "competitor" ? "Alternative" : "By others" : row.role}</span>
                   <div className="wm-quantity-stepper"><button type="button" onClick={() => updateRowQty(row.id, row.qty - 1)} aria-label={`Reduce ${row.sku} quantity`}><Minus /></button><input type="number" min="0" max="99" value={row.qty} onChange={(event) => updateRowQty(row.id, Number(event.target.value))} aria-label={`Quantity for ${row.sku}`} /><button type="button" onClick={() => updateRowQty(row.id, row.qty + 1)} aria-label={`Increase ${row.sku} quantity`}><Plus /></button></div>
                   <span className={`wm-status ${row.type === "Required" ? "is-confirmed" : row.type === "Validate" ? "is-validate" : enabled ? "is-assumed" : "is-others"}`}>{enabled ? row.type : "Excluded"}</span>
                   <button type="button" className="wm-icon-button" onClick={() => setDetailRow(row)} aria-label={`Edit ${row.sku}`}><Pencil /></button>
@@ -369,8 +399,9 @@ export function TemplateReviewPage() {
         {(detailRow.sku.startsWith("BY-OTHERS") || detailRow.sku.startsWith("CUSTOM")) && (
           <div className="wm-drawer-fields">
             <h4>Replace placeholder</h4>
-            <label>Manufacturer<input type="text" value={detailRow.manufacturer ?? ""} placeholder="e.g. Crestron, Extron" onChange={(event) => { updateRowField(detailRow.id, "manufacturer", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, manufacturer: event.target.value } : prev); }} /></label>
+            <label>Manufacturer<input type="text" value={detailRow.manufacturer ?? ""} placeholder="e.g. WyreStorm, Crestron, Extron" onChange={(event) => updateManufacturer(detailRow.id, event.target.value)} /></label>
             <label className="wm-drawer-model-field">Model<input type="text" value={detailRow.model ?? ""} placeholder="Type SKU or product name to search catalogue..." onChange={(event) => { updateRowField(detailRow.id, "model", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, model: event.target.value } : prev); handleModelSearch(event.target.value, detailRow.id); }} /></label>
+            {detailRow.manufacturer && !isWyreStormManufacturer(detailRow.manufacturer) && <label>Product relationship<select value={detailRow.productRelationship ?? "complementary"} onChange={(event) => { updateRowField(detailRow.id, "productRelationship", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, productRelationship: event.target.value as TemplateBomRow["productRelationship"] } : prev); }}><option value="complementary">Complements the WyreStorm system</option><option value="competitor">Alternative to a WyreStorm product</option></select></label>}
             {modelSearchResults.length > 0 && detailRow.id && (
               <div className="wm-drawer-search-results" role="listbox" aria-label="Product catalogue search results">
                 {modelSearchResults.map((result) => {
@@ -394,10 +425,10 @@ export function TemplateReviewPage() {
                 })}
               </div>
             )}
-            <label>Owner<select value={detailRow.owner ?? "integrator"} onChange={(event) => { updateRowField(detailRow.id, "owner", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, owner: event.target.value } : prev); }}>
+            <label>Owner<select value={isWyreStormManufacturer(detailRow.manufacturer) ? detailRow.owner ?? "wyrestorm" : detailRow.owner === "wyrestorm" ? "integrator" : detailRow.owner ?? "integrator"} onChange={(event) => { updateRowField(detailRow.id, "owner", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, owner: event.target.value } : prev); }}>
               <option value="customer">Customer supply</option>
               <option value="integrator">Integrator supply</option>
-              <option value="wyrestorm">WyreStorm supply</option>
+              <option value="wyrestorm" disabled={!isWyreStormManufacturer(detailRow.manufacturer)}>WyreStorm supply</option>
             </select></label>
             {detailRow.manufacturer && detailRow.model && (
               <div className="wm-drawer-resolved">
@@ -422,9 +453,9 @@ export function TemplateReviewPage() {
           <InDeskConnectivityWizard
             selectedSku={detailRow.model}
             onSelect={(sku) => {
-              updateRowField(detailRow.id, "manufacturer", "WyreStorm");
+              updateManufacturer(detailRow.id, "WyreStorm");
               updateRowField(detailRow.id, "model", sku);
-              setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, manufacturer: "WyreStorm", model: sku } : prev);
+              setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, model: sku } : prev);
             }}
           />
         )}

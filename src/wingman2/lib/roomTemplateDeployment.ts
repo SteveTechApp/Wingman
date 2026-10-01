@@ -121,7 +121,11 @@ function completeScope(d: RoomDeploymentDesign): TemplateBomRow[] {
   const rows: TemplateBomRow[] = [], inputs = total(d.sources), outputs = total(d.outputs);
   const networked = d.transport.startsWith("nhd"), integrated = d.transport === "apollo";
   const add = (key: string, description: string, qty: number, notes: string, owner = "integrator") => {
-    rows.push({ ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes), owner, manufacturer: "", model: "" });
+    rows.push({
+      ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes),
+      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before quotation.",
+      owner, manufacturer: "", model: "",
+    });
   };
   d.sources.forEach(([description, qty, location], i) => add(`source-${i + 1}`, description, qty, `Source position: ${location}. Supply or confirm the existing device, authorised content/software and the nominated HDMI/USB-C interface. Include power, mounting and any required output adapter. Source HDMI tails are at most 5m unless an input extension is explicitly scheduled.`, "customer"));
   d.outputs.forEach(([description, qty, location], i) => add(`display-${i + 1}`, description, qty, `Output position: ${location}. Select an HDMI-equipped model for viewing distance, brightness and operating hours; prove readability from the furthest seat.`));
@@ -177,7 +181,11 @@ function completionScope(d: RoomDeploymentDesign): { rows: TemplateBomRow[]; not
   const completion = d.completion;
   if (!completion) return { rows, notes };
   const add = (key: string, description: string, qty: number, notes: string) => {
-    rows.push({ ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes), owner: "integrator", manufacturer: "", model: "" });
+    rows.push({
+      ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes),
+      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before quotation.",
+      owner: "integrator", manufacturer: "", model: "",
+    });
   };
 
   const hf = completion.humanFactors;

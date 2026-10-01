@@ -1,5 +1,4 @@
 import { installWingmanLocalSessionFallback } from "./wingman2/utils/installWingmanLocalSessionFallback";
-import "@xyflow/react/dist/style.css";
 /* Wingman Design System — layered cascade (tokens → reset → layout → components) */
 import "./wingman2/styles/wingman-layer-tokens.css";
 import "./wingman2/styles/wingman-layer-reset.css";
@@ -14,12 +13,10 @@ import "./wingman2/styles/wingman-reference-theme.css";
 import "./wingman2/styles/wingman-workflow-theme.css";
 import "./wingman2/styles/wingman-polish-navigation.css";
 import "./wingman2/styles/wingman-reference-global.css";
-import "./wingman2/styles/wingman-product-tools-visual-weight.css";
 import "./wingman2/styles/wingman-ui-consistency.css";
 import "./wingman2/styles/wingman-sales-workspace.css";
 import "./wingman2/styles/wingman-voice-capture.css";
-import { installCompareManufacturerAssist } from "./wingman2/lib/compareManufacturerAssist";
-import "./wingman2/lib/guruDetachedPanel";
+import "./wingman2/styles/wingman-room-wizard.css";
 import "./wingman2/lib/microphoneSafety";
 import "./wingman2/app/wingmanDisplayScaleGuard";
 
@@ -32,7 +29,6 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { installCsrfFetch } from "./wingman2/api/csrf";
 import { installRuntimeTelemetry } from "./wingman2/lib/runtimeTelemetry";
 import { installFeatureAnalytics } from "./wingman2/lib/featureAnalytics";
-import "./wingman2/lib/productToolsVisualWeight";
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
 installCsrfFetch();
@@ -51,7 +47,6 @@ if (!rootElement) {
   throw new Error("Root element #root was not found.");
 }
 
-installCompareManufacturerAssist();
 
 installWingmanLocalSessionFallback();
 

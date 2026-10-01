@@ -81,7 +81,7 @@ describe("complete deployment concepts", () => {
     ];
     for (const sku of completionSkus) {
       const scope = complete.bom.find((r) => r.sku === sku);
-      expect(scope, sku).toMatchObject({ type: "Required", owner: "integrator" });
+      expect(scope, sku).toMatchObject({ type: "Validate", status: "validate", owner: "integrator" });
       expect(scope!.qty).toBeGreaterThan(0);
     }
     // Completion rows must not collide with the base manifest ids.
@@ -106,7 +106,7 @@ describe("complete deployment concepts", () => {
       expect(new Set(template.bom.map((row) => row.id)).size).toBe(template.bom.length);
       for (const sku of ["MOUNTS", "ROOM-CONTROL", "POWER-RACK", "SIGNAL-CABLING", "LABOUR", "COMMISSIONING", "DESIGN"]) {
         const scope = template.bom.find((r) => r.sku === `BY-OTHERS-${sku}`);
-        expect(scope, `${template.id}: ${sku}`).toMatchObject({ type: "Required", status: "included", owner: "integrator" });
+        expect(scope, `${template.id}: ${sku}`).toMatchObject({ type: "Validate", status: "validate", owner: "integrator" });
       }
       expect(template.bom.every((row) => Number.isInteger(row.qty) && row.qty > 0)).toBe(true);
     }
@@ -163,11 +163,11 @@ describe("complete deployment concepts", () => {
       expect(proposal.solutionOverview).toContain(audio.experience);
       expect(proposal.technicalFacts.join(" ")).toContain(audio.connectivity);
       for (const specialist of audio.specialistSystems ?? []) {
-        expect(template.bom.some((row) => row.description === specialist.name && row.qty === specialist.qty && row.sku.startsWith("BY-OTHERS") && row.type === "Required"), template.id).toBe(true);
+        expect(template.bom.some((row) => row.description === specialist.name && row.qty === specialist.qty && row.sku.startsWith("BY-OTHERS") && row.type === "Validate" && row.status === "validate" && row.owner === "integrator"), template.id).toBe(true);
         expect(proposal.technicalFacts.join(" ")).toContain(specialist.reason);
       }
       if (audio.acousticTreatment) {
-        expect(template.bom.find((row) => row.sku === "BY-OTHERS-AUDIO-ACOUSTIC-TREATMENT")).toMatchObject({ qty: 1, type: "Required", owner: "integrator" });
+        expect(template.bom.find((row) => row.sku === "BY-OTHERS-AUDIO-ACOUSTIC-TREATMENT")).toMatchObject({ qty: 1, type: "Validate", status: "validate", owner: "integrator" });
         expect(proposal.technicalFacts.join(" ")).toContain(audio.acousticTreatment.reason);
       }
     }

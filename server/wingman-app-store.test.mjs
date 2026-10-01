@@ -463,6 +463,31 @@ describe("wingman-app-store: storage fail-closed behavior", () => {
     expect(await store.getStorageReadiness()).toEqual({ ready: true, mode: "file" });
   });
 
+  it("starts in production with default local storage and no remote credentials", async () => {
+    process.env.NODE_ENV = "production";
+    delete process.env.WINGMAN_STORAGE_MODE;
+    delete process.env.WINGMAN_STORAGE_FAIL_CLOSED;
+    delete process.env.SUPABASE_URL;
+    delete process.env.VITE_SUPABASE_URL;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    delete process.env.SUPABASE_SECRET_KEY;
+
+    const store = await import("./wingman-app-store.mjs");
+    expect(await store.getStorageReadiness()).toEqual({ ready: true, mode: "file" });
+  });
+
+  it("still rejects explicitly required remote storage in production without credentials", async () => {
+    process.env.NODE_ENV = "production";
+    process.env.WINGMAN_STORAGE_MODE = "supabase-tables";
+    process.env.WINGMAN_STORAGE_FAIL_CLOSED = "true";
+    delete process.env.SUPABASE_URL;
+    delete process.env.VITE_SUPABASE_URL;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    delete process.env.SUPABASE_SECRET_KEY;
+
+    await expect(import("./wingman-app-store.mjs")).rejects.toThrow(/credentials are missing/i);
+  });
+
   it("fails closed when supabase-tables mode is configured without credentials", async () => {
     process.env.WINGMAN_STORAGE_MODE = "supabase-tables";
     process.env.WINGMAN_STORAGE_FAIL_CLOSED = "true";

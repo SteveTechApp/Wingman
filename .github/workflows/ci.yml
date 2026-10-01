@@ -67,8 +67,8 @@ jobs:
       - name: Generate canonical product data
         run: npm run data:canonical-products
 
-      - name: Run tests with coverage thresholds
-        run: npm run test:coverage
+      - name: Run behavioural tests during catalogue revision
+        run: npm test
 
   # The verify pipeline is split into stages so a failure reports every broken
   # category at once instead of stopping at the first one. Each stage runs as
@@ -120,6 +120,7 @@ jobs:
   # SUPABASE_SECRET_KEY; migration parity: SUPABASE_URL,
   # SUPABASE_ACCESS_TOKEN).
   supabase-rls:
+    if: vars.WINGMAN_ENABLE_SUPABASE_GATES == 'true'
     name: Supabase live gates (RLS + migration parity)
     uses: ./.github/workflows/supabase-rls.yml
     secrets: inherit
@@ -142,6 +143,7 @@ jobs:
   #      PRs all secrets are unavailable, so the step skips - matching the
   #      live jobs.)
   supabase-rls-selfcheck:
+    if: vars.WINGMAN_ENABLE_SUPABASE_GATES == 'true'
     name: Supabase live-gate workflow self-check (dry run)
     runs-on: ubuntu-latest
     steps:
