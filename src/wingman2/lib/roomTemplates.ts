@@ -20,6 +20,8 @@ export type TemplateBomRow = {
   model?: string;
   /** Who supplies this item: "customer", "integrator", or "wyrestorm". */
   owner?: string;
+  /** Whether an outside-brand product replaces a competing WyreStorm offer or complements the room system. */
+  productRelationship?: "competitor" | "complementary";
 };
 
 export type RoomTemplate = {

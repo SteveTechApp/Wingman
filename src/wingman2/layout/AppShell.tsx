@@ -378,7 +378,6 @@ export function AppShell({ children }: AppShellProps) {
         </nav>
 
         <div className="wingman-sidebar-footer">
-          {!isGuided && <UiModeToggle />}
           <NavLink to={routeCatalogByKey.profile.path} title="Account and workspace settings" aria-label="Settings" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
             Settings
           </NavLink>
@@ -419,7 +418,7 @@ export function AppShell({ children }: AppShellProps) {
             <strong className="wingman-topbar-page-label">{activeLabel}</strong>
           </div>
 
-          {isGuided && <div className="wm-topbar-mode-toggle"><UiModeToggle /></div>}
+          <div className="wm-topbar-mode-toggle"><UiModeToggle /></div>
           <WingmanViewportFitControl />
           {activeRoute?.key !== "dashboard" && (
             <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">

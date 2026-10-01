@@ -8,7 +8,7 @@ export type WingmanUiMode = "guided" | "unguided";
 
 export const UI_MODE_PRESENTATION: Record<WingmanUiMode, { label: string; description: string }> = {
   guided: { label: "Focused view", description: "A streamlined interface for the current workflow." },
-  unguided: { label: "Full workspace", description: "The complete interface with every available workspace tool." },
+  unguided: { label: "Expert view", description: "The complete workspace with detailed discovery questions." },
 };
 
 export type UiModeContextValue = {

@@ -98,6 +98,27 @@ const CORS_ALLOW_ORIGIN = String(process.env.WINGMAN_CORS_ALLOW_ORIGIN || `http:
 const CORS_ALLOW_CREDENTIALS = CORS_ALLOW_ORIGIN !== "*";
 const CORS_REJECT_WILDCARD_IN_PRODUCTION = process.env.NODE_ENV === "production" && CORS_ALLOW_ORIGIN === "*";
 const MAX_JSON_BODY_BYTES = Math.max(1024, Number(process.env.WINGMAN_MAX_JSON_BODY_BYTES || 1_048_576));
+const PRODUCT_PAGE_INSPECTION_LIMIT = 8;
+const PRODUCT_PAGE_INSPECTION_WINDOW_MS = 60_000;
+const productPageInspectionRequests = new Map();
+
+function allowProductPageInspection(req) {
+  const key = String(req.socket?.remoteAddress || "local");
+  const now = Date.now();
+  const active = (productPageInspectionRequests.get(key) || []).filter((time) => now - time < PRODUCT_PAGE_INSPECTION_WINDOW_MS);
+  if (active.length >= PRODUCT_PAGE_INSPECTION_LIMIT) {
+    productPageInspectionRequests.set(key, active);
+    return false;
+  }
+  active.push(now);
+  productPageInspectionRequests.set(key, active);
+  if (productPageInspectionRequests.size > 500) {
+    for (const [address, timestamps] of productPageInspectionRequests) {
+      if (!timestamps.some((time) => now - time < PRODUCT_PAGE_INSPECTION_WINDOW_MS)) productPageInspectionRequests.delete(address);
+    }
+  }
+  return true;
+}
 const RETRY_ATTEMPTS = Number(process.env.LOOKUP_RETRY_ATTEMPTS || 3);
 const FETCH_TIMEOUT_MS = Number(process.env.LOOKUP_TIMEOUT_MS || 4500);
 const LOOKUP_ENABLE_LIVE_ENRICHMENT = !["0", "false", "off", "no"].includes(String(process.env.LOOKUP_ENABLE_LIVE_ENRICHMENT ?? "true").trim().toLowerCase());
@@ -2281,6 +2302,35 @@ const ROUTES = [
     method: "GET",
     path: "/api/wingman/health",
     handler: (req, res, url, { sendJson }) => handleWingmanHealthGet(req, res, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/equipment/inspect-product-page",
+    handler: async (req, res, url, { sendJson, parseJsonBody }) => {
+      try {
+        const body = await parseJsonBody(req);
+        const productUrl = tidy(body.productUrl);
+        if (productUrl.length > 2048) return sendJson(res, 200, { ok: false, error: "Product-page URL is too long." });
+        let parsedUrl;
+        try { parsedUrl = new URL(productUrl); } catch { return sendJson(res, 200, { ok: false, error: "Enter a public manufacturer product-page URL." }); }
+        if (parsedUrl.protocol !== "https:") return sendJson(res, 200, { ok: false, error: "Use a secure https manufacturer product-page URL." });
+        if (!allowProductPageInspection(req)) return sendJson(res, 429, { ok: false, error: "Too many product-page reads. Try again in a minute." });
+
+        // This page-inspection flow reads the supplied public host, blocks private
+        // network targets, bounds redirects and response size, and writes no cache.
+        const result = await resolveCompetitorLiveLookup({ productUrl }, { persist: false, allowExternalProductUrl: true });
+        return sendJson(res, 200, {
+          ok: Boolean(result.ok), manufacturer: result.manufacturer || "", model: result.model || "",
+          title: result.title || "", summary: result.summary || "", keySpecs: result.keySpecs || [],
+          resolvedUrl: result.resolvedUrl || productUrl, fetchedAt: result.fetchedAt || nowIso(),
+          error: result.ok ? undefined : "Wingman could not read product details from that page.",
+        });
+      } catch (error) {
+        return sendJson(res, error?.statusCode === 413 ? 413 : 200, {
+          ok: false, error: error?.statusCode === 413 ? "Product-page request is too large." : "Wingman could not read that page. Try its product page or datasheet URL.",
+        });
+      }
+    },
   },
   {
     method: "POST",

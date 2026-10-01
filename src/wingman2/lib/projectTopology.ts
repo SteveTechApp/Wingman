@@ -72,6 +72,7 @@ export type ProjectDevice = {
   locationId: string;
   manufacturer?: string;
   sku?: string;
+  productRelationship?: "competitor" | "complementary";
   quantity: number;
   thirdParty: boolean;
   status: ProjectDeviceStatus;
@@ -371,6 +372,7 @@ export function normaliseProjectTopology(value: unknown): ProjectTopology {
       locationId: locationIds.has(locationId) ? locationId : fallbackLocation,
       manufacturer: cleanText(row.manufacturer) || undefined,
       sku: cleanText(row.sku) || undefined,
+      productRelationship: row.productRelationship === "competitor" ? "competitor" : row.productRelationship === "complementary" ? "complementary" : undefined,
       quantity: Math.max(1, Math.round(cleanNumber(row.quantity, 1) ?? 1)),
       thirdParty: Boolean(row.thirdParty),
       status: DEVICE_STATUSES.has(statusValue) ? statusValue : "assumed",
@@ -494,7 +496,9 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   // WINGMAN_DISCOVERY_SOURCE_UC_TOPOLOGY_START
   const sourceTypes = list(answers["source-connection"]);
   const sourceWorkflowTypes = list(answers["source-device-workflows"]);
-  const sourceCount = sourceCountFrom(answers.sources);
+  const explicitSourceCount = Number(answers["source-count-exact"]);
+  const sourceCount = Number.isInteger(explicitSourceCount) && explicitSourceCount > 0 && explicitSourceCount <= 256
+    ? explicitSourceCount : sourceCountFrom(answers.sources);
   const sourceDevices: ProjectDevice[] = [];
   const unifiedCommsValues = Array.from(new Set([
     ...list(answers["uc-purpose"]),
@@ -708,7 +712,9 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   }
   // WINGMAN_DISCOVERY_SOURCE_UC_TOPOLOGY_END
 
-  const outputCount = displayCountFrom(answers.displays);
+  const explicitDisplayCount = Number(answers["display-count-exact"]);
+  const outputCount = Number.isInteger(explicitDisplayCount) && explicitDisplayCount > 0 && explicitDisplayCount <= 256
+    ? explicitDisplayCount : displayCountFrom(answers.displays);
   const displayDevices: ProjectDevice[] = [];
   const wallOutput = hasAnswer(answers, "displays", "video-wall-output") || /video wall|led wall/.test(blob);
   if (wallOutput) {

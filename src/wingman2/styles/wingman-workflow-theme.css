@@ -10820,3 +10820,44 @@ html[data-wingman-route="discovery"] .wm-discovery-market-entry__heading h2 { fo
 .wingman-page-help { margin-top:8px; font-size:.8rem; max-width:65ch; }
 .wingman-page-help summary, .wm-feature-journey>summary { cursor:pointer; }
 .wingman-page-help p { margin-top:8px; }
+
+
+/* Guided room discovery and globally visible header mode switch. */
+/* Room discovery: one question, its effect, and the developing room alongside. */
+.wm-room-wizard { padding:clamp(16px,3vw,32px); border:1px solid var(--wm-border); border-radius:16px; background:var(--wm-surface); color:var(--wm-text); }
+.wm-room-wizard-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:20px; }
+.wm-room-wizard-heading h2 { font-size:clamp(22px,2.5vw,32px); line-height:1.2; max-width:760px; }
+.wm-room-wizard-eyebrow { color:var(--wm-accent,#53e0ff); font-size:12px; letter-spacing:.06em; margin-bottom:10px; }
+.wm-room-wizard-layout { display:grid; grid-template-columns:minmax(0,2fr) minmax(220px,1fr); gap:28px; }
+.wm-room-wizard-summary { border-left:1px solid var(--wm-border); padding-left:24px; max-height:75vh; overflow:auto; }
+.wm-room-wizard-options { display:grid; gap:10px; margin:22px 0; }
+.wm-room-wizard-option { padding:16px 18px; border:1px solid var(--wm-border); border-radius:10px; text-align:left; background:rgba(255,255,255,.035); color:var(--wm-text); cursor:pointer; }
+.wm-room-wizard-option[aria-pressed="true"] { border-color:#53e0ff; background:rgba(83,224,255,.12); box-shadow:inset 3px 0 #53e0ff; }
+.wm-room-wizard :is(button,input,select,textarea,summary):focus-visible { outline:2px solid #53e0ff; outline-offset:3px; }
+.wm-room-wizard label,.wm-room-library label { display:grid; gap:8px; margin:12px 0; font-size:14px; }
+.wm-room-wizard :is(input,select,textarea),.wm-room-library :is(input,select,textarea) { width:100%; min-width:0; padding:10px 12px; border-radius:8px; border:1px solid var(--wm-border); background:#122331; color:#edf7fb; }
+.wm-room-wizard textarea,.wm-room-library textarea { min-height:84px; resize:vertical; }
+.wm-room-wizard-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:end; }
+.wm-room-wizard-field-wide { grid-column:1/-1; }
+.wm-room-wizard-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+.wm-room-wizard :is(p,li),.wm-room-library p { line-height:1.6; }
+.wm-room-wizard li { margin:10px 0; }
+.wm-room-wizard details { margin-top:16px; }
+.wm-room-library { margin:26px 0; padding-top:22px; border-top:1px solid var(--wm-border); }
+.wm-room-library-item { border-bottom:1px solid var(--wm-border); padding:18px 0; }
+.wm-room-library .wm-room-wizard-check { display:flex; align-items:center; }
+.wm-room-wizard-check input { width:auto; }
+/* The view switch belongs to the header in both modes and stays above clipping. */
+.wingman-shell .wingman-topbar { display:flex !important; align-items:center; gap:12px; }
+.wingman-shell .wingman-topbar-title { flex:1 1 auto; min-width:0; }
+.wingman-shell .wingman-topbar .wm-topbar-mode-toggle { display:flex; visibility:visible; opacity:1; flex:0 0 auto; position:relative; z-index:2; }
+.wingman-shell .wingman-topbar .wm-topbar-mode-toggle .wm-mode-toggle { display:flex; min-width:0; gap:4px; padding:4px; background:#102638; border:1px solid #35556a; border-radius:10px; }
+.wingman-shell .wingman-topbar .wm-topbar-mode-toggle button { display:block; min-height:36px; padding:8px 14px; border:0; border-radius:7px; background:transparent; color:#d9edf5; font-size:13px; font-weight:650; white-space:nowrap; cursor:pointer; }
+.wingman-shell .wingman-topbar .wm-topbar-mode-toggle button[aria-pressed="true"] { background:#53e0e8; color:#04232c; }
+@media(max-width:760px) {
+  .wm-room-wizard-layout { grid-template-columns:1fr; }
+  .wm-room-wizard-summary { border-left:0; border-top:1px solid var(--wm-border); padding:16px 0 0; max-height:none; }
+  .wm-room-wizard-fields { grid-template-columns:1fr; }
+  .wm-room-wizard-field-wide { grid-column:1; }
+  .wingman-shell .wingman-topbar { flex-wrap:wrap; height:auto; min-height:var(--wm-topbar-height,72px); }
+}

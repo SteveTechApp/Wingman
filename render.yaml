@@ -54,13 +54,9 @@ services:
       - key: WINGMAN_ENABLE_SECURITY_HEADERS
         value: "true"
       - key: WINGMAN_STORAGE_MODE
-        value: supabase-tables
+        value: file
       - key: WINGMAN_STORAGE_FAIL_CLOSED
-        value: "true"
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
+        value: "false"
       - key: LOOKUP_ENABLE_LIVE_ENRICHMENT
         value: "true"
       - key: GEMINI_API_KEY

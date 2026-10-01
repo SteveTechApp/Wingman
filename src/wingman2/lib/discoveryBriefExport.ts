@@ -30,6 +30,10 @@ export type DiscoveryBriefExportMeta = {
 
 /** Human-readable room-model fields, in a stable, curated order. */
 const ROOM_MODEL_ROWS: ReadonlyArray<{ key: string; label: string }> = [
+  { key: "roomOccupancy", label: "People using the room" },
+  { key: "roomDimensions", label: "Room dimensions and seating" },
+  { key: "equipmentSchedule", label: "Equipment selections and locations — confirm suitability" },
+  { key: "completionScope", label: "Room completion checklist — fill in models, quantities and suppliers" },
   { key: "applicationType", label: "Application / customer outcome" },
   { key: "roomType", label: "Room type" },
   { key: "sourceCount", label: "Sources" },
@@ -242,6 +246,12 @@ export function buildDiscoveryBriefHtml(
       <thead><tr><th>Question asked</th><th>Governed answer</th><th>Customer wording</th><th>Status</th><th>Capture confidence</th></tr></thead>
       <tbody>${trailRows}</tbody>
     </table>
+
+    <h2>Room Completion Schedule</h2>
+    <p>Fill in the remaining equipment models, quantities, locations and suppliers. These entries are editable in this document; retain a saved copy of your completed brief.</p>
+    <table><thead><tr><th>Scope to complete</th><th>Manufacturer / model</th><th>Quantity</th><th>Location / supplier</th></tr></thead><tbody>
+      ${(Array.isArray(brief.roomModel?.completionScope) ? brief.roomModel.completionScope : []).map(scope => `<tr><td>${escapeHtml(scope)}</td><td contenteditable="true" aria-label="Manufacturer and model">To select</td><td contenteditable="true" aria-label="Quantity">To confirm</td><td contenteditable="true" aria-label="Location and supplier">To confirm</td></tr>`).join("")}
+    </tbody></table>
 
     <h2>Still to Confirm</h2>
     ${missingHtml}

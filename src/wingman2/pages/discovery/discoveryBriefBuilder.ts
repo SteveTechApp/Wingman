@@ -31,6 +31,7 @@ import { getQuestionStrategy } from "./discoveryQuestions";
 import { getDiscoveryEnvironment, getDiscoveryMarket } from "./discoveryMarketContext";
 import type { DiscoveryMode } from "./discoveryProgressiveDisclosure";
 import type { DiscoveryAnswers, DiscoveryNotes, DiscoveryQuestion, DiscoverySummaryItem } from "./discoveryTypes";
+import { roomEquipmentSchedule, supportingRoomScope } from "./operationalDiscovery";
 
 export type DiscoveryBriefBuilderInput = {
   answers: DiscoveryAnswers;
@@ -267,6 +268,10 @@ export function compileDiscoveryBrief({
       savedAt: new Date().toISOString(),
       topology: activeTopology,
       roomModel: {
+        roomOccupancy: wmDiscoveryAnswerToText(answers["room-occupancy"]),
+        roomDimensions: wmDiscoveryAnswerToText(answers["room-dimensions"]),
+        equipmentSchedule: roomEquipmentSchedule(activeTopology),
+        completionScope: supportingRoomScope(answers, activeTopology),
         market: marketLabel,
         environment: environmentLabel,
         networkPath,

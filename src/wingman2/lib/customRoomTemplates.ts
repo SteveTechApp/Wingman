@@ -34,6 +34,7 @@ export type CustomRoomTemplate = RoomTemplate & {
 };
 
 export type CreateCustomRoomTemplateInput = {
+  bom?: TemplateBomRow[];
   name: string;
   vertical: string;
   application: string;
@@ -284,7 +285,7 @@ export function createBlankCustomRoomTemplate(input: CreateCustomRoomTemplateInp
       input.architecture,
       "Add sources, displays, routing, control, USB, audio and network notes as the room design matures.",
     ),
-    bom: [placeholderBomRow(id)],
+    bom: input.bom?.length ? input.bom : [placeholderBomRow(id)],
     designNotes: [{ label: "Custom starting point", description: "Replace the placeholder row with confirmed products and design notes." }],
     assumptions: input.assumptions?.length ? input.assumptions : ["Room details are user-created and should be validated before proposal output."],
     validationItems: input.validationItems?.length ? input.validationItems : ["Confirm product fit, quantities, dependencies and installation scope."],

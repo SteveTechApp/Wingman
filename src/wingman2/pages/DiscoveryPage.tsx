@@ -23,7 +23,6 @@ import {
   writeDiscoveryTopology,
   type ProjectTopology,
 } from "../lib/projectTopology";
-
 import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
 import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
@@ -31,6 +30,8 @@ import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplat
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
 import { BASIC_MODE_REQUIRED_IDS, DISCOVERY_DEPTH_PRESENTATION, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview } from "./discovery/DiscoveryGuidedInterview";
+import { DiscoveryRoomWizard } from "./discovery/DiscoveryRoomWizard";
+import { refreshRoomLayout, roomTemplateEquipment } from "./discovery/operationalDiscovery";
 import { DiscoveryMarketEntry } from "./discovery/DiscoveryMarketEntry";
 import { DiscoveryMarketContextSummary } from "./discovery/DiscoveryMarketContextSummary";
 import { changeDiscoveryApplication, DISCOVERY_TEMPLATE_MARKET } from "./discovery/discoveryMarketContext";
@@ -54,16 +55,12 @@ import {
   wmDiscoveryNormaliseAnswerList,
   wmDiscoveryToggleMultiSelectAnswer,
 } from "./discovery/discoveryAnswerUtils";
-
 // Live call mode
 // Current model
 // View full model
-
 // wingman:use-call-notes-in-discovery
 const callNotesStorageKey = "wingman:use-call-notes-in-discovery";
-
 const _workflowIntegrationMarkerCompatibility = "Live call mode | Current model | View full model";
-
 const discoveryAuditMarkers = [
   "Discovery trail",
   "Auto advances after selection",
@@ -75,7 +72,6 @@ const discoveryAuditMarkers = [
   "Current model",
   "applicationSpecificDiscoveryQuestionGuidance",
 ] as const;
-
 export function DiscoveryPage() {
   const { isGuided } = useUiMode();
   const [searchParams] = useSearchParams();
@@ -94,7 +90,6 @@ export function DiscoveryPage() {
     Object.keys(draftNotes).length > 0 ||
     ["clientName", "contactName", "siteName"].some((key) => draftField(key).trim()) ||
     Number(discoveryDraft?.brief?.capturedPercent ?? 0) > 0;
-
   const resumeExistingDiscoveryStorageKey = "wingman:resume-existing-discovery";
   const hasExplicitResumeIntent =
     typeof window !== "undefined" &&
@@ -106,7 +101,6 @@ export function DiscoveryPage() {
       window.sessionStorage.getItem("wingman:use-video-wall-in-discovery") === "1" ||
       Boolean(window.sessionStorage.getItem("wingman.roomBuilderSeedProduct"))
     );
-
   const hasIntentionalDiscoveryEntry =
     Boolean(editQuestionId) ||
     searchParams.get("resume") === "project" ||
@@ -114,11 +108,9 @@ export function DiscoveryPage() {
     Boolean(readDiscoveryHandoff()) ||
     hasSessionDiscoveryHandoff ||
     hasExplicitResumeIntent;
-
   const [showExistingDiscoveryWarning, setShowExistingDiscoveryWarning] = useState(
     () => hasExistingDiscoveryContent && !hasIntentionalDiscoveryEntry,
   );
-
   const [existingDiscoveryProject] = useState(() =>
     resolveDiscoverySnapshotProject(discoveryDraft, readProjectStore()),
   );
@@ -137,23 +129,18 @@ export function DiscoveryPage() {
     existingDiscoveryProject?.name || discoveryDraft?.projectName ||
     [draftField("clientName"), draftField("siteName")].map((item) => item.trim()).filter(Boolean).join(" - ") ||
     "Unnamed discovery";
-
   const existingDiscoveryProgress = Math.max(
     0,
     Math.min(100, Number(discoveryDraft?.brief?.capturedPercent ?? 0)),
   );
-
   const existingDiscoverySavedAt = (() => {
     const value =
       discoveryDraft?.savedAt ||
       discoveryDraft?.brief?.savedAt ||
       "";
-
     if (!value) return "";
-
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "";
-
     return date.toLocaleString("en-GB", {
       day: "2-digit",
       month: "short",
@@ -163,7 +150,6 @@ export function DiscoveryPage() {
     });
   })();
   // WINGMAN_EXISTING_DISCOVERY_WARNING_STATE_END
-
   const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
   const [isReviewingAnswers, setIsReviewingAnswers] = useState(false);
   const [answers, setAnswers] = useState<DiscoveryAnswers>(() => (draftState.answers as DiscoveryAnswers | undefined) ?? {});
@@ -212,7 +198,7 @@ export function DiscoveryPage() {
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
-  const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("basic");
+  const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("expert");
   // Pending escalation: set when a non-basic question is edited in basic mode —
   // shows a confirmation dialog before switching to Expert.
   const [pendingEscalation, setPendingEscalation] = useState<string | null>(null);
@@ -245,13 +231,11 @@ export function DiscoveryPage() {
     if (typeof window === "undefined") {
       return;
     }
-
     if (
       window.sessionStorage.getItem(resumeExistingDiscoveryStorageKey) !== "1"
     ) {
       return;
     }
-
     const timeout = window.setTimeout(() => {
       window.sessionStorage.removeItem(resumeExistingDiscoveryStorageKey);
     }, 500);
@@ -302,9 +286,9 @@ export function DiscoveryPage() {
   // the smart-default/escalation logic can never disagree on Basic's questions.
   const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
   const modeQuestions = useMemo(() => {
-    if (progressiveMode === "expert") return discoveryQuestions;
+    if (isGuided || progressiveMode === "expert") return discoveryQuestions;
     return discoveryQuestions.filter((q) => BASIC_IDS.has(q.id));
-  }, [discoveryQuestions, progressiveMode, BASIC_IDS]);
+  }, [discoveryQuestions, progressiveMode, BASIC_IDS, isGuided]);
 
   // Quick-start conflict signals (stranded defaults, application drift).
   const {
@@ -349,7 +333,6 @@ export function DiscoveryPage() {
       budgetInputRef.current?.focus({ preventScroll: true });
     });
   }, [editQuestionId]);
-
 
   const activeStepIdRef = useRef(modeQuestions[0]?.id ?? "");
   
@@ -472,7 +455,6 @@ export function DiscoveryPage() {
 
     const Recognition = getDiscoverySpeechRecognition();
     setMicSupported(Boolean(Recognition));
-
 
     return () => {
       document.documentElement.classList.remove("wm-discovery-page-open");
@@ -604,7 +586,6 @@ export function DiscoveryPage() {
 
     clearDiscoveryHandoff();
   }, []);
-
 
   useEffect(() => {
     const storedCallNotes = window.sessionStorage.getItem(callNotesStorageKey);
@@ -955,7 +936,7 @@ export function DiscoveryPage() {
   function buildDiscoveryBrief(): StoredDiscoveryBrief {
     return compileDiscoveryBrief({
       answers, notes, topology, discoveryQuestions, modeQuestions, basicQuestionIds: BASIC_IDS,
-      progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
+      progressiveMode: isGuided ? "expert" : progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
       sourceTemplateId, sourceTemplateName, clientName, contactName, siteName, budgetLevel,
       timeline, completionPercent, reviewPosition, confirmedSteps, confidenceByStep,
       confidenceScoresByStep, decisionIntegrity,
@@ -1006,7 +987,7 @@ export function DiscoveryPage() {
       discoveryAnswers: answers,
       discoveryNotes: notes,
       topology: templateTopology,
-    });
+      bom: roomTemplateEquipment(templateTopology),  });
 
     saveCustomRoomTemplate(draft, {
       id: templateEditId,
@@ -1174,7 +1155,7 @@ return (
         </details>
       ) : null}
 
-      <DiscoveryAudioDesignSummary answers={answers} notes={notes} />
+      {!isGuided && <DiscoveryAudioDesignSummary answers={answers} notes={notes} />}
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
           <strong>{discoveryMode === "template-edit" ? "Editing custom template" : "Creating a new custom template"}</strong>
@@ -1220,6 +1201,18 @@ return (
             }));
             setEditingMarketContext(false);
           }}
+        />
+      ) : isGuided ? (
+        <DiscoveryRoomWizard
+          questions={modeQuestions} answers={answers} notes={notes} activeIndex={activeIndex}
+          confirmed={confirmedSteps}
+          onActiveIndexChange={setActiveIndex} onAnswersChange={setAnswers} onNotesChange={setNotes}
+          onConfirm={(id, confirmed) => setConfirmedSteps(previous => ({ ...previous, [id]: confirmed }))}
+          topology={topology} onTopologyChange={handleTopologyChange} onSave={saveDiscoveryToProject}
+          onBuildLayout={() => handleTopologyChange(refreshRoomLayout(answers, notes, topology))}
+          onExport={() => { void import("../lib/discoveryBriefExport").then(module => module.exportDiscoveryBriefHtml(buildDiscoveryBrief(), { projectName: existingDiscoveryName })); }}
+          onComplete={() => moveForward("recommendations")} savedMessage={savedMessage}
+          designDirection={String(buildDiscoveryBrief().roomModel?.designDirection || "")}
         />
       ) : interviewActive ? (
         <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} strandedQuickStart={strandedQuickStart} applicationDrift={quickStartDrift} onOpenStrandedStep={openStrandedStep} onRemoveStranded={removeStrandedQuickStart} />

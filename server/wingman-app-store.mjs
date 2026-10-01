@@ -39,7 +39,7 @@ const SESSION_COOKIE_SAMESITE = String(
 ).trim();
 const MIN_PASSWORD_LENGTH = Math.max(8, Number(process.env.WINGMAN_MIN_PASSWORD_LENGTH || 10));
 const STORAGE_FAIL_CLOSED = !["0", "false", "off", "no"].includes(
-  String(process.env.WINGMAN_STORAGE_FAIL_CLOSED ?? (process.env.NODE_ENV === "production" ? "true" : "false"))
+  String(process.env.WINGMAN_STORAGE_FAIL_CLOSED ?? "false")
     .trim()
     .toLowerCase(),
 );
@@ -175,7 +175,7 @@ export function logWingmanEvent(level, event, details = {}) {
   else console.log(line);
 }
 
-const WINGMAN_STORAGE_MODE = String(process.env.WINGMAN_STORAGE_MODE || "auto").trim().toLowerCase();
+const WINGMAN_STORAGE_MODE = String(process.env.WINGMAN_STORAGE_MODE || "file").trim().toLowerCase();
 const SUPABASE_URL = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim();
 const SUPABASE_SERVICE_ROLE_KEY = String(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || "",
@@ -342,25 +342,9 @@ logWingmanEvent("info", "storage.mode.resolved", {
   supabaseConfigured: Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY),
 });
 
-if (process.env.NODE_ENV === "production") {
-  if (WINGMAN_STORAGE_MODE === "auto" || WINGMAN_STORAGE_MODE === "file") {
-    throw new Error(
-      `Refusing to start in production with WINGMAN_STORAGE_MODE="${WINGMAN_STORAGE_MODE}". ` +
-        'Set WINGMAN_STORAGE_MODE to "supabase-tables" (or "supabase") explicitly so storage ' +
-        "cannot silently fall back to local file storage.",
-    );
-  }
-  if (!STORAGE_FAIL_CLOSED) {
-    throw new Error(
-      "Refusing to start in production with WINGMAN_STORAGE_FAIL_CLOSED disabled. " +
-        "Set WINGMAN_STORAGE_FAIL_CLOSED=true so a Supabase outage fails loudly instead of " +
-        "silently falling back to local file storage.",
-    );
-  }
-  // Eagerly resolve the storage mode so a misconfiguration (e.g. missing Supabase
-  // credentials) crashes the process at startup instead of on the first request.
-  configuredStorageMode();
-}
+// Remote persistence is opt-in. Explicit fail-closed configurations still
+// resolve eagerly in production; local storage requires no remote credentials.
+if (process.env.NODE_ENV === "production") configuredStorageMode();
 
 function getSupabaseAdmin() {
   const mode = configuredStorageMode();
