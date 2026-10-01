@@ -191,9 +191,9 @@ assert(
 );
 
 assert(
-  uiMode.includes('label: "Focused view"') && uiMode.includes('label: "Full workspace"') &&
+  uiMode.includes('label: "Focused view"') && uiMode.includes('label: "Expert view"') &&
     uiModeToggle.includes("UI_MODE_PRESENTATION.guided.label") && uiModeToggle.includes("UI_MODE_PRESENTATION.unguided.label"),
-  "Interface scope must use the central Focused view / Full workspace labels.",
+  "Interface scope must use the central Focused view / Expert view labels.",
 );
 
 assert(

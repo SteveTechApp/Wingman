@@ -33,9 +33,9 @@ export function DiscoveryRoomWizard(props: Props) {
     props.onAnswersChange(previous => updateOperationalAnswer(previous, canonical, value));
     props.onConfirm(question.id, false);
   };
-  return <section className="wm-room-wizard" aria-label="Guided room discovery">
+  return <section className="wm-room-wizard" aria-label="Guided room discovery" data-room-wizard-stage={stage}>
     <div className="wm-room-wizard-heading"><div><p className="wm-room-wizard-eyebrow">Build your room · {stage === "questions" ? question.section : stage === "equipment" ? "Complete the equipment" : "Your room brief"}</p>
-      <h2 ref={heading} tabIndex={-1}>{stage === "questions" ? question.question : stage === "equipment" ? "What equipment do you already use?" : "Here is the room we are building"}</h2></div>
+      <h2 ref={heading} tabIndex={-1} data-discovery-question-id={stage === "questions" ? question.id : undefined}>{stage === "questions" ? question.question : stage === "equipment" ? "What equipment do you already use?" : "Here is the room we are building"}</h2></div>
       <span>{stage === "questions" ? `${activeIndex + 1} of ${questions.length}` : stage === "equipment" ? "Equipment" : "Review"}</span></div>
     <div className="wm-room-wizard-layout"><div>
       {stage === "questions" ? <>
