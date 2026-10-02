@@ -182,7 +182,7 @@ async function signInViaSettings(page) {
   await signInButton.click();
 
   await workspaceSection
-    .getByText(new RegExp(`Signed in as ${WORKSPACE_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\.`))
+    .getByText(new RegExp(`Signed in as ${WORKSPACE_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[.]`))
     .waitFor({ state: "visible", timeout: 20_000 });
 
   const cookies = await page.context().cookies(`${UI_BASE}/`);
@@ -197,7 +197,7 @@ async function saveDiscoveryProjectAndExportBrief(page) {
   //    the discovery brief as a real HTML download blob and content-check it.
   await page.getByRole("button", { name: "Save room brief", exact: true }).click();
   await page
-    .getByText(/Discovery saved to your project\./)
+    .getByText(/Discovery saved to your project[.]/)
     .waitFor({ state: "visible", timeout: 10_000 });
   console.log("[e2e-smoke] Discovery project saved via the focused room brief.");
 
@@ -279,6 +279,22 @@ async function walkDiscovery(page) {
     const questionId = await heading.getAttribute("data-discovery-question-id");
     const options = wizard.locator("button.wm-room-wizard-option");
     if (await options.count()) await options.first().click();
+    if (answered === 0) {
+      await expertView.click();
+      const expertBuilder = page.getByRole("region", { name: "Expert room design" });
+      await expertBuilder.waitFor({ state: "visible", timeout: 5_000 });
+      if (!(await expertBuilder.locator(".wm-room-wizard-option[aria-pressed='true']").count())) {
+        throw new Error("[e2e-smoke] Expert view did not retain the answer just entered in Focused Discovery.");
+      }
+      if (!(await expertBuilder.getByRole("navigation", { name: "Room design sections" }).isVisible())) {
+        throw new Error("[e2e-smoke] Expert Discovery did not render its room design sections.");
+      }
+      await focusedView.click();
+      await wizard.waitFor({ state: "visible", timeout: 5_000 });
+      if (!(await wizard.locator("button.wm-room-wizard-option[aria-pressed='true']").count())) {
+        throw new Error("[e2e-smoke] Focused view did not retain the answer entered before switching views.");
+      }
+    }
     const continueButton = wizard.getByRole("button", { name: "Continue", exact: true });
     if (!(await continueButton.isVisible().catch(() => false))) {
       throw new Error(`[e2e-smoke] Focused Discovery question "${questionId}" has no Continue action.`);
@@ -373,7 +389,7 @@ async function runCompare(page) {
     historySection.getByRole("button", { name: "Export CSV", exact: true }).click(),
   ]);
   const csvFileName = csvDownload.suggestedFilename();
-  if (!/^wingman-.+-comparisons\.csv$/.test(csvFileName)) {
+  if (!/^wingman-.+-comparisons[.]csv$/.test(csvFileName)) {
     throw new Error(`[e2e-smoke] Compare history export produced unexpected file name "${csvFileName}".`);
   }
   const csvPath = await csvDownload.path();

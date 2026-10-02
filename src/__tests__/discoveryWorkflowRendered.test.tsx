@@ -124,7 +124,7 @@ describe("Discovery rendered workflow handoff", () => {
     fireEvent.click(screen.getByRole("button", { name: "Continue with this environment" }));
   }
 
-  it("keeps the customer's exact wording in the live summary", async () => {
+  it("keeps the customer's exact wording with the relevant Expert design question", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/discovery"]}>
         <UiModeProvider><DiscoveryPage /></UiModeProvider>
@@ -135,12 +135,13 @@ describe("Discovery rendered workflow handoff", () => {
 
     const customerWording =
       "The lecturer must switch the room without calling support, and the rack stays in the comms room.";
-    fireEvent.change(screen.getByRole("textbox", { name: /customer wording/i }), {
+    const noteBox = screen.getAllByRole("textbox", { name: /design notes and exact details/i })[0];
+    fireEvent.change(noteBox, {
       target: { value: customerWording },
     });
     fireEvent.click(screen.getByRole("button", { name: /classroom \/ teaching space/i }));
 
-    expect(await screen.findByText(new RegExp(customerWording, "i"))).toBeInTheDocument();
+    expect(noteBox).toHaveValue(customerWording);
   });
 
   it("saves structured hospitality evidence and Recommendations handoff data", async () => {
@@ -152,7 +153,7 @@ describe("Discovery rendered workflow handoff", () => {
 
     enterUnclassifiedMarketContext();
 
-    const noteBox = screen.getByRole("textbox", { name: /customer wording/i });
+    const noteBox = screen.getAllByRole("textbox", { name: /design notes and exact details/i })[0];
 
     fireEvent.change(noteBox, {
       target: {

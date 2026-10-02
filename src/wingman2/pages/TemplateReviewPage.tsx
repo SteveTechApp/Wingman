@@ -329,7 +329,7 @@ export function TemplateReviewPage() {
           </nav>
           <div className="wm-equipment-toolbar">
             <div className="wm-equipment-toolbar-cluster"><div className="wm-category-filters" aria-label="Equipment category filters">{categories.slice(0, 6).map((category) => <button type="button" key={category} className={filter === category ? "is-active" : ""} onClick={() => setFilter(category)}>{category}</button>)}</div></div>
-            <div className="wm-equipment-toolbar-cluster"><div><button type="button" onClick={() => addPlaceholder(false)}><Plus /> Add product</button><button type="button" onClick={() => addPlaceholder(true)}><Plus /> Add third-party</button><button type="button" onClick={resetEquipment}><RotateCcw /> Reset</button><button type="button" onClick={exportTemplateBom}><Download /> Export</button><button className="is-primary" type="button" onClick={() => setDirty(false)}><Save /> Save</button></div></div>
+            <div className="wm-equipment-toolbar-cluster"><div><button type="button" onClick={() => addPlaceholder(false)}><Plus /> Add product</button><button type="button" onClick={() => addPlaceholder(true)}><Plus /> Add third-party</button><button type="button" onClick={resetEquipment}><RotateCcw /> Reset</button><button type="button" onClick={exportTemplateBom}><Download /> Export</button><button className="is-primary" type="button" onClick={saveTemplateDesign}><Save /> Save equipment as template</button></div></div>
           </div>
           <div className="wm-equipment-groups">
             <section key={visibleEquipmentGroup.name}>

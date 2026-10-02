@@ -3,6 +3,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { saveRoomTemplateCopy } from "../wingman2/lib/customRoomTemplates";
+import { saveCustomRoomTemplate } from "../wingman2/lib/customRoomTemplates";
+import { createBlankProjectTopology } from "../wingman2/lib/projectTopology";
 import { roomTemplates } from "../wingman2/lib/roomTemplates";
 import { templateMatchesMarketFilter } from "../wingman2/lib/templateMarkets";
 import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
@@ -92,6 +94,48 @@ describe("template workflow wiring", () => {
 
     fireEvent.click(screen.getByRole("button", { name: savedTemplate.name }));
     expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();
+  });
+
+  it("opens a custom template in Discovery with its detailed room design intact", () => {
+    const template = roomTemplates[0];
+    const topology = createBlankProjectTopology();
+    topology.locations.push({ id: "display-wall", name: "Front display wall", type: "display-wall" });
+    topology.devices.push({
+      id: "saved-display", name: "Main display", category: "display", locationId: "display-wall",
+      manufacturer: "Example AV", sku: "EX-100", productRelationship: "complementary", quantity: 1,
+      thirdParty: true, status: "assumed", notes: "Confirm wall bracket compatibility.",
+    });
+    topology.devices.push({
+      id: "saved-source", name: "Room PC", category: "source", locationId: "display-wall",
+      manufacturer: "Example AV", sku: "EX-PC", productRelationship: "complementary", quantity: 1,
+      thirdParty: true, status: "assumed",
+    });
+    topology.connections.push({
+      id: "saved-route", fromDeviceId: "saved-source", toDeviceId: "saved-display", fromPort: "HDMI 1",
+      toPort: "HDMI 1", services: ["video"], transport: "hdmi", lengthMode: "estimated", lengthMetres: 9,
+      status: "assumed", notes: "Reuse existing containment if suitable.",
+    });
+    const saved = saveCustomRoomTemplate({
+      ...template, name: "Room design to edit", topology,
+      discoveryAnswers: { opportunity: "meeting-room" }, discoveryNotes: { opportunity: "Keep room operation simple." },
+    }, { sourceTemplateId: template.id });
+    renderTemplateRoutes();
+
+    const card = screen.getByRole("heading", { name: saved.name }).closest("article");
+    expect(card).not.toBeNull();
+    fireEvent.click(within(card!).getByText("Manage custom template"));
+    fireEvent.click(within(card!).getByRole("button", { name: "Edit" }));
+
+    const handoff = JSON.parse(window.sessionStorage.getItem("wingman:discovery-handoff") || "null");
+    expect(handoff).toMatchObject({
+      mode: "template-edit", templateId: saved.id,
+      answers: { opportunity: "meeting-room" }, notes: { opportunity: "Keep room operation simple." },
+      topology: {
+        locations: [{ id: "display-wall" }], devices: [{ id: "saved-display", sku: "EX-100" }, { id: "saved-source", sku: "EX-PC" }],
+        connections: [{ id: "saved-route", lengthMetres: 9 }],
+      },
+      bom: saved.bom,
+    });
   });
 
   it("keeps an excluded WyreStorm option in its equipment group", () => {

@@ -5,7 +5,7 @@ import { baseDiscoveryQuestions } from "./discoveryQuestions";
 import { createBlankProjectTopology } from "../../lib/projectTopology";
 
 const question = baseDiscoveryQuestions.find(row => row.id === "display-behaviour")!;
-const props = () => ({ questions: [question], answers: {}, notes: {}, activeIndex: 0, onActiveIndexChange: vi.fn(), onAnswersChange: vi.fn(), onNotesChange: vi.fn(), onConfirm: vi.fn(), topology: createBlankProjectTopology(), onTopologyChange: vi.fn(), onSave: vi.fn(), onExport: vi.fn(), onComplete: vi.fn(), savedMessage: "", designDirection: "Local switching under review" });
+const props = () => ({ questions: [question], answers: {}, notes: {}, activeIndex: 0, onActiveIndexChange: vi.fn(), onAnswersChange: vi.fn(), onNotesChange: vi.fn(), onConfirm: vi.fn(), onConfirmCaptureSuggestion: vi.fn(), topology: createBlankProjectTopology(), onTopologyChange: vi.fn(), onSave: vi.fn(), onExport: vi.fn(), onComplete: vi.fn(), savedMessage: "", designDirection: "Local switching under review" });
 describe("focused room wizard", () => {
   it("keeps uncertain answers open and advances without inventing a routing choice", () => {
     const callbacks = props();

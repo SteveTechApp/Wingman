@@ -1,24 +1,18 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { DiscoveryPage } from "@/wingman2/pages/DiscoveryPage";
 import { UiModeProvider } from "@/wingman2/data/uiMode";
 
-// The numbered step-pill trail (clickable "1 Opportunity" / "2 Scale" buttons
-// with is-active/is-captured classes) was removed in the Discovery redesign
-// in favour of strictly linear Previous/Continue stepping with a compact
-// "Step N of M" indicator - there is no jump-to-step UI left to test. This
-// covers the behaviour that does still exist and matters: selecting a
-// single-select answer auto-advances to the next question.
-describe("Discovery step progression", () => {
+describe("Expert room design workspace", () => {
   beforeEach(() => {
     window.localStorage.clear();
     window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
     window.sessionStorage.clear();
   });
 
-  it("auto-advances to the next question after selecting a single-select answer", async () => {
+  it("organizes technical discovery into independently navigable room sections", async () => {
     render(
       <MemoryRouter>
         <UiModeProvider><DiscoveryPage /></UiModeProvider>
@@ -32,16 +26,14 @@ describe("Discovery step progression", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Continue with this environment" }));
 
-    expect(await screen.findByText(/^Step 1 of \d+$/)).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /Meeting room \/ boardroom/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText(/^Step 2 of \d+$/)).toBeInTheDocument();
-    });
+    expect(await screen.findByRole("heading", { name: "Build the room section by section" })).toBeInTheDocument();
+    const sections = screen.getByRole("navigation", { name: "Room design sections" });
+    fireEvent.click(within(sections).getByRole("button", { name: /Sources/ }));
+    expect(screen.getByRole("region", { name: "Expert room design" })).toHaveAttribute("data-expert-section", "sources");
+    expect(screen.getByRole("heading", { name: "Devices, user connections and source positions" })).toBeInTheDocument();
   });
 
-  it("opens the requested Discovery question from a Proposal edit link", async () => {
+  it("opens the requested technical section from a Proposal edit link", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/discovery?edit=signal-standard"]}>
         <UiModeProvider><DiscoveryPage /></UiModeProvider>
@@ -55,9 +47,9 @@ describe("Discovery step progression", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Continue with this environment" }));
 
-    // Expert view opens detailed questions directly.
+    // The edit link opens the matching technical section directly.
     expect(screen.queryByTestId("escalation-confirm")).not.toBeInTheDocument();
-
-    expect(await screen.findByRole("heading", { name: "How sharp does the picture need to be?" })).toBeInTheDocument();
+    expect(await screen.findByRole("region", { name: "Expert room design" })).toHaveAttribute("data-expert-section", "outputs");
+    expect(screen.getByRole("heading", { name: "How sharp does the picture need to be?" })).toBeInTheDocument();
   });
 });

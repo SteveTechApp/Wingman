@@ -5,7 +5,7 @@ import { ArrowRight, Building2, Check, FilePenLine, X } from "lucide-react";
 import { TemplateLibraryCard } from "../components/TemplateLibraryCard";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { deleteCustomRoomTemplate, duplicateCustomRoomTemplate, useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
-import { writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
+import { createCustomTemplateEditHandoff, writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
 import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
 import { templateImageFor } from "../lib/templateImages";
@@ -38,7 +38,7 @@ export function TemplatesPage() {
   }
   function startCustom() { writeDiscoveryHandoff({ mode: "template-create" }); navigate(routeCatalogByKey.discovery.path); }
   function manageCustom(template: CustomRoomTemplate) {
-    writeDiscoveryHandoff({ mode: "template-edit", templateId: template.id, templateName: template.name, templateMarket: template.vertical, sourceTemplateId: template.sourceTemplateId, sourceTemplateName: template.name, answers: template.discoveryAnswers, notes: template.discoveryNotes });
+    writeDiscoveryHandoff(createCustomTemplateEditHandoff(template));
     navigate(routeCatalogByKey.discovery.path);
   }
   function update<K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) { setPersonalisation((current) => current ? { ...current, [key]: value } : current); setSaved(false); }
