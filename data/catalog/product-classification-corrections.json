@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Reviewed, per-SKU overrides applied to the generated product taxonomy at index-generation time. This exists as an escape hatch for when a classification is provably wrong and a full vendor re-scrape is not immediately possible. It is deliberately EMPTY: an entry here is a second source of truth that silently outranks the generated data, so anything added must be removed again once the generator produces the right answer. Prefer fixing the rule in tools/enrich-wyrestorm-product-intelligence.mjs and running `npm run data:refresh-vendor`. tools/check-classification-consistency.mjs guards the class of error these were originally added for.",
+  "history": [
+    {
+      "date": "2026-07-23",
+      "note": "Nine SKUs (NHD-124-TX, NHD-400-TX, NHD-400-TX-IW, NHD-500-IW-TX, NHD-500-IW-TX-V2, NHD-150-RX, NHD-250-RX, SW-130-TX, RX-500) were corrected here because the enrichment step inferred a product's identity from datasheet prose that names the other end of the link. The rule was fixed to use the SKU suffix and product name, and a live vendor re-scrape now produces the correct classification for all nine directly, so the overrides were removed rather than left to outrank the generated data."
+    }
+  ],
+  "corrections": []
+}

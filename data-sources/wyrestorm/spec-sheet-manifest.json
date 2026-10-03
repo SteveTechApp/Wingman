@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-16",
+  "baseDir": "public/product-docs",
+  "note": "Each entry declares which SKU a spec-bearing official PDF belongs to. The ingest tool verifies the SKU identity inside the PDF text (fingerprint), drafts a review-required governed profile for any current, specifiable SKU that lacks one, and fails closed on incoherent extractions. documentType is one of spec-sheet | training-brochure | one-pager; competitor-analysis, marketing-faq and family-reference PDFs are deliberately not listed.",
+  "entries": [
+    {
+      "sku": "HALO-80",
+      "pdf": "Audio/Product Training Brochure/HALO 80 Product Training Brochure_V1.0_2025.9.25.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/halo-80/",
+      "documentType": "training-brochure",
+      "category": "Audio",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "COM-MIC-HUB",
+      "pdf": "Audio/Product Training Brochure/Product Brochure -COM-MIC-HUB_V1.1_2025.3.31.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/com-mic-hub/",
+      "documentType": "training-brochure",
+      "category": "Audio",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "SYN-CTL-HUB",
+      "pdf": "Control System/Product Training Brochure/SYN-CTL-HUB Product Training Brochure_V1.0_2025.3.5.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub/",
+      "documentType": "training-brochure",
+      "category": "Control System",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "MX-0812-SCL",
+      "pdf": "Matrix Solution/One Pager/MX-0812-SCL.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/mx-0812-scl/",
+      "documentType": "one-pager",
+      "category": "Matrix",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "MX-0812-SCL",
+      "pdf": "Matrix Solution/Product Training Brochure/Product\u00a0Brochure\u00a0-MX-0812-SCL\u00a0V1.0_2025.3.13.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/mx-0812-scl/",
+      "documentType": "training-brochure",
+      "category": "Matrix",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "NHD-128-NDI-TRX",
+      "pdf": "NetworkHD AV over IP/NHD 100s/Product Training Brochure/NHD-128-NDI-TRX Product Training Brochure_V1.0_2025.9.9.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/nhd-128-ndi-trx/",
+      "documentType": "training-brochure",
+      "category": "AV-over-IP",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "NHD-600-E-TX",
+      "pdf": "NetworkHD AV over IP/NHD 600s/Product Training Brochure/NHD-600-E Product Training Brochure_V1.0_2026.4.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
+      "documentType": "training-brochure",
+      "category": "AV-over-IP",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "NHD-600-E-RX",
+      "pdf": "NetworkHD AV over IP/NHD 600s/Product Training Brochure/NHD-600-E Product Training Brochure_V1.0_2026.4.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-rx/",
+      "documentType": "training-brochure",
+      "category": "AV-over-IP",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "CAM-0402-BRG",
+      "pdf": "Presentation and Conferencing/Product Training Brochure/CAM-0402-BRG Product Training Brochure_V1.0_2025.8.8.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-brg/",
+      "documentType": "training-brochure",
+      "category": "Camera / capture",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "CAM-0402-NDI-BRG",
+      "pdf": "Presentation and Conferencing/One Pager/CAM-0402-NDI-BRG & CAM-0402-BRG.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-ndi-brg/",
+      "documentType": "one-pager",
+      "category": "Camera / capture",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "CAM-420-PTZ",
+      "pdf": "Presentation and Conferencing/One Pager/CAM-420-PTZ.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/cam-420-ptz/",
+      "documentType": "one-pager",
+      "category": "Camera / capture",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "CAM-420-PTZ",
+      "pdf": "Presentation and Conferencing/Product Training Brochure/CAM-420-PTZ Product Traning Brochure_V1.0_2025.12.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/cam-420-ptz/",
+      "documentType": "training-brochure",
+      "category": "Camera / capture",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "MX-0403-H3-MST",
+      "pdf": "Presentation and Conferencing/Product Training Brochure/MX-0403-H3-MST Product Training Brochure_V1.0_2025.10.28.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/mx-0403-h3-mst/",
+      "documentType": "training-brochure",
+      "category": "Presentation switching",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "SW-620-TX-W",
+      "pdf": "Presentation and Conferencing/Product Training Brochure/SW-620-TX-W Product Training Brochure V1.0_2025.12.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
+      "documentType": "training-brochure",
+      "category": "Presentation switching",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "SW-640L-TX-W",
+      "pdf": "Presentation and Conferencing/Product Training Brochure/SW-640L-TX-W Product Training Brochure V1.0_2024.11.25.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/sw-640l-tx-w/",
+      "documentType": "training-brochure",
+      "category": "Presentation switching",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "SW-640L-TX-W",
+      "pdf": "Presentation and Conferencing/One Pager/SW-640L-TX-W with DG2.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/sw-640l-tx-w/",
+      "documentType": "one-pager",
+      "category": "Presentation switching",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "NHD-USB-TRX",
+      "pdf": "USB Extender/Product Training Brochure/NHD-USB-TRX Product Training Brochure V1.0 2024.12.13.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/nhd-usb-trx/",
+      "documentType": "training-brochure",
+      "category": "USB",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "APO-VX20-UC-V2",
+      "pdf": "Unified Communication/Product Training Brochure/APO-VX20-UC v2 Product Training Brochure_V1.0_2026.4.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-uc-v2/",
+      "documentType": "training-brochure",
+      "category": "Unified Communications",
+      "reviewedOn": "2026-08-16"
+    },
+    {
+      "sku": "SW-0206-VW",
+      "pdf": "Video Processor/Product Training Brochure/Product Brochure--SW-0206-VW_V1.1_2025.3.31.pdf",
+      "sourceUrl": "https://www.wyrestorm.com/product/sw-0206-vw/",
+      "documentType": "training-brochure",
+      "category": "Video Wall",
+      "reviewedOn": "2026-08-16"
+    }
+  ]
+}

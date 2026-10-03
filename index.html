@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wingman</title>
+    <script>
+      (function () {
+        try {
+          var storageKey = "wingman-theme-mode";
+          var legacyStorageKey = "wingman-theme";
+          var storedMode =
+            window.localStorage.getItem(storageKey) ||
+            window.localStorage.getItem(legacyStorageKey) ||
+            "system";
+          var prefersDark =
+            typeof window.matchMedia === "function" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var resolvedTheme =
+            storedMode === "dark" || (storedMode !== "light" && prefersDark) ? "dark" : "light";
+
+          document.documentElement.setAttribute("data-theme", resolvedTheme);
+          document.documentElement.setAttribute("data-theme-mode", storedMode);
+          document.documentElement.style.colorScheme = resolvedTheme;
+        } catch {
+          document.documentElement.setAttribute("data-theme", "light");
+          document.documentElement.setAttribute("data-theme-mode", "system");
+          document.documentElement.style.colorScheme = "light";
+        }
+      })();
+    </script>
+    <meta name="description" content="WyreStorm Wingman helps sales and pre-sales teams scope AV projects, compare products, build discovery briefs, and prepare proposal-ready system recommendations." />
+    <link rel="icon" type="image/svg+xml" href="/wingman-logo.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "updatedAt": "2026-09-01T10:39:50.566Z",
+  "tolerancePct": 5,
+  "rule": "Current totals are the baseline. Nonzero metrics may vary by up to tolerancePct; zero baselines remain strict.",
+  "totals": {
+    "hex": 2007,
+    "rgb": 2336,
+    "inlineStyle": 49,
+    "arbitraryTailwind": 273,
+    "pageSections": 2881,
+    "legacyPills": 0
+  }
+}

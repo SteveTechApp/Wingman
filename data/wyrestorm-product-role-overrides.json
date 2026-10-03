@@ -1,0 +1,383 @@
+{
+  "version": 1,
+  "purpose": "Manual product role corrections used to stop broad text matching from misclassifying WyreStorm products.",
+  "technologyTypes": [
+    "AVoIP",
+    "AVoIP Infrastructure",
+    "Audio / Control",
+    "Camera / Capture",
+    "Cable",
+    "Dongle",
+    "Extender / HDBaseT",
+    "Matrix",
+    "Presentation / Room Core",
+    "Room Connectivity",
+    "Splitter / Distribution",
+    "Switching",
+    "Unified Comms",
+    "Video Wall / Multiview",
+    "Accessory"
+  ],
+  "exactSkuOverrides": {
+    "AMP-2120-DNT": {
+      "technologyType": "Audio / Control",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "AMP-260-DNT": {
+      "technologyType": "Audio / Control",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "APO-100-UC": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "APO-200-UC": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "APO-VX20-UC-V2": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "APO-COM-MIC": {
+      "technologyType": "Unified Comms",
+      "productRole": "accessory",
+      "catalogVisibility": "request-only"
+    },
+    "APO-SKY-MIC": {
+      "technologyType": "Unified Comms",
+      "productRole": "accessory",
+      "catalogVisibility": "request-only"
+    },
+    "APO-MIC-EXT": {
+      "technologyType": "Unified Comms",
+      "productRole": "accessory",
+      "catalogVisibility": "request-only"
+    },
+    "COM-MIC-HUB": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "APO-DG2": {
+      "technologyType": "Unified Comms",
+      "productRole": "workflow-endpoint",
+      "catalogVisibility": "conditional-default"
+    },
+    "APO-DG2-PRO": {
+      "technologyType": "Unified Comms",
+      "productRole": "workflow-endpoint",
+      "catalogVisibility": "conditional-default"
+    },
+    "APO-DG-HDMI": {
+      "technologyType": "Unified Comms",
+      "productRole": "workflow-endpoint",
+      "catalogVisibility": "conditional-default"
+    },
+    "APO-DG-DOCK": {
+      "technologyType": "Unified Comms",
+      "productRole": "accessory",
+      "catalogVisibility": "request-only"
+    },
+    "CAM-0402-BRG": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "CAM-0402-NDI-BRG": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "CAM-200-PTZ": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "CAM-210-PTZ": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "CAM-210-NDI-PTZ": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "CAM-420-PTZ": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "FOCUS-100": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "FOCUS-180A": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "FOCUS-200": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "FOCUS-200-PRO": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "FOCUS-210": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "HALO-30": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "HALO-60": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "HALO-80": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "HALO-90": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "HALO-VX10-V1": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "HALO-WFA-130": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "HALO-WFA-290": {
+      "technologyType": "Camera / Capture",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "IDB-200-XX": {
+      "technologyType": "Room Connectivity",
+      "productRole": "accessory",
+      "catalogVisibility": "conditional-default"
+    },
+    "IDB-400-MS": {
+      "technologyType": "Room Connectivity",
+      "productRole": "accessory",
+      "catalogVisibility": "conditional-default"
+    },
+    "IDB-400-MS-C": {
+      "technologyType": "Room Connectivity",
+      "productRole": "accessory",
+      "catalogVisibility": "conditional-default"
+    },
+    "IDB-400-NA": {
+      "technologyType": "Room Connectivity",
+      "productRole": "accessory",
+      "catalogVisibility": "conditional-default"
+    },
+    "NHD-000-CTL": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "NHD-CTL-PRO": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "NHD-CTL-PRO-T": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "NHD-CTL-PRO-V2": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "NHD-TOUCH": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "NHD-TOUCHPLUS": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "NHD-0401-MV": {
+      "technologyType": "Video Wall / Multiview",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "NHD-150-RX": {
+      "technologyType": "Video Wall / Multiview",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "NHD-250-RX": {
+      "technologyType": "Video Wall / Multiview",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "NHD-128-NDI-TRX": {
+      "technologyType": "Camera / Capture",
+      "productRole": "endpoint-hardware",
+      "catalogVisibility": "default"
+    },
+    "M4250-GSM4212PX-10P": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "M4250-GSM4230PX-26P": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "M4250-GSM4248PX-40P": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "M4300-XSM4316PA-16X": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "M4300-XSM4324CS-24X": {
+      "technologyType": "AVoIP Infrastructure",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "MX-0402-MST": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "MX-0403-H3-MST": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-0204-VW": {
+      "technologyType": "Video Wall / Multiview",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-0206-VW": {
+      "technologyType": "Video Wall / Multiview",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-120-TX3": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-120-TX3-UK": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-120-TX3-US": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "SW-130-TX-UK": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-130-TX-US": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "SW-220-TX-W": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-540-TX-W": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "SW-620-TX-W": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-640L-TX-W": {
+      "technologyType": "Unified Comms",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "SW-740-TX": {
+      "technologyType": "Presentation / Room Core",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "request-only"
+    },
+    "SYN-CTL-HUB": {
+      "technologyType": "Audio / Control",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "SYN-KEY10": {
+      "technologyType": "Audio / Control",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "SYN-TOUCH10": {
+      "technologyType": "Audio / Control",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "SYN-TOUCH10-V2": {
+      "technologyType": "Audio / Control",
+      "productRole": "system-controller",
+      "catalogVisibility": "conditional-default"
+    },
+    "MX-0404-HDMI": {
+      "technologyType": "Matrix",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "MXV-0808-H2A-KIT": {
+      "technologyType": "Matrix",
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "USB-HUB4": {
+      "technologyType": "Unified Comms",
+      "productRole": "accessory",
+      "catalogVisibility": "request-only"
+    },
+    "WYRERING": {
+      "technologyType": "Accessory",
+      "productRole": "accessory",
+      "catalogVisibility": "request-only"
+    }
+  }
+}

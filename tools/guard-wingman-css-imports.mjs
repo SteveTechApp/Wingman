@@ -1,0 +1,219 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const root = process.cwd();
+const srcRoot = path.join(root, "src");
+const mainEntry = path.join(root, "src", "main.tsx");
+const styleStack = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
+const referenceTheme = path.join(root, "src", "wingman2", "styles", "wingman-reference-theme.css");
+const workflowTheme = path.join(root, "src", "wingman2", "styles", "wingman-workflow-theme.css");
+const polishNavigation = path.join(
+  root,
+  "src",
+  "wingman2",
+  "styles",
+  "wingman-polish-navigation.css",
+);
+const referenceGlobalFinish = path.join(
+  root,
+  "src",
+  "wingman2",
+  "styles",
+  "wingman-reference-global.css",
+);
+const productToolsVisualWeight = path.join(
+  root,
+  "src",
+  "wingman2",
+  "styles",
+  "wingman-product-tools-visual-weight.css",
+);
+const allowed = new Set([
+  "src/main.tsx",
+  "src/wingman2/pages/VideowallBuilderPage.tsx",
+]);
+
+const expectedMainCssImports = [
+  "@xyflow/react/dist/style.css",
+  // Layered design system (2026-08-25) — tokens → reset → layout → components
+  "./wingman2/styles/wingman-layer-tokens.css",
+  "./wingman2/styles/wingman-layer-reset.css",
+  "./wingman2/styles/wingman-layer-layout.css",
+  "./wingman2/styles/wingman-layer-components.css",
+  // Route/page-specific overrides
+  "./wingman2/styles/wingman-route-overrides.css",
+  // Companion theme files
+  "./wingman2/styles/wingman-reference-theme.css",
+  "./wingman2/styles/wingman-workflow-theme.css",
+  "./wingman2/styles/wingman-polish-navigation.css",
+  "./wingman2/styles/wingman-reference-global.css",
+  "./wingman2/styles/wingman-product-tools-visual-weight.css",
+  "./wingman2/styles/wingman-ui-consistency.css",
+  "./wingman2/styles/wingman-sales-workspace.css",
+  "./wingman2/styles/wingman-voice-capture.css",
+];
+const retiredPageStyleFiles = [
+  "wingman-visual-polish.css",
+  "wingman-approved-reference-alignment.css",
+  "wingman-navigation-hub-cascade-lock.css",
+  "discovery-output-preview.css",
+  "product-pitch-safe-layout.css",
+  "product-pitch-source-safe.css",
+  "wingman-dashboard-command-layout.css",
+  "wingman-dashboard-unified-theme.css",
+  "wingman-finder-render-stability.css",
+  "wingman-finder-route-layout.css",
+  "wingman-fixed-guidance-retirement.css",
+  "wingman-floating-guidance.css",
+  "wingman-futuristic-global-system.css",
+  "wingman-guru-overlay-retirement.css",
+  "wingman-page-polish-contract.css",
+  "wingman-polish-cascade-lock.css",
+  "wingman-topbar-control-layout.css",
+];
+
+function walk(dir) {
+  if (!fs.existsSync(dir)) return [];
+
+  const out = [];
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (["node_modules", "dist", ".git", "archive", "backups"].includes(entry.name)) continue;
+
+    const full = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      out.push(...walk(full));
+      continue;
+    }
+
+    if ([".ts", ".tsx"].includes(path.extname(entry.name))) {
+      out.push(full);
+    }
+  }
+
+  return out;
+}
+
+function rel(file) {
+  return path.relative(root, file).replaceAll("\\", "/");
+}
+
+const offenders = [];
+
+for (const file of walk(srcRoot)) {
+  const relative = rel(file);
+  const raw = fs.readFileSync(file, "utf8");
+  const matches = [...raw.matchAll(/import\s+["']([^"']+\.css)["'];/g)];
+
+  if (matches.length === 0) continue;
+  if (allowed.has(relative)) continue;
+
+  for (const match of matches) {
+    offenders.push({
+      file: relative,
+      import: match[1],
+    });
+  }
+}
+
+if (offenders.length > 0) {
+  console.error("Blocked: CSS imports are only allowed through the app-wide styles in src/main.tsx");
+  console.error("");
+
+  for (const offender of offenders) {
+    console.error(`${offender.file} imports ${offender.import}`);
+  }
+
+  process.exit(1);
+}
+
+const mainRaw = fs.readFileSync(mainEntry, "utf8");
+const mainCssImports = [...mainRaw.matchAll(/import\s+["']([^"']+\.css)["'];/g)].map((match) => match[1]);
+
+if (
+  mainCssImports.length !== expectedMainCssImports.length
+  || mainCssImports.some((cssImport, index) => cssImport !== expectedMainCssImports[index])
+) {
+  console.error("Blocked: src/main.tsx must import only the governed Wingman global styles in the required order.");
+  console.error(`Found: ${mainCssImports.length ? mainCssImports.join(", ") : "none"}`);
+  process.exit(1);
+}
+
+const videoWallPage = path.join(root, "src", "wingman2", "pages", "VideowallBuilderPage.tsx");
+const videoWallRaw = fs.readFileSync(videoWallPage, "utf8");
+const videoWallCssImports = [...videoWallRaw.matchAll(/import\s+["']([^"']+\.css)["'];/g)].map((match) => match[1]);
+
+if (videoWallCssImports.length !== 1 || videoWallCssImports[0] !== "../styles/wingman-videowall.css") {
+  console.error("Blocked: the lazy video-wall route must import only its governed route stylesheet.");
+  process.exit(1);
+}
+
+if (/vw2-hero[^"']*\bwm-ui-(?:section|hero)\b/.test(videoWallRaw)) {
+  console.error("Blocked: the video-wall hero must not reuse global hero/section classes; they inflate the route workspace.");
+  process.exit(1);
+}
+
+if (/vw2-hero-actions[^"']*\bwm-ui-hero\b/.test(videoWallRaw)) {
+  console.error("Blocked: video-wall actions must not be marked as a global hero.");
+  process.exit(1);
+}
+
+if (videoWallRaw.includes("<small>{option.note}</small>") || !videoWallRaw.includes('role="tooltip" className="vw2-chip-tooltip"')) {
+  console.error("Blocked: video-wall option help must remain in accessible hover/focus tooltips, not visible button copy.");
+  process.exit(1);
+}
+
+const videoWallStyle = fs.readFileSync(path.join(root, "src", "wingman2", "styles", "wingman-videowall.css"), "utf8");
+for (const selector of [
+  'html[data-wingman-route="videowall"] .vw2-hero',
+  'html[data-wingman-route="videowall"] .vw2-hero-actions',
+  'html[data-wingman-route="videowall"] .wingman-page-host .vw2-page .vw2-path-card',
+]) {
+  if (!videoWallStyle.includes(selector)) {
+    console.error(`Blocked: missing route-scoped video-wall cascade lock: ${selector}`);
+    process.exit(1);
+  }
+}
+
+for (const globalStyle of [
+  styleStack,
+  referenceTheme,
+  workflowTheme,
+  polishNavigation,
+  referenceGlobalFinish,
+  productToolsVisualWeight,
+]) {
+  if (!fs.existsSync(globalStyle)) {
+    console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
+    process.exit(1);
+  }
+
+  const raw = fs.readFileSync(globalStyle, "utf8");
+
+  if (/@import\s+["']/.test(raw)) {
+    console.error(`Blocked: ${rel(globalStyle)} must not import route or patch stylesheets.`);
+    console.error("Keep Wingman styling governed through the app-wide layers.");
+    process.exit(1);
+  }
+}
+
+const retiredFilesStillPresent = retiredPageStyleFiles
+  .map((fileName) => path.join(root, "src", "wingman2", "styles", fileName))
+  .filter((filePath) => fs.existsSync(filePath))
+  .map(rel);
+
+if (retiredFilesStillPresent.length > 0) {
+  console.error("Blocked: retired page-level style patch files are present.");
+  console.error("");
+
+  for (const retiredFile of retiredFilesStillPresent) {
+    console.error(retiredFile);
+  }
+
+  process.exit(1);
+}
+
+console.log(
+  "CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation, global reference finish and product-tools visual-weight layers only.",
+);

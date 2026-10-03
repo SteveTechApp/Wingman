@@ -1,0 +1,19 @@
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import type { WingmanRouteKey } from "../app/routeCatalog";
+import { featureJourneyActions, type FeatureJourneyContext } from "../features/navigation";
+
+export function FeatureJourneyStrip({ routeKey, context = {} }: { routeKey: WingmanRouteKey; context?: FeatureJourneyContext }) {
+  const actions = featureJourneyActions(routeKey, context);
+  if (!actions.length) return null;
+
+  return <details className="wm-feature-journey" aria-label="Useful next tools">
+    <summary>More tools</summary>
+    <div className="wm-feature-journey__actions">
+      {actions.map((action) => {
+        const isCallCoach = action.routeKey === "callCoach";
+        return <Link key={`${action.routeKey}-${action.label}`} to={action.to} className={`wm-feature-journey__action${isCallCoach ? " wm-feature-journey__action--compact" : ""}`}><span><strong>{action.label}</strong></span><ArrowRight aria-hidden="true" /></Link>;
+      })}
+    </div>
+  </details>;
+}

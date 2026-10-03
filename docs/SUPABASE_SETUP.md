@@ -1,0 +1,499 @@
+# Supabase Setup Guide for Wingman
+
+This guide explains how to configure Supabase for production use with the Wingman application.
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Creating a Supabase Project](#creating-a-supabase-project)
+3. [Running the Database Migration](#running-the-database-migration)
+4. [Environment Variable Configuration](#environment-variable-configuration)
+5. [Storage Modes](#storage-modes)
+6. [Development Rules for Supabase Access](#development-rules-for-supabase-access)
+7. [Switching from File Storage to Supabase](#switching-from-file-storage-to-supabase)
+8. [Verifying the Setup](#verifying-the-setup)
+9. [Nightly Supabase Gates Runbook](#nightly-supabase-gates-runbook)
+10. [Troubleshooting](#troubleshooting)
+
+## Overview
+
+Wingman supports three storage modes:
+
+| Mode | Description | Best For |
+|------|-------------|----------|
+| `file` | Local JSON file storage | Development, single-server deployments |
+| `supabase` | Single-row JSON in Supabase | Simple cloud deployments with low traffic |
+| `supabase-tables` | Normalized relational tables | Production deployments with multiple users |
+
+For production, we recommend **`supabase-tables`** mode for better performance, data integrity, and querying capabilities.
+
+## Creating a Supabase Project
+
+### Step 1: Create an Account
+
+1. Go to [https://supabase.com](https://supabase.com)
+2. Click "Start your project" and sign up with GitHub, GitLab, or email
+3. Complete the account verification process
+
+### Step 2: Create a New Project
+
+1. From the [Supabase Dashboard](https://supabase.com/dashboard), click "New Project"
+2. Fill in the project details:
+   - **Name**: Choose a descriptive name (e.g., "wingman-production")
+   - **Database Password**: Generate a strong password and save it securely
+   - **Region**: Select the region closest to your users
+   - **Pricing Plan**: Free tier works for development; consider Pro for production
+3. Click "Create new project" and wait for provisioning (usually 1-2 minutes)
+
+### Step 3: Get Your API Credentials
+
+1. In your project dashboard, go to **Project Settings** (gear icon)
+2. Navigate to **API** in the left sidebar
+3. Copy these values:
+   - **Project URL**: Your `SUPABASE_URL` value
+   - **service_role key**: Your `SUPABASE_SERVICE_ROLE_KEY` value
+
+> **Security Warning**: The `service_role` key bypasses Row Level Security and has full database access. Never expose it in client-side code or commit it to version control.
+
+## Running the Database Migration
+
+### Option A: Using the Supabase SQL Editor (Recommended)
+
+1. In your Supabase project dashboard, go to **SQL Editor**
+2. Click "New query"
+3. Copy the contents of `server/migrations/001_initial_schema.sql`
+4. Paste into the SQL editor
+5. Click "Run" to execute the migration
+6. If this database was provisioned before the `TO service_role` policy fix landed, also run
+   `server/migrations/002_scope_service_role_policies.sql` (safe/no-op on a fresh database).
+
+### Option B: Using the Supabase CLI
+
+```bash
+# Install the Supabase CLI if you haven't already
+npm install -g supabase
+
+# Login to Supabase
+supabase login
+
+# Link your project (replace with your project reference ID)
+supabase link --project-ref your-project-ref
+
+# Run the migration
+supabase db push
+```
+
+Existing databases should also apply `server/migrations/002_scope_service_role_policies.sql`
+(see note above) — a fresh database created from the current `001_initial_schema.sql` already
+has this fix.
+
+### Option C: Using psql Directly
+
+```bash
+# Get your connection string from Supabase Dashboard > Settings > Database
+psql "postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres" \
+  -f server/migrations/001_initial_schema.sql
+```
+
+## Environment Variable Configuration
+
+Add these environment variables to your `.env` file:
+
+### Required Variables
+
+```bash
+# Supabase connection
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJ...your-service-role-key
+
+# Enable table storage mode
+WINGMAN_STORAGE_MODE=supabase-tables
+SUPABASE_WINGMAN_TABLES_ENABLED=true
+
+# Fail if Supabase is unavailable (recommended for production)
+WINGMAN_STORAGE_FAIL_CLOSED=true
+```
+
+### Table name overrides — single-row mode only
+
+`SUPABASE_WINGMAN_STATE_TABLE` (single-row `supabase` mode) may be renamed
+freely, since every statement addresses the configured table directly.
+
+In **`supabase-tables` mode the `SUPABASE_WINGMAN_*_TABLE` overrides must NOT be
+set to anything other than the migration-created defaults.** The storage write
+path commits the whole snapshot through migration 009's
+`wingman_snapshot_commit`, whose DDL hard-codes the default `wingman_*` tables
+(and 011's `wingman_ledger_commit` hard-codes
+`competitor_match_decisions`). Reads honouring a custom table name while the
+atomic commit writes the default one would make every change disappear on the
+next read, so the server **rejects non-default overrides in `supabase-tables`
+mode with a clear configuration error** (logged as
+`storage.table_overrides.unsupported`). To use custom table names, provision
+the migration functions for those tables - do not rely on the env override.
+
+## Storage Modes
+
+### File Storage (`file`)
+
+- Data stored in `data/runtime/wingman-app-db.json`
+- No external dependencies
+- Not suitable for multi-server deployments
+- Data lost if server storage is ephemeral
+
+### Single-Row Supabase (`supabase`)
+
+- Entire application state stored as JSON in one row
+- Simple setup (only needs `wingman_app_state` table)
+- Limited scalability (entire state loaded/saved on each operation)
+- Suitable for small teams (< 10 users)
+
+### Normalized Tables (`supabase-tables`)
+
+- Proper relational schema with foreign keys
+- Better query performance
+- Supports larger datasets
+- Enables future features like direct SQL queries, backups, and analytics
+- Recommended for production
+
+## Development Rules for Supabase Access
+
+These rules apply to any new code that reads or writes Supabase data. They are
+enforced by CI gates, so violations fail the build rather than surfacing later
+as data problems.
+
+### Invariant: never read a table without a bound
+
+PostgREST caps every list response at 1000 rows by default. A `select` without
+a range, limit, or filter reads at most the first 1000 rows and returns them
+as if they were the whole table — there is no error and no warning. Code that
+reconciles or mirrors a table over such a read will eventually delete or
+overwrite rows it never saw.
+
+Rules for table reads:
+
+- Use `readAllSupabaseRows` from `server/supabase-pagination.mjs` for any read
+  that must observe the full table. It pages through the range headers and
+  merges results, so table size never truncates the snapshot.
+- Direct `client.from(...).select(...)` calls are only acceptable when they
+  carry a bound: `.range()`, `.limit()`, a head-only count
+  (`{ head: true }`), `.single()`/`.maybeSingle()`, or a filter predicate
+  (`.eq/.in/.lt/...`). An `.order()` alone is not a bound — sorting a whole
+  table is still reading a whole table.
+- Raw PostgREST `fetch` calls against `/rest/v1/<table>` need `limit=` or a
+  filter predicate in the URL for read methods. Write methods (POST, PATCH,
+  PUT, DELETE) are exempt.
+
+Enforcement: `tools/check-postgrest-reads.mjs` scans `server/` and `tools/`
+and runs as part of `npm run verify:build`. It fails with file, line, and the
+remediation above when a new unbounded read appears. A deliberately unbounded
+probe (for example, the RLS leak check, where reading everything is the test)
+needs an entry in the checker's file-scoped allowlist with a written
+justification.
+
+### Decision: the product-intelligence store is file-db-only
+
+`server/product-intelligence-store.mjs` reads and writes the gitignored
+product-intelligence database through `node:fs` and has no Supabase client.
+This is deliberate: the store is a derived cache over generated catalog data,
+rebuilt from `data-sources/`, so table mode would add a second copy of the
+same data without a recovery story for divergence.
+
+`server/product-intelligence-store.file-db-pin.test.mjs` keeps it that way:
+it fails if the store gains a Supabase client, a table-mode read, or an RPC
+call, and if an unpaged table read is ever introduced. If table mode becomes
+necessary later, route reads through `readAllSupabaseRows` and update the pin
+test deliberately as part of the design — not by deleting the pin to make a
+build pass.
+## Switching from File Storage to Supabase
+
+If you have existing data in file storage that you want to migrate:
+
+### Step 1: Export Current Data
+
+The current state is stored in `data/runtime/wingman-app-db.json`. Make a backup:
+
+```bash
+cp data/runtime/wingman-app-db.json data/runtime/wingman-app-db.backup.json
+```
+
+### Step 2: Run the Migration
+
+Execute the SQL migration as described above.
+
+### Step 3: Configure Environment Variables
+
+```bash
+# Update your .env file
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+WINGMAN_STORAGE_MODE=supabase-tables
+SUPABASE_WINGMAN_TABLES_ENABLED=true
+```
+
+### Step 4: Start with Fresh Tables
+
+When you restart the server with the new configuration, it will:
+1. Connect to Supabase
+2. Read from the (empty) tables
+3. New signups and data will be stored in Supabase
+
+### Step 5: Manual Data Migration (Optional)
+
+If you need to migrate existing users and projects, you can:
+
+1. Use the Supabase Dashboard to manually insert records
+2. Write a migration script to read the JSON and insert via the Supabase client
+3. Contact support for assistance with large data migrations
+
+Example migration script outline:
+
+```javascript
+import { createClient } from "@supabase/supabase-js";
+import fs from "fs/promises";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+const data = JSON.parse(await fs.readFile("data/runtime/wingman-app-db.json", "utf8"));
+
+// Insert users
+for (const user of data.users) {
+  await supabase.from("wingman_users").insert({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    company: user.company,
+    role: user.role,
+    password_salt: user.passwordSalt,
+    password_hash: user.passwordHash,
+    status: user.status || "active",
+    created_at: user.createdAt,
+    last_login_at: user.lastLoginAt,
+  });
+}
+
+// Continue for workspaces, members, projects, etc.
+```
+
+## Verifying the Setup
+
+After configuration, verify the setup is working:
+
+### 1. Check the Health Endpoint
+
+```bash
+curl http://localhost:8787/api/wingman/health
+```
+
+Expected response:
+
+```json
+{
+  "ok": true,
+  "service": "wingman-deployment-api",
+  "storageModeConfigured": "supabase-tables",
+  "storageModeActive": "supabase-tables",
+  "users": 0,
+  "workspaces": 0,
+  "projects": 0
+}
+```
+
+### 2. Test Sign Up
+
+Create a new account through the UI or API to verify write operations work:
+
+```bash
+curl -X POST http://localhost:8787/api/wingman/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test User",
+    "company": "Test Company",
+    "email": "test@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+### 3. Verify Data in Supabase
+
+1. Go to your Supabase Dashboard
+2. Navigate to **Table Editor**
+3. Check that records appear in `wingman_users` and `wingman_workspaces`
+
+## Nightly Supabase Gates Runbook
+
+### What runs and when
+
+`.github/workflows/supabase-rls-nightly.yml` runs **every night at 03:30 UTC**
+(and can be triggered manually via **Run workflow** → `workflow_dispatch`). It
+calls the reusable workflow `.github/workflows/supabase-rls.yml`, which is the
+SAME gate CI runs on every push to `main` and every PR — the nightly schedule
+catches drift that no push has exercised. The reusable workflow runs TWO jobs:
+
+- **`supabase-rls`** — RLS sentinel probe (`tools/verify-supabase-rls.mjs`):
+  seeds marker rows, proves the anon key cannot read them (details below).
+- **`migration-live`** — live migration-parity check
+  (`tools/check-migration-live-state.mjs`): compares the migration FILES
+  against the LIVE schema via the Management API (read-only SELECTs, no DB
+  password), so schema drift beyond RLS — a dropped index, a missing
+  function, a table whose migration never got applied — fails the same gate
+  that blocks a push.
+
+The wiring of that gate is itself guarded: the `supabase-rls-selfcheck`
+dry-run job in `ci.yml` statically verifies that the workflow still wires every
+secret each job needs (gate region + env mapping, scoped per job) and that
+both callers pass `secrets: inherit`, and fails loudly when `SUPABASE_SECRET_KEY`
+or `SUPABASE_ACCESS_TOKEN` is missing while the URL/anon keys are configured.
+
+### What it seeds (and cleans up)
+
+In sentinel mode the job seeds **one marker row per Wingman table** (the nine
+below) through the service role, then proves the public anon key cannot read
+it. That is the only thing that makes empty tables testable: with rows
+provably present, an empty anon result means protection rather than
+indistinguishability.
+
+| Table | Marker row |
+|-------|------------|
+| `wingman_app_state` | `id = rls-sentinel-appstate-<tag>` with `payload` |
+| `wingman_users` | `id = rls-sentinel-user-<tag>` |
+| `wingman_workspaces` | `id = rls-sentinel-ws-<tag>` |
+| `wingman_workspace_members` | `id = rls-sentinel-member-<tag>` |
+| `wingman_workspace_invitations` | `id = rls-sentinel-invite-<tag>` |
+| `wingman_sessions` | `id = rls-sentinel-session-<tag>` |
+| `wingman_projects` | `id = rls-sentinel-project-<tag>` |
+| `wingman_audit_events` | `id = rls-sentinel-audit-<tag>` |
+| `wingman_telemetry_events` | `id = rls-sentinel-telemetry-<tag>` |
+
+(`<tag>` is a per-run `timestamp-hex` stamp; FK-target rows are inserted
+first.) For every table the anon key is asked for the marker row by id AND —
+strict mode — an unfiltered one-row read, so a permissive-but-narrow policy
+(e.g. `workspace_id = auth.uid()`) that leaks real rows while hiding the
+sentinel is still reported **EXPOSED**. After the probe every marker row is
+deleted dependents-first, residue is re-checked, and the job exits non-zero if
+any probe row remains. Seeding writes only these transient rows — it never
+modifies or deletes real data.
+
+### Secret setup
+
+The repository must have these **Actions secrets** (Settings → Secrets and
+variables → Actions):
+
+| Secret | Purpose | Used by |
+|--------|---------|---------|
+| `SUPABASE_URL` | Project URL, e.g. `https://<ref>.supabase.co` | both jobs |
+| `SUPABASE_ANON_KEY` | Public anon/publishable key (the key the probe checks) | RLS job |
+| `SUPABASE_SECRET_KEY` | Service-role secret key (seeds and cleans the markers) | RLS job |
+| `SUPABASE_ACCESS_TOKEN` | Management API personal access token (`sbp_...`), authenticates the read-only schema comparison | migration job |
+
+Both legacy `eyJ...` JWTs and the newer `sb_publishable_...` / `sb_secret_...`
+formats are accepted for the URL keys — only `SUPABASE_SECRET_KEY` may ever
+write, and the RLS tool only ever uses it to seed/clean markers.
+`SUPABASE_ACCESS_TOKEN` is the token from
+supabase.com/dashboard → Account → Access Tokens (or the one `supabase login`
+writes to `~/.supabase/access-token`); the migration job sends only read-only
+SELECTs through it. Behavior when a secret is missing:
+
+- **None available** (e.g. a fork PR, where GitHub never exposes secrets): the
+  job prints the reason and **skips**.
+- **URL + anon key present, secret key missing**: the RLS job **fails** with a
+  clear message — read-only mode cannot prove protection on empty tables, so a
+  partial setup must not silently weaken the gate.
+- **URL present, access token missing**: the migration job **fails** with a
+  clear message — without the token the parity gate cannot run at all.
+
+### How to triage a red nightly run
+
+1. **Reproduce locally** against the same project (staging/sandbox only — the
+   run writes transient probe rows):
+
+   ```bash
+   export SUPABASE_URL=https://<ref>.supabase.co
+   export SUPABASE_ANON_KEY=<publishable-or-anon-key>
+   export SUPABASE_SECRET_KEY=<service-role-secret-key>
+   node tools/verify-supabase-rls.mjs
+   ```
+
+2. **Read the verdict lines** (`EXPOSED` / `protected` / `unclear` / `missing`
+   / `unknown`) and act per row:
+
+   | Verdict | Meaning | Fix |
+   |---------|---------|-----|
+   | `EXPOSED` | The anon key read a row the service role wrote (or any real row via the unfiltered probe) | RLS is off or a policy is too permissive on that table. In the dashboard check **Table Editor → RLS toggle** and **Policies**; re-apply `server/migrations/001_initial_schema.sql`, `002_scope_service_role_policies.sql`, and `006_rls_fix_service_role.sql`, or fix the offending policy. Re-run the check. |
+   | `unclear` (inconclusive) | Sentinel mode: the seed insert failed, so protection could not be proven | Read the `[seed] <table> FAILED:` line above the verdicts; typically a schema mismatch (missing column/FK) — apply the migrations the table needs and re-run. |
+   | `missing` | Table not found | Migrations were not applied to this project, or the URL points at the wrong project. Run the migration files, then re-run. |
+   | `unknown` | Request failed (network, paused project, bad key) | Confirm the project is not paused and the URL/keys are correct, then re-run. |
+   | Probe-row residue | Cleanup could not delete a marker | The tool prints the residue ids; delete them manually with the service role (`DELETE ... WHERE id = 'rls-sentinel-...'`) — dependents first — then re-run. |
+
+3. **Check migration parity while you are in there**: a red RLS run is often
+   the first sign that migrations drifted. `npm run check:migration-parity`
+   proves the migration FILES agree; `node tools/check-migration-live-state.mjs`
+   proves the DATABASE agrees with them — and since both now run on the same
+   nightly schedule, a red `migration-live` job is triaged separately:
+
+   | `migration-live` failure | Meaning | Fix |
+   |--------------------------|---------|-----|
+   | `[DRIFT] <migration>` lines | The live schema no longer matches what the migration files describe (e.g. migrations 007–010 dropped/applied by hand, or applied to the wrong project) | Apply the migration files the drift names (SQL editor or `tools/apply-wingman-migrations.mjs`), or if the DATABASE is the intended source of truth, update the files — then re-run. |
+   | Exit 2 (config error) | `SUPABASE_URL` or `SUPABASE_ACCESS_TOKEN` missing | Reproduce locally with both env vars set, or add the token to repository secrets. |
+   | `Management API HTTP ...` | Token rejected or network issue | Confirm the token's project scope and that the project is not paused. |
+
+4. **Re-run to confirm**: after any fix, re-run `verify-supabase-rls.mjs`
+   locally until it prints `No table returned data to the anon key` and all
+   rows show `protected`, then let the next nightly confirm on its own.
+
+## Troubleshooting
+
+### "Supabase storage mode is configured but Supabase credentials are missing"
+
+Ensure both `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set correctly in your environment.
+
+### "Supabase tables storage read failed"
+
+1. Verify the migration was run successfully
+2. Check that table names match the environment variables
+3. Verify the service role key has access to the tables
+
+### Storage Falling Back to File Mode
+
+If `storageWarning` appears in the health response:
+
+1. Check the `storageWarning` message for details
+2. Verify Supabase credentials are correct
+3. Ensure the project is not paused (free tier projects pause after inactivity)
+4. Set `WINGMAN_STORAGE_FAIL_CLOSED=true` to prevent silent fallback
+
+### Row Level Security Errors
+
+The migration creates permissive RLS policies for service role access. If you encounter RLS errors:
+
+1. Verify you're using the `service_role` key (not the `anon` key)
+2. Check that RLS policies were created correctly
+3. Run the RLS policy creation statements from the migration again if needed
+
+### Connection Timeouts
+
+1. Check that your server can reach Supabase (firewall rules)
+2. Verify the region is appropriate for your deployment location
+3. Consider connection pooling for high-traffic deployments
+
+## Database Schema Reference
+
+The following tables are created by the migration:
+
+| Table | Description |
+|-------|-------------|
+| `wingman_app_state` | Single-row state storage (for `supabase` mode) |
+| `wingman_users` | User accounts with hashed passwords |
+| `wingman_workspaces` | Multi-tenant workspaces |
+| `wingman_workspace_members` | User-workspace memberships with roles |
+| `wingman_workspace_invitations` | Pending and accepted invitations |
+| `wingman_sessions` | Active authentication sessions |
+| `wingman_projects` | Sales projects with full payload |
+| `wingman_audit_events` | Security and activity audit log |
+| `wingman_telemetry_events` | Runtime error and event tracking |
+
+For the complete schema definition, see `server/migrations/001_initial_schema.sql`. Databases
+provisioned before the RLS policy role-scoping fix should also apply
+`server/migrations/002_scope_service_role_policies.sql`.

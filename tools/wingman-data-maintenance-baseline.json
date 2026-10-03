@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "minimumCompareReady": 138,
+  "establishedAt": "2026-08-17T14:52:12.1347187Z",
+  "source": "data/wingman-canonical-product-store.json",
+  "purpose": "Regression floor for governed compare-ready product coverage. Do not lower automatically."
+}

@@ -1,0 +1,35 @@
+# Backend server Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy server package files
+COPY server/package.json server/package-lock.json ./
+
+# Install dependencies
+RUN npm ci --omit=dev
+
+# Copy server source files
+COPY server/ ./
+
+# Copy data directory for product intelligence
+COPY data/ /app/data/
+
+# Compile canonical catalogues from tracked source files. This keeps clean-checkout
+# and CI-built backend images independent of ignored local generated files.
+COPY data-sources/ /app/data-sources/
+COPY tools/build-product-data-sources.mjs tools/product-update-utils.mjs /app/tools/
+COPY tools/lib/routed-io-evidence.mjs /app/tools/lib/routed-io-evidence.mjs
+COPY tools/lib/atomic-json-writer.mjs /app/tools/lib/atomic-json-writer.mjs
+RUN node tools/build-product-data-sources.mjs
+
+# Expose the server port
+EXPOSE 8787
+
+# Set default environment variables
+ENV HOST=0.0.0.0
+ENV PORT=8787
+ENV NODE_ENV=production
+
+# Run the server
+CMD ["node", "competitor-lookup-server.mjs"]

@@ -1,0 +1,572 @@
+{
+  "generatedAt": "2026-06-12T07:48:04.192Z",
+  "repairedAccessoryCount": 20,
+  "audit": [
+    {
+      "sku": "APO-VX20-MNT",
+      "accessoryType": "Mounting accessory",
+      "before": {
+        "family": "USB / UC",
+        "category": "USB / UC",
+        "description": "Display Mount for use with the Apollo VX20 video bar. Use the mount with your existing display bracket to mount the video bar above or below the display.",
+        "fit": "Use where the discussion includes USB peripherals, camera/audio devices, BYOD/BYOM or conferencing workflows. Confirm host location, USB path, peripheral compatibility and room size.",
+        "openingLine": "APO-VX20-MNT should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "Is the room BYOD, BYOM, room PC, Teams appliance or mixed use?",
+          "Which camera, microphone, speakerphone or USB device needs to connect?",
+          "Where is the host laptop or room PC located?",
+          "Is USB extension or switching required?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "Dante support helps integrate the product into networked audio systems."
+        ]
+      },
+      "after": {
+        "family": "Mounting accessory",
+        "description": "Display Mount for use with the Apollo VX20 video bar. Use the mount with your existing display bracket to mount the video bar above or below the display."
+      }
+    },
+    {
+      "sku": "CAB-HAOC-10",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The WyreStorm HAOC is a next generation HDMI cable designed for the next generation of 4K and 5K HDR content. It offers a unique feature set in both delivering uncompressed HDMI content at up to 24Gbps and compatibility with emerging HDMI.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-10 should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "CAB-HAOC-10 is an HDMI cable/accessory used to complete a compatible AV connection. Confirm length, signal format and device compatibility before specifying it."
+      }
+    },
+    {
+      "sku": "CAB-HAOC-15",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The WyreStorm HAOC is a next generation HDMI cable designed for the next generation of 4K and 5K HDR content. It offers a unique feature set in both delivering uncompressed HDMI content at up to 24Gbps and compatibility with emerging HDMI.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-15 should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "CAB-HAOC-15 is an HDMI cable/accessory used to complete a compatible AV connection. Confirm length, signal format and device compatibility before specifying it."
+      }
+    },
+    {
+      "sku": "CAB-HAOC-15-C",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The WyreStorm HAOC is a 4K and 5K HDR-ready HDMI cable that is designed for the next generation of 4K and 5K HDR content.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-15-C should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "The WyreStorm HAOC is a 4K and 5K HDR-ready HDMI cable that is designed for the next generation of 4K and 5K HDR content."
+      }
+    },
+    {
+      "sku": "CAB-HAOC-15-P",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The WyreStorm HAOC is an HDMI cable that has been designed for 4K and 5K HDR content.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-15-P should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "The WyreStorm HAOC is an HDMI cable that has been designed for 4K and 5K HDR content."
+      }
+    },
+    {
+      "sku": "CAB-HAOC-20",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The WyreStorm HAOC is a high-quality HDMI cable that is designed for watching 4K and 5K HDR content.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-20 should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "The WyreStorm HAOC is a high-quality HDMI cable that is designed for watching 4K and 5K HDR content."
+      }
+    },
+    {
+      "sku": "CAB-HAOC-20-C",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The WyreStorm HAOC is a 4K and 5K HDR HDMI cable designed for the future generation of 4K and 5K HDR entertainment.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-20-C should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "The WyreStorm HAOC is a 4K and 5K HDR HDMI cable designed for the future generation of 4K and 5K HDR entertainment."
+      }
+    },
+    {
+      "sku": "CAB-HAOC-30-C",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The WyreStorm HAOC is a next generation HDMI cable designed for the next generation of 4K and 5K HDR content. It offers a unique feature set in both delivering uncompressed HDMI content at up to 24Gbps and compatibility with emerging HDMI.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-30-C should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "CAB-HAOC-30-C is an HDMI cable/accessory used to complete a compatible AV connection. Confirm length, signal format and device compatibility before specifying it."
+      }
+    },
+    {
+      "sku": "CAB-HAOC-FRL-10",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "10m/32ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-FRL-10 should be discussed around hdr support matters where the display chain is expected to handle premium video content. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "10m/32ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified"
+      }
+    },
+    {
+      "sku": "CAB-HAOC-FRL-15",
+      "accessoryType": "HDMI cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-HAOC-FRL-15 should be discussed around hdr support matters where the display chain is expected to handle premium video content. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDMI connectivity keeps the system aligned with common AV source and display devices.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "HDMI cable / accessory",
+        "description": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified"
+      }
+    },
+    {
+      "sku": "CAB-UAOC-15",
+      "accessoryType": "Cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The CAB-UAOC-15 is an active optical cable supporting extension of USB signals ranging from 2.0 up to the 3.2 Gen 2 spec, meaning this cable can support 10Gbps at a distance of 15 meters (50ft). The CAB-UAOC-15 is great for connection of.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-UAOC-15 should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "Dante support helps integrate the product into networked audio systems.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "Cable / accessory",
+        "description": "CAB-UAOC-15 is an accessory item. Confirm the paired product, installation position and compatibility before adding it to a customer opportunity."
+      }
+    },
+    {
+      "sku": "CAB-UAOC-15-C",
+      "accessoryType": "Cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The CAB-UAOC-15 is an active optical cable supporting extension of USB signals ranging from 2.0 up to the 3.2 Gen 2 spec, meaning this cable can support 10Gbps at a distance of 15 meters (50ft). The CAB-UAOC-15 is great for connection of.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-UAOC-15-C should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "Dante support helps integrate the product into networked audio systems.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "Cable / accessory",
+        "description": "CAB-UAOC-15-C is an accessory item. Confirm the paired product, installation position and compatibility before adding it to a customer opportunity."
+      }
+    },
+    {
+      "sku": "CAB-USBC-15",
+      "accessoryType": "USB-C cable / accessory",
+      "before": {
+        "family": "Cable / accessory",
+        "category": "Cable / accessory",
+        "description": "The CAB-USBC-15 is an active optical USB-C to C cable capable of transmitting A/V and data 15m/49ft. USB data is rated up to Superspeed 5Gbps for fast file transfers or connecting USB 3.0 equipped devices such as conference cameras.",
+        "fit": "Use when the accessory is required to complete a known product workflow. Confirm the paired device, connector type, signal format, length and installation position.",
+        "openingLine": "CAB-USBC-15 should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "Dante support helps integrate the product into networked audio systems.",
+          "AES67 support can help with standards-based network audio interoperability.",
+          "Accessories should be attached to a confirmed product workflow rather than sold in isolation."
+        ]
+      },
+      "after": {
+        "family": "USB-C cable / accessory",
+        "description": "CAB-USBC-15 is a USB-C cable/accessory used to support a compatible product connection. Treat it as part of the product workflow, not as the main system design."
+      }
+    },
+    {
+      "sku": "EXP-CAB-USBC-1M",
+      "accessoryType": "USB-C cable / accessory",
+      "before": {
+        "family": "USB / UC",
+        "category": "USB / UC",
+        "description": "1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD",
+        "fit": "Use where the customer requirement fits usb / uc applications. Confirm the practical system dependencies before moving it into a project or room design.",
+        "openingLine": "EXP-CAB-USBC-1M should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "USB-C support helps with modern laptop connection workflows."
+        ]
+      },
+      "after": {
+        "family": "USB-C cable / accessory",
+        "description": "1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD"
+      }
+    },
+    {
+      "sku": "EXP-CAB-USBC-2M",
+      "accessoryType": "USB-C cable / accessory",
+      "before": {
+        "family": "USB / UC",
+        "category": "USB / UC",
+        "description": "2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD",
+        "fit": "Use where the customer requirement fits usb / uc applications. Confirm the practical system dependencies before moving it into a project or room design.",
+        "openingLine": "EXP-CAB-USBC-2M should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "USB-C support helps with modern laptop connection workflows."
+        ]
+      },
+      "after": {
+        "family": "USB-C cable / accessory",
+        "description": "2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD"
+      }
+    },
+    {
+      "sku": "EXP-CAB-USBC-5M",
+      "accessoryType": "USB-C cable / accessory",
+      "before": {
+        "family": "Audio",
+        "category": "Audio",
+        "description": "This USB-C to C cable is a great choice for transmitting data and audio/video. It can handle speeds up to 20Gbps, making it perfect for quickly transferring files or connecting devices that use USB 3.0.",
+        "fit": "Use where the customer requirement fits audio applications. Confirm the practical system dependencies before moving it into a project or room design.",
+        "openingLine": "EXP-CAB-USBC-5M should be discussed around supports 4k60 where the full signal chain allows it. Validate the customer workflow before adding it to a project.",
+        "questions": [
+          "What customer problem is this product being used to solve?",
+          "What existing source, display, audio, USB or control equipment must it work with?",
+          "Is this a standalone product discussion or part of a room/project design?",
+          "What must be confirmed before it is quoted?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "Dante support helps integrate the product into networked audio systems."
+        ]
+      },
+      "after": {
+        "family": "USB-C cable / accessory",
+        "description": "EXP-CAB-USBC-5M is a USB-C cable/accessory used to support a compatible product connection. Treat it as part of the product workflow, not as the main system design."
+      }
+    },
+    {
+      "sku": "NHD-000-RACK4",
+      "accessoryType": "Mounting accessory",
+      "before": {
+        "family": "NetworkHD",
+        "category": "NetworkHD",
+        "description": "The NHD-000-RACK4 is a 6U rack mount that provides a clean installation for up to 12 NetworkHD 100, 400, 500 and 600 Series encoders or decoders. The NHD-000-CTL NetworkHD controller is also compatible allowing for all required devices to be.",
+        "fit": "Use where the customer needs flexible AV-over-IP routing across a correctly designed network. Confirm source count, display count, controller requirement, switch design, bandwidth, latency, USB and multiview needs before positioning it.",
+        "openingLine": "NHD-000-RACK4 sits in the NetworkHD AV-over-IP conversation: use it when the customer needs flexible routing rather than a fixed matrix path.",
+        "questions": [
+          "How many sources and displays need flexible routing?",
+          "Is this a new NetworkHD system or an addition to an existing one?",
+          "Has the NHD controller and network switch requirement been allowed for?",
+          "Is USB, multiview, video wall or low latency required?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "Dante support helps integrate the product into networked audio systems.",
+          "NetworkHD is strongest where routing flexibility, expansion or distributed endpoints are required."
+        ]
+      },
+      "after": {
+        "family": "Mounting accessory",
+        "description": "NHD-000-RACK4 is a mounting accessory used to physically support a compatible WyreStorm product. Confirm the paired product and installation position before specifying it."
+      }
+    },
+    {
+      "sku": "NHD-124-RACK-1U",
+      "accessoryType": "Mounting accessory",
+      "before": {
+        "family": "NetworkHD 100",
+        "category": "NetworkHD 100",
+        "description": "The NHD-124-RACK-1U is a 1U rack mount that provides a clean installation for up to 2 NetworkHD 100 Series NHD-124-TX quad encoders. The minimal rack unit height and compact mounting arrangement allows a very high NetworkHD 100 Series encoder.",
+        "fit": "Use where the customer needs flexible AV-over-IP routing across a correctly designed network. Confirm source count, display count, controller requirement, switch design, bandwidth, latency, USB and multiview needs before positioning it.",
+        "openingLine": "NHD-124-RACK-1U sits in the NetworkHD 100 AV-over-IP conversation: use it when the customer needs flexible routing rather than a fixed matrix path.",
+        "questions": [
+          "How many sources and displays need flexible routing?",
+          "Is this a new NetworkHD system or an addition to an existing one?",
+          "Has the NHD controller and network switch requirement been allowed for?",
+          "Is USB, multiview, video wall or low latency required?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "Dante support helps integrate the product into networked audio systems.",
+          "AES67 support can help with standards-based network audio interoperability.",
+          "NetworkHD is strongest where routing flexibility, expansion or distributed endpoints are required."
+        ]
+      },
+      "after": {
+        "family": "Mounting accessory",
+        "description": "NHD-124-RACK-1U is a mounting accessory used to physically support a compatible WyreStorm product. Confirm the paired product and installation position before specifying it."
+      }
+    },
+    {
+      "sku": "NHD-140-RACK-1U",
+      "accessoryType": "Mounting accessory",
+      "before": {
+        "family": "NetworkHD 100",
+        "category": "NetworkHD 100",
+        "description": "The NHD-140-RACK-1U is a 1U rack mount that provides a clean installation for up to 2 NetworkHD 100 Series NHD-140-TX quad encoders. The minimal rack unit height and compact mounting arrangement allows a very high NetworkHD 100 Series encoder.",
+        "fit": "Use where the customer needs flexible AV-over-IP routing across a correctly designed network. Confirm source count, display count, controller requirement, switch design, bandwidth, latency, USB and multiview needs before positioning it.",
+        "openingLine": "NHD-140-RACK-1U sits in the NetworkHD 100 AV-over-IP conversation: use it when the customer needs flexible routing rather than a fixed matrix path.",
+        "questions": [
+          "How many sources and displays need flexible routing?",
+          "Is this a new NetworkHD system or an addition to an existing one?",
+          "Has the NHD controller and network switch requirement been allowed for?",
+          "Is USB, multiview, video wall or low latency required?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "Dante support helps integrate the product into networked audio systems.",
+          "AES67 support can help with standards-based network audio interoperability.",
+          "NetworkHD is strongest where routing flexibility, expansion or distributed endpoints are required."
+        ]
+      },
+      "after": {
+        "family": "Mounting accessory",
+        "description": "NHD-140-RACK-1U is a mounting accessory used to physically support a compatible WyreStorm product. Confirm the paired product and installation position before specifying it."
+      }
+    },
+    {
+      "sku": "NHD-RACK-1U",
+      "accessoryType": "Mounting accessory",
+      "before": {
+        "family": "NetworkHD",
+        "category": "NetworkHD",
+        "description": "The NHD-RACK-1U is a compact 1U rack mount unit specifically engineered to deliver a sleek, organized installation solution for up to 2 NetworkHD 100/500/600 Series and NHD-CTL-PRO v2 devices. Designed with precision, this rack mount ensures.",
+        "fit": "Use where the customer needs flexible AV-over-IP routing across a correctly designed network. Confirm source count, display count, controller requirement, switch design, bandwidth, latency, USB and multiview needs before positioning it.",
+        "openingLine": "NHD-RACK-1U sits in the NetworkHD AV-over-IP conversation: use it when the customer needs flexible routing rather than a fixed matrix path.",
+        "questions": [
+          "How many sources and displays need flexible routing?",
+          "Is this a new NetworkHD system or an addition to an existing one?",
+          "Has the NHD controller and network switch requirement been allowed for?",
+          "Is USB, multiview, video wall or low latency required?"
+        ],
+        "proofPoints": [
+          "Supports 4K60 where the full signal chain allows it.",
+          "Supports 4K/UHD signal workflows.",
+          "HDR support matters where the display chain is expected to handle premium video content.",
+          "HDBaseT transport is relevant for structured-cable display runs.",
+          "Dante support helps integrate the product into networked audio systems.",
+          "NetworkHD is strongest where routing flexibility, expansion or distributed endpoints are required."
+        ]
+      },
+      "after": {
+        "family": "Mounting accessory",
+        "description": "NHD-RACK-1U is a mounting accessory used to physically support a compatible WyreStorm product. Confirm the paired product and installation position before specifying it."
+      }
+    }
+  ]
+}

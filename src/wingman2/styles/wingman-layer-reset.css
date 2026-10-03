@@ -1,0 +1,120 @@
+/* ==========================================================================
+   Wingman Design System — Layer 2: Reset & Base Elements
+   Box-sizing, body defaults, text treatment, form element inheritance.
+   Load this SECOND, after tokens.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Base reset
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  color-scheme: dark;
+  background: var(--wm-bg);
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(45, 212, 191, 0.11), transparent 34rem),
+    radial-gradient(circle at 90% 12%, rgba(56, 189, 248, 0.10), transparent 34rem),
+    linear-gradient(135deg, #030712 0%, #06111f 44%, #081827 100%);
+  color: var(--wm-text);
+  font-family: var(--wm-font);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+a {
+  color: var(--wm-link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+::selection {
+  background: rgba(45, 212, 191, 0.32);
+}
+
+/* --------------------------------------------------------------------------
+   Global text treatment
+   -------------------------------------------------------------------------- */
+
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) {
+  color: var(--wm-text);
+}
+
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) h1,
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) h2,
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) h3,
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) h4 {
+  color: var(--wm-heading);
+  letter-spacing: -0.02em;
+}
+
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) p,
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) li,
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) label,
+:where(.wm-app, .wm-shell, .wm-page, .wingman-app, .wingman-page, main) span {
+  color: inherit;
+}
+
+small,
+.wm-muted,
+.wm-subtitle,
+.wm-help,
+.wm-meta,
+.wm-caption {
+  color: var(--wm-muted);
+}
+
+/* --------------------------------------------------------------------------
+   App shell
+   -------------------------------------------------------------------------- */
+
+.wm-app,
+.wm-shell,
+.wingman-app {
+  min-height: 100vh;
+  background: transparent;
+  color: var(--wm-text);
+}

@@ -1,0 +1,4 @@
+{
+  "policy": "Reviewed, time-limited exceptions to the OSV build-dependency gate (tools/check-build-deps.mjs). An exception records a deliberate decision that a specific OSV advisory does not apply to how Wingman uses the package at BUILD time, or that no fixed release exists yet. It is not a way to silence a finding that has not been assessed. Every entry must carry a justification and an expiry; the check fails once an exception expires - and also as soon as it is within 14 days of expiry, so a renewal is prepared ahead of the deadline instead of being discovered by a red build. Nothing here can quietly become permanent.",
+  "exceptions": []
+}

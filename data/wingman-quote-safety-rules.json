@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "purpose": "Governed quote-safety rules for Wingman scenario lead products. These are commercial verification postures, not invented product specifications.",
+  "rulesBySku": {
+    "MX-0808-KIT-V2": {
+      "quoteSafety": "verify-before-quote",
+      "reason": "Confirm routed source/display requirement, display distances, receiver count, audio handling and control method before quoting.",
+      "category": "matrix"
+    },
+    "NHD-CTL-PRO": {
+      "quoteSafety": "verify-network-before-quote",
+      "reason": "Confirm NetworkHD series, endpoint count, managed switch design, VLAN/IGMP requirements and control workflow before quoting.",
+      "category": "networkhd"
+    },
+    "APO-VX20-UC": {
+      "quoteSafety": "verify-usb-before-quote",
+      "reason": "Confirm BYOD/BYOM workflow, USB host ownership, camera/microphone/speaker behaviour, room size and casting requirement before quoting.",
+      "category": "uc"
+    },
+    "MX-1007-HYB": {
+      "quoteSafety": "verify-before-quote",
+      "reason": "Confirm teaching-room source count, display zoning, USB requirement, audio/DSP needs, amplifier requirement and control workflow before quoting.",
+      "category": "hybrid-matrix"
+    },
+    "SW-0204-VW": {
+      "quoteSafety": "verify-wall-behaviour-before-quote",
+      "reason": "Confirm wall layout, source count, preset layouts, bezel compensation, output resolution and control behaviour before quoting.",
+      "category": "video-wall"
+    },
+    "SW-0206-VW": {
+      "quoteSafety": "verify-wall-behaviour-before-quote",
+      "reason": "Confirm wall layout, source count, mixed layouts, bezel compensation, output resolution and control behaviour before quoting.",
+      "category": "video-wall"
+    },
+    "NHD-0401-MV": {
+      "quoteSafety": "verify-led-processor-before-quote",
+      "reason": "Confirm LED processor input format, canvas resolution, required source layouts, HDCP handling and control workflow before quoting.",
+      "category": "multiview"
+    },
+    "NHD-128-NDI-TRX": {
+      "quoteSafety": "verify-network-before-quote",
+      "reason": "Confirm NDI source type, encode/decode workflow, network design, bandwidth, output path and multiview/recording requirement before quoting.",
+      "category": "ndi"
+    },
+    "NHD-150-RX": {
+      "quoteSafety": "verify-network-before-quote",
+      "reason": "Confirm NetworkHD 100-series system design, source count, multiview layout, decoder output requirement and controller/network dependencies before quoting.",
+      "category": "networkhd-multiview"
+    }
+  }
+}

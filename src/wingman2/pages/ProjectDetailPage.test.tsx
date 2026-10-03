@@ -1,0 +1,157 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { deleteProject, updateStoredProject, storedProject } = vi.hoisted(() => ({
+  deleteProject: vi.fn(),
+  updateStoredProject: vi.fn(),
+  storedProject: {
+    id: "project-1",
+    name: "Meeting Room Refresh",
+    owner: "Northbridge",
+    stage: "Discovery",
+    status: "alternative",
+    updated: "Today",
+    updatedAt: "2026-08-04T09:00:00.000Z",
+    resumeTo: "/wingman/discovery",
+    syncConflict: undefined as { fields: string[]; detectedAt: string } | undefined,
+    requirements: [],
+    productSelections: [],
+    compareRuns: [] as Array<{ id: string; createdAt: string; version?: number; competitorBrand?: string; competitorSku?: string; wyrestormSku?: string; summary?: string; evidence?: string[]; warnings?: string[] }>,
+    recommendationEvidence: {
+      productDirection: "Presentation / UC",
+      systemShape: "Meeting room presentation system",
+      quoteSafetyStatus: "do-not-quote",
+      quoteSafetyMessage: "Confirm the USB path.",
+      nextBestQuestion: "Who owns the USB host?",
+      missingInformation: ["USB host ownership"],
+      productFamilyScores: [],
+      evidenceUsed: [],
+      requiredDependencies: [],
+    },
+  },
+}));
+
+vi.mock("../features/projects", () => ({
+  setActiveProjectId: vi.fn(),
+  saveProjectRequirementsToProject: vi.fn(),
+  updateStoredProject: (...args: unknown[]) => updateStoredProject(...args),
+  projectLaneLabel: (lane: string) => (lane === "proposal" ? "Proposal" : lane === "requirements" ? "Requirements" : lane),
+  useProjectStore: () => ({
+    projects: [storedProject],
+    syncStatus: { state: "local", message: "Saved in this browser." },
+    deleteProject,
+  }),
+}));
+
+import { ProjectDetailPage } from "./ProjectDetailPage";
+
+function renderPage() {
+  return render(
+    <MemoryRouter initialEntries={["/wingman/projects/project-1"]}>
+      <Routes>
+        <Route path="/wingman/projects/:projectId" element={<ProjectDetailPage />} />
+        <Route path="/wingman/projects" element={<div>Projects list</div>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
+describe("Project Detail review controls", () => {
+  beforeEach(() => {
+    deleteProject.mockClear();
+    updateStoredProject.mockClear();
+    delete storedProject.syncConflict;
+    storedProject.compareRuns = [];
+  });
+
+  it("warns with the changed lanes when a team member edited the project since our last sync", () => {
+    storedProject.syncConflict = { fields: ["proposal", "requirements"], detectedAt: "2026-08-04T10:00:00.000Z" };
+    renderPage();
+
+    const banner = screen.getByRole("region", { name: "Team member changes" });
+    expect(banner.textContent).toContain("A team member changed Proposal, Requirements since your last sync.");
+    expect(banner.textContent).toContain("Reload the page");
+  });
+
+  it("renders persistent review navigation and edits project metadata", () => {
+    renderPage();
+
+    fireEvent.click(screen.getByText("Project actions"));
+    expect(screen.getByRole("navigation", { name: "Project review navigation" })).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Requirements" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Evidence" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit project" }));
+    fireEvent.change(screen.getByLabelText("Project name"), { target: { value: "Updated Boardroom" } });
+    fireEvent.change(screen.getByLabelText("Owner / customer"), { target: { value: "Apex Group" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save project" }));
+
+    expect(updateStoredProject).toHaveBeenCalledWith("project-1", expect.any(Function));
+    const updater = updateStoredProject.mock.calls[0][1];
+    expect(updater({ name: "Old", owner: "Old owner" })).toMatchObject({
+      name: "Updated Boardroom",
+      owner: "Apex Group",
+      updated: "Just now",
+    });
+  });
+
+  it("switches from the short overview into focused review stages", () => {
+    renderPage();
+
+    expect(screen.queryByText("Requirements")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Requirements" }));
+    expect(screen.getAllByText("Confirmed requirements grouped by category. Edit inline or mark for review.").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Requirements" }).getAttribute("aria-current")).toBe("page");
+
+    fireEvent.click(screen.getByRole("button", { name: "Handoff" }));
+    expect(screen.getAllByText("Move from a validated project record to a customer response, visual, or CRM handoff.").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "Open response" }).getAttribute("href")).toBe("/wingman/responses?projectId=project-1");
+    expect(screen.getByText("Share to CRM")).not.toBeNull();
+  });
+
+  it("keeps saved comparison decisions with the project and links to a current fit check", () => {
+    storedProject.compareRuns = [{
+      id: "run-1",
+      createdAt: "2026-08-04T09:00:00.000Z",
+      version: 2,
+      competitorBrand: "Extron",
+      competitorSku: "DTP2",
+      wyrestormSku: "MX-0402-MST",
+      summary: "Partial fit after review.",
+      evidence: ["HDMI output confirmed"],
+      warnings: ["Confirm USB routing"],
+    }];
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: "Saved work" }));
+    expect(screen.getByText("Snapshot v2", { exact: false })).not.toBeNull();
+    expect(screen.getAllByText("Partial fit after review.").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "Check current fit" }).getAttribute("href")).toContain("projectId=project-1");
+  });
+
+  it("requires confirmation before deleting and returns to Projects", () => {
+    renderPage();
+
+    fireEvent.click(screen.getByText("Project actions"));
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(deleteProject).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm delete" }));
+
+    expect(deleteProject).toHaveBeenCalledWith("project-1");
+    expect(screen.getByText("Projects list")).not.toBeNull();
+  });
+
+  it("guides the salesperson through proposal blockers before routing to the fixing workflow", () => {
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: /Resolve .* open question/ }));
+
+    expect(screen.getByRole("region", { name: "Response blocker walkthrough" })).not.toBeNull();
+    expect(screen.getByText(/Blocker 1 of/)).not.toBeNull();
+    expect(screen.getAllByText("USB host ownership").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "Open full Discovery" }).getAttribute("href")).toBe(
+      "/wingman/discovery?resume=project",
+    );
+  });
+});

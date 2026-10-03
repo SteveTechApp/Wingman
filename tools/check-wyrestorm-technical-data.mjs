@@ -1,0 +1,478 @@
+import fs from "node:fs";
+import path from "node:path";
+import { isCurrentCatalogProduct } from "./lib/current-catalog.mjs";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
+
+const root = process.cwd();
+const strict = process.argv.includes("--strict");
+const updateBaseline = process.argv.includes("--update-baseline");
+const profilePath = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
+const productPath = path.join(root, "data-sources", "wyrestorm", "products.csv");
+const canonicalStorePath = path.join(root, "data", "wingman-canonical-product-store.json");
+const coverageBaselinePath = path.join(root, "tools", "wyrestorm-technical-data-coverage-baseline.json");
+
+function fail(message) {
+  throw new Error(message);
+}
+
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+
+    if (quoted) {
+      if (character === '"' && text[index + 1] === '"') {
+        cell += '"';
+        index += 1;
+      } else if (character === '"') {
+        quoted = false;
+      } else {
+        cell += character;
+      }
+      continue;
+    }
+
+    if (character === '"') {
+      quoted = true;
+    } else if (character === ",") {
+      row.push(cell);
+      cell = "";
+    } else if (character === "\n") {
+      row.push(cell.replace(/\r$/, ""));
+      rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += character;
+    }
+  }
+
+  if (cell || row.length) {
+    row.push(cell.replace(/\r$/, ""));
+    rows.push(row);
+  }
+
+  const [headers = [], ...dataRows] = rows.filter((item) => item.some((value) => value !== ""));
+  return dataRows.map((values) =>
+    Object.fromEntries(headers.map((header, index) => [header.trim(), String(values[index] ?? "").trim()])),
+  );
+}
+
+function normaliseSku(value) {
+  return String(value ?? "").trim().toUpperCase().replace(/\s+/g, "");
+}
+
+function nonEmptyArray(value) {
+  return Array.isArray(value) && value.length > 0;
+}
+
+if (!fs.existsSync(profilePath)) fail(`Missing governed technical profile source: ${profilePath}`);
+if (!fs.existsSync(productPath)) fail(`Missing WyreStorm product source: ${productPath}`);
+
+const payload = readJson(profilePath);
+if (!Number.isInteger(payload.version) || payload.version < 1) fail("Technical profile version must be a positive integer.");
+if (!Array.isArray(payload.profiles)) fail("Technical profile payload must contain a profiles array.");
+
+const requiredProfileFields = [
+  "sku",
+  "status",
+  "productClass",
+  "role",
+  "productType",
+  "transport",
+  "ports",
+  "dependencies",
+  "checks",
+  "warnings",
+  "evidence",
+];
+
+const seen = new Set();
+// Status by SKU. `seen` alone cannot distinguish a fully verified profile from
+// a review-required stub, and the two are not remotely equivalent downstream:
+// governedProductTechnicalData.ts treats review-required as the weaker
+// "official-structured" tier and refuses to present it as an automatic
+// equivalent. Counting them together let coverage be inflated by adding stubs.
+const statusBySku = new Map();
+const errors = [];
+
+for (const [index, profile] of payload.profiles.entries()) {
+  const prefix = `profiles[${index}]`;
+  const sku = normaliseSku(profile?.sku);
+
+  for (const field of requiredProfileFields) {
+    if (!(field in (profile ?? {}))) errors.push(`${prefix} is missing ${field}.`);
+  }
+
+  if (!sku) errors.push(`${prefix} has an empty SKU.`);
+  if (seen.has(sku)) errors.push(`Duplicate governed technical profile for ${sku}.`);
+  seen.add(sku);
+  statusBySku.set(sku, String(profile?.status ?? ""));
+
+  if (!["verified", "verified-with-warning", "review-required"].includes(profile?.status)) {
+    errors.push(`${sku || prefix} has invalid status ${profile?.status}.`);
+  }
+
+  // "Verified" requires a human: a profile may only claim the verified status
+  // when a human recorded confirmation of the spec-critical fields in
+  // `verifiedBy`. Machine-transcribed profiles must stay at
+  // verified-with-warning (which renders at the official-structured tier).
+  if (profile?.status === "verified" && !String(profile?.verifiedBy ?? "").trim()) {
+    errors.push(`${sku || prefix} claims verified status without a human verifiedBy - machine data must stay at verified-with-warning.`);
+  }
+
+  // Accessories (PSU, rack, SFP, blanking plates) don't carry a transport signal.
+  const isAccessory = String(profile?.productClass ?? "").toUpperCase() === "ACCESSORY"
+    || /^(PSU|NHD-RACK|SR-)/i.test(sku);
+  if (!nonEmptyArray(profile?.transport) && !isAccessory) errors.push(`${sku || prefix} must define transport.`);
+  if (!Array.isArray(profile?.ports)) errors.push(`${sku || prefix} ports must be an array.`);
+  if (!Array.isArray(profile?.dependencies)) errors.push(`${sku || prefix} dependencies must be an array.`);
+  if (!nonEmptyArray(profile?.evidence)) errors.push(`${sku || prefix} must have at least one evidence record.`);
+
+  for (const evidence of profile?.evidence ?? []) {
+    if (!String(evidence?.sourceUrl ?? "").startsWith("https://")) {
+      errors.push(`${sku || prefix} evidence must contain an HTTPS source URL.`);
+    }
+    if (!String(evidence?.reviewedOn ?? "").match(/^\d{4}-\d{2}-\d{2}$/)) {
+      errors.push(`${sku || prefix} evidence reviewedOn must use YYYY-MM-DD.`);
+    }
+    if (!String(evidence?.reviewer ?? "").trim()) {
+      errors.push(`${sku || prefix} evidence reviewer is required.`);
+    }
+  }
+
+  if (profile?.status !== "review-required") {
+    const hasVideoIo = (profile?.ports ?? []).some((port) => port?.category === "video");
+    if (
+      hasVideoIo &&
+      !String(profile?.maxResolution ?? "").trim() &&
+      ["AVOIP", "MATRIX", "VIDEO_WALL", "MULTIVIEW", "HDBASET", "PRESENTATION"].includes(profile?.productClass)
+    ) {
+      errors.push(`${sku || prefix} verified video profile must define maxResolution.`);
+    }
+    if (!nonEmptyArray(profile?.dependencies) && profile?.productClass === "AVOIP") {
+      errors.push(`${sku || prefix} verified AVoIP profile must define dependencies.`);
+    }
+  }
+}
+
+const priority = ["NHD-120-RX", "NHD-120-TX", "NHD-124-TX", "NHD-150-RX"];
+for (const sku of priority) {
+  if (!seen.has(sku)) errors.push(`Priority technical profile missing: ${sku}.`);
+}
+
+if (errors.length) {
+  console.error("[technical-data] Failed:");
+  errors.forEach((error) => console.error(`- ${error}`));
+  process.exit(1);
+}
+
+const products = parseCsv(fs.readFileSync(productPath, "utf8"));
+const activeLeadProducts = products.filter((product) => {
+  const lifecycle = String(product.lifecycle_status ?? "").toLowerCase();
+  const doNotSpec = String(product.do_not_spec ?? "").toLowerCase() === "true";
+  const role = String(product.role ?? "").toLowerCase();
+
+  return lifecycle === "active" &&
+    !doNotSpec &&
+    !["cable", "accessory", "rack-mount", "power-accessory", "software-app"].includes(role);
+});
+
+const activeLeadSkus = activeLeadProducts
+  .map((product) => normaliseSku(product.sku))
+  .filter(Boolean);
+
+const VERIFIED_STATUSES = new Set(["verified", "verified-with-warning"]);
+
+const missing = activeLeadSkus.filter((sku) => !seen.has(sku));
+// The number that actually matters. A review-required profile is a placeholder
+// with evidence attached, not a checked specification, and must not be counted
+// as coverage - otherwise the backlog can be "cleared" by adding stubs.
+const verifiedSkus = activeLeadSkus.filter((sku) => VERIFIED_STATUSES.has(statusBySku.get(sku)));
+const awaitingReview = activeLeadSkus.filter((sku) => seen.has(sku) && !VERIFIED_STATUSES.has(statusBySku.get(sku)));
+
+console.log(
+  `[technical-data] Validated ${payload.profiles.length} governed profiles. ` +
+    `${verifiedSkus.length}/${activeLeadProducts.length} active lead SKUs have a VERIFIED governed profile.`,
+);
+console.log(
+  `[technical-data] Coverage detail: ${verifiedSkus.length} verified, ` +
+    `${awaitingReview.length} drafted awaiting review, ${missing.length} with no profile at all.`,
+);
+
+if (awaitingReview.length) {
+  console.log(`[technical-data] Awaiting human review (${awaitingReview.length}): ${awaitingReview.slice(0, 40).join(", ")}${awaitingReview.length > 40 ? ", ..." : ""}`);
+}
+
+if (missing.length) {
+  console.log(`[technical-data] No profile (${missing.length}): ${missing.slice(0, 40).join(", ")}${missing.length > 40 ? ", ..." : ""}`);
+}
+
+if (strict && (missing.length || awaitingReview.length)) {
+  console.error(
+    "[technical-data] Strict coverage failed: every active lead SKU needs a VERIFIED governed profile " +
+      `(${missing.length} missing, ${awaitingReview.length} still awaiting review).`,
+  );
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Current-catalog completeness gate
+// ---------------------------------------------------------------------------
+// Hard floor, enforced in both strict and ratchet modes and before any
+// baseline write: every product the website currently lists as a specifiable
+// lead (active, or review with a captured official page; never discontinued,
+// do-not-spec or cable/accessory) must have SOME governed profile. A
+// review-required profile counts - it is evidence-attached and honestly
+// renders at the official-structured tier. This closes the lifecycle blind
+// spot the active-only CSV check had (review products with no profile), using
+// the exact predicate the campaign tool drafts from so the gate fails
+// precisely when tools/draft-missing-technical-profiles.mjs would draft.
+//
+// The honesty badge contract is untouched: products outside this set
+// (discontinued, accessories, not-yet-in-catalog) legitimately render
+// "Technical data not resolved" at runtime, and that honesty path is pinned by
+// check:governed-coverage-render.
+
+if (!fs.existsSync(canonicalStorePath)) {
+  console.error(
+    "[technical-data] Missing canonical product store - run `npm run data:canonical-products` " +
+      "before this gate (CI generates it in the data stage).",
+  );
+  process.exit(1);
+}
+
+const canonical = readJson(canonicalStorePath);
+const currentProducts = (canonical.products ?? []).filter(isCurrentCatalogProduct);
+const currentMissing = currentProducts.filter((product) => !seen.has(normaliseSku(product.sku)));
+const currentStatusCounts = { verified: 0, "verified-with-warning": 0, "review-required": 0 };
+for (const product of currentProducts) {
+  const status = statusBySku.get(normaliseSku(product.sku)) ?? "missing";
+  if (status in currentStatusCounts) currentStatusCounts[status] += 1;
+}
+
+console.log(
+  `[technical-data] Current catalog: ${currentProducts.length} specifiable lead products ` +
+    `(${currentStatusCounts.verified} verified, ${currentStatusCounts["verified-with-warning"]} verified-with-warning, ` +
+    `${currentStatusCounts["review-required"]} review-required, ${currentMissing.length} with no profile).`,
+);
+
+if (currentMissing.length) {
+  console.error(
+    "[technical-data] Current-catalog coverage FAILED: " +
+      `${currentMissing.length} product(s) have no governed profile: ${currentMissing
+        .map((product) => normaliseSku(product.sku))
+        .slice(0, 40)
+        .join(", ")}${currentMissing.length > 40 ? ", ..." : ""}.`,
+  );
+  console.error(
+    "Every current, specifiable WyreStorm product must have a governed profile - run\n" +
+      "`node tools/draft-missing-technical-profiles.mjs --check` to see the draftable set, or\n" +
+      "`--apply` to draft it as review-required before the next batch.",
+  );
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Confirmation aging gate
+// ---------------------------------------------------------------------------
+// A machine-transcribed profile (review-required or verified-with-warning)
+// becomes verified only when a human confirms the spec-critical fields and
+// records verifiedBy. Time is the enforcement lever: profiles left unconfirmed
+// past the warn threshold are flagged (the dashboard surfaces the same list),
+// and past the fail threshold this gate hard-fails - the manual confirmation
+// backlog must be worked, not parked. Thresholds live in
+// data/governance/profile-confirmation-aging.json, the single source shared
+// with the dashboard module, so the gate and the UI can never disagree.
+// Undatable profiles (no evidence timestamp at all) count as overdue: their
+// freshness cannot be verified. This gate runs before the baseline ratchet on
+// purpose - a --update-baseline run must not paper over an overdue backlog.
+
+const agingConfigPath = path.join(root, "data", "governance", "profile-confirmation-aging.json");
+if (!fs.existsSync(agingConfigPath)) {
+  console.error("[technical-data] Missing confirmation-aging config: " + agingConfigPath);
+  process.exit(1);
+}
+const agingConfig = readJson(agingConfigPath);
+const WARN_AFTER_DAYS = Number(agingConfig.warnAfterDays) || 14;
+const FAIL_AFTER_DAYS = Number(agingConfig.failAfterDays) || 30;
+// Evidence-freshness lanes for HUMAN-VERIFIED profiles (independent of the
+// confirmation clock above: a confirmed profile still ages - its official-page
+// evidence can go stale, move, or rot, and a human re-check is the only cure).
+const VERIFIED_EVIDENCE_WARN_AFTER_DAYS = Number(agingConfig.verifiedEvidenceWarnAfterDays) || 60;
+const VERIFIED_EVIDENCE_FAIL_AFTER_DAYS = Number(agingConfig.verifiedEvidenceFailAfterDays) || 120;
+
+const DAY_MS = 86_400_000;
+
+function profileAgeDays(profile) {
+  let newest = "";
+  for (const evidence of profile?.evidence ?? []) {
+    const date = String(evidence?.reviewedOn ?? "").trim() || String(evidence?.checkedAt ?? "").slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date > newest) newest = date;
+  }
+  if (!newest) return null;
+  const age = Math.floor((Date.now() - Date.parse(`${newest}T00:00:00Z`)) / DAY_MS);
+  return Number.isFinite(age) && age >= 0 ? age : null;
+}
+
+const unconfirmedProfiles = payload.profiles.filter(
+  (profile) => profile.status === "review-required" || profile.status === "verified-with-warning",
+);
+const agedProfiles = unconfirmedProfiles
+  .map((profile) => ({ sku: normaliseSku(profile.sku), ageDays: profileAgeDays(profile) }))
+  .sort((a, b) => (b.ageDays ?? -1) - (a.ageDays ?? -1) || a.sku.localeCompare(b.sku));
+const agingList = agedProfiles.filter((entry) => entry.ageDays !== null && entry.ageDays >= WARN_AFTER_DAYS);
+const overdueList = agedProfiles.filter((entry) => entry.ageDays === null || entry.ageDays >= FAIL_AFTER_DAYS);
+const describeAge = (entry) =>
+  `${entry.sku} (${entry.ageDays === null ? "no evidence timestamp" : `${entry.ageDays}d`})`;
+
+if (agedProfiles.length) {
+  console.log(
+    `[technical-data] Confirmation aging: ${agedProfiles.length} unconfirmed profile(s); ` +
+      `${agingList.length} past the ${WARN_AFTER_DAYS}-day warn threshold, ` +
+      `${overdueList.length} past the ${FAIL_AFTER_DAYS}-day fail threshold.`,
+  );
+  if (agingList.length) {
+    console.warn(
+      `[technical-data] WARNING - awaiting confirmation (${agingList.length}): ` +
+        agingList.map(describeAge).join(", "),
+    );
+  }
+}
+
+if (overdueList.length) {
+  console.error(
+    `[technical-data] Confirmation aging FAILED: ${overdueList.length} profile(s) are overdue for human ` +
+      `confirmation (past ${FAIL_AFTER_DAYS} days, or undatable):\n  ` +
+      overdueList.map(describeAge).join("\n  "),
+  );
+  console.error(
+    "A machine-transcribed profile renders at the official-structured tier until a reviewer confirms the\n" +
+      "spec-critical fields and records verifiedBy. Confirm the overdue profiles (dashboard confirmation\n" +
+      "card, or npm run check:governed-review-pass) before the next batch - the backlog must be worked,\n" +
+      "not parked.",
+  );
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Evidence-freshness gate (human-verified profiles)
+// ---------------------------------------------------------------------------
+// Confirmation and freshness are different clocks. The confirmation-aging gate
+// above enforces that a human has signed off; THIS gate enforces that the
+// signed-off claim is not ancient: official product pages move and rot (the
+// liveness gate catches today's 404s, this catches the slower decay - a page
+// that is still live but no longer states what was confirmed against it 4
+// months ago). A verified profile whose newest evidence ages past the warn
+// threshold is flagged for a refresh pass; past the fail threshold the gate
+// hard-fails until a human re-checks the live official page and records a NEW
+// dated evidence entry (the re-check refreshes the profile's evidence clock -
+// no value change is required, only a fresh look with today's date).
+
+const verifiedProfiles = payload.profiles.filter(
+  (profile) => profile.status === "verified" && String(profile.verifiedBy ?? "").trim(),
+);
+const verifiedAges = verifiedProfiles
+  .map((profile) => ({ sku: normaliseSku(profile.sku), ageDays: profileAgeDays(profile) }))
+  .sort((a, b) => (b.ageDays ?? -1) - (a.ageDays ?? -1) || a.sku.localeCompare(b.sku));
+const evidenceStaleList = verifiedAges.filter((entry) => entry.ageDays !== null && entry.ageDays >= VERIFIED_EVIDENCE_WARN_AFTER_DAYS);
+const evidenceExpiredList = verifiedAges.filter((entry) => entry.ageDays === null || entry.ageDays >= VERIFIED_EVIDENCE_FAIL_AFTER_DAYS);
+
+if (verifiedAges.length) {
+  console.log(
+    `[technical-data] Evidence freshness: ${verifiedAges.length} human-verified profile(s); ` +
+      `${evidenceStaleList.length} past the ${VERIFIED_EVIDENCE_WARN_AFTER_DAYS}-day warn threshold, ` +
+      `${evidenceExpiredList.length} past the ${VERIFIED_EVIDENCE_FAIL_AFTER_DAYS}-day fail threshold.`,
+  );
+  if (evidenceStaleList.length) {
+    console.warn(
+      `[technical-data] WARNING - verified evidence aging, schedule a refresh pass (${evidenceStaleList.length}): ` +
+        evidenceStaleList.slice(0, 20).map(describeAge).join(", ") +
+        (evidenceStaleList.length > 20 ? `, … and ${evidenceStaleList.length - 20} more` : ""),
+    );
+  }
+}
+
+if (evidenceExpiredList.length) {
+  console.error(
+    `[technical-data] Evidence freshness FAILED: ${evidenceExpiredList.length} verified profile(s) carry evidence ` +
+      `older than ${VERIFIED_EVIDENCE_FAIL_AFTER_DAYS} days (or undatable):\n  ` +
+      evidenceExpiredList.slice(0, 20).map(describeAge).join("\n  ") +
+      (evidenceExpiredList.length > 20 ? `\n  … and ${evidenceExpiredList.length - 20} more` : ""),
+  );
+  console.error(
+    "A verified profile's claim is only as current as its evidence: re-check the profile's official page\n" +
+      "(a liveness-approved URL) and record a new dated evidence entry - via the dashboard confirmation\n" +
+      "desk or a review pass with the refresh date. A re-check requires no value change, only a fresh\n" +
+      "human look; the profile's evidence clock then resets.",
+  );
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Coverage ratchet
+// ---------------------------------------------------------------------------
+// Without this, the check reported a 118-SKU review backlog and still exited 0,
+// so `npm run verify` went green while the technical claims behind customer
+// proposals were ~7% governed. A green gate that does not mean what it appears
+// to mean is worse than no gate.
+//
+// The ratchet makes progress monotonic: coverage may rise, never fall. It does
+// not block work at today's level. Raise the floor after each batch with:
+//   npm run check:technical-data -- --update-baseline
+// The end goal is still `--strict` (100% of active lead SKUs), which becomes
+// the verify gate once the agreed launch threshold is met.
+//
+// The floor tracks VERIFIED profiles specifically. It originally tracked "has
+// any profile", which counted review-required stubs identically - so the
+// backlog could have been driven to zero, and --strict made to pass, by adding
+// 118 placeholder entries without checking a single specification. Ratcheting
+// on the weaker number would have rewarded exactly the behaviour this gate
+// exists to prevent.
+
+const governedLeadSkus = verifiedSkus.length;
+
+if (updateBaseline) {
+  const next = {
+    governedLeadSkus,
+    activeLeadSkus: activeLeadProducts.length,
+    countedStatuses: ["verified", "verified-with-warning"],
+    note: "Verified-profile coverage floor for check:technical-data. Raise via --update-baseline; never lower by hand. review-required profiles deliberately do not count.",
+  };
+  atomicWriteJsonSync(coverageBaselinePath, next);
+  console.log(`[technical-data] Coverage baseline updated to ${governedLeadSkus}/${activeLeadProducts.length} verified.`);
+  process.exit(0);
+}
+
+if (fs.existsSync(coverageBaselinePath)) {
+  const baseline = readJson(coverageBaselinePath);
+  const floor = Number(baseline.governedLeadSkus ?? 0);
+
+  if (governedLeadSkus < floor) {
+    console.error(
+      `[technical-data] Coverage regressed: ${governedLeadSkus} governed lead SKUs, ` +
+        `below the baseline of ${floor}.`,
+    );
+    console.error(
+      "Governed technical coverage may rise but never fall - a proposal citing an ungoverned\n" +
+        "SKU is an unverified technical claim to a customer. Restore the missing profiles, or\n" +
+        "run `npm run check:technical-data -- --update-baseline` if the active range genuinely shrank.",
+    );
+    process.exit(1);
+  }
+
+  if (governedLeadSkus > floor) {
+    console.log(
+      `[technical-data] Coverage improved: ${governedLeadSkus} governed lead SKUs, above the ` +
+        `baseline of ${floor}. Run \`npm run check:technical-data -- --update-baseline\` to lock it in.`,
+    );
+  }
+}

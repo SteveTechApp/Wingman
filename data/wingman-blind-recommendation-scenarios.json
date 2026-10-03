@@ -1,0 +1,192 @@
+{
+  "version": 2,
+  "purpose": "Blind customer requirement to recommendation acceptance scenarios.",
+  "scenarios": [
+    {
+      "id": "blind-higher-education-avoip",
+      "name": "Teaching space with network distribution",
+      "input": {
+        "application": "higher education teaching room requiring AV over IP distribution",
+        "sourceCount": 3,
+        "displayCount": 6,
+        "displayBehaviour": "any source to any display",
+        "distancesByScope": {
+          "localPatchMetres": 2,
+          "infrastructureMetres": 70
+        },
+        "resolution": "4K60",
+        "audioNeed": "room reinforcement",
+        "controlNeed": "lectern control",
+        "networkNeed": "managed AV network approved"
+      },
+      "expected": {
+        "architecture": "avoip",
+        "bom": [
+          { "sku": "NHD-120-IW-TX", "quantity": 3 },
+          { "sku": "NHD-120-RX", "quantity": 6 },
+          { "sku": "NHD-CTL-PRO-V2", "quantity": 1 },
+          { "sku": "AMP-2120", "quantity": 1 },
+          { "sku": "SYN-KEY10", "quantity": 1 }
+        ],
+        "requiredDependencies": ["avoip-encoder", "avoip-decoder", "avoip-control", "room-audio"],
+        "forbidden": ["EX-"],
+        "missingInformation": [],
+        "quoteSafety": "do-not-quote-yet"
+      }
+    },
+    {
+      "id": "blind-fixed-hdmi-matrix",
+      "name": "Fixed local HDMI routing",
+      "input": {
+        "application": "contained hospitality room with fixed HDMI routing",
+        "sourceCount": 4,
+        "displayCount": 4,
+        "displayBehaviour": "independent routing",
+        "distancesByScope": { "localPatchMetres": 3 },
+        "resolution": "4K60",
+        "audioNeed": "display audio",
+        "controlNeed": "room control"
+      },
+      "expected": {
+        "architecture": "matrix",
+        "bom": [
+          { "sku": "EXP-MX-0402-H2", "quantity": 1 },
+          { "sku": "SYN-KEY10", "quantity": 1 }
+        ],
+        "requiredDependencies": ["matrix"],
+        "forbidden": ["NHD-"],
+        "missingInformation": [],
+        "quoteSafety": "do-not-quote-yet"
+      }
+    },
+    {
+      "id": "blind-hdbaset-point-to-point",
+      "name": "Single long display route",
+      "input": {
+        "application": "single HDMI source to one remote display",
+        "sourceCount": 1,
+        "displayCount": 1,
+        "displayBehaviour": "same source",
+        "distancesByScope": { "endpointRouteMetres": 55 },
+        "resolution": "4K60",
+        "audioNeed": "display audio",
+        "controlNeed": "none"
+      },
+      "expected": {
+        "architecture": "extension",
+        "bom": [{ "sku": "EX-100-G2", "quantity": 1 }],
+        "requiredDependencies": ["extension"],
+        "forbidden": ["NHD-", "MX-"],
+        "missingInformation": [],
+        "quoteSafety": "do-not-quote-yet"
+      }
+    },
+    {
+      "id": "blind-wireless-byom",
+      "name": "Wireless BYOM meeting room",
+      "input": {
+        "application": "small meeting room for wireless BYOM calls",
+        "sourceCount": 2,
+        "displayCount": 1,
+        "displayBehaviour": "one presenter",
+        "resolution": "4K",
+        "usbNeed": "user laptop owns USB camera and microphone",
+        "audioNeed": "conference audio",
+        "wirelessNeed": "wireless casting and BYOM"
+      },
+      "expected": {
+        "architecture": "presentation",
+        "bom": [{ "sku": "MX-0402-MST", "quantity": 1 }],
+        "requiredDependencies": ["presentation-core"],
+        "forbidden": ["NHD-600"],
+        "missingInformation": [],
+        "quoteSafety": "do-not-quote-yet"
+      }
+    },
+    {
+      "id": "blind-lcd-video-wall",
+      "name": "LCD wall with preset layouts",
+      "input": {
+        "application": "LCD video wall",
+        "sourceCount": 2,
+        "displayCount": 4,
+        "displayBehaviour": "2x2 wall showing one source or preset layouts",
+        "resolution": "4K",
+        "controlNeed": "preset recall"
+      },
+      "expected": {
+        "architecture": "video-wall",
+        "bom": [
+          { "sku": "NHD-0401-MV", "quantity": 1 },
+          { "sku": "SYN-KEY10", "quantity": 1 }
+        ],
+        "requiredDependencies": ["wall-processor"],
+        "forbidden": ["NHD-600"],
+        "missingInformation": [],
+        "quoteSafety": "do-not-quote-yet"
+      }
+    },
+    {
+      "id": "blind-multiview",
+      "name": "Four source multiview monitor",
+      "input": {
+        "application": "operations multiview",
+        "sourceCount": 4,
+        "displayCount": 1,
+        "displayBehaviour": "four sources composed simultaneously on one output",
+        "resolution": "1080p",
+        "controlNeed": "layout preset recall"
+      },
+      "expected": {
+        "architecture": "presentation",
+        "bom": [
+          { "sku": "MX-0402-MST", "quantity": 1 },
+          { "sku": "SYN-KEY10", "quantity": 1 }
+        ],
+        "requiredDependencies": ["presentation-core"],
+        "forbidden": ["MX-0808"],
+        "missingInformation": [],
+        "quoteSafety": "do-not-quote-yet"
+      }
+    },
+    {
+      "id": "blind-audio-dante",
+      "name": "Network audio reinforcement",
+      "input": {
+        "application": "lecture room network audio",
+        "sourceCount": 1,
+        "displayCount": 1,
+        "displayBehaviour": "single programme feed",
+        "resolution": "1080p",
+        "audioNeed": "Dante network audio DSP and room speakers",
+        "networkNeed": "managed network approved"
+      },
+      "expected": {
+        "architecture": "extension",
+        "bom": [{ "sku": "AMP-2120", "quantity": 1 }],
+        "requiredDependencies": ["room-audio"],
+        "forbidden": ["NHD-600"],
+        "missingInformation": [],
+        "quoteSafety": "do-not-quote-yet"
+      }
+    },
+    {
+      "id": "blind-underspecified",
+      "name": "Insufficient initial enquiry",
+      "input": { "application": "customer wants AV for a new room" },
+      "expected": {
+        "architecture": "undetermined",
+        "bom": [],
+        "requiredDependencies": [],
+        "forbidden": ["*"],
+        "missingInformation": [
+          "How many sources need to reach the screens?",
+          "How many displays does the room have?",
+          "Source count and source connector types",
+          "Display/output count and display behaviour"
+        ],
+        "quoteSafety": "do-not-quote-yet"
+      }
+    }
+  ]
+}

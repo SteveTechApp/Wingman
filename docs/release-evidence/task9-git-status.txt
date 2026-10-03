@@ -1,0 +1,73 @@
+ M data-sources/wyrestorm/enrichment.json
+ M data/catalog/product-data-manifest.generated.json
+ M data/governance/wyrestorm-technical-profiles.json
+ M e2e/__screenshots__/visual-regression.spec.ts/battle-cards-brand-section.png
+ M e2e/__screenshots__/visual-regression.spec.ts/battle-cards-full.png
+ M e2e/__screenshots__/visual-regression.spec.ts/battle-cards-tablet.png
+ M e2e/__screenshots__/visual-regression.spec.ts/dashboard-mobile.png
+ M e2e/__screenshots__/visual-regression.spec.ts/dashboard-tablet.png
+ M e2e/__screenshots__/visual-regression.spec.ts/product-call-cards-full.png
+ M e2e/__screenshots__/visual-regression.spec.ts/product-call-cards-tablet.png
+ M e2e/visual-regression.spec.ts
+ M package.json
+ M playwright.config.ts
+ M public/product-intelligence-details.json
+ M public/product-intelligence-details/amp2120.json
+ M public/product-intelligence-details/commichub.json
+ M public/product-intelligence-details/nhd600etxrx.json
+ M public/product-intelligence-index.json
+ M public/product-intelligence-summary.json
+ M server/competitor-lookup-server.mjs
+ M src/__tests__/sharedProductSelectorConsistency.test.tsx
+ M src/wingman2/components/UiModeToggle.tsx
+ M src/wingman2/data/uiMode.tsx
+ M src/wingman2/data/workflowHandoff.buildDiscoveryBriefFromState.test.ts
+ M src/wingman2/data/workflowHandoff.ts
+ M src/wingman2/lib/battleCards.ts
+ M src/wingman2/lib/dependencyGovernance.ts
+ M src/wingman2/lib/projectTopology.test.ts
+ M src/wingman2/lib/projectTopology.ts
+ M src/wingman2/lib/proposalDocxExport.test.ts
+ M src/wingman2/lib/roomTemplates.ts
+ M src/wingman2/lib/siteSurveyStorage.test.ts
+ M src/wingman2/lib/siteSurveyStorage.ts
+ M src/wingman2/lib/siteSurveySync.ts
+ M src/wingman2/pages/BattleCardsPage.tsx
+ M src/wingman2/pages/DiscoveryPage.tsx
+ M src/wingman2/pages/RecommendationsPage.tsx
+ M src/wingman2/pages/discovery/DiscoveryGuidedInterview.test.tsx
+ M src/wingman2/pages/discovery/DiscoveryGuidedInterview.tsx
+ M src/wingman2/pages/discovery/discoveryProgressiveDisclosure.tsx
+ M tools/check-product-semantic-integrity.mjs
+ M tools/check-template-signal-path.mjs
+ M tools/check-wingman-navigation-consolidation.mjs
+ M tools/check-wingman-recommendation-scenarios.mjs
+?? data/wingman-blind-recommendation-scenarios.json
+?? docs/release-evidence/
+?? docs/superpowers/plans/2026-09-10-late-beta-production-readiness.md
+?? docs/superpowers/specs/
+?? e2e/__screenshots__/visual-regression.spec.ts/battle-card-populated.png
+?? e2e/__screenshots__/visual-regression.spec.ts/compare-populated.png
+?? e2e/__screenshots__/visual-regression.spec.ts/product-call-card-populated.png
+?? e2e/__screenshots__/visual-regression.spec.ts/product-call-cards-grid.png
+?? e2e/__screenshots__/visual-regression.spec.ts/proposal-review-populated.png
+?? e2e/__screenshots__/visual-regression.spec.ts/recommendation-completed.png
+?? e2e/fixtures/
+?? e2e/offline-reconnect.spec.ts
+?? e2e/production-critical-workflows.spec.ts
+?? e2e/proposal-output-parity.spec.ts
+?? playwright-report/
+?? server/site-survey-sync.mjs
+?? server/site-survey-sync.test.mjs
+?? src/wingman2/data/uiTerminology.test.ts
+?? src/wingman2/lib/blindRecommendationAcceptance.test.ts
+?? src/wingman2/lib/dependencyGovernance.test.ts
+?? src/wingman2/lib/recommendationsDecisionBoundary.ts
+?? src/wingman2/lib/roomTemplates.test.ts
+?? src/wingman2/lib/siteSurveySync.test.ts
+?? tools/check-product-semantic-integrity.test.mjs
+?? tools/check-proposal-output-parity.mjs
+?? tools/lib/product-port-semantics.mjs
+?? tools/lib/template-shared-content-intent.mjs
+?? tools/lib/template-shared-content-intent.test.mjs
+?? tools/run-windows-critical-e2e.mjs

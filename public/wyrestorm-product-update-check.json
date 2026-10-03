@@ -1,0 +1,256 @@
+{
+  "generatedAt": "2026-06-12T19:39:28.892Z",
+  "sourceUrl": "https://www.wyrestorm.com/sitemap_index.xml",
+  "indexedCount": 311,
+  "discoveredCount": 483,
+  "newCandidateCount": 75,
+  "enrichedCandidateSampleCount": 30,
+  "candidates": [
+    {
+      "sku": "CAB-HAOC-50-P-2",
+      "url": "https://www.wyrestorm.com/product/cab-haoc-50-p-2/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/cab-haoc-50-p-2/ returned 404"
+    },
+    {
+      "sku": "CAB-HAOC-50-P-3",
+      "url": "https://www.wyrestorm.com/product/cab-haoc-50-p-3/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/cab-haoc-50-p-3/ returned 404"
+    },
+    {
+      "sku": "CAB-USBC-15-ENDS",
+      "url": "https://www.wyrestorm.com/product/cab-usbc-15-ends/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/cab-usbc-15-ends/ returned 404"
+    },
+    {
+      "sku": "CAM-200",
+      "url": "https://www.wyrestorm.com/product/cam-200/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "DISCONTINUED Part of the Unified Communication line of products, the CAM-200-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A high-quality pan and tilt motor provides a smooth experience without excess noise or judder. Equipped with dual outputs, the CAM-200-PTZ can output video via its USB 3.0 port or the network connection. 3rd-party control is a breeze by utilizing the industry standard VISCA protocol. An integrated web interface and free PC software provide advanced configuration options.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "CAM-210",
+      "url": "https://www.wyrestorm.com/product/cam-210/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "Capture crystal-clear 1080p60 video with the WyreStorm CAM-210-NDI-PTZ camera, featuring NDI, HDMI, USB-C & network outputs, smooth pan/tilt/zoom, auto-framing and presenter tracking for professional AV, conferencing & streaming setups.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "COM-MIC",
+      "url": "https://www.wyrestorm.com/product/com-mic/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "The COM-MIC-HUB is a versatile microphone hub designed to integrate seamlessly with a variety of microphones and speakers, making it an essential audio solution for educational and conference environments. Compared to other microphone hubs, it features a wireless receiver port, enabling support for wireless microphones. The built-in professional audio DSP enhances both local and remote audio performance, ensuring clear and optimized sound quality for all participants. The COM-MIC-HUB delivers a high-quality, user-friendly audio experience with advanced centralized control capabilities, including an intuitive Web-UI and RS-232 control.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EX-100",
+      "url": "https://www.wyrestorm.com/product/ex-100/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "DISCONTINUED WyreStorm&#039;s first HDBaseT 2.0 device offers the very latest in transmission technology for a 4K ready solution up to 100m/328ft that&#039;s overflowing with device connectivity for one of the most powerful and fully featured HDBaseT extender solutions on the market.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EX-100-USBC-2",
+      "url": "https://www.wyrestorm.com/product/ex-100-usbc-2/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/ex-100-usbc-2/ returned 404"
+    },
+    {
+      "sku": "EX-100-USBC-3",
+      "url": "https://www.wyrestorm.com/product/ex-100-usbc-3/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/ex-100-usbc-3/ returned 404"
+    },
+    {
+      "sku": "EX-100-USBC-4",
+      "url": "https://www.wyrestorm.com/product/ex-100-usbc-4/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/ex-100-usbc-4/ returned 404"
+    },
+    {
+      "sku": "EX-35",
+      "url": "https://www.wyrestorm.com/product/ex-35/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "The EX-35-8K is a robust solution for extending high-bandwidth video and control signals for residential and corporate installations. It’s features include support for cutting-edge HDMI 2.1 resolutions, delivering 8K@30Hz (or 8K@60Hz 4:2:0) and 4K@120Hz (4:4:4) video up to 35m over a single Cat5e/6 cable, or up to 40m over Cat6a/7, ensuring future-proof performance with a 40Gbps data rate and HDCP 2.3 compliance. Installation is simplified through Bi-direction PoC (Power over Cable), requiring only one power adapter for the entire link, while integrated RS232 and Bi-direction IR Pass-through provide comprehensive control. Furthermore, the unit offers professional audio handling with a balanced de-embedded audio output on the Receiver (RX) for connecting to dedicated sound systems.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EX-40-H2",
+      "url": "https://www.wyrestorm.com/product/ex-40-h2/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "The EX-40-H2-ARC is a 4K60 4:4:4 HDBaseT 2.0 extender designed for residential applications that demand audio return flexibility. Featuring ARC and S/PDIF pathways from RX to TX and analog audio breakout from the HDMI input, this unit is the perfect fit for installations involving modern TVs and legacy audio systems.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EX-60",
+      "url": "https://www.wyrestorm.com/product/ex-60/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "Discover the WyreStorm EX-60-USB2 USB 2.0 extender kit. Extend USB signals up to 60m over Cat6/6a/7 with 480Mbps data transfer, built-in 4-port USB hub, one-way PoC, and plug-and-play installation. Ideal for conferencing, surveillance, gaming, and office setups.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EX-70",
+      "url": "https://www.wyrestorm.com/product/ex-70/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "Extend 4K UHD and 1080p HDMI signals up to 35m/115ft (4K) and 70m/230ft (1080p) with the WyreStorm EX-70-G2 HDMI/HDBaseT extender set, featuring bi-directional IR, RS-232, CEC pass-through, and flexible PoH power options for pro AV installations.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EX-80-KVM5",
+      "url": "https://www.wyrestorm.com/product/ex-80-kvm5/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/ex-80-kvm5/ returned 404"
+    },
+    {
+      "sku": "EXA-100",
+      "url": "https://www.wyrestorm.com/product/exa-100/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "WyreStorm EXA-100-EARC extends eARC, ARC, and S/PDIF audio up to 100m with IR, RS-232, and CEC pass-through. Ideal for home theaters and multi-room AV.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXA-100-KVM",
+      "url": "https://www.wyrestorm.com/product/exa-100-kvm/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exa-100-kvm/ returned 404"
+    },
+    {
+      "sku": "EXP-CAB-HAOC-8",
+      "url": "https://www.wyrestorm.com/product/exp-cab-haoc-8/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "The WyreStorm HAOC is a 4K HDMI cable with a higher bandwidth that&#039;s designed to work with future-generation 4K HDR video.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-CAB-USBC-XM",
+      "url": "https://www.wyrestorm.com/product/exp-cab-usbc-xm/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "This USB-C to C cable is a great choice for transmitting data and audio/video. It can handle speeds up to 20Gbps, making it perfect for quickly transferring files or connecting devices that use USB 3.0.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-CAB-USBC-XM-COILED-CABLE",
+      "url": "https://www.wyrestorm.com/product/exp-cab-usbc-xm-coiled-cable/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-cab-usbc-xm-coiled-cable/ returned 404"
+    },
+    {
+      "sku": "EXP-EX-35-G2",
+      "url": "https://www.wyrestorm.com/product/exp-ex-35-g2/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "The EXP-EX-35-G2 has a transmission rate of 18Gbps. This indicates it may be used with ProAV extenders! It also takes up less space and is more cost effective in its smaller form.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-EX-80-KVM",
+      "url": "https://www.wyrestorm.com/product/exp-ex-80-kvm/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "DISCONTINUED The WyreStorm EXP-EX-80-KVM is a plug and play HDMI and KVM extender, capable of sending up to resolutions of 1080p@60Hz and HID (Human Interface Device) up to 80m (262ft) over a single CAT5e/6 cable. Additionally, it supports bidirectional POC (Power Over Cable) for powering at either the transmitter or the receiver with only one power adapter, making installations quick and effortless. Perfect use in office, home and presentation settings to extend HD video and USB keyboard and mouse from a local zone to a remote PC or laptop.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-MX-0404-HDMI-41",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-41/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-41/ returned 404"
+    },
+    {
+      "sku": "EXP-MX-0404-HDMI-43",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-43/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-43/ returned 404"
+    },
+    {
+      "sku": "EXP-SW-0X01-8K",
+      "url": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "Our plug-and-play 8K HDMI switcher series has the ability to send uncompressed up to 8K@60Hz or 4K@120Hz resolutions to your display. These switchers also support DSC 1.2a pass-through, an approved method of compression in accordance to the HDMI 2.1 specification, allowing up to a 10K@120Hz signal to be transmitted losslessy. Ranging in two models with varying number of inputs to choose from, this powerful switcher series also gives you the tools to de-embed audio from your source if there isn&#039;t an option on the source and supports ARC from your display to send to send high quality 5.1 to your audio distribution system. Other features such as auto switching and CEC passthrough makes this WyreStorm Essentials switcher series a true and powerful plug-and-play solution.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "FOCUS-200-WECAM",
+      "url": "https://www.wyrestorm.com/product/focus-200-wecam/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/focus-200-wecam/ returned 404"
+    },
+    {
+      "sku": "HALO-60-SPEAKERPHONE",
+      "url": "https://www.wyrestorm.com/product/halo-60-speakerphone/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "USB Bluetooth Speakerphone offers crystal-clear audio, ideal for virtual meetings and conference calls with easy connectivity and seamless performance.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "HALO-VX10-VIDEO-BAR-PIC-2",
+      "url": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-2/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-2/ returned 404"
+    },
+    {
+      "sku": "HALO-VX10-VIDEO-BAR-PIC-3",
+      "url": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-3/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-3/ returned 404"
+    },
+    {
+      "sku": "HALO-VX101V1",
+      "url": "https://www.wyrestorm.com/product/halo-vx101v1/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "HALO VX10 video bar integrates a 4K wide-angle AI camera, 2x stereo speaker and 4x microphone into one device, ideal for huddle room and home office.",
+      "sourceStatus": "page fetched"
+    }
+  ],
+  "warnings": [
+    "https://www.wyrestorm.com/products/ returned 404",
+    "https://wyrestorm.com/products/ returned 404",
+    "https://wyrestorm.com/product-sitemap.xml timed out",
+    "https://wyrestorm.com/sitemap_products.xml returned 404"
+  ]
+}

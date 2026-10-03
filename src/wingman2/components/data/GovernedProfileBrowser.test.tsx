@@ -1,0 +1,392 @@
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { GovernedProfileBrowser } from "./GovernedProfileBrowser";
+
+// These tests exercise component BEHAVIOUR (download deferral, dialog editing,
+// admin confirmation), not the governed dataset - dataset coverage belongs to
+// the data gates (check:technical-data and friends). Rendering the full
+// 206-profile corpus made the dialog tests so heavy that they timed out
+// whenever the whole suite ran in parallel, an intermittent CI flake. A small
+// fixture keeps them hermetic and intrinsically fast.
+// Fixture evidence dates are computed relative to test-run time so the
+// freshness lanes stay stable as the calendar advances (warn 60d / fail 120d).
+// vi.hoisted is required: the vi.mock factory below executes during import
+// resolution, before this module's body initializes.
+const { mockDaysAgo } = vi.hoisted(() => ({
+  mockDaysAgo: (days: number) => new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10),
+}));
+
+vi.mock("../../../../data/governance/wyrestorm-technical-profiles.json", () => ({
+  default: {
+    generatedAt: "2026-09-28T00:00:00.000Z",
+    profiles: [
+      {
+        sku: "AMP-2120",
+        name: "Amplifier 2120",
+        productClass: "AUDIO",
+        role: "Amplifier",
+        productType: "Power amplifier",
+        status: "review-required",
+        transport: ["Audio"],
+        ports: [{ count: 2, connector: "XLR/TRS", direction: "input", category: "audio", detail: "" }],
+        audio: ["DSP"],
+        power: ["IEC"],
+        specs: { powerOutput: "120W" },
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/amp-2120", reviewedOn: "2026-09-01" }],
+      },
+      {
+        sku: "AMP-260-DNT",
+        name: "Amplifier 260 Dante",
+        productClass: "AUDIO",
+        role: "Dante amplifier",
+        productType: "Power amplifier",
+        status: "verified-with-warning",
+        transport: ["Dante"],
+        ports: [{ count: 1, connector: "Terminal", direction: "output", category: "audio", detail: "" }],
+        features: { dante: true },
+        audio: ["DSP"],
+        power: ["IEC"],
+        specs: { powerOutput: "60W" },
+        dependencies: [],
+        checks: [],
+        warnings: ["Fan noise"],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/amp-260-dnt", reviewedOn: "2026-09-02" }],
+      },
+      {
+        sku: "APO-COM-MIC",
+        name: "Compact DSP microphone",
+        productClass: "AUDIO",
+        role: "Microphone",
+        productType: "Conference microphone",
+        status: "review-required",
+        transport: ["Dante"],
+        ports: [],
+        audio: ["Beamforming"],
+        power: ["PoE"],
+        specs: {},
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/apo-com-mic", reviewedOn: "2026-09-03" }],
+      },
+      {
+        // Verified with 60+ day old evidence: the stale lane (refresh pass due).
+        sku: "CAM-EDGE-STALE",
+        productClass: "CAMERA",
+        role: "PTZ camera",
+        status: "verified",
+        verifiedBy: "Fixture Reviewer",
+        verifiedAt: `${mockDaysAgo(61)}T09:00:00.000Z`,
+        ports: [{ count: 1, connector: "RJ45", direction: "input", category: "network", detail: "" }],
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/cam-edge-stale", reviewedOn: mockDaysAgo(61) }],
+      },
+      {
+        // Verified but undatable evidence (no reviewedOn/checkedAt): the
+        // expired lane - a claim whose evidence cannot be dated cannot be
+        // proven current, mirroring the CI gate.
+        sku: "CAM-EDGE-EXPIRED",
+        productClass: "CAMERA",
+        role: "PTZ camera",
+        status: "verified",
+        verifiedBy: "Fixture Reviewer",
+        verifiedAt: `${mockDaysAgo(61)}T09:00:00.000Z`,
+        ports: [{ count: 1, connector: "RJ45", direction: "input", category: "network", detail: "" }],
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/cam-edge-expired" }],
+      },
+      {
+        // Verified with evidence dated today relative to the stale fixture:
+        // the fresh lane - no freshness chip.
+        sku: "CAM-EDGE-FRESH",
+        productClass: "CAMERA",
+        role: "PTZ camera",
+        status: "verified",
+        verifiedBy: "Fixture Reviewer",
+        verifiedAt: `${mockDaysAgo(0)}T09:00:00.000Z`,
+        ports: [{ count: 1, connector: "RJ45", direction: "input", category: "network", detail: "" }],
+        dependencies: [],
+        checks: [],
+        warnings: [],
+        evidence: [{ sourceType: "manufacturer", sourceUrl: "https://wyrestorm.com/cam-edge-fresh", reviewedOn: mockDaysAgo(0) }],
+      },
+    ],
+  },
+}));
+
+// The GovernedProfileBrowser download handlers (Export CSV and Save Changes ->
+// JSON) revoke their blob URLs on a later task so the browser can begin the
+// download fetch against a still-live URL. These tests pin that deferral from
+// the component: right after the click the URL must be unrevoked, and once the
+// task queue drains the exact created URL is revoked.
+describe("GovernedProfileBrowser download deferral", () => {
+  afterEach(() => {
+    // revokeObjectURL is inherited in this environment; remove the own
+    // spyable copy installed by each test.
+    Reflect.deleteProperty(URL, "revokeObjectURL");
+    vi.restoreAllMocks();
+  });
+
+  function installBlobSpies(blobUrl: string) {
+    const createSpy = vi.spyOn(URL, "createObjectURL").mockReturnValue(blobUrl);
+    const revokeSpy = vi.fn();
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, writable: true, value: revokeSpy });
+    return { createSpy, revokeSpy };
+  }
+
+  it("exports the CSV and revokes the blob URL only after the download task starts", async () => {
+    const { createSpy, revokeSpy } = installBlobSpies("blob:wingman-test-governed-csv");
+    render(<GovernedProfileBrowser />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV" }));
+
+    // Inside the synchronous click handler the URL must still be live.
+    expect(createSpy).toHaveBeenCalledTimes(1);
+    expect(createSpy).toHaveBeenCalledWith(expect.any(Blob));
+    expect(revokeSpy).not.toHaveBeenCalled();
+
+    // Once the task queue drains, the exact created URL is revoked.
+    await waitFor(() => expect(revokeSpy).toHaveBeenCalledWith("blob:wingman-test-governed-csv"));
+  });
+
+  it("saves the governed profiles JSON and defers its revoke the same way", async () => {
+    const { createSpy, revokeSpy } = installBlobSpies("blob:wingman-test-governed-json");
+    render(<GovernedProfileBrowser />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save Changes" }));
+
+    expect(createSpy).toHaveBeenCalledTimes(1);
+    expect(createSpy).toHaveBeenCalledWith(expect.any(Blob));
+    expect(revokeSpy).not.toHaveBeenCalled();
+
+    await waitFor(() => expect(revokeSpy).toHaveBeenCalledWith("blob:wingman-test-governed-json"));
+  });
+
+  it("filters from the warning and review-required summary links", () => {
+    render(<GovernedProfileBrowser />);
+
+    const statusFilter = screen.getByRole("combobox", { name: "Status filter" }) as HTMLSelectElement;
+    const warnings = screen.getByRole("button", { name: /Filter by Warning status/i });
+    const reviewRequired = screen.getByRole("button", { name: /Filter by Review required status/i });
+
+    fireEvent.click(warnings);
+    expect(statusFilter.value).toBe("verified-with-warning");
+    expect(warnings.getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(reviewRequired);
+    expect(statusFilter.value).toBe("review-required");
+    expect(reviewRequired.getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(reviewRequired);
+    expect(statusFilter.value).toBe("");
+    expect(reviewRequired.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("opens a dedicated record workspace from each row action", () => {
+    render(<GovernedProfileBrowser />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit AMP-2120" }));
+    expect(screen.getByRole("dialog", { name: "AMP-2120" })).not.toBeNull();
+    const editor = screen.getByLabelText("Edit AMP-2120 profile");
+    fireEvent.change(within(editor).getByLabelText("Role"), { target: { value: "Updated amplifier role" } });
+    fireEvent.click(within(editor).getByRole("button", { name: "Apply edit" }));
+
+    expect(screen.getByText("Updated amplifier role")).not.toBeNull();
+  });
+
+  it("provides the complete SKU record and validates full-record edits", () => {
+    render(<GovernedProfileBrowser />);
+    fireEvent.click(screen.getByRole("button", { name: "Edit AMP-2120" }));
+
+    const fullRecord = screen.getByLabelText("Full record JSON for AMP-2120") as HTMLTextAreaElement;
+    const record = JSON.parse(fullRecord.value);
+    expect(record).toMatchObject({ sku: "AMP-2120", productClass: "AUDIO" });
+    expect(Object.keys(record).length).toBeGreaterThan(10);
+
+    record.role = "Full-record amplifier role";
+    fireEvent.change(fullRecord, { target: { value: JSON.stringify(record, null, 2) } });
+    fireEvent.click(screen.getByRole("button", { name: "Validate full record" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply edit" }));
+    expect(screen.getByText("Full-record amplifier role")).not.toBeNull();
+  });
+
+  it("formats nested product data as logical form containers and writes it back to JSON", () => {
+    render(<GovernedProfileBrowser />);
+    fireEvent.click(screen.getByRole("button", { name: "Edit AMP-2120" }));
+
+    fireEvent.change(screen.getByLabelText("Audio capabilities for AMP-2120"), { target: { value: "DSP\nBalanced audio\nPaging mute" } });
+    const firstConnector = screen.getAllByLabelText("Connector")[0];
+    fireEvent.change(firstConnector, { target: { value: "Updated XLR/TRS" } });
+
+    const record = JSON.parse((screen.getByLabelText("Full record JSON for AMP-2120") as HTMLTextAreaElement).value);
+    expect(record.audio).toEqual(["DSP", "Balanced audio", "Paging mute"]);
+    expect(record.ports[0].connector).toBe("Updated XLR/TRS");
+  });
+
+  it("offers governed choices and Yes, No or N/A controls while preserving the JSON record", () => {
+    render(<GovernedProfileBrowser />);
+    fireEvent.click(screen.getByRole("button", { name: "Edit AMP-260-DNT" }));
+
+    const role = screen.getByLabelText("Role") as HTMLInputElement;
+    expect(role.getAttribute("list")).toContain("governed-role");
+    expect(screen.queryByLabelText("Resolution")).toBeNull();
+    expect((screen.getByLabelText("Video capabilities for AMP-260-DNT") as HTMLTextAreaElement).disabled).toBe(true);
+
+    const dante = screen.getByRole("combobox", { name: "Features Dante" }) as HTMLSelectElement;
+    expect(Array.from(dante.options).map((option) => option.textContent)).toEqual(["Yes", "No", "N/A"]);
+    fireEvent.change(dante, { target: { value: "no" } });
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Add Transport" }), { target: { value: "Audio" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add port" }));
+    expect((screen.getAllByLabelText("Category").at(-1) as HTMLInputElement).value).toBe("audio");
+
+    const record = JSON.parse((screen.getByLabelText("Full record JSON for AMP-260-DNT") as HTMLTextAreaElement).value);
+    expect(record.features.dante).toBe(false);
+    expect(record.transport).toContain("Audio");
+  });
+
+  it("groups the confirmation triage batches and filters the table to a group", () => {
+    render(<GovernedProfileBrowser />);
+
+    // The strip defaults to the reviewer-batch grouping: one chip per R-batch.
+    const strip = screen.getByRole("group", { name: "Confirmation triage groups" });
+    expect(strip).toBeDefined();
+    for (const batchId of ["R1", "R2", "R3", "R4", "R5"]) {
+      expect(within(strip).getByRole("button", { name: new RegExp(`^${batchId} `) })).toBeDefined();
+    }
+
+    // Activating a batch scopes the table: the summary names the batch and
+    // only that batch's SKUs remain.
+    const r3 = within(strip).getByRole("button", { name: /^R3 / });
+    fireEvent.click(r3);
+    expect(screen.getByText(/governed profiles in R3/)).toBeDefined();
+
+    // Toggling the active batch off restores the unscoped summary.
+    fireEvent.click(r3);
+    expect(screen.getByText(/governed profiles/)).toBeDefined();
+    expect(screen.queryByText(/governed profiles in R3/)).toBeNull();
+
+    // Switching to the product-family grouping swaps the chips for T1-T10.
+    fireEvent.click(within(strip).getByRole("button", { name: "Product families" }));
+    for (let t = 1; t <= 10; t += 1) {
+      expect(within(strip).getByRole("button", { name: new RegExp(`^T${t} `) })).toBeDefined();
+    }
+    expect(within(strip).queryByRole("button", { name: /^R1 / })).toBeNull();
+
+    // A family chip scopes the table the same way, then the toggle back to
+    // reviewer batches clears the scope (a family id is not a batch id).
+    fireEvent.click(within(strip).getByRole("button", { name: /^T5 / }));
+    expect(screen.getByText(/governed profiles in T5/)).toBeDefined();
+    fireEvent.click(within(strip).getByRole("button", { name: "Reviewer batches" }));
+    expect(screen.queryByText(/governed profiles in T5/)).toBeNull();
+  });
+
+  it("shows triage provenance chips on grouped rows and none on ungrouped rows", () => {
+    render(<GovernedProfileBrowser />);
+
+    // APO-COM-MIC is a triage-listed SKU (R3 batch, T5 family): its row shows
+    // both provenance chips regardless of which grouping is active, since the
+    // chips are static dual provenance rather than a reflection of the strip.
+    const micRow = screen.getByRole("button", { name: "Edit APO-COM-MIC" }).closest("tr") as HTMLTableRowElement;
+    const micChips = Array.from(micRow.querySelectorAll(".wm-governed-row-tag")).map((chip) => chip.textContent);
+    expect(micChips).toEqual(["R3", "T5"]);
+
+    // The batch/family strip SKUs are not distinguishable by grouping: switch
+    // the strip to families and the chips are unchanged (provenance, not
+    // view state).
+    fireEvent.click(screen.getByRole("button", { name: "Product families" }));
+    const micChipsAfterToggle = Array.from(
+      (screen.getByRole("button", { name: "Edit APO-COM-MIC" }).closest("tr") as HTMLTableRowElement).querySelectorAll(".wm-governed-row-tag"),
+    ).map((chip) => chip.textContent);
+    expect(micChipsAfterToggle).toEqual(["R3", "T5"]);
+
+    // The AMP fixture SKUs are confirmed outside any triage grouping - no
+    // invented provenance, the honest state is no chip.
+    const ampRow = screen.getByRole("button", { name: "Edit AMP-2120" }).closest("tr") as HTMLTableRowElement;
+    expect(ampRow.querySelectorAll(".wm-governed-row-tag").length).toBe(0);
+    expect(ampRow.querySelector(".wm-governed-row-tags")).toBeNull();
+  });
+
+  it("surfaces evidence-freshness lanes in the summary strip and scopes the table", () => {
+    render(<GovernedProfileBrowser />);
+
+    // Verified fixtures land in two lanes; the fresh one never counts.
+    const agingChip = screen.getByRole("button", { name: /Filter by evidence aging status/ });
+    const expiredChip = screen.getByRole("button", { name: /Filter by evidence expired status/ });
+    expect(agingChip.textContent).toContain("1 evidence aging");
+    expect(expiredChip.textContent).toContain("1 evidence expired");
+
+    fireEvent.click(agingChip);
+    expect(screen.getByRole("button", { name: "Edit CAM-EDGE-STALE" })).not.toBeNull();
+    expect(screen.queryByRole("button", { name: "Edit CAM-EDGE-EXPIRED" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Edit CAM-EDGE-FRESH" })).toBeNull();
+    expect(agingChip.getAttribute("aria-pressed")).toBe("true");
+
+    // Toggling off restores the full table.
+    fireEvent.click(agingChip);
+    expect(screen.getByRole("button", { name: "Edit CAM-EDGE-EXPIRED" })).not.toBeNull();
+
+    // The expired lane scopes to its own profile only.
+    fireEvent.click(expiredChip);
+    expect(screen.getByRole("button", { name: "Edit CAM-EDGE-EXPIRED" })).not.toBeNull();
+    expect(screen.queryByRole("button", { name: "Edit CAM-EDGE-STALE" })).toBeNull();
+  });
+
+  it("chips verified rows by freshness lane and leaves fresh rows unchipped", () => {
+    render(<GovernedProfileBrowser />);
+
+    const chipsFor = (sku: string) =>
+      Array.from(
+        (screen.getByRole("button", { name: `Edit ${sku}` }).closest("tr") as HTMLTableRowElement).querySelectorAll(
+          ".wm-governed-row-tag",
+        ),
+      ).map((chip) => chip.textContent);
+
+    expect(chipsFor("CAM-EDGE-STALE")).toContain("evidence aging");
+    expect(chipsFor("CAM-EDGE-EXPIRED")).toContain("evidence expired");
+    expect(chipsFor("CAM-EDGE-FRESH")).toEqual([]);
+    // Unverified rows never carry a freshness chip.
+    expect(chipsFor("AMP-2120")).toEqual([]);
+  });
+
+  it("requires confirmation before deleting a row", () => {
+    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValueOnce(true);
+    render(<GovernedProfileBrowser />);
+
+    const deleteButton = screen.getByRole("button", { name: "Delete AMP-2120" });
+    fireEvent.click(deleteButton);
+    expect(screen.getByText("AMP-2120")).not.toBeNull();
+
+    fireEvent.click(deleteButton);
+    expect(confirm).toHaveBeenCalledWith("Delete governed profile AMP-2120 from this working set?");
+    expect(screen.queryByText("AMP-2120")).toBeNull();
+  });
+
+  it("lets the signed-in administrator persist a governed review", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({
+      ok: true,
+      sku: "APO-COM-MIC",
+      verifiedBy: "admin@example.com",
+      verifiedAt: "2026-09-25T07:30:00.000Z",
+      confirmedFields: ["power"],
+    }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    render(<GovernedProfileBrowser reviewer="admin@example.com" />);
+
+    const edit = screen.getByRole("button", { name: "Edit APO-COM-MIC" });
+    const row = edit.closest("tr");
+    fireEvent.click(edit);
+    expect(screen.getByText("Signed as", { exact: false }).textContent).toContain("admin@example.com");
+    fireEvent.click(screen.getByRole("button", { name: "Confirm review and mark verified" }));
+
+    await waitFor(() => expect(within(row as HTMLTableRowElement).getByText("Verified")).not.toBeNull());
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body).toMatchObject({ sku: "APO-COM-MIC", verifiedBy: "admin@example.com", confirmedFields: ["power"] });
+  });
+});

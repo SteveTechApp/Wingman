@@ -1,0 +1,292 @@
+// @vitest-environment jsdom
+
+import { act, createElement } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { WingmanGuruFab } from "../wingman2/components/WingmanGuruFab";
+
+Object.assign(globalThis, {
+  IS_REACT_ACT_ENVIRONMENT: true,
+});
+
+type PointerOptions = {
+  clientX: number;
+  clientY: number;
+  pointerId?: number;
+  button?: number;
+};
+
+function pointerEvent(type: string, options: PointerOptions) {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX: options.clientX,
+    clientY: options.clientY,
+    button: options.button ?? 0,
+  });
+
+  Object.defineProperties(event, {
+    pointerId: { value: options.pointerId ?? 1 },
+    pointerType: { value: "mouse" },
+    isPrimary: { value: true },
+  });
+
+  return event;
+}
+
+describe("single Guru entry point", () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    window.localStorage.clear();
+
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 1200,
+    });
+
+    Object.defineProperty(window, "innerHeight", {
+      configurable: true,
+      value: 800,
+    });
+
+    Object.defineProperty(HTMLElement.prototype, "setPointerCapture", {
+      configurable: true,
+      value: vi.fn(),
+    });
+
+    Object.defineProperty(HTMLElement.prototype, "releasePointerCapture", {
+      configurable: true,
+      value: vi.fn(),
+    });
+
+    Object.defineProperty(HTMLElement.prototype, "hasPointerCapture", {
+      configurable: true,
+      value: vi.fn(() => true),
+    });
+
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(async () => {
+    await act(async () => {
+      root.unmount();
+    });
+
+    container.remove();
+    vi.useRealTimers();
+  });
+
+  it("renders a dedicated moving layer so Guru idle motion does not depend only on CSS media settings", async () => {
+    await act(async () => {
+      root.render(
+        createElement(WingmanGuruFab, {
+          open: false,
+          onClick: vi.fn(),
+        }),
+      );
+    });
+
+    const motionLayer = document.querySelector<HTMLElement>(".wingman-guru-fab-motion");
+    const sweep = document.querySelector<HTMLElement>(".wingman-guru-fab-sweep");
+    const glow = document.querySelector<HTMLElement>(".wingman-guru-fab-glow");
+
+    expect(motionLayer).not.toBeNull();
+    expect(sweep).not.toBeNull();
+    expect(glow).not.toBeNull();
+    expect(motionLayer?.style.willChange).toBe("left, top, transform");
+  });
+
+  it("hides a stale launcher and keeps the authorised launcher visible", async () => {
+    const staleLauncher = document.createElement("button");
+    staleLauncher.dataset.wingmanGuruLauncher = "true";
+    document.body.insertBefore(staleLauncher, container);
+
+    await act(async () => {
+      root.render(
+        createElement(WingmanGuruFab, {
+          open: false,
+          onClick: vi.fn(),
+        }),
+      );
+    });
+
+    const currentLauncher = document.querySelector<HTMLButtonElement>(
+      "#wingman-guru-launcher",
+    );
+    const visibleLaunchers = [...document.querySelectorAll<HTMLElement>(
+      '[data-wingman-guru-launcher="true"]',
+    )].filter((launcher) => !launcher.hidden);
+
+    expect(staleLauncher.dataset.wingmanGuruDuplicate).toBe("true");
+    expect(staleLauncher.getAttribute("aria-hidden")).toBe("true");
+    expect(staleLauncher.hidden).toBe(true);
+    expect(currentLauncher).not.toBeNull();
+    expect(currentLauncher?.hidden).toBe(false);
+    expect(currentLauncher?.dataset.wingmanGuruDuplicate).toBeUndefined();
+    expect(visibleLaunchers).toEqual([currentLauncher]);
+
+    staleLauncher.remove();
+  });
+
+  it("moves with pointer events, persists its position and suppresses the drag click", async () => {
+    const onClick = vi.fn();
+
+    await act(async () => {
+      root.render(
+        createElement(WingmanGuruFab, {
+          open: false,
+          onClick,
+        }),
+      );
+    });
+
+    const button = document.querySelector<HTMLButtonElement>(
+      "button.wingman-guru-fab",
+    );
+
+    expect(button).not.toBeNull();
+
+    if (!button) {
+      throw new Error("Guru launcher was not rendered.");
+    }
+
+    Object.defineProperty(button, "getBoundingClientRect", {
+      configurable: true,
+      value: () => {
+        const left = Number.parseFloat(button.style.left) || 100;
+        const top = Number.parseFloat(button.style.top) || 180;
+
+        return {
+          x: left,
+          y: top,
+          left,
+          top,
+          right: left + 72,
+          bottom: top + 72,
+          width: 72,
+          height: 72,
+          toJSON: () => ({}),
+        };
+      },
+    });
+
+    const initialLeft = Number.parseFloat(button.style.left);
+    const initialTop = Number.parseFloat(button.style.top);
+
+    await act(async () => {
+      button.dispatchEvent(
+        pointerEvent("pointerdown", {
+          clientX: initialLeft + 10,
+          clientY: initialTop + 10,
+        }),
+      );
+
+      button.dispatchEvent(
+        pointerEvent("pointermove", {
+          clientX: initialLeft + 70,
+          clientY: initialTop + 55,
+        }),
+      );
+
+      button.dispatchEvent(
+        pointerEvent("pointerup", {
+          clientX: initialLeft + 70,
+          clientY: initialTop + 55,
+        }),
+      );
+    });
+
+    expect(Number.parseFloat(button.style.left)).toBeGreaterThan(initialLeft);
+    expect(Number.parseFloat(button.style.top)).toBeGreaterThan(initialTop);
+    expect(window.localStorage.getItem("wingmanGuruPosition")).not.toBeNull();
+
+    await act(async () => {
+      button.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+
+      vi.advanceTimersByTime(300);
+    });
+
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("opens Guru on a normal click", async () => {
+    const onClick = vi.fn();
+
+    await act(async () => {
+      root.render(
+        createElement(WingmanGuruFab, {
+          open: false,
+          onClick,
+        }),
+      );
+    });
+
+    const button = document.querySelector<HTMLButtonElement>(
+      "button.wingman-guru-fab",
+    );
+
+    expect(button).not.toBeNull();
+
+    if (!button) {
+      throw new Error("Guru launcher was not rendered.");
+    }
+
+    await act(async () => {
+      button.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+
+      vi.advanceTimersByTime(300);
+    });
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("restores the same single launcher after the Guru panel closes", async () => {
+    const onClick = vi.fn();
+
+    await act(async () => {
+      root.render(createElement(WingmanGuruFab, { open: false, onClick }));
+    });
+
+    expect(document.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(1);
+
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>('[aria-label="Dismiss Guru icon"]')!.click();
+    });
+    expect(document.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(0);
+    expect(onClick).not.toHaveBeenCalled();
+
+    await act(async () => {
+      root.render(createElement(WingmanGuruFab, { open: true, onClick }));
+    });
+
+    expect(document.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(0);
+
+    await act(async () => {
+      root.render(createElement(WingmanGuruFab, { open: false, onClick }));
+    });
+
+    const restoredLaunchers = document.querySelectorAll<HTMLButtonElement>(
+      '[data-wingman-guru-launcher="true"]',
+    );
+
+    expect(restoredLaunchers).toHaveLength(1);
+    expect(restoredLaunchers[0]?.hidden).toBe(false);
+    expect(restoredLaunchers[0]?.dataset.wingmanGuruDuplicate).toBeUndefined();
+  });
+});

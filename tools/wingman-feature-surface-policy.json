@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "purpose": "Explicitly govern the live Wingman route surface so retired or experimental pages cannot silently re-enter navigation.",
+  "approvedRouteKeys": [
+    "dashboard",
+    "callCoach",
+    "products",
+    "documents",
+    "responsePack",
+    "learn",
+    "projects",
+    "discovery",
+    "recommendations",
+    "productFamilies",
+    "productPitch",
+    "catalogBrowser",
+    "compare",
+    "templates",
+    "videowall",
+    "salesHelper",
+    "glossary",
+    "callCards",
+    "productCallCards",
+    "ingest",
+    "proposal",
+    "proposalVisuals",
+    "support",
+    "profile",
+    "terms",
+    "battleCards",
+    "quoteSafetyDashboard",
+    "analyticsDashboard",
+    "approvalQueue"
+  ],
+  "retiredRouteKeys": [
+    "finder",
+    "visualDesign",
+    "visualStudio"
+  ],
+  "retiredPageFiles": [],
+  "legacyRedirects": {
+    "/wingman/finder": "/wingman/discovery",
+    "/wingman/visual-design": "/wingman/proposal-visuals?mode=technical-schematic",
+    "/wingman/visual-studio": "/wingman/proposal-visuals?mode=technical-schematic"
+  },
+  "reviewRequiredRoutePairs": [
+    {
+      "routes": [
+        "salesHelper",
+        "callCoach"
+      ],
+      "reason": "Both conversation-support routes remain live and must retain distinct user purposes."
+    }
+  ],
+  "approvedDistinctRoutePairs": [
+    {
+      "routes": [
+        "salesHelper",
+        "callCoach"
+      ],
+      "reason": "Retain as distinct intents: Call Coach provides live conversation guidance; Sales Helper provides application-led sales prompts and qualification support."
+    }
+  ],
+  "approvedUnreachableSources": [
+    "src/wingman2/components/AVSignalFlowDiagram.tsx",
+    "src/wingman2/components/GuruCallNotesInterpreter.tsx",
+    "src/wingman2/components/RoomSchematicDiagram.tsx",
+    "src/wingman2/lib/competitorMatchDecisionSnapshot.ts",
+    "src/wingman2/lib/scenarioValidation.ts",
+    "src/wingman2/lib/testHelpers/governedProfilesHarness.ts"
+  ]
+}

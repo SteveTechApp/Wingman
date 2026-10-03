@@ -1,0 +1,633 @@
+/* ==========================================================================
+   Wingman Design System — Layer 4: Components
+   Cards, buttons, forms, badges, navigation, tables, tabs,
+   discovery widgets, product cards, compare layouts, videowall, guru.
+   Load this FOURTH, after layout.
+   ========================================================================== */
+
+.wm-btn,
+.wm-button,
+.button,
+button.wm-btn,
+button.wm-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  color: var(--wm-text);
+  font-weight: 650;
+  line-height: 1.1;
+  text-decoration: none;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+  box-shadow: none;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.wm-btn:hover,
+.wm-button:hover,
+.button:hover {
+  transform: translateY(-1px);
+  color: var(--wm-text);
+  text-decoration: none;
+  background: rgba(20, 184, 166, 0.16);
+  border-color: var(--wm-border-strong);
+}
+
+.wm-btn-primary,
+.wm-button-primary,
+.button-primary,
+.btn-primary {
+  color: #ecfeff;
+  background: linear-gradient(135deg, var(--wm-primary-strong), var(--wm-primary));
+  border-color: rgba(94, 234, 212, 0.52);
+}
+
+.wm-btn-secondary,
+.wm-button-secondary,
+.button-secondary {
+  color: var(--wm-text);
+  background: rgba(30, 41, 59, 0.88);
+}
+
+.wm-btn-ghost,
+.wm-button-ghost,
+.button-ghost {
+  color: var(--wm-text-soft);
+  background: transparent;
+}
+
+.wm-btn-danger,
+.button-danger {
+  color: #fff1f2;
+  background: rgba(190, 18, 60, 0.68);
+  border-color: rgba(251, 113, 133, 0.52);
+}
+
+.wm-icon-button {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: var(--wm-text);
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Forms
+   -------------------------------------------------------------------------- */
+
+.wm-form,
+.wm-form-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-form-row {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-label,
+label {
+  color: var(--wm-text-soft);
+  font-weight: 640;
+}
+
+.wm-input,
+.wm-select,
+.wm-textarea,
+input:not([type]),
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  color: var(--wm-text);
+  background: rgba(3, 7, 18, 0.74);
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  border-radius: var(--wm-radius-sm);
+  outline: none;
+}
+
+textarea,
+.wm-textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.wm-input:focus,
+.wm-select:focus,
+.wm-textarea:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(94, 234, 212, 0.72);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.16);
+}
+
+::placeholder {
+  color: rgba(148, 163, 184, 0.78);
+}
+
+.wm-field-help {
+  color: var(--wm-muted);
+  font-size: 0.88rem;
+}
+
+/* --------------------------------------------------------------------------
+   Badges, chips and status
+   -------------------------------------------------------------------------- */
+
+.wm-badge,
+.wm-chip,
+.badge,
+.chip {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  color: var(--wm-text-soft);
+  font-size: 0.78rem;
+  font-weight: 680;
+  line-height: 1;
+  background: rgba(15, 23, 42, 0.84);
+  border: 1px solid var(--wm-border);
+  border-radius: 999px;
+}
+
+.wm-badge-success,
+.wm-status-success {
+  color: #d1fae5;
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(52, 211, 153, 0.36);
+}
+
+.wm-badge-warning,
+.wm-status-warning {
+  color: #fef3c7;
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(251, 191, 36, 0.38);
+}
+
+.wm-badge-danger,
+.wm-status-danger {
+  color: #ffe4e6;
+  background: rgba(244, 63, 94, 0.16);
+  border-color: rgba(251, 113, 133, 0.40);
+}
+
+.wm-badge-info,
+.wm-status-info {
+  color: #e0f2fe;
+  background: rgba(14, 165, 233, 0.16);
+  border-color: rgba(56, 189, 248, 0.38);
+}
+
+/* --------------------------------------------------------------------------
+   Navigation
+   -------------------------------------------------------------------------- */
+
+.wm-nav {
+  display: grid;
+  gap: 6px;
+}
+
+.wm-nav-link,
+.wingman-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 9px 10px;
+  color: var(--wm-text-soft);
+  border: 1px solid transparent;
+  border-radius: var(--wm-radius-sm);
+}
+
+.wm-nav-link:hover,
+.wingman-nav-link:hover,
+.wm-nav-link[aria-current="page"],
+.wingman-nav-link[aria-current="page"],
+.wm-nav-link.active,
+.wingman-nav-link.active {
+  color: var(--wm-text);
+  text-decoration: none;
+  background: rgba(20, 184, 166, 0.14);
+  border-color: rgba(94, 234, 212, 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+   -------------------------------------------------------------------------- */
+
+.wm-table-wrap,
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-md);
+}
+
+.wm-table,
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--wm-text);
+}
+
+.wm-table th,
+.wm-table td,
+table th,
+table td {
+  padding: 11px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(125, 211, 252, 0.14);
+  vertical-align: top;
+}
+
+.wm-table th,
+table th {
+  color: var(--wm-heading-2);
+  font-size: 0.78rem;
+  font-weight: 760;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(15, 23, 42, 0.66);
+}
+
+.wm-table tr:hover td,
+table tr:hover td {
+  background: rgba(20, 184, 166, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   Tabs and steppers
+   -------------------------------------------------------------------------- */
+
+.wm-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.wm-tab {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--wm-text-soft);
+  background: rgba(15, 23, 42, 0.68);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+}
+
+.wm-tab[aria-selected="true"],
+.wm-tab.active {
+  color: var(--wm-text);
+  background: var(--wm-primary-soft);
+  border-color: var(--wm-border-strong);
+}
+
+.wm-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 18px;
+}
+
+.wm-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 7px 10px;
+  color: var(--wm-muted);
+  background: rgba(15, 23, 42, 0.64);
+  border: 1px solid rgba(125, 211, 252, 0.16);
+  border-radius: var(--wm-radius-sm);
+}
+
+.wm-step.active,
+.wm-step[aria-current="step"] {
+  color: var(--wm-text);
+  background: rgba(20, 184, 166, 0.16);
+  border-color: var(--wm-border-strong);
+}
+
+/* --------------------------------------------------------------------------
+   Discovery workflow
+   -------------------------------------------------------------------------- */
+
+.wm-discovery-page .wm-question-card,
+.wm-discovery-question {
+  padding: 22px;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.13), rgba(15, 23, 42, 0.84));
+  border: 1px solid var(--wm-border-strong);
+  border-radius: var(--wm-radius-lg);
+}
+
+.wm-discovery-options,
+.wm-option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.wm-option-card,
+.wm-choice-card {
+  display: grid;
+  gap: 7px;
+  min-height: 92px;
+  padding: 14px;
+  color: var(--wm-text);
+  text-align: left;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-md);
+}
+
+.wm-option-card:hover,
+.wm-choice-card:hover,
+.wm-option-card.selected,
+.wm-choice-card.selected,
+.wm-option-card[aria-pressed="true"],
+.wm-choice-card[aria-pressed="true"] {
+  background: rgba(20, 184, 166, 0.14);
+  border-color: var(--wm-border-strong);
+}
+
+/* --------------------------------------------------------------------------
+   Finder / products
+   -------------------------------------------------------------------------- */
+
+.wm-product-grid,
+.wm-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.wm-product-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  color: var(--wm-text);
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-lg);
+}
+
+.wm-sku,
+.wm-product-sku {
+  color: var(--wm-heading-2);
+  font-weight: 780;
+  letter-spacing: 0.02em;
+}
+
+.wm-product-family {
+  color: var(--wm-muted);
+  font-size: 0.88rem;
+}
+
+.wm-score-bar {
+  height: 8px;
+  overflow: hidden;
+  background: rgba(30, 41, 59, 0.9);
+  border-radius: 999px;
+}
+
+.wm-score-bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--wm-primary), var(--wm-info));
+}
+
+/* --------------------------------------------------------------------------
+   Compare page
+   -------------------------------------------------------------------------- */
+
+.wm-compare-page .wm-compare-layout,
+.wm-compare-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.15fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.wm-compare-page .wm-compare-matrix,
+.wm-compare-matrix {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-compare-row {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.64);
+  border: 1px solid rgba(125, 211, 252, 0.14);
+  border-radius: var(--wm-radius-md);
+}
+
+.wm-compare-row strong {
+  color: var(--wm-heading-2);
+}
+
+.wm-best-candidate {
+  border-color: var(--wm-border-strong);
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.16), rgba(15, 23, 42, 0.74));
+}
+
+/* --------------------------------------------------------------------------
+   Product Pitch / Proposal
+   -------------------------------------------------------------------------- */
+
+.wm-pitch-layout,
+.wm-proposal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+
+.wm-proposal-preview,
+.wm-customer-safe-wording {
+  color: var(--wm-text);
+  background: rgba(2, 6, 23, 0.78);
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: var(--wm-radius-lg);
+  padding: 18px;
+}
+
+.wm-risk-list,
+.wm-check-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+/* --------------------------------------------------------------------------
+   Video wall / Visual Design Studio
+   -------------------------------------------------------------------------- */
+
+.wm-videowall-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.wm-visual-canvas,
+.wm-schematic-canvas {
+  min-height: 520px;
+  overflow: auto;
+  color: var(--wm-text);
+  background:
+    linear-gradient(rgba(125, 211, 252, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.06) 1px, transparent 1px),
+    rgba(2, 6, 23, 0.72);
+  background-size: 28px 28px;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-lg);
+}
+
+.wm-visual-canvas svg text,
+.wm-schematic-canvas svg text {
+  fill: var(--wm-text);
+}
+
+.wm-visual-canvas svg path,
+.wm-schematic-canvas svg path,
+.wm-visual-canvas svg line,
+.wm-schematic-canvas svg line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --------------------------------------------------------------------------
+   Guru assistant
+   -------------------------------------------------------------------------- */
+
+.wm-guru-button,
+.guru-button {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 70;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  color: #ecfeff;
+  background: linear-gradient(135deg, var(--wm-primary-strong), var(--wm-primary));
+  border: 1px solid rgba(94, 234, 212, 0.64);
+  border-radius: 999px;
+  box-shadow: var(--wm-shadow-md);
+}
+
+.wm-guru-drawer,
+.guru-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 80;
+  width: min(440px, 100vw);
+  height: 100vh;
+  color: var(--wm-text);
+  background: rgba(5, 11, 20, 0.97);
+  border-left: 1px solid var(--wm-border);
+  box-shadow: var(--wm-shadow-md);
+}
+
+/* --------------------------------------------------------------------------
+   Utilities
+   -------------------------------------------------------------------------- */
+
+.wm-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-stack-sm {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.wm-row-between {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wm-scroll {
+  overflow: auto;
+}
+
+.wm-sticky {
+  position: sticky;
+  top: calc(var(--wm-header) + 12px);
+}
+
+.wm-divider {
+  height: 1px;
+  margin: 14px 0;
+  background: rgba(125, 211, 252, 0.16);
+}
+
+.wm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* Tailwind-heavy fallback readability */
+.bg-white,
+.bg-slate-50,
+.bg-gray-50 {
+  color: #0f172a;
+}
+
+.text-black {
+  color: #020617;
+}
+
+.text-white {
+  color: #f8fafc;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive layout
+   -------------------------------------------------------------------------- */
+

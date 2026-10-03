@@ -1,0 +1,1349 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useUiMode } from "../data/uiMode";
+import { createPortal } from "react-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { DiscoverySessionHero, DiscoverySessionPaceSwitch, type DiscoveryPace } from "../components/DiscoverySessionPaceSwitch";
+import { routeCatalogByKey } from "../app/routeCatalog";
+import { clearActiveProject, getCurrentWorkflowProject, readProjectStore, saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../features/projects";
+import { clearLatestDiscoverySnapshot, readLatestDiscoverySnapshot, resolveDiscoverySnapshotProject, writeLatestDiscoverySnapshot } from "../data/workflowHandoff";
+import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
+import { DiscoveryAudioDesignSummary } from "./discovery/DiscoveryAudioDesignSummary";
+import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
+import { clearDiscoveryHandoff, readDiscoveryHandoff, type DiscoveryHandoffMode } from "../lib/discoveryTemplateHandoff";
+import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
+import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
+import {
+  clearDiscoveryTopology,
+  createBlankProjectTopology,
+  generateProjectTopologyFromDiscovery,
+  normaliseProjectTopology,
+  projectTopologyHasContent,
+  projectTopologySummary,
+  readDiscoveryTopology,
+  writeDiscoveryTopology,
+  type ProjectTopology,
+} from "../lib/projectTopology";
+
+import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
+import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
+import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
+import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
+import { BASIC_MODE_REQUIRED_IDS, DISCOVERY_DEPTH_PRESENTATION, DiscoveryProgressiveDisclosure, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
+import { DiscoveryGuidedInterview } from "./discovery/DiscoveryGuidedInterview";
+import { DiscoveryMarketEntry } from "./discovery/DiscoveryMarketEntry";
+import { DiscoveryMarketContextSummary } from "./discovery/DiscoveryMarketContextSummary";
+import { changeDiscoveryApplication, DISCOVERY_TEMPLATE_MARKET } from "./discovery/discoveryMarketContext";
+import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
+import { DiscoveryQuestionSection } from "./discovery/DiscoveryQuestionSection";
+import { compileDiscoveryBrief } from "./discovery/discoveryBriefBuilder";
+import {
+  getDiscoverySpeechRecognition,
+  type DiscoverySpeechRecognitionEventLike,
+  type DiscoverySpeechRecognitionLike,
+} from "./discovery/discoverySpeechRecognition";
+import {
+  getOptionLabel,
+  getQuestionView,
+  resolveDiscoveryStartIndex,
+  wmDiscoveryAnswerIncludes,
+  wmDiscoveryAnswerToText,
+  wmDiscoveryFilterUnifiedCommsQuestions,
+  wmDiscoveryHasAnswer,
+  wmDiscoveryIsMultiSelectStep,
+  wmDiscoveryNormaliseAnswerList,
+  wmDiscoveryToggleMultiSelectAnswer,
+} from "./discovery/discoveryAnswerUtils";
+
+// Live call mode
+// Current model
+// View full model
+
+// wingman:use-call-notes-in-discovery
+const callNotesStorageKey = "wingman:use-call-notes-in-discovery";
+
+const _workflowIntegrationMarkerCompatibility = "Live call mode | Current model | View full model";
+
+const discoveryAuditMarkers = [
+  "Discovery trail",
+  "Auto advances after selection",
+  "Capture customer wording",
+  "Optional microphone capture",
+  "Dedicated Unified Communications discovery step",
+  "Application-specific discovery question guidance",
+  "View full model",
+  "Current model",
+  "applicationSpecificDiscoveryQuestionGuidance",
+] as const;
+
+export function DiscoveryPage() {
+  const { isGuided } = useUiMode();
+  const [searchParams] = useSearchParams();
+  const editQuestionId = searchParams.get("edit")?.trim() ?? "";
+  const [discoveryDraft] = useState(() => readLatestDiscoverySnapshot());
+  const draftState = discoveryDraft?.state ?? {};
+  const draftField = (key: string) => {
+    const value = draftState[key];
+    return typeof value === "string" ? value : "";
+  };
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_STATE_START
+  const draftAnswers = (draftState.answers as DiscoveryAnswers | undefined) ?? {};
+  const draftNotes = (draftState.notes as DiscoveryNotes | undefined) ?? {};
+  const hasExistingDiscoveryContent =
+    Object.keys(draftAnswers).length > 0 ||
+    Object.keys(draftNotes).length > 0 ||
+    ["clientName", "contactName", "siteName"].some((key) => draftField(key).trim()) ||
+    Number(discoveryDraft?.brief?.capturedPercent ?? 0) > 0;
+
+  const resumeExistingDiscoveryStorageKey = "wingman:resume-existing-discovery";
+  const hasExplicitResumeIntent =
+    typeof window !== "undefined" &&
+    window.sessionStorage.getItem(resumeExistingDiscoveryStorageKey) === "1";
+  const hasSessionDiscoveryHandoff =
+    typeof window !== "undefined" &&
+    (
+      Boolean(window.sessionStorage.getItem("wingman:use-call-notes-in-discovery")) ||
+      window.sessionStorage.getItem("wingman:use-video-wall-in-discovery") === "1" ||
+      Boolean(window.sessionStorage.getItem("wingman.roomBuilderSeedProduct"))
+    );
+
+  const hasIntentionalDiscoveryEntry =
+    Boolean(editQuestionId) ||
+    searchParams.get("resume") === "project" ||
+    searchParams.get("interview") === "1" ||
+    Boolean(readDiscoveryHandoff()) ||
+    hasSessionDiscoveryHandoff ||
+    hasExplicitResumeIntent;
+
+  const [showExistingDiscoveryWarning, setShowExistingDiscoveryWarning] = useState(
+    () => hasExistingDiscoveryContent && !hasIntentionalDiscoveryEntry,
+  );
+
+  const [existingDiscoveryProject] = useState(() =>
+    resolveDiscoverySnapshotProject(discoveryDraft, readProjectStore()),
+  );
+  const discoveryOwnershipRef = useRef<{ projectId?: string; projectName?: string } | null>(
+    discoveryDraft
+      ? {
+          projectId: existingDiscoveryProject?.id ?? discoveryDraft.projectId,
+          projectName: existingDiscoveryProject?.name ?? discoveryDraft.projectName,
+        }
+      : null,
+  );
+  const [currentWorkflowProject] = useState(() =>
+    getCurrentWorkflowProject(readProjectStore()),
+  );
+  const existingDiscoveryName =
+    existingDiscoveryProject?.name || discoveryDraft?.projectName ||
+    [draftField("clientName"), draftField("siteName")].map((item) => item.trim()).filter(Boolean).join(" - ") ||
+    "Unnamed discovery";
+
+  const existingDiscoveryProgress = Math.max(
+    0,
+    Math.min(100, Number(discoveryDraft?.brief?.capturedPercent ?? 0)),
+  );
+
+  const existingDiscoverySavedAt = (() => {
+    const value =
+      discoveryDraft?.savedAt ||
+      discoveryDraft?.brief?.savedAt ||
+      "";
+
+    if (!value) return "";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  })();
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_STATE_END
+
+  const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
+  const [isReviewingAnswers, setIsReviewingAnswers] = useState(false);
+  const [answers, setAnswers] = useState<DiscoveryAnswers>(() => (draftState.answers as DiscoveryAnswers | undefined) ?? {});
+  const [editingMarketContext, setEditingMarketContext] = useState(false);
+  const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
+    () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
+  );
+  const [quickStartSeed, setQuickStartSeed] = useState(() => readQuickStartSeedRecord(draftState.quickStartSeed));
+  const [notes, setNotes] = useState<DiscoveryNotes>(
+    () => (draftState.notes as DiscoveryNotes | undefined) ?? {},
+  );
+  // stepId -> true when the rep verified the answer with the customer (settled in exports).
+  const [confirmedSteps, setConfirmedSteps] = useState<Record<string, boolean>>(
+    () => (draftState.confirmed as Record<string, boolean> | undefined) ?? {},
+  );
+  // stepId -> capture confidence tier (high / matched / low) for the trail.
+  const [confidenceByStep, setConfidenceByStep] = useState<Record<string, "high" | "matched" | "low">>(
+    () => (draftState.confidence as Record<string, "high" | "matched" | "low"> | undefined) ?? {},
+  );
+  // stepId -> raw interpretation score behind the tier (shown in exports).
+  const [confidenceScoresByStep, setConfidenceScoresByStep] = useState<
+    Record<string, number>
+  >({});
+  const [topology, setTopology] = useState<ProjectTopology>(() => {
+    const stored = readDiscoveryTopology();
+    return projectTopologyHasContent(stored) ? stored : createBlankProjectTopology();
+  });
+  const [isListening, setIsListening] = useState(false);
+  const [micSupported, setMicSupported] = useState(false);
+  const [micError, setMicError] = useState("");
+  const [savedMessage, setSavedMessage] = useState("");
+  const [completionRequested, setCompletionRequested] = useState(false);
+  const [hasVideoWallBuilderHandoff] = useState(() =>
+    typeof window !== "undefined" && Boolean(window.sessionStorage.getItem("wingman:video-wall-discovery")),
+  );
+  const [discoveryMode, setDiscoveryMode] = useState<DiscoveryHandoffMode>("standard");
+  const [templateEditId, setTemplateEditId] = useState<string | undefined>(undefined);
+  const [templateDraftName, setTemplateDraftName] = useState("");
+  const [templateDraftMarket, setTemplateDraftMarket] = useState<string>(TEMPLATE_MARKETS[0]);
+  const [sourceTemplateId, setSourceTemplateId] = useState<string | undefined>(undefined);
+  const [sourceTemplateName, setSourceTemplateName] = useState<string | undefined>(undefined);
+  const [templateSavedMessage, setTemplateSavedMessage] = useState("");
+  const [clientName, setClientName] = useState(() => draftField("clientName"));
+  const [contactName, setContactName] = useState(() => draftField("contactName"));
+  const [siteName, setSiteName] = useState(() => draftField("siteName"));
+  const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
+  const [timeline, setTimeline] = useState(() => draftField("timeline"));
+  // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
+  const [progressiveMode, setProgressiveMode] = useState<ProgressiveMode>("basic");
+  // Pending escalation: set when a non-basic question is edited in basic mode —
+  // shows a confirmation dialog before switching to Expert.
+  const [pendingEscalation, setPendingEscalation] = useState<string | null>(null);
+  // `?interview=1` (dashboard / project-card resume links) opens straight into
+  // the guided interview, which resumes at the first open question.
+  const [interviewActive, setInterviewActive] = useState(
+    () => searchParams.get("interview") === "1",
+  );
+  const [discoveryPace, setDiscoveryPace] = useState<DiscoveryPace>("live");
+  // Which review walk the interview starts with: the whole conversation, or
+  // only the questions still marked "to be confirmed" (`?review=open`).
+  const [reviewScope, setReviewScope] = useState<"all" | "open">(
+    () => (searchParams.get("review") === "open" ? "open" : "all"),
+  );
+  // Persisted review position: re-entry lands back on the same question.
+  const [reviewPosition, setReviewPosition] = useState<number | undefined>(() => {
+    const stored = discoveryDraft?.brief?.reviewPosition;
+    return typeof stored === "number" && Number.isFinite(stored)
+      ? Math.max(0, Math.floor(stored))
+      : undefined;
+  });
+  const navigate = useNavigate();
+  const existingDiscoveryPortalTarget =
+    typeof document !== "undefined"
+      ? document.querySelector<HTMLElement>(".wingman-workspace")
+      : null;
+  const budgetInputRef = useRef<HTMLSelectElement | null>(null);
+  // WINGMAN_RESUME_EXISTING_DISCOVERY_INTENT_EFFECT
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (
+      window.sessionStorage.getItem(resumeExistingDiscoveryStorageKey) !== "1"
+    ) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      window.sessionStorage.removeItem(resumeExistingDiscoveryStorageKey);
+    }, 500);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_EFFECT_START
+  useEffect(() => {
+    if (!showExistingDiscoveryWarning) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowExistingDiscoveryWarning(false);
+        navigate(-1);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [navigate, showExistingDiscoveryWarning]);
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_EFFECT_END
+
+  const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
+  const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
+  const marketId = wmDiscoveryAnswerToText(answers.market);
+  const environmentId = wmDiscoveryAnswerToText(answers.environment);
+  const showMarketContext = editingMarketContext || (!environmentId && (Boolean(marketId) || !selectedApplication));
+  const discoveryQuestions = useMemo(
+    () =>
+      wmDiscoveryFilterUnifiedCommsQuestions(
+        getVisibleDiscoveryQuestions(selectedApplication, answers),
+        answers,
+      ),
+    [selectedApplication, answers],
+  );
+
+  // In Basic mode, only show the essential questions; Expert shows all. Derived
+  // from BASIC_MODE_REQUIRED_IDS (single source of truth) so the UI gate and
+  // the smart-default/escalation logic can never disagree on Basic's questions.
+  const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
+  const modeQuestions = useMemo(() => {
+    if (progressiveMode === "expert") return discoveryQuestions;
+    return discoveryQuestions.filter((q) => BASIC_IDS.has(q.id));
+  }, [discoveryQuestions, progressiveMode, BASIC_IDS]);
+
+  // Quick-start conflict signals (stranded defaults, application drift).
+  const {
+    applyQuickStartSeeded,
+    removeQuickStartDrift,
+    strandedQuickStart,
+    quickStartDrift,
+    openStrandedStep,
+    removeStrandedQuickStart,
+  } = useQuickStartConflictSignals({
+    discoveryQuestions,
+    modeQuestions,
+    progressiveMode,
+    answers,
+    setAnswers,
+    appliedDefaults,
+    onAppliedDefaultsChange: setAppliedDefaults,
+    seedProvenance: quickStartSeed,
+    onSeedProvenanceChange: setQuickStartSeed,
+    setActiveIndex,
+    setIsReviewingAnswers,
+    setPendingEscalation,
+  });
+
+  useEffect(() => {
+    if (!editQuestionId || editQuestionId === "budget") return;
+    // If the target question is not in the current mode's list, switch to Expert.
+    const editIndex = modeQuestions.findIndex((question) => question.id === editQuestionId);
+    if (editIndex >= 0) {
+      setActiveIndex(editIndex);
+      setIsReviewingAnswers(false);
+    } else if (progressiveMode === "basic" && discoveryQuestions.some((q) => q.id === editQuestionId)) {
+      // Don't silently switch — show a confirmation prompt instead
+      setPendingEscalation(editQuestionId);
+    }
+  }, [modeQuestions, editQuestionId, progressiveMode, discoveryQuestions]);
+
+  useEffect(() => {
+    if (editQuestionId !== "budget") return;
+    window.requestAnimationFrame(() => {
+      budgetInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      budgetInputRef.current?.focus({ preventScroll: true });
+    });
+  }, [editQuestionId]);
+
+
+  const activeStepIdRef = useRef(modeQuestions[0]?.id ?? "");
+  
+  // Clamp active discovery step after reset or dynamic question-list changes.
+  useEffect(() => {
+    setActiveIndex((index) => {
+      if (modeQuestions.length <= 0) {
+        return 0;
+      }
+
+      return Math.min(Math.max(index, 0), modeQuestions.length - 1);
+    });
+  }, [modeQuestions.length]);
+
+  const completionPanelRef = useRef<HTMLElement | null>(null);
+
+  const currentStep = modeQuestions[Math.min(activeIndex, Math.max(modeQuestions.length - 1, 0))];
+  const currentStepView = getQuestionView(currentStep, selectedApplication);
+  const currentAnswer = answers[currentStep.id] ?? "";
+  const currentNote = notes[currentStep.id] ?? "";
+  const selectedQuestionStrategy = getQuestionStrategy(currentStep.id, selectedApplication);
+  const selectedApplicationGuidance = currentStep.id === "opportunity" && currentAnswer.length > 0
+    ? selectedQuestionStrategy
+    : undefined;
+
+  const answeredCount = useMemo(() => {
+    return modeQuestions.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length;
+  }, [answers, modeQuestions]);
+
+  const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);
+  const isFirstStep = activeIndex === 0;
+  const isLastStep = activeIndex === modeQuestions.length - 1;
+  // Integrity gate = mode questions; stranded scan = full visible set, so an
+  // expert-level strand still blocks quote safety in Basic.
+  const integrityQuestions = modeQuestions;
+  const decisionIntegrity = useMemo(
+    () => evaluateDiscoveryDecisionIntegrity(integrityQuestions, answers, notes, discoveryQuestions, appliedDefaults, quickStartSeed),
+    [answers, appliedDefaults, discoveryQuestions, integrityQuestions, notes, quickStartSeed],
+  );
+  const isDiscoveryComplete = modeQuestions.length > 0 && answeredCount === modeQuestions.length;
+  const showCompletionPanel = isDiscoveryComplete && completionRequested && !isReviewingAnswers;
+
+  const selectedAnswerLabel = (stepId: string): string => {
+    const step = modeQuestions.find((candidate) => candidate.id === stepId);
+    return step && wmDiscoveryHasAnswer(answers[stepId])
+      ? getOptionLabel(step, answers[stepId], selectedApplication)
+      : "";
+  };
+  const requiresVideoWallConfiguration =
+    wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output") ||
+    wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") ||
+    selectedApplication === "video-wall";
+  const videoWallConfigured = Boolean(
+    hasVideoWallBuilderHandoff ||
+    existingDiscoveryProject?.videowall?.summary ||
+    (!discoveryDraft ? currentWorkflowProject?.videowall?.summary : undefined),
+  );
+  const videoWallConfigurationPending = requiresVideoWallConfiguration && !videoWallConfigured;
+  const opportunityDescription = [
+    selectedAnswerLabel("opportunity") || wmDiscoveryAnswerToText(answers.opportunity),
+    selectedAnswerLabel("scale"),
+    selectedAnswerLabel("sources"),
+    selectedAnswerLabel("source-device-workflows"),
+    selectedAnswerLabel("displays"),
+    selectedAnswerLabel("display-behaviour"),
+    selectedAnswerLabel("signal-standard"),
+  ].filter(Boolean).join(" · ");
+
+  const capturedSummary = useMemo(() => {
+    const activeTopologySummary = projectTopologyHasContent(topology)
+      ? projectTopologySummary(normaliseProjectTopology(topology))
+      : "";
+
+    return modeQuestions
+      .filter((step) => wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]))
+      .map((step) => {
+        const capturedNote = notes[step.id]?.trim() ?? "";
+        const supportingDetails = step.id === "opportunity"
+          ? [opportunityDescription, capturedNote].filter(Boolean).join(" - ")
+          : step.id === "locations-connections"
+            ? [activeTopologySummary, capturedNote].filter(Boolean).join(" - ")
+            : capturedNote;
+
+        return {
+          id: step.id,
+          label: step.shortLabel,
+          answer: wmDiscoveryHasAnswer(answers[step.id]) ? getOptionLabel(step, answers[step.id], selectedApplication) : "Captured note only",
+          note: supportingDetails,
+          confirmed: confirmedSteps[step.id] === true,
+        };
+      });
+  }, [answers, notes, selectedApplication, modeQuestions, opportunityDescription, topology, confirmedSteps]);
+
+  useEffect(() => {
+    if (answeredCount === 0 && Object.keys(notes).length === 0 && !marketId) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      writeLatestDiscoverySnapshot({
+        ...(discoveryOwnershipRef.current ?? {}),
+        activeStepIndex: activeIndex,
+        state: { answers, appliedDefaults, quickStartSeed, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
+        brief: buildDiscoveryBrief(),
+        savedAt: "",
+      });
+    }, 400);
+
+    return () => window.clearTimeout(timeout);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answeredCount, activeIndex, answers, appliedDefaults, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition]);
+
+  useEffect(() => {
+    setActiveIndex((current) => Math.min(current, Math.max(modeQuestions.length - 1, 0)));
+  }, [modeQuestions.length]);
+
+  useEffect(() => {
+    document.documentElement.classList.add("wm-discovery-page-open");
+    document.body.classList.add("wm-discovery-page-open");
+
+    const Recognition = getDiscoverySpeechRecognition();
+    setMicSupported(Boolean(Recognition));
+
+
+    return () => {
+      document.documentElement.classList.remove("wm-discovery-page-open");
+      document.body.classList.remove("wm-discovery-page-open");
+
+      if (recogniserRef.current) {
+        recogniserRef.current.stop();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    activeStepIdRef.current = currentStep.id;
+  }, [currentStep.id]);
+
+  useEffect(() => {
+    if (currentStep.id !== "locations-connections" || projectTopologyHasContent(topology)) {
+      return;
+    }
+
+    const generated = generateProjectTopologyFromDiscovery({
+      answers,
+      notes,
+      application: selectedApplication,
+      existing: topology,
+    });
+    setTopology(generated);
+    writeDiscoveryTopology(generated);
+  }, [answers, currentStep.id, notes, selectedApplication, topology]);
+
+  useEffect(() => {
+    const handoff = readDiscoveryHandoff();
+
+    if (!handoff) {
+      return;
+    }
+
+    const incomingAnswers = {
+      ...((handoff.answers ?? {}) as DiscoveryAnswers),
+    };
+    const incomingNotes = {
+      ...((handoff.notes ?? {}) as DiscoveryNotes),
+    };
+
+    const currentUsb = wmDiscoveryNormaliseAnswerList(incomingAnswers.usb);
+    const legacyUsb = wmDiscoveryNormaliseAnswerList(incomingAnswers["usb-path"]).map((value) => {
+      if (value === "no-usb-path-needed") return "no-usb";
+      if (value === "unknown-usb-path") return "unknown-usb";
+      if (value === "user-laptop-host") return "byod-byom";
+      return value;
+    });
+    let mergedUsb = Array.from(new Set([...currentUsb, ...legacyUsb]));
+    if (mergedUsb.some((value) => value !== "no-usb" && value !== "unknown-usb")) {
+      mergedUsb = mergedUsb.filter((value) => value !== "no-usb" && value !== "unknown-usb");
+    }
+    if (mergedUsb.length) incomingAnswers.usb = mergedUsb;
+
+    const activeLegacyUsb = mergedUsb.some((value) => value !== "no-usb" && value !== "unknown-usb");
+    if (activeLegacyUsb && !incomingAnswers["uc-purpose"]) {
+      incomingAnswers["uc-purpose"] = "video-conferencing";
+    }
+
+    const sourceConnections = wmDiscoveryNormaliseAnswerList(incomingAnswers["source-connection"]);
+    if (sourceConnections.includes("cameras-ndi-network-streams")) {
+      const migratedSourceConnections = sourceConnections.filter((value) => value !== "cameras-ndi-network-streams");
+      if (migratedSourceConnections.length) {
+        incomingAnswers["source-connection"] = migratedSourceConnections;
+      } else {
+        delete incomingAnswers["source-connection"];
+      }
+      incomingAnswers["uc-purpose"] = incomingAnswers["uc-purpose"] || "camera-distribution-only";
+      incomingAnswers["uc-camera"] = incomingAnswers["uc-camera"] || ["ndi-network-camera"];
+      incomingAnswers["uc-camera-routing"] = incomingAnswers["uc-camera-routing"] || ["camera-to-displays"];
+    }
+
+    const legacyAudio = wmDiscoveryNormaliseAnswerList(incomingAnswers.audio);
+    if (legacyAudio.includes("mic-conferencing")) {
+      const migratedAudio = legacyAudio.filter((value) => value !== "mic-conferencing");
+      if (migratedAudio.length) {
+        incomingAnswers.audio = migratedAudio;
+      } else {
+        delete incomingAnswers.audio;
+      }
+      incomingAnswers["uc-purpose"] = incomingAnswers["uc-purpose"] || "video-conferencing";
+      incomingAnswers["uc-microphones"] = incomingAnswers["uc-microphones"] || ["unknown-microphones"];
+      incomingAnswers["uc-microphone-connection"] =
+        incomingAnswers["uc-microphone-connection"] || ["unknown-microphone-connection"];
+    }
+
+    const incomingTopology = projectTopologyHasContent(handoff.topology)
+      ? normaliseProjectTopology(handoff.topology)
+      : generateProjectTopologyFromDiscovery({
+          answers: incomingAnswers,
+          notes: incomingNotes,
+          application: wmDiscoveryAnswerToText(incomingAnswers.opportunity),
+        });
+
+    const legacyLocationNotes = [incomingNotes.distance, incomingNotes.infrastructure].filter(Boolean).join(" | ");
+    if (legacyLocationNotes && !incomingNotes["locations-connections"]) {
+      incomingNotes["locations-connections"] = legacyLocationNotes;
+    }
+
+    delete incomingAnswers["usb-path"];
+    delete incomingAnswers.distance;
+    delete incomingAnswers.infrastructure;
+    delete incomingNotes["usb-path"];
+    delete incomingNotes.distance;
+    delete incomingNotes.infrastructure;
+
+    setAnswers(incomingAnswers);
+    setAppliedDefaults((previous) => ({ ...previous, ...incomingAnswers }));
+    setNotes(incomingNotes);
+    setTopology(incomingTopology);
+    writeDiscoveryTopology(incomingTopology);
+
+    setDiscoveryMode(handoff.mode);
+    setTemplateEditId(handoff.templateId);
+    setTemplateDraftName(handoff.templateName ?? "");
+    setTemplateDraftMarket(handoff.templateMarket || TEMPLATE_MARKETS[0]);
+    setSourceTemplateId(handoff.sourceTemplateId);
+    setSourceTemplateName(handoff.sourceTemplateName);
+
+    const startApplication = wmDiscoveryAnswerToText(incomingAnswers.opportunity);
+    const startQuestions = wmDiscoveryFilterUnifiedCommsQuestions(
+      getVisibleDiscoveryQuestions(startApplication, incomingAnswers),
+      incomingAnswers,
+    );
+    setActiveIndex(resolveDiscoveryStartIndex(startQuestions, incomingAnswers, handoff.startAtQuestionId));
+
+    clearDiscoveryHandoff();
+  }, []);
+
+
+  useEffect(() => {
+    const storedCallNotes = window.sessionStorage.getItem(callNotesStorageKey);
+
+    if (!storedCallNotes) {
+      return;
+    }
+
+    const cleanCallNotes = storedCallNotes.trim();
+
+    if (!cleanCallNotes) {
+      return;
+    }
+
+    setNotes((current) => ({
+      ...current,
+      opportunity: current.opportunity ? current.opportunity : cleanCallNotes,
+    }));
+
+    if (!cleanCallNotes.startsWith("Guru assistant handoff")) {
+      setAnswers((current) => ({
+        ...current,
+        opportunity: current.opportunity ? current.opportunity : "not-sure",
+      }));
+    }
+
+    window.sessionStorage.removeItem(callNotesStorageKey);
+  }, []);
+
+  useEffect(() => {
+    const useVideoWall = window.sessionStorage.getItem("wingman:use-video-wall-in-discovery");
+    const videoWallRaw = window.sessionStorage.getItem("wingman:video-wall-discovery");
+    if (useVideoWall === "1" && videoWallRaw) {
+      try {
+        const payload = JSON.parse(videoWallRaw) as { wallType?: string; recommendation?: { products?: unknown[] } };
+        const wallType = String(payload.wallType ?? "video wall").trim() || "video wall";
+        const products = Array.isArray(payload.recommendation?.products)
+          ? payload.recommendation.products.map((item) => String(item)).filter(Boolean).join(", ")
+          : "";
+        const note = `Video wall design from the builder: ${wallType}${products ? `. Suggested: ${products}` : ""}.`;
+        const nextOpportunity = answers.opportunity || "video-wall";
+        const nextAnswers = { ...answers, opportunity: nextOpportunity };
+        setAnswers(nextAnswers);
+        setNotes((current) => ({ ...current, opportunity: current.opportunity ? current.opportunity : note }));
+
+        const startApplication = wmDiscoveryAnswerToText(nextOpportunity);
+        const startQuestions = wmDiscoveryFilterUnifiedCommsQuestions(
+          getVisibleDiscoveryQuestions(startApplication, nextAnswers),
+          nextAnswers,
+        );
+        setActiveIndex(resolveDiscoveryStartIndex(startQuestions, nextAnswers));
+      } catch {
+        // Ignore malformed handoff payloads.
+      }
+      window.sessionStorage.removeItem("wingman:use-video-wall-in-discovery");
+    }
+
+    const seedRaw = window.sessionStorage.getItem("wingman.roomBuilderSeedProduct");
+    if (seedRaw) {
+      try {
+        const seed = JSON.parse(seedRaw) as { sku?: string; name?: string };
+        const label = [seed.sku, seed.name].map((item) => String(item ?? "").trim()).filter(Boolean).join(" - ");
+        if (label) {
+          setNotes((current) => ({
+            ...current,
+            sources: current.sources ? current.sources : `Customer is interested in ${label}.`,
+          }));
+        }
+      } catch {
+        // Ignore malformed handoff payloads.
+      }
+      window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function movePrevious(): void {
+    setActiveIndex((index) => Math.max(0, index - 1));
+  }
+
+  function moveNext(): void {
+    setActiveIndex((index) => Math.min(modeQuestions.length - 1, index + 1));
+  }
+
+  function handleSelectAnswer(value: string): void {
+    if (wmDiscoveryIsMultiSelectStep(currentStep)) {
+
+      setAnswers((previous) => {
+        const updated = { ...previous };
+        const nextList = wmDiscoveryToggleMultiSelectAnswer(currentStep, previous[currentStep.id], value);
+
+        if (wmDiscoveryHasAnswer(nextList)) {
+          updated[currentStep.id] = nextList;
+          return updated;
+        }
+
+        delete updated[currentStep.id];
+        return updated;
+      });
+
+      setSavedMessage("");
+      return;
+    }
+
+    const completesDiscovery = modeQuestions.every(
+      (step) => step.id === currentStep.id || wmDiscoveryHasAnswer(answers[step.id]),
+    );
+
+    setAnswers((previous) => {
+      if (currentStep.id === "opportunity" && previous.opportunity !== value) {
+        return changeDiscoveryApplication(previous, value);
+      }
+
+      const updated: DiscoveryAnswers = {
+        ...previous,
+        [currentStep.id]: value,
+      };
+
+      if (currentStep.id === "uc-purpose" && value === "no-uc") {
+        ["uc-platform", "uc-camera", "uc-camera-routing", "uc-microphones", "uc-microphone-connection", "usb"]
+          .forEach((key) => delete updated[key]);
+      }
+
+      if (currentStep.id === "uc-purpose" && value === "camera-distribution-only") {
+        ["uc-platform", "uc-microphones", "uc-microphone-connection", "usb"]
+          .forEach((key) => delete updated[key]);
+      }
+
+      if (currentStep.id === "uc-microphones" && value === "no-microphones") {
+        delete updated["uc-microphone-connection"];
+      }
+
+      return updated;
+    });
+
+    if (currentStep.id === "opportunity" && answers.opportunity !== value) {
+      // The note beside the application question is the customer's original
+      // requirement; changing the classification must keep it. Only notes on
+      // the old conditional route are stale.
+      const opportunityNote = notes.opportunity?.trim() ?? "";
+      const nextNotes: DiscoveryNotes = opportunityNote ? { opportunity: opportunityNote } : {};
+      setNotes(nextNotes);
+      setTopology(generateProjectTopologyFromDiscovery({
+        answers: { market: marketId, environment: environmentId, opportunity: value },
+        notes: nextNotes,
+        application: value,
+      }));
+    }
+
+    if (currentStep.id === "uc-purpose" && ["no-uc", "camera-distribution-only"].includes(value)) {
+      setNotes((previous) => {
+        const updated: DiscoveryNotes = { ...previous };
+        const keys = value === "no-uc"
+          ? ["uc-platform", "uc-camera", "uc-camera-routing", "uc-microphones", "uc-microphone-connection", "usb"]
+          : ["uc-platform", "uc-microphones", "uc-microphone-connection", "usb"];
+        keys.forEach((key) => delete updated[key]);
+        return updated;
+      });
+    }
+
+    setSavedMessage("");
+
+    if (isLastStep && completesDiscovery) return;
+
+    if (!isLastStep) {
+      moveNext();
+    }
+  }
+
+  function handleTopologyChange(next: ProjectTopology): void {
+    const normalised = writeDiscoveryTopology(next);
+    setTopology(normalised);
+    setAnswers((previous) => {
+      const updated = { ...previous };
+      if (projectTopologyHasContent(normalised)) {
+        updated["locations-connections"] = "topology-captured";
+      } else {
+        delete updated["locations-connections"];
+      }
+      return updated;
+    });
+    setSavedMessage("");
+  }
+
+  function completeTopologyStep(): void {
+    const completedTopology = projectTopologyHasContent(topology)
+      ? normaliseProjectTopology(topology)
+      : generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication });
+    handleTopologyChange(completedTopology);
+
+    if (isLastStep) {
+      setCompletionRequested(true);
+      window.setTimeout(() => {
+        completionPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+      return;
+    }
+
+    moveNext();
+  }
+
+  function handleCaptureChange(value: string): void {
+    setNotes((previous) => ({
+      ...previous,
+      [currentStep.id]: value,
+    }));
+    setSavedMessage("");
+  }
+  function confirmCaptureSuggestion(values: string[], confidence?: "high" | "matched" | "low"): void {
+    if (!values.length) return;
+    if (confidence) {
+      setConfidenceByStep((previous) => ({ ...previous, [currentStep.id]: confidence }));
+    }
+    // A deliberate option pick is high-confidence: stamp a clear 10 score.
+    if (confidence === "high") {
+      setConfidenceScoresByStep((previous) => ({ ...previous, [currentStep.id]: 10 }));
+    }
+    if (wmDiscoveryIsMultiSelectStep(currentStep)) {
+      setAnswers((previous) => ({ ...previous, [currentStep.id]: values }));
+      setSavedMessage("");
+      return;
+    }
+    handleSelectAnswer(values[0]);
+  }
+
+  function saveCaptureAsAnswer(): void {
+    const cleanNote = currentNote.trim();
+
+    if (!cleanNote) {
+      return;
+    }
+
+    const completesDiscovery = modeQuestions.every(
+      (step) => step.id === currentStep.id || wmDiscoveryHasAnswer(answers[step.id]),
+    );
+
+    setAnswers((previous) => ({
+      ...previous,
+      [currentStep.id]: cleanNote,
+    }));
+
+    window.setTimeout(() => {
+      setActiveIndex((index) => Math.min(modeQuestions.length - 1, index + 1));
+
+      if (completesDiscovery) {
+        setCompletionRequested(true);
+        completionPanelRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        completionPanelRef.current?.focus({ preventScroll: true });
+      }
+    }, 180);
+  }
+
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_ACTIONS_START
+  function continueExistingDiscovery(): void {
+    /*
+      DiscoveryPage already loaded the saved snapshot before displaying this
+      warning. Continuing must therefore dismiss the warning only. Reloading or
+      navigating recreates the page and causes the warning to appear again.
+    */
+    setShowExistingDiscoveryWarning(false);
+
+    window.requestAnimationFrame(() => {
+      const continuationTarget =
+        document.querySelector<HTMLElement>(".wm-discovery-question-card") ??
+        document.querySelector<HTMLElement>(".wm-discovery-trail-card") ??
+        document.querySelector<HTMLElement>(".wm-discovery-completion-card");
+
+      continuationTarget?.scrollIntoView({
+        behavior: "auto",
+        block: "start",
+      });
+    });
+  }
+  function startNewDiscoveryProject(): void {
+    if (hasExistingDiscoveryContent) {
+      saveDiscoveryBriefToProject(
+        buildDiscoveryBrief(),
+        existingDiscoveryProject?.id ?? discoveryDraft?.projectId ?? null,
+      );
+    }
+
+    clearActiveProject();
+    // An explicit empty owner prevents the new draft from falling back to the
+    // prior workflow project while no replacement project exists yet.
+    discoveryOwnershipRef.current = { projectId: undefined, projectName: undefined };
+    setShowExistingDiscoveryWarning(false);
+    resetDiscovery();
+  }
+
+  function cancelExistingDiscoveryChoice(): void {
+    setShowExistingDiscoveryWarning(false);
+    navigate(-1);
+  }
+
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_ACTIONS_END
+  function resetDiscovery(): void {
+    if (recogniserRef.current) {
+      recogniserRef.current.stop();
+    }
+
+    recogniserRef.current = null;
+
+    window.sessionStorage.removeItem("wingman:use-call-notes-in-discovery");
+    window.sessionStorage.removeItem("wingman:call-notes");
+    window.sessionStorage.removeItem("wingman:use-video-wall-in-discovery");
+    window.sessionStorage.removeItem("wingman:video-wall-discovery");
+    window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
+    clearDiscoveryHandoff();
+    clearLatestDiscoverySnapshot();
+    discoveryOwnershipRef.current = { projectId: undefined, projectName: undefined };
+
+    setIsListening(false);
+    setMicError("");
+    setAnswers({});
+    setAppliedDefaults({});
+    setQuickStartSeed(null);
+    setNotes({});
+    setConfidenceByStep({});
+    setConfidenceScoresByStep({});
+    setReviewPosition(undefined);
+    setReviewScope("all");
+    clearDiscoveryTopology();
+    setTopology(createBlankProjectTopology());
+    setActiveIndex(0);
+    setIsReviewingAnswers(false);
+    setCompletionRequested(false);
+    setSavedMessage("");
+    setDiscoveryMode("standard");
+    setTemplateEditId(undefined);
+    setTemplateDraftName("");
+    setTemplateDraftMarket(TEMPLATE_MARKETS[0]);
+    setSourceTemplateId(undefined);
+    setSourceTemplateName(undefined);
+    setTemplateSavedMessage("");
+    setClientName("");
+    setContactName("");
+    setSiteName("");
+    setBudgetLevel("");
+    setTimeline("");
+
+    navigate("/wingman/discovery", { replace: true });
+
+    window.requestAnimationFrame(() => {
+      setActiveIndex(0);
+    });
+  }
+
+  function buildDiscoveryBrief(): StoredDiscoveryBrief {
+    return compileDiscoveryBrief({
+      answers, notes, topology, discoveryQuestions, modeQuestions, basicQuestionIds: BASIC_IDS,
+      progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
+      sourceTemplateId, sourceTemplateName, clientName, contactName, siteName, budgetLevel,
+      timeline, completionPercent, reviewPosition, confirmedSteps, confidenceByStep,
+      confidenceScoresByStep, decisionIntegrity,
+    });
+  }
+
+  function saveDiscoveryToProject(): void {
+    saveDiscoveryToOwningProject();
+    setSavedMessage("Discovery saved to your project. Continue to product selection or a proposal when ready.");
+  }
+
+  function saveDiscoveryToOwningProject() {
+    const ownership = discoveryOwnershipRef.current;
+    const savedProject = saveDiscoveryBriefToProject(
+      buildDiscoveryBrief(),
+      ownership ? ownership.projectId ?? null : undefined,
+    );
+    discoveryOwnershipRef.current = {
+      projectId: savedProject.id,
+      projectName: savedProject.name,
+    };
+    return savedProject;
+  }
+
+  const canSaveCustomTemplate = templateDraftName.trim().length > 0 && wmDiscoveryHasAnswer(answers.opportunity);
+
+  function saveAsCustomTemplate(): void {
+    if (!canSaveCustomTemplate) {
+      setTemplateSavedMessage("Add a template name and answer the application/room type question before saving.");
+      return;
+    }
+
+    const brief = buildDiscoveryBrief();
+    const roomModel = (brief.roomModel ?? {}) as Record<string, unknown>;
+    const templateTopology = normaliseProjectTopology(brief.topology ?? roomModel.topology);
+    const summary = String(roomModel.summary || brief.inference?.summary || "Custom room template created in Discovery.");
+
+    const draft = createBlankCustomRoomTemplate({
+      name: templateDraftName.trim(),
+      vertical: templateDraftMarket || "Custom",
+      application: String(roomModel.application || selectedApplication || "Custom application"),
+      scale: String(roomModel.scale || "Custom"),
+      summary,
+      customerNarrative: String(roomModel.outcome || summary),
+      architecture: String(roomModel.designDirection || ""),
+      assumptions: brief.missingInformation,
+      validationItems: brief.missingInformation,
+      discoveryAnswers: answers,
+      discoveryNotes: notes,
+      topology: templateTopology,
+    });
+
+    saveCustomRoomTemplate(draft, {
+      id: templateEditId,
+      sourceTemplateId,
+    });
+
+    clearDiscoveryHandoff();
+    navigate(routeCatalogByKey.templates.path);
+  }
+
+  function cancelTemplateMode(): void {
+    clearDiscoveryHandoff();
+    navigate(routeCatalogByKey.templates.path);
+  }
+
+  function moveForward(target: "recommendations" | "proposal"): void {
+    if (!decisionIntegrity.canProceedToRecommendation) {
+      setSavedMessage(`Resolve ${decisionIntegrity.issues.length} discovery check${decisionIntegrity.issues.length === 1 ? "" : "s"} before continuing.`);
+      setIsReviewingAnswers(true);
+      return;
+    }
+    saveDiscoveryToOwningProject();
+    if (target === "recommendations" && videoWallConfigurationPending) {
+      navigate(routeCatalogByKey.videowall.path);
+      return;
+    }
+    navigate(target === "proposal" ? routeCatalogByKey.proposal.path : routeCatalogByKey.recommendations.path);
+  }
+
+  function openVideoWallConfiguration(): void {
+    saveDiscoveryToOwningProject();
+    navigate(routeCatalogByKey.videowall.path);
+  }
+
+  function toggleMicrophone(): void {
+    setMicError("");
+
+    if (isListening && recogniserRef.current) {
+      recogniserRef.current.stop();
+      recogniserRef.current = null;
+      setIsListening(false);
+      return;
+    }
+
+    const Recognition = getDiscoverySpeechRecognition();
+
+    if (!Recognition) {
+      setMicError("Microphone capture is not supported in this browser. Use Chrome or type notes manually.");
+      return;
+    }
+
+    const recogniser = new Recognition();
+    recogniser.continuous = true;
+    recogniser.interimResults = true;
+    recogniser.lang = "en-GB";
+
+    recogniser.onresult = (event: DiscoverySpeechRecognitionEventLike) => {
+      let finalTranscript = "";
+      const startIndex = event.resultIndex ?? 0;
+
+      for (let index = startIndex; index < event.results.length; index += 1) {
+        const result = event.results[index];
+
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript;
+        }
+      }
+
+      const cleanTranscript = finalTranscript.trim();
+
+      if (!cleanTranscript) {
+        return;
+      }
+
+      const activeStepId = activeStepIdRef.current;
+
+      setNotes((previous) => {
+        const existing = previous[activeStepId]?.trim() ?? "";
+        const divider = existing.length > 0 ? " " : "";
+
+        return {
+          ...previous,
+          [activeStepId]: `${existing}${divider}${cleanTranscript}`.trim(),
+        };
+      });
+    };
+
+    recogniser.onerror = () => {
+      setMicError("Microphone capture stopped. Check browser microphone permission.");
+      setIsListening(false);
+    };
+
+    recogniser.onend = () => {
+      setIsListening(false);
+    };
+
+    recogniserRef.current = recogniser;
+    recogniser.start();
+    setIsListening(true);
+  }
+return (
+    <main
+      className="wm-discovery-capture-page wm-ui-page"
+      data-audit={discoveryAuditMarkers.join("|")}
+      data-discovery-pace={discoveryPace}
+    >
+      {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_START */}
+      {showExistingDiscoveryWarning && existingDiscoveryPortalTarget &&
+        !hasIntentionalDiscoveryEntry? createPortal(
+            <ExistingDiscoveryWarning
+              projectName={existingDiscoveryName}
+              progress={existingDiscoveryProgress}
+              savedAt={existingDiscoverySavedAt}
+              onContinue={continueExistingDiscovery}
+              onStartNew={startNewDiscoveryProject}
+              onCancel={cancelExistingDiscoveryChoice}
+            />,
+            existingDiscoveryPortalTarget,
+          )
+        : null}
+      <DiscoverySessionHero pace={discoveryPace} clientName={clientName} siteName={siteName} completionPercent={completionPercent} answeredCount={answeredCount} questionCount={modeQuestions.length} />
+
+      {!isGuided && (
+        <div className="wm-discovery-tool-row">
+          <DiscoverySessionPaceSwitch pace={discoveryPace} onChange={setDiscoveryPace} />
+          <DiscoveryClientDetailsPanel
+            clientName={clientName}
+            onClientNameChange={setClientName}
+            contactName={contactName}
+            onContactNameChange={setContactName}
+            siteName={siteName}
+            onSiteNameChange={setSiteName}
+            budgetLevel={budgetLevel}
+            onBudgetLevelChange={setBudgetLevel}
+            budgetInputRef={budgetInputRef}
+            timeline={timeline}
+            onTimelineChange={setTimeline}
+          />
+        </div>
+      )}
+
+      {isGuided ? (
+        <details className="wm-discovery-client-compact" data-wingman-client-compact="true">
+          <summary className="wm-discovery-client-compact-toggle">
+            {(clientName.trim() || siteName.trim())
+              ? `${clientName.trim()}${siteName.trim() ? ` · ${siteName.trim()}` : ""}`
+              : "Add client details"}
+          </summary>
+          <div className="wm-discovery-client-compact-fields">
+            <input
+              type="text"
+              placeholder="Client name"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              className="wm-discovery-client-compact-input"
+            />
+            <input
+              type="text"
+              placeholder="Site name"
+              value={siteName}
+              onChange={(e) => setSiteName(e.target.value)}
+              className="wm-discovery-client-compact-input"
+            />
+          </div>
+        </details>
+      ) : null}
+
+      <DiscoveryAudioDesignSummary answers={answers} notes={notes} />
+      {discoveryMode !== "standard" ? (
+        <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
+          <strong>{discoveryMode === "template-edit" ? "Editing custom template" : "Creating a new custom template"}</strong>
+          <p className="wm-ui-copy">
+            Answer discovery questions to capture this reusable room design. Saving creates a template only — it will
+            not create a project.
+          </p>
+        </section>
+      ) : sourceTemplateName ? (
+        <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template source">
+          <strong>Pre-populated from template: {sourceTemplateName}</strong>
+          <p className="wm-ui-copy">
+            Answers below were carried over from that template. Adjust anything that differs for this project.
+          </p>
+        </section>
+      ) : null}
+
+      {!showMarketContext && marketId && environmentId && <DiscoveryMarketContextSummary
+        marketId={marketId}
+        environmentId={environmentId}
+        environmentDetail={wmDiscoveryAnswerToText(answers["environment-detail"])}
+        onEdit={() => setEditingMarketContext(true)}
+      />}
+
+      {showMarketContext ? (
+        <DiscoveryMarketEntry
+          marketId={marketId}
+          environmentId={environmentId}
+          onMarketChange={(nextMarket) => {
+            setAnswers((current) => {
+              const next: DiscoveryAnswers = { ...current, market: nextMarket };
+              delete next.environment;
+              return next;
+            });
+            if (DISCOVERY_TEMPLATE_MARKET[nextMarket]) setTemplateDraftMarket(DISCOVERY_TEMPLATE_MARKET[nextMarket]);
+          }}
+          onEnvironmentSelect={(nextEnvironment, suggestedApplication, description) => {
+            setAnswers((current) => ({
+              ...current,
+              environment: nextEnvironment,
+              "environment-detail": description ?? "",
+              ...(!wmDiscoveryHasAnswer(current.opportunity) && suggestedApplication ? { opportunity: suggestedApplication } : {}),
+            }));
+            setEditingMarketContext(false);
+          }}
+        />
+      ) : interviewActive ? (
+        <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} strandedQuickStart={strandedQuickStart} applicationDrift={quickStartDrift} onOpenStrandedStep={openStrandedStep} onRemoveStranded={removeStrandedQuickStart} />
+      ) : showCompletionPanel ? (
+        <DiscoveryCompletionPanel
+          panelRef={completionPanelRef}
+          answerCount={modeQuestions.length}
+          totalQuestions={discoveryQuestions.length}
+          mode={progressiveMode}
+          requiresVideoWallConfiguration={videoWallConfigurationPending}
+          videoWallConfigured={requiresVideoWallConfiguration && videoWallConfigured}
+          savedMessage={savedMessage}
+          onMoveForward={moveForward}
+          onReviewAnswers={() => {
+            setActiveIndex(Math.max(modeQuestions.length - 1, 0));
+            setIsReviewingAnswers(true);
+          }}
+          onUnlockExpert={() => {
+            setCompletionRequested(false);
+            setProgressiveMode("expert");
+          }}
+          onSave={saveDiscoveryToProject}
+          onExportBrief={async () =>
+            (await import("../lib/discoveryBriefExport")).exportDiscoveryBriefHtml(buildDiscoveryBrief(), {
+              projectName: existingDiscoveryName,
+            })
+          }
+          strandedQuickStart={strandedQuickStart}
+          applicationDrift={quickStartDrift}
+          onOpenStrandedStep={openStrandedStep}
+          onRemoveStranded={removeStrandedQuickStart}
+          onRemoveDrift={removeQuickStartDrift}
+        />
+      ) : (
+      <>
+      {/* Pending Escalation Confirmation — shown when user edits a non-basic question */}
+      {pendingEscalation && progressiveMode === "basic" && !isReviewingAnswers && (
+        <div className="wm-discovery-escalation-confirm" data-wingman-escalation-confirm="true" role="dialog" aria-label={`Switch to ${DISCOVERY_DEPTH_PRESENTATION.expert.label} discovery?`}>
+          <div className="wm-discovery-escalation-confirm-content">
+            <span className="wm-discovery-escalation-confirm-icon" aria-hidden="true">🔬</span>
+            <div>
+              <strong>Unlock full discovery?</strong>
+              <p>
+                The question you want to edit is outside the 6 Essential questions. {DISCOVERY_DEPTH_PRESENTATION.expert.label} discovery reveals all {discoveryQuestions.length} questions.
+              </p>
+            </div>
+          </div>
+          <div className="wm-discovery-escalation-confirm-actions">
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-primary"
+              onClick={() => {
+                setProgressiveMode("expert");
+                setPendingEscalation(null);
+              }}
+              data-testid="escalation-confirm"
+            >
+              Switch to {DISCOVERY_DEPTH_PRESENTATION.expert.label}
+            </button>
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-secondary"
+              onClick={() => setPendingEscalation(null)}
+              data-testid="escalation-dismiss"
+            >
+              Stay in {DISCOVERY_DEPTH_PRESENTATION.basic.label}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Progressive disclosure: mode toggle, smart defaults, and step banner */}
+      {!isReviewingAnswers && !editQuestionId && (
+        <DiscoveryProgressiveDisclosure
+          questions={modeQuestions}
+          activeIndex={activeIndex}
+          answers={answers}
+          onAnswersChange={setAnswers}
+          onActiveIndexChange={setActiveIndex}
+          mode={progressiveMode}
+          onModeChange={(mode) => {
+            setCompletionRequested(false);
+            setProgressiveMode(mode);
+          }}
+          isReviewingAnswers={isReviewingAnswers}
+          showModeToggle={answeredCount < 3}
+          showBatchControls={answeredCount === 0}
+        />
+      )}
+
+      <DiscoveryQuestionSection
+        activeIndex={activeIndex} questionCount={modeQuestions.length} currentStep={currentStep} currentStepView={currentStepView}
+        currentAnswer={currentAnswer} currentNote={currentNote} answers={answers} notes={notes} topology={topology}
+        isFirstStep={isFirstStep} isLastStep={isLastStep} isReviewingAnswers={isReviewingAnswers}
+        isDiscoveryComplete={isDiscoveryComplete} capturedSummary={capturedSummary} savedMessage={savedMessage}
+        micSupported={micSupported} isListening={isListening} micError={micError} selectedApplication={selectedApplication}
+        selectedApplicationGuidance={selectedApplicationGuidance} requiresVideoWallConfiguration={requiresVideoWallConfiguration}
+        videoWallConfigured={videoWallConfigured} strandedQuickStart={strandedQuickStart} quickStartDrift={quickStartDrift}
+        setIsReviewingAnswers={setIsReviewingAnswers} setConfirmedSteps={setConfirmedSteps} onReset={resetDiscovery}
+        onSelectAnswer={handleSelectAnswer} onTopologyChange={handleTopologyChange} onCompleteTopology={completeTopologyStep}
+        onMovePrevious={movePrevious} onMoveNext={moveNext} onFinishDiscovery={() => setCompletionRequested(true)}
+        answeredCount={answeredCount} onCaptureChange={handleCaptureChange}
+        onConfirmCaptureSuggestion={confirmCaptureSuggestion} onSaveCapture={saveCaptureAsAnswer}
+        onSaveDiscovery={saveDiscoveryToProject} onToggleMicrophone={toggleMicrophone}
+        onConfigureVideoWall={openVideoWallConfiguration} onOpenStrandedStep={openStrandedStep}
+        onRemoveStranded={removeStrandedQuickStart} onRemoveDrift={removeQuickStartDrift}
+      />
+      </>
+      )}
+
+      {discoveryMode !== "standard" ? (
+        <DiscoveryCustomTemplatePanel
+          name={templateDraftName}
+          onNameChange={setTemplateDraftName}
+          market={templateDraftMarket}
+          onMarketChange={setTemplateDraftMarket}
+          canSave={canSaveCustomTemplate}
+          onSave={saveAsCustomTemplate}
+          onCancel={cancelTemplateMode}
+          savedMessage={templateSavedMessage}
+        />
+      ) : null}
+    </main>
+  );
+}
+
+export default DiscoveryPage;

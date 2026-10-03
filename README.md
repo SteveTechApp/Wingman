@@ -1,0 +1,67 @@
+﻿# WyreStorm Wingman
+
+WyreStorm Wingman is an internal sales, discovery, product-selection and proposal-support tool for WyreStorm Technologies.
+
+The application helps sales and pre-sales users move from customer requirements to a practical AV system direction using guided workflows, product intelligence, comparison support, project storage and proposal-ready outputs.
+
+[![Evidence freshness](https://github.com/SteveTechApp/Wingman/actions/workflows/wyrestorm-freshness.yml/badge.svg)](https://github.com/SteveTechApp/Wingman/actions/workflows/wyrestorm-freshness.yml)
+
+The nightly evidence-freshness run live-checks every governed evidence page — WyreStorm profiles and approved competitor decisions — and re-runs the field-drift, confirmation-baseline and competitor-decision gates. Red here means an official page is dead/moved (either side) or an approved decision has drifted from the live engine — each gate's result is reported in the run summary before the next scheduled run.
+
+## Active App Files
+
+- App entry: `src/main.tsx`
+- Route shell: `src/wingman2/layout/AppShell.tsx`
+- Route registry: `src/wingman2/app/routes.tsx` and `src/wingman2/app/routeCatalog.ts`
+- Pages: `src/wingman2/pages/`
+- Shared components: `src/wingman2/components/`
+- Consolidated styling: `src/wingman2/styles/wingman-style-stack.css`
+
+Do not edit root-level drop-in page files or archived backup copies. The active runtime is under `src/wingman2`, and `src/main.tsx` intentionally imports only the consolidated Wingman style stack.
+
+## Current Redesign Direction
+
+The active redesign is focused on making Wingman feel like one cohesive workspace instead of a set of separately patched pages:
+
+- Pages should fill the available workspace width and use a consistent frame.
+- The sidebar should behave like styled navigation: clear labels, hidden hover tooltips, active-state color, and no long summary copy in the rail.
+- Primary user actions should be visually steered with restrained aqua/cyan highlights and state cues.
+- Cards, panels, headings and buttons should share a consistent dark WyreStorm visual system.
+- Visual interest should support task direction, not add decorative noise.
+
+## Development
+
+```bash
+npm run dev
+```
+
+Open `http://127.0.0.1:3000/wingman`.
+
+For faster local validation during UI work, run:
+
+```bash
+npm run typecheck
+npm run build
+```
+
+Before committing larger changes, run:
+
+```bash
+npm run verify
+```
+
+## Styling Governance
+
+Wingman uses one consolidated stylesheet: `src/wingman2/styles/wingman-style-stack.css`.
+
+Page files should not import their own CSS. Visual work should use the shared `wm-*` primitives and add route-specific rules to the consolidated stack only when needed.
+
+## Repository Hygiene
+
+Backups, generated bundles, root-level drop-ins, build output and historical archive folders are excluded from the active repository. Removed material remains recoverable through Git history and the external archive created by the repository sweep script.
+
+Keep scratch files, installer bundles and one-off backups outside `C:\Users\steve\wingman` so development and debugging operate only on active runtime files.
+## Documentation
+
+Detailed feature, launch, migration and audit notes live under `docs/`. Historical material remains available through Git history and external repository-sweep archives.
+

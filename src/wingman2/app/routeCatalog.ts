@@ -1,0 +1,174 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  Bot,
+  BookOpen,
+  Boxes,
+  BarChart3,
+  ClipboardList,
+  FileText,
+  FileUp,
+  FolderKanban,
+  LayoutDashboard,
+  LayoutTemplate,
+  LifeBuoy,
+  Monitor,
+  PackageCheck,
+  Scale,
+  Search,
+  Settings,
+  Shield,
+  Workflow,
+  Swords,
+  CheckCircle,
+} from "lucide-react";
+import routeManifest from "./route-manifest.json";
+
+export type WingmanRouteKey =
+  | "dashboard"
+  | "callCoach"
+  | "products"
+  | "documents"
+  | "responsePack"
+  | "learn"
+  | "projects"
+  | "discovery"
+  | "recommendations"
+  | "productFamilies"
+  | "productPitch"
+  | "catalogBrowser"
+  | "compare"
+  | "templates"
+  | "videowall"
+  | "salesHelper"
+  | "glossary"
+  | "callCards"
+  | "productCallCards"
+  | "ingest"
+  | "proposal"
+  | "approvalQueue"
+  |  "support"
+  | "profile"
+  | "proposalVisuals"
+  | "battleCards"
+  | "quoteSafetyDashboard"
+  | "analyticsDashboard"
+  | "terms";
+
+type RouteManifestEntry = {
+  key: WingmanRouteKey;
+  path: string;
+  segment: string;
+  label: string;
+  navLabel: string;
+  pageFile: string;
+  summary: string;
+};
+
+export type WingmanRoute = RouteManifestEntry & {
+  icon: LucideIcon;
+};
+
+const iconMap: Record<WingmanRouteKey, LucideIcon> = {
+  dashboard: LayoutDashboard,
+  callCoach: Bot,
+  products: PackageCheck,
+  documents: FileUp,
+  responsePack: FileText,
+  learn: BookOpen,
+  projects: FolderKanban,
+  discovery: ClipboardList,
+  recommendations: Search,
+  productFamilies: LayoutTemplate,
+  productPitch: PackageCheck,
+  catalogBrowser: Boxes,
+  compare: Scale,
+  templates: LayoutTemplate,
+  videowall: Monitor,
+  salesHelper: Bot,
+  glossary: BookOpen,
+  callCards: ClipboardList,
+  productCallCards: PackageCheck,
+  ingest: FileUp,
+  proposal: FileText,
+  support: LifeBuoy,
+  profile: Settings,
+  battleCards: Swords,
+  quoteSafetyDashboard: Shield,
+  analyticsDashboard: BarChart3,
+  terms: Shield,
+  proposalVisuals: Workflow,
+  approvalQueue: CheckCircle,
+};
+
+const manifest = routeManifest as RouteManifestEntry[];
+
+export const routeCatalog: WingmanRoute[] = manifest.map((route) => ({
+  ...route,
+  icon: iconMap[route.key],
+}));
+
+export const routeCatalogByKey = Object.fromEntries(
+  routeCatalog.map((route) => [route.key, route]),
+) as Record<WingmanRouteKey, WingmanRoute>;
+
+export const consolidatedPrimaryNavKeys = [
+  "dashboard",
+  "discovery",
+  "products",
+  "compare",
+  "responsePack",
+  "projects",
+] as const satisfies readonly WingmanRouteKey[];
+
+export function primarySectionForRoute(key: WingmanRouteKey): (typeof consolidatedPrimaryNavKeys)[number] | null {
+  if (consolidatedPrimaryNavKeys.some((item) => item === key)) return key as (typeof consolidatedPrimaryNavKeys)[number];
+  if (["callCoach", "salesHelper", "callCards", "templates", "videowall"].includes(key)) return "discovery";
+  if (["catalogBrowser", "productFamilies", "productCallCards", "productPitch", "recommendations"].includes(key)) return "products";
+  if (key === "battleCards") return "compare";
+  if (["documents", "ingest", "proposal", "proposalVisuals"].includes(key)) return "responsePack";
+  if (key === "quoteSafetyDashboard") return "projects";
+  return null;
+}
+
+export const consolidatedRouteGroups = {
+  callCoach: ["productCallCards", "discovery", "compare"],
+  products: ["productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
+  documents: ["ingest", "templates", "compare", "proposal"],
+  responsePack: ["proposal", "proposalVisuals", "templates"],
+  learn: ["glossary", "support", "productFamilies"],
+} as const satisfies Partial<Record<WingmanRouteKey, readonly WingmanRouteKey[]>>;
+
+export const canonicalWorkflowRoutes = {
+  "sales-conversation": ["callCoach", "salesHelper", "callCards", "productCallCards"],
+  "response-authoring": ["documents", "responsePack", "proposal"],
+} as const satisfies Record<string, readonly WingmanRouteKey[]>;
+
+export function routeByPath(pathname: string) {
+  const normalizedPath = pathname.replace(/\/+$/, "") || "/wingman";
+
+  if (normalizedPath === "/wingman") {
+    return routeCatalogByKey.dashboard;
+  }
+
+  if (pathname.startsWith("/wingman/projects/")) {
+    return routeCatalogByKey.projects;
+  }
+
+  if (pathname.startsWith("/wingman/templates/")) {
+    return routeCatalogByKey.templates;
+  }
+
+  if (pathname.startsWith("/wingman/product-call-cards/")) {
+    return routeCatalogByKey.productCallCards;
+  }
+
+  if (pathname.startsWith("/wingman/product-families/")) {
+    return routeCatalogByKey.productFamilies;
+  }
+
+  if (normalizedPath === "/wingman/profile") {
+    return routeCatalogByKey.profile;
+  }
+
+  return routeCatalog.find((route) => route.path === normalizedPath || `/wingman/${route.segment}` === normalizedPath);
+}

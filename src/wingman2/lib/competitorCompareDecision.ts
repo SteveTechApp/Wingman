@@ -1,0 +1,1133 @@
+import { buildCompetitorDecisionEvidence } from "./competitorProductIntelligence";
+import { resolutionRank } from "./compareResolution";
+import { deriveSystemRequirements } from "./systemDependencies";
+import type { ProductTechnologyProfile } from "../types/technologyProfile";
+export type CompareDecisionOutcome = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH" | "VERIFY";
+
+export type CompareRequirementTier = "necessary" | "conditional" | "beneficial";
+export type CompareRequirementStatus = "meets" | "exceeds" | "fails" | "unknown" | "not-applicable";
+
+export type CompareRequirementAssessment = {
+  key: string;
+  label: string;
+  tier: CompareRequirementTier;
+  status: CompareRequirementStatus;
+  competitorValue: string;
+  wyrestormValue: string;
+  evidence: string;
+};
+
+export type CompareSpecFacts = {
+  hdmiInputs?: number;
+  hdmiOutputs?: number;
+  hdmiLoopOutputs?: number;
+  hdmiVersion?: string;
+  hdcpVersion?: string;
+  displayPortInputs?: number;
+  displayPortOutputs?: number;
+  dviInputs?: number;
+  dviOutputs?: number;
+  vgaInputs?: number;
+  vgaOutputs?: number;
+  sdiInputs?: number;
+  sdiOutputs?: number;
+  compositeInputs?: number;
+  compositeOutputs?: number;
+  componentInputs?: number;
+  componentOutputs?: number;
+  usbHostPorts?: number;
+  usbDevicePorts?: number;
+  usbTotalPorts?: number;
+  usbCPorts?: number;
+  usbStandard?: string;
+  audioInputs?: number;
+  audioOutputs?: number;
+  networkPorts?: number;
+  controlPorts?: number;
+  rs232?: boolean;
+  ir?: boolean;
+  cec?: boolean;
+  relay?: boolean;
+  gpio?: boolean;
+  ethernetControl?: boolean;
+  audioEmbed?: boolean;
+  audioDeEmbed?: boolean;
+  analogAudio?: boolean;
+  arc?: boolean;
+  earc?: boolean;
+  dante?: boolean;
+  dedicatedDantePort?: boolean;
+  aes67?: boolean;
+  wirelessCasting?: boolean;
+  castingDongleSupport?: string;
+  poe?: boolean;
+  poc?: boolean;
+  poh?: boolean;
+  powerDelivery?: boolean;
+  internalPsu?: boolean;
+  externalPsu?: boolean;
+  powerSupply?: string;
+  gpioPortCount?: number;
+  relayPortCount?: number;
+  hdbasetVersion?: string;
+  hdbasetClass?: string;
+  hdbasetDistance?: number;
+  networkSpeed?: string;
+  networkSpeedConfidence?: "confirmed" | "inferred" | "verify";
+  networkSpeedEvidence?: string;
+  avoipChip?: string | null;
+  avoipChipStatus?: "known" | "not-publicly-confirmed" | "verify";
+  avoipCodec?: string;
+  ndiVersion?: string;
+  ptzProtocol?: string;
+  wirelessStandard?: string;
+  cableCategory?: string;
+};
+
+export type CompareDecisionProfile = {
+  sku?: string;
+  title?: string;
+  domain?: string;
+  role?: string;
+  transport?: string;
+  technology?: ProductTechnologyProfile;
+  inputCount?: number;
+  outputCount?: number;
+  maxResolution?: string;
+  chroma?: string;
+  latency?: string;
+  features?: Record<string, boolean | undefined>;
+  specs?: CompareSpecFacts;
+  sourceUrl?: string;
+  sourceTier?: "verified-profile" | "official-structured" | "text-inferred" | "missing";
+  sourceLabel?: string;
+  profileEvidence?: string[];
+  profileWarnings?: string[];
+  specTier?: string;
+  readiness?: string;
+  /**
+   * Whether this product operates on its own. `false` means it is one component
+   * of a larger system - see `systemRequirements` for what else is needed. Used
+   * to stop a single SKU being positioned as a one-box replacement for a
+   * competitor's complete system.
+   */
+  standalone?: boolean;
+  systemRequirements?: string[];
+};
+
+export type CompareDecisionInput = {
+  competitor: CompareDecisionProfile;
+  wyrestorm: CompareDecisionProfile;
+  score?: number;
+  evidence?: string[];
+  warnings?: string[];
+};
+
+export type CompareDecisionResult = {
+  outcome: CompareDecisionOutcome;
+  confidence: number;
+  blockers: string[];
+  gaps: string[];
+  matches: string[];
+  verify: string[];
+  summary: string;
+  nextAction: string;
+  /**
+   * What else the WyreStorm candidate needs to operate as a system (empty when
+   * it works standalone). Surfaced so a single component is never presented as a
+   * one-box replacement for a competitor's complete system.
+   */
+  systemRequirements: string[];
+  /** Structured proof used by the UI to separate essentials from advantages. */
+  requirements: CompareRequirementAssessment[];
+  necessaryCoverage: { confirmed: number; total: number; unknown: number; failed: number };
+  evidenceCompleteness: number;
+  solutionType: "direct-equivalent" | "qualified-alternative" | "architecture-alternative" | "insufficient-evidence" | "no-match";
+};
+
+const ROLE_EQUIVALENTS: Record<string, string[]> = {
+  encoder: ["transmitter", "source endpoint", "tx"],
+  decoder: ["receiver", "display endpoint", "rx"],
+  transmitter: ["encoder", "source endpoint", "tx"],
+  receiver: ["decoder", "display endpoint", "rx"],
+  transceiver: ["encoder", "decoder", "transmitter", "receiver", "encoder/decoder", "trx"],
+  matrix: ["matrix switcher"],
+  "distribution amplifier": ["splitter", "hdmi splitter", "distribution amp"],
+  controller: ["control processor", "control module"],
+  // Wireless presentation products (Barco ClickShare, Extron ShareLink, Kramer
+  // VIA, Blustream WMF...) resolve with a "wireless presentation" role while
+  // WyreStorm's governed role for the SW-* family is "Room presentation and
+  // source switching core". All of them describe the same room-presentation
+  // job, so treat them as one role rather than blocking every wireless
+  // comparison with a false role mismatch.
+  "presentation switcher": [
+    "presentation scaler",
+    "room switcher",
+    "collaboration switcher",
+    "wireless presentation",
+    "wireless collaboration",
+    "wireless casting",
+    // The Apollo casting dongle (APO-DG2) is the wireless-presentation
+    // endpoint itself - a competitor described as a wireless casting dongle
+    // (e.g. ClickShare Button, ScreenBeam) must not be blocked as a role
+    // mismatch against the presentation-switcher lane.
+    "wireless casting dongle",
+    "wireless presentation dongle",
+    "casting dongle",
+    "room presentation and source switching core",
+  ],
+  "video bar": [
+    "room appliance",
+    "conferencing bar",
+    "conference bar",
+    "usb conferencing",
+    "conference bar / usb conferencing",
+    "uc soundbar",
+    "uc room product",
+    "uc room endpoint",
+  ],
+  "video wall processor": ["wall processor", "videowall processor"],
+  "multiview processor": ["windowing processor", "multi-view processor"],
+};
+
+const HARD_FEATURES = [
+  "usbRouting",
+  "usbC",
+  "wireless",
+  "dante",
+  "aes67",
+  "multiview",
+  "videoWall",
+  "hdbtOutput",
+  "receiverKit",
+  "tenGig",
+  "zeroLatency",
+  "lossless",
+  "control",
+  "poe",
+  "poc",
+  "poh",
+  "audioDeEmbed",
+  "audioEmbed",
+  "rs232",
+  "ir",
+  "cec",
+  "ethernetControl",
+  "arc",
+  "earc",
+  "dedicatedDantePort",
+];
+
+function clean(value: unknown): string {
+  return String(value ?? "").trim();
+}
+
+function lower(value: unknown): string {
+  return clean(value).toLowerCase();
+}
+
+function yes(value: unknown): boolean {
+  return Boolean(value);
+}
+
+function numberValue(value: unknown): number | null {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function isUnknown(value: unknown): boolean {
+  const text = lower(value);
+  return !text || text === "unknown" || text === "verify" || text === "n/a";
+}
+
+function describedPower(profile: CompareDecisionProfile): string {
+  const specs = profile.specs ?? {};
+  const methods = [
+    specs.poe ? "PoE" : "",
+    specs.poh ? "PoH" : "",
+    specs.poc ? "PoC" : "",
+    specs.internalPsu ? "internal PSU" : "",
+    specs.externalPsu ? "external PSU" : "",
+    specs.powerSupply || "",
+  ].filter(Boolean);
+  return Array.from(new Set(methods)).join(" / ");
+}
+
+function requirement(
+  key: string,
+  label: string,
+  tier: CompareRequirementTier,
+  status: CompareRequirementStatus,
+  competitorValue: string,
+  wyrestormValue: string,
+  evidence: string,
+): CompareRequirementAssessment {
+  return { key, label, tier, status, competitorValue, wyrestormValue, evidence };
+}
+
+// Competitor intelligence buckets every meeting-room switcher/scaler under one
+// coarse "PRESENTATION" domain, while WyreStorm's own product classifier
+// (wyrestormCompareProfile.ts's detectDomain) splits that same category into
+// "PRESENTATION" and "WIRELESS_PRESENTATION" depending on whether the
+// candidate also supports wireless casting. A wireless-capable presentation
+// switcher is still a presentation switcher, so treat these two domains as
+// compatible rather than blocking every wireless-capable candidate with a
+// false "technology class mismatch" against a competitor description that
+// was never that granular in the first place.
+const COMPATIBLE_DOMAIN_GROUPS: ReadonlyArray<ReadonlySet<string>> = [
+  new Set(["presentation", "wireless_presentation"]),
+];
+
+function domainsCompatible(competitorDomain: unknown, wyrestormDomain: unknown): boolean {
+  const a = lower(competitorDomain);
+  const b = lower(wyrestormDomain);
+
+  if (a === b) {
+    return true;
+  }
+
+  return COMPATIBLE_DOMAIN_GROUPS.some((group) => group.has(a) && group.has(b));
+}
+
+function normaliseRole(value: unknown): string {
+  const role = lower(value);
+
+  for (const [canonical, equivalents] of Object.entries(ROLE_EQUIVALENTS)) {
+    if (role === canonical || equivalents.includes(role)) return canonical;
+  }
+
+  return role;
+}
+
+function rolesMatch(a: unknown, b: unknown): boolean {
+  const left = normaliseRole(a);
+  const right = normaliseRole(b);
+
+  if (!left || !right) return false;
+  if (left === right) return true;
+
+  const leftEquivalents = ROLE_EQUIVALENTS[left] ?? [];
+  const rightEquivalents = ROLE_EQUIVALENTS[right] ?? [];
+
+  return leftEquivalents.includes(right) || rightEquivalents.includes(left);
+}
+
+function transportTokens(value: unknown): string[] {
+  const text = lower(value)
+    .replace(/av over ip/g, "avoip")
+    .replace(/av-over-ip/g, "avoip")
+    .replace(/hdbaset/g, "hdbt")
+    .replace(/hdbase t/g, "hdbt")
+    .replace(/usb-c/g, "usbc")
+    .replace(/usb c/g, "usbc");
+
+  return text
+    .split(/[^a-z0-9]+/g)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 1 && !["and", "with", "plus", "output", "outputs", "input", "inputs"].includes(item));
+}
+
+function transportMatches(competitorTransport: unknown, wyrestormTransport: unknown): boolean {
+  const competitor = transportTokens(competitorTransport);
+  const wyrestorm = new Set(transportTokens(wyrestormTransport));
+
+  if (!competitor.length || !wyrestorm.size) return false;
+
+  return competitor.every((token) => wyrestorm.has(token));
+}
+
+type CompareNetworkClass = "1g" | "10g";
+type CompareNetworkConfidence = "confirmed" | "inferred" | "verify";
+
+type CompareNetworkClassResult = {
+  value: CompareNetworkClass | null;
+  confidence: CompareNetworkConfidence;
+  evidence: string;
+};
+
+function normaliseNetworkConfidence(value: unknown): CompareNetworkConfidence {
+  const confidence = lower(value);
+  if (confidence === "confirmed" || confidence === "inferred") return confidence;
+  return "verify";
+}
+
+function compareNetworkClass(profile: CompareDecisionProfile): CompareNetworkClassResult {
+  const declaredSpeed = lower(profile.specs?.networkSpeed);
+  const transport = lower(profile.transport);
+  const declaredConfidence = profile.specs?.networkSpeedConfidence
+    ? normaliseNetworkConfidence(profile.specs.networkSpeedConfidence)
+    : "confirmed";
+  const declaredEvidence = clean(profile.specs?.networkSpeedEvidence);
+
+  const declaredText = [declaredSpeed, transport].filter(Boolean).join(" ");
+
+  if (/\b10\s*g(?:be|bit ethernet|igabit ethernet)\b|\b10gbe\b|\b10-gigabit ethernet\b|\b10\s*gb(?:e|ps)?\s+(?:managed\s+)?network\b/.test(declaredText)) {
+    return {
+      value: "10g",
+      confidence: declaredConfidence,
+      evidence: declaredEvidence || "Explicit 10GbE network requirement.",
+    };
+  }
+
+  if (/\b1\s*g(?:be|bit ethernet|igabit ethernet)\b|\b1gbe\b|\bgigabit ethernet\b|\b1000base(?:-t|x)?\b|\b1\s*gb(?:e|ps)?\s+(?:managed\s+)?network\b/.test(declaredText)) {
+    return {
+      value: "1g",
+      confidence: declaredConfidence,
+      evidence: declaredEvidence || "Explicit 1GbE network requirement.",
+    };
+  }
+
+  const codec = lower(profile.specs?.avoipCodec || profile.transport);
+
+  if (/\bipmx\b/.test(codec)) {
+    return {
+      value: null,
+      confidence: "verify",
+      evidence: "IPMX can be deployed across different network rates; confirm the product requirement.",
+    };
+  }
+
+  if (/\bsdvoe\b/.test(codec)) {
+    return {
+      value: "10g",
+      confidence: "inferred",
+      evidence: "Inferred from SDVoE.",
+    };
+  }
+
+  if (/jpeg\s*-?\s*2000|jpeg2000|jpeg\s*-?\s*xs|jpegxs|h\.?26[45]|hevc|avc/.test(codec)) {
+    const codecLabel = clean(profile.specs?.avoipCodec) || "the stated AVoIP codec";
+    return {
+      value: "1g",
+      confidence: "inferred",
+      evidence: `Inferred from ${codecLabel}.`,
+    };
+  }
+
+  return {
+    value: null,
+    confidence: "verify",
+    evidence: "Network class is not stated and cannot be safely inferred.",
+  };
+}
+
+function networkClassText(result: CompareNetworkClassResult): string {
+  if (!result.value) return "network class not verified";
+  const speed = result.value === "10g" ? "10GbE" : "1GbE";
+  return `${speed} (${result.confidence})`;
+}
+
+// Chroma subsampling fidelity, ranked low-to-high. A product stated at a
+// given resolution tier with lower chroma fidelity is delivering a visibly
+// different (compressed-color) image than one at full 4:4:4, even though
+// resolutionRank() above would score them identically - that distinction
+// otherwise goes completely unweighted in match scoring.
+const CHROMA_RANK: Record<string, number> = { "4:2:0": 1, "4:2:2": 2, "4:4:4": 3 };
+
+function normaliseChroma(value: unknown): string | undefined {
+  const text = lower(value);
+  if (/4:4:4/.test(text)) return "4:4:4";
+  if (/4:2:2/.test(text)) return "4:2:2";
+  if (/4:2:0/.test(text)) return "4:2:0";
+  return undefined;
+}
+
+// resolutionRank now comes from the shared ./compareResolution module so a
+// capability such as "4096x2160p @60Hz 4:4:4" is ranked as 4K60 rather than
+// mis-read as HD (which previously false-blocked otherwise-valid candidates).
+
+function featureLabel(key: string): string {
+  const labels: Record<string, string> = {
+    usbRouting: "USB/KVM routing",
+    usbC: "USB-C",
+    wireless: "wireless presentation",
+    dante: "Dante",
+    aes67: "AES67",
+    multiview: "multiview",
+    videoWall: "video wall",
+    hdbtOutput: "HDBaseT output",
+    receiverKit: "receiver kit",
+    tenGig: "10G network class",
+    zeroLatency: "zero latency",
+    lossless: "lossless transport",
+    control: "control connections",
+    poe: "PoE / remote power",
+    poc: "PoC",
+    poh: "PoH",
+    audioDeEmbed: "audio de-embed",
+    audioEmbed: "audio embed",
+    rs232: "RS-232 control",
+    ir: "IR control",
+    cec: "CEC control",
+    ethernetControl: "Ethernet / API control",
+    arc: "ARC",
+    earc: "eARC",
+    dedicatedDantePort: "dedicated Dante network port",
+  };
+
+  return labels[key] || key;
+}
+
+function addUnique(target: string[], value: string): void {
+  const cleanValue = clean(value);
+
+  if (!cleanValue || target.includes(cleanValue)) return;
+
+  target.push(cleanValue);
+}
+
+function countNoun(label: string): string {
+  const normalised = lower(label);
+
+  if (normalised === "input") return "inputs";
+  if (normalised === "output") return "outputs";
+
+  return normalised + "s";
+}
+
+function compareCounts(
+  label: string,
+  competitorValue: unknown,
+  wyrestormValue: unknown,
+  blockers: string[],
+  gaps: string[],
+  matches: string[],
+  verify: string[],
+  info: string[],
+): void {
+  const competitorCount = numberValue(competitorValue);
+  const wyrestormCount = numberValue(wyrestormValue);
+  const noun = countNoun(label);
+
+  if (competitorCount === null && wyrestormCount === null) {
+    // Neither side states a fixed count (normal for AVoIP / single-stream
+    // endpoints). This is not an actionable difference, so it is recorded as an
+    // informational note and must not block a GOOD MATCH.
+    addUnique(info, label + " count not stated for either product.");
+    return;
+  }
+
+  if (competitorCount !== null && wyrestormCount === null) {
+    addUnique(gaps, "WyreStorm candidate has unknown " + noun + " while competitor requires " + competitorCount + ".");
+    return;
+  }
+
+  if (competitorCount === null && wyrestormCount !== null) {
+    addUnique(verify, "Competitor " + noun + " unknown; WyreStorm candidate provides " + wyrestormCount + ".");
+    return;
+  }
+
+  if (competitorCount === null || wyrestormCount === null) {
+    addUnique(verify, label + " count needs verification.");
+    return;
+  }
+
+  if (wyrestormCount < competitorCount) {
+    addUnique(blockers, "WyreStorm candidate has fewer " + noun + " (" + wyrestormCount + ") than competitor (" + competitorCount + ").");
+    return;
+  }
+
+  if (wyrestormCount > competitorCount) {
+    addUnique(matches, "WyreStorm candidate exceeds competitor " + noun + ".");
+    return;
+  }
+
+  addUnique(matches, label + " count matches.");
+}
+
+// Output-count comparison for distribution amplifiers / splitters. The fan-out is
+// the defining spec: too few outputs is a hard blocker, and too many is a
+// right-sizing gap (the unit works but is a larger, costlier splitter than the
+// requirement) rather than a clean "exceeds" that would read as an advantage.
+function compareDistributionOutputs(
+  competitorValue: unknown,
+  wyrestormValue: unknown,
+  blockers: string[],
+  gaps: string[],
+  matches: string[],
+  verify: string[],
+): void {
+  const competitorCount = numberValue(competitorValue);
+  const wyrestormCount = numberValue(wyrestormValue);
+
+  if (competitorCount === null || wyrestormCount === null) {
+    addUnique(verify, "Output fan-out needs verification.");
+    return;
+  }
+
+  if (wyrestormCount < competitorCount) {
+    addUnique(blockers, "Fewer outputs (1:" + wyrestormCount + ") than the required 1:" + competitorCount + " fan-out.");
+    return;
+  }
+
+  if (wyrestormCount > competitorCount) {
+    addUnique(gaps, "Over-provisioned fan-out: 1:" + wyrestormCount + " where 1:" + competitorCount + " is required - a larger splitter than needed.");
+    return;
+  }
+
+  addUnique(matches, "Output fan-out matches (1:" + wyrestormCount + ").");
+}
+
+function scoreConfidence(input: CompareDecisionInput, blockers: string[], gaps: string[], verify: string[]): number {
+  const base = Number.isFinite(Number(input.score)) ? Number(input.score) : 72;
+  const blockerPenalty = blockers.length * 28;
+  const gapPenalty = gaps.length * 11;
+  const verifyPenalty = verify.length * 4;
+  const wyrestormSourcePenalty = sourceTierPenalty(input.wyrestorm);
+  const competitorSourcePenalty = competitorTierPenalty(input.competitor);
+
+  return Math.max(5, Math.min(98, Math.round(base - blockerPenalty - gapPenalty - verifyPenalty - wyrestormSourcePenalty - competitorSourcePenalty)));
+}
+
+function sourceTierPenalty(profile: CompareDecisionProfile): number {
+  if (profile.sourceTier === "verified-profile") return 0;
+  if (profile.sourceTier === "official-structured") return (profile.profileWarnings?.length ?? 0) > 0 ? 8 : 3;
+  if (profile.sourceTier === "text-inferred") return 14;
+  if (profile.sourceTier === "missing") return 24;
+  return 8;
+}
+
+function competitorTierPenalty(profile: CompareDecisionProfile): number {
+  if (profile.specTier === "verified-profile") return 0;
+  if (profile.specTier === "family-rule") return 12;
+  if (profile.specTier === "sku-only") return 26;
+  return 8;
+}
+
+function profileSourceLabel(profile: CompareDecisionProfile, fallback: string): string {
+  if (profile.sourceLabel) return profile.sourceLabel;
+  if (profile.sourceTier === "verified-profile") return fallback + " verified profile";
+  if (profile.sourceTier === "official-structured") return fallback + " official-page extracted facts";
+  if (profile.sourceTier === "text-inferred") return fallback + " text-inferred facts";
+  if (profile.sourceTier === "missing") return fallback + " facts missing";
+  return fallback + " evidence tier unknown";
+}
+
+function hasTrustedCompetitorProfile(profile: CompareDecisionProfile): boolean {
+  return profile.specTier === "verified-profile";
+}
+
+function hasUsableWyrestormProfile(profile: CompareDecisionProfile): boolean {
+  if (profile.readiness && profile.readiness !== "compare-ready") return false;
+
+  return profile.sourceTier === "verified-profile" ||
+    (profile.sourceTier === "official-structured" && (profile.profileWarnings?.length ?? 0) <= 1);
+}
+
+function summaryFor(outcome: CompareDecisionOutcome, input: CompareDecisionInput): string {
+  const competitor = clean(input.competitor.sku || input.competitor.title || "competitor product");
+  const wyrestorm = clean(input.wyrestorm.sku || input.wyrestorm.title || "WyreStorm candidate");
+
+  if (outcome === "GOOD MATCH") {
+    return wyrestorm + " is a credible comparison candidate for " + competitor + " based on product class, role, transport and critical capability checks.";
+  }
+
+  if (outcome === "PARTIAL MATCH") {
+    return wyrestorm + " may be a usable alternative to " + competitor + ", but the differences must be explained before it is presented as an equivalent.";
+  }
+
+  if (outcome === "NO MATCH") {
+    return wyrestorm + " should not be presented as an equivalent to " + competitor + " because at least one blocking product-class, role, transport, capacity or critical-feature issue exists.";
+  }
+
+  return "More evidence is required before Wingman can classify the comparison between " + wyrestorm + " and " + competitor + ".";
+}
+
+function nextActionFor(outcome: CompareDecisionOutcome): string {
+  if (outcome === "GOOD MATCH") return "Use as the primary comparison candidate, then validate datasheet, lifecycle, region and accessory dependencies.";
+  if (outcome === "PARTIAL MATCH") return "Show the candidate as a partial alternative and make the functional differences visible before proposal use.";
+  if (outcome === "NO MATCH") return "Do not recommend as an equivalent; choose another WyreStorm family or classify the requirement as no direct match.";
+  return "Add datasheet/product URL, I/O counts, transport type, role and critical feature evidence.";
+}
+
+export function classifyCompetitorCompareDecision(input: CompareDecisionInput): CompareDecisionResult {
+  const blockers: string[] = [];
+  const gaps: string[] = [];
+  const matches: string[] = [];
+  const verify: string[] = [];
+  // Administrative / evidence-tier notes: surfaced for transparency but excluded
+  // from the GOOD MATCH gate and the confidence penalty, because they are always
+  // present and previously made GOOD MATCH unreachable even with strong data.
+  const info: string[] = [];
+
+  const competitor = input.competitor;
+  const wyrestorm = input.wyrestorm;
+  const competitorTrusted = hasTrustedCompetitorProfile(competitor);
+  // A family-rule profile (domain/role/transport from the governed competitor
+  // intelligence, not a datasheet) is enough to allow a DIRECTIONAL PARTIAL
+  // MATCH once class, role and transport are all confirmed - but never GOOD
+  // MATCH, which stays exclusive to verified profiles. This lifts the long tail
+  // of brands (Barco, CYP, Sony, HDANYWHERE...) from permanent "verify-only"
+  // without eroding the verified-tier gate.
+  const competitorFamilyRuleComplete =
+    competitor.specTier === "family-rule" &&
+    !isUnknown(competitor.domain) &&
+    !isUnknown(competitor.role) &&
+    !isUnknown(competitor.transport);
+  const competitorIntelligence = buildCompetitorDecisionEvidence(competitor);
+
+  const domainKnown = !isUnknown(competitor.domain) && !isUnknown(wyrestorm.domain);
+  const domainMatches = domainKnown && domainsCompatible(competitor.domain, wyrestorm.domain);
+
+  if (!domainKnown) {
+    addUnique(verify, "Technology class needs verification.");
+  } else if (!domainMatches) {
+    addUnique(blockers, "Technology class mismatch: competitor is " + clean(competitor.domain) + ", WyreStorm candidate is " + clean(wyrestorm.domain) + ".");
+  } else {
+    addUnique(matches, "Technology class matches.");
+  }
+
+  const roleKnown = !isUnknown(competitor.role) && !isUnknown(wyrestorm.role);
+  const roleMatchesFlag = roleKnown && rolesMatch(competitor.role, wyrestorm.role);
+
+  if (!roleKnown) {
+    addUnique(verify, "Product role needs verification.");
+  } else if (!roleMatchesFlag) {
+    addUnique(blockers, "Product role mismatch: competitor is " + clean(competitor.role) + ", WyreStorm candidate is " + clean(wyrestorm.role) + ".");
+  } else {
+    addUnique(matches, "Product role matches.");
+  }
+
+  const competitorNetworkClass = compareNetworkClass(competitor);
+  const wyrestormNetworkClass = compareNetworkClass(wyrestorm);
+  const networkClassMismatch =
+    competitorNetworkClass.value !== null &&
+    wyrestormNetworkClass.value !== null &&
+    competitorNetworkClass.value !== wyrestormNetworkClass.value;
+  const networkClassConfirmedMismatch =
+    networkClassMismatch &&
+    competitorNetworkClass.confidence === "confirmed" &&
+    wyrestormNetworkClass.confidence === "confirmed";
+
+  if (networkClassConfirmedMismatch) {
+    addUnique(
+      blockers,
+      "Network class mismatch: competitor requires " +
+        networkClassText(competitorNetworkClass) +
+        ", WyreStorm candidate is " +
+        networkClassText(wyrestormNetworkClass) +
+        ".",
+    );
+  } else if (networkClassMismatch) {
+    addUnique(
+      gaps,
+      "Potential network class mismatch: competitor is " +
+        networkClassText(competitorNetworkClass) +
+        ", WyreStorm candidate is " +
+        networkClassText(wyrestormNetworkClass) +
+        ".",
+    );
+    addUnique(
+      verify,
+      "At least one network class is inferred; confirm the manufacturer network requirement before approval.",
+    );
+  } else {
+    if (competitorNetworkClass.value && wyrestormNetworkClass.value) {
+      addUnique(
+        matches,
+        "Network class aligns: " +
+          networkClassText(competitorNetworkClass) +
+          " versus " +
+          networkClassText(wyrestormNetworkClass) +
+          ".",
+      );
+    } else if (
+      lower(competitor.domain) === "avoip" ||
+      lower(wyrestorm.domain) === "avoip"
+    ) {
+      addUnique(verify, "AVoIP network class needs verification.");
+    }
+
+    if (isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)) {
+      addUnique(verify, "Transport needs verification.");
+    } else if (!transportMatches(competitor.transport, wyrestorm.transport)) {
+      // Transport wording is brand-specific. If technology class and role agree,
+      // a wording difference remains a review item rather than a hard rejection.
+      if (domainMatches && roleMatchesFlag) {
+        addUnique(gaps, "Transport wording differs: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ". Confirm the underlying transport is compatible.");
+      } else {
+        addUnique(blockers, "Transport mismatch: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ".");
+      }
+    } else {
+      addUnique(matches, "Transport path matches required competitor transport.");
+    }
+  }
+
+  // If Wingman has NO classification signal at all for the competitor product -
+  // no domain, no role, and no transport - there is nothing to compare against,
+  // and no specific WyreStorm SKU should be presented as even a partial match.
+  // Callers are expected to backfill domain/role/transport from any classifier
+  // they have available (e.g. keyword/tag matching on free text) before calling
+  // this function, so reaching this branch means every available signal - both
+  // the curated/structured lookup AND any free-text fallback - came up empty.
+  // Without this gate, an unrecognised bare SKU (no curated fingerprint, no
+  // keyword evidence anywhere) could still reach PARTIAL MATCH purely because
+  // the WyreStorm side of the comparison happens to have good data.
+  const competitorCompletelyUnclassified =
+    isUnknown(competitor.domain) && isUnknown(competitor.role) && isUnknown(competitor.transport);
+
+  if (competitorCompletelyUnclassified) {
+    addUnique(blockers, "Competitor product could not be classified at all (no technology class, role or transport evidence) - run a live lookup or confirm the product type before recommending any WyreStorm SKU.");
+  }
+
+  // Single-stream endpoints (encoder/decoder/transceiver/transmitter/receiver) do
+  // not have a meaningful fixed I/O count, so a count comparison there only creates
+  // false gaps. Counts are compared for matrices/switchers, where they matter.
+  const endpointRoles = new Set(["encoder", "decoder", "transceiver", "transmitter", "receiver"]);
+  const endpointComparison =
+    endpointRoles.has(normaliseRole(competitor.role)) || endpointRoles.has(normaliseRole(wyrestorm.role));
+
+  // A distribution amplifier / splitter is defined by its output fan-out, so an
+  // over-sized unit (more outputs than required) is a right-sizing gap, not a
+  // clean "exceeds" match - consistent with the eligibility engine's fan-out
+  // right-sizing. For a matrix, more outputs genuinely can be a fine larger
+  // equivalent, so it keeps the standard compareCounts behaviour.
+  const distributionComparison =
+    /splitter|distribution/.test(
+      [competitor.domain, competitor.role, wyrestorm.domain, wyrestorm.role]
+        .map((value) => lower(value))
+        .join(" "),
+    );
+
+  if (endpointComparison) {
+    addUnique(info, "Single-stream endpoint: fixed input/output count comparison not applicable.");
+  } else if (distributionComparison) {
+    compareCounts("Input", competitor.inputCount, wyrestorm.inputCount, blockers, gaps, matches, verify, info);
+    compareDistributionOutputs(competitor.outputCount, wyrestorm.outputCount, blockers, gaps, matches, verify);
+  } else {
+    compareCounts("Input", competitor.inputCount, wyrestorm.inputCount, blockers, gaps, matches, verify, info);
+    compareCounts("Output", competitor.outputCount, wyrestorm.outputCount, blockers, gaps, matches, verify, info);
+  }
+
+  const competitorResolution = resolutionRank(competitor.maxResolution);
+  const wyrestormResolution = resolutionRank(wyrestorm.maxResolution);
+
+  if (competitorResolution > 0 && wyrestormResolution > 0) {
+    if (wyrestormResolution < competitorResolution) {
+      addUnique(blockers, "WyreStorm candidate has lower stated resolution capability.");
+    } else {
+      addUnique(matches, "Resolution capability meets or exceeds competitor.");
+    }
+  } else {
+    addUnique(verify, "Resolution capability needs verification.");
+  }
+
+  // Chroma is only compared when BOTH sides have a known value - staying
+  // silent (no gap, no match note) rather than adding verify-noise whenever
+  // one side simply hasn't documented chroma subsampling.
+  const competitorChroma = normaliseChroma(competitor.chroma);
+  const wyrestormChroma = normaliseChroma(wyrestorm.chroma);
+
+  if (competitorChroma && wyrestormChroma) {
+    const competitorChromaRank = CHROMA_RANK[competitorChroma] ?? 0;
+    const wyrestormChromaRank = CHROMA_RANK[wyrestormChroma] ?? 0;
+
+    if (wyrestormChromaRank < competitorChromaRank) {
+      addUnique(
+        gaps,
+        "Competitor delivers " + competitorChroma + " chroma; WyreStorm candidate is stated at " + wyrestormChroma +
+          " (more chroma-subsampled) at a comparable resolution tier - confirm this meets the color-fidelity requirement.",
+      );
+    } else if (wyrestormChromaRank > competitorChromaRank) {
+      addUnique(matches, "Chroma fidelity meets or exceeds competitor (WyreStorm " + wyrestormChroma + " vs competitor " + competitorChroma + ").");
+    } else {
+      addUnique(matches, "Chroma fidelity matches (" + competitorChroma + ").");
+    }
+  }
+
+  const competitorHdbasetVersion = lower(competitor.specs?.hdbasetVersion);
+  const wyrestormHdbasetVersion = lower(wyrestorm.specs?.hdbasetVersion);
+  if (competitorHdbasetVersion) {
+    if (!wyrestormHdbasetVersion) {
+      addUnique(gaps, `Competitor requires ${competitor.specs?.hdbasetVersion}; WyreStorm candidate generation is not evidenced.`);
+    } else if (competitorHdbasetVersion !== wyrestormHdbasetVersion) {
+      addUnique(blockers, `HDBaseT generation mismatch: competitor uses ${competitor.specs?.hdbasetVersion}, WyreStorm candidate uses ${wyrestorm.specs?.hdbasetVersion}.`);
+    } else {
+      addUnique(matches, `${competitor.specs?.hdbasetVersion} generation matches.`);
+    }
+  }
+
+  const competitorHdbasetClass = lower(competitor.specs?.hdbasetClass);
+  const wyrestormHdbasetClass = lower(wyrestorm.specs?.hdbasetClass);
+  if (competitorHdbasetClass) {
+    if (!wyrestormHdbasetClass) {
+      addUnique(gaps, `Competitor requires ${competitor.specs?.hdbasetClass}; WyreStorm candidate HDBaseT class is not evidenced.`);
+    } else if (competitorHdbasetClass !== wyrestormHdbasetClass) {
+      addUnique(blockers, `HDBaseT class mismatch: competitor uses ${competitor.specs?.hdbasetClass}, WyreStorm candidate uses ${wyrestorm.specs?.hdbasetClass}.`);
+    } else {
+      addUnique(matches, `${competitor.specs?.hdbasetClass} matches.`);
+    }
+  }
+
+  const competitorDistance = numberValue(competitor.specs?.hdbasetDistance);
+  const wyrestormDistance = numberValue(wyrestorm.specs?.hdbasetDistance);
+  if (competitorDistance !== null) {
+    if (wyrestormDistance === null) {
+      addUnique(gaps, `Competitor HDBaseT reach is ${competitorDistance}m; candidate reach is not evidenced.`);
+    } else if (wyrestormDistance < competitorDistance) {
+      addUnique(blockers, `HDBaseT reach is insufficient: ${wyrestormDistance}m versus the required ${competitorDistance}m.`);
+    } else {
+      addUnique(matches, `HDBaseT reach meets the ${competitorDistance}m requirement.`);
+    }
+  }
+
+  const secondaryPortCounts: Array<[keyof CompareSpecFacts, string]> = [
+    ["hdmiLoopOutputs", "HDMI loop outputs"],
+    ["displayPortInputs", "DisplayPort inputs"],
+    ["dviInputs", "DVI inputs"],
+    ["vgaInputs", "VGA inputs"],
+    ["sdiInputs", "SDI inputs"],
+    ["usbHostPorts", "USB host ports"],
+    ["usbDevicePorts", "USB device ports"],
+    ["audioInputs", "audio inputs"],
+    ["audioOutputs", "audio outputs"],
+    ["networkPorts", "network ports"],
+    ["controlPorts", "control ports"],
+  ];
+  for (const [key, label] of secondaryPortCounts) {
+    const requiredCount = numberValue(competitor.specs?.[key]);
+    if (requiredCount === null) continue;
+    const offeredCount = numberValue(wyrestorm.specs?.[key]);
+    if (offeredCount === null) addUnique(gaps, `Competitor provides ${requiredCount} ${label}; candidate coverage is not evidenced.`);
+    else if (offeredCount < requiredCount) addUnique(gaps, `Candidate provides fewer ${label} (${offeredCount}) than the competitor (${requiredCount}).`);
+    else addUnique(matches, `${label} meet the competitor requirement.`);
+  }
+
+  for (const feature of HARD_FEATURES) {
+    const competitorHas = yes(competitor.features?.[feature] ?? competitor.specs?.[feature as keyof CompareSpecFacts]);
+    const wyrestormHas = yes(wyrestorm.features?.[feature] ?? wyrestorm.specs?.[feature as keyof CompareSpecFacts]);
+
+    if (competitorHas && !wyrestormHas) {
+      addUnique(gaps, "Competitor has " + featureLabel(feature) + " but WyreStorm candidate does not show it.");
+    }
+
+    if (competitorHas && wyrestormHas) {
+      addUnique(matches, featureLabel(feature) + " matches.");
+    }
+  }
+
+  // An audio DSP (Biamp Tesira, Q-SYS Core, Extron DMP) is a processor, not an
+  // amplifier or speakerphone. WyreStorm makes no DSP, so an amplifier must
+  // never be offered as the primary equivalent for a DSP comparison - say so
+  // explicitly instead of letting the generic role-mismatch text carry it.
+  const competitorIsDsp = /\bdsp\b|digital\s+signal\s+processor/i.test(
+    clean(competitor.role) + " " + clean(competitor.title) + " " + clean(competitor.sku),
+  );
+  const wyrestormIsAmplifier = /\bamplifier\b/i.test(
+    clean(wyrestorm.role) + " " + clean(wyrestorm.title) + " " + clean(wyrestorm.sku),
+  );
+  if (competitorIsDsp && wyrestormIsAmplifier) {
+    addUnique(blockers, "WyreStorm does not manufacture audio DSPs; an amplifier is not an equivalent for a DSP and must not be offered as the primary replacement.");
+  }
+
+  const warningItems = input.warnings ?? [];
+
+  warningItems.forEach((warning) => addUnique(verify, "Compare warning: " + warning));
+
+  addUnique(info, "WyreStorm evidence tier: " + profileSourceLabel(wyrestorm, "WyreStorm") + ".");
+
+  for (const warning of wyrestorm.profileWarnings ?? []) {
+    addUnique(verify, "WyreStorm data warning: " + warning);
+  }
+
+  for (const evidence of wyrestorm.profileEvidence ?? []) {
+    addUnique(matches, "WyreStorm evidence: " + evidence);
+  }
+
+  addUnique(info, "Competitor intelligence tier: " + competitorIntelligence.tier + ".");
+  addUnique(info, "Competitor intelligence readiness: " + competitorIntelligence.readiness + ".");
+
+  // A verified competitor profile already carries real specs, so the heuristic
+  // family-rule "missing facts" / "why not equivalent" notes (and their penalty)
+  // are applied only when we do NOT have a verified profile. This stops verified
+  // comparisons being flooded with false gaps and an unwarranted penalty.
+  if (!competitorTrusted) {
+    for (const fact of competitorIntelligence.missingFacts) {
+      addUnique(verify, "Competitor data missing: " + fact + ".");
+    }
+
+    for (const reason of competitorIntelligence.whyNotDirectEquivalent) {
+      addUnique(gaps, "Why not direct equivalent: " + reason);
+    }
+  } else {
+    addUnique(matches, "Competitor profile: verified structured specs.");
+  }
+
+  const competitorPenalty = competitorTrusted ? 0 : competitorIntelligence.confidencePenalty;
+  // Confidence and the GOOD MATCH gate are scored on substantive findings only;
+  // administrative `info` notes are surfaced but never penalise or block.
+  const confidence = Math.max(5, scoreConfidence(input, blockers, gaps, verify) - competitorPenalty);
+  const trustedCompetitor = competitorTrusted;
+  const usableWyrestorm = hasUsableWyrestormProfile(wyrestorm);
+  const competitorEvidenceSufficient = trustedCompetitor || competitorFamilyRuleComplete;
+
+  if (!trustedCompetitor) {
+    addUnique(verify, competitorEvidenceSufficient
+      ? "Competitor profile is family-rule based (not datasheet-verified); a directional PARTIAL alternative is allowed but a verified equivalent is still blocked."
+      : "Competitor technical profile is not verified; automatic equivalence is blocked.");
+  }
+
+  if (!usableWyrestorm) {
+    addUnique(verify, "WyreStorm technical profile is incomplete or review-only; automatic equivalence is blocked.");
+  }
+
+  let outcome: CompareDecisionOutcome = "VERIFY";
+
+  if (blockers.length > 0) {
+    outcome = "NO MATCH";
+  } else if (trustedCompetitor && usableWyrestorm && confidence >= 78 && gaps.length === 0 && verify.length <= 3) {
+    outcome = "GOOD MATCH";
+  } else if (confidence >= 55 && gaps.length <= 4 && competitorEvidenceSufficient && usableWyrestorm) {
+    // GOOD MATCH stays exclusive to verified profiles; family-rule evidence can
+    // only ever reach a directional PARTIAL MATCH. The family-rule tier carries
+    // an inherent evidence penalty (missing-facts verify notes plus the
+    // family-rule confidence penalty), so its PARTIAL threshold sits slightly
+    // lower than the verified-tier one - the comparison itself (domain, role,
+    // transport, gaps) still has to be clean for PARTIAL to be allowed.
+    outcome = "PARTIAL MATCH";
+  }
+
+  if ((!trustedCompetitor || !usableWyrestorm || verify.length >= 5) && outcome !== "NO MATCH" && outcome !== "PARTIAL MATCH") {
+    outcome = "VERIFY";
+  }
+
+  // What else the WyreStorm candidate needs to operate as a system. Prefer the
+  // requirements already resolved onto the profile; otherwise derive from its
+  // domain/role. Kept out of blockers/gaps/verify so it never changes the
+  // outcome or confidence - it is surfaced as its own "system requirements" fact
+  // so a single component is not sold as a one-box replacement.
+  const systemRequirements =
+    input.wyrestorm.systemRequirements && input.wyrestorm.systemRequirements.length > 0
+      ? input.wyrestorm.systemRequirements
+      : deriveSystemRequirements({
+          domain: input.wyrestorm.domain,
+          role: input.wyrestorm.role,
+          sku: input.wyrestorm.sku,
+          transport: input.wyrestorm.transport,
+        }).requires;
+
+  const competitorPower = describedPower(competitor);
+  const wyrestormPower = describedPower(wyrestorm);
+  const classificationComplete = domainKnown && roleKnown && !isUnknown(competitor.transport) && !isUnknown(wyrestorm.transport);
+  const candidateIsStandalone = wyrestorm.standalone ?? systemRequirements.length === 0;
+  const competitorIsStandalone = competitor.standalone;
+
+  if (!classificationComplete && outcome !== "NO MATCH") {
+    outcome = "VERIFY";
+    addUnique(verify, "Direct equivalence is blocked until product class, endpoint role and transport are all confirmed.");
+  }
+
+  if (systemRequirements.length > 0) {
+    addUnique(
+      verify,
+      "Complete-solution requirement: include " + systemRequirements.join("; ") + ".",
+    );
+    if (outcome === "GOOD MATCH" && competitorIsStandalone !== false) {
+      outcome = "PARTIAL MATCH";
+      addUnique(gaps, "WyreStorm is a component-led architecture rather than a confirmed one-box equivalent.");
+    }
+  }
+
+  if (!wyrestormPower) {
+    addUnique(verify, "WyreStorm power method is not verified (local PSU, voltage, PoE/PoH/PoC and direction must be confirmed).");
+    if (outcome !== "NO MATCH") outcome = "VERIFY";
+  }
+  if (!competitorPower) {
+    addUnique(verify, "Competitor power method is not verified; confirm local PSU and PoE/PoH/PoC requirements.");
+    if (outcome !== "NO MATCH") outcome = "VERIFY";
+  }
+
+  const requirements: CompareRequirementAssessment[] = [
+    requirement(
+      "product-class",
+      "Product class",
+      "necessary",
+      !domainKnown ? "unknown" : domainMatches ? "meets" : "fails",
+      clean(competitor.domain) || "Not verified",
+      clean(wyrestorm.domain) || "Not verified",
+      domainKnown ? "Compared from classified product data." : "Classification evidence is incomplete.",
+    ),
+    requirement(
+      "endpoint-role",
+      "Endpoint role",
+      "necessary",
+      !roleKnown ? "unknown" : roleMatchesFlag ? "meets" : "fails",
+      clean(competitor.role) || "Not verified",
+      clean(wyrestorm.role) || "Not verified",
+      roleKnown ? "Compared from structured role data." : "Endpoint role is incomplete.",
+    ),
+    requirement(
+      "transport",
+      "Transport",
+      "necessary",
+      isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)
+        ? "unknown"
+        : transportMatches(competitor.transport, wyrestorm.transport) ? "meets" : "fails",
+      clean(competitor.transport) || "Not verified",
+      clean(wyrestorm.transport) || "Not verified",
+      "Underlying transport must be architecture-compatible.",
+    ),
+    requirement(
+      "resolution",
+      "Maximum resolution",
+      "necessary",
+      competitorResolution === 0 || wyrestormResolution === 0
+        ? "unknown"
+        : wyrestormResolution < competitorResolution ? "fails" : wyrestormResolution > competitorResolution ? "exceeds" : "meets",
+      clean(competitor.maxResolution) || "Not verified",
+      clean(wyrestorm.maxResolution) || "Not verified",
+      "Resolution is evaluated as a minimum capability.",
+    ),
+    requirement(
+      "power",
+      "Power and power direction",
+      "necessary",
+      !competitorPower || !wyrestormPower ? "unknown" : "meets",
+      competitorPower || "Not verified",
+      wyrestormPower || "Not verified",
+      "Confirm voltage, PSU inclusion, power budget and PoE/PoH/PoC direction before quotation.",
+    ),
+    requirement(
+      "system-topology",
+      "Complete solution",
+      "necessary",
+      systemRequirements.length === 0 ? "meets" : competitorIsStandalone === false ? "meets" : "unknown",
+      competitorIsStandalone === undefined ? "Topology not verified" : competitorIsStandalone ? "Standalone" : "System component",
+      candidateIsStandalone ? "Standalone" : `Requires: ${systemRequirements.join("; ")}`,
+      systemRequirements.length === 0 ? "No additional mandatory WyreStorm component captured." : "Compare the complete system and minimum BOM, not only the headline SKU.",
+    ),
+  ];
+  const necessary = requirements.filter((item) => item.tier === "necessary");
+  const necessaryCoverage = {
+    confirmed: necessary.filter((item) => item.status === "meets" || item.status === "exceeds").length,
+    total: necessary.length,
+    unknown: necessary.filter((item) => item.status === "unknown").length,
+    failed: necessary.filter((item) => item.status === "fails").length,
+  };
+  const evidenceCompleteness = necessary.length
+    ? Math.round((necessaryCoverage.confirmed / necessary.length) * 100)
+    : 0;
+  const solutionType: CompareDecisionResult["solutionType"] = outcome === "NO MATCH"
+    ? "no-match"
+    : systemRequirements.length > 0 && competitorIsStandalone !== false && classificationComplete && Boolean(competitorPower && wyrestormPower)
+        ? "architecture-alternative"
+      : !classificationComplete || necessaryCoverage.unknown > 0
+        ? "insufficient-evidence"
+        : outcome === "GOOD MATCH" ? "direct-equivalent" : "qualified-alternative";
+
+  return {
+    outcome,
+    confidence,
+    blockers,
+    gaps,
+    matches,
+    verify: verify.concat(info),
+    summary: summaryFor(outcome, input),
+    nextAction: nextActionFor(outcome),
+    systemRequirements,
+    requirements,
+    necessaryCoverage,
+    evidenceCompleteness,
+    solutionType,
+  };
+}

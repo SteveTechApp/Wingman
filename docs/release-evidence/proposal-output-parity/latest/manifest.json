@@ -1,0 +1,39 @@
+{
+  "fixture": "northstar-parity",
+  "requiredSections": [
+    "Customer Requirement",
+    "Recommended Solution",
+    "Equipment Schedule",
+    "Technical Architecture",
+    "Discovery Conversation",
+    "Assumptions",
+    "Risks and Dependencies",
+    "Best-Efforts Disclaimer"
+  ],
+  "requiredMarkers": [
+    "Route two operator sources to four displays with resilient 4K distribution.",
+    "NetworkHD",
+    "NET-SWITCH-10G-MANAGED",
+    "Customer IT will provide a dedicated 10GbE AV VLAN.",
+    "Confirm redundant power and switch failover behaviour during commissioning.",
+    "How many displays must receive independently routed content?",
+    "Four displays",
+    "best-efforts basis",
+    "NHD-600-TX",
+    "NHD-600-RX",
+    "NHD-CTL-PRO-V2"
+  ],
+  "quantities": {
+    "NHD-600-TX": 2,
+    "NHD-600-RX": 4,
+    "NHD-CTL-PRO-V2": 1
+  },
+  "artifacts": {
+    "screenHtml": "proposal-screen.html",
+    "docx": "proposal.docx",
+    "docxText": "proposal-docx.txt",
+    "screenPng": "proposal-screen.png",
+    "pdf": "proposal.pdf",
+    "pdfText": "proposal-pdf.txt"
+  }
+}
