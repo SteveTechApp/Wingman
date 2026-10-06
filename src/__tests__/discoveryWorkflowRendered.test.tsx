@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { readProjectStore, writeProjectStore, type ProjectStoreSnapshot } from "@/wingman2/data/projectStore";
 import { DiscoveryPage } from "@/wingman2/pages/DiscoveryPage";
+import { UiModeProvider } from "@/wingman2/data/uiMode";
 
 function buildHospitalityDiscoveryStore(): ProjectStoreSnapshot {
   const timestamp = new Date().toISOString();
@@ -110,6 +111,7 @@ function buildHospitalityDiscoveryStore(): ProjectStoreSnapshot {
 describe("Discovery rendered workflow handoff", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
     window.sessionStorage.clear();
   });
 
@@ -125,7 +127,7 @@ describe("Discovery rendered workflow handoff", () => {
   it("keeps the customer's exact wording in the live summary", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/discovery"]}>
-        <DiscoveryPage />
+        <UiModeProvider><DiscoveryPage /></UiModeProvider>
       </MemoryRouter>,
     );
 
@@ -144,7 +146,7 @@ describe("Discovery rendered workflow handoff", () => {
   it("saves structured hospitality evidence and Recommendations handoff data", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/discovery"]}>
-        <DiscoveryPage />
+        <UiModeProvider><DiscoveryPage /></UiModeProvider>
       </MemoryRouter>,
     );
 

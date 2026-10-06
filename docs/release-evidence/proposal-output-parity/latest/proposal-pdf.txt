@@ -1,5 +1,5 @@
-WyreStorm Proposal Reference: WYR-28UF58
-Date: 15 September 2026
+WyreStorm Proposal Reference: WYR-WE5TPF
+Date: 6 October 2026
 Prepared by: Solutions Team
 Document: Draft Proposal
 Northstar Operations Room
@@ -8,8 +8,12 @@ Executive Summary
 Route two operator sources to four displays with resilient 4K distribution.
 This document sets out the WyreStorm recommendation for this requirement, how it will work in use, the
 equipment involved, and what remains to be confirmed before it is issued as a final customer proposal.
+Solution Overview
+NetworkHD
+What successful delivery looks like
+Every approved source-to-display route passes functional testing.
 Customer Requirement
-Confirmed requirement: Route two operator sources to four displays with resilient 4K distribution.
+Requirement to be agreed: Route two operator sources to four displays with resilient 4K distribution.
 Discovery Conversation
 The recommendation in this document is based on the discovery conversation captured below: the
 question asked, the closest governed answer, and the customer's own wording where recorded. Rows
@@ -46,269 +50,380 @@ Required WyreStorm products: NHD-600-TX - NetworkHD 600 encoder; NHD-600-RX - Ne
 600 decoder; NHD-CTL-PRO-V2 - NetworkHD controller
 Practical Operation
 This is what the system will do for the people using the room, day to day.
-Users will select the source they need and it will appear on the assigned display(s) without reconnecting
-any equipment.
-Routing runs over the AV-over-IP network, so additional displays, sources or rooms can be added later
-within the same architecture.
-Day-to-day operation is intended to use simple named presets or a control interface rather than
-requiring the user to understand the underlying signal path.
+The proposed AV-over-IP system distributes content between the scheduled endpoints over a suitably
+designed network. This allows the agreed destinations to share sources, with any future expansion
+subject to endpoint compatibility, switch capacity and licensing requirements.
 Commercial and Operational Benefits
 A consistent, repeatable connection experience across the room(s) covered by this proposal.
-An AV-over-IP architecture gives a clear, supported path to add displays, sources or rooms later without
-redesigning the system.
+AV-over-IP provides a potential expansion path, subject to compatible endpoints, network capacity and
+the final design.
 Final commercial and operational benefit statements should be confirmed against the customer's specific
 business or KPI outcome before proposal issue.
 Technical Architecture
 The following diagram and cable schedule explain how the recommended solution connects together,
 derived directly from the equipment schedule below.
-STEP 1
-Sources
-Customer sources such as PCs,
-media players, cameras, signage
-players, IPTV, laptops or local
-inputs.
-2 ASSUMED SOURCE PATHS
-→
-STEP 2
-WyreStorm core
-NetworkHD 600 transceivers
-provide the high-performance
-10G routed AV layer.
-3 WYRESTORM BOM ROWS
-→
-STEP 3
-Transport
-10G managed AV switch
-infrastructure, fibre/copper
-uplinks and approved network
-configuration.
-10G AV NETWORK
-→
-STEP 4
-Displays / outputs
-Flat panels, projectors,
-confidence monitors, preview
-displays or customer-facing
-display zones.
-4 ASSUMED OUTPUT PATHS
-→
-STEP 6
-Audio
-DSP, microphones,
-loudspeakers, amplification,
-assistive listening, venue audio
-or Dante handoff.
-USUALLY BY OTHERS
-→
-STEP 6
-Other required scope
-Displays, mounts, rack, UPS,
-power, cable containment,
-network switch, programming,
-labour and customer source
-equipment.
-ADD PLACEHOLDERS
+hdmi
+hdmi
+network
+network
+networknetworknetworknetwork
+network
+hdmi
+hdmi
+hdmi
+hdmi
+Network switch / AV 
+VLAN
+network-switch
+Source 1 (confirm)
+source
+Source 2 (confirm)
+source
+NHD-600-TX
+av-over-ip-encoder
+NHD-600-TX
+av-over-ip-encoder
+NHD-600-RX
+av-over-ip-decoder
+NHD-600-RX
+av-over-ip-decoder
+NHD-600-RX
+av-over-ip-decoder
+NHD-600-RX
+av-over-ip-decoder
+NHD-CTL-PRO-V2
+av-over-ip-controller
+Display 1 (confirm)
+display
+Display 2 (confirm)
+display
+Display 3 (confirm)
+display
+Display 4 (confirm)
+display
+Concept drawing: confirm physical connections and site interfaces before installation.
+Transport is shown generically because signal distance or connector evidence is not confirmed.
+Connections without a verified interface profile are proposed topology only. Confirm named ports,
+endpoint pairing, power and cable types before installation.
+Control routing requires design: Specify the controller and controlled-device interfaces before allocating
+control cables.
+Cable length not confirmed for hdmi run: The local source to encoder connection uses hdmi transport
+(max 15m). Confirm the actual cable run length is within spec before quoting.
+Cable length not confirmed for hdmi run: The local source to encoder connection uses hdmi transport
+(max 15m). Confirm the actual cable run length is within spec before quoting.
+Cable length not confirmed for hdmi run: The Decoder to display connection uses hdmi transport (max
+15m). Confirm the actual cable run length is within spec before quoting.
+Cable length not confirmed for hdmi run: The Decoder to display connection uses hdmi transport (max
+15m). Confirm the actual cable run length is within spec before quoting.
+Cable length not confirmed for hdmi run: The Decoder to display connection uses hdmi transport (max
+15m). Confirm the actual cable run length is within spec before quoting.
+Cable length not confirmed for hdmi run: The Decoder to display connection uses hdmi transport (max
+15m). Confirm the actual cable run length is within spec before quoting.
+Power source unconfirmed for NHD-600-TX: "NetworkHD 600 encoder" (NHD-600-TX) has no power
+connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
+separate power supply.
+Power source unconfirmed for NHD-600-TX: "NetworkHD 600 encoder" (NHD-600-TX) has no power
+connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
+separate power supply.
+Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) has no power
+connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
+separate power supply.
+Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) has no power
+connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
+separate power supply.
+Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) has no power
+connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
+separate power supply.
+Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) has no power
+connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
+separate power supply.
+Power source unconfirmed for NHD-CTL-PRO-V2: "NetworkHD controller" (NHD-CTL-PRO-V2) has no
+power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires
+a separate power supply.
 This diagram is derived directly from the equipment schedule below - it shows the assumed signal flow from source to display so
 the customer and installer share the same picture of how the room connects together. The cable schedule underneath lists the
 transport type, connectors, maximum length, and validation status for each connection.
 CABLE RUN TRANSPORT MAX
 LENGTH
-CONNECTORS STATUS VALIDATION REMINDER
+CONNECTORS STATUS VALIDATION
+REMINDER
+Source 1
+(confirm) →
 NHD-600-TX
-→ NHD-600-
-TX
-Video 15m HDMI-A to
-HDMI-A
-Confirmed Confirm source and
-display connector types,
-cable length (typically
-<5m passive), HDCP
-version, EDID behaviour,
-and resolution/HDR
+Video 15m SOURCE PORT
+TBD to HDMI
+IN
+Needs site
+confirmation
+Confirm source and
+display connector
+types, cable length
+(typically <5m passive),
+HDCP version, EDID
+behaviour, and
+resolution/HDR
 requirements.
+Source 2
+(confirm) →
 NHD-600-TX
-→ NHD-600-
-TX
-Video 15m HDMI-A to
-HDMI-A
-Confirmed Confirm source and
-display connector types,
-cable length (typically
-<5m passive), HDCP
-version, EDID behaviour,
-and resolution/HDR
+Video 15m SOURCE PORT
+TBD to HDMI
+IN
+Needs site
+confirmation
+Confirm source and
+display connector
+types, cable length
+(typically <5m passive),
+HDCP version, EDID
+behaviour, and
+resolution/HDR
 requirements.
 NHD-600-TX
 → Network
 switch
 Network /
 AVoIP
-Unlimited RJ45 to RJ45 Needs site
+Not
+confirmed
+AV LAN
+(confirm) to
+SWITCH PORT
+1
+Needs site
 confirmation
 Confirm switch port
 availability, VLAN
-assignment, PoE budget,
-cable category, and
-network topology.
-NHD-600-TX
-→ Network
-switch
-Network /
-AVoIP
-Unlimited RJ45 to RJ45 Needs site
-confirmation
-Confirm switch port
-availability, VLAN
-assignment, PoE budget,
-cable category, and
-network topology.
+assignment, PoE
+budget, cable
+category, and network
+topology.
 CABLE RUN TRANSPORT MAX
 LENGTH
-CONNECTORS STATUS VALIDATION REMINDER
-NHD-600-RX
+CONNECTORS STATUS VALIDATION
+REMINDER
+NHD-600-TX
 → Network
 switch
 Network /
 AVoIP
-Unlimited RJ45 to RJ45 Needs site
+Not
+confirmed
+AV LAN
+(confirm) to
+SWITCH PORT
+2
+Needs site
 confirmation
 Confirm switch port
 availability, VLAN
-assignment, PoE budget,
-cable category, and
-network topology.
+assignment, PoE
+budget, cable
+category, and network
+topology.
+Network
+switch →
 NHD-600-RX
-→ Network
-switch
 Network /
 AVoIP
-Unlimited RJ45 to RJ45 Needs site
+Not
+confirmed
+SWITCH PORT
+3 to AV LAN
+(confirm)
+Needs site
 confirmation
 Confirm switch port
 availability, VLAN
-assignment, PoE budget,
-cable category, and
-network topology.
+assignment, PoE
+budget, cable
+category, and network
+topology.
+Network
+switch →
 NHD-600-RX
-→ Network
-switch
 Network /
 AVoIP
-Unlimited RJ45 to RJ45 Needs site
+Not
+confirmed
+SWITCH PORT
+4 to AV LAN
+(confirm)
+Needs site
 confirmation
 Confirm switch port
 availability, VLAN
-assignment, PoE budget,
-cable category, and
-network topology.
+assignment, PoE
+budget, cable
+category, and network
+topology.
+Network
+switch →
 NHD-600-RX
-→ Network
-switch
 Network /
 AVoIP
-Unlimited RJ45 to RJ45 Needs site
+Not
+confirmed
+SWITCH PORT
+5 to AV LAN
+(confirm)
+Needs site
 confirmation
 Confirm switch port
 availability, VLAN
-assignment, PoE budget,
-cable category, and
-network topology.
+assignment, PoE
+budget, cable
+category, and network
+topology.
+Network
+switch →
+NHD-600-RX
+Network /
+AVoIP
+Not
+confirmed
+SWITCH PORT
+6 to AV LAN
+(confirm)
+Needs site
+confirmation
+Confirm switch port
+availability, VLAN
+assignment, PoE
+budget, cable
+category, and network
+topology.
 NHD-CTL-
 PRO-V2 →
 Network
 switch
 Network /
 AVoIP
-Unlimited RJ45 to RJ45 Needs site
+Not
+confirmed
+AV LAN
+(confirm) to
+SWITCH PORT
+7
+Needs site
 confirmation
 Confirm switch port
 availability, VLAN
-assignment, PoE budget,
-cable category, and
-network topology.
-NHD-600-RX
-→ NHD-600-
-RX
-Video 15m HDMI-A to
-HDMI-A
-Confirmed Confirm source and
-display connector types,
-cable length (typically
-<5m passive), HDCP
-version, EDID behaviour,
-and resolution/HDR
-requirements.
+assignment, PoE
+budget, cable
+category, and network
+topology.
 CABLE RUN TRANSPORT MAX
 LENGTH
-CONNECTORS STATUS VALIDATION REMINDER
+CONNECTORS STATUS VALIDATION
+REMINDER
 NHD-600-RX
-→ NHD-600-
-RX
-Video 15m HDMI-A to
-HDMI-A
-Confirmed Confirm source and
-display connector types,
-cable length (typically
-<5m passive), HDCP
-version, EDID behaviour,
-and resolution/HDR
+→ Display 1
+(confirm)
+Video 15m HDMI OUT to
+DISPLAY INPUT
+(confirm)
+Needs site
+confirmation
+Confirm source and
+display connector
+types, cable length
+(typically <5m passive),
+HDCP version, EDID
+behaviour, and
+resolution/HDR
 requirements.
 NHD-600-RX
-→ NHD-600-
-RX
-Video 15m HDMI-A to
-HDMI-A
-Confirmed Confirm source and
-display connector types,
-cable length (typically
-<5m passive), HDCP
-version, EDID behaviour,
-and resolution/HDR
+→ Display 2
+(confirm)
+Video 15m HDMI OUT to
+DISPLAY INPUT
+(confirm)
+Needs site
+confirmation
+Confirm source and
+display connector
+types, cable length
+(typically <5m passive),
+HDCP version, EDID
+behaviour, and
+resolution/HDR
 requirements.
 NHD-600-RX
-→ NHD-600-
-RX
-Video 15m HDMI-A to
-HDMI-A
-Confirmed Confirm source and
-display connector types,
-cable length (typically
-<5m passive), HDCP
-version, EDID behaviour,
-and resolution/HDR
+→ Display 3
+(confirm)
+Video 15m HDMI OUT to
+DISPLAY INPUT
+(confirm)
+Needs site
+confirmation
+Confirm source and
+display connector
+types, cable length
+(typically <5m passive),
+HDCP version, EDID
+behaviour, and
+resolution/HDR
 requirements.
-Control
-system →
-NHD-600-TX
-Control 100m DB-9 / IR /
-RJ45
-Confirmed Confirm control
-protocol (RS-232/IR/IP),
-baud rate, pinout, cable
-routing, and control
-processor compatibility.
+NHD-600-RX
+→ Display 4
+(confirm)
+Video 15m HDMI OUT to
+DISPLAY INPUT
+(confirm)
+Needs site
+confirmation
+Confirm source and
+display connector
+types, cable length
+(typically <5m passive),
+HDCP version, EDID
+behaviour, and
+resolution/HDR
+requirements.
 AV network
 infrastructure
 Network /
 AVoIP
-Unlimited RJ45 to RJ45 Needs site
+Not
+confirmed
+RJ45 to RJ45 Needs site
 confirmation
 Confirm switch model,
-port count, PoE budget,
-VLAN configuration,
+port count, PoE
+budget, VLAN
+configuration,
 multicast policy, and
 uplink capacity.
-Control
-system
-integration
-Control 100m DB-9 / IR /
-RJ45
-Needs site
-confirmation
-Define who operates the
-room and convert
-engineering routes into
-user-friendly presets.
+Products in the Solution
+Product photograph unavailable.
+NHD-600-TX — NetworkHD 600 encoder
+Role in this design: Encode operator sources
+Official product link to be confirmed.
+Product photograph unavailable.
+NHD-600-RX — NetworkHD 600 decoder
+Role in this design: Decode display feeds
+Official product link to be confirmed.
+Product photograph unavailable.
+NHD-CTL-PRO-V2 — NetworkHD controller
+Role in this design: Routing control
+Official product link to be confirmed.
+Complete System Design and Responsibilities
+The following items complete the wider solution. Unfilled entries are open design decisions, not supplied
+equipment or agreed services. Replace each [complete] with the agreed detail or mark it not applicable /
+excluded.
+Displays / projection | Model, size, location and mounting: [complete] | Supplier / owner: [complete]
+Sources and conferencing | Source devices, meeting platform and USB host: [complete] | Supplier /
+owner: [complete]
+Audio | Microphones, loudspeakers, DSP and acoustic requirements: [complete] | Supplier / owner:
+[complete]
+Network | Switches, port capacity, PoE budget, VLANs and IT approval: [complete] | Supplier / owner:
+[complete]
+Control | User interface, named room modes and programming: [complete] | Supplier / owner: [complete]
+Site infrastructure | Cable routes / distances, rack, ventilation, power and containment: [complete] |
+Supplier / owner: [complete]
+Delivery and acceptance | Installation, training, support, acceptance tests and dates: [complete] | Supplier
+/ owner: [complete]
 Equipment Schedule
 ITEM SKU DESCRIPTION ROLE QTY TYPE NOTES
 1 NHD-600-
@@ -317,9 +432,10 @@ NetworkHD 600
 encoder
 Encode
 operator
-sources
 2 Required Install in the
 equipment rack.
+ITEM SKU DESCRIPTION ROLE QTY TYPE NOTES
+sources
 2 NHD-600-
 RX
 NetworkHD 600

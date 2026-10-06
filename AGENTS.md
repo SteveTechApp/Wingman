@@ -45,8 +45,8 @@ from the code or docs are not repeated here.
 
 ## Quality gates & ratchets
 
-- The pre-commit hook runs the full verify chain (fast, build, data, contract,
-  visual). Two debt-ratchets block commits even when everything is green:
+- The pre-commit hook runs the fast lane plus architecture boundaries. The
+  full verify chain additionally enforces two debt-ratchets:
   size budgets (`tools/wingman-size-budgets.json`) and style-drift
   (`tools/wingman-style-drift-baseline.json`). Raising either requires the
   documented exception process in `docs/SIZE_BUDGETS.md`.
@@ -57,7 +57,9 @@ from the code or docs are not repeated here.
   CSS comments, not just UI copy. Developer wording such as "demoted",
   "confusing", "has moved into", "workflow consolidated" fails
   `verify:contract` wherever it appears.
-- `npm run build` (data gen + `vite build`) runs WITHOUT the size-budget and
+- `npm run build` compiles the tracked public assets without repairing source
+  evidence. `build:prepare-data` explicitly regenerates catalogue artefacts;
+  source repairs remain separate maintenance commands. Build runs WITHOUT the size-budget and
   style-drift ratchets — those only fire inside `verify:build` /
   `verify:visual`. Use plain `build` to verify compilation without ratchet
   noise.
@@ -83,9 +85,8 @@ from the code or docs are not repeated here.
   never affect the 401 contract.
 - `/api/compare/match` and `/api/compare/analyze` are dead endpoints (no
   callers in `src/`); they use the standard `{ok:true, ...}` / `{ok:false,
-  error}` envelope. `server/competitor/match-engine.mjs` ALSO defines an
-  Express-style `createCompareRoutes` router with duplicate `/api/compare/*`
-  handlers — it is never mounted; only `compareCompetitor` is imported.
+  error}` envelope and remain protected by API contract tests. The historical
+  Express-style `createCompareRoutes` export has been retired.
 - `resolveMatch` rarely returns the `ok:false` branch in practice: unknown
   models still resolve `ok:true` via synthetic fallback. Force the failure
   branch by importing `resolveCompetitorMatch` directly with empty

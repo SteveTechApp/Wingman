@@ -21,6 +21,10 @@ import {
  */
 
 const ROOM_MODEL_ROWS: ReadonlyArray<{ key: string; label: string }> = [
+  { key: "roomOccupancy", label: "People using the room" },
+  { key: "roomDimensions", label: "Room dimensions and seating" },
+  { key: "equipmentSchedule", label: "Equipment selections and locations — confirm suitability" },
+  { key: "completionScope", label: "Room completion checklist — fill in models, quantities and suppliers" },
   { key: "applicationType", label: "Application / customer outcome" },
   { key: "roomType", label: "Room type" },
   { key: "sourceCount", label: "Sources" },
@@ -107,6 +111,17 @@ export function buildDiscoveryBriefDocx(
   ]);
 
   addSection(children, "Captured Requirement", [requirementTable(brief)]);
+  const completionScope = Array.isArray(brief.roomModel?.completionScope) ? brief.roomModel.completionScope : [];
+  if (completionScope.length) {
+    const widths = [4000, 2500, 1000, 2460];
+    addSection(children, "Room Completion Schedule", [
+      paragraph("Fill in the remaining equipment models, quantities, locations and suppliers before design sign-off."),
+      fixedTable(widths, [
+        new TableRow({ tableHeader: true, children: ["Scope to complete", "Manufacturer / model", "Quantity", "Location / supplier"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+        ...completionScope.map(scope => new TableRow({ children: [String(scope), "To select", "To confirm", "To confirm"].map((value, index) => cell(value, widths[index])) })),
+      ]),
+    ]);
+  }
 
   addSection(children, "Discovery Conversation", [
     paragraph("Each row records one discovery exchange exactly as it was captured. The governed answer is the closest structured option; the customer wording column keeps the customer's own phrasing where it was recorded.", { justified: true }),

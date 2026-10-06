@@ -37,7 +37,8 @@ export function TemplateLibraryCard({ template, onReview, onPersonalise, onEdit,
       </button>
     </figure>
     <div className="wm-template-library-card__body">
-      <div className="wm-template-library-card__heading"><h3 className="wm-card-title">{template.name}</h3><span>{template.scale}</span></div>
+      <div className="wm-template-library-card__heading"><h3 className="wm-card-title">{template.name}</h3><span>{template.scale.split(" · ")[0]}</span></div>
+      <p className="wm-template-library-card__description">{template.summary}</p>
       <dl className="wm-template-library-card__facts">
         <div><dt>Architecture</dt><dd>{facts.architectureFamily}</dd></div>
         <div><dt>Core design</dt><dd>{facts.requiredSkuCount} required {facts.requiredSkuCount === 1 ? "SKU" : "SKUs"}</dd></div>

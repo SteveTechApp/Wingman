@@ -23,11 +23,6 @@ html {
 body {
   min-height: 100%;
   margin: 0;
-  background:
-    radial-gradient(circle at 20% 0%, rgba(45, 212, 191, 0.11), transparent 34rem),
-    radial-gradient(circle at 90% 12%, rgba(56, 189, 248, 0.10), transparent 34rem),
-    linear-gradient(135deg, #030712 0%, #06111f 44%, #081827 100%);
-  color: var(--wm-text);
   font-family: var(--wm-font);
   font-size: 15px;
   line-height: 1.5;

@@ -158,7 +158,7 @@
     "segment": "call-cards",
     "label": "Call Cards",
     "navLabel": "Call Cards",
-    "pageFile": "CallCardsPage.tsx",
+    "pageFile": "NavigationHubPages.tsx",
     "summary": "Guided call prompts by customer type and situation."
   },
   {
@@ -203,7 +203,7 @@
     "segment": "support",
     "label": "Support",
     "navLabel": "Support",
-    "pageFile": "SupportPage.tsx",
+    "pageFile": "NavigationHubPages.tsx",
     "summary": "Support notes, next actions and escalation guidance."
   },
   {

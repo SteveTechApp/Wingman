@@ -1,3 +1,4 @@
+import { roomTopologyHasDraft } from "../../lib/roomTopologyDraft";
 import { routeCatalogByKey } from "../../app/routeCatalog";
 import type { StoredDiscoveryBrief } from "../../features/projects";
 import { buildDiscoveryRecommendationEvidence } from "../../lib/recommendationEvidence";
@@ -6,7 +7,6 @@ import {
   generateProjectTopologyFromDiscovery,
   normaliseProjectTopology,
   projectTopologyConnectionTypes,
-  projectTopologyHasContent,
   projectTopologyLongestRun,
   projectTopologyMissingInformation,
   projectTopologyNetworkSummary,
@@ -31,6 +31,7 @@ import { getQuestionStrategy } from "./discoveryQuestions";
 import { getDiscoveryEnvironment, getDiscoveryMarket } from "./discoveryMarketContext";
 import type { DiscoveryMode } from "./discoveryProgressiveDisclosure";
 import type { DiscoveryAnswers, DiscoveryNotes, DiscoveryQuestion, DiscoverySummaryItem } from "./discoveryTypes";
+import { roomEquipmentSchedule, supportingRoomScope } from "./operationalDiscovery";
 
 export type DiscoveryBriefBuilderInput = {
   answers: DiscoveryAnswers;
@@ -206,7 +207,7 @@ export function compileDiscoveryBrief({
           ? "Video conferencing and recording / live streaming"
           : wingmanUnifiedCommsWorkflows.join(", ") || "Not yet confirmed";
 
-    const activeTopology = projectTopologyHasContent(topology)
+    const activeTopology = roomTopologyHasDraft(topology)
       ? normaliseProjectTopology(topology)
       : generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication });
     const topologySummary = projectTopologySummary(activeTopology);
@@ -267,6 +268,10 @@ export function compileDiscoveryBrief({
       savedAt: new Date().toISOString(),
       topology: activeTopology,
       roomModel: {
+        roomOccupancy: wmDiscoveryAnswerToText(answers["room-occupancy"]),
+        roomDimensions: wmDiscoveryAnswerToText(answers["room-dimensions"]),
+        equipmentSchedule: roomEquipmentSchedule(activeTopology),
+        completionScope: supportingRoomScope(answers, activeTopology),
         market: marketLabel,
         environment: environmentLabel,
         networkPath,

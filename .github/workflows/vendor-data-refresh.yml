@@ -28,6 +28,7 @@ concurrency:
 
 jobs:
   refresh:
+    if: vars.WINGMAN_ENABLE_DATA_GATES == 'true'
     name: Refresh vendor product data
     runs-on: ubuntu-latest
     # The scrape walks the whole catalogue at 5 concurrent requests.

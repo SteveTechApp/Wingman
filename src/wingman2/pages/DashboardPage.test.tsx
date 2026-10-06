@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import { readProjectStore, upsertStoredProject } from "../data/projectStore";
+import { deleteStoredProject, readProjectStore, upsertStoredProject } from "../data/projectStore";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { DashboardPage } from "./DashboardPage";
 import { UiModeProvider } from "../data/uiMode";
@@ -28,12 +28,34 @@ describe("DashboardPage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("shows the fallback demo projects when the project store is empty", () => {
+  it("shows the initial demo projects for a new project store", () => {
     const recentProjects = renderDashboard();
 
     expect(recentProjects.getByText("Northbridge Meeting Room Refresh")).not.toBeNull();
     expect(recentProjects.getByText("Harbour Retail Signage Rollout")).not.toBeNull();
     expect(recentProjects.getByText("Westbrook Classroom Standard")).not.toBeNull();
+  });
+
+  it("keeps all deleted examples absent when Home reloads", () => {
+    const names = readProjectStore().projects.map((project) => project.name);
+    renderDashboard();
+    for (const name of names) {
+      fireEvent.click(screen.getByRole("button", { name: `Project actions for ${name}` }));
+      fireEvent.click(screen.getByRole("button", { name: "Delete project" }));
+      fireEvent.click(screen.getByRole("button", { name: "Confirm delete" }));
+    }
+    expect(readProjectStore().projects).toHaveLength(0);
+    expect(screen.queryByText("Northbridge Meeting Room Refresh")).toBeNull();
+    expect(screen.queryByText("Harbour Retail Signage Rollout")).toBeNull();
+    expect(screen.queryByText("Westbrook Classroom Standard")).toBeNull();
+  });
+
+  it("shows an empty dashboard for a persisted empty project store", () => {
+    for (const project of readProjectStore().projects) deleteStoredProject(project.id);
+    const recentProjects = renderDashboard();
+    expect(recentProjects.queryByText("Northbridge Meeting Room Refresh")).toBeNull();
+    expect(recentProjects.getByText("No projects yet. Create a new project to get started.")).not.toBeNull();
+    expect(within(screen.getByLabelText("Dashboard focus panel")).queryByText("Continue discovery")).toBeNull();
   });
 
   it("keeps governance administration off the Home landing page", () => {

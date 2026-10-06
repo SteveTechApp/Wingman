@@ -1,11 +1,10 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { createDeploymentTemplate, readRoomConcept, type RoomDeploymentDesign } from "../wingman2/lib/roomTemplateDeployment";
 import { roomTemplates } from "../wingman2/lib/roomTemplates";
-import { saveCustomRoomTemplate, CUSTOM_ROOM_TEMPLATE_EVENT } from "../wingman2/lib/customRoomTemplates";
-import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
+import { saveCustomRoomTemplate, getCustomRoomTemplates } from "../wingman2/lib/customRoomTemplates";
+import { TemplateCompletionChecklist } from "../wingman2/components/TemplateCompletionChecklist";
 
 const design: RoomDeploymentDesign = {
   id: "ui-chk", name: "Checklist UI design", vertical: "Corporate", space: "10-seat meeting room, 4 × 6 m.",
@@ -25,16 +24,11 @@ const design: RoomDeploymentDesign = {
 };
 
 function renderReview(templateId: string) {
-  return render(
-    <MemoryRouter initialEntries={[`/wingman/templates/${templateId}`]}>
-      <Routes>
-        <Route path="/wingman/templates/:templateId" element={<TemplateReviewPage />} />
-      </Routes>
-    </MemoryRouter>,
-  );
+  const template = [...roomTemplates, ...getCustomRoomTemplates()].find(item => item.id === templateId)!;
+  return render(<TemplateCompletionChecklist template={template} />);
 }
 
-describe("template complete-room checklist tab", () => {
+describe("template complete-room audit checklist", () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
@@ -42,10 +36,6 @@ describe("template complete-room checklist tab", () => {
   it("renders the six layers with unspecified guidance for a completion-free template", () => {
     const template = roomTemplates[0];
     renderReview(template.id);
-
-    const tab = screen.getByRole("tab", { name: "Complete room" });
-    expect(tab).toHaveAttribute("aria-selected", "false");
-    fireEvent.click(tab);
 
     const section = screen.getByLabelText("Complete-room design checklist");
     expect(within(section).getByRole("heading", { name: "Does this design describe a whole room?" })).toBeVisible();
@@ -66,8 +56,6 @@ describe("template complete-room checklist tab", () => {
     });
     const saved = saveCustomRoomTemplate(template, { sourceTemplateId: "ui-chk-source" });
     renderReview(saved.id);
-
-    fireEvent.click(screen.getByRole("tab", { name: "Complete room" }));
 
     const section = screen.getByLabelText("Complete-room design checklist");
     expect(within(section).getByText(/3 layers to decide/)).toBeVisible();

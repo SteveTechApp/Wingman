@@ -6,7 +6,7 @@ The application helps sales and pre-sales users move from customer requirements 
 
 [![Evidence freshness](https://github.com/SteveTechApp/Wingman/actions/workflows/wyrestorm-freshness.yml/badge.svg)](https://github.com/SteveTechApp/Wingman/actions/workflows/wyrestorm-freshness.yml)
 
-The nightly evidence-freshness run live-checks every governed evidence page — WyreStorm profiles and approved competitor decisions — and re-runs the field-drift, confirmation-baseline and competitor-decision gates. Red here means an official page is dead/moved (either side) or an approved decision has drifted from the live engine — each gate's result is reported in the run summary before the next scheduled run.
+Catalogue acceptance and automatic evidence-freshness checks are temporarily opt-in while product data is revised. Wingman defaults to local storage without Supabase. See [data revision mode](docs/DATA_REVISION_MODE.md) for everyday checks, regeneration commands and restoring the full gates.
 
 ## Active App Files
 
@@ -64,4 +64,3 @@ Keep scratch files, installer bundles and one-off backups outside `C:\Users\stev
 ## Documentation
 
 Detailed feature, launch, migration and audit notes live under `docs/`. Historical material remains available through Git history and external repository-sweep archives.
-

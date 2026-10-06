@@ -14,7 +14,7 @@ function assert(condition, message) {
   }
 }
 
-const callCardsPage = read("src/wingman2/pages/CallCardsPage.tsx");
+const callCardsPage = read("src/wingman2/app/routes.tsx");
 const productCallCardsPage = read("src/wingman2/pages/ProductCallCardsPage.tsx");
 const navigationHub = read("src/wingman2/pages/NavigationHubPages.tsx");
 const routes = read("src/wingman2/app/routes.tsx");
@@ -40,7 +40,7 @@ assert(
 );
 
 assert(
-  routes.includes("../pages/CallCardsPage"),
+  routes.includes('path: "call-cards", element: <Navigate to="/wingman/call-coach" replace />'),
   "Route should remain safe for old /wingman/call-cards links."
 );
 

@@ -46,11 +46,12 @@ vi.mock("../features/projects", () => ({
 
 import { ProjectDetailPage } from "./ProjectDetailPage";
 
-function renderPage() {
+function renderPage(query = "") {
   return render(
-    <MemoryRouter initialEntries={["/wingman/projects/project-1"]}>
+    <MemoryRouter initialEntries={[`/wingman/projects/project-1${query}`]}>
       <Routes>
         <Route path="/wingman/projects/:projectId" element={<ProjectDetailPage />} />
+        <Route path="/wingman/discovery" element={<div>Standard Discovery</div>} />
         <Route path="/wingman/projects" element={<div>Projects list</div>} />
       </Routes>
     </MemoryRouter>,
@@ -65,6 +66,12 @@ describe("Project Detail review controls", () => {
     storedProject.compareRuns = [];
   });
 
+  it("opens the detail editor from the landing page edit action", () => {
+    renderPage("?view=confirm&edit=true");
+    expect(screen.getByLabelText("Project name")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Requirements" }).getAttribute("aria-current")).toBe("page");
+  });
+
   it("warns with the changed lanes when a team member edited the project since our last sync", () => {
     storedProject.syncConflict = { fields: ["proposal", "requirements"], detectedAt: "2026-08-04T10:00:00.000Z" };
     renderPage();
@@ -74,26 +81,11 @@ describe("Project Detail review controls", () => {
     expect(banner.textContent).toContain("Reload the page");
   });
 
-  it("renders persistent review navigation and edits project metadata", () => {
+  it("routes project editing into standard Discovery", () => {
     renderPage();
-
     fireEvent.click(screen.getByText("Project actions"));
-    expect(screen.getByRole("navigation", { name: "Project review navigation" })).not.toBeNull();
-    expect(screen.getByRole("button", { name: "Requirements" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Evidence" })).toBeTruthy();
-
     fireEvent.click(screen.getByRole("button", { name: "Edit project" }));
-    fireEvent.change(screen.getByLabelText("Project name"), { target: { value: "Updated Boardroom" } });
-    fireEvent.change(screen.getByLabelText("Owner / customer"), { target: { value: "Apex Group" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save project" }));
-
-    expect(updateStoredProject).toHaveBeenCalledWith("project-1", expect.any(Function));
-    const updater = updateStoredProject.mock.calls[0][1];
-    expect(updater({ name: "Old", owner: "Old owner" })).toMatchObject({
-      name: "Updated Boardroom",
-      owner: "Apex Group",
-      updated: "Just now",
-    });
+    expect(screen.getByText("Standard Discovery")).toBeTruthy();
   });
 
   it("switches from the short overview into focused review stages", () => {
@@ -101,7 +93,7 @@ describe("Project Detail review controls", () => {
 
     expect(screen.queryByText("Requirements")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Requirements" }));
-    expect(screen.getAllByText("Confirmed requirements grouped by category. Edit inline or mark for review.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Reopen the saved Discovery answers to review customer requirements.").length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Requirements" }).getAttribute("aria-current")).toBe("page");
 
     fireEvent.click(screen.getByRole("button", { name: "Handoff" }));

@@ -28,7 +28,7 @@ const routeCatalog = read("src/wingman2/app/routeCatalog.ts");
 const routeManifest = JSON.parse(read("src/wingman2/app/route-manifest.json"));
 const appShell = read("src/wingman2/layout/AppShell.tsx");
 const navigationHub = read("src/wingman2/pages/NavigationHubPages.tsx");
-const callCardsPage = read("src/wingman2/pages/CallCardsPage.tsx");
+const callCardsPage = routes;
 const salesHelperPage = read("src/wingman2/pages/SalesHelperPage.tsx");
 const uiMode = read("src/wingman2/data/uiMode.tsx");
 const uiModeToggle = read("src/wingman2/components/UiModeToggle.tsx");
@@ -78,7 +78,7 @@ assert(
 );
 
 assert(
-  routes.includes("../pages/CallCardsPage"),
+  routes.includes('path: "call-cards"') && routes.includes('<Navigate to="/wingman/call-coach" replace'),
   "Legacy /wingman/call-cards route should remain registered for safe redirects.",
 );
 
@@ -122,8 +122,8 @@ assert(
 
 assert(
   navigationHub.includes("export function ProductsPage") &&
-    navigationHub.includes("export function DocumentsPage") &&
-    navigationHub.includes("export function ResponsePackPage"),
+    routes.includes('path: "documents"') &&
+    routes.includes('../pages/ProposalPage'),
   "NavigationHubPages is missing one or more consolidated hub page exports.",
 );
 
@@ -191,9 +191,9 @@ assert(
 );
 
 assert(
-  uiMode.includes('label: "Focused view"') && uiMode.includes('label: "Full workspace"') &&
+  uiMode.includes('label: "Focused view"') && uiMode.includes('label: "Expert view"') &&
     uiModeToggle.includes("UI_MODE_PRESENTATION.guided.label") && uiModeToggle.includes("UI_MODE_PRESENTATION.unguided.label"),
-  "Interface scope must use the central Focused view / Full workspace labels.",
+  "Interface scope must use the central Focused view / Expert view labels.",
 );
 
 assert(

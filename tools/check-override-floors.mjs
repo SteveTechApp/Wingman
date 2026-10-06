@@ -57,6 +57,10 @@ function manifestScopes(root = DEFAULT_PROJECT_ROOT) {
 // every installed version of the package must clear it). `manifest` scopes a
 // row to one manifest's overrides block (default "root").
 const OVERRIDE_FLOORS = [
+  { manifest: "server", overrideKey: "proxy-addr", packageName: "proxy-addr", floor: "2.0.8", why: "GHSA-jqcg-44mw-7w3h IPv4-mapped IPv6 trust matching is fixed in 2.0.8" },
+  { overrideKey: "source-map-js", packageName: "source-map-js", floor: "1.2.2", why: "GHSA-68fv-2mgg-jv7q indexed source-map offset denial of service is fixed in 1.2.2" },
+  { overrideKey: "postcss-selector-parser", packageName: "postcss-selector-parser", floor: "7.1.6", why: "GHSA-rj75-hqrm-r3gf selector parsing complexity is fixed in 7.1.6" },
+  { overrideKey: "proxy-addr", packageName: "proxy-addr", floor: "2.0.8", why: "GHSA-jqcg-44mw-7w3h IPv4-mapped IPv6 trust matching is fixed in 2.0.8" },
   {
     overrideKey: "brace-expansion",
     packageName: "brace-expansion",

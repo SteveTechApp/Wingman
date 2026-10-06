@@ -9,6 +9,7 @@ import { templateMatchesMarketFilter } from "../../lib/templateMarkets";
 import { DISCOVERY_MARKETS, DISCOVERY_TEMPLATE_MARKET, getDiscoveryMarket, photoForDiscoveryEnvironment, photoForDiscoveryMarket, RELATED_TEMPLATE_MARKETS } from "./discoveryMarketContext";
 
 type Props = {
+  allowTemplates?: boolean;
   marketId: string;
   environmentId: string;
   onMarketChange: (marketId: string) => void;
@@ -16,7 +17,7 @@ type Props = {
   onCancel?: () => void;
 };
 
-export function DiscoveryMarketEntry({ marketId, environmentId, onMarketChange, onEnvironmentSelect, onCancel }: Props) {
+export function DiscoveryMarketEntry({ allowTemplates = true, marketId, environmentId, onMarketChange, onEnvironmentSelect, onCancel }: Props) {
   const [query, setQuery] = useState("");
   const [otherDescription, setOtherDescription] = useState("");
   const [describingOther, setDescribingOther] = useState(false);
@@ -38,9 +39,9 @@ export function DiscoveryMarketEntry({ marketId, environmentId, onMarketChange, 
     <section className="wm-discovery-market-entry wm-ui-card" aria-label="Opportunity context">
       <div className="wm-discovery-market-entry__heading">
         <span className="wm-discovery-market-entry__eyebrow">Start with the customer's world</span>
-        <h2>{market ? (!designingCustom && market.id !== "other" ? `How would you like to start in ${market.label}?` : `Where in ${market.label} will AV be used?`) : "Which market is the customer in?"}</h2>
+        <h2>{market ? (allowTemplates && !designingCustom && market.id !== "other" ? `How would you like to start in ${market.label}?` : `Where in ${market.label} will AV be used?`) : "Which market is the customer in?"}</h2>
         <p>{market
-          ? (!designingCustom && market.id !== "other" ? "Start with a pre-built template for a familiar setup, or describe the customer's environment for a custom design." : "Choose the closest environment. Wingman will use it to frame the next questions, not assume a product or network design.")
+          ? (allowTemplates && !designingCustom && market.id !== "other" ? "Start with a pre-built template for a familiar setup, or describe the customer's environment for a custom design." : "Choose the closest environment. Wingman will use it to frame the next questions, not assume a product or network design.")
           : "Choose their industry first. You’ll then see spaces and situations they are likely to recognise."}</p>
       </div>
 
@@ -68,7 +69,7 @@ export function DiscoveryMarketEntry({ marketId, environmentId, onMarketChange, 
           <button type="button" className="wm-discovery-market-entry__back" onClick={() => { setDesigningCustom(false); onMarketChange(""); }}>
             <ArrowLeft size={16} aria-hidden="true" /> Change market
           </button>
-          {!designingCustom && market.id !== "other" && (
+          {allowTemplates && !designingCustom && market.id !== "other" && (
             <div className="wm-discovery-market-entry__paths">
               <h3>Start from a pre-built room design</h3>
               <p>{matchingTemplates.length
@@ -88,7 +89,7 @@ export function DiscoveryMarketEntry({ marketId, environmentId, onMarketChange, 
               <button type="button" className="wm-discovery-market-entry__custom" onClick={() => setDesigningCustom(true)}>Describe this environment for a custom design <ArrowRight size={17} aria-hidden="true" /></button>
             </div>
           )}
-          {(designingCustom || market.id === "other") && <div className="wm-discovery-market-entry__grid">
+          {(!allowTemplates || designingCustom || market.id === "other") && <div className="wm-discovery-market-entry__grid">
             {market.environments.map((environment) => (
               <button type="button" key={environment.id} className="wm-discovery-market-entry__photo" aria-pressed={environmentId === environment.id}
                 onClick={() => environment.id === "other" ? setDescribingOther(true) : onEnvironmentSelect(environment.id, environment.suggestedApplication)}>
@@ -108,7 +109,7 @@ export function DiscoveryMarketEntry({ marketId, environmentId, onMarketChange, 
               </button>
             )}
           </div>}
-          {(designingCustom || market.id === "other") && describingOther && (
+          {(!allowTemplates || designingCustom || market.id === "other") && describingOther && (
             <form className="wm-discovery-market-entry__other" onSubmit={(event) => {
               event.preventDefault();
               if (otherDescription.trim()) onEnvironmentSelect("other", undefined, otherDescription.trim());

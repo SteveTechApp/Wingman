@@ -1,7 +1,8 @@
-let productIntelligenceIndexPromise: Promise<unknown> | null = null;
 let productIntelligenceSummaryPromise: Promise<ProductIndexPayload> | null = null;
 let productIntelligenceDetailsPromise: Promise<{ products?: Record<string, { path?: string }> }> | null = null;
 const productIntelligenceDetailPromises = new Map<string, Promise<Record<string, unknown>>>();
+let productIntelligenceFullRecordsPromise: Promise<ProductIndexPayload> | null = null;
+const DETAIL_CONCURRENCY = 6;
 
 type ProductIndexPayload = { products?: Array<Record<string, unknown>> } | Array<Record<string, unknown>>;
 
@@ -82,28 +83,23 @@ export function applyRuntimeAdminRecords(
 }
 
 export async function loadProductIntelligenceIndex(): Promise<unknown> {
-  if (!productIntelligenceIndexPromise) {
-    productIntelligenceIndexPromise = Promise.all([
-      fetchJson<ProductIndexPayload>("/product-intelligence-summary.json"),
-      loadRuntimeAdminRecords(),
-    ]).then(([payload, runtimeRecords]) => applyRuntimeAdminRecords(payload, runtimeRecords))
-      .catch(async () => applyRuntimeAdminRecords(
-        await fetchJson<ProductIndexPayload>("/product-intelligence-summary.json"),
-        await loadRuntimeAdminRecords(),
-      ))
-      .catch((error) => {
-        productIntelligenceIndexPromise = null;
-        throw error;
-      });
-  }
-
-  return productIntelligenceIndexPromise;
+  return loadProductIntelligenceSummary();
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, { cache: "force-cache" });
   if (!response.ok) throw new Error(`Product intelligence artifact unavailable: ${response.status}`);
   return response.json() as Promise<T>;
+}
+
+async function hydrateDetails(keys: string[]): Promise<void> {
+  let next = 0;
+  await Promise.all(Array.from({ length: Math.min(DETAIL_CONCURRENCY, keys.length) }, async () => {
+    while (next < keys.length) {
+      const key = keys[next++];
+      await loadProductIntelligenceDetail(key);
+    }
+  }));
 }
 
 export function loadProductIntelligenceSummary(): Promise<ProductIndexPayload> {
@@ -159,7 +155,7 @@ export async function loadProductIntelligenceSummaryWithDetail(skus: Array<strin
   const wanted = new Set(skus.map((sku) => skuKey(sku)).filter(Boolean));
   if (wanted.size === 0) return payload;
 
-  await Promise.all([...wanted].map((key) => loadProductIntelligenceDetail(key).catch(() => null)));
+  await hydrateDetails([...wanted]);
 
   const detailsByKey = new Map<string, Record<string, unknown>>();
   for (const key of wanted) {
@@ -175,10 +171,25 @@ export async function loadProductIntelligenceSummaryWithDetail(skus: Array<strin
 
 /** Every product with its deferred detail fields hydrated (admin surface). */
 export async function loadProductIntelligenceDetailRecords(): Promise<ProductIndexPayload> {
+  if (!productIntelligenceFullRecordsPromise) {
+    productIntelligenceFullRecordsPromise = hydrateFullRecords().catch((error) => {
+      productIntelligenceFullRecordsPromise = null;
+      throw error;
+    });
+  }
+  return productIntelligenceFullRecordsPromise;
+}
+
+async function hydrateFullRecords(): Promise<ProductIndexPayload> {
   const payload = await loadProductIntelligenceSummary();
   const products = summaryProductList(payload);
   const keys = products.map((product) => skuKey(product.sku)).filter(Boolean);
-  await Promise.all(keys.map((key) => loadProductIntelligenceDetail(key).catch(() => null)));
+  await hydrateDetails(keys);
+  // A transient detail failure must remain retryable on the next visit.
+  const manifest = await loadProductIntelligenceDetails().catch(() => null);
+  if (!manifest || keys.some((key) => manifest.products?.[key]?.path && !productIntelligenceDetailPromises.has(key))) {
+    productIntelligenceFullRecordsPromise = null;
+  }
   return payloadWithProducts(payload, await Promise.all(products.map(async (product) => {
     const detail = await productIntelligenceDetailPromises.get(skuKey(product.sku));
     return detail ? { ...product, ...detail } : product;
@@ -186,7 +197,7 @@ export async function loadProductIntelligenceDetailRecords(): Promise<ProductInd
 }
 
 export function clearProductIntelligenceIndexCache(): void {
-  productIntelligenceIndexPromise = null;
+  productIntelligenceFullRecordsPromise = null;
   productIntelligenceSummaryPromise = null;
   productIntelligenceDetailsPromise = null;
   productIntelligenceDetailPromises.clear();

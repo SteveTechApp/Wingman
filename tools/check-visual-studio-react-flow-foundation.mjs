@@ -25,7 +25,11 @@ const cssImports = [
 
 const expectedImports = [
   "@xyflow/react/dist/style.css",
-  "./wingman2/styles/wingman-style-stack.css",
+  "./wingman2/styles/wingman-layer-tokens.css",
+  "./wingman2/styles/wingman-layer-reset.css",
+  "./wingman2/styles/wingman-layer-layout.css",
+  "./wingman2/styles/wingman-layer-components.css",
+  "./wingman2/styles/wingman-route-overrides.css",
   "./wingman2/styles/wingman-reference-theme.css",
   "./wingman2/styles/wingman-workflow-theme.css",
 ];
@@ -54,7 +58,7 @@ if (!guard.includes('"@xyflow/react/dist/style.css"')) {
 });
 
 [
-  '"generic-avoip-network": { x: 715, y: 205 }',
+  '"generic-avoip-network": { x: 532, y: 20 }',
   "interactionWidth: 24",
   'strokeWidth: mode === "technical" ? 3.2 : 3.6',
 ].forEach((marker) => {

@@ -24,7 +24,7 @@ function expectMarkers(relativePath, markers) {
 
 expectMarkers(".env.example", [
   "VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=false",
-  "WINGMAN_STORAGE_MODE=auto",
+  "WINGMAN_STORAGE_MODE=file",
   "SUPABASE_WINGMAN_PROJECTS_TABLE=wingman_projects",
 ]);
 

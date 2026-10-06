@@ -8,6 +8,7 @@ const discoveryAnswers: Record<string, string> = {
   "How many source positions are likely?": "2-4 sources",
   "How many displays or outputs are needed?": "1 display / output",
   "How should the displays behave?": "Same content on all displays",
+  "How should room audio be connected and operated?": "No separate room audio system",
   "What camera, microphone or capture workflows are required?": "No camera or microphone requirements",
 };
 
@@ -22,6 +23,9 @@ async function resetAt(page: Page, path: string) {
 
 async function completeDiscovery(page: Page) {
   await resetAt(page, "/discovery");
+  await page.getByRole("button", { name: /^Corporate & enterprise/ }).click();
+  await page.getByRole("button", { name: /Describe this environment for a custom design/ }).click();
+  await page.getByRole("button", { name: /^Meeting or boardroom/ }).click();
   for (let turn = 0; turn < 12; turn += 1) {
     const finish = page.getByRole("button", { name: "Next: find matching products", exact: true });
     if (await finish.isVisible({ timeout: 700 }).catch(() => false)) {
@@ -39,7 +43,9 @@ async function completeDiscovery(page: Page) {
     await page.waitForTimeout(200);
     if ((await heading.innerText()).trim() === question) {
       const next = page.getByRole("button", { name: "Continue", exact: true });
-      if (await next.isEnabled()) await next.click();
+      const finishInterview = page.getByRole("button", { name: "Finish discovery", exact: true });
+      if (await finishInterview.isVisible()) await finishInterview.click();
+      else if (await next.isVisible() && await next.isEnabled()) await next.click();
     }
   }
   throw new Error("Discovery did not reach its completion decision.");
@@ -56,7 +62,7 @@ test.describe("Windows production-critical workflows", () => {
   test("Dashboard exposes the primary workflow navigation", async ({ page }) => {
     await expect(page.getByRole("main", { name: "Wingman guided home" })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/clear signal path/i);
-    for (const destination of ["discovery", "compare", "templates"]) {
+    for (const destination of ["discovery", "compare", "products"]) {
       await expect(page.locator(`a[href*="/${destination}"]`).first()).toBeVisible();
     }
   });
@@ -73,6 +79,17 @@ test.describe("Windows production-critical workflows", () => {
     await expect(page.locator(".wm-rec-system")).toBeVisible();
     await expect(page.locator(".wm-rec-system-flow")).toContainText(/Source|Display|Signal/i);
     await expect(page.locator(".wm-rec-system").getByText(/WyreStorm|SW-|EXP-|MX-|NHD-/i).first()).toBeVisible();
+  });
+
+  test("Idle Compare leaves deferred product detail unloaded", async ({ page }) => {
+    const detailRequests: string[] = [];
+    page.on("request", (request) => {
+      if (new URL(request.url()).pathname.startsWith("/product-intelligence-details/")) detailRequests.push(request.url());
+    });
+    await resetAt(page, "/compare");
+    await expect(page.getByRole("combobox", { name: /^Manufacturer$/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Compare", exact: true })).toBeVisible();
+    expect(detailRequests).toEqual([]);
   });
 
   test("Compare resolves a known competitor to a governed WyreStorm match", async ({ page }) => {
@@ -102,8 +119,9 @@ test.describe("Windows production-critical workflows", () => {
 
   test("Templates open a populated design with a quantified equipment schedule", async ({ page }) => {
     await resetAt(page, "/templates");
-    await expect(page.locator(".wm-library-tile")).toHaveCount(55);
-    await page.locator(".wm-library-tile").first().click();
+    await expect(page.getByRole("heading", { name: "8 templates", exact: true })).toBeVisible();
+    await expect(page.locator(".wm-template-library-card")).toHaveCount(4);
+    await page.getByRole("button", { name: "Review design", exact: true }).first().click();
     await expect(page.locator('[data-wingman-template-detail-page="true"]')).toBeVisible();
     await page.getByRole("tab", { name: "Equipment", exact: true }).click();
     await expect(page.getByRole("tabpanel")).toContainText(/Required|Validate|Optional/i);
@@ -112,7 +130,7 @@ test.describe("Windows production-critical workflows", () => {
 
   test("Proposal review preserves a populated template BOM and assumptions", async ({ page }) => {
     await resetAt(page, "/templates");
-    await page.locator(".wm-library-tile").first().click();
+    await page.getByRole("button", { name: "Review design", exact: true }).first().click();
     await page.getByRole("tab", { name: "Proposal", exact: true }).click();
     const proposal = page.getByRole("tabpanel");
     await expect(proposal).toContainText(/proposal/i);

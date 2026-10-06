@@ -1,16 +1,16 @@
 import {
   ArrowRight,
   CheckCircle2,
-  MoreVertical,
   Plus,
   Target,
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { HubCard, routeAction } from "./NavigationHubPages";
 import { StatusChip } from "../components/StatusChip";
+import { ProjectActionMenu } from "../components/ProjectActionMenu";
 import { GuidedDashboard } from "../components/GuidedDashboard";
 import { useUiMode } from "../data/uiMode";
 import {
@@ -42,7 +42,7 @@ const primaryActions = [
   routeAction(
     "discovery",
     "New Opportunity",
-    "Answer a few questions and get a clear product direction.",
+    "Build a complete room with requirements, equipment and connections.",
     "GUIDED REQUIREMENT CAPTURE",
     { accent: "aqua", linkLabel: "Start discovery", art: "discovery" },
   ),
@@ -96,39 +96,6 @@ type DashboardProgress = {
   label: string;
   value: number;
 };
-
-const fallbackProjects: DashboardProject[] = [
-  {
-    id: "northbridge-meeting-room-refresh",
-    name: "Northbridge Meeting Room Refresh",
-    scope: "Discovery / Steve",
-    stage: "Discovery",
-    owner: "Steve",
-    status: "recommended",
-    updated: "2 hours ago",
-    resumeTo: routeCatalogByKey.discovery.path,
-  },
-  {
-    id: "harbour-retail-signage-rollout",
-    name: "Harbour Retail Signage Rollout",
-    scope: "Competitor Compare / Channel Sales",
-    stage: "Competitor Compare",
-    owner: "Channel Sales",
-    status: "alternative",
-    updated: "Today",
-    resumeTo: routeCatalogByKey.compare.path,
-  },
-  {
-    id: "westbrook-classroom-standard",
-    name: "Westbrook Classroom Standard",
-    scope: "Proposal Builder / Pre-sales",
-    stage: "Proposal Builder",
-    owner: "Pre-sales",
-    status: "recommended",
-    updated: "Yesterday",
-    resumeTo: routeCatalogByKey.responsePack.path,
-  },
-];
 
 const STAGE_NEXT_STEP: Partial<Record<ProjectStage, string>> = {
   Discovery: "Continue discovery",
@@ -734,7 +701,8 @@ function GovernedCoverageStrip() {
 
 export function DashboardPage() {
   const { isGuided } = useUiMode();
-  const { projects } = useProjectStore();
+  const { projects, copyProject, deleteProject } = useProjectStore();
+  const navigate = useNavigate();
   const [workspaceSession, setWorkspaceSession] = useState<WingmanWorkspaceSession | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
   const showAdminGovernance = sessionReady && isDashboardAdminSession(workspaceSession);
@@ -763,9 +731,10 @@ export function DashboardPage() {
     return <GuidedDashboard />;
   }
 
-  const sourceProjects: DashboardProject[] = projects.length
-    ? projects.map((project) => ({ ...project, scope: projectScopeLine(project) }))
-    : fallbackProjects;
+  const sourceProjects: DashboardProject[] = projects.map((project) => ({
+    ...project,
+    scope: projectScopeLine(project),
+  }));
 
   const recentProjects = sourceProjects.slice(0, 3);
   const displayName = readDisplayName();
@@ -827,6 +796,7 @@ export function DashboardPage() {
               </Link>
             </div>
 
+            {recentProjects.length === 0 ? <p>No projects yet. Create a new project to get started.</p> : null}
             <div className="wm-reference-project-grid">
               {recentProjects.map((project) => {
                 const progress = projectProgress(project);
@@ -834,17 +804,16 @@ export function DashboardPage() {
                 const resumeInterview = resume && resume.hasContent && !resume.complete;
 
                 return (
-                  <Link
+                  <article
                     key={project.id}
-                    to={resumeInterview ? discoveryResumeUrl() : `${routeCatalogByKey.projects.path}/${project.id}`}
-                    onClick={() => setActiveProjectId(project.id)}
                     className="wm-reference-project-card"
                     data-wm-status={project.status}
                   >
                     <div className="wm-reference-project-topline">
                       <StatusChip label={STATUS_LABEL[project.status]} variant={project.status} />
-                      <MoreVertical aria-hidden="true" />
+                      <ProjectActionMenu name={project.name} onEdit={() => { setActiveProjectId(project.id); navigate(discoveryResumeUrl(project.id)); }} onCopy={() => copyProject(project.id)} onDelete={() => deleteProject(project.id)} />
                     </div>
+                    <Link className="wm-reference-project-open" to={resumeInterview ? discoveryResumeUrl() : `${routeCatalogByKey.projects.path}/${project.id}`} onClick={() => setActiveProjectId(project.id)}>
                     <div className="wm-reference-project-name">
                       <span className="wm-reference-project-icon">
                         <CheckCircle2 aria-hidden="true" />
@@ -869,7 +838,8 @@ export function DashboardPage() {
                         nextStepFor(project.stage)
                       )}
                     </div>
-                  </Link>
+                    </Link>
+                  </article>
                 );
               })}
             </div>
@@ -882,6 +852,7 @@ export function DashboardPage() {
               <Target aria-hidden="true" />
               <h2>Today&apos;s Focus</h2>
             </div>
+            {recentProjects.length === 0 ? <p>Your project tasks will appear here.</p> : null}
             <div className="wm-reference-focus-list">
               {recentProjects.map((project) => (
                 <Link

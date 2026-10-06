@@ -25,6 +25,6 @@ describe("existing Discovery resume warning", () => {
     // the page must open straight into the interview and treat the visit as intentional
     // (no existing-discovery warning), so the interview resumes at the first open question.
     expect(source).toContain('searchParams.get("interview") === "1"');
-    expect(source).toContain('useState(\n    () => searchParams.get("interview") === "1",\n  )');
+    expect(source).toMatch(/useState\(\s*\(\) => searchParams.get\("interview"\) === "1",\s*\)/);
   });
 });

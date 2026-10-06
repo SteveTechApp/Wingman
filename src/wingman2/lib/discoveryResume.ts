@@ -31,8 +31,8 @@ export type DiscoveryResumeInfo = {
 /** Query string that opens Discovery with the saved brief and auto-starts the guided interview. */
 export const DISCOVERY_RESUME_INTERVIEW_QUERY = "resume=project&interview=1";
 
-export function discoveryResumeUrl(): string {
-  return `${routeCatalogByKey.discovery.path}?${DISCOVERY_RESUME_INTERVIEW_QUERY}`;
+export function discoveryResumeUrl(projectId?: string): string {
+  return `${routeCatalogByKey.discovery.path}?${DISCOVERY_RESUME_INTERVIEW_QUERY}${projectId ? `&projectId=${encodeURIComponent(projectId)}` : ""}`;
 }
 
 export function discoveryResumeInfo(

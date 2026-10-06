@@ -190,7 +190,6 @@ header.wm-header {
 .wm-dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
-  gap: 18px;
 }
 
 .wm-kpi-grid,
@@ -253,11 +252,8 @@ header.wm-header {
   .wm-grid-3,
   .wm-grid-4,
   .wm-kpi-grid,
-  .wm-metric-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .wm-compare-row {
+  .wm-metric-grid,
+.wm-compare-row {
     grid-template-columns: 1fr;
   }
 
@@ -325,3 +321,6 @@ aside:not(.wm-sidebar):not(.wingman-sidebar) {
 .wingman-layout > aside[aria-label="Sidebar"] * {
   color: inherit;
 }
+/* Generate the layout, spacing and typography utilities used by existing views.
+   Wingman's reset owns base elements; theme styles follow this layer. */
+@tailwind utilities;

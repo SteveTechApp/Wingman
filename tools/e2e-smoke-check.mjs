@@ -51,24 +51,6 @@ const OVERSIZED_BODY = JSON.stringify({ manufacturer: "Crestron", model: "x".rep
 const WORKSPACE_EMAIL = "e2esmoke@example.com";
 const WORKSPACE_PASSWORD = "e2e-smoke-pass";
 
-// Discovery walk: current question heading text → the option label to click.
-// Pinned to the Essential-mode questions (discoveryQuestions.ts /
-// BASIC_MODE_REQUIRED_IDS); single-select steps auto-advance on click, the two
-// multi-select steps advance via Continue. Completion is the panel CTA
-// "Next: find matching products" (DiscoveryCompletionPanel).
-const QUESTION_TO_OPTION = {
-  "What type of opportunity is this?": "Meeting room / boardroom",
-  "What is the approximate room or system scale?": "Single large room",
-  "How many source positions are likely?": "2-4 sources",
-  "How many displays or outputs are needed?": "1 display / output",
-  "How should the displays behave?": "Same content on all displays",
-  "What camera, microphone or capture workflows are required?": "No camera or microphone requirements",
-  "How should room audio be connected and operated?": "Distributed 70 V / 100 V loudspeakers",
-  "Which areas need separate audio control?": "Several independently controlled areas",
-  "What must the audience hear?": "Speech and background programme",
-  "What physical conditions affect sound in this space?": "Hard surfaces or audible reverberation",
-};
-
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wingman-e2e-smoke-"));
 const apiLogFd = fs.openSync(path.join(dataDir, "api.log"), "a");
 const uiLogFd = fs.openSync(path.join(dataDir, "ui.log"), "a");
@@ -211,15 +193,15 @@ async function signInViaSettings(page) {
 }
 
 async function saveDiscoveryProjectAndExportBrief(page) {
-  // 2. Save the discovery project through the completion panel, then 4. export
+  // Save the discovery project through the focused room brief, then export
   //    the discovery brief as a real HTML download blob and content-check it.
-  await page.getByRole("button", { name: /Save to project/ }).click();
+  await page.getByRole("button", { name: "Save room brief", exact: true }).click();
   await page
     .getByText(/Discovery saved to your project\./)
     .waitFor({ state: "visible", timeout: 10_000 });
-  console.log("[e2e-smoke] Discovery project saved via the completion panel.");
+  console.log("[e2e-smoke] Discovery project saved via the focused room brief.");
 
-  const exportButton = page.locator('[data-testid="discovery-brief-export"]');
+  const exportButton = page.getByRole("button", { name: "Export completion brief", exact: true });
   await exportButton.waitFor({ state: "visible", timeout: 8_000 });
   const [briefDownload] = await Promise.all([
     page.waitForEvent("download", { timeout: 15_000 }),
@@ -231,7 +213,7 @@ async function saveDiscoveryProjectAndExportBrief(page) {
   }
   const briefPath = await briefDownload.path();
   const briefHtml = fs.readFileSync(briefPath, "utf8");
-  for (const expected of ["<!doctype html>", "Meeting room / boardroom", "Zoned 70/100V", "Acoustic survey and wall/ceiling treatment allowance", "independently selects"]) {
+  for (const expected of ["<!doctype html>", "Discovery Brief", "Meeting room / boardroom", "Room Completion Schedule", "cable distances, equipment positions and network/IT policy"]) {
     if (!briefHtml.includes(expected)) {
       throw new Error(`[e2e-smoke] Discovery brief HTML export is missing "${expected}".`);
     }
@@ -249,72 +231,68 @@ async function walkDiscovery(page) {
   await page.waitForTimeout(600);
 
   const marketEntry = page.getByRole("region", { name: "Opportunity context" });
+  const viewSwitcher = page.locator(".wm-topbar-mode-toggle");
+  const focusedView = viewSwitcher.getByRole("button", { name: /^Focused view/ });
+  const expertView = viewSwitcher.getByRole("button", { name: /^Expert view/ });
+  if (!(await viewSwitcher.isVisible().catch(() => false)) || !(await focusedView.isVisible().catch(() => false)) || !(await expertView.isVisible().catch(() => false))) {
+    throw new Error("[e2e-smoke] Focused and Expert view switches are not both visible in the header.");
+  }
+  await expertView.click();
+  await expertView.waitFor({ state: "visible", timeout: 3_000 });
+  if ((await expertView.getAttribute("aria-pressed")) !== "true") {
+    throw new Error("[e2e-smoke] Expert view did not activate from the header switch.");
+  }
+  await focusedView.click();
+  if ((await focusedView.getAttribute("aria-pressed")) !== "true") {
+    throw new Error("[e2e-smoke] Focused view did not activate from the header switch.");
+  }
+
   await marketEntry.getByRole("button", { name: /Corporate & enterprise/ }).click();
   await marketEntry.getByRole("button", { name: /Describe this environment for a custom design/ }).click();
   await marketEntry.getByRole("button", { name: /Meeting or boardroom/ }).click();
 
-  // Guided mode defaults to Basic (pressed); pin it in case a prior session
-  // left Expert selected in the sticky settings.
-  const basicToggle = page.getByRole("button", { name: "Essential", exact: true });
-  if (
-    (await basicToggle.isVisible().catch(() => false)) &&
-    (await basicToggle.getAttribute("aria-pressed")) !== "true"
-  ) {
-    await basicToggle.click();
-    await page.waitForTimeout(300);
-  }
-
-  const optionButton = (label) =>
-    page.locator("button.wm-discovery-option").filter({ hasText: label }).first();
-
+  const wizard = page.getByRole("region", { name: "Guided room discovery" });
+  await wizard.waitFor({ state: "visible", timeout: 10_000 });
   let answered = 0;
-  for (let i = 0; i < 16; i += 1) {
-    // Completion panel CTA appears once every essential question has an answer.
-    const cta = page.getByRole("button", { name: "Next: find matching products", exact: true });
-    if (await cta.isVisible({ timeout: 800 }).catch(() => false)) {
-      await saveDiscoveryProjectAndExportBrief(page);
-      await cta.click();
-      break;
-    }
-
-    const finish = page.getByRole("button", { name: "Finish discovery", exact: true });
-    if (await finish.isVisible().catch(() => false) && await finish.isEnabled()) {
-      await finish.click();
-      await page.waitForTimeout(350);
+  let completed = false;
+  for (let i = 0; i < 80; i += 1) {
+    const stage = await wizard.getAttribute("data-room-wizard-stage");
+    if (stage === "equipment") {
+      const buildLayout = wizard.getByRole("button", { name: "Build room layout from answers", exact: true });
+      if (await buildLayout.isVisible().catch(() => false)) await buildLayout.click();
+      await wizard.getByRole("button", { name: "Review room brief", exact: true }).click();
       continue;
     }
 
-    const heading = page.locator("[data-discovery-step] h2").first();
-    if (!(await heading.isVisible({ timeout: 800 }).catch(() => false))) {
-      throw new Error("[e2e-smoke] Discovery rendered neither a question nor the completion CTA.");
-    }
-    const questionText = ((await heading.textContent()) || "").trim();
-    const label = QUESTION_TO_OPTION[questionText];
-    if (!label) {
-      throw new Error(`[e2e-smoke] Discovery walked into unexpected question "${questionText}".`);
+    if (stage === "review") {
+      await saveDiscoveryProjectAndExportBrief(page);
+      await wizard.getByRole("button", { name: "Find WyreStorm products", exact: true }).click();
+      completed = true;
+      break;
     }
 
-    const option = optionButton(label);
-    if (!(await option.isVisible({ timeout: 2_000 }).catch(() => false))) {
-      throw new Error(`[e2e-smoke] Option "${label}" for "${questionText}" did not render.`);
+    const heading = wizard.locator("h2[data-discovery-question-id]");
+    if (!(await heading.isVisible({ timeout: 2_000 }).catch(() => false))) {
+      const bodyText = await page.locator("body").innerText().catch(() => "");
+      throw new Error(`[e2e-smoke] Focused Discovery rendered no question at stage ${stage || "unknown"}. ${bodyText.slice(0, 2500)}`);
     }
-    await option.click();
+    const questionId = await heading.getAttribute("data-discovery-question-id");
+    const options = wizard.locator("button.wm-room-wizard-option");
+    if (await options.count()) await options.first().click();
+    const continueButton = wizard.getByRole("button", { name: "Continue", exact: true });
+    if (!(await continueButton.isVisible().catch(() => false))) {
+      throw new Error(`[e2e-smoke] Focused Discovery question "${questionId}" has no Continue action.`);
+    }
+    await continueButton.click();
     answered += 1;
-    await page.waitForTimeout(350);
-
-    // Multi-select steps stay put after a click — advance via Continue.
-    if (((await heading.textContent()) || "").trim() === questionText) {
-      const cont = page.getByRole("button", { name: "Continue", exact: true });
-      if (
-        (await cont.isVisible({ timeout: 1_000 }).catch(() => false)) &&
-        (await cont.isEnabled().catch(() => false))
-      ) {
-        await cont.click();
-        await page.waitForTimeout(300);
-      }
-    }
+    await page.waitForFunction((previousId) => {
+      const roomWizard = document.querySelector(".wm-room-wizard");
+      return roomWizard?.getAttribute("data-room-wizard-stage") !== "questions"
+        || roomWizard.querySelector("h2[data-discovery-question-id]")?.getAttribute("data-discovery-question-id") !== previousId;
+    }, questionId, { timeout: 8_000 });
   }
 
+  if (!completed) throw new Error(`[e2e-smoke] Focused Discovery did not reach its review action after ${answered} questions.`);
   let landed = false;
   try {
     await page.waitForURL("**/wingman/recommendations", { timeout: 15_000 });

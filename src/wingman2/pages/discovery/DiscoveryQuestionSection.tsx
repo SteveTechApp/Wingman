@@ -126,6 +126,7 @@ export function getDiscoveryOptionPhoto(stepId: string, value: string, label: st
 }
 
 type DiscoveryQuestionSectionProps = {
+  templateAuthoring?: boolean;
   activeIndex: number;
   questionCount: number;
   answeredCount: number;
@@ -176,6 +177,7 @@ type DiscoveryQuestionSectionProps = {
 
 export function DiscoveryQuestionSection(props: DiscoveryQuestionSectionProps) {
   const {
+    templateAuthoring = false,
     activeIndex,
     questionCount,
     answeredCount,
@@ -350,7 +352,7 @@ export function DiscoveryQuestionSection(props: DiscoveryQuestionSectionProps) {
           </button>
           <div className="wm-discovery-exit-signpost" role="status" aria-live="polite">
             <span>Next stage</span>
-            <strong>{requiresVideoWallConfiguration && !videoWallConfigured ? "Configure video wall" : "Find matching products"}</strong>
+            <strong>{templateAuthoring ? "Save custom template" : requiresVideoWallConfiguration && !videoWallConfigured ? "Configure video wall" : "Find matching products"}</strong>
             <small>
               {questionCount - answeredCount > 0
                 ? `${questionCount - answeredCount} answer${questionCount - answeredCount === 1 ? "" : "s"} remaining`

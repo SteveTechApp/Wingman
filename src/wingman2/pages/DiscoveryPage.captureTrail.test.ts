@@ -32,6 +32,6 @@ describe("free-text capture suggestions reach the discovery conversation trail",
     // wording next to the auto-classified answer.
     expect(source).toContain("return compileDiscoveryBrief({");
     expect(briefBuilder).toContain("discoveryConversation: buildDiscoveryConversation(modeQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep)");
-    expect(briefBuilder).toContain('buildDiscoveryConversation,\n');
+    expect(briefBuilder).toMatch(/buildDiscoveryConversation,\s/);
   });
 });

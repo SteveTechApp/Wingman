@@ -12,17 +12,22 @@ import { roomTemplates } from "@/wingman2/lib/roomTemplates";
 import { DiscoveryPage } from "@/wingman2/pages/DiscoveryPage";
 import { TemplatesPage } from "@/wingman2/pages/TemplatesPage";
 import { TemplateReviewPage } from "@/wingman2/pages/TemplateReviewPage";
+import { TemplateBuilderPage } from "@/wingman2/pages/TemplateBuilderPage";
+import { UiModeProvider } from "@/wingman2/data/uiMode";
 
 const CUSTOM_ROOM_TEMPLATE_KEY = "wingman-custom-room-templates-v1";
 
 function renderApp(initialPath = "/wingman/templates") {
+  window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
-      <Routes>
+      <UiModeProvider><Routes>
         <Route path="/wingman/templates" element={<TemplatesPage />} />
+        <Route path="/wingman/templates/new" element={<TemplateBuilderPage />} />
+        <Route path="/wingman/templates/:templateId/edit" element={<TemplateBuilderPage />} />
         <Route path="/wingman/templates/:templateId" element={<TemplateReviewPage />} />
         <Route path="/wingman/discovery" element={<DiscoveryPage />} />
-      </Routes>
+      </Routes></UiModeProvider>
     </MemoryRouter>,
   );
 }
@@ -128,7 +133,6 @@ describe("New Custom Template creation via Discovery", () => {
 
     fireEvent.change(screen.getByLabelText("Template name"), { target: { value: "Divisible Training Room" } });
     fireEvent.click(screen.getByRole("button", { name: /Corporate & enterprise/i }));
-    fireEvent.click(screen.getByRole("button", { name: /Describe this environment for a custom design/i }));
     fireEvent.click(screen.getByRole("button", { name: /Meeting or boardroom/i }));
 
     fireEvent.click(screen.getByRole("button", { name: "Save Custom Template" }));
@@ -152,7 +156,6 @@ describe("New Custom Template creation via Discovery", () => {
     expect(screen.getByRole("button", { name: "Save Custom Template" })).toBeDisabled();
 
     fireEvent.click(screen.getByRole("button", { name: /Corporate & enterprise/i }));
-    fireEvent.click(screen.getByRole("button", { name: /Describe this environment for a custom design/i }));
     fireEvent.click(screen.getByRole("button", { name: /Meeting or boardroom/i }));
     expect(screen.getByRole("button", { name: "Save Custom Template" })).toBeEnabled();
   });
@@ -236,7 +239,8 @@ describe("Template-to-summary handoff", () => {
     fireEvent.click(screen.getByRole("button", { name: original.name }));
 
     expect(screen.getByRole("heading", { name: original.name, level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Equipment" })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
+    expect(screen.getByLabelText("Schedule section")).toBeInTheDocument();
     expect(screen.queryByText(/Pre-populated from template:/)).not.toBeInTheDocument();
   });
 

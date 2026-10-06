@@ -6,6 +6,9 @@ const briefWithTrail: StoredDiscoveryBrief = {
   savedAt: "2026-08-26T00:00:00.000Z",
   capturedPercent: 88,
   roomModel: {
+    roomOccupancy: "250",
+    completionScope: ["Lectern microphone and mounting"],
+    equipmentSchedule: ["2 × Saved Display — front wall; suitability to confirm"],
     applicationType: "Meeting room / boardroom",
     sourceCount: "2-4 sources",
     displayCount: "2 displays / outputs",

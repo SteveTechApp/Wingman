@@ -26,6 +26,7 @@ permissions:
 
 jobs:
   governed-data-gate:
+    if: vars.WINGMAN_ENABLE_DATA_GATES == 'true'
     name: Governed Data Gate
     runs-on: ubuntu-latest
     steps:

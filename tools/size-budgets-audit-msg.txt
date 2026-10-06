@@ -1,0 +1,9 @@
+regen: regenerate size-budget baseline and record room-template completeness audit
+
+- Regenerate tools/wingman-size-budgets.json to the authoritative lazy
+  visual-canvas split baseline (initial:js 383,535 B, total:css 967,934 B,
+  total:js 7,210,159 B) per docs/SIZE_BUDGETS.md.
+- Regenerate docs/ROOM_TEMPLATE_COMPLETENESS_AUDIT.md recording the new
+  market-story layer across all 59 Wingman templates.
+
+Co-Authored-By: Codebuff <noreply@codebuff.com>

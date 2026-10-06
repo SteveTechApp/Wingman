@@ -4,7 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 
 const filesToScan = [
-  "src/wingman2/pages/ComparePageNew.tsx",
+  "src/wingman2/pages/ComparePageNew.advanced.tsx",
   "src/__tests__/compareWorkflowRendered.test.tsx"
 ];
 
@@ -42,7 +42,7 @@ for (const relativeFile of filesToScan) {
   }
 }
 
-const compareText = fs.readFileSync(path.join(root, "src/wingman2/pages/ComparePageNew.tsx"), "utf8");
+const compareText = fs.readFileSync(path.join(root, "src/wingman2/pages/ComparePageNew.advanced.tsx"), "utf8");
 
 for (const phrase of requiredSafePhrases) {
   if (!compareText.includes(phrase)) {

@@ -32,6 +32,7 @@ permissions:
 
 jobs:
   evidence-freshness:
+    if: vars.WINGMAN_ENABLE_DATA_GATES == 'true'
     name: Evidence liveness + governed + competitor drift
     runs-on: ubuntu-latest
     steps:

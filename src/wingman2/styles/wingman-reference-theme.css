@@ -5,25 +5,10 @@
    ========================================================================== */
 
 :root {
-  --wm-ref-bg: #030914;
   --wm-ref-bg-soft: #071221;
   --wm-ref-sidebar: #020914;
-  --wm-ref-panel: rgba(10, 24, 42, 0.9);
-  --wm-ref-panel-strong: rgba(13, 31, 52, 0.96);
-  --wm-ref-panel-soft: rgba(8, 19, 34, 0.76);
-  --wm-ref-border: rgba(120, 190, 228, 0.22);
   --wm-ref-border-strong: rgba(45, 212, 191, 0.48);
-  --wm-ref-text: #f7fbff;
-  --wm-ref-copy: #c6d3e1;
-  --wm-ref-muted: #8798aa;
-  --wm-ref-aqua: #18d9c2;
-  --wm-ref-cyan: #38bdf8;
-  --wm-ref-purple: #9b72ff;
-  --wm-ref-amber: #f5a524;
-  --wm-ref-green: #24d6a3;
   --wm-ref-red: #fb7185;
-  --wm-ref-radius: 15px;
-  --wm-ref-radius-small: 11px;
   --wm-ref-sidebar-width: 232px;
   --wm-ref-page-max: 1660px;
   --wm-ref-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
@@ -228,7 +213,6 @@ body {
 }
 
 .wingman-topbar-page-label {
-  color: var(--wm-ref-text);
   font-size: 1rem;
   font-weight: 720;
 }
@@ -490,7 +474,6 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 
 .wingman-page-host table {
   color: var(--wm-ref-copy);
-  background: transparent;
 }
 
 .wingman-page-host table th {
@@ -556,13 +539,6 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   margin: 0 0 14px;
 }
 
-.wm-dashboard-heading-actions {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 10px;
-}
-
 .wm-dashboard-heading {
   min-width: 0;
   margin: 0;
@@ -585,12 +561,6 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   .wm-dashboard-heading-actions {
     width: 100%;
     justify-content: space-between;
-  }
-}
-
-@media (max-width: 980px) {
-  .wm-dashboard-heading-actions .wm-mode-toggle {
-    display: none;
   }
 }
 
@@ -995,7 +965,7 @@ button.wm-reference-quick-card {
   background: #092334;
   cursor: pointer;
 }
-.wingman-guru-dismiss:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.wingman-guru-dismiss:focus-visible { outline: 2px solid var(--wm-palette-paper); outline-offset: 2px; }
 
 .wingman-guru-fab:active,
 .wingman-guru-fab[data-dragging="true"] {
@@ -1139,15 +1109,8 @@ button.wm-reference-quick-card {
     gap: 6px;
   }
 
-  .wm-dashboard-heading-actions > .wm-mode-toggle {
-    display: none;
-  }
-
-  .wingman-topbar-page-summary {
-    display: none;
-  }
-
-  .wingman-new-project-button span {
+  .wingman-topbar-page-summary,
+.wingman-new-project-button span {
     display: none;
   }
 

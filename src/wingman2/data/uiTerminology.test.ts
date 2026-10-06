@@ -9,7 +9,7 @@ import {
 describe("customer-facing terminology", () => {
   it("maps stable interface values to the canonical labels", () => {
     const storedModes: WingmanUiMode[] = ["guided", "unguided"];
-    expect(storedModes.map((mode) => UI_MODE_PRESENTATION[mode].label)).toEqual(["Focused view", "Full workspace"]);
+    expect(storedModes.map((mode) => UI_MODE_PRESENTATION[mode].label)).toEqual(["Focused view", "Expert view"]);
   });
 
   it("maps stable discovery values to the canonical labels", () => {

@@ -1,6 +1,8 @@
 # Supabase Setup Guide for Wingman
 
-This guide explains how to configure Supabase for production use with the Wingman application.
+Supabase is currently optional. Wingman defaults to local file storage; see
+[data revision mode](DATA_REVISION_MODE.md). This guide is retained for configuring
+shared database storage when it is needed again.
 
 ## Table of Contents
 

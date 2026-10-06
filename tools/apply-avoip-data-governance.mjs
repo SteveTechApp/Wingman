@@ -99,7 +99,7 @@ function writeFileWithRetry(filePath, nextText, label) {
 function writeIfChanged(filePath, nextText, label) {
   const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
   if (current === nextText) return false;
-  if (checkOnly) fail(`${label} is not normalised. Run npm run data:canonical-products.`);
+  if (checkOnly) fail(`${label} is not normalised. Run npm run data:avoip-governance:sources, then npm run build:prepare-data.`);
   writeFileWithRetry(filePath, nextText, label);
   console.log(`[avoip-governance] Updated ${path.relative(root, filePath)}`);
   return true;

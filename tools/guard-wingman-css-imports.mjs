@@ -21,20 +21,13 @@ const referenceGlobalFinish = path.join(
   "styles",
   "wingman-reference-global.css",
 );
-const productToolsVisualWeight = path.join(
-  root,
-  "src",
-  "wingman2",
-  "styles",
-  "wingman-product-tools-visual-weight.css",
-);
 const allowed = new Set([
   "src/main.tsx",
   "src/wingman2/pages/VideowallBuilderPage.tsx",
+  "src/wingman2/components/VisualStudioCanvas.tsx",
 ]);
 
 const expectedMainCssImports = [
-  "@xyflow/react/dist/style.css",
   // Layered design system (2026-08-25) — tokens → reset → layout → components
   "./wingman2/styles/wingman-layer-tokens.css",
   "./wingman2/styles/wingman-layer-reset.css",
@@ -47,10 +40,15 @@ const expectedMainCssImports = [
   "./wingman2/styles/wingman-workflow-theme.css",
   "./wingman2/styles/wingman-polish-navigation.css",
   "./wingman2/styles/wingman-reference-global.css",
-  "./wingman2/styles/wingman-product-tools-visual-weight.css",
   "./wingman2/styles/wingman-ui-consistency.css",
   "./wingman2/styles/wingman-sales-workspace.css",
   "./wingman2/styles/wingman-voice-capture.css",
+  // Shared room-design and project-workspace surfaces, owned by the global entry.
+  "./wingman2/components/diagramPresentation.css",
+  "./wingman2/components/projectScopeSchedule.css",
+  "./wingman2/components/technicalSchematic.css",
+  "./wingman2/pages/project/project-workspace.css",
+  "./wingman2/pages/templateLibraryLayout.css",
 ];
 const retiredPageStyleFiles = [
   "wingman-visual-polish.css",
@@ -182,7 +180,6 @@ for (const globalStyle of [
   workflowTheme,
   polishNavigation,
   referenceGlobalFinish,
-  productToolsVisualWeight,
 ]) {
   if (!fs.existsSync(globalStyle)) {
     console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
@@ -215,5 +212,5 @@ if (retiredFilesStillPresent.length > 0) {
 }
 
 console.log(
-  "CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation, global reference finish and product-tools visual-weight layers only.",
+  "CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation, global reference finish and route-owned visual-canvas styles only.",
 );

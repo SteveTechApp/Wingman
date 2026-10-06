@@ -1,6 +1,8 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
+import { existsSync, realpathSync } from "node:fs";
+import { catalogueAcceptanceTests } from "./tools/catalogue-acceptance-tests.mjs";
 
 export default defineConfig({
   plugins: [react()],
@@ -16,7 +18,7 @@ export default defineConfig({
     // coverage run instruments them uselessly, so they are excluded here and
     // executed sequentially in the CI e2e job via `npm run
     // test:crash-atomicity` (vitest.config.crash-atomicity.ts).
-    exclude: ["node_modules", "dist", "src/_ARCHIVE/**", "**/*.crash-atomicity.test.mjs", "server/fixtures/**"],
+    exclude: ["node_modules", "dist", "src/_ARCHIVE/**", "**/*.crash-atomicity.test.mjs", "server/fixtures/**", ...catalogueAcceptanceTests],
     // Must exceed the 5000ms asyncUtilTimeout set in src/__tests__/setup.ts,
     // otherwise a slow async query is cut short by the test timeout before it
     // can report a useful failure. Vitest's default is also 5000ms.
@@ -44,7 +46,13 @@ export default defineConfig({
       // worktree root and Vite's fs.allow check denies the transform. Allow the
       // repo root and its parent so symlinked installs transform fine (inert in
       // CI, where the install lives inside the checkout).
-      allow: [path.resolve(__dirname), path.resolve(__dirname, '../..')],
+      allow: [
+        path.resolve(__dirname),
+        path.resolve(__dirname, '../..'),
+        ...(existsSync(path.resolve(__dirname, 'node_modules'))
+          ? [realpathSync(path.resolve(__dirname, 'node_modules'))]
+          : []),
+      ],
     },
   },
   resolve: {

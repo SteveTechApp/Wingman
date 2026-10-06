@@ -1,7 +1,10 @@
 import { extraRoomDesigns } from "./roomTemplatesExtra";
 import { emergencyRoomDesigns } from "./roomTemplatesEmergency";
+import { marketCoverageDesigns } from "./roomTemplatesMarketCoverage";
 import { createDeploymentTemplate, type RoomConcept, type RoomDeploymentDesign } from "./roomTemplateDeployment";
 import type { TemplateApplicationProfile } from "./templateApplicationProfiles";
+import type { TemplateMarketStory } from "./templateMarketStories";
+import type { ProjectScopeSectionId } from "./projectScope";
 export type TemplateBomType = "Required" | "Optional" | "Validate";
 
 export type TemplateBomRow = {
@@ -20,6 +23,16 @@ export type TemplateBomRow = {
   model?: string;
   /** Who supplies this item: "customer", "integrator", or "wyrestorm". */
   owner?: string;
+  /** Whether an outside-brand product replaces a competing WyreStorm offer or complements the room system. */
+  productRelationship?: "competitor" | "complementary";
+  /** Public manufacturer product page used to populate this row. */
+  sourceUrl?: string;
+  /** Date the product page was read, ISO yyyy-mm-dd. */
+  sourceCheckedOn?: string;
+  /** Key specifications captured from the product page. */
+  specifications?: string;
+  scopeSection?: ProjectScopeSectionId;
+  unit?: "each" | "allowance" | "days" | "metres" | "year";
 };
 
 export type RoomTemplate = {
@@ -40,6 +53,8 @@ export type RoomTemplate = {
   validationItems: string[];
   upgradePaths: string[];
   concept?: RoomConcept;
+  /** Authored real-world market story, carried into the overview and proposal. */
+  story?: TemplateMarketStory;
   customTemplate?: boolean;
   applicationProfile?: TemplateApplicationProfile;
 };
@@ -943,5 +958,5 @@ const roomDesigns: RoomDeploymentDesign[] = [
   },
 ];
 
-export const roomTemplates: RoomTemplate[] = [...roomDesigns, ...extraRoomDesigns, ...emergencyRoomDesigns].map(createDeploymentTemplate);
+export const roomTemplates: RoomTemplate[] = [...roomDesigns, ...extraRoomDesigns, ...emergencyRoomDesigns, ...marketCoverageDesigns].map(createDeploymentTemplate);
 export const roomTemplateVerticals = ["All", ...Array.from(new Set(roomTemplates.map((template) => template.vertical)))];

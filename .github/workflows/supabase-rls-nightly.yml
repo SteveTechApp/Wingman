@@ -23,6 +23,7 @@ permissions:
 
 jobs:
   supabase-gates:
+    if: vars.WINGMAN_ENABLE_SUPABASE_GATES == 'true'
     name: Supabase live gates (RLS sentinel + migration parity)
     uses: ./.github/workflows/supabase-rls.yml
     with:

@@ -24,12 +24,12 @@ const journeys: JourneyCard[] = [
   {
     title: "Discover",
     description:
-      "Tell Wingman about the room, the application or the problem. It asks a few questions and recommends the best WyreStorm product.",
+      "Choose a room template, adjust its equipment and quantities, then save your project or build a proposal.",
     icon: Search,
     to: routeCatalogByKey.discovery.path,
     accent: "aqua",
     placeholder: "e.g. Boardroom with 2 displays, HDMI in, USB-C for laptop",
-    step: "Start a guided interview",
+    step: "Choose and edit a room template",
   },
   {
     title: "Compare a competitor",
@@ -139,7 +139,7 @@ function OnboardingTip() {
     <div className="wm-guided-tip" role="status">
       <Sparkles size={16} className="wm-guided-tip-icon" />
       <p>
-        <strong>Welcome to Wingman.</strong> Start with <strong>Discovery</strong> — answer a few questions about the room and Wingman recommends the right products.
+        <strong>Welcome to Wingman.</strong> Start with <strong>Discovery</strong> — choose a room template and edit it to suit your customer.
         No technical knowledge needed.
       </p>
     </div>
@@ -163,14 +163,14 @@ export function GuidedDashboard() {
           <h1>Turn the brief into<br /><em>a clear signal path.</em></h1>
           <p>Start with what you have. Wingman will find the requirements, surface the risks and guide you to the right WyreStorm solution.</p>
           <Link className="wm-guided-primary-action" to={routeCatalogByKey.discovery.path}>
-            Start discovery <ArrowRight size={16} />
+            Choose a room template <ArrowRight size={16} />
           </Link>
         </div>
         <aside className="wm-guided-hero-path" aria-label="What Wingman does next">
-          <span className="wm-guided-hero-path-label">From conversation to confidence</span>
-          <div><strong>Capture</strong><small>Room, signals and customer intent</small></div>
-          <div><strong>Check</strong><small>Dependencies, unknowns and quote risk</small></div>
-          <div><strong>Recommend</strong><small>A defensible WyreStorm direction</small></div>
+          <span className="wm-guided-hero-path-label">From template to proposal</span>
+          <div><strong>Choose</strong><small>The closest room template</small></div>
+          <div><strong>Edit</strong><small>Equipment, quantities and room scope</small></div>
+          <div><strong>Save</strong><small>Your project and customer proposal</small></div>
         </aside>
       </header>
 

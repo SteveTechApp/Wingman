@@ -1,5 +1,7 @@
+import { isProjectScopeSection } from "./projectScope";
 import { useEffect, useState } from "react";
 import { readRoomConcept } from "./roomTemplateDeployment";
+import { readTemplateMarketStory } from "./templateMarketStories";
 import type { StoredProject, StoredProposalBomRow } from "../data/projectStore";
 import type { RoomTemplate, TemplateBomRow, TemplateBomType } from "./roomTemplates";
 import { getTemplateApplicationProfile, type TemplateApplicationProfile } from "./templateApplicationProfiles";
@@ -34,6 +36,7 @@ export type CustomRoomTemplate = RoomTemplate & {
 };
 
 export type CreateCustomRoomTemplateInput = {
+  bom?: TemplateBomRow[];
   name: string;
   vertical: string;
   application: string;
@@ -150,6 +153,12 @@ function normalizeBomRow(row: unknown, index: number): TemplateBomRow | null {
     manufacturer: safeString(record.manufacturer, ""),
     model: safeString(record.model, ""),
     owner: safeString(record.owner, "integrator"),
+    productRelationship: record.productRelationship === "competitor" || record.productRelationship === "complementary" ? record.productRelationship : undefined,
+    sourceUrl: safeString(record.sourceUrl, ""),
+    sourceCheckedOn: safeString(record.sourceCheckedOn, ""),
+    specifications: safeString(record.specifications, ""),
+    scopeSection: isProjectScopeSection(record.scopeSection) ? record.scopeSection : undefined,
+    unit: ["each", "allowance", "days", "metres", "year"].includes(String(record.unit)) ? record.unit as TemplateBomRow["unit"] : undefined,
   };
 }
 
@@ -190,6 +199,7 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
     ),
     architecture: safeString(record.architecture, "Confirm the room architecture, sources, displays, control and network requirements."),
     concept: readRoomConcept(record.concept),
+    story: readTemplateMarketStory(record.story),
     bom: bom.length ? bom : [placeholderBomRow(id)],
     designNotes: Array.isArray(record.designNotes)
       ? record.designNotes
@@ -203,8 +213,8 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
           })
           .filter((item): item is { label: string; description: string } => Boolean(item))
       : [{ label: "Custom template", description: "Created by a Wingman user and saved locally." }],
-    assumptions: safeStringArray(record.assumptions, ["Confirm site constraints, cable paths and product availability."]),
-    validationItems: safeStringArray(record.validationItems, ["Validate the saved design before using it for a live customer proposal."]),
+    assumptions: Array.isArray(record.assumptions) ? record.assumptions.map(item => String(item ?? "").trim()).filter(Boolean) : ["Confirm site constraints, cable paths and product availability."],
+    validationItems: Array.isArray(record.validationItems) ? record.validationItems.map(item => String(item ?? "").trim()).filter(Boolean) : ["Validate the saved design before using it for a live customer proposal."],
     upgradePaths: safeStringArray(record.upgradePaths, ["Add optional enhancements after the base room requirement is confirmed."]),
     customTemplate: true,
     createdAt: safeString(record.createdAt, timestamp),
@@ -284,7 +294,7 @@ export function createBlankCustomRoomTemplate(input: CreateCustomRoomTemplateInp
       input.architecture,
       "Add sources, displays, routing, control, USB, audio and network notes as the room design matures.",
     ),
-    bom: [placeholderBomRow(id)],
+    bom: input.bom?.length ? input.bom : [placeholderBomRow(id)],
     designNotes: [{ label: "Custom starting point", description: "Replace the placeholder row with confirmed products and design notes." }],
     assumptions: input.assumptions?.length ? input.assumptions : ["Room details are user-created and should be validated before proposal output."],
     validationItems: input.validationItems?.length ? input.validationItems : ["Confirm product fit, quantities, dependencies and installation scope."],

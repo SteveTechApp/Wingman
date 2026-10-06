@@ -1,4 +1,7 @@
 import { useMemo, useState } from "react";
+import { ChevronDown, CheckCircle2, CircleHelp } from "lucide-react";
+
+import { RequirementAnswerInput } from "./RequirementAnswerInput";
 import type { StoredRequirementRecord, StoredRequirementStatus } from "../../data/projectStore";
 import { requirementReadiness } from "../../lib/projectRequirements";
 
@@ -33,39 +36,33 @@ export function RequirementsAccordion({ requirements, onUpdate }: {
 
   if (!groups.length) return <div className="rounded-2xl border p-6 text-sm wm-ui-card wm-ui-copy">No requirements captured yet. Run Discovery to populate the requirement record.</div>;
 
-  return <div className="grid gap-2">
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border p-3 wm-ui-card" data-testid="requirements-readiness">
-      <div className="text-center">
-        <p className="text-2xl font-black wm-ui-copy">{readiness.score}%</p>
-        <p className="text-[10px] uppercase tracking-wider wm-ui-kicker">Ready</p>
-      </div>
-      <span className="flex items-center gap-1 text-xs wm-ui-copy"><span className="font-bold">{readiness.confirmed}</span> confirmed</span>
-      {readiness.review > 0 && <span className="flex items-center gap-1 text-xs wm-ui-copy"><span className="font-bold">{readiness.review}</span> review</span>}
-      {readiness.unknown > 0 && <span className="flex items-center gap-1 text-xs wm-ui-copy"><span className="font-bold">{readiness.unknown}</span> unknown</span>}
+  return <div className="wm-requirements-editor">
+    <div className="wm-requirements-summary" data-testid="requirements-readiness">
+      <div className="wm-requirements-summary__score"><strong>{readiness.score}%</strong><span>Requirements confirmed</span></div>
+      <progress max={100} value={readiness.score} aria-label="Requirements confirmed" />
+      <div className="wm-requirements-summary__counts"><span><CheckCircle2 aria-hidden="true" />{readiness.confirmed} confirmed</span>{readiness.review > 0 && <span>{readiness.review} to review</span>}{readiness.unknown > 0 && <span><CircleHelp aria-hidden="true" />{readiness.unknown} unknown</span>}</div>
     </div>
+    <p className="wm-requirements-guidance">Open a category to update the answers and mark what has been confirmed.</p>
     {groups.map(([category, items]) => {
-    const expanded = open.has(category);
-    const toggle = () => setOpen(new Set(expanded ? [] : [category]));
-    return <div key={category} className="rounded-2xl border overflow-hidden wm-ui-card">
-      <button type="button" aria-expanded={expanded} onClick={toggle} className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-white/[0.03]">
-        <div className="flex items-center gap-3"><span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">{category}</span><span className="text-xs text-[#8fb8d0] wm-ui-copy">{items.length} {items.length === 1 ? "item" : "items"}</span></div>
-        <div className="flex items-center gap-2">
-          {(["confirmed", "review", "unknown"] as const).map((status) => {
+      const expanded = open.has(category);
+      const toggle = () => setOpen(new Set(expanded ? [] : [category]));
+      const confirmed = items.filter((item) => item.status === "confirmed").length;
+      return <div key={category} className="wm-requirement-group" data-expanded={expanded}>
+        <button type="button" aria-expanded={expanded} onClick={toggle} className="wm-requirement-group__trigger">
+          <span className="wm-requirement-group__title"><span className="wm-requirement-group__icon">{confirmed === items.length ? <CheckCircle2 aria-hidden="true" /> : <CircleHelp aria-hidden="true" />}</span><span><strong>{category.toLowerCase().replace(/(^|\s)\S/g, (letter) => letter.toUpperCase())}</strong><small>{items.length} {items.length === 1 ? "requirement" : "requirements"}</small></span></span>
+          <span className="wm-requirement-group__statuses">{statuses.map((status) => {
             const count = items.filter((item) => item.status === status).length;
-            const tone = status === "confirmed" ? "bg-emerald-900/60 text-emerald-300" : status === "review" ? "bg-amber-900/60 text-amber-300" : "bg-rose-900/60 text-rose-300";
-            return count ? <span key={status} className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tone}`}>{count} {status}</span> : null;
-          })}
-          <span className={`ml-2 transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true">⌄</span>
-        </div>
-      </button>
-      {expanded ? <div className="border-t border-white/[0.06] px-5 pb-4 pt-3 grid gap-3">{items.map((item) => <div key={item.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-        <div className="grid gap-3 lg:grid-cols-[1fr_160px]">
-          <div><div className="flex items-center gap-3"><p className="text-sm font-black text-[#edf6ff] wm-ui-copy">{item.label}</p><span className="text-[10px] text-[#6a97b0] wm-ui-copy">{item.source}</span></div>
-            <label className="mt-2 block"><textarea aria-label={item.label} className="min-h-14 w-full rounded-xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm leading-5 text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20" value={item.value} onChange={(event) => onUpdate(item.id, { value: event.target.value })} />{item.whyItMatters ? <span className="mt-1 block text-[11px] leading-4 text-[#6a97b0] wm-ui-copy">{item.whyItMatters}</span> : null}</label>
+            return count ? <span key={status} className={`wm-requirement-badge wm-requirement-badge--${status}`}>{count} {status === "review" ? "to review" : status}</span> : null;
+          })}<ChevronDown className="wm-requirement-group__chevron" aria-hidden="true" /></span>
+        </button>
+        {expanded && <div className="wm-requirement-group__body">{items.map((item) => <div key={item.id} className="wm-requirement-field">
+          <div className="wm-requirement-field__answer"><div className="wm-requirement-field__heading"><label htmlFor={`requirement-${item.id}`}>{item.label}</label><span>{item.source}</span></div>
+            <RequirementAnswerInput item={item} onUpdate={onUpdate} />
+            {item.whyItMatters && <p id={`requirement-help-${item.id}`}>{item.whyItMatters}</p>}
           </div>
-          <label className="grid content-start gap-1"><span className="text-[10px] font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Status</span><select className="rounded-xl border border-[#29465e] bg-[#0d2133] px-2 py-1.5 text-xs font-semibold text-[#edf6ff] outline-none focus:border-cyan-400" value={item.status} onChange={(event) => onUpdate(item.id, { status: event.target.value as StoredRequirementStatus })}>{statuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
-        </div>
-      </div>)}</div> : null}
-    </div>;
-  })}</div>;
+          <label className="wm-requirement-field__status"><span>Confirmation</span><select data-status={item.status} value={item.status} onChange={(event) => onUpdate(item.id, { status: event.target.value as StoredRequirementStatus })}>{statuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
+        </div>)}</div>}
+      </div>;
+    })}
+  </div>;
 }

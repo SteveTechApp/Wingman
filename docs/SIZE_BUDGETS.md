@@ -117,6 +117,42 @@ have no exception path at all — see
 
 ## Approved exceptions
 
+### 2026-10-02 — Lazy visual-canvas split (initial:js and total:css lower, total:js and chunk:project-workflow raise)
+
+Reviewed exception recorded alongside the largest `initial:js` reduction in the
+ratchet's history. One build change produced both the reductions and the raise,
+so they are recorded together rather than smuggled into separate entries.
+
+**Reductions locked in.** The eager preload set no longer carries the
+@xyflow/react + dagre canvas runtime and stylesheet, and the compare engine,
+competitor registry and product-evidence modules load only with the lazy routes
+that use them:
+
+| Limit | Before | After | Change | Cause |
+|---|---|---|---|---|
+| `initial:js` | 544,333 | 383,535 | −160,798 B (−29.5%) | @xyflow runtime/styles and heavy route modules removed from the entry's script + modulepreload set |
+| `total:css` | 973,399 | 967,934 | −5,465 B | the xyflow stylesheet ships once with the lazy visual-canvas chunk (its only consumer, `VisualStudioCanvas`) instead of eagerly |
+| `chunk:compare-engine` | 436,999 | 157,975 | −279,024 B | compare modules re-bucketed into per-route chunks |
+| `chunk:competitor-registry` | 874,497 | 85,554 | −788,943 B | same re-bucketing |
+
+**Raises.** `total:js` 6,859,118 → 7,210,159 (+351,041 B, +5.1%) and
+`chunk:project-workflow` 251,588 → 260,508 (+8,920 B). The total growth is
+chunk-shape overhead plus this branch's template market-story content (compiled
+into lazy route chunks, driving the project-workflow growth). A full sourcemap
+incidence audit over the build counted 1,014 traced modules with **0 duplicated
+across chunks** — no module ships twice; the growth is per-chunk wrapper/header
+bytes recurring across 96 emitted files (previously deduplicated modules now
+occupy their own files) plus the new content. What was tried or rejected:
+keeping `includeDependenciesRecursively` on (it strands the react-dom runtime
+inside the lazy canvas chunk, breaking first paint); a bridge stylesheet
+re-export in the eager entry (re-shipped the xyflow styles twice and violates
+the CSS import guard — removed); and re-merging groups to amortise wrapper
+bytes (would reintroduce eager preloads of heavy features, the exact regression
+this change removes). The user-facing metric this programme targets — the
+download before the dashboard is interactive — falls by 29.5%, and the limit
+should travel back downward as the Phase 2 extraction programme named in the
+remediation lands.
+
 ### 2026-09-30 — Phase 8 dead route-override consolidation (total:css lower)
 
 The remediation named in the 2026-09-30 raise landed: mechanical removal of

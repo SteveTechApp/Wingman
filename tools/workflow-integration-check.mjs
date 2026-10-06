@@ -107,15 +107,9 @@ assertSourceContains("src/wingman2/lib/dependencyGovernance.ts", [
   "TBC-HDBASET-PAIR",
   "TBC-USB-TOPOLOGY",
 ]);
-assertSourceContains("src/wingman2/pages/ComparePageNew.tsx", [
-  "rigorousCompare",
-  "decision.summary",
-  "decision.nextAction",
-  "isSelectableWyrestormRecommendation",
-  "viableMatches",
-  "View comparison evidence",
-  "Source/spec page",
-]);
+// Compare decisions and evidence are exercised by check:compare-decision and
+// check:compare-page-candidate-gate. The route bridge has rendered regression tests.
+assertSourceContains("src/wingman2/pages/ComparePageNew.tsx", ["ComparePageNew.advanced", "useSearchParams"]);
 // The per-step guidance data moved to the extracted discoveryQuestions module;
 // the page still consumes getQuestionStrategy and keeps the live-call markers.
 assertSourceContains("src/wingman2/pages/discovery/discoveryQuestions.ts", [

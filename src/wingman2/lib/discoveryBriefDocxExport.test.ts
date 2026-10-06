@@ -8,6 +8,7 @@ import { briefFromProposal } from "./discoveryBriefExport";
 const brief: StoredDiscoveryBrief = {
   savedAt: "2026-08-26T00:00:00.000Z",
   roomModel: {
+    completionScope: ["Lectern microphone and mounting"],
     applicationType: "Meeting room / boardroom",
     longestRun: "15 m",
     audioDesignDirection: "Steerable columns for the tiered audience",

@@ -17,6 +17,7 @@ import {
 
 const root = process.cwd();
 const checkOnly = process.argv.includes("--check");
+const canonicalOnly = process.argv.includes("--canonical-only");
 const sourceRoot = path.join(root, "data-sources");
 const wyrestormProductsPath = "data-sources/wyrestorm/products.csv";
 const wyrestormLifecyclePath = "data-sources/wyrestorm/lifecycle.csv";
@@ -897,13 +898,15 @@ async function main() {
       },
       products,
     });
-    await writeJson(competitorOutputPath, competitors);
-    await writeJson(knownCompareProfilesPath, knownCompareProfiles);
-    await writeJson(manifestOutputPath, manifest);
-    await writeJson(queueOutputPath, maintenance.queue);
-    await writeJson(reportJsonOutputPath, maintenance.report);
-    await fs.mkdir(path.dirname(path.join(root, reportMarkdownOutputPath)), { recursive: true });
-    await fs.writeFile(path.join(root, reportMarkdownOutputPath), `${maintenance.markdown}\n`, "utf8");
+    if (!canonicalOnly) {
+      await writeJson(competitorOutputPath, competitors);
+      await writeJson(knownCompareProfilesPath, knownCompareProfiles);
+      await writeJson(manifestOutputPath, manifest);
+      await writeJson(queueOutputPath, maintenance.queue);
+      await writeJson(reportJsonOutputPath, maintenance.report);
+      await fs.mkdir(path.dirname(path.join(root, reportMarkdownOutputPath)), { recursive: true });
+      await fs.writeFile(path.join(root, reportMarkdownOutputPath), `${maintenance.markdown}\n`, "utf8");
+    }
   }
 
   console.log(`[product-data] WyreStorm products: ${products.length} (${manifest.counts.wyrestormBlocked} blocked)`);

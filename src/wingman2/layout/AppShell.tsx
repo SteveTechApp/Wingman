@@ -11,7 +11,6 @@ import {
   routeCatalogByKey,
   type WingmanRouteKey,
 } from "../app/routeCatalog";
-import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { UiModeToggle } from "../components/UiModeToggle";
 import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
 import { FeatureJourneyStrip } from "../components/FeatureJourneyStrip";
@@ -24,6 +23,10 @@ import { useWingmanLanguage } from "../data/wingmanLanguage";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 import { getWingmanSession, type WingmanWorkspaceSession } from "../api/wingmanApi";
 
+// The Guru avatar is a draggable floating button shown on every route; its
+// drag engine is meaningful code and the Guru drawer behind it is heavy, so
+// both stay in a lazy chunk out of the eager app-core bundle.
+const WingmanGuruFab = lazy(() => import("../components/WingmanGuruFab"));
 const WingmanGuruDrawer = lazy(() => import("../components/WingmanGuruDrawer"));
 
 type AppShellProps = {
@@ -378,7 +381,6 @@ export function AppShell({ children }: AppShellProps) {
         </nav>
 
         <div className="wingman-sidebar-footer">
-          {!isGuided && <UiModeToggle />}
           <NavLink to={routeCatalogByKey.profile.path} title="Account and workspace settings" aria-label="Settings" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
             Settings
           </NavLink>
@@ -419,7 +421,7 @@ export function AppShell({ children }: AppShellProps) {
             <strong className="wingman-topbar-page-label">{activeLabel}</strong>
           </div>
 
-          {isGuided && <div className="wm-topbar-mode-toggle"><UiModeToggle /></div>}
+          <div className="wm-topbar-mode-toggle"><UiModeToggle /></div>
           <WingmanViewportFitControl />
           {activeRoute?.key !== "dashboard" && (
             <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">
@@ -453,11 +455,13 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       <>
+        <Suspense fallback={null}>
         <WingmanGuruFab
           open={guruOpen}
           onClick={() => setGuruOpen((current) => !current)}
           hasContextualTransfer={Boolean(guruSupportCue)}
         />
+        </Suspense>
         {guruMounted && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer

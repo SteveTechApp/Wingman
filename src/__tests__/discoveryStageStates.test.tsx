@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { DiscoveryPage } from "@/wingman2/pages/DiscoveryPage";
+import { UiModeProvider } from "@/wingman2/data/uiMode";
 
 // The numbered step-pill trail (clickable "1 Opportunity" / "2 Scale" buttons
 // with is-active/is-captured classes) was removed in the Discovery redesign
@@ -13,13 +14,14 @@ import { DiscoveryPage } from "@/wingman2/pages/DiscoveryPage";
 describe("Discovery step progression", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
     window.sessionStorage.clear();
   });
 
   it("auto-advances to the next question after selecting a single-select answer", async () => {
     render(
       <MemoryRouter>
-        <DiscoveryPage />
+        <UiModeProvider><DiscoveryPage /></UiModeProvider>
       </MemoryRouter>,
     );
 
@@ -42,7 +44,7 @@ describe("Discovery step progression", () => {
   it("opens the requested Discovery question from a Proposal edit link", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/discovery?edit=signal-standard"]}>
-        <DiscoveryPage />
+        <UiModeProvider><DiscoveryPage /></UiModeProvider>
       </MemoryRouter>,
     );
 
@@ -53,13 +55,8 @@ describe("Discovery step progression", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Continue with this environment" }));
 
-    // signal-standard is outside Basic mode — shows escalation confirmation dialog
-    const confirmButton = await screen.findByTestId("escalation-confirm");
-    expect(confirmButton).toBeInTheDocument();
-    expect(screen.getByText(/Unlock full discovery/)).toBeInTheDocument();
-
-    // Switch to Expert to access the question
-    fireEvent.click(confirmButton);
+    // Expert view opens detailed questions directly.
+    expect(screen.queryByTestId("escalation-confirm")).not.toBeInTheDocument();
 
     expect(await screen.findByRole("heading", { name: "How sharp does the picture need to be?" })).toBeInTheDocument();
   });

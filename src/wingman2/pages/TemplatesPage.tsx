@@ -1,3 +1,5 @@
+
+import { useUiMode } from "../data/uiMode";
 import { PagedItems } from "../components/PagedItems";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -5,7 +7,7 @@ import { ArrowRight, Building2, Check, FilePenLine, X } from "lucide-react";
 import { TemplateLibraryCard } from "../components/TemplateLibraryCard";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { deleteCustomRoomTemplate, duplicateCustomRoomTemplate, useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
-import { writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
+
 import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
 import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
 import { templateImageFor } from "../lib/templateImages";
@@ -15,7 +17,8 @@ import { defaultPersonalisation, loadTemplateDraft, saveTemplateDraft, toSolutio
 type AvailableTemplate = RoomTemplate | CustomRoomTemplate;
 const isCustom = (template: AvailableTemplate): template is CustomRoomTemplate => "customTemplate" in template && template.customTemplate === true;
 
-export function TemplatesPage() {
+export function TemplatesPage({ discoveryEntry = false }: { discoveryEntry?: boolean }) {
+  const { isGuided } = useUiMode();
   const customTemplates = useCustomRoomTemplates();
   const navigate = useNavigate();
   const [market, setMarket] = useState<string>(TEMPLATE_MARKETS[0]);
@@ -36,18 +39,17 @@ export function TemplatesPage() {
   function applyTemplate(template: AvailableTemplate) {
     navigate(`${routeCatalogByKey.templates.path}/${template.id}`);
   }
-  function startCustom() { writeDiscoveryHandoff({ mode: "template-create" }); navigate(routeCatalogByKey.discovery.path); }
+  function startCustom() { navigate(`${routeCatalogByKey.templates.path}/new`); }
   function manageCustom(template: CustomRoomTemplate) {
-    writeDiscoveryHandoff({ mode: "template-edit", templateId: template.id, templateName: template.name, templateMarket: template.vertical, sourceTemplateId: template.sourceTemplateId, sourceTemplateName: template.name, answers: template.discoveryAnswers, notes: template.discoveryNotes });
-    navigate(routeCatalogByKey.discovery.path);
+    navigate(`${routeCatalogByKey.templates.path}/${encodeURIComponent(template.id)}${isGuided ? "" : "/edit"}`);
   }
   function update<K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) { setPersonalisation((current) => current ? { ...current, [key]: value } : current); setSaved(false); }
   function applyDraft() { if (definition && personalisation) { saveTemplateDraft(definition, personalisation); setSaved(true); } }
 
-  return <main className="wm-templates-page wm-page" data-wingman-page="templates">
+  return <main className="wm-templates-page wm-page wm-template-library-flow" data-wingman-page="templates">
     <header className="wm-solution-header">
-      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 className="wm-page-title">Solution Templates</h1><p className="wm-ui-copy">Choose a market and application, then review and adjust its equipment schedule before producing the proposal.</p></div>
-      <div className="wm-solution-header-actions"><button className="wm-button wm-button-secondary" type="button" onClick={() => setMarket("Custom")}>Manage Templates</button><button className="wm-button wm-button-primary" type="button" onClick={startCustom}>+ New Custom Template</button></div>
+      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 className="wm-page-title">{discoveryEntry ? "Start with a room template" : "Solution Templates"}</h1><p className="wm-ui-copy">{discoveryEntry ? "Choose the closest room, edit its equipment and quantities, then save your project or build the proposal." : "Choose a market and application, then review and adjust its equipment schedule before producing the proposal."}</p></div>
+      <div className="wm-solution-header-actions"><button className="wm-button wm-button-secondary" type="button" onClick={() => setMarket("Custom")}>Manage Templates</button>{!isGuided && <button className="wm-button wm-button-primary" type="button" onClick={startCustom}>+ New Custom Template</button>}</div>
     </header>
     <nav className="wm-template-stages" aria-label="Template workflow stages">
       {["Market", "Application", "Configure", "Draft"].map((stage, index) => <span key={stage} className={index === (personalising ? 2 : selected ? 1 : 0) ? "is-active" : index < (selected ? 1 : 0) ? "is-complete" : ""}><i>{index < (selected ? 1 : 0) ? <Check /> : index + 1}</i>{stage}</span>)}

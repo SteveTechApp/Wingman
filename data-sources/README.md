@@ -21,7 +21,7 @@ combines them into one competitor catalogue keyed by normalized manufacturer + m
    PDF/product-guide enrichment tools.
 2. Run `npm run data:sources:check`.
 3. Run `npm run data:sources:build`.
-4. Run the focused data checks or `npm run data:maintenance`.
+4. Run `npm run build:prepare-data`, then `npm run verify:data`. Normal `npm run build` and test bootstrap do not repair tracked sources. For a complete vendor-source refresh, use the explicit `npm run data:refresh-vendor` maintenance command.
 
 When WyreStorm supplies refreshed active/discontinued/do-not-spec/cable lists, import
 them into the governed lifecycle source with:

@@ -1,6 +1,8 @@
 import { installWingmanLocalSessionFallback } from "./wingman2/utils/installWingmanLocalSessionFallback";
-import "@xyflow/react/dist/style.css";
-/* Wingman Design System — layered cascade (tokens → reset → layout → components) */
+/* Wingman Design System — layered cascade (tokens → reset → layout → components).
+   The @xyflow stylesheet is owned by the lazy visual-canvas chunk
+   (VisualStudioCanvas is its only consumer), so it must not be imported here:
+   an eager import would pull the whole @xyflow graph into the initial preload set. */
 import "./wingman2/styles/wingman-layer-tokens.css";
 import "./wingman2/styles/wingman-layer-reset.css";
 import "./wingman2/styles/wingman-layer-layout.css";
@@ -14,12 +16,14 @@ import "./wingman2/styles/wingman-reference-theme.css";
 import "./wingman2/styles/wingman-workflow-theme.css";
 import "./wingman2/styles/wingman-polish-navigation.css";
 import "./wingman2/styles/wingman-reference-global.css";
-import "./wingman2/styles/wingman-product-tools-visual-weight.css";
 import "./wingman2/styles/wingman-ui-consistency.css";
 import "./wingman2/styles/wingman-sales-workspace.css";
 import "./wingman2/styles/wingman-voice-capture.css";
-import { installCompareManufacturerAssist } from "./wingman2/lib/compareManufacturerAssist";
-import "./wingman2/lib/guruDetachedPanel";
+import "./wingman2/components/diagramPresentation.css";
+import "./wingman2/components/projectScopeSchedule.css";
+import "./wingman2/components/technicalSchematic.css";
+import "./wingman2/pages/project/project-workspace.css";
+import "./wingman2/pages/templateLibraryLayout.css";
 import "./wingman2/lib/microphoneSafety";
 import "./wingman2/app/wingmanDisplayScaleGuard";
 
@@ -32,7 +36,6 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { installCsrfFetch } from "./wingman2/api/csrf";
 import { installRuntimeTelemetry } from "./wingman2/lib/runtimeTelemetry";
 import { installFeatureAnalytics } from "./wingman2/lib/featureAnalytics";
-import "./wingman2/lib/productToolsVisualWeight";
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
 installCsrfFetch();
@@ -51,7 +54,6 @@ if (!rootElement) {
   throw new Error("Root element #root was not found.");
 }
 
-installCompareManufacturerAssist();
 
 installWingmanLocalSessionFallback();
 

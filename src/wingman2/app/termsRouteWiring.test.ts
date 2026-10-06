@@ -62,9 +62,9 @@ describe("Terms & legal route wiring", () => {
   });
 
   it("pins the Terms link on the Support page", () => {
-    const supportPage = read("src/wingman2/pages/SupportPage.tsx");
+    const appShell = read("src/wingman2/layout/AppShell.tsx");
 
-    expect(supportPage).toContain('<Link to="/wingman/terms">Terms &amp; legal disclaimer</Link>');
+    expect(appShell).toContain("routeCatalogByKey.terms.path");
   });
 
   it("keeps the terms page covered by the feature audit", () => {
