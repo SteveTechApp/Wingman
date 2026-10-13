@@ -14,7 +14,6 @@
     "max-file-lines:src/wingman2/lib/projectTopology.ts": { "maxLines": 1465 },
     "max-file-lines:src/wingman2/pages/ComparePageNew.advanced.tsx": { "maxLines": 6418 },
     "max-file-lines:src/wingman2/pages/ProductCallCardsPage.tsx": { "maxLines": 2012 },
-    "max-file-lines:src/wingman2/pages/ProductPitchPage.tsx": { "maxLines": 1334 },
     "max-file-lines:src/wingman2/pages/RecommendationsPage.tsx": { "maxLines": 1588 },
     "max-file-lines:src/wingman2/pages/discovery/DiscoveryGuidedInterview.tsx": { "maxLines": 1510 },
     "max-file-lines:src/wingman2/pages/discovery/discoveryQuestions.ts": { "maxLines": 1418 },
@@ -30,7 +29,6 @@
     "page-entry-lines:src/wingman2/pages/ProjectDetailPage.tsx": { "maxLines": 1462 },
     "page-entry-lines:src/wingman2/pages/ProjectsPage.tsx": { "maxLines": 520 },
     "page-entry-lines:src/wingman2/pages/RecommendationsPage.tsx": { "maxLines": 1588 },
-    "page-entry-lines:src/wingman2/pages/TemplateReviewPage.tsx": { "maxLines": 539 },
-    "page-entry-lines:src/wingman2/pages/VideowallBuilderPage.tsx": { "maxLines": 1146 }
+    "page-entry-lines:src/wingman2/pages/TemplateReviewPage.tsx": { "maxLines": 539 }
   }
 }

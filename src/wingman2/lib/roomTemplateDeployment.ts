@@ -1,6 +1,8 @@
 import type { RoomTemplate, TemplateBomRow } from "./roomTemplates";
 import type { TemplateArchitectureFamily, TemplateCapability } from "./templateApplicationProfiles";
 import { audioDesignNotes, roomAudioBom, validRoomAudio, type RoomAudioDesign } from "./roomTemplateAudio";
+import { getTemplateMarketStory, readTemplateMarketStory, type TemplateMarketStory } from "./templateMarketStories";
+import { completeProjectServiceRows } from "./projectScope";
 
 export type RoomTransport = "apollo" | "hdbt" | "matrix4" | "matrix8" | "hybrid" | "nhd100" | "nhd500" | "nhd600" | "wall" | "studio" | "pods";
 export type ScheduleItem = readonly [description: string, qty: number, location: string];
@@ -53,6 +55,8 @@ export type RoomDeploymentDesign = {
   additionalScope?: Array<{ key: string; description: string; qty: number; notes: string }>;
   rationale: string; alternative: string; constraints: string[];
   completion?: RoomCompletionDesign;
+  /** Authored market story. Published designs resolve theirs by id; custom designs may carry one directly. */
+  story?: TemplateMarketStory;
 };
 export type RoomConcept = {
   statement: string; environment: string; construction: string; occupancy: string;
@@ -62,6 +66,8 @@ export type RoomConcept = {
   audio?: RoomAudioDesign;
   /** Authored whole-room completion block, preserved for the checklist surface. */
   completion?: RoomCompletionDesign;
+  /** Authored real-world market story: requirement, situation, room-in-use, success and decisions. */
+  story?: TemplateMarketStory;
 };
 export function readRoomConcept(value: unknown): RoomConcept | undefined {
   if (!value || typeof value !== "object") return undefined;
@@ -78,7 +84,9 @@ export function readRoomConcept(value: unknown): RoomConcept | undefined {
   // preserved leniently: a plain object passes through, junk is dropped
   // rather than rejecting an otherwise valid stored concept.
   const completion = c.completion && typeof c.completion === "object" && !Array.isArray(c.completion) ? c.completion : undefined;
-  return completion ? { ...c, completion } : c;
+  const story = readTemplateMarketStory(c.story);
+  const next = { ...c, ...(completion ? { completion } : {}), ...(story ? { story } : {}) };
+  return next;
 }
 const total = (items: ScheduleItem[]) => items.reduce((count, item) => count + item[1], 0);
 const families: Record<RoomTransport, TemplateArchitectureFamily> = {
@@ -305,6 +313,7 @@ export function createDeploymentTemplate(d: RoomDeploymentDesign): RoomTemplate 
   if (d.resilience) capabilities.push("resilience");
   if (d.accessibility) capabilities.push("accessibility");
   const statement = `Assumed setting: ${d.space} ${d.construction} Designed for ${d.occupancy}. ${d.activity}`;
+  const story: TemplateMarketStory | undefined = d.story ?? getTemplateMarketStory(d.id);
   const schedule = (items: ScheduleItem[]) => items.map(([name, qty, location]) => `${qty} × ${name} (${location})`).join("; ");
   const concept: RoomConcept = {
     statement, environment: d.space, construction: d.construction, occupancy: d.occupancy,
@@ -312,12 +321,21 @@ export function createDeploymentTemplate(d: RoomDeploymentDesign): RoomTemplate 
     architectureFamily: families[d.transport], rationale: d.rationale, alternative: d.alternative, capabilities, audio: d.audio,
     signalFlow: [schedule(d.sources), descriptions[d.transport], schedule(d.outputs)],
     completion: d.completion,
+    story,
   };
   return {
     id: d.id, name: d.name, vertical: d.vertical, application: d.activity, scale: `${d.occupancy} · ${sourceCount} source positions · ${outputCount} outputs`,
-    summary: d.activity, customerNarrative: statement, architecture: descriptions[d.transport], concept,
-    bom: [...core(d), ...(d.inputExtensions ? [row(`${d.id}-source-extension`, "EX-70-H2", "Complete source-to-rack HDBaseT extender set (TX and RX)", "Remote source input extension", d.inputExtensions, "One transmitter at each remote source and one receiver into rack HDMI. Use dedicated category cable; baseline 1080p60 and routes at or below 35m, with higher formats confirmed separately. These are additional to the display extension sets.")] : []), ...completeScope(d), ...completion.rows],
-    designNotes: [{ label: "Concept statement", description: statement }, { label: "Source schedule", description: schedule(d.sources) }, { label: "Output schedule", description: schedule(d.outputs) }, { label: "Audio experience and signal path", description: audioDesignNotes(d.audio) }, { label: "Architecture choice", description: d.rationale }, { label: "Alternative approach", description: d.alternative }, ...completion.notes],
+    summary: d.activity, customerNarrative: story ? `${story.requirement} ${story.situation} ${statement}` : statement, architecture: descriptions[d.transport], concept, story,
+    bom: completeProjectServiceRows([...core(d), ...(d.inputExtensions ? [row(`${d.id}-source-extension`, "EX-70-H2", "Complete source-to-rack HDBaseT extender set (TX and RX)", "Remote source input extension", d.inputExtensions, "One transmitter at each remote source and one receiver into rack HDMI. Use dedicated category cable; baseline 1080p60 and routes at or below 35m, with higher formats confirmed separately. These are additional to the display extension sets.")] : []), ...completeScope(d), ...completion.rows], d.id),
+    designNotes: [
+      ...(story ? [
+        { label: "Customer requirement", description: story.requirement },
+        { label: "Situation and project trigger", description: story.situation },
+        { label: "The room in use", description: story.roomInUse.join(" ") },
+        { label: "Success looks like", description: story.successLooksLike.join(" ") },
+        { label: "Customer decisions before order", description: story.customerDecisions.join(" ") },
+      ] : []),
+      { label: "Concept statement", description: statement }, { label: "Source schedule", description: schedule(d.sources) }, { label: "Output schedule", description: schedule(d.outputs) }, { label: "Audio experience and signal path", description: audioDesignNotes(d.audio) }, { label: "Architecture choice", description: d.rationale }, { label: "Alternative approach", description: d.alternative }, ...completion.notes],
     assumptions: [d.space, d.construction, `Occupancy: ${d.occupancy}.`, `${sourceCount} physical video source positions and ${outputCount} physical outputs; spare product ports are not extra sources or displays.`, ...(outputCount > sourceCount ? [`Shared content is intentional: ${sourceCount} scheduled source feeds repeat across ${outputCount} displays; independent content requires additional sources.`] : []), "Required third-party rows are part of the complete system; supplier/model and measured allowances must be completed before pricing."],
     validationItems: [...d.constraints, "Confirm dimensions, cable lengths, structure, sightlines, acoustics and mains provision by site survey.", "Replace third-party placeholders with supplier/model and confirm quantities, interfaces, licences and delivery ownership.", "Test the complete signal format, HDCP/EDID, audio, USB and control path before customer acceptance."],
     upgradePaths: [d.alternative, "Re-engineer endpoint, processing, cabling, power and control quantities when the source/output schedule changes."],

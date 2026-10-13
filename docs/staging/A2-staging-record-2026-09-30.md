@@ -13,7 +13,7 @@ dashboard step or script run alike, and the progress table is updated in the sam
 
 | Item | Value / state |
 |---|---|
-| Deploy commit (deploy exactly this) | **`51120195`** — main HEAD (merge of PR #251); CI on the merge commit 16/16 success (Lint, Type Check, Test, all three Verify lanes, Build, Browser Smoke, Governed Data Gate, Supabase live gates, Docker ×2, CodeQL, Dependency Audit); `npm run verify` chain was green on PR #246 at `72e1eaf6` (predecessor content) |
+| Deploy commit (deploy exactly this) | **`20e0839e`** — main HEAD (merge of PR #252); re-pinned 2026-10-01 per this file's refresh convention (previously `51120195`, merge of PR #251). CI on `20e0839e` was in progress at walkthrough time — **confirm green before §2 Apply**; predecessor CI on `51120195` was 16/16 success, and the full local verify chain ran green on 2026-10-01 (5 stages, exit 0, 2,738 tests) |
 | Blueprint ground truth | `render.yaml` — services `wingman` + `wingman-api`, region `frankfurt`, `autoDeploy: false`, health paths `/` and `/api/ready` |
 | Schema to paste | `server/migrations/001_initial_schema.sql` (237 lines; 002 included on a fresh DB) |
 | Secret hygiene | `git ls-files \| grep -i env` → `.env.example` + `src/vite-env.d.ts` (a TypeScript ambient-types file, not a secret file) ✓ |
@@ -54,6 +54,14 @@ command is staged and fires on an all-green §5.
 updated `72e1eaf6` → `51120195` after the #251 merge moved main's tip; the
 checklist §6 row and critical-path diagram updated to match (one historical
 `72e1eaf6` mention kept above as CI provenance).
+
+**2026-10-01 — A2 walkthrough + pre-flight refresh (agent).** Walked §1–§7
+with Steve; dashboard steps remain his. Re-pinned the deploy commit to main's
+new tip `20e0839e` (PR #252 merge) under this file's refresh convention; CI on
+the new tip was still running at walkthrough time — §2 Apply must not start
+till it is green (predecessor `51120195` was 16/16; local verify chain green
+2026-10-01). Acceptance script reviewed unchanged and still parameterized on
+`A2_APP` / `A2_API` / `A2_SESSION`.
 
 **Convention for future entries.** Every §1–§7 step lands a dated entry here
 the moment it happens — dashboard steps (Steve) and script runs (agent) alike —

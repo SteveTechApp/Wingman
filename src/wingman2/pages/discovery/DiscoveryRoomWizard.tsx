@@ -1,3 +1,4 @@
+import { RoomConnectionsEditor } from "./RoomConnectionsEditor";
 import { useEffect, useRef, useState } from "react";
 import { EquipmentLibraryPanel } from "../../components/EquipmentLibraryPanel";
 import { addEquipmentToRoom } from "../../lib/equipmentLibrary";
@@ -19,6 +20,7 @@ const journey = [
 ] as const;
 
 type Props = {
+  templateAuthoring?: boolean;
   questions: DiscoveryQuestion[]; answers: DiscoveryAnswers; notes: DiscoveryNotes;
   activeIndex: number; onActiveIndexChange: (index: number) => void;
   onAnswersChange: (updater: DiscoveryAnswers | ((previous: DiscoveryAnswers) => DiscoveryAnswers)) => void;
@@ -48,7 +50,7 @@ export function DiscoveryRoomWizard(props: Props) {
     props.onAnswersChange(previous => updateOperationalAnswer(previous, canonical, value));
     props.onConfirm(question.id, false);
   };
-  return <section className="wm-room-wizard" aria-label="Guided room discovery" data-room-wizard-stage={stage}>
+  return <section className="wm-room-wizard" aria-label="Full room builder" data-room-wizard-stage={stage}>
     <div className="wm-room-wizard-heading"><div><p className="wm-room-wizard-eyebrow">Build your room · {stage === "questions" ? question.section : stage === "equipment" ? "Complete the equipment" : "Your room brief"}</p>
       <h2 ref={heading} tabIndex={-1} data-discovery-question-id={stage === "questions" ? question.id : undefined}>{stage === "questions" ? question.question : stage === "equipment" ? "What equipment do you already use?" : "Here is the room we are building"}</h2></div>
       <span>{stage === "questions" ? `${activeIndex + 1} of ${questions.length}` : stage === "equipment" ? "Equipment" : "Review"}</span></div>
@@ -75,13 +77,13 @@ export function DiscoveryRoomWizard(props: Props) {
         <div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" disabled={activeIndex === 0} onClick={() => onActiveIndexChange(activeIndex - 1)}>Back</button>
           <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => { const unknown = canonical.options.find(option => /unknown|not-sure|not-confirmed/.test(option.value)); props.onAnswersChange(previous => { const next = { ...previous }; if (unknown) next[question.id] = unknown.value; else delete next[question.id]; return next; }); props.onConfirm(question.id, false); props.onNotesChange(previous => ({ ...previous, [question.id]: [previous[question.id], "To confirm with customer or installer."].filter(Boolean).join("\n") })); if (activeIndex < questions.length - 1) onActiveIndexChange(activeIndex + 1); else setStage("equipment"); }}>I'm not sure—keep this open</button>
           <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => { if (activeIndex < questions.length - 1) onActiveIndexChange(activeIndex + 1); else setStage("equipment"); }}>Continue</button></div>
-      </> : stage === "equipment" ? <>{props.onBuildLayout && <><p>Build or refresh the room positions from your latest answers. Saved equipment selections are retained; connections still need review.</p><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={props.onBuildLayout}>Build room layout from answers</button></>}<DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} /><EquipmentLibraryPanel locations={topology.locations} onSelect={(item, location, quantity) => props.onTopologyChange(addEquipmentToRoom(topology, item, location, quantity))} /><div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("questions")}>Back to questions</button><button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => setStage("review")}>Review room brief</button></div></> : <>
+      </> : stage === "equipment" ? <>{props.onBuildLayout && <><p>Build or refresh the room positions from your latest answers. Saved equipment selections are retained; connections still need review.</p><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={props.onBuildLayout}>Build room layout from answers</button></>}<DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} /><RoomConnectionsEditor topology={topology} onChange={props.onTopologyChange} /><EquipmentLibraryPanel locations={topology.locations} onSelect={(item, location, quantity) => props.onTopologyChange(addEquipmentToRoom(topology, item, location, quantity))} /><div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("questions")}>Back to questions</button><button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => setStage("review")}>Review room brief</button></div></> : <>
         <p>{props.designDirection || "Wingman will use your answers to identify a suitable routing direction. Equipment selection follows the room brief."}</p>
       <h3>Equipment and locations</h3><ul>{roomEquipmentSchedule(topology).map((row, index) => <li key={index}>{row}</li>)}</ul>
         <h3>Room and site conditions</h3><ul>{Object.entries(answers).filter(([id, value]) => id.startsWith("site-") && Boolean(value)).map(([id, value]) => <li key={id}><strong>{id.replace("site-", "").replaceAll("-", " ")}</strong>: {String(value)}</li>)}</ul>
         <h3>Complete these items before design sign-off</h3><ul>{scope.map(row => <li key={row}>{row}</li>)}</ul>
         <p>Saved products are proposed selections. Check specifications, quantities, cable paths and compatibility before issue.</p>
-        <div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("equipment")}>Edit equipment</button><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => { onActiveIndexChange(0); setStage("questions"); }}>Review answers</button><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={props.onSave}>Save room brief</button><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={props.onExport}>Export completion brief</button><button type="button" className="wm-ui-button wm-ui-button-primary" onClick={props.onComplete}>Find WyreStorm products</button></div>
+        <div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("equipment")}>Edit equipment</button><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => { onActiveIndexChange(0); setStage("questions"); }}>Review answers</button><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={props.onSave}>{props.templateAuthoring ? "Save Custom Template" : "Save room brief"}</button><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={props.onExport}>Export completion brief</button>{!props.templateAuthoring && <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={props.onComplete}>Find WyreStorm products</button>}</div>
       </>}
       {props.savedMessage && <p role="status">{props.savedMessage}</p>}
     </div><aside className="wm-room-wizard-summary" aria-label="Your room so far"><h3>Your room so far</h3>

@@ -1,4 +1,5 @@
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { templateReviewDesignNotes } from "./templateReviewDesignNotes";
 import type { StoredProductSelection, StoredProject, StoredProjectProposal } from "../data/projectStore";
 import type { RoomTemplate, TemplateBomRow } from "./roomTemplates";
 import type { SalesBomRow } from "./salesReadiness";
@@ -6,12 +7,15 @@ import { buildWingmanCoachState } from "./wingmanCoach";
 import { compileTemplateApplicationProposal } from "./proposalCompiler";
 import { loadTemplateDraft } from "./solutionTemplates";
 import { proposalReadiness } from "./proposalReadiness";
+import { orderedProjectScopeRows, projectScopeSection, PROJECT_SCOPE_SECTIONS } from "./projectScope";
 const includedStatuses = new Set(["included", "optional", "validate"]);
 
 export function templateBomRows(template: RoomTemplate, rows: TemplateBomRow[]): SalesBomRow[] {
-  return rows.filter((row) => includedStatuses.has(row.status) && row.qty > 0).map((row, index) => ({
+  return orderedProjectScopeRows(rows).filter((row) => includedStatuses.has(row.status) && row.qty > 0).map((row, index) => ({
     item: index + 1, sku: row.sku, description: [row.description, row.manufacturer, row.model].filter(Boolean).join(" · "), role: row.role, qty: row.qty,
-    type: row.type, status: row.status, evidence: row.evidence, notes: `${row.notes} Supplier: ${row.owner || "confirm"}. Template: ${template.name}.`,
+    type: row.type, status: row.status, evidence: row.evidence,
+    notes: `Section: ${PROJECT_SCOPE_SECTIONS.find(section => section.id === projectScopeSection(row))!.title}. Unit: ${row.unit || "each"}. ${row.notes} Supplier: ${row.owner || "confirm"}. Template: ${template.name}.${row.sourceUrl ? ` Product source: ${row.sourceUrl}${row.sourceCheckedOn ? ` (read ${row.sourceCheckedOn})` : ""}.` : ""}`,
+    manufacturer: row.manufacturer, model: row.model, sourceUrl: row.sourceUrl, sourceCheckedOn: row.sourceCheckedOn, specifications: row.specifications,
   }));
 }
 export function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
@@ -49,7 +53,7 @@ export function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomR
     },
     governedDependencies: [], bomRows, evidence: bomRows.map((row) => `${row.sku}: ${row.evidence}`),
     repGuidance: ["Use the template as a real-room starting point rather than a discovery questionnaire.", "Adjust only quantities and optional rows that differ from the known room.", "Escalate when room behaviour departs from the template architecture."],
-    governanceWarnings: template.validationItems, validationNotes: template.designNotes.map((item) => `${item.label}: ${item.description}`),
+    governanceWarnings: template.validationItems, validationNotes: [...(template.concept ? [`Room dimensions and layout: ${template.concept.environment}`, `Construction and site conditions: ${template.concept.construction}`, `Users and capacity: ${template.scale}`] : []), ...templateReviewDesignNotes(template, rows).map((item) => `${item.label}: ${item.description}`)],
     visualBlocks: coach.visualBlocks,
     applicationProposal: compileTemplateApplicationProposal(template, rows),
     proposalFooter: personalisation?.footer,

@@ -54,7 +54,7 @@ function roleJob(role: ProductRole): string {
     videoWall: "place source content across the displays that make up the video wall",
     camera: "capture the people in the room for a call, recording or stream",
     audio: "power and manage the room audio",
-    general: "perform the product role shown in the current product record",
+    general: "meet the documented input, output and signal requirements",
   };
 
   return jobs[role];
@@ -74,7 +74,7 @@ function confirmationForRole(role: ProductRole, scenario: string): string {
     general: "this is the job the customer needs the product to perform",
   };
 
-  return `I'm treating this as ${scenario}, and assuming ${checks[role]}. Is that correct?`;
+  return `Confirm ${checks[role]}.`;
 }
 
 function cardEvidenceText(card: ProductPositioningCard | undefined): string {
@@ -361,17 +361,12 @@ export function buildProductPitchSalesGuidance(
   const isUcProduct = /\b(?:APO|UC|BYOD|BYOM|CONFERENC)/i.test(evidence);
 
   const productRole = cleanSalesText(specific.productRole || card?.oneMinuteBrief || narrative.whatItIs);
-  const roomType = cleanSalesText(context.roomType || "");
-  const application = cleanSalesText(context.application || "");
-  const scenario = roomType && application && roomType.toLowerCase() !== application.toLowerCase()
-    ? `${roomType} - ${application}`
-    : roomType || application || cleanSalesText(product.applications[0] || "the customer's application");
   // Lead with the practical, product-specific "what it does for the customer"
   // copy (governed story whatItDoes -> narrative.whyItHelps) rather than the
   // role-generic template, which reads identically for every SKU of a role.
   const practicalDescription = cleanSalesText(narrative.whyItHelps || "");
   const plainDescription = practicalDescription || `This product is used to ${roleJob(narrative.role)}.`;
-  const scenarioFit = `For ${scenario}, use it to ${roleJob(narrative.role)}.`;
+  const scenarioFit = safeList([...(card?.bestFitApplications ?? []), ...product.applications], 3).join("; ") || "Application fit needs confirmation from the product documentation.";
   const featureBenefits = safeList(buildProductFeatureBenefits(product, 6), 6);
   const bestFitApplications = safeList([
     ...(card?.bestFitApplications ?? []),
@@ -425,7 +420,7 @@ export function buildProductPitchSalesGuidance(
     plainDescription,
     productRole,
     scenarioFit,
-    confirmationQuestion: confirmationForRole(narrative.role, scenario),
+    confirmationQuestion: confirmationForRole(narrative.role, "this application"),
     bestFitApplications,
     poorFitApplications,
     featureBenefits,

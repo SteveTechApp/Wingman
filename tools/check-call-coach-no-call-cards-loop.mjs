@@ -5,7 +5,6 @@ const root = process.cwd();
 
 const candidateFiles = [
   "src/wingman2/pages/NavigationHubPages.tsx",
-  "src/wingman2/pages/CallCardsPage.tsx",
   "src/wingman2/pages/SalesHelperPage.tsx"
 ];
 

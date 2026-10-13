@@ -1,32 +1,20 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("./ComparePageNew.advanced", () => ({
-  default: () => <div>Advanced competitor comparison</div>,
-}));
+vi.mock("./ComparePageNew.advanced", () => ({ default: () => <div>Advanced competitor comparison</div> }));
+vi.mock("./BattleCardsPage", () => ({ default: () => <div>Competitor objection guidance</div> }));
+import ComparePageNew from "./ComparePageNew";
 
-import ComparePageNew, {
-  CompareEvidenceMatrix,
-  handleRetryWithSourceUrl,
-  handleSkuSelect,
-  handleSubmit,
-  scoreExplanation,
-} from "./ComparePageNew";
-
-describe("Compare routed marker bridge", () => {
-  it("keeps the governed workflow markers available to static checks", () => {
-    expect(handleSkuSelect()).toContain("CompareProductLookupInput");
-    expect(handleSkuSelect()).toContain('setWorkflowStep("options")');
-    expect(handleSubmit()).toContain("applyCompareEquivalenceGuards");
-    expect(handleSubmit()).toContain("No suitable WyreStorm match found");
-    expect(handleRetryWithSourceUrl()).toBe("shouldRequestLiveLookupUrl");
-    expect(scoreExplanation(87)).toBe("87");
-    expect(scoreExplanation("review")).toBe("review");
-    expect(CompareEvidenceMatrix()).toBeNull();
+describe("Compare route modes", () => {
+  it("renders the current comparison workflow", () => {
+    render(<MemoryRouter initialEntries={["/wingman/compare"]}><ComparePageNew /></MemoryRouter>);
+    expect(screen.getByText("Advanced competitor comparison")).toBeInTheDocument();
   });
 
-  it("renders the advanced Compare implementation", () => {
-    render(<ComparePageNew />);
-    expect(screen.getByText("Advanced competitor comparison")).not.toBeNull();
+  it("opens objection guidance from the router URL", () => {
+    render(<MemoryRouter initialEntries={["/wingman/compare?mode=battle-cards"]}><ComparePageNew /></MemoryRouter>);
+    expect(screen.getByText("Competitor objection guidance")).toBeInTheDocument();
+    expect(screen.queryByText("Advanced competitor comparison")).toBeNull();
   });
 });

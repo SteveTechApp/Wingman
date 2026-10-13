@@ -26,20 +26,13 @@ const uiPort = Number.isFinite(parsedUiPort) ? parsedUiPort : 3000;
 function wingmanServiceWorkerVersion(): Plugin {
   return {
     name: "wingman-sw-version",
-    generateBundle() {
-      // The service worker is copied as-is to the output; we patch it here.
-      const version = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-      for (const [key, asset] of Object.entries(this.getModuleInfo("") ?? {})) {
-        void key; void asset;
-      }
-    },
     // Use transformIndexFile is not available; instead we use a simple
     // writeBundle hook to patch the sw.js file in the dist output.
     writeBundle: {
       order: "post",
-      async handler() {
+      async handler(options) {
         const { readFile, writeFile } = await import("node:fs/promises");
-        const swPath = path.resolve(__dirname, "dist/sw.js");
+        const swPath = path.resolve(options.dir || path.resolve(__dirname, "dist"), "sw.js");
         try {
           let content = await readFile(swPath, "utf-8");
           const version = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
@@ -109,6 +102,12 @@ export default defineConfig({
     rolldownOptions: {
       output: {
         codeSplitting: {
+          // Group dependency walks would strand the react-dom runtime inside
+          // the lazy wm-visual-canvas chunk (the canvas group's recursive
+          // dependency capture takes react-dom before vendor-react can). With
+          // the recursive capture off, vendor-react keeps the whole React
+          // runtime eagerly loaded while groups still split the app by feature.
+          includeDependenciesRecursively: false,
           groups: [
             // The eager application shell. The `$initial` tag captures only the
             // wingman2 modules that are statically reachable from the entry
@@ -130,8 +129,24 @@ export default defineConfig({
               priority: 100,
             },
             {
+              // Visual-design canvas: @xyflow/dagre plus the canvas component
+              // that renders it. Only the proposal-visuals and template review
+              // workspaces use it, so it must stay out of the eager preload set
+              // (the entry previously pulled it via VisualStudioCanvas's import).
+              name: "wm-visual-canvas",
+              test: /src[\\/]wingman2[\\/](?:components[\\/](?:VisualStudioCanvas|visualStudioCanvasEntry)|lib[\\/]visualStudio(?:DiagramFactory|PrintLayout))\.tsx?$/,
+              priority: 95,
+            },
+            {
+              // All React runtime modules must live in one eagerly loaded chunk.
+              // A narrower pattern can strand react-dom inside a lazy chunk
+              // (the canvas) that the browser cannot fetch until a lazy route
+              // mounts, which breaks first paint. The $initial app-core group
+              // takes priority for wingman2 sources; vendor-react takes all
+              // react/react-dom/scheduler modules.
               name: "vendor-react",
               test: /node_modules[\\/](react|react-dom|scheduler|use-sync-external-store)[\\/]/,
+              priority: 92,
             },
             {
               name: "vendor-ui",
@@ -176,6 +191,16 @@ export default defineConfig({
               priority: 30,
             },
             {
+              name: "wm-product-governance",
+              test: /(?:data[\\/]governance[\\/]wyrestorm-technical-profiles\.json|data-sources[\\/]wyrestorm[\\/]lifecycle\.csv)/,
+              priority: 90,
+            },
+            {
+              name: "wm-product-stories",
+              test: /src[\\/]wingman2[\\/]data[\\/]productStories\.ts$/,
+              priority: 80,
+            },
+            {
               name: "wm-project-core",
               test: /src[\\/]wingman2[\\/](?:data[\\/]projectStore|features[\\/]projects[\\/](?:commands|model)[\\/].*)\.tsx?$/,
               priority: 40,
@@ -190,6 +215,11 @@ export default defineConfig({
               // routes, but do not belong in the shared project workspace.
               name: "wm-proposal-readiness",
               test: /src[\\/]wingman2[\\/]lib[\\/]proposal(?:Diff|Export|ExportValidation|Readiness)\.tsx?$/,
+              priority: 20,
+            },
+            {
+              name: "wm-room-design",
+              test: /src[\\/]wingman2[\\/](?:components[\\/](?:TemplateRoomBrief|ProjectScopeSchedule|DiagramViewport|TechnicalSchematic|TemplateConceptOverview|TemplateSchematic)|lib[\\/]schematic[\\/].*)\.tsx?$/,
               priority: 20,
             },
             {

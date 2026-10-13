@@ -1,3 +1,8 @@
+import { DiscoveryCompactClient } from "./discovery/DiscoveryCompactClient";
+import { DiscoveryEscalationConfirmation } from "./discovery/DiscoveryEscalationConfirmation";
+import { roomTopologyHasDraft } from "../lib/roomTopologyDraft";
+import { clearTemplateBuilderDraft, readTemplateBuilderDraft, writeTemplateBuilderDraft } from "./discovery/discoveryTemplateDraft";
+import { discoverySnapshotFromProject } from "./discovery/discoverySnapshotFromProject";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUiMode } from "../data/uiMode";
 import { createPortal } from "react-dom";
@@ -9,7 +14,7 @@ import { clearLatestDiscoverySnapshot, readLatestDiscoverySnapshot, resolveDisco
 import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionIntegrity";
 import { DiscoveryAudioDesignSummary } from "./discovery/DiscoveryAudioDesignSummary";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
-import { clearDiscoveryHandoff, readDiscoveryHandoff, type DiscoveryHandoffMode } from "../lib/discoveryTemplateHandoff";
+import { clearDiscoveryHandoff, readDiscoveryHandoff, type DiscoveryHandoff, type DiscoveryHandoffMode } from "../lib/discoveryTemplateHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
@@ -65,11 +70,24 @@ const discoveryAuditMarkers = [
   "Current model",
   "applicationSpecificDiscoveryQuestionGuidance",
 ] as const;
-export function DiscoveryPage() {
+export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBuilder?: boolean; templateHandoff?: DiscoveryHandoff }) {
   const { isGuided } = useUiMode();
   const [searchParams] = useSearchParams();
+  const [entryHandoff] = useState(() => templateHandoff ?? readDiscoveryHandoff());
+  const isTemplateAuthoring = Boolean(entryHandoff && entryHandoff.mode !== "standard");
+  const [builderActive, setBuilderActive] = useState(() => roomBuilder && !searchParams.has("edit") && searchParams.get("interview") !== "1");
   const editQuestionId = searchParams.get("edit")?.trim() ?? "";
-  const [discoveryDraft] = useState(() => readLatestDiscoverySnapshot());
+  const [discoveryDraft] = useState(() => {
+    if (isTemplateAuthoring) return readTemplateBuilderDraft(entryHandoff?.templateId);
+    if (entryHandoff) return null;
+    const snapshot = readLatestDiscoverySnapshot();
+    const id = searchParams.get("projectId");
+    if (!id) return snapshot;
+    const project = readProjectStore().projects.find((item) => item.id === id);
+    if (!project) return null;
+    if (snapshot?.projectId === id) return snapshot;
+    return discoverySnapshotFromProject(project);
+  });
   const draftState = discoveryDraft?.state ?? {};
   const draftField = (key: string) => {
     const value = draftState[key];
@@ -98,7 +116,7 @@ export function DiscoveryPage() {
     Boolean(editQuestionId) ||
     searchParams.get("resume") === "project" ||
     searchParams.get("interview") === "1" ||
-    Boolean(readDiscoveryHandoff()) ||
+    Boolean(entryHandoff) ||
     hasSessionDiscoveryHandoff ||
     hasExplicitResumeIntent;
   const [showExistingDiscoveryWarning, setShowExistingDiscoveryWarning] = useState(
@@ -167,20 +185,24 @@ export function DiscoveryPage() {
     Record<string, number>
   >({});
   const [topology, setTopology] = useState<ProjectTopology>(() => {
-    const stored = readDiscoveryTopology();
-    return projectTopologyHasContent(stored) ? stored : createBlankProjectTopology();
+    const stored = isTemplateAuthoring
+      ? normaliseProjectTopology(discoveryDraft?.brief?.topology ?? entryHandoff?.topology)
+      : searchParams.get("projectId")
+      ? normaliseProjectTopology(discoveryDraft?.brief?.topology ?? discoveryDraft?.brief?.roomModel?.topology)
+      : readDiscoveryTopology();
+    return roomTopologyHasDraft(stored) ? stored : createBlankProjectTopology();
   });
   const [savedMessage, setSavedMessage] = useState("");
   const [hasVideoWallBuilderHandoff] = useState(() =>
     typeof window !== "undefined" && Boolean(window.sessionStorage.getItem("wingman:video-wall-discovery")),
   );
-  const [discoveryMode, setDiscoveryMode] = useState<DiscoveryHandoffMode>("standard");
-  const [templateEditId, setTemplateEditId] = useState<string | undefined>(undefined);
-  const [templateDraftName, setTemplateDraftName] = useState("");
-  const [templateDraftMarket, setTemplateDraftMarket] = useState<string>(TEMPLATE_MARKETS[0]);
-  const [sourceTemplateId, setSourceTemplateId] = useState<string | undefined>(undefined);
-  const [sourceTemplateName, setSourceTemplateName] = useState<string | undefined>(undefined);
-  const [sourceTemplateBom, setSourceTemplateBom] = useState<TemplateBomRow[]>([]);
+  const [discoveryMode, setDiscoveryMode] = useState<DiscoveryHandoffMode>(entryHandoff?.mode ?? "standard");
+  const [templateEditId, setTemplateEditId] = useState<string | undefined>(entryHandoff?.templateId);
+  const [templateDraftName, setTemplateDraftName] = useState(() => draftField("templateDraftName") || entryHandoff?.templateName || "");
+  const [templateDraftMarket, setTemplateDraftMarket] = useState<string>(() => draftField("templateDraftMarket") || entryHandoff?.templateMarket || TEMPLATE_MARKETS[0]);
+  const [sourceTemplateId, setSourceTemplateId] = useState<string | undefined>(() => draftField("sourceTemplateId") || entryHandoff?.sourceTemplateId);
+  const [sourceTemplateName, setSourceTemplateName] = useState<string | undefined>(() => draftField("sourceTemplateName") || entryHandoff?.sourceTemplateName);
+  const [sourceTemplateBom, setSourceTemplateBom] = useState<TemplateBomRow[]>(entryHandoff?.bom ?? []);
   const [templateSavedMessage, setTemplateSavedMessage] = useState("");
   const [clientName, setClientName] = useState(() => draftField("clientName"));
   const [contactName, setContactName] = useState(() => draftField("contactName"));
@@ -351,7 +373,7 @@ export function DiscoveryPage() {
   const videoWallConfigured = Boolean(
     hasVideoWallBuilderHandoff ||
     existingDiscoveryProject?.videowall?.summary ||
-    (!discoveryDraft ? currentWorkflowProject?.videowall?.summary : undefined),
+    (!discoveryDraft && !isTemplateAuthoring && !entryHandoff ? currentWorkflowProject?.videowall?.summary : undefined),
   );
   const videoWallConfigurationPending = requiresVideoWallConfiguration && !videoWallConfigured;
   const opportunityDescription = [
@@ -394,19 +416,18 @@ export function DiscoveryPage() {
       return;
     }
 
-    const timeout = window.setTimeout(() => {
-      writeLatestDiscoverySnapshot({
+    const writeSnapshot = isTemplateAuthoring
+      ? (snapshot: Parameters<typeof writeLatestDiscoverySnapshot>[0]) => writeTemplateBuilderDraft(snapshot, entryHandoff?.templateId)
+      : writeLatestDiscoverySnapshot;
+    writeSnapshot({
         ...(discoveryOwnershipRef.current ?? {}),
         activeStepIndex: activeIndex,
-        state: { answers, appliedDefaults, quickStartSeed, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline },
+        state: { answers, appliedDefaults, quickStartSeed, notes, confirmed: confirmedSteps, confidence: confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, templateDraftName, templateDraftMarket, sourceTemplateId, sourceTemplateName },
         brief: buildDiscoveryBrief(),
         savedAt: "",
       });
-    }, 400);
-
-    return () => window.clearTimeout(timeout);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answeredCount, activeIndex, answers, appliedDefaults, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition]);
+  }, [answeredCount, activeIndex, answers, appliedDefaults, notes, confirmedSteps, confidenceByStep, clientName, contactName, siteName, budgetLevel, timeline, reviewPosition, topology, templateDraftName, templateDraftMarket, sourceTemplateId, sourceTemplateName]);
 
   useEffect(() => {
     setActiveIndex((current) => Math.min(current, Math.max(modeQuestions.length - 1, 0)));
@@ -427,13 +448,13 @@ export function DiscoveryPage() {
     const generated = generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication, existing: topology });
     if (!projectTopologyHasContent(generated)) return;
     setTopology(generated);
-    writeDiscoveryTopology(generated);
+    if (!isTemplateAuthoring) writeDiscoveryTopology(generated);
   }, [answers, notes, selectedApplication, topology]);
 
   useEffect(() => {
-    const handoff = readDiscoveryHandoff();
+    const handoff = entryHandoff;
 
-    if (!handoff) {
+    if (!handoff || (isTemplateAuthoring && discoveryDraft)) {
       return;
     }
 
@@ -489,7 +510,7 @@ export function DiscoveryPage() {
         incomingAnswers["uc-microphone-connection"] || ["unknown-microphone-connection"];
     }
 
-    const incomingTopology = projectTopologyHasContent(handoff.topology)
+    const incomingTopology = roomTopologyHasDraft(handoff.topology)
       ? normaliseProjectTopology(handoff.topology)
       : generateProjectTopologyFromDiscovery({
           answers: incomingAnswers,
@@ -510,10 +531,14 @@ export function DiscoveryPage() {
     delete incomingNotes.infrastructure;
 
     setAnswers(incomingAnswers);
-    setAppliedDefaults((previous) => ({ ...previous, ...incomingAnswers }));
+    setAppliedDefaults(incomingAnswers);
+    setConfirmedSteps({});
+    setConfidenceByStep({});
+    setConfidenceScoresByStep({});
+    discoveryOwnershipRef.current = { projectId: undefined, projectName: undefined };
     setNotes(incomingNotes);
     setTopology(incomingTopology);
-    writeDiscoveryTopology(incomingTopology);
+    if (!isTemplateAuthoring) writeDiscoveryTopology(incomingTopology);
 
     setDiscoveryMode(handoff.mode);
     setTemplateEditId(handoff.templateId);
@@ -534,6 +559,7 @@ export function DiscoveryPage() {
   }, []);
 
   useEffect(() => {
+    if (isTemplateAuthoring) return;
     const storedCallNotes = window.sessionStorage.getItem(callNotesStorageKey);
 
     if (!storedCallNotes) {
@@ -562,6 +588,7 @@ export function DiscoveryPage() {
   }, []);
 
   useEffect(() => {
+    if (isTemplateAuthoring) return;
     const useVideoWall = window.sessionStorage.getItem("wingman:use-video-wall-in-discovery");
     const videoWallRaw = window.sessionStorage.getItem("wingman:video-wall-discovery");
     if (useVideoWall === "1" && videoWallRaw) {
@@ -609,7 +636,7 @@ export function DiscoveryPage() {
   }, []);
 
   function handleTopologyChange(next: ProjectTopology): void {
-    const normalised = writeDiscoveryTopology(next);
+    const normalised = isTemplateAuthoring ? normaliseProjectTopology(next) : writeDiscoveryTopology(next);
     setTopology(normalised);
     setAnswers((previous) => {
       const updated = { ...previous };
@@ -693,23 +720,25 @@ export function DiscoveryPage() {
     window.sessionStorage.removeItem("wingman:video-wall-discovery");
     window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
     clearDiscoveryHandoff();
-    clearLatestDiscoverySnapshot();
+    if (isTemplateAuthoring) clearTemplateBuilderDraft(entryHandoff?.templateId);
+    else clearLatestDiscoverySnapshot();
     discoveryOwnershipRef.current = { projectId: undefined, projectName: undefined };
 
     setAnswers({});
     setAppliedDefaults({});
     setQuickStartSeed(null);
     setNotes({});
+    setConfirmedSteps({});
     setConfidenceByStep({});
     setConfidenceScoresByStep({});
     setReviewPosition(undefined);
     setReviewScope("all");
-    clearDiscoveryTopology();
+    if (!isTemplateAuthoring) clearDiscoveryTopology();
     setTopology(createBlankProjectTopology());
     setActiveIndex(0);
     setIsReviewingAnswers(false);
     setSavedMessage("");
-    setDiscoveryMode("standard");
+    setDiscoveryMode(entryHandoff?.mode ?? "standard");
     setTemplateEditId(undefined);
     setTemplateDraftName("");
     setTemplateDraftMarket(TEMPLATE_MARKETS[0]);
@@ -722,7 +751,7 @@ export function DiscoveryPage() {
     setBudgetLevel("");
     setTimeline("");
 
-    navigate("/wingman/discovery", { replace: true });
+    if (!isTemplateAuthoring) navigate("/wingman/discovery", { replace: true });
 
     window.requestAnimationFrame(() => {
       setActiveIndex(0);
@@ -732,7 +761,7 @@ export function DiscoveryPage() {
   function buildDiscoveryBrief(): StoredDiscoveryBrief {
     return compileDiscoveryBrief({
       answers, notes, topology, discoveryQuestions, modeQuestions, basicQuestionIds: BASIC_IDS,
-      progressiveMode: isGuided ? "expert" : progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
+      progressiveMode: builderActive || isGuided ? "expert" : progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
       sourceTemplateId, sourceTemplateName, clientName, contactName, siteName, budgetLevel,
       timeline, completionPercent, reviewPosition, confirmedSteps, confidenceByStep,
       confidenceScoresByStep, decisionIntegrity,
@@ -740,6 +769,7 @@ export function DiscoveryPage() {
   }
 
   function saveDiscoveryToProject(): void {
+    if (isTemplateAuthoring) { saveAsCustomTemplate(); return; }
     saveDiscoveryToOwningProject();
     setSavedMessage("Discovery saved to your project. Continue to product selection or a proposal when ready.");
   }
@@ -791,15 +821,18 @@ export function DiscoveryPage() {
     });
 
     clearDiscoveryHandoff();
+    clearTemplateBuilderDraft(entryHandoff?.templateId);
     navigate(routeCatalogByKey.templates.path);
   }
 
   function cancelTemplateMode(): void {
     clearDiscoveryHandoff();
+    clearTemplateBuilderDraft(entryHandoff?.templateId);
     navigate(routeCatalogByKey.templates.path);
   }
 
   function moveForward(target: "recommendations" | "proposal"): void {
+    if (isTemplateAuthoring) { setIsReviewingAnswers(true); return; }
     if (!decisionIntegrity.canProceedToRecommendation) {
       setSavedMessage(`Continuing with ${decisionIntegrity.issues.length} open design check${decisionIntegrity.issues.length === 1 ? "" : "s"}. They remain listed as items to confirm.`);
     }
@@ -831,9 +864,9 @@ return (
             existingDiscoveryPortalTarget,
           )
         : null}
-      <DiscoverySessionHero pace={discoveryPace} clientName={clientName} siteName={siteName} completionPercent={completionPercent} answeredCount={answeredCount} questionCount={modeQuestions.length} />
+      <DiscoverySessionHero title={isTemplateAuthoring ? "Custom room template" : builderActive ? "Room builder" : "Discovery"} pace={discoveryPace} clientName={clientName} siteName={siteName} completionPercent={completionPercent} answeredCount={answeredCount} questionCount={modeQuestions.length} />
 
-      {!isGuided && (
+      {!isGuided && !isTemplateAuthoring && (
         <div className="wm-discovery-tool-row">
           <DiscoverySessionPaceSwitch pace={discoveryPace} onChange={setDiscoveryPace} />
           <DiscoveryClientDetailsPanel
@@ -852,32 +885,13 @@ return (
         </div>
       )}
 
-      {isGuided ? (
-        <details className="wm-discovery-client-compact" data-wingman-client-compact="true">
-          <summary className="wm-discovery-client-compact-toggle">
-            {(clientName.trim() || siteName.trim())
-              ? `${clientName.trim()}${siteName.trim() ? ` · ${siteName.trim()}` : ""}`
-              : "Add client details"}
-          </summary>
-          <div className="wm-discovery-client-compact-fields">
-            <input
-              type="text"
-              placeholder="Client name"
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              className="wm-discovery-client-compact-input"
-            />
-            <input
-              type="text"
-              placeholder="Site name"
-              value={siteName}
-              onChange={(e) => setSiteName(e.target.value)}
-              className="wm-discovery-client-compact-input"
-            />
-          </div>
-        </details>
-      ) : null}
+      {isGuided && !isTemplateAuthoring && <DiscoveryCompactClient clientName={clientName} siteName={siteName} onClientNameChange={setClientName} onSiteNameChange={setSiteName} />}
 
+      {roomBuilder && !isTemplateAuthoring && <div className="wm-discovery-tool-row" role="group" aria-label="Room capture tools">
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={builderActive} onClick={() => { setBuilderActive(true); setInterviewActive(false); }}>Room builder</button>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={!builderActive && !interviewActive} onClick={() => { setBuilderActive(false); setInterviewActive(false); }}>Detailed questions</button>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={interviewActive} onClick={() => { setBuilderActive(false); setInterviewActive(true); }}>Voice interview</button>
+      </div>}
       {!isGuided && <DiscoveryAudioDesignSummary answers={answers} notes={notes} />}
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
@@ -905,6 +919,7 @@ return (
 
       {showMarketContext ? (
         <DiscoveryMarketEntry
+          allowTemplates={!roomBuilder && !isTemplateAuthoring}
           marketId={marketId}
           environmentId={environmentId}
           onMarketChange={(nextMarket) => {
@@ -925,8 +940,9 @@ return (
             setEditingMarketContext(false);
           }}
         />
-      ) : isGuided ? (
+      ) : builderActive || isGuided ? (
         <DiscoveryRoomWizard
+          templateAuthoring={isTemplateAuthoring}
           questions={modeQuestions} answers={answers} notes={notes} activeIndex={activeIndex}
           confirmed={confirmedSteps}
           onActiveIndexChange={setActiveIndex} onAnswersChange={setAnswers} onNotesChange={setNotes}

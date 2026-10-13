@@ -6,7 +6,7 @@
  * data extraction for auto-populating the checklist.
  */
 
-import { analyzeVisualAttachment } from "./visionAttachments";
+import { analyzeVisualAttachment, downscaleImageToBase64 } from "./visionAttachments";
 import { runVisionContextAnalysis } from "../api/wingmanApi";
 
 /* ──────────────────────────────────────────────
@@ -113,8 +113,6 @@ async function runSiteSurveyExtraction(file: File): Promise<{
   powerAvailability?: string;
   accessNotes?: string;
 }> {
-  // Import the image processing utilities
-  const { downscaleImageToBase64 } = await import("./visionAttachments");
   const { base64Data, mimeType } = await downscaleImageToBase64(file);
 
   const response = await runVisionContextAnalysis({

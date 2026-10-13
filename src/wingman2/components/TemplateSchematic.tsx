@@ -1,3 +1,4 @@
+import { DiagramViewport } from "./DiagramViewport";
 import { useMemo, useState } from "react";
 import { ChevronDown, CircleHelp } from "lucide-react";
 import type { RoomTemplate, TemplateBomRow } from "../lib/roomTemplates";
@@ -5,7 +6,7 @@ import { buildCableSchedule, cableToneLabel } from "../lib/roomSchematicEngine";
 
 // ── Block diagram layout constants ──
 const STAGE_LEFT = 30;
-const STAGE_WIDTH = 120;
+const STAGE_WIDTH = 210;
 const STAGE_GAP = 44;
 const ROW_HEIGHT = 72;
 const HEADER_HEIGHT = 28;
@@ -91,7 +92,7 @@ function buildLanes(items: SchematicItem[]): LaneDef[] {
     lanes.push({ name: "By others", y, items: other });
     y += ROW_HEIGHT + ROW_GAP;
   }
-  return lanes;
+  return lanes.flatMap(lane => Array.from({ length: Math.ceil(lane.items.length / 4) }, (_, index) => ({ name: `${lane.name}${index ? " (continued)" : ""}`, y: 0, items: lane.items.slice(index * 4, index * 4 + 4) }))).map((lane, index) => ({ ...lane, y: index * (ROW_HEIGHT + 40) }));
 }
 
 function blockX(stageIndex: number): number {
@@ -141,7 +142,7 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
         <div className="wm-template-lanes-heading">
           <div>
             <h2>Block Schematic</h2>
-            <p>Select any block to inspect the assumed connection and scope.</p>
+            <p>Equipment grouped by function. Select a block for its full description. Use System connections to review signal routes.</p>
           </div>
           <div className="wm-template-status-legend" aria-label="Signal type legend">
             <span style={{ color: toneColors.core }}>■ Sources / Core</span>
@@ -153,7 +154,7 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
           </div>
         </div>
 
-        <div className="wm-schematic-svg-wrap">
+        <DiagramViewport title="Equipment schedule" width={svgWidth} height={svgHeight}>
           <svg
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
             className="wm-schematic-svg"
@@ -203,26 +204,6 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
                 <text x={8} y={HEADER_HEIGHT + lane.y + ROW_HEIGHT / 2 + 4} className="wm-schematic-lane-label">
                   {lane.name}
                 </text>
-
-                {/* Signal flow arrows between blocks */}
-                {lane.items.length > 1 &&
-                  lane.items.slice(0, -1).map((_, i) => {
-                    const x1 = blockX(i) + STAGE_WIDTH + 2;
-                    const x2 = blockX(i + 1) - 2;
-                    const y = HEADER_HEIGHT + lane.y + ROW_HEIGHT / 2;
-                    return (
-                      <line
-                        key={`arrow-${lane.name}-${i}`}
-                        x1={x1}
-                        y1={y}
-                        x2={x2}
-                        y2={y}
-                        stroke="rgba(74,245,230,.3)"
-                        strokeWidth="1.5"
-                        markerEnd="url(#arrow)"
-                      />
-                    );
-                  })}
 
                 {/* Equipment blocks */}
                 {lane.items.map((item, i) => {
@@ -295,7 +276,7 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
               </g>
             ))}
           </svg>
-        </div>
+        </DiagramViewport>
       </section>
 
       {/* Detail panel for selected block */}

@@ -7,7 +7,7 @@ const requiredElements = [
   /mount/i,
   /rack|furniture|power distribution/i,
   /ccts|cables, connectors|cabling and consumables/i,
-  /installation labour/i,
+  /first fix|second fix/i,
   /commissioning|training/i,
   /project management|cad\/visio|as-built/i,
 ];

@@ -1,3 +1,4 @@
+import { roomTopologyHasDraft } from "../../lib/roomTopologyDraft";
 import { routeCatalogByKey } from "../../app/routeCatalog";
 import type { StoredDiscoveryBrief } from "../../features/projects";
 import { buildDiscoveryRecommendationEvidence } from "../../lib/recommendationEvidence";
@@ -6,7 +7,6 @@ import {
   generateProjectTopologyFromDiscovery,
   normaliseProjectTopology,
   projectTopologyConnectionTypes,
-  projectTopologyHasContent,
   projectTopologyLongestRun,
   projectTopologyMissingInformation,
   projectTopologyNetworkSummary,
@@ -207,7 +207,7 @@ export function compileDiscoveryBrief({
           ? "Video conferencing and recording / live streaming"
           : wingmanUnifiedCommsWorkflows.join(", ") || "Not yet confirmed";
 
-    const activeTopology = projectTopologyHasContent(topology)
+    const activeTopology = roomTopologyHasDraft(topology)
       ? normaliseProjectTopology(topology)
       : generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication });
     const topologySummary = projectTopologySummary(activeTopology);

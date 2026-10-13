@@ -1,3 +1,4 @@
+import { UiModeProvider } from "@/wingman2/data/uiMode";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -99,24 +100,25 @@ describe("Product Pitch rendered workflow", () => {
       expect(handoff?.checks.join(" ").toLowerCase()).toMatch(/ndi|camera|usb/);
     });
 
-    [
-      "The customer outcome",
-      "Why it matters",
-      "Best fit",
-      "Top benefits",
-    ].forEach((heading) => {
+    ["What it does", "Use it for", "Check with the customer", "When to choose another product"].forEach((heading) => {
       expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     });
+    expect(screen.queryByText("Conversation anchors")).toBeNull();
+    expect(screen.queryByRole("tab", { name: "Technical Overview" })).toBeNull();
 
-    const technicalDetail = screen.getByText("Technical and quote detail").closest("details");
-    expect(technicalDetail).not.toHaveAttribute("open");
+  });
 
-    fireEvent.click(screen.getByRole("tab", { name: /^Features$/i }));
-
-    expect(await screen.findByText("Confirm before promising")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Is that correct\?/i),
-    ).toBeInTheDocument();
+  it("shows technical content in Expert and switches to a simpler Focused view", async () => {
+    window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
+    render(<UiModeProvider><MemoryRouter initialEntries={["/wingman/product-pitch?sku=CAM-210-NDI-PTZ"]}><ProductPitchPage /></MemoryRouter></UiModeProvider>);
+    await screen.findByRole("heading", { name: "CAM-210-NDI-PTZ", level: 1 });
+    expect(screen.getByRole("heading", { name: "Connections" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Capabilities" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Technical Overview" }));
+    window.dispatchEvent(new CustomEvent("wingman:ui-mode-changed", { detail: { mode: "guided" } }));
+    await screen.findByRole("heading", { name: "What it does" });
+    expect(screen.queryByRole("heading", { name: "Capabilities" })).toBeNull();
+    expect(screen.queryByRole("tab", { name: "Technical Overview" })).toBeNull();
   });
 
   it("keeps named Product Pitch safety rules explicit without turning cautions into claims", () => {
@@ -162,13 +164,13 @@ describe("Product Pitch rendered workflow", () => {
     expect(ucGuidance.customerSafeWording).not.toMatch(/Teams(?: Rooms?)? certified/i);
     expect(ucGuidance.doNotPromise.join(" ")).toMatch(/unless that certification is explicitly confirmed/i);
     expect(ucGuidance.discoveryQuestions.length).toBeGreaterThanOrEqual(5);
-    expect(ucGuidance.confirmationQuestion).toMatch(/Is that correct\?/i);
+    expect(ucGuidance.confirmationQuestion).toMatch(/^Confirm /);
     expect(ucGuidance.quoteChecks.length).toBeGreaterThan(0);
     expect(ucGuidance.alternatives.length).toBeGreaterThan(0);
     expect(ucGuidance.attachProducts.length).toBeGreaterThan(0);
   });
 
-  it("applies saved room context and asks for one simple confirmation", () => {
+  it("keeps product applications independent of saved room context", () => {
     const guidance = buildProductPitchSalesGuidance(
       makeProduct("MX-TEST", { applications: ["Meeting rooms"] }),
       makeNarrative("matrix"),
@@ -176,10 +178,10 @@ describe("Product Pitch rendered workflow", () => {
     );
 
     expect(guidance.scenarioFit).toBe(
-      "For Sports bar - Route live sport to each screen, use it to switch fixed sources to the required displays.",
+      "Meeting rooms",
     );
-    expect(guidance.confirmationQuestion).toMatch(/^I'm treating this as Sports bar - Route live sport to each screen/);
-    expect(guidance.confirmationQuestion).toMatch(/Is that correct\?$/);
+    expect(guidance.confirmationQuestion).not.toMatch(/Sports bar|live sport/);
+    expect(guidance.confirmationQuestion).toMatch(/^Confirm /);
     expect(guidance.discoveryQuestions.length).toBeGreaterThanOrEqual(5);
   });
 

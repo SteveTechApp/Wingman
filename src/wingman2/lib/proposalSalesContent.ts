@@ -34,6 +34,13 @@ export function proposalProductCards(rows: SalesBomRow[], media: ProductMediaInd
 
 export function proposalSolutionStory(proposal: StoredProjectProposal, rows: SalesBomRow[]) {
   const architecture = inferSchematicArchitecture(`${proposal.title} ${proposal.summary}`, rows);
+  const scopeItems = proposal.applicationProposal?.thirdPartyScope ?? [];
+  // Template proposals already carry the completed third-party scope lines; show
+  // them (including any product page source and recorded specifications) rather
+  // than generic prompts. Projects without a compiled scope keep the prompts.
+  const scopeLines = scopeItems.length
+    ? scopeItems.map((item) => `${item.category} | ${item.description}${item.notes ? ` — ${item.notes}` : ""} | Qty ${item.quantity} | Responsibility: ${item.responsibility}`).join("\n")
+    : EXTERNAL_DESIGN_PROMPTS;
   const operation: string[] = [];
   if (architecture.isMatrix) operation.push("The proposed central matrix provides a single routing point between the scheduled sources and displays. The agreed controls will determine which content appears at each destination; switching behaviour will be verified during commissioning.");
   if (architecture.isNhd600 || architecture.isNhd500 || architecture.isNhd100) operation.push("The proposed AV-over-IP system distributes content between the scheduled endpoints over a suitably designed network. This allows the agreed destinations to share sources, with any future expansion subject to endpoint compatibility, switch capacity and licensing requirements.");
@@ -45,6 +52,6 @@ export function proposalSolutionStory(proposal: StoredProjectProposal, rows: Sal
     overview: proposal.salesContent?.solutionOverview || proposal.applicationProposal?.solutionOverview || "The proposed solution brings the scheduled equipment together around the customer's agreed operating requirements. Final interfaces, room controls and delivery responsibilities are set out below.",
     operation,
     acceptance: proposal.applicationProposal?.acceptanceCriteria.length ? proposal.applicationProposal.acceptanceCriteria : ["Demonstrate each agreed source-to-destination route and room mode using the customer's normal tasks.", "Record the test results, train the nominated users and agree the support handover before acceptance."],
-    externalScope: proposal.salesContent?.externalScope || EXTERNAL_DESIGN_PROMPTS,
+    externalScope: proposal.salesContent?.externalScope || scopeLines,
   };
 }

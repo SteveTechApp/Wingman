@@ -25,9 +25,15 @@ const VIDEOWALL_PRODUCT_SKU_PATTERN = /^[A-Z0-9]+(?:-[A-Z0-9]+)+$/;
 export function productSelectionsFromVideowallSummary(summary: Record<string, unknown>, savedAt: string): StoredProductSelection[] {
   const recommendation = summary.recommendation && typeof summary.recommendation === "object" && !Array.isArray(summary.recommendation) ? summary.recommendation as Record<string, unknown> : {};
   const products = Array.isArray(recommendation.products) ? recommendation.products : [];
+  const equipment = Array.isArray(recommendation.equipment) ? recommendation.equipment : [];
   const evidence = [recommendation.title, recommendation.rationale].filter((value): value is string => typeof value === "string" && Boolean(value.trim())).map((value) => value.trim());
+  const cautions = Array.isArray(summary.checks) ? summary.checks.filter((value): value is string => typeof value === "string") : [];
   return [...new Set(products.filter((value): value is string => typeof value === "string").map((value) => value.trim().toUpperCase()).filter((value) => VIDEOWALL_PRODUCT_SKU_PATTERN.test(value)))]
-    .map((sku) => ({ sku, title: sku, category: "Video Wall", status: "recommended" as const, tags: ["videowall"], addedAt: savedAt, source: "Video Wall Builder", evidence }));
+    .map((sku) => {
+      const item = equipment.find((row) => row && typeof row === "object" && typeof row.sku === "string" && row.sku.trim().toUpperCase() === sku);
+      const quantity = item && Number.isInteger(item.quantity) && item.quantity > 0 && item.quantity <= 1024 ? item.quantity as number : undefined;
+      return { sku, title: sku, ...(quantity ? { quantity } : {}), category: "Video Wall", status: "recommended" as const, tags: ["videowall"], addedAt: savedAt, source: "Video Wall Builder", evidence, ...(cautions.length ? { cautions } : {}) };
+    });
 }
 
 export function createDiscoveryCommands(context: ProjectCommandContext, lifecycle: ProjectLifecycleCommands) {
@@ -52,11 +58,11 @@ export function createDiscoveryCommands(context: ProjectCommandContext, lifecycl
       const existing = getCurrentWorkflowProject();
       const recommendedProducts = productSelectionsFromVideowallSummary(input.summary, timestamp);
       const recommendedSkus = new Set(recommendedProducts.map((product) => product.sku));
-      const productSelections = [...recommendedProducts, ...(existing?.productSelections ?? []).filter((product) => !recommendedSkus.has(product.sku))].slice(0, 20);
+      const productSelections = [...recommendedProducts, ...(existing?.productSelections ?? []).filter((product) => product.source !== "Video Wall Builder" && !recommendedSkus.has(product.sku))].slice(0, 20);
       const videowall: StoredVideowallSummary = { savedAt: timestamp, wallType: input.wallType, summary: input.summary };
-      const workflow: StoredWorkflowState = { source: "Video Wall Builder", lastStep: "Video wall discovery saved", nextRoute: routeCatalogByKey.discovery.path, updatedAt: timestamp };
-      const name = input.wallType === "led" ? "LED Video Wall Discovery" : input.wallType === "lcd" ? "LCD Video Wall Discovery" : "Video Wall Discovery";
-      return upsertStoredProject(existing ? { ...existing, updated: "Just now", updatedAt: timestamp, videowall, productSelections, workflow } : createWorkflowProject({ name, stage: "Discovery", status: "recommended", resumeTo: routeCatalogByKey.discovery.path, videowall, productSelections: productSelections.length ? productSelections : undefined, workflow }));
+      const workflow: StoredWorkflowState = { source: "Video Wall Builder", lastStep: "Video wall discovery saved", nextRoute: routeCatalogByKey.videowall.path, updatedAt: timestamp };
+      const name = input.wallType === "led" ? "LED Video Wall Discovery" : input.wallType === "lcd" ? "LCD Video Wall Discovery" : input.wallType === "projection" ? "Projection Layout Design" : "Video Wall Discovery";
+      return upsertStoredProject(existing ? { ...existing, updated: "Just now", updatedAt: timestamp, videowall, productSelections, workflow } : createWorkflowProject({ name, stage: "Discovery", status: "recommended", resumeTo: routeCatalogByKey.videowall.path, videowall, productSelections: productSelections.length ? productSelections : undefined, workflow }));
     },
     saveIngestAnalysisToProject(input: Omit<StoredIngestAnalysis, "updatedAt"> & { updatedAt?: string }, options: { requireExistingProject?: boolean } = {}) {
       const timestamp = input.updatedAt ?? now();

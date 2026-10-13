@@ -32,6 +32,17 @@ const defaultClassTokens = {
 };
 
 const pageContracts = {
+  "src/wingman2/pages/VideowallBuilderPage.tsx": {
+    sources: ["src/wingman2/pages/VideowallBuilderPage.tsx"],
+    tokens: {
+      page: ["vw-builder"],
+      card: ["vw-builder-requirements", "vw-builder-options", "vw-builder-detail"],
+      title: ["wall-requirements-title", "wall-options-title", "wall-selected-title"],
+      copy: ["vw-builder-note"],
+      button: ["vw-builder-actions", "vw-builder-option-list"],
+      input: ["vw-builder-fields"],
+    },
+  },
   "src/wingman2/pages/DiscoveryPage.tsx": {
     sources: [
       "src/wingman2/pages/DiscoveryPage.tsx",

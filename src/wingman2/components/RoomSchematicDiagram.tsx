@@ -1,3 +1,4 @@
+import { DiagramViewport } from "./DiagramViewport";
 import { useMemo } from "react";
 import {
   buildProductTopologyProfile,
@@ -47,6 +48,8 @@ export function RoomSchematicDiagram({
     [svg],
   );
 
+  const dimensions = svg.match(/viewBox="0 0 (\d+) (\d+)"/);
+
   return (
     <section
       className="rounded-3xl border border-[#29465e] bg-[#071522] p-5"
@@ -88,13 +91,13 @@ export function RoomSchematicDiagram({
         </div>
       ) : null}
 
-      <div className="mt-4 overflow-hidden rounded-2xl border border-[#29465e] bg-white">
+      <DiagramViewport title={`${product.sku} connectivity concept`} width={Number(dimensions?.[1] ?? 920)} height={Number(dimensions?.[2] ?? 610)} light>
         <img
           src={svgDataUri}
           alt={`${product.sku} product-aware room schematic`}
-          className="block h-auto w-full"
+          style={{ display: "block", width: "100%", height: "100%", maxWidth: "none" }}
         />
-      </div>
+      </DiagramViewport>
 
       <details className="mt-4 rounded-xl border border-[#29465e] bg-[#081724] p-3">
         <summary className="cursor-pointer text-sm font-bold text-cyan-200">

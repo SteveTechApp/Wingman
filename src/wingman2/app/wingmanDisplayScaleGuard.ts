@@ -16,21 +16,30 @@ function clampWingmanDisplayScale(): void {
   }
 
   Object.entries(WINGMAN_SCALE_VARIABLES).forEach(([name, value]) => {
-    root.style.setProperty(name, value);
+    if (root.style.getPropertyValue(name) !== value) root.style.setProperty(name, value);
   });
 
-  root.style.removeProperty("--wm-scaled-target-width");
-  root.style.removeProperty("--wm-scaled-target-height");
+  for (const name of ["--wm-scaled-target-width", "--wm-scaled-target-height"]) {
+    if (root.style.getPropertyValue(name)) root.style.removeProperty(name);
+  }
 }
 
 clampWingmanDisplayScale();
 
-window.addEventListener("resize", clampWingmanDisplayScale);
-window.addEventListener("orientationchange", clampWingmanDisplayScale);
+let clampQueued = false;
+function queueClamp(): void {
+  if (clampQueued) return;
+  clampQueued = true;
+  window.requestAnimationFrame(() => {
+    clampQueued = false;
+    clampWingmanDisplayScale();
+  });
+}
 
-const wingmanScaleObserver = new MutationObserver(() => {
-  window.requestAnimationFrame(clampWingmanDisplayScale);
-});
+window.addEventListener("resize", queueClamp);
+window.addEventListener("orientationchange", queueClamp);
+
+const wingmanScaleObserver = new MutationObserver(queueClamp);
 
 wingmanScaleObserver.observe(document.documentElement, {
   attributes: true,

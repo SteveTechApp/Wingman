@@ -13,6 +13,7 @@ import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { CatalogBrowserPage } from "./CatalogBrowserPage";
 import ComparePageNew from "./ComparePageNew";
 import { ProductPitchPage } from "./ProductPitchPage";
+import { UiModeProvider } from "../data/uiMode";
 
 // The profiles import below resolves to the SAME mocked payload the pages see
 // (vi.mock intercepts the module for every importer in this graph), so the
@@ -154,10 +155,11 @@ function walkFiles(dir: string, out: string[] = []): string[] {
 describe("app-wide missing-tier copy consistency sweep", () => {
   it("product pitch shows the canonical label as raw text for a product with no data at all", async () => {
     indexForSweep = indexWithNoData("MX-0402-MST");
+    window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
 
     render(
       <MemoryRouter initialEntries={["/wingman/product-pitch?sku=MX-0402-MST"]}>
-        <ProductPitchPage />
+        <UiModeProvider><ProductPitchPage /></UiModeProvider>
       </MemoryRouter>,
     );
 
@@ -168,10 +170,9 @@ describe("app-wide missing-tier copy consistency sweep", () => {
     // The Technical Overview tab renders the resolver's statusLabel as raw
     // text ("<status> - <completeness>% complete") - the one path that
     // bypasses the badge component. It must show the canonical copy too.
-    fireEvent.click(screen.getByRole("tab", { name: "Technical Overview" }));
-
     await waitFor(
       () => {
+        fireEvent.click(screen.getByRole("tab", { name: "Technical Overview" }));
         expect(document.body.textContent ?? "").toContain(`${CANONICAL_COPY} - `);
       },
       { timeout: 5000 },

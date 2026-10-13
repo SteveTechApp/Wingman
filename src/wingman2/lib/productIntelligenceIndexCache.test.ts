@@ -1,9 +1,62 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { applyRuntimeAdminRecords, clearProductIntelligenceIndexCache, loadProductIntelligenceDetail, loadProductIntelligenceSummary } from "./productIntelligenceIndexCache";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { applyRuntimeAdminRecords, clearProductIntelligenceIndexCache, loadProductIntelligenceDetail, loadProductIntelligenceDetailRecords, loadProductIntelligenceIndex, loadProductIntelligenceSummary } from "./productIntelligenceIndexCache";
 
 beforeEach(() => clearProductIntelligenceIndexCache());
+afterEach(() => vi.unstubAllGlobals());
 
 describe("runtime ADMIN product overlays", () => {
+  it("shares summary and legacy index loading across consumers", async () => {
+    const fetchMock = vi.fn(async (url: string) => new Response(JSON.stringify(
+      url.includes("summary") ? { products: [{ sku: "MX-1" }] } : { records: [] },
+    )));
+    vi.stubGlobal("fetch", fetchMock);
+    const [summary, index] = await Promise.all([loadProductIntelligenceSummary(), loadProductIntelligenceIndex()]);
+    expect(index).toBe(summary);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("shares full-catalogue hydration and limits concurrent detail requests", async () => {
+    const products = Array.from({ length: 18 }, (_, index) => ({ sku: `MX-${index}` }));
+    let active = 0;
+    let peak = 0;
+    let details = 0;
+    vi.stubGlobal("fetch", vi.fn(async (input: string) => {
+      if (input.includes("summary")) return new Response(JSON.stringify({ products }));
+      if (input.endsWith("product-intelligence-details.json")) {
+        return new Response(JSON.stringify({ products: Object.fromEntries(products.map(({ sku }) => [sku.replace("-", ""), { path: `/product-intelligence-details/${sku}.json` }])) }));
+      }
+      if (input.startsWith("/product-intelligence-details/")) {
+        details++;
+        peak = Math.max(peak, ++active);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        active--;
+        return new Response(JSON.stringify({ technicalProfile: { evidence: "retained" } }));
+      }
+      return new Response(JSON.stringify({ records: [] }));
+    }));
+    const [first, second] = await Promise.all([loadProductIntelligenceDetailRecords(), loadProductIntelligenceDetailRecords()]);
+    expect(first).toBe(second);
+    expect(details).toBe(18);
+    expect(peak).toBeLessThanOrEqual(6);
+    expect(peak).toBeGreaterThan(1);
+    expect((first as { products: Array<Record<string, unknown>> }).products.every((product) => product.technicalProfile)).toBe(true);
+  });
+
+  it("retries failed detail records instead of caching a partial full catalogue permanently", async () => {
+    let attempts = 0;
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+      if (url.includes("summary")) return new Response(JSON.stringify({ products: [{ sku: "MX-1" }] }));
+      if (url.endsWith("product-intelligence-details.json")) return new Response(JSON.stringify({ products: { MX1: { path: "/product-intelligence-details/mx1.json" } } }));
+      if (url.includes("/product-intelligence-details/")) {
+        if (++attempts === 1) return new Response("unavailable", { status: 503 });
+        return new Response(JSON.stringify({ technicalProfile: { verified: true } }));
+      }
+      return new Response(JSON.stringify({ records: [] }));
+    }));
+    await loadProductIntelligenceDetailRecords();
+    expect(await loadProductIntelligenceDetailRecords()).toMatchObject({ products: [{ sku: "MX-1", technicalProfile: { verified: true } }] });
+    expect(attempts).toBe(2);
+  });
   it("applies edits, adds missing runtime SKUs, and omits administratively removed products", () => {
     const result = applyRuntimeAdminRecords(
       { products: [

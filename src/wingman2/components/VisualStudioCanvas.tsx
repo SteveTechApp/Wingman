@@ -1,4 +1,8 @@
-import { memo, useMemo, useRef } from "react";
+import { TechnicalSchematic } from "./TechnicalSchematic";
+import { createPortal } from "react-dom";
+import "./diagramPresentation.css";
+import "@xyflow/react/dist/style.css";
+import { memo, useMemo, useRef, useState } from "react";
 import {
   Controls,
   Handle,
@@ -119,8 +123,7 @@ const WingmanVisualNode = memo(function WingmanVisualNode({ data }: NodeProps) {
         type="source"
         id="source-bottom-1"
         position={Position.Bottom}
-        className="wm-vs-node-handle wm-vs-node-handle-fanout"
-        style={{ left: "14%" }}
+        className="wm-vs-node-handle wm-vs-node-handle-fanout wm-vs-node-handle-fanout--first"
       />
       <Handle
         type="source"
@@ -182,6 +185,26 @@ const nodeTypes = {
 
 function VisualStudioCanvasInner({ model, mode, onSaveAsset }: VisualStudioCanvasProps) {
   const exportRef = useRef<HTMLDivElement | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const shellRef = useRef<HTMLElement>(null);
+  const expandButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!expanded) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    expandButton.current?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExpanded(false);
+      if (event.key === "Tab") {
+        const controls = Array.from(shellRef.current?.querySelectorAll<HTMLElement>('button, a[href], [tabindex="0"]') ?? []);
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = previousOverflow; expandButton.current?.focus(); };
+  }, [expanded]);
   const { fitView } = useReactFlow();
   const drawingNumber = `WM-${safeFileName(model.id).toUpperCase().slice(0, 18)}`;
   const issueDate = new Intl.DateTimeFormat("en-GB", {
@@ -191,7 +214,9 @@ function VisualStudioCanvasInner({ model, mode, onSaveAsset }: VisualStudioCanva
   }).format(new Date());
 
   const flowModel = useMemo(() => {
-    return buildReactFlowModel(model, mode);
+    const flow = buildReactFlowModel(model, mode);
+    if (model.id !== "product-port-view") flow.nodes = flow.nodes.map(node => ({ ...node, position: { x: node.position.x * 1.5, y: node.position.y * 2.1 } }));
+    return flow;
   }, [model, mode]);
 
   const printLayout = useMemo(() => chooseSchematicPrintLayout(flowModel.nodes), [flowModel]);
@@ -200,7 +225,7 @@ function VisualStudioCanvasInner({ model, mode, onSaveAsset }: VisualStudioCanva
     let secondFrame = 0;
     const firstFrame = requestAnimationFrame(() => {
       secondFrame = requestAnimationFrame(() => {
-        void fitView({ padding: 0.12, minZoom: 0.45, maxZoom: 0.95, duration: 0 });
+        void fitView({ padding: 0.12, minZoom: 0.05, maxZoom: 0.95, duration: 0 });
       });
     });
 
@@ -208,13 +233,13 @@ function VisualStudioCanvasInner({ model, mode, onSaveAsset }: VisualStudioCanva
       cancelAnimationFrame(firstFrame);
       if (secondFrame) cancelAnimationFrame(secondFrame);
     };
-  }, [fitView, flowModel.nodes.length, mode, model.id]);
+  }, [fitView, flowModel.nodes.length, mode, model.id, expanded]);
 const exportPng = async () => {
     if (!exportRef.current) {
       return;
     }
 
-    await fitView({ padding: 0.12, minZoom: 0.45, maxZoom: 0.95, duration: 0 });
+    await fitView({ padding: 0.12, minZoom: 0.05, maxZoom: 0.95, duration: 0 });
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
     const dataUrl = await toPng(exportRef.current, {
@@ -231,7 +256,7 @@ const exportPng = async () => {
       return;
     }
 
-    await fitView({ padding: 0.12, minZoom: 0.45, maxZoom: 0.95, duration: 0 });
+    await fitView({ padding: 0.12, minZoom: 0.05, maxZoom: 0.95, duration: 0 });
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
     const dataUrl = await toSvg(exportRef.current, {
@@ -249,7 +274,7 @@ const exportPng = async () => {
 
   const saveToProject = async () => {
     if (!exportRef.current || !onSaveAsset) return;
-    await fitView({ padding: 0.12, minZoom: 0.45, maxZoom: 0.95, duration: 0 });
+    await fitView({ padding: 0.12, minZoom: 0.05, maxZoom: 0.95, duration: 0 });
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     const svg = await toSvg(exportRef.current, { cacheBust: true, backgroundColor: "#f6f7fb" });
     onSaveAsset({
@@ -259,14 +284,16 @@ const exportPng = async () => {
     });
   };
 
-  return (
-    <section className={`wm-vs-canvas-shell wm-vs-canvas-shell-${mode}`}>
+  const sheet = (
+    <section ref={shellRef} role={expanded ? "dialog" : undefined} aria-modal={expanded || undefined} aria-label={model.title} className={`wm-vs-canvas-shell wm-vs-canvas-shell-${mode} ${expanded ? "wm-vs-expanded" : ""}`}>
       <div className="wm-vs-canvas-toolbar">
         <div>
           <p className="wm-vs-eyebrow">Native diagram canvas</p>
           <h2>{model.title}</h2>
         </div>
         <div className="wm-vs-toolbar-actions">
+          <button ref={expandButton} type="button" className="wm-vs-button" onClick={() => setExpanded(!expanded)}>{expanded ? "Close full screen" : "Full screen"}</button>
+          <button type="button" className="wm-vs-button" onClick={() => fitView({ padding: .15, minZoom: .05, maxZoom: 1 })}>Fit drawing</button>
           {onSaveAsset ? (
             <button type="button" className="wm-vs-button wm-vs-button-primary" onClick={saveToProject}>
               Save to project
@@ -338,9 +365,9 @@ const exportPng = async () => {
             defaultEdgeOptions={{ zIndex: 6 }}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.12, minZoom: 0.45, maxZoom: 0.95 }}
-            minZoom={0.4}
-            maxZoom={1.2}
+            fitViewOptions={{ padding: 0.12, minZoom: 0.05, maxZoom: 0.95 }}
+            minZoom={0.05}
+            maxZoom={3}
             nodesDraggable={false}
             nodesConnectable={false}
             elementsSelectable
@@ -379,9 +406,11 @@ const exportPng = async () => {
       </div>
     </section>
   );
+  return expanded ? createPortal(sheet, document.body) : sheet;
 }
 
 export default function VisualStudioCanvas(props: VisualStudioCanvasProps) {
+  if (props.mode === "technical" && props.model.technicalSchematic) return <TechnicalSchematic model={props.model.technicalSchematic} onSaveAsset={props.onSaveAsset} onExportConceptVisio={async () => downloadBlob(await buildVsdxBlob(props.model), `${safeFileName(props.model.title)}-equipment-concept.vsdx`)} />;
   return (
     <ReactFlowProvider>
       <VisualStudioCanvasInner {...props} />
