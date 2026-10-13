@@ -264,12 +264,30 @@ export function compileDiscoveryBrief({
       missingInformation.push("Confirm how many sources must appear on one output and which NetworkHD family should carry the multiview requirement.");
     }
 
+    const siteConditionLabels: Record<string, string> = {
+      "site-wall-construction": "Wall construction and fixing surfaces",
+      "site-ceiling-construction": "Ceiling construction and overhead access",
+      "site-cable-route": "Cable routes and containment",
+      "site-power-rack": "Power and equipment space",
+      "site-lighting-acoustics": "Lighting, noise and room acoustics",
+      "site-access-constraints": "Access and site restrictions",
+    };
+    const siteConditions = Object.fromEntries(Object.keys(siteConditionLabels)
+      .filter(id => wmDiscoveryAnswerToText(answers[id]).trim())
+      .map(id => [id, wmDiscoveryAnswerToText(answers[id]).trim()]));
+    for (const [id, label] of Object.entries(siteConditionLabels)) {
+      if (!siteConditions[id] || /to confirm during the site survey/i.test(siteConditions[id])) {
+        missingInformation.push(`Confirm ${label.toLowerCase()} during the site survey.`);
+      }
+    }
+
     const brief: StoredDiscoveryBrief = {
       savedAt: new Date().toISOString(),
       topology: activeTopology,
       roomModel: {
         roomOccupancy: wmDiscoveryAnswerToText(answers["room-occupancy"]),
         roomDimensions: wmDiscoveryAnswerToText(answers["room-dimensions"]),
+        siteConditions,
         equipmentSchedule: roomEquipmentSchedule(activeTopology),
         completionScope: supportingRoomScope(answers, activeTopology),
         market: marketLabel,

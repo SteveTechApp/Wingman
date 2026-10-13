@@ -67,6 +67,7 @@ describe("siteSurveyStorage", () => {
     });
 
     it("marks a new edit dirty while retaining its last acknowledged revision", () => {
+      setCableLength("replay-project", "cable-1", 22);
       const edits = getProjectEdits("replay-project");
       saveSyncedProjectEdits(edits, "2026-09-10T12:00:00.000Z");
       setCableConfirmed("replay-project", "cable-1", true);

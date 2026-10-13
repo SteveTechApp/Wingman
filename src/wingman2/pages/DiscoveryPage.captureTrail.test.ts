@@ -3,21 +3,18 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("free-text capture suggestions reach the discovery conversation trail", () => {
-  it("confirms a suggestion through handleSelectAnswer so the typed wording survives as the note", () => {
+  it("confirms a suggestion against its owning question and preserves the typed wording", () => {
     const source = readFileSync(join(process.cwd(), "src/wingman2/pages/DiscoveryPage.tsx"), "utf8");
-    const questionSection = readFileSync(
-      join(process.cwd(), "src/wingman2/pages/discovery/DiscoveryQuestionSection.tsx"),
-      "utf8",
-    );
+    const expertBuilder = readFileSync(join(process.cwd(), "src/wingman2/pages/discovery/DiscoveryExpertBuilder.tsx"), "utf8");
+    const roomWizard = readFileSync(join(process.cwd(), "src/wingman2/pages/discovery/DiscoveryRoomWizard.tsx"), "utf8");
 
-    // The suggestion chip must confirm via the same answer path used by option
-    // taps. handleSelectAnswer only clears notes for conditional-route cleanup
-    // (opportunity / uc-purpose), so the customer's typed wording stays in the
-    // notes store and flows into the conversation trail.
-    expect(source).toContain("function confirmCaptureSuggestion(values: string[], confidence?: \"high\" | \"matched\" | \"low\"): void {");
-    expect(source).toContain("handleSelectAnswer(values[0]);");
+    // Both authoring surfaces confirm to the owning question. The typed note is
+    // already stored separately and the suggestion handler only updates answers.
+    expect(source).toContain("function confirmCaptureSuggestion(questionId: string, values: string[], confidence?: \"high\" | \"matched\" | \"low\"): void {");
+    expect(source).toContain("[questionId]: values[0]");
     expect(source).toContain("onConfirmCaptureSuggestion={confirmCaptureSuggestion}");
-    expect(questionSection).toContain("onConfirm={onConfirmCaptureSuggestion}");
+    expect(expertBuilder).toContain("<DiscoveryCaptureSuggestion step={question} view={view} note={note}");
+    expect(roomWizard).toContain("<DiscoveryCaptureSuggestion step={canonical}");
   });
 
   it("keeps the wording column populated by wiring notes into buildDiscoveryConversation", () => {
