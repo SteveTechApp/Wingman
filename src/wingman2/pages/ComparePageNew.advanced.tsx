@@ -5573,6 +5573,8 @@ function ComparePageNew() {
   useEffect(() => {
     let cancelled = false;
 
+    if (!hasCompared) return;
+
     // Compare derives port-level technical evidence from the deferred
     // technicalProfile fields, so it hydrates the detail records rather than
     // the summary-only catalogue.
@@ -5594,7 +5596,7 @@ function ComparePageNew() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hasCompared]);
 
   // Refresh the governed ledger's approved decisions whenever a decision
   // changes (queue approval or the local decision desk both bump

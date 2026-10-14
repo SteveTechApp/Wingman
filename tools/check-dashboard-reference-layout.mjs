@@ -51,9 +51,9 @@ const main = read(mainPath);
   "wm-dashboard-content-grid",
   "wm-reference-dashboard-layout",
   "wm-reference-dashboard-main",
-  "routeCatalogByKey.discovery.path",
+  '"discovery",',
   "routeCatalogByKey.compare.path",
-  "routeCatalogByKey.responsePack.path",
+  '"responsePack",',
   "routeCatalogByKey.projects.path",
 ].forEach((marker) => requireMarker("DashboardPage.tsx", dashboard, marker));
 

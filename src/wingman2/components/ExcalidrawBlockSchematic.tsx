@@ -1,3 +1,4 @@
+import { DiagramViewport } from "./DiagramViewport";
 import { useMemo } from "react";
 import sceneSource from "../data/wyrestormAVBlockSchematic.excalidraw?raw";
 
@@ -89,7 +90,7 @@ export function ExcalidrawBlockSchematic() {
           signal colours (and the legend's solid/dashed distinction) read as
           designed. Tailwind `bg-slate-100` keeps it light without a new hex in
           the style-drift ratchet. */}
-      <div className="wm-excalidraw-sheet bg-slate-100" aria-label="WyreStorm AV block schematic — reference diagram">
+<DiagramViewport title="Meeting room reference - example only" width={box.w} height={box.h} light>
         <svg
           viewBox={`${box.minX} ${box.minY} ${box.w} ${box.h}`}
           role="img"
@@ -154,11 +155,13 @@ export function ExcalidrawBlockSchematic() {
 
           {/* Labels. */}
           {resolvedScene.elements
-            .filter((e) => e.type === "text" && e.text)
+            .filter((e) => e.text)
             .map((e, i) => {
               const anchor = e.textAlign === "right" ? "end" : e.textAlign === "left" ? "start" : "middle";
               const tx = e.textAlign === "right" ? e.x + (e.width ?? 0) : e.textAlign === "left" ? e.x : e.x + (e.width ?? 0) / 2;
-              const ty = e.y + (e.fontSize ?? 16);
+              const lines = e.text!.split("\n");
+              const lineHeight = (e.fontSize ?? 16) * 1.25;
+              const ty = e.type === "text" ? e.y + (e.fontSize ?? 16) : e.y + (e.height ?? 50) / 2 - (lines.length - 1) * lineHeight / 2 + (e.fontSize ?? 16) * .35;
               return (
                 <text
                   key={`text-${i}`}
@@ -170,12 +173,12 @@ export function ExcalidrawBlockSchematic() {
                   fontWeight="500"
                   fill={e.strokeColor || "currentColor"}
                 >
-                  {e.text}
+                  {lines.map((line, index) => <tspan key={index} x={tx} dy={index ? lineHeight : 0}>{line}</tspan>)}
                 </text>
               );
             })}
         </svg>
-      </div>
+      </DiagramViewport>
       <p className="wm-excalidraw-note">
         Solid = AV signal · dashed = USB / IP / control. Non-WyreStorm items (displays, speakers,
         camera, mics, DSP, laptop) are customer-provided placeholders. This is a static reference —

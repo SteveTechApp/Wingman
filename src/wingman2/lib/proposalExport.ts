@@ -220,7 +220,12 @@ function buildExclusionsHtml(bomRows: BomRow[]) {
   const byOthersRows = bomRows.filter((row) => row.sku?.startsWith("BY-OTHERS"));
   const byOthersHtml = byOthersRows.length
     ? `<p style="margin-top:10px;"><strong>Required to complete the AV system, supplied by the named third parties (outside the WyreStorm equipment supply):</strong></p><ul>${byOthersRows
-        .map((row) => `<li>${escapeHtml(row.sku)} - ${escapeHtml(row.description)}</li>`)
+        .map((row) => {
+          const source = row.sourceUrl
+            ? ` <span style="font-size:11px;color:#64748b;">Product source: ${escapeHtml(row.sourceUrl)}${row.sourceCheckedOn ? ` (read ${escapeHtml(row.sourceCheckedOn)})` : ""}${row.specifications ? `; recorded specifications: ${escapeHtml(row.specifications.replace(/\n/g, "; "))}` : ""}.</span>`
+            : "";
+          return `<li>${escapeHtml(row.sku)} - ${escapeHtml(row.description)}${source}</li>`;
+        })
         .join("")}</ul>`
     : "";
 

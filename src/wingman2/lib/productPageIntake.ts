@@ -1,4 +1,5 @@
-import { canonicalManufacturerName, type EquipmentRole } from "./equipmentLibrary";
+import { canonicalManufacturerName, isWyreStormManufacturer, type EquipmentRole } from "./equipmentLibrary";
+import type { TemplateBomRow } from "./roomTemplates";
 
 export type ProductPageDetails = {
   ok: boolean;
@@ -11,6 +12,23 @@ export type ProductPageDetails = {
   fetchedAt?: string;
 };
 
+const CATEGORY_SLUG_WORDS = /^(display|monitor|projector|screen|panel|speaker|loudspeaker|camera|microphone|mic|cable|mount|bracket|switch|matrix|extender|receiver|transmitter|processor|controller|amplifier|amp|dock|hub)$/i;
+
+/** Model-like final URL segment, e.g. /product/nhd-120-tx/ → NHD-120-TX. */
+function modelFromProductUrl(url: string): string {
+  try {
+    const segments = new URL(url).pathname.split("/").filter(Boolean);
+    const last = decodeURIComponent(segments[segments.length - 1] || "").replace(/\.(html?|php|aspx?)$/i, "");
+    const parts = last.split(/[-_]+/).filter(Boolean);
+    if (parts.length < 2 || parts.length > 3) return "";
+    if (parts.some((part) => CATEGORY_SLUG_WORDS.test(part))) return "";
+    if (!/[a-z]/i.test(last) || !/\d/.test(last) || last.length > 32) return "";
+    return parts.join("-").toUpperCase();
+  } catch {
+    return "";
+  }
+}
+
 export function suggestModelFromProductPage(details: ProductPageDetails): string {
   const title = String(details.title || "").split("|")[0].trim();
   const heading = title.split(/\s+[-–—]\s+/)[0].trim();
@@ -21,7 +39,7 @@ export function suggestModelFromProductPage(details: ProductPageDetails): string
     return details.model?.trim() || heading;
   }
   const modelToken = tokens.find((token) => token.length >= 4 && /[A-Z]/i.test(token) && /\d{2,}/.test(token));
-  return details.model?.trim() || modelToken || "";
+  return details.model?.trim() || modelToken || modelFromProductUrl(details.resolvedUrl || "") || "";
 }
 
 export function manufacturerFromProductPage(details: ProductPageDetails): string {
@@ -67,6 +85,47 @@ export function productPageSpecifications(details: ProductPageDetails): string {
     .filter((item) => item && !/skip to main content|support hotline|account products|toggle navigation|menu power search|recently viewed products|close a&e|select a part number|share this item via|please enter a valid|learn more|back to top|product home|careers|jquery ui|https?:\/\//i.test(item))
     .map((item) => item.slice(0, 260));
   return [...new Map(lines.map((line) => [line.toLowerCase(), line])).values()].slice(0, 8).join("\n");
+}
+
+/**
+ * Populates a third-party BOM row from a manufacturer product page. Pure so
+ * the template workspace and any proposal path apply identical rules: the
+ * authored scope description is kept unless the row is still a generic
+ * placeholder, the source URL and read date are recorded, and WyreStorm pages
+ * move the row into WyreStorm scope rather than third-party scope.
+ */
+export function applyProductPageDetailsToBomRow(row: TemplateBomRow, details: ProductPageDetails): TemplateBomRow {
+  if (!details.ok) return row;
+  const manufacturer = canonicalManufacturerName(manufacturerFromProductPage(details) || row.manufacturer || "");
+  const model = suggestModelFromProductPage(details) || row.model || "";
+  const summary = productPageSummary(details);
+  const specifications = productPageSpecifications(details);
+  const connections = productPageConnections(details);
+  const resolvedUrl = String(details.resolvedUrl || row.sourceUrl || "").trim();
+  const checkedOn = String(details.fetchedAt || new Date().toISOString()).slice(0, 10);
+  const wyreStormProduct = isWyreStormManufacturer(manufacturer);
+  const genericDescription = !row.description?.trim() || /placeholder|added product|scope allowance/i.test(row.description);
+  const description = genericDescription && summary ? summary.slice(0, 160) : row.description;
+  const notes = [
+    row.notes,
+    summary && !genericDescription ? `Product page summary: ${summary}` : "",
+    connections ? `Connections recorded from the product page: ${connections}` : "",
+    specifications ? `Specifications recorded from the product page: ${specifications.replace(/\n/g, "; ")}` : "",
+    resolvedUrl ? `Source: ${resolvedUrl} (read ${checkedOn}); confirm the exact model, regional variant and compatibility before quotation.` : "",
+  ].filter(Boolean).join("; ");
+  return {
+    ...row,
+    manufacturer,
+    model,
+    description,
+    sourceUrl: resolvedUrl || undefined,
+    sourceCheckedOn: checkedOn,
+    specifications: specifications || row.specifications,
+    owner: wyreStormProduct ? "wyrestorm" : row.owner === "wyrestorm" ? "integrator" : row.owner || "integrator",
+    productRelationship: wyreStormProduct ? undefined : row.productRelationship || "complementary",
+    evidence: resolvedUrl ? `Product page read ${checkedOn}: ${resolvedUrl}` : row.evidence,
+    notes,
+  };
 }
 
 export function productPageConnections(details: ProductPageDetails): string {

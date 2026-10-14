@@ -42,7 +42,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter((key) => !validCaches.has(key))
+          .filter((key) => key.startsWith(CACHE_PREFIX) && !validCaches.has(key))
           .map((key) => caches.delete(key))
       );
     })
@@ -50,7 +50,8 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first for API calls, cache-first for static data
+// Fetch: public assets only. Authenticated data uses the project sync cache,
+// whose records are scoped to the workspace, rather than a URL-only cache.
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
@@ -60,11 +61,9 @@ self.addEventListener("fetch", (event) => {
   // Skip chrome-extension and other non-http(s) schemes
   if (!url.protocol.startsWith("http")) return;
 
-  // Network-first for API calls (always try network, fall back to cache)
-  if (url.pathname.startsWith("/api/")) {
-    event.respondWith(networkFirst(event.request));
-    return;
-  }
+  // Let the browser perform API and third-party requests without a cached
+  // response from a previous account, including during an offline session.
+  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
 
   // Cache-first for battle cards data
   if (url.pathname.includes("battle-cards") || url.pathname.includes("competitor-products")) {
@@ -126,7 +125,7 @@ async function cacheFirstThenNetwork(request, cacheName = DATA_CACHE) {
   }
 }
 
-// Network-first with cache fallback — for pages and API
+// Network-first with cache fallback — for public pages
 async function networkFirst(request) {
   try {
     const response = await fetch(request);

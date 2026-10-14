@@ -58,9 +58,13 @@ requireText(
 if (/:\s*\/app\/data(?:\s|$)/m.test(read("docker-compose.yml"))) {
   errors.push("Docker Compose must not mount a volume over all of /app/data.");
 }
-if (!String(packageJson.scripts?.build ?? "").includes("data:canonical-products")) {
-  errors.push("npm run build must compile the ignored canonical WyreStorm store in a clean checkout.");
+if (String(packageJson.scripts?.build ?? "").includes("data:")) {
+  errors.push("npm run build must leave tracked catalogue sources unchanged.");
 }
+if (!String(packageJson.scripts?.["build:prepare-data"] ?? "").includes("data:canonical-products")) {
+  errors.push("Explicit build:prepare-data must compile canonical catalogues before deployment.");
+}
+requireText("tools/vitest-global-setup.mjs", /--canonical-only/, "Test bootstrap must generate only the ignored canonical store.");
 
 const proposalSource = read("src/wingman2/lib/proposalExport.ts");
 for (const heading of [

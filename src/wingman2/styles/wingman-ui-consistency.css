@@ -17,8 +17,6 @@ html .wingman-shell .wingman-section-card-header h2 { line-height:1.3; }
 html .wingman-shell .wingman-section-card-header p { line-height:1.5; }
 html .wingman-shell :is(button,a,input,select,textarea,summary):focus-visible { outline:2px solid #6be9df !important; outline-offset:3px; }
 html .wingman-shell button:disabled { cursor:not-allowed; opacity:.5; }
-html .wingman-shell .wingman-sidebar-footer .wm-mode-toggle { display:grid; grid-template-columns:1fr; width:100%; min-width:0; }
-html .wingman-shell .wingman-sidebar-footer .wm-mode-toggle button { width:100%; min-width:0; white-space:normal; }
 html .wingman-shell .wm-proposal-route-page > nav { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; background:none !important; box-shadow:none !important; border:0; }
 /* Proposal visual controls use explicit layout classes, independent of utilities. */
 html .wingman-shell .wm-proposal-visuals-page { display:grid; grid-template-rows:none; gap:20px; min-height:0; padding:12px 0 28px; }

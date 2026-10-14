@@ -23,6 +23,12 @@ export type SalesBomRow = {
   status: string;
   evidence: string;
   notes: string;
+  /** Populated third-party scope data, when the row was completed from a product page or the equipment library. */
+  manufacturer?: string;
+  model?: string;
+  sourceUrl?: string;
+  sourceCheckedOn?: string;
+  specifications?: string;
 };
 
 export type SalesReadinessInput = {

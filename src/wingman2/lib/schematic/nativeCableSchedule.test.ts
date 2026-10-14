@@ -57,7 +57,7 @@ describe("buildNativeCableSchedule", () => {
     expect(transports.some((t) => t === "hdmi" || t === "hdbaset" || t === "unknown")).toBe(true);
   });
 
-  it("includes USB cable rows when USB devices are present", () => {
+  it("withholds USB cable rows until a host and physical path are specified", () => {
     const schematic = buildWingmanSchematic({
       title: "BYOD room",
       sources: [{ label: "Laptop" }],
@@ -70,7 +70,8 @@ describe("buildNativeCableSchedule", () => {
     const cableRows = buildNativeCableSchedule(schematic);
 
     const usbRows = cableRows.filter((r) => r.type === "usb");
-    expect(usbRows.length).toBeGreaterThanOrEqual(1);
+    expect(usbRows).toHaveLength(0);
+    expect(schematic.warnings.some(w => w.title === "USB routing requires design")).toBe(true);
   });
 
   it("adds network infrastructure row for AVoIP systems", () => {

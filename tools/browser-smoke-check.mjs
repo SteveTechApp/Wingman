@@ -48,7 +48,7 @@ async function assertPageText(page, pathname, expectedText) {
   await page.goto(`http://127.0.0.1:${port}${pathname}`, { waitUntil: "networkidle" });
   const text = await page.locator("body").innerText();
   if (!text.toLowerCase().includes(expectedText.toLowerCase())) {
-    throw new Error(`Expected ${pathname} to contain "${expectedText}".`);
+    throw new Error(`Expected ${pathname} to contain "${expectedText}". Actual page: ${text.slice(0, 1600)}`);
   }
 }
 
@@ -130,7 +130,8 @@ try {
   });
   const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
 
-  await assertPageText(page, "/wingman/ingest", "Document Ingest");
+  page.on("pageerror", error => console.error(error.stack));
+  await assertPageText(page, "/wingman/ingest", "Decode the incoming request");
   await assertPageText(page, "/wingman/compare", "Competitor Compare");
   await assertCompareWorkflow(page);
 
@@ -145,7 +146,28 @@ try {
   // loads.
   await assertPageText(page, "/wingman/projects/northbridge-meeting-room-refresh", "Northbridge Meeting Room Refresh");
 
-  console.log("[browser-smoke] Verified built app pages, Compare workflow, and project detail route in a real browser.");
+  await assertPageText(page, "/wingman/videowall", "One wall. The right signal path.");
+  await page.getByLabel("Columns", { exact: true }).fill("3");
+  await page.getByLabel("Rows", { exact: true }).fill("3");
+  if (!(await page.getByRole("button", { name: "Save to project", exact: true }).isDisabled())) {
+    throw new Error("An undersized matrix must not save a 3-by-3 wall.");
+  }
+  await page.getByRole("button", { name: /^NetworkHD 500 · receiver per display/ }).click();
+  const receiverRow = page.locator("tr").filter({ hasText: "NHD-500-RX" });
+  if ((await receiverRow.locator("td").first().innerText()) !== "9") {
+    throw new Error("A 3-by-3 direct LCD wall must have nine receivers.");
+  }
+  for (const name of [/^LCD · looped/, /^LED · processor input/, /^Large single projection/]) {
+    await page.getByRole("button", { name }).click();
+    if ((await page.getByRole("button", { name }).getAttribute("aria-pressed")) !== "true") {
+      throw new Error("Video wall application selection did not update.");
+    }
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  const wallSize = await page.locator(".vw-builder").evaluate(element => ({ width: element.clientWidth, scroll: element.scrollWidth }));
+  if (wallSize.scroll > wallSize.width + 1) throw new Error("Video wall builder overflows on mobile.");
+
+  console.log("[browser-smoke] Verified built app pages, Compare workflow, project detail route, and video wall options in a real browser.");
 } finally {
   if (browser) await browser.close();
   preview.kill("SIGTERM");

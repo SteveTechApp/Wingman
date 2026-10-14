@@ -1,0 +1,72 @@
+.wm-room-design-page.wm-template-workspace { display:block!important; height:auto!important; min-height:100%; overflow:visible!important; padding:20px!important; }
+.wm-room-design-page .wm-template-header-row { grid-template-columns:minmax(0,1fr) auto!important; align-items:start!important; }
+.wm-room-design-page .wm-template-compact-header { padding:18px!important; }
+.wm-room-design-page .wm-template-title-line h1 { font-size:clamp(23px,2vw,34px)!important; line-height:1.15!important; }
+.wm-room-design-page .wm-template-header-actions { display:flex!important; flex-wrap:wrap; justify-content:flex-end; max-width:400px; gap:8px; }
+.wm-room-design-page .wm-template-header-actions > a { font-size:12px!important; }
+.wm-room-design-page .wm-template-tab-row { margin:18px 0!important; }
+.wm-room-design-page > main { height:auto!important; max-height:none!important; overflow:visible!important; padding:0!important; }
+.wm-room-design-page .wm-template-context-strip { display:none!important; }
+.wm-design-schedule { color:#eaf3f9; display:grid; gap:12px; }
+.wm-design-schedule__intro { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:24px; padding:20px; border:1px solid #244252; border-radius:12px; background:#0b2233; }
+.wm-design-schedule__intro h2 { margin:0 0 8px; font-size:22px; }
+.wm-design-schedule__intro p { margin:0; font-size:14px; line-height:1.6; color:#b5cbd8; max-width:850px; }
+.wm-design-schedule__intro dl { display:flex; gap:26px; margin:0; align-items:center; }
+.wm-design-schedule__intro dt { color:#98b6c7; font-size:11px; }
+.wm-design-schedule__intro dd { margin:5px 0 0; font-size:20px; font-weight:650; }
+.wm-design-schedule__tools { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:4px 0 8px; }
+.wm-design-schedule__tools p { margin:0; color:#a9bfce; font-size:13px; line-height:1.5; }
+.wm-design-schedule__tools label { display:flex; align-items:center; gap:8px; flex-shrink:0; font-size:12px; color:#adc4d2; }
+.wm-design-schedule select { padding:8px; border:1px solid #365767; border-radius:6px; color:#e9f5fa; background:#0a2333; font:inherit; }
+.wm-design-schedule__section { border:1px solid #254251; border-radius:10px; background:#091d2c; overflow:hidden; }
+.wm-design-schedule__section > summary { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 20px; cursor:pointer; list-style:none; }
+.wm-design-schedule__section > summary::after { content:"+"; font-size:20px; color:#56d9db; }
+.wm-design-schedule__section[open] > summary::after { content:"−"; }
+.wm-design-schedule__section > summary > div { flex:1; }
+.wm-design-schedule__section h3 { margin:0 0 5px; font-size:16px; line-height:1.4; }
+.wm-design-schedule__section summary p { margin:0; color:#96b1c3; font-size:12px; line-height:1.5; }
+.wm-design-schedule__section summary > span { color:#9ebbc8; font-size:12px; white-space:nowrap; }
+.wm-design-schedule__section-body { border-top:1px solid #244251; padding:0 20px 14px; }
+.wm-design-schedule__guidance,.wm-design-schedule__empty { margin:14px 0; color:#aac5d3; font-size:13px; line-height:1.55; }
+.wm-design-schedule__row { display:grid; grid-template-columns:20px minmax(0,1fr) 130px 45px; gap:14px; align-items:center; padding:15px 0; border-bottom:1px solid #1f3949; }
+.wm-design-schedule__row.is-excluded .wm-design-schedule__identity { opacity:.65; }
+.wm-design-schedule__row input[type=checkbox] { width:16px; height:16px; accent-color:#31d4cc; }
+.wm-design-schedule__identity strong { display:block; font-size:14px; line-height:1.45; }
+.wm-design-schedule__identity small { display:block; margin-top:4px; font-size:11px; color:#92afc0; line-height:1.45; }
+.wm-design-schedule__quantity { display:grid; gap:4px; font-size:10px; color:#93afbd; }
+.wm-design-schedule__quantity input { width:90px; min-height:32px; padding:6px 8px; border:1px solid #365766; border-radius:5px; background:#061724; color:#edf6fa; font:inherit; font-size:13px; }
+.wm-design-schedule__edit,.wm-design-schedule__add { border:0; background:transparent; color:#52d7d9; font:inherit; cursor:pointer; font-size:12px; padding:8px 0; }
+.wm-design-schedule__add { margin-top:8px; }
+.wm-design-schedule__library,.wm-room-design-notes { padding:16px 20px; border:1px solid #294351; border-radius:10px; color:#b5cbd8; }
+.wm-design-schedule__library summary,.wm-room-design-notes > summary { cursor:pointer; font-size:13px; }
+.wm-room-design-notes { margin-top:14px; }
+.wm-design-schedule button:focus-visible,.wm-design-schedule summary:focus-visible,.wm-design-schedule select:focus-visible { outline:2px solid #51d7da; outline-offset:3px; }
+@media(max-width:1100px) { .wm-design-schedule__intro { grid-template-columns:1fr; gap:16px; } .wm-design-schedule__intro dl { justify-content:flex-start; } .wm-room-design-page .wm-template-header-row { grid-template-columns:1fr!important; } .wm-room-design-page .wm-template-header-actions { justify-content:flex-start; max-width:none; } }
+@media(max-width:650px) { .wm-room-design-page.wm-template-workspace { padding:12px!important; } .wm-design-schedule__tools { align-items:flex-start; flex-direction:column; gap:10px; } .wm-design-schedule__intro { padding:16px; } .wm-design-schedule__intro dl { flex-wrap:wrap; gap:16px; } .wm-design-schedule__section > summary { padding:14px; } .wm-design-schedule__section summary > span { white-space:normal; width:65px; font-size:10px; } .wm-design-schedule__section-body { padding:0 14px 12px; } .wm-design-schedule__row { grid-template-columns:18px minmax(0,1fr) 35px; gap:10px; } .wm-design-schedule__quantity { grid-column:2; grid-row:auto; } .wm-design-schedule__edit { grid-column:3; grid-row:1 / span 2; } }
+.wm-room-design-page .wm-drawing-choice { display:flex; align-items:center; gap:12px; margin-bottom:16px; color:#b1c8d6; font-size:13px; }
+.wm-room-design-page .wm-drawing-choice select { max-width:100%; padding:9px; border:1px solid #355765; border-radius:6px; color:#e6f6fa; background:#0c2534; }
+.wingman-app-main:has(.wm-room-design-page) { overflow-y:auto!important; }
+.wingman-page-host:has(.wm-room-design-page) { height:auto!important; overflow:visible!important; }
+.wm-room-design-page .wm-equipment-drawer label { display:grid; gap:6px; margin:14px 0; color:#bad1de; font-size:13px; }
+.wm-room-design-page .wm-equipment-drawer textarea { min-height:100px; padding:10px; border:1px solid #345565; border-radius:6px; background:#071c2b; color:#edf6fa; font:inherit; }
+.wm-design-schedule__section-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 20px; }
+.wm-design-schedule__section-heading p { margin:0; color:#a7becd; font-size:13px; }
+.wm-design-schedule__section-heading > span { font-size:12px; color:#a7becd; white-space:nowrap; }
+.wm-review-step { display:flex; justify-content:space-between; gap:20px; align-items:center; margin-bottom:20px; }
+.wm-review-step label { display:flex; align-items:center; gap:12px; color:#c7dce6; }
+.wm-review-step p { margin:0; color:#99b6c7; font-size:12px; }
+.wm-review-step select,.wm-review-form input,.wm-review-form textarea,.wm-review-check input,.wm-review-check textarea { padding:10px; background:#071c2b; color:#edf6fa; border:1px solid #345565; border-radius:6px; font:inherit; max-width:100%; }
+.wm-review-task { padding:24px; background:#091d2c; border:1px solid #254251; border-radius:12px; }
+.wm-review-task > header { display:flex; gap:20px; justify-content:space-between; align-items:start; }
+.wm-review-task h2 { font-size:22px; margin:0 0 8px; }
+.wm-review-task h3 { font-size:15px; margin:22px 0 8px; color:#c4e1ea; }
+.wm-review-task p { color:#aac4d2; font-size:14px; line-height:1.65; max-width:1050px; }
+.wm-review-task button,.wm-review-step-actions button { border:1px solid #345565; border-radius:6px; padding:9px 14px; color:#d8f4fa; background:#123342; font:inherit; font-size:13px; cursor:pointer; }
+.wm-review-task button:disabled { opacity:.45; cursor:default; }
+.wm-review-form,.wm-review-check { display:grid; gap:16px; max-width:1000px; margin:20px 0; }
+.wm-review-form label,.wm-review-check label { display:grid; gap:7px; color:#c7dce6; font-size:13px; }
+.wm-review-form textarea,.wm-review-check textarea { min-height:90px; width:100%; box-sizing:border-box; resize:vertical; }
+.wm-review-check { padding:18px 0; border-bottom:1px solid #294351; }
+.wm-review-check button { justify-self:start; }
+.wm-review-step-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:20px; }
+@media(max-width:800px) { .wm-review-step { flex-direction:column; align-items:start; gap:10px; } .wm-review-task { padding:18px; } .wm-review-task > header { flex-direction:column; gap:8px; } .wm-design-schedule__section-heading { align-items:start; flex-direction:column; } .wm-design-schedule__tools label { flex-wrap:wrap; flex-shrink:1; } .wm-design-schedule select { max-width:100%; } }

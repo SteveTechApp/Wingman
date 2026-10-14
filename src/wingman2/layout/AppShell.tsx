@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Database, Menu, Plus, X, CheckCircle } from "lucide-react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useUiMode } from "../data/uiMode";
 
 import {
@@ -11,7 +11,6 @@ import {
   routeCatalogByKey,
   type WingmanRouteKey,
 } from "../app/routeCatalog";
-import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { UiModeToggle } from "../components/UiModeToggle";
 import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
 import { FeatureJourneyStrip } from "../components/FeatureJourneyStrip";
@@ -24,6 +23,10 @@ import { useWingmanLanguage } from "../data/wingmanLanguage";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 import { getWingmanSession, type WingmanWorkspaceSession } from "../api/wingmanApi";
 
+// The Guru avatar is a draggable floating button shown on every route; its
+// drag engine is meaningful code and the Guru drawer behind it is heavy, so
+// both stay in a lazy chunk out of the eager app-core bundle.
+const WingmanGuruFab = lazy(() => import("../components/WingmanGuruFab"));
 const WingmanGuruDrawer = lazy(() => import("../components/WingmanGuruDrawer"));
 
 type AppShellProps = {
@@ -340,7 +343,7 @@ export function AppShell({ children }: AppShellProps) {
             </button>
           </div>
         ) : (
-          <div className="wingman-brand wingman-brand-logo-only">
+          <Link to={routeCatalogByKey.dashboard.path} className="wingman-brand wingman-brand-logo-only" aria-label="Wingman home" onClick={() => setMobileNavOpen(false)}>
             <img
               src={wingmanBrandLogo}
               alt="WyreStorm Wingman"
@@ -350,7 +353,7 @@ export function AppShell({ children }: AppShellProps) {
               decoding="async"
               loading="eager"
             />
-          </div>
+          </Link>
         )}
 
         <nav className={`wingman-nav ${isGuided ? "wingman-nav--guided" : ""}`} aria-label="Wingman navigation">
@@ -401,6 +404,7 @@ export function AppShell({ children }: AppShellProps) {
           className={`wingman-topbar wm-balanced-topbar ${isProjectDetailPage ? "wm-topbar--compact-context" : ""}`}
         >
           {isGuided && (
+            <Link to={routeCatalogByKey.dashboard.path} aria-label="Wingman home" onClick={() => setMobileNavOpen(false)} className="wingman-home-link">
             <img
               src={wingmanBrandLogo}
               alt="WyreStorm Wingman"
@@ -408,6 +412,7 @@ export function AppShell({ children }: AppShellProps) {
               width={140}
               height={46}
             />
+            </Link>
           )}
 
           <div
@@ -452,11 +457,13 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       <>
+        <Suspense fallback={null}>
         <WingmanGuruFab
           open={guruOpen}
           onClick={() => setGuruOpen((current) => !current)}
           hasContextualTransfer={Boolean(guruSupportCue)}
         />
+        </Suspense>
         {guruMounted && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer

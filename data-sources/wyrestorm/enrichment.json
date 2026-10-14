@@ -26088,21 +26088,20 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "10m/32.8ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-10",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
+            "sourceType": "manufacturer",
+            "sourceUrl": "https://web.archive.org/web/20210921021327/https://www.wyrestorm.com/product/cab-haoc-frl-10/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/cab-haoc-frl-10 was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+            "reviewer": "Steve Goodwin",
+            "reviewedOn": "2026-09-30"
           },
           {
-            "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-10",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:43.966Z",
-            "reviewedOn": "2026-09-30",
+            "sourceUrl": "https://web.archive.org/web/20210921021327/https://www.wyrestorm.com/product/cab-haoc-frl-10/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/cab-haoc-frl-10 was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "reviewedOn": "2026-09-30"
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -26743,21 +26742,20 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-15",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
+            "sourceType": "manufacturer",
+            "sourceUrl": "https://web.archive.org/web/20210921020949/https://www.wyrestorm.com/product/cab-haoc-frl-15/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/cab-haoc-frl-15 was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+            "reviewer": "Steve Goodwin",
+            "reviewedOn": "2026-09-30"
           },
           {
-            "sourceUrl": "https://www.wyrestorm.com/product/cab-haoc-frl-15",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:43.973Z",
-            "reviewedOn": "2026-09-30",
+            "sourceUrl": "https://web.archive.org/web/20210921020949/https://www.wyrestorm.com/product/cab-haoc-frl-15/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/cab-haoc-frl-15 was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "reviewedOn": "2026-09-30"
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -73978,21 +73976,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "0.5m/1.5ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-0.5",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-0.5",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.003Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-05) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -74614,21 +74603,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "1m/3.2ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-1.0",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-1.0",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.010Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-10) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -75256,21 +75236,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "2m/6.5ft HDMI 2.0 Cable | 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-2.0",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-2.0",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.016Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-20) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -75877,21 +75848,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "3m/9.8ft HDMI 2.0 Cable| 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-3.0",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-3.0",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.023Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-30) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -76498,21 +76460,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "5m/16.4ft HDMI 2.0 Cable| 18Gbps | 5K60Hz | 4K60Hz | Dolby Vision & HDR | ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-5.0",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-5.0",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.029Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/exp-4kuhd-x/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-4kuhd-50) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-4KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -77786,21 +77739,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "0.5m/1.5ft HDMI 2.1 Cable | 48Gbps | 8K60Hz | 5K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-0.5",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-0.5",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.037Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/exp-8kuhd-x/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/exp-8kuhd-05) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (EXP-8KUHD-X configure-to-order pattern page (the per-length SKUs are its order codes)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -79175,21 +79119,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps(10Gbps/Lane) | 5K60Hz | 4K120Hz Alt Mode | USB3.2 Gen 2x2 |100w PD",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-1m",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-1m",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.066Z",
-            "reviewedOn": "2026-09-30",
+            "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-xm/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the product's own page (https://www.wyrestorm.com/product/exp-cab-usbc-1m) was pruned (404, caught by the liveness gate); replaced with the live official family/configure-to-order page, which lists this SKU verbatim in its documentation. Spec values were confirmed at the 2026-09-30 confirmation pass.",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "reviewedOn": "2026-09-30"
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -79815,21 +79750,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps(10Gbps/Lane) | 5K60Hz | 4K120Hz Alt Mode | USB3.2 Gen 2x2 | 100w PD",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-2m",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-2m",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.075Z",
-            "reviewedOn": "2026-09-30",
+            "sourceUrl": "https://www.wyrestorm.com/product/exp-cab-usbc-xm/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the product's own page (https://www.wyrestorm.com/product/exp-cab-usbc-2m) was pruned (404, caught by the liveness gate); replaced with the live official family/configure-to-order page, which lists this SKU verbatim in its documentation. Spec values were confirmed at the 2026-09-30 confirmation pass.",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "reviewedOn": "2026-09-30"
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -108292,21 +108218,20 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "Compact In-Desk Connectivity | HDMI & USB-C Passthrough | USB Charging | Multi-Standard Mains Outlet",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-200-ms",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
+            "sourceType": "manufacturer",
+            "sourceUrl": "https://web.archive.org/web/20211205054437/https://www.wyrestorm.com/product/idb-200-ms/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-200-ms was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+            "reviewer": "Steve Goodwin",
+            "reviewedOn": "2026-09-30"
           },
           {
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-200-ms",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.776Z",
-            "reviewedOn": "2026-09-30",
+            "sourceUrl": "https://web.archive.org/web/20211205054437/https://www.wyrestorm.com/product/idb-200-ms/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-200-ms was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "reviewedOn": "2026-09-30"
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -115420,21 +115345,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "HDMI | Passthrough coupling socket | Front HDMI female | Back HDMI female",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-hdmi-c",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-hdmi-c",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.814Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/idb-400-na/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/idb-hdmi-c) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (IDB-400 in-desk series page (series connectivity options)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -115921,21 +115837,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "Carrier Keystone 2 ports | 45mm X 45mm | Black color",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-k2-c",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-k2-c",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.821Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/idb-400-na/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/idb-k2-c) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (IDB-400 in-desk series page (series connectivity options)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -116465,21 +116372,20 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug)",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-sch",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
+            "sourceType": "manufacturer",
+            "sourceUrl": "https://web.archive.org/web/20211205044459/https://www.wyrestorm.com/product/idb-pwr-sch/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-pwr-sch was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+            "reviewer": "Steve Goodwin",
+            "reviewedOn": "2026-09-30"
           },
           {
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-sch",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.830Z",
-            "reviewedOn": "2026-09-30",
+            "sourceUrl": "https://web.archive.org/web/20211205044459/https://www.wyrestorm.com/product/idb-pwr-sch/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-pwr-sch was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "reviewedOn": "2026-09-30"
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -117058,21 +116964,20 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug)",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-uk",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
+            "sourceType": "manufacturer",
+            "sourceUrl": "https://web.archive.org/web/20211205040608/https://www.wyrestorm.com/product/idb-pwr-uk/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-pwr-uk was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
+            "reviewer": "Steve Goodwin",
+            "reviewedOn": "2026-09-30"
           },
           {
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-pwr-uk",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.837Z",
-            "reviewedOn": "2026-09-30",
+            "sourceUrl": "https://web.archive.org/web/20211205040608/https://www.wyrestorm.com/product/idb-pwr-uk/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
+            "note": "Evidence re-sourced 2026-09-30: the official page https://www.wyrestorm.com/product/idb-pwr-uk was pruned (404, caught by the liveness gate); replaced with the Wayback Machine capture of the same product page. The page documents the same product; spec values were confirmed against the governed profile at the 2026-09-30 confirmation pass.",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "reviewedOn": "2026-09-30"
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -117623,21 +117528,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "RJ45 CAT6 | Passthrough coupling socket | Front RJ45 female | Back RJ45 female | Unshielded",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-rj45-c",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/idb-rj45-c",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.844Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/idb-400-na/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/idb-rj45-c) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (IDB-400 in-desk series page (series connectivity options)). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -157986,21 +157882,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "Free iPad & Android Control App for NetworkHD 100, 200, 400, 500 and 600 Series",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/networkhd-touch™",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/networkhd-touch™",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.627Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/nhd-touch/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/networkhd-touch™) was pruned (404, caught by the liveness gate). Replaced with the live official page for the product line (NetworkHD Touch free touchscreen control app page for the NetworkHD 100/400/500/600 Series). The page is the official documentation for the line; it does not enumerate every retired order code by SKU. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -278488,22 +278375,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "4K60H HDBaseT Scaling  Output Card for MX-1616-SCL | 4K60Hz 4:2:0 | HDR | PoH | Audio De-Embed (4K: 100m/328ft)",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdbt",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team",
-            "note": "Power facts from the official-page capture; structured for the compare power gate."
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdbt",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.357Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/mx-1616-scl/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/tx-scl-hdbt) was pruned (404, caught by the liveness gate). Replaced with the live official page that names this SKU verbatim (the official MX-1616-SCL matrix chassis page, whose card list enumerates TX-SCL-HDBT and TX-SCL-HDMI as the 16 output cards); no Wayback snapshot of the pruned page exists. The card's HDBaseT reach (4K: 100m/328ft) is carried over from the pruned page's own capture; confirm HDBaseT class and reach against the next official card documentation. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -279171,21 +279048,12 @@
         "warnings": [],
         "evidence": [
           {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "4K60Hz HDMI Scaling Output Card for MX-1616-SCL | 4K60Hz 4:4:4 | HDR | Audio De-embed(4K: 100m/328ft)",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdmi",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
-          {
-            "sourceUrl": "https://www.wyrestorm.com/product/tx-scl-hdmi",
             "sourceType": "manufacturer",
-            "checkedAt": "2026-09-30T11:10:44.364Z",
+            "sourceUrl": "https://www.wyrestorm.com/product/mx-1616-scl/",
+            "checkedAt": "2026-09-30T00:00:00.000Z",
             "reviewedOn": "2026-09-30",
             "reviewer": "Steve Goodwin",
-            "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+            "note": "Evidence re-sourced 2026-09-30: the SKU's own official page (https://www.wyrestorm.com/product/tx-scl-hdmi) was pruned (404, caught by the liveness gate). Replaced with the live official page that names this SKU verbatim (the official MX-1616-SCL matrix chassis page, whose card list enumerates TX-SCL-HDBT and TX-SCL-HDMI as the 16 output cards); no Wayback snapshot of the pruned page exists. Confirmed at the 2026-09-30 review pass; reviewer Steve Goodwin."
           }
         ],
         "createdAt": "2026-08-29T07:14:40.282Z",
@@ -282743,15 +282611,6 @@
         "checks": [],
         "warnings": [],
         "evidence": [
-          {
-            "sourceType": "pricelist-q3-2026",
-            "url": "",
-            "excerpt": "4K30Hz 2x2 Wireless Presentation Switcher | 4K30Hz 4:4:4 | 2 HDMI Inputs | 2 HDMI Outputs | Seamless Switching | Multiview | USB-B Ethernet | Audio De-embed | USB 3.0 |  Airplay & Miracast | Wireless Casting & Conferencing (work with APO-DG2 & APO-DG2-PRO) | Sygma Cloud Management",
-            "checkedAt": "2026-08-29T07:14:40.282Z",
-            "sourceUrl": "https://www.wyrestorm.com/product/sw-620l-tx-w",
-            "reviewedOn": "2026-08-30",
-            "reviewer": "WyreStorm Product Team"
-          },
           {
             "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
             "sourceType": "manufacturer",

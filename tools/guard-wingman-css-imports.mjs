@@ -21,20 +21,13 @@ const referenceGlobalFinish = path.join(
   "styles",
   "wingman-reference-global.css",
 );
-const productToolsVisualWeight = path.join(
-  root,
-  "src",
-  "wingman2",
-  "styles",
-  "wingman-product-tools-visual-weight.css",
-);
 const allowed = new Set([
   "src/main.tsx",
   "src/wingman2/pages/VideowallBuilderPage.tsx",
+  "src/wingman2/components/VisualStudioCanvas.tsx",
 ]);
 
 const expectedMainCssImports = [
-  "@xyflow/react/dist/style.css",
   // Layered design system (2026-08-25) — tokens → reset → layout → components
   "./wingman2/styles/wingman-layer-tokens.css",
   "./wingman2/styles/wingman-layer-reset.css",
@@ -47,10 +40,15 @@ const expectedMainCssImports = [
   "./wingman2/styles/wingman-workflow-theme.css",
   "./wingman2/styles/wingman-polish-navigation.css",
   "./wingman2/styles/wingman-reference-global.css",
-  "./wingman2/styles/wingman-product-tools-visual-weight.css",
   "./wingman2/styles/wingman-ui-consistency.css",
   "./wingman2/styles/wingman-sales-workspace.css",
   "./wingman2/styles/wingman-voice-capture.css",
+  // Shared room-design and project-workspace surfaces, owned by the global entry.
+  "./wingman2/components/diagramPresentation.css",
+  "./wingman2/components/projectScopeSchedule.css",
+  "./wingman2/components/technicalSchematic.css",
+  "./wingman2/pages/project/project-workspace.css",
+  "./wingman2/pages/templateLibraryLayout.css",
 ];
 const retiredPageStyleFiles = [
   "wingman-visual-polish.css",
@@ -149,29 +147,17 @@ if (videoWallCssImports.length !== 1 || videoWallCssImports[0] !== "../styles/wi
   process.exit(1);
 }
 
-if (/vw2-hero[^"']*\bwm-ui-(?:section|hero)\b/.test(videoWallRaw)) {
-  console.error("Blocked: the video-wall hero must not reuse global hero/section classes; they inflate the route workspace.");
-  process.exit(1);
+// The route owns its workspace styling and exposes selections to assistive technology.
+for (const marker of ['aria-label="Display application"', 'aria-label="WyreStorm architecture options"', 'aria-pressed={']) {
+  if (!videoWallRaw.includes(marker)) {
+    console.error('Blocked: video-wall selections must retain accessible groups and pressed state.');
+    process.exit(1);
+  }
 }
-
-if (/vw2-hero-actions[^"']*\bwm-ui-hero\b/.test(videoWallRaw)) {
-  console.error("Blocked: video-wall actions must not be marked as a global hero.");
-  process.exit(1);
-}
-
-if (videoWallRaw.includes("<small>{option.note}</small>") || !videoWallRaw.includes('role="tooltip" className="vw2-chip-tooltip"')) {
-  console.error("Blocked: video-wall option help must remain in accessible hover/focus tooltips, not visible button copy.");
-  process.exit(1);
-}
-
 const videoWallStyle = fs.readFileSync(path.join(root, "src", "wingman2", "styles", "wingman-videowall.css"), "utf8");
-for (const selector of [
-  'html[data-wingman-route="videowall"] .vw2-hero',
-  'html[data-wingman-route="videowall"] .vw2-hero-actions',
-  'html[data-wingman-route="videowall"] .wingman-page-host .vw2-page .vw2-path-card',
-]) {
+for (const selector of ['.vw-builder {', '.vw-builder-header', '.vw-builder-option-list']) {
   if (!videoWallStyle.includes(selector)) {
-    console.error(`Blocked: missing route-scoped video-wall cascade lock: ${selector}`);
+    console.error('Blocked: missing route-owned video-wall workspace style: ' + selector);
     process.exit(1);
   }
 }
@@ -182,7 +168,6 @@ for (const globalStyle of [
   workflowTheme,
   polishNavigation,
   referenceGlobalFinish,
-  productToolsVisualWeight,
 ]) {
   if (!fs.existsSync(globalStyle)) {
     console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
@@ -215,5 +200,5 @@ if (retiredFilesStillPresent.length > 0) {
 }
 
 console.log(
-  "CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation, global reference finish and product-tools visual-weight layers only.",
+  "CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation, global reference finish and route-owned visual-canvas styles only.",
 );

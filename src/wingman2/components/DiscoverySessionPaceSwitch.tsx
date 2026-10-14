@@ -3,6 +3,7 @@ import { FileText, PhoneCall } from "lucide-react";
 export type DiscoveryPace = "live" | "desk";
 
 type DiscoverySessionHeroProps = {
+  title?: string;
   pace: DiscoveryPace;
   clientName: string;
   siteName: string;
@@ -11,12 +12,12 @@ type DiscoverySessionHeroProps = {
   questionCount: number;
 };
 
-export function DiscoverySessionHero({ pace, clientName, siteName, completionPercent, answeredCount, questionCount }: DiscoverySessionHeroProps) {
+export function DiscoverySessionHero({ title = "Discovery", pace, clientName, siteName, completionPercent, answeredCount, questionCount }: DiscoverySessionHeroProps) {
   const location = [clientName.trim(), siteName.trim()].filter(Boolean).join(" · ");
   return (
     <header className="wm-discovery-capture-hero wm-ui-hero">
       <div className="wm-discovery-session-title">
-        <h1 className="wm-ui-title">Discovery</h1>
+        <h1 className="wm-ui-title">{title}</h1>
         <p className="wm-ui-copy">{location || (pace === "live" ? "On a call" : "From notes")}</p>
       </div>
       <div className="wm-discovery-completion-card wm-ui-card" aria-label="Discovery completion">

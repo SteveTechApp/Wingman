@@ -1,4 +1,5 @@
 import { WorkflowPages } from "../components/WorkflowPages";
+import { clearProductIntelligenceIndexCache } from "../lib/productIntelligenceIndexCache";
 import { useEffect, useRef, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import {
@@ -208,6 +209,7 @@ export function ProfilePage() {
   }
 
   async function activateWorkspace(responseSession: WingmanWorkspaceSession | undefined, action: string) {
+    clearProductIntelligenceIndexCache();
     setSession(responseSession ?? null);
     resetProjectBackendSyncSessionState();
 
@@ -273,6 +275,7 @@ export function ProfilePage() {
     setWorkspaceBusy(true);
     try {
       await logoutWingmanWorkspace();
+      clearProductIntelligenceIndexCache();
       setSession(null);
       resetProjectBackendSyncSessionState();
       setStatus("Signed out. Projects remain available in this browser.");

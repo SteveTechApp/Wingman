@@ -26,6 +26,8 @@ const DYNAMIC_IMPORT = /import\(\s*["']([^"']+)["']\s*\)/g;
 // tool/CI script rather than another src/ file). Keep this list short and
 // explain each entry — it should shrink over time, not grow.
 const KNOWN_DYNAMIC_ALLOWLIST = new Set([
+  // Coverage audit imported through tools/lib/template-coverage-checklist-entry.ts and template-coverage-scorecard.mjs.
+  "src/wingman2/lib/templateCompletionChecklist.ts",
   // Intentionally retained as the reusable behavioural scenario harness used by scenario tests and future recommendation-readiness integration.
   "src/wingman2/lib/scenarioValidation.ts",
   // Test-only data-source injection harness (governed-profiles coverage-loss scenarios) imported by render regressions, deliberately outside the runtime graph.
@@ -103,7 +105,6 @@ const allSourceFiles = listFilesRecursive(SRC).filter((f) => !isTestFile(f));
 
 const entryPoints = [
   path.join(SRC, "main.tsx"),
-  ...listFilesRecursive(path.join(SRC, "wingman2", "pages")).filter((f) => !isTestFile(f)),
 ].filter((f) => existsSync(f));
 
 const reachable = new Set();
@@ -125,7 +126,7 @@ const candidates = allSourceFiles.filter((f) => SCAN_DIRS.some((dir) => f.starts
 const orphans = candidates.filter((f) => !reachable.has(f) && !KNOWN_DYNAMIC_ALLOWLIST.has(path.relative(root, f).replace(/\\/g, "/")));
 
 if (orphans.length > 0) {
-  console.error(`[orphaned-modules] The following ${orphans.length} module(s) under src/wingman2/lib or src/wingman2/data are unreachable from main.tsx or any page component:`);
+  console.error(`[orphaned-modules] The following ${orphans.length} module(s) under src/wingman2/lib or src/wingman2/data are unreachable from main.tsx through the runtime route graph:`);
   for (const orphan of orphans.sort()) {
     console.error("  - " + path.relative(root, orphan).replace(/\\/g, "/"));
   }
@@ -135,4 +136,4 @@ if (orphans.length > 0) {
   process.exit(1);
 }
 
-console.log(`[orphaned-modules] Checked ${candidates.length} modules under src/wingman2/lib and src/wingman2/data — all reachable from main.tsx or a page component.`);
+console.log(`[orphaned-modules] Checked ${candidates.length} modules under src/wingman2/lib and src/wingman2/data — all reachable from main.tsx through the runtime route graph.`);

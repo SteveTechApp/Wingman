@@ -1712,20 +1712,6 @@ html[data-wingman-route="projects"] .wm-project-detail-anchor {
     border-radius: 8px;
   }
 
-  .wm-templates-page .wm-template-card-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .wm-templates-page .wm-template-card {
-    display: flex;
-    min-height: 330px;
-    padding: 15px;
-    border-radius: 14px;
-    flex-direction: column;
-  }
-
   .wm-templates-page .wm-template-summary,
   .wm-templates-page .wm-template-direction {
     display: -webkit-box;
@@ -1749,12 +1735,6 @@ html[data-wingman-route="projects"] .wm-project-detail-anchor {
   .wm-templates-page .wm-template-actions .wm-button {
     border-radius: 8px;
     padding: 7px 10px;
-  }
-}
-
-@media (min-width: 981px) and (max-width: 1399px) {
-  .wm-templates-page .wm-template-card-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

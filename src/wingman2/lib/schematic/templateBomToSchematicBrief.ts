@@ -213,11 +213,15 @@ function buildProducts(rows: TemplateBomRow[]): SchematicProductBrief[] {
 
   for (const row of wyrestormRows(rows)) {
     const sku = normaliseSku(row.sku);
-    const existing = bySku.get(sku);
+    const operatingMode = /configured as transmitter|source encoder/i.test(row.description + " " + row.role) && sku.includes("-TRX") ? "transmit" : /configured as receiver|display decoder/i.test(row.description + " " + row.role) && sku.includes("-TRX") ? "receive" : undefined;
+    const key = `${sku}:${operatingMode ?? "auto"}:${row.role}`;
+    const existing = bySku.get(key);
     if (existing) {
       existing.quantity = (existing.quantity ?? 1) + row.qty;
     } else {
-      bySku.set(sku, {
+      bySku.set(key, {
+        operatingMode,
+        role: row.role,
         sku,
         label: row.description,
         quantity: row.qty,
@@ -303,12 +307,14 @@ export function templateBomToSchematicBrief(
     id: `template-${template.id}`,
     title: template.name,
     roomType: template.application,
+    independentPresentationLinks: template.concept?.transport === "pods",
     sources,
     displays,
     cameras,
     speakerphones,
     touchPanels,
     products,
+    equipmentScope: activeRows(rows).filter(row => row.sku.startsWith("BY-OTHERS") && !/^BY-OTHERS-(SOURCE|DISPLAY)-\d+$/.test(row.sku)).map(row => ({ id: row.id, label: row.description, quantity: row.qty, model: row.model })),
     ...reqs,
     networkAvailable: reqs.networkAvailable,
   };

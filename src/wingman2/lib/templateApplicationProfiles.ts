@@ -76,6 +76,22 @@ export const TEMPLATE_IMAGE_KEYS: Readonly<Record<string, string>> = Object.free
   "emergency-tactical-coordination-hybrid": "government-briefing-room-v1.png",
   "emergency-dispatch-control-networkhd600": "security-operations-cctv-v1.png",
   "emergency-shared-status-networkhd100": "emergency-shared-status-v1.png",
+  "energy-operations-dashboard-matrix": "discovery-energy-market-v1.png",
+  "energy-shift-briefing-hdbaset": "emergency-station-briefing-v1.png",
+  "energy-training-review-matrix": images.classroom,
+  "energy-visitor-information-matrix": images.signage,
+  "manufacturing-production-status-matrix": "discovery-manufacturing-market-v1.png",
+  "manufacturing-shift-training-hdbaset": images.classroom,
+  "manufacturing-quality-review-matrix": images.boardroom,
+  "logistics-dispatch-information-matrix": "discovery-manufacturing-market-v1.png",
+  "sports-coaching-analysis-matrix": images.boardroom,
+  "sports-esports-review-matrix": images.hybrid,
+  "worship-small-sanctuary-hdbaset": images.hall,
+  "transport-passenger-information-matrix": "discovery-transport-market-v1.png",
+  "broadcast-interview-production-studio": images.multicamera,
+  "broadcast-edit-review-matrix": images.boardroom,
+  "residential-multiroom-entertainment-matrix": images.pub,
+  "residential-home-office-byod": images.huddle,
 });
 
 function imageFor(template: RoomTemplate): string {
@@ -131,7 +147,7 @@ function buildPublishedProfile(template: RoomTemplate, imageKey = imageFor(templ
     canonicalMarket: normalizeTemplateMarket(template.vertical),
     architectureFamily,
     imageKey,
-    userJourney: template.customerNarrative,
+    userJourney: template.story ? `${template.story.requirement} ${template.story.situation}` : template.customerNarrative,
     sizingBasis: sizingBasisFor(template),
     capabilities: capabilitiesFor(template),
     environmentConstraints: [...template.validationItems],
@@ -142,8 +158,11 @@ function buildPublishedProfile(template: RoomTemplate, imageKey = imageFor(templ
   };
 }
 
-/** Reviewed registry materialised from each template's authored application, architecture and BOM. */
-export const TEMPLATE_APPLICATION_PROFILES: Readonly<Record<string, TemplateApplicationProfile>> = Object.freeze(Object.fromEntries(roomTemplates.map((template) => [template.id, buildPublishedProfile(template)])));
+// Build after route modules finish loading: production chunks can share catalogue dependencies.
+let publishedProfiles: Readonly<Record<string, TemplateApplicationProfile>> | undefined;
+export function getTemplateApplicationProfiles(): Readonly<Record<string, TemplateApplicationProfile>> {
+  return publishedProfiles ??= Object.freeze(Object.fromEntries(roomTemplates.map((template) => [template.id, buildPublishedProfile(template)])));
+}
 
 function customProfile(template: RoomTemplate): TemplateApplicationProfile {
   return { ...buildPublishedProfile(template, images.boardroom), canonicalMarket: normalizeTemplateMarket(template.vertical) || "Custom", reviewStatus: "needs-review", reviewNotes: ["Custom template requires technical review before publication."] };
@@ -151,7 +170,7 @@ function customProfile(template: RoomTemplate): TemplateApplicationProfile {
 
 export function getTemplateApplicationProfile(template: RoomTemplate): TemplateApplicationProfile {
   if (template.applicationProfile) return template.applicationProfile;
-  const profile = TEMPLATE_APPLICATION_PROFILES[template.id];
+  const profile = getTemplateApplicationProfiles()[template.id];
   if (profile) return profile;
   if (template.customTemplate) return customProfile(template);
   throw new Error(`Published template "${template.id}" does not have a governed application profile.`);

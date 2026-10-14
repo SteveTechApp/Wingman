@@ -125,8 +125,36 @@ export function roomTemplateEquipment(topology: ProjectTopology): import('../../
     id: device.id, sku: device.thirdParty ? `BY-OTHERS-${device.id}` : device.sku || 'CUSTOM',
     description: device.name, role: device.category, qty: device.quantity, type: 'Validate',
     status: 'validate', manufacturer: device.manufacturer, model: device.sku,
+    productRelationship: device.productRelationship,
     evidence: device.notes || 'Selected during Discovery; specifications require review.',
     notes: `Location: ${topology.locations.find(location => location.id === device.locationId)?.name || 'To confirm'}. ${device.notes || ''}`,
     owner: device.thirdParty ? 'integrator' : 'wyrestorm',
   }));
+}
+
+/** Merge newly generated topology rows into a template BOM without losing its researched SKU evidence. */
+export function mergeRoomTemplateEquipment(
+  existing: import('../../lib/roomTemplates').TemplateBomRow[] = [],
+  generated: import('../../lib/customRoomTemplates').CreateCustomRoomTemplateInput['bom'] = [],
+): import('../../lib/roomTemplates').TemplateBomRow[] {
+  const byId = new Map((generated ?? []).map(row => [row.id, row]));
+  const merged = existing.map(row => {
+    const next = byId.get(row.id);
+    if (!next) return { ...row };
+    byId.delete(row.id);
+    return {
+      ...row,
+      sku: next.sku || row.sku,
+      description: next.description || row.description,
+      role: next.role || row.role,
+      qty: next.qty,
+      manufacturer: next.manufacturer || row.manufacturer,
+      model: next.model || row.model,
+      owner: next.owner || row.owner,
+      productRelationship: next.productRelationship || row.productRelationship,
+      evidence: row.evidence || next.evidence,
+      notes: [row.notes, next.notes].filter(Boolean).join(" "),
+    };
+  });
+  return [...merged, ...byId.values()];
 }

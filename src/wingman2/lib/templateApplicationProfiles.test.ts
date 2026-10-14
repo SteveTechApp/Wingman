@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { roomTemplates } from "./roomTemplates";
-import { getTemplateApplicationProfile, TEMPLATE_APPLICATION_PROFILES, templateDesignFacts } from "./templateApplicationProfiles";
+import { getTemplateApplicationProfile, getTemplateApplicationProfiles, templateDesignFacts } from "./templateApplicationProfiles";
 
 describe("template application profiles", () => {
   it("profiles every published template with a reviewed real-world design basis", () => {
-    expect(Object.keys(TEMPLATE_APPLICATION_PROFILES)).toHaveLength(roomTemplates.length);
+    expect(Object.keys(getTemplateApplicationProfiles())).toHaveLength(roomTemplates.length);
     for (const template of roomTemplates) {
       const profile = getTemplateApplicationProfile(template);
       expect(profile.reviewStatus).toBe("reviewed");

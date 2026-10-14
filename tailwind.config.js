@@ -4,6 +4,8 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  // ProductPitchPage's SKU-cleanup regex is content, not an arbitrary CSS rule.
+  blocklist: ["[-:/]"],
   theme: {
     extend: {},
   },

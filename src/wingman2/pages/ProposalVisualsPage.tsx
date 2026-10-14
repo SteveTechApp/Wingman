@@ -1,7 +1,7 @@
 import { WorkflowPages, useWorkflowPage } from "../components/WorkflowPages";
 import { useMemo, useState } from "react";
 import { Camera, Network, Sparkles, Workflow } from "lucide-react";
-import VisualStudioCanvas from "../components/VisualStudioCanvas";
+import VisualStudioCanvas from "../components/visualStudioCanvasEntry";
 import RoomConceptVisual from "../components/RoomConceptVisual";
 import { saveProposalVisualAsset, useProjectStore, type ProposalVisualKind, type ProposalVisualPurpose } from "../data/projectStore";
 import { buildWholeProjectVisualDiagram } from "../lib/schematic/wholeProjectVisualDiagram";

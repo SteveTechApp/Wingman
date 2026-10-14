@@ -17,9 +17,16 @@ describe("template proposal compiler", () => {
     expect(proposal.productSpecifications?.some((item) => item.sku.includes("NHD"))).toBe(true);
     const scope = proposal.thirdPartyScope?.map((item) => `${item.category} ${item.description}`).join(" | ") ?? "";
     expect(scope).toMatch(/CCTS|cabl/i);
-    expect(scope).toMatch(/installation labour/i);
+    expect(scope).toMatch(/first fix engineering/i);
+    expect(scope).toMatch(/second fix engineering/i);
     expect(scope).toMatch(/project management/i);
     expect(scope).toMatch(/commissioning/i);
     expect(scope).toMatch(/CAD\/Visio|drawing|as-built/i);
+  });
+  it("retains service exclusions without adding generic installation scope", () => {
+    const template = roomTemplates[0];
+    const rows = template.bom.map(row => row.scopeSection === "engineering" ? { ...row, status: "excluded" as const } : row);
+    const proposal = compileTemplateApplicationProposal(template, rows);
+    expect(proposal.thirdPartyScope?.some(item => /first fix|second fix|installation labour|maintenance agreement/i.test(item.description))).toBe(false);
   });
 });

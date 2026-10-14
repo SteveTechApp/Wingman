@@ -92,9 +92,9 @@ describe("complete deployment concepts", () => {
     expect(discas.description).toContain("analytical decision-making");
   });
 
-  it("gives all 59 designs a physical environment, explicit I/O and a complete editable system scope", () => {
-    expect(roomTemplates).toHaveLength(59);
-    expect(new Set(roomTemplates.map((t) => t.id)).size).toBe(59);
+  it("gives every design a physical environment, explicit I/O and a complete editable system scope", () => {
+    expect(roomTemplates.length).toBeGreaterThanOrEqual(59);
+    expect(new Set(roomTemplates.map((t) => t.id)).size).toBe(roomTemplates.length);
     for (const template of roomTemplates) {
       const c = template.concept!;
       expect(c.statement, template.id).toContain("Assumed setting:");
@@ -104,7 +104,7 @@ describe("complete deployment concepts", () => {
       expect(c.sourceCount).toBe(c.sources.reduce((n, row) => n + row[1], 0));
       expect(c.outputCount).toBe(c.outputs.reduce((n, row) => n + row[1], 0));
       expect(new Set(template.bom.map((row) => row.id)).size).toBe(template.bom.length);
-      for (const sku of ["MOUNTS", "ROOM-CONTROL", "POWER-RACK", "SIGNAL-CABLING", "LABOUR", "COMMISSIONING", "DESIGN"]) {
+      for (const sku of ["MOUNTS", "ROOM-CONTROL", "POWER-RACK", "SIGNAL-CABLING", "SERVICE-FIRST-FIX", "SERVICE-SECOND-FIX", "SERVICE-RACK-BUILD", "SERVICE-COMMISSIONING", "SERVICE-DRAWINGS"]) {
         const scope = template.bom.find((r) => r.sku === `BY-OTHERS-${sku}`);
         expect(scope, `${template.id}: ${sku}`).toMatchObject({ type: "Validate", status: "validate", owner: "integrator" });
       }

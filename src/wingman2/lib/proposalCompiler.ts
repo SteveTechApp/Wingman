@@ -1,4 +1,5 @@
 import { getProductStory } from "../data/productStories";
+import { templateReviewDesignNotes } from "./templateReviewDesignNotes";
 import { readDiscoveryAudioDesign } from "./discoveryAudioDesign";
 import type {
   StoredApplicationProposal,
@@ -52,15 +53,20 @@ function productSpecifications(rows: Array<TemplateBomRow | SalesBomRow>): Store
   });
 }
 
-function thirdPartyScope(rows: Array<TemplateBomRow | SalesBomRow>): StoredProposalScopeItem[] {
+function thirdPartyScope(rows: Array<TemplateBomRow | SalesBomRow>, includeDefaults = true): StoredProposalScopeItem[] {
   const mapped: StoredProposalScopeItem[] = rows.filter((row) => row.sku.startsWith("BY-OTHERS")).map((row) => ({
     category: row.role,
     description: [row.description, "manufacturer" in row ? row.manufacturer : "", "model" in row ? row.model : ""].filter(Boolean).join(" · "),
     responsibility: "owner" in row && row.owner ? row.owner : "Integrator / customer / appointed specialist",
     status: "by-others" as const,
     quantity: row.qty,
-    notes: row.notes,
+    notes: [
+      row.notes,
+      "sourceUrl" in row && row.sourceUrl ? `Product source: ${row.sourceUrl}${row.sourceCheckedOn ? ` (read ${row.sourceCheckedOn})` : ""}.` : "",
+      "specifications" in row && row.specifications ? `Specifications: ${row.specifications.replace(/\n/g, "; ")}.` : "",
+    ].filter(Boolean).join(" "),
   }));
+  if (!includeDefaults) return mapped;
   const required = [
     ["Cabling and connectors", "Cable, termination, patching, containment, certification and consumables"],
     ["Installation labour", "Physical installation, coordination, access equipment and making good"],
@@ -79,7 +85,8 @@ function thirdPartyScope(rows: Array<TemplateBomRow | SalesBomRow>): StoredPropo
 export function compileTemplateApplicationProposal(template: RoomTemplate, rows: TemplateBomRow[]): StoredApplicationProposal {
   const activeRows = rows.filter((row) => row.status !== "excluded" && row.qty > 0);
   const value = marketValue(template.vertical);
-  const userJourney = [
+  const story = template.story;
+  const userJourney = story?.roomInUse?.length ? story.roomInUse : [
     `Users enter the ${template.application.toLowerCase()} with the room ready for its normal operating mode.`,
     "Sources, collaboration devices or operational feeds are selected through the agreed user interface.",
     "WyreStorm distribution carries the selected content to the required display destinations while audio, control and specialist devices operate through their defined third-party interfaces.",
@@ -89,7 +96,7 @@ export function compileTemplateApplicationProposal(template: RoomTemplate, rows:
     vertical: template.vertical,
     application: template.application,
     executiveSummary: `${template.customerNarrative} The proposal is designed to deliver ${value}.`,
-    customerNeed: template.summary,
+    customerNeed: story?.requirement ?? template.summary,
     solutionOverview: [template.concept?.rationale, template.architecture, template.concept?.audio?.experience].filter(Boolean).join(" "),
     benefits: [
       { title: "Operational outcome", detail: value },
@@ -97,7 +104,7 @@ export function compileTemplateApplicationProposal(template: RoomTemplate, rows:
       { title: "Lifecycle value", detail: "A documented architecture with explicit dependencies, ownership and a path for future expansion." },
     ],
     userJourney,
-    technicalFacts: template.designNotes.map((note) => `${note.label}: ${note.description}`),
+    technicalFacts: [...(template.concept ? [`Room dimensions and layout: ${template.concept.environment}`, `Construction and site conditions: ${template.concept.construction}`, `Users and capacity: ${template.scale}`] : []), ...templateReviewDesignNotes(template, rows).map((note) => `${note.label}: ${note.description}`)],
     architectureDiagram: activeRows.map((row) => `${row.role}: ${row.qty} × ${row.sku}`).join(" → "),
     acceptanceCriteria: [
       "Every agreed source routes to its nominated display or output.",
@@ -108,10 +115,12 @@ export function compileTemplateApplicationProposal(template: RoomTemplate, rows:
     visualBriefs: [{ title: `${template.name} room concept`, purpose: "Illustrate the intended market application and operating environment." }],
     verifiedDesignParameters: template.concept ? [] : template.designNotes.map((note) => note.label),
     deploymentConditions: [...template.assumptions, ...template.validationItems.map((item) => `Validate: ${item}`)],
-    marketStory: `For this ${template.vertical.toLowerCase()} application, success is measured by ${value}. The technology therefore supports the room's operational story rather than acting as an isolated equipment list.`,
+    marketStory: story
+      ? `For this ${template.vertical.toLowerCase()} application, success is measured by ${value}. ${story.successLooksLike.join(" ")} Decisions still open with the customer: ${story.customerDecisions.join(" ")}`
+      : `For this ${template.vertical.toLowerCase()} application, success is measured by ${value}. The technology therefore supports the room's operational story rather than acting as an isolated equipment list.`,
     roomVisualUrl: visualFor(template),
     productSpecifications: productSpecifications(activeRows),
-    thirdPartyScope: thirdPartyScope(activeRows),
+    thirdPartyScope: thirdPartyScope(activeRows, false),
   };
 }
 

@@ -1,3 +1,4 @@
+import type { SchematicModel } from "./schematic/schematicTypes";
 export type VisualDiagramKind =
   | "av-block"
   | "networkhd-topology"
@@ -63,4 +64,5 @@ export interface VisualDiagramModel {
   missingInformation: string[];
   quoteRisks: string[];
   nextActions: string[];
+  technicalSchematic?: SchematicModel;
 }

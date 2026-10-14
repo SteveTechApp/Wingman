@@ -15,7 +15,6 @@
   --wm-ref-purple: #a279ff;
   --wm-ref-amber: #ffad32;
   --wm-ref-green: #31daa6;
-  --wm-ref-radius: 14px;
   --wm-font: "Geist Variable", Geist, Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -820,6 +819,6 @@ html[data-wingman-route="dashboard"] .wm-dashboard-content-grid {
 .compare-requirement--fails [role="cell"]:last-child { color: #ff7c86; }
 
 @media (max-width: 760px) {
-  .compare-compact-result__coverage { grid-template-columns: 1fr; }
-  .compare-native-requirement-ledger .compare-native-core-matrix-row { grid-template-columns: 1fr; }
+  .compare-compact-result__coverage,
+.compare-native-requirement-ledger .compare-native-core-matrix-row { grid-template-columns: 1fr; }
 }

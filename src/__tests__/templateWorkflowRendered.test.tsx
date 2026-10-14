@@ -1,13 +1,16 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { saveRoomTemplateCopy } from "../wingman2/lib/customRoomTemplates";
+import { saveCustomRoomTemplate } from "../wingman2/lib/customRoomTemplates";
+import { createBlankProjectTopology } from "../wingman2/lib/projectTopology";
 import { roomTemplates } from "../wingman2/lib/roomTemplates";
 import { templateMatchesMarketFilter } from "../wingman2/lib/templateMarkets";
 import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
 import { TemplatesPage } from "../wingman2/pages/TemplatesPage";
 import { getTemplateApplicationProfile } from "../wingman2/lib/templateApplicationProfiles";
+import { projectScopeSection } from "../wingman2/lib/projectScope";
 
 function renderTemplateRoutes(initialPath = "/wingman/templates") {
   return render(
@@ -25,6 +28,10 @@ describe("template workflow wiring", () => {
     window.localStorage.clear();
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("browses BOM-backed templates and opens the selected review page", () => {
     const template = roomTemplates.find((candidate) => candidate.vertical === "Corporate" && candidate.bom.some((row) => row.sku === "MX-0404-HDMI"));
 
@@ -33,8 +40,8 @@ describe("template workflow wiring", () => {
 
     fireEvent.click(screen.getByRole("button", { name: template!.name }));
     expect(screen.getByRole("heading", { name: template!.name, level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Equipment" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("heading", { name: "Equipment", level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Room design" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("heading", { name: "Room brief", level: 2 })).toBeInTheDocument();
   });
 
   it("shows a clear not-found state for an invalid template ID", () => {
@@ -61,11 +68,44 @@ describe("template workflow wiring", () => {
 
     renderTemplateRoutes(`/wingman/templates/${template.id}`);
     expect(screen.getByRole("img", { name: `${template.name} application` })).toBeVisible();
-    fireEvent.click(screen.getByRole("tab", { name: "Overview" }));
-    expect(screen.getByRole("heading", { name: "Room concept" })).toBeVisible();
-    expect(screen.getAllByText(profile.architectureFamily).length).toBeGreaterThan(0);
-    expect(screen.getByText(template.concept!.statement)).toBeVisible();
-    expect(screen.getByRole("region", { name: "Room concept statement" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "What the room needs to do" })).toBeVisible();
+    expect(screen.getByText(template.story!.requirement)).toBeVisible();
+    expect(screen.getByText(template.architecture)).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Edit room brief" }));
+    expect(screen.getByLabelText("Room dimensions and layout")).toHaveValue(template.concept!.environment);
+    expect(screen.getByLabelText("Customer requirement and room use")).toHaveValue(template.story!.requirement);
+  });
+
+  it("populates a third-party BOM row from a manufacturer product URL", async () => {
+    const template = roomTemplates[0];
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      ok: true,
+      manufacturer: "Example Displays",
+      model: "PROPANEL-65",
+      title: "ProPanel 65 - Commercial 4K Display | Example Displays",
+      summary: "ProPanel 65 is a 65-inch commercial 4K display rated for 16/7 operation.",
+      keySpecs: ["65-inch 4K UHD panel", "2 × HDMI inputs", "16/7 operating hours"],
+      resolvedUrl: "https://www.example-displays.com/products/propanel-65",
+      fetchedAt: "2026-10-02T09:00:00.000Z",
+    }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderTemplateRoutes(`/wingman/templates/${template.id}`);
+    fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
+    fireEvent.change(screen.getByLabelText("Schedule section"), { target: { value: "displays" } });
+    fireEvent.click(screen.getAllByRole("button", { name: /^Edit / })[0]);
+
+    fireEvent.change(screen.getByLabelText("Product page URL"), { target: { value: "https://www.example-displays.com/products/propanel-65" } });
+    fireEvent.click(screen.getByRole("button", { name: "Read product details" }));
+
+    expect(await screen.findByText(/Product details added as suggestions/)).toBeVisible();
+    expect(fetchMock).toHaveBeenCalledWith("/api/wingman/equipment/inspect-product-page", expect.objectContaining({ method: "POST" }));
+    expect(screen.getByText("Example Displays PROPANEL-65")).toBeVisible();
+    expect(screen.getByRole("link", { name: /Open product page/ })).toHaveAttribute(
+      "href",
+      "https://www.example-displays.com/products/propanel-65",
+    );
+    expect(screen.getAllByText(/Source: https:\/\/www.example-displays.com\/products\/propanel-65 \(read 2026-10-02\)/).length).toBeGreaterThan(0);
   });
 
   it("saves an adjusted room design as a reusable custom template", () => {
@@ -94,21 +134,64 @@ describe("template workflow wiring", () => {
     expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();
   });
 
+  it("opens a custom template with its detailed room design intact", () => {
+    const template = roomTemplates[0];
+    const topology = createBlankProjectTopology();
+    topology.locations.push({ id: "display-wall", name: "Front display wall", type: "display-wall" });
+    topology.devices.push({
+      id: "saved-display", name: "Main display", category: "display", locationId: "display-wall",
+      manufacturer: "Example AV", sku: "EX-100", productRelationship: "complementary", quantity: 1,
+      thirdParty: true, status: "assumed", notes: "Confirm wall bracket compatibility.",
+    });
+    topology.devices.push({
+      id: "saved-source", name: "Room PC", category: "source", locationId: "display-wall",
+      manufacturer: "Example AV", sku: "EX-PC", productRelationship: "complementary", quantity: 1,
+      thirdParty: true, status: "assumed",
+    });
+    topology.connections.push({
+      id: "saved-route", fromDeviceId: "saved-source", toDeviceId: "saved-display", fromPort: "HDMI 1",
+      toPort: "HDMI 1", services: ["video"], transport: "hdmi", lengthMode: "estimated", lengthMetres: 9,
+      status: "assumed", notes: "Reuse existing containment if suitable.",
+    });
+    const saved = saveCustomRoomTemplate({
+      ...template, name: "Room design to edit", topology,
+      discoveryAnswers: { opportunity: "meeting-room" }, discoveryNotes: { opportunity: "Keep room operation simple." },
+    }, { sourceTemplateId: template.id });
+    renderTemplateRoutes();
+
+    const card = screen.getByRole("heading", { name: saved.name }).closest("article");
+    expect(card).not.toBeNull();
+    fireEvent.click(within(card!).getByText("Manage custom template"));
+    fireEvent.click(within(card!).getByRole("button", { name: "Edit" }));
+
+    const handoff = JSON.parse(window.sessionStorage.getItem("wingman:discovery-handoff") || "null");
+    expect(handoff).toMatchObject({
+      mode: "template-edit", templateId: saved.id,
+      answers: { opportunity: "meeting-room" }, notes: { opportunity: "Keep room operation simple." },
+      topology: {
+        locations: [{ id: "display-wall" }], devices: [{ id: "saved-display", sku: "EX-100" }, { id: "saved-source", sku: "EX-PC" }],
+        connections: [{ id: "saved-route", lengthMetres: 9 }],
+      },
+      bom: JSON.parse(JSON.stringify(saved.bom)),
+    });
+  });
+
   it("keeps an excluded WyreStorm option in its equipment group", () => {
     const template = roomTemplates[0];
     const optionalRow = { ...template.bom[0], id: "optional-dongle", sku: "APO-DG2", description: "Wireless presentation option", type: "Optional" as const, status: "optional" };
     const saved = saveRoomTemplateCopy(template, [...template.bom, optionalRow]);
     renderTemplateRoutes(`/wingman/templates/${saved.id}`);
 
-    fireEvent.click(screen.getByRole("tab", { name: "Equipment" }));
-    fireEvent.click(screen.getByRole("button", { name: "Optional equipment group" }));
+    fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
+    fireEvent.change(screen.getByLabelText("Schedule section"), { target: { value: projectScopeSection(optionalRow) } });
+    fireEvent.change(screen.getByLabelText("Schedule items"), { target: { value: "optional" } });
 
-    const fibreRow = screen.getByText("APO-DG2").closest("article");
+    const fibreRow = screen.getByText("Wireless presentation option").closest("article");
     expect(fibreRow).not.toBeNull();
-    fireEvent.click(within(fibreRow!).getByRole("checkbox", { name: "Include APO-DG2" }));
+    fireEvent.click(within(fibreRow!).getByRole("checkbox", { name: "Include Wireless presentation option" }));
 
-    expect(screen.getByText("APO-DG2")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Third-party scope equipment group" }));
-    expect(screen.queryByText("APO-DG2")).not.toBeInTheDocument();
+    expect(screen.getByText("Wireless presentation option")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Schedule items"), { target: { value: "others" } });
+    expect(screen.queryByText("Wireless presentation option")).not.toBeInTheDocument();
   });
 });

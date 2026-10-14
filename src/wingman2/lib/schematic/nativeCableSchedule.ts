@@ -139,18 +139,8 @@ export function buildNativeCableSchedule(schematic: SchematicModel): NativeCable
     const fromLabel = nodeLabel(from);
     const toLabel = nodeLabel(to);
 
-    const maxLen = TRANSPORT_MAX_LENGTH[transport];
-    // Network-like transports always need site confirmation (switch, VLAN, multicast)
-    // Point-to-point transports with a governed profile are confirmed
-    const isNetworkTransport = transport === "av-over-ip" || transport === "dante" || transport === "usb-over-ip" || transport === "network";
-    const validationStatus: NativeCableRow["validationStatus"] =
-      transport === "unknown"
-        ? "unknown"
-        : isNetworkTransport
-          ? "needs-site-confirmation"
-          : maxLen !== null
-            ? "confirmed"
-            : "needs-site-confirmation";
+    const maxLen = conn.maxLengthM ?? TRANSPORT_MAX_LENGTH[transport];
+    const validationStatus: NativeCableRow["validationStatus"] = transport === "unknown" ? "unknown" : "needs-site-confirmation";
 
     rows.push({
       label: `${fromLabel} \u2192 ${toLabel}`,
@@ -162,7 +152,7 @@ export function buildNativeCableSchedule(schematic: SchematicModel): NativeCable
       fromSku: from.sku,
       toSku: to.sku,
       required: conn.required,
-      connectors: TRANSPORT_CONNECTORS[transport],
+      connectors: conn.fromPort && conn.toPort ? `${conn.fromPort} to ${conn.toPort}` : TRANSPORT_CONNECTORS[transport],
       maxLengthMetres: maxLen,
       validationStatus,
     });

@@ -43,7 +43,7 @@ export type ConstraintViolation = {
 /*  Cable length validation                                            */
 /* ------------------------------------------------------------------ */
 
-type LooseConnection = { id: string; from: string; to: string; signal: string; transport: string; label: string; required: boolean };
+type LooseConnection = { maxLengthM?: number; id: string; from: string; to: string; signal: string; transport: string; label: string; required: boolean };
 type LooseModel = { nodes: SchematicNode[]; connections: LooseConnection[] };
 
 function validateCableLengths(
@@ -53,7 +53,7 @@ function validateCableLengths(
   const violations: ConstraintViolation[] = [];
 
   for (const conn of model.connections) {
-    const maxLen = TRANSPORT_MAX_LENGTH_M[conn.transport];
+    const maxLen = conn.maxLengthM ?? TRANSPORT_MAX_LENGTH_M[conn.transport];
     if (maxLen === undefined || !Number.isFinite(maxLen)) continue;
 
     // Use the brief's max distance if available, otherwise flag for confirmation
@@ -239,7 +239,7 @@ function validatePortCompatibility(
 /* ------------------------------------------------------------------ */
 
 export type SchematicConstraintInput = {
-  model: Omit<SchematicModel, "connections"> & { connections: Array<{ id: string; from: string; to: string; signal: SchematicSignalKind; transport: SchematicTransportKind; label: string; required: boolean; points?: SchematicPoint[] }> };
+  model: Omit<SchematicModel, "connections"> & { connections: Array<{ id: string; from: string; to: string; maxLengthM?: number; signal: SchematicSignalKind; transport: SchematicTransportKind; label: string; required: boolean; points?: SchematicPoint[] }> };
   products: Array<{ sku: string; quantity?: number }>;
   maxSignalDistanceM?: number;
 };

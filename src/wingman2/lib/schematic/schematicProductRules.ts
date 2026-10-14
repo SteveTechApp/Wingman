@@ -38,7 +38,10 @@ export function networkHdSeries(sku: string): "100" | "150" | "500" | "600" | "u
 export function productNodeKind(product: SchematicProductBrief): SchematicNodeKind {
   const sku = normaliseSku(product.sku);
 
-  if (sku.includes("CTL")) {
+  if (sku === "NHD-USB-TRX") return "usb-bridge";
+  if (/^APO-DG[12]$/.test(sku)) return "accessory";
+
+  if (isNetworkHdSku(sku) && sku.includes("CTL")) {
     return "av-over-ip-controller";
   }
 
@@ -50,6 +53,10 @@ export function productNodeKind(product: SchematicProductBrief): SchematicNodeKi
   // a dedicated TX/RX - see schematicEndpointCapacity().
   if (sku.includes("-TRX") && isNetworkHdSku(sku)) {
     return "av-over-ip-transceiver";
+  }
+
+  if (sku.includes("NHD-0401-MV") || sku.includes("SW-020") || sku.includes("-VW")) {
+    return "video-wall-processor";
   }
 
   if (sku.includes("-TX") || sku.includes("-T")) {
@@ -64,9 +71,7 @@ export function productNodeKind(product: SchematicProductBrief): SchematicNodeKi
     }
   }
 
-  if (sku.includes("NHD-0401-MV") || sku.includes("SW-020") || sku.includes("-VW")) {
-    return "video-wall-processor";
-  }
+
 
   if (sku.startsWith("MX-") || sku.startsWith("MXV-")) {
     return "matrix";
@@ -158,7 +163,7 @@ export function defaultTransportForDistance(distanceM: number | undefined): Sche
 }
 
 export function hasAvoipProducts(products: SchematicProductBrief[] = []): boolean {
-  return products.some((product) => isNetworkHdSku(product.sku));
+  return products.some((product) => isNetworkHdSku(product.sku) && ["av-over-ip-encoder", "av-over-ip-decoder", "av-over-ip-transceiver"].includes(productNodeKind(product)));
 }
 
 export function hasDedicatedVideoWallProcessor(products: SchematicProductBrief[] = []): boolean {

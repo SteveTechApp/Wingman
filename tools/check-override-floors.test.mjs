@@ -42,6 +42,9 @@ describe("specFloor", () => {
 
 const CLEAN_PACKAGE = {
   overrides: {
+    "source-map-js": "^1.2.2",
+    "postcss-selector-parser": "^7.1.6",
+    "proxy-addr": "^2.0.8",
     "brace-expansion": "^1.1.21",
     browserslist: "^4.28.8",
     "postcss-selector-parser@^6.0.10": "^6.1.4",
@@ -52,9 +55,11 @@ const CLEAN_PACKAGE = {
 
 const CLEAN_LOCK = {
   packages: {
+    "node_modules/source-map-js": { version: "1.2.2" },
+    "node_modules/proxy-addr": { version: "2.0.8" },
     "node_modules/brace-expansion": { version: "1.1.21" },
     "node_modules/browserslist": { version: "4.28.8" },
-    "node_modules/postcss-selector-parser": { version: "6.1.4" },
+    "node_modules/postcss-selector-parser": { version: "7.1.6" },
     "node_modules/fast-uri": { version: "3.1.8" },
     "node_modules/js-yaml": { version: "4.3.2" },
   },
@@ -75,7 +80,7 @@ describe("collectOverrideFloorProblems", () => {
     const lock = {
       packages: {
         ...CLEAN_LOCK.packages,
-        "node_modules/shadcn/node_modules/postcss-selector-parser": { version: "7.1.4" },
+        "node_modules/shadcn/node_modules/postcss-selector-parser": { version: "7.1.6" },
       },
     };
     expect(collectOverrideFloorProblems(CLEAN_PACKAGE, lock)).toEqual([]);
@@ -292,7 +297,7 @@ function sandboxPackageJson(overrides) {
     private: true,
     // Mirrors the real manifest: every floor row present and at its floor,
     // so a drill's under-floor scenario is the only thing that can trip.
-    overrides: { "brace-expansion": "^1.1.21", "js-yaml": "^4.3.2", ...overrides },
+    overrides: { ...CLEAN_PACKAGE.overrides, ...overrides },
     dependencies: { autoprefixer: "^10.4.20" },
   };
 }

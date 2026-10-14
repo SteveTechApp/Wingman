@@ -24,6 +24,13 @@
  */
 export const TRACKED_ENTRIES = [
   {
+    id: "chunk:project-core",
+    kind: "chunk",
+    match: "wm-project-core",
+    label: "Project core chunk",
+    remediation: "Keep catalogue evidence, product stories and action-specific compilation outside project state and commands.",
+  },
+  {
     id: "chunk:compare-engine",
     kind: "chunk",
     match: "wm-compare-engine",

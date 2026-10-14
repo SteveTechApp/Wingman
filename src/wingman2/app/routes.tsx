@@ -18,11 +18,10 @@ function fromNamedExport<TModule extends Record<string, unknown>>(
     }));
 }
 
-const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
+const pageRegistry: Record<Exclude<WingmanRouteKey, "documents" | "salesHelper" | "callCards" | "battleCards" | "support" | "quoteSafetyDashboard" | "analyticsDashboard">, LazyPageComponent> = {
   dashboard: lazy(fromNamedExport(() => import("../pages/DashboardPage"), "DashboardPage")),
   callCoach: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "CallCoachPage")),
   products: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "ProductsPage")),
-  documents: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "DocumentsPage")),
   responsePack: lazy(fromNamedExport(() => import("../pages/ProposalPage"), "ProposalPage")),
   learn: lazy(fromNamedExport(() => import("../pages/TrainingPortalPage"), "TrainingPortalPage")),
   projects: lazy(fromNamedExport(() => import("../pages/ProjectsPage"), "ProjectsPage")),
@@ -34,23 +33,18 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   compare: lazy(() => import("../pages/ComparePageNew")),
   templates: lazy(fromNamedExport(() => import("../pages/TemplatesPage"), "TemplatesPage")),
   videowall: lazy(() => import("../pages/VideowallBuilderPage")),
-  salesHelper: lazy(fromNamedExport(() => import("../pages/SalesHelperPage"), "SalesHelperPage")),
   glossary: lazy(fromNamedExport(() => import("../pages/GlossaryPage"), "GlossaryPage")),
-  callCards: lazy(fromNamedExport(() => import("../pages/CallCardsPage"), "CallCardsPage")),
   productCallCards: lazy(() => import("../pages/ProductCallCardsPage")),
-  battleCards: lazy(() => import("../pages/BattleCardsPage")),
   ingest: lazy(fromNamedExport(() => import("../pages/IngestPage"), "IngestPage")),
   proposal: lazy(fromNamedExport(() => import("../pages/ProposalPage"), "ProposalPage")),
-  support: lazy(fromNamedExport(() => import("../pages/SupportPage"), "SupportPage")),
   profile: lazy(() => import("../pages/ProfilePage")),
   proposalVisuals: lazy(() => import("../pages/ProposalVisualsPage")),
-  quoteSafetyDashboard: lazy(() => import("../pages/QuoteSafetyDashboardPage")),
-  analyticsDashboard: lazy(() => import("../pages/AnalyticsDashboardPage")),
   terms: lazy(fromNamedExport(() => import("../pages/TermsPage"), "TermsPage")),
   approvalQueue: lazy(fromNamedExport(() => import("../pages/ApprovalQueuePage"), "ApprovalQueuePage")),
 };
 
 const ProjectDetailRoute = lazy(fromNamedExport(() => import("../pages/ProjectDetailPage"), "ProjectDetailPage"));
+const TemplateBuilderRoute = lazy(fromNamedExport(() => import("../pages/TemplateBuilderPage"), "TemplateBuilderPage"));
 const TemplateReviewRoute = lazy(fromNamedExport(() => import("../pages/TemplateReviewPage"), "TemplateReviewPage"));
 const DataManagerRoute = lazy(fromNamedExport(() => import("../pages/DataManagerPage"), "DataManagerPage"));
 
@@ -94,6 +88,8 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "visual-studio", element: <Navigate to="/wingman/proposal-visuals?mode=technical-schematic" replace /> },
       { path: "visual-design", element: <Navigate to="/wingman/proposal-visuals?mode=technical-schematic" replace /> },
       { path: "projects/:projectId", element: routeElement(ProjectDetailRoute) },
+      { path: "templates/new", element: routeElement(TemplateBuilderRoute) },
+      { path: "templates/:templateId/edit", element: routeElement(TemplateBuilderRoute) },
       { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
       { path: "product-families/:familyId", element: routeElement(pageRegistry.productFamilies) },
       { path: "admin/data-manager", element: routeElement(DataManagerRoute) },
@@ -107,7 +103,7 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "analytics", element: <Navigate to="/wingman/admin/data-manager?view=analytics" replace /> },
       ...routeCatalog.filter((route) => route.key !== "dashboard" && !consolidatedRedirectKeys.has(route.key)).map((route) => ({
         path: route.key === "productCallCards" ? `${route.segment}/*` : route.segment,
-        element: routeElement(pageRegistry[route.key]),
+        element: routeElement(pageRegistry[route.key as keyof typeof pageRegistry]),
       })),
     ],
   },

@@ -450,7 +450,7 @@ describe("guard 5 — phantom SKU (missing from profiles and catalogue)", () => 
   });
 
   it("verifies every published template has no phantom SKUs", () => {
-    expect(roomTemplates).toHaveLength(59);
+    expect(roomTemplates.length).toBeGreaterThanOrEqual(75);
     for (const template of roomTemplates) {
       const result = checkSkusInCatalogue(skusFromTemplate([], template));
       expect(result.ok, `${template.name}: ${result.missing.join(", ")}`).toBe(true);

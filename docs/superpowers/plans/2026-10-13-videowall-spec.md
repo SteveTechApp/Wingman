@@ -1,0 +1,5 @@
+# Videowall builder restoration specification
+
+Restore visible access from both Opportunity views and both home views. Retain the existing /wingman/videowall route and project handoff. Offer four applications: LCD with a feed per panel, looped LCD with display-owned tiling, an HDMI feed into an LED processor, and one large projector. Compare scaling matrices, 1Gb NetworkHD distribution, and native multiview receivers. Provide source/device quantities, layout illustrations, source links, limitations and a saved project summary. Do not imply interchangeable NetworkHD families or that a multiview receiver replaces LED mapping, LCD tiling, or projection geometry processing. Preserve unrelated running-checkout changes when syncing.
+
+The existing page contains stale hard-coded recommendations. Replace that page with a focused requirements/options workspace using a separately tested decision module; keep the route and project save API. Keep the established dark navy/aqua Wingman design. Use a display canvas preview rather than decorative imagery. Presets are conceptual previews, not device control.

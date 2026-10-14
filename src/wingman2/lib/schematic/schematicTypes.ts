@@ -66,6 +66,12 @@ export interface SchematicConnection {
   label: string;
   required: boolean;
   points: SchematicPoint[];
+  fromPort?: string;
+  toPort?: string;
+  cableId?: string;
+  bidirectional?: boolean;
+  maxLengthM?: number;
+  evidence?: "manufacturer" | "unresolved";
   proposalSafeNote?: string;
 }
 
@@ -98,6 +104,8 @@ export interface SchematicEndpointBrief {
 }
 
 export interface SchematicProductBrief {
+  operatingMode?: "transmit" | "receive";
+  role?: string;
   sku: string;
   label?: string;
   quantity?: number;
@@ -107,7 +115,9 @@ export interface SchematicProjectBrief {
   id?: string;
   title: string;
   roomType?: string;
+  independentPresentationLinks?: boolean;
   sources?: SchematicEndpointBrief[];
+  equipmentScope?: Array<{ id: string; label: string; quantity: number; model?: string }>;
   displays?: SchematicEndpointBrief[];
   cameras?: SchematicEndpointBrief[];
   speakerphones?: SchematicEndpointBrief[];

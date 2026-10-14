@@ -33,7 +33,7 @@ describe("feature route consolidation", () => {
 
   it("owns Battle Cards under Compare", () => {
     const compare = read("src/wingman2/pages/ComparePageNew.tsx");
-    expect(compare).toContain('new URLSearchParams(window.location.search).get("mode") === "battle-cards"');
+    expect(compare).toContain('searchParams.get("mode") === "battle-cards"');
     expect(compare).toContain("<BattleCardsPage />");
   });
 });

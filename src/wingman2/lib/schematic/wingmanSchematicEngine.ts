@@ -1,3 +1,5 @@
+import { expandMatrixDisplayPaths } from "./matrixDisplayPaths";
+import { buildHdbasetPresentationSchematic } from "./hdbasetPresentationSchematic";
 import type {
   SchematicBomHint,
   SchematicConnection,
@@ -13,7 +15,6 @@ import type {
 import { applySchematicLayout } from "./schematicLayoutEngine";
 import { validateSchematicConstraints, violationsToWarnings } from "./schematicConstraintValidator";
 import {
-  defaultTransportForDistance,
   hasAvoipProducts,
   hasDedicatedVideoWallProcessor,
   mixedNetworkHdSeriesWarning,
@@ -26,6 +27,8 @@ import {
 
 type DraftConnection = Omit<SchematicConnection, "points">;
 export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicModel {
+  const presentation = buildHdbasetPresentationSchematic(brief);
+  if (presentation) return presentation;
   const assumptions: string[] = [];
   const warnings: SchematicWarning[] = [];
   const bomHints: SchematicBomHint[] = [];
@@ -36,9 +39,7 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
   const usesAvoip = hasAvoipProducts(products);
   const hasVideoWall = Boolean(brief.videoWall?.enabled);
   const hasWallProcessor = hasDedicatedVideoWallProcessor(products);
-  const transport = usesAvoip
-    ? "av-over-ip"
-    : defaultTransportForDistance(brief.maxSignalDistanceM);
+  const transport: SchematicTransportKind = "unknown";
 
   if (!brief.sources?.length) {
     assumptions.push("No explicit source list was supplied, so the schematic uses one generic local source.");
@@ -68,7 +69,7 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
       required: true,
     });
 
-    nodes.push(makeNode("nhd-controller", "NHD-CTL-PRO", "av-over-ip-controller", 2, 0, {
+    nodes.push(makeNode("nhd-controller", "NHD-CTL-PRO", "av-over-ip-controller", 1, 0, {
       sku: "NHD-CTL-PRO",
       required: true,
       note: "Required for NetworkHD system control.",
@@ -115,7 +116,8 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
 
   nodes.push(...speakerphoneNodes);
 
-  const productNodes = createProductNodes(products, usesAvoip, hasVideoWall);
+  const endpointSkus = new Set([...cameraNodes, ...speakerphoneNodes].map(node => node.sku).filter(Boolean));
+  const productNodes = createProductNodes(products.filter(product => !endpointSkus.has(product.sku)), usesAvoip, hasVideoWall);
   nodes.push(...productNodes);
 
   const switchingNode = chooseSwitchingNode(productNodes, usesAvoip, hasVideoWall, hasWallProcessor);
@@ -141,7 +143,7 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
         : [{ label: "Room display" }],
     fallbackKind: hasVideoWall ? "display" : "display",
     idPrefix: "display",
-    column: 3,
+    column: usesAvoip ? 4 : 3,
     startLane: 0,
     required: true,
   });
@@ -178,98 +180,88 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
   const hasConfirmedAvoipEndpoints = usesAvoip && (encoderInputSlots.length > 0 || decoderOutputSlots.length > 0);
 
   if (hasConfirmedAvoipEndpoints) {
-    sourceNodes.forEach((source, index) => {
-      const slot = encoderInputSlots[index];
+    sourceNodes.forEach((source) => {
+      const requestedConnector = /USB[ -]?C/i.test(source.label) ? "usb-c" : /HDMI/i.test(source.label) ? "hdmi" : undefined;
+      const slotIndex = encoderInputSlots.findIndex(candidate => !requestedConnector || candidate.connectorType === requestedConnector);
+      const slot = slotIndex < 0 ? undefined : encoderInputSlots.splice(slotIndex,1)[0];
       if (slot) {
-        connections.push(makeConnection(source, slot.node, "video", "hdmi", `${proposalSafeSourceLabel(source.label)} to encoder`));
+        const connection = makeConnection(source, slot.node, "video", slot.connectorType === "usb-c" ? "unknown" : "hdmi", slot.connectorType === "usb-c" ? "USB-C / DP Alt Mode to encoder" : `${proposalSafeSourceLabel(source.label)} to encoder`);
+        connection.fromPort = requestedConnector === "usb-c" ? "USB-C OUT" : requestedConnector === "hdmi" ? "HDMI OUT" : "SOURCE PORT TBD";
+        connection.toPort = slot.connectorType === "usb-c" ? "USB-C IN" : "HDMI IN";
+        connection.evidence = "unresolved";
+        connections.push(connection);
       } else {
         warnings.push({
           severity: "blocker",
           title: "Missing AV-over-IP encoder",
-          message: `"${source.label}" has no dedicated NetworkHD encoder input in the product list. Every source needs its own encoder input - add one before quoting.`,
+          message: `"${source.label}" has no dedicated NetworkHD encoder input in the product list. Every source needs a free compatible encoder input - confirm the connector and add an endpoint before quoting.`,
         });
       }
     });
   } else if (effectiveSwitchingNode) {
-    for (const source of sourceNodes) {
-      connections.push(makeConnection(source, effectiveSwitchingNode, "video", transport, `${proposalSafeSourceLabel(source.label)} to system`));
-    }
+    sourceNodes.forEach((source,index) => {
+      const capacity = effectiveSwitchingNode.sku === "NHD-0401-MV" ? 4 : /^SW-020[46]-VW$/.test(effectiveSwitchingNode.sku ?? "") ? 2 : undefined;
+      if (capacity !== undefined && index >= capacity) {
+        warnings.push({severity:"blocker",title:"Processor input capacity exceeded",message:`${source.label} has no free processor input.`}); return;
+      }
+      const connection = makeConnection(source, effectiveSwitchingNode, "video", capacity ? "hdmi" : transport, `${proposalSafeSourceLabel(source.label)} to system`);
+      if (capacity) { connection.fromPort = "SOURCE OUTPUT (confirm)"; connection.toPort = `HDMI IN ${index+1}`; }
+      connections.push(connection);
+    });
   }
 
   if (usesAvoip) {
     wireAvoipNetwork(nodes, connections);
   }
 
-  if (hasConfirmedAvoipEndpoints) {
+  const processor = productNodes.find(node => node.kind === "video-wall-processor");
+  if (processor) {
+    const inputCapacity = processor.sku === "NHD-0401-MV" ? 4 : /^SW-020[46]-VW$/.test(processor.sku ?? "") ? 2 : undefined;
+    const outputCapacity = processor.sku === "NHD-0401-MV" ? 1 : processor.sku === "SW-0204-VW" ? 4 : processor.sku === "SW-0206-VW" ? 6 : undefined;
+    if (hasConfirmedAvoipEndpoints) decoderOutputSlots.forEach((slot,index) => {
+      if (inputCapacity !== undefined && index >= inputCapacity) {
+        warnings.push({severity:"blocker",title:"Processor input capacity exceeded",message:"Additional decoder feeds require a separate processor or a confirmed routing arrangement."}); return;
+      }
+      const connection = makeConnection(slot.node,processor,"video","hdmi","Decoder HDMI to processor");
+      connection.fromPort = "HDMI OUT"; connection.toPort = `HDMI IN ${index+1}`; connections.push(connection);
+    });
+    displayNodes.forEach((display,index) => {
+      display.column = processor.column+1;
+      if (outputCapacity !== undefined && index >= outputCapacity) {
+        warnings.push({severity:"blocker",title:"Processor output capacity exceeded",message:`${display.label} requires another physical output or distribution device.`}); return;
+      }
+      const connection = makeConnection(processor,display,"video","hdmi","Processor HDMI to display");
+      connection.fromPort = `HDMI OUT ${index+1}`; connection.toPort = "DISPLAY INPUT (confirm)"; connections.push(connection);
+    });
+  } else if (hasConfirmedAvoipEndpoints) {
     displayNodes.forEach((display, index) => {
       const slot = decoderOutputSlots[index];
       if (slot) {
-        connections.push(makeConnection(slot.node, display, "video", "hdmi", "Decoder to display"));
+        const connection = makeConnection(slot.node, display, "video", "hdmi", "Decoder to display");
+        connection.fromPort = "HDMI OUT"; connection.toPort = "DISPLAY INPUT (confirm)"; connections.push(connection);
       } else {
-        warnings.push({
-          severity: "blocker",
-          title: "Missing AV-over-IP decoder",
-          message: `"${display.label}" has no dedicated NetworkHD decoder output in the product list. Every display needs its own decoder output - add one before quoting.`,
-        });
+        warnings.push({ severity: "blocker", title: "Missing AV-over-IP decoder", message: `"${display.label}" has no dedicated NetworkHD decoder output in the product list. Every display needs its own decoder output - add one before quoting.` });
       }
     });
   } else if (effectiveSwitchingNode) {
-    for (const display of displayNodes) {
-      connections.push(makeConnection(effectiveSwitchingNode, display, "video", transport, "Video to display"));
-    }
+    for (const display of displayNodes) connections.push(makeConnection(effectiveSwitchingNode, display, "video", transport, "Video to display"));
   }
 
   if (brief.usbRequired || cameraNodes.length || speakerphoneNodes.length) {
-    const usbBridge = nodes.find((node) => node.kind === "usb-bridge") ?? makeNode("usb-bridge", "USB path / BYOM bridge", "usb-bridge", 1, 2, {
-      required: true,
-      note: "USB transport is included because conferencing devices or BYOM/BYOD workflow is present.",
-    });
-
-    if (!nodes.some((node) => node.id === usbBridge.id)) {
-      nodes.push(usbBridge);
-    }
-
-    for (const camera of cameraNodes) {
-      connections.push(makeConnection(camera, usbBridge, "usb", "usb", "Camera USB"));
-    }
-
-    for (const speakerphone of speakerphoneNodes) {
-      connections.push(makeConnection(speakerphone, usbBridge, "usb", "usb", "Speakerphone USB"));
-    }
-
-    if (effectiveSwitchingNode) {
-      connections.push(makeConnection(usbBridge, effectiveSwitchingNode, "usb", "usb", "USB host/device path"));
-    }
+    warnings.push({ severity: "warning", title: "USB routing requires design", message: "Specify the computer host, peripheral ports and supported USB extension path. No USB connection is issued from the requirement alone." });
   }
-
-  if (brief.audioRequired && speakerphoneNodes.length === 0) {
-    const audioNode = makeNode("audio-system", "Audio system", "audio-device", 3, displayNodes.length, {
-      required: true,
-      note: "Audio path is shown because the brief requires audio but no speakerphone/audio device was supplied.",
-    });
-
-    nodes.push(audioNode);
-
-    if (effectiveSwitchingNode) {
-      connections.push(makeConnection(effectiveSwitchingNode, audioNode, "audio", "unknown", "Audio output"));
-    }
+  if (brief.audioRequired) {
+    warnings.push({ severity: "warning", title: "Audio routing requires design", message: "Specify audio interfaces, signal levels and amplification. No switcher audio output is assumed from an audio requirement." });
   }
-
   if (brief.controlRequired) {
-    const controlNode = nodes.find((node) => node.kind === "touch-panel" || node.kind === "control-device")
-      ?? makeNode("control", "Control interface", "control-device", 2, 3, {
-        required: true,
-        note: "Control path shown because the brief requires control.",
-      });
-
-    if (!nodes.some((node) => node.id === controlNode.id)) {
-      nodes.push(controlNode);
-    }
-
-    if (effectiveSwitchingNode) {
-      connections.push(makeConnection(controlNode, effectiveSwitchingNode, "control", "control", "Control"));
-    }
+    warnings.push({ severity: "warning", title: "Control routing requires design", message: "Specify the controller and controlled-device interfaces before allocating control cables." });
   }
+  for (const item of brief.equipmentScope ?? []) {
+    nodes.push({ ...makeNode(`scope-${item.id}`, item.label, "accessory", 0, nodes.length, {sku:item.model}), metadata: { unresolvedScope: true, quantity: item.quantity } });
+  }
+  assumptions.push("Connections without a verified interface profile are proposed topology only. Confirm named ports, endpoint pairing, power and cable types before installation.");
+
+  expandMatrixDisplayPaths(nodes, connections, warnings);
 
   const draftModel = {
     id: brief.id ?? makeStableId(brief.title),
@@ -294,7 +286,7 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
 
 function expandProducts(products: SchematicProductBrief[]): SchematicProductBrief[] {
   return products.flatMap((product) => {
-    const quantity = Math.max(1, product.quantity ?? 1);
+    const quantity = Math.max(0, Math.floor(product.quantity ?? 1));
     return Array.from({ length: quantity }, (_, index) => ({
       ...product,
       sku: normaliseSku(product.sku),
@@ -316,7 +308,7 @@ function createEndpointNodes(args: {
   const nodes: SchematicNode[] = [];
 
   args.endpoints.forEach((endpoint, endpointIndex) => {
-    const quantity = Math.max(1, endpoint.quantity ?? 1);
+    const quantity = Math.max(0, Math.floor(endpoint.quantity ?? 1));
 
     for (let index = 0; index < quantity; index += 1) {
       const suffix = quantity > 1 ? ` ${index + 1}` : "";
@@ -348,21 +340,25 @@ function createProductNodes(
 
   return products.map((product, index) => {
     const kind = productNodeKind(product);
-    const column = kind === "av-over-ip-decoder" || kind === "video-wall-processor"
-      ? 2
+    const column = kind === "av-over-ip-decoder" || (kind === "av-over-ip-transceiver" && product.operatingMode === "receive")
+      ? 3
+      : kind === "video-wall-processor"
+        ? usesAvoip ? 4 : 2
       : kind === "av-over-ip-controller"
-        ? 2
+        ? 1
         : 1;
 
     const lane = column === 1 ? transportLane++ : endpointLane++;
 
     const label = product.label ?? product.sku;
 
-    return makeNode(`product-${index + 1}-${normaliseSku(product.sku).toLowerCase()}`, label, kind, column, lane, {
+    const node = makeNode(`product-${index + 1}-${normaliseSku(product.sku).toLowerCase()}`, label, kind, column, lane, {
       sku: normaliseSku(product.sku),
       required: true,
       note: usesAvoip || hasVideoWall ? undefined : "Product role inferred from SKU pattern.",
     });
+    node.metadata = { operatingMode: product.operatingMode, equipmentRole: product.role };
+    return node;
   });
 }
 
@@ -378,6 +374,7 @@ function chooseSwitchingNode(
 
   if (usesAvoip) {
     return productNodes.find((node) => node.kind === "av-over-ip-encoder")
+      ?? productNodes.find((node) => node.kind === "av-over-ip-transceiver")
       ?? productNodes.find((node) => node.kind === "network-switch");
   }
 
@@ -403,6 +400,7 @@ function buildEndpointSlots(productNodes: SchematicNode[], direction: "localInpu
   const slots: EndpointSlot[] = [];
 
   for (const node of productNodes) {
+    if ((direction === "localInputs" && node.metadata?.operatingMode === "receive") || (direction === "localOutputs" && node.metadata?.operatingMode === "transmit")) continue;
     const capacity = schematicEndpointCapacity({ sku: node.sku ?? "" }, node.kind);
     const count = direction === "localInputs" ? capacity.localInputs : capacity.localOutputs;
 
@@ -410,7 +408,7 @@ function buildEndpointSlots(productNodes: SchematicNode[], direction: "localInpu
       slots.push({
         node,
         slotIndex,
-        connectorType: direction === "localInputs" ? capacity.inputConnectorTypes?.[slotIndex] : undefined,
+        connectorType: direction === "localInputs" ? capacity.inputConnectorTypes?.[slotIndex] ?? "hdmi" : "hdmi",
       });
     }
   }
@@ -431,7 +429,13 @@ function wireAvoipNetwork(nodes: SchematicNode[], connections: DraftConnection[]
       || node.kind === "av-over-ip-transceiver"
       || node.kind === "av-over-ip-controller"
     ) {
-      connections.push(makeConnection(node, network, "network", "network", "AV network"));
+      const receiving = node.column > network.column;
+      const connection = makeConnection(receiving ? network : node, receiving ? node : network, "network", "network", "AV network · bidirectional");
+      const port = `SWITCH PORT ${connections.filter(c => c.from === network.id || c.to === network.id).length+1}`;
+      connection.fromPort = receiving ? port : "AV LAN (confirm)";
+      connection.toPort = receiving ? "AV LAN (confirm)" : port;
+      connection.bidirectional = true;
+      connections.push(connection);
     }
   }
 }

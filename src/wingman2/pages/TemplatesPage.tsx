@@ -1,11 +1,15 @@
 import { PagedItems } from "../components/PagedItems";
+
+import { createCustomTemplateEditHandoff, writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
+import { useUiMode } from "../data/uiMode";
+
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Building2, Check, FilePenLine, X } from "lucide-react";
+import { ArrowRight, Building2, Check, FilePenLine, LayoutGrid, List, X } from "lucide-react";
 import { TemplateLibraryCard } from "../components/TemplateLibraryCard";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { deleteCustomRoomTemplate, duplicateCustomRoomTemplate, useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
-import { writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
+
 import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
 import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
 import { templateImageFor } from "../lib/templateImages";
@@ -15,10 +19,12 @@ import { defaultPersonalisation, loadTemplateDraft, saveTemplateDraft, toSolutio
 type AvailableTemplate = RoomTemplate | CustomRoomTemplate;
 const isCustom = (template: AvailableTemplate): template is CustomRoomTemplate => "customTemplate" in template && template.customTemplate === true;
 
-export function TemplatesPage() {
+export function TemplatesPage({ discoveryEntry = false }: { discoveryEntry?: boolean }) {
+  const { isGuided } = useUiMode();
   const customTemplates = useCustomRoomTemplates();
   const navigate = useNavigate();
   const [market, setMarket] = useState<string>(TEMPLATE_MARKETS[0]);
+  const [view, setView] = useState<"picture" | "list">("picture");
   const [selected, setSelected] = useState<AvailableTemplate | null>(null);
   const [personalising, setPersonalising] = useState(false);
   const [personalisation, setPersonalisation] = useState<DocumentPersonalisation | null>(null);
@@ -36,27 +42,28 @@ export function TemplatesPage() {
   function applyTemplate(template: AvailableTemplate) {
     navigate(`${routeCatalogByKey.templates.path}/${template.id}`);
   }
-  function startCustom() { writeDiscoveryHandoff({ mode: "template-create" }); navigate(routeCatalogByKey.discovery.path); }
+  function startCustom() { navigate(`${routeCatalogByKey.templates.path}/new`); }
   function manageCustom(template: CustomRoomTemplate) {
-    writeDiscoveryHandoff({ mode: "template-edit", templateId: template.id, templateName: template.name, templateMarket: template.vertical, sourceTemplateId: template.sourceTemplateId, sourceTemplateName: template.name, answers: template.discoveryAnswers, notes: template.discoveryNotes });
-    navigate(routeCatalogByKey.discovery.path);
+    writeDiscoveryHandoff(createCustomTemplateEditHandoff(template));
+    navigate(`${routeCatalogByKey.templates.path}/${encodeURIComponent(template.id)}${isGuided ? "" : "/edit"}`);
   }
   function update<K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) { setPersonalisation((current) => current ? { ...current, [key]: value } : current); setSaved(false); }
   function applyDraft() { if (definition && personalisation) { saveTemplateDraft(definition, personalisation); setSaved(true); } }
 
   return <main className="wm-templates-page wm-page" data-wingman-page="templates">
     <header className="wm-solution-header">
-      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 className="wm-page-title">Solution Templates</h1><p className="wm-ui-copy">Choose a market and application, then review and adjust its equipment schedule before producing the proposal.</p></div>
-      <div className="wm-solution-header-actions"><button className="wm-button wm-button-secondary" type="button" onClick={() => setMarket("Custom")}>Manage Templates</button><button className="wm-button wm-button-primary" type="button" onClick={startCustom}>+ New Custom Template</button></div>
+      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 className="wm-page-title">{discoveryEntry ? "Start with a room template" : "Solution Templates"}</h1><p className="wm-ui-copy">{discoveryEntry ? "Choose the closest room, edit its equipment and quantities, then save your project or build the proposal." : "Choose a market and application, then review and adjust its equipment schedule before producing the proposal."}</p></div>
+      <div className="wm-solution-header-actions"><Link className="wm-button wm-button-secondary" to={routeCatalogByKey.videowall.path}>Video wall builder</Link><button className="wm-button wm-button-secondary" type="button" onClick={() => setMarket("Custom")}>Manage Templates</button>{!isGuided && <button className="wm-button wm-button-primary" type="button" onClick={startCustom}>+ New Custom Template</button>}</div>
     </header>
     <nav className="wm-template-stages" aria-label="Template workflow stages">
       {["Market", "Application", "Configure", "Draft"].map((stage, index) => <span key={stage} className={index === (personalising ? 2 : selected ? 1 : 0) ? "is-active" : index < (selected ? 1 : 0) ? "is-complete" : ""}><i>{index < (selected ? 1 : 0) ? <Check /> : index + 1}</i>{stage}</span>)}
     </nav>
     <div className="wm-template-browser">
       <aside className="wm-market-rail wm-ui-card" aria-label="Market filters"><h2 className="wm-section-title">Markets</h2>{TEMPLATE_MARKET_FILTERS.map((item) => <button key={item} type="button" aria-label={item} aria-pressed={item === market} className={item === market ? "is-active" : ""} onClick={() => setMarket(item)}><Building2 /> <span>{item}</span><small>{templates.filter((t) => templateMatchesMarketFilter(t, item)).length}</small></button>)}</aside>
-      <section className="wm-template-results wm-section-card" aria-label="Application templates">
-        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market}</p><h2 className="wm-section-title">{filtered.length} templates</h2></div><p className="wm-ui-copy">Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
-        <PagedItems items={filtered} pageSize={4} resetKey={market}>{(pageItems) => (<div className="wm-solution-card-grid">{pageItems.map((template) => <TemplateLibraryCard key={template.id} template={template} onReview={() => applyTemplate(template)} onPersonalise={() => personaliseTemplate(template)} {...(isCustom(template) ? { onEdit: () => manageCustom(template), onDuplicate: () => duplicateCustomRoomTemplate(template.id), onDelete: () => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id), onCancelDelete: () => setConfirmDeleteId(null), deletePending: confirmDeleteId === template.id } : {})} />)}</div>)}</PagedItems>
+      <section className="wm-template-results wm-section-card" aria-label="Application templates" data-template-view={view}>
+        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market}</p><h2 className="wm-section-title">{filtered.length} templates</h2></div><div className="wm-template-view-toggle" role="group" aria-label="Template view"><button type="button" className={`wm-button wm-button-${view === "picture" ? "primary" : "secondary"}`} aria-pressed={view === "picture"} onClick={() => setView("picture")}><LayoutGrid size={16} aria-hidden="true" />Picture view</button><button type="button" className={`wm-button wm-button-${view === "list" ? "primary" : "secondary"}`} aria-pressed={view === "list"} onClick={() => setView("list")}><List size={16} aria-hidden="true" />List view</button></div><p className="wm-ui-copy">Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
+        {market === "Custom" && filtered.length === 0 ? <div className="wm-ui-card"><h3 className="wm-section-title">No custom designs yet</h3><p className="wm-ui-copy">Choose an existing template from one of the markets, modify its equipment schedule, then select Save as template to save it as a custom design. Your saved designs will appear here.</p></div> : null}
+        <PagedItems items={filtered} pageSize={8} resetKey={market}>{(pageItems) => <div className="wm-solution-card-grid">{pageItems.map((template) => <TemplateLibraryCard key={template.id} template={template} onReview={() => applyTemplate(template)} onPersonalise={() => personaliseTemplate(template)} {...(isCustom(template) ? { onEdit: () => manageCustom(template), onDuplicate: () => duplicateCustomRoomTemplate(template.id), onDelete: () => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id), onCancelDelete: () => setConfirmDeleteId(null), deletePending: confirmDeleteId === template.id } : {})} />)}</div>}</PagedItems>
       </section>
     </div>
     {selected && definition && personalisation ? <TemplateDrawer template={selected} definition={definition} personalisation={personalisation} personalising={personalising} saved={saved} onClose={() => setSelected(null)} onPersonalise={() => setPersonalising(true)} onBack={() => setPersonalising(false)} onUpdate={update} onApply={applyDraft} onUse={() => applyTemplate(selected)} /> : null}

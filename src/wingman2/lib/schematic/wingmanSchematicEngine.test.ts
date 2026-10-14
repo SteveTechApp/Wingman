@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildWingmanSchematic } from "./wingmanSchematicEngine";
 
 describe("Wingman native schematic engine", () => {
-  it("builds a BYOD meeting-room schematic with video and USB paths", () => {
+  it("retains BYOD requirements without inventing a USB host path", () => {
     const schematic = buildWingmanSchematic({
       title: "Small BYOD meeting room",
       roomType: "meeting-room",
@@ -21,7 +21,8 @@ describe("Wingman native schematic engine", () => {
 
     expect(schematic.nodes.some((node) => node.kind === "switcher" && node.sku === "SW-620L-TX-W")).toBe(true);
     expect(schematic.connections.some((connection) => connection.signal === "video")).toBe(true);
-    expect(schematic.connections.some((connection) => connection.signal === "usb")).toBe(true);
+    expect(schematic.connections.some((connection) => connection.signal === "usb")).toBe(false);
+    expect(schematic.warnings.some(w => w.title === "USB routing requires design")).toBe(true);
     expect(schematic.bomHints.some((hint) => hint.sku === "NHD-CTL-PRO")).toBe(false);
   });
 

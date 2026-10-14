@@ -16,11 +16,28 @@ export type DiscoveryHandoff = {
   answers?: DiscoveryHandoffAnswers;
   notes?: DiscoveryHandoffNotes;
   topology?: ProjectTopology;
+  bom?: TemplateBomRow[];
   // Question id to land the wizard on once the handoff answers are applied,
   // instead of always starting at question 1. Falls back to the first
   // question still missing an answer when omitted.
   startAtQuestionId?: string;
 };
+
+/** Build an edit handoff without dropping the saved room topology/equipment. */
+export function createCustomTemplateEditHandoff(template: CustomRoomTemplate): DiscoveryHandoff {
+  return {
+    mode: "template-edit",
+    templateId: template.id,
+    templateName: template.name,
+    templateMarket: template.vertical,
+    sourceTemplateId: template.sourceTemplateId,
+    sourceTemplateName: template.name,
+    answers: template.discoveryAnswers,
+    notes: template.discoveryNotes,
+    topology: template.topology,
+    bom: template.bom,
+  };
+}
 
 const DISCOVERY_HANDOFF_KEY = "wingman:discovery-handoff";
 

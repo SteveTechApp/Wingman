@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Pencil, Save, Trash2, X } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { AuditLogPanel } from "../components/AuditLogPanel";
-import { WorkflowNavigation, useWorkflowPage } from "../components/WorkflowPages";
+import { useWorkflowPage } from "../components/WorkflowPages";
 import { PageHero } from "../components/PageHero";
 import { ProjectSyncConflictBanner } from "../components/SyncConflictBanner";
 import { SectionCard } from "../components/SectionCard";
@@ -23,12 +23,13 @@ import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume"
 import { saveProjectAsRoomTemplate } from "../lib/customRoomTemplates";
 import { getProjectRequirementRecords } from "../lib/projectRequirements";
 import { repTierLabelFromRun } from "../lib/repScript";
-import { RequirementsAccordion } from "./project/RequirementsAccordion";
 import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePanel";
 import { DiscoveryConversationReview } from "../components/DiscoveryConversationReview";
 import { ProposalVersionHistory } from "../components/ProposalVersionHistory";
 import { ProjectComparisonHistory } from "./project/ProjectComparisonHistory";
 import { DealOutcomeSection } from "./project/DealOutcomeSection";
+
+import { ProjectWorkflowNavigator } from "./project/ProjectWorkflowNavigator";
 
 // Editable requirements
 function compareDeepLink(compareRun: StoredCompareRun, projectId?: string) {
@@ -241,7 +242,8 @@ export function ProjectDetailPage() {
   const [message, setMessage] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const { current: activeSection, go: setActiveSection } = useWorkflowPage(projectDetailSections);
-  const [isEditingProject, setIsEditingProject] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [isEditingProject, setIsEditingProject] = useState(searchParams.get("edit") === "true");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [projectDraft, setProjectDraft] = useState({ name: "", owner: "" });
   const [showBlockerReview, setShowBlockerReview] = useState(false);
@@ -606,7 +608,6 @@ export function ProjectDetailPage() {
     setMessage("");
     setSavedTemplatePath("");
     setProjectDraft({ name: project?.name ?? "", owner: project?.owner ?? "" });
-    setIsEditingProject(false);
     setConfirmDelete(false);
     setShowBlockerReview(false);
     setActiveBlockerIndex(0);
@@ -698,10 +699,11 @@ export function ProjectDetailPage() {
 
       <details className="wm-project-detail-actions"><summary>Project actions</summary><nav className="wm-project-detail-nav wm-ui-card" aria-label="Project review navigation">
         <div className="wm-project-detail-nav__actions">
-          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => setIsEditingProject((current) => !current)}>
+          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => { setActiveProjectId(project.id); navigate(discoveryResumeUrl(project.id)); }}>
             {isEditingProject ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
-            {isEditingProject ? "Cancel edit" : "Edit project"}
+            Edit project
           </button>
+          <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setIsEditingProject((current) => !current)}>Rename project</button>
           <button
             type="button"
             className={`wm-ui-button ${confirmDelete ? "wm-project-delete-confirm" : "wm-ui-button-secondary"}`}
@@ -718,6 +720,7 @@ export function ProjectDetailPage() {
 
       {isEditingProject ? (
         <section className="wm-project-detail-editor wm-ui-section wm-ui-card" aria-label="Edit project details">
+          <div className="wm-project-editor-intro"><p className="wm-ui-kicker">Project details</p><h2>Give this project a clear identity</h2><p>Update the name and customer, then choose an area of the workspace below.</p></div>
           <label>
             <span>Project name</span>
             <input className="wm-ui-input" value={projectDraft.name} onChange={(event) => setProjectDraft((current) => ({ ...current, name: event.target.value }))} />
@@ -732,7 +735,7 @@ export function ProjectDetailPage() {
         </section>
       ) : null}
 
-        <WorkflowNavigation pages={projectDetailSections} current={activeSection} onChange={setActiveSection} label="Project pages" />
+        <ProjectWorkflowNavigator pages={projectDetailSections} current={activeSection} onChange={setActiveSection} projectId={project.id} responsePath={responsePath} />
       <div id="project-overview" className="wm-project-detail-stack space-y-6">
         {savedTemplatePath ? (
           <section className="rounded-2xl border p-3 text-sm wm-output-panel">
@@ -1123,15 +1126,12 @@ export function ProjectDetailPage() {
 
         {activeSection === "confirm" ? <SectionCard
           title="Requirements"
-          subtitle="Confirmed requirements grouped by category. Edit inline or mark for review."
+          subtitle="Reopen the saved Discovery answers to review customer requirements."
         >
           <span id="project-requirements" className="wm-project-detail-anchor" aria-hidden="true" />
-          <RequirementsAccordion
-            requirements={requirements}
-            onUpdate={updateRequirement}
-          />
-          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={saveRequirements}>Save requirements</button>
-          {message ? <p role="status">{message}</p> : null}
+          <p className="wm-ui-copy">Review and update these requirements in the standard Discovery questions.</p>
+          <Link to={discoveryResumeUrl(project.id)} className="wm-ui-button wm-ui-button-primary">Edit in Discovery</Link>
+
         </SectionCard> : null}
 
         {activeSection === "decide" ? <SectionCard

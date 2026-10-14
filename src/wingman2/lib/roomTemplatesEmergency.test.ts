@@ -31,7 +31,7 @@ describe("Emergency Services room designs", () => {
         expect(product?.doNotSpec, `${template.id}: ${row.sku} not spec-ready`).toBe(false);
       }
       expect(template.bom.some((row) => row.sku.startsWith("BY-OTHERS") && /display|projector/i.test(row.description))).toBe(true);
-      expect(template.bom.some((row) => row.sku.startsWith("BY-OTHERS") && /installation labour/i.test(row.description))).toBe(true);
+      expect(template.bom.some((row) => row.scopeSection === "engineering" && /second fix/i.test(row.description))).toBe(true);
       expect(template.validationItems.length).toBeGreaterThanOrEqual(4);
     }
   });

@@ -1,3 +1,4 @@
+import { useUiMode } from "../data/uiMode";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -35,7 +36,7 @@ import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
 import { getCompetitorLandscape } from "../lib/competitorLandscape";
-import { buildTechnologySalesPositioning, buildTechnologySpeakingCues } from "../lib/technologySalesPositioning";
+import { buildTechnologySalesPositioning } from "../lib/technologySalesPositioning";
 
 
 function useProductPitchDensityClass() {
@@ -232,16 +233,6 @@ function WorkCard({
   );
 }
 
-function currentProductSalesContext(): ProductSalesContext {
-  const project = getCurrentWorkflowProject(readProjectStore());
-  const roomModel = project?.discoveryBrief?.roomModel;
-  const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
-
-  return {
-    roomType: text(roomModel?.roomType),
-    application: text(roomModel?.outcome) || text(roomModel?.application),
-  };
-}
 
 function SelectionPage({
   products,
@@ -654,163 +645,28 @@ function OverviewTab({
   context: ProductSalesContext;
 }) {
   const guidance = buildProductPitchSalesGuidance(product, narrative, context);
-  const technologyPositioning = useMemo(() => buildTechnologySalesPositioning(product), [product]);
-  const [activeTechnologyPrompt, setActiveTechnologyPrompt] = useState(0);
-  const activePrompt = technologyPositioning?.prompts[activeTechnologyPrompt];
-  const speakingCues = activePrompt ? buildTechnologySpeakingCues(activePrompt) : [];
-  const topBenefits = cleanUsefulList(guidance.featureBenefits, 3)
-    .map((benefit) => conciseSalesCopy(benefit, 18));
-
-  return (
-    <div className="wm-product-pitch-overview grid gap-3">
-      <section className="wm-product-pitch-outcome wm-ui-section rounded-lg border p-5 wm-ui-card">
-        <p className={`${PRODUCT_PITCH_KICKER_CLASS} wm-ui-kicker`}>Sales quick view</p>
-        <h2 className="mt-1 text-xl font-extrabold wm-ui-title">The customer outcome</h2>
-        <p className="mt-2 max-w-4xl text-base font-bold leading-6 wm-ui-copy">
-          {conciseSalesCopy(guidance.plainDescription, 32)}
-        </p>
-      </section>
-
-      <ProductApplicationVisuals sku={product.sku} />
-
-      <div className="wm-product-pitch-overview__cards grid gap-3 lg:grid-cols-3">
-        <WorkCard title="Why it matters">
-          <p className="wm-ui-copy">{conciseSalesCopy(guidance.customerProblem, 24)}</p>
-        </WorkCard>
-
-        <WorkCard title="Best fit">
-          <p className="wm-ui-copy">{conciseSalesCopy(guidance.scenarioFit, 24)}</p>
-        </WorkCard>
-
-        <WorkCard title="Top benefits">
-          <DisplayList items={topBenefits} max={3} />
-        </WorkCard>
-      </div>
-
-      <section className="wm-product-pitch-talk-track wm-ui-section rounded-lg border p-5 wm-ui-card">
-        <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Conversation anchors</p>
-        <h3>Remember the shape of the answer—not a script</h3>
-        <div className="wm-product-pitch-talk-track__anchors">
-          <p><span>Problem</span>{conciseSalesCopy(guidance.customerProblem, 16)}</p>
-          <p><span>Outcome</span>{conciseSalesCopy(guidance.plainDescription, 18)}</p>
-          <p><span>Proof</span>{topBenefits[0] ?? conciseSalesCopy(guidance.customerSafeWording, 18)}</p>
-        </div>
-      </section>
-
-      {technologyPositioning ? (
-        <section className="wm-product-pitch-tech-conversation wm-ui-section rounded-lg border p-5 wm-ui-card">
-          <header className="wm-product-pitch-tech-conversation__header">
-            <div>
-              <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Technology conversation</p>
-              <h2>{technologyPositioning.label}</h2>
-              <p>{technologyPositioning.decisionHeadline}</p>
-            </div>
-            <span>Talk outcome first</span>
-          </header>
-
-          <div className="wm-product-pitch-tech-conversation__frame">
-            <article>
-              <span>Lead with</span>
-              <p>{technologyPositioning.leadWith}</p>
-            </article>
-            <article>
-              <span>Be honest about</span>
-              <p>{technologyPositioning.tradeOff}</p>
-            </article>
-            <article>
-              <span>Evidence anchor</span>
-              <p>{technologyPositioning.proofPoint}</p>
-            </article>
-          </div>
-
-          <div className="wm-product-pitch-tech-conversation__coach">
-            <div className="wm-product-pitch-tech-conversation__prompts" role="tablist" aria-label="Common customer objections">
-              {technologyPositioning.prompts.map((prompt, index) => (
-                <button
-                  key={prompt.customerSays}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTechnologyPrompt === index}
-                  onClick={() => setActiveTechnologyPrompt(index)}
-                >
-                  “{prompt.customerSays}”
-                </button>
-              ))}
-            </div>
-            <div className="wm-product-pitch-tech-conversation__answer" role="tabpanel">
-              <span>Speaking cues</span>
-              <p className="wm-product-pitch-tech-conversation__delivery-note">Glance at the sequence, then use your own words.</p>
-              <ol className="wm-product-pitch-tech-conversation__cue-list">
-                {speakingCues.map((cue) => (
-                  <li key={`${cue.label}-${cue.text}`}>
-                    <span>{cue.label}</span>
-                    <p>{cue.text}</p>
-                  </li>
-                ))}
-              </ol>
-              <strong>Ask next</strong>
-              <p>{activePrompt?.askNext}</p>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      <details className="wm-product-pitch-technical wm-ui-card rounded-lg border p-5">
-        <summary className="cursor-pointer font-extrabold">
-          Technical and quote detail
-        </summary>
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          <WorkCard title="Technical description">
-            <p className="wm-ui-copy">{guidance.productRole}</p>
-          </WorkCard>
-
-          <WorkCard title="Confirm before recommending" tone="caution">
-            <p className="wm-ui-copy">{guidance.confirmationQuestion}</p>
-          </WorkCard>
-
-          <WorkCard title="Best-fit applications">
-            <DisplayList items={guidance.bestFitApplications} max={4} />
-          </WorkCard>
-
-          <WorkCard title="Poor fit / avoid leading with this" tone="caution">
-            <DisplayList items={guidance.poorFitApplications} max={4} />
-          </WorkCard>
-
-          <WorkCard title="Discovery questions">
-            <DisplayList items={guidance.discoveryQuestions} max={6} />
-          </WorkCard>
-
-          <WorkCard title="Quote checks" tone="caution">
-            <DisplayList items={guidance.quoteChecks} max={4} />
-          </WorkCard>
-
-          <WorkCard title="What not to promise" tone="caution">
-            <DisplayList items={guidance.doNotPromise} max={4} />
-          </WorkCard>
-
-          <WorkCard title="Attach / companion products">
-            <DisplayList items={guidance.attachProducts} max={4} />
-          </WorkCard>
-
-          <WorkCard title="Alternatives inside WyreStorm">
-            <DisplayList items={guidance.alternatives} max={3} />
-          </WorkCard>
-
-          <WorkCard title="Customer-safe wording">
-            <p className="wm-ui-copy">{guidance.customerSafeWording}</p>
-          </WorkCard>
-
-          <WorkCard title="Internal sales notes" tone="caution">
-            <DisplayList items={guidance.internalSalesNotes} max={4} />
-          </WorkCard>
-
-          <div className="lg:col-span-2">
-            <ProductMediaPanel sku={product.sku} title={product.name} />
-          </div>
-        </div>
-      </details>
+  const { isGuided } = useUiMode();
+  const technology = buildTechnologySalesPositioning(product);
+  return <div className="wm-product-pitch-overview grid gap-4" data-positioning-mode={isGuided ? "focused" : "expert"}>
+    <WorkCard title={isGuided ? "What it does" : "Product role"}>
+      <p className="wm-ui-copy">{isGuided ? guidance.plainDescription : guidance.productRole}</p>
+    </WorkCard>
+    <div className="grid gap-4 md:grid-cols-2">
+      <WorkCard title="Use it for"><DisplayList items={guidance.bestFitApplications} max={isGuided ? 3 : 8} /></WorkCard>
+      <WorkCard title="Check with the customer" tone="caution"><p className="wm-ui-copy">{guidance.confirmationQuestion}</p></WorkCard>
     </div>
-  );
+    {isGuided ? <WorkCard title="When to choose another product" tone="caution"><DisplayList items={guidance.poorFitApplications} max={2} /></WorkCard> : <>
+      <div className="grid gap-4 md:grid-cols-2">
+        <WorkCard title="Capabilities"><DisplayList items={product.keyFeatures} max={12} /></WorkCard>
+        <WorkCard title="Connections"><DisplayList items={product.ioSummary} max={12} /></WorkCard>
+        <WorkCard title="Limits and unsuitable applications" tone="caution"><DisplayList items={guidance.poorFitApplications} max={8} /></WorkCard>
+        <WorkCard title="System checks" tone="caution"><DisplayList items={guidance.quoteChecks} max={8} /></WorkCard>
+      </div>
+      {technology && <WorkCard title="Transport and infrastructure"><p className="wm-ui-copy">{technology.label}</p><p className="mt-2 wm-ui-copy">{technology.tradeOff}</p></WorkCard>}
+      <ProductApplicationVisuals sku={product.sku} />
+      <ProductMediaPanel sku={product.sku} title={product.name} />
+    </>}
+  </div>;
 }
 
 function FeaturesTab({
@@ -824,30 +680,7 @@ function FeaturesTab({
 }) {
   const guidance = buildProductPitchSalesGuidance(product, narrative, context);
 
-  const featureBenefits = cleanUsefulList(guidance.featureBenefits, 6);
-
-  return (
-    <div className="wm-product-pitch-features">
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-section-intro p-5`}>
-        <p className="wm-ui-kicker">Customer conversation</p>
-        <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Features that matter</h2>
-        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
-          Use these points in a customer conversation. Open Technical overview only when exact values are needed.
-        </p>
-      </section>
-      <div className="wm-product-pitch-features__grid">
-        {featureBenefits.map((feature) => (
-          <WorkCard title={conciseSalesCopy(feature, 8)} key={feature}>
-            <p className="wm-ui-copy">{conciseSalesCopy(feature, 24)}</p>
-          </WorkCard>
-        ))}
-      </div>
-      <div className="wm-product-pitch-features__context">
-        <WorkCard title="Use it here"><p className="wm-ui-copy">{guidance.scenarioFit}</p></WorkCard>
-        <WorkCard title="Confirm before promising" tone="caution"><p className="wm-ui-copy">{guidance.confirmationQuestion}</p></WorkCard>
-      </div>
-    </div>
-  );
+  return <WorkCard title="Features and customer benefits"><DisplayList items={guidance.featureBenefits} max={12} /></WorkCard>;
 }
 
 function CompetitorsTab({ product }: { product: ProductSpec }) {
@@ -972,10 +805,12 @@ function ProductWorkspace({
   product: ProductSpec;
   backToSelection: () => void;
 }) {
+  const { isGuided } = useUiMode();
   const [activeTab, setActiveTab] = useState<ProductTab>("overview");
+  useEffect(() => { setActiveTab("overview"); }, [isGuided]);
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const narrative = useMemo(() => buildProductNarrative(product), [product]);
-  const salesContext = useMemo(() => currentProductSalesContext(), []);
+  const salesContext: ProductSalesContext = {};
   const lifecycle = useMemo(() => resolveProductLifecycle(product.sku), [product.sku]);
 
   useEffect(() => {
@@ -1016,7 +851,7 @@ function ProductWorkspace({
                 <GovernedReviewerTrail trail={product.technicalData.reviewerTrail} />
               ) : null}
               <h2 className={`mt-1 ${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>{product.name}</h2>
-              <p className="mt-3 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.headline}</p>
+              <p className="mt-3 text-sm wm-ui-copy">{isGuided ? "Product essentials" : "Technical product reference"}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button className={["wm-ui-button wm-ui-button-secondary", `${PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS} transition hover:bg-cyan-200`].filter(Boolean).join(" ")}
@@ -1109,26 +944,28 @@ function ProductWorkspace({
         </section>
       ) : null}
 
-      <ProductPitchSafetyPanel />
+      {!isGuided && <ProductPitchSafetyPanel />}
 
       <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-tabs p-4`} aria-label="Product information views">
         <div className="flex flex-wrap gap-2" role="tablist">
-          <TabButton label="Purpose & Position" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+          <TabButton label={isGuided ? "Product essentials" : "Product overview"} active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+          {!isGuided && <>
           <TabButton label="Features" active={activeTab === "features"} onClick={() => setActiveTab("features")} />
           <TabButton label="Design & Connectivity" active={activeTab === "design"} onClick={() => setActiveTab("design")} />
           <TabButton label="Technical Overview" active={activeTab === "spec"} onClick={() => setActiveTab("spec")} />
           <TabButton label="Competitors" active={activeTab === "competitors"} onClick={() => setActiveTab("competitors")} />
           <TabButton label="Next Steps" active={activeTab === "workflow"} onClick={() => setActiveTab("workflow")} />
+          </>}
         </div>
       </section>
 
-      <section className={`wm-product-pitch-tab-view is-${activeTab}`} role="tabpanel">
-        {activeTab === "overview" ? <OverviewTab product={product} narrative={narrative} context={salesContext} /> : null}
-        {activeTab === "features" ? <FeaturesTab product={product} narrative={narrative} context={salesContext} /> : null}
-        {activeTab === "design" ? <DesignTab product={product} narrative={narrative} /> : null}
-        {activeTab === "competitors" ? <CompetitorsTab product={product} /> : null}
-          {activeTab === "spec" ? <ProductTechnicalSpecTab product={product} /> : null}
-        {activeTab === "workflow" ? <WorkflowTab product={product} narrative={narrative} /> : null}
+      <section className={`wm-product-pitch-tab-view is-${isGuided ? "overview" : activeTab}`} role="tabpanel">
+        {(isGuided || activeTab === "overview") ? <OverviewTab product={product} narrative={narrative} context={salesContext} /> : null}
+        {!isGuided && activeTab === "features" ? <FeaturesTab product={product} narrative={narrative} context={salesContext} /> : null}
+        {!isGuided && activeTab === "design" ? <DesignTab product={product} narrative={narrative} /> : null}
+        {!isGuided && activeTab === "competitors" ? <CompetitorsTab product={product} /> : null}
+          {!isGuided && activeTab === "spec" ? <ProductTechnicalSpecTab product={product} /> : null}
+        {!isGuided && activeTab === "workflow" ? <WorkflowTab product={product} narrative={narrative} /> : null}
       </section>
     </main>
   );
