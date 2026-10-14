@@ -158,8 +158,11 @@ function buildPublishedProfile(template: RoomTemplate, imageKey = imageFor(templ
   };
 }
 
-/** Reviewed registry materialised from each template's authored application, architecture and BOM. */
-export const TEMPLATE_APPLICATION_PROFILES: Readonly<Record<string, TemplateApplicationProfile>> = Object.freeze(Object.fromEntries(roomTemplates.map((template) => [template.id, buildPublishedProfile(template)])));
+// Build after route modules finish loading: production chunks can share catalogue dependencies.
+let publishedProfiles: Readonly<Record<string, TemplateApplicationProfile>> | undefined;
+export function getTemplateApplicationProfiles(): Readonly<Record<string, TemplateApplicationProfile>> {
+  return publishedProfiles ??= Object.freeze(Object.fromEntries(roomTemplates.map((template) => [template.id, buildPublishedProfile(template)])));
+}
 
 function customProfile(template: RoomTemplate): TemplateApplicationProfile {
   return { ...buildPublishedProfile(template, images.boardroom), canonicalMarket: normalizeTemplateMarket(template.vertical) || "Custom", reviewStatus: "needs-review", reviewNotes: ["Custom template requires technical review before publication."] };
@@ -167,7 +170,7 @@ function customProfile(template: RoomTemplate): TemplateApplicationProfile {
 
 export function getTemplateApplicationProfile(template: RoomTemplate): TemplateApplicationProfile {
   if (template.applicationProfile) return template.applicationProfile;
-  const profile = TEMPLATE_APPLICATION_PROFILES[template.id];
+  const profile = getTemplateApplicationProfiles()[template.id];
   if (profile) return profile;
   if (template.customTemplate) return customProfile(template);
   throw new Error(`Published template "${template.id}" does not have a governed application profile.`);

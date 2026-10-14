@@ -157,6 +157,11 @@ export default defineConfig({
               test: /node_modules[\\/](@xyflow|reactflow|dagre)[\\/]/,
             },
             {
+              name: "wm-competitor-catalogue",
+              test: /src[\\/]wingman2[\\/]lib[\\/]competitorProductIntelligence\.tsx?$/,
+              priority: 85,
+            },
+            {
               name: "wm-competitor-registry",
               test: /src[\\/]wingman2[\\/]lib[\\/](competitorProductIntelligence|competitorSpecRegistry|knownCompareProfiles|knownWyrestormCompareProfiles)\.tsx?$/,
             },
@@ -167,6 +172,19 @@ export default defineConfig({
             {
               name: "wm-compare-ui",
               test: /src[\\/]wingman2[\\/]components[\\/].*(compare|Compare|competitor|Competitor).*\.tsx?$/,
+            },
+            {
+              // Keep lifecycle initialization together so eager successor validation
+              // cannot execute before its business-status sets are initialized.
+              name: "wm-product-lifecycle",
+              test: /src[\\/]wingman2[\\/]lib[\\/](?:wyrestormProductLifecycle|wyrestormSkuBusinessStatus|skuAliasResolver|adminProductOverrides)\.tsx?$/,
+              priority: 85,
+            },
+            {
+              // Template constructors and authored data initialize as one unit.
+              name: "wm-room-catalogue",
+              test: /src[\\/]wingman2[\\/]lib[\\/](?:roomTemplates.*|roomTemplateDeployment|roomTemplateAudio|templateMarketStories|templateApplicationProfiles|templateMarkets|projectScope)\.tsx?$/,
+              priority: 85,
             },
             {
               name: "wm-product-evidence",
