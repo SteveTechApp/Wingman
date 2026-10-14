@@ -249,7 +249,9 @@ async function walkDiscovery(page) {
 
   await page.getByRole("heading", { name: "Start with a room template" }).waitFor({ state: "visible" });
   await expertView.click();
-  await marketEntry.getByRole("button", { name: /Corporate & enterprise/ }).click();
+  const corporateButton = marketEntry.getByRole("button", { name: /Corporate.*enterprise/i });
+  await corporateButton.waitFor({ state: "visible", timeout: 15_000 });
+  await corporateButton.click();
   await marketEntry.getByRole("button", { name: /Meeting or boardroom/ }).click();
 
   const wizard = page.getByRole("region", { name: "Full room builder" });
@@ -440,15 +442,33 @@ async function main() {
     headless: true,
     channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL || (process.platform === "win32" ? "msedge" : undefined),
   });
+  const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+  const page = await context.newPage();
+  let tracing = false;
   try {
-    const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
     // No session cookie is injected: the settings-form sign-in establishes the
     // session through the real UI→API proxy path, exactly like a user.
-    const page = await context.newPage();
-
     await signInViaSettings(page);
+    await context.tracing.start({ screenshots: true, snapshots: true });
+    tracing = true;
     await walkDiscovery(page);
     await runCompare(page);
+    await context.tracing.stop();
+    tracing = false;
+  } catch (error) {
+    const diagnostics = path.join(dataDir, "diagnostics");
+    fs.mkdirSync(diagnostics, { recursive: true });
+    const captures = await Promise.allSettled([
+      page.screenshot({ path: path.join(diagnostics, "failure.png"), fullPage: true, timeout: 10_000 }),
+      page.content().then(html => fs.writeFileSync(path.join(diagnostics, "failure.html"), html)),
+      ...(tracing ? [context.tracing.stop({ path: path.join(diagnostics, "trace.zip") })] : []),
+    ]);
+    fs.writeFileSync(path.join(diagnostics, "failure.txt"), [
+      page.url(), error instanceof Error ? error.stack : String(error),
+      ...captures.filter(result => result.status === "rejected").map(result => String(result.reason)),
+    ].join("\n"));
+    console.error(`[e2e-smoke] Browser diagnostics saved to ${diagnostics}.`);
+    throw error;
   } finally {
     await browser.close().catch(() => {});
   }
