@@ -247,11 +247,12 @@ async function walkDiscovery(page) {
     throw new Error("[e2e-smoke] Focused view did not activate from the header switch.");
   }
 
+  await page.getByRole("heading", { name: "Start with a room template" }).waitFor({ state: "visible" });
+  await expertView.click();
   await marketEntry.getByRole("button", { name: /Corporate & enterprise/ }).click();
-  await marketEntry.getByRole("button", { name: /Describe this environment for a custom design/ }).click();
   await marketEntry.getByRole("button", { name: /Meeting or boardroom/ }).click();
 
-  const wizard = page.getByRole("region", { name: "Guided room discovery" });
+  const wizard = page.getByRole("region", { name: "Full room builder" });
   await wizard.waitFor({ state: "visible", timeout: 10_000 });
   let answered = 0;
   let completed = false;
@@ -280,7 +281,7 @@ async function walkDiscovery(page) {
     const options = wizard.locator("button.wm-room-wizard-option");
     if (await options.count()) await options.first().click();
     if (answered === 0) {
-      await expertView.click();
+      await page.getByRole("button", { name: "Detailed questions", exact: true }).click();
       const expertBuilder = page.getByRole("region", { name: "Expert room design" });
       await expertBuilder.waitFor({ state: "visible", timeout: 5_000 });
       if (!(await expertBuilder.locator(".wm-room-wizard-option[aria-pressed='true']").count())) {
@@ -289,7 +290,7 @@ async function walkDiscovery(page) {
       if (!(await expertBuilder.getByRole("navigation", { name: "Room design sections" }).isVisible())) {
         throw new Error("[e2e-smoke] Expert Discovery did not render its room design sections.");
       }
-      await focusedView.click();
+      await page.getByRole("button", { name: "Room builder", exact: true }).click();
       await wizard.waitFor({ state: "visible", timeout: 5_000 });
       if (!(await wizard.locator("button.wm-room-wizard-option[aria-pressed='true']").count())) {
         throw new Error("[e2e-smoke] Focused view did not retain the answer entered before switching views.");
