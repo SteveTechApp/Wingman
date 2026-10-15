@@ -1,5 +1,6 @@
 import { loadProductMediaIndex, type ProductMediaIndex } from "../data/productMedia";
 import { proposalProductCards, proposalSolutionStory } from "./proposalSalesContent";
+import { proposalRoomBrief } from "./proposalRoomBrief";
 import {
   AlignmentType, BorderStyle, Document, ExternalHyperlink, Footer, Header, HeadingLevel,
   ImageRun, PageBreak, PageNumber, Packer, Paragraph, ShadingType, Table, TableCell,
@@ -146,7 +147,7 @@ function scopeTable(proposal: StoredProjectProposal) {
   return fixedTable(widths, [
     new TableRow({ tableHeader: true, children: ["Discipline", "Scope / allowance", "Qty", "Responsibility", "Price / allowance"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
     ...(items.length ? items : [{ category: "Third-party scope", description: "Confirm all non-WyreStorm equipment and delivery services.", quantity: 1, responsibility: "Integrator / customer", status: "validate" as const, notes: "" }]).map((item) => new TableRow({ children: [
-      cell(item.category, widths[0]), cell(`${item.description}${item.notes ? ` — ${item.notes}` : ""}`, widths[1]),
+      cell(item.category, widths[0]), cell(`${item.description}${item.notes ? ` — ${item.notes}` : ""} — Scope status: ${item.status}`, widths[1]),
       cell(String(item.quantity), widths[2], { align: AlignmentType.RIGHT }), cell(item.responsibility, widths[3]), cell("TBC", widths[4]),
     ] })),
   ]);
@@ -587,9 +588,23 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   ];
 
   addSection(children, "Executive Summary", [paragraph(wizard.executiveSummary || proposal.summary || "Executive summary to be confirmed.", { justified: true })]);
+  const brief = proposalRoomBrief(proposal, bomRows);
+  addSection(children, "Room at a glance", [
+    paragraph(brief.application, { bold: true }), paragraph(wizard.customerObjectives || brief.purpose),
+    heading("Recorded room and design details", 2),
+    ...(brief.facts.length ? brief.facts.map(bullet) : [paragraph("Room dimensions, capacity and site conditions require confirmation.")]),
+    ...(brief.highlights.length ? [heading("What this space delivers", 2), ...brief.highlights.map((item) => bullet(`${item.title}: ${item.detail}`))] : []),
+    heading("In this room", 2),
+    paragraph("Grouped by the recorded equipment role. Item references match the equipment schedule; optional items remain subject to selection. Third-party equipment and services are detailed in Complete System Design and Responsibilities."),
+    ...brief.groups.flatMap((group) => [heading(group.role, 2), fixedTable([600, 1800, 4260, 600, 2100], [
+      new TableRow({ tableHeader: true, children: ["Item", "Model", "Description", "Qty", "Selection"].map((value, i) => cell(value, [600, 1800, 4260, 600, 2100][i], { bold: true, fill: PALE })) }),
+      ...group.equipment.map((row) => new TableRow({ children: [String(row.item), row.sku, row.description, String(row.qty), row.type].map((value, i) => cell(value, [600, 1800, 4260, 600, 2100][i])) })),
+    ])]),
+    ...(!brief.groups.length ? [paragraph("No active equipment has been selected.")] : []),
+  ]);
   addSection(children, "Solution Overview", [
     paragraph(wizard.proposedSolution || story.overview, { justified: true }),
-    heading("How the solution will work", 2), ...story.operation.map((item) => paragraph(item)),
+    heading("How the solution will work", 2), ...story.operation.map((item, index) => paragraph(`${index + 1}. ${item}`)),
     heading("What successful delivery looks like", 2), ...story.acceptance.map(bullet),
   ]);
   if (application) addSection(children, "Market and Application Story", [
