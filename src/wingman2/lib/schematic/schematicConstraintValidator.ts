@@ -43,7 +43,7 @@ export type ConstraintViolation = {
 /*  Cable length validation                                            */
 /* ------------------------------------------------------------------ */
 
-type LooseConnection = { maxLengthM?: number; id: string; from: string; to: string; signal: string; transport: SchematicTransportKind; label: string; required: boolean };
+type LooseConnection = { maxLengthM?: number; id: string; from: string; to: string; signal: string; transport: string; label: string; required: boolean };
 type LooseModel = { nodes: SchematicNode[]; connections: LooseConnection[] };
 
 function validateCableLengths(
