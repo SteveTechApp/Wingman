@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validateSchematicConstraints, violationsToWarnings } from "./schematicConstraintValidator";
-import type { SchematicModel } from "./schematicTypes";
+import type { SchematicModel, SchematicNodeKind } from "./schematicTypes";
 
 function makeModel(overrides: Partial<SchematicModel> = {}): SchematicModel {
   return {
@@ -85,6 +85,25 @@ describe("schematic constraint validator", () => {
   });
 
   describe("port compatibility validation", () => {
+    it.each<[SchematicNodeKind, SchematicNodeKind, number]>([
+      ["source", "display", 1],
+      ["switcher", "source", 1],
+      ["source", "source", 1],
+      ["switcher", "display", 0],
+    ])("checks both HDBaseT endpoint roles: %s to %s", (fromKind, toKind, warningCount) => {
+      const model = makeModel({
+        nodes: [
+          { id: "tx", label: "Sender", kind: fromKind, column: 0, lane: 0, x: 0, y: 0, required: true },
+          { id: "rx", label: "Receiver", kind: toKind, column: 1, lane: 0, x: 100, y: 0, required: true },
+        ],
+        connections: [
+          { id: "link", from: "tx", to: "rx", signal: "video", transport: "hdbaset", label: "HDBaseT", required: true, points: [] },
+        ],
+      });
+      const violations = validateSchematicConstraints({ model, products: [], maxSignalDistanceM: 10 });
+      expect(violations.filter((v) => v.title === "HDBaseT connection between non-standard endpoints")).toHaveLength(warningCount);
+    });
+
     it("flags video signal routed to audio device", () => {
       const model = makeModel({
         nodes: [

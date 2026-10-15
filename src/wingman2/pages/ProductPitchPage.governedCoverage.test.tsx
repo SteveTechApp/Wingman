@@ -7,6 +7,7 @@ import { loadProductIntelligenceIndex, loadProductIntelligenceSummary } from "..
 import { governedProfilesWithoutSkus } from "../lib/testHelpers/governedProfilesHarness";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { ProductPitchPage } from "./ProductPitchPage";
+import { UiModeProvider } from "../data/uiMode";
 
 // The mocked profiles module (MX-0402-MST stripped) is the source of truth for
 // the badge tier each selector row must show.
@@ -39,11 +40,19 @@ vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () =
 
 describe("product pitch governed-coverage render", () => {
   it("renders technical facts as separate, readable list items", async () => {
-    render(
-      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=MXV-0808-H2A-KIT&source=compare"]}>
-        <ProductPitchPage />
-      </MemoryRouter>,
-    );
+    // Technical tabs belong to Expert view; use the real mode provider.
+    const previousMode = localStorage.getItem("wingman-ui-mode-v1");
+    localStorage.setItem("wingman-ui-mode-v1", "unguided");
+    try {
+      render(
+        <MemoryRouter initialEntries={["/wingman/product-pitch?sku=MXV-0808-H2A-KIT&source=compare"]}>
+          <UiModeProvider><ProductPitchPage /></UiModeProvider>
+        </MemoryRouter>,
+      );
+    } finally {
+      if (previousMode === null) localStorage.removeItem("wingman-ui-mode-v1");
+      else localStorage.setItem("wingman-ui-mode-v1", previousMode);
+    }
 
     fireEvent.click(await screen.findByRole("tab", { name: "Technical Overview" }));
 
