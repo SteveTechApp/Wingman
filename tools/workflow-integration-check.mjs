@@ -110,14 +110,14 @@ assertSourceContains("src/wingman2/lib/dependencyGovernance.ts", [
 // Compare decisions and evidence are exercised by check:compare-decision and
 // check:compare-page-candidate-gate. The route bridge has rendered regression tests.
 assertSourceContains("src/wingman2/pages/ComparePageNew.tsx", ["ComparePageNew.advanced", "useSearchParams"]);
-// The per-step guidance data moved to the extracted discoveryQuestions module;
-// the page still consumes getQuestionStrategy and keeps the live-call markers.
+// Guidance data is shared by the active Discovery interview and room builders.
 assertSourceContains("src/wingman2/pages/discovery/discoveryQuestions.ts", [
   "baseQuestionStrategyByStep",
   "getQuestionStrategy",
 ]);
 assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
-  "getQuestionStrategy",
+  "<DiscoveryGuidedInterview",
+  "<DiscoveryExpertBuilder",
   "Live call mode",
   "Current model",
   "View full model",
@@ -125,15 +125,8 @@ assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
 assertSourceContains("src/wingman2/pages/ProjectDetailPage.tsx", [
   "Editable requirements",
   "saveProjectRequirementsToProject",
-  "RequirementsAccordion",
-]);
-// 448dbfd6 (focused workflows) moved requirements editing into the accordion
-// component; the page keeps the save wiring and the accordion keeps the
-// readiness display (restored there after the split dropped it), so pin both
-// halves of the moved wiring.
-assertSourceContains("src/wingman2/pages/project/RequirementsAccordion.tsx", [
-  "requirementReadiness",
-  "requirements-readiness",
+  "discoveryResumeUrl(project.id)",
+  "Edit in Discovery",
 ]);
 assertSourceContains("src/wingman2/lib/projectRequirements.ts", [
   "buildRequirementRecordsFromProject",
@@ -147,7 +140,7 @@ const templateWorkflowSource = [
 // a395a3a2 (template AV-system modelling) intentionally reworded the review
 // page's BOM heading; the lowercase listing copy on TemplatesPage now carries
 // the wording, and the review page keeps export/save wiring.
-for (const marker of ["editable WyreStorm BOM", "saveTemplateProject", "exportTemplateBom", "Other AV design scope"]) {
+for (const marker of ["editable WyreStorm BOM", "saveTemplateProject", "exportTemplateBom", "Third-party scope"]) {
   if (!templateWorkflowSource.includes(marker)) {
     errors.push(`Template workflow is missing marker: ${marker}`);
   }
@@ -156,7 +149,7 @@ for (const marker of ["editable WyreStorm BOM", "saveTemplateProject", "exportTe
 // "New Custom Template" both hand off into Discovery (see discoveryTemplateHandoff.ts)
 // instead of duplicating Discovery's question/recommendation logic.
 if (
-  !readFileSync(path.join(projectRoot, "src/wingman2/pages/TemplatesPage.tsx"), "utf8").includes(
+  !readFileSync(path.join(projectRoot, "src/wingman2/pages/TemplateReviewPage.tsx"), "utf8").includes(
     "routeCatalogByKey.discovery.path",
   )
 ) {

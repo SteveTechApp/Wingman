@@ -183,7 +183,7 @@ function validatePortCompatibility(
         toNode.kind === "display" ||
         toNode.kind === "av-over-ip-decoder";
 
-      if (!fromIsTx && !toIsRx) {
+      if (!fromIsTx || !toIsRx) {
         violations.push({
           severity: "warning",
           title: "HDBaseT connection between non-standard endpoints",

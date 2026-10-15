@@ -1,5 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+// Enforce full-source reachability during the required visual CI gate.
+import "./check-orphaned-modules.mjs";
 
 const root = process.cwd();
 const reportDir = path.join(root, "reports");

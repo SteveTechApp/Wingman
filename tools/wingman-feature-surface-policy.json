@@ -65,8 +65,28 @@
     "src/wingman2/components/AVSignalFlowDiagram.tsx",
     "src/wingman2/components/GuruCallNotesInterpreter.tsx",
     "src/wingman2/components/RoomSchematicDiagram.tsx",
+    "src/wingman2/components/TemplateCompletionChecklist.tsx",
     "src/wingman2/lib/competitorMatchDecisionSnapshot.ts",
     "src/wingman2/lib/scenarioValidation.ts",
-    "src/wingman2/lib/testHelpers/governedProfilesHarness.ts"
-  ]
+    "src/wingman2/lib/templateCompletionChecklist.ts",
+    "src/wingman2/lib/templateRealismAuditEntry.ts",
+    "src/wingman2/lib/testHelpers/fullProductIndexRecords.ts",
+    "src/wingman2/lib/testHelpers/governedProfilesHarness.ts",
+    "src/wingman2/logic/matrixOutputModel.ts",
+    "src/wingman2/pages/discovery/discoveryCrossFieldRules.ts"
+  ],
+  "retainedSourceReasons": {
+    "src/wingman2/components/AVSignalFlowDiagram.tsx": "Optional lightweight signal-flow visual; retained reusable presentation with check-optional-visual-support guard. Not currently routed.",
+    "src/wingman2/components/GuruCallNotesInterpreter.tsx": "Reusable free-text/voice note interpreter; retain for Call Coach integration. Not currently routed; do not claim production coverage from its marker guard.",
+    "src/wingman2/components/RoomSchematicDiagram.tsx": "Lightweight per-product diagram; productCheatSheet and productTopologyUiContract regressions exercise this retained presentation.",
+    "src/wingman2/components/TemplateCompletionChecklist.tsx": "Reusable completeness presentation for a future template review tab; templateCompletionChecklistTab regression protects rendering.",
+    "src/wingman2/lib/competitorMatchDecisionSnapshot.ts": "Competitor decision snapshot CLI and regression fixture builder.",
+    "src/wingman2/lib/scenarioValidation.ts": "Behavioural recommendation scenario test harness.",
+    "src/wingman2/lib/templateCompletionChecklist.ts": "Template coverage scorecard CLI and checklist tests consume it.",
+    "src/wingman2/lib/templateRealismAuditEntry.ts": "Bundled dynamically by tools/check-template-realism.mjs.",
+    "src/wingman2/lib/testHelpers/fullProductIndexRecords.ts": "Full product fixtures for catalogue and recommendation tests.",
+    "src/wingman2/lib/testHelpers/governedProfilesHarness.ts": "Governed-profile coverage-loss regression fixture injection.",
+    "src/wingman2/logic/matrixOutputModel.ts": "Reference matrix-output model inspected by check-matrix-output-model; retain separate routed/mirrored/loop output semantics for future consolidation, not live comparison evidence.",
+    "src/wingman2/pages/discovery/discoveryCrossFieldRules.ts": "Default-answer and saved-project consistency auditors used by discoveryDefaultsValidation and discoverySavedDataConsistency tests."
+  }
 }

@@ -39,9 +39,15 @@ requireText(
 );
 
 requireText(
-  "src/wingman2/pages/discovery/DiscoveryQuestionSection.tsx",
-  "<DiscoveryLocationsConnections",
+  "src/wingman2/pages/discovery/DiscoveryExpertBuilder.tsx",
+  "<DiscoveryRoomLocations",
   "Topology editor rendering",
+);
+
+requireText(
+  "src/wingman2/pages/DiscoveryPage.tsx",
+  "<DiscoveryExpertBuilder",
+  "Topology editor reachable from Discovery",
 );
 
 requireText(

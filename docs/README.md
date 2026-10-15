@@ -16,6 +16,7 @@ For deployment, follow [`../DEPLOYMENT.md`](../DEPLOYMENT.md), then use
 | Production operations | [`OPERATIONS.md`](./OPERATIONS.md) |
 | Supabase | [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) |
 | Security reporting | [`../SECURITY.md`](../SECURITY.md) |
+| Repository audit and archive recovery | [`REPOSITORY_AUDIT_2026-10-15.md`](./REPOSITORY_AUDIT_2026-10-15.md) |
 | Launch approval | [`LAUNCH_CHECKLIST.md`](./LAUNCH_CHECKLIST.md) |
 
 ## Product standards enforced in code

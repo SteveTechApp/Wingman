@@ -46,8 +46,13 @@ const pageContracts = {
   "src/wingman2/pages/DiscoveryPage.tsx": {
     sources: [
       "src/wingman2/pages/DiscoveryPage.tsx",
-      "src/wingman2/pages/discovery/DiscoveryQuestionSection.tsx",
+      "src/wingman2/pages/discovery/DiscoveryExpertBuilder.tsx",
+      "src/wingman2/pages/discovery/DiscoveryRoomWizard.tsx",
     ],
+    tokens: {
+      card: ["wm-expert-section-content", "wm-room-wizard"],
+      title: ["wm-expert-builder-heading", "wm-room-wizard-heading"],
+    },
   },
   "src/wingman2/pages/DashboardPage.tsx": {
     sources: ["src/wingman2/pages/DashboardPage.tsx"],

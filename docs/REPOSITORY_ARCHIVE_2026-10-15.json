@@ -1,0 +1,234 @@
+{
+  "archiveRef": "codex/archive-pre-audit-20261015",
+  "commit": "1177271779b6b6d40077a7ee2fd6ae00873f054d",
+  "files": [
+    {
+      "path": "src/wingman2/components/DiscoveryLocationsConnections.tsx",
+      "bytes": 44522,
+      "sha256": "5a8df2c3a6a216a1cfdb9893c99cf68ff7af65dec92caa987f43567d493bd72a",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/components/DiscoveryLocationsConnections.test.tsx",
+      "bytes": 5709,
+      "sha256": "8ba8659e655c001b0b06979b84965746cd5ba1776e97fa7eb51652b80f396b96",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/components/TemplateConceptOverview.tsx",
+      "bytes": 5119,
+      "sha256": "2c05ee98b75ef427424a577dc10b36f950deb30c27dc7b3198a5a0d64598b3e9",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/discovery/DiscoveryCompletionPanel.tsx",
+      "bytes": 6999,
+      "sha256": "457923e1b461ad3fad27b0ad1604328bccb46c19196816a26d18f38d90ccf731",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/discovery/DiscoveryCompletionPanel.test.tsx",
+      "bytes": 6701,
+      "sha256": "cdbbfd21f4dc6bdeb6514fb1abea6ed7a61cf5c0d7e916d2734505273ab07cb9",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/discovery/DiscoveryOpportunityGraphic.tsx",
+      "bytes": 3382,
+      "sha256": "77d513106100e6c3d9fac2db9a424f3b17b435225bb73565315e6c0dde8a3772",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/discovery/DiscoveryQuestionGraphic.tsx",
+      "bytes": 2042,
+      "sha256": "9e59371a47f9cb90aaea78d8da2f6f625a643a3bad580f3418c244c37d4a341d",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/discovery/DiscoveryQuestionSection.tsx",
+      "bytes": 20554,
+      "sha256": "c3c3a3e581dde156033e0aec64278dfda63d6a1c7f3f3c26e9b156b75c8b6e3b",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/discovery/DiscoveryQuestionSection.photos.test.ts",
+      "bytes": 2275,
+      "sha256": "757129f9d3f6542908a551c790c10a947a55df629ab148f138b7a290c3bc7e42",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/discovery/DiscoverySummaryCard.tsx",
+      "bytes": 6038,
+      "sha256": "6c2f33be889ae97951836df745c356011e79b1753369ad0d4782881d2d88d93a",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/discovery/DiscoverySummaryCard.test.tsx",
+      "bytes": 9118,
+      "sha256": "3dc53baca6736be3b6a7c92d935536eaaa66e52fae6fdf2d5656c2ec9a7c3e75",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/project/RequirementAnswerInput.tsx",
+      "bytes": 2227,
+      "sha256": "f7c97fd26b132b9fbf8be12202477d5fac0932b964dfdcb00e6b629e7f9f14ab",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/project/RequirementAnswerInput.test.tsx",
+      "bytes": 1959,
+      "sha256": "fe2530c141afe9596dd907dc428ae06108ce61d7a0afbdc9e7df13c2f091da79",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "src/wingman2/pages/project/RequirementsAccordion.tsx",
+      "bytes": 5233,
+      "sha256": "480ea2c664cdebb460b0f682a04ed24415b64382a9260ca4e0cb2b8919484c3d",
+      "reason": "Superseded UI or its dedicated tests; no production import path"
+    },
+    {
+      "path": "tools/check-discovery-reference-layout.mjs",
+      "bytes": 2344,
+      "sha256": "325b983f85fa270a913bb469b6081b5ab3005d609e6ae9edeb508b38a9a5c80b",
+      "reason": "Uninvoked guard for archived Discovery layout"
+    },
+    {
+      "path": "docs/repo-audit/active-css-import-order.csv",
+      "bytes": 488,
+      "sha256": "7d17c55220dc5af7cc72b6accf137b2235a561ef477c4f0a9ecf020c1a4eb22d",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/active-css-summary.csv",
+      "bytes": 681,
+      "sha256": "f0360359138da5ea48a91d03ab61e96d1178b6a1fb86061ea0714871be5586cb",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/all-files.csv",
+      "bytes": 491051,
+      "sha256": "0736b8032eb86e9f80d830f162262173b1f3728b847ef502090bf64c37ad51a4",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/cleanup-manifest-20260811-183215.csv",
+      "bytes": 14218,
+      "sha256": "c84cc6cbceaa84c8ed184a7b0f6fed69b8f5677f2709e7be456f69448f5584d5",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/cleanup-manifest-20260811-183248.csv",
+      "bytes": 14218,
+      "sha256": "c84cc6cbceaa84c8ed184a7b0f6fed69b8f5677f2709e7be456f69448f5584d5",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/core-selector-conflicts.csv",
+      "bytes": 1224,
+      "sha256": "47d0768c5ecde4ec655f7e9ab6baeaaf595e91529a8dac87b693c247a70e73c9",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/css-audit.csv",
+      "bytes": 24634,
+      "sha256": "3367c798de03ff52302a6bcddb12159220c80864545c782c8297ddf54b36b1ab",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/css-imports.csv",
+      "bytes": 7680,
+      "sha256": "ed9affa71f92e5b048efd287715b51daf25eab46f89096482a144db636c9960c",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/css-patch-markers.csv",
+      "bytes": 15787,
+      "sha256": "69f748960f74dfbb37179ebe57ba96a2ef51ee7e98abd378b70b9d7e20e93497",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/duplicate-css-selectors.csv",
+      "bytes": 146485,
+      "sha256": "370a857adf3958b7c55d29817f5024278044734de7ce5eea28afdecc57465e76",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/duplicate-files.csv",
+      "bytes": 370247,
+      "sha256": "a744ccf56325e7bc059db6862307804c68dde20cd8b4dd615ca85c8748e7e5cc",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/extension-sizes.csv",
+      "bytes": 13809,
+      "sha256": "48f13703094bb95bfc30c2aa3dfa1de891aa574d4e7ae447fd903bcffd2e8f66",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/folder-sizes.csv",
+      "bytes": 2817,
+      "sha256": "52cfa0a795dd1d1f73b6acad1b96ba18ee7da7400e792b0ac94aa67480e19727",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/largest-files.csv",
+      "bytes": 10802,
+      "sha256": "12dc6456ab32bedb05ad037b7b5c4ed121aff3fb460ea776bbc4174ed776c6a6",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/largest-source-files.csv",
+      "bytes": 272505,
+      "sha256": "5df7add4c2a6133abfa2e5ad3fce494a01a6b3df0dddedfd83dc0faafee93f0c",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/package-dependencies.csv",
+      "bytes": 1898,
+      "sha256": "05ad170f0bbdfa2fb6394473e291a5323e1584a6b591a3b11ecaa373c7616463",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/package-scripts.csv",
+      "bytes": 15659,
+      "sha256": "f4d8f36661a32449444ecf7be2f11b60d7c3360ec2957834cf48a400f4047449",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/stale-candidates.csv",
+      "bytes": 371374,
+      "sha256": "7b0613d74884b50931bb307361c79678905d3a443506304234b84ece8aeb664d",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/test-files.csv",
+      "bytes": 64977,
+      "sha256": "895331fca3e350878d6ded0f9b98eaae513dc2484421adfe1f1176f5591d7398",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/tools-files.csv",
+      "bytes": 13543,
+      "sha256": "7b6cb856f80b8e77df54a5d9962763e6d1a6ee28a3030a73bb882e988eb72ad2",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/videowall-card-diagnostic.txt",
+      "bytes": 16532,
+      "sha256": "f2654a781b0bc06351c7fb2a4e06c7c191e90a1c8ca91e760d063ba0786034b6",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/wingman-css-refactor-plan.md",
+      "bytes": 7735,
+      "sha256": "bbe564ef0e618eada1dff296ca4f746055dacebccb6664ae7a29e06fe7bc8b2b",
+      "reason": "Historical August audit output; no external reference found"
+    },
+    {
+      "path": "docs/repo-audit/wingman-repo-audit.md",
+      "bytes": 6847,
+      "sha256": "44aba8504f8cafb79e364ebe814f21063929ab67330bfd8782a34a6265348b53",
+      "reason": "Historical August audit output; no external reference found"
+    }
+  ]
+}
