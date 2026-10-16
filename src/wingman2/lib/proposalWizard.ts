@@ -374,22 +374,21 @@ export function computeProposalReadiness(
   if (hasText(input.proposalReference)) customer += 2;
 
   const solutionComplete =
-    input.solutionConfirmed &&
     (input.technicalBlockerCount ?? 0) === 0 &&
     (input.commercialPricingComplete ?? input.continueWithoutBom) &&
     (input.bomRowCount > 0 || input.continueWithoutBom);
 
   const solution = solutionComplete
-    ? 8
+    ? 12
     : input.bomRowCount > 0
       ? 4
       : 0;
 
-  const approval = input.reviewConfirmed ? 4 : 0;
+  const approval = 0; // Retained for stored consumers; review is optional.
 
   const missing: string[] = [];
   if (clampPercent(input.discoveryPercent) < 100) {
-    missing.push("Complete or review the remaining Discovery questions.");
+    missing.push("Additional discovery details can be added when available.");
   }
   if (!hasText(input.customerName)) {
     missing.push("Add the customer or organisation name.");
@@ -406,14 +405,8 @@ export function computeProposalReadiness(
   if (input.bomRowCount <= 0 && !input.continueWithoutBom) {
     missing.push("Add the core WyreStorm products or explicitly continue without a final BOM.");
   }
-  if (!input.solutionConfirmed) {
-    missing.push("Confirm that the proposed solution has been reviewed.");
-  }
   if (input.bomRowCount > 0 && !input.commercialPricingComplete) {
     missing.push("Enter a unit price for every included equipment line.");
-  }
-  if (!input.reviewConfirmed) {
-    missing.push("Complete the final customer-safe review.");
   }
   if ((input.technicalBlockerCount ?? 0) > 0) {
     missing.push(`Resolve ${input.technicalBlockerCount} technical assurance blocker(s) before customer export.`);

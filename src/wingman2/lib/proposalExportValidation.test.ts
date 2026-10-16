@@ -17,7 +17,7 @@ describe("validateProposalExport discovery-conversation gate", () => {
     const result = validateProposalExport({ products: [], bomRows: [{ item: 1, sku: "BY-OTHERS-AUDIO-SPEAKERS-1", description: "Dining speakers", role: "Audio", qty: 4, type: "Required", status: "included", evidence: "Concept", notes: "Confirm supplier." }] });
     expect(result.warnings.some((warning) => warning.id === "chain-by-others-scope")).toBe(true);
   });
-  it("blocks export on a note-only capture that never mapped to a governed answer", () => {
+  it("keeps unstructured customer notes advisory without requiring an answer choice", () => {
     const result = run([
       {
         stepId: "scale",
@@ -27,16 +27,16 @@ describe("validateProposalExport discovery-conversation gate", () => {
       },
     ]);
 
-    expect(result.allowed).toBe(false);
-    expect(result.blockers).toHaveLength(1);
-    const blocker = result.blockers[0];
+    expect(result.allowed).toBe(true);
+    expect(result.blockers).toHaveLength(0);
+    const blocker = result.warnings[0];
     expect(blocker.domain).toBe("discovery");
     expect(blocker.id).toBe("discovery-note-only-scale");
     expect(blocker.message).toContain("captured as a note only");
     expect(blocker.message).toContain("scale");
   });
 
-  it("still blocks a note-only capture even when marked confirmed with the customer", () => {
+  it("keeps note-only wording advisory even when marked confirmed", () => {
     const result = run([
       {
         stepId: "audio",
@@ -47,9 +47,9 @@ describe("validateProposalExport discovery-conversation gate", () => {
       },
     ]);
 
-    expect(result.allowed).toBe(false);
+    expect(result.allowed).toBe(true);
     // Confirming the note does not create a governed answer to quote against.
-    expect(result.blockers.some((b) => b.id === "discovery-note-only-audio")).toBe(true);
+    expect(result.warnings.some((b) => b.id === "discovery-note-only-audio")).toBe(true);
   });
 
   it("warns (but does not block) on open rows that do have a governed answer", () => {

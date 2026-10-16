@@ -66,7 +66,7 @@ export type ProposalReadiness = {
  *   +  4 per selected product (capped at +20)
  *   Clamped to [0, 100]
  *
- * The score gates export: only score >= 100 allows customer-facing export.
+ * The score describes information coverage; it does not gate export.
  * `reviewRequired` is true when score < 74 or any blocker exists.
  */
 export function proposalReadiness(

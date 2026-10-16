@@ -53,10 +53,10 @@ describe("ProposalCompletionWizard", () => {
 
     expect(screen.getByText("Make the proposal yours.")).not.toBeNull();
     expect(screen.getByRole("navigation", { name: "Response completion steps" })).not.toBeNull();
-    expect(screen.getByText(/% complete/)).not.toBeNull();
+    expect(screen.getByText(/% of supporting details captured/)).not.toBeNull();
   });
 
-  it("gates every export button until readiness reaches 100%", () => {
+  it("blocks export when the project has no requirements or system design", () => {
     seedActiveProject();
     renderWizard();
 
@@ -124,6 +124,31 @@ describe("ProposalCompletionWizard", () => {
     const project = readProjectStore().projects.find((item) => item.id === "acme-hq-boardroom");
     expect(project?.feedback?.[0]?.rating).toBe("accepted");
     expect(project?.feedback?.[0]?.scope).toBe("proposal");
+  });
+
+  it("offers direct export access and keeps team review optional without sign-off checkboxes", () => {
+    seedActiveProject();
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
+    expect(screen.getByText("Optional team review")).not.toBeNull();
+    expect(screen.queryByLabelText(/I have reviewed/)).toBeNull();
+    expect(screen.queryByText("Final approval")).toBeNull();
+  });
+
+  it.each(["draft", "pending", "rejected"] as const)("allows an unpriced response with incomplete discovery and %s team review", (approvalStatus) => {
+    seedActiveProject();
+    upsertStoredProject({
+      ...readProjectStore().projects.find(project => project.id === "acme-hq-boardroom")!,
+      discoveryBrief: { capturedPercent: 40, roomModel: {}, discoveryConversation: [{ stepId: "opportunity", question: "Room purpose", answer: "Presentation", note: "Share slides", confirmed: false }] },
+      proposal: { title: "Presentation room", summary: "Share slides", sections: [], assumptions: ["Cable routes to measure"], updatedAt: new Date().toISOString(), approvalStatus,
+        products: [{ sku: "MX-0402-MST", title: "Presentation matrix", quantity: 1 }],
+        bomRows: [{ item: 1, sku: "MX-0402-MST", description: "Presentation matrix", role: "Source input, switching processing, HDMI cable transport and display output", qty: 1, type: "Required", status: "included", evidence: "Customer brief", notes: "" }],
+      },
+    });
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
+    expect(screen.getByRole("button", { name: /Export formatted DOCX/ })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: /Export HTML/ })).not.toBeDisabled();
   });
 
   it("restores a saved proposal BOM when project selections are not separately present", () => {
@@ -480,7 +505,7 @@ function exactFiguresBrief(): StoredDiscoveryBrief {
     });
   });
 
-  it("blocks export when a discovery conversation row is a note-only capture", () => {
+  it("shows unstructured discovery notes as advisory information", () => {
     seedActiveProject();
     upsertStoredProject({
       ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
@@ -503,14 +528,14 @@ function exactFiguresBrief(): StoredDiscoveryBrief {
 
     // The gate summary is visible immediately; expand to see the blocker detail.
     expect(
-      screen.getByText(/1 blocker\(s\) must be resolved before export/),
+      screen.getByText(/1 warning\(s\)/),
     ).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Show details/ }));
 
     // The note-only capture surfaces with the question named and the discovery
     // domain, so the rep knows which row to reopen.
     expect(
-      screen.getByText(/captured as a note only and never confirmed to a governed answer/),
+      screen.getByText(/captured as a note only and remains an open design detail/),
     ).not.toBeNull();
     expect(
       screen.getByText(/What is the approximate room or system scale\?/),

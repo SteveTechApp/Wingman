@@ -781,7 +781,7 @@ function ProposalCompletionWizardContent({
     ],
   );
 
-  const customerOutputBlocked = finalReadinessScore < 100 || !proposal.designRevision?.canIssue;
+  const customerOutputBlocked = chainBlockers.length > 0 || !exportValidation.allowed || Boolean(proposal.designRevision?.blockers.length);
 
   useEffect(() => {
     saveProposalWizardDraft(draft);
@@ -939,23 +939,6 @@ function ProposalCompletionWizardContent({
 
     if (proposal.designRevision?.blockers.length) {
       return `Export blocked — the complete design still has gaps:\n${proposal.designRevision.blockers.join("; ")}`;
-    }
-
-    if (proposal.approvalStatus === "approved" && proposal.approvedRevisionHash !== proposal.designRevision?.contentHash) {
-      return "Export blocked — the approved revision no longer matches the current design. Submit the revised design for approval.";
-    }
-
-    // Check approval status — pending/rejected proposals cannot be exported
-    const approvalStatus = proposal.approvalStatus || "draft";
-    if (approvalStatus === "pending") {
-      return "Export blocked — proposal is awaiting manager approval. Wait for approval or recall the submission.";
-    }
-    if (approvalStatus === "rejected") {
-      const feedback = proposal.approvalComments ? `\nFeedback: ${proposal.approvalComments}` : "";
-      return `Export blocked — proposal was returned for changes.${feedback}\nAddress the feedback and resubmit for approval.`;
-    }
-    if (approvalStatus !== "approved" || proposal.approvedRevisionHash !== proposal.designRevision?.contentHash) {
-      return "Export blocked — submit this design revision and obtain manager approval before creating customer documents.";
     }
 
     return null;
@@ -1121,19 +1104,18 @@ function ProposalCompletionWizardContent({
           <span>Customer response</span>
           <h1>Make the proposal yours.</h1>
           <p>
-            Shape the story, confirm the details and prepare it for your customer.
+            Your captured room details are already included. Add anything missing or go straight to export.
           </p>
+          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => setActiveStep(4)}>Go to export</button>
         </div>
 
         <div
           className="wm-proposal-readiness wingman-surface"
-          data-ready={finalReadinessScore === 100 ? "true" : "false"}
+          data-ready={customerOutputBlocked ? "false" : "true"}
         >
           <strong>{finalReadinessScore}%</strong>
           <span>
-            {finalReadinessScore === 100
-              ? "Ready for DOCX export"
-              : "Response completion"}
+            {customerOutputBlocked ? "Design details to resolve" : "Export available"}
           </span>
         </div>
       </header>
@@ -1147,8 +1129,7 @@ function ProposalCompletionWizardContent({
           <span>Discovery {readiness.discovery}/65</span>
           <span>Narrative {readiness.narrative}/15</span>
           <span>Customer {readiness.customer}/8</span>
-          <span>Solution {readiness.solution}/8</span>
-          <span>Approval {readiness.approval}/4</span>
+          <span>Solution {readiness.solution}/12</span>
         </div>
       </section>
 
@@ -1459,22 +1440,6 @@ function ProposalCompletionWizardContent({
                 </label>
               ) : null}
 
-              <label className="wm-proposal-confirmation">
-                <input
-                  type="checkbox"
-                  checked={draft.solutionConfirmed}
-                  onChange={(event) =>
-                    updateDraft(
-                      "solutionConfirmed",
-                      event.target.checked,
-                    )
-                  }
-                />
-                <span>
-                  I have reviewed the proposed architecture, product direction
-                  and equipment schedule for this proposal.
-                </span>
-              </label>
             </>
           ) : null}
 
@@ -1587,8 +1552,7 @@ function ProposalCompletionWizardContent({
                 <span>Step 5 of 5</span>
                 <h2>Review and export</h2>
                 <p>
-                  Resolve the final checklist, approve the customer-safe
-                  wording and generate the formatted Word document.
+                  Generate your document from the captured information. Open details remain visible; no manager sign-off is required.
                 </p>
               </div>
 
@@ -1600,8 +1564,7 @@ function ProposalCompletionWizardContent({
                       ["Discovery brief", readiness.discovery === 65],
                       ["Proposal narrative", readiness.narrative === 15],
                       ["Customer details", readiness.customer === 8],
-                      ["Solution and BOM decision", readiness.solution === 8],
-                      ["Final approval", readiness.approval === 4],
+                      ["Solution and BOM decision", readiness.solution === 12],
                     ].map(([label, complete]) => (
                       <li
                         key={String(label)}
@@ -1654,22 +1617,6 @@ function ProposalCompletionWizardContent({
 
               {proposal.designRevision ? <DesignProposalReview revision={proposal.designRevision} /> : null}
 
-              <label className="wm-proposal-confirmation wm-proposal-final-confirmation">
-                <input
-                  type="checkbox"
-                  checked={draft.reviewConfirmed}
-                  onChange={(event) =>
-                    updateDraft(
-                      "reviewConfirmed",
-                      event.target.checked,
-                    )
-                  }
-                />
-                <span>
-                  I have reviewed the proposal wording, scope, assumptions,
-                  validation items and customer-facing product statements.
-                </span>
-              </label>
 
               <VerifyBeforeQuoteNote className="wm-proposal-verify-note" />
 
@@ -1793,7 +1740,7 @@ function ProposalCompletionWizardContent({
                 const approvalStatus = proposal.approvalStatus || "draft";
 
                 return (
-                  <div className="wm-proposal-approval-section">
+                  <details className="wm-proposal-approval-section"><summary>Optional team review</summary>
                     <div className="wm-proposal-approval-header">
                       <h3>Approval status</h3>
                       <ApprovalStatusBadge status={approvalStatus} />
@@ -1839,7 +1786,7 @@ function ProposalCompletionWizardContent({
                         </button>
                       )}
                     </div>
-                  </div>
+                  </details>
                 );
               })()}
 
@@ -1945,7 +1892,7 @@ function ProposalCompletionWizardContent({
             <summary>Document format and readiness</summary>
             <strong>{typeConfig.label}</strong>
             <p>{typeConfig.description}</p>
-            <p>{finalReadinessScore}% complete. Complete the remaining evidence and review steps before customer issue.</p>
+            <p>{finalReadinessScore}% of supporting details captured. Completion percentage and team approval do not prevent export.</p>
           </details>
         </aside>
       </div>

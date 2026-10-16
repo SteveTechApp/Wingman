@@ -154,7 +154,7 @@ export function DiscoveryExpertBuilder(props: Props) {
   </section>;
 }
 
-function ExpertQuestion({ question, application, answer, note, confirmed, onSelect, onNoteChange, onConfirm, onConfirmCapture }: {
+function ExpertQuestion({ question, application, answer, note, onSelect, onNoteChange, onConfirmCapture }: {
   question: DiscoveryQuestion; application: string; answer: string | string[] | undefined; note: string; confirmed: boolean;
   onSelect: (value: string) => void; onNoteChange: (value: string) => void; onConfirm: (value: boolean) => void;
   onConfirmCapture: (values: string[], confidence?: "high" | "matched" | "low") => void;
@@ -169,7 +169,6 @@ function ExpertQuestion({ question, application, answer, note, confirmed, onSele
     </button>)}</div>
     <label>Design notes and exact details<textarea value={note} placeholder={question.capturePlaceholder} onChange={event => onNoteChange(event.target.value)} /></label>
     <DiscoveryCaptureSuggestion step={question} view={view} note={note} onConfirm={onConfirmCapture} />
-    <label className="wm-room-wizard-check"><input type="checkbox" checked={confirmed} onChange={event => onConfirm(event.target.checked)} />Confirmed with the customer or site team</label>
     <details><summary>Technical design impact</summary><p>{view.why}</p></details>
   </article>;
 }

@@ -28,7 +28,8 @@ describe("free-text capture suggestions reach the discovery conversation trail",
     // notes store, so a chip-confirmed capture records the customer's own
     // wording next to the auto-classified answer.
     expect(source).toContain("return compileDiscoveryBrief({");
-    expect(briefBuilder).toContain("discoveryConversation: buildDiscoveryConversation(modeQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep)");
+    expect(briefBuilder).toContain("buildDiscoveryConversation(discoveryQuestions.filter");
+    expect(briefBuilder).toContain("wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]?.trim())");
     expect(briefBuilder).toMatch(/buildDiscoveryConversation,\s/);
   });
 });
