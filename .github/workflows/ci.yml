@@ -259,6 +259,12 @@ jobs:
       - name: Run dependency audit (root and server)
         run: npm run check:dependency-audit
 
+      # Moderately-severity advisories on PRODUCTION dependencies with no
+      # fixed release (the sprintf-js incident) pass the high/critical audit
+      # gate; this covers them - and denylisted packages at any severity.
+      - name: Run production unpatched-advisory gate (root and server)
+        run: npm run check:prod-unpatched
+
   build:
     name: Build
     runs-on: ubuntu-latest
