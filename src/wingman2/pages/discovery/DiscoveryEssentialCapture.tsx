@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function DiscoveryEssentialCapture(props: Props) {
-  return <section className="wm-room-wizard" aria-label="Essential room details">
+  return <section className="wm-room-wizard" aria-label="Essential room details" data-testid="discovery-essential-capture">
     <h2>Tell us about the room</h2>
     <p>Start with what you know. Saved template details are already filled in. Leave unknown details open and add technical information when needed.</p>
     <label>Room brief or customer notes<textarea value={props.notes.opportunity || ""} placeholder="Paste the customer brief or describe what people need to do in the space." onChange={event => {

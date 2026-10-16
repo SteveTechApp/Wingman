@@ -230,7 +230,7 @@ async function walkDiscovery(page) {
   await page.reload({ waitUntil: "networkidle" });
   await page.waitForTimeout(600);
 
-  const marketEntry = page.getByRole("region", { name: "Opportunity context" });
+  const marketEntry = page.getByTestId("discovery-market-entry");
   const viewSwitcher = page.locator(".wm-topbar-mode-toggle");
   const focusedView = viewSwitcher.getByRole("button", { name: /^Focused view/ });
   const expertView = viewSwitcher.getByRole("button", { name: /^Expert view/ });
@@ -256,11 +256,11 @@ async function walkDiscovery(page) {
 
   // Streamlined discovery flow: template + activity land on the essentials capture first.
   // "Room builder" in the capture tools row is the action that reveals the full builder region.
-  const essentialCapture = page.getByRole("region", { name: "Essential room details" });
+  const essentialCapture = page.getByTestId("discovery-essential-capture");
   await essentialCapture.waitFor({ state: "visible", timeout: 15_000 });
-  await page.getByRole("button", { name: "Room builder", exact: true }).click();
+  await page.getByTestId("discovery-room-builder-toggle").click();
 
-  const wizard = page.getByRole("region", { name: "Full room builder" });
+  const wizard = page.getByTestId("discovery-room-wizard");
   await wizard.waitFor({ state: "visible", timeout: 10_000 });
   let answered = 0;
   let completed = false;
@@ -290,7 +290,7 @@ async function walkDiscovery(page) {
     if (await options.count()) await options.first().click();
     if (answered === 0) {
       await page.getByRole("button", { name: "Detailed questions", exact: true }).click();
-      const expertBuilder = page.getByRole("region", { name: "Expert room design" });
+      const expertBuilder = page.getByTestId("discovery-expert-builder");
       await expertBuilder.waitFor({ state: "visible", timeout: 5_000 });
       if (!(await expertBuilder.locator(".wm-room-wizard-option[aria-pressed='true']").count())) {
         throw new Error("[e2e-smoke] Expert view did not retain the answer just entered in Focused Discovery.");
@@ -298,7 +298,7 @@ async function walkDiscovery(page) {
       if (!(await expertBuilder.getByRole("navigation", { name: "Room design sections" }).isVisible())) {
         throw new Error("[e2e-smoke] Expert Discovery did not render its room design sections.");
       }
-      await page.getByRole("button", { name: "Room builder", exact: true }).click();
+      await page.getByTestId("discovery-room-builder-toggle").click();
       await wizard.waitFor({ state: "visible", timeout: 5_000 });
       if (!(await wizard.locator("button.wm-room-wizard-option[aria-pressed='true']").count())) {
         throw new Error("[e2e-smoke] Focused view did not retain the answer entered before switching views.");
