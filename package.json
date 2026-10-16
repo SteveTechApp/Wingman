@@ -267,7 +267,6 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.11",
-    "autoprefixer": "^10.5.4",
     "axe-core": "^4.11.4",
     "browserslist": "^4.28.8",
     "embedded-postgres": "^18.4.0-beta.17",
@@ -279,13 +278,12 @@
     "jsdom": "^26.1.0",
     "pg": "^8.23.0",
     "playwright": "^1.60.0",
-    "postcss": "^8.5.23",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.8",
     "vitest": "^4.1.11",
-    "shadcn": "^4.16.1"
+    "@tailwindcss/vite": "^4.3.3"
   },
   "overrides": {
     "argparse": "^2.0.1",

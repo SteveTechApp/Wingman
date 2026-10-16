@@ -1,22 +1,4 @@
 {
   "policy": "Reviewed, time-limited exceptions to the high-severity dependency audit gate. An exception records a deliberate decision that a specific advisory does not apply to how Wingman uses the package. It is not a way to silence a finding that has not been assessed. Every entry must carry a justification and an expiry; the check fails once an exception expires - and also as soon as it is within 14 days of expiry, so a renewal is prepared ahead of the deadline instead of being discovered by a red build. Nothing here can quietly become permanent.",
-  "exceptions": [
-    {
-      "advisory": "GHSA-vfj7-8cjw-p6xm",
-      "package": "braces",
-      "justification": "Assessed 2026-10-06: braces 3.0.3 is reachable only through the root development Tailwind/chokidar/micromatch toolchain. Tailwind content patterns are fixed repository paths in tailwind.config.js (index.html and src source files). Customer input does not supply glob patterns; no application or API source imports braces or micromatch, and the API server has a separate lockfile. The upstream advisory lists no patched release and npm latest remains 3.0.3. Retain this build-only exception until an upstream fix or a separately validated Tailwind migration; reassess before expiry. This does not accept runtime use of attacker-controlled patterns.",
-      "reviewedOn": "2026-10-06",
-      "reviewedBy": "Codex integration assessment",
-      "expiresOn": "2026-11-06",
-      "alsoAffects": [
-        "@ts-morph/common",
-        "chokidar",
-        "fast-glob",
-        "micromatch",
-        "shadcn",
-        "tailwindcss",
-        "ts-morph"
-      ]
-    }
-  ]
+  "exceptions": []
 }

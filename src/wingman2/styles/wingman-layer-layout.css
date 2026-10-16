@@ -323,6 +323,13 @@ aside:not(.wm-sidebar):not(.wingman-sidebar) {
 }
 /* Generate the layout, spacing and typography utilities used by existing views.
    Wingman's reset owns base elements; theme styles follow this layer. */
-@tailwind utilities;
+/* Tailwind v4 utility layer. v3 generated the same utilities through
+   postcss `@tailwind utilities` with tailwind.config.js content globs
+   (index.html + src source tree); v4 achieves this through the
+   @tailwindcss/vite plugin with explicit sources and utilities-only import:
+   Wingman's reset owns base elements, so no preflight or components layer. */
+@import "tailwindcss/utilities" source(none);
+@source "../../";
+@source "../../../index.html";
 
 .wingman-home-link { display: inline-flex; flex-shrink: 0; }
