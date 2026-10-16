@@ -165,12 +165,15 @@ permanent, and resolved ones get deleted rather than lingering.
 
 ### Currently in force
 
-| Advisory | Package | Expires | Why |
-|---|---|---|---|
-| `GHSA-qwww-vcr4-c8h2` | react-router / react-router-dom | 2026-10-24 | RSC-mode CSRF bypass. Wingman is a client-rendered SPA — `BrowserRouter` via `createRoot`, no SSR, no RSC entry point, no RSC API imports. The vulnerable path is unreachable. No fixed release exists above the installed 7.18.1; npm's suggested remediation is a downgrade to 7.11.0, which would undo the deliberate 6.x → 7.x upgrade. |
+None. The two most recent exceptions both ended as designed:
 
-**Before that expiry:** check whether react-router has published a fixed 7.x. If so, upgrade and
-**delete** the exception rather than extending it.
+| Advisory | Package | Closed | How |
+|---|---|---|---|
+| `GHSA-vfj7-8cjw-p6xm` | `braces` (propagating through `micromatch`, `fast-glob`, `chokidar`, `ts-morph`, `shadcn`, `tailwindcss`) | 2026-10-16 | Remediated rather than renewed: the main checkout dropped the unused `shadcn` CLI and completed the Tailwind v3 → v4 migration (`@tailwindcss/vite`), which removes the `chokidar`/`micromatch`/`braces` glob-and-watch toolchain from the dev tree entirely. Neither exception file carries an entry any more. |
+| `GHSA-qwww-vcr4-c8h2` | `react-router` / `react-router-dom` | 2026-10-16 | Resolved upstream: the tree has since installed 7.18.2, which is above the fixed release, and `npm audit` reports zero advisories again. |
+
+No exceptions remain in either `tools/dependency-audit-exceptions.json` or
+`tools/build-dep-exceptions.json`.
 
 ---
 
