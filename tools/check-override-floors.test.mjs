@@ -42,6 +42,7 @@ describe("specFloor", () => {
 
 const CLEAN_PACKAGE = {
   overrides: {
+    argparse: "^2.0.1",
     "source-map-js": "^1.2.2",
     "postcss-selector-parser": "^7.1.6",
     "proxy-addr": "^2.0.8",
@@ -55,6 +56,7 @@ const CLEAN_PACKAGE = {
 
 const CLEAN_LOCK = {
   packages: {
+    "node_modules/argparse": { version: "2.0.1" },
     "node_modules/source-map-js": { version: "1.2.2" },
     "node_modules/proxy-addr": { version: "2.0.8" },
     "node_modules/brace-expansion": { version: "1.1.21" },
@@ -72,6 +74,16 @@ function expectOneProblemMatching(packageJson, lock, pattern) {
 }
 
 describe("collectOverrideFloorProblems", () => {
+  it("rejects an argparse override removal or a nested 1.x resolution", () => {
+    const overrides = { ...CLEAN_PACKAGE.overrides };
+    delete overrides.argparse;
+    expectOneProblemMatching({ overrides }, CLEAN_LOCK, /argparse/);
+    const lock = { packages: { ...CLEAN_LOCK.packages,
+      "node_modules/mammoth/node_modules/argparse": { version: "1.0.10" },
+    } };
+    expectOneProblemMatching(CLEAN_PACKAGE, lock, /argparse.*below/);
+  });
+
   it("passes clean overrides with the lockfile at or above the floors", () => {
     expect(collectOverrideFloorProblems(CLEAN_PACKAGE, CLEAN_LOCK)).toEqual([]);
   });
