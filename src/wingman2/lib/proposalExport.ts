@@ -1,6 +1,7 @@
 import { proposalDiagramSvg } from "./proposalDiagram";
 import { loadProductMediaIndex, type ProductMediaIndex } from "../data/productMedia";
 import { proposalProductCards, proposalSolutionStory } from "./proposalSalesContent";
+import { roomBriefHtml } from "./proposalRoomBrief";
 import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
 import { downloadBlob } from "./downloadBlob";
 import { powerBudgetSummary, type PowerBudgetSummary } from "./powerBudget";
@@ -112,12 +113,12 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
 }
 
 function buildPracticalOperationHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
-  if (!bomRows.length) {
+  if (!bomRows.length && !proposal.applicationProposal?.userJourney.some((step) => step.trim())) {
     return "<p>Add equipment schedule rows to describe how this system will operate day to day.</p>";
   }
 
   const story = proposalSolutionStory(proposal, bomRows);
-  return `<ul>${story.operation.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+  return `<ol>${story.operation.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`;
 }
 
 function buildBenefitsHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
@@ -554,6 +555,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
       : "<p>This document sets out the WyreStorm recommendation for this requirement, how it will work in use, the equipment involved, and what remains to be confirmed before it is issued as a final customer proposal.</p>"
   }
 
+  ${roomBriefHtml(proposal, bomRows)}
   <h2>Solution Overview</h2>
   <p>${escapeHtml(story.overview)}</p>
   <h3>What successful delivery looks like</h3>

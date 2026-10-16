@@ -39,7 +39,7 @@ export function proposalSolutionStory(proposal: StoredProjectProposal, rows: Sal
   // them (including any product page source and recorded specifications) rather
   // than generic prompts. Projects without a compiled scope keep the prompts.
   const scopeLines = scopeItems.length
-    ? scopeItems.map((item) => `${item.category} | ${item.description}${item.notes ? ` — ${item.notes}` : ""} | Qty ${item.quantity} | Responsibility: ${item.responsibility}`).join("\n")
+    ? scopeItems.map((item) => `${item.category} | ${item.description}${item.notes ? ` — ${item.notes}` : ""} | Qty ${item.quantity} | Responsibility: ${item.responsibility} | Scope status: ${item.status}`).join("\n")
     : EXTERNAL_DESIGN_PROMPTS;
   const operation: string[] = [];
   if (architecture.isMatrix) operation.push("The proposed central matrix provides a single routing point between the scheduled sources and displays. The agreed controls will determine which content appears at each destination; switching behaviour will be verified during commissioning.");
@@ -50,7 +50,8 @@ export function proposalSolutionStory(proposal: StoredProjectProposal, rows: Sal
   if (!operation.length) operation.push("The equipment schedule defines the proposed building blocks. Agree the source-to-destination routes and normal operating sequence before confirming the complete user experience.");
   return {
     overview: proposal.salesContent?.solutionOverview || proposal.applicationProposal?.solutionOverview || "The proposed solution brings the scheduled equipment together around the customer's agreed operating requirements. Final interfaces, room controls and delivery responsibilities are set out below.",
-    operation,
+    operation: proposal.applicationProposal?.userJourney.some((step) => step.trim())
+      ? proposal.applicationProposal.userJourney.filter((step) => step.trim()) : operation,
     acceptance: proposal.applicationProposal?.acceptanceCriteria.length ? proposal.applicationProposal.acceptanceCriteria : ["Demonstrate each agreed source-to-destination route and room mode using the customer's normal tasks.", "Record the test results, train the nominated users and agree the support handover before acceptance."],
     externalScope: proposal.salesContent?.externalScope || scopeLines,
   };
