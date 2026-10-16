@@ -89,7 +89,7 @@ export function DiscoveryExpertBuilder(props: Props) {
     props.onConfirm(question.id, false);
   };
 
-  return <section className="wm-room-wizard wm-discovery-expert" aria-label="Expert room design" data-expert-section={activeSection}>
+  return <section className="wm-room-wizard wm-discovery-expert" aria-label="Expert room design" data-testid="discovery-expert-builder" data-expert-section={activeSection}>
     <header className="wm-expert-builder-heading">
       <div><p className="wm-room-wizard-eyebrow">Room design workspace · Expert view</p><h2>Build the room section by section</h2>
         <p>Capture confirmed details, working assumptions, and items still to survey. You can save and continue while information is open.</p></div>

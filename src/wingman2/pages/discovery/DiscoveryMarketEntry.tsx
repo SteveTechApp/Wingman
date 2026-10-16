@@ -36,7 +36,7 @@ export function DiscoveryMarketEntry({ allowTemplates = true, marketId, environm
   );
 
   return (
-    <section className="wm-discovery-market-entry wm-ui-card" aria-label="Opportunity context">
+    <section className="wm-discovery-market-entry wm-ui-card" aria-label="Opportunity context" data-testid="discovery-market-entry">
       <div className="wm-discovery-market-entry__heading">
         <span className="wm-discovery-market-entry__eyebrow">Start with the customer's world</span>
         <h2>{market ? (allowTemplates && !designingCustom && market.id !== "other" ? `How would you like to start in ${market.label}?` : `Where in ${market.label} will AV be used?`) : "Which market is the customer in?"}</h2>
