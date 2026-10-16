@@ -254,6 +254,12 @@ async function walkDiscovery(page) {
   await corporateButton.click();
   await marketEntry.getByRole("button", { name: /Meeting or boardroom/ }).click();
 
+  // Streamlined discovery flow: template + activity land on the essentials capture first.
+  // "Room builder" in the capture tools row is the action that reveals the full builder region.
+  const essentialCapture = page.getByRole("region", { name: "Essential room details" });
+  await essentialCapture.waitFor({ state: "visible", timeout: 15_000 });
+  await page.getByRole("button", { name: "Room builder", exact: true }).click();
+
   const wizard = page.getByRole("region", { name: "Full room builder" });
   await wizard.waitFor({ state: "visible", timeout: 10_000 });
   let answered = 0;
