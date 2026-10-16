@@ -59,6 +59,8 @@ describe("Focused and Expert room workflows", () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
     seedRoomBrief();
     mount("/wingman/discovery?resume=project");
+    expect(screen.getByRole("region", { name: "Essential room details" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Room builder" }));
     expect(screen.getByRole("region", { name: "Full room builder" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Equipment and room positions" }));
     expect(screen.getByRole("region", { name: "Room signal connections" })).toBeVisible();
@@ -71,12 +73,14 @@ describe("Focused and Expert room workflows", () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
     seedRoomBrief();
     mount("/wingman/discovery?resume=project");
+    fireEvent.click(screen.getByRole("button", { name: "Room builder" }));
     fireEvent.click(screen.getByRole("button", { name: "Equipment and room positions" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Location name" }), { target: { value: "Lectern" } });
     fireEvent.click(screen.getByRole("button", { name: "Add location" }));
     fireEvent.click(screen.getByRole("button", { name: /^Focused view:/ }));
     expect(screen.getByRole("heading", { name: "Start with a room template" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /^Expert view:/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Room builder" }));
     fireEvent.click(screen.getByRole("button", { name: "Equipment and room positions" }));
     expect(screen.getByRole("textbox", { name: "Name for Lectern" })).toHaveValue("Lectern");
   });

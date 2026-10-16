@@ -22,6 +22,12 @@ This is a single-room proposal presentation improvement. It does not introduce a
 
 Existing concept schematic validation and proposal issue checks remain authoritative. Recorded room facts are not automatically site-verified facts. Room-specific acceptance criteria should be completed before issue.
 
+## Efficient capture and optional review
+
+Room capture opens with essential details on one screen, reusing saved template answers and room notes. Detailed questions, equipment layout and voice capture are optional tools. Existing technical answers remain in the discovery record when returning to essential capture.
+
+Manager approval, per-answer confirmation and 100% completion are not prerequisites for document export. Review history remains available under optional team review. Unstructured notes stay labelled as open design details. Actual technical or incomplete-system blockers remain visible and actionable; missing prices continue to be identified as TBC in commercial documents.
+
 ## Verification
 
 `proposalRoomBrief.test.ts` checks saved operating steps, safe image URLs, escaping, missing room facts, exclusions, optional quantities and HTML/Word content parity. The existing proposal output parity command verifies HTML, Word and PDF semantic markers and equipment quantities. Full typecheck, lint, build, architecture and size checks also apply.

@@ -179,12 +179,10 @@ export function useProposalApprovalStatus(
 }
 
 /**
- * Check if a proposal can be exported (approved or no approval required).
+ * Team review is optional. Export screens additionally check technical validation.
  */
 export function useCanExportProposal(projectId: string): boolean {
   const { projects } = useProjectStore();
   const proposal = projects.find((project) => project.id === projectId)?.proposal;
-  return proposal?.approvalStatus === "approved"
-    && Boolean(proposal.designRevision?.contentHash)
-    && proposal.approvedRevisionHash === proposal.designRevision?.contentHash;
+  return Boolean(proposal?.designRevision?.canIssue);
 }

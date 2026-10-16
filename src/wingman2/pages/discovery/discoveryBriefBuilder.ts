@@ -415,7 +415,7 @@ export function compileDiscoveryBrief({
       nextBestQuestion: decisionIntegrity.issues[0]?.followUpQuestion ?? recommendationEvidence.nextBestQuestion ?? strategy.askNext,
       quoteSafetyStatus: decisionIntegrity.canProceedToRecommendation ? recommendationEvidence.quoteSafetyStatus : "do-not-quote-yet",
       recommendationEvidence,
-      discoveryConversation: buildDiscoveryConversation(modeQuestions, answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep),
+      discoveryConversation: buildDiscoveryConversation(discoveryQuestions.filter(step => modeQuestions.some(question => question.id === step.id) || wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]?.trim())), answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep),
     };
 
 }

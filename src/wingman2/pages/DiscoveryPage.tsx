@@ -36,6 +36,7 @@ import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplat
 import { BASIC_MODE_REQUIRED_IDS, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview } from "./discovery/DiscoveryGuidedInterview";
 import { DiscoveryRoomWizard } from "./discovery/DiscoveryRoomWizard";
+import { DiscoveryEssentialCapture } from "./discovery/DiscoveryEssentialCapture";
 import { DiscoveryExpertBuilder } from "./discovery/DiscoveryExpertBuilder";
 import { refreshRoomLayout, roomTemplateEquipment, mergeRoomTemplateEquipment } from "./discovery/operationalDiscovery";
 import { DiscoveryMarketEntry } from "./discovery/DiscoveryMarketEntry";
@@ -209,8 +210,9 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const [siteName, setSiteName] = useState(() => draftField("siteName"));
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
-  // Progressive disclosure mode: basic (6 essential questions) or expert (all questions)
-  const progressiveMode: ProgressiveMode = "expert";
+  const [detailedCapture, setDetailedCapture] = useState(() => (!isGuided && !roomBuilder) || isTemplateAuthoring || Boolean(editQuestionId) || searchParams.get("interview") === "1");
+  const essentialCapture = !detailedCapture && !isTemplateAuthoring;
+  const progressiveMode: ProgressiveMode = essentialCapture ? "basic" : "expert";
   // Pending escalation: set when a non-basic question is edited in basic mode —
   // shows a confirmation dialog before switching to Expert.
   const [, setPendingEscalation] = useState<string | null>(null);
@@ -292,9 +294,9 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     [selectedApplication, answers],
   );
 
-  // Both room-building views share the complete design question set.
+  // The full question set remains available for technical detail and saved answers.
   const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
-  const modeQuestions = discoveryQuestions;
+  const modeQuestions = useMemo(() => essentialCapture ? discoveryQuestions.filter(question => BASIC_IDS.has(question.id)) : discoveryQuestions, [essentialCapture, discoveryQuestions, BASIC_IDS]);
 
   // Quick-start conflict signals (stranded defaults, application drift).
   const {
@@ -761,7 +763,7 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   function buildDiscoveryBrief(): StoredDiscoveryBrief {
     return compileDiscoveryBrief({
       answers, notes, topology, discoveryQuestions, modeQuestions, basicQuestionIds: BASIC_IDS,
-      progressiveMode: builderActive || isGuided ? "expert" : progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
+      progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
       sourceTemplateId, sourceTemplateName, clientName, contactName, siteName, budgetLevel,
       timeline, completionPercent, reviewPosition, confirmedSteps, confidenceByStep,
       confidenceScoresByStep, decisionIntegrity,
@@ -886,11 +888,12 @@ return (
       )}
 
       {isGuided && !isTemplateAuthoring && <DiscoveryCompactClient clientName={clientName} siteName={siteName} onClientNameChange={setClientName} onSiteNameChange={setSiteName} />}
+      {!isTemplateAuthoring && !essentialCapture && <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => { setDetailedCapture(false); setActiveIndex(0); }}>Return to essential details</button>}
 
       {roomBuilder && !isTemplateAuthoring && <div className="wm-discovery-tool-row" role="group" aria-label="Room capture tools">
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={builderActive} onClick={() => { setBuilderActive(true); setInterviewActive(false); }}>Room builder</button>
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={!builderActive && !interviewActive} onClick={() => { setBuilderActive(false); setInterviewActive(false); }}>Detailed questions</button>
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={interviewActive} onClick={() => { setBuilderActive(false); setInterviewActive(true); }}>Voice interview</button>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={builderActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(true); setInterviewActive(false); }}>Room builder</button>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={!builderActive && !interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(false); }}>Detailed questions</button>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(true); }}>Voice interview</button>
       </div>}
       {!isGuided && <DiscoveryAudioDesignSummary answers={answers} notes={notes} />}
       {discoveryMode !== "standard" ? (
@@ -940,7 +943,11 @@ return (
             setEditingMarketContext(false);
           }}
         />
-      ) : builderActive || isGuided ? (
+      ) : essentialCapture ? (
+        <DiscoveryEssentialCapture questions={modeQuestions} answers={answers} notes={notes} onAnswersChange={setAnswers} onNotesChange={setNotes}
+          onChanged={id => setConfirmedSteps(previous => ({ ...previous, [id]: false }))} onSave={saveDiscoveryToProject}
+          onContinue={() => moveForward("recommendations")} onDetails={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(false); }} />
+      ) : (builderActive || (isGuided && isTemplateAuthoring)) && !interviewActive ? (
         <DiscoveryRoomWizard
           templateAuthoring={isTemplateAuthoring}
           questions={modeQuestions} answers={answers} notes={notes} activeIndex={activeIndex}
