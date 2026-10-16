@@ -216,6 +216,7 @@
     "check:template-sku-lifecycle": "node tools/check-room-template-sku-lifecycle.mjs",
     "check:template-realism": "node tools/check-template-realism.mjs",
     "check:dependency-audit": "node tools/check-dependency-audit.mjs && node tools/check-dependency-audit.mjs --prefix server",
+    "check:prod-unpatched": "node tools/check-prod-unpatched.mjs",
     "check:build-deps": "node tools/check-build-deps.mjs",
     "check:override-floors": "node tools/check-override-floors.mjs",
     "check:template-signal-path": "node tools/check-template-signal-path.mjs",
