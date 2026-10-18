@@ -1,0 +1,117 @@
+name: Dependency Advisory Alert
+
+# Nightly alert for newly PUBLISHED advisories - the counterpart to the
+# dependency audit MERGE gates (ci.yml's audit job + the prod-unpatched and
+# build-deps gates in verify:build), which only run on pushes and PRs and are
+# driven by the lockfiles. A new advisory can be published at any time without
+# any commit touching a lockfile - exactly how the 2026-07-24 react-router
+# advisory turned the gate red on every branch hours after main had passed,
+# and how sprintf-js (moderate, unpatched, production path) appeared with the
+# merge gates silent. This job re-reads npm's advisory database and OSV
+# directly, nightly, and reports every actionable finding in one table:
+#
+#   - full npm audit, root and server      (high/critical anywhere)
+#   - production npm audit, root and server (moderate/low with NO fix - the
+#                                            sprintf-js class - can never
+#                                            upgrade away, fail loudly)
+#   - OSV build-time closure, root and server (new advisory ids at installed
+#                                             versions, fresh data every run
+#                                             - no cache is shipped)
+#
+# DELIBERATE FAILURE (same convention as wyrestorm-freshness.yml): a finding
+# turns the run red, which is the alert itself - a red nightly run never
+# blocks a merge. A survey CRASH fails closed (exit 2) because a blind green
+# is a defect. A clean night is green. The response to a red run is upgrade or
+# remove; a reviewed, expiring exception in
+# tools/dependency-audit-exceptions.json (or tools/build-dep-exceptions.json)
+# remains the last resort and is respected by this alert while it is in force
+# (the finding is reported as suppressed, not raised).
+
+on:
+  schedule:
+    # 05:00 UTC daily - inside the advisory-database refresh window and before
+    # the EU/US workday, mirroring the nightly cadence of
+    # wyrestorm-freshness.yml (03:00) separated enough to never crowd it.
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      rehearsal:
+        description: Use a synthetic advisory to prove the red-run alert path
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-findings-alert
+  cancel-in-progress: true
+
+jobs:
+  advisory-alert:
+    name: Advisory findings (npm + prod + OSV build surface)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies (root)
+        run: npm ci
+
+      - name: Install dependencies (server)
+        run: npm ci
+        working-directory: server
+
+      - name: Collect advisory findings
+        id: findings
+        env:
+          REHEARSAL: ${{ inputs.rehearsal || false }}
+        run: |
+          set +e
+          args=()
+          if [ "$REHEARSAL" = "true" ]; then args+=(--fixture tools/fixtures/new-advisory.json); fi
+          node tools/audit-alert-findings.mjs --summary --annotations "${args[@]}" > /tmp/audit-findings.log 2>&1
+          rc=$?
+          set -e
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          cat /tmp/audit-findings.log
+          exit "$rc"
+
+      # Fold the full markdown table into the run summary so a red night run
+      # carries the finding list on the Actions page itself. Runs even on
+      # failure (always()) because the table is the visible record.
+      - name: Write findings table to the run summary
+        if: always()
+        run: |
+          {
+            echo "## Dependency advisory alert — $(date -u +'%Y-%m-%d')"
+            echo ""
+            if [ "${{ steps.findings.outputs.rc }}" = "0" ]; then
+              echo "No actionable findings across the npm audit surfaces (root + server, full + production scope) and the OSV build-time closure. Exception-covered advisories, if any, would be listed by the collector."
+            elif [ "${{ steps.findings.outputs.rc }}" = "1" ]; then
+              echo "One or more new/unassessed advisories are actionable. Reassess: upgrade, remove the dependency path, or (last resort) file a reviewed, expiring exception in tools/dependency-audit-exceptions.json or tools/build-dep-exceptions.json. See docs/OPERATIONS.md section 4a."
+            else
+              echo "Survey did not complete. This run cannot establish advisory status."
+            fi
+            echo ""
+            if [ -f /tmp/audit-findings.log ]; then cat /tmp/audit-findings.log; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Email actionable findings or survey failure
+        if: ${{ failure() && !inputs.rehearsal && vars.ALERT_EMAIL_ENABLED == 'true' }}
+        env:
+          ALERT_SMTP_HOST: ${{ secrets.ALERT_SMTP_HOST }}
+          ALERT_SMTP_PORT: ${{ secrets.ALERT_SMTP_PORT }}
+          ALERT_SMTP_USERNAME: ${{ secrets.ALERT_SMTP_USERNAME }}
+          ALERT_SMTP_PASSWORD: ${{ secrets.ALERT_SMTP_PASSWORD }}
+          ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
+          ALERT_EMAIL_TO: ${{ vars.ALERT_EMAIL_TO }}
+          ALERT_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python3 tools/send-advisory-email.py

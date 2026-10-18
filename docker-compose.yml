@@ -11,7 +11,7 @@ services:
         VITE_APP_VERSION: ${VITE_APP_VERSION:-}
         VITE_APP_COMMIT: ${VITE_APP_COMMIT:-local}
     ports:
-      - "3000:80"
+      - "${WINGMAN_UI_PORT:-3000}:80"
     environment:
       - BACKEND_HOST=backend
       - BACKEND_PORT=8787
@@ -26,12 +26,12 @@ services:
       context: .
       dockerfile: Dockerfile.server
     ports:
-      - "8787:8787"
+      - "${WINGMAN_API_PORT:-8787}:8787"
     environment:
       - HOST=0.0.0.0
       - PORT=8787
       - NODE_ENV=production
-      - WINGMAN_CORS_ALLOW_ORIGIN=${WINGMAN_CORS_ALLOW_ORIGIN:-http://localhost:3000}
+      - WINGMAN_CORS_ALLOW_ORIGIN=${WINGMAN_CORS_ALLOW_ORIGIN:-http://localhost:${WINGMAN_UI_PORT:-3000}}
       - WINGMAN_MAX_JSON_BODY_BYTES=${WINGMAN_MAX_JSON_BODY_BYTES:-1048576}
       - WINGMAN_SESSION_COOKIE_SECURE=${WINGMAN_SESSION_COOKIE_SECURE:-false}
       - WINGMAN_ENABLE_SECURITY_HEADERS=${WINGMAN_ENABLE_SECURITY_HEADERS:-true}
