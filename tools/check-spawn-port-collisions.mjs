@@ -36,6 +36,7 @@
 
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import ts from "typescript";
 
 const RESERVED_DEV_PORTS = new Map([
   [8787, "dev API (npm run dev / competitor-lookup-server default)"],
@@ -49,6 +50,21 @@ const SPAWN_CAPABLE_RE =
   /child_process|\.listen\(\s*\d|--port(?:\s+|=)\d|vite (preview|dev)/;
 
 const SELF_PREFIX = "check-spawn-port-collisions";
+
+export function needsTransientSpawnGuard(source) {
+  const file = ts.createSourceFile("test.mjs", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const imports = file.statements.filter(ts.isImportDeclaration);
+  const childImport = imports.some(node => /^(?:node:)?child_process$/.test(node.moduleSpecifier.text));
+  const guarded = imports.some(node => /(?:^|\/)test-spawn-guard\.mjs$/.test(node.moduleSpecifier.text));
+  return childImport && !guarded;
+}
+
+export function findUnguardedToolTests(repoRoot) {
+  const files = [];
+  listFiles(path.join(repoRoot, "tools"), files, ".test.mjs");
+  return files.filter(file => needsTransientSpawnGuard(readFileSync(file, "utf8")))
+    .map(file => path.relative(repoRoot, file).replace(/\\/g, "/"));
+}
 
 // ---------------------------------------------------------------------------
 // Claim extraction (pure, fixture-testable)
@@ -177,6 +193,11 @@ export function findPortCollisions(repoRoot) {
 export function main(repoRoot = process.cwd()) {
   const { byFile, collisions, reservedConflicts } = findPortCollisions(repoRoot);
   let failed = false;
+  const unguarded = findUnguardedToolTests(repoRoot);
+  if (unguarded.length) {
+    failed = true;
+    console.log(`[spawn-port-collisions] FAIL - tools tests must import the shared transient-spawn guard:\n${unguarded.join("\n")}`);
+  }
 
   if (collisions.length > 0) {
     failed = true;

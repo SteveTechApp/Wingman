@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { execFileSync } from "node:child_process";
+// Transient-spawn guard: same resource-pressure errno class as the proven
+// build-canonical-only guard; the sandboxed gate command is deterministic, a
+// retried spawn re-produces the same verdict, and a child that RAN and failed
+// is never retried (a nonzero gate exit remains a real signal).
+import { runTool } from "./test-spawn-guard.mjs";
 import fs from "node:fs";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -31,7 +35,7 @@ function runGateWithProfiles(profilesPayload) {
     writeFileSync(dest, JSON.stringify(profilesPayload, null, 2) + "\n");
 
     try {
-      const stdout = execFileSync("node", [GATE], {
+      const stdout = runTool("node", [GATE], "check-governance-data", {
         cwd: sandbox,
         encoding: "utf8",
         stdio: ["ignore", "pipe", "pipe"],
@@ -39,6 +43,9 @@ function runGateWithProfiles(profilesPayload) {
       });
       return { code: 0, stdout };
     } catch (error) {
+      // A retried-then-still-transient spawn failure must not be misread as a
+      // gate exit of 1 (the refusal branch); rethrow it as the crash it is.
+      if (error.status === undefined) throw error;
       return { code: error.status ?? 1, stdout: String(error.stdout ?? "") + String(error.stderr ?? "") };
     }
   } finally {

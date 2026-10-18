@@ -1,9 +1,12 @@
-import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+// Transient-spawn guard: the refusal CLI is deterministic; a resource-pressure
+// errno from the spawn itself is retried once, a child that ran and exited 1
+// (the refusal verdict under test) is never retried.
+import { runToolBare } from "./test-spawn-guard.mjs";
 
 /**
  * Regression pins for the reviewer-of-record refusal (tools/apply-governed-
@@ -52,7 +55,7 @@ function buildFixture({ pendingSkus }) {
 }
 
 function runApply({ profilesFile, storeFile }, env = {}) {
-  return spawnSync(process.execPath, [cli], {
+  return runToolBare(process.execPath, [cli], "apply-governed-review-pass.refusal", {
     cwd: root,
     encoding: "utf8",
     stdin: "pipe", // non-interactive: the unattended condition the refusal covers

@@ -3,6 +3,11 @@ import { spawn } from "node:child_process";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+// Transient-spawn guard: under parallel-suite load the evented spawn can
+// surface a resource-pressure errno through the child's "error" event even
+// though the sentinel run is deterministic. Same single-retry contract as
+// build-canonical-only; a child that ran and was killed is never retried.
+import { runToolEvented } from "./test-spawn-guard.mjs";
 
 // Spawns the real tools/verify-supabase-rls.mjs against a loopback fake
 // PostgREST endpoint. Pins the exit-code contract for both modes without any
@@ -98,14 +103,15 @@ function runTool({ port, secret }) {
   env.SUPABASE_ANON_KEY = ANON_KEY;
   if (secret) env.SUPABASE_SECRET_KEY = SECRET_KEY;
 
-  return new Promise((resolve) => {
+  return runToolEvented((settle) => {
     const child = spawn(process.execPath, [TOOL], { env, cwd: projectRoot });
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (chunk) => (stdout += chunk));
     child.stderr.on("data", (chunk) => (stderr += chunk));
-    child.on("close", (code) => resolve({ code, stdout, stderr, all: stdout + stderr }));
-  });
+    child.on("close", (code) => settle({ code, stdout, stderr, all: stdout + stderr }));
+    return child;
+  }, "verify-supabase-rls");
 }
 
 describe("verify-supabase-rls.mjs — sentinel mode (CI wiring)", () => {
@@ -244,12 +250,13 @@ describe("verify-supabase-rls.mjs — read-only mode (human, unchanged semantics
       if (!key.startsWith("SUPABASE_")) env[key] = value;
     }
     env.SUPABASE_URL = "http://127.0.0.1:1";
-    const result = await new Promise((resolve) => {
+    const result = await runToolEvented((settle) => {
       const child = spawn(process.execPath, [TOOL], { env, cwd: projectRoot });
       let stderr = "";
       child.stderr.on("data", (chunk) => (stderr += chunk));
-      child.on("close", (code) => resolve({ code, stderr }));
-    });
+      child.on("close", (code) => settle({ code, stderr }));
+      return child;
+    }, "verify-supabase-rls");
     expect(result.code).toBe(2);
     expect(result.stderr).toMatch(/SUPABASE_URL and SUPABASE_ANON_KEY are both required/);
   });

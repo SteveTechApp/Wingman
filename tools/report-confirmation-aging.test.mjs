@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { execFileSync } from "node:child_process";
+// Transient-spawn guard: under the pre-commit suite's parallel load the child
+// spawn can fail at the libuv level (resource-pressure errno) even though the
+// deterministic reporter command itself is fine. Same contract as the guard
+// proven in tools/build-canonical-only.test.mjs; a retried run produces the
+// same verdict, and a child that RAN and failed is never retried.
+import { runTool } from "./test-spawn-guard.mjs";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -100,7 +105,7 @@ describe("confirmation-aging reporter core", () => {
 
 describe("confirmation-aging reporter CLI", () => {
   it("exits 0 on readable inputs (report-only, never the red lane)", () => {
-    const stdout = execFileSync("node", [TOOL], { encoding: "utf8", env: { ...process.env } });
+    const stdout = runTool("node", [TOOL], "report-confirmation-aging", { encoding: "utf8", env: { ...process.env } });
     expect(stdout).toContain("unconfirmed machine-tier profile(s)");
   });
 
@@ -112,7 +117,7 @@ describe("confirmation-aging reporter CLI", () => {
     // a runner where GITHUB_OUTPUT is always set must not hide this branch.
     const env = { ...process.env };
     delete env.GITHUB_OUTPUT;
-    const stdout = execFileSync("node", [TOOL, "--github-output", "--summary"], { encoding: "utf8", env });
+    const stdout = runTool("node", [TOOL, "--github-output", "--summary"], "report-confirmation-aging", { encoding: "utf8", env });
     expect(stdout).toContain("count_unconfirmed=");
     expect(stdout).toContain("count_aging=");
     expect(stdout).toContain("count_overdue=");
@@ -127,7 +132,7 @@ describe("confirmation-aging reporter CLI", () => {
     const outputFile = path.join(dir, "github-output.txt");
     writeFileSync(outputFile, "pre_existing=1\n", "utf8");
     try {
-      const stdout = execFileSync("node", [TOOL, "--github-output"], {
+      const stdout = runTool("node", [TOOL, "--github-output"], "report-confirmation-aging", {
         encoding: "utf8",
         env: { ...process.env, GITHUB_OUTPUT: outputFile },
       });
@@ -144,7 +149,7 @@ describe("confirmation-aging reporter CLI", () => {
 
   it("fails loudly on a missing input file instead of reporting a fake zero", () => {
     expect(() =>
-      execFileSync("node", [TOOL], {
+      runTool("node", [TOOL], "report-confirmation-aging", {
         encoding: "utf8",
         env: { ...process.env, WINGMAN_PROFILES_FILE: "C:/definitely/not/here/profiles.json" },
       }),

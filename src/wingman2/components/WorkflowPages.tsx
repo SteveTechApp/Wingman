@@ -19,7 +19,7 @@ export function WorkflowNavigation({ pages, current, onChange, label }: {
 }) {
   const index = pages.findIndex((page) => page.id === current);
   return <nav className="wm-workflow-navigation" aria-label={label}>
-    <div className="wm-workflow-navigation__pages">{pages.map((page) => <button key={page.id} type="button" aria-current={current === page.id ? "page" : undefined} onClick={() => onChange(page.id)}>{page.label}</button>)}</div>
+    <div className="wm-workflow-navigation__pages">{pages.map((page) => <button key={page.id} data-testid={`workflow-page-${page.id}`} type="button" aria-current={current === page.id ? "page" : undefined} onClick={() => onChange(page.id)}>{page.label}</button>)}</div>
     <div className="wm-workflow-navigation__arrows">
       <button type="button" disabled={index === 0} onClick={() => onChange(pages[index - 1].id)} aria-label="Previous page">←</button>
       <button type="button" disabled={index === pages.length - 1} onClick={() => onChange(pages[index + 1].id)} aria-label="Next page">→</button>

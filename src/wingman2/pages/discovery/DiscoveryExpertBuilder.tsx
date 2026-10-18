@@ -96,7 +96,7 @@ export function DiscoveryExpertBuilder(props: Props) {
       <div className="wm-expert-capture-count"><strong>{captured}</strong><span>of {questions.length} design questions captured</span></div>
     </header>
     <div className="wm-expert-builder-layout">
-      <nav className="wm-expert-section-nav" aria-label="Room design sections">
+      <nav data-testid="discovery-room-sections" className="wm-expert-section-nav" aria-label="Room design sections">
         {sections.map(section => {
           const rows = questionsBySection.get(section.id) ?? [];
           const done = rows.filter(question => wmDiscoveryHasAnswer(answers[question.id])).length;

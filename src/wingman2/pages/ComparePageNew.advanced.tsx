@@ -4068,7 +4068,7 @@ function CompareManufacturerCombobox(props: {
           aria-autocomplete="list"
           aria-haspopup="listbox"
           aria-expanded={open && visibleBrands.length > 0}
-          aria-controls="compare-manufacturer-options"
+          data-testid="compare-manufacturer" aria-controls="compare-manufacturer-options"
           value={props.selectedBrand}
           onFocus={() => setOpen(true)}
           onBlur={() => setOpen(false)}
@@ -4156,7 +4156,7 @@ function CompareProductLookupInput(props: {
           aria-autocomplete="list"
           aria-haspopup="listbox"
           aria-expanded={open && visibleOptions.length > 0}
-          aria-controls="compare-competitor-sku-options"
+          data-testid="compare-sku" aria-controls="compare-competitor-sku-options"
           value={props.value}
           onFocus={() => setOpen(true)}
           onBlur={() => setOpen(false)}
@@ -6238,14 +6238,14 @@ function ComparePageNew() {
               </details>
             </div>
             <div className="wm-compare-sku-actions">
-              <button className="compare-native-more wm-ui-button wm-ui-button-primary" type="submit" disabled={!hasCompetitorSelection}>Compare</button>
+              <button className="compare-native-more wm-ui-button wm-ui-button-primary" data-testid="compare-submit" type="submit" disabled={!hasCompetitorSelection}>Compare</button>
               <div className="wm-compare-sku-action-copy"><span>{competitorInput || "Enter a competitor SKU to continue"}</span><small>The engine evaluates current product data each time.</small></div>
             </div>
           </form>
         </section>
       ) : (
         <section className="compare-native-results wm-ui-section" aria-live="polite">
-          <header className="compare-native-section-title compare-native-section-title--inline wm-ui-card wm-ui-title"><div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 className="wm-ui-title">Comparison result</h1></div><button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>New comparison</button></header>
+          <header className="compare-native-section-title compare-native-section-title--inline wm-ui-card wm-ui-title"><div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 data-testid="compare-result" className="wm-ui-title">Comparison result</h1></div><button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>New comparison</button></header>
           {hasCompared ? <>
             <div ref={bestMatchRef} className="compare-native-scroll-target" tabIndex={-1} aria-label={activeCandidate ? `Main WyreStorm match: ${activeCandidate.product.sku}` : "Main WyreStorm match: none"}>
               {requestLiveLookup ? (
@@ -6270,10 +6270,10 @@ function ComparePageNew() {
             ) : null}
             {activeCandidate ? <section className="wm-ui-card wm-ui-section" aria-label="Compare result actions"><div className="compare-native-action-row wm-ui-action-row">
               <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
-              <button type="button" className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" onClick={saveComparisonHistory} aria-label="Save comparison to history">Save comparison</button>
+              <button type="button" className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" data-testid="compare-save-history" onClick={saveComparisonHistory} aria-label="Save comparison to history">Save comparison</button>
               <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
             </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}<p className="compare-native-muted wm-ui-copy">{savedComparisonCount()} saved comparison{savedComparisonCount() === 1 ? "" : "s"} in the current project.</p>{restoreMessage ? <p className="compare-native-muted wm-ui-copy" role="status">{restoreMessage}</p> : null}{restoredComparison ? <section className="compare-native-summary wm-ui-card wm-ui-copy" aria-label="Saved comparison snapshot"><details open><summary>Saved snapshot</summary><div className="mt-4"><p className="compare-native-muted wm-ui-copy" role="status">Saved {new Date(restoredComparison.createdAt).toLocaleString()} · Snapshot v{restoredComparison.version ?? 1}. The main result above is recalculated from current product data.</p><dl className="compare-native-core-matrix"><div><dt>Competitor</dt><dd>{restoredComparison.competitorBrand || "Not specified"} {restoredComparison.competitorSku || ""}</dd></div><div><dt>WyreStorm direction</dt><dd>{restoredComparison.wyrestormSku || "Not specified"}{restoredComparison.wyrestormTitle ? ` — ${restoredComparison.wyrestormTitle}` : ""}</dd></div><div><dt>Verdict</dt><dd>{restoredComparison.matchType || "Review"}</dd></div><div><dt>Confidence</dt><dd>{restoredComparison.confidence || "Not recorded"}</dd></div></dl>{restoredComparison.summary ? <><strong>Saved summary</strong><pre className="compare-native-summary__pre">{restoredComparison.summary}</pre></> : null}{restoredComparison.evidence?.length ? <><strong>Saved evidence</strong><ul>{restoredComparison.evidence.map((item) => <li key={`saved-evidence-${item}`}>{item}</li>)}</ul></> : null}{restoredComparison.warnings?.length ? <><strong>Saved quote checks</strong><ul>{restoredComparison.warnings.map((item) => <li key={`saved-warning-${item}`}>{item}</li>)}</ul></> : null}</div></details></section> : null}<div className="compare-native-action-row wm-ui-action-row"><VerifyBeforeQuoteNote /></div></section> : null}
-            {savedComparisonRuns().length ? <p className="compare-native-muted wm-ui-copy"><Link to={`${routeCatalogByKey.projects.path}/${encodeURIComponent(searchParams.get("projectId") || readProjectStore().activeProjectId || "")}?view=history`}>Review saved history in Project</Link></p> : null}
+            {savedComparisonRuns().length ? <p className="compare-native-muted wm-ui-copy"><Link data-testid="compare-review-history" to={`${routeCatalogByKey.projects.path}/${encodeURIComponent(searchParams.get("projectId") || readProjectStore().activeProjectId || "")}?view=history`}>Review saved history in Project</Link></p> : null}
             {matrixAlternatives.length ? <section className="compare-native-options compare-candidate-selector wm-ui-card" aria-label="Suggested other matches"><div><h2 className="wm-ui-title">Suggested other matches</h2><p className="wm-ui-copy">Select a thumbnail to compare that option in the main cards.</p></div><div className="compare-candidate-selector__grid">{matrixAlternatives.map((candidate) => <CandidateThumbnailSelector key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} selected={activeCandidate?.product.sku === candidate.product.sku} onSelect={() => { const index = viableCandidates.findIndex((option) => option.product.sku === candidate.product.sku); if (index >= 0) setCandidateIndex(index); }} />)}</div></section> : null}
             <details className="compare-native-summary wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
               <CompetitorSearchCard

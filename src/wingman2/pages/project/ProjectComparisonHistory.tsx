@@ -51,7 +51,7 @@ export function ProjectComparisonHistory({ projectId, runs, compareLink, onDelet
         <label className="grid gap-1 text-sm wm-ui-copy">Verdict<select aria-label="Filter saved comparisons" value={view.filter} onChange={(event) => setView((current) => ({ ...current, filter: event.target.value }))}><option value="all">All verdicts</option><option value="GOOD MATCH">Good match</option><option value="PARTIAL MATCH">Partial match</option><option value="VERIFY">Verify</option><option value="NO MATCH">No match</option></select></label>
         <label className="grid gap-1 text-sm wm-ui-copy">Sort<select aria-label="Sort saved comparisons" value={view.sort} onChange={(event) => setView((current) => ({ ...current, sort: event.target.value }))}><option value="newest">Newest</option><option value="score">Highest score</option><option value="confidence">Confidence</option></select></label>
         <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setView(defaultView)}>Clear filters</button>
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={exportCsv}>Export CSV</button>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="compare-export-history" onClick={exportCsv}>Export CSV</button>
         <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => void navigator.clipboard?.writeText(buildCompareHistoryText(visible, view))}>Copy text</button>
       </div>
       <div className="grid gap-3">{visible.map((run) => <article key={run.id} className="rounded-2xl border p-4 wm-ui-card">

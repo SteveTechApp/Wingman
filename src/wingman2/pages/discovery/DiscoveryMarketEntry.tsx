@@ -53,7 +53,7 @@ export function DiscoveryMarketEntry({ allowTemplates = true, marketId, environm
           </label>
           <div className="wm-discovery-market-entry__grid">
             {visibleMarkets.map((item) => (
-              <button type="button" key={item.id} className="wm-discovery-market-entry__photo"
+              <button type="button" key={item.id} data-testid={`discovery-market-${item.id}`} className="wm-discovery-market-entry__photo"
                 onClick={() => { onMarketChange(item.id); setQuery(""); }}>
                 <img src={photoForDiscoveryMarket(item.id)} alt="" loading="lazy" />
                 <strong>{item.label}</strong>
@@ -91,7 +91,7 @@ export function DiscoveryMarketEntry({ allowTemplates = true, marketId, environm
           )}
           {(!allowTemplates || designingCustom || market.id === "other") && <div className="wm-discovery-market-entry__grid">
             {market.environments.map((environment) => (
-              <button type="button" key={environment.id} className="wm-discovery-market-entry__photo" aria-pressed={environmentId === environment.id}
+              <button type="button" key={environment.id} data-testid={`discovery-environment-${environment.id}`} className="wm-discovery-market-entry__photo" aria-pressed={environmentId === environment.id}
                 onClick={() => environment.id === "other" ? setDescribingOther(true) : onEnvironmentSelect(environment.id, environment.suggestedApplication)}>
                 <img src={photoForDiscoveryEnvironment(marketId, environment.id)} alt="" loading="lazy" />
                 <strong>{environment.label}</strong>
