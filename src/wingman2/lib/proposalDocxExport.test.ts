@@ -57,9 +57,9 @@ describe("proposal DOCX export", () => {
       const outputDir = path.resolve("docs/release-evidence/proposal-output-parity/latest");
       fs.rmSync(outputDir, { recursive: true, force: true });
       fs.mkdirSync(outputDir, { recursive: true });
-      fs.writeFileSync(path.join(outputDir, "proposal-screen.html"), html);
+      fs.writeFileSync(path.join(outputDir, "proposal-screen.html"), html.replace(/^[\t ]+$/gm, ""));
       fs.writeFileSync(path.join(outputDir, "proposal.docx"), buffer);
-      fs.writeFileSync(path.join(outputDir, "proposal-docx.txt"), docxText);
+      fs.writeFileSync(path.join(outputDir, "proposal-docx.txt"), `${docxText.trim()}\n`);
       fs.writeFileSync(path.join(outputDir, "manifest.json"), JSON.stringify({
         fixture: "northstar-parity",
         requiredSections: ["Customer Requirement", "Recommended Solution", "Equipment Schedule", "Technical Architecture", "Discovery Conversation", "Assumptions", "Risks and Dependencies", "Best-Efforts Disclaimer"],
