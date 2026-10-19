@@ -18,7 +18,7 @@ it.each([["3100", "8788"], ["3200", "8890"]])("uses the same ports for Compose a
   expect(up[1][2].replaceAll("\\", "/")).toMatch(/\/docker-compose\.yml$/);
   expect(up[2].env).toMatchObject({ WINGMAN_UI_PORT: ui, WINGMAN_API_PORT: api });
   expect(fetch.mock.calls.map(([url]) => url)).toEqual([
-    `http://127.0.0.1:${api}/api/product-intelligence/health`,
+    `http://127.0.0.1:${api}/api/ready`,
     `http://127.0.0.1:${ui}/`,
     `http://127.0.0.1:${ui}/api/ready`,
   ]);

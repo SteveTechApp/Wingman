@@ -101,7 +101,7 @@ if (upStatus !== 0) {
 
 console.log("[docker-standup] waiting for the backend healthcheck...");
 // Direct backend port: proves the API container is healthy on its own.
-await waitForEndpoint("backend health", `http://127.0.0.1:${API_PORT}/api/product-intelligence/health`, (status) =>
+await waitForEndpoint("backend health", `http://127.0.0.1:${API_PORT}/api/ready`, (status) =>
   statusOk(status)
 );
 // Through nginx: proves the documented browser-facing path (SPA + /api/ proxy)
