@@ -1,0 +1,10 @@
+{
+  "surfaces": [],
+  "buildAssessments": [{
+    "tag": "root/build",
+    "result": {
+      "affected": [],
+      "unassessable": [{ "name": "rehearsal-package", "version": "1.0.0", "id": "GHSA-unresolved" }]
+    }
+  }]
+}

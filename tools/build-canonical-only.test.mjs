@@ -1,36 +1,10 @@
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { runTool } from "./test-spawn-guard.mjs";
 import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
 
-// Under the pre-commit suite's full parallel load, spawning child processes can
-// fail transiently at the libuv level (resource pressure reported through errno
-// codes) even though the command itself is fine. A retried spawn is safe here:
-// the generator is deterministic and the fingerprints below assert its output,
-// so the retry cannot hide a real regression. What must never be retried is a
-// child that actually ran and exited nonzero, or a fingerprint mismatch - those
-// are genuine gate signals.
-const TRANSIENT_SPAWN_CODES = new Set(["EAGAIN", "EMFILE", "ENFILE", "ENOMEM", "EIO", "ENOENT"]);
-
-function runCommandOnce(command, args, options) {
-  return execFileSync(command, args, { maxBuffer: 16 * 1024 * 1024, ...options });
-}
-
 function runCommand(command, args, options) {
-  try {
-    return runCommandOnce(command, args, options);
-  } catch (error) {
-    // execFileSync surfaces a nonzero child exit through a numeric error.code
-    // (or signal name) and leaves the child's output in `error.stdout/stderr`;
-    // only libuv-level spawn failures carry a bare errno string. Retry those
-    // exactly once and log loudly, so a real failure is never retried away.
-    const transient = typeof error.code === "string" && TRANSIENT_SPAWN_CODES.has(error.code) && !error.code.startsWith("SIG");
-    if (!transient) {
-      throw error;
-    }
-    console.warn(`[build-canonical-only] transient spawn failure (${error.code}); retrying once: ${command} ${args.join(" ")}`);
-    return runCommandOnce(command, args, options);
-  }
+  return runTool(command, args, "build-canonical-only", options);
 }
 
 it("generates the test catalogue without rewriting tracked evidence or manifests", () => {

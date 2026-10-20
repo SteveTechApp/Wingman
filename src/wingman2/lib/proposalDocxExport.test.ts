@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import { Packer } from "docx";
 import fs from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { StoredProjectProposal } from "../data/projectStore";
 import type { SalesBomRow } from "./salesReadiness";
 import { buildProposalDocx } from "./proposalDocxExport";
@@ -35,7 +35,10 @@ const bom: SalesBomRow[] = [{
 }];
 
 describe("proposal DOCX export", () => {
+  afterEach(() => vi.useRealTimers());
   it("keeps the canonical completed proposal content aligned with the screen export", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-09-11T12:00:00.000Z"));
     const html = buildProposalHtml(parityProposal, parityBom, parityProposal.products);
     const screenText = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
     const buffer = await Packer.toBuffer(buildProposalDocx(parityProposal, parityBom, parityWizard));
@@ -57,9 +60,9 @@ describe("proposal DOCX export", () => {
       const outputDir = path.resolve("docs/release-evidence/proposal-output-parity/latest");
       fs.rmSync(outputDir, { recursive: true, force: true });
       fs.mkdirSync(outputDir, { recursive: true });
-      fs.writeFileSync(path.join(outputDir, "proposal-screen.html"), html);
+      fs.writeFileSync(path.join(outputDir, "proposal-screen.html"), html.replace(/^[\t ]+$/gm, ""));
       fs.writeFileSync(path.join(outputDir, "proposal.docx"), buffer);
-      fs.writeFileSync(path.join(outputDir, "proposal-docx.txt"), docxText);
+      fs.writeFileSync(path.join(outputDir, "proposal-docx.txt"), `${docxText.trim()}\n`);
       fs.writeFileSync(path.join(outputDir, "manifest.json"), JSON.stringify({
         fixture: "northstar-parity",
         requiredSections: ["Customer Requirement", "Recommended Solution", "Equipment Schedule", "Technical Architecture", "Discovery Conversation", "Assumptions", "Risks and Dependencies", "Best-Efforts Disclaimer"],

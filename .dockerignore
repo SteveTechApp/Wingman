@@ -2,6 +2,9 @@
 node_modules
 server/node_modules
 
+# Runtime state belongs in volumes, never in image layers.
+data/runtime
+
 # Build outputs
 dist
 build

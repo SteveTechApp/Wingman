@@ -30,6 +30,18 @@ from the code or docs are not repeated here.
 
 ## Typecheck & tests
 
+- Tailwind v4 runs through `@tailwindcss/vite`. A nested worktree can discover
+  an ancestor's untracked `postcss.config.js` containing the retired v3
+  `tailwindcss` PostCSS plugin. Keep Vite's inline empty PostCSS configuration
+  to stop that search; do not revive the relic or use it to configure v4.
+  API and HTML responses can succeed while CSS compilation fails: the dev-pair
+  health check must fetch the layout CSS route with `?direct`.
+- Capture-region IDs use `discovery-<region>` (for example
+  `discovery-essential-capture`, `discovery-expert-builder`, and
+  `discovery-room-wizard`). Actions use `discovery-<verb>-<object>`; repeated
+  choices append stable model IDs, never display labels. Browser walkthroughs
+  use these test IDs; copy assertions belong in dedicated content tests.
+
 - `tsc --noEmit` with the default `tsconfig.json` only checks `src/main.tsx`
   — a false green. The real gate is `npx tsc --noEmit -p
   tsconfig.typecheck.json` (all of `wingman2/**`, strict).

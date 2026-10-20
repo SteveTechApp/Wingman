@@ -1,0 +1,45 @@
+name: Optional flake characterization
+on:
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: Suite to run twice on the same commit
+        type: choice
+        options: [crash, precommit]
+        default: crash
+permissions:
+  contents: read
+  issues: write
+jobs:
+  characterize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm ci
+        working-directory: server
+      - run: npm run data:canonical-products
+      - name: Run both passes
+        id: characterize
+        env:
+          LANE: ${{ inputs.lane }}
+        run: node tools/characterize-test-lane.mjs "$LANE"
+      - name: File flake incident with both tails
+        if: ${{ failure() && steps.characterize.outputs.classification == 'flake' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          LANE: ${{ inputs.lane }}
+        run: |
+          printf '\nRun: %s/%s/actions/runs/%s\nCommit: %s\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$GITHUB_SHA" >> "data/runtime/flake-characterization/$LANE/incident.md"
+          gh issue create --title "Flake: $LANE characterization (run $GITHUB_RUN_ID)" --body-file "data/runtime/flake-characterization/$LANE/incident.md"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: characterization-logs
+          path: data/runtime/flake-characterization/

@@ -444,7 +444,7 @@ export function ProfilePage() {
 
           <div className="wm-output-panel">
             <strong>{session?.workspace?.name || (projectBackendSyncEnabled() ? "Workspace available" : "Local mode")}</strong>
-            <span>
+            <span data-testid={session?.user ? "workspace-signed-in" : undefined}>
               {session?.user
                 ? `Signed in as ${session.user.email || session.user.name}.`
                 : projectBackendSyncEnabled()
@@ -479,10 +479,10 @@ export function ProfilePage() {
 
           <div className="wm-action-row">
             {session?.user ? (
-              <button className="wm-button wm-button-secondary" type="button" onClick={handleSignOut} disabled={workspaceBusy}>Sign out</button>
+              <button className="wm-button wm-button-secondary" type="button" data-testid="workspace-sign-out" onClick={handleSignOut} disabled={workspaceBusy}>Sign out</button>
             ) : (
               <>
-                <button className="wm-button wm-button-secondary" type="button" onClick={handleSignIn} disabled={workspaceBusy}>Sign in</button>
+                <button className="wm-button wm-button-secondary" type="button" data-testid="workspace-sign-in" onClick={handleSignIn} disabled={workspaceBusy}>Sign in</button>
                 <button className="wm-button wm-button-primary" type="button" onClick={handleCreateWorkspace} disabled={workspaceBusy}>Create workspace</button>
               </>
             )}

@@ -892,7 +892,7 @@ return (
 
       {roomBuilder && !isTemplateAuthoring && <div className="wm-discovery-tool-row" role="group" aria-label="Room capture tools">
         <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={builderActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(true); setInterviewActive(false); }} data-testid="discovery-room-builder-toggle">Room builder</button>
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={!builderActive && !interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(false); }}>Detailed questions</button>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-detailed-toggle" aria-pressed={!builderActive && !interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(false); }}>Detailed questions</button>
         <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(true); }}>Voice interview</button>
       </div>}
       {!isGuided && <DiscoveryAudioDesignSummary answers={answers} notes={notes} />}

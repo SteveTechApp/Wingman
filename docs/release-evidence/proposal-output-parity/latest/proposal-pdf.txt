@@ -1,5 +1,5 @@
-WyreStorm Proposal Reference: WYR-WE5TPF
-Date: 6 October 2026
+WyreStorm Proposal Reference: WYR-WWM800
+Date: 11 September 2026
 Prepared by: Solutions Team
 Document: Draft Proposal
 Northstar Operations Room
@@ -8,6 +8,26 @@ Executive Summary
 Route two operator sources to four displays with resilient 4K distribution.
 This document sets out the WyreStorm recommendation for this requirement, how it will work in use, the
 equipment involved, and what remains to be confirmed before it is issued as a final customer proposal.
+Room at a glance
+Operations room
+Route two operator sources to four displays with resilient 4K distribution.
+Recorded room and design details
+Room dimensions, capacity and site conditions require confirmation.
+What this space delivers
+Operational continuity: Operators retain controlled access to approved sources.
+In this room
+Grouped by the recorded equipment role. Item references match the equipment schedule; optional items
+remain subject to selection. Third-party equipment and services are detailed in Complete System Design
+and Responsibilities.
+Encode operator sources
+ITEM MODEL DESCRIPTION QTY SELECTION
+1 NHD-600-TX NetworkHD 600 encoder 2 Required
+Decode display feeds
+ITEM MODEL DESCRIPTION QTY SELECTION
+2 NHD-600-RX NetworkHD 600 decoder 4 Required
+Routing control
+ITEM MODEL DESCRIPTION QTY SELECTION
+3 NHD-CTL-PRO-V2 NetworkHD controller 1 Required
 Solution Overview
 NetworkHD
 What successful delivery looks like
@@ -50,9 +70,7 @@ Required WyreStorm products: NHD-600-TX - NetworkHD 600 encoder; NHD-600-RX - Ne
 600 decoder; NHD-CTL-PRO-V2 - NetworkHD controller
 Practical Operation
 This is what the system will do for the people using the room, day to day.
-The proposed AV-over-IP system distributes content between the scheduled endpoints over a suitably
-designed network. This allows the agreed destinations to share sources, with any future expansion
-subject to endpoint compatibility, switch capacity and licensing requirements.
+1. Operators select an approved source and route it to any display.
 Commercial and Operational Benefits
 A consistent, repeatable connection experience across the room(s) covered by this proposal.
 AV-over-IP provides a potential expansion path, subject to compatible endpoints, network capacity and

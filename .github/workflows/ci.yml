@@ -70,6 +70,38 @@ jobs:
       - name: Run behavioural tests during catalogue revision
         run: npm test
 
+  precommit-lane-twice:
+    name: Pre-commit lane ×2 (flake characterization)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run data:canonical-products
+      - name: Run both passes
+        id: characterize
+        run: node tools/characterize-test-lane.mjs precommit
+      - name: File flake incident with both tails
+        if: ${{ failure() && steps.characterize.outputs.classification == 'flake' && github.event_name == 'push' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          printf '\nRun: %s/%s/actions/runs/%s\nCommit: %s\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$GITHUB_SHA" >> data/runtime/flake-characterization/precommit/incident.md
+          gh issue create --title "Flake: precommit characterization (run $GITHUB_RUN_ID)" --body-file data/runtime/flake-characterization/precommit/incident.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: precommit-characterization-logs
+          path: data/runtime/flake-characterization/
+
   # The verify pipeline is split into stages so a failure reports every broken
   # category at once instead of stopping at the first one. Each stage runs as
   # its own job, so wall-clock is the slowest stage rather than the sum.

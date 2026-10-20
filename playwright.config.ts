@@ -20,7 +20,7 @@ export default defineConfig({
   timeout: 60_000, // 60s per test — discovery and compare can be slow
 
   // Visual regression snapshot directory
-  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}{ext}",
+  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{projectName}/{arg}{ext}",
 
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:3000",
@@ -44,6 +44,8 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      // Keep the established desktop baselines; other projects remain isolated.
+      snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}{ext}",
       use: { ...devices["Desktop Chrome"] },
     },
     {
