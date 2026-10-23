@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { wallSurveyReviewAuditNote } from "../../../lib/wallSurveyReview";
+import { wallTransportPlan, wallTransportRequirements } from "../../../lib/videowallTransport";
 import type { ProjectStoreSnapshot, StoredProject } from "../model/projectTypes";
 import { createProjectLifecycleCommands, type ProjectCommandContext } from "./projectLifecycle";
 import { createDiscoveryCommands } from "./discoveryCommands";
@@ -115,9 +116,13 @@ describe("project domain commands", () => {
       },
     });
 
+    // The page hands over the plan it is already drawing, so the entry can name
+    // the link the way the rep reads it on the wall.
+    const requirements = wallTransportRequirements(commands.snapshot().projects[0].videowall?.summary.requirements);
     const saved = commands.discovery.recordWallInstallDetail({
       projectId: "project-1",
       linkDetails: { "display-2": { enclosure: "Back box" } },
+      transport: requirements ? wallTransportPlan(requirements) : null,
     });
 
     expect(saved?.auditTrail?.[0].detail).toContain("1 link (Panel 2)");

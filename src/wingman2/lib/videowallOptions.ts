@@ -1,3 +1,4 @@
+import type { WallLinkDetail } from "./wallLinkDetail";
 import type { WallSurveyReview } from "./wallSurveyReview";
 
 export type WallApplication = "lcd-direct" | "lcd-grouped" | "lcd-loop" | "led" | "projection";
@@ -19,10 +20,11 @@ export type WallCustomMode = "fixed" | "floating";
  * had to guess the other. `entry` is last so a sheet printed before it existed
  * still imports its install cells at the same positions.
  */
-export const WALL_LINK_DETAIL_FIELDS = ["enclosure", "termination", "entry"] as const;
-export type WallLinkDetailField = (typeof WALL_LINK_DETAIL_FIELDS)[number];
-/** `mount` is accepted only while reading older saved rows; current writes use displayMounts. */
-export type WallLinkDetail = Partial<Record<WallLinkDetailField, string>> & { mount?: string };
+export {
+  WALL_LINK_DETAIL_FIELDS,
+  type WallLinkDetail,
+  type WallLinkDetailField,
+} from "./wallLinkDetail";
 export type WallRequirements = {
   surveyDraftOverride?: boolean;
   roomHeightMm?: number;

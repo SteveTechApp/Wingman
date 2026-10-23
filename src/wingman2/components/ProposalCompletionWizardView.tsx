@@ -720,7 +720,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
               <ProposalWallGate transport={wallTransport} survey={wallSurvey}
                 requirements={wallRequirements}
                 onRequirementsChange={(next) => updateSavedWallRequirements(project.id, next)}
-                onRecordDetail={(linkDetails) => Boolean(recordWallInstallDetail({ projectId: project.id, linkDetails }))} />
+                onRecordDetail={(linkDetails) => Boolean(recordWallInstallDetail({ projectId: project.id, linkDetails, transport: wallTransport }))} />
 
               <div className="wm-proposal-export-actions">
                 <button

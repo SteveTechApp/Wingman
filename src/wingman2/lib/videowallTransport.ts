@@ -1,5 +1,4 @@
 import {
-  WALL_LINK_DETAIL_FIELDS,
   wallCanvasPlan,
   normalizeWallDesignMetadata,
   wallDisplayFeeds,
@@ -7,8 +6,6 @@ import {
   wallPanelCount,
   wallProjectorCount,
   wallSourcePixels,
-  type WallLinkDetail,
-  type WallLinkDetailField,
   type WallRequirements,
 } from "./videowallOptions";
 
@@ -175,85 +172,22 @@ export function runAllowanceWarning(metres: unknown, allowanceMetres: unknown): 
     : null;
 }
 
-/** Longest install note kept from a sheet or a typed cell, in characters. */
-export const DETAIL_TEXT_LIMIT = 60;
-
-/** One install cell as stored: single line, trimmed, capped. */
-export function cleanDetailText(value: unknown) {
-  return String(value ?? "").replace(/\s+/g, " ").trim().slice(0, DETAIL_TEXT_LIMIT);
-}
-
-/** Only the fields that hold text; empty strings are dropped rather than saved. */
-export function normalizeWallLinkDetail(value: WallLinkDetail | null | undefined): WallLinkDetail {
-  const detail: WallLinkDetail = {};
-  for (const field of WALL_LINK_DETAIL_FIELDS) {
-    const text = cleanDetailText(value?.[field]);
-    if (text) detail[field] = text;
-  }
-  return detail;
-}
-
-export function hasWallLinkDetail(value: WallLinkDetail | null | undefined) {
-  return WALL_LINK_DETAIL_FIELDS.some((field) => Boolean(cleanDetailText(value?.[field])));
-}
-
-/**
- * Merge install detail into the saved map for one link. A field present in the
- * patch replaces what was recorded, and a blank field removes it, so a rep can
- * correct a wrong housing without retyping the other cells. A link left with no
- * fields drops out of the map entirely.
- */
-export function withWallLinkDetail(
-  linkDetails: Record<string, WallLinkDetail> | undefined,
-  id: string,
-  patch: WallLinkDetail,
-) {
-  const merged: WallLinkDetail = { ...(linkDetails?.[id] ?? {}) };
-  for (const field of WALL_LINK_DETAIL_FIELDS) {
-    if (!(field in patch)) continue;
-    const text = cleanDetailText(patch[field]);
-    if (text) merged[field] = text;
-    else delete merged[field];
-  }
-  const next = { ...(linkDetails ?? {}) };
-  if (hasWallLinkDetail(merged)) next[id] = merged;
-  else delete next[id];
-  return next;
-}
-
-/** Apply one install patch to every link a folded row covers. */
-export function withWallLinkDetails(
-  linkDetails: Record<string, WallLinkDetail> | undefined,
-  ids: string[],
-  patch: WallLinkDetail,
-) {
-  return ids.reduce<Record<string, WallLinkDetail> | undefined>(
-    (next, id) => withWallLinkDetail(next, id, patch),
-    linkDetails,
-  );
-}
-
-/** Read a saved map back without trusting it: unknown keys and junk are dropped. */
-export function normalizeLinkDetails(value: unknown): Record<string, WallLinkDetail> | undefined {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
-  const details: Record<string, WallLinkDetail> = {};
-  for (const [id, detail] of Object.entries(value as Record<string, WallLinkDetail>)) {
-    const cleaned = normalizeWallLinkDetail(detail);
-    if (id && hasWallLinkDetail(cleaned)) details[id] = cleaned;
-  }
-  return Object.keys(details).length ? details : undefined;
-}
-
-/** The display-end detail shown beside a link, including its inherited mount. */
-export function wallLinkDetailText(value: WallLinkDetail | null | undefined, mount?: string) {
-  return [
-    ...WALL_LINK_DETAIL_FIELDS.map((field) => cleanDetailText(value?.[field])).filter(Boolean),
-    mount ? `Mount: ${cleanDetailText(mount)}` : "",
-  ].filter(Boolean).join(" · ");
-}
-
-export { WALL_LINK_DETAIL_FIELDS };
-export type { WallLinkDetail, WallLinkDetailField };
+/* The survey cells themselves live in ./wallLinkDetail so a command can read
+   and merge them without the transport model; re-exported here because the
+   transport tables and their print/export callers have always read them from
+   this module. */
+export {
+  DETAIL_TEXT_LIMIT,
+  WALL_LINK_DETAIL_FIELDS,
+  cleanDetailText,
+  hasWallLinkDetail,
+  normalizeLinkDetails,
+  normalizeWallLinkDetail,
+  wallLinkDetailText,
+  withWallLinkDetail,
+  withWallLinkDetails,
+} from "./wallLinkDetail";
+export type { WallLinkDetail, WallLinkDetailField } from "./wallLinkDetail";
 
 /** Uncompressed 24-bit payload in Gbps, rounded to one decimal. */
 export function wallLinkBandwidthGbps(pixels: Pixels, refreshHz: number) {

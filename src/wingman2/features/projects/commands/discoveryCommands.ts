@@ -3,11 +3,10 @@ import type { MultiSkuCompetitorAnalysis } from "../../../lib/documentIngest/mul
 import {
   normalizeLinkDetails,
   wallLinkDetailText,
-  wallTransportPlan,
-  wallTransportRequirements,
   withWallLinkDetail,
   type WallLinkDetail,
-} from "../../../lib/videowallTransport";
+} from "../../../lib/wallLinkDetail";
+import type { WallTransportPlan } from "../../../lib/videowallTransport";
 import { stringValue } from "../persistence/projectCodecs";
 import type { ProjectAuditEntry, StoredDiscoveryBrief, StoredIngestAnalysis, StoredProductSelection, StoredProject, StoredVideowallSummary, StoredWorkflowState } from "../model/projectTypes";
 import type { ProjectCommandContext, ProjectLifecycleCommands } from "./projectLifecycle";
@@ -143,7 +142,7 @@ export function createDiscoveryCommands(context: ProjectCommandContext, lifecycl
      * keeps what the survey already recorded, and the wall's save time moves
      * because the design did change.
      */
-    recordWallInstallDetail(input: { projectId?: string; linkDetails: Record<string, WallLinkDetail> }) {
+    recordWallInstallDetail(input: { projectId?: string; linkDetails: Record<string, WallLinkDetail>; transport?: WallTransportPlan | null }) {
       const timestamp = now();
       const snapshot = read();
       const existing = input.projectId
@@ -172,11 +171,12 @@ export function createDiscoveryCommands(context: ProjectCommandContext, lifecycl
       if (linkDetails) nextRequirements.linkDetails = linkDetails;
       else delete nextRequirements.linkDetails;
       // The entry names the links it filled, so the trail can open the row it
-      // describes rather than only counting it. A wall without costable links
-      // falls back to the ids, which is still the link the reader typed in.
-      const transportRequirements = wallTransportRequirements(requirements);
-      const transport = transportRequirements ? wallTransportPlan(transportRequirements) : null;
-      const labels = new Map((transport?.allLinks ?? []).map((link) => [link.id, link.label]));
+      // describes rather than only counting it. The wall's plan owns the names
+      // ("Panel 2"), and a caller without one falls back to the ids, which is
+      // still the link the reader typed in. The plan is handed in rather than
+      // built here: the transport model is a page's to pay for, not the eager
+      // command chunk's.
+      const labels = new Map((input.transport?.allLinks ?? []).map((link) => [link.id, link.label]));
       const named = filled.map((id) => labels.get(id) ?? id);
       const shown = named.slice(0, 3).join("; ");
       const rest = named.length > 3 ? ` and ${named.length - 3} more` : "";

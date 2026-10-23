@@ -154,8 +154,8 @@ export function useTemplateProposal({
    */
   const recordSurveyDetail = useCallback((linkDetails: Record<string, WallLinkDetail>) => {
     const projectId = savedWall?.projectId;
-    return projectId ? Boolean(recordWallInstallDetail({ projectId, linkDetails })) : false;
-  }, [savedWall]);
+    return projectId ? Boolean(recordWallInstallDetail({ projectId, linkDetails, transport })) : false;
+  }, [savedWall, transport]);
 
   const setCurrency = useCallback((currency: TemplateProposalPricing["currency"]) => setPricingDraft(current => ({ ...current, currency, bomUnitPrices: {} })), []);
   const setUnitPrice = useCallback((sku: string, value: string) => setPricingDraft(current => ({ ...current, bomUnitPrices: { ...current.bomUnitPrices, [sku]: value } })), []);
