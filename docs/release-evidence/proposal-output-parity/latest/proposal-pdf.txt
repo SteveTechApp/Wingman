@@ -1,27 +1,61 @@
-WyreStorm Proposal Reference: WYR-WE5TPF
-Date: 6 October 2026
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
+WyreStorm Proposal Reference: WYR-WWM800
+Date: 11 September 2026
 Prepared by: Solutions Team
 Document: Draft Proposal
 Northstar Operations Room
 WYRESTORM | TECHNICAL PROPOSAL
+Document control
+Reference
+WYR-WWM800
+Status
+Draft proposal — subject to design and commercial approval
+Prepared by
+Solutions Team
+Issue date
+11 September 2026
+Revision
+2026-09-11T00:00:00.000Z
+WyreStorm · Northstar Operations Room Page 2 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Executive Summary
 Route two operator sources to four displays with resilient 4K distribution.
-This document sets out the WyreStorm recommendation for this requirement, how it will work in use, the
-equipment involved, and what remains to be confirmed before it is issued as a final customer proposal.
+This document explains what we recommend, how it will work day to day, the equipment involved, and
+what still needs confirming before it becomes a final proposal.
+Room at a glance
+Operations room
+Route two operator sources to four displays with resilient 4K distribution.
+Room and design details
+Room dimensions, capacity and site conditions require confirmation.
+What this space delivers
+Operational continuity: Operators retain controlled access to approved sources.
+In this room
+Items are grouped by the job each one does in the room, and the number matches the equipment
+schedule further on. Anything marked optional is still your decision, and work by others is listed under
+Complete System Design and Responsibilities.
+Encode operator sources
+ITEM MODEL DESCRIPTION QTY STATUS
+1 NHD-600-TX NetworkHD 600 encoder 2 Required
+Decode display feeds
+ITEM MODEL DESCRIPTION QTY STATUS
+2 NHD-600-RX NetworkHD 600 decoder 4 Required
+Routing control
+ITEM MODEL DESCRIPTION QTY STATUS
+3 NHD-CTL-PRO-V2 NetworkHD controller 1 Required
+WyreStorm · Northstar Operations Room Page 3 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Solution Overview
 NetworkHD
 What successful delivery looks like
 Every approved source-to-display route passes functional testing.
-Customer Requirement
-Requirement to be agreed: Route two operator sources to four displays with resilient 4K distribution.
+What You Asked For
+Route two operator sources to four displays with resilient 4K distribution.
 Discovery Conversation
-The recommendation in this document is based on the discovery conversation captured below: the
-question asked, the closest governed answer, and the customer's own wording where recorded. Rows
-marked "Confirmed with customer" were verified with the customer during discovery; rows marked "To
-be confirmed" are still open and must be verified before final design sign-off. Nothing here is presented
-as a settled fact that was not said during discovery.
-QUESTION ASKED GOVERNED
-ANSWER
+Below is the conversation this proposal is based on: the question we asked, the answer we recorded,
+and your own words where we captured them. "Confirmed with customer" means we checked that point
+with you; "To be confirmed" means it is still open and will be settled before the design is signed off.
+QUESTION ASKED ANSWER WE
+RECORDED
 CUSTOMER
 WORDING
 STATUS CAPTURE
@@ -30,38 +64,37 @@ How many displays must
 receive independently
 routed content?
 Four displays Each operator needs
-independent routing.
+independent
+routing.
 Confirmed
 with customer
 High
 confidence (12)
-The "Capture confidence" column shows how strongly the customer's wording matched the closest governed answer: "High
-confidence" is a strong exact match, "Matched" is a curated-phrase match, and "Low confidence — verify before quote" is a
-partial match that must be re-verified with the customer before quoting. The number in brackets is the match score behind the
-tier.
-Where a row is a note-only capture, the answer was still open at the time of writing and must be confirmed before final design
-sign-off.
+"Capture confidence" shows how closely your own words matched the answer we recorded. High confidence is a close match.
+Matched is a close match to a standard phrase. Low confidence — verify before quote is a partial match we will check with you
+before quoting. The number in brackets is the match score.
+If a row has a note but no clear answer, that point was still open when this was written and will be confirmed before the design
+is signed off.
 Recommended Solution
-Recommendation: NetworkHD is the leading product-family path for this requirement, based on the
-recommendation evidence gathered so far (family confidence 96/100).
+Recommendation: NetworkHD is the best fit for this requirement on the evidence gathered so far.
+Confidence: 96 out of 100.
 The confirmed routing and resilience requirement needs a scalable 10GbE fabric.
-Information required: Confirm redundant power and switch failover behaviour during commissioning.
+Still to confirm: redundant power and switch failover behaviour during commissioning.
+WyreStorm · Northstar Operations Room Page 4 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Required WyreStorm products: NHD-600-TX - NetworkHD 600 encoder; NHD-600-RX - NetworkHD
 600 decoder; NHD-CTL-PRO-V2 - NetworkHD controller
 Practical Operation
 This is what the system will do for the people using the room, day to day.
-The proposed AV-over-IP system distributes content between the scheduled endpoints over a suitably
-designed network. This allows the agreed destinations to share sources, with any future expansion
-subject to endpoint compatibility, switch capacity and licensing requirements.
+Operators select an approved source and route it to any display.
 Commercial and Operational Benefits
 A consistent, repeatable connection experience across the room(s) covered by this proposal.
 AV-over-IP provides a potential expansion path, subject to compatible endpoints, network capacity and
 the final design.
-Final commercial and operational benefit statements should be confirmed against the customer's specific
-business or KPI outcome before proposal issue.
+We will tie these benefits to your own business measures before this proposal is issued.
 Technical Architecture
-The following diagram and cable schedule explain how the recommended solution connects together,
-derived directly from the equipment schedule below.
+The diagram and cable schedule below show how the system connects together. Both are built from the
+equipment schedule further on.
 hdmi
 hdmi
 network
@@ -105,6 +138,8 @@ Concept drawing: confirm physical connections and site interfaces before install
 Transport is shown generically because signal distance or connector evidence is not confirmed.
 Connections without a verified interface profile are proposed topology only. Confirm named ports,
 endpoint pairing, power and cable types before installation.
+WyreStorm · Northstar Operations Room Page 5 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Control routing requires design: Specify the controller and controlled-device interfaces before allocating
 control cables.
 Cable length not confirmed for hdmi run: The local source to encoder connection uses hdmi transport
@@ -138,11 +173,13 @@ Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) ha
 connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
 separate power supply.
 Power source unconfirmed for NHD-CTL-PRO-V2: "NetworkHD controller" (NHD-CTL-PRO-V2) has no
-power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires
-a separate power supply.
-This diagram is derived directly from the equipment schedule below - it shows the assumed signal flow from source to display so
-the customer and installer share the same picture of how the room connects together. The cable schedule underneath lists the
-transport type, connectors, maximum length, and validation status for each connection.
+power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or
+requires a separate power supply.
+This diagram shows the signal path we expect, from source to screen, so you and the installer are looking at the same picture.
+The cable schedule below gives the cable type, connectors, maximum length and what still needs checking for each
+connection.
+WyreStorm · Northstar Operations Room Page 6 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 CABLE RUN TRANSPORT MAX
 LENGTH
 CONNECTORS STATUS VALIDATION
@@ -158,8 +195,9 @@ confirmation
 Confirm source and
 display connector
 types, cable length
-(typically <5m passive),
-HDCP version, EDID
+(typically <5m
+passive), HDCP
+version, EDID
 behaviour, and
 resolution/HDR
 requirements.
@@ -174,8 +212,9 @@ confirmation
 Confirm source and
 display connector
 types, cable length
-(typically <5m passive),
-HDCP version, EDID
+(typically <5m
+passive), HDCP
+version, EDID
 behaviour, and
 resolution/HDR
 requirements.
@@ -198,10 +237,6 @@ assignment, PoE
 budget, cable
 category, and network
 topology.
-CABLE RUN TRANSPORT MAX
-LENGTH
-CONNECTORS STATUS VALIDATION
-REMINDER
 NHD-600-TX
 → Network
 switch
@@ -239,6 +274,12 @@ assignment, PoE
 budget, cable
 category, and network
 topology.
+WyreStorm · Northstar Operations Room Page 7 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
+CABLE RUN TRANSPORT MAX
+LENGTH
+CONNECTORS STATUS VALIDATION
+REMINDER
 Network
 switch →
 NHD-600-RX
@@ -313,39 +354,45 @@ assignment, PoE
 budget, cable
 category, and network
 topology.
+NHD-600-RX
+→ Display 1
+(confirm)
+Video 15m HDMI OUT to
+DISPLAY
+INPUT
+(confirm)
+Needs site
+confirmation
+Confirm source and
+display connector
+types, cable length
+(typically <5m
+passive), HDCP
+version, EDID
+behaviour, and
+resolution/HDR
+requirements.
+WyreStorm · Northstar Operations Room Page 8 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 CABLE RUN TRANSPORT MAX
 LENGTH
 CONNECTORS STATUS VALIDATION
 REMINDER
 NHD-600-RX
-→ Display 1
-(confirm)
-Video 15m HDMI OUT to
-DISPLAY INPUT
-(confirm)
-Needs site
-confirmation
-Confirm source and
-display connector
-types, cable length
-(typically <5m passive),
-HDCP version, EDID
-behaviour, and
-resolution/HDR
-requirements.
-NHD-600-RX
 → Display 2
 (confirm)
 Video 15m HDMI OUT to
-DISPLAY INPUT
+DISPLAY
+INPUT
 (confirm)
 Needs site
 confirmation
 Confirm source and
 display connector
 types, cable length
-(typically <5m passive),
-HDCP version, EDID
+(typically <5m
+passive), HDCP
+version, EDID
 behaviour, and
 resolution/HDR
 requirements.
@@ -353,15 +400,17 @@ NHD-600-RX
 → Display 3
 (confirm)
 Video 15m HDMI OUT to
-DISPLAY INPUT
+DISPLAY
+INPUT
 (confirm)
 Needs site
 confirmation
 Confirm source and
 display connector
 types, cable length
-(typically <5m passive),
-HDCP version, EDID
+(typically <5m
+passive), HDCP
+version, EDID
 behaviour, and
 resolution/HDR
 requirements.
@@ -369,15 +418,17 @@ NHD-600-RX
 → Display 4
 (confirm)
 Video 15m HDMI OUT to
-DISPLAY INPUT
+DISPLAY
+INPUT
 (confirm)
 Needs site
 confirmation
 Confirm source and
 display connector
 types, cable length
-(typically <5m passive),
-HDCP version, EDID
+(typically <5m
+passive), HDCP
+version, EDID
 behaviour, and
 resolution/HDR
 requirements.
@@ -395,6 +446,8 @@ budget, VLAN
 configuration,
 multicast policy, and
 uplink capacity.
+WyreStorm · Northstar Operations Room Page 9 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Products in the Solution
 Product photograph unavailable.
 NHD-600-TX — NetworkHD 600 encoder
@@ -409,21 +462,21 @@ NHD-CTL-PRO-V2 — NetworkHD controller
 Role in this design: Routing control
 Official product link to be confirmed.
 Complete System Design and Responsibilities
-The following items complete the wider solution. Unfilled entries are open design decisions, not supplied
-equipment or agreed services. Replace each [complete] with the agreed detail or mark it not applicable /
-excluded.
-Displays / projection | Model, size, location and mounting: [complete] | Supplier / owner: [complete]
-Sources and conferencing | Source devices, meeting platform and USB host: [complete] | Supplier /
-owner: [complete]
-Audio | Microphones, loudspeakers, DSP and acoustic requirements: [complete] | Supplier / owner:
-[complete]
-Network | Switches, port capacity, PoE budget, VLANs and IT approval: [complete] | Supplier / owner:
-[complete]
-Control | User interface, named room modes and programming: [complete] | Supplier / owner: [complete]
-Site infrastructure | Cable routes / distances, rack, ventilation, power and containment: [complete] |
-Supplier / owner: [complete]
-Delivery and acceptance | Installation, training, support, acceptance tests and dates: [complete] | Supplier
-/ owner: [complete]
+The items below complete the wider solution. Each one is still open: none of it is equipment or work
+included in this proposal, and we will agree the owner, detail and commercial treatment with you before
+it is issued.
+Displays | Operator displays — Confirm size and mounting. | Qty 4 | Responsibility: Integrator | Scope
+status: allowance
+Display Schedule
+4 displays in scope, each driven by one feed.
+SCREEN RESOLUTION FEEDS SCALING NOTES
+Display 1 To confirm 1 Native 1:1, confirm at survey Operator displays
+Display 2 To confirm 1 Native 1:1, confirm at survey
+Display 3 To confirm 1 Native 1:1, confirm at survey
+Display 4 To confirm 1 Native 1:1, confirm at survey
+WyreStorm · Northstar Operations Room Page 10 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
+Basis: Native resolution, feed count and scaling are confirmed when the display models are recorded.
 Equipment Schedule
 ITEM SKU DESCRIPTION ROLE QTY TYPE NOTES
 1 NHD-600-
@@ -432,10 +485,9 @@ NetworkHD 600
 encoder
 Encode
 operator
+sources
 2 Required Install in the
 equipment rack.
-ITEM SKU DESCRIPTION ROLE QTY TYPE NOTES
-sources
 2 NHD-600-
 RX
 NetworkHD 600
@@ -450,20 +502,23 @@ NetworkHD
 controller
 Routing control 1 Required Confirm firmware
 compatibility.
+EQUIPMENT SCHEDULE TOTALS 7 3 line items
 Evidence basis: NHD-600-TX: Two confirmed operator sources | NHD-600-RX: Four independently routed displays | NHD-CTL-
 PRO-V2: Central routing and control requirement
 Power Strategy
-The power budget below is derived from the governed technical profiles for each selected product.
-Figures are stated-maximum consumption per the published profile and must be verified against the
-current datasheet before order.
-SKU QTY PER-UNIT MAX TOTAL MAX POWER DATA (GOVERNED PROFILE)
-NHD-600-TX 2 Not proven — No power data in governed profile
-NHD-600-RX 4 Not proven — No power data in governed profile
+The power figures below come from WyreStorm product data for each selected product. They are the
+maximum the published specification states, and should be checked against the current datasheet
+before ordering.
+SKU QTY PER-UNIT MAX TOTAL MAX POWER DATA (WYRESTORM)
+NHD-600-TX 2 Not proven — No power figure published
+NHD-600-RX 4 Not proven — No power figure published
 NHD-CTL-PRO-V2 1 15.4W 15.4W 12V DC | PoE compliant; Max 15.4W, average 8W
-Stated maximum consumption: approximately 15W across 1 product with proven figures. 1 product (NHD-CTL-PRO-
-V2) requires PoE/PoH — confirm the injector or switch PoE budget covers the total.
+Stated maximum consumption: approximately 15W across 1 product with proven figures. 1 product (NHD-CTL-
+PRO-V2) requires PoE/PoH — confirm the injector or switch PoE budget covers the total.
 Options
 No optional enhancements are currently selected.
+WyreStorm · Northstar Operations Room Page 11 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Assumptions and Exclusions
 Assumptions
 Assumption: Customer IT will provide a dedicated 10GbE AV VLAN.
@@ -475,21 +530,22 @@ Structured cabling installation and certification.
 Third-party control programming beyond WyreStorm-native presets.
 Installation, labour and commissioning, unless separately quoted.
 Risks and Dependencies
-Risks / information required
+Risks and open questions
 Risk: Confirm redundant power and switch failover behaviour during commissioning.
-Governed dependencies
-Dependency: NET-SWITCH-10G-MANAGED - Managed 10GbE network switch (Prompt): Confirm
-switch model, port budget, VLAN and multicast configuration. Basis: NetworkHD endpoints require
-managed 10GbE switching.
+Dependencies
+Dependency: NET-SWITCH-10G-MANAGED - Managed 10GbE network switch: Confirm switch
+model, port budget, VLAN and multicast configuration. Why: NetworkHD endpoints require managed
+10GbE switching.
 Implementation and Next Steps
 Approve the network design and complete acceptance testing.
-This proposal draft includes selected WyreStorm products. Validate final product specifications,
-accessories and dependencies before issue.
-Competitor products are excluded from this proposal and equipment schedule unless a
-comparison-only output is explicitly requested.
+This draft includes the selected WyreStorm products. We will confirm final specifications,
+accessories and dependencies before it is issued.
+Competitor products are not included in this proposal or its equipment schedule.
+WyreStorm · Northstar Operations Room Page 12 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Important Notice & Best-Efforts Disclaimer
-This proposal has been prepared on a best-efforts basis using WyreStorm Wingman to support your sales and design process. The
-information contained herein is provided for planning purposes only and does not constitute a binding quotation, order
+This proposal has been prepared on a best-efforts basis using WyreStorm Wingman to support your sales and design process.
+The information contained herein is provided for planning purposes only and does not constitute a binding quotation, order
 confirmation, or statement of capability.
 Product Specifications: All product specifications, features, compatibility information, lifecycle status, regional availability,
 pricing, and lead times are indicative and must be independently verified against the current official WyreStorm documentation,
@@ -512,8 +568,10 @@ Route two operator sources to four displays with resilient 4K distribution.
 Design Assumptions
 Customer IT will provide a dedicated 10GbE AV VLAN.
 Recommended Architecture
-NetworkHD is the current leading product-family direction.
+NetworkHD is our recommended product family.
 The confirmed routing and resilience requirement needs a scalable 10GbE fabric.
+WyreStorm · Northstar Operations Room Page 13 of 13
+Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Required WyreStorm Products
 NHD-600-TX - NetworkHD 600 encoder
 NHD-600-RX - NetworkHD 600 decoder

@@ -1,5 +1,6 @@
 import type { DiscoveryConversationItem, StoredProductSelection } from "../data/projectStore";
 import type { SalesBomRow } from "./salesReadiness";
+import type { WallRequirements } from "./videowallOptions";
 import {
   validateProposalExport,
   type ExportValidationResult,
@@ -24,6 +25,8 @@ export type ProposalReadinessInput = {
   topology?: { connections: Array<{ lengthMetres?: number; services?: string[] }> };
   /** Discovery conversation items (optional). */
   discoveryConversation?: DiscoveryConversationItem[];
+  /** Saved wall design, so its cable runs are scored like every other gate. */
+  wallRequirements?: WallRequirements | null;
 };
 
 export type ProposalReadiness = {
@@ -80,6 +83,7 @@ export function proposalReadiness(
       bomRows: input.bomRows,
       topology: input.topology,
       discoveryConversation: input.discoveryConversation,
+      wallRequirements: input.wallRequirements,
     });
 
   // ── Counts ────────────────────────────────────────────────────────

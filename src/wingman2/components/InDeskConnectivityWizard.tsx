@@ -268,7 +268,7 @@ export function InDeskConnectivityWizard({
       </div>
 
       {/* Results */}
-      <div className="wm-idb-wizard__results">
+      <div>
         <div className="wm-idb-wizard__results-header">
           <span>
             {hasFilters

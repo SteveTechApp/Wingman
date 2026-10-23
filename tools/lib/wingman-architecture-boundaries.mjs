@@ -37,9 +37,7 @@ export const MIGRATION_ALLOWLIST_KEYS = new Set([
   "page-entry-lines:src/wingman2/pages/ProductPitchPage.tsx",
   "page-entry-lines:src/wingman2/pages/ProfilePage.tsx",
   "page-entry-lines:src/wingman2/pages/ProjectDetailPage.tsx",
-  "page-entry-lines:src/wingman2/pages/ProjectsPage.tsx",
   "page-entry-lines:src/wingman2/pages/RecommendationsPage.tsx",
-  "page-entry-lines:src/wingman2/pages/TemplateReviewPage.tsx",
   "page-entry-lines:src/wingman2/pages/VideowallBuilderPage.tsx",
 ]);
 

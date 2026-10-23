@@ -15,6 +15,7 @@ import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionInte
 import { DiscoveryAudioDesignSummary } from "./discovery/DiscoveryAudioDesignSummary";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
 import { clearDiscoveryHandoff, readDiscoveryHandoff, type DiscoveryHandoff, type DiscoveryHandoffMode } from "../lib/discoveryTemplateHandoff";
+import { discoveryVideoWallHandoff, writeVideoWallHandoff } from "../lib/videowallHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
@@ -352,6 +353,10 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const answeredCount = useMemo(() => {
     return modeQuestions.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length;
   }, [answers, modeQuestions]);
+
+  // A wall output changes the design problem: offer the dedicated builder as
+  // soon as the capture says the room includes one.
+  const videoWallHandoff = useMemo(() => discoveryVideoWallHandoff(answers), [answers]);
 
   const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);
   // Integrity gate = mode questions; stranded scan = full visible set, so an
@@ -892,7 +897,7 @@ return (
 
       {roomBuilder && !isTemplateAuthoring && <div className="wm-discovery-tool-row" role="group" aria-label="Room capture tools">
         <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={builderActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(true); setInterviewActive(false); }} data-testid="discovery-room-builder-toggle">Room builder</button>
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={!builderActive && !interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(false); }}>Detailed questions</button>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-detailed-toggle" aria-pressed={!builderActive && !interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(false); }}>Detailed questions</button>
         <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(true); }}>Voice interview</button>
       </div>}
       {!isGuided && <DiscoveryAudioDesignSummary answers={answers} notes={notes} />}
@@ -919,6 +924,29 @@ return (
         environmentDetail={wmDiscoveryAnswerToText(answers["environment-detail"])}
         onEdit={() => setEditingMarketContext(true)}
       />}
+
+      {!isTemplateAuthoring && videoWallHandoff ? (
+        <section className="wm-ui-card flex flex-wrap items-center justify-between gap-4" aria-label="Video wall requirement">
+          <div>
+            <p className="wm-ui-kicker">Video wall requirement</p>
+            <h2 className="wm-ui-title">Size the wall in the Video Wall builder</h2>
+            <p className="wm-ui-copy">
+              {videoWallHandoff.label.replace(/^Discovery: /, "")} captured. The builder starts from these answers,
+              removes the designs that do not fit, and returns one signal path with the checks to confirm.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="wm-ui-button wm-ui-button-primary"
+            onClick={() => {
+              writeVideoWallHandoff(videoWallHandoff);
+              navigate(routeCatalogByKey.videowall.path);
+            }}
+          >
+            Open the wall builder
+          </button>
+        </section>
+      ) : null}
 
       {showMarketContext ? (
         <DiscoveryMarketEntry

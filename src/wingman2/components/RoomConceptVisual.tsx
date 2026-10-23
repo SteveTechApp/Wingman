@@ -49,8 +49,8 @@ export default function RoomConceptVisual({ project, onSave }: RoomConceptVisual
     link.href = dataUrl;
     link.click();
   }
-  return <section className="wm-pv-room-canvas">
+  return <section>
     <div className="wm-vs-canvas-toolbar"><div><p className="wm-vs-eyebrow">Generated room application</p><h2>{project?.name ?? "Concept room"}</h2></div><div className="wm-vs-toolbar-actions"><button type="button" className="wm-vs-button wm-vs-button-secondary" onClick={download}>Export SVG</button><button type="button" className="wm-vs-button wm-vs-button-primary" onClick={() => onSave({ svg: dataUrl, width: WIDTH, height: HEIGHT })}>Save to project</button></div></div>
-    <div className="wm-pv-room-preview"><img src={dataUrl} alt={`Conceptual room application for ${project?.name ?? "the active project"}`} /></div>
+    <div><img src={dataUrl} alt={`Conceptual room application for ${project?.name ?? "the active project"}`} /></div>
   </section>;
 }

@@ -89,14 +89,14 @@ export function DiscoveryExpertBuilder(props: Props) {
     props.onConfirm(question.id, false);
   };
 
-  return <section className="wm-room-wizard wm-discovery-expert" aria-label="Expert room design" data-testid="discovery-expert-builder" data-expert-section={activeSection}>
+  return <section className="wm-room-wizard" aria-label="Expert room design" data-testid="discovery-expert-builder" data-expert-section={activeSection}>
     <header className="wm-expert-builder-heading">
       <div><p className="wm-room-wizard-eyebrow">Room design workspace · Expert view</p><h2>Build the room section by section</h2>
         <p>Capture confirmed details, working assumptions, and items still to survey. You can save and continue while information is open.</p></div>
       <div className="wm-expert-capture-count"><strong>{captured}</strong><span>of {questions.length} design questions captured</span></div>
     </header>
     <div className="wm-expert-builder-layout">
-      <nav className="wm-expert-section-nav" aria-label="Room design sections">
+      <nav data-testid="discovery-room-sections" className="wm-expert-section-nav" aria-label="Room design sections">
         {sections.map(section => {
           const rows = questionsBySection.get(section.id) ?? [];
           const done = rows.filter(question => wmDiscoveryHasAnswer(answers[question.id])).length;

@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 type PageHeroAction = {
   label: string;
   to?: string;
-  variant?: "primary" | "secondary";
   onClick?: () => void;
 };
 
@@ -16,28 +15,24 @@ type PageHeroProps = {
   actions?: PageHeroAction[];
 };
 
-function actionClass(variant: PageHeroAction["variant"]) {
-  return [
-    "wingman-hero-action",
-    variant === "secondary" ? "wingman-hero-action-secondary" : "wingman-hero-action-primary",
-  ].join(" ");
-}
+// Every hero action inherits the panel's button styling: the old primary and
+// secondary modifier classes never had a rule, so they only split the markup.
 
 export function PageHero({ title, purpose, nextMove, actions }: PageHeroProps) {
   return (
     <section
-      className="wm-page-hero wingman-page-hero wingman-page-hero-compact wingman-panel wingman-grid"
+      className="wm-page-hero wingman-page-hero wingman-panel"
     >
-      <div className="wingman-hero-copy">
+      <div>
         <h1 className="wingman-display">{title}</h1>
         <details className="wingman-page-help"><summary>About this page</summary><p>{purpose}</p><p>{nextMove}</p></details>
       </div>
 
       {actions?.length ? (
-        <div className="wingman-hero-actions">
+        <div>
           {actions.map((action) =>
             action.to ? (
-              <Link key={action.label} to={action.to} className={actionClass(action.variant)}>
+              <Link key={action.label} to={action.to} className="wingman-hero-action">
                 {action.label}
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -46,7 +41,7 @@ export function PageHero({ title, purpose, nextMove, actions }: PageHeroProps) {
                 key={action.label}
                 type="button"
                 onClick={action.onClick}
-                className={actionClass(action.variant)}
+                className="wingman-hero-action"
               >
                 {action.label}
                 <ArrowRight className="h-4 w-4" />

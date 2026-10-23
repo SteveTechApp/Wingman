@@ -32,7 +32,7 @@ export function ProjectScopeSchedule({ template, rows, library, onQuantity, onTo
         <header className="wm-design-schedule__section-heading"><div><h3>{group.title}</h3><p>{group.description}</p></div><span>{selected} included · {group.rows.length} {group.rows.length === 1 ? "line" : "lines"}</span></header>
         <div className="wm-design-schedule__section-body">
           {guidance ? <p className="wm-design-schedule__guidance">{guidance}</p> : null}
-          {group.rows.length ? <div className="wm-design-schedule__rows">{group.rows.map(row => {
+          {group.rows.length ? <div>{group.rows.map(row => {
             const isOwn = ownProduct(row);
             const supplier = row.owner === "customer" ? "Customer supply" : row.owner === "wyrestorm" || isOwn ? "WyreStorm supply" : row.manufacturer || "Integrator / supplier to confirm";
             return <article className={`wm-design-schedule__row${included(row) ? "" : " is-excluded"}`} key={row.id}>

@@ -460,7 +460,7 @@ export function CrmSharePanel({ project }: { project: StoredProject }) {
                         </div>
                         {expandedHistoryId === entry.id && (
                           <div
-                            className="wm-crm-webhook-history-conversation"
+                           
                             data-testid={`crm-history-conversation-${entry.id}`}
                           >
                             {(entry.discoveryConversation ?? []).length === 0 ? (

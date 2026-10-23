@@ -199,7 +199,7 @@ export function LiveResearchReviewQueue({
 
   return (
     <section className="wm-section-card" aria-labelledby="live-research-review-title">
-      <header className="wm-data-quality-heading">
+      <header>
         <div>
           <p className="wm-ui-kicker">Competitor governance</p>
           <h2 id="live-research-review-title">Live Research Review</h2>

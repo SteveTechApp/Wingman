@@ -7,11 +7,23 @@ type SectionCardProps = {
   children: ReactNode;
   rightSlot?: ReactNode;
   showHelp?: boolean;
+  /**
+   * DOM id and focus target when a link names this panel. The card is then a
+   * labelled region that can take focus, so a deep link lands inside the panel
+   * instead of at the top of the page.
+   */
+  anchorId?: string;
 };
 
-export function SectionCard({ title, subtitle, children, rightSlot, showHelp = true }: SectionCardProps) {
+export function SectionCard({ title, subtitle, children, rightSlot, showHelp = true, anchorId }: SectionCardProps) {
   return (
-    <section className="wingman-section-card wingman-surface" data-wm-card-level="standard">
+    <section
+      id={anchorId}
+      tabIndex={anchorId ? -1 : undefined}
+      aria-label={anchorId ? title : undefined}
+      className="wingman-section-card wingman-surface"
+      data-wm-card-level="standard"
+    >
       <header className="wingman-section-card-header">
         <div>
           <div className="wingman-section-card-title-row">
@@ -23,7 +35,7 @@ export function SectionCard({ title, subtitle, children, rightSlot, showHelp = t
                 <summary aria-label={`About ${title}`}>
                   <HelpCircle className="h-4 w-4" />
                 </summary>
-                <div className="wingman-section-help-popover">
+                <div>
                   <p>{subtitle}</p>
                 </div>
               </details>
@@ -31,7 +43,7 @@ export function SectionCard({ title, subtitle, children, rightSlot, showHelp = t
           </div>
         </div>
 
-        {rightSlot ? <div className="wingman-section-card-actions">{rightSlot}</div> : null}
+        {rightSlot ? <div>{rightSlot}</div> : null}
       </header>
 
       <div className="wingman-section-card-body">{children}</div>

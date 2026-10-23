@@ -72,7 +72,7 @@ function conversationSection() {
 describe("ProjectDetailPage discovery conversation", () => {
   it("shows the Q&A trail with confirmation status and edit links", () => {
     renderDetail();
-    fireEvent.click(screen.getByRole("button", { name: "Answers" }));
+    fireEvent.click(screen.getByRole("link", { name: "Answers" }));
 
     const section = conversationSection();
 
@@ -93,7 +93,7 @@ describe("ProjectDetailPage discovery conversation", () => {
   it("shows the empty state when no conversation has been captured", () => {
     storedProject.discoveryBrief.discoveryConversation = [];
     renderDetail();
-    fireEvent.click(screen.getByRole("button", { name: "Answers" }));
+    fireEvent.click(screen.getByRole("link", { name: "Answers" }));
 
     const section = conversationSection();
     expect(

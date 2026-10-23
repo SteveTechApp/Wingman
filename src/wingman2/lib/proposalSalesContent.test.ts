@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Packer } from "docx";
 import JSZip from "jszip";
 import { proposalProductCards, proposalSolutionStory, safeProposalWebUrl } from "./proposalSalesContent";
+import { CUSTOMER_COPY } from "./proposalCopy";
 import { buildProposalHtml } from "./proposalExport";
 import { buildProposalDocx } from "./proposalDocxExport";
 import { createProposalWizardDefaults } from "./proposalWizard";
@@ -32,7 +33,11 @@ describe("customer proposal story and references", () => {
     expect(story.overview).toBe(proposal.salesContent!.solutionOverview);
     expect(story.operation.join(" ")).toContain("subject to endpoint compatibility");
     expect(story.externalScope).toContain("Customer supplies four displays");
-    expect(proposalSolutionStory({ ...proposal, salesContent: undefined }, []).externalScope).toContain("[complete]");
+    // Without authored scope the story states the customer position, never the rep prompts.
+    const pending = proposalSolutionStory({ ...proposal, salesContent: undefined }, []).externalScope;
+    expect(pending).not.toContain("[complete]");
+    expect(pending).toContain("Displays / projection — model, size");
+    expect(pending).toContain("to be agreed");
   });
 
   it("exports the authored story, concept topology and product links in HTML", () => {
@@ -43,6 +48,9 @@ describe("customer proposal story and references", () => {
     expect(html).toContain('aria-label="Concept signal-flow diagram"');
     expect(html).toContain('href="https://www.wyrestorm.com/product/nhd-600-tx/"');
     expect(html).toContain('alt="Encoder front"');
+    // The comparison notice is the copy layer's sentence, printed once.
+    expect(html).toContain(CUSTOMER_COPY.competitorExclusion);
+    expect(html.split(CUSTOMER_COPY.competitorExclusion)).toHaveLength(2);
   });
 
   it("puts photographs and live hyperlink relationships in Word, with missing-image fallback", async () => {

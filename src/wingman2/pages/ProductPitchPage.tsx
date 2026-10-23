@@ -198,7 +198,7 @@ function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
   const useful = cleanUsefulList(items, max);
 
   return (
-    <ul className="wm-product-pitch-list grid gap-2 text-sm leading-6 wm-ui-copy">
+    <ul className="grid gap-2 text-sm leading-6 wm-ui-copy">
       {useful.map((item, index) => (
         <li key={`${item}-${index}`} className="rounded-2xl border px-3 py-2 wm-ui-card">
           {item}
@@ -224,7 +224,7 @@ function WorkCard({
   tone?: "standard" | "caution";
 }) {
   return (
-    <section className="wm-product-pitch-work-card wm-ui-card rounded-lg border p-5 wm-ui-section" data-ui-tone={tone}>
+    <section className="wm-ui-card rounded-lg border p-5 wm-ui-section" data-ui-tone={tone}>
       <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} ${tone === "caution" ? "text-amber-200" : "text-cyan-300"}`}>
         {title}
       </h3>
@@ -624,7 +624,7 @@ function TabButton({
       onClick={onClick}
       role="tab"
       aria-selected={active}
-      className={`wm-product-pitch-tab rounded-full px-4 py-2 text-sm font-bold transition ${
+      className={`rounded-full px-4 py-2 text-sm font-bold transition ${
         active
           ? "bg-cyan-300 text-slate-950"
           : "border border-[#29465e] bg-[#081724] text-cyan-100 hover:border-cyan-300"
@@ -687,28 +687,28 @@ function CompetitorsTab({ product }: { product: ProductSpec }) {
   const landscape = useMemo(() => getCompetitorLandscape(product), [product]);
 
   return (
-    <div className="wm-product-pitch-competitors">
-      <div className="wm-product-pitch-competitors__context">
+    <div>
+      <div>
       <WorkCard title="Market context">
         <p className="wm-ui-copy">{landscape.note}</p>
       </WorkCard>
       </div>
 
       {landscape.entries.length ? (
-        <div className="wm-product-pitch-competitors__grid">
+        <div>
           {landscape.entries.map((entry) => (
-            <div className="wm-product-pitch-competitor" key={`${entry.brand}-${entry.sku}`}>
+            <div key={`${entry.brand}-${entry.sku}`}>
             <WorkCard title={`${entry.brand} ${entry.sku}`} key={`${entry.brand}-${entry.sku}`}>
-              <div className="wm-product-pitch-competitor__body">
-                {entry.category ? <p className="wm-product-pitch-competitor__category">{entry.category}</p> : null}
+              <div>
+                {entry.category ? <p>{entry.category}</p> : null}
                 {entry.summary ? <p className="wm-ui-copy">{entry.summary}</p> : null}
                 {entry.knownLimitations ? (
-                  <p className="wm-product-pitch-competitor__limitation"><strong>Known limitation:</strong> {entry.knownLimitations}</p>
+                  <p><strong>Known limitation:</strong> {entry.knownLimitations}</p>
                 ) : null}
                 {entry.wingmanEquivalent ? (
-                  <p className="wm-product-pitch-competitor__equivalent"><span>WyreStorm equivalent</span><strong>{entry.wingmanEquivalent}</strong></p>
+                  <p><span>WyreStorm equivalent</span><strong>{entry.wingmanEquivalent}</strong></p>
                 ) : null}
-                <p className="wm-product-pitch-competitor__confidence">{entry.confidence} confidence</p>
+                <p>{entry.confidence} confidence</p>
               </div>
             </WorkCard>
             </div>
@@ -742,23 +742,23 @@ function DesignTab({ product, narrative }: { product: ProductSpec; narrative: Pr
   ] as const;
 
   return (
-    <div className="wm-product-pitch-design">
-      <div className="wm-product-pitch-design__summary">
+    <div>
+      <div>
         <WorkCard title="Role in the design"><p className="wm-ui-copy">{narrative.whereItSits}</p></WorkCard>
         <WorkCard title="Likely location"><p className="wm-ui-copy">{likelyLocation(product)}</p></WorkCard>
         <WorkCard title="Application position"><p className="wm-ui-copy">{narrative.familyFit}</p></WorkCard>
       </div>
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-design__connectivity p-5`}>
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <p className="wm-ui-kicker">Signal path</p>
         <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Connectivity and cable planning</h2>
         <p className="mt-2 text-sm wm-ui-copy">Confirmed product-record information only. Cable lengths, connector gender and endpoint quantities still need room discovery.</p>
-        <div className="wm-product-pitch-design__groups">
+        <div>
           {groups.map(([title, values]) => (
             <WorkCard title={title} key={title}><DisplayList items={cleanUsefulList([...values], 6)} max={6} /></WorkCard>
           ))}
         </div>
       </section>
-      <div className="wm-product-pitch-design__checks">
+      <div>
         <WorkCard title="Checks before it is put on a quote" tone="caution">
           <DisplayList items={product.checks} max={8} />
         </WorkCard>
@@ -777,20 +777,20 @@ function WorkflowTab({ product, narrative }: { product: ProductSpec; narrative: 
   ];
 
   return (
-    <div className="wm-product-pitch-workflow">
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-workflow__intro p-5`}>
+    <div>
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <p className="wm-ui-kicker">Handoff workflow</p>
         <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Move from product discussion to a customer response</h2>
         <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">Keep {product.sku} and the room context together as the opportunity moves from discovery to the customer response.</p>
       </section>
-      <div className="wm-product-pitch-workflow__steps">
+      <div>
         {steps.map((step) => (
-          <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-workflow__step`} key={step.number} data-step={step.number}>
-            <div className="wm-product-pitch-workflow__step-head">
-              <span className="wm-product-pitch-workflow__number">{step.number}</span>
+          <section className={`${PRODUCT_PITCH_PANEL_CLASS}`} key={step.number} data-step={step.number}>
+            <div>
+              <span>{step.number}</span>
               <div><h3>{step.title}</h3><p className="wm-ui-copy">{step.copy}</p></div>
             </div>
-            <Link to={step.to} onClick={saveHandoff} className={`wm-product-pitch-workflow__action ${PRODUCT_PITCH_FORWARD_BUTTON_CLASS}`}>{step.action}<span aria-hidden="true">→</span></Link>
+            <Link to={step.to} onClick={saveHandoff} className={`${PRODUCT_PITCH_FORWARD_BUTTON_CLASS}`}>{step.action}<span aria-hidden="true">→</span></Link>
           </section>
         ))}
       </div>
@@ -946,7 +946,7 @@ function ProductWorkspace({
 
       {!isGuided && <ProductPitchSafetyPanel />}
 
-      <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-tabs p-4`} aria-label="Product information views">
+      <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`} aria-label="Product information views">
         <div className="flex flex-wrap gap-2" role="tablist">
           <TabButton label={isGuided ? "Product essentials" : "Product overview"} active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
           {!isGuided && <>

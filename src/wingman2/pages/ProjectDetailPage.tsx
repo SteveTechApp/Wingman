@@ -1,3 +1,4 @@
+import { SavedWallStatus } from "../components/SavedWallStatus";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Pencil, Save, Trash2, X } from "lucide-react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -6,7 +7,6 @@ import { AuditLogPanel } from "../components/AuditLogPanel";
 import { useWorkflowPage } from "../components/WorkflowPages";
 import { PageHero } from "../components/PageHero";
 import { ProjectSyncConflictBanner } from "../components/SyncConflictBanner";
-import { SectionCard } from "../components/SectionCard";
 
 import {
   removeProductSelectionFromProject,
@@ -27,9 +27,23 @@ import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePan
 import { DiscoveryConversationReview } from "../components/DiscoveryConversationReview";
 import { ProposalVersionHistory } from "../components/ProposalVersionHistory";
 import { ProjectComparisonHistory } from "./project/ProjectComparisonHistory";
+import { WallSurveyPhotoReview } from "./project/WallSurveyPhotoReview";
+import { WallSurveySheetImports } from "./project/WallSurveySheetImports";
+import { WallTransportReview } from "./project/WallTransportReview";
+import { AuditEntryLinks } from "./project/AuditEntryLinks";
+import { useProjectAnchorJump } from "./project/useProjectAnchorJump";
 import { DealOutcomeSection } from "./project/DealOutcomeSection";
 
 import { ProjectWorkflowNavigator } from "./project/ProjectWorkflowNavigator";
+import { ProjectPanel } from "./project/ProjectPanel";
+import { CopyPanelLink } from "./project/CopyPanelLink";
+import {
+  dedupeText,
+  formatProjectTimestamp,
+  projectField,
+  projectNumber,
+  projectText,
+} from "./project/projectDetailText";
 
 // Editable requirements
 function compareDeepLink(compareRun: StoredCompareRun, projectId?: string) {
@@ -42,60 +56,7 @@ function compareDeepLink(compareRun: StoredCompareRun, projectId?: string) {
   return query ? `${routeCatalogByKey.compare.path}?${query}` : routeCatalogByKey.compare.path;
 }
 
-function projectText(value: unknown, fallback = "Not captured") {
-  if (Array.isArray(value)) {
-    const text = value.map((item) => String(item ?? "").trim()).filter(Boolean).join(", ");
-    return text || fallback;
-  }
 
-  const text = String(value ?? "").trim();
-  return text || fallback;
-}
-
-function projectRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
-
-  return value as Record<string, unknown>;
-}
-
-function projectField(value: unknown, key: string, fallback = "") {
-  const record = projectRecord(value);
-
-  if (!record) {
-    return fallback;
-  }
-
-  return projectText(record[key], fallback);
-}
-
-function projectNumber(value: unknown, key: string) {
-  const record = projectRecord(value);
-  const rawValue = record?.[key];
-
-  if (typeof rawValue === "number" && Number.isFinite(rawValue)) {
-    return rawValue;
-  }
-
-  const parsedValue = Number(rawValue);
-
-  if (Number.isFinite(parsedValue)) {
-    return parsedValue;
-  }
-
-  return null;
-}
-
-function dedupeText(items: Array<string | undefined | null>) {
-  return Array.from(
-    new Set(
-      items
-        .map((item) => String(item ?? "").trim())
-        .filter(Boolean),
-    ),
-  );
-}
 
 // WINGMAN_INLINE_BLOCKER_ANSWERS_V1
 function normaliseBlockerText(value: unknown) {
@@ -198,21 +159,7 @@ const projectDetailSections = [
   { id: "audit", label: "Activity" },
 ];
 
-function formatProjectTimestamp(value: unknown) {
-  const text = String(value ?? "").trim();
-  if (!text) return "Not timestamped";
 
-  const date = new Date(text);
-  if (Number.isNaN(date.getTime())) return text;
-
-  return date.toLocaleString(undefined, {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
@@ -242,6 +189,10 @@ export function ProjectDetailPage() {
   const [message, setMessage] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const { current: activeSection, go: setActiveSection } = useWorkflowPage(projectDetailSections);
+  // The address's hash is the page's one way into a panel: the Activity
+  // timeline's links are ordinary addresses, so the same reader lands them as a
+  // pasted survey link. Nothing scrolls rows itself.
+  useProjectAnchorJump(activeSection, setActiveSection);
   const [searchParams] = useSearchParams();
   const [isEditingProject, setIsEditingProject] = useState(searchParams.get("edit") === "true");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -692,12 +643,12 @@ export function ProjectDetailPage() {
         purpose="See the current product direction, readiness and next action."
         nextMove="Use the highlighted action below; open supporting project detail only when needed."
         actions={[
-          { label: "Back to projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
+          { label: "Back to projects", to: routeCatalogByKey.projects.path },
           { label: "Save as template", onClick: saveCurrentProjectAsTemplate },
         ]}
       />
 
-      <details className="wm-project-detail-actions"><summary>Project actions</summary><nav className="wm-project-detail-nav wm-ui-card" aria-label="Project review navigation">
+      <details><summary>Project actions</summary><nav className="wm-project-detail-nav wm-ui-card" aria-label="Project review navigation">
         <div className="wm-project-detail-nav__actions">
           <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => { setActiveProjectId(project.id); navigate(discoveryResumeUrl(project.id)); }}>
             {isEditingProject ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
@@ -735,7 +686,7 @@ export function ProjectDetailPage() {
         </section>
       ) : null}
 
-        <ProjectWorkflowNavigator pages={projectDetailSections} current={activeSection} onChange={setActiveSection} projectId={project.id} responsePath={responsePath} />
+        <ProjectWorkflowNavigator pages={projectDetailSections} current={activeSection} projectId={project.id} responsePath={responsePath} />
       <div id="project-overview" className="wm-project-detail-stack space-y-6">
         {savedTemplatePath ? (
           <section className="rounded-2xl border p-3 text-sm wm-output-panel">
@@ -750,10 +701,18 @@ export function ProjectDetailPage() {
         ) : null}
 
         {activeSection === "overview" ? (
-        <section className="wm-project-current-result rounded-3xl border p-5 wm-ui-card">
+        <section
+          id="project-current-result"
+          tabIndex={-1}
+          aria-label="Current result"
+          className="wm-project-current-result rounded-3xl border p-5 wm-ui-card"
+        >
           <div className="wm-project-current-result__layout grid gap-4 lg:grid-cols-[1fr_280px] lg:items-center">
             <div className="wm-project-current-result__summary">
-              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Current result</p>
+              <div className="wm-project-current-result__topline">
+                <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Current result</p>
+                <CopyPanelLink projectId={project.id} anchorId="project-current-result" compact />
+              </div>
               <h2 className="mt-2 text-3xl font-black wm-ui-title">
                 {selectedProducts[0]?.sku || leadingProductFamilyScore?.family || "No product direction selected"}
               </h2>
@@ -899,7 +858,9 @@ export function ProjectDetailPage() {
 
 
 
-        {activeSection === "products" ? <SectionCard
+        {activeSection === "products" ? <ProjectPanel
+          projectId={project.id}
+          anchorId="project-equipment"
           title="Equipment"
           subtitle="Discovery status, product direction, blockers, and workflow handoff."
         >
@@ -1000,9 +961,11 @@ export function ProjectDetailPage() {
               Response
             </Link>
           </div>
-        </SectionCard> : null}
+        </ProjectPanel> : null}
 
-        {activeSection === "handoff" ? <SectionCard
+        {activeSection === "handoff" ? <ProjectPanel
+          projectId={project.id}
+          anchorId="project-ready-to-send"
           title="Ready to send?"
           subtitle="Use this as the commercial safety check before turning the project into a customer proposal or quote request."
         >
@@ -1043,13 +1006,14 @@ export function ProjectDetailPage() {
               </div>
             )}
           </div>
-        </SectionCard> : null}
+        </ProjectPanel> : null}
 
-        {activeSection === "capture" ? <SectionCard
+        {activeSection === "capture" ? <ProjectPanel
+          projectId={project.id}
+          anchorId="project-evidence"
           title="Project evidence trace"
           subtitle="Trace what Wingman has actually captured, where it came from, what it proves, and which workflow should be opened next."
-          >
-          <span id="project-evidence" className="wm-project-detail-anchor" aria-hidden="true" />
+        >
           {projectEvidenceTimeline.length ? (
             <div className="grid gap-3">
               {projectEvidenceTimeline.map((item) => (
@@ -1076,9 +1040,11 @@ export function ProjectDetailPage() {
               No saved discovery, product, compare, ingest, or response evidence is attached to this project yet. Start with Discovery or Finder before treating this opportunity as ready for a customer response.
             </div>
           )}
-        </SectionCard> : null}
+        </ProjectPanel> : null}
 
-        {activeSection === "history" ? <SectionCard
+        {activeSection === "history" ? <ProjectPanel
+          projectId={project.id}
+          anchorId="project-saved-work"
           title="Saved comparisons"
           subtitle="Past decisions are kept with this project. Reopen one to check it against current product data."
         >
@@ -1102,9 +1068,11 @@ export function ProjectDetailPage() {
               {(project.compareRuns ?? []).some((run) => run.mode === "saved-history") ? <ProjectComparisonHistory projectId={project.id} runs={project.compareRuns ?? []} compareLink={(run) => compareDeepLink(run, project.id)} onDelete={deleteSavedComparison} /> : null}
             </div>
           ) : <p className="text-sm wm-ui-copy">No comparisons saved to this project yet.</p>}
-        </SectionCard> : null}
+        </ProjectPanel> : null}
 
-        {activeSection === "history" ? <SectionCard
+        {activeSection === "history" ? <ProjectPanel
+          projectId={project.id}
+          anchorId="project-response-versions"
           title="Response versions"
           subtitle="Review earlier customer response drafts and restore a version when needed."
         >
@@ -1112,29 +1080,37 @@ export function ProjectDetailPage() {
             versions={project.proposalVersions ?? []}
             currentProposal={project.proposal ?? null}
           />
-        </SectionCard> : null}
+        </ProjectPanel> : null}
 
-        {activeSection === "conversation" ? <SectionCard
+        {activeSection === "conversation" ? <ProjectPanel
+          projectId={project.id}
+          anchorId="project-discovery-conversation"
           title="Captured answers"
           subtitle="The questions asked, the governed answers, and the customer's own wording — audit the trail and jump into Discovery to correct any row before it reaches a response."
         >
-          <span id="project-discovery-conversation" className="wm-project-detail-anchor" aria-hidden="true" />
           <DiscoveryConversationReview
             items={project?.discoveryBrief?.discoveryConversation ?? []}
           />
-        </SectionCard> : null}
+        </ProjectPanel> : null}
 
-        {activeSection === "confirm" ? <SectionCard
+        {activeSection === "confirm" ? <ProjectPanel
+          projectId={project.id}
+          anchorId="project-requirements"
           title="Requirements"
           subtitle="Reopen the saved Discovery answers to review customer requirements."
         >
-          <span id="project-requirements" className="wm-project-detail-anchor" aria-hidden="true" />
           <p className="wm-ui-copy">Review and update these requirements in the standard Discovery questions.</p>
           <Link to={discoveryResumeUrl(project.id)} className="wm-ui-button wm-ui-button-primary">Edit in Discovery</Link>
 
-        </SectionCard> : null}
+        </ProjectPanel> : null}
 
-        {activeSection === "decide" ? <SectionCard
+        {activeSection === "confirm" && project ? <WallTransportReview project={project} /> : null}
+        {activeSection === "confirm" && project ? <WallSurveyPhotoReview project={project} /> : null}
+        {activeSection === "confirm" && project ? <WallSurveySheetImports project={project} /> : null}
+
+        {activeSection === "decide" ? <ProjectPanel
+          projectId={project.id}
+          anchorId="project-recommendation-evidence"
           title="Recommendation evidence"
           subtitle="What Wingman carries forward into Finder, Compare, and Responses."
         >
@@ -1143,11 +1119,13 @@ export function ProjectDetailPage() {
             productFamilyScores={productFamilyScores}
             selectedProducts={selectedProducts}
           />
-        </SectionCard> : null}
+        </ProjectPanel> : null}
 
         {activeSection === "handoff" ? (
           <div className="grid gap-4">
-            <SectionCard
+            <ProjectPanel
+              projectId={project.id}
+              anchorId="project-handoff"
               title="Response handoff"
               subtitle="Move from a validated project record to a customer response, visual, or CRM handoff."
             >
@@ -1158,18 +1136,24 @@ export function ProjectDetailPage() {
                 <Link to={routeCatalogByKey.projects.path} className="wm-ui-button wm-ui-button-secondary">Back to projects</Link>
               </div>
               <p className="mt-3 text-xs leading-5 wm-ui-copy">Use the controls below to record the outcome and share the same project record with your CRM.</p>
-            </SectionCard>
+            </ProjectPanel>
             <DealOutcomeSection project={project} />
             <CrmSharePanel project={project} />
           </div>
         ) : null}
         {activeSection === "audit" ? (
-          <SectionCard
+          <ProjectPanel
+            projectId={project.id}
+            anchorId="project-activity"
             title="Audit Log"
             subtitle="Track who changed what and when across this project. Discovery edits, product changes, proposal modifications, and approvals are recorded automatically."
           >
-            <AuditLogPanel entries={project.auditTrail ?? []} />
-          </SectionCard>
+            <SavedWallStatus project={project} projects={projects} showReview />
+            <AuditLogPanel
+              entries={project.auditTrail ?? []}
+              entryAction={(entry) => <AuditEntryLinks project={project} entry={entry} />}
+            />
+          </ProjectPanel>
         ) : null}
       </div>
     </main>

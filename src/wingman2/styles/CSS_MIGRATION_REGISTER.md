@@ -67,7 +67,8 @@ Required visual target:
 - buttons are clean rectangular controls, not heavy orange pills;
 - page-level CSS imports remain banned;
 - visual-system rules live in the consolidated `wingman-style-stack.css`;
-- `check:style-drift-baseline` fails if hard-coded colour, inline style, arbitrary Tailwind, page-specific CSS, or legacy pill drift increases.
+- `check:style-drift-baseline` fails if hard-coded colour, inline style, arbitrary Tailwind, page-specific CSS, or legacy pill drift increases;
+- `check:dead-css` fails if an unmatchable selector appears outside `tools/wingman-dead-css-baseline.json`, or if a baseline entry is no longer dead. Detection is structural: a rule scoped by an ancestor class that no longer exists fails even when its descendant class is still in use, and a dead branch inside a live comma list is reported on its own. The allowlist is empty; `node tools/consolidate-dead-class-css.mjs --all --apply` prunes every scanned stylesheet and splits dead branches out of live lists.
 
 Migration order remains:
 

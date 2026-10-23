@@ -45,14 +45,14 @@ export function TemplatesPage({ discoveryEntry = false }: { discoveryEntry?: boo
   function startCustom() { navigate(`${routeCatalogByKey.templates.path}/new`); }
   function manageCustom(template: CustomRoomTemplate) {
     writeDiscoveryHandoff(createCustomTemplateEditHandoff(template));
-    navigate(`${routeCatalogByKey.templates.path}/${encodeURIComponent(template.id)}${isGuided ? "" : "/edit"}`);
+    navigate(`${routeCatalogByKey.templates.path}/${encodeURIComponent(template.id)}/edit`);
   }
   function update<K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) { setPersonalisation((current) => current ? { ...current, [key]: value } : current); setSaved(false); }
   function applyDraft() { if (definition && personalisation) { saveTemplateDraft(definition, personalisation); setSaved(true); } }
 
   return <main className="wm-templates-page wm-page" data-wingman-page="templates">
     <header className="wm-solution-header">
-      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 className="wm-page-title">{discoveryEntry ? "Start with a room template" : "Solution Templates"}</h1><p className="wm-ui-copy">{discoveryEntry ? "Choose the closest room, edit its equipment and quantities, then save your project or build the proposal." : "Choose a market and application, then review and adjust its equipment schedule before producing the proposal."}</p></div>
+      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 data-testid="templates-title" className="wm-page-title">{discoveryEntry ? "Start with a room template" : "Solution Templates"}</h1><p className="wm-ui-copy">{discoveryEntry ? "Choose the closest room, edit its equipment and quantities, then save your project or build the proposal." : "Choose a market and application, then review and adjust its equipment schedule before producing the proposal."}</p></div>
       <div className="wm-solution-header-actions"><Link className="wm-button wm-button-secondary" to={routeCatalogByKey.videowall.path}>Video wall builder</Link><button className="wm-button wm-button-secondary" type="button" onClick={() => setMarket("Custom")}>Manage Templates</button>{!isGuided && <button className="wm-button wm-button-primary" type="button" onClick={startCustom}>+ New Custom Template</button>}</div>
     </header>
     <nav className="wm-template-stages" aria-label="Template workflow stages">

@@ -6,21 +6,80 @@
  * timestamp, and detail.
  */
 
-import { useMemo, useState } from "react";
-import { Clock, Filter, GitBranch, Search, Shield, ShoppingCart, FileText, ArrowRightLeft, CheckCircle } from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+import {
+  ArrowRightLeft,
+  Boxes,
+  CheckCircle,
+  CircleDashed,
+  Clock,
+  FileText,
+  Filter,
+  GitBranch,
+  Layers,
+  Monitor,
+  Search,
+  Shield,
+  ShoppingCart,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";
 import type { ProjectAuditEntry } from "../data/projectStore";
 
 type AuditLogPanelProps = {
   entries: ProjectAuditEntry[];
+  /**
+   * The page's own affordance for an entry it can take the reader further into.
+   * The timeline stays presentational: only the page knows where its sections
+   * are, and which entries have somewhere to go.
+   */
+  entryAction?: (entry: ProjectAuditEntry) => ReactNode;
 };
 
-const SCOPE_CONFIG: Record<string, { icon: typeof Clock; label: string; color: string }> = {
+/**
+ * Every scope the app can write onto an audit entry.
+ *
+ * The map is keyed by this list rather than by `string`, so a new scope fails the
+ * typecheck until it has a name and an icon of its own: the fallback below then
+ * only ever covers data written by a version that did not know a key, never one
+ * of ours.
+ */
+export const AUDIT_SCOPES = [
+  "discovery",
+  "products",
+  "proposal",
+  "compare",
+  "approval",
+  "project",
+  "videowall",
+  "recommendation",
+  "bom",
+  "declining",
+  "unsettled",
+  "design-project",
+] as const;
+
+export type AuditScope = (typeof AUDIT_SCOPES)[number];
+
+export const SCOPE_CONFIG: Record<AuditScope, { icon: typeof Clock; label: string; color: string }> = {
   discovery: { icon: GitBranch, label: "Discovery", color: "#60a5fa" },
   products: { icon: ShoppingCart, label: "Products", color: "#34d399" },
   proposal: { icon: FileText, label: "Proposal", color: "#a78bfa" },
   compare: { icon: ArrowRightLeft, label: "Compare", color: "#fbbf24" },
   approval: { icon: CheckCircle, label: "Approval", color: "#f472b6" },
   project: { icon: Shield, label: "Project", color: "#94a3b8" },
+  // Wall entries are its own scope, so a survey reads as a survey rather than as
+  // an unconfigured key wearing the generic clock.
+  videowall: { icon: Monitor, label: "Video wall", color: "#22d3ee" },
+  recommendation: { icon: Sparkles, label: "Recommendation", color: "#38bdf8" },
+  bom: { icon: Boxes, label: "Bill of materials", color: "#fb923c" },
+  // `declining` and `unsettled` are the answers a decision-integrity rule
+  // reports on: a "no such scope" answer sitting beside a concrete one, and a
+  // "not yet confirmed" one doing the same. The trail names what a reader is
+  // being shown, not the key the rules are filed under.
+  declining: { icon: TriangleAlert, label: "Scope conflict", color: "#fb7185" },
+  unsettled: { icon: CircleDashed, label: "Open decision", color: "#d97706" },
+  "design-project": { icon: Layers, label: "Design project", color: "#a3e635" },
 };
 
 function formatTimestamp(iso: string): string {
@@ -38,7 +97,7 @@ function formatTimestamp(iso: string): string {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export function AuditLogPanel({ entries }: AuditLogPanelProps) {
+export function AuditLogPanel({ entries, entryAction }: AuditLogPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [scopeFilter, setScopeFilter] = useState<string | null>(null);
 
@@ -99,7 +158,7 @@ export function AuditLogPanel({ entries }: AuditLogPanelProps) {
             All ({entries.length})
           </button>
           {Object.entries(scopeCounts).map(([scope, count]) => {
-            const config = SCOPE_CONFIG[scope] || { label: scope, color: "#94a3b8" };
+            const config = SCOPE_CONFIG[scope as AuditScope] || { label: scope, color: "#94a3b8" };
             return (
               <button
                 key={scope}
@@ -123,7 +182,7 @@ export function AuditLogPanel({ entries }: AuditLogPanelProps) {
           </div>
         ) : (
           filteredEntries.map((entry) => {
-            const config = SCOPE_CONFIG[entry.scope] || { icon: Clock, label: entry.scope, color: "#94a3b8" };
+            const config = SCOPE_CONFIG[entry.scope as AuditScope] || { icon: Clock, label: entry.scope, color: "#94a3b8" };
             const Icon = config.icon;
             return (
               <div key={entry.id} className="wm-audit-entry" role="listitem">
@@ -138,6 +197,7 @@ export function AuditLogPanel({ entries }: AuditLogPanelProps) {
                     <span className="wm-audit-entry-time">{formatTimestamp(entry.createdAt)}</span>
                   </div>
                   <p className="wm-audit-entry-detail">{entry.detail}</p>
+                  {entryAction?.(entry)}
                   <span className="wm-audit-entry-actor">{entry.actorName}</span>
                 </div>
               </div>

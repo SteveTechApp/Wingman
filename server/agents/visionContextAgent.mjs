@@ -20,6 +20,17 @@ export async function runVisionContextAgent(input) {
     return deriveVisionContext(fallbackPayload);
   }
 
+  // The survey page's development switch: return the deterministic sample by
+  // request so the review and apply steps can be walked in a browser without a
+  // model key. Only a development server may answer it — a deployed server
+  // refuses rather than letting a request swap a reading for sample data.
+  if (input?.mock === true) {
+    if (!config.requestMock) {
+      throw new Error("Sample site-photo readings are available only when the server runs in development mode.");
+    }
+    return deriveVisionContext({ fileName, requested: true });
+  }
+
   assertAgentConfigured(config);
 
   try {

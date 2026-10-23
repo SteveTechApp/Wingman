@@ -8,12 +8,6 @@
 .wm-room-design-page > main { height:auto!important; max-height:none!important; overflow:visible!important; padding:0!important; }
 .wm-room-design-page .wm-template-context-strip { display:none!important; }
 .wm-design-schedule { color:#eaf3f9; display:grid; gap:12px; }
-.wm-design-schedule__intro { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:24px; padding:20px; border:1px solid #244252; border-radius:12px; background:#0b2233; }
-.wm-design-schedule__intro h2 { margin:0 0 8px; font-size:22px; }
-.wm-design-schedule__intro p { margin:0; font-size:14px; line-height:1.6; color:#b5cbd8; max-width:850px; }
-.wm-design-schedule__intro dl { display:flex; gap:26px; margin:0; align-items:center; }
-.wm-design-schedule__intro dt { color:#98b6c7; font-size:11px; }
-.wm-design-schedule__intro dd { margin:5px 0 0; font-size:20px; font-weight:650; }
 .wm-design-schedule__tools { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:4px 0 8px; }
 .wm-design-schedule__tools p { margin:0; color:#a9bfce; font-size:13px; line-height:1.5; }
 .wm-design-schedule__tools label { display:flex; align-items:center; gap:8px; flex-shrink:0; font-size:12px; color:#adc4d2; }
@@ -37,12 +31,11 @@
 .wm-design-schedule__quantity input { width:90px; min-height:32px; padding:6px 8px; border:1px solid #365766; border-radius:5px; background:#061724; color:#edf6fa; font:inherit; font-size:13px; }
 .wm-design-schedule__edit,.wm-design-schedule__add { border:0; background:transparent; color:#52d7d9; font:inherit; cursor:pointer; font-size:12px; padding:8px 0; }
 .wm-design-schedule__add { margin-top:8px; }
-.wm-design-schedule__library,.wm-room-design-notes { padding:16px 20px; border:1px solid #294351; border-radius:10px; color:#b5cbd8; }
-.wm-design-schedule__library summary,.wm-room-design-notes > summary { cursor:pointer; font-size:13px; }
-.wm-room-design-notes { margin-top:14px; }
+.wm-design-schedule__library { padding:16px 20px; border:1px solid #294351; border-radius:10px; color:#b5cbd8; }
+.wm-design-schedule__library summary { cursor:pointer; font-size:13px; }
 .wm-design-schedule button:focus-visible,.wm-design-schedule summary:focus-visible,.wm-design-schedule select:focus-visible { outline:2px solid #51d7da; outline-offset:3px; }
-@media(max-width:1100px) { .wm-design-schedule__intro { grid-template-columns:1fr; gap:16px; } .wm-design-schedule__intro dl { justify-content:flex-start; } .wm-room-design-page .wm-template-header-row { grid-template-columns:1fr!important; } .wm-room-design-page .wm-template-header-actions { justify-content:flex-start; max-width:none; } }
-@media(max-width:650px) { .wm-room-design-page.wm-template-workspace { padding:12px!important; } .wm-design-schedule__tools { align-items:flex-start; flex-direction:column; gap:10px; } .wm-design-schedule__intro { padding:16px; } .wm-design-schedule__intro dl { flex-wrap:wrap; gap:16px; } .wm-design-schedule__section > summary { padding:14px; } .wm-design-schedule__section summary > span { white-space:normal; width:65px; font-size:10px; } .wm-design-schedule__section-body { padding:0 14px 12px; } .wm-design-schedule__row { grid-template-columns:18px minmax(0,1fr) 35px; gap:10px; } .wm-design-schedule__quantity { grid-column:2; grid-row:auto; } .wm-design-schedule__edit { grid-column:3; grid-row:1 / span 2; } }
+@media(max-width:1100px) { .wm-room-design-page .wm-template-header-row { grid-template-columns:1fr!important; } .wm-room-design-page .wm-template-header-actions { justify-content:flex-start; max-width:none; } }
+@media(max-width:650px) { .wm-room-design-page.wm-template-workspace { padding:12px!important; } .wm-design-schedule__tools { align-items:flex-start; flex-direction:column; gap:10px; } .wm-design-schedule__section > summary { padding:14px; } .wm-design-schedule__section summary > span { white-space:normal; width:65px; font-size:10px; } .wm-design-schedule__section-body { padding:0 14px 12px; } .wm-design-schedule__row { grid-template-columns:18px minmax(0,1fr) 35px; gap:10px; } .wm-design-schedule__quantity { grid-column:2; grid-row:auto; } .wm-design-schedule__edit { grid-column:3; grid-row:1 / span 2; } }
 .wm-room-design-page .wm-drawing-choice { display:flex; align-items:center; gap:12px; margin-bottom:16px; color:#b1c8d6; font-size:13px; }
 .wm-room-design-page .wm-drawing-choice select { max-width:100%; padding:9px; border:1px solid #355765; border-radius:6px; color:#e6f6fa; background:#0c2534; }
 .wingman-app-main:has(.wm-room-design-page) { overflow-y:auto!important; }

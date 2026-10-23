@@ -27,8 +27,12 @@ ratchet-style gates share the exception discipline recorded in
 | `check:size-budgets` | `verify:build` | a tracked artefact growing past its recorded byte limit | reviewed exception recorded in `tools/wingman-size-budgets.json` (see SIZE_BUDGETS.md) |
 | `check:architecture-boundaries` | `verify:build` and CI Build | a new/growing oversized TS module or page, or a private cross-boundary feature import | none — split the module, shrink existing debt, or import a feature's public API |
 | `check:style-drift-baseline` | `verify:visual` | new page-scoped CSS sections beyond the recorded baseline | reviewed exception recorded in `tools/wingman-style-drift-baseline.json` |
+| `check:dead-css` | `verify:visual` | an unused CSS selector that is not in `tools/wingman-dead-css-baseline.json`, or a listed selector that is no longer dead | remove the rule (preferred; `npm run audit:dead-css:deletions` proposes the patch); a reviewed baseline update is the exception (`npm run audit:dead-css:baseline`) |
+| `check:unstyled-classes` | `verify:visual` | a class name in markup that no stylesheet, inline export `<style>` block or Tailwind utility answers and that is not in `tools/wingman-unstyled-classes-baseline.json`, or a listed class that has gained a style | add the rule or remove the class (preferred); a reviewed baseline update is the exception (`npm run audit:unstyled-classes:baseline`) |
 | `check:technical-data` | `verify:data` | governed-profile coverage falling below the recorded baseline | `npm run check:technical-data -- --update-baseline` only when coverage genuinely improved |
 | `check:postgrest-reads` | `verify:build` | an unbounded Supabase/PostgREST full-table read in `server/` or `tools/` | none — add `.range()` pagination (see docs/SUPABASE_SETUP.md) |
+| `check:export-validation-domains` | `verify:contract` | a registered export-validation domain (`EXPORT_VALIDATION_DOMAINS` in `proposalExportValidation.ts`) that no test proves by reading `.domain` off an entry the check produced, a check whose domain is not registered, a registered domain no check produces, or an allowance entry a test has since covered | add the test (preferred); a domain that genuinely cannot be proven yet is recorded with its reason in `tools/wingman-export-validation-domains.json`, and the gate refuses that entry once a test covers it |
+| `check:audit-scopes` | `verify:contract` | an audit entry written with a `scope` that `AuditLogPanel`'s `AUDIT_SCOPES` does not list with a label and icon — a trail type that would print its raw stored key | add the scope to `AUDIT_SCOPES` and `SCOPE_CONFIG` in `src/wingman2/components/AuditLogPanel.tsx` (the typecheck asks for both); there is no allowance file |
 
 Everything below expands the non-obvious rows a dependency or data edit will
 actually hit. "None" under exception path means the fix is to make the data
@@ -147,3 +151,65 @@ without permitting substantial growth. New allowlist keys remain rejected.
 `check:style-drift-baseline` allows 5% variation for nonzero aggregate metrics.
 Metrics whose baseline is zero remain strict so retired visual patterns cannot
 return.
+
+`check:dead-css` is an allowlist ratchet with **no tolerance**. Every unused
+selector currently accepted in `src/wingman2` CSS is listed in
+`tools/wingman-dead-css-baseline.json`. A new dead selector fails the run, and
+a baseline entry whose rule has been deleted also fails, so the file cannot
+accumulate stale allowances. The fix is to remove the dead rule — or, for
+deliberately accepted debt, a reviewed `npm run audit:dead-css:baseline`
+regeneration. Detection is shared with `tools/consolidate-dead-class-css.mjs`
+(`tools/lib/dead-css.mjs`) and is structural: a selector is dead when every
+comma branch contains a compound whose classes are all unused, so a rule scoped
+by an ancestor class that is gone still fails while its descendant class is in
+use, and a dead branch inside a live list is reported on its own. Runtime-assembled class fragments and known third-party prefixes are
+treated as live, and the baseline file itself is never counted as evidence that
+a class is used. The allowlist is currently empty; `node
+tools/consolidate-dead-class-css.mjs --all --apply` prunes every stylesheet the
+gate scans.
+
+The pre-commit hook runs `npm run autofix:dead-css` before this gate. The
+autofix splits a mixed selector list (`.a, .b` becomes `.b`, with the live
+declaration block copied byte-for-byte) but never removes a rule whose every
+branch is dead — deleting styling stays a person's decision. Its baseline
+refresh (`--prune-stale` on the gate) drops only the allowances the split just
+invalidated and never adopts a newly dead selector, so the gate that follows
+still blocks new debt. The hook stages exactly the files the autofix reports,
+so an unrelated working-tree edit stays unstaged.
+
+Fully dead rules can be removed as a reviewed patch instead of by hand.
+`npm run audit:dead-css:deletions` writes
+`reports/dead-css-proposal.diff` (and prints it) with the same stylesheet set
+the gate scans, including the baseline allowances the deletions retire;
+`npm run apply:dead-css:deletions` applies that exact change and re-runs the
+gate; it refuses when the patch is missing or no longer matches the tree, so a
+rule is never deleted off an unreviewed list. The patch is an ordinary
+`a/`…`b/` unified diff, so a committer can also
+`git apply` the hunks they want and then re-run `npm run autofix:dead-css` to
+prune the allowances those deletions retired. The default `autofix:dead-css`
+run still never deletes a rule.
+
+`check:unstyled-classes` is the inverse ratchet and keeps the same discipline.
+Both sides are read from `src/wingman2`: a class passes when a project
+stylesheet declares it, when a `<style>` block inside an export builder styles
+the document it generates, or when the Tailwind compiler generates a rule for
+it — utilities are decided by compiling them, so there is no second class
+vocabulary to maintain. `group`/`peer` markers pass as behaviour hooks. Names
+assembled at runtime (`wm-card--${tone}`) and class names asserted in test
+files are out of scope, since neither ships as a literal class. Accepted
+entries live in `tools/wingman-unstyled-classes-baseline.json`: a new unstyled
+class fails, and an entry that has gained a style also fails, so the file
+cannot keep stale allowances. Clear entries by adding the rule or removing the
+class, then regenerate with `npm run audit:unstyled-classes:baseline`.
+Detection lives in `tools/lib/unstyled-classes.mjs`.
+
+`npm run report:css-coverage` supplies the evidence both CSS gates act on. It
+loads every route in `src/wingman2/app/route-manifest.json` in Chromium at a
+desktop and a phone viewport, reads the renderer's rule-usage report, and
+writes `reports/css-coverage.md` plus the full `reports/css-coverage.json`. A
+rule is listed when no measured load matched it, which is the candidate list a
+`check:dead-css` cleanup starts from; `:hover`/`:focus` rules are split out as
+interaction-only because a static load never triggers them, and rules the
+Tailwind expansion produced are marked `(generated)`. The report needs a dev
+server on port 3000 and is not part of the verify chain — it measures, the
+gates enforce.

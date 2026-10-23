@@ -157,7 +157,7 @@ try {
   if ((await receiverRow.locator("td").first().innerText()) !== "9") {
     throw new Error("A 3-by-3 direct LCD wall must have nine receivers.");
   }
-  for (const name of [/^LCD · looped/, /^LED · processor input/, /^Large single projection/]) {
+  for (const name of [/^LCD · looped/, /^LED · processor input/, /^Projection wall/]) {
     await page.getByRole("button", { name }).click();
     if ((await page.getByRole("button", { name }).getAttribute("aria-pressed")) !== "true") {
       throw new Error("Video wall application selection did not update.");

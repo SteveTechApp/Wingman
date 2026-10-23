@@ -1,0 +1,5 @@
+{
+  "updatedAt": "2026-10-19T18:22:02.982Z",
+  "rule": "Every entry is a CSS selector that cannot match shipped markup, already accepted in src/wingman2. The gate fails when such a selector is not listed, or when a listed selector is no longer dead. Regenerate with npm run audit:dead-css:baseline only after removing dead rules or accepting reviewed debt.",
+  "deadSelectors": []
+}

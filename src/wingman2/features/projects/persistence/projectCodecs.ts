@@ -327,9 +327,11 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
   if (!record) return undefined;
   const outputPurpose = objectRecord(record.outputPurpose);
   const salesContent = objectRecord(record.salesContent);
+  const pricing = objectRecord(record.pricing);
 
   return {
     title: stringValue(record.title, "Untitled Proposal"),
+    pricing: pricing ? { currency: pricing.currency === "USD" || pricing.currency === "EUR" ? pricing.currency : "GBP", pricesExcludeTax: pricing.pricesExcludeTax !== false, bomUnitPrices: objectRecord(pricing.bomUnitPrices) as Record<string, string> ?? {}, installationUnitPrices: objectRecord(pricing.installationUnitPrices) as Record<string, string> ?? {} } : undefined,
     salesContent: salesContent ? { objectives: stringValue(salesContent.objectives), solutionOverview: stringValue(salesContent.solutionOverview), architecture: typeof salesContent.architecture === "string" ? salesContent.architecture : undefined, externalScope: stringValue(salesContent.externalScope) } : undefined,
     summary: stringValue(record.summary),
     sections: stringArray(record.sections),
@@ -644,7 +646,20 @@ export function decodeStoredProject(value: unknown): StoredProject | null {
   if (workflow) project.workflow = workflow;
 
   const videowall = normalizeVideowallSummary(record.videowall);
-  if (videowall) project.videowall = videowall;
+  if (videowall) {
+    // A wall saved before the owner links existed is filled from the facts this
+    // record already holds, so every wall read from the store names its project
+    // and — when it has one — its template. A recorded value always wins.
+    const roomTemplateId = stringValue(discoveryBrief?.roomModel?.sourceTemplateId);
+    project.videowall = {
+      ...videowall,
+      ...(!videowall.ownershipCleared ? { projectId: videowall.projectId || project.id } : {}),
+      ...(!videowall.ownershipMigratedAt && ((!videowall.projectId && !videowall.ownershipCleared) || (!videowall.templateId && roomTemplateId)) ? { ownershipMigratedAt: nowIso() } : {}),
+      ...(videowall.templateId
+        ? { templateId: videowall.templateId }
+        : roomTemplateId ? { templateId: roomTemplateId } : {}),
+    };
+  }
 
   const visualAssets = normalizeProposalVisualAssets(record.visualAssets, project.id);
   if (visualAssets.length) project.visualAssets = visualAssets;
@@ -718,10 +733,18 @@ function normalizeVideowallSummary(value: unknown): StoredVideowallSummary | nul
   const record = objectRecord(value);
   if (!record) return null;
 
+  // The owner links are optional: a wall saved before they existed keeps
+  // loading, and an empty value is dropped rather than stored as "".
+  const projectId = stringValue(record.projectId);
+  const templateId = stringValue(record.templateId);
   return {
+    ...(record.ownershipCleared === true ? { ownershipCleared: true } : {}),
+    ...(stringValue(record.ownershipMigratedAt) ? { ownershipMigratedAt: stringValue(record.ownershipMigratedAt) } : {}),
     savedAt: stringValue(record.savedAt, nowIso()),
     wallType: stringValue(record.wallType),
     summary: objectRecord(record.summary) ?? {},
+    ...(projectId ? { projectId } : {}),
+    ...(templateId ? { templateId } : {}),
   };
 }
 

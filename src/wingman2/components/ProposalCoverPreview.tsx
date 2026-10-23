@@ -4,7 +4,7 @@ import { projectPresentation } from "../lib/projectPresentation";
 
 export function ProposalCoverPreview({ draft, company }: { draft: ProposalWizardDraft; company: string }) {
   const presentation = projectPresentation(draft.projectName);
-  return <div className="wm-response-preview">
+  return <div>
     <p className="wm-response-preview-label">Your customer document</p>
     <div className="wm-response-paper" aria-label="Live proposal cover preview">
       <div className="wm-response-paper-brand">{company || "Wingman"}<span>Solution proposal</span></div>

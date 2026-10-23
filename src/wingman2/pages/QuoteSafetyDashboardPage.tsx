@@ -80,7 +80,7 @@ export default function QuoteSafetyDashboardPage() {
 
       {/* Summary cards */}
       <div className="wm-safety-summary-grid">
-        <div className="wm-safety-summary-card wm-safety-summary-total">
+        <div className="wm-safety-summary-card">
           <span className="wm-safety-summary-value">{summary.totalProjects}</span>
           <span className="wm-safety-summary-label">Total projects</span>
         </div>

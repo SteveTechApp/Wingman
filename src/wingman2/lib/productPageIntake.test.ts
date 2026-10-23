@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { TemplateBomRow } from "./roomTemplates";
 import { applyProductPageDetailsToBomRow, type ProductPageDetails } from "./productPageIntake";
+import { buildTemplateProposal } from "./templateReviewProposal";
+import { roomTemplates } from "./roomTemplates";
 
 const placeholderRow: TemplateBomRow = {
   id: "row-1",
@@ -59,6 +61,25 @@ describe("applyProductPageDetailsToBomRow", () => {
     expect(row.manufacturer).toBe("WyreStorm");
     expect(row.owner).toBe("wyrestorm");
     expect(row.productRelationship).toBeUndefined();
+    expect(row.sku).toBe("NHD-120-TX");
+    const proposal = buildTemplateProposal(roomTemplates[0], [row]);
+    expect(proposal.products).toEqual(expect.arrayContaining([expect.objectContaining({ sku: "NHD-120-TX", quantity: 2 })]));
+    expect(proposal.applicationProposal?.productSpecifications).toEqual(expect.arrayContaining([expect.objectContaining({ sku: "NHD-120-TX" })]));
+    expect(proposal.applicationProposal?.thirdPartyScope?.some(item => item.category === row.role)).toBe(false);
+  });
+
+  it("retains third-party placeholders and existing catalogue SKUs", () => {
+    expect(applyProductPageDetailsToBomRow(placeholderRow, details).sku).toBe(placeholderRow.sku);
+    expect(applyProductPageDetailsToBomRow({ ...placeholderRow, sku: "NHD-600-TX" }, {
+      ok: true, manufacturer: "WyreStorm", model: "NHD-120-TX",
+    }).sku).toBe("NHD-600-TX");
+  });
+
+  it("retains a placeholder when the WyreStorm page has no identifiable model", () => {
+    expect(applyProductPageDetailsToBomRow(placeholderRow, {
+      ok: true, manufacturer: "WyreStorm", title: "NetworkHD products",
+      resolvedUrl: "https://www.wyrestorm.com/products/",
+    }).sku).toBe(placeholderRow.sku);
   });
 
   it("suggests the model from an SKU-style title before the URL slug", () => {

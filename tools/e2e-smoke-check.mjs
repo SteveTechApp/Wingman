@@ -32,6 +32,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkDevPairHealth } from "./check-dev-pair-health.mjs";
+import { runBrowserSmokeSession } from "./lib/browser-smoke-session.mjs";
 import { chromium } from "@playwright/test";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -158,7 +160,7 @@ async function signInViaSettings(page) {
   //    API server and its Set-Cookie lands on the UI origin, exactly like a
   //    real user session - no cookie is injected for this flow.
   await page.goto(`${UI_BASE}/wingman/profile`, { waitUntil: "networkidle", timeout: 60_000 });
-  await page.getByRole("button", { name: "Workspace", exact: true }).click();
+  await page.getByTestId("workflow-page-workspace").click();
   const workspaceSection = page.locator('section[aria-labelledby="wingman-settings-workspace"]');
   await workspaceSection.waitFor({ state: "visible", timeout: 15_000 });
 
@@ -167,12 +169,12 @@ async function signInViaSettings(page) {
   // only, src/wingman2/utils/installWingmanLocalSessionFallback.ts). The
   // Profile page therefore opens already "signed in" - sign that session out
   // first so the real Email/Password form is revealed and exercised.
-  const signOutButton = workspaceSection.getByRole("button", { name: "Sign out", exact: true });
+  const signOutButton = workspaceSection.getByTestId("workspace-sign-out");
   if (await signOutButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
     await signOutButton.click();
   }
 
-  const signInButton = workspaceSection.getByRole("button", { name: "Sign in", exact: true });
+  const signInButton = workspaceSection.getByTestId("workspace-sign-in");
   await signInButton.waitFor({ state: "visible", timeout: 10_000 });
 
   // The workspace section holds a Mode <select> then Email + Password inputs.
@@ -182,7 +184,7 @@ async function signInViaSettings(page) {
   await signInButton.click();
 
   await workspaceSection
-    .getByText(new RegExp(`Signed in as ${WORKSPACE_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[.]`))
+     .getByTestId("workspace-signed-in")
     .waitFor({ state: "visible", timeout: 20_000 });
 
   const cookies = await page.context().cookies(`${UI_BASE}/`);
@@ -195,13 +197,13 @@ async function signInViaSettings(page) {
 async function saveDiscoveryProjectAndExportBrief(page) {
   // Save the discovery project through the focused room brief, then export
   //    the discovery brief as a real HTML download blob and content-check it.
-  await page.getByRole("button", { name: "Save room brief", exact: true }).click();
+  await page.getByTestId("discovery-save-brief").click();
   await page
-    .getByText(/Discovery saved to your project[.]/)
+    .getByTestId("discovery-save-status")
     .waitFor({ state: "visible", timeout: 10_000 });
   console.log("[e2e-smoke] Discovery project saved via the focused room brief.");
 
-  const exportButton = page.getByRole("button", { name: "Export completion brief", exact: true });
+  const exportButton = page.getByTestId("discovery-export-brief");
   await exportButton.waitFor({ state: "visible", timeout: 8_000 });
   const [briefDownload] = await Promise.all([
     page.waitForEvent("download", { timeout: 15_000 }),
@@ -232,8 +234,8 @@ async function walkDiscovery(page) {
 
   const marketEntry = page.getByTestId("discovery-market-entry");
   const viewSwitcher = page.locator(".wm-topbar-mode-toggle");
-  const focusedView = viewSwitcher.getByRole("button", { name: /^Focused view/ });
-  const expertView = viewSwitcher.getByRole("button", { name: /^Expert view/ });
+  const focusedView = viewSwitcher.getByTestId("ui-mode-focused");
+  const expertView = viewSwitcher.getByTestId("ui-mode-expert");
   if (!(await viewSwitcher.isVisible().catch(() => false)) || !(await focusedView.isVisible().catch(() => false)) || !(await expertView.isVisible().catch(() => false))) {
     throw new Error("[e2e-smoke] Focused and Expert view switches are not both visible in the header.");
   }
@@ -247,12 +249,12 @@ async function walkDiscovery(page) {
     throw new Error("[e2e-smoke] Focused view did not activate from the header switch.");
   }
 
-  await page.getByRole("heading", { name: "Start with a room template" }).waitFor({ state: "visible" });
+  await page.getByTestId("templates-title").waitFor({ state: "visible" });
   await expertView.click();
-  const corporateButton = marketEntry.getByRole("button", { name: /Corporate.*enterprise/i });
+  const corporateButton = marketEntry.getByTestId("discovery-market-corporate");
   await corporateButton.waitFor({ state: "visible", timeout: 15_000 });
   await corporateButton.click();
-  await marketEntry.getByRole("button", { name: /Meeting or boardroom/ }).click();
+  await marketEntry.getByTestId("discovery-environment-meeting").click();
 
   // Streamlined discovery flow: template + activity land on the essentials capture first.
   // "Room builder" in the capture tools row is the action that reveals the full builder region.
@@ -267,15 +269,15 @@ async function walkDiscovery(page) {
   for (let i = 0; i < 80; i += 1) {
     const stage = await wizard.getAttribute("data-room-wizard-stage");
     if (stage === "equipment") {
-      const buildLayout = wizard.getByRole("button", { name: "Build room layout from answers", exact: true });
+      const buildLayout = wizard.getByTestId("discovery-build-layout");
       if (await buildLayout.isVisible().catch(() => false)) await buildLayout.click();
-      await wizard.getByRole("button", { name: "Review room brief", exact: true }).click();
+      await wizard.getByTestId("discovery-review-brief").click();
       continue;
     }
 
     if (stage === "review") {
       await saveDiscoveryProjectAndExportBrief(page);
-      await wizard.getByRole("button", { name: "Find WyreStorm products", exact: true }).click();
+      await wizard.getByTestId("discovery-find-products").click();
       completed = true;
       break;
     }
@@ -289,13 +291,13 @@ async function walkDiscovery(page) {
     const options = wizard.locator("button.wm-room-wizard-option");
     if (await options.count()) await options.first().click();
     if (answered === 0) {
-      await page.getByRole("button", { name: "Detailed questions", exact: true }).click();
+      await page.getByTestId("discovery-detailed-toggle").click();
       const expertBuilder = page.getByTestId("discovery-expert-builder");
       await expertBuilder.waitFor({ state: "visible", timeout: 5_000 });
       if (!(await expertBuilder.locator(".wm-room-wizard-option[aria-pressed='true']").count())) {
         throw new Error("[e2e-smoke] Expert view did not retain the answer just entered in Focused Discovery.");
       }
-      if (!(await expertBuilder.getByRole("navigation", { name: "Room design sections" }).isVisible())) {
+      if (!(await expertBuilder.getByTestId("discovery-room-sections").isVisible())) {
         throw new Error("[e2e-smoke] Expert Discovery did not render its room design sections.");
       }
       await page.getByTestId("discovery-room-builder-toggle").click();
@@ -304,7 +306,7 @@ async function walkDiscovery(page) {
         throw new Error("[e2e-smoke] Focused view did not retain the answer entered before switching views.");
       }
     }
-    const continueButton = wizard.getByRole("button", { name: "Continue", exact: true });
+    const continueButton = wizard.getByTestId("discovery-continue");
     if (!(await continueButton.isVisible().catch(() => false))) {
       throw new Error(`[e2e-smoke] Focused Discovery question "${questionId}" has no Continue action.`);
     }
@@ -338,15 +340,15 @@ async function walkDiscovery(page) {
 async function runCompare(page) {
   await page.goto(`${UI_BASE}/wingman/compare`, { waitUntil: "networkidle", timeout: 60_000 });
 
-  const manufacturerInput = page.getByRole("combobox", { name: /^Manufacturer$/i });
-  const skuInput = page.getByRole("combobox", { name: /^Competitor SKU$/i });
+  const manufacturerInput = page.getByTestId("compare-manufacturer");
+  const skuInput = page.getByTestId("compare-sku");
   await manufacturerInput.fill("Crestron");
   await skuInput.fill("DM-NVX-350");
 
   // Exact known SKUs may auto-advance immediately; typed entries use the Compare button.
-  const resultHeading = page.getByRole("heading", { name: "Comparison result" });
+  const resultHeading = page.getByTestId("compare-result");
   if (!(await resultHeading.isVisible().catch(() => false))) {
-    const compareButton = page.getByRole("button", { name: "Compare", exact: true });
+    const compareButton = page.getByTestId("compare-submit");
     if (await compareButton.isVisible().catch(() => false)) {
       await compareButton.click();
     }
@@ -385,17 +387,18 @@ async function runCompare(page) {
   //    "saved-history", so it shows in the "Saved comparison history" panel
   //    below). Open the panel if collapsed, then assert the DM-NVX-350
   //    snapshot row is present.
-  await page.getByRole("button", { name: "Save comparison to history" }).click();
-  await page.getByRole("link", { name: "Review saved history in Project" }).click();
+  await page.getByTestId("compare-save-history").click();
+  await page.getByTestId("compare-review-history").click();
   const historySection = page.locator('[aria-label="Saved comparison history"]');
   await historySection.waitFor({ state: "visible", timeout: 10_000 });
-  await historySection.getByText(/DM-NVX-350/).first().waitFor({ state: "visible", timeout: 8_000 });
+  await historySection.waitFor({ state: "visible", timeout: 8_000 });
+  if (!(await historySection.innerText()).includes("DM-NVX-350")) throw new Error("Saved history lacks the selected competitor SKU");
   console.log("[e2e-smoke] Comparison saved to history via the Save comparison action (Crestron DM-NVX-350 snapshot visible).");
 
   // 4. Export the saved history as a CSV download blob and content-check it.
   const [csvDownload] = await Promise.all([
     page.waitForEvent("download", { timeout: 15_000 }),
-    historySection.getByRole("button", { name: "Export CSV", exact: true }).click(),
+    historySection.getByTestId("compare-export-history").click(),
   ]);
   const csvFileName = csvDownload.suggestedFilename();
   if (!/^wingman-.+-comparisons[.]csv$/.test(csvFileName)) {
@@ -442,42 +445,14 @@ async function main() {
   // on a clean CI checkout; give it a wider health window than the API.
   await waitForHealth(UI_BASE, "UI dev server", 90_000);
 
+  await checkDevPairHealth(UI_BASE, API_BASE);
   await assert413ThroughProxy();
 
   const browser = await chromium.launch({
     headless: true,
     channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL || (process.platform === "win32" ? "msedge" : undefined),
   });
-  const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
-  const page = await context.newPage();
-  let tracing = false;
-  try {
-    // No session cookie is injected: the settings-form sign-in establishes the
-    // session through the real UI→API proxy path, exactly like a user.
-    await signInViaSettings(page);
-    await context.tracing.start({ screenshots: true, snapshots: true });
-    tracing = true;
-    await walkDiscovery(page);
-    await runCompare(page);
-    await context.tracing.stop();
-    tracing = false;
-  } catch (error) {
-    const diagnostics = path.join(dataDir, "diagnostics");
-    fs.mkdirSync(diagnostics, { recursive: true });
-    const captures = await Promise.allSettled([
-      page.screenshot({ path: path.join(diagnostics, "failure.png"), fullPage: true, timeout: 10_000 }),
-      page.content().then(html => fs.writeFileSync(path.join(diagnostics, "failure.html"), html)),
-      ...(tracing ? [context.tracing.stop({ path: path.join(diagnostics, "trace.zip") })] : []),
-    ]);
-    fs.writeFileSync(path.join(diagnostics, "failure.txt"), [
-      page.url(), error instanceof Error ? error.stack : String(error),
-      ...captures.filter(result => result.status === "rejected").map(result => String(result.reason)),
-    ].join("\n"));
-    console.error(`[e2e-smoke] Browser diagnostics saved to ${diagnostics}.`);
-    throw error;
-  } finally {
-    await browser.close().catch(() => {});
-  }
+  await runBrowserSmokeSession({ browser, dataDir, signIn: signInViaSettings, walkDiscovery, runCompare });
 
   console.log(
     "[e2e-smoke] Settings sign-in, discovery project save, compare history save, HTML+CSV export blobs, and the 413 contract all verified end to end.",

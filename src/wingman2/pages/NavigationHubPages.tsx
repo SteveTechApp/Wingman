@@ -214,7 +214,7 @@ export function CallCoachPage() {
     ),
   ];
 
-  return <div className="wm-polish-shell wm-call-coach-workspace">
+  return <div className="wm-polish-shell">
     <section className="wm-sh-page-section" aria-label="Call Coach workflows">
       <PagedItems items={governedStartingPoints} pageSize={4} resetKey="call-coach">{(pageItems) => (<div className="wm-sh-card-grid wm-polish-grid">
         {pageItems.map((item) => <HubCard key={item.routeKey} item={item} workflowId="sales-conversation" />)}

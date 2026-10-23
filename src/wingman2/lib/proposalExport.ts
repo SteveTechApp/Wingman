@@ -2,7 +2,7 @@ import { proposalDiagramSvg } from "./proposalDiagram";
 import { loadProductMediaIndex, type ProductMediaIndex } from "../data/productMedia";
 import { proposalProductCards, proposalSolutionStory } from "./proposalSalesContent";
 import { roomBriefHtml } from "./proposalRoomBrief";
-import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
+import type { StoredProjectProposal, StoredProductSelection, StoredVideowallSummary } from "../data/projectStore";
 import { downloadBlob } from "./downloadBlob";
 import { powerBudgetSummary, type PowerBudgetSummary } from "./powerBudget";
 import {
@@ -17,9 +17,25 @@ import {
 } from "./discoveryConversationDisplay";
 import { extractUnresolvedDiscoveryItems } from "./unresolvedDiscoveryItems";
 import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel } from "./schematic/nativeCableSchedule";
+import { WALL_SURVEY_COLUMN_KEY } from "./wallSurvey";
 import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
 import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
 import { buildDesignProjectDocument, trackDesignProjectExport } from "../features/design-project";
+import { buildDisplaySchedule } from "./displaySchedule";
+import { pricedEquipmentHtml, pricedInstallationHtml } from "./proposalPricingHtml";
+import { proposalPrintPaginationHtml } from "./proposalPrintPagination";
+import { wallRequirementsFromSummary } from "./videowallOptions";
+import { wallTransportRequirements } from "./videowallTransport";
+import { assertWallTransportExportable } from "./proposalExportValidation";
+import { wallVisualLayout } from "./videowallVisual";
+import { wallElevationCaption, wallElevationOverlay, wallElevationSvg, wallMappingPreviews, wallMappingRecommendation } from "./wallElevation";
+import {
+  wallStartingPointDrift,
+  wallStartingPointFromSummary,
+  wallStartingPointRecordText,
+} from "./wallStartingPointOrigin";
+import { buildInstallationSchedule, installationCategoryLabel } from "./installationSchedule";
+import { CUSTOMER_COPY } from "./proposalCopy";
 
 export type BomRow = SalesBomRow;
 
@@ -45,6 +61,23 @@ function proposalContextBlob(proposal: StoredProjectProposal) {
   return [proposal.title, proposal.summary, proposal.outputPurpose?.summary || ""].join(" ");
 }
 
+/**
+ * A CSS string literal for the generated `<style>` block.
+ *
+ * `</style>` must never appear literally inside the stylesheet, so angle
+ * brackets become CSS escapes; quotes and backslashes are escaped for the
+ * string itself. Line breaks collapse to one space, because a margin box
+ * prints on one line.
+ */
+function proposalCssString(value: string) {
+  const cleaned = value.replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").trim();
+  return `"${cleaned
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/</g, "\\3c ")
+    .replace(/>/g, "\\3e ")}"`;
+}
+
 const schematicToneClass: Record<string, string> = {
   source: "#0369a1",
   core: "#7c3aed",
@@ -57,7 +90,7 @@ const schematicToneClass: Record<string, string> = {
 
 function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   if (!bomRows.length) {
-    return "<p>Add BOM rows to this proposal to generate a system schematic and cable schedule.</p>";
+    return `<p>${escapeHtml(CUSTOMER_COPY.noSchematic)}</p>`;
   }
 
   const contextBlob = proposalContextBlob(proposal);
@@ -105,7 +138,7 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
 
   return `
     ${nativeDiagram || `<div style="display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin-top:8px;">${nodesHtml}</div>`}
-    <p style="margin-top:14px;font-size:12px;color:#475569;">This diagram is derived directly from the equipment schedule below - it shows the assumed signal flow from source to display so the customer and installer share the same picture of how the room connects together. The cable schedule underneath lists the transport type, connectors, maximum length, and validation status for each connection.</p>
+    <p style="margin-top:14px;font-size:12px;color:#475569;">This diagram shows the signal path we expect, from source to screen, so you and the installer are looking at the same picture. The cable schedule below gives the cable type, connectors, maximum length and what still needs checking for each connection.</p>
     <table>
       <thead><tr><th>Cable run</th><th>Transport</th><th>Max length</th><th>Connectors</th><th>Status</th><th>Validation reminder</th></tr></thead>
       <tbody>${cableRowsHtml}</tbody>
@@ -114,7 +147,7 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
 
 function buildPracticalOperationHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   if (!bomRows.length && !proposal.applicationProposal?.userJourney.some((step) => step.trim())) {
-    return "<p>Add equipment schedule rows to describe how this system will operate day to day.</p>";
+    return `<p>${escapeHtml(CUSTOMER_COPY.noOperation)}</p>`;
   }
 
   const story = proposalSolutionStory(proposal, bomRows);
@@ -123,7 +156,7 @@ function buildPracticalOperationHtml(proposal: StoredProjectProposal, bomRows: B
 
 function buildBenefitsHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   if (!bomRows.length) {
-    return "<p>Add equipment schedule rows to generate the benefit summary for this design.</p>";
+    return `<p>${escapeHtml(CUSTOMER_COPY.noBenefits)}</p>`;
   }
 
   const architecture = inferSchematicArchitecture(proposalContextBlob(proposal), bomRows);
@@ -153,7 +186,7 @@ function buildBenefitsHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
     items.push("Placeholder rows in the equipment schedule flag exactly which supporting equipment (displays, audio, control, network, rack) still needs to be confirmed, so nothing outside WyreStorm's scope is silently assumed to be included.");
   }
 
-  items.push("Final commercial and operational benefit statements should be confirmed against the customer's specific business or KPI outcome before proposal issue.");
+  items.push("We will tie these benefits to your own business measures before this proposal is issued.");
 
   return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 }
@@ -171,13 +204,13 @@ function buildDiscoveryConversationHtml(proposal: StoredProjectProposal): string
 
   return `
   <h2>Discovery Conversation</h2>
-  <p>The recommendation in this document is based on the discovery conversation captured below: the question asked, the closest governed answer, and the customer's own wording where recorded. Rows marked "Confirmed with customer" were verified with the customer during discovery; rows marked "To be confirmed" are still open and must be verified before final design sign-off. Nothing here is presented as a settled fact that was not said during discovery.</p>
+  <p>Below is the conversation this proposal is based on: the question we asked, the answer we recorded, and your own words where we captured them. "Confirmed with customer" means we checked that point with you; "To be confirmed" means it is still open and will be settled before the design is signed off.</p>
   <table>
-    <thead><tr><th>Question asked</th><th>Governed answer</th><th>Customer wording</th><th>Status</th><th>Capture confidence</th></tr></thead>
+    <thead><tr><th>Question asked</th><th>Answer we recorded</th><th>Customer wording</th><th>Status</th><th>Capture confidence</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>
   <p style="font-size:12px;">${escapeHtml(CAPTURE_CONFIDENCE_EXPLAINER)}</p>
-  <p style="font-size:12px;">Where a row is a note-only capture, the answer was still open at the time of writing and must be confirmed before final design sign-off.</p>`;
+  <p style="font-size:12px;">If a row has a note but no clear answer, that point was still open when this was written and will be confirmed before the design is signed off.</p>`;
 }
 
 function buildUnresolvedDiscoveryHtml(proposal: StoredProjectProposal): string {
@@ -205,7 +238,7 @@ function buildCanonicalDesignHtml(proposal: StoredProjectProposal): string {
   const requirements = document.requirements.map((item) => `<tr><td>${escapeHtml(item.customerStatement)}</td><td>${escapeHtml(item.interpretation)}</td><td>${escapeHtml(item.designConsequence)}</td><td>${escapeHtml(item.state)}</td></tr>`).join("");
   const roles = document.requiredRoles.map((item) => `<tr><td>${escapeHtml(item.label)}</td><td>${item.covered ? "Covered" : "Missing"}</td><td>${escapeHtml(item.evidence.join("; ") || "No design evidence")}</td></tr>`).join("");
   const products = document.products.map((item) => `<tr><td>${item.quantity} × ${escapeHtml(item.sku)}</td><td>${escapeHtml(item.designRole)}</td><td>${escapeHtml(item.reason)}</td><td>${escapeHtml(item.proof.join("; ") || "Confirm product evidence")}</td></tr>`).join("");
-  return `<h2>Requirement Understanding and Design Trace</h2><p><strong>Design revision:</strong> ${escapeHtml(document.revisionId)}</p><p><strong>Customer said:</strong> ${escapeHtml(document.customerRequirement)}</p><p><strong>Wingman understood:</strong> ${escapeHtml(document.interpretation)}</p><p><strong>Design direction:</strong> ${escapeHtml(document.architecture)}</p><table><thead><tr><th>Customer requirement</th><th>Wingman interpretation</th><th>Design consequence</th><th>Status</th></tr></thead><tbody>${requirements}</tbody></table><h2>System Completeness</h2><table><thead><tr><th>Required design role</th><th>Coverage</th><th>Evidence</th></tr></thead><tbody>${roles}</tbody></table><h2>Product Overview in This Design</h2><table><thead><tr><th>Product</th><th>Design role</th><th>Requirement served</th><th>Proof</th></tr></thead><tbody>${products}</tbody></table>`;
+  return `<h2>What You Asked For and How We Designed It</h2><p><strong>Design reference:</strong> ${escapeHtml(document.revisionId)}</p><p><strong>Customer said:</strong> ${escapeHtml(document.customerRequirement)}</p><p><strong>Wingman understood:</strong> ${escapeHtml(document.interpretation)}</p><p><strong>Design direction:</strong> ${escapeHtml(document.architecture)}</p><table><thead><tr><th>What you said</th><th>What we understood</th><th>What it means for the design</th><th>Status</th></tr></thead><tbody>${requirements}</tbody></table><h2>System Completeness</h2><table><thead><tr><th>Part of the system</th><th>Covered?</th><th>How we know</th></tr></thead><tbody>${roles}</tbody></table><h2>Products and Their Role</h2><table><thead><tr><th>Product</th><th>Role in this design</th><th>Requirement it serves</th><th>Evidence</th></tr></thead><tbody>${products}</tbody></table>`;
 }
 
 function buildExclusionsHtml(bomRows: BomRow[]) {
@@ -291,7 +324,7 @@ function buildPowerStrategyHtml(products: StoredProductSelection[]): string {
     .map((s) => {
       const wattsStr = s.watts !== null ? `${s.watts}W` : "Not proven";
       const totalStr = s.totalWatts !== null ? `${s.totalWatts}W` : "—";
-      const powerDetail = s.powerLines.length ? s.powerLines.join("; ") : "No power data in governed profile";
+      const powerDetail = s.powerLines.length ? s.powerLines.join("; ") : "No power figure published";
       return `<tr><td>${escapeHtml(s.sku)}</td><td>${s.quantity}</td><td>${escapeHtml(wattsStr)}</td><td>${escapeHtml(totalStr)}</td><td style="font-size:11px;color:#64748b;">${escapeHtml(powerDetail)}</td></tr>`;
     })
     .join("");
@@ -304,7 +337,7 @@ function buildPowerStrategyHtml(products: StoredProductSelection[]): string {
   if (knownTotals.length > 0) {
     summaryHtml += `<strong>Stated maximum consumption:</strong> approximately ${Math.round(totalWatts)}W across ${knownTotals.length} product${knownTotals.length > 1 ? "s" : ""} with proven figures.`;
   } else {
-    summaryHtml += `No products in the current BOM have a proven power-consumption figure in their governed profile. Confirm PSU / power-source requirements before quoting.`;
+    summaryHtml += `None of the selected products has a published power figure yet. Confirm power supply requirements before quoting.`;
   }
   if (poeProducts.length) {
     summaryHtml += ` ${poeProducts.length} product${poeProducts.length > 1 ? "s" : ""} (${poeProducts.map((s) => s.sku).join(", ")}) ${poeProducts.length > 1 ? "require" : "requires"} PoE/PoH — confirm the injector or switch PoE budget covers the total.`;
@@ -312,13 +345,40 @@ function buildPowerStrategyHtml(products: StoredProductSelection[]): string {
   summaryHtml += `</p>`;
 
   return `<table>
-    <thead><tr><th>SKU</th><th>Qty</th><th>Per-unit max</th><th>Total max</th><th>Power data (governed profile)</th></tr></thead>
+    <thead><tr><th>SKU</th><th>Qty</th><th>Per-unit max</th><th>Total max</th><th>Power data (WyreStorm)</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>${summaryHtml}`;
 }
 
-export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], media: ProductMediaIndex | null = null) {
+export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], media: ProductMediaIndex | null = null, videoWall: StoredVideowallSummary | null = null) {
   const story = proposalSolutionStory(proposal, bomRows);
+  const displaySchedule = buildDisplaySchedule(proposal, bomRows, videoWall);
+  // Only a saved wall carries a transport estimate, so the column appears only
+  // when at least one row has a link basis to print.
+  const showsTransport = displaySchedule?.rows.some((row) => row.transport) ?? false;
+  const showsSize = displaySchedule?.rows.some((row) => row.size) ?? false;
+  // Mass comes from the same panel size, so the column appears with the wall.
+  const showsWeight = displaySchedule?.rows.some((row) => row.weight) ?? false;
+  // A saved wall also owns the elevation drawing that accompanies the schedule.
+  const wallRequirements = wallRequirementsFromSummary(videoWall);
+  const wallLayout = wallRequirements ? wallVisualLayout(wallRequirements) : null;
+  const wallElevation = wallRequirements ? wallElevationSvg(wallRequirements) : "";
+  // The drawing shows the agreed fit or crop whenever the source shape differs,
+  // and both mappings are shown beside each other so the customer sees the cost.
+  const wallOverlay = wallRequirements ? wallElevationOverlay(wallRequirements) : null;
+  const wallPreviews = wallRequirements ? wallMappingPreviews(wallRequirements) : null;
+  // The survey's install detail is installation scope, so it is scheduled beside
+  // the equipment rather than left as notes on the elevation.
+  const installation = wallRequirements ? buildInstallationSchedule(wallRequirements) : null;
+  // The pair carries a recommendation drawn from the wall's captured plan, so
+  // the customer is not left to weigh two costs the rep has already judged.
+  const mappingAdvice = wallRequirements ? wallMappingRecommendation(wallRequirements) : null;
+  // The saved wall records the card it started on, so the drawing's section says
+  // where the design began as well as what it is now: a quote that presented an
+  // adjusted wall as the card the customer saw would be overstating the card.
+  const startingPoint = wallRequirements
+    ? wallStartingPointDrift(wallStartingPointFromSummary(videoWall?.summary), wallRequirements)
+    : null;
   const cards = proposalProductCards(bomRows, media);
   const preparedBy = proposal.preparedBy || "";
   const companyName = proposal.companyName || "WyreStorm";
@@ -339,12 +399,12 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   const hasCoreProducts = proposal.products.length > 0;
   const readinessNotice = hasCoreProducts
-    ? "This proposal draft includes selected WyreStorm products. Validate final product specifications, accessories and dependencies before issue."
+    ? "This draft includes the selected WyreStorm products. We will confirm final specifications, accessories and dependencies before it is issued."
     : "This export is a discovery/design brief only. No WyreStorm core products have been selected, so it must not be issued as a customer BOM.";
 
   const assumptions = proposal.assumptions.length
     ? proposal.assumptions
-    : ["Validate final product specifications, accessories, firmware notes, lifecycle, and regional suitability before issue."];
+    : ["We will confirm final specifications, accessories, firmware notes, lifecycle and regional availability before this proposal is issued."];
 
   const requiredProductsLine = proposal.products.length
     ? escapeHtml(proposal.products.map((product: StoredProductSelection) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; "))
@@ -356,6 +416,14 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   const currentDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const proposalRef = `WYR-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+  // The printed sheet identifies itself: the running header names the document,
+  // the margins carry the reference, the draft state and the page number.
+  const runningHeader = `${companyName} · ${proposal.title}`;
+  const runningHeaderCss = proposalCssString(
+    runningHeader.length > 90 ? `${runningHeader.slice(0, 89).trimEnd()}…` : runningHeader,
+  );
+  const referenceLineCss = proposalCssString(`Proposal Reference: ${proposalRef}`);
+  const draftLineCss = proposalCssString(`Draft Proposal · ${currentDate}`);
 
   return `<!doctype html>
 <html lang="en">
@@ -518,18 +586,91 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
     .visual-card strong, .visual-card span { display: block; }
     .visual-card span { margin-top: 8px; color: var(--wyrestorm-primary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
     
+    /* Page setup: an A4 sheet whose margins carry a running header, the
+       proposal reference and page numbers, so every printed sheet identifies
+       itself after it leaves the desk. */
+    @page {
+      size: A4;
+      margin: 24mm 16mm 18mm;
+      @top-left {
+        content: ${runningHeaderCss};
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 8.5pt;
+        color: #64748b;
+        vertical-align: bottom;
+        padding-bottom: 4mm;
+      }
+      @top-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 8.5pt;
+        color: #64748b;
+        text-align: right;
+        vertical-align: bottom;
+        padding-bottom: 4mm;
+      }
+      @bottom-left {
+        content: ${referenceLineCss};
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 8pt;
+        color: #94a3b8;
+        vertical-align: top;
+        padding-top: 4mm;
+      }
+      @bottom-right {
+        content: ${draftLineCss};
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 8pt;
+        color: #94a3b8;
+        text-align: right;
+        vertical-align: top;
+        padding-top: 4mm;
+      }
+    }
+
+    @page :first {
+      @top-left { content: none; }
+      @top-right { content: none; }
+    }
+    .wm-proposal-cover { min-height: 230mm; }
+    .wm-document-control { margin-top: 32px; }
+    /* The wall elevation is inline SVG: its fill and stroke come from
+       presentation attributes, so its part names carry no declarations of
+       their own. Asking for exact colour keeps the drawing intact in the PDF. */
+    .wall-elevation-bar, .wall-elevation-content-frame, .wall-elevation-crop,
+    .wall-elevation-dimension, .wall-elevation-door, .wall-elevation-ground,
+    .wall-elevation-panel, .wall-elevation-person, .wall-elevation-scale,
+    .wall-elevation-scale-label, .wall-elevation-screen,
+    .wall-elevation-source-frame, .wall-elevation-window {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
     /* Print styles */
     @media print {
       body { font-size: 11pt; }
-      .wm-proposal-container { padding: 20px; }
+      /* Page margins come from @page, so the container adds no second inset. */
+      .wm-proposal-container { max-width: none; padding: 0; }
+      .wm-proposal-cover { break-after: page; page-break-after: always; }
       h1 { font-size: 24pt; }
-      h2 { font-size: 14pt; }
-      table { font-size: 10pt; }
+      h2 { font-size: 14pt; break-after: avoid; page-break-after: avoid; }
+      h3 { break-after: avoid; page-break-after: avoid; }
+      table { font-size: 10pt; break-inside: auto; page-break-inside: auto; }
+      /* A schedule can run past one sheet, so its heading row repeats at the
+         top of each page instead of leaving later rows unlabelled. */
+      thead { display: table-header-group; break-after: avoid; page-break-after: avoid; }
+      thead tr, thead th { break-after: avoid; page-break-after: avoid; }
+      tbody tr:first-child { break-before: avoid; page-break-before: avoid; }
+      tfoot { display: table-footer-group; }
+      tr, td, th { break-inside: avoid; page-break-inside: avoid; }
+      figure, .visual-card, .notice, .wm-disclaimer, .wm-proposal-footer { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
     }
   </style>
 </head>
 <body>
   <div class="wm-proposal-container">
+    <section class="wm-proposal-cover" aria-label="Proposal cover">
     <div class="wm-proposal-header">
       <div class="wm-brand-logo">${logoHtml}</div>
       <div class="wm-proposal-meta">
@@ -546,13 +687,24 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
     </div>
 
     ${contactLine ? `<p class="meta">${escapeHtml(contactLine)}</p>` : ""}
+    <section class="wm-document-control" aria-label="Document control">
+      <h2>Document control</h2>
+      <dl>
+        <dt>Reference</dt><dd>${escapeHtml(proposalRef)}</dd>
+        <dt>Status</dt><dd>Draft proposal — subject to design and commercial approval</dd>
+        <dt>Prepared by</dt><dd>${escapeHtml(preparedBy || companyName)}</dd>
+        <dt>Issue date</dt><dd>${escapeHtml(currentDate)}</dd>
+        <dt>Revision</dt><dd>${escapeHtml(proposal.updatedAt)}</dd>
+      </dl>
+    </section>
+    </section>
 
   <h2>Executive Summary</h2>
   <p>${escapeHtml(proposal.summary)}</p>
   ${
     proposal.outputPurpose
       ? `<p>${escapeHtml(proposal.outputPurpose.customerOutput)}</p>`
-      : "<p>This document sets out the WyreStorm recommendation for this requirement, how it will work in use, the equipment involved, and what remains to be confirmed before it is issued as a final customer proposal.</p>"
+      : "<p>This document explains what we recommend, how it will work day to day, the equipment involved, and what still needs confirming before it becomes a final proposal.</p>"
   }
 
   ${roomBriefHtml(proposal, bomRows)}
@@ -561,9 +713,8 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <h3>What successful delivery looks like</h3>
   <ul>${story.acceptance.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
 
-  <h2>Customer Requirement</h2>
-  <p><strong>Requirement to be agreed:</strong> ${escapeHtml(proposal.salesContent?.objectives || proposal.applicationProposal?.customerNeed || proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
-  ${proposal.outputPurpose ? `<p><strong>Sales motion:</strong> ${escapeHtml(proposal.outputPurpose.motion)}</p>` : ""}
+  <h2>What You Asked For</h2>
+  <p>${escapeHtml(proposal.salesContent?.objectives || proposal.applicationProposal?.customerNeed || proposal.summary || "Your requirement has not been confirmed yet.")}</p>
   ${buildDiscoveryConversationHtml(proposal)}
   ${buildUnresolvedDiscoveryHtml(proposal)}
   ${buildCanonicalDesignHtml(proposal)}
@@ -571,12 +722,12 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <h2>Recommended Solution</h2>
   ${
     leadingProductFamilyScore
-      ? `<p><strong>Recommendation:</strong> <strong>${escapeHtml(leadingProductFamilyScore.family)}</strong> is the leading product-family path for this requirement, based on the recommendation evidence gathered so far (family confidence ${escapeHtml(String(leadingProductFamilyScore.score))}/100).</p><p>${escapeHtml(leadingProductFamilyScore.reasons[0] || "Family path selected from recommendation evidence.")}</p>${
+      ? `<p><strong>Recommendation:</strong> <strong>${escapeHtml(leadingProductFamilyScore.family)}</strong> is the best fit for this requirement on the evidence gathered so far. Confidence: ${escapeHtml(String(leadingProductFamilyScore.score))} out of 100.</p><p>${escapeHtml(leadingProductFamilyScore.reasons[0] || "Chosen from the requirements captured so far.")}</p>${
           leadingProductFamilyScore.cautions.length
-            ? `<p><strong>Information required:</strong> ${escapeHtml(leadingProductFamilyScore.cautions[0])}</p>`
-            : "<p><strong>Information required:</strong> Validate datasheet, dependencies, firmware, lifecycle, regional suitability and accessories before customer issue.</p>"
+            ? `<p><strong>Still to confirm:</strong> ${escapeHtml(leadingProductFamilyScore.cautions[0].replace(/^confirm\s+/i, ""))}</p>`
+            : "<p><strong>Still to confirm:</strong> Datasheets, dependencies, firmware, product lifecycle, regional availability and accessories, before this proposal is issued.</p>"
         }`
-      : "<p>No product-family decision has been stored yet. Treat this as a draft until the architecture and family path are confirmed.</p>"
+      : "<p>We have not chosen a product family yet, so treat this as a draft until the system design is agreed.</p>"
   }
   <p><strong>Required WyreStorm products:</strong> ${requiredProductsLine}</p>
 
@@ -589,7 +740,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   <h2>Technical Architecture</h2>
   ${proposal.salesContent?.architecture ? `<p>${escapeHtml(proposal.salesContent.architecture)}</p>` : ""}
-  <p>The following diagram and cable schedule explain how the recommended solution connects together, derived directly from the equipment schedule below.</p>
+  <p>The diagram and cable schedule below show how the system connects together. Both are built from the equipment schedule further on.</p>
   ${buildSchematicSectionHtml(proposal, bomRows)}
   ${
     visualBlocks.length
@@ -603,22 +754,77 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <h2>Products in the Solution</h2>
   <div class="visual-grid">${cards.map((card) => `<div class="visual-card">${card.imageUrl ? `<img src="${escapeHtml(card.imageUrl)}" alt="${escapeHtml(card.alt)}" style="width:100%;height:140px;object-fit:contain" />` : "<p>Product photograph unavailable.</p>"}<strong>${escapeHtml(card.sku)} — ${escapeHtml(card.name)}</strong><p>Role in this design: ${escapeHtml(card.role || "To be confirmed")}</p>${card.url ? `<a href="${escapeHtml(card.url)}" target="_blank" rel="noopener noreferrer">Manufacturer product page and documentation</a>` : "<p>Official product link to be confirmed.</p>"}</div>`).join("")}</div>
   <h2>Complete System Design and Responsibilities</h2>
-  <p>The following items complete the wider solution. Unfilled entries are open design decisions, not supplied equipment or agreed services. Replace each [complete] with the agreed detail or mark it not applicable / excluded.</p>
+  <p>${escapeHtml(CUSTOMER_COPY.scopeIntro)}</p>
   <ul>${story.externalScope.split(/\r?\n/).filter(Boolean).map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>
 
-  <h2>Equipment Schedule</h2>
+  ${displaySchedule ? `<h2>Display Schedule</h2>
+  <p>${escapeHtml(displaySchedule.headline)}</p>
+  ${wallElevation && wallLayout ? `<figure style="margin:18px 0 14px;padding:14px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;break-inside:avoid;page-break-inside:avoid;">
+    ${wallElevation}
+    <figcaption style="margin-top:10px;font-size:12px;line-height:1.5;color:#475569;">${escapeHtml(wallElevationCaption(wallLayout, wallOverlay))}</figcaption>
+    ${wallPreviews ? `<p style="margin:16px 0 4px;font-size:12px;font-weight:600;color:#0f2534;">Source mapping options</p>
+    <p style="margin:0 0 8px;font-size:11px;line-height:1.45;color:#475569;">The source and the wall have different shapes, so one of these two costs is unavoidable. Both drawings show this wall at the same size; this design uses <strong>${wallPreviews.chosen === "fit" ? "Fit" : "Fill"}</strong>.</p>
+    ${mappingAdvice ? `<p data-mapping-recommendation="${mappingAdvice.value}" style="margin:0 0 10px;font-size:11.5px;line-height:1.45;color:#0f2534;"><strong>Recommendation: ${mappingAdvice.value === "fit" ? "Fit" : "Fill"}.</strong> ${escapeHtml(mappingAdvice.basis)} ${escapeHtml(mappingAdvice.cost)}</p>` : ""}
+    <div data-mapping-row="fit-fill" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;break-inside:avoid;page-break-inside:avoid;">
+      ${wallPreviews.previews.map((preview) => `<div data-mapping-option="${preview.value}" style="padding:8px;border:1px solid ${preview.value === wallPreviews.chosen ? "#16b8b0" : "#cbd5e1"};border-radius:8px;background:#fff;">
+        <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#0f2534;">${preview.value === "fit" ? "Fit" : "Fill"}${[preview.value === wallPreviews.chosen ? "in this design" : "", preview.value === mappingAdvice?.value ? "recommended" : ""].filter(Boolean).map((note) => ` · ${note}`).join("")}</p>
+        ${preview.svg}
+        <p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#0f2534;font-weight:600;">${escapeHtml(preview.consequence)}</p>
+      </div>`).join("")}
+    </div>` : ""}
+  </figure>` : ""}
+  ${startingPoint ? `<p data-wall-starting-point="${escapeHtml(startingPoint.card.key)}" style="margin:0 0 12px;font-size:11.5px;line-height:1.5;color:#475569;">${escapeHtml(wallStartingPointRecordText(startingPoint))}</p>` : ""}
   <table>
+    ${displaySchedule.size ? `<caption style="caption-side:top;text-align:left;padding:0 0 8px;font-size:12px;color:#475569;">${escapeHtml(displaySchedule.size)}</caption>` : ""}
+    <thead>
+      <tr><th>Screen</th>${showsSize ? "<th>Size (mm)</th>" : ""}${showsWeight ? "<th>Weight</th>" : ""}<th>Resolution</th><th>Feeds</th>${showsTransport ? "<th>Transport</th>" : ""}<th>Scaling</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      ${displaySchedule.rows.map((row) => `<tr><td>${escapeHtml(row.screen)}</td>${showsSize ? `<td style="white-space:nowrap">${escapeHtml(row.size)}</td>` : ""}${showsWeight ? `<td style="white-space:nowrap">${escapeHtml(row.weight)}</td>` : ""}<td>${escapeHtml(row.resolution)}</td><td>${escapeHtml(row.feeds)}</td>${showsTransport ? `<td>${escapeHtml(row.transport)}</td>` : ""}<td>${escapeHtml(row.scaling)}</td><td>${escapeHtml(row.notes)}</td></tr>`).join("")}
+    </tbody>
+  </table>
+  ${showsTransport ? `<p data-wall-cable-key style="margin:8px 0 0;font-size:11.5px;line-height:1.5;color:#475569;">${WALL_SURVEY_COLUMN_KEY.map((entry) => `<strong>${escapeHtml(entry.label)}</strong> — ${escapeHtml(entry.text)}`).join(" ")}</p>` : ""}
+  ${displaySchedule.mounting ? `<p style="margin-top:8px;font-size:12px;color:#475569;"><strong>Mounting:</strong> ${escapeHtml(displaySchedule.mounting)}</p>` : ""}
+  ${displaySchedule.transportFlags.length > 0 ? `<p style="margin-top:8px;font-size:12px;color:#475569;"><strong>Transport limits:</strong></p>
+  <ul>${displaySchedule.transportFlags.map((flag) => `<li>${escapeHtml(flag)}</li>`).join("")}</ul>` : ""}
+  <p style="margin-top:8px;font-size:12px;color:#475569;"><strong>Basis:</strong> ${escapeHtml(displaySchedule.basis)}</p>
+  ${displaySchedule.install ? `<h3>Installation Detail</h3>
+  <p>${escapeHtml(displaySchedule.install.text)}</p>
+  <table>
+    <thead>
+      <tr><th>Link</th><th>Display housing</th><th>Mount</th><th>Termination</th><th>Run entry</th></tr>
+    </thead>
+    <tbody>
+      ${displaySchedule.install.rows.map((row) => `<tr><td>${escapeHtml(row.link)}</td><td>${escapeHtml(row.enclosure)}</td><td>${escapeHtml(row.mount)}</td><td>${escapeHtml(row.termination)}</td><td>${escapeHtml(row.entry)}</td></tr>`).join("")}
+    </tbody>
+  </table>` : ""}` : ""}
+
+  <h2>Equipment Schedule</h2>
+  ${proposal.pricing ? pricedEquipmentHtml(bomRows, proposal.pricing) : `<table>
     <thead>
       <tr><th>Item</th><th>SKU</th><th>Description</th><th>Role</th><th>Qty</th><th>Type</th><th>Notes</th></tr>
     </thead>
     <tbody>
       ${bomRows.length ? bomRows.map((row) => `<tr><td>${row.item}</td><td>${escapeHtml(row.sku)}</td><td>${escapeHtml(row.description)}</td><td>${escapeHtml(row.role)}</td><td>${row.qty}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.notes)}</td></tr>`).join("") : '<tr><td colspan="7">No equipment schedule rows are currently selected.</td></tr>'}
     </tbody>
-  </table>
+    <tfoot><tr><th colspan="4" scope="row">Equipment schedule totals</th><td>${bomRows.reduce((sum, row) => sum + row.qty, 0)}</td><td colspan="2">${bomRows.length} line items</td></tr></tfoot>
+  </table>`}
   <p style="margin-top:8px;font-size:12px;color:#475569;"><strong>Evidence basis:</strong> ${bomRows.length ? escapeHtml(bomRows.map((row) => `${row.sku}: ${row.evidence}`).join(" | ")) : "No product evidence captured yet."}</p>
+  ${installation ? `<h3>Installation and Services</h3>
+  <p>${escapeHtml(installation.text)}</p>
+  ${proposal.pricing ? pricedInstallationHtml(installation, proposal.pricing) : `<table>
+    <thead>
+      <tr><th>Service</th><th>Site survey detail</th><th>Qty</th><th>Links</th></tr>
+    </thead>
+    <tbody>
+      ${installation.lines.map((line) => `<tr data-installation-line="${escapeHtml(line.id)}"><td>${escapeHtml(installationCategoryLabel(line.category))}</td><td>${escapeHtml(line.detail)}</td><td>${line.quantity}</td><td>${escapeHtml(line.links.join(", "))}</td></tr>`).join("")}
+    </tbody>
+    <tfoot><tr><th colspan="2" scope="row">Installation schedule totals</th><td>${installation.lines.reduce((sum, line) => sum + line.quantity, 0)}</td><td>${installation.lines.length} line items</td></tr></tfoot>
+  </table>`}
+  <p style="margin-top:8px;font-size:12px;color:#475569;">Quantities are the wall links the site survey recorded for each item.</p>` : ""}
 
   <h2>Power Strategy</h2>
-  <p>The power budget below is derived from the governed technical profiles for each selected product. Figures are stated-maximum consumption per the published profile and must be verified against the current datasheet before order.</p>
+  <p>The power figures below come from WyreStorm product data for each selected product. They are the maximum the published specification states, and should be checked against the current datasheet before ordering.</p>
   ${buildPowerStrategyHtml(products)}
 
   <h2>Options</h2>
@@ -635,28 +841,27 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   ${buildExclusionsHtml(bomRows)}
 
   <h2>Risks and Dependencies</h2>
-  <h3>Risks / information required</h3>
+  <h3>Risks and open questions</h3>
   <ul>${
     risksAndDependencies.length
       ? risksAndDependencies.map((item) => `<li><strong>Risk:</strong> ${escapeHtml(item)}</li>`).join("")
       : "<li><strong>Risk:</strong> Validate datasheets, lifecycle status, regional suitability, and dependencies before customer issue.</li>"
   }</ul>
-  <h3>Governed dependencies</h3>
+  <h3>Dependencies</h3>
   ${
     governedDependencies.length
       ? `<ul>${governedDependencies.map((dependency) => {
-          const governanceKind = dependency.governanceKind ?? (dependency.sku.startsWith("TBC-") ? "Prompt" : "Exact");
           const ruleSource = dependency.ruleSource ? ` Source: ${dependency.ruleSource}` : "";
-          return `<li><strong>Dependency:</strong> <strong>${escapeHtml(dependency.sku)} - ${escapeHtml(dependency.label)}</strong> (${escapeHtml(governanceKind)}): ${escapeHtml(dependency.validationQuestion)} Basis: ${escapeHtml(dependency.evidence)}${escapeHtml(ruleSource)}</li>`;
+          return `<li><strong>Dependency:</strong> <strong>${escapeHtml(dependency.sku)} - ${escapeHtml(dependency.label)}</strong>: ${escapeHtml(dependency.validationQuestion)} Why: ${escapeHtml(dependency.evidence)}${escapeHtml(ruleSource)}</li>`;
         }).join("")}</ul>`
-      : "<p>No governed dependencies have been triggered yet.</p>"
+      : "<p>No dependencies have been identified yet.</p>"
   }
 
   <h2>Implementation and Next Steps</h2>
   <ul>${proposal.repGuidance?.length ? proposal.repGuidance.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>Confirm discovery assumptions and validate the final design before issue.</li>"}</ul>
 
   <div class="notice ${hasCoreProducts ? 'notice-success' : ''}">${escapeHtml(readinessNotice)}</div>
-  <div class="notice">Competitor products are excluded from this proposal and equipment schedule unless a comparison-only output is explicitly requested.</div>
+  <div class="notice">${escapeHtml(CUSTOMER_COPY.competitorExclusion)}</div>
 
   <section class="wm-disclaimer" data-wingman-best-efforts-disclaimer="true">
     <h2>Important Notice & Best-Efforts Disclaimer</h2>
@@ -698,7 +903,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
     <h2>Recommended Architecture</h2>
     ${
       proposal.productFamilyScores?.[0]
-        ? `<p><strong>${escapeHtml(proposal.productFamilyScores[0].family)}</strong> is the current leading product-family direction.</p><p>${escapeHtml(proposal.productFamilyScores[0].reasons?.[0] || "The architecture still requires technical validation before customer issue.")}</p>`
+        ? `<p><strong>${escapeHtml(proposal.productFamilyScores[0].family)}</strong> is our recommended product family.</p><p>${escapeHtml(proposal.productFamilyScores[0].reasons?.[0] || "The design still needs technical checks before this proposal is issued.")}</p>`
         : "<p>No recommended architecture has been confirmed. Treat this export as a discovery/design draft until the system path is validated.</p>"
     }
 
@@ -732,12 +937,14 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   </section>
 
   </div><!-- .wm-proposal-container -->
+${proposalPrintPaginationHtml()}
 </body>
 </html>`;
 }
 
-export async function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
-  downloadBlob(new Blob([buildProposalHtml(proposal, bomRows, products, await loadProductMediaIndex())], { type: "text/html;charset=utf-8" }), `${fileBaseName(proposal.title)}.proposal.html`);
+export async function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], videoWall: StoredVideowallSummary | null = null) {
+  assertWallTransportExportable(wallTransportRequirements(wallRequirementsFromSummary(videoWall)));
+  downloadBlob(new Blob([buildProposalHtml(proposal, bomRows, products, await loadProductMediaIndex(), videoWall)], { type: "text/html;charset=utf-8" }), `${fileBaseName(proposal.title)}.proposal.html`);
   trackDesignProjectExport(proposal.designRevision, "html");
 }
 
@@ -752,8 +959,10 @@ export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[])
  * every major OS/browser. Avoids pulling in a client-side PDF-generation
  * library purely to duplicate what the HTML export already renders.
  */
-export async function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = []) {
+export async function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], videoWall: StoredVideowallSummary | null = null) {
   if (typeof window === "undefined") return;
+  // Checked before the print tab opens, so a blocked export leaves no blank tab.
+  assertWallTransportExportable(wallTransportRequirements(wallRequirementsFromSummary(videoWall)));
 
   const printWindow = window.open("", "_blank");
 
@@ -768,7 +977,7 @@ export async function exportProposalPdf(proposal: StoredProjectProposal, bomRows
     printWindow.focus();
     printWindow.print();
   };
-  printWindow.document.write(buildProposalHtml(proposal, bomRows, products, media));
+  printWindow.document.write(buildProposalHtml(proposal, bomRows, products, media, videoWall));
   printWindow.document.close();
   trackDesignProjectExport(proposal.designRevision, "pdf");
 }

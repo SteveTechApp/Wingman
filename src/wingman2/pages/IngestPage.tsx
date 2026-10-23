@@ -717,7 +717,7 @@ export function IngestPage() {
           </section>
 
           <main className="wm-ingest-results-grid">
-            <article className="wm-ingest-panel wm-ingest-result-card wm-ingest-requirements-card">
+            <article className="wm-ingest-panel wm-ingest-result-card">
               <div className="wm-ingest-panel-heading">
                 <div>
                   <span>Extracted requirements</span>
@@ -868,7 +868,7 @@ function BulkEnquiryResults({
       title="Review the bulk enquiry"
       subtitle="Competitor SKUs are intelligence inputs only - review the WyreStorm direction before quoting."
       rightSlot={
-        <button type="button" className="wingman-hero-action wingman-hero-action-secondary" onClick={onReset}>
+        <button type="button" className="wingman-hero-action" onClick={onReset}>
           Start over
         </button>
       }
@@ -949,7 +949,7 @@ function BulkEnquiryResults({
             </div>
           </section>
 
-          <div className="wingman-action-row flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
               className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"

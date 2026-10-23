@@ -1,5 +1,28 @@
 # Wingman Operations Runbook
 
+## Advisory email and flake rehearsals
+
+Email delivery is opt-in: set repository variables `ALERT_EMAIL_ENABLED=true`
+and `ALERT_EMAIL_TO` to the desired recipient. Delivery uses authenticated SMTP
+with STARTTLS. Configure repository secrets
+`ALERT_SMTP_HOST`, `ALERT_SMTP_USERNAME`, and `ALERT_SMTP_PASSWORD` through
+GitHub Settings; optional `ALERT_SMTP_PORT` defaults to 587 and
+`ALERT_EMAIL_FROM` defaults to the SMTP username. Missing credentials produce
+an explicit delivery failure. Credentials must never be committed or pasted
+into a chat. No email credentials were present when this integration was added.
+
+Dispatch Dependency Advisory Alert with `rehearsal=true` to use the synthetic
+GHSA fixture: the collector must exit 1 and render its finding table. Rehearsals
+do not send email. A survey error exits 2 and must never report a clean night. Unassessable OSV
+records, empty dependency closures, and invalid npm reports are survey errors;
+the log identifies unresolved packages and advisory IDs.
+
+Dispatch Optional flake characterization with lane `crash` or `precommit` to
+run the same tree twice. A mixed pass/fail result files an issue containing
+both log tails and the run URL; all logs are retained as artifacts. The normal
+precommit characterization files issues on main pushes; PR runs retain logs
+without requiring write credentials for contributions from forks.
+
 Current default: Wingman uses local file storage and does not require Supabase.
 The database-backed deployment procedures below are retained for later use.
 See [data revision mode](DATA_REVISION_MODE.md) for current defaults and restoring gates.
@@ -175,6 +198,31 @@ None. The two most recent exceptions both ended as designed:
 No exceptions remain in either `tools/dependency-audit-exceptions.json` or
 `tools/build-dep-exceptions.json`.
 
+### Nightly advisory alert (new findings, any time)
+
+The merge gates above run on pushes and PRs using the current lockfiles.
+A newly published advisory can appear between runs even when no dependency
+changes. The nightly alert checks this interval independently.
+
+`report:audit-findings`
+(`tools/audit-alert-findings.mjs`, scheduled nightly at 05:00 UTC by
+`.github/workflows/audit-findings-alert.yml`) re-reads the advisory databases
+directly and reports every actionable finding in one table in the run
+summary:
+
+- full `npm audit`, root and server — high/critical anywhere;
+- production `npm audit --omit=dev`, root and server — moderate/low with **no
+  fix available** at any severity (the sprintf-js class);
+- the OSV build-time closure (root and server) — fresh data every run, no
+  cache shipped.
+
+The nightly run is an **alert, not a gate**: a finding turns the run red
+(deliberate failure, like the other night jobs) but never blocks a merge. The
+response is upgrade or remove; a reviewed, expiring exception remains the
+last resort and is respected while in force (the finding is reported as
+suppressed, not re-raised nightly). A survey crash fails closed with exit 2 —
+the job also alerts on its own tooling, since a blind green is worthless.
+
 ---
 
 ## 5. Incident Response
@@ -262,3 +310,14 @@ npm run test
 
 `verify` runs source validation, type-checking, the production build, and the data/workflow/UI guards.
 Both must pass clean before promoting a build.
+
+## Docker helper ports
+
+Run `node tools/docker-standup.mjs` to build and start the tracked Compose
+configuration on UI port 3100 and API port 8788. Set `WINGMAN_UI_PORT` and
+`WINGMAN_API_PORT` to override these; health probes use the same values.
+The helper explicitly selects `docker-compose.yml`, so it does not depend on
+a local override file. Direct `docker compose up` retains defaults 3000/8787.
+Use `node tools/docker-standup.mjs --down` to stop this stack. It uses the
+same Compose project and volumes as the tracked deployment, not a separate
+isolated deployment. Docker and its Compose plugin must be installed.

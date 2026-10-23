@@ -85,7 +85,15 @@ assertSourceContains("src/wingman2/lib/documentExtract.ts", [
 assertSourceContains("src/wingman2/lib/proposalExport.ts", [
   "buildBomCsv",
   "buildProposalHtml",
-  "Competitor products are excluded",
+  // The printed statement that a comparison is context, not scope. The gate
+  // asserts the constant the exporter prints, not its wording, so the sentence
+  // has one owner in the copy layer and the document cannot drift from it.
+  "CUSTOMER_COPY.competitorExclusion",
+]);
+assertSourceContains("src/wingman2/lib/proposalCopy.ts", [
+  "competitorExclusion",
+  // Held once, here: this is the sentence the customer reads.
+  "Competitor products are not included in this proposal or its equipment schedule.",
 ]);
 assertSourceContains("src/wingman2/lib/salesReadiness.ts", [
   "buildSalesReadinessPackage",
@@ -133,14 +141,22 @@ assertSourceContains("src/wingman2/lib/projectRequirements.ts", [
   "getProjectRequirementRecords",
   "requirementReadiness",
 ]);
+// The review page's proposal actions and builder handoff live in its own hooks
+// so the page entry stays inside its line allowance; the workflow they provide
+// is read from the page and those hooks together.
+const templateHandoffSource = [
+  "src/wingman2/pages/TemplateReviewPage.tsx",
+  "src/wingman2/pages/template/useTemplateHandoff.ts",
+].map((relativePath) => readFileSync(path.join(projectRoot, relativePath), "utf8")).join("\n");
 const templateWorkflowSource = [
   "src/wingman2/pages/TemplatesPage.tsx",
   "src/wingman2/pages/TemplateReviewPage.tsx",
+  "src/wingman2/pages/template/useTemplateProposal.ts",
 ].map((relativePath) => readFileSync(path.join(projectRoot, relativePath), "utf8")).join("\n");
 // a395a3a2 (template AV-system modelling) intentionally reworded the review
 // page's BOM heading; the lowercase listing copy on TemplatesPage now carries
 // the wording, and the review page keeps export/save wiring.
-for (const marker of ["editable WyreStorm BOM", "saveTemplateProject", "exportTemplateBom", "Third-party scope"]) {
+for (const marker of ["editable WyreStorm BOM", "exportBomCsv", "upsertStoredProject", "Third-party scope"]) {
   if (!templateWorkflowSource.includes(marker)) {
     errors.push(`Template workflow is missing marker: ${marker}`);
   }
@@ -148,11 +164,7 @@ for (const marker of ["editable WyreStorm BOM", "saveTemplateProject", "exportTe
 // Templates intentionally reuse the Discovery workflow: "Use template" and
 // "New Custom Template" both hand off into Discovery (see discoveryTemplateHandoff.ts)
 // instead of duplicating Discovery's question/recommendation logic.
-if (
-  !readFileSync(path.join(projectRoot, "src/wingman2/pages/TemplateReviewPage.tsx"), "utf8").includes(
-    "routeCatalogByKey.discovery.path",
-  )
-) {
+if (!templateHandoffSource.includes("routeCatalogByKey.discovery.path")) {
   errors.push("Templates page no longer routes through Discovery for the template-to-Discovery handoff.");
 }
 assertSourceContains("src/wingman2/lib/roomTemplates.ts", [

@@ -158,6 +158,7 @@ describe("agents routes (end to end over real HTTP)", () => {
     expect(json?.service).toBe("wingman-agents");
     expect(json?.phases).toContain("guru");
     expect(json?.phases).toContain("vision-context");
+    expect(json?.phases).toContain("wall-survey-scan");
   });
 
   it("requires authentication for the guru route", async () => {
@@ -224,6 +225,47 @@ describe("agents routes (end to end over real HTTP)", () => {
     expect(json?.ok).toBe(false);
     expect(json?.phase).toBe("vision-context");
     expect(json?.error).toMatch(/missing image data/i);
+  });
+
+  it("POST /api/wingman/agents/wall-survey-scan reads a worksheet photo in mock mode", async () => {
+    const { status, json } = await request("/api/wingman/agents/wall-survey-scan", {
+      cookie: sessionCookie,
+      body: {
+        fileName: "worksheet.jpg",
+        mimeType: "image/jpeg",
+        base64Data: PNG_1PX,
+        links: [
+          { id: "source-1", label: "Source 1", group: "source", allowanceMetres: 3, limitMetres: 5 },
+          { id: "display-1", label: "Panel 1", group: "display", allowanceMetres: 5, limitMetres: 5 },
+        ],
+      },
+    });
+    expect(status).toBe(200);
+    expect(json?.ok).toBe(true);
+    expect(json?.phase).toBe("wall-survey-scan");
+    expect(json.data.scanVersion).toBe("1.0");
+    expect(json.data.rows[0].linkId).toBe("source-1");
+    expect(json.data.rows[0].mount).toBe("Sample wall bracket");
+    expect(json.data.confidence).toBe(0);
+  });
+
+  it("requires authentication for the wall-survey-scan route", async () => {
+    const { status, json } = await request("/api/wingman/agents/wall-survey-scan", {
+      body: { fileName: "worksheet.jpg", mimeType: "image/jpeg", base64Data: PNG_1PX, links: [] },
+    });
+    expect(status).toBe(401);
+    expect(json?.ok).toBe(false);
+  });
+
+  it("wall-survey-scan rejects a request without a link list", async () => {
+    const { status, json } = await request("/api/wingman/agents/wall-survey-scan", {
+      cookie: sessionCookie,
+      body: { fileName: "worksheet.jpg", mimeType: "image/jpeg", base64Data: PNG_1PX },
+    });
+    expect(status).toBe(400);
+    expect(json?.ok).toBe(false);
+    expect(json?.phase).toBe("wall-survey-scan");
+    expect(json?.error).toMatch(/missing link list/i);
   });
 
   it("unknown agents route returns 404", async () => {
@@ -482,5 +524,31 @@ describe("guru route config gate (negative control over real HTTP)", () => {
     expect(json?.ok).toBe(false);
     expect(json?.phase).toBe("guru");
     expect(json?.error).toMatch(/GEMINI_API_KEY/i);
+  });
+
+  it("answers the site-photo sample switch without a key, so the survey walk needs no model", async () => {
+    // The whole point of the switch: a development server with no key can still
+    // be walked through reading a photo, reviewing it and applying the rows.
+    const { status, json } = await request("/api/wingman/agents/vision-context", {
+      base: NEG_BASE,
+      cookie: negSessionCookie,
+      body: {
+        fileName: "boardroom.jpg",
+        mimeType: "image/jpeg",
+        base64Data: PNG_1PX,
+        mock: true,
+      },
+    });
+
+    expect(status).toBe(200);
+    expect(json?.ok).toBe(true);
+    expect(json?.phase).toBe("vision-context");
+    // The context the reader shows, and the rows the checklist applies, so one
+    // answer carries the whole walkthrough.
+    expect(json.data.attachmentKind).toBe("room_photo");
+    expect(json.data.summary).toContain("development sample");
+    expect(json.data.roomObservations.length).toBeGreaterThan(0);
+    expect(json.data.equipment.length).toBeGreaterThan(0);
+    expect(json.data.cables.length).toBeGreaterThan(0);
   });
 });

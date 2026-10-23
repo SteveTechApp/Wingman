@@ -269,9 +269,9 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
   const canSave = form.title.trim().length > 0 || form.domain !== "UNKNOWN";
 
   return (
-    <section className="compare-native-card wm-compare-live-lookup wm-ui-section wm-ui-card" data-lookup-status={status}>
-      <div className="wm-compare-live-lookup__status" role="status">
-        <span className="wm-compare-live-lookup__pulse" aria-hidden="true" />
+    <section className="compare-native-card wm-ui-section wm-ui-card" data-lookup-status={status}>
+      <div role="status">
+        <span aria-hidden="true" />
         <div>
           <strong>{status === "loading" ? "Live lookup in progress" : status === "done" ? "Live lookup complete" : status === "error" ? "Live lookup needs attention" : "Live lookup ready"}</strong>
           <span>{status === "loading" ? `Searching approved manufacturer sources for ${brand} ${sku}` : `Lookup target: ${brand} ${sku}`}</span>
@@ -279,7 +279,7 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
       </div>
 
       {primaryCriteria.length ? (
-        <div className="wm-compare-lookup-criteria" aria-label="Primary search criteria">
+        <div aria-label="Primary search criteria">
           <strong>Primary search criteria</strong>
           <div>{primaryCriteria.map((criterion) => <span key={criterion}>{criterion}</span>)}</div>
         </div>
@@ -287,7 +287,7 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
 
       <h3 className="wm-ui-title">Add evidence for this product</h3>
       {liveResearchResult?.competitor_lookup_mode === "live" ? (
-        <div className="wm-ui-card wm-compare-live-lookup__confirmation">
+        <div className="wm-ui-card">
           <strong>Review before keeping these researched facts</strong>
           <p className="wm-ui-copy">Nothing is added to your local product data until you confirm it below. Confirmation also sends the cited research package to Wingman admin for formal review; it does not change the core database automatically.</p>
         </div>
@@ -343,7 +343,7 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
               </a>
             ) : null}
             {result.warnings?.length ? (
-              <ul className="compare-native-bullet-list wm-ui-card">
+              <ul className="wm-ui-card">
                 {result.warnings.slice(0, 3).map((warning) => (
                   <li key={warning}>{warning}</li>
                 ))}
@@ -351,9 +351,9 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
             ) : null}
           </div>
         ) : (
-          <div className="wm-compare-lookup-explanation">
+          <div>
             <strong>No manufacturer product record was resolved</strong>
-            <p className="compare-native-muted wm-ui-copy">
+            <p className="wm-ui-copy">
               Wingman searched for {brand} {sku}{primaryCriteria.length ? ` using ${primaryCriteria.join(", ")}` : ""}, but did not find enough reliable product evidence to classify it and recommend an equivalent safely. The SKU may be incomplete, discontinued, region-specific, blocked from automated access, or absent from approved manufacturer sources.
             </p>
           </div>
@@ -362,12 +362,12 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
 
       {documentState.status !== "idle" ? (
         <div className="wm-ui-card">
-          <p className="compare-native-muted wm-ui-copy">
+          <p className="wm-ui-copy">
             {documentState.status === "reading" ? `Reading ${documentState.fileName}...` : `Scanned ${documentState.fileName}.`}
             {documentState.status === "done" && !documentState.warnings.length ? " Matched fields below were pre-filled - check them against the source before saving." : ""}
           </p>
           {documentState.warnings.length ? (
-            <ul className="compare-native-bullet-list wm-ui-card">
+            <ul className="wm-ui-card">
               {documentState.warnings.map((warning) => (
                 <li key={warning}>{warning}</li>
               ))}
@@ -378,7 +378,7 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
 
       {imagePreview ? (
         <div className="wm-ui-card">
-          <p className="compare-native-muted wm-ui-copy">
+          <p className="wm-ui-copy">
             Attached {imagePreview.fileName} for your own reference - Wingman doesn't read spec data out of images yet, so key in what you see below.
           </p>
           <img src={imagePreview.objectUrl} alt={`Uploaded reference: ${imagePreview.fileName}`} style={{ maxWidth: "240px", maxHeight: "240px", borderRadius: "8px" }} />
@@ -439,9 +439,9 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
           <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => { void saveForm(); }} disabled={!canSave || submissionState === "submitting"}>
             {submissionState === "submitting" ? "Saving and submitting..." : liveResearchResult?.competitor_lookup_mode === "live" ? "Keep researched facts" : "Save for next time"}
           </button>
-          {savedAt ? <p className="compare-native-muted wm-ui-copy">Saved locally at {savedAt}. This SKU will use your saved data next time.</p> : null}
-          {submissionState === "submitted" ? <p className="compare-native-muted wm-ui-copy" role="status">Sent to Wingman admin for formal review. Your local copy remains available while the core record is pending.</p> : null}
-          {submissionState === "error" ? <p className="compare-native-muted wm-ui-copy" role="alert">Saved locally, but the admin review submission could not be sent. Keep this page open and try again when the workspace service is available.</p> : null}
+          {savedAt ? <p className="wm-ui-copy">Saved locally at {savedAt}. This SKU will use your saved data next time.</p> : null}
+          {submissionState === "submitted" ? <p className="wm-ui-copy" role="status">Sent to Wingman admin for formal review. Your local copy remains available while the core record is pending.</p> : null}
+          {submissionState === "error" ? <p className="wm-ui-copy" role="alert">Saved locally, but the admin review submission could not be sent. Keep this page open and try again when the workspace service is available.</p> : null}
         </div>
       </div>
     </section>

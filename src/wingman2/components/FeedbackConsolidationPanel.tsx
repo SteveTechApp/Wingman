@@ -45,7 +45,7 @@ export function FeedbackConsolidationPanel() {
   ).length;
 
   return (
-    <section className="wm-feedback-consolidation wm-ui-card rounded-2xl border p-5">
+    <section className="wm-ui-card rounded-2xl border p-5">
       <header className="mb-4">
         <p className="wm-ui-kicker">Product feedback insights</p>
         <h2 className="wm-ui-title text-xl font-black">What the field said about these products</h2>
@@ -70,7 +70,7 @@ export function FeedbackConsolidationPanel() {
         ) : null}
       </div>
 
-      <div className="wm-feedback-table-wrap rounded-xl border wm-ui-card">
+      <div className="rounded-xl border wm-ui-card">
         <table className="w-full text-left text-sm wm-ui-copy">
           <thead className="wm-ui-card">
             <tr>

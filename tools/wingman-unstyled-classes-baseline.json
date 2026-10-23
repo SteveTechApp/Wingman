@@ -1,0 +1,5 @@
+{
+  "updatedAt": "2026-10-20T12:59:25.465Z",
+  "rule": "Every entry is a class name used in shipped Wingman markup that no stylesheet, inline export <style> block or Tailwind utility answers. The gate fails when an unlisted class has no style, and when a listed class has gained one. Regenerate with npm run audit:unstyled-classes:baseline only after removing the class or adding its rule.",
+  "unstyledClasses": []
+}

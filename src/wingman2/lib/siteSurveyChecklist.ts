@@ -1,3 +1,5 @@
+import { wallRequirementsFromSummary } from "./videowallOptions";
+import { wallPhysicalSize } from "./wallPhysicalSize";
 /**
  * Site Survey Checklist — generates a printable checklist from project topology.
  *
@@ -311,7 +313,10 @@ export function buildSiteSurveyChecklist(
       conn.services.includes("ethernet"),
   );
 
+  const wallRequirements = wallRequirementsFromSummary(project.videowall);
+  const mounting = wallRequirements ? wallPhysicalSize(wallRequirements).mounting : null;
   const installItems: SurveyInstallItem[] = [
+    ...(mounting?.totalWeightKg != null ? [{ id: "wall-structural-load", label: `Structural capacity and fixings for ${mounting.totalWeightKg} kg wall`, hint: `${mounting.text}. Verify the supporting structure and fixing specification against this load, including any additional equipment.` }] : []),
     {
       id: "display-mount-height",
       label: "Display mounting height and position",

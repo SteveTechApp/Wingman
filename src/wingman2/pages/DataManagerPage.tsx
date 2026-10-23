@@ -80,15 +80,15 @@ function DataManagerContent() {
     <nav className="wm-data-tabs" aria-label="Data Manager datasets">{TABS.map((item) => <button type="button" key={item} className={tab === item ? "is-active" : ""} onClick={() => setTab(item)}>{item}</button>)}</nav>
     {tab === "Governed Profiles" ? <GovernedProfileBrowser reviewer={session?.user?.email || session?.user?.name || "ADMIN"} /> : null}
     {(tab === "WyreStorm Products" || tab === "Competitor Products") ? <>
-      <section className="wm-data-quality-summary wm-section-card wm-data-governance-compact" aria-labelledby="data-quality-title">
-  <div className="wm-data-quality-heading">
+      <section className="wm-data-quality-summary wm-section-card" aria-labelledby="data-quality-title">
+  <div>
     <p className="wm-ui-kicker">Live governance</p>
     <h2 id="data-quality-title">Data Quality</h2>
     <small>{vendorRecords.length} records assessed</small>
     {qualityFilter ? (
       <button
         type="button"
-        className="wm-data-quality-clear"
+       
         onClick={() => setQualityFilter(null)}
         title="Clear quality filter"
       >
@@ -98,7 +98,7 @@ function DataManagerContent() {
     ) : null}
   </div>
 
-  <div className="wm-data-quality-metrics">
+  <div>
     {QUALITY_SUMMARY
       .filter(({ issue }) => issue !== "missing-equivalence-review" || vendorType === "competitor")
       .map(({ issue, label }) => (
@@ -125,7 +125,7 @@ function DataManagerContent() {
         <button className="wm-button wm-button-primary" type="button" onClick={() => setEditing(emptyProduct(vendorType))}><Plus /> Add Product</button>
       </section>
       <section className="wm-data-table-card wm-section-card"><header><div><h2>{visible.length} records</h2></div><button type="button" onClick={() => setSort(sort === "sku" ? "updatedAt" : "sku")}><ArrowUpDown /> Sort by {sort === "sku" ? "last edited" : "SKU"}</button></header>
-        <PagedItems items={visible} pageSize={12} resetKey={JSON.stringify([vendorType, query, manufacturer, family, category, status, incompleteOnly, errorsOnly, sort, qualityFilter])}>{(pageItems) => (<div className="wm-data-table-scroll"><table><thead><tr><th>Product</th><th>Classification</th><th>Lifecycle</th><th>Validation</th><th>Last edited</th><th>Actions</th></tr></thead><tbody>{pageItems.map((record) => { const errors = validateProductRecord(record, records); const blocked = isArchivedProduct(record); return <tr key={`${record.vendorType}-${record.brand}-${record.sku}`}><td><strong>{record.sku}</strong><span>{record.name}</span><small>{record.brand}</small></td><td>{record.family}<small>{record.category}</small></td><td><span className={`wm-status ${blocked ? "is-validate" : "is-confirmed"}`}>{displayLifecycle(record)}</span></td><td>{Object.keys(errors).length ? <span className="wm-validation-bad">{Object.keys(errors).length} issues</span> : <span className="wm-validation-good"><CheckCircle2 /> Valid</span>}</td><td>{record.updatedAt ? new Date(record.updatedAt).toLocaleDateString() : "—"}<small>{record.reviewedBy || "System import"}</small></td><td><div className="wm-data-row-actions"><button type="button" onClick={() => setEditing(structuredClone(record))} className="wm-data-icon-action" aria-label="Edit product" title="Edit"><Pencil /></button><button type="button" onClick={() => setEditing({ ...structuredClone(record), id: undefined, sku: `${record.sku}-COPY`, lifecycle: "draft" })}><Copy /><span className="wm-sr-only">Duplicate</span></button>{blocked ? <button type="button" onClick={() => void lifecycle(record, "review")}><RefreshCcw /> Restore</button> : <button type="button" onClick={() => void lifecycle(record, "do-not-use")}><Archive /><span className="wm-sr-only">Archive</span></button>}</div></td></tr>; })}</tbody></table></div>)}</PagedItems>{loading ? <p>Loading records…</p> : null}</section>
+        <PagedItems items={visible} pageSize={12} resetKey={JSON.stringify([vendorType, query, manufacturer, family, category, status, incompleteOnly, errorsOnly, sort, qualityFilter])}>{(pageItems) => (<div className="wm-data-table-scroll"><table><thead><tr><th>Product</th><th>Classification</th><th>Lifecycle</th><th>Validation</th><th>Last edited</th><th>Actions</th></tr></thead><tbody>{pageItems.map((record) => { const errors = validateProductRecord(record, records); const blocked = isArchivedProduct(record); return <tr key={`${record.vendorType}-${record.brand}-${record.sku}`}><td><strong>{record.sku}</strong><span>{record.name}</span><small>{record.brand}</small></td><td>{record.family}<small>{record.category}</small></td><td><span className={`wm-status ${blocked ? "is-validate" : "is-confirmed"}`}>{displayLifecycle(record)}</span></td><td>{Object.keys(errors).length ? <span className="wm-validation-bad">{Object.keys(errors).length} issues</span> : <span className="wm-validation-good"><CheckCircle2 /> Valid</span>}</td><td>{record.updatedAt ? new Date(record.updatedAt).toLocaleDateString() : "—"}<small>{record.reviewedBy || "System import"}</small></td><td><div className="wm-data-row-actions"><button type="button" onClick={() => setEditing(structuredClone(record))} aria-label="Edit product" title="Edit"><Pencil /></button><button type="button" onClick={() => setEditing({ ...structuredClone(record), id: undefined, sku: `${record.sku}-COPY`, lifecycle: "draft" })}><Copy /><span className="wm-sr-only">Duplicate</span></button>{blocked ? <button type="button" onClick={() => void lifecycle(record, "review")}><RefreshCcw /> Restore</button> : <button type="button" onClick={() => void lifecycle(record, "do-not-use")}><Archive /><span className="wm-sr-only">Archive</span></button>}</div></td></tr>; })}</tbody></table></div>)}</PagedItems>{loading ? <p>Loading records…</p> : null}</section>
     </> : tab === "Live Research" ? (
       <LiveResearchReviewQueue
         existingRecords={records.filter((record) => record.vendorType === "competitor")}

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { useProjectStore } from "../data/projectStore";
 import { StatusChip } from "./StatusChip";
+import { SurveyReviewChip } from "./SurveyReviewChip";
+import { SurveyReconfirmAction } from "./SurveyReconfirmAction";
 import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
 import { setActiveProjectId } from "../data/projectStore";
 
@@ -62,7 +64,7 @@ function JourneyCard({ card, index }: { card: JourneyCard; index: number }) {
       className={`wm-guided-journey wm-polish-card wm-polish-${card.accent}`}
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <div className="wm-guided-journey-icon-wrap">
+      <div>
         <div className="wm-guided-journey-icon">
           <Icon size={26} strokeWidth={1.8} />
         </div>
@@ -76,7 +78,7 @@ function JourneyCard({ card, index }: { card: JourneyCard; index: number }) {
           Get started <ArrowRight size={14} />
         </span>
       </div>
-      <ChevronRight className="wm-guided-journey-chevron" size={18} />
+      <ChevronRight size={18} />
     </Link>
   );
 }
@@ -106,19 +108,24 @@ function RecentProjects() {
             : `${routeCatalogByKey.projects.path}/${project.id}`;
 
           return (
-            <Link
-              key={project.id}
-              to={href}
-              className="wm-guided-recent-card"
-              onClick={() => setActiveProjectId(project.id)}
-            >
+            <article key={project.id} className="wm-guided-recent-card">
               <StatusChip label={project.status} variant={project.status} />
               <span className="wm-guided-recent-copy">
                 <strong>{project.name}</strong>
                 <small>{project.stage}</small>
+                <SurveyReviewChip project={project} className="mt-1 justify-self-start" />
+                {/* The quiet card is also where an old reading is settled: the
+                    action records today and the chip above it turns current,
+                    without opening the wall. It sits above the card's own hit
+                    area, like the chip, so a tap reaches it instead. */}
+                <SurveyReconfirmAction project={project} className="wm-guided-recent-reconfirm" />
               </span>
-              <ArrowRight className="wm-guided-recent-arrow" size={16} aria-hidden="true" />
-            </Link>
+              <ArrowRight size={16} aria-hidden="true" />
+              {/* The card's destination lies under its content instead of around
+                  it: the survey flag is a link of its own, and a control cannot
+                  be nested inside another one. The flag sits above this hit area. */}
+              <Link className="wm-guided-recent-hit" to={href} onClick={() => setActiveProjectId(project.id)} aria-label={`Open ${project.name}`} />
+            </article>
           );
         })}
       </div>

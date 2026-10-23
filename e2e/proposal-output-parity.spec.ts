@@ -24,12 +24,30 @@ test("canonical proposal retains semantic and visual parity across screen, DOCX 
 
   await page.emulateMedia({ media: "print" });
   const pdfPath = path.join(outputDir, "proposal.pdf");
-  await page.pdf({ path: pdfPath, format: "A4", printBackground: true, margin: { top: "12mm", right: "10mm", bottom: "12mm", left: "10mm" } });
+  // The document owns its page setup (@page A4 plus running header, reference
+  // and page numbers in the margins), so the PDF must honour the CSS page size
+  // and not substitute the browser's own margins.
+  await page.pdf({ path: pdfPath, printBackground: true, preferCSSPageSize: true });
   const pdfTextPath = path.join(outputDir, "proposal-pdf.txt");
-  const extraction = spawnSync(bundledPython, ["-c", "from pypdf import PdfReader; import sys; print('\\n'.join((p.extract_text() or '') for p in PdfReader(sys.argv[1]).pages))", pdfPath], { encoding: "utf8", env: { ...process.env, PYTHONIOENCODING: "utf-8" } });
+  const extraction = spawnSync(bundledPython, ["-c", "from pypdf import PdfReader; import sys,json; print(json.dumps([(p.extract_text() or '') for p in PdfReader(sys.argv[1]).pages]))", pdfPath], { encoding: "utf8", env: { ...process.env, PYTHONIOENCODING: "utf-8" } });
   expect(extraction.status, extraction.stderr || extraction.error?.message).toBe(0);
-  fs.writeFileSync(pdfTextPath, extraction.stdout);
-  const pdfText = normalized(extraction.stdout);
+  const pages: string[] = JSON.parse(extraction.stdout);
+  fs.writeFileSync(pdfTextPath, pages.join("\n"));
+  const pdfText = normalized(pages.join("\n"));
+
+  // The cover has document control; running furniture begins on page two.
+  expect(pages.length).toBeGreaterThan(1);
+  expect(pages[0]).toContain("Document control");
+  expect(pages[0]).not.toContain("WyreStorm · Northstar Operations Room");
+  expect(pages[0]).not.toMatch(/Page \d+ of \d+/);
+  expect(pdfText).toContain("WyreStorm · Northstar Operations Room");
+  expect(pdfText).toContain("Proposal Reference: WYR-");
+  expect(pdfText).toContain("Draft Proposal ·");
+  const pageLabels = [...pdfText.matchAll(/Page (\d+) of (\d+)/g)];
+  expect(pageLabels.length).toBeGreaterThan(0);
+  expect(pageLabels[0][1]).toBe("2");
+  expect(pageLabels.length).toBe(Number(pageLabels[0][2]) - 1);
+  expect(pageLabels.at(-1)?.[1]).toBe(pageLabels[0][2]);
 
   const required = manifest.requiredMarkers;
   const formats = { screen: screenText, docx: docxText, pdf: pdfText };

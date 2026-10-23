@@ -275,7 +275,7 @@ export function HubCardArt({ kind }: { kind: HubCardArtKind }) {
   if (kind === "videowall") {
     return (
       <svg
-        className="wm-hub-art-videowall"
+       
         viewBox="0 0 240 150"
         fill="none"
         stroke="currentColor"

@@ -1140,32 +1140,6 @@ html[data-wingman-route="projects"] .wm-projects-store-toolbar {
   min-width: 0;
 }
 
-html[data-wingman-route="projects"] .wm-projects-table-wrap {
-  width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-  overflow-y: visible;
-}
-
-html[data-wingman-route="projects"] .wm-projects-table-wrap table {
-  width: 100%;
-  min-width: 960px;
-  table-layout: fixed;
-}
-
-html[data-wingman-route="projects"] .wm-projects-col-project { width: 25%; }
-html[data-wingman-route="projects"] .wm-projects-col-owner { width: 11.5%; }
-html[data-wingman-route="projects"] .wm-projects-col-stage { width: 15.5%; }
-html[data-wingman-route="projects"] .wm-projects-col-status { width: 11%; }
-html[data-wingman-route="projects"] .wm-projects-col-updated { width: 12.5%; }
-html[data-wingman-route="projects"] .wm-projects-col-actions { width: 24.5%; }
-
-html[data-wingman-route="projects"] .wm-projects-table-wrap th,
-html[data-wingman-route="projects"] .wm-projects-table-wrap td {
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
 html[data-wingman-route="projects"] .wm-project-row-actions {
   display: flex;
   flex-wrap: nowrap;
@@ -1297,13 +1271,6 @@ html[data-wingman-route="projects"] .wm-project-detail-stack {
 html[data-wingman-route="projects"] .wm-project-detail-stack > section,
 html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-card {
   margin: 0;
-}
-
-html[data-wingman-route="projects"] .wm-project-detail-anchor {
-  display: block;
-  position: relative;
-  top: -92px;
-  visibility: hidden;
 }
 
 @media (max-width: 900px) {
@@ -1897,8 +1864,7 @@ html[data-wingman-route="projects"] .wm-project-detail-anchor {
   pointer-events: none;
 }
 
-.wm-product-search-control > input,
-.wm-pcc-header-selection-mode .wm-product-search-control > input {
+.wm-product-search-control > input {
   width: 100%;
   min-height: 44px;
   padding: 9px 14px 9px 42px;
@@ -1922,11 +1888,7 @@ html[data-wingman-route="projects"] .wm-project-detail-anchor {
   min-width: 0;
 }
 
-.wm-product-filter-controls,
-.wm-catalog-toggle-row,
-.wm-catalog-facet-options,
-.wm-pcc-chips,
-.wm-pcc-quick-finder {
+.wm-product-filter-controls, .wm-catalog-toggle-row, .wm-pcc-chips {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1993,13 +1955,6 @@ html[data-wingman-route="projects"] .wm-project-detail-anchor {
   overflow: visible;
 }
 
-.wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode .wm-pcc-workflow-guide {
-  grid-column: 1;
-  margin: 0;
-  padding: 10px 14px;
-  border-radius: 10px;
-}
-
 .wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode .wm-pcc-left {
   grid-column: 1;
   width: 100%;
@@ -2029,10 +1984,6 @@ body .wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode aside.wm-pc
 .wm-pcc-shell-selection-mode .wm-pcc-status {
   margin: 2px 0;
   padding: 8px 0;
-}
-
-.wm-product-family-workspace {
-  margin-top: 0;
 }
 
 @media (max-width: 980px) {

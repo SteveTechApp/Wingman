@@ -1,10 +1,10 @@
-import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { semverCompare } from "./check-build-deps.mjs";
+import { runToolBare } from "./test-spawn-guard.mjs";
 import {
   checkOverrideFloors,
   collectOverrideFloorProblems,
@@ -253,8 +253,12 @@ const NPM_CLI = resolveNpmCli();
 function runGuardCli(root) {
   // Spawn the SANDBOX copy of the guard: the repo copy hard-codes the repo as
   // its project root, while the sandbox copy resolves the fixture as the repo.
+  // Transient-spawn guard: under parallel-suite load the resource-pressure
+  // errno class can fail the spawn itself; the sandbox CLI is deterministic,
+  // so a retry re-produces the same verdict (runToolBare never retries a
+  // child that actually ran and exited nonzero).
   const sandboxCli = path.join(root, "tools", "check-override-floors.mjs");
-  const result = spawnSync(process.execPath, [sandboxCli], { cwd: root, encoding: "utf8" });
+  const result = runToolBare(process.execPath, [sandboxCli], "check-override-floors", { cwd: root, encoding: "utf8" });
   return { status: result.status, stderr: result.stderr ?? "", stdout: result.stdout ?? "" };
 }
 
@@ -377,19 +381,17 @@ describe("lockfile-regeneration drill", () => {
       try {
         materialiseSandboxCli(root);
         const runNpm = () => {
-          const result = NPM_CLI
-            ? spawnSync(
-                process.execPath,
-                [NPM_CLI, "install", "--package-lock-only", "--no-audit", "--no-fund", "--loglevel", "error"],
-                { cwd: root, encoding: "utf8", timeout: 180_000 },
-              )
-            : spawnSync(
-                "npm",
-                ["install", "--package-lock-only", "--no-audit", "--no-fund", "--loglevel", "error"],
-                { cwd: root, encoding: "utf8", timeout: 180_000 },
-              );
-          expect(result.error ?? null, `npm spawn failed: ${result.error?.message ?? ""}`).toBeNull();
-          expect(result.status, `npm install failed: ${result.stderr}`).toBe(0);
+          // Same transient-spawn guard for the npm drill: spawnSync returning
+          // result.error with an errno code is the libuv-failure shape; the
+          // drill is idempotent, so a single retry is safe.
+          const npmArgs = NPM_CLI
+            ? [process.execPath, [NPM_CLI, "install", "--package-lock-only", "--no-audit", "--no-fund", "--loglevel", "error"]]
+            : ["npm", ["install", "--package-lock-only", "--no-audit", "--no-fund", "--loglevel", "error"]];
+          let run = runToolBare(npmArgs[0], npmArgs[1], "override-floor-drill", { cwd: root, encoding: "utf8", timeout: 180_000 });
+          // runToolBare already retried a transient errno once; anything left
+          // in run.error is a real spawn defect.
+          expect(run.error ?? null, `npm spawn failed: ${run.error?.message ?? ""}`).toBeNull();
+          expect(run.status, `npm install failed: ${run.stderr}`).toBe(0);
         };
 
         // Start from an empty v1-format lock so the run is a genuine from-

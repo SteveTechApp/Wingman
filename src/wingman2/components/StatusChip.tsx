@@ -38,9 +38,17 @@ const variantClasses: Record<StatusChipVariant, string> = {
   review: "wm-status-review",
 };
 
+/**
+ * The chip's classes, so a chip-shaped link answers to the same styling as the
+ * status chips beside it instead of keeping a second copy of the tokens.
+ */
+export function statusChipClassName(variant: StatusChipVariant = "neutral", className = "") {
+  return ["wm-status-chip", "wm-status", variantClasses[variant], className].filter(Boolean).join(" ");
+}
+
 export function StatusChip({ label, variant = "neutral", title, className = "", icon }: StatusChipProps) {
   return (
-    <span className={["wm-status-chip", "wm-status", variantClasses[variant], className].filter(Boolean).join(" ")} title={title}>
+    <span className={statusChipClassName(variant, className)} title={title}>
       {icon}
       <span className="wm-status-chip-label">{label}</span>
     </span>

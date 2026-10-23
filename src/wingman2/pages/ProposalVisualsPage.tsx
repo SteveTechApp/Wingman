@@ -69,7 +69,7 @@ export function ProposalVisualsPage() {
       </header>
 
       <WorkflowPages label="Visual pages" parameter="visual-step" pages={[
-{ id: "type", label: "Visual type", content: <><section className="wm-pv-step wm-pv-step--choose grid gap-4 rounded-3xl border p-5 wm-ui-card" aria-labelledby="proposal-visual-step-one">
+{ id: "type", label: "Visual type", content: <><section className="wm-pv-step grid gap-4 rounded-3xl border p-5 wm-ui-card" aria-labelledby="proposal-visual-step-one">
         <div className="wm-pv-step-heading flex items-center gap-3">
           <span className="wm-pv-step-number grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-300 font-black text-cyan-300">1</span>
           <div><p className="text-xs font-extrabold uppercase tracking-wider text-cyan-300">Choose the output</p><h2 id="proposal-visual-step-one">What should this visual explain?</h2></div>
@@ -82,7 +82,7 @@ export function ProposalVisualsPage() {
           ); })}
         </div>
       </section></> },
-{ id: "brief", label: "Project & audience", content: <><section className="wm-pv-step wm-pv-generate-bar grid gap-4 rounded-3xl border p-5 wm-ui-card" aria-labelledby="proposal-visual-step-two">
+{ id: "brief", label: "Project & audience", content: <><section className="wm-pv-step grid gap-4 rounded-3xl border p-5 wm-ui-card" aria-labelledby="proposal-visual-step-two">
         <div className="wm-pv-step-heading flex items-center gap-3">
           <span className="wm-pv-step-number grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-300 font-black text-cyan-300">2</span>
           <div><p className="text-xs font-extrabold uppercase tracking-wider text-cyan-300">Confirm the brief</p><h2 id="proposal-visual-step-two">Project source and audience</h2></div>
@@ -101,13 +101,13 @@ export function ProposalVisualsPage() {
 { id: "preview", label: "Preview & save", content: <>
 
       {kind === "room-concept" && generatedKind !== kind ? (
-        <section className="wm-pv-concept-note">
+        <section>
           <Camera aria-hidden="true" />
           <div><h2>Concept visual</h2><p>The project-aware brief is ready to save. Photorealistic generation remains review-gated; it must not imply verified dimensions, finishes or installation positions.</p></div>
         </section>
       ) : null}
 
-      {message ? <p className="wm-pv-message" role="status">{message}</p> : null}
+      {message ? <p role="status">{message}</p> : null}
       {generatedKind === kind ? (kind === "room-concept" ? <RoomConceptVisual key={generation} project={activeProject} onSave={saveRender} /> : <VisualStudioCanvas key={generation} model={model} mode={canvasMode} onSaveAsset={saveRender} />) : (
         <section className="wm-pv-empty grid min-h-64 items-center gap-8 rounded-3xl border border-dashed p-6 wm-ui-card lg:grid-cols-2">
           <div className="wm-pv-empty-preview flex min-h-48 items-center justify-around rounded-xl border p-6 wm-ui-card" aria-hidden="true"><SelectedModeIcon className="h-12 w-12 rounded-lg border border-cyan-300 p-2 text-cyan-300" /><span className="h-11 w-11 rounded-lg border border-cyan-300"></span><span className="h-11 w-11 rounded-lg border border-cyan-300"></span><span className="h-11 w-11 rounded-lg border border-cyan-300"></span></div>

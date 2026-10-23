@@ -97,7 +97,8 @@ export function productPageSpecifications(details: ProductPageDetails): string {
 export function applyProductPageDetailsToBomRow(row: TemplateBomRow, details: ProductPageDetails): TemplateBomRow {
   if (!details.ok) return row;
   const manufacturer = canonicalManufacturerName(manufacturerFromProductPage(details) || row.manufacturer || "");
-  const model = suggestModelFromProductPage(details) || row.model || "";
+  const detectedModel = suggestModelFromProductPage(details);
+  const model = detectedModel || row.model || "";
   const summary = productPageSummary(details);
   const specifications = productPageSpecifications(details);
   const connections = productPageConnections(details);
@@ -115,6 +116,8 @@ export function applyProductPageDetailsToBomRow(row: TemplateBomRow, details: Pr
   ].filter(Boolean).join("; ");
   return {
     ...row,
+    sku: wyreStormProduct && row.sku.startsWith("BY-OTHERS") && detectedModel
+      ? detectedModel.trim().toUpperCase() : row.sku,
     manufacturer,
     model,
     description,

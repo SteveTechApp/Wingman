@@ -10,6 +10,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { HubCard, routeAction } from "./NavigationHubPages";
 import { StatusChip } from "../components/StatusChip";
+import { SurveyReviewChip } from "../components/SurveyReviewChip";
+import { SurveyReconfirmAction } from "../components/SurveyReconfirmAction";
 import { ProjectActionMenu } from "../components/ProjectActionMenu";
 import { GuidedDashboard } from "../components/GuidedDashboard";
 import { useUiMode } from "../data/uiMode";
@@ -74,6 +76,13 @@ const primaryActions = [
     "ACTIVE PROJECT WORKSPACE",
     { accent: "green", linkLabel: "Open projects", art: "projects" },
   ),
+  routeAction(
+    "videowall",
+    "Video Wall",
+    "Answer four questions. Wingman narrows the wall designs to one recommendation and explains why the rest do not fit.",
+    "WALL DESIGN",
+    { accent: "magenta", linkLabel: "Design a wall", art: "videowall" },
+  ),
 ];
 
 type DashboardProject = {
@@ -90,6 +99,7 @@ type DashboardProject = {
   compareRuns?: StoredProject["compareRuns"];
   recommendationEvidence?: StoredProject["recommendationEvidence"];
   workflow?: StoredProject["workflow"];
+  videowall?: StoredProject["videowall"];
 };
 
 type DashboardProgress = {
@@ -642,7 +652,7 @@ function CompetitorDecisionApprovedCard() {
         </div>
         <span className="wm-dashboard-verified-card__count">{state.approved} approved</span>
       </header>
-      <p className="wm-dashboard-verified-card__summary">
+      <p>
         {state.approved}/{state.total} competitor decisions human-approved · {pending} awaiting review in the{" "}
         <Link to={routeCatalogByKey.compare.path}>Compare decision queue</Link>.
       </p>
@@ -757,7 +767,6 @@ export function DashboardPage() {
         </div>
 
         <div className="wm-dashboard-heading-actions">
-          <Link className="wm-ui-button wm-ui-button-secondary" to={routeCatalogByKey.videowall.path}>Video wall builder</Link>
           <button
             type="button"
             className="wingman-new-project-button"
@@ -811,7 +820,15 @@ export function DashboardPage() {
                     data-wm-status={project.status}
                   >
                     <div className="wm-reference-project-topline">
-                      <StatusChip label={STATUS_LABEL[project.status]} variant={project.status} />
+                      <span className="flex flex-wrap items-center gap-2">
+                        <StatusChip label={STATUS_LABEL[project.status]} variant={project.status} />
+                        <SurveyReviewChip project={project} />
+                        {/* A reading the room may have outgrown is renewed here,
+                            in the topline beside the chip that raised it: the
+                            card is outside the project link, so the tap does
+                            not open the project. */}
+                        <SurveyReconfirmAction project={project} />
+                      </span>
                       <ProjectActionMenu name={project.name} onEdit={() => { setActiveProjectId(project.id); navigate(discoveryResumeUrl(project.id)); }} onCopy={() => copyProject(project.id)} onDelete={() => deleteProject(project.id)} />
                     </div>
                     <Link className="wm-reference-project-open" to={resumeInterview ? discoveryResumeUrl() : `${routeCatalogByKey.projects.path}/${project.id}`} onClick={() => setActiveProjectId(project.id)}>
@@ -832,7 +849,7 @@ export function DashboardPage() {
                     ) : null}
                     <div className="wm-reference-project-next">
                       {resumeInterview ? (
-                        <span className="wm-reference-project-resume" data-testid="dashboard-resume-position">
+                        <span data-testid="dashboard-resume-position">
                           Resume interview — next: {resume!.nextQuestion || `open question ${resume!.answeredCount + 1}`} · {resume!.answeredCount} answered
                         </span>
                       ) : (
@@ -848,7 +865,7 @@ export function DashboardPage() {
         </div>
 
         <aside className="wm-reference-dashboard-rail" aria-label="Dashboard focus panel">
-          <section className="wm-reference-rail-card wm-reference-focus-card">
+          <section className="wm-reference-rail-card">
             <div className="wm-reference-rail-title">
               <Target aria-hidden="true" />
               <h2>Today&apos;s Focus</h2>

@@ -1,5 +1,5 @@
 # Backend server Dockerfile
-FROM node:20-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY server/package.json server/package-lock.json ./
 RUN npm ci --omit=dev
 
 # Copy server source files
-COPY server/ ./
+COPY server/ ./server/
 
 # Copy data directory for product intelligence
 COPY data/ /app/data/
@@ -32,4 +32,4 @@ ENV PORT=8787
 ENV NODE_ENV=production
 
 # Run the server
-CMD ["node", "competitor-lookup-server.mjs"]
+CMD ["node", "server/competitor-lookup-server.mjs"]

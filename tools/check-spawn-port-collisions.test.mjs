@@ -3,7 +3,14 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { collectClaims, extractClaims, findPortCollisions } from "./check-spawn-port-collisions.mjs";
+import { collectClaims, extractClaims, findPortCollisions, needsTransientSpawnGuard } from "./check-spawn-port-collisions.mjs";
+
+it("requires a real guard import for child-process tools tests", () => {
+  expect(needsTransientSpawnGuard('import { spawn as start } from "node:child_process";')).toBe(true);
+  expect(needsTransientSpawnGuard('import cp from "child_process"; // import "./test-spawn-guard.mjs"')).toBe(true);
+  expect(needsTransientSpawnGuard('import { spawn } from "node:child_process"; import { runToolEvented } from "./test-spawn-guard.mjs";')).toBe(false);
+  expect(needsTransientSpawnGuard('const fixture = `import { spawn } from "node:child_process"`;')).toBe(false);
+});
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 

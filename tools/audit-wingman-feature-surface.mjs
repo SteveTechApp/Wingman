@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { hasUnfinishedMarker } from "./lib/unfinished-marker.mjs";
 // Enforce full-source reachability during the required visual CI gate.
 import "./check-orphaned-modules.mjs";
 
@@ -10,7 +11,6 @@ fs.mkdirSync(reportDir, { recursive: true });
 const SOURCE_EXTENSIONS = [".ts", ".tsx"];
 const IMPORT_LINE = /^\s*(?:import|export)\s+(?:type\s+)?(?:\*(?:\s+as\s+\w+)?|[^"';]+from\s+)?["']([^"']+)["']/gm;
 const DYNAMIC_IMPORT = /import\(\s*["']([^"']+)["']\s*\)/g;
-const unfinishedPattern = /\b(TODO|FIXME|WIP|NOT IMPLEMENTED|COMING SOON|UNDER CONSTRUCTION)\b/i;
 
 function relative(filePath) {
   return path.relative(root, filePath).replace(/\\/g, "/");
@@ -121,7 +121,7 @@ const unfinished = [...reachable]
   .flatMap((file) => {
     const lines = fs.readFileSync(file, "utf8").split(/\r?\n/);
     return lines.flatMap((line, index) =>
-      unfinishedPattern.test(line)
+      hasUnfinishedMarker(line)
         ? [{ file: relative(file), line: index + 1, text: line.trim().slice(0, 180) }]
         : [],
     );

@@ -93,6 +93,8 @@ function wingmanChunkBudget(): Plugin {
 
 export default defineConfig({
   plugins: [tailwindcss(), react(), wingmanServiceWorkerVersion(), wingmanChunkBudget()],
+  // Inline configuration prevents parent/nested checkouts from supplying a v3 PostCSS relic.
+  css: { postcss: { plugins: [] } },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

@@ -1,6 +1,6 @@
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { templateReviewDesignNotes } from "./templateReviewDesignNotes";
-import type { StoredProductSelection, StoredProject, StoredProjectProposal } from "../data/projectStore";
+import type { StoredProductSelection, StoredProject, StoredProjectProposal, StoredVideowallSummary } from "../data/projectStore";
 import type { RoomTemplate, TemplateBomRow } from "./roomTemplates";
 import type { SalesBomRow } from "./salesReadiness";
 import { buildWingmanCoachState } from "./wingmanCoach";
@@ -8,7 +8,31 @@ import { compileTemplateApplicationProposal } from "./proposalCompiler";
 import { loadTemplateDraft } from "./solutionTemplates";
 import { proposalReadiness } from "./proposalReadiness";
 import { orderedProjectScopeRows, projectScopeSection, PROJECT_SCOPE_SECTIONS } from "./projectScope";
+import type { WallRequirements } from "./videowallOptions";
 const includedStatuses = new Set(["included", "optional", "validate"]);
+
+/** The newest wall by its own save time, which is the fact a rep can check. */
+function newestWall(walls: StoredVideowallSummary[]): StoredVideowallSummary | null {
+  return [...walls].sort((a, b) => b.savedAt.localeCompare(a.savedAt))[0] ?? null;
+}
+
+/**
+ * The wall saved against this template, if the rep has already designed one.
+ * A saved wall records the template it started from, so this reads that fact
+ * only: the newest wall naming this template wins, whatever project it
+ * currently sits in. Walls saved before the link existed are filled in by the
+ * project codec on load (which is why there is no room-model fallback here),
+ * so no export has to guess which project's model to trust. Without a matching
+ * wall the proposal falls back to a catalogue schedule with no transport
+ * column.
+ */
+export function savedTemplateWall(projects: StoredProject[], templateId: string): StoredVideowallSummary | null {
+  if (!templateId) return null;
+  const recorded = projects
+    .map((project) => project.videowall)
+    .filter((wall): wall is StoredVideowallSummary => Boolean(wall) && wall!.templateId === templateId);
+  return newestWall(recorded);
+}
 
 export function templateBomRows(template: RoomTemplate, rows: TemplateBomRow[]): SalesBomRow[] {
   return orderedProjectScopeRows(rows).filter((row) => includedStatuses.has(row.status) && row.qty > 0).map((row, index) => ({
@@ -25,7 +49,12 @@ export function templateProducts(rows: TemplateBomRow[]): StoredProductSelection
     source: "Room Template", evidence: [row.evidence], cautions: [row.notes], addedAt: new Date().toISOString(),
   }));
 }
-export function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): StoredProjectProposal {
+export function buildTemplateProposal(
+  template: RoomTemplate,
+  rows: TemplateBomRow[],
+  /** Saved wall, so the readiness score inside the proposal sees its cable runs. */
+  wallRequirements?: WallRequirements | null,
+): StoredProjectProposal {
   const bomRows = templateBomRows(template, rows);
   const products = templateProducts(rows);
   // Use the unified readiness scorer — no hard-coded fallback.
@@ -33,6 +62,7 @@ export function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomR
     products, bomRows,
     assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)],
     validationItems: template.validationItems,
+    wallRequirements,
   });
   const readinessScore = readiness.score;
   const coach = buildWingmanCoachState({

@@ -16,7 +16,7 @@ export function TemplateRoomBrief({ template, onChange }: { template: RoomTempla
       {template.concept ? <><label>Room dimensions and layout<textarea value={template.concept.environment} onChange={e => updateConcept("environment", e.target.value)} /></label><label>Construction and site conditions<textarea value={template.concept.construction} onChange={e => updateConcept("construction", e.target.value)} /></label></> : null}
       <label>System design and operation<textarea value={template.architecture} onChange={e => onChange({ architecture: e.target.value })} /></label>
       <p>These edits update the saved design and proposal narrative. Change equipment in the next step; a narrative edit does not change routing or product compatibility.</p>
-    </div> : <div className="wm-review-brief-content">
+    </div> : <div>
       <h3>What the room needs to do</h3><p>{template.story?.requirement || template.customerNarrative}</p>
       <h3>People and physical room</h3><p>{template.concept?.occupancy || template.scale}{template.concept ? ` · ${template.concept.environment}` : ""}</p>{template.concept ? <p>{template.concept.construction}</p> : null}
       <h3>How the system works</h3><p>{template.architecture}</p>

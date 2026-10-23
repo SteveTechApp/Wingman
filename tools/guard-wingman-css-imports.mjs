@@ -139,7 +139,15 @@ if (
 }
 
 const videoWallPage = path.join(root, "src", "wingman2", "pages", "VideowallBuilderPage.tsx");
-const videoWallRaw = fs.readFileSync(videoWallPage, "utf8");
+// The route owns its panels under pages/videowall; the accessibility markers may
+// live in any of them, but only the page entry may import route CSS.
+const videoWallPanelDir = path.join(root, "src", "wingman2", "pages", "videowall");
+const videoWallRaw = [
+  videoWallPage,
+  ...(fs.existsSync(videoWallPanelDir)
+    ? fs.readdirSync(videoWallPanelDir).filter((name) => name.endsWith(".tsx")).map((name) => path.join(videoWallPanelDir, name))
+    : []),
+].map((file) => fs.readFileSync(file, "utf8")).join("\n");
 const videoWallCssImports = [...videoWallRaw.matchAll(/import\s+["']([^"']+\.css)["'];/g)].map((match) => match[1]);
 
 if (videoWallCssImports.length !== 1 || videoWallCssImports[0] !== "../styles/wingman-videowall.css") {

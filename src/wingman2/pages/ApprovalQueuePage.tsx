@@ -78,7 +78,7 @@ function CommentModal({
         <div className="wm-modal-actions">
           <button
             type="button"
-            className="wm-button is-secondary"
+            className="wm-button wm-button-secondary"
             onClick={onClose}
           >
             Cancel
@@ -174,7 +174,7 @@ function ProposalCard({
         </button>
         <Link
           to={`${routeCatalogByKey.projects.path}/${item.projectId}`}
-          className="wm-button is-secondary"
+          className="wm-button wm-button-secondary"
         >
           View project
         </Link>
@@ -301,12 +301,12 @@ export function ApprovalQueuePage() {
           <CheckCircle size={40} className="wm-approval-empty-icon" />
           <h2>All clear</h2>
           <p>No proposals are awaiting review right now.</p>
-          <Link to={routeCatalogByKey.projects.path} className="wm-button is-secondary">
+          <Link to={routeCatalogByKey.projects.path} className="wm-button wm-button-secondary">
             View all projects
           </Link>
         </div>
       ) : (
-        <section className="wm-approval-list" aria-label="Pending proposals">
+        <section aria-label="Pending proposals">
           <div className="wm-approval-list-header">
             <h2>{pending.length} proposal{pending.length !== 1 ? "s" : ""} awaiting review</h2>
           </div>
@@ -323,7 +323,7 @@ export function ApprovalQueuePage() {
 
       <ApprovalHistory />
 
-      {decisionError ? <p role="alert" className="wm-form-error">{decisionError}</p> : null}
+      {decisionError ? <p role="alert">{decisionError}</p> : null}
 
       {modal && (
         <CommentModal

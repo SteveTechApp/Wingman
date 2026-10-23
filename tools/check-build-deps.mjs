@@ -373,7 +373,7 @@ function loadExceptions() {
   return Array.isArray(parsed.exceptions) ? parsed.exceptions : [];
 }
 
-function evaluateSurvey(survey) {
+export function evaluateSurvey(survey) {
   const affected = [];
   const resolved = [];
   const unassessable = [];

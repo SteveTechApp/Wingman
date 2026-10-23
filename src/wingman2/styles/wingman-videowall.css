@@ -1,58 +1,545 @@
-.vw-builder { --vw-border: #29485e; --vw-muted: #adc2d0; --vw-aqua: #53e0e8; color: #edf7fb; max-width: 1600px; margin: auto; padding: 16px 22px 40px; display: grid; gap: 22px; }
+/* Video wall builder
+   One decision surface per screen: four questions, then a single
+   recommendation with its reasoning, then the designs that were ruled out.
+   The stylesheet is route-owned (imported only by VideowallBuilderPage). */
+
+.vw-builder {
+  --vw-text: #edf7fb;
+  --vw-panel: #0e2839;
+  --vw-panel-deep: #0a1e2d;
+  --vw-border-soft: #1e3a4d;
+  --vw-border-accent: #2f6d70;
+  --vw-surface-accent: #0b2534;
+  --vw-text-soft: #d7e6ee;
+  --vw-warning-border: #6b5227;
+  --vw-warning: #edba5f;
+  --vw-warning-bg: #2a2113;
+  --vw-warning-heading: #ffe1a3;
+  --vw-warning-text: #f0dcb5;
+  --vw-preview-bg: #071321;
+  --vw-preview-deep: #020b12;
+  --vw-card-bg: #0b2433;
+  --vw-canvas-bg: #041b25;
+  --vw-danger-border: #7a3340;
+  --vw-danger-text: #ffc9d3;
+  --vw-success-text: #9ff0c8;
+  --vw-success-bg: #12352a;
+  --vw-success-border: #235c44;
+  --vw-danger-bg: #331820;
+  --vw-text-dim: #7492a4;
+  --vw-highlight: #4ae5e4;
+  --vw-control-border: #3c6a7e;
+  --vw-control-bg: #0a2130;
+  --vw-border: #29485e;
+  --vw-muted: #adc2d0;
+  --vw-aqua: #53e0e8;
+  --vw-surface: #0c2133;
+  --vw-deep: #081a28;
+  color: var(--vw-text);
+  max-width: 1600px;
+  margin: auto;
+  padding: 16px 22px 40px;
+  display: grid;
+  gap: 24px;
+}
+
 .vw-builder * { box-sizing: border-box; }
 .vw-builder h1, .vw-builder h2, .vw-builder h3, .vw-builder p { margin: 0; }
-.vw-builder h1 { font-size: clamp(1.6rem, 2.4vw, 2.5rem); line-height: 1.15; margin: 6px 0 10px; }
-.vw-builder h2 { font-size: 1.15rem; margin-bottom: 10px; }
-.vw-builder h3 { font-size: .95rem; margin-bottom: 10px; }
+.vw-builder h1 { font-size: clamp(1.6rem, 2.4vw, 2.5rem); line-height: 1.12; margin: 6px 0 10px; letter-spacing: -0.015em; }
+.vw-builder h2 { font-size: 1.2rem; margin-bottom: 8px; letter-spacing: -0.01em; }
+.vw-builder h3 { font-size: 1rem; margin-bottom: 10px; }
 .vw-builder p, .vw-builder li { line-height: 1.5; }
-.vw-builder-header, .vw-builder-detail > header { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-.vw-builder-header p, .vw-builder-detail > header > span, .vw-builder-options header p { color: var(--vw-muted); font-size: .85rem; }
 .vw-builder a { color: var(--vw-aqua); text-underline-offset: 4px; }
-.vw-builder button, .vw-builder input, .vw-builder select { font: inherit; color: inherit; border: 1px solid var(--vw-border); border-radius: 8px; background: #0c2133; }
+
+.vw-builder button, .vw-builder input, .vw-builder select {
+  font: inherit;
+  color: inherit;
+  border: 1px solid var(--vw-border);
+  border-radius: 8px;
+  background: var(--vw-surface);
+}
 .vw-builder button { cursor: pointer; padding: 12px; text-align: left; }
-.vw-builder button:hover { border-color: var(--vw-aqua); }
+.vw-builder button:hover:not(:disabled) { border-color: var(--vw-aqua); }
 .vw-builder button[aria-pressed="true"] { border-color: var(--vw-aqua); background: #123945; box-shadow: inset 0 3px var(--vw-aqua); }
-.vw-builder :is(button, input, select, a):focus-visible { outline: 2px solid var(--vw-aqua); outline-offset: 3px; }
+.vw-builder :is(button, input, select, a, summary):focus-visible { outline: 2px solid var(--vw-aqua); outline-offset: 3px; }
 .vw-builder button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Header ------------------------------------------------------------------ */
+.vw-builder-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+.vw-builder-header p:not(.wm-ui-kicker) { color: var(--vw-muted); font-size: .9rem; max-width: 68ch; }
+
+/* Decide panel ------------------------------------------------------------ */
+.vw-builder-decide {
+  border: 1px solid var(--vw-border);
+  border-radius: 16px;
+  background: linear-gradient(160deg, var(--vw-panel) 0%, var(--vw-panel-deep) 100%);
+  padding: 22px 24px;
+  display: grid;
+  gap: 18px;
+}
+.vw-builder-decide-head { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+.vw-builder-decide-head p { color: var(--vw-muted); font-size: .85rem; }
+.vw-builder-starts { display: grid; gap: 8px; padding-bottom: 18px; border-bottom: 1px solid var(--vw-border-soft); }
+.vw-builder-starts > p:first-child { color: var(--vw-muted); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
+.vw-builder-starts-hint { color: var(--vw-muted); font-size: .72rem; }
+
+/* Starting-point provenance ----------------------------------------------
+   A card sets the whole brief, so the design is that card plus whatever the
+   room changed. The panel states the card and the count first, because that
+   is the line a rep checks before saving, and keeps the changed answers in a
+   disclosure so the list is there for the colleague who asks later. */
+.vw-start-origin { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid var(--vw-border); border-radius: 12px; background: var(--vw-panel-deep); }
+.vw-start-origin-lead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: .8rem; }
+.vw-start-origin-lead > span { color: var(--vw-muted); letter-spacing: .1em; text-transform: uppercase; font-size: .66rem; }
+.vw-start-origin-lead > strong { font-size: .9rem; }
+.vw-start-origin-count { color: var(--vw-muted); font-size: .76rem; line-height: 1.45; }
+.vw-start-origin-changes { font-size: .76rem; }
+.vw-start-origin-changes > summary { color: var(--vw-aqua); cursor: pointer; }
+.vw-start-origin-changes ul { display: grid; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
+.vw-start-origin-changes li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding-top: 4px; border-top: 1px solid var(--vw-border-soft); }
+.vw-start-origin-changes li > span:first-child { color: var(--vw-muted); }
+.vw-start-origin-changes s { opacity: .7; }
+
+/* Preset picker -----------------------------------------------------------
+   A preset is a whole wall brief, so each card shows the numbers a rep
+   compares and the architecture those answers reach. Cards are grouped by how
+   the wall is built rather than by the room it is sold into. */
+.vw-preset-picker { display: grid; gap: 12px; }
+/* The filter narrows the same facts the cards print, so it sits above them as
+   three short rows rather than a form the rep has to submit. */
+.vw-preset-filter { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-radius: 10px; background: var(--vw-card-bg); }
+.vw-preset-filter-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.vw-preset-filter-summary { color: var(--vw-muted); font-size: .7rem; letter-spacing: .04em; }
+.vw-preset-filter .vw-preset-filter-clear { padding: 0; border: 0; background: none; color: var(--vw-aqua); font-size: .7rem; }
+.vw-preset-filter .vw-preset-filter-clear:hover:not(:disabled) { background: none; text-decoration: underline; }
+.vw-preset-filter-note { margin: 2px 0 0; color: var(--vw-muted); font-size: .68rem; line-height: 1.45; }
+.vw-preset-filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.vw-preset-filter-label { min-width: 72px; color: var(--vw-muted); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.vw-preset-filter-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+#root .vw-preset-filter-chips button { padding: 3px 10px; border: 1px solid var(--vw-border-soft); border-radius: 999px; background: var(--vw-panel); color: var(--vw-text-soft); font-size: .7rem; line-height: 1.5; }
+#root .vw-preset-filter-chips button[aria-pressed="true"] { border-color: var(--vw-aqua); background: var(--vw-surface-accent); color: var(--vw-text); }
+.vw-preset-empty { display: grid; gap: 8px; justify-items: start; padding: 14px; border: 1px dashed var(--vw-border-soft); border-radius: 10px; color: var(--vw-muted); font-size: .78rem; }
+.vw-preset-groups { display: grid; gap: 14px; }
+.vw-preset-group { display: grid; gap: 7px; }
+.vw-preset-group-label { color: var(--vw-muted); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+.vw-preset-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.vw-preset-grid button { display: grid; align-content: start; justify-items: start; gap: 4px; padding: 11px 12px; border-style: dashed; }
+.vw-preset-grid strong { font-size: .86rem; line-height: 1.3; }
+.vw-preset-grid span { color: var(--vw-muted); font-size: .73rem; line-height: 1.4; }
+.vw-preset-grid small { color: var(--vw-text-soft); font-size: .7rem; line-height: 1.4; }
+.vw-preset-grid button[aria-pressed="true"] { border-style: solid; }
+/* The card this design started on, which an adjusted answer does not unmark:
+   aqua rather than the pressed state's own edge, so the two read apart. */
+.vw-preset-grid button[data-started="true"] { border-style: solid; border-color: var(--vw-aqua); }
+/* A saved card keeps its remove action outside the card button, which would not
+   be a valid control inside another button. The #root prefix outranks the shell's
+   compact button padding, which would otherwise make it a second card. */
+.vw-preset-item { display: grid; align-content: start; gap: 4px; min-width: 0; }
+#root .vw-preset-grid .vw-preset-item > button.vw-preset-remove { justify-self: start; padding: 0; border: 0; background: none; color: var(--vw-muted); font-size: .66rem; text-align: left; }
+#root .vw-preset-grid .vw-preset-item > button.vw-preset-remove:hover:not(:disabled) { background: none; color: var(--vw-text-soft); }
+@media (max-width: 1100px) {
+  .vw-preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .vw-preset-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+.vw-builder-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.vw-builder-step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; align-items: start; padding-top: 18px; border-top: 1px solid var(--vw-border-soft); }
+.vw-builder-step:first-child { padding-top: 0; border-top: 0; }
+.vw-builder-step-number {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--vw-aqua);
+  color: var(--vw-aqua);
+  font-size: .8rem;
+  font-weight: 700;
+}
+.vw-builder-step-body { display: grid; gap: 10px; min-width: 0; }
+.vw-builder-step-hint { color: var(--vw-muted); font-size: .78rem; }
+
 .vw-builder-applications { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.vw-builder-applications button, .vw-builder-choices button { display: grid; align-content: start; justify-items: start; gap: 6px; }
 .vw-builder-applications strong, .vw-builder-applications span { display: block; }
 .vw-builder-applications span { color: var(--vw-muted); font-size: .78rem; margin-top: 8px; line-height: 1.4; }
-.vw-builder-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
-.vw-builder-workspace > section, .vw-builder-detail-columns > div { min-width: 0; }
-.vw-builder-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+.vw-builder-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.vw-builder-choices strong, .vw-builder-choices span { display: block; }
+.vw-builder-choices strong { font-size: .9rem; }
+.vw-builder-choices span { color: var(--vw-muted); font-size: .76rem; margin-top: 6px; line-height: 1.4; }
+.vw-builder-choices-compact { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
+.vw-builder-choices-compact button { text-align: center; justify-items: center; padding: 10px 6px; }
+.vw-builder-choices-compact strong { font-size: 1rem; }
+.vw-builder-choices-compact span { margin-top: 4px; }
+
+.vw-builder-resolution { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--vw-border-accent); border-radius: 10px; background: var(--vw-surface-accent); }
+.vw-builder-resolution strong { color: var(--vw-aqua); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
+.vw-builder-resolution p { font-size: .82rem; color: var(--vw-text-soft); }
+.vw-builder-resolution b { color: #fff; }
+.vw-builder-resolution-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-width: 460px; }
+.vw-builder-resolution-inputs label { display: grid; gap: 6px; color: var(--vw-muted); font-size: .78rem; }
+.vw-builder-resolution-inputs input { width: 100%; height: 40px; padding: 8px; }
+
+.vw-builder-aspect { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 20px; padding: 14px 16px; border: 1px solid var(--vw-warning-border); border-left: 3px solid var(--vw-warning); border-radius: 10px; background: var(--vw-warning-bg); }
+.vw-builder-aspect strong { color: var(--vw-warning-heading); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; }
+.vw-builder-aspect p { color: var(--vw-warning-text); font-size: .8rem; grid-column: 1; }
+.vw-builder-aspect button { grid-column: 2; grid-row: 1 / span 2; border-color: var(--vw-warning); color: var(--vw-warning-heading); padding: 9px 14px; }
+
+/* Detail drawer ----------------------------------------------------------- */
+.vw-builder-refine { border-top: 1px solid var(--vw-border-soft); padding-top: 14px; }
+.vw-builder-refine > summary { cursor: pointer; color: var(--vw-muted); font-size: .82rem; list-style: none; display: inline-flex; gap: 8px; align-items: center; }
+.vw-builder-refine > summary::-webkit-details-marker { display: none; }
+.vw-builder-refine > summary::before { content: "+"; color: var(--vw-aqua); font-weight: 700; }
+.vw-builder-refine[open] > summary::before { content: "–"; }
+.vw-builder-refine > summary:hover { color: var(--vw-text); }
+.vw-builder-refine[open] > summary { margin-bottom: 14px; }
+
+.vw-builder-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
 .vw-builder-fields label { display: grid; gap: 6px; color: var(--vw-muted); font-size: .78rem; }
-.vw-builder-fields input, .vw-builder-fields select { width: 100%; min-width: 0; height: 40px; padding: 8px; color: #edf7fb; }
-.vw-builder-preview { margin: 20px 0 12px; }
-.vw-builder-preview__canvas { position: relative; max-height: 360px; width: 100%; min-height: 80px; overflow: hidden; border: 2px solid #355d72; background: #071321; }
-.vw-builder-preview__sources, .vw-builder-preview__panels { position: absolute; inset: 0; display: grid; }
-.vw-builder-preview__sources > div { display: grid; align-items: start; justify-items: start; padding: 12px; min-width: 0; min-height: 0; overflow: hidden; font-size: .8rem; color: white; background: hsl(var(--source-hue) 45% 24%); border: 1px solid #ffffff26; }
-.vw-builder-preview__panels { pointer-events: none; }
-.vw-builder-preview__panels > span { border: 2px solid #020b12; min-width: 0; min-height: 0; overflow: hidden; }
-.vw-builder-preview__panels small { background: #071321c9; color: #cfe1eb; padding: 1px 4px; font-size: .6rem; }
-.vw-builder-preview figcaption, .vw-builder .vw-builder-note { font-size: .75rem; color: var(--vw-muted); line-height: 1.5; margin-top: 10px; }
-.vw-builder-option-list { display: grid; gap: 8px; margin-top: 16px; }
-.vw-builder-option-list button { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.vw-builder-option-list strong, .vw-builder-option-list small { display: block; }
-.vw-builder-option-list strong { font-size: .9rem; }
-.vw-builder-option-list small { color: var(--vw-muted); font-size: .75rem; line-height: 1.4; margin-top: 5px; }
-.vw-builder-option-list em { font-size: .65rem; font-style: normal; flex: 0 0 82px; color: var(--vw-aqua); }
-.vw-builder-detail { border-top: 1px solid var(--vw-border); padding-top: 22px; }
-.vw-builder-warning { color: #ffe1a3; background: #362b17; border-left: 3px solid #edba5f; padding: 14px 24px; margin: 14px 0; font-size: .8rem; }
+.vw-builder-fields input, .vw-builder-fields select { width: 100%; min-width: 0; height: 40px; padding: 8px; color: var(--vw-text); }
+
+/* Wall elevation ---------------------------------------------------------- */
+.vw-wall { margin: 0; display: grid; gap: 10px; padding: 16px; border: 1px solid var(--vw-border-soft); border-radius: 12px; background: var(--vw-preview-bg); }
+.vw-wall-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.vw-wall-title { color: var(--vw-muted); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+.vw-builder .vw-wall-aspect { color: var(--vw-aqua); font-size: .78rem; font-weight: 700; }
+.vw-wall-stage { display: grid; place-items: center; width: 100%; max-width: 880px; margin-inline: auto; padding: 4px; border-radius: 10px; background: radial-gradient(120% 120% at 50% 0%, #0d2534 0%, #060f18 100%); overflow: hidden; }
+/* The drawing follows its own aspect ratio, so the dimension lines around it
+   never get letterboxed into a fixed-height box. */
+.vw-wall-stage svg { display: block; width: 100%; height: auto; }
+.vw-wall-frame { fill: var(--vw-preview-deep); stroke: #355d72; stroke-width: 2; }
+.vw-wall-panel, .vw-wall-screen { fill: var(--vw-card-bg); stroke: var(--vw-preview-deep); stroke-width: 2; }
+.vw-wall--canvas .vw-wall-screen { fill: #09212f; }
+/* A window is composed content, not a physical screen: a dashed outline and a
+   light tint let the panel seams below it stay the wall's structure. */
+.vw-wall-window { stroke: var(--vw-aqua); stroke-width: 2; stroke-dasharray: 14 10; fill: hsl(182 53% 30% / .36); }
+.vw-wall-window[data-tone="1"] { fill: hsl(202 52% 31% / .38); }
+.vw-wall-window[data-tone="2"] { fill: hsl(222 48% 32% / .38); }
+.vw-wall-window[data-tone="3"] { fill: hsl(162 45% 27% / .38); }
+.vw-wall-window[data-tone="4"] { fill: hsl(142 42% 26% / .38); }
+.vw-wall-window[data-tone="5"] { fill: hsl(192 55% 28% / .38); }
+.vw-wall-window-label { fill: var(--vw-text); font-weight: 700; paint-order: stroke; stroke: var(--vw-canvas-bg); stroke-width: 4px; stroke-linejoin: round; }
+/* The seam fills the gutter between panels and is drawn over the windows, so a
+   window spanning several panels cannot be mistaken for the array itself. Its
+   width comes from the drawing in drawing units, so the component sets it. */
+.vw-wall-bezel { fill: none; stroke: var(--vw-preview-deep); }
+.vw-wall-panel-label { fill: #dff2fa; paint-order: stroke; stroke: #04121a; stroke-width: 4px; stroke-linejoin: round; }
+/* A grouped wall is wired feed by feed: the boundary between two feeds is a
+   wider lane than a panel seam (the component sets its width) and the chip
+   names the feed in its corner. Content windows stay dashed. */
+.vw-wall-feed { fill: none; stroke: #020b12; }
+.vw-wall-feed-chip { fill: #04121a; stroke: var(--vw-aqua); stroke-width: 1.5; }
+.vw-wall-feed-label { fill: var(--vw-aqua); font-weight: 700; }
+/* A projection screen is one surface carrying one image per projector: the
+   dashed amber seam and the P-numbered chip say where each image ends, so a
+   two-projector wall does not read as one LED canvas. Amber keeps the seam out
+   of the teal the composed windows and feed chips own. */
+.vw-wall-projector-seam { fill: none; stroke: #f2b45a; stroke-dasharray: 10 8; }
+.vw-wall-projector-chip { fill: #1b1206; stroke: #f2b45a; stroke-width: 1.5; }
+.vw-wall-projector-label { fill: #f7d08a; font-weight: 700; }
+.vw-wall-warning { display: grid; gap: 10px; padding: 10px 12px; border-left: 3px solid var(--vw-warning); border-radius: 4px; background: var(--vw-warning-bg); color: var(--vw-warning-text); font-size: .76rem; line-height: 1.5; }
+.vw-wall-warning strong { color: var(--vw-warning-heading); }
+.vw-wall-warning-text { margin: 0; }
+/* One-tap fixes ------------------------------------------------------------- */
+.vw-wall-fixes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vw-wall-fix { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 9px; align-items: center; padding: 8px 10px; border: 1px solid var(--vw-border-soft); border-radius: 8px; background: var(--vw-card-bg); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.vw-wall-fix:hover { border-color: var(--vw-warning-heading); }
+.vw-wall-fix img { width: 76px; height: 44px; object-fit: contain; border-radius: 4px; background: var(--vw-preview-bg); }
+.vw-wall-fix-copy { display: grid; gap: 2px; }
+.vw-wall-fix-copy strong { font-size: .78rem; }
+.vw-wall-fix-copy span { color: var(--vw-muted); font-size: .7rem; line-height: 1.35; }
+@media (max-width: 620px) { .vw-wall-fixes { grid-template-columns: 1fr; } }
+.vw-wall-ground { stroke: #64818f; stroke-width: 2; opacity: .8; }
+.vw-wall-door { fill: none; stroke: #9fb6c4; stroke-width: 2; }
+.vw-wall-person { fill: #c7d8e2; opacity: .9; }
+.vw-wall-scale-label { fill: #93a9b6; }
+/* Mapping choice ---------------------------------------------------------- */
+.vw-wall-mapping { display: grid; gap: 6px; }
+.vw-wall-mapping > p { color: var(--vw-muted); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+.vw-wall-mapping > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vw-wall-mapping button { display: grid; gap: 3px; padding: 9px 11px; }
+.vw-wall-mapping button strong { font-size: .82rem; }
+.vw-wall-mapping button span { color: var(--vw-muted); font-size: .72rem; line-height: 1.35; }
+
+/* The drawing numbers panels small and sources large; the key repeats both
+   sizes so the two meanings are named, not inferred. */
+.vw-wall-key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0; padding: 0; list-style: none; color: var(--vw-muted); font-size: .7rem; }
+.vw-wall-key-item { display: inline-flex; align-items: center; gap: 6px; }
+.vw-wall-key-mark { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--vw-border-soft); border-radius: 4px; background: var(--vw-card-bg); color: var(--vw-text); font-weight: 700; line-height: 1; }
+.vw-wall-key-mark--panel { width: 1rem; height: 1rem; font-size: .6rem; }
+.vw-wall-key-mark--window { width: 1.25rem; height: 1.25rem; font-size: .95rem; }
+
+.vw-wall-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.vw-wall-meta span { padding: 4px 10px; border: 1px solid var(--vw-border-soft); border-radius: 999px; background: var(--vw-card-bg); color: var(--vw-text-soft); font-size: .72rem; }
+/* The chip repeats the run the drawing marks, so it carries the same alarm. */
+.vw-wall-meta span[data-wall-breach-link] { border-color: var(--vw-danger-border); color: var(--vw-danger-text); }
+.vw-wall-caption { color: var(--vw-muted); font-size: .75rem; line-height: 1.5; }
+
+/* Transport estimate ------------------------------------------------------ */
+.vw-transport { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--vw-border-soft); border-radius: 12px; background: var(--vw-preview-bg); }
+.vw-transport-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.vw-transport .vw-transport-kicker { color: var(--vw-muted); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+.vw-transport h2 { margin: 4px 0 0; font-size: 1rem; }
+.vw-transport .vw-transport-headline { color: var(--vw-muted); font-size: .78rem; max-width: 56ch; }
+.vw-transport-counts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.vw-transport-counts li { padding: 4px 10px; border: 1px solid var(--vw-border-soft); border-radius: 999px; background: var(--vw-card-bg); color: var(--vw-text-soft); font-size: .7rem; }
+.vw-transport-counts li[data-status="watch"] { border-color: var(--vw-warning-border); color: var(--vw-warning-heading); }
+.vw-transport-counts li[data-status="limit"] { border-color: var(--vw-danger-border); color: var(--vw-danger-text); }
+.vw-transport-table-wrap { overflow-x: auto; }
+.vw-transport table { border-collapse: collapse; width: 100%; font-size: .76rem; }
+.vw-transport caption { padding-bottom: 8px; color: var(--vw-muted); font-size: .72rem; text-align: left; }
+.vw-transport th, .vw-transport td { padding: 8px; border-bottom: 1px solid var(--vw-border-soft); text-align: left; vertical-align: top; }
+.vw-transport thead th { color: var(--vw-muted); font-weight: 600; white-space: nowrap; }
+.vw-transport tbody th[scope="row"] { font-weight: 600; white-space: nowrap; }
+.vw-transport-group th { padding-top: 14px; border-bottom-color: var(--vw-border-accent); color: var(--vw-aqua); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+.vw-transport-status { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: .68rem; font-weight: 700; white-space: nowrap; }
+/* The overrun's own fix, in the cell that reports it: a rep reading a limit can
+   change the cable without leaving the table for another pass. */
+.vw-transport .vw-transport-fix { display: block; margin-top: 6px; padding: 4px 10px; border: 1px solid var(--vw-border-accent); border-radius: 999px; background: var(--vw-card-bg); color: var(--vw-highlight); font-size: .68rem; font-weight: 700; text-align: left; cursor: pointer; }
+.vw-transport .vw-transport-fix:hover { border-color: var(--vw-highlight); }
+.vw-transport .vw-transport-status--ok { color: var(--vw-success-text); background: var(--vw-success-bg); border: 1px solid var(--vw-success-border); }
+.vw-transport .vw-transport-status--watch { color: var(--vw-warning-heading); background: var(--vw-warning-bg); border: 1px solid var(--vw-warning-border); }
+.vw-transport .vw-transport-status--limit { color: var(--vw-danger-text); background: var(--vw-danger-bg); border: 1px solid var(--vw-danger-border); }
+.vw-transport-flags { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.vw-transport .vw-transport-flags li { padding: 8px 12px; border-left: 3px solid var(--vw-warning); border-radius: 4px; background: var(--vw-warning-bg); color: var(--vw-warning-text); font-size: .76rem; line-height: 1.45; }
+.vw-transport .vw-transport-basis { color: var(--vw-muted); font-size: .7rem; line-height: 1.5; }
+/* What an apply wrote: one line per link, because a wall with a dozen links
+   cannot be read back from a sentence of counts. */
+.vw-transport .vw-transport-landed { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; color: var(--vw-text-soft); font-size: .72rem; line-height: 1.45; }
+.vw-transport .vw-transport-landed li { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 2px; border-bottom: 1px dotted var(--vw-border-soft); }
+/* A run far from its allowance: a warning under the cell it belongs to, so the
+   rep checks the measurement — on the sheet, in the photo review or straight in
+   the transport table — before it is applied or handed off. */
+.vw-transport .vw-transport-run-warning { display: block; margin-top: 4px; max-width: 190px; color: var(--vw-warning-heading); font-size: .7rem; line-height: 1.4; }
+/* The status names a flagged run; the name opens the row the review kept, so
+   the record is one click from the sentence that reports it. */
+.vw-transport .vw-transport-status-jump { margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; cursor: pointer; }
+.vw-transport .vw-transport-status-jump:hover { color: var(--vw-highlight); }
+.vw-transport .vw-transport-status-jump:focus-visible { outline: 2px solid var(--vw-highlight); outline-offset: 2px; border-radius: 2px; }
+.vw-transport .vw-transport-review tr[data-highlighted="true"] { background: var(--vw-warning-bg); }
+.vw-transport-measure { width: 96px; padding: 6px 8px; border: 1px solid var(--vw-border-soft); border-radius: 6px; background: var(--vw-card-bg); color: var(--vw-text-soft); font: inherit; }
+.vw-transport-measure::placeholder { color: var(--vw-text-dim); }
+.vw-transport .vw-transport-measure:focus-visible { outline: 2px solid var(--vw-highlight); outline-offset: 2px; }
+.vw-transport-detail { display: grid; gap: 4px; min-width: 150px; }
+.vw-transport-detail input { padding: 4px 7px; border: 1px solid var(--vw-border-soft); border-radius: 6px; background: var(--vw-card-bg); color: var(--vw-text-soft); font: inherit; font-size: .72rem; }
+.vw-transport-detail input::placeholder { color: var(--vw-text-dim); }
+.vw-transport .vw-transport-detail input:focus-visible { outline: 2px solid var(--vw-highlight); outline-offset: 2px; }
+.vw-transport-display-mounts { margin: 18px 0; padding: 12px; border: 1px solid var(--vw-border-soft); border-radius: 10px; }
+.vw-transport-display-mounts legend { padding: 0 6px; color: var(--vw-text-soft); font-weight: 700; }
+.vw-transport-display-mounts__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.vw-transport-display-mounts__grid label { display: grid; gap: 4px; color: var(--vw-text-dim); font-size: .76rem; }
+.vw-transport-display-mounts__grid input { padding: 6px 8px; border: 1px solid var(--vw-border-soft); border-radius: 6px; background: var(--vw-card-bg); color: var(--vw-text-soft); font: inherit; }
+.vw-transport-review { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--vw-border-accent); border-radius: 10px; background: #0a1c2a; }
+.vw-transport-review h3 { margin: 0; font-size: .86rem; }
+.vw-transport-review tr[data-accepted="no"] { opacity: .55; }
+.vw-transport-review input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--vw-border-accent); cursor: pointer; }
+.vw-transport-apply-bar { display: grid; gap: 6px; }
+.vw-transport .vw-transport-apply-flags { margin: 0; color: var(--vw-warning-heading); font-size: .72rem; line-height: 1.45; }
+.vw-transport-apply-flags strong { display: block; font-weight: 700; }
+.vw-transport-review-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.vw-transport-review-actions button { padding: 8px 14px; border: 1px solid var(--vw-border-accent); border-radius: 8px; background: var(--vw-card-bg); color: var(--vw-text-soft); font: inherit; font-size: .76rem; cursor: pointer; }
+.vw-transport-review-actions button:hover:not(:disabled) { border-color: var(--vw-aqua); }
+.vw-transport-review-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.vw-transport .vw-transport-review-actions button:focus-visible { outline: 2px solid var(--vw-highlight); outline-offset: 2px; }
+.vw-transport-confidence { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .68rem; font-weight: 700; white-space: nowrap; }
+.vw-transport .vw-transport-confidence--high { color: var(--vw-success-text); background: var(--vw-success-bg); border: 1px solid var(--vw-success-border); }
+.vw-transport .vw-transport-confidence--medium { color: var(--vw-warning-heading); background: var(--vw-warning-bg); border: 1px solid var(--vw-warning-border); }
+.vw-transport .vw-transport-confidence--low { color: var(--vw-danger-text); background: var(--vw-danger-bg); border: 1px solid var(--vw-danger-border); }
+.vw-transport-survey { display: grid; gap: 8px; }
+.vw-transport-survey-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.vw-transport-survey-actions button { padding: 8px 14px; border: 1px solid var(--vw-border-accent); border-radius: 8px; background: var(--vw-card-bg); color: var(--vw-text-soft); font: inherit; font-size: .76rem; cursor: pointer; }
+.vw-transport-survey-actions button:hover { border-color: var(--vw-aqua); }
+.vw-transport-survey-file { position: relative; display: inline-flex; align-items: center; padding: 9px 14px; border: 1px dashed var(--vw-border-accent); border-radius: 8px; color: var(--vw-text-soft); font-size: .76rem; font-weight: 600; cursor: pointer; }
+.vw-transport-survey-file:hover { border-color: var(--vw-aqua); }
+.vw-transport-survey-file input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.vw-transport-survey-file:focus-within { outline: 2px solid var(--vw-highlight); outline-offset: 2px; }
+.vw-transport .vw-transport-survey-actions button:focus-visible { outline: 2px solid var(--vw-highlight); outline-offset: 2px; }
+.vw-builder .vw-builder-note { font-size: .75rem; color: var(--vw-muted); line-height: 1.55; margin-top: 10px; }
+
+.vw-builder-warning { color: var(--vw-warning-heading); background: #362b17; border-left: 3px solid var(--vw-warning); padding: 14px 20px; margin: 14px 0 0; font-size: .8rem; }
 .vw-builder-warning ul { padding-left: 18px; }
-.vw-builder-path { display: flex; gap: 10px; list-style: none; padding: 0; margin: 20px 0; }
-.vw-builder-path li { flex: 1; background: #0b2433; border-bottom: 2px solid #287b83; padding: 12px; font-size: .8rem; }
-.vw-builder-path span { display: block; color: var(--vw-aqua); margin-bottom: 8px; font-size: .7rem; }
-.vw-builder-detail-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+/* Verdict ----------------------------------------------------------------- */
+.vw-builder-verdict {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--vw-border-accent);
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, #14424a 0%, transparent 55%),
+    linear-gradient(180deg, var(--vw-surface-accent) 0%, var(--vw-deep) 100%);
+  box-shadow: 0 18px 40px #02111b66;
+}
+.vw-builder-verdict::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; border-radius: 16px 0 0 16px; background: var(--vw-aqua); }
+.vw-builder-verdict-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
+.vw-builder-verdict h2 { font-size: clamp(1.35rem, 2vw, 1.85rem); }
+.vw-builder-verdict-family { color: var(--vw-muted); font-size: .85rem; margin-top: 6px; max-width: 70ch; }
+.vw-builder-verdict-status { flex: 0 0 auto; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--vw-canvas-bg); background: var(--vw-aqua); border-radius: 999px; padding: 6px 12px; font-weight: 800; }
+.vw-builder-verdict-summary { color: var(--vw-muted); font-size: .86rem; }
+.vw-builder-verdict-switch { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px 16px; border: 1px dashed var(--vw-control-border); border-radius: 10px; font-size: .84rem; }
+.vw-builder-verdict-switch button { padding: 9px 14px; }
+.vw-builder-verdict-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; }
+.vw-builder-reasons, .vw-builder-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: .84rem; }
+.vw-builder-reasons li { padding-left: 18px; position: relative; }
+.vw-builder-reasons li::before { content: ""; position: absolute; left: 0; top: .55em; width: 7px; height: 7px; border-radius: 50%; background: var(--vw-aqua); }
+.vw-builder-checks li { padding-left: 18px; position: relative; color: var(--vw-muted); }
+.vw-builder-checks li::before { content: "!"; position: absolute; left: 0; top: 0; color: var(--vw-warning); font-weight: 800; }
+.vw-builder-references { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; font-size: .8rem; }
+
+.vw-builder-path { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0; margin: 0; }
+.vw-builder-path li { flex: 1 1 150px; background: var(--vw-card-bg); border-bottom: 2px solid #287b83; border-radius: 8px; padding: 12px; font-size: .8rem; }
+.vw-builder-path span { display: block; color: var(--vw-aqua); margin-bottom: 8px; font-size: .7rem; font-weight: 700; }
+
+.vw-builder-equipment { display: grid; gap: 10px; }
 .vw-builder-table-wrap { overflow-x: auto; }
-.vw-builder table { border-collapse: collapse; width: 100%; font-size: .78rem; }
+.vw-builder table { border-collapse: collapse; width: 100%; font-size: .8rem; }
 .vw-builder th, .vw-builder td { padding: 9px 8px; border-bottom: 1px solid var(--vw-border); text-align: left; vertical-align: top; }
 .vw-builder thead th { color: var(--vw-muted); }
-.vw-builder-detail-columns ul { padding-left: 18px; font-size: .8rem; color: var(--vw-muted); }
-.vw-builder-detail-columns li + li { margin-top: 8px; }
-.vw-builder-references, .vw-builder-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; font-size: .8rem; }
-.vw-builder-actions button:first-child { background: var(--vw-aqua); color: #041b25; font-weight: 750; }
-.vw-builder [role="status"] { color: var(--vw-aqua); margin-top: 12px; }
-@media (max-width: 1000px) { .vw-builder-applications { grid-template-columns: repeat(2, minmax(0, 1fr)); } .vw-builder-workspace, .vw-builder-detail-columns { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .vw-builder { padding: 12px; } .vw-builder-header, .vw-builder-detail > header { flex-direction: column; align-items: flex-start; } .vw-builder-applications, .vw-builder-fields { grid-template-columns: 1fr; } .vw-builder-path { flex-direction: column; } }
 
-svg.vw-builder-preview__canvas { display: block; width: 100%; height: auto; }
+.vw-builder-alternative { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding: 16px 18px; border: 1px solid var(--vw-control-border); border-radius: 12px; background: var(--vw-control-bg); }
+.vw-builder-alternative h3 { margin-bottom: 6px; }
+.vw-builder-alternative p { font-size: .84rem; color: var(--vw-text-soft); max-width: 70ch; }
+.vw-builder-alternative small { display: block; margin-top: 6px; color: var(--vw-muted); font-size: .74rem; }
+.vw-builder-alternative button { flex: 0 0 auto; padding: 10px 16px; border-color: var(--vw-aqua); }
+
+.vw-builder-unblockers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.vw-builder-unblockers li { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; padding: 14px 16px; border: 1px solid var(--vw-control-border); border-radius: 12px; background: var(--vw-control-bg); }
+.vw-builder-unblockers p { font-size: .82rem; color: var(--vw-muted); margin-top: 4px; }
+.vw-builder-unblockers small { display: block; margin-top: 6px; font-size: .72rem; color: var(--vw-aqua); }
+.vw-builder-unblockers button { flex: 0 0 auto; padding: 9px 14px; border-color: var(--vw-aqua); }
+
+/* The eliminated field ---------------------------------------------------- */
+.vw-builder-field { display: grid; gap: 14px; }
+.vw-builder-field > header { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+.vw-builder-field > header p { color: var(--vw-muted); font-size: .82rem; max-width: 76ch; }
+.vw-builder-option-list { display: grid; gap: 8px; }
+.vw-builder-field-row { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 14px; align-items: center; padding: 8px; border: 1px solid var(--vw-border-soft); border-radius: 10px; background: #0a1f2d; }
+.vw-builder-field-row > button { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 0; background: transparent; padding: 8px 10px; }
+.vw-builder-field-row > button strong, .vw-builder-field-row > button small { display: block; }
+.vw-builder-field-row > button strong { font-size: .88rem; }
+.vw-builder-field-row > button small { color: var(--vw-muted); font-size: .72rem; margin-top: 4px; }
+.vw-builder-field-row > button em { font-size: .64rem; font-style: normal; letter-spacing: .08em; text-transform: uppercase; color: var(--vw-muted); flex: 0 0 auto; }
+.vw-builder-field-row > p { font-size: .78rem; color: var(--vw-muted); padding-right: 10px; }
+.vw-builder-field-row[data-status="recommended"] { border-color: var(--vw-aqua); background: #0d2b38; }
+.vw-builder-field-row[data-status="recommended"] > button em { color: var(--vw-aqua); }
+.vw-builder-field-row[data-status="ruled-out"] { background: #081722; border-color: #1a2f3d; }
+.vw-builder-field-row[data-status="ruled-out"] > button strong { color: #9db4c2; }
+
+/* Actions ----------------------------------------------------------------- */
+.vw-builder-actions { display: flex; flex-wrap: wrap; gap: 12px; font-size: .82rem; }
+.vw-builder-actions button:first-child { background: var(--vw-aqua); color: var(--vw-canvas-bg); font-weight: 750; border-color: var(--vw-aqua); }
+.vw-builder-actions button:disabled:first-child { background: #2a4553; color: var(--vw-muted); }
+.vw-builder [role="status"] { color: var(--vw-aqua); margin-top: 12px; font-size: .84rem; }
+.vw-builder-header-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.vw-builder-header-actions button { padding: 9px 14px; }
+
+/* Guided wizard ----------------------------------------------------------- */
+.vw-wizard { max-width: 1180px; }
+.vw-wizard-progress { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.vw-wizard-progress li { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-radius: 8px; color: var(--vw-muted); font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; background: var(--vw-deep); }
+.vw-wizard-progress li span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; font-size: .64rem; }
+.vw-wizard-progress li[data-state="done"] { color: var(--vw-aqua); border-color: var(--vw-border-accent); }
+.vw-wizard-progress li[data-state="current"] { color: var(--vw-deep); background: var(--vw-aqua); border-color: var(--vw-aqua); font-weight: 750; }
+.vw-wizard-card { border: 1px solid var(--vw-border); border-radius: 16px; background: linear-gradient(160deg, var(--vw-panel) 0%, var(--vw-panel-deep) 100%); padding: 24px; display: grid; gap: 18px; }
+.vw-wizard-card > header { display: grid; gap: 6px; }
+.vw-wizard-card > header p { color: var(--vw-muted); font-size: .82rem; }
+.vw-wizard-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.vw-wizard-options button { display: grid; align-content: start; gap: 6px; padding: 14px; min-height: 74px; }
+.vw-wizard-options strong { font-size: .9rem; }
+.vw-wizard-options span { color: var(--vw-muted); font-size: .76rem; line-height: 1.4; }
+.vw-wizard-fieldset { display: grid; gap: 8px; }
+.vw-wizard-label { color: var(--vw-muted); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
+.vw-wizard-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: 8px; }
+.vw-wizard-chips button { display: grid; justify-items: center; gap: 3px; padding: 9px 6px; text-align: center; }
+.vw-wizard-chips strong { font-size: 1rem; }
+.vw-wizard-chips span { color: var(--vw-muted); font-size: .68rem; }
+.vw-wizard-hint { color: var(--vw-muted); font-size: .78rem; line-height: 1.5; }
+.vw-wizard-nav { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; padding-top: 6px; }
+.vw-wizard-primary { background: var(--vw-aqua); color: var(--vw-deep); border-color: var(--vw-aqua); font-weight: 750; }
+.vw-wizard-secondary { border-color: var(--vw-border); }
+.vw-wizard-result { display: grid; gap: 22px; }
+.vw-wizard-answer-list { display: grid; gap: 6px; }
+.vw-wizard-answer-list > div { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-radius: 8px; background: var(--vw-deep); }
+.vw-wizard-answer-list strong { display: block; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--vw-muted); }
+.vw-wizard-answer-list span { display: block; font-size: .84rem; margin-top: 3px; }
+.vw-wizard-answer-list button { flex: 0 0 auto; padding: 7px 12px; font-size: .76rem; }
+
+/* Result review passes ----------------------------------------------------
+   The result is read one pass at a time, so the decision, the drawing and the
+   wiring each get a screen instead of stacking into one long page. */
+.vw-wizard-stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.vw-wizard-stages button { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px 14px; }
+.vw-wizard-stage-number {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--vw-muted);
+  font-size: .68rem;
+  font-weight: 700;
+}
+.vw-wizard-stages button[aria-pressed="true"] .vw-wizard-stage-number { color: var(--vw-deep); background: var(--vw-aqua); border-color: var(--vw-aqua); }
+.vw-wizard-stage-copy { display: grid; gap: 3px; min-width: 0; }
+.vw-wizard-stage-copy strong { font-size: .86rem; }
+.vw-wizard-stage-copy small { color: var(--vw-muted); font-size: .72rem; line-height: 1.35; }
+.vw-wizard-stage { display: grid; gap: 18px; }
+.vw-wizard-stage-intro { color: var(--vw-muted); font-size: .8rem; line-height: 1.5; max-width: 80ch; }
+.vw-wizard-warning { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; justify-items: start; gap: 8px 14px; margin: 0; }
+.vw-wizard-warning p { margin: 0; }
+.vw-wizard-warning button { padding: 8px 14px; border-color: var(--vw-warning); color: var(--vw-warning-heading); }
+.vw-wizard-warning details { grid-column: 1 / -1; }
+.vw-wizard-warning summary { cursor: pointer; color: var(--vw-warning-heading); font-size: .76rem; font-weight: 700; }
+.vw-wizard-warning details > p { margin-top: 6px; font-size: .76rem; line-height: 1.5; }
+.vw-wizard-command {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 18px;
+  padding: 12px 16px;
+  border: 1px solid var(--vw-border-soft);
+  border-radius: 12px;
+  background: var(--vw-panel-deep);
+}
+.vw-wizard-command-copy { display: grid; gap: 4px; min-width: 0; }
+.vw-wizard-command-copy strong { font-size: .92rem; }
+.vw-wizard-command-copy small { color: var(--vw-muted); font-size: .74rem; line-height: 1.4; }
+.vw-wizard-command .vw-builder-actions { margin-left: auto; }
+.vw-wizard-command [role="status"] { flex-basis: 100%; margin: 0; }
+
+@media (max-width: 900px) {
+  .vw-wizard-progress { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vw-wizard-stages { grid-template-columns: minmax(0, 1fr); }
+  .vw-wizard-warning { grid-template-columns: minmax(0, 1fr); }
+  .vw-wizard-command .vw-builder-actions { margin-left: 0; }
+}
+
+@media (max-width: 640px) {
+  .vw-wizard-progress { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vw-wizard-card { padding: 16px; }
+  .vw-wizard-nav { flex-direction: column; }
+  .vw-wizard-nav button { width: 100%; }
+}
+
+@media (max-width: 1100px) {
+  .vw-builder-applications { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vw-builder-verdict-columns { grid-template-columns: minmax(0, 1fr); }
+  .vw-builder-field-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .vw-builder { padding: 12px; }
+  .vw-builder-header, .vw-builder-decide-head { flex-direction: column; align-items: flex-start; }
+  .vw-builder-applications { grid-template-columns: minmax(0, 1fr); }
+  .vw-builder-step { grid-template-columns: 26px minmax(0, 1fr); gap: 10px; }
+  .vw-builder-step-number { width: 24px; height: 24px; font-size: .72rem; }
+  .vw-builder-path { flex-direction: column; }
+  .vw-builder-verdict { padding: 18px; }
+}

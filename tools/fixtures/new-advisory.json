@@ -1,0 +1,20 @@
+{
+  "surfaces": [{
+    "tag": "root/prod",
+    "report": {
+      "vulnerabilities": {
+        "rehearsal-package": {
+          "severity": "high",
+          "isDirect": false,
+          "range": "<2.0.0",
+          "nodes": ["node_modules/rehearsal-package"],
+          "fixAvailable": false,
+          "via": [{
+            "url": "https://github.com/advisories/GHSA-rehe-arsa-l001",
+            "title": "Synthetic advisory for the nightly alert rehearsal"
+          }]
+        }
+      }
+    }
+  }]
+}

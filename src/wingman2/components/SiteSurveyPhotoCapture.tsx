@@ -42,6 +42,10 @@ export function SiteSurveyPhotoCapture({
   disabled,
 }: SiteSurveyPhotoCaptureProps) {
   const [analyzing, setAnalyzing] = useState(false);
+  // The development switch: a development server answers with its sample
+  // reading instead of calling a model, so the review and apply steps can be
+  // walked without a key. A deployed server refuses the request.
+  const [sampleAnalysis, setSampleAnalysis] = useState(false);
   const [result, setResult] = useState<SiteSurveyPhotoResult | null>(null);
   const [mapping, setMapping] = useState<PhotoExtractionMapping | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +69,7 @@ export function SiteSurveyPhotoCapture({
     setPreviewUrl(url);
 
     try {
-      const extraction = await analyzeSiteSurveyPhoto(file);
+      const extraction = await analyzeSiteSurveyPhoto(file, { mock: sampleAnalysis });
       setResult(extraction);
 
       const topologyMapping = mapExtractionToTopology(
@@ -80,7 +84,7 @@ export function SiteSurveyPhotoCapture({
     } finally {
       setAnalyzing(false);
     }
-  }, [existingLocationNames, existingEquipmentNames]);
+  }, [existingLocationNames, existingEquipmentNames, sampleAnalysis]);
 
   const handleFileInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -131,6 +135,21 @@ export function SiteSurveyPhotoCapture({
         className="hidden"
         onChange={handleFileInput}
       />
+
+      {import.meta.env.DEV ? (
+        <label
+          className="flex items-center gap-2 text-[11px] text-white/60"
+          title="Development only: answers with a sample reading instead of analysing the photo, so the review and apply steps can be walked without a model key."
+        >
+          <input
+            type="checkbox"
+            checked={sampleAnalysis}
+            data-testid="site-survey-photo-mock"
+            onChange={(event) => setSampleAnalysis(event.target.checked)}
+          />{" "}
+          Use a sample reading (development only — no model call)
+        </label>
+      ) : null}
 
       {/* Upload buttons */}
       {!result && !analyzing && (

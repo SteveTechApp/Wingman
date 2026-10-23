@@ -55,7 +55,20 @@ export function isSupportedVisualAttachment(file: File): boolean {
   return file.type.startsWith("image/");
 }
 
-export async function analyzeVisualAttachment(file: File, hint = ""): Promise<VisualAttachmentAnalysis> {
+export type VisionContextReadOptions = {
+  /**
+   * The survey page's development switch: ask a development server for its
+   * sample reading instead of a model analysis. A deployed server refuses it,
+   * so a photo is only ever analysed for real where that means something.
+   */
+  mock?: boolean;
+};
+
+export async function analyzeVisualAttachment(
+  file: File,
+  hint = "",
+  options: VisionContextReadOptions = {},
+): Promise<VisualAttachmentAnalysis> {
   const { base64Data, mimeType } = await downscaleImageToBase64(file);
 
   const response = await runVisionContextAnalysis({
@@ -63,6 +76,7 @@ export async function analyzeVisualAttachment(file: File, hint = ""): Promise<Vi
     mimeType,
     base64Data,
     hint,
+    ...(options.mock ? { mock: true } : {}),
   });
 
   return normalizeVisionContextResult(file.name, response.data);

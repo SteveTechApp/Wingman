@@ -40,3 +40,15 @@ describe("projectRepository", () => {
     unsubscribe();
   });
 });
+
+it("persists migrated wall ownership on read and does not restore explicitly cleared owners", () => {
+  localStorage.setItem(PROJECT_STORE_KEY, JSON.stringify({ projects: [{ id: "owner", name: "Room", videowall: { wallType: "lcd", summary: {}, savedAt: "2026-10-20" } }], proposalDrafts: [] }));
+  const first = projectRepository.read();
+  const timestamp = first.projects[0].videowall?.ownershipMigratedAt;
+  expect(timestamp).toBeTruthy();
+  expect(JSON.parse(localStorage.getItem(PROJECT_STORE_KEY)!).projects[0].videowall.ownershipMigratedAt).toBe(timestamp);
+  expect(projectRepository.read().projects[0].videowall?.ownershipMigratedAt).toBe(timestamp);
+  first.projects[0].videowall = { ...first.projects[0].videowall!, projectId: undefined, ownershipCleared: true };
+  projectRepository.write(first);
+  expect(projectRepository.read().projects[0].videowall?.projectId).toBeUndefined();
+});

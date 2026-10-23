@@ -1,12 +1,12 @@
 import {
-  AlignmentType, Document, Footer, Header, PageNumber, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType,
+  AlignmentType, Document, Footer, Header, PageNumber, Packer, Paragraph, Table, TableCell, TextRun, WidthType,
 } from "docx";
 import type { StoredDiscoveryBrief, StoredProjectProposal } from "../data/projectStore";
 import { downloadBlob } from "./downloadBlob";
 import {
-  NAVY, AQUA, BLUE, MUTED, PALE, TEXT, TABLE_WIDTH, addSection, bullet, cell, fileBaseName, fixedTable, paragraph,
+  NAVY, AQUA, BLUE, MUTED, PALE, TEXT, TABLE_WIDTH, addSection, bullet, cell, fileBaseName, fixedTable, paragraph, tableRow,
 } from "./proposalDocxExport";
-import { briefFromProposal, briefMetaFromProposal, roomModelValue, type DiscoveryBriefExportMeta } from "./discoveryBriefExport";
+import { briefFromProposal, briefMetaFromProposal, customerDiscoveryBrief, roomModelValue, type DiscoveryBriefExportMeta } from "./discoveryBriefExport";
 import {
   CAPTURE_CONFIDENCE_EXPLAINER,
   captureConfidenceCell,
@@ -23,8 +23,8 @@ import {
 const ROOM_MODEL_ROWS: ReadonlyArray<{ key: string; label: string }> = [
   { key: "roomOccupancy", label: "People using the room" },
   { key: "roomDimensions", label: "Room dimensions and seating" },
-  { key: "equipmentSchedule", label: "Equipment selections and locations — confirm suitability" },
-  { key: "completionScope", label: "Room completion checklist — fill in models, quantities and suppliers" },
+  { key: "equipmentSchedule", label: "Equipment selections and locations" },
+  { key: "completionScope", label: "Room completion scope" },
   { key: "applicationType", label: "Application / customer outcome" },
   { key: "roomType", label: "Room type" },
   { key: "sourceCount", label: "Sources" },
@@ -47,23 +47,22 @@ const ROOM_MODEL_ROWS: ReadonlyArray<{ key: string; label: string }> = [
   { key: "networkAvailability", label: "Network availability" },
   { key: "videoWallRequirement", label: "Video wall requirement" },
   { key: "designDirection", label: "Design direction" },
-  { key: "nextBestQuestion", label: "Next question to ask" },
 ];
 
 function conversationTable(brief: StoredDiscoveryBrief): Table {
   const items = brief.discoveryConversation ?? [];
   const widths = [2300, 2300, 2700, 1400, 1260];
   return fixedTable(widths, [
-    new TableRow({ tableHeader: true, children: ["Question asked", "Governed answer", "Customer wording", "Status", "Capture confidence"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+    tableRow({ tableHeader: true, children: ["Question asked", "Answer we recorded", "Customer wording", "Status", "Capture confidence"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
     ...(items.length
-      ? items.map((item) => new TableRow({ children: [
+      ? items.map((item) => tableRow({ children: [
           cell(item.question, widths[0]),
           cell(item.answer, widths[1]),
           cell(item.note || "—", widths[2]),
           cell(item.confirmed ? "Confirmed with customer" : "To be confirmed", widths[3]),
           cell(captureConfidenceCell(item.confidence, item.confidenceScore), widths[4]),
         ] }))
-      : [new TableRow({ children: [new TableCell({ columnSpan: 5, width: { size: TABLE_WIDTH, type: WidthType.DXA }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [paragraph("No discovery conversation has been captured yet — run Discovery for this room before hand-off.", { colour: MUTED })] })] })]),
+      : [tableRow({ children: [new TableCell({ columnSpan: 5, width: { size: TABLE_WIDTH, type: WidthType.DXA }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [paragraph("No discovery conversation has been captured yet — run Discovery for this room before hand-off.", { colour: MUTED })] })] })]),
   ]);
 }
 
@@ -75,10 +74,10 @@ function requirementTable(brief: StoredDiscoveryBrief): Table {
   });
   const widths = [3600, 5760];
   return fixedTable(widths, [
-    new TableRow({ tableHeader: true, children: [cell("Requirement", widths[0], { bold: true, fill: PALE }), cell("Captured answer", widths[1], { bold: true, fill: PALE })] }),
+    tableRow({ tableHeader: true, children: [cell("Requirement", widths[0], { bold: true, fill: PALE }), cell("Captured answer", widths[1], { bold: true, fill: PALE })] }),
     ...(rows.length
-      ? rows.map((row) => new TableRow({ children: [cell(row.label, widths[0], { bold: true }), cell(row.value, widths[1])] }))
-      : [new TableRow({ children: [new TableCell({ columnSpan: 2, width: { size: TABLE_WIDTH, type: WidthType.DXA }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [paragraph("No structured room model was captured in this brief — the conversation trail below is the record of what was asked and answered.", { colour: MUTED })] })] })]),
+      ? rows.map((row) => tableRow({ children: [cell(row.label, widths[0], { bold: true }), cell(row.value, widths[1])] }))
+      : [tableRow({ children: [new TableCell({ columnSpan: 2, width: { size: TABLE_WIDTH, type: WidthType.DXA }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [paragraph("No structured room model was captured in this brief — the conversation trail below is the record of what was asked and answered.", { colour: MUTED })] })] })]),
   ]);
 }
 
@@ -86,6 +85,7 @@ export function buildDiscoveryBriefDocx(
   brief: StoredDiscoveryBrief,
   meta: DiscoveryBriefExportMeta = {},
 ): Document {
+  brief = customerDiscoveryBrief(brief);
   const company = meta.companyName || "WyreStorm";
   const projectName = meta.projectName || "Unnamed discovery";
   const preparedBy = meta.preparedBy || "";
@@ -106,8 +106,8 @@ export function buildDiscoveryBriefDocx(
   ];
 
   addSection(children, "Purpose of this Brief", [
-    paragraph("This brief records the discovery conversation behind the proposed design: the question asked, the closest governed answer, and the customer's own wording where captured. It is intended for hand-off to a colleague or the customer before design sign-off, so the reasoning behind the design is visible and nothing is presented as a settled fact that was not said during discovery.", { justified: true }),
-    paragraph(`Rows marked "Confirmed with customer" were verified with the customer during discovery; rows marked "To be confirmed" are still open and must be verified before the design is signed off and quoted.`, { justified: true, colour: NAVY }),
+    paragraph("This brief records the conversation behind the proposed design: the question we asked, the answer we recorded, and your own words where we captured them. It is written for hand-off to a colleague or the customer before the design is signed off, so the reasoning behind the design is visible.", { justified: true }),
+    paragraph(`Rows marked "Confirmed with customer" were checked with you during discovery; rows marked "To be confirmed" are still open and will be settled before the design is signed off and quoted.`, { justified: true, colour: NAVY }),
   ]);
 
   addSection(children, "Captured Requirement", [requirementTable(brief)]);
@@ -115,10 +115,10 @@ export function buildDiscoveryBriefDocx(
   if (completionScope.length) {
     const widths = [4000, 2500, 1000, 2460];
     addSection(children, "Room Completion Schedule", [
-      paragraph("Fill in the remaining equipment models, quantities, locations and suppliers before design sign-off."),
+      paragraph("Equipment models, quantities, locations and suppliers not yet recorded remain subject to agreement before design sign-off."),
       fixedTable(widths, [
-        new TableRow({ tableHeader: true, children: ["Scope to complete", "Manufacturer / model", "Quantity", "Location / supplier"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
-        ...completionScope.map(scope => new TableRow({ children: [String(scope), "To select", "To confirm", "To confirm"].map((value, index) => cell(value, widths[index])) })),
+        tableRow({ tableHeader: true, children: ["Scope to complete", "Manufacturer / model", "Quantity", "Location / supplier"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+        ...completionScope.map(scope => tableRow({ children: [String(scope), "To select", "To confirm", "To confirm"].map((value, index) => cell(value, widths[index])) })),
       ]),
     ]);
   }
@@ -134,7 +134,6 @@ export function buildDiscoveryBriefDocx(
 
   addSection(children, "Still to Confirm", [
     ...(missingItems.length ? missingItems.map(bullet) : [bullet("Nothing is flagged as missing in the current brief.")]),
-    ...(brief.nextBestQuestion ? [bullet(`Next question to ask: ${brief.nextBestQuestion}`)] : []),
   ]);
 
   addSection(children, "Hand-off Notes", [
