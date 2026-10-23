@@ -41,13 +41,9 @@ import {
 import { buildSiteSurveyChecklist } from "../lib/siteSurveyChecklist";
 import { getInstallChecked } from "../lib/siteSurveyStorage";
 import { useWingmanProfile, type WingmanProfile } from "../data/wingmanProfile";
-import {
-  exportBomCsv,
-  exportProposalHtml,
-  exportProposalPdf,
-} from "../lib/proposalExport";
-import { exportProposalDocx } from "../lib/proposalDocxExport";
-import { REP_COPY, customerCopyText } from "../lib/proposalCopy";
+import { asText, readDiscovery, savedProposalBomRows, standardAssumptions } from "../lib/proposalCompletionModel";
+import { runProposalExport, type ProposalExportContext } from "../lib/proposalWizardExports";
+import { InputField, TextAreaField } from "./ProposalWizardFields";
 import { updateSavedWallRequirements } from "../lib/savedWallUpdates";
 import { wallRequirementsFromSummary } from "../lib/videowallOptions";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../lib/wallSurvey";
@@ -62,7 +58,6 @@ import { ProposalReadinessList } from "./ProposalReadinessList";
 import { ProposalBomPricing } from "./ProposalBomPricing";
 import { ProposalInstallationPricing } from "./ProposalInstallationPricing";
 import { wallTransportPlan, wallTransportRequirements } from "../lib/videowallTransport";
-import { exportProposalDiscoveryBriefDocx } from "../lib/discoveryBriefDocxExport";
 import {
   validateProposalExport,
   type ExportValidationResult,
@@ -87,35 +82,11 @@ import { useSubmitForApproval, useRecallProposal } from "../data/approvalStore";
 import { proposalReadiness } from "../lib/proposalReadiness";
 import {
   extractUnresolvedDiscoveryItems,
-  unresolvedToAssumptions,
   unresolvedToRisks,
 } from "../lib/unresolvedDiscoveryItems";
 import { ApprovalStatusBadge } from "../pages/ApprovalQueuePage";
 import { compileDesignProposal } from "../lib/designProposal";
 import { DesignProposalReview } from "./DesignProposalReview";
-
-type DiscoveryView = {
-  projectTitle: string;
-  customerName: string;
-  contactName: string;
-  summary: string;
-  roomSize: string;
-  displays: string;
-  displayCount: string;
-  displayBehaviour: string;
-  sourceCount: string;
-  sourceConnection: string;
-  signal: string;
-  usb: string;
-  distance: string;
-  network: string;
-  audio: string;
-  control: string;
-  budget: string;
-  avoipProfile: string;
-  architecture: string;
-  nextQuestion: string;
-};
 
 const steps = [
   "Customer and project",
@@ -124,178 +95,6 @@ const steps = [
   "Commercial and delivery",
   "Review and export",
 ];
-
-function asText(value: unknown) {
-  return String(value ?? "").trim();
-}
-
-function asJoinedText(value: unknown) {
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => asText(item))
-      .filter(Boolean)
-      .join(", ");
-  }
-
-  return asText(value);
-}
-
-function budgetLabelFromLevel(level: string): string {
-  switch (level) {
-    case "cost-sensitive":
-      return "Cost-sensitive — value engineering matters";
-    case "mid-market":
-      return "Mid-market — balanced cost and quality";
-    case "premium":
-      return "Premium — quality and performance lead";
-    default:
-      return "";
-  }
-}
-
-function readDiscovery(project: StoredProject): DiscoveryView {
-  const brief = project.discoveryBrief;
-  const room = brief?.roomModel ?? {};
-
-  return {
-    projectTitle:
-      asText(room.application) ||
-      asText(room.roomType) ||
-      project.name,
-    customerName: asText(room.clientName),
-    contactName: asText(room.contactName),
-    summary:
-      asText(brief?.inference?.summary) ||
-      asText(room.summary) ||
-      asText(room.outcome) ||
-      "The Discovery brief has been captured for this project.",
-    roomSize:
-      asText(room.scale) ||
-      asText(room.roomSize) ||
-      "Not confirmed",
-    displays:
-      [
-        asText(room.displayCount || room.displays),
-        asText(room.displayBehaviour || room.displayArrangement),
-      ]
-        .filter(Boolean)
-        .join(" - ") || "Not confirmed",
-    displayCount:
-      asText(room.displayCount || room.displays),
-    displayBehaviour:
-      asText(room.displayBehaviour || room.displayArrangement),
-    sourceCount:
-      asText(room.sourceCount),
-    sourceConnection:
-      asJoinedText(room.sourceConnections || room.sourceTypes),
-    signal:
-      asText(room.resolutionRequirement || room.signalStandard) ||
-      "Not confirmed",
-    usb:
-      asJoinedText(room.usbNeeds) ||
-      asText(room.usbTransport) ||
-      "Not confirmed",
-    distance:
-      asText(room.longestRun || room.cableRun) ||
-      "Not confirmed",
-    network:
-      asText(room.networkAvailability || room.network),
-    audio:
-      asJoinedText(room.audioNeeds) ||
-      asText(room.audioPath),
-    control:
-      asJoinedText(room.controlNeeds),
-    budget:
-      budgetLabelFromLevel(asText(room.budgetLevel)) ||
-      asText(room.budgetStyle) ||
-      "Not confirmed",
-    avoipProfile:
-      asText(room.avoipProfile || room.avoipSeriesHint),
-    architecture:
-      asText(brief?.inference?.architecture) ||
-      asText(room.inferredArchitectureDirection) ||
-      asText(room.designDirection),
-    nextQuestion:
-      asText(brief?.nextBestQuestion) ||
-      asText(brief?.inference?.nextBestQuestion),
-  };
-}
-
-function standardAssumptions(project: StoredProject) {
-  const unresolvedItems = extractUnresolvedDiscoveryItems({
-    discoveryConversation: project.discoveryBrief?.discoveryConversation,
-    decisionEvidence: project.discoveryBrief?.decisionEvidence,
-  });
-  return Array.from(
-    new Set([
-      ...unresolvedToAssumptions(unresolvedItems),
-      ...(project.ingest?.unknowns ?? []),
-      ...(project.compareRuns?.[0]?.warnings ?? []),
-      ...(project.recommendationEvidence?.missingInformation ?? []),
-      ...(project.discoveryBrief?.recommendationEvidence?.missingInformation ?? []),
-    ]),
-  ).slice(0, 15);
-}
-
-function savedProposalBomRows(rows: StoredProjectProposal["bomRows"]): SalesBomRow[] {
-  return (rows ?? []).map((row, index) => ({
-    item: row.item || index + 1,
-    sku: row.sku,
-    description: row.description,
-    role: row.role,
-    qty: row.qty || 1,
-    type: row.type === "Required" || row.type === "Optional" || row.type === "Validate"
-      ? row.type
-      : "Validate",
-    status: row.status,
-    evidence: row.evidence || "Restored from the saved project proposal.",
-    notes: row.notes,
-  }));
-}
-
-function InputField(props: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-  placeholder?: string;
-}) {
-  return (
-    <label className="wm-proposal-field">
-      <span>{props.label}</span>
-      <input
-        type={props.type ?? "text"}
-        value={props.value}
-        placeholder={props.placeholder}
-        onChange={(event) => props.onChange(event.target.value)}
-      />
-    </label>
-  );
-}
-
-function TextAreaField(props: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  rows?: number;
-  hint?: string;
-}) {
-  const emptyCustomerSection = !customerCopyText(props.value, "").trim();
-  const hint = props.hint || (/scope/i.test(props.label)
-    ? REP_COPY.scopeGuidance
-    : `Record the agreed ${props.label.toLowerCase()} in customer-ready language. This hint is for the rep and is not included in exports.`);
-  return (
-    <label className="wm-proposal-field wm-proposal-field-wide">
-      <span>{props.label}</span>
-      {emptyCustomerSection || props.hint ? <small data-rep-only="true">{hint}</small> : null}
-      <textarea
-        value={props.value}
-        rows={props.rows ?? 5}
-        onChange={(event) => props.onChange(event.target.value)}
-      />
-    </label>
-  );
-}
 
 export function ProposalCompletionWizard() {
   const { activeProject: project, projects } = useProjectStore();
@@ -1017,165 +816,23 @@ function ProposalCompletionWizardContent({
     },
   ];
 
-  function blockExportReason(): string | null {
-    if (chainBlockers.length === 0) return null;
-    const names = chainBlockers.map((b) => b.sku ? `${b.sku} — ${b.message}` : b.message);
-    return `Export blocked — resolve these chain issues first:\n${names.join("; ")}`;
-  }
-
-  function getExportBlockReason(): string | null {
-    // First check chain blockers from assurance
-    const chainReason = blockExportReason();
-    if (chainReason) return chainReason;
-
-    // Then check export validation blockers
-    if (exportValidation.blockers.length > 0) {
-      const names = exportValidation.blockers.map((b) =>
-        `${b.sku ? `${b.sku}: ` : ""}${b.message} — fix: ${b.fix}`
-      );
-      return `Export blocked — resolve these issues first:\n${names.join("; ")}`;
-    }
-
-    if (proposal.designRevision?.blockers.length) {
-      return `Export blocked — the complete design still has gaps:\n${proposal.designRevision.blockers.join("; ")}`;
-    }
-
-    return null;
-  }
-
-  async function exportDocx() {
-    if (customerOutputBlocked) {
-      const reason = getExportBlockReason();
-      setExportMessage(
-        reason ?? "Complete the remaining wizard items before exporting the final DOCX.",
-      );
-      return;
-    }
-
-    if (!exportValidation.allowed) {
-      const reason = getExportBlockReason();
-      setExportMessage(reason ?? "Resolve validation issues before exporting.");
-      return;
-    }
-
-    setExportMessage("Generating formatted DOCX...");
-
-    try {
-      await exportProposalDocx(
-        proposal,
-        bomRows,
-        draft,
-        project.videowall ?? null,
-      );
-      setExportMessage(
-        "Formatted DOCX generated.",
-      );
-    } catch (error) {
-      setExportMessage(
-        error instanceof Error
-          ? `DOCX export failed: ${error.message}`
-          : "DOCX export failed.",
-      );
-    }
-  }
-
-  async function exportHtml() {
-    if (customerOutputBlocked) {
-      const reason = getExportBlockReason();
-      setExportMessage(
-        reason ?? "Complete the remaining wizard items before exporting HTML.",
-      );
-      return;
-    }
-
-    if (!exportValidation.allowed) {
-      const reason = getExportBlockReason();
-      setExportMessage(reason ?? "Resolve validation issues before exporting.");
-      return;
-    }
-
-    try {
-      await exportProposalHtml(proposal, bomRows, selectedProducts, project.videowall ?? null);
-      setExportMessage("HTML export generated.");
-    } catch (error) {
-      setExportMessage(
-        error instanceof Error
-          ? `HTML export failed: ${error.message}`
-          : "HTML export failed.",
-      );
-    }
-  }
-
-  function exportCsv() {
-    if (customerOutputBlocked) {
-      const reason = getExportBlockReason();
-      setExportMessage(
-        reason ?? "Complete the remaining wizard items before exporting the BOM CSV.",
-      );
-      return;
-    }
-
-    if (!exportValidation.allowed) {
-      const reason = getExportBlockReason();
-      setExportMessage(reason ?? "Resolve validation issues before exporting.");
-      return;
-    }
-
-    try {
-      exportBomCsv(proposal, bomRows);
-      setExportMessage("BOM CSV generated.");
-    } catch (error) {
-      setExportMessage(
-        error instanceof Error
-          ? `BOM CSV export failed: ${error.message}`
-          : "BOM CSV export failed.",
-      );
-    }
-  }
-
-  function exportDiscoveryBrief() {
-    // The discovery brief is a pre-design hand-off record, not a final
-    // quotation — it stays available even when the wizard is incomplete.
-    try {
-      void exportProposalDiscoveryBriefDocx(proposal);
-      setExportMessage("Discovery brief DOCX generated — share it before design sign-off.");
-    } catch (error) {
-      setExportMessage(
-        error instanceof Error
-          ? `Discovery brief export failed: ${error.message}`
-          : "Discovery brief export failed.",
-      );
-    }
-  }
-
-  async function exportPdf() {
-    if (customerOutputBlocked) {
-      const reason = getExportBlockReason();
-      setExportMessage(
-        reason ?? "Complete the remaining wizard items before exporting a PDF.",
-      );
-      return;
-    }
-
-    if (!exportValidation.allowed) {
-      const reason = getExportBlockReason();
-      setExportMessage(reason ?? "Resolve validation issues before exporting.");
-      return;
-    }
-
-    try {
-      await exportProposalPdf(proposal, bomRows, selectedProducts, project.videowall ?? null);
-      setExportMessage(
-        "Opened the print dialog - choose \"Save as PDF\" as the destination.",
-      );
-    } catch (error) {
-      setExportMessage(
-        error instanceof Error
-          ? `PDF export failed: ${error.message}`
-          : "PDF export failed.",
-      );
-    }
-  }
+  // Every output leaves through one guard-and-report path, so a new document
+  // cannot forget the readiness check and each button says what arrived.
+  const exportContext: ProposalExportContext = {
+    proposal,
+    bomRows,
+    selectedProducts,
+    videowall: project.videowall ?? null,
+    draft,
+    customerOutputBlocked,
+    exportValidation,
+    chainBlockers,
+  };
+  const exportDocx = () => runProposalExport("docx", exportContext, setExportMessage);
+  const exportHtml = () => runProposalExport("html", exportContext, setExportMessage);
+  const exportPdf = () => runProposalExport("pdf", exportContext, setExportMessage);
+  const exportCsv = () => runProposalExport("csv", exportContext, setExportMessage);
+  const exportDiscoveryBrief = () => runProposalExport("discovery-brief", exportContext, setExportMessage);
 
   function submitRecommendationFeedback(
     rating: StoredRecommendationFeedback["rating"],
