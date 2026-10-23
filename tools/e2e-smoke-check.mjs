@@ -33,6 +33,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkDevPairHealth } from "./check-dev-pair-health.mjs";
+import { runBrowserSmokeSession } from "./lib/browser-smoke-session.mjs";
 import { chromium } from "@playwright/test";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -451,36 +452,7 @@ async function main() {
     headless: true,
     channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL || (process.platform === "win32" ? "msedge" : undefined),
   });
-  const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
-  const page = await context.newPage();
-  let tracing = false;
-  try {
-    // No session cookie is injected: the settings-form sign-in establishes the
-    // session through the real UI→API proxy path, exactly like a user.
-    await signInViaSettings(page);
-    await context.tracing.start({ screenshots: true, snapshots: true });
-    tracing = true;
-    await walkDiscovery(page);
-    await runCompare(page);
-    await context.tracing.stop();
-    tracing = false;
-  } catch (error) {
-    const diagnostics = path.join(dataDir, "diagnostics");
-    fs.mkdirSync(diagnostics, { recursive: true });
-    const captures = await Promise.allSettled([
-      page.screenshot({ path: path.join(diagnostics, "failure.png"), fullPage: true, timeout: 10_000 }),
-      page.content().then(html => fs.writeFileSync(path.join(diagnostics, "failure.html"), html)),
-      ...(tracing ? [context.tracing.stop({ path: path.join(diagnostics, "trace.zip") })] : []),
-    ]);
-    fs.writeFileSync(path.join(diagnostics, "failure.txt"), [
-      page.url(), error instanceof Error ? error.stack : String(error),
-      ...captures.filter(result => result.status === "rejected").map(result => String(result.reason)),
-    ].join("\n"));
-    console.error(`[e2e-smoke] Browser diagnostics saved to ${diagnostics}.`);
-    throw error;
-  } finally {
-    await browser.close().catch(() => {});
-  }
+  await runBrowserSmokeSession({ browser, dataDir, signIn: signInViaSettings, walkDiscovery, runCompare });
 
   console.log(
     "[e2e-smoke] Settings sign-in, discovery project save, compare history save, HTML+CSV export blobs, and the 413 contract all verified end to end.",
