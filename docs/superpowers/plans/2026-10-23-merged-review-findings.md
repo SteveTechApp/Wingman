@@ -41,7 +41,13 @@
 ### Task 4: Publish
 
 - [x] Run strict typecheck, lint, full tests, architecture, production build and size budgets.
-- [ ] Commit and push the focused branch, open a PR, and report verification and any main-checkout sync conflicts.
+- [x] Commit and push the focused branch, open PR #269, and report verification and any main-checkout sync conflicts.
+
+### Task 5: Merge prerequisites
+
+- [x] Pin browser CI jobs to Ubuntu 24.04 after the latest runner migrated to unsupported Ubuntu 26.04.
+- [x] Update Vite to 8.3.5 and Vitest/coverage to 4.1.12 to address published security advisories.
+- [ ] Recheck the clean install, build, dependency audits, visual checks and full test lane, then merge PR #269 after CI passes.
 
 ## Verification recorded before publication
 
