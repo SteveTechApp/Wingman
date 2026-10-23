@@ -56,19 +56,19 @@ describe("product pitch governed-coverage render", () => {
 
     fireEvent.click(await screen.findByRole("tab", { name: "Technical Overview" }));
 
-    const groups = document.querySelector(".wm-product-spec-groups");
+    const groups = document.querySelector("[data-spec-groups]");
     expect(groups).not.toBeNull();
-    expect(groups?.querySelectorAll(".wm-product-spec-group").length).toBeGreaterThan(10);
+    expect(groups?.querySelectorAll("[data-spec-group]").length).toBeGreaterThan(10);
     expect(groups?.querySelectorAll("dd > ul > li").length).toBeGreaterThan(10);
     expect(groups?.querySelector("dd > span")).toBeNull();
 
-    const ioGroup = Array.from(groups?.querySelectorAll(".wm-product-spec-group") ?? [])
+    const ioGroup = Array.from(groups?.querySelectorAll("[data-spec-group]") ?? [])
       .find((group) => group.querySelector("dt")?.textContent === "I/O summary");
     expect(ioGroup).toBeDefined();
     expect(ioGroup?.querySelectorAll("li").length).toBeGreaterThan(1);
     expect(ioGroup?.textContent).not.toMatch(/Toslink|IR RX|IR TX|RS-232|Web UI/i);
 
-    const groupText = (label: string) => Array.from(groups?.querySelectorAll(".wm-product-spec-group") ?? [])
+    const groupText = (label: string) => Array.from(groups?.querySelectorAll("[data-spec-group]") ?? [])
       .find((group) => group.querySelector("dt")?.textContent === label)?.textContent ?? "";
     expect(groupText("Audio")).toMatch(/Toslink.*S\/PDIF/i);
     expect(groupText("Control / integration")).toMatch(/IR RX/i);

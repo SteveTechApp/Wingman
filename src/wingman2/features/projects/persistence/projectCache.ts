@@ -94,7 +94,13 @@ export function createProjectCache(scope: ProjectCacheScope, adapter: ProjectCac
     async writeIndex(index) { await writeIndex(index); notify(); },
     async readProject(projectId) {
       const value = await adapter.get(projectKey(projectId));
-      return value && typeof value === "object" ? decodeStoredProject(value as Record<string, unknown>) ?? undefined : undefined;
+      if (!value || typeof value !== "object") return undefined;
+      const normalized = decodeStoredProject(value as Record<string, unknown>) ?? undefined;
+      const previous = value as StoredProject;
+      if (normalized?.videowall?.ownershipMigratedAt && !previous.videowall?.ownershipMigratedAt) {
+        await adapter.set(projectKey(projectId), normalized);
+      }
+      return normalized;
     },
     async writeProject(project) {
       const normalized = decodeStoredProject(project as unknown as Record<string, unknown>);

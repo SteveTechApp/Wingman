@@ -315,19 +315,11 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   font-weight: 720;
 }
 
-.wingman-page-host p,
-.wingman-page-host .wm-copy,
-.wingman-page-host .wm-page-description,
-.wingman-page-host .wm-card-copy,
-.wingman-page-host .wm-section-copy {
+.wingman-page-host p, .wingman-page-host .wm-copy, .wingman-page-host .wm-page-description {
   color: var(--wm-ref-copy);
 }
 
-.wingman-page-host small,
-.wingman-page-host .wm-muted,
-.wingman-page-host .wm-meta,
-.wingman-page-host .wm-caption,
-.wingman-page-host .wm-page-description {
+.wingman-page-host small, .wingman-page-host .wm-page-description {
   color: var(--wm-ref-muted);
 }
 
@@ -907,28 +899,11 @@ button.wm-reference-quick-card {
   white-space: nowrap;
 }
 
-.wm-reference-spotlight-card strong {
-  color: var(--wm-ref-text);
-  font-size: 1.05rem;
-}
-
-.wm-reference-spotlight-card p,
 .wm-reference-news-card p {
   margin: 0;
   color: var(--wm-ref-copy);
   font-size: 0.8rem;
   line-height: 1.55;
-}
-
-.wm-reference-product-badge {
-  width: max-content;
-  padding: 4px 8px;
-  color: #b9fff1;
-  font-size: 0.66rem;
-  font-weight: 720;
-  background: rgba(24, 217, 194, 0.13);
-  border: 1px solid rgba(24, 217, 194, 0.28);
-  border-radius: 999px;
 }
 
 .wm-reference-news-card .wm-reference-rail-title svg {
@@ -1122,10 +1097,6 @@ button.wm-reference-quick-card {
 
   .wm-reference-primary-card {
     min-height: 190px;
-  }
-
-  .wm-reference-dashboard-header {
-    min-height: 58px;
   }
 }
 

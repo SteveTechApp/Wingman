@@ -106,3 +106,23 @@ html .wingman-shell .wm-response-paper :is(small,span) { color:var(--wm-paper-mu
 
 html .wm-project-gallery-page .wm-projects-compact-actions { display:flex; flex-wrap:wrap; gap:8px; min-width:0; }
 @media(max-width:580px) { html .wm-project-gallery-page .wingman-section-card { padding:0 !important; } html .wingman-shell .wm-response-studio .wm-proposal-step-rail { grid-template-columns:repeat(5,170px); } html .wingman-shell .wm-response-studio .wm-proposal-step-rail strong { overflow:visible; text-overflow:clip; white-space:normal; } }
+
+.wm-projects-compare-tier { display:inline-flex; align-items:center; max-width:100%; }
+
+.wm-projects-survey-review { display:inline-flex; align-items:center; max-width:100%; }
+/* A review that cleared nothing is good news, so its chip says so without the
+   alarm the cleared state carries: no fill, softer copy, hairline border. */
+.wm-status-chip[data-survey-review="reviewed"] { color:var(--wm-text-soft); background:transparent; border-color:var(--wm-border); }
+/* How long ago the review happened sits beside the state, softer than it: the
+   chip says what was decided and when. */
+.wm-status-chip-age { margin-left:5px; color:var(--wm-text-soft); font-weight:600; opacity:.82; }
+.wm-status-chip-age::before { content:"· "; }
+/* A survey old enough that the room may have moved on reads differently from
+   this week's. Any stale chip loses its solid edge; a clean one also takes a
+   slate wash and a brighter date, because a hairline alone is invisible on a
+   card at a glance. Still not the cleared state's amber: an old reading is a
+   prompt to re-confirm the room, not an alarm about a row. */
+.wm-status-chip[data-survey-review-age="stale"] { border-style:dashed; }
+.wm-status-chip[data-survey-review="reviewed"][data-survey-review-age="stale"] { color:#e2e8f0; background:rgba(148,163,184,.18); border-color:rgba(148,163,184,.62); }
+.wm-status-chip[data-survey-review="reviewed"][data-survey-review-age="stale"] .wm-status-chip-age { color:#f1f5f9; opacity:1; }
+.wm-status-chip[data-survey-review="reviewed"][data-survey-review-age="stale"] svg { color:#cbd5e1; }

@@ -6,7 +6,11 @@
  * data extraction for auto-populating the checklist.
  */
 
-import { analyzeVisualAttachment, downscaleImageToBase64 } from "./visionAttachments";
+import {
+  analyzeVisualAttachment,
+  downscaleImageToBase64,
+  type VisionContextReadOptions,
+} from "./visionAttachments";
 import { runVisionContextAnalysis } from "../api/wingmanApi";
 
 /* ──────────────────────────────────────────────
@@ -72,12 +76,15 @@ Focus on information that would be useful for a site survey checklist.`;
    Main analysis function
    ────────────────────────────────────────────── */
 
-export async function analyzeSiteSurveyPhoto(file: File): Promise<SiteSurveyPhotoResult> {
+export async function analyzeSiteSurveyPhoto(
+  file: File,
+  options: VisionContextReadOptions = {},
+): Promise<SiteSurveyPhotoResult> {
   // Use the existing visual analysis pipeline with site-survey hint
-  const baseAnalysis = await analyzeVisualAttachment(file, SITE_SURVEY_HINT);
+  const baseAnalysis = await analyzeVisualAttachment(file, SITE_SURVEY_HINT, options);
 
   // Run a second pass with more specific extraction prompt
-  const extractionResult = await runSiteSurveyExtraction(file);
+  const extractionResult = await runSiteSurveyExtraction(file, options);
 
   return {
     id: `survey-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -104,7 +111,10 @@ export async function analyzeSiteSurveyPhoto(file: File): Promise<SiteSurveyPhot
    Extraction via vision API
    ────────────────────────────────────────────── */
 
-async function runSiteSurveyExtraction(file: File): Promise<{
+async function runSiteSurveyExtraction(
+  file: File,
+  options: VisionContextReadOptions = {},
+): Promise<{
   locations: ExtractedLocation[];
   equipment: ExtractedEquipment[];
   cables: ExtractedCable[];
@@ -129,6 +139,7 @@ async function runSiteSurveyExtraction(file: File): Promise<{
 - accessNotes: notes about access challenges
 
 Be specific about equipment names and positions. Estimate cable lengths based on visible distances.`,
+    ...(options.mock ? { mock: true } : {}),
   });
 
   return parseExtractionResult(response.data);

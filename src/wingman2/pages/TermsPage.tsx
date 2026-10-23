@@ -56,7 +56,7 @@ const termsSections = [
 
 export function TermsPage() {
   return (
-    <main className="wm-page wm-terms-page" data-wingman-page="terms">
+    <main className="wm-page" data-wingman-page="terms">
       <header className="wm-page-header">
         <p className="wm-ui-kicker">Wingman legal</p>
         <h1 className="wm-page-title">Terms and legal disclaimer</h1>
@@ -74,7 +74,7 @@ export function TermsPage() {
         </Link>
       </div>
 
-      <div className="wm-terms-sections" role="list" aria-label="Terms and disclaimer sections">
+      <div role="list" aria-label="Terms and disclaimer sections">
         {termsSections.map((section) => (
           <section className="wm-section-card" id={section.id} key={section.id} aria-labelledby={`${section.id}-title`}>
             <p className="wm-ui-kicker">Section</p>

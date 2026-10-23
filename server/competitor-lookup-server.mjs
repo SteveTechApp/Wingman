@@ -11,6 +11,10 @@ import { handleAffectedChecksPost, handleDataValidationPost } from "./governance
 import { enforceCsrf, issueCsrf } from "./security/csrf.mjs";
 import { assertSyncFetchTarget } from "./security/safe-fetch-target.mjs";
 import { handleSiteSurveySyncGet, handleSiteSurveySyncPost } from "./site-survey-sync.mjs";
+import {
+  handleInstallationRateCardGet,
+  handleInstallationRateCardPut,
+} from "./workspace-rate-card.mjs";
 import http from "node:http";
 import fs from "node:fs/promises";
 import { writeJsonFileAtomic } from "./atomic-json-file.mjs";
@@ -2386,6 +2390,17 @@ const ROUTES = [
     method: "POST",
     path: "/api/wingman/workspace/settings",
     handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanWorkspaceSettingsPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/workspace/rate-card",
+    handler: (req, res, url, { sendJson }) => handleInstallationRateCardGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "PUT",
+    path: "/api/wingman/workspace/rate-card",
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleInstallationRateCardPut(req, res, url, { sendJson, parseJsonBody }),
   },
   {
     method: "GET",

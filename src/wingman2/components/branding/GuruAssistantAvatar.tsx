@@ -15,10 +15,10 @@ export function GuruAssistantAvatar({
 }: GuruAssistantAvatarProps) {
   return (
     <span
-      className={["wingman-guru-avatar", className ?? ""].join(" ").trim()}
+      className={["", className ?? ""].join(" ").trim()}
       style={{ width: size, height: size, ...style }}
     >
-      <img {...rest} src="/guru-bot.png" alt={alt} className="wingman-guru-avatar-image" decoding="async" />
+      <img {...rest} src="/guru-bot.png" alt={alt} decoding="async" />
     </span>
   );
 }

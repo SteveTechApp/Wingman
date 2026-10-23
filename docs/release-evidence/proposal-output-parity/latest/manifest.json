@@ -3,6 +3,7 @@
   "requiredSections": [
     "Customer Requirement",
     "Recommended Solution",
+    "Display Schedule",
     "Equipment Schedule",
     "Technical Architecture",
     "Discovery Conversation",
@@ -19,6 +20,7 @@
     "How many displays must receive independently routed content?",
     "Four displays",
     "best-efforts basis",
+    "Display Schedule",
     "NHD-600-TX",
     "NHD-600-RX",
     "NHD-CTL-PRO-V2"

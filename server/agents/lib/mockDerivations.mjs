@@ -384,14 +384,127 @@ export function deriveGuruAnswer({ question: _question, brief, architecture }) {
   };
 }
 
-export function deriveVisionContext({ fileName }) {
+export function deriveVisionContext({ fileName, requested = false }) {
+  // `requested` says the survey page's development switch asked for the sample,
+  // so the summary does not blame a missing key the developer may well have.
+  if (!requested) {
+    return {
+      visionVersion: "1.0",
+      attachmentKind: "unclear",
+      summary: `"${fileName || "Attachment"}" was saved, but live image analysis is not configured (no GEMINI_API_KEY). Review it manually and note anything relevant.`,
+      roomObservations: [],
+      visibleEquipment: [],
+      layoutNotes: [],
+      confidence: 0,
+    };
+  }
+
+  // Deterministic stand-in for a room photo, shaped like a real answer so the
+  // review and apply steps can be walked without a model: the vision context
+  // the attachment reader shows, plus the structured site-survey read the
+  // checklist applies to the topology. Every name is marked as sample text, so
+  // nothing here can be mistaken for something the photo showed.
   return {
     visionVersion: "1.0",
-    attachmentKind: "unclear",
-    summary: `"${fileName || "Attachment"}" was saved, but live image analysis is not configured (no GEMINI_API_KEY). Review it manually and note anything relevant.`,
-    roomObservations: [],
-    visibleEquipment: [],
-    layoutNotes: [],
+    attachmentKind: "room_photo",
+    summary: `"${fileName || "Attachment"}" was answered with the development sample: no model was called. A boardroom was returned as sample observations and site-survey rows.`,
+    roomObservations: [
+      "Sample observation: a boardroom with one display wall at the far end.",
+      "Sample observation: seating for eight around a central table.",
+      "Sample observation: a floor rack below the display wall.",
+    ],
+    visibleEquipment: [
+      "Sample display wall: one 55 in panel",
+      "Sample receiver on a shelf in the floor rack",
+      "Sample pair of ceiling speakers",
+    ],
+    layoutNotes: [
+      "Sample layout: the table faces the display wall.",
+      "Sample layout: a cable path runs up the right-hand wall to the ceiling.",
+    ],
+    confidence: 0.62,
+    locations: [
+      { name: "Sample display wall", type: "display-wall", notes: "Development sample; not read from the photo.", confidence: 0.6 },
+      { name: "Sample floor rack", type: "room-rack", notes: "Development sample; not read from the photo.", confidence: 0.6 },
+      { name: "Sample ceiling", type: "ceiling", notes: "Development sample; not read from the photo.", confidence: 0.55 },
+    ],
+    equipment: [
+      {
+        name: "Sample 55 in display",
+        category: "Display",
+        location: "Sample display wall",
+        ports: ["HDMI"],
+        notes: "Development sample.",
+        confidence: 0.6,
+      },
+      {
+        name: "Sample receiver",
+        category: "Receiver",
+        location: "Sample floor rack",
+        ports: ["HDMI", "HDBaseT"],
+        notes: "Development sample.",
+        confidence: 0.55,
+      },
+      {
+        name: "Sample ceiling speakers",
+        category: "Speaker",
+        location: "Sample ceiling",
+        notes: "Development sample.",
+        confidence: 0.5,
+      },
+    ],
+    cables: [
+      {
+        fromEquipment: "Sample receiver",
+        toEquipment: "Sample 55 in display",
+        transport: "hdmi",
+        estimatedLengthMetres: 8,
+        notes: "Development sample.",
+        confidence: 0.5,
+      },
+      {
+        fromEquipment: "Sample receiver",
+        toEquipment: "Sample ceiling speakers",
+        transport: "analogue audio",
+        estimatedLengthMetres: 6,
+        notes: "Development sample.",
+        confidence: 0.45,
+      },
+    ],
+    roomDimensions: "Sample room: 8 m x 6 m with a 2.7 m ceiling.",
+    networkInfrastructure: "Sample network: one wall plate beside the display wall.",
+    powerAvailability: "Sample power: twin socket under the display wall.",
+    accessNotes: "Sample access: the ceiling tiles above the rack lift out.",
+  };
+}
+
+export function deriveWallSurveyScan({ fileName, links = [], requested = false }) {
+  // Deterministic stand-in for a worksheet transcription: two rows read from
+  // the printed allowance, every other row reported unread. The client applies
+  // it exactly like a real scan, so the whole path is exercised without a model.
+  // `requested` says the builder's development switch asked for it, so the
+  // summary does not blame a missing key the developer may well have.
+  const rows = links.slice(0, 2).map((link, index) => ({
+    linkId: String(link?.id || ""),
+    metres: Math.max(1, Math.round(Number(link?.allowanceMetres) || 5) + index),
+    confidence: 0.42,
+    note: "Mock transcription.",
+    // The install line is part of the sheet, so the sample exercises landing it
+    // too. It is sample text, never a claim about the site.
+    enclosure: index === 0 ? "Sample back box" : "Sample ceiling tile",
+    mount: "Sample wall bracket",
+    termination: "Sample HDMI faceplate",
+    // The run-entry cell is its own question: where the cable enters, not what
+    // the display sits in.
+    entry: index === 0 ? "Sample wall plate" : "Sample ceiling void",
+  }));
+  return {
+    scanVersion: "1.0",
+    summary: requested
+      ? `"${fileName || "Worksheet"}" was answered with the development sample: no model was called. ${rows.length} row${rows.length === 1 ? "" : "s"} returned as sample data.`
+      : `"${fileName || "Worksheet"}" was not read by a model: live worksheet scanning needs GEMINI_API_KEY. ${rows.length} row${rows.length === 1 ? "" : "s"} returned as sample data.`,
+    rows,
+    unread: links.slice(2).map((link) => String(link?.id || "")).filter(Boolean),
     confidence: 0,
   };
 }

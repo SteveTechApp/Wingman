@@ -6,7 +6,7 @@ import {
   ImageRun, PageBreak, PageNumber, Packer, Paragraph, ShadingType, Table, TableCell,
   TableLayoutType, TableRow, TextRun, WidthType,
 } from "docx";
-import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
+import type { StoredProjectProposal, StoredProductSelection, StoredVideowallSummary } from "../data/projectStore";
 import { downloadBlob } from "./downloadBlob";
 import { powerBudgetSummary } from "./powerBudget";
 import type { SalesBomRow } from "./salesReadiness";
@@ -22,6 +22,24 @@ import { SCHEMATIC_COLORS, SCHEMATIC_NODE_COLORS } from "./schematic/schematicVi
 import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel } from "./schematic/nativeCableSchedule";
 import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
 import { buildDesignProjectDocument, trackDesignProjectExport } from "../features/design-project";
+import { buildDisplaySchedule } from "./displaySchedule";
+import {
+  buildInstallationSchedule,
+  installationCategoryLabel,
+  installationTotals,
+  type InstallationSchedule,
+} from "./installationSchedule";
+import { wallRequirementsFromSummary } from "./videowallOptions";
+import { wallTransportRequirements } from "./videowallTransport";
+import { assertWallTransportExportable } from "./proposalExportValidation";
+import { wallVisualLayout } from "./videowallVisual";
+import { wallElevationCaption, wallElevationOverlay, wallElevationPng, wallMappingPreviews, wallMappingRecommendation, type WallMappingRecommendation } from "./wallElevation";
+import {
+  wallStartingPointDrift,
+  wallStartingPointFromSummary,
+  wallStartingPointRecordText,
+} from "./wallStartingPointOrigin";
+import { CUSTOMER_COPY, customerCopyText } from "./proposalCopy";
 
 export const NAVY = "08223A";
 export const AQUA = "16B8B0";
@@ -33,7 +51,17 @@ export const BORDER = "CBD5E1";
 export const TABLE_WIDTH = 9360;
 
 type ProposalImageAsset = { data: Uint8Array; type: "jpg" | "png"; title: string; width?: number; height?: number };
-type ProposalDocxAssets = { logo?: ProposalImageAsset; room?: ProposalImageAsset; schematic?: ProposalImageAsset; products?: Record<string, ProposalImageAsset>; media?: ProductMediaIndex | null };
+type WallPreview = { value: "fit" | "fill"; consequence: string; image?: ProposalImageAsset };
+type ProposalDocxAssets = {
+  logo?: ProposalImageAsset;
+  room?: ProposalImageAsset;
+  schematic?: ProposalImageAsset;
+  wallElevation?: ProposalImageAsset;
+  /** Both mappings, shown side by side when the source shape differs. */
+  wallPreviews?: { chosen: "fit" | "fill"; options: WallPreview[] };
+  products?: Record<string, ProposalImageAsset>;
+  media?: ProductMediaIndex | null;
+};
 
 export function fileBaseName(title: string, fallback = "wingman-proposal") {
   return String(title || fallback).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || fallback;
@@ -76,6 +104,8 @@ export function cell(text: string, width: number, options: { bold?: boolean; fil
     shading: options.fill ? { fill: options.fill, type: ShadingType.CLEAR } : undefined,
     children: [new Paragraph({
       alignment: options.align,
+      // Header cells stay with the first data row; body rows remain free to paginate.
+      keepNext: Boolean(options.bold && options.fill === PALE),
       spacing: { after: 0, line: 260 },
       children: [new TextRun({ text, bold: options.bold, size: 18, color: options.bold ? NAVY : TEXT, font: "Calibri" })],
     })],
@@ -88,8 +118,31 @@ export const borders = {
   insideHorizontal: { style: BorderStyle.SINGLE, size: 3, color: BORDER }, insideVertical: { style: BorderStyle.SINGLE, size: 3, color: BORDER },
 };
 
+/**
+ * One row Word must keep on a single page: `cantSplit` stops a page break
+ * cutting a cell in half. Every proposal schedule row is built with this, so a
+ * new table cannot quietly reintroduce a split row.
+ */
+export function tableRow(options: ConstructorParameters<typeof TableRow>[0]) {
+  return new TableRow({ cantSplit: true, ...options });
+}
+
 export function fixedTable(widths: number[], rows: TableRow[]) {
   return new Table({ width: { size: TABLE_WIDTH, type: WidthType.DXA }, layout: TableLayoutType.FIXED, columnWidths: widths, borders, rows });
+}
+
+/**
+ * Share the fixed table width across the columns that are actually printed, so
+ * a schedule that gains a column (size, weight, transport) keeps the same
+ * overall width instead of running past the page margin.
+ */
+function fittedWidths(headers: string[], baseWidths: Record<string, number>) {
+  const raw = headers.map((header) => baseWidths[header] ?? 1200);
+  const total = raw.reduce((sum, width) => sum + width, 0) || 1;
+  const widths = raw.map((width) => Math.max(1, Math.round((width / total) * TABLE_WIDTH)));
+  // Rounding can drift a unit or two; the last column absorbs it.
+  widths[widths.length - 1] += TABLE_WIDTH - widths.reduce((sum, width) => sum + width, 0);
+  return widths;
 }
 
 export function addSection(children: Array<Paragraph | Table>, title: string, content: Array<Paragraph | Table>) {
@@ -102,7 +155,7 @@ function money(value: number, currency: ProposalWizardDraft["currency"]) {
 
 function equipmentTable(rows: SalesBomRow[], wizard: ProposalWizardDraft) {
   const widths = [1500, 2700, 650, 1350, 1450, 1710];
-  const header = new TableRow({ tableHeader: true, children: ["SKU", "Description", "Qty", "Unit price", "Line total", "Status"].map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) });
+  const header = tableRow({ tableHeader: true, children: ["SKU", "Description", "Qty", "Unit price", "Line total", "Status"].map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) });
   let total = 0;
   let complete = rows.length > 0;
   const body = rows.map((row) => {
@@ -113,19 +166,112 @@ function equipmentTable(rows: SalesBomRow[], wizard: ProposalWizardDraft) {
     const line = valid ? unit * row.qty : Number.NaN;
     if (valid) total += line;
     const values = [row.sku || "TBC", row.description || "Selected equipment", String(row.qty), valid ? money(unit, wizard.currency) : "TBC", valid ? money(line, wizard.currency) : "TBC", row.type || "Required"];
-    return new TableRow({ children: values.map((value, index) => cell(value, widths[index], { align: index >= 2 && index <= 4 ? AlignmentType.RIGHT : undefined })) });
+    return tableRow({ children: values.map((value, index) => cell(value, widths[index], { align: index >= 2 && index <= 4 ? AlignmentType.RIGHT : undefined })) });
   });
-  if (!rows.length) body.push(new TableRow({ children: [new TableCell({ columnSpan: 6, width: { size: TABLE_WIDTH, type: WidthType.DXA }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [paragraph("No final equipment schedule is attached. This document is not an equipment quotation.", { colour: MUTED })] })] }));
-  if (rows.length) body.push(new TableRow({ children: [cell("Equipment total", widths[0] + widths[1] + widths[2], { bold: true, fill: PALE }), cell(complete ? money(total, wizard.currency) : "TBC — pricing incomplete", widths[3] + widths[4], { bold: true, fill: PALE, align: AlignmentType.RIGHT }), cell(wizard.pricesExcludeTax ? "Excl. tax" : "Tax status TBC", widths[5], { bold: true, fill: PALE })] }));
+  if (!rows.length) body.push(tableRow({ children: [new TableCell({ columnSpan: 6, width: { size: TABLE_WIDTH, type: WidthType.DXA }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [paragraph("No final equipment schedule is attached. This document is not an equipment quotation.", { colour: MUTED })] })] }));
+  if (rows.length) body.push(tableRow({ children: [cell("Equipment total", widths[0] + widths[1] + widths[2], { bold: true, fill: PALE }), cell(complete ? money(total, wizard.currency) : "TBC — pricing incomplete", widths[3] + widths[4], { bold: true, fill: PALE, align: AlignmentType.RIGHT }), cell(wizard.pricesExcludeTax ? "Excl. tax" : "Tax status TBC", widths[5], { bold: true, fill: PALE })] }));
+  return { table: fixedTable(widths, [header, ...body]), complete, total };
+}
+
+/**
+ * The priced installation schedule: one line per thing the survey recorded, at
+ * the quantity of links that need it. Rates are the rep's, filed by line id, so
+ * a saved draft keeps them when the survey is edited elsewhere. An unpriced line
+ * prints TBC and holds the total, exactly as an unpriced equipment row does.
+ */
+function installationTable(schedule: InstallationSchedule, wizard: ProposalWizardDraft) {
+  const headers = ["Service", "Survey detail", "Qty", "Unit rate", "Line total", "Links"];
+  const widths = fittedWidths(headers, { Service: 1500, "Survey detail": 2400, Qty: 650, "Unit rate": 1350, "Line total": 1450, Links: 2010 });
+  const header = tableRow({ tableHeader: true, children: headers.map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) });
+  const { lines, complete, total } = installationTotals(schedule, wizard.installationUnitPrices);
+  const body = lines.map((line) => {
+    const values = [
+      installationCategoryLabel(line.category),
+      line.detail,
+      String(line.quantity),
+      line.unit === null ? "TBC" : money(line.unit, wizard.currency),
+      line.total === null ? "TBC" : money(line.total, wizard.currency),
+      line.links.join(", "),
+    ];
+    return tableRow({ children: values.map((value, index) => cell(value, widths[index], { align: index === 2 || index === 3 || index === 4 ? AlignmentType.RIGHT : undefined })) });
+  });
+  body.push(tableRow({ children: [
+    cell("Installation and services total", widths[0] + widths[1] + widths[2], { bold: true, fill: PALE }),
+    cell(complete ? money(total, wizard.currency) : "TBC — pricing incomplete", widths[3] + widths[4], { bold: true, fill: PALE, align: AlignmentType.RIGHT }),
+    cell(wizard.pricesExcludeTax ? "Excl. tax" : "Tax status TBC", widths[5], { bold: true, fill: PALE }),
+  ] }));
   return { table: fixedTable(widths, [header, ...body]), complete, total };
 }
 
 function pipeTable(value: string, headers: string[], widths: number[]) {
   const rows = linesFromText(value).map((line) => line.split("|").map((part) => part.trim()));
   return fixedTable(widths, [
-    new TableRow({ tableHeader: true, children: headers.map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
-    ...(rows.length ? rows : [["To be confirmed"]]).map((parts) => new TableRow({ children: widths.map((width, index) => cell(parts[index] || "TBC", width)) })),
+    tableRow({ tableHeader: true, children: headers.map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+    ...(rows.length ? rows : [["To be confirmed"]]).map((parts) => tableRow({ children: widths.map((width, index) => cell(parts[index] || "TBC", width)) })),
   ]);
+}
+
+const noneBorders = {
+  top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+  left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+  insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+};
+
+/**
+ * Both mappings side by side, so the document shows the choice, not only its
+ * result. Each option states the share it costs, which is what the customer is
+ * actually choosing between, with the chosen one marked.
+ */
+function mappingOptions(
+  previews: NonNullable<ProposalDocxAssets["wallPreviews"]>,
+  advice: WallMappingRecommendation | null = null,
+) {
+  const width = 4680;
+  const cells = previews.options.map((option) => new TableCell({
+    width: { size: width, type: WidthType.DXA },
+    margins: { top: 60, bottom: 60, left: 100, right: 100 },
+    children: [
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 80 },
+        children: [new TextRun({
+          text: `${option.value === "fit" ? "Fit" : "Fill"}${[option.value === previews.chosen ? "in this design" : "", option.value === advice?.value ? "recommended" : ""].filter(Boolean).map((note) => ` · ${note}`).join("")}`,
+          bold: true, size: 18, color: NAVY, font: "Calibri",
+        })],
+      }),
+      ...(option.image ? [imageParagraph(option.image, 240, 150)] : []),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 0 },
+        children: [new TextRun({ text: option.consequence, size: 16, color: NAVY, font: "Calibri" })],
+      }),
+    ],
+  }));
+  return [
+    paragraph("Source mapping options", { bold: true, size: 18, colour: NAVY }),
+    paragraph(
+      `The source and the wall have different shapes, so one of these two costs is unavoidable. Both drawings show this wall at the same size; this design uses ${previews.chosen === "fit" ? "Fit" : "Fill"}.`,
+      { size: 17, colour: MUTED },
+    ),
+    ...(advice ? [
+      new Paragraph({
+        spacing: { after: 120 },
+        children: [
+          new TextRun({ text: `Recommendation: ${advice.value === "fit" ? "Fit" : "Fill"}. `, bold: true, size: 17, color: NAVY, font: "Calibri" }),
+          new TextRun({ text: `${advice.basis} ${advice.cost}`, size: 17, color: NAVY, font: "Calibri" }),
+        ],
+      }),
+    ] : []),
+    new Table({
+      width: { size: TABLE_WIDTH, type: WidthType.DXA },
+      columnWidths: [width, width],
+      borders: noneBorders,
+      // The two drawings are one choice, so Word must not page-break between
+      // them. Every row is pinned (`cantSplit`); `keepNext` or a page break
+      // here would drag the display schedule that follows onto the next page.
+      rows: [tableRow({ cantSplit: true, children: cells })],
+    }),
+  ];
 }
 
 function imageParagraph(asset: ProposalImageAsset, width: number, height: number) {
@@ -145,8 +291,8 @@ function scopeTable(proposal: StoredProjectProposal) {
   const widths = [1550, 3370, 850, 2090, 1500];
   const items = proposal.applicationProposal?.thirdPartyScope ?? [];
   return fixedTable(widths, [
-    new TableRow({ tableHeader: true, children: ["Discipline", "Scope / allowance", "Qty", "Responsibility", "Price / allowance"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
-    ...(items.length ? items : [{ category: "Third-party scope", description: "Confirm all non-WyreStorm equipment and delivery services.", quantity: 1, responsibility: "Integrator / customer", status: "validate" as const, notes: "" }]).map((item) => new TableRow({ children: [
+    tableRow({ tableHeader: true, children: ["Discipline", "Scope / allowance", "Qty", "Responsibility", "Price / allowance"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+    ...(items.length ? items : [{ category: "Third-party scope", description: "Confirm all non-WyreStorm equipment and delivery services.", quantity: 1, responsibility: "Integrator / customer", status: "validate" as const, notes: "" }]).map((item) => tableRow({ children: [
       cell(item.category, widths[0]), cell(`${item.description}${item.notes ? ` — ${item.notes}` : ""} — Scope status: ${item.status}`, widths[1]),
       cell(String(item.quantity), widths[2], { align: AlignmentType.RIGHT }), cell(item.responsibility, widths[3]), cell("TBC", widths[4]),
     ] })),
@@ -157,21 +303,21 @@ function architectureTable(diagram: string) {
   const stages = diagram.split(/\s*→\s*/).filter(Boolean);
   const widths = [1250, 8110];
   return fixedTable(widths, [
-    new TableRow({ tableHeader: true, children: [cell("Stage", widths[0], { bold: true, fill: PALE }), cell("System function", widths[1], { bold: true, fill: PALE })] }),
-    ...(stages.length ? stages : ["Architecture to be confirmed"]).map((stage, index) => new TableRow({ children: [cell(String(index + 1), widths[0], { bold: true, align: AlignmentType.CENTER }), cell(stage, widths[1]) ] })),
+    tableRow({ tableHeader: true, children: [cell("Stage", widths[0], { bold: true, fill: PALE }), cell("System function", widths[1], { bold: true, fill: PALE })] }),
+    ...(stages.length ? stages : ["Architecture to be confirmed"]).map((stage, index) => tableRow({ children: [cell(String(index + 1), widths[0], { bold: true, align: AlignmentType.CENTER }), cell(stage, widths[1]) ] })),
   ]);
 }
 
 function powerStrategyTable(products: StoredProductSelection[]): { table: Table; totalWatts: number; poeSkus: string[] } {
   const summaries = powerBudgetSummary(products);
   const widths = [2200, 900, 1600, 1600, 3060];
-  const header = new TableRow({ tableHeader: true, children: ["SKU", "Qty", "Per-unit max", "Total max", "Power data (governed profile)"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) });
-  const rows = summaries.map((s) => new TableRow({ children: [
+  const header = tableRow({ tableHeader: true, children: ["SKU", "Qty", "Per-unit max", "Total max", "Power data (WyreStorm)"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) });
+  const rows = summaries.map((s) => tableRow({ children: [
     cell(s.sku, widths[0]),
     cell(String(s.quantity), widths[1], { align: AlignmentType.RIGHT }),
     cell(s.watts !== null ? `${s.watts}W` : "Not proven", widths[2], { align: AlignmentType.RIGHT }),
     cell(s.totalWatts !== null ? `${s.totalWatts}W` : "—", widths[3], { align: AlignmentType.RIGHT }),
-    cell(s.powerLines.length ? s.powerLines.join("; ") : "No power data in governed profile", widths[4]),
+    cell(s.powerLines.length ? s.powerLines.join("; ") : "No power figure published", widths[4]),
   ] }));
   const knownTotals = summaries.filter((s) => s.totalWatts !== null) as Array<import("./powerBudget").PowerBudgetSummary & { totalWatts: number }>;
   const totalWatts = knownTotals.reduce((sum, s) => sum + s.totalWatts, 0);
@@ -183,13 +329,13 @@ function powerStrategyContent(products: StoredProductSelection[]): Array<Paragra
   if (!products.length) return [paragraph("No products have been selected, so a power budget cannot be calculated.", { colour: MUTED })];
   const { table, totalWatts, poeSkus } = powerStrategyTable(products);
   const lines: Array<Paragraph | Table> = [
-    paragraph("The power budget below is derived from the governed technical profiles for each selected product. Figures are stated-maximum consumption per the published profile and must be verified against the current datasheet before order.", { justified: true }),
+    paragraph("The power figures below come from WyreStorm product data for each selected product. They are the maximum the published specification states, and should be checked against the current datasheet before ordering.", { justified: true }),
     table,
   ];
   if (totalWatts > 0) {
     lines.push(paragraph(`Stated maximum consumption: approximately ${Math.round(totalWatts)}W across the products with proven figures. Confirm the local power strategy (circuits, rack PSUs, PoE/PoH injector budgets) covers the full BOM before quoting.`, { colour: NAVY }));
   } else {
-    lines.push(paragraph("No products in the current BOM have a proven power-consumption figure in their governed profile. Confirm PSU / power-source requirements before quoting.", { colour: MUTED }));
+    lines.push(paragraph("None of the selected products has a published power figure yet. Confirm power supply requirements before quoting.", { colour: MUTED }));
   }
   if (poeSkus.length) {
     lines.push(paragraph(`PoE/PoH requirement: ${poeSkus.join(", ")} — confirm the injector or switch PoE budget covers the total before order.`, { colour: NAVY }));
@@ -204,8 +350,8 @@ function discoveryConversationContent(proposal: StoredProjectProposal): Array<Pa
   }
   const widths = [2300, 2300, 2700, 1400, 1260];
   const table = fixedTable(widths, [
-    new TableRow({ tableHeader: true, children: ["Question asked", "Governed answer", "Customer wording", "Status", "Capture confidence"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
-    ...items.map((item) => new TableRow({ children: [
+    tableRow({ tableHeader: true, children: ["Question asked", "Answer we recorded", "Customer wording", "Status", "Capture confidence"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+    ...items.map((item) => tableRow({ children: [
       cell(item.question, widths[0]),
       cell(item.answer, widths[1]),
       cell(item.note || "—", widths[2]),
@@ -214,10 +360,10 @@ function discoveryConversationContent(proposal: StoredProjectProposal): Array<Pa
     ] })),
   ]);
   return [
-    paragraph("The recommendation in this document is based on the discovery conversation below. Each row records the question asked, the closest governed answer, and the customer's own wording where captured. Rows marked \"Confirmed with customer\" were verified with the customer during discovery; rows marked \"To be confirmed\" are still open and must be verified before final design sign-off. Nothing here is presented as a settled fact that was not said during discovery.", { justified: true }),
+    paragraph("Below is the conversation this proposal is based on: the question we asked, the answer we recorded, and your own words where we captured them. \"Confirmed with customer\" means we checked that point with you; \"To be confirmed\" means it is still open and will be settled before the design is signed off.", { justified: true }),
     paragraph(CAPTURE_CONFIDENCE_EXPLAINER, { size: 18, colour: MUTED, justified: true }),
     table,
-    paragraph("Where a row is a note-only capture, the answer was still open at the time of writing and must be confirmed before final design sign-off.", { size: 18, colour: MUTED }),
+    paragraph("If a row has a note but no clear answer, that point was still open when this was written and will be confirmed before the design is signed off.", { size: 18, colour: MUTED }),
   ];
 }
 
@@ -229,8 +375,8 @@ function unresolvedDiscoveryContent(proposal: StoredProjectProposal): Array<Para
   const widths = [1800, 3000, 1500, 1360];
   const severityLabel: Record<string, string> = { conflict: "Conflict — BLOCKER", "low-confidence": "Low confidence", inferred: "Inferred (not confirmed)", unconfirmed: "Unconfirmed" };
   const table = fixedTable(widths, [
-    new TableRow({ tableHeader: true, children: ["Requirement area", "Captured answer", "Status", "Severity"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
-    ...items.map((item) => new TableRow({ children: [
+    tableRow({ tableHeader: true, children: ["Requirement area", "Captured answer", "Status", "Severity"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+    ...items.map((item) => tableRow({ children: [
       cell(item.field, widths[0], { bold: true }),
       cell(item.capturedAnswer, widths[1]),
       cell(severityLabel[item.reason] ?? item.reason, widths[2]),
@@ -254,8 +400,8 @@ function cableScheduleContent(proposal: StoredProjectProposal, bomRows: SalesBom
     if (!cableRows.length) return [];
     const widths = [2000, 1500, 900, 1200, 900, 2560];
     const table = fixedTable(widths, [
-      new TableRow({ tableHeader: true, children: ["Cable run", "Transport type", "Max length", "Connectors", "Status", "Validation reminder"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
-      ...cableRows.map((row) => new TableRow({ children: [
+      tableRow({ tableHeader: true, children: ["Cable run", "Transport type", "Max length", "Connectors", "Status", "Validation reminder"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+      ...cableRows.map((row) => tableRow({ children: [
         cell(row.label, widths[0], { bold: true }),
         cell(nativeCableToneLabel(row.type), widths[1]),
         cell(row.maxLengthMetres !== null && row.maxLengthMetres !== undefined ? `${row.maxLengthMetres}m` : "Not confirmed", widths[2]),
@@ -268,7 +414,7 @@ function cableScheduleContent(proposal: StoredProjectProposal, bomRows: SalesBom
     const pendingCount = cableRows.filter((r) => r.validationStatus === "needs-site-confirmation").length;
     const unknownCount = cableRows.filter((r) => r.validationStatus === "unknown").length;
     return [
-      paragraph(`The cable schedule below lists every connection in the recommended system, derived from the native topology-aware schematic engine. Each row shows the transport type, maximum cable length, connector format, and validation status. ${confirmedCount} of ${cableRows.length} runs are confirmed from governed product data; ${pendingCount} require site confirmation; ${unknownCount} are not yet confirmed.`, { justified: true }),
+      paragraph(`The cable schedule below lists every connection in the system, built from the equipment schedule. Each row gives the cable type, maximum length, connectors and what still needs checking. ${confirmedCount} of ${cableRows.length} runs are confirmed from WyreStorm product data; ${pendingCount} need checking on site; ${unknownCount} are not confirmed yet.`, { justified: true }),
       table,
     ];
   } catch {
@@ -289,15 +435,15 @@ function productSpecificationContent(proposal: StoredProjectProposal): Array<Par
 
 function canonicalDesignContent(proposal: StoredProjectProposal): Array<Paragraph | Table> {
   const revision = proposal.designRevision;
-  if (!revision) return [paragraph("A canonical design revision has not been compiled for this legacy proposal.", { colour: MUTED })];
+  if (!revision) return [paragraph("This proposal does not include a design trace. It was prepared before Wingman recorded one, so the design described above remains the basis of this proposal.", { colour: MUTED })];
   const document = buildDesignProjectDocument(revision);
   return [
-    paragraph(`Design revision: ${document.revisionId}`, { bold: true, colour: NAVY }),
+    paragraph(`Design reference: ${document.revisionId}`, { bold: true, colour: NAVY }),
     heading("Customer said", 2), paragraph(document.customerRequirement),
     heading("Wingman understood", 2), paragraph(document.interpretation),
     heading("Design direction", 2), paragraph(document.architecture),
     heading("Requirement trace", 2),
-    ...document.requirements.flatMap((item) => [paragraph(item.customerStatement, { bold: true }), paragraph(`${item.interpretation} Design consequence: ${item.designConsequence} Status: ${item.state}.`, { colour: MUTED })]),
+    ...document.requirements.flatMap((item) => [paragraph(item.customerStatement, { bold: true }), paragraph(`${item.interpretation} What this means for the design: ${item.designConsequence} Status: ${item.state}.`, { colour: MUTED })]),
     heading("System completeness", 2),
     ...document.requiredRoles.map((item) => bullet(`${item.label}: ${item.covered ? "Covered" : "Missing"}${item.evidence.length ? ` — ${item.evidence.join("; ")}` : ""}`)),
     heading("Product overview in this design", 2),
@@ -569,10 +715,15 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
   return canvas.toDataURL("image/png");
 }
 
-export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft, assets: ProposalDocxAssets = {}) {
+export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft, assets: ProposalDocxAssets = {}, videoWall: StoredVideowallSummary | null = null) {
   const config = getProposalDocumentTypeConfig(wizard.documentType);
+  const displaySchedule = buildDisplaySchedule(proposal, bomRows, videoWall);
   const company = proposal.companyName || "WyreStorm";
   const equipment = equipmentTable(bomRows, wizard);
+  // Installation comes from the same saved wall the display schedule quotes, so
+  // the priced lines and the install detail table cannot list different scope.
+  const installationSchedule = buildInstallationSchedule(wallRequirementsFromSummary(videoWall));
+  const installation = installationSchedule ? installationTable(installationSchedule, wizard) : null;
   const risks = [...(proposal.governanceWarnings ?? []), ...(proposal.validationNotes ?? [])];
   const application = proposal.applicationProposal;
   const story = proposalSolutionStory(proposal, bomRows);
@@ -583,6 +734,14 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     paragraph(wizard.projectName || proposal.title, { bold: true, size: 48, colour: NAVY, alignment: AlignmentType.CENTER, after: 200 }),
     paragraph(wizard.customerName ? `Prepared for ${wizard.customerName}` : "Customer proposal", { size: 26, colour: BLUE, alignment: AlignmentType.CENTER }),
     paragraph([wizard.proposalReference && `Reference: ${wizard.proposalReference}`, wizard.proposalDate && `Date: ${wizard.proposalDate}`, wizard.preparedBy && `Prepared by: ${wizard.preparedBy}`].filter(Boolean).join("  |  "), { size: 18, colour: MUTED, alignment: AlignmentType.CENTER }),
+    heading("Document control", 2),
+    fixedTable([3000, 6360], [
+      tableRow({ children: [cell("Reference", 3000, { bold: true }), cell(wizard.proposalReference || "Not assigned", 6360)] }),
+      tableRow({ children: [cell("Status", 3000, { bold: true }), cell("Draft proposal — subject to design and commercial approval", 6360)] }),
+      tableRow({ children: [cell("Prepared by", 3000, { bold: true }), cell(wizard.preparedBy || company, 6360)] }),
+      tableRow({ children: [cell("Issue date", 3000, { bold: true }), cell(wizard.proposalDate || "Not recorded", 6360)] }),
+      tableRow({ children: [cell("Revision", 3000, { bold: true }), cell(wizard.updatedAt || proposal.updatedAt, 6360)] }),
+    ]),
     ...(assets.room ? [imageParagraph(assets.room, 560, 315), paragraph(`${application?.application || "Room"} concept image — final room design and finishes are subject to approval.`, { size: 17, colour: MUTED, alignment: AlignmentType.CENTER })] : []),
     new Paragraph({ children: [new PageBreak()] }),
   ];
@@ -591,16 +750,16 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   const brief = proposalRoomBrief(proposal, bomRows);
   addSection(children, "Room at a glance", [
     paragraph(brief.application, { bold: true }), paragraph(wizard.customerObjectives || brief.purpose),
-    heading("Recorded room and design details", 2),
+    heading("Room and design details", 2),
     ...(brief.facts.length ? brief.facts.map(bullet) : [paragraph("Room dimensions, capacity and site conditions require confirmation.")]),
     ...(brief.highlights.length ? [heading("What this space delivers", 2), ...brief.highlights.map((item) => bullet(`${item.title}: ${item.detail}`))] : []),
     heading("In this room", 2),
-    paragraph("Grouped by the recorded equipment role. Item references match the equipment schedule; optional items remain subject to selection. Third-party equipment and services are detailed in Complete System Design and Responsibilities."),
+    paragraph("Items are grouped by the job each one does in the room, and the number matches the equipment schedule further on. Anything marked optional is still your decision, and work by others is listed under Complete System Design and Responsibilities."),
     ...brief.groups.flatMap((group) => [heading(group.role, 2), fixedTable([600, 1800, 4260, 600, 2100], [
-      new TableRow({ tableHeader: true, children: ["Item", "Model", "Description", "Qty", "Selection"].map((value, i) => cell(value, [600, 1800, 4260, 600, 2100][i], { bold: true, fill: PALE })) }),
-      ...group.equipment.map((row) => new TableRow({ children: [String(row.item), row.sku, row.description, String(row.qty), row.type].map((value, i) => cell(value, [600, 1800, 4260, 600, 2100][i])) })),
+      tableRow({ tableHeader: true, children: ["Item", "Model", "Description", "Qty", "Status"].map((value, i) => cell(value, [600, 1800, 4260, 600, 2100][i], { bold: true, fill: PALE })) }),
+      ...group.equipment.map((row) => tableRow({ children: [String(row.item), row.sku, row.description, String(row.qty), row.type].map((value, i) => cell(value, [600, 1800, 4260, 600, 2100][i])) })),
     ])]),
-    ...(!brief.groups.length ? [paragraph("No active equipment has been selected.")] : []),
+    ...(!brief.groups.length ? [paragraph(CUSTOMER_COPY.noEquipment)] : []),
   ]);
   addSection(children, "Solution Overview", [
     paragraph(wizard.proposedSolution || story.overview, { justified: true }),
@@ -617,17 +776,129 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   addSection(children, "Client Objectives and Current Challenge", [paragraph(wizard.customerObjectives || proposal.summary || "The client objectives require confirmation.", { justified: true })]);
   addSection(children, "Discovery Conversation", discoveryConversationContent(proposal));
   addSection(children, "Unresolved Discovery Items", unresolvedDiscoveryContent(proposal));
-  addSection(children, "Requirement Understanding and Design Trace", canonicalDesignContent(proposal));
+  addSection(children, "What You Asked For and How We Designed It", canonicalDesignContent(proposal));
   addSection(children, "Proposed Solution and Business Value", [paragraph(wizard.proposedSolution || "The proposed solution requires confirmation.", { justified: true }), bullet("A supportable architecture aligned to the stated operational requirement."), bullet("A controlled route from design approval to quotation, delivery and acceptance."), bullet("Clear ownership of equipment, services, dependencies and by-others scope.")]);
   addSection(children, "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is quoted."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
-  addSection(children, "Equipment and Pricing", [paragraph(equipment.complete ? `The equipment total is ${money(equipment.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.` : "COMMERCIAL HOLD: one or more equipment prices are missing. This draft must not be issued as an exact quotation until every TBC value is resolved.", { bold: true, colour: equipment.complete ? NAVY : "9B1C1C" }), equipment.table, paragraph("Pricing covers only the listed equipment. Services, third-party equipment, freight, taxes and by-others work are excluded unless expressly priced below.", { size: 18, colour: MUTED })]);
+  if (displaySchedule) {
+    // The transport column only exists when a saved wall supplied the link
+    // estimate; catalogue schedules keep their five-column table.
+    const showsTransport = displaySchedule.rows.some((row) => row.transport);
+    // The millimetre column appears only when the saved wall knows its size, so
+    // a catalogue schedule keeps its five-column table.
+    const showsSize = displaySchedule.rows.some((row) => row.size);
+    // Mass follows the panel size, so this column appears with the wall too.
+    const showsWeight = displaySchedule.rows.some((row) => row.weight);
+    const headers = [
+      "Screen",
+      ...(showsSize ? ["Size (mm)"] : []),
+      ...(showsWeight ? ["Weight"] : []),
+      "Resolution",
+      "Feeds",
+      ...(showsTransport ? ["Transport"] : []),
+      "Scaling",
+      "Notes",
+    ];
+    const widths = fittedWidths(headers, {
+      Screen: 1500,
+      "Size (mm)": 1250,
+      Weight: 900,
+      Resolution: 1250,
+      Feeds: 1050,
+      Transport: 2200,
+      Scaling: 1550,
+      Notes: 1600,
+    });
+    const values = (row: (typeof displaySchedule.rows)[number]) => [
+      row.screen,
+      ...(showsSize ? [row.size] : []),
+      ...(showsWeight ? [row.weight] : []),
+      row.resolution,
+      row.feeds,
+      ...(showsTransport ? [row.transport] : []),
+      row.scaling,
+      row.notes,
+    ];
+    // The elevation is only present when a saved wall supplied the drawing and
+    // the browser could rasterise it; the caption still names the wall.
+    const wallRequirements = wallRequirementsFromSummary(videoWall);
+    // The recommendation comes from the wall's captured plan, not from the asset
+    // list, so Word and the screen export judge the same conditions.
+    const mappingAdvice = wallRequirements ? wallMappingRecommendation(wallRequirements) : null;
+    const wallLayout = wallRequirements ? wallVisualLayout(wallRequirements) : null;
+    const wallOverlay = wallRequirements ? wallElevationOverlay(wallRequirements) : null;
+    // The card the wall started on prints beside the drawing, because the same
+    // sentence is on the project record and an adjusted wall has to read as one
+    // in both places.
+    const startingPoint = wallRequirements
+      ? wallStartingPointDrift(wallStartingPointFromSummary(videoWall?.summary), wallRequirements)
+      : null;
+    // Five install columns share the table width the four used: the run-entry
+    // cell is its own question, so it gets its own column.
+    const installWidths = [2600, 1900, 1600, 1900, 1360];
+    addSection(children, "Display Schedule", [
+      paragraph(displaySchedule.headline, { justified: true }),
+      ...(assets.wallElevation ? [imageParagraph(assets.wallElevation, 560, 315)] : []),
+      ...(assets.wallElevation && wallLayout
+        ? [paragraph(wallElevationCaption(wallLayout, wallOverlay), { size: 17, colour: MUTED, alignment: AlignmentType.CENTER })]
+        : []),
+      ...(startingPoint ? [paragraph(wallStartingPointRecordText(startingPoint), { size: 17, colour: MUTED })] : []),
+      ...(assets.wallPreviews ? mappingOptions(assets.wallPreviews, mappingAdvice) : []),
+      // Same wall and panel millimetres the HTML table caption and the elevation
+      // caption print, so the three outputs quote one size.
+      ...(displaySchedule.size ? [paragraph(displaySchedule.size, { size: 17, colour: MUTED })] : []),
+      fixedTable(widths, [
+        tableRow({ tableHeader: true, children: headers.map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) }),
+        ...displaySchedule.rows.map((row) => tableRow({ children: values(row).map((value, index) => cell(value, widths[index])) })),
+      ]),
+      // Mass and clearance are derived from the size above, so they print with
+      // the table they were measured from.
+      ...(displaySchedule.mounting ? [paragraph(`Mounting: ${displaySchedule.mounting}`, { size: 18, colour: MUTED })] : []),
+      ...(displaySchedule.transportFlags.length > 0
+        ? [paragraph("Transport limits:", { bold: true, size: 18 }), ...displaySchedule.transportFlags.map(bullet)]
+        : []),
+      paragraph(`Basis: ${displaySchedule.basis}`, { size: 18, colour: MUTED }),
+      // The survey's installation detail prints with the schedule it describes,
+      // so the quote and the wall table cannot disagree about what is installed.
+      ...(displaySchedule.install
+        ? [
+            heading("Installation Detail", 2),
+            paragraph(displaySchedule.install.text, { size: 18, colour: MUTED }),
+            fixedTable(installWidths, [
+              tableRow({ tableHeader: true, children: ["Link", "Display housing", "Mount", "Termination", "Run entry"].map((value, index) => cell(value, installWidths[index], { bold: true, fill: PALE })) }),
+              ...displaySchedule.install.rows.map((row) => tableRow({ children: [row.link, row.enclosure, row.mount, row.termination, row.entry].map((value, index) => cell(value, installWidths[index])) })),
+            ]),
+          ]
+        : []),
+    ]);
+  }
+  addSection(children, "Equipment and Pricing", [
+    paragraph(equipment.complete ? `The equipment total is ${money(equipment.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.` : "COMMERCIAL HOLD: one or more equipment prices are missing. This draft must not be issued as an exact quotation until every TBC value is resolved.", { bold: true, colour: equipment.complete ? NAVY : "9B1C1C" }),
+    equipment.table,
+    paragraph("Pricing covers only the listed equipment. Services, third-party equipment, freight, taxes and by-others work are excluded unless expressly priced below.", { size: 18, colour: MUTED }),
+    ...(installation && installationSchedule ? [
+      paragraph("Installation and services", { bold: true, size: 26, colour: NAVY, after: 100 }),
+      paragraph(installationSchedule.text, { size: 18, colour: MUTED }),
+      installation.table,
+      paragraph(
+        installation.complete
+          ? `The installation and services total is ${money(installation.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.`
+          : "COMMERCIAL HOLD: one or more installation rates are missing. The installation lines above print TBC until every one is priced.",
+        { bold: true, colour: installation.complete ? NAVY : "9B1C1C" },
+      ),
+    ] : []),
+  ]);
   addSection(children, "Services and Commercial Allowances", [pipeTable(wizard.servicesAndAllowances, ["Service / discipline", "Responsibility", "Commercial status"], [3900, 2460, 3000])]);
   addSection(children, "Complete System Design and Responsibilities", [
-    paragraph("The following items complete the wider solution. Unfilled entries are open design decisions, not supplied equipment or agreed services. Replace each [complete] with the agreed detail or mark it not applicable / excluded."),
-    ...bulletLines(wizard.externalScope || story.externalScope, "External design scope to be agreed."),
+    paragraph(CUSTOMER_COPY.scopeIntro),
+    // The story is already customer copy; a draft field can still hold the
+    // rep prompts the wizard seeded it with, so it goes through the same gate.
+    ...bulletLines(
+      customerCopyText(wizard.externalScope, story.externalScope),
+      CUSTOMER_COPY.scopePending,
+    ),
   ]);
   addSection(children, "Third-Party System Scope", [
-    paragraph("WyreStorm forms part of the complete AV solution. The following equipment and delivery disciplines must be designed, owned and commercially completed before customer issue. TBC cells are deliberately editable allowances, not included prices.", { justified: true }),
+    paragraph("WyreStorm is one part of the complete AV solution. The equipment and delivery tasks below still need an owner and a price before we can issue a final quotation. A TBC in this table is an allowance to be agreed, not a price included in the total.", { justified: true }),
     scopeTable(proposal),
   ]);
   addSection(children, "Technical Architecture", [
@@ -659,16 +930,19 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     styles: { default: { document: { run: { font: "Calibri", size: 22, color: TEXT }, paragraph: { spacing: { after: 160, line: 320 } } } } },
     numbering: { config: [{ reference: "proposal-bullets", levels: [{ level: 0, format: "bullet", text: "•", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 540, hanging: 280 }, spacing: { after: 80, line: 290 } } } }] }] },
     sections: [{
-      properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440, header: 708, footer: 708 } } },
-      headers: { default: new Header({ children: [paragraph(`${company}  |  ${wizard.proposalReference}`, { alignment: AlignmentType.RIGHT, size: 17, colour: MUTED })] }) },
+      properties: { titlePage: true, page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440, header: 708, footer: 708 } } },
+      headers: { first: new Header({ children: [] }), default: new Header({ children: [paragraph(`${company}  |  ${wizard.proposalReference}`, { alignment: AlignmentType.RIGHT, size: 17, colour: MUTED })] }) },
       footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: `${proposal.proposalFooter || "Prepared using WyreStorm Wingman."}  |  Page `, color: MUTED, size: 16, font: "Calibri" }), new TextRun({ children: [PageNumber.CURRENT], color: MUTED, size: 16, font: "Calibri" })] })] }) },
       children,
     }],
   });
 }
 
-export async function exportProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft) {
+export async function exportProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft, videoWall: StoredVideowallSummary | null = null) {
   if (typeof window === "undefined") return;
+  // A wall whose own schedule lists an over-limit run cannot be issued: the
+  // exporter refuses before it packs a document that contradicts itself.
+  assertWallTransportExportable(wallTransportRequirements(wallRequirementsFromSummary(videoWall)));
 
   // Build the native schematic from the proposal's products and BOM rows.
   // Use BOM row roles to infer source/display/encoder/decoder for a richer
@@ -701,7 +975,30 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
       "Room signal-flow schematic",
     ),
   ]);
-  const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic, products: productAssets, media }));
+  // The wall elevation is drawn from the saved design before the DOCX is packed.
+  const wallRequirements = wallRequirementsFromSummary(videoWall);
+  const wallPng = wallRequirements ? await wallElevationPng(wallRequirements) : undefined;
+  const wallElevation: ProposalImageAsset | undefined = wallPng
+    ? { ...wallPng, type: "png", title: "Wall elevation" }
+    : undefined;
+  // A wall whose source shape differs also prints both mappings, so the
+  // customer sees what fitting or filling costs before agreeing.
+  const previews = wallRequirements ? wallMappingPreviews(wallRequirements) : null;
+  const previewOptions: WallPreview[] = previews && wallRequirements
+    ? await Promise.all(previews.previews.map(async (preview) => {
+      const png = await wallElevationPng(
+        { ...wallRequirements, mapping: preview.value },
+        { dimensions: false, overlayLabels: false },
+      );
+      return {
+        value: preview.value,
+        consequence: preview.consequence,
+        ...(png ? { image: { ...png, type: "png" as const, title: `Wall elevation, ${preview.value}` } } : {}),
+      };
+    }))
+    : [];
+  const wallPreviews = previews ? { chosen: previews.chosen, options: previewOptions } : undefined;
+  const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic, wallElevation, wallPreviews, products: productAssets, media }, videoWall));
   downloadBlob(blob, `${fileBaseName(wizard.projectName || proposal.title)}.proposal.docx`);
   trackDesignProjectExport(proposal.designRevision, "docx");
 }

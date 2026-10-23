@@ -47,7 +47,7 @@ export function DiscoveryStrandedDefaultsNotice(props: {
   const applicationLabel = drift ? (plainLanguageLabels[drift.application] ?? drift.application) : "";
 
   return (
-    <section className="wm-decision-compatibility-alert wm-discovery-stranded-defaults" role="alert" aria-live="polite">
+    <section className="wm-decision-compatibility-alert" role="alert" aria-live="polite" data-stranded-defaults="true">
       {hasStranded && (
         <>
           <div>
@@ -90,7 +90,7 @@ export function DiscoveryStrandedDefaultsNotice(props: {
       )}
 
       {drift && drift.items.length > 0 && (
-        <div className="wm-discovery-application-drift">
+        <div>
           <div>
             <p className="wm-ui-kicker">Quick-start profile</p>
             <h3>Answers still follow the {previousLabel} profile</h3>

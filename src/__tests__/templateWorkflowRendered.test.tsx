@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { saveRoomTemplateCopy } from "../wingman2/lib/customRoomTemplates";
@@ -12,12 +12,18 @@ import { TemplatesPage } from "../wingman2/pages/TemplatesPage";
 import { getTemplateApplicationProfile } from "../wingman2/lib/templateApplicationProfiles";
 import { projectScopeSection } from "../wingman2/lib/projectScope";
 
+/** The address the page is on, so a test can see what a link would send. */
+function AddressProbe() {
+  const location = useLocation();
+  return <output data-testid="address">{location.search}</output>;
+}
+
 function renderTemplateRoutes(initialPath = "/wingman/templates") {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
       <Routes>
         <Route path="/wingman/templates" element={<TemplatesPage />} />
-        <Route path="/wingman/templates/:templateId" element={<TemplateReviewPage />} />
+        <Route path="/wingman/templates/:templateId" element={<><TemplateReviewPage /><AddressProbe /></>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -42,6 +48,26 @@ describe("template workflow wiring", () => {
     expect(screen.getByRole("heading", { name: template!.name, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Room design" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("heading", { name: "Room brief", level: 2 })).toBeInTheDocument();
+  });
+
+  it("opens the Proposal tab when the address names a pre-issue stage", () => {
+    const template = roomTemplates[0];
+
+    renderTemplateRoutes(`/wingman/templates/${template.id}?stage=assumptions`);
+
+    // A link to a stage has to land on the tab that shows it.
+    expect(screen.getByRole("tab", { name: "Proposal" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("address").textContent).toBe(`?stage=assumptions`);
+  });
+
+  it("drops the stage from the address once the rep leaves the Proposal tab", () => {
+    const template = roomTemplates[0];
+    renderTemplateRoutes(`/wingman/templates/${template.id}?stage=assumptions`);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Room design" }));
+
+    // An address naming a stage nobody can see is one a reload would jump back to.
+    expect(screen.getByTestId("address").textContent).toBe("");
   });
 
   it("shows a clear not-found state for an invalid template ID", () => {

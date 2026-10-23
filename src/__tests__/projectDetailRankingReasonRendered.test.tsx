@@ -134,12 +134,12 @@ describe("Project Detail rendered workflow evidence", () => {
     expect(screen.getByRole("region", { name: "Response blocker walkthrough" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Open full Discovery|Open Finder|Open Compare|Open Responses/ })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
+    fireEvent.click(screen.getByRole("link", { name: "Evidence" }));
     expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
     expect(screen.getAllByText("Plausible — confirm").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Kramer VS-88H2A").length).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getByRole("button", { name: "Equipment" }));
+    fireEvent.click(screen.getByRole("link", { name: "Equipment" }));
     expect(screen.getByText("Leading product family")).toBeInTheDocument();
     expect(screen.getAllByText("Matrix / HDBaseT").length).toBeGreaterThan(0);
   });
@@ -147,9 +147,9 @@ describe("Project Detail rendered workflow evidence", () => {
   it("shows one project page at a time", () => {
     render(<MemoryRouter initialEntries={["/wingman/projects/project-1"]}><Routes><Route path="/wingman/projects/:projectId" element={<ProjectDetailPage />} /></Routes></MemoryRouter>);
     expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
+    fireEvent.click(screen.getByRole("link", { name: "Evidence" }));
     expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Overview" }));
+    fireEvent.click(screen.getByRole("link", { name: "Overview" }));
     expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
   });
 });

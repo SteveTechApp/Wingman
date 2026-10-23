@@ -58,7 +58,7 @@ export function CompareProofTable({
         </thead>
         <tbody>
           {match.verdicts.map((row) => (
-            <tr key={row.field} className={`wm-proof__row wm-proof__row--${row.verdict}`}>
+            <tr key={row.field} className={`wm-proof__row--${row.verdict}`}>
               <th scope="row">{row.label}</th>
               <td>
                 {row.competitorValue}

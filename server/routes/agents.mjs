@@ -8,6 +8,7 @@ import {
 } from "../catalog/files.mjs";
 import { runGuruAgent } from "../agents/guruAgent.mjs";
 import { runVisionContextAgent } from "../agents/visionContextAgent.mjs";
+import { runWallSurveyScanAgent } from "../agents/wallSurveyScanAgent.mjs";
 
 const UI_HOST = String(process.env.WINGMAN_UI_HOST || "127.0.0.1").trim() || "127.0.0.1";
 const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
@@ -889,7 +890,7 @@ export async function handleAgentsRoute(req, res) {
       service: "wingman-agents",
       runtime: "node:http",
       mode: "phase1-real-data-pipeline",
-      phases: ["discovery", "architect", "validate", "proposal", "guru", "competitor", "vision-context"],
+      phases: ["discovery", "architect", "validate", "proposal", "guru", "competitor", "vision-context", "wall-survey-scan"],
       catalogRecords: Number(catalogContext?.counts?.records || 0),
       timestamp: nowIso(),
     });
@@ -1022,6 +1023,25 @@ export async function handleAgentsRoute(req, res) {
       sendJson(res, error?.statusCode === 413 ? 413 : 400, {
         ok: false,
         phase: "vision-context",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return true;
+  }
+
+  if (pathname === "/api/wingman/agents/wall-survey-scan" && method === "POST") {
+    try {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, {
+        ok: true,
+        phase: "wall-survey-scan",
+        data: await runWallSurveyScanAgent(body),
+        timestamp: nowIso(),
+      });
+    } catch (error) {
+      sendJson(res, error?.statusCode === 413 ? 413 : 400, {
+        ok: false,
+        phase: "wall-survey-scan",
         error: error instanceof Error ? error.message : String(error),
       });
     }

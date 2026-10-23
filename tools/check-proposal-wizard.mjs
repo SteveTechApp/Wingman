@@ -7,6 +7,8 @@ const files = {
   page: path.join(root, "src", "wingman2", "pages", "ProposalPage.tsx"),
   component: path.join(root, "src", "wingman2", "components", "ProposalCompletionWizard.tsx"),
   model: path.join(root, "src", "wingman2", "lib", "proposalWizard.ts"),
+  copy: path.join(root, "src", "wingman2", "lib", "proposalCopy.ts"),
+  htmlExport: path.join(root, "src", "wingman2", "lib", "proposalExport.ts"),
   export: path.join(root, "src", "wingman2", "lib", "proposalDocxExport.ts"),
   css: path.join(root, "src", "wingman2", "styles", "wingman-workflow-theme.css"),
 };
@@ -31,6 +33,8 @@ const page = read("Proposal page", files.page);
 const component = read("Proposal wizard component", files.component);
 const model = read("Proposal wizard model", files.model);
 const exporter = read("DOCX exporter", files.export);
+const htmlExporter = read("HTML exporter", files.htmlExport);
+const copy = read("Proposal copy", files.copy);
 const css = read("Proposal wizard CSS", files.css);
 
 [
@@ -66,13 +70,34 @@ const css = read("Proposal wizard CSS", files.css);
 );
 
 [
+  "REP_COPY",
+  "CUSTOMER_COPY",
+  "customerCopyLines",
+  "customerCopyText",
+  "isRepOnlyCopy",
+].forEach((marker) => requireMarker("proposalCopy.ts", copy, marker));
+
+// The printed document is customer copy only: an export builder may never
+// carry an authoring prompt or import the rep-facing layer.
+const repOnlyCopy = [/\[complete\]/i, /\[todo\]/i, /\[internal[^\]]*\]/i, /\bREP_COPY\b/, /Add BOM rows/, /Add equipment schedule rows/];
+for (const [label, source] of [
+  ["proposalExport.ts", htmlExporter],
+  ["proposalDocxExport.ts", exporter],
+]) {
+  repOnlyCopy.forEach((pattern) => {
+    if (pattern.test(source)) errors.push(`${label} carries rep-only copy: ${pattern}`);
+  });
+  requireMarker(label, source, "CUSTOMER_COPY");
+}
+
+[
   'from "docx"',
   "Packer.toBlob",
   "Header",
   "Footer",
   "PageNumber.CURRENT",
   "Equipment and Pricing",
-  "Requirement Understanding and Design Trace",
+  "What You Asked For and How We Designed It",
   ".proposal.docx",
 ].forEach((marker) =>
   requireMarker("proposalDocxExport.ts", exporter, marker),

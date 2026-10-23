@@ -201,6 +201,7 @@ export type StoredCompareRun = {
 };
 
 export type StoredProjectProposal = {
+  pricing?: { currency: "GBP" | "USD" | "EUR"; pricesExcludeTax: boolean; bomUnitPrices: Record<string, string>; installationUnitPrices: Record<string, string> };
   salesContent?: { objectives: string; solutionOverview: string; architecture?: string; externalScope: string };
   title: string;
   summary: string;
@@ -490,9 +491,23 @@ export type StoredWorkflowState = {
 };
 
 export type StoredVideowallSummary = {
+  ownershipMigratedAt?: string;
+  ownershipCleared?: boolean;
   savedAt: string;
   wallType: string;
   summary: Record<string, unknown>;
+  /**
+   * The project this wall was saved into. Recorded at save time, and rewritten
+   * when a project is copied, so a wall always names the project it belongs to
+   * rather than relying on where it happens to be stored.
+   */
+  projectId?: string;
+  /**
+   * The room template the design started from, when it started from one. This
+   * is the fact a template's proposal export reads; walls saved before it
+   * existed have no value and are matched on the project's room model instead.
+   */
+  templateId?: string;
 };
 
 export type StoredProposalDraft = {

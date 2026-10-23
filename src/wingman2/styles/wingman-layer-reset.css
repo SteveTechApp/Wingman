@@ -93,21 +93,10 @@ canvas {
   color: inherit;
 }
 
-small,
-.wm-muted,
-.wm-subtitle,
-.wm-help,
-.wm-meta,
-.wm-caption {
-  color: var(--wm-muted);
-}
-
 /* --------------------------------------------------------------------------
    App shell
    -------------------------------------------------------------------------- */
 
-.wm-app,
-.wm-shell,
 .wingman-app {
   min-height: 100vh;
   background: transparent;

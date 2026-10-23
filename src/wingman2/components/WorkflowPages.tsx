@@ -1,15 +1,22 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 export type WorkflowPage = { id: string; label: string };
 
 export function useWorkflowPage(pages: readonly WorkflowPage[], parameter = "view", initial?: string) {
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
+  const { pathname, search, hash } = useLocation();
+  const navigate = useNavigate();
   const requested = params.get(parameter) ?? initial;
   const current = pages.find((page) => page.id === requested)?.id ?? pages[0].id;
   function go(id: string) {
     if (!pages.some((page) => page.id === id)) return;
-    setParams((previous) => { const next = new URLSearchParams(previous); next.set(parameter, id); return next; });
+    const next = new URLSearchParams(search);
+    next.set(parameter, id);
+    // The fragment names a place inside the page rather than a query value, so
+    // switching page keeps it: the page's own anchor reader decides whether the
+    // place it names is still on screen.
+    navigate({ pathname, search: `?${next.toString()}`, hash });
   }
   return { current, go };
 }
@@ -40,7 +47,7 @@ export function WorkflowPages({ pages, label, parameter = "view", initial }: {
     body.current?.scrollIntoView?.({ block: "start" });
   }, [current]);
   const selected = pages.find((page) => page.id === current)!;
-  return <div className="wm-workflow-pages">
+  return <div>
     <WorkflowNavigation pages={pages} current={current} onChange={go} label={label} />
     <div ref={body} tabIndex={-1} role="region" aria-label={selected.label} className="wm-workflow-pages__body">{selected.content}</div>
   </div>;

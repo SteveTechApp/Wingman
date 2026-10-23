@@ -21,6 +21,70 @@ describe("project persistence codecs", () => {
     expect(decoded).not.toHaveProperty("omittedProductSkus");
   });
 
+  it("keeps the photo review stored on a saved wall", () => {
+    const surveyReview = {
+      reviewedAt: "2026-10-20T14:12:00.000Z",
+      photoCount: 1,
+      confidence: 0.7,
+      rows: [
+        { id: "display-1", label: "Panel 1", metres: 6, confidence: 0.8, decision: "accepted" },
+        { id: "display-2", label: "Panel 2", metres: 9, confidence: 0.4, decision: "rejected" },
+      ],
+    };
+    const decoded = decodeStoredProject({
+      ...BASE_PROJECT,
+      videowall: {
+        savedAt: "2026-10-20T14:13:00.000Z",
+        wallType: "lcd",
+        summary: { version: 2, requirements: { application: "lcd-direct", surveyReview } },
+      },
+    });
+
+    // The review is part of the design record, so a load cannot quietly drop it.
+    expect(
+      (decoded?.videowall?.summary as { requirements?: { surveyReview?: unknown } } | undefined)?.requirements?.surveyReview,
+    ).toEqual(surveyReview);
+  });
+
+  it("keeps the project and template a saved wall records", () => {
+    const decoded = decodeStoredProject({
+      ...BASE_PROJECT,
+      videowall: {
+        savedAt: "2026-02-01T00:00:00.000Z",
+        wallType: "lcd",
+        summary: {},
+        projectId: "project-9",
+        templateId: "tpl-boardroom",
+      },
+    });
+    expect(decoded?.videowall).toMatchObject({ projectId: "project-9", templateId: "tpl-boardroom" });
+
+    // A wall saved before the links existed is filled from the record it sits in.
+    const legacy = decodeStoredProject({
+      ...BASE_PROJECT,
+      videowall: { savedAt: "2026-02-01T00:00:00.000Z", wallType: "lcd", summary: {} },
+    });
+    expect(legacy?.videowall?.projectId).toBe("legacy-project");
+    expect(legacy?.videowall).not.toHaveProperty("templateId");
+  });
+
+  it("backfills a legacy wall's template from its project's room model", () => {
+    const decoded = decodeStoredProject({
+      ...BASE_PROJECT,
+      discoveryBrief: { savedAt: BASE_PROJECT.updatedAt, roomModel: { sourceTemplateId: "tpl-boardroom" } },
+      videowall: { savedAt: "2026-02-01T00:00:00.000Z", wallType: "lcd", summary: {} },
+    });
+    expect(decoded?.videowall).toMatchObject({ projectId: "legacy-project", templateId: "tpl-boardroom" });
+
+    // A wall that already names its template keeps it, even if the room model moved on.
+    const recorded = decodeStoredProject({
+      ...BASE_PROJECT,
+      discoveryBrief: { savedAt: BASE_PROJECT.updatedAt, roomModel: { sourceTemplateId: "tpl-huddle" } },
+      videowall: { savedAt: "2026-02-01T00:00:00.000Z", wallType: "lcd", summary: {}, templateId: "tpl-boardroom" },
+    });
+    expect(recorded?.videowall?.templateId).toBe("tpl-boardroom");
+  });
+
   it("migrates the legacy Finder stage and route to Recommendations", () => {
     const decoded = decodeStoredProject({
       ...BASE_PROJECT,
@@ -109,4 +173,13 @@ describe("project persistence codecs", () => {
       syncConflict: { fields: [], detectedAt: "2026-01-03T00:00:00.000Z" },
     })).not.toHaveProperty("syncConflict");
   });
+});
+
+it("records a legacy wall migration once and honours deliberate cleared ownership", () => {
+  const project = decodeStoredProject({ ...BASE_PROJECT, videowall: { wallType: "lcd", savedAt: BASE_PROJECT.updatedAt, summary: {} } })!;
+  expect(project.videowall?.projectId).toBe(BASE_PROJECT.id);
+  expect(project.videowall?.ownershipMigratedAt).toBeTruthy();
+  expect(decodeStoredProject(project)?.videowall?.ownershipMigratedAt).toBe(project.videowall?.ownershipMigratedAt);
+  const cleared = decodeStoredProject({ ...project, videowall: { ...project.videowall, projectId: undefined, ownershipCleared: true } });
+  expect(cleared?.videowall?.projectId).toBeUndefined();
 });

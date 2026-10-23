@@ -17,7 +17,7 @@ export const projectLifecycle = createProjectLifecycleCommands(projectCommandCon
 const discovery = createDiscoveryCommands(projectCommandContext, projectLifecycle); const recommendations = createRecommendationCommands(projectCommandContext, projectLifecycle); const compare = createCompareCommands(projectCommandContext, projectLifecycle); const proposals = createProposalCommands(projectCommandContext, projectLifecycle);
 export const { resetProjectStore, copyStoredProject, deleteStoredProject, copyStoredProposalDraft, deleteStoredProposalDraft, getActiveProject, getCurrentWorkflowProject, setActiveProjectId, upsertStoredProject, updateStoredProject } = projectLifecycle;
 export function clearActiveProject() { setActiveProjectId(null); }
-export const { saveDiscoveryBriefToProject, productSelectionsFromVideowallSummary, saveVideowallToProject, saveIngestAnalysisToProject } = discovery;
+export const { saveDiscoveryBriefToProject, productSelectionsFromVideowallSummary, saveVideowallToProject, recordWallInstallDetail, reconfirmWallSurveyReview, saveIngestAnalysisToProject } = discovery;
 export const { saveRecommendationFeedback, saveProductSelectionToProject, saveProductSelectionToCurrentProject, removeProductSelectionFromProject, removeProductSelectionFromCurrentProject, createProjectForProductSelection, saveRecommendationEvidenceToProject } = recommendations;
 export const { deleteCompareRunFromProject, saveCompareRunToProject } = compare;
 export const { saveProjectProposalToProject, restoreProposalVersion, saveProposalVisualAsset, saveDealOutcome, saveProjectRequirementsToProject } = proposals;

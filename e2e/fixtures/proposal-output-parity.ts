@@ -12,6 +12,7 @@ export const PARITY_MARKERS = {
   discoveryAnswer: "Four displays",
   schematic: "Operator sources → NetworkHD encoders → 10GbE network → NetworkHD decoders → Four displays",
   disclaimer: "best-efforts basis",
+  displaySchedule: "Display Schedule",
 } as const;
 
 export const parityBom: SalesBomRow[] = [
@@ -40,7 +41,7 @@ export const parityProposal: StoredProjectProposal = {
     userJourney: ["Operators select an approved source and route it to any display."], technicalFacts: [],
     architectureDiagram: PARITY_MARKERS.schematic,
     acceptanceCriteria: ["Every approved source-to-display route passes functional testing."], visualBriefs: [], verifiedDesignParameters: [], deploymentConditions: [],
-    marketStory: "The room supports controlled, resilient operational decision-making.", productSpecifications: [], thirdPartyScope: [],
+    marketStory: "The room supports controlled, resilient operational decision-making.", productSpecifications: [], thirdPartyScope: [{ category: "Displays", description: "Operator displays", responsibility: "Integrator", status: "allowance", quantity: 4, notes: "Confirm size and mounting." }],
   },
   companyName: "WyreStorm", preparedBy: "Solutions Team", proposalFooter: "Northstar parity evidence fixture",
   updatedAt: "2026-09-11T00:00:00.000Z",

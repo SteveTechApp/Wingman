@@ -18,6 +18,7 @@ import {
   clearActiveProject,
   getCurrentWorkflowProject,
   readProjectStore,
+  useProjectStore,
 } from "../features/projects";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
@@ -244,6 +245,25 @@ export function AppShell({ children }: AppShellProps) {
   }, [activeRoute?.key, activeSummary]);
   const { isGuided } = useUiMode();
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
+  // The surveys that still ask for a rep, counted by the same rule the cards
+  // use, so the navigation says there is work before the list is opened. The
+  // review model is imported on demand: the shell is on every route, so a static
+  // import here would put that model in the eager chunk.
+  const { projects } = useProjectStore();
+  const [surveyAttention, setSurveyAttention] = useState(0);
+  useEffect(() => {
+    let active = true;
+    import("../lib/wallSurveyReview")
+      .then(({ projectsNeedingSurveyAttention }) => {
+        if (active) setSurveyAttention(projectsNeedingSurveyAttention(projects).length);
+      })
+      .catch(() => {
+        if (active) setSurveyAttention(0);
+      });
+    return () => {
+      active = false;
+    };
+  }, [projects]);
   const canManageData =
   import.meta.env.DEV ||
   Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
@@ -343,7 +363,7 @@ export function AppShell({ children }: AppShellProps) {
             </button>
           </div>
         ) : (
-          <Link to={routeCatalogByKey.dashboard.path} className="wingman-brand wingman-brand-logo-only" aria-label="Wingman home" onClick={() => setMobileNavOpen(false)}>
+          <Link to={routeCatalogByKey.dashboard.path} className="wingman-brand" aria-label="Wingman home" onClick={() => setMobileNavOpen(false)}>
             <img
               src={wingmanBrandLogo}
               alt="WyreStorm Wingman"
@@ -363,7 +383,9 @@ export function AppShell({ children }: AppShellProps) {
               to={path}
               end={key === "dashboard"}
               title={summary}
-              aria-label={`${navLabel}: ${summary}`}
+              // The count is part of the link's own name, so a screen reader
+              // hears there is work without the badge having to be read out.
+              aria-label={`${navLabel}: ${summary}${key === "projects" && surveyAttention > 0 ? `. ${surveyAttention} survey${surveyAttention === 1 ? " needs" : "s need"} attention` : ""}`}
               className={() =>
                 ["wingman-nav-link", activeRoute && primarySectionForRoute(activeRoute.key) === key ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")
               }
@@ -372,6 +394,9 @@ export function AppShell({ children }: AppShellProps) {
               <span className="wingman-nav-copy">
                 <span>{navDisplayLabel(key, navLabel)}</span>
               </span>
+              {key === "projects" && surveyAttention > 0 ? (
+                <span className="wingman-nav-attention" aria-hidden="true">{surveyAttention}</span>
+              ) : null}
               <span className="wingman-nav-tooltip" role="tooltip">
                 {summary}
               </span>
@@ -401,7 +426,7 @@ export function AppShell({ children }: AppShellProps) {
 
       <div className="wingman-workspace">
         <header
-          className={`wingman-topbar wm-balanced-topbar ${isProjectDetailPage ? "wm-topbar--compact-context" : ""}`}
+          className={`wingman-topbar ${isProjectDetailPage ? "wm-topbar--compact-context" : ""}`}
         >
           {isGuided && (
             <Link to={routeCatalogByKey.dashboard.path} aria-label="Wingman home" onClick={() => setMobileNavOpen(false)} className="wingman-home-link">
@@ -416,7 +441,7 @@ export function AppShell({ children }: AppShellProps) {
           )}
 
           <div
-            className="wingman-topbar-title wm-balanced-topbar-title"
+            className="wingman-topbar-title"
             data-wingman-page-header="true"
             title={`${activeLabel}: ${activeSummary}`}
           >

@@ -164,7 +164,7 @@ async function runStrandedLoop(page) {
   // 3. The seeded independent-routing answer is now stranded: assert the
   //    notice appears in the summary card WITH the Remove action (untouched
   //    quick-start origin) and names the hidden default.
-  const notice = page.locator(".wm-discovery-stranded-defaults");
+  const notice = page.locator("[data-stranded-defaults]");
   await notice.waitFor({ state: "visible", timeout: 10_000 });
   const noticeText = await notice.innerText();
   if (!noticeText.includes(STRANDED_LABEL)) {
@@ -243,7 +243,7 @@ async function runRecommendationsRefusal(page) {
   await oneDisplay.waitFor({ state: "visible", timeout: 10_000 });
   await oneDisplay.click();
   await page.waitForTimeout(500);
-  const notice = page.locator(".wm-discovery-stranded-defaults");
+  const notice = page.locator("[data-stranded-defaults]");
   await notice.waitFor({ state: "visible", timeout: 10_000 });
 
   // Move to recommendations by URL — the in-app CTA is itself gated by the

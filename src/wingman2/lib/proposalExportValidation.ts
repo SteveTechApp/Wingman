@@ -13,12 +13,43 @@ import type {
 import type { SalesBomRow } from "./salesReadiness";
 import { powerBudgetSummary } from "./powerBudget";
 import { resolveProductTechnicalData } from "./governedProductTechnicalData";
+import { resolveProductLifecycle } from "./wyrestormProductLifecycle";
+import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "./wallSurvey";
+import { wallTransportPlan, wallTransportRequirements, type WallTransportLink } from "./videowallTransport";
+import type { WallRequirements } from "./videowallOptions";
+import { buildInstallationSchedule, installationLineLabel, type InstallationUnitPrices } from "./installationSchedule";
+import {
+  installationRateCardCurrencyMismatches,
+  type InstallationRateCard,
+  type InstallationRateCardCurrency,
+} from "./installationRateCard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+/**
+ * Every kind of check this gate can raise, as a runtime list as well as a type.
+ *
+ * The list exists at runtime so `npm run check:export-validation-domains` can
+ * ask each domain for the test that proves it, which a type alone cannot be
+ * read back from. Adding a check therefore means adding its domain here, where
+ * the guard from the module's own test file — and its own registry — meet.
+ */
+export const EXPORT_VALIDATION_DOMAINS = [
+  "reach",
+  "power",
+  "chain",
+  "lifecycle",
+  "discovery",
+  "transport",
+  "survey",
+  "currency",
+] as const;
+
+export type ExportValidationDomain = (typeof EXPORT_VALIDATION_DOMAINS)[number];
+
 export type ExportValidationBlocker = {
   id: string;
-  domain: "reach" | "power" | "chain" | "lifecycle" | "discovery";
+  domain: ExportValidationDomain;
   severity: "blocker" | "warning";
   sku?: string;
   message: string;
@@ -295,30 +326,45 @@ function validateChainCompleteness(
 
 // ─── Lifecycle Validation ─────────────────────────────────────────────────────
 
+/*
+ * A selected product the governed lifecycle record says must not be quoted.
+ *
+ * Lifecycle is a property of the product record (the business list entry: its
+ * status, the successor that replaced it, an admin block), not something the
+ * technical spec carries, so the check reads `resolveProductLifecycle` — the
+ * one record that answers "may this SKU be quoted today?". Asking the
+ * technical-data resolver instead read a bare SKU string as an empty product,
+ * so its warnings were never lifecycle warnings and this check could not fire.
+ *
+ * A cable or an unlisted SKU is not a lifecycle failure: cables are quoted, and
+ * a by-others or not-yet-governed line is the chain check's business. Only a
+ * discontinued, do-not-spec or admin-blocked SKU, or one a current product
+ * replaced, stops the document.
+ */
 function validateLifecycle(products: StoredProductSelection[]): ExportValidationBlocker[] {
   const blockers: ExportValidationBlocker[] = [];
 
   for (const product of products) {
-    const profile = resolveProductTechnicalData(product.sku);
-    if (!profile) continue;
+    const lifecycle = resolveProductLifecycle(product.sku);
+    const supersededBy = lifecycle.supersededBy?.trim() || "";
+    const cannotBeQuoted =
+      lifecycle.status === "discontinued" ||
+      lifecycle.status === "do-not-spec" ||
+      lifecycle.adminBlocked ||
+      Boolean(supersededBy);
 
-    // Check warnings for lifecycle issues
-    const hasLifecycleWarning = profile.warnings.some((w) =>
-      w.toLowerCase().includes("end-of-life") ||
-      w.toLowerCase().includes("eol") ||
-      w.toLowerCase().includes("discontinued")
-    );
+    if (!cannotBeQuoted) continue;
 
-    if (hasLifecycleWarning) {
-      blockers.push({
-        id: `lifecycle-${product.sku}`,
-        domain: "lifecycle",
-        severity: "blocker",
-        sku: product.sku,
-        message: `${product.sku} may have lifecycle concerns.`,
-        fix: "Verify current lifecycle status before quoting.",
-      });
-    }
+    blockers.push({
+      id: `lifecycle-${product.sku}`,
+      domain: "lifecycle",
+      severity: "blocker",
+      sku: product.sku,
+      message: lifecycle.note,
+      fix: supersededBy
+        ? `Quote ${supersededBy} instead, or confirm with WyreStorm that ${product.sku} is still supplied.`
+        : `Replace ${product.sku} with a current product, or confirm with WyreStorm that it can still be supplied, before issuing.`,
+    });
   }
 
   return blockers;
@@ -390,6 +436,170 @@ function validateDiscoveryConversation(
   return blockers;
 }
 
+// ─── Wall Transport Validation ────────────────────────────────────────────────
+
+/**
+ * The cable path an over-limit link has to be rebuilt on, in the words an
+ * installer can act on. Every fix states the limit the run has to meet, so a
+ * rep can see whether shortening, an active cable or another hop is enough.
+ */
+function transportFix(link: WallTransportLink): string {
+  const limit = `${link.limitMetres} m`;
+  if (link.cable.includes("loop-through")) {
+    return `Shorten this panel-to-panel hop to ${limit}, or insert a fibre extender between these two panels.`;
+  }
+  if (link.cable.includes("fibre extender")) {
+    return `Add a second fibre extender hop so each span is ${limit} or less.`;
+  }
+  if (link.cable.startsWith("Cat6A")) {
+    return `Add a fibre segment or an intermediate switch so this drop is ${limit} or less.`;
+  }
+  return `Use an active or fibre HDMI cable on this link, or bring the run to ${limit} or less.`;
+}
+
+/**
+ * Over-limit wall runs as named blockers. A link measured on site names its own
+ * run and cable, so the rep knows which end to rebuild; a link sitting exactly
+ * on its limit is a warning, because it still fits but leaves no headroom.
+ */
+export function wallTransportBlockers(
+  requirements: WallRequirements | null | undefined,
+): ExportValidationBlocker[] {
+  // A summary saved before the layout answers existed has no costable run, so
+  // it cannot be blocked for one either.
+  const usable = wallTransportRequirements(requirements);
+  if (!usable) return [];
+  const blockers: ExportValidationBlocker[] = [];
+  for (const link of wallTransportPlan(usable).allLinks) {
+    if (link.status === "ok") continue;
+    // A measured run is what the survey found; an allowance is only the design's
+    // assumption, and the sentence has to say which one broke the limit.
+    const run = link.basis === "measured"
+      ? `measured ${link.runMetres} m run`
+      : `design allowance of ${link.runMetres} m`;
+    if (link.status === "limit") {
+      blockers.push({
+        id: `transport-${link.id}`,
+        domain: "transport",
+        severity: "blocker",
+        message: `${link.label} cannot carry its run: the ${run} on ${link.cable} at ${link.resolution} exceeds the ${link.limitMetres} m limit.`,
+        fix: transportFix(link),
+      });
+      continue;
+    }
+    blockers.push({
+      id: `transport-watch-${link.id}`,
+      domain: "transport",
+      severity: "warning",
+      message: `${link.label} sits on its transport limit: the ${run} on ${link.cable} at ${link.resolution} is at the ${link.limitMetres} m limit.`,
+      fix: `${transportFix(link)} Confirm the specified cable before issue.`,
+    });
+  }
+  return blockers;
+}
+
+/**
+ * Wall links the survey has not finished: the display housing, run entry or
+ * termination is missing.
+ *
+ * This is a completeness warning, not a blocker — the document prints only the
+ * links that carry install detail, so an unfinished survey is still a document
+ * the rep can issue, but it is one they should see first. The sentence names the
+ * short links and cells the same way the builder's handoff check does, so the
+ * two screens cannot disagree about which links are short.
+ */
+export function wallSurveyCompletenessWarnings(
+  requirements: WallRequirements | null | undefined,
+): ExportValidationBlocker[] {
+  // A summary saved before the layout answers existed has no link list, so it
+  // cannot be short of install detail either.
+  const usable = wallTransportRequirements(requirements);
+  if (!usable) return [];
+  const plan = wallTransportPlan(usable);
+  const gaps = wallSurveyGaps(plan, usable.linkDetails);
+  if (gaps.length === 0) return [];
+  return [{
+    id: "survey-install-detail",
+    domain: "survey",
+    severity: "warning",
+    message: wallSurveyGapText(gaps, wallSurveyDisplayCount(plan)),
+    fix: "Record the display housing, run entry and termination for those links in the wall builder's transport table or on the survey sheet, so the proposal prints the install detail it has.",
+  }];
+}
+
+/**
+ * Installation lines still carrying a rate card number written in another
+ * currency than the proposal's.
+ *
+ * The card quotes one currency; a quote stated in another that keeps the card's
+ * numbers is quoting real numbers as the wrong money, and the printed total
+ * cannot say so. A rate typed for this proposal is its own number, so it is not
+ * named; a seeded or restored one is. This is a warning, not a blocker: the rep
+ * may deliberately hold the card's figure for this job, but the document must
+ * not leave without that being visible first.
+ */
+export function installationRateCurrencyWarnings({
+  requirements,
+  rateCard,
+  currency,
+  rates,
+}: {
+  /** Saved wall design, whose survey produced the priced lines. */
+  requirements?: WallRequirements | null;
+  /** The rep's workspace card these rates started from. */
+  rateCard?: InstallationRateCard | null;
+  /** The currency the document prints. */
+  currency?: InstallationRateCardCurrency;
+  /** The draft's installation rates, as typed. */
+  rates?: InstallationUnitPrices;
+}): ExportValidationBlocker[] {
+  if (!rateCard || !currency || rateCard.currency === currency) return [];
+  const schedule = buildInstallationSchedule(wallTransportRequirements(requirements));
+  if (!schedule) return [];
+  const mismatched = new Set(
+    installationRateCardCurrencyMismatches(
+      rateCard,
+      schedule.lines.map((line) => line.id),
+      rates,
+      currency,
+    ),
+  );
+  if (mismatched.size === 0) return [];
+  const labels = schedule.lines
+    .filter((line) => mismatched.has(line.id))
+    .map(installationLineLabel);
+  const shown = labels.slice(0, 3);
+  const rest = labels.length - shown.length;
+  const named = rest ? `${shown.join(", ")} and ${rest} more` : shown.join(", ");
+  const count = labels.length;
+  return [{
+    id: "currency-installation-rates",
+    domain: "currency",
+    severity: "warning",
+    message: `${count} installation line${count === 1 ? " still holds" : "s still hold"} your ${rateCard.currency} rate card's ${count === 1 ? "number" : "numbers"} on a ${currency} proposal: ${named}.`,
+    fix: `Type ${count === 1 ? "that rate" : "those rates"} in ${currency}, or save the card in ${currency} before issuing, so the printed total is quoted in the currency it is priced in.`,
+  }];
+}
+
+/**
+ * Refuses a document export whose own schedule would print an over-limit wall
+ * run. The wrapper calls it before building, so the check cannot be bypassed by
+ * a caller that skips the readiness panel.
+ */
+export function assertWallTransportExportable(requirements: WallRequirements | null | undefined) {
+  // Only a run that is over its limit stops the export; a link sitting exactly
+  // on the limit is a warning the rep can still issue through.
+  const blockers = wallTransportBlockers(requirements).filter((entry) => entry.severity === "blocker");
+  if (blockers.length > 0) throw new Error(exportBlockerMessage(blockers));
+}
+
+/** One message an export can throw: every named blocker with the fix that clears it. */
+export function exportBlockerMessage(blockers: ExportValidationBlocker[]): string {
+  const count = blockers.length;
+  const details = blockers.map((blocker) => `${blocker.message} Fix: ${blocker.fix}`);
+  return `Proposal export blocked — ${count} issue${count === 1 ? "" : "s"} to resolve first. ${details.join(" ")}`;
+}
+
 // ─── Main Validation Function ─────────────────────────────────────────────────
 
 export function validateProposalExport({
@@ -397,11 +607,25 @@ export function validateProposalExport({
   bomRows,
   topology,
   discoveryConversation,
+  wallRequirements,
+  pricing,
 }: {
   products: StoredProductSelection[];
   bomRows: SalesBomRow[];
   topology?: { connections: Array<{ lengthMetres?: number; services?: string[] }> };
   discoveryConversation?: DiscoveryConversationItem[];
+  /** Saved wall design, when the proposal carries one. */
+  wallRequirements?: WallRequirements | null;
+  /**
+   * What the document is priced with, when the caller prices the survey's
+   * installation lines: a rate still holding a card number from another
+   * currency is named before the quote leaves.
+   */
+  pricing?: {
+    currency: InstallationRateCardCurrency;
+    rateCard: InstallationRateCard;
+    installationUnitPrices?: InstallationUnitPrices;
+  } | null;
 }): ExportValidationResult {
   const allBlockers: ExportValidationBlocker[] = [
     ...validateReach(products, topology),
@@ -409,6 +633,14 @@ export function validateProposalExport({
     ...validateChainCompleteness(products, bomRows),
     ...validateLifecycle(products),
     ...validateDiscoveryConversation(discoveryConversation),
+    ...wallTransportBlockers(wallRequirements),
+    ...wallSurveyCompletenessWarnings(wallRequirements),
+    ...installationRateCurrencyWarnings({
+      requirements: wallRequirements,
+      rateCard: pricing?.rateCard,
+      currency: pricing?.currency,
+      rates: pricing?.installationUnitPrices,
+    }),
   ];
 
   const blockers = allBlockers.filter((b) => b.severity === "blocker");

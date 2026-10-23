@@ -1,76 +1,10 @@
 /* Explicit component styles keep shared action-button finishes out of navigation. */
 #root .wm-project-detail-page .wm-project-workspace { margin: 28px 0; }
-#root .wm-project-detail-page .wm-project-workspace__groups { gap: 18px; }
-#root .wm-project-detail-page .wm-project-workspace__groups > div { padding: 22px; background: #0b1c2a; border: 1px solid #253e50; border-radius: 16px; box-shadow: none; }
-#root .wm-project-detail-page .wm-project-workspace__groups > .is-current { border-color: #388b93; box-shadow: none; }
-#root .wm-project-detail-page .wm-project-workspace__heading { gap: 13px; }
-#root .wm-project-detail-page .wm-project-workspace__heading > svg { box-sizing: content-box; padding: 10px; background: #13313e; border-radius: 12px; width: 22px; height: 22px; }
 #root .wm-project-detail-page .wm-project-workspace h3 { font-size: 17px; line-height: 1.4; }
 #root .wm-project-detail-page .wm-project-workspace small { color: #a6bfce; line-height: 1.5; }
-#root .wm-project-detail-page .wm-project-workspace__groups > div > p { margin: 16px 0 18px; font-size: 13px; line-height: 1.6; }
-#root .wm-project-detail-page .wm-project-workspace__groups button { display: flex; justify-content: space-between; align-items: center; min-height: 66px; height: auto; padding: 12px 14px; margin: 0; background: transparent; background-image: none; border: 1px solid transparent; border-radius: 9px; box-shadow: none; text-shadow: none; text-align: left; transform: none; color: var(--wm-palette-ice); }
-#root .wm-project-detail-page .wm-project-workspace__groups button + button { margin-top: 5px; }
-#root .wm-project-detail-page .wm-project-workspace__groups button strong { display: block; font-size: 14px; line-height: 1.5; font-weight: 650; }
-#root .wm-project-detail-page .wm-project-workspace__groups button small { margin-top: 3px; font-size: 12px; }
-#root .wm-project-detail-page .wm-project-workspace__groups button:hover { background: #142b3b; border-color: #2c4b60; }
-#root .wm-project-detail-page .wm-project-workspace__groups button[aria-current="page"] { background: #14353f; border-color: #2b6e77; box-shadow: inset 3px 0 #57d9d6; }
-#root .wm-project-detail-page .wm-project-workspace__groups button svg { box-sizing: border-box; width: 18px; height: 18px; padding: 0; background: none; border: none; filter: none; color: #86b7c2; }
-#root .wm-project-detail-page .wm-project-workspace__groups button[aria-current="page"] strong { color: #83e7e3; }
-#root .wm-project-detail-page .wm-requirements-editor { display: grid; gap: 12px; }
-#root .wm-project-detail-page .wm-requirements-summary { display: grid; grid-template-columns: auto minmax(100px, 1fr) auto; gap: 24px; align-items: center; padding: 20px 22px; border: 1px solid #294558; border-radius: 12px; background: #0b1c2a; }
-#root .wm-project-detail-page .wm-requirements-summary__score { display: flex; gap: 12px; align-items: center; }
-#root .wm-project-detail-page .wm-requirements-summary__score strong { font-size: 30px; font-weight: 700; color: #77dfdc; }
-#root .wm-project-detail-page .wm-requirements-summary__score span { max-width: 110px; font-size: 12px; line-height: 1.5; color: #c2d6e2; }
-#root .wm-project-detail-page .wm-requirements-summary progress { width: 100%; height: 6px; border: 0; border-radius: 8px; overflow: hidden; background: #223b4b; accent-color: #57d9d6; }
-#root .wm-project-detail-page .wm-requirements-summary progress::-webkit-progress-bar { background: #223b4b; }
-#root .wm-project-detail-page .wm-requirements-summary progress::-webkit-progress-value { background: #57d9d6; border-radius: 8px; }
-#root .wm-project-detail-page .wm-requirements-summary__counts { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #c2d6e2; }
-#root .wm-project-detail-page .wm-requirements-summary__counts span { display: flex; align-items: center; gap: 6px; }
-#root .wm-project-detail-page .wm-requirements-summary__counts svg { width: 15px; height: 15px; color: #78c3c9; }
-#root .wm-project-detail-page .wm-requirements-guidance { font-size: 13px; color: #a6bfce; padding: 4px 0 6px; }
-#root .wm-project-detail-page .wm-requirement-group { border: 1px solid #284252; border-radius: 12px; background: #0b1c2a; overflow: hidden; }
-#root .wm-project-detail-page .wm-requirement-group[data-expanded="true"] { border-color: #397581; }
-#root .wm-project-detail-page .wm-requirement-group__trigger { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; min-height: 76px; height: auto; padding: 16px 20px; border: 0; border-radius: 0; background: transparent; background-image: none; color: var(--wm-palette-ice); text-shadow: none; box-shadow: none; text-align: left; transform: none; }
-#root .wm-project-detail-page .wm-requirement-group__trigger:hover { background: #122a3b; }
-#root .wm-project-detail-page .wm-requirement-group__title { display: flex; align-items: center; gap: 14px; }
-#root .wm-project-detail-page .wm-requirement-group__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; background: #142f3e; color: #8bc7cd; }
-#root .wm-project-detail-page .wm-requirement-group__icon svg { width: 18px; height: 18px; }
-#root .wm-project-detail-page .wm-requirement-group__title strong { display: block; font-size: 15px; font-weight: 650; line-height: 1.5; }
-#root .wm-project-detail-page .wm-requirement-group__title small { display: block; font-size: 12px; font-weight: 400; color: #a6bfce; line-height: 1.5; }
-#root .wm-project-detail-page .wm-requirement-group__statuses { display: flex; flex-wrap: wrap; align-items: center; justify-content: end; gap: 8px; }
-#root .wm-project-detail-page .wm-requirement-badge { border-radius: 6px; padding: 5px 9px; font-size: 11px; font-weight: 550; line-height: 1.4; }
-#root .wm-project-detail-page .wm-requirement-badge--confirmed { background: #123a33; color: #94ddc5; }
-#root .wm-project-detail-page .wm-requirement-badge--review { background: #3d3220; color: #efcd91; }
-#root .wm-project-detail-page .wm-requirement-badge--unknown { background: #25384a; color: #bcd0df; }
-#root .wm-project-detail-page .wm-requirement-group__chevron { width: 18px; height: 18px; color: #a6bfce; transition: transform 150ms ease; }
-#root .wm-project-detail-page .wm-requirement-group[data-expanded="true"] .wm-requirement-group__chevron { transform: rotate(180deg); }
-#root .wm-project-detail-page .wm-requirement-group__body { display: grid; border-top: 1px solid #284252; padding: 0 22px; }
-#root .wm-project-detail-page .wm-requirement-field { display: grid; grid-template-columns: minmax(0, 1fr) 190px; align-items: start; gap: 26px; padding: 24px 0; }
-#root .wm-project-detail-page .wm-requirement-field + .wm-requirement-field { border-top: 1px solid #253b4c; }
-#root .wm-project-detail-page .wm-requirement-field__heading { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
-#root .wm-project-detail-page .wm-requirement-field__heading label { font-size: 14px; font-weight: 650; color: var(--wm-palette-ice); }
-#root .wm-project-detail-page .wm-requirement-field__heading span { font-size: 11px; color: #9ebdce; background: #182f40; padding: 3px 7px; border-radius: 5px; }
-#root .wm-project-detail-page .wm-requirement-field textarea { display: block; width: 100%; min-height: 82px; padding: 12px 14px; border: 1px solid #355269; border-radius: 8px; background: #071723; color: var(--wm-palette-ice); font-size: 14px; font-weight: 400; line-height: 1.6; resize: vertical; }
-#root .wm-project-detail-page .wm-requirement-field__answer > p { color: #a6bfce; font-size: 12px; font-weight: 400; line-height: 1.6; margin-top: 9px; }
-#root .wm-project-detail-page .wm-requirement-field__status { display: grid; gap: 10px; }
-#root .wm-project-detail-page .wm-requirement-field__status > span { color: #bcd0df; font-size: 12px; font-weight: 550; text-transform: none; letter-spacing: 0; }
-#root .wm-project-detail-page .wm-requirement-field select { min-height: 46px; width: 100%; padding: 10px; border: 1px solid #355269; border-radius: 8px; background: #0c2232; color: #e6f0f7; font-size: 13px; font-weight: 500; }
-#root .wm-project-detail-page .wm-requirement-field select[data-status="confirmed"] { border-color: #3c8273; }
-#root .wm-project-detail-page .wm-requirement-field textarea:focus-visible, #root .wm-project-detail-page .wm-requirement-field select:focus-visible, #root .wm-project-detail-page .wm-requirement-group__trigger:focus-visible { outline: 2px solid #57d9d6; outline-offset: 3px; }
-@media (max-width: 900px) {
-  #root .wm-project-detail-page .wm-requirements-summary { grid-template-columns: auto 1fr; gap: 16px; }
-  #root .wm-project-detail-page .wm-requirements-summary__counts { grid-column: 1 / -1; }
-}
-@media (max-width: 760px) {
-  #root .wm-project-detail-page .wm-project-workspace__groups { gap: 12px; }
-  #root .wm-project-detail-page .wm-requirement-field { grid-template-columns: 1fr; gap: 18px; }
-  #root .wm-project-detail-page .wm-requirement-group__trigger { gap: 12px; padding: 14px; }
-  #root .wm-project-detail-page .wm-requirement-group__statuses { max-width: 155px; }
-  #root .wm-project-detail-page .wm-requirement-group__body { padding: 0 16px; }
-}
-@media (prefers-reduced-motion: reduce) { #root .wm-project-detail-page .wm-requirement-group__chevron { transition: none; } }
-#root .wm-project-detail-page .wm-requirement-custom { display: grid; gap: 8px; margin-top: 12px; }
-#root .wm-project-detail-page .wm-requirement-custom > span { font-size: 12px; color: #a6bfce; font-weight: 500; }
+
+
+
 #root .wm-project-detail-page .wm-project-continuation { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 #root .wm-project-detail-page .wm-project-continuation > a { display: flex; gap: 16px; align-items: center; padding: 24px; border: 1px solid #315568; border-radius: 12px; background: #0b2130; color: var(--wm-palette-ice); text-decoration: none; }
 #root .wm-project-detail-page .wm-project-continuation > a:hover { border-color: #57d9d6; background: #12303e; }
@@ -81,5 +15,21 @@
 #root .wm-project-detail-page .wm-project-records { margin-top: 20px; color: #b3cbd8; }
 #root .wm-project-detail-page .wm-project-records summary { cursor: pointer; font-size: 13px; padding: 10px 0; }
 #root .wm-project-detail-page .wm-project-records nav { display: flex; flex-wrap: wrap; gap: 8px; }
-#root .wm-project-detail-page .wm-project-records button { padding: 10px 14px; background: #102938; background-image: none; box-shadow: none; color: #cce0eb; border: 1px solid #315568; border-radius: 8px; }
+#root .wm-project-detail-page .wm-project-records a { display: inline-flex; align-items: center; padding: 10px 14px; background: #102938; background-image: none; box-shadow: none; color: #cce0eb; border: 1px solid #315568; border-radius: 8px; text-decoration: none; }
+#root .wm-project-detail-page .wm-project-records a:hover { border-color: #57d9d6; background: #12303e; }
+#root .wm-project-detail-page .wm-project-records a[aria-current="page"] { color: #eafcff; border-color: #57d9d6; }
+#root .wm-project-detail-page .wm-project-records a:focus-visible { outline: 2px solid #43dcde; outline-offset: 3px; }
 @media (max-width:760px) { #root .wm-project-detail-page .wm-project-continuation { grid-template-columns: 1fr; } }
+
+/* Each project panel carries its own address, so a rep can send the panel they
+   are reading rather than the top of a long project page. */
+/* The action sits beside the panel's title rather than under it: the header is
+   a one-column grid until a panel brings something to put on the right. */
+#root .wm-project-detail-page .wm-project-detail-stack .wingman-section-card-header:has(.wm-project-panel-link) { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+#root .wm-project-detail-page .wm-project-panel-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid #315568; border-radius: 8px; background: #102938; background-image: none; box-shadow: none; color: #cce0eb; font-size: 12px; font-weight: 600; line-height: 1.2; white-space: nowrap; cursor: pointer; }
+#root .wm-project-detail-page .wm-project-panel-link:hover { border-color: #57d9d6; background: #12303e; color: #eafcff; }
+#root .wm-project-detail-page .wm-project-panel-link:focus-visible { outline: 2px solid #43dcde; outline-offset: 3px; }
+#root .wm-project-detail-page .wm-project-panel-link svg { width: 14px; height: 14px; color: #57d9d6; }
+#root .wm-project-detail-page .wm-project-panel-link[data-copy-state="copied"] { border-color: #3c8273; color: #a7e7cd; }
+#root .wm-project-detail-page .wm-project-panel-link[data-copy-state="failed"] { border-color: #7a5a2a; color: #efcd91; }
+#root .wm-project-detail-page .wm-project-current-result__topline { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }

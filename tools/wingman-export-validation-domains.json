@@ -1,0 +1,5 @@
+{
+  "updatedAt": "2026-10-22T18:00:00.000Z",
+  "rule": "Export-validation domains that no test proves yet. The gate in tools/check-export-validation-domains.mjs fails when a registered domain has no test that reads `.domain` off an entry the check produced, unless the domain is listed here with its reason. The file only ratchets down: an entry whose domain a test now covers fails the gate, so delete it rather than leaving a stale exemption.",
+  "unproven": []
+}

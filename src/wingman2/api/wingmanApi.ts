@@ -182,6 +182,23 @@ export async function getWingmanJson<T>(path: string): Promise<T> {
   return payload as T;
 }
 
+export async function putWingmanJson<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(path, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = await parseJsonResponse(response);
+
+  if (!response.ok) {
+    const message = typeof payload?.error === "string" ? payload.error : `Request failed with status ${response.status}.`;
+    throw new WingmanApiError(message, response.status);
+  }
+
+  return payload as T;
+}
+
 export async function postWingmanJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(path, {
     method: "POST",
@@ -420,8 +437,69 @@ export type VisionContextResponse = {
   data?: VisionContextResult;
 };
 
-export function runVisionContextAnalysis(input: { fileName: string; mimeType: string; base64Data: string; hint?: string }) {
+export function runVisionContextAnalysis(input: {
+  fileName: string;
+  mimeType: string;
+  base64Data: string;
+  hint?: string;
+  /**
+   * The survey page's development switch: ask a development server for its
+   * sample reading instead of a model analysis. A deployed server refuses it,
+   * so a photo is only ever analysed for real where that means something.
+   */
+  mock?: boolean;
+}) {
   return postWingmanJson<VisionContextResponse>("/api/wingman/agents/vision-context", input);
+}
+
+export type WallSurveyScanLink = {
+  id: string;
+  label: string;
+  group?: string;
+  allowanceMetres: number;
+  limitMetres: number;
+};
+
+export type WallSurveyScanRow = {
+  linkId?: string;
+  metres?: number | string;
+  confidence?: number;
+  note?: string;
+  /**
+   * Install line under the row: the display housing, its mount, the termination
+   * at that end and the point the run enters.
+   */
+  enclosure?: string;
+  mount?: string;
+  termination?: string;
+  entry?: string;
+};
+
+export type WallSurveyScanResult = {
+  scanVersion?: string;
+  summary?: string;
+  rows?: WallSurveyScanRow[];
+  unread?: string[];
+  confidence?: number;
+};
+
+export type WallSurveyScanResponse = {
+  ok: boolean;
+  phase?: string;
+  data?: WallSurveyScanResult;
+  error?: string;
+};
+
+export function runWallSurveyScan(input: {
+  fileName: string;
+  mimeType: string;
+  base64Data: string;
+  links: WallSurveyScanLink[];
+  hint?: string;
+  /** Development switch: ask a development server for its sample reading. */
+  mock?: boolean;
+}) {
+  return postWingmanJson<WallSurveyScanResponse>("/api/wingman/agents/wall-survey-scan", input);
 }
 
 export function getWingmanSession() {
@@ -455,4 +533,24 @@ export type TeamResponse = {
 
 export function getWorkspaceTeam() {
   return getWingmanJson<TeamResponse>("/api/wingman/workspace/team");
+}
+
+/** The signed-in rep's installation rate card, kept on their workspace. */
+export type WorkspaceRateCard = {
+  updatedAt: string;
+  currency: string;
+  rates: Record<string, string>;
+};
+
+export type WorkspaceRateCardResponse = {
+  ok: boolean;
+  card?: Partial<WorkspaceRateCard>;
+};
+
+export function getWorkspaceInstallationRateCard() {
+  return getWingmanJson<WorkspaceRateCardResponse>("/api/wingman/workspace/rate-card");
+}
+
+export function putWorkspaceInstallationRateCard(input: { rates: Record<string, string>; currency: string }) {
+  return putWingmanJson<WorkspaceRateCardResponse>("/api/wingman/workspace/rate-card", input);
 }

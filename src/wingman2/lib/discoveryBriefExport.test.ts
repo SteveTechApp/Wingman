@@ -63,7 +63,7 @@ describe("Discovery Brief HTML export", () => {
     expect(html).toContain("Low confidence — verify before quote (1)");
   });
 
-  it("renders the captured room model, missing items and next question", () => {
+  it("renders the captured room model and missing items without the rep's next question", () => {
     const html = buildDiscoveryBriefHtml(briefWithTrail);
 
     expect(html).toContain("Captured Requirement");
@@ -71,7 +71,7 @@ describe("Discovery Brief HTML export", () => {
     expect(html).toContain("15 m");
     expect(html).toContain("Still to Confirm");
     expect(html).toContain("Confirm the display mounting height");
-    expect(html).toContain("Next question to ask");
+    expect(html).not.toContain("Next question to ask");
   });
 
   it("carries the best-efforts disclaimer and the pre-sign-off notice", () => {

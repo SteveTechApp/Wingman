@@ -33,10 +33,15 @@ const defaultClassTokens = {
 
 const pageContracts = {
   "src/wingman2/pages/VideowallBuilderPage.tsx": {
-    sources: ["src/wingman2/pages/VideowallBuilderPage.tsx"],
+    sources: [
+      "src/wingman2/pages/VideowallBuilderPage.tsx",
+      "src/wingman2/pages/videowall/VideowallVerdict.tsx",
+      "src/wingman2/pages/videowall/VideowallSizeFields.tsx",
+      "src/wingman2/pages/videowall/VideowallStep.tsx",
+    ],
     tokens: {
       page: ["vw-builder"],
-      card: ["vw-builder-requirements", "vw-builder-options", "vw-builder-detail"],
+      card: ["vw-builder-decide", "vw-builder-field", "vw-builder-verdict"],
       title: ["wall-requirements-title", "wall-options-title", "wall-selected-title"],
       copy: ["vw-builder-note"],
       button: ["vw-builder-actions", "vw-builder-option-list"],
@@ -78,6 +83,7 @@ const pageContracts = {
     sources: [
       "src/wingman2/pages/ProposalPage.tsx",
       "src/wingman2/components/ProposalCompletionWizard.tsx",
+      "src/wingman2/components/ProposalCompletionWizardView.tsx",
     ],
     tokens: {
       page: [

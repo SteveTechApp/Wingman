@@ -1,3 +1,4 @@
+@import "tailwindcss/theme.css" source(none);
 /* ==========================================================================
    Wingman Design System — Layer 3: Layout
    App shell, sidebar, topbar, page containers, grid systems, responsive.
@@ -13,11 +14,7 @@
   min-height: 100vh;
 }
 
-.wm-sidebar,
-.wingman-sidebar,
-.wm-layout > aside[aria-label="Sidebar"],
-.wm-app-layout > aside[aria-label="Sidebar"],
-.wingman-layout > aside[aria-label="Sidebar"] {
+.wingman-sidebar, .wm-layout > aside[aria-label="Sidebar"], .wingman-layout > aside[aria-label="Sidebar"] {
   position: sticky;
   top: 0;
   height: 100vh;
@@ -28,15 +25,11 @@
   border-right: 1px solid var(--wm-border);
 }
 
-.wm-main,
-.wingman-main,
-main {
+.wingman-main, main {
   min-width: 0;
 }
 
-.wm-topbar,
-.wingman-topbar,
-header.wm-header {
+.wingman-topbar {
   position: sticky;
   top: 0;
   z-index: 40;
@@ -50,16 +43,10 @@ header.wm-header {
   backdrop-filter: blur(16px);
 }
 
-.wm-page,
-.wingman-page,
-.wm-page-shell {
+.wm-page, .wingman-page {
   width: min(100%, var(--wm-content-max));
   margin: 0 auto;
   padding: 24px;
-}
-
-.wm-page-compact {
-  padding: 16px;
 }
 
 .wm-page-header,
@@ -88,14 +75,7 @@ header.wm-header {
    Cards and panels
    -------------------------------------------------------------------------- */
 
-.wm-card,
-.wm-panel,
-.wm-section,
-.wm-container,
-.wingman-card,
-.wingman-panel,
-.card,
-.panel {
+.wm-card, .wingman-card, .wingman-panel, .card, .panel {
   color: var(--wm-text);
   background:
     linear-gradient(180deg, rgba(16, 31, 52, 0.96), rgba(8, 18, 32, 0.96));
@@ -110,10 +90,7 @@ header.wm-header {
   padding: 18px;
 }
 
-.wm-panel,
-.wm-section,
-.wingman-panel,
-.panel {
+.wingman-panel, .panel {
   padding: 20px;
 }
 
@@ -122,82 +99,16 @@ header.wm-header {
   border-color: var(--wm-border-strong);
 }
 
-.wm-card-header,
-.wm-panel-header,
-.wm-section-header {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.wm-card-title,
-.wm-panel-title,
-.wm-section-title {
+.wm-card-title, .wm-section-title {
   margin: 0;
   color: var(--wm-heading);
   font-size: 1rem;
   font-weight: 720;
 }
 
-.wm-card-copy,
-.wm-panel-copy,
-.wm-section-copy {
-  margin: 4px 0 0;
-  color: var(--wm-text-soft);
-}
-
-.wm-empty-state {
-  display: grid;
-  place-items: center;
-  min-height: 220px;
-  padding: 28px;
-  color: var(--wm-muted);
-  text-align: center;
-  border: 1px dashed rgba(125, 211, 252, 0.22);
-  border-radius: var(--wm-radius-lg);
-  background: rgba(15, 23, 42, 0.36);
-}
-
 /* --------------------------------------------------------------------------
    Grids
    -------------------------------------------------------------------------- */
-
-.wm-grid {
-  display: grid;
-  gap: 16px;
-}
-
-.wm-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.wm-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.wm-grid-4 {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.wm-dashboard-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
-}
-
-.wm-kpi-grid,
-.wm-metric-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
 
 /* --------------------------------------------------------------------------
    Buttons
@@ -236,33 +147,12 @@ header.wm-header {
 }
 
 @media (max-width: 760px) {
-  .wm-page,
-  .wingman-page,
-  .wm-page-shell {
+  .wm-page, .wingman-page {
     padding: 14px;
   }
 
-  .wm-topbar,
-  .wingman-topbar,
-  header.wm-header {
+  .wingman-topbar {
     padding: 10px 14px;
-  }
-
-  .wm-grid-2,
-  .wm-grid-3,
-  .wm-grid-4,
-  .wm-kpi-grid,
-  .wm-metric-grid,
-.wm-compare-row {
-    grid-template-columns: 1fr;
-  }
-
-  .wm-card-header,
-  .wm-panel-header,
-  .wm-section-header,
-  .wm-row-between {
-    align-items: stretch;
-    flex-direction: column;
   }
 }
 
@@ -301,9 +191,7 @@ body:has(#root:empty) {
   background: #050b14;
 }
 
-.wm-layout > main,
-.wm-app-layout > main,
-.wingman-layout > main {
+.wm-layout > main, .wingman-layout > main {
   min-width: 0;
   width: 100%;
 }
@@ -314,11 +202,7 @@ aside:not(.wm-sidebar):not(.wingman-sidebar) {
 }
 
 /* Sidebar content should not vanish on dark background */
-.wm-sidebar *,
-.wingman-sidebar *,
-.wm-layout > aside[aria-label="Sidebar"] *,
-.wm-app-layout > aside[aria-label="Sidebar"] *,
-.wingman-layout > aside[aria-label="Sidebar"] * {
+.wingman-sidebar *, .wm-layout > aside[aria-label="Sidebar"] *, .wingman-layout > aside[aria-label="Sidebar"] * {
   color: inherit;
 }
 /* Generate the layout, spacing and typography utilities used by existing views.

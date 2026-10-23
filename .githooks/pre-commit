@@ -18,6 +18,39 @@ else
   fi
 fi
 
+# Dead CSS: split selector branches no markup can match and drop the baseline
+# allowances the split just invalidated, BEFORE the dead-css gate inspects the
+# tree. Only the files this step rewrote are staged, so an unrelated edit
+# elsewhere in the working tree stays unstaged.
+echo "pre-commit: dead CSS autofix"
+dead_css_changed="$(node tools/autofix-dead-css.mjs --print-changed)"
+dead_css_status=$?
+if [ $dead_css_status -ne 0 ]; then
+  echo "Commit blocked (dead CSS autofix failed)"
+  exit 1
+fi
+if [ -n "$dead_css_changed" ]; then
+  echo "pre-commit: staging dead CSS autofix output"
+  printf '%s\n' "$dead_css_changed" | while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    echo "pre-commit:   $file"
+    git add -- "$file" || exit 1
+  done
+  dead_css_stage_status=$?
+  if [ $dead_css_stage_status -ne 0 ]; then
+    echo "Commit blocked (staging the dead CSS autofix output failed)"
+    exit 1
+  fi
+fi
+
+npm run --silent check:dead-css
+dead_css_gate_status=$?
+if [ $dead_css_gate_status -ne 0 ]; then
+  node tools/autofix-dead-css.mjs --propose-deletions
+  echo "Commit blocked (dead CSS gate failed)"
+  exit 1
+fi
+
 npm run precommit:check
 status=$?
 

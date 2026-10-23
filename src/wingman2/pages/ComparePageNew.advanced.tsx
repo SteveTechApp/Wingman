@@ -2856,9 +2856,9 @@ function CompareEvidenceList({ title, items, className = "" }: { title: string; 
   }
 
   return (
-    <div className={`compare-native-evidence-block ${className}`.trim()}>
-      <p className="compare-native-label compare-native-label--subtle wm-ui-copy">{title}</p>
-      <ul className="compare-native-bullet-list wm-ui-card">
+    <div className={`${className}`.trim()}>
+      <p className="compare-native-label wm-ui-copy">{title}</p>
+      <ul className="wm-ui-card">
         {visibleItems.map((item) => (
           <li key={`${title}-${item}`}>{item}</li>
         ))}
@@ -4214,7 +4214,7 @@ function CompareProductLookupInput(props: {
           </div>
         ) : null}
       </div>
-      <p className="compare-native-muted wm-ui-copy mt-2">Known SKUs compare automatically. For an unknown model, type it and press Compare.</p>
+      <p className="wm-ui-copy mt-2">Known SKUs compare automatically. For an unknown model, type it and press Compare.</p>
     </section>
   );
 }
@@ -4386,17 +4386,17 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
   ];
 
   return (
-    <section className="compare-native-evidence-matrix wm-ui-section" aria-label="Compare evidence matrix">
-      <div className="compare-native-evidence-matrix__header">
+    <section className="wm-ui-section" aria-label="Compare evidence matrix">
+      <div>
         <h4>Comparison evidence matrix</h4>
         <p className="wm-ui-copy">Plain-English explanation of the match result, gaps and quote checks.</p>
       </div>
-      <div className="compare-native-evidence-matrix__grid">
+      <div>
         {rows.map((row) => (
-          <div className="compare-native-evidence-matrix__row wm-ui-card" key={row.label}>
-            <div className="compare-native-evidence-matrix__label">{row.label}</div>
-            <div className="compare-native-evidence-matrix__evidence">{row.evidence}</div>
-            <div className="compare-native-evidence-matrix__meaning">{row.meaning}</div>
+          <div className="wm-ui-card" key={row.label}>
+            <div>{row.label}</div>
+            <div>{row.evidence}</div>
+            <div>{row.meaning}</div>
           </div>
         ))}
       </div>
@@ -4695,12 +4695,12 @@ function BestCandidateCard({
         <ProductMoreLink sku={candidate.product.sku} />
       </div>
 
-      <details className="compare-native-summary compare-native-technical-details wm-ui-card wm-ui-copy">
+      <details className="compare-native-technical-details wm-ui-card wm-ui-copy">
         <summary>Technical comparison details</summary>
 
         {coreFacts.length ? (
           <section className="compare-native-core-facts wm-ui-section" aria-label="Core comparison points">
-            <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Key comparison matrix</p>
+            <p className="compare-native-label wm-ui-copy">Key comparison matrix</p>
             <div className="compare-native-core-matrix" role="table" aria-label="Competitor versus WyreStorm comparison matrix">
               <div className="compare-native-core-matrix-header wm-ui-card-header" role="rowgroup">
                 <div className="compare-native-core-matrix-row compare-native-core-matrix-row--header wm-ui-card wm-ui-card-header" role="row">
@@ -4721,7 +4721,7 @@ function BestCandidateCard({
                       <span className="compare-native-core-matrix-mobile-label">Competitor</span>
                       <p className="wm-ui-copy">{fact.competitor || "Needs verification"}</p>
                     </div>
-                    <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--wyrestorm" role="cell">
+                    <div className="compare-native-core-matrix-cell" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">WyreStorm</span>
                       <p className="wm-ui-copy">{fact.wyrestorm || "Needs verification"}</p>
                     </div>
@@ -4740,12 +4740,12 @@ function BestCandidateCard({
         <CompareEvidenceList
           title="Important differences"
           items={uniqueText([...candidate.mismatches, ...candidate.gaps], 4)}
-          className="compare-native-evidence--danger wm-ui-title"
+          className="wm-ui-title"
         />
         <CompareEvidenceList
           title="Checks before quote"
           items={askCustomer}
-          className="compare-native-evidence--warn wm-ui-title"
+          className="wm-ui-title"
         />
         <CompareEvidenceMatrix candidate={candidate} competitor={competitor} />
       </details>
@@ -4788,7 +4788,7 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
       <header className="compare-product-info-card__header">
         <span className="compare-product-info-card__icon" aria-hidden="true"><PackageSearch /></span>
         <div className="compare-product-info-card__identity">
-        <p className="compare-native-family wm-ui-copy">{candidate.product.family}</p>
+        <p className="wm-ui-copy">{candidate.product.family}</p>
         <h3 className="wm-ui-title">{candidate.product.sku}</h3>
           <p className="compare-product-info-card__name">{candidate.product.name}</p>
         </div>
@@ -4803,19 +4803,19 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
         <span><small>Data status</small><strong><GovernanceBadge tier={optionTier} label={candidate.governedLabel} /></strong></span>
       </div>
 
-      <section className="compare-native-option-note compare-product-info-card__fit wm-ui-card">
+      <section className="compare-product-info-card__fit wm-ui-card">
         <span>Why it fits</span>
         <p className="wm-ui-copy">{reason}</p>
       </section>
-      <p className="compare-native-option-check compare-native-option-footnote wm-ui-copy wm-ui-card">
+      <p className="compare-native-option-footnote wm-ui-copy wm-ui-card">
         <strong>Before you quote:</strong> {advisory}
       </p>
 
-      <details className="compare-native-summary wm-ui-card wm-ui-copy">
+      <details className="wm-ui-card wm-ui-copy">
         <summary>Why this option was shortlisted</summary>
         <CompareEvidenceList title="Why this direction" items={candidate.matched.slice(0, 3)} />
-        <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger wm-ui-title" />
-        <CompareEvidenceList title="Commercial checks" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps, ...candidate.dependencies], 4)} className="compare-native-evidence--warn wm-ui-title" />
+        <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 2)} className="wm-ui-title" />
+        <CompareEvidenceList title="Commercial checks" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps, ...candidate.dependencies], 4)} className="wm-ui-title" />
       </details>
 
       <div className="compare-native-action-row compare-product-info-card__actions wm-ui-card">
@@ -5305,17 +5305,17 @@ function GovernedDecisionPanel({
         </button>
       </div>
 
-      {message ? <p className="compare-native-muted wm-ui-copy">{message}</p> : null}
+      {message ? <p className="wm-ui-copy">{message}</p> : null}
     </section>
   );
 }
 
 function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summary: string; requestLiveLookup: boolean; sourceUrl: string }) {
   return (
-    <details className="compare-native-summary wm-ui-card wm-ui-copy">
+    <details className="wm-ui-card wm-ui-copy">
       <summary>Copyable summary</summary>
       <pre>{summary}</pre>
-      {requestLiveLookup ? <p className="compare-native-muted wm-ui-copy">Live lookup recommended for source validation. {sourceUrl}</p> : null}
+      {requestLiveLookup ? <p className="wm-ui-copy">Live lookup recommended for source validation. {sourceUrl}</p> : null}
     </details>
   );
 }
@@ -5487,7 +5487,7 @@ function LiveResearchStatusCard({
 
   return (
     <section
-      className="wm-ui-card wm-ui-section compare-live-research-status"
+      className="wm-ui-card wm-ui-section"
       role="status"
       data-live-research-status={status}
     >
@@ -6272,10 +6272,10 @@ function ComparePageNew() {
               <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
               <button type="button" className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" data-testid="compare-save-history" onClick={saveComparisonHistory} aria-label="Save comparison to history">Save comparison</button>
               <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
-            </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}<p className="compare-native-muted wm-ui-copy">{savedComparisonCount()} saved comparison{savedComparisonCount() === 1 ? "" : "s"} in the current project.</p>{restoreMessage ? <p className="compare-native-muted wm-ui-copy" role="status">{restoreMessage}</p> : null}{restoredComparison ? <section className="compare-native-summary wm-ui-card wm-ui-copy" aria-label="Saved comparison snapshot"><details open><summary>Saved snapshot</summary><div className="mt-4"><p className="compare-native-muted wm-ui-copy" role="status">Saved {new Date(restoredComparison.createdAt).toLocaleString()} · Snapshot v{restoredComparison.version ?? 1}. The main result above is recalculated from current product data.</p><dl className="compare-native-core-matrix"><div><dt>Competitor</dt><dd>{restoredComparison.competitorBrand || "Not specified"} {restoredComparison.competitorSku || ""}</dd></div><div><dt>WyreStorm direction</dt><dd>{restoredComparison.wyrestormSku || "Not specified"}{restoredComparison.wyrestormTitle ? ` — ${restoredComparison.wyrestormTitle}` : ""}</dd></div><div><dt>Verdict</dt><dd>{restoredComparison.matchType || "Review"}</dd></div><div><dt>Confidence</dt><dd>{restoredComparison.confidence || "Not recorded"}</dd></div></dl>{restoredComparison.summary ? <><strong>Saved summary</strong><pre className="compare-native-summary__pre">{restoredComparison.summary}</pre></> : null}{restoredComparison.evidence?.length ? <><strong>Saved evidence</strong><ul>{restoredComparison.evidence.map((item) => <li key={`saved-evidence-${item}`}>{item}</li>)}</ul></> : null}{restoredComparison.warnings?.length ? <><strong>Saved quote checks</strong><ul>{restoredComparison.warnings.map((item) => <li key={`saved-warning-${item}`}>{item}</li>)}</ul></> : null}</div></details></section> : null}<div className="compare-native-action-row wm-ui-action-row"><VerifyBeforeQuoteNote /></div></section> : null}
-            {savedComparisonRuns().length ? <p className="compare-native-muted wm-ui-copy"><Link data-testid="compare-review-history" to={`${routeCatalogByKey.projects.path}/${encodeURIComponent(searchParams.get("projectId") || readProjectStore().activeProjectId || "")}?view=history`}>Review saved history in Project</Link></p> : null}
-            {matrixAlternatives.length ? <section className="compare-native-options compare-candidate-selector wm-ui-card" aria-label="Suggested other matches"><div><h2 className="wm-ui-title">Suggested other matches</h2><p className="wm-ui-copy">Select a thumbnail to compare that option in the main cards.</p></div><div className="compare-candidate-selector__grid">{matrixAlternatives.map((candidate) => <CandidateThumbnailSelector key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} selected={activeCandidate?.product.sku === candidate.product.sku} onSelect={() => { const index = viableCandidates.findIndex((option) => option.product.sku === candidate.product.sku); if (index >= 0) setCandidateIndex(index); }} />)}</div></section> : null}
-            <details className="compare-native-summary wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
+            </div>{committedSku === activeCandidate.product.sku ? <p className="wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}<p className="wm-ui-copy">{savedComparisonCount()} saved comparison{savedComparisonCount() === 1 ? "" : "s"} in the current project.</p>{restoreMessage ? <p className="wm-ui-copy" role="status">{restoreMessage}</p> : null}{restoredComparison ? <section className="wm-ui-card wm-ui-copy" aria-label="Saved comparison snapshot"><details open><summary>Saved snapshot</summary><div className="mt-4"><p className="wm-ui-copy" role="status">Saved {new Date(restoredComparison.createdAt).toLocaleString()} · Snapshot v{restoredComparison.version ?? 1}. The main result above is recalculated from current product data.</p><dl className="compare-native-core-matrix"><div><dt>Competitor</dt><dd>{restoredComparison.competitorBrand || "Not specified"} {restoredComparison.competitorSku || ""}</dd></div><div><dt>WyreStorm direction</dt><dd>{restoredComparison.wyrestormSku || "Not specified"}{restoredComparison.wyrestormTitle ? ` — ${restoredComparison.wyrestormTitle}` : ""}</dd></div><div><dt>Verdict</dt><dd>{restoredComparison.matchType || "Review"}</dd></div><div><dt>Confidence</dt><dd>{restoredComparison.confidence || "Not recorded"}</dd></div></dl>{restoredComparison.summary ? <><strong>Saved summary</strong><pre>{restoredComparison.summary}</pre></> : null}{restoredComparison.evidence?.length ? <><strong>Saved evidence</strong><ul>{restoredComparison.evidence.map((item) => <li key={`saved-evidence-${item}`}>{item}</li>)}</ul></> : null}{restoredComparison.warnings?.length ? <><strong>Saved quote checks</strong><ul>{restoredComparison.warnings.map((item) => <li key={`saved-warning-${item}`}>{item}</li>)}</ul></> : null}</div></details></section> : null}<div className="compare-native-action-row wm-ui-action-row"><VerifyBeforeQuoteNote /></div></section> : null}
+            {savedComparisonRuns().length ? <p className="wm-ui-copy"><Link data-testid="compare-review-history" to={`${routeCatalogByKey.projects.path}/${encodeURIComponent(searchParams.get("projectId") || readProjectStore().activeProjectId || "")}?view=history`}>Review saved history in Project</Link></p> : null}
+            {matrixAlternatives.length ? <section className="compare-candidate-selector wm-ui-card" aria-label="Suggested other matches"><div><h2 className="wm-ui-title">Suggested other matches</h2><p className="wm-ui-copy">Select a thumbnail to compare that option in the main cards.</p></div><div className="compare-candidate-selector__grid">{matrixAlternatives.map((candidate) => <CandidateThumbnailSelector key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} selected={activeCandidate?.product.sku === candidate.product.sku} onSelect={() => { const index = viableCandidates.findIndex((option) => option.product.sku === candidate.product.sku); if (index >= 0) setCandidateIndex(index); }} />)}</div></section> : null}
+            <details className="wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
               <CompetitorSearchCard
                 brand={effectiveBrand}
                 sku={competitorInput}
@@ -6292,7 +6292,7 @@ function ComparePageNew() {
               />
               {activeCandidate ? <>
                 <BestCandidateCard candidate={activeCandidate} competitor={competitorSummary} competitorProfile={profile} onCopySummary={() => { void copySummary(); }} />
-                {alternativeCandidates.length && matrixAlternatives.length === 0 ? <section className="compare-native-options wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options with known differences</h3><p className="wm-ui-copy">Compare the connection mix and capacity before choosing one. These are alternatives, not claimed one-box equivalents.</p><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
+                {alternativeCandidates.length && matrixAlternatives.length === 0 ? <section className="wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options with known differences</h3><p className="wm-ui-copy">Compare the connection mix and capacity before choosing one. These are alternatives, not claimed one-box equivalents.</p><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
                 <CompareShowdown brand={effectiveBrand} competitorSku={competitorInput} active={hasCompared} view="proof" selectedWyrestormSku={activeCandidate.product.sku} onSelectedWyrestormSkuChange={(sku) => { const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase()); if (index >= 0) setCandidateIndex(index); }} />
               </> : null}
               {requestLiveLookup &&

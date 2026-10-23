@@ -1,5 +1,4 @@
 import { PagedItems } from "../components/PagedItems";
-import { projectPresentation } from "../lib/projectPresentation";
 import { useMemo, useState } from "react";
 import { AlertTriangle, Check, Cloud, Copy, Filter, LayoutTemplate, RotateCcw, Search, Trash2, Users } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -7,56 +6,23 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { FeedbackConsolidationPanel } from "../components/FeedbackConsolidationPanel";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
-import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
-import { projectLaneLabel } from "../data/projectSyncConflict";
+import { useProjectStore, type StoredProjectSyncStatus } from "../data/projectStore";
+import { projectsNeedingSurveyAttention, SURVEY_REVIEW_STALE_DAYS } from "../lib/wallSurveyReview";
 import { useTeamMembers } from "../data/useTeamMembers";
 import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
-import { createProjectFromTemplate } from "../lib/projectFromTemplate";
+import { ProjectGalleryCard } from "../components/ProjectGalleryCard";
+import { TemplatePickerDialog } from "../components/TemplatePickerDialog";
+import {
+  PROJECTS_DARK_BUTTON_CLASS,
+  PROJECTS_ICON_BUTTON_CLASS,
+  PROJECTS_PILL_BUTTON_CLASS,
+} from "../components/projectGalleryStyles";
 import QuoteSafetyDashboardPage from "./QuoteSafetyDashboardPage";
-
-const PROJECTS_PILL_BUTTON_CLASS =
-  "rounded-lg border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-bold text-[#edf6ff] transition";
-const PROJECTS_ICON_BUTTON_CLASS =
-  "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition";
-const PROJECTS_DARK_BUTTON_CLASS = "rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-800";
-const PROJECTS_DARK_BUTTON_XS_CLASS = "rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white transition hover:bg-slate-800";
-
-function projectStatusLabel(status: StoredProject["status"]) {
-  if (status === "recommended") return "On track";
-  if (status === "alternative") return "In progress";
-  return "Needs review";
-}
-
-/** Compact "Team changed: ..." summary for a per-project conflict badge. */
-function changedLanesLabel(fields: string[], maxVisible = 2): string {
-  const labels = fields.map(projectLaneLabel);
-  const visible = labels.slice(0, maxVisible).join(", ");
-  const extra = labels.length > maxVisible ? ` +${labels.length - maxVisible} more` : "";
-  return visible + extra;
-}
 
 function syncStatusVariant(state: StoredProjectSyncStatus["state"]): StatusChipVariant {
   if (state === "synced") return "success";
   if (state === "error" || state === "conflict") return "danger";
   return "neutral";
-}
-
-/**
- * The most recent comparison's stored confidence tier (e.g. "Plausible —
- * confirm"), surfaced as a per-row badge so a rep sees the verdict without
- * opening the project. Compare runs are stored newest-first, so [0] is latest.
- */
-function latestCompareConfidence(project: StoredProject): string | null {
-  const confidence = project.compareRuns?.[0]?.confidence;
-  return confidence && confidence.trim() ? confidence : null;
-}
-
-function compareConfidenceVariant(confidence: string): StatusChipVariant {
-  const label = confidence.toLowerCase();
-  if (label.includes("strong")) return "success";
-  if (label.includes("no equivalent")) return "danger";
-  // "Plausible — confirm" and "Evidence pending" both need review before quoting.
-  return "warning";
 }
 
 function ProjectsListPage() {
@@ -73,11 +39,15 @@ function ProjectsListPage() {
     resetStore,
   } = useProjectStore();
   const customTemplates = useCustomRoomTemplates();
+  const migratedWalls = projects.filter(project => project.videowall?.ownershipMigratedAt).length;
   const { members, currentUserId, getMemberName, getMemberInitials } = useTeamMembers();
 
   const [teamFilter, setTeamFilter] = useState<"mine" | "team" | "all">("mine");
   const [memberFilter, setMemberFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  // A switch over the view the tabs and search already chose, not a fourth tab:
+  // the queue is the surveys a rep still has to work.
+  const [surveyAttentionOnly, setSurveyAttentionOnly] = useState(false);
 
   const filteredProjects = useMemo(() => {
     let result = projects;
@@ -100,20 +70,15 @@ function ProjectsListPage() {
     return result;
   }, [projects, teamFilter, memberFilter, searchQuery, currentUserId]);
 
-  const [confirmDeleteProjectId, setConfirmDeleteProjectId] = useState<string | null>(null);
+  // The count is the number the current view can show, so the chip never
+  // promises cards a tab or the search would hide.
+  const surveyAttentionProjects = useMemo(() => projectsNeedingSurveyAttention(filteredProjects), [filteredProjects]);
+  const visibleProjects = surveyAttentionOnly ? surveyAttentionProjects : filteredProjects;
+
+
   const [confirmDeleteDraftId, setConfirmDeleteDraftId] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
-
-  function handleDeleteProjectClick(projectId: string) {
-    if (confirmDeleteProjectId === projectId) {
-      deleteProject(projectId);
-      setConfirmDeleteProjectId(null);
-      return;
-    }
-
-    setConfirmDeleteProjectId(projectId);
-  }
 
   function handleDeleteDraftClick(draftId: string) {
     if (confirmDeleteDraftId === draftId) {
@@ -157,54 +122,14 @@ function ProjectsListPage() {
       </div>
 
       {templatePickerOpen && (
-        <div className="wm-template-picker-backdrop" role="button" aria-label="Close template picker" tabIndex={-1} onClick={(e) => { if (e.target === e.currentTarget) setTemplatePickerOpen(false); }} onKeyDown={(e) => { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") setTemplatePickerOpen(false); }}>
-          <section className="wm-template-picker-dialog wm-ui-card" role="dialog" aria-modal="true" aria-labelledby="template-picker-title">
-            <header className="flex items-center justify-between mb-4">
-              <div>
-                <p className="wm-ui-kicker">Create from template</p>
-                <h2 id="template-picker-title" className="wm-ui-title text-lg font-black">Choose a room template</h2>
-                <p className="text-xs opacity-60">Select a template to pre-fill discovery answers and product selections in a new project.</p>
-              </div>
-              <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setTemplatePickerOpen(false)} aria-label="Close">
-                ×
-              </button>
-            </header>
-
-            {customTemplates.length === 0 ? (
-              <p className="text-sm opacity-60 py-4 text-center">No custom templates saved yet. Save a project as a template first.</p>
-            ) : (
-              <div className="grid gap-2 max-h-80 overflow-y-auto">
-                {customTemplates.map((template) => (
-                  <button
-                    key={template.id}
-                    type="button"
-                    className="wm-template-picker-item text-left rounded-xl border border-[#29465e] bg-[#0d2133] p-3 transition hover:border-cyan-400/40"
-                    onClick={() => {
-                      const projectId = createProjectFromTemplate(template);
-                      setTemplatePickerOpen(false);
-                      navigate(`${routeCatalogByKey.projects.path}/${projectId}`);
-                    }}
-                  >
-                    <p className="font-bold text-sm">{template.name}</p>
-                    <p className="text-xs opacity-60 mt-0.5">
-                      {template.vertical} · {template.application}
-                      {template.bom?.length ? ` · ${template.bom.length} products` : ""}
-                    </p>
-                    {template.summary && (
-                      <p className="text-xs opacity-40 mt-1 line-clamp-2">{template.summary}</p>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className="mt-4 flex justify-end">
-              <Link to={routeCatalogByKey.templates.path} className="text-xs text-cyan-400 hover:underline">
-                Manage templates →
-              </Link>
-            </div>
-          </section>
-        </div>
+        <TemplatePickerDialog
+          templates={customTemplates}
+          onClose={() => setTemplatePickerOpen(false)}
+          onOpenProject={(projectId) => {
+            setTemplatePickerOpen(false);
+            navigate(`${routeCatalogByKey.projects.path}/${projectId}`);
+          }}
+        />
       )}
 
       <div className="wm-projects-sections">
@@ -266,6 +191,17 @@ function ProjectsListPage() {
                 aria-label="Search projects"
               />
             </div>
+            <button
+              type="button"
+              className={`wm-projects-filter-tab self-start ${surveyAttentionOnly ? "is-active" : ""}`}
+              aria-pressed={surveyAttentionOnly}
+              onClick={() => setSurveyAttentionOnly((current) => !current)}
+              title={`Keeps the surveys a rep still has to work: rows a photo review cleared, and readings older than ${SURVEY_REVIEW_STALE_DAYS} days that need re-confirming.`}
+            >
+              <AlertTriangle size={14} aria-hidden="true" />
+              Survey needs attention
+              <span className="wm-projects-filter-count">{surveyAttentionProjects.length}</span>
+            </button>
             {teamFilter === "team" && members.length > 1 && (
               <div className="wm-projects-member-filter">
                 <span className="wm-projects-member-filter-label">Filter by member:</span>
@@ -324,108 +260,31 @@ function ProjectsListPage() {
               </button>
           </div>
 
-          <PagedItems items={filteredProjects} resetKey={`${searchQuery}:${teamFilter}:${memberFilter}`}>{(pageItems) => (<div className="wm-project-gallery">
-                {filteredProjects.length ? (
-                  pageItems.map((project) => {
-                    const presentation = projectPresentation(project.name);
-                    const compareConfidence = latestCompareConfidence(project);
-                    const ownerInitials = getMemberInitials(project.ownerId);
-                    const ownerDisplayName = project.ownerId ? getMemberName(project.ownerId) : project.owner;
-                    return (
-                    <article key={project.id} className="wm-project-visual-card" aria-label={project.name}>
-                      <div className="wm-project-card-image">{presentation.image ? <img src={presentation.image} alt={`${presentation.label} application illustration`} loading="lazy" /> : <LayoutTemplate aria-hidden="true" />}<span>{presentation.label}</span></div>
-                      <div className="wm-project-card-name" data-label="Project">
-                        <div className="flex flex-col items-start gap-1">
-                          <h3>{project.name}</h3>
-                          {project.syncConflict?.fields?.length ? (
-                            <StatusChip
-                              variant="warning"
-                              label={`Team changed: ${changedLanesLabel(project.syncConflict.fields)}`}
-                              className="text-xs leading-4"
-                              title={`A team member changed ${project.syncConflict.fields.map(projectLaneLabel).join(", ")} since your last sync (${new Date(project.syncConflict.detectedAt).toLocaleString()}). Reload the project to review their latest changes.`}
-                              icon={<AlertTriangle className="h-3.5 w-3.5" />}
-                            />
-                          ) : null}
-                        </div>
-                      </div>
-                      <div className="wm-project-card-owner" data-label="Owner">
-                        <div className="wm-projects-owner-cell">
-                          <span className="wm-projects-owner-avatar" aria-hidden="true">
-                            {ownerInitials}
-                          </span>
-                          <span>{ownerDisplayName}</span>
-                          {project.ownerId && project.ownerId !== currentUserId && (
-                            <span className="wm-projects-team-badge">Team</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="wm-project-card-stage" data-label="Stage">
-                        <div className="flex flex-col items-start gap-1">
-                          <span>{project.stage}</span>
-                          {compareConfidence ? (
-                            <StatusChip
-                              label={compareConfidence}
-                              variant={compareConfidenceVariant(compareConfidence)}
-                              className="wm-projects-compare-tier text-[10px] leading-4"
-                              title="Last comparison's verdict tier"
-                            />
-                          ) : null}
-                        </div>
-                      </div>
-                      <div className="wm-project-card-status" data-label="Status">
-                        <StatusChip
-                          label={projectStatusLabel(project.status)}
-                          variant={project.status}
-                        />
-                      </div>
-                      <div className="wm-project-card-updated" data-label="Updated">{project.updated}</div>
-                      <div className="wm-project-card-actions" data-label="Actions">
-                        <div className="wm-project-row-actions">
-                          <Link
-                            to={`${routeCatalogByKey.projects.path}/${project.id}`}
-                            onClick={() => setActiveProjectId(project.id)}
-                            className={`wm-project-row-link ${PROJECTS_PILL_BUTTON_CLASS}`}
-                          >
-                            Detail
-                          </Link>
-
-                          {/* WINGMAN_DISCOVERY_PROJECT_RESUME_QUERY */}
-                          <Link
-                            to={
-                              project.resumeTo === routeCatalogByKey.discovery.path
-                                ? `${project.resumeTo}?resume=project`
-                                : project.resumeTo
-                            }
-                            onClick={() => setActiveProjectId(project.id)}
-                            className={`wm-project-row-link ${PROJECTS_DARK_BUTTON_XS_CLASS}`}
-                          >
-                            {activeProjectId === project.id ? "Resume active" : "Resume workflow"}
-                          </Link>
-
-                          <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`].filter(Boolean).join(" ")}
-                            type="button"
-                            onClick={() => copyProject(project.id)}
-
-                            title={`Copy ${project.name}`}
-                            aria-label={`Copy ${project.name}`}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </button>
-
-                          <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`].filter(Boolean).join(" ")}
-                            type="button"
-                            onClick={() => handleDeleteProjectClick(project.id)}
-                            onBlur={() => setConfirmDeleteProjectId((current) => (current === project.id ? null : current))}
-                            title={confirmDeleteProjectId === project.id ? `Click again to permanently delete ${project.name}` : `Delete ${project.name}`}
-                            aria-label={confirmDeleteProjectId === project.id ? `Confirm delete ${project.name}` : `Delete ${project.name}`}
-                          >
-                            {confirmDeleteProjectId === project.id ? <AlertTriangle className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                    );
-                  })
+          <PagedItems items={visibleProjects} resetKey={`${searchQuery}:${teamFilter}:${memberFilter}:${surveyAttentionOnly}`}>{(pageItems) => (<div className="wm-project-gallery">
+                {visibleProjects.length ? (
+                  pageItems.map((project) => (
+                    <ProjectGalleryCard
+                      key={project.id}
+                      project={project}
+                      projects={projects}
+                      activeProjectId={activeProjectId}
+                      currentUserId={currentUserId}
+                      ownerName={project.ownerId ? getMemberName(project.ownerId) : project.owner}
+                      ownerInitials={getMemberInitials(project.ownerId)}
+                      migratedWalls={migratedWalls}
+                      onCopy={copyProject}
+                      onDelete={deleteProject}
+                    />
+                  ))
+                ) : surveyAttentionOnly ? (
+                  <article className="wm-project-gallery-empty">
+                    <div>
+                      No projects in this view need survey attention. A survey lands here when a photo review clears a row, or when the last reading is old enough to re-confirm.
+                      <button type="button" className="wm-project-row-link underline" onClick={() => setSurveyAttentionOnly(false)}>
+                        Show all projects
+                      </button>
+                    </div>
+                  </article>
                 ) : (
                   <article className="wm-project-gallery-empty">
                     <div>

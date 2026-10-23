@@ -1,5 +1,6 @@
 import type { StoredDiscoveryBrief, StoredProjectProposal } from "../data/projectStore";
 import { downloadBlob } from "./downloadBlob";
+import { customerCopyText } from "./proposalCopy";
 import {
   CAPTURE_CONFIDENCE_EXPLAINER,
   captureConfidenceCell,
@@ -32,8 +33,8 @@ export type DiscoveryBriefExportMeta = {
 const ROOM_MODEL_ROWS: ReadonlyArray<{ key: string; label: string }> = [
   { key: "roomOccupancy", label: "People using the room" },
   { key: "roomDimensions", label: "Room dimensions and seating" },
-  { key: "equipmentSchedule", label: "Equipment selections and locations — confirm suitability" },
-  { key: "completionScope", label: "Room completion checklist — fill in models, quantities and suppliers" },
+  { key: "equipmentSchedule", label: "Equipment selections and locations" },
+  { key: "completionScope", label: "Room completion scope" },
   { key: "applicationType", label: "Application / customer outcome" },
   { key: "roomType", label: "Room type" },
   { key: "sourceCount", label: "Sources" },
@@ -56,8 +57,22 @@ const ROOM_MODEL_ROWS: ReadonlyArray<{ key: string; label: string }> = [
   { key: "networkAvailability", label: "Network availability" },
   { key: "videoWallRequirement", label: "Video wall requirement" },
   { key: "designDirection", label: "Design direction" },
-  { key: "nextBestQuestion", label: "Next question to ask" },
 ];
+
+/** Authoring-only questions and prompt lines never cross an export boundary. */
+export function customerDiscoveryBrief(brief: StoredDiscoveryBrief): StoredDiscoveryBrief {
+  function clean(value: unknown): unknown {
+    if (typeof value === "string") return customerCopyText(value, "");
+    if (Array.isArray(value)) return value.map(clean).filter((item) => item !== "");
+    if (value && typeof value === "object") {
+      return Object.fromEntries(Object.entries(value)
+        .filter(([key]) => !["nextBestQuestion", "repGuidance"].includes(key))
+        .map(([key, child]) => [key, clean(child)]));
+    }
+    return value;
+  }
+  return clean(brief) as StoredDiscoveryBrief;
+}
 
 const EMPTY_VALUES = new Set(["", "unknown", "not confirmed", "not indicated", "tbc", "n/a", "none"]);
 
@@ -109,6 +124,7 @@ export function buildDiscoveryBriefHtml(
   brief: StoredDiscoveryBrief,
   meta: DiscoveryBriefExportMeta = {},
 ): string {
+  brief = customerDiscoveryBrief(brief);
   const companyName = meta.companyName || "WyreStorm";
   const projectName = meta.projectName || "Unnamed discovery";
   const date = meta.date || new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -197,6 +213,11 @@ export function buildDiscoveryBriefHtml(
       h2 { font-size: 13pt; }
       table { font-size: 9.5pt; }
       th, td { padding: 6px 8px; }
+      thead { display: table-header-group; }
+      thead, thead tr, thead th { break-after: avoid; page-break-after: avoid; }
+      tbody tr:first-child { break-before: avoid; page-break-before: avoid; }
+      tr { break-inside: avoid; page-break-inside: avoid; }
+      h2 { break-after: avoid; page-break-after: avoid; }
     }
   </style>
 </head>
@@ -226,10 +247,10 @@ export function buildDiscoveryBriefHtml(
     </div>
 
     <div class="notice">
-      <strong>Before design sign-off:</strong> this brief records the discovery conversation behind the design — the question
-      asked, the closest governed answer, and the customer's own wording where captured.
-      Rows marked <strong>Confirmed with customer</strong> were verified during discovery; rows marked <strong>To be
-      confirmed</strong> are still open and must be verified before the design is signed off and quoted.
+      <strong>Before design sign-off:</strong> this brief records the conversation behind the design — the question we
+      asked, the answer we recorded, and your own words where we captured them.
+      Rows marked <strong>Confirmed with customer</strong> were checked with you during discovery; rows marked <strong>To be
+      confirmed</strong> are still open and will be settled before the design is signed off and quoted.
       ${capturedPercent !== null ? ` ${capturedPercent}% of the discovery questions were answered.` : ""}
       ${openCount > 0 ? ` ${openCount} of ${conversation.length} conversation row${conversation.length === 1 ? "" : "s"} ${openCount === 1 ? "is" : "are"} still to be confirmed.` : ""}
     </div>
@@ -239,23 +260,22 @@ export function buildDiscoveryBriefHtml(
     ${safetyLine ? `<p><strong>Quote safety:</strong> ${escapeHtml(safetyLine)}</p>` : ""}
 
     <h2>Discovery Conversation</h2>
-    <p>Each row records one discovery exchange exactly as it was captured. The governed answer is the closest structured
-    option; the customer wording column keeps the customer's own phrasing where it was recorded.</p>
+    <p>Each row records one question and its answer exactly as captured. "Answer we recorded" is the closest answer we
+    offer; "Customer wording" keeps your own phrasing where we noted it.</p>
     <p>${escapeHtml(CAPTURE_CONFIDENCE_EXPLAINER)}</p>
     <table>
-      <thead><tr><th>Question asked</th><th>Governed answer</th><th>Customer wording</th><th>Status</th><th>Capture confidence</th></tr></thead>
+      <thead><tr><th>Question asked</th><th>Answer we recorded</th><th>Customer wording</th><th>Status</th><th>Capture confidence</th></tr></thead>
       <tbody>${trailRows}</tbody>
     </table>
 
     <h2>Room Completion Schedule</h2>
-    <p>Fill in the remaining equipment models, quantities, locations and suppliers. These entries are editable in this document; retain a saved copy of your completed brief.</p>
+    <p>Equipment models, quantities, locations and suppliers not yet recorded remain subject to agreement before design sign-off.</p>
     <table><thead><tr><th>Scope to complete</th><th>Manufacturer / model</th><th>Quantity</th><th>Location / supplier</th></tr></thead><tbody>
       ${(Array.isArray(brief.roomModel?.completionScope) ? brief.roomModel.completionScope : []).map(scope => `<tr><td>${escapeHtml(scope)}</td><td contenteditable="true" aria-label="Manufacturer and model">To select</td><td contenteditable="true" aria-label="Quantity">To confirm</td><td contenteditable="true" aria-label="Location and supplier">To confirm</td></tr>`).join("")}
     </tbody></table>
 
     <h2>Still to Confirm</h2>
     ${missingHtml}
-    ${brief.nextBestQuestion ? `<p><strong>Next question to ask:</strong> ${escapeHtml(brief.nextBestQuestion)}</p>` : ""}
 
     <h2>Hand-off Notes</h2>
     <ul>

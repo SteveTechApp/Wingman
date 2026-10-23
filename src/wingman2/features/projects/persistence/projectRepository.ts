@@ -40,7 +40,14 @@ export const projectRepository: ProjectRepository = {
 
     try {
       const raw = window.localStorage.getItem(PROJECT_STORE_KEY);
-      return raw ? decodeProjectStore(JSON.parse(raw)) : defaultSnapshot();
+      if (!raw) return defaultSnapshot();
+      const parsed = JSON.parse(raw) as ProjectStoreSnapshot;
+      const normalized = decodeProjectStore(parsed);
+      if (normalized.projects.some(project => project.videowall?.ownershipMigratedAt && !parsed.projects?.find(previous => previous.id === project.id)?.videowall?.ownershipMigratedAt)) {
+        // Keep migration metadata durable without publishing a write during render.
+        try { window.localStorage.setItem(PROJECT_STORE_KEY, JSON.stringify(normalized)); } catch { /* The migrated snapshot is still available for this read. */ }
+      }
+      return normalized;
     } catch {
       return defaultSnapshot();
     }

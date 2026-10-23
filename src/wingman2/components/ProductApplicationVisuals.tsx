@@ -21,9 +21,9 @@ export function ProductApplicationVisuals({ sku }: { sku: string }) {
         </div>
         <a href={visuals[0].sourceUrl} target="_blank" rel="noreferrer">Official product page</a>
       </header>
-      <div className="wm-product-application-visuals__grid">
+      <div>
         {activeLayout ? (
-          <div className="wm-product-layout-explorer">
+          <div>
             <figure data-visual-kind="layout">
               <a href={activeLayout.url} target="_blank" rel="noreferrer" title="Open full-size official image">
                 <img src={activeLayout.url} alt={activeLayout.alt} loading="eager" decoding="async" referrerPolicy="no-referrer" />
@@ -33,7 +33,7 @@ export function ProductApplicationVisuals({ sku }: { sku: string }) {
                 <span>{activeLayout.description}</span>
               </figcaption>
             </figure>
-            <div className="wm-product-layout-picker" aria-label="Available multiview layouts">
+            <div aria-label="Available multiview layouts">
               {layouts.map((layout, index) => (
                 <button key={layout.url} type="button" aria-pressed={index === activeLayoutIndex} onClick={() => setActiveLayoutIndex(index)}>
                   <img src={layout.url} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" />

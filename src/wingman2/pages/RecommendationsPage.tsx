@@ -1267,7 +1267,7 @@ export function RecommendationsPage() {
 
           {/* Missing Accessories Alerts */}
           {stage === "validate" && missingAccessories.length > 0 && (
-            <section className="wm-rec-missing-accessories wm-ui-card rounded-2xl border p-5">
+            <section className="wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">Before you quote</p>
                 <h2 className="wm-ui-title text-xl font-black">Missing accessories detected</h2>
@@ -1322,7 +1322,7 @@ export function RecommendationsPage() {
 
           {/* Suggested Kits */}
           {stage === "handoff" && suggestedKits.length > 0 && (
-            <section className="wm-rec-suggested-kits wm-ui-card rounded-2xl border p-5">
+            <section className="wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">Suggested kits</p>
                 <h2 className="wm-ui-title text-xl font-black">Complete system bundles</h2>
@@ -1390,7 +1390,7 @@ export function RecommendationsPage() {
           )}
 
           {stage === "validate" && bundleSuggestions.length > 0 && (
-            <section className="wm-rec-bundle wm-ui-card rounded-2xl border p-5">
+            <section className="wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">Complete this system</p>
                 <h2 className="wm-ui-title text-xl font-black">Missing accessories &amp; companions</h2>
@@ -1444,7 +1444,7 @@ export function RecommendationsPage() {
           )}
 
           {stage === "handoff" && brandLosses.length > 0 && (
-            <section className="wm-rec-brand-losses wm-ui-card rounded-2xl border p-5">
+            <section className="wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">Competitive landscape</p>
                 <h2 className="wm-ui-title text-xl font-black">Brands winning and losing against WyreStorm</h2>
@@ -1488,7 +1488,7 @@ export function RecommendationsPage() {
           )}
 
           {stage === "validate" && assurance && (assurance.blockers.length || assurance.warnings.length) ? (
-            <section className="wm-rec-assurance wm-ui-card rounded-2xl border p-5">
+            <section className="wm-ui-card rounded-2xl border p-5">
               <header className="mb-4">
                 <p className="wm-ui-kicker">System assurance checks</p>
                 <h2 className="wm-ui-title text-xl font-black">Technical release gates</h2>

@@ -1,7 +1,7 @@
 import { execFileSync, spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "@playwright/test";
+import { chromium, expect } from "@playwright/test";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,10 +46,9 @@ async function waitForPreview() {
 
 async function assertPageText(page, pathname, expectedText) {
   await page.goto(`http://127.0.0.1:${port}${pathname}`, { waitUntil: "networkidle" });
-  const text = await page.locator("body").innerText();
-  if (!text.toLowerCase().includes(expectedText.toLowerCase())) {
-    throw new Error(`Expected ${pathname} to contain "${expectedText}". Actual page: ${text.slice(0, 1600)}`);
-  }
+  // Lazy routes can still be rendering after the network becomes idle.
+  await expect(page.locator("body"), `Expected ${pathname} to render its page content`)
+    .toContainText(expectedText, { ignoreCase: true, timeout: 15_000 });
 }
 
 async function assertCompareWorkflow(page) {
@@ -146,12 +145,13 @@ try {
   // loads.
   await assertPageText(page, "/wingman/projects/northbridge-meeting-room-refresh", "Northbridge Meeting Room Refresh");
 
-  await assertPageText(page, "/wingman/videowall", "One wall. The right signal path.");
-  await page.getByLabel("Columns", { exact: true }).fill("3");
-  await page.getByLabel("Rows", { exact: true }).fill("3");
-  if (!(await page.getByRole("button", { name: "Save to project", exact: true }).isDisabled())) {
-    throw new Error("An undersized matrix must not save a 3-by-3 wall.");
-  }
+  await assertPageText(page, "/wingman/videowall", "Start from the job");
+  await page.getByTestId("videowall-wizard-expert").click();
+  await expect(page.getByRole("heading", { name: "One wall. The right signal path.", exact: true }))
+    .toBeVisible({ timeout: 15_000 });
+  await page.getByRole("group", { name: "Panel array", exact: true })
+    .getByRole("button", { name: /^3 × 3/ }).click();
+  await expect(page.getByRole("button", { name: /^MX-0404-SCL/ })).toBeDisabled();
   await page.getByRole("button", { name: /^NetworkHD 500 · receiver per display/ }).click();
   const receiverRow = page.locator("tr").filter({ hasText: "NHD-500-RX" });
   if ((await receiverRow.locator("td").first().innerText()) !== "9") {

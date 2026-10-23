@@ -123,34 +123,34 @@ const WingmanVisualNode = memo(function WingmanVisualNode({ data }: NodeProps) {
         type="source"
         id="source-bottom-1"
         position={Position.Bottom}
-        className="wm-vs-node-handle wm-vs-node-handle-fanout wm-vs-node-handle-fanout--first"
+        className="wm-vs-node-handle wm-vs-node-handle-fanout--first"
       />
       <Handle
         type="source"
         id="source-bottom-2"
         position={Position.Bottom}
-        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        className="wm-vs-node-handle"
         style={{ left: "32%" }}
       />
       <Handle
         type="source"
         id="source-bottom-3"
         position={Position.Bottom}
-        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        className="wm-vs-node-handle"
         style={{ left: "50%" }}
       />
       <Handle
         type="source"
         id="source-bottom-4"
         position={Position.Bottom}
-        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        className="wm-vs-node-handle"
         style={{ left: "68%" }}
       />
       <Handle
         type="source"
         id="source-bottom-5"
         position={Position.Bottom}
-        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        className="wm-vs-node-handle"
         style={{ left: "86%" }}
       />
       {/* === WINGMAN PRODUCT PORT FANOUT HANDLES END === */}
@@ -378,7 +378,7 @@ const exportPng = async () => {
         </div>
 
         <div className="wm-vs-schematic-footer" aria-hidden="true">
-          <div className="wm-vs-titleblock-brand">
+          <div>
             <span>Prepared by</span>
             <strong>WyreStorm Wingman</strong>
           </div>

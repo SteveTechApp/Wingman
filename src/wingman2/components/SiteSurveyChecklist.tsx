@@ -284,7 +284,7 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
 
   if (!hasTopology) {
     return (
-      <div className="wm-survey-checklist wm-ui-card rounded-2xl border p-5">
+      <div className="wm-ui-card rounded-2xl border p-5">
         <header className="mb-3">
           <div className="flex items-center gap-2 mb-1">
             <ClipboardCheck size={18} className="text-cyan-400" aria-hidden="true" />
@@ -305,7 +305,7 @@ export function SiteSurveyChecklist({ project, productSelections }: SiteSurveyCh
   }
 
   return (
-    <div className="wm-survey-checklist wm-ui-card rounded-2xl border p-5">
+    <div className="wm-ui-card rounded-2xl border p-5">
       <header className="mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 mb-1">
@@ -942,7 +942,7 @@ function ComparisonView({
               const statusClass = `wm-survey-compare-status--${comp.status}`;
 
               return (
-                <tr key={comp.cableId} className={`wm-survey-compare-row ${statusClass}`}>
+                <tr key={comp.cableId} className={`${statusClass}`}>
                   <td className="wm-survey-compare-index">{i + 1}</td>
                   <td>
                     <span className="text-xs font-semibold">{cable.fromDevice}</span>

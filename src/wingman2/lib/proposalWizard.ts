@@ -1,4 +1,4 @@
-import { EXTERNAL_DESIGN_PROMPTS } from "./proposalSalesContent";
+import { REP_COPY } from "./proposalCopy";
 export type ProposalDocumentType =
   | "quote-response"
   | "technical-proposal"
@@ -40,6 +40,12 @@ export type ProposalWizardDraft = {
   currency: "GBP" | "USD" | "EUR";
   pricesExcludeTax: boolean;
   bomUnitPrices: Record<string, string>;
+  /**
+   * Rate the rep enters for each installation line the site survey produced,
+   * keyed by the line id. Installation scope comes from the wall design, so it
+   * is priced beside the equipment rather than typed as free text.
+   */
+  installationUnitPrices: Record<string, string>;
   servicesAndAllowances: string;
   implementationTimeline: string;
   nextSteps: string;
@@ -77,6 +83,15 @@ export type ProposalReadinessResult = {
   missing: string[];
 };
 
+/**
+ * The one sentence the readiness check uses for a line the document would print
+ * as TBC. Exported because the checklist, the readiness list and their tests
+ * must be talking about the same item — a view that matched this wording by hand
+ * would quietly stop offering the rate card's fix when the sentence changed.
+ */
+export const PROPOSAL_PRICING_GAP =
+  "Enter a unit price for every included equipment and installation line.";
+
 export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
   {
     id: "quote-response",
@@ -86,6 +101,7 @@ export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
       "Executive Summary",
       "Customer Requirement",
       "Proposed Solution",
+      "Display Schedule",
       "Equipment Schedule",
       "Assumptions and Exclusions",
       "Next Steps",
@@ -100,6 +116,7 @@ export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
       "Customer Requirement",
       "Technical Architecture",
       "Proposed Solution",
+      "Display Schedule",
       "Equipment Schedule",
       "Dependencies and Responsibilities",
       "Assumptions and Exclusions",
@@ -117,6 +134,7 @@ export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
       "Proposed Solution",
       "How the System Will Work",
       "Customer Benefits",
+      "Display Schedule",
       "Equipment Schedule",
       "Assumptions and Exclusions",
       "Next Steps",
@@ -133,6 +151,7 @@ export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
       "Practical Operation",
       "Customer Benefits",
       "Technical Architecture",
+      "Display Schedule",
       "Equipment Schedule",
       "Dependencies and Responsibilities",
       "Assumptions and Exclusions",
@@ -150,6 +169,7 @@ export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
       "Scope of Supply",
       "Proposed Solution",
       "Technical Architecture",
+      "Display Schedule",
       "Equipment Schedule",
       "Implementation Approach",
       "Dependencies and Responsibilities",
@@ -232,13 +252,14 @@ export function createProposalWizardDefaults(input: {
     preparedBy: input.preparedBy,
     executiveSummary: input.executiveSummary,
     customerObjectives: input.executiveSummary,
-    externalScope: EXTERNAL_DESIGN_PROMPTS,
+    // Rep-facing prompts only: the export strips them if they are left here.
+    externalScope: REP_COPY.scopePrompts,
     proposedSolution,
     architectureNarrative: input.architectureNarrative,
     inclusions: [
       "WyreStorm equipment listed in the equipment schedule.",
-      "Product selection and proposal support based on the captured Discovery brief.",
-      "Customer-safe explanation of the recommended system architecture.",
+      "Product selection and proposal support based on what we discussed.",
+      "A plain explanation of how the recommended system works.",
     ].join("\n"),
     exclusions: [
       "Cabling, connectors, patch leads and installation consumables unless expressly listed.",
@@ -263,6 +284,10 @@ export function createProposalWizardDefaults(input: {
     currency: "GBP",
     pricesExcludeTax: true,
     bomUnitPrices: {},
+    // The rate card lives on the rep's workspace, so the draft starts unpriced
+    // and the page seeds it once the card arrives — keyed on the card's own
+    // revision, so a save from that page is not re-applied over an edit.
+    installationUnitPrices: {},
     servicesAndAllowances: [
       "Cabling and consumables | By integrator | Separately quoted",
       "Installation labour | By integrator | Separately quoted",
@@ -335,6 +360,13 @@ export function loadProposalWizardDraft(
         ...defaults.bomUnitPrices,
         ...(discoveryChanged ? {} : parsed.bomUnitPrices ?? {}),
       },
+      // The saved draft keeps the rates it carries, cleared cells included: the
+      // workspace card seeds what the draft never reached, and a restore is a
+      // choice made on the page rather than something a reload does by itself.
+      installationUnitPrices: {
+        ...((parsed.currency ?? defaults.currency) === defaults.currency ? defaults.installationUnitPrices : {}),
+        ...(discoveryChanged ? {} : parsed.installationUnitPrices ?? {}),
+      },
     };
   } catch {
     return defaults;
@@ -406,7 +438,7 @@ export function computeProposalReadiness(
     missing.push("Add the core WyreStorm products or explicitly continue without a final BOM.");
   }
   if (input.bomRowCount > 0 && !input.commercialPricingComplete) {
-    missing.push("Enter a unit price for every included equipment line.");
+    missing.push(PROPOSAL_PRICING_GAP);
   }
   if ((input.technicalBlockerCount ?? 0) > 0) {
     missing.push(`Resolve ${input.technicalBlockerCount} technical assurance blocker(s) before customer export.`);

@@ -1,3 +1,5 @@
+import { defaultWallRequirements } from "./videowallOptions";
+import { wallPhysicalSize } from "./wallPhysicalSize";
 import { describe, it, expect } from "vitest";
 import {
   buildSiteSurveyChecklist,
@@ -306,4 +308,12 @@ describe("generateSiteSurveyHtml", () => {
     expect(html).not.toContain("<script>");
     expect(html).toContain("&lt;script&gt;");
   });
+});
+
+it("names the saved wall load in the structural and fixing check and printed sheet", () => {
+  const requirements = { ...defaultWallRequirements, panelMassOverride: { kg: 30, model: "Chosen display", source: "Manufacturer datasheet" } };
+  const mass = wallPhysicalSize(requirements).mounting.totalWeightKg;
+  const checklist = buildSiteSurveyChecklist(makeProject({ videowall: { wallType: "lcd", savedAt: "2026-10-20", summary: { requirements } } }));
+  expect(checklist.installItems?.find(item => item.id === "wall-structural-load")?.label).toContain(`${mass} kg`);
+  expect(generateSiteSurveyHtml(checklist)).toContain(`${mass} kg wall`);
 });

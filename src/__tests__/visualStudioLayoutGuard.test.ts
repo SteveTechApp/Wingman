@@ -7,8 +7,8 @@ describe("Visual Studio layout guard", () => {
     const css = readFileSync(join(process.cwd(), "src/wingman2/styles/wingman-route-overrides.css"), "utf8");
 
     expect(css).toContain("Wingman Visual Studio compact layout repair start");
-    expect(css).toContain(".wm-vs-layout");
-    expect(css).toContain("grid-template-columns: minmax(220px, 252px) minmax(720px, 1fr) minmax(230px, 286px)");
+    // The three-column wm-vs-layout wrapper is gone: the visuals page now lays
+    // its header out with utilities, so only the canvas contract is pinned.
     expect(css).toContain(".wm-vs-canvas-shell");
     expect(css).toContain("grid-template-rows: auto minmax(580px, 1fr)");
     expect(css).toContain(".wm-vs-canvas");

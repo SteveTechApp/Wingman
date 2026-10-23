@@ -143,6 +143,21 @@ jobs:
       - name: Run verify stage
         run: npm run verify:${{ matrix.stage }}
 
+      - name: Generate dead CSS review proposal on failure
+        if: failure() && matrix.stage == 'visual'
+        run: node tools/autofix-dead-css.mjs --propose-deletions
+
+      - name: Attach dead CSS deletion proposal
+        if: failure() && matrix.stage == 'visual'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dead-css-deletion-proposal
+          path: |
+            reports/dead-css-proposal.diff
+            reports/dead-css-review.json
+          if-no-files-found: ignore
+          retention-days: 14
+
   # Live Supabase checks (RLS sentinel probe + migration parity), shared with
   # the nightly schedule via the reusable workflow
   # .github/workflows/supabase-rls.yml (kept identical so CI and the nightly

@@ -54,4 +54,4 @@ export function captureConfidenceTone(
 
 /** One-line explanation shown above the conversation table in exports. */
 export const CAPTURE_CONFIDENCE_EXPLAINER =
-  'The "Capture confidence" column shows how strongly the customer\'s wording matched the closest governed answer: "High confidence" is a strong exact match, "Matched" is a curated-phrase match, and "Low confidence — verify before quote" is a partial match that must be re-verified with the customer before quoting. The number in brackets is the match score behind the tier.';
+  '"Capture confidence" shows how closely your own words matched the answer we recorded. High confidence is a close match. Matched is a close match to a standard phrase. Low confidence — verify before quote is a partial match we will check with you before quoting. The number in brackets is the match score.';

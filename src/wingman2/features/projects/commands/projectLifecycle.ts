@@ -118,7 +118,17 @@ export function createProjectLifecycleCommands(context: ProjectCommandContext) {
       const project = snapshot.projects.find((item) => item.id === projectId);
       if (!project) return;
       const timestamp = now();
-      const copy: StoredProject = { ...project, id: createId(project.id), name: `${project.name} Copy`, updated: "Just now", createdAt: timestamp, updatedAt: timestamp };
+      const id = createId(project.id);
+      const copy: StoredProject = {
+        ...project,
+        id,
+        name: `${project.name} Copy`,
+        updated: "Just now",
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        // The copied wall belongs to the copy, not to the project it came from.
+        videowall: project.videowall ? { ...project.videowall, projectId: id } : undefined,
+      };
       const projects = [...snapshot.projects];
       projects.splice(snapshot.projects.findIndex((item) => item.id === projectId) + 1, 0, copy);
       write({ ...snapshot, projects, activeProjectId: copy.id });

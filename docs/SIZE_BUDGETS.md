@@ -120,6 +120,75 @@ must satisfy — and which gates share this exception discipline versus which
 have no exception path at all — see
 [`docs/CI_GUARD_GATES.md`](CI_GUARD_GATES.md).
 
+## Recorded reductions
+
+### 2026-10-19 — Dead-ancestor rules drained (total:css lower)
+
+The detector now judges a selector structurally instead of counting its class
+tokens. A rule is dead when every comma branch contains a compound whose
+classes are all unused, so `.wm-retired-shell .wm-card` is caught even though
+`.wm-card` is still rendered, and `.wm-live-shell .wm-removed-panel` is caught
+even though the shell is live. Comma branches are OR-ed, so one live branch
+keeps the rule, and tokens inside `:is()`/`:not()`/attribute brackets are
+ignored so anything that might still match is kept.
+
+That found 291 unmatchable rules (44.2 KB of source) across seven stylesheets,
+including the route-owned and page stylesheets the earlier pass never owned.
+They were removed with `node tools/consolidate-dead-class-css.mjs --all
+--apply`, which now discovers the same files as the gate and also drops
+conditional at-rules left with an empty body.
+
+A dead branch inside an otherwise live list is now flagged and split too:
+`.wm-btn, .wm-button {}` becomes `.wm-button {}` while the declaration block
+stays byte-for-byte. That removed 169 dead branches (9.1 KB of source) across
+nine stylesheets, including the last remnants of the old component and page
+selectors.
+
+**`total:css` lowered 887,839 → 843,899 bytes** (measured 824.12 KB across
+3 emitted files). The gate's allowlist is now empty, so any new unmatchable
+selector or branch fails immediately.
+
+### 2026-10-19 — Phase 8 dead-class consolidation (total:css lower)
+
+`tools/consolidate-dead-class-css.mjs` extends the Phase 8 consolidation from
+route-scoped blocks to class-scoped rules: a top-level rule is removed only
+when none of its class tokens appears in shipped markup, tests or tooling.
+Runtime-assembled classes are protected by their literal fragment
+(`wm-polish-${accent}`, `"wm-tier-" + tone`), and library-injected prefixes
+(`recharts-`, `react-flow`, …) are always kept. Comments are preserved, so
+marker-based checks keep passing.
+
+**`total:css` lowered 967,934 → 887,839 bytes** (measured 867.03 KB across
+3 emitted files; 1,174 rules / 174 KB of source removed, with no live element
+across the 29 routes carrying a removed class). The builder page was also split
+into `pages/videowall/` components so it sits inside the 400-line page-entry
+budget.
+
+### Dead-class CSS gate
+
+The consolidation above is now locked in by `check:dead-css` (part of
+`verify:visual`), backed by `tools/wingman-dead-css-baseline.json`. The gate
+scans every stylesheet under `src/wingman2` with the shared detector in
+`tools/lib/dead-css.mjs` and fails when:
+
+- an unused selector is **not** listed in the baseline (new dead CSS); or
+- a listed selector is **no longer** dead (the rule was deleted but its
+  allowance remains).
+
+Detection is structural: a selector fails when every comma branch has a
+compound whose classes are all unused, so a rule scoped by an ancestor class
+that no longer exists is caught while its descendant class is still in use. A
+single dead branch inside a live list is reported on its own, so it cannot hide
+behind a live sibling.
+The allowlist is currently empty, and it only ratchets down: after deleting a
+dead rule, run `npm run audit:dead-css:baseline` and commit the smaller file.
+Accepting a new unused selector is a reviewed exception under the discipline
+above, not a routine update. Runtime-assembled classes (`wm-polish-${accent}`,
+`"wm-tier-" + tone`) and known third-party prefixes stay live, and the baseline
+file is excluded from the usage corpus so it cannot protect its own entries.
+`node tools/consolidate-dead-class-css.mjs --all --apply` prunes every
+stylesheet the gate scans when the allowlist needs draining.
+
 ## Approved exceptions
 
 ### 2026-10-20 — Dashboard CSS cleanup (no limit increase)

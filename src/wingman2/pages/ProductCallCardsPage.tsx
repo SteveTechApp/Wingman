@@ -1355,7 +1355,7 @@ return (
       ), document.body)}
 
       {selectedProduct ? (
-        <header className="wm-pcc-header wm-ui-card-header wm-pcc-header-product-mode">
+        <header className="wm-pcc-header wm-ui-card-header">
           <div>
           <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">
             Product discussion

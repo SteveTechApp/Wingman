@@ -2,16 +2,7 @@ import type { StoredProjectProposal } from "../data/projectStore";
 import type { ProductMediaIndex } from "../data/productMedia";
 import type { SalesBomRow } from "./salesReadiness";
 import { inferSchematicArchitecture } from "./roomSchematicEngine";
-
-export const EXTERNAL_DESIGN_PROMPTS = [
-  "Displays / projection | Model, size, location and mounting: [complete] | Supplier / owner: [complete]",
-  "Sources and conferencing | Source devices, meeting platform and USB host: [complete] | Supplier / owner: [complete]",
-  "Audio | Microphones, loudspeakers, DSP and acoustic requirements: [complete] | Supplier / owner: [complete]",
-  "Network | Switches, port capacity, PoE budget, VLANs and IT approval: [complete] | Supplier / owner: [complete]",
-  "Control | User interface, named room modes and programming: [complete] | Supplier / owner: [complete]",
-  "Site infrastructure | Cable routes / distances, rack, ventilation, power and containment: [complete] | Supplier / owner: [complete]",
-  "Delivery and acceptance | Installation, training, support, acceptance tests and dates: [complete] | Supplier / owner: [complete]",
-].join("\n");
+import { CUSTOMER_COPY, customerCopyLines } from "./proposalCopy";
 
 export function safeProposalWebUrl(value?: string): string | undefined {
   try {
@@ -36,11 +27,12 @@ export function proposalSolutionStory(proposal: StoredProjectProposal, rows: Sal
   const architecture = inferSchematicArchitecture(`${proposal.title} ${proposal.summary}`, rows);
   const scopeItems = proposal.applicationProposal?.thirdPartyScope ?? [];
   // Template proposals already carry the completed third-party scope lines; show
-  // them (including any product page source and recorded specifications) rather
-  // than generic prompts. Projects without a compiled scope keep the prompts.
+  // them (including any product page source and recorded specifications). The
+  // fallback is customer wording for the same categories, never the authoring
+  // prompts the wizard gives the rep.
   const scopeLines = scopeItems.length
     ? scopeItems.map((item) => `${item.category} | ${item.description}${item.notes ? ` — ${item.notes}` : ""} | Qty ${item.quantity} | Responsibility: ${item.responsibility} | Scope status: ${item.status}`).join("\n")
-    : EXTERNAL_DESIGN_PROMPTS;
+    : "";
   const operation: string[] = [];
   if (architecture.isMatrix) operation.push("The proposed central matrix provides a single routing point between the scheduled sources and displays. The agreed controls will determine which content appears at each destination; switching behaviour will be verified during commissioning.");
   if (architecture.isNhd600 || architecture.isNhd500 || architecture.isNhd100) operation.push("The proposed AV-over-IP system distributes content between the scheduled endpoints over a suitably designed network. This allows the agreed destinations to share sources, with any future expansion subject to endpoint compatibility, switch capacity and licensing requirements.");
@@ -53,6 +45,6 @@ export function proposalSolutionStory(proposal: StoredProjectProposal, rows: Sal
     operation: proposal.applicationProposal?.userJourney.some((step) => step.trim())
       ? proposal.applicationProposal.userJourney.filter((step) => step.trim()) : operation,
     acceptance: proposal.applicationProposal?.acceptanceCriteria.length ? proposal.applicationProposal.acceptanceCriteria : ["Demonstrate each agreed source-to-destination route and room mode using the customer's normal tasks.", "Record the test results, train the nominated users and agree the support handover before acceptance."],
-    externalScope: proposal.salesContent?.externalScope || scopeLines,
+    externalScope: customerCopyLines(proposal.salesContent?.externalScope || scopeLines, CUSTOMER_COPY.scopePending).join("\n"),
   };
 }

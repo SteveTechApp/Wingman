@@ -1,10 +1,8 @@
+import { TemplateProposalPanel } from "../components/TemplateProposalPanel";
 import { ProjectScopeSchedule } from "../components/ProjectScopeSchedule";
 import { completeProjectServiceRows, PROJECT_SCOPE_SECTIONS, projectScopeSection, type ProjectScopeSectionId } from "../lib/projectScope";
-import { useUiMode } from "../data/uiMode";
-import { writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
-import { templateRoomBuilderHandoff } from "../lib/templateRoomBuilderHandoff";
-import { lazy, Suspense, useCallback, type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { lazy, Suspense, type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft, Check, CheckCircle2, ChevronRight, Download, FileText,
   LayoutTemplate, MoreHorizontal, RotateCcw, Save, X,
@@ -24,22 +22,18 @@ import VisualStudioCanvas from "../components/visualStudioCanvasEntry";
 import { InDeskConnectivityWizard } from "../components/InDeskConnectivityWizard";
 import { EquipmentLibraryPanel } from "../components/EquipmentLibraryPanel";
 import { canonicalManufacturerName, isWyreStormManufacturer } from "../lib/equipmentLibrary";
-import { postWingmanJson } from "../api/wingmanApi";
 import { applyProductPageDetailsToBomRow, type ProductPageDetails } from "../lib/productPageIntake";
 import { buildTemplateVisualDiagram } from "../lib/schematic/templateVisualDiagram";
-import { upsertStoredProject } from "../data/projectStore";
-import { exportBomCsv } from "../lib/proposalExport";
-import { exportProposalDocx } from "../lib/proposalDocxExport";
-import { createProposalWizardDefaults } from "../lib/proposalWizard";
-import { saveRoomTemplateCopy, useCustomRoomTemplates } from "../lib/customRoomTemplates";
+import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates, type TemplateBomRow, type RoomTemplate } from "../lib/roomTemplates";
-import { validateProposalExport, type ExportValidationResult } from "../lib/proposalExportValidation";
-import { proposalReadiness, type ProposalReadiness } from "../lib/proposalReadiness";
-import { searchProducts, type ProductSearchResult } from "../lib/productSearch";
+import { TEMPLATE_PRE_ISSUE_STAGE_PARAM } from "../lib/templatePreIssuePass";
+import type { ProductSearchResult } from "../lib/productSearch";
 import { classifyProduct, checkRoleCompatibility } from "../lib/roleCompatibility";
 import { getTemplateApplicationProfile } from "../lib/templateApplicationProfiles";
 import { templateImageFor } from "../lib/templateImages";
-import { templateBomRows, templateProducts, buildTemplateProposal, buildTemplateProject } from "../lib/templateReviewProposal";
+import { useTemplateHandoff } from "./template/useTemplateHandoff";
+import { useProductPageDetails } from "./template/useProductPageDetails";
+import { useTemplateProposal } from "./template/useTemplateProposal";
 const tabs = ["Room design", "Drawings", "Proposal"] as const;
 type Tab = (typeof tabs)[number];
 function normalizeProductIdentity(row: TemplateBomRow): TemplateBomRow {
@@ -52,8 +46,7 @@ function normalizeProductIdentity(row: TemplateBomRow): TemplateBomRow {
 export function TemplateReviewPage() {
   const { templateId } = useParams();
   const navigate = useNavigate();
-  const { isGuided, setMode } = useUiMode();
-  const previousGuided = useRef(isGuided);
+  const [searchParams, setSearchParams] = useSearchParams();
   const customTemplates = useCustomRoomTemplates();
   const availableTemplates = useMemo(() => [...customTemplates, ...roomTemplates], [customTemplates]);
   const selectedTemplate = useMemo(() => availableTemplates.find((template) => template.id === templateId), [availableTemplates, templateId]);
@@ -61,82 +54,66 @@ export function TemplateReviewPage() {
   const editedTemplate = useMemo(() => selectedTemplate ? { ...selectedTemplate, ...briefEdits } : undefined, [selectedTemplate, briefEdits]);
   const [designStep, setDesignStep] = useState<"brief" | "schedule" | "review">("brief");
   const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() => selectedTemplate ? completeProjectServiceRows(selectedTemplate.bom, selectedTemplate.id).map(normalizeProductIdentity) : []);
-  const [activeTab, setActiveTab] = useState<Tab>("Room design");
+  // A stage in the address is an address for the Proposal tab, so a link a rep
+  // was sent opens the reading it points at rather than the room design.
+  const [activeTab, setActiveTab] = useState<Tab>(() =>
+    searchParams.get(TEMPLATE_PRE_ISSUE_STAGE_PARAM) ? "Proposal" : "Room design",
+  );
+  /**
+   * Leaving the Proposal tab drops the stage from the address: an address that
+   * names a stage nobody can see is one a reload would jump back to.
+   */
+  function chooseTab(tab: Tab) {
+    setActiveTab(tab);
+    if (tab !== "Proposal" && searchParams.has(TEMPLATE_PRE_ISSUE_STAGE_PARAM)) {
+      const next = new URLSearchParams(searchParams);
+      next.delete(TEMPLATE_PRE_ISSUE_STAGE_PARAM);
+      setSearchParams(next, { replace: true });
+    }
+  }
   const [dirty, setDirty] = useState(false);
   const [savedProjectPath, setSavedProjectPath] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
-  const [modelSearchResults, setModelSearchResults] = useState<ProductSearchResult[]>([]);
-  const [productPageUrl, setProductPageUrl] = useState("");
-  const [readingProductPage, setReadingProductPage] = useState(false);
-  const [productPageMessage, setProductPageMessage] = useState("");
-  const lastSyncedRowIdRef = useRef<string | null>(null);
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated" | "native" | "visual-studio">("native");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  // The template the page was showing: a shared stage link sets the tab on the
+  // first render, and only a move to another template may reset it.
+  const mountedTemplateId = useRef<string | null>(null);
 
   useEffect(() => {
     if (selectedTemplate) {
       setBriefEdits({}); setDesignStep("brief");
-      setSelectedRows(completeProjectServiceRows(selectedTemplate.bom, selectedTemplate.id).map(normalizeProductIdentity)); setDirty(false); setActiveTab("Room design");
+      setSelectedRows(completeProjectServiceRows(selectedTemplate.bom, selectedTemplate.id).map(normalizeProductIdentity)); setDirty(false);
+      // The address decides the tab on the first render; only a move to another
+      // template resets it here, so a shared stage link is not overwritten by
+      // the mount.
+      if (mountedTemplateId.current && mountedTemplateId.current !== selectedTemplate.id) setActiveTab("Room design");
+      mountedTemplateId.current = selectedTemplate.id;
       setSavedProjectPath(""); setSavedTemplatePath(""); setDetailRow(null);
     }
   }, [selectedTemplate]);
 
-  const openFullRoomBuilder = useCallback(() => {
-    if (!editedTemplate) return;
-    writeDiscoveryHandoff(templateRoomBuilderHandoff(editedTemplate, selectedRows));
-    setMode("unguided");
-    navigate(routeCatalogByKey.discovery.path);
-  }, [editedTemplate, selectedRows, setMode, navigate]);
-  useEffect(() => {
-    if (previousGuided.current && !isGuided) openFullRoomBuilder();
-    previousGuided.current = isGuided;
-  }, [isGuided, openFullRoomBuilder]);
+  const proposal = useTemplateProposal({
+    templateId: templateId ?? "",
+    template: editedTemplate,
+    pricingTemplate: selectedTemplate,
+    selectedRows,
+    navigate,
+    onSavedProject: setSavedProjectPath,
+    onSavedTemplate: setSavedTemplatePath,
+    onSaved: () => setDirty(false),
+  });
+  // A template that includes wall processing is a wall design, so the full
+  // builder for it is the Video Wall builder rather than room discovery.
+  const { wallHandoff, openFullRoomBuilder } = useTemplateHandoff({ template: editedTemplate, selectedRows, navigate });
 
-  // Derived values computed BEFORE the early return (React hooks rules).
-  const bomRows = useMemo(
-    () => (editedTemplate ? templateBomRows(editedTemplate, selectedRows) : []),
-    [editedTemplate, selectedRows],
-  );
-  const products = useMemo(() => templateProducts(selectedRows), [selectedRows]);
-
-  // Run the proposal export validator — same checks the main wizard uses.
-  const exportValidation: ExportValidationResult = useMemo(
-    () => validateProposalExport({ products, bomRows }),
-    [products, bomRows],
-  );
-
-  // Real readiness score via the unified scorer — same formula as the discovery path.
-  const readiness: ProposalReadiness = useMemo(() => {
-    if (!selectedTemplate) return { score: 0, reviewRequired: true, exportValidation, summary: "No template", breakdown: { base: 0, blockerDeduction: 0, warningDeduction: 0, validationItemDeduction: 0, assumptionDeduction: 0, productBonus: 0 } };
-    return proposalReadiness({
-      products,
-      bomRows,
-      assumptions: [...(editedTemplate?.assumptions || []), ...(editedTemplate?.validationItems || []).map((item) => `Unverified: ${item}`)],
-      validationItems: editedTemplate?.validationItems || [],
-      exportValidation,
-    });
-  }, [products, bomRows, selectedTemplate, editedTemplate, exportValidation]);
-  const readinessScore = readiness.score;
-
-  /* Keep the product-page field aligned with whichever placeholder row is open. */
-  useEffect(() => {
-    if (detailRow?.id === lastSyncedRowIdRef.current) return;
-    lastSyncedRowIdRef.current = detailRow?.id ?? null;
-    setProductPageUrl(detailRow?.sourceUrl ?? "");
-    setProductPageMessage("");
-  }, [detailRow]);
-
-  /* Product search for BY-OTHERS replacement — must be before the early return */
-  const handleModelSearch = useCallback((query: string, _rowId: string) => {
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    if (query.length < 2) { setModelSearchResults([]); return; }
-    searchTimerRef.current = setTimeout(async () => {
-      const results = await searchProducts(query, 6);
-      setModelSearchResults(results);
-    }, 250);
-  }, []);
+  /** What the manufacturer's page said about the open row, on the row and its drawer copy. */
+  function applyProductPageDetails(rowId: string, details: ProductPageDetails) {
+    mutateRows((current) => current.map((row) => row.id === rowId ? applyProductPageDetailsToBomRow(row, details) : row));
+    setDetailRow((previous) => previous && previous.id === rowId ? applyProductPageDetailsToBomRow(previous, details) : previous);
+  }
+  const productPage = useProductPageDetails({ detailRow, onDetails: applyProductPageDetails });
 
   if (!selectedTemplate) return <div data-wingman-template-detail-page="true" className="pb-10"><PageHero eyebrow="Room templates" title="Template not found." purpose="The selected room design template could not be found." nextMove="Go back to the template library and pick a room design to review." actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]} /></div>;
 
@@ -166,26 +143,7 @@ export function TemplateReviewPage() {
     updateManufacturer(rowId, result.brand || "WyreStorm");
     updateRowField(rowId, "model", result.sku);
     setDetailRow((prev) => prev && prev.id === rowId ? { ...prev, model: result.sku } : prev);
-    setModelSearchResults([]);
-  }
-
-  async function readProductPage(rowId: string) {
-    const url = productPageUrl.trim();
-    if (!url) { setProductPageMessage("Paste the manufacturer's product page URL first."); return; }
-    setReadingProductPage(true);
-    setProductPageMessage("Reading the manufacturer product page…");
-    try {
-      const details = await postWingmanJson<ProductPageDetails>("/api/wingman/equipment/inspect-product-page", { productUrl: url });
-      if (!details.ok) throw new Error("Wingman couldn't read product details from that page.");
-      mutateRows((current) => current.map((row) => row.id === rowId ? applyProductPageDetailsToBomRow(row, details) : row));
-      setDetailRow((previous) => previous && previous.id === rowId ? applyProductPageDetailsToBomRow(previous, details) : previous);
-      setProductPageUrl(String(details.resolvedUrl || url));
-      setProductPageMessage("Product details added as suggestions. Check the exact model and specifications before issuing.");
-    } catch (error) {
-      setProductPageMessage(error instanceof Error ? `${error.message} You can still enter the product details yourself.` : "Could not read that page. Enter the product details yourself.");
-    } finally {
-      setReadingProductPage(false);
-    }
+    productPage.clearSearch();
   }
 
   function toggleRow(rowId: string) {
@@ -196,31 +154,6 @@ export function TemplateReviewPage() {
     }));
   }
   function resetEquipment() { setSelectedRows(completeProjectServiceRows(selectedTemplate!.bom, template.id).map(normalizeProductIdentity)); setBriefEdits({}); setDirty(false); setDetailRow(null); }
-  function exportTemplateBom() { exportBomCsv(buildTemplateProposal(template, selectedRows), bomRows); }
-  async function exportTemplateProposal() {
-    const proposal = buildTemplateProposal(template, selectedRows);
-    const wizard = createProposalWizardDefaults({
-      projectId: `template-${template.id}`,
-      projectName: template.name,
-      preparedBy: "",
-      executiveSummary: template.customerNarrative,
-      architectureNarrative: template.architecture,
-      assumptions: template.assumptions,
-    });
-    await exportProposalDocx(proposal, bomRows, wizard);
-  }
-  function saveTemplateProject() { const project = upsertStoredProject(buildTemplateProject(template, selectedRows)); setSavedProjectPath(`/wingman/projects/${project.id}`); setDirty(false); }
-  function createProposalVisual() {
-    upsertStoredProject(buildTemplateProject(template, selectedRows));
-    setDirty(false);
-    navigate(`${routeCatalogByKey.proposalVisuals.path}?mode=block-diagram&sourceTemplateId=${encodeURIComponent(template.id)}`);
-  }
-  function createProposal() {
-    upsertStoredProject(buildTemplateProject(template, selectedRows));
-    setDirty(false);
-    navigate(routeCatalogByKey.proposal.path);
-  }
-  function saveTemplateDesign() { const copy = saveRoomTemplateCopy(template, selectedRows); setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${copy.id}`); setDirty(false); }
   function addScopeItem(section: ProjectScopeSectionId) {
     const service = section === "engineering" || section === "maintenance";
     const row: TemplateBomRow = { id: crypto.randomUUID(), sku: "BY-OTHERS-CUSTOM", description: service ? "New service allowance" : "New room item", role: PROJECT_SCOPE_SECTIONS.find(item => item.id === section)!.title,
@@ -235,7 +168,7 @@ export function TemplateReviewPage() {
     else if (event.key === "Home") next = 0;
     else if (event.key === "End") next = tabs.length - 1;
     else return;
-    event.preventDefault(); setActiveTab(tabs[next]); tabRefs.current[next]?.focus();
+    event.preventDefault(); chooseTab(tabs[next]); tabRefs.current[next]?.focus();
   }
 
   return (
@@ -248,15 +181,16 @@ export function TemplateReviewPage() {
             <p>{template.summary}</p>
           </div>
           <div className="wm-template-header-actions">
-            <Link className="wm-button is-secondary" to={routeCatalogByKey.templates.path}><ArrowLeft /> Back to templates</Link>
-            <button className="wm-button is-secondary" type="button" onClick={saveTemplateProject}><Save /> Save as project</button>
+            <Link className="wm-button wm-button-secondary" to={routeCatalogByKey.templates.path}><ArrowLeft /> Back to templates</Link>
+            {wallHandoff ? <button className="wm-button wm-button-secondary" type="button" onClick={openFullRoomBuilder}>Design the wall</button> : null}
+            <button className="wm-button wm-button-secondary" type="button" onClick={proposal.saveProject}><Save /> Save as project</button>
             <button className="wm-button is-primary" type="button" onClick={() => setActiveTab("Proposal")}><FileText /> Continue to proposal</button>
             <details className="wm-template-overflow"><summary className="wm-icon-button" aria-label="More template actions"><MoreHorizontal /></summary><div>
               <button type="button" onClick={openFullRoomBuilder}>Open full room builder</button>
-              <button type="button" onClick={createProposalVisual}><LayoutTemplate /> Create visual</button>
+              <button type="button" onClick={proposal.createProposalVisual}><LayoutTemplate /> Create visual</button>
               <button type="button" onClick={resetEquipment}><RotateCcw /> Reset room schedule</button>
-              <button type="button" onClick={exportTemplateBom}><Download /> Export BOM</button>
-              <button type="button" onClick={saveTemplateDesign}><LayoutTemplate /> Save as template</button>
+              <button type="button" onClick={proposal.exportSchedule}><Download /> Export BOM</button>
+              <button type="button" onClick={proposal.saveTemplate}><LayoutTemplate /> Save as template</button>
             </div></details>
           </div>
         </div>
@@ -274,7 +208,7 @@ export function TemplateReviewPage() {
 
       <div className="wm-template-tab-row">
         <div className="wm-template-tabs" role="tablist" aria-label="Template workspace">
-          {tabs.map((tab, index) => <button key={tab} ref={(node) => { tabRefs.current[index] = node; }} type="button" role="tab" id={`template-tab-${tab}`} aria-selected={activeTab === tab} aria-controls={`template-panel-${tab}`} tabIndex={activeTab === tab ? 0 : -1} onClick={() => setActiveTab(tab)} onKeyDown={(event) => onTabKeyDown(event, index)}>{tab}{tab === "Room design" && dirty ? <i aria-label="Unsaved changes" /> : null}</button>)}
+          {tabs.map((tab, index) => <button key={tab} ref={(node) => { tabRefs.current[index] = node; }} type="button" role="tab" id={`template-tab-${tab}`} aria-selected={activeTab === tab} aria-controls={`template-panel-${tab}`} tabIndex={activeTab === tab ? 0 : -1} onClick={() => chooseTab(tab)} onKeyDown={(event) => onTabKeyDown(event, index)}>{tab}{tab === "Room design" && dirty ? <i aria-label="Unsaved changes" /> : null}</button>)}
         </div>
 
       </div>
@@ -309,43 +243,32 @@ export function TemplateReviewPage() {
           <div className="wm-review-step-actions">{designStep !== "brief" ? <button type="button" onClick={() => setDesignStep(designStep === "review" ? "schedule" : "brief")}>Previous step</button> : null}<button type="button" onClick={() => { if (designStep === "review") setActiveTab("Proposal"); else setDesignStep(designStep === "brief" ? "schedule" : "review"); }}>{designStep === "brief" ? "Review equipment and services" : designStep === "schedule" ? "Review assumptions and checks" : "Preview proposal"}</button></div>
         </> : null}
 
-        {activeTab === "Proposal" ? <div className="wm-proposal-handoff">
-          <section><span className="wm-status is-validate">{template.validationItems.length} unresolved</span><h2>{exportValidation.allowed ? "Proposal is ready with assumptions" : "Export blocked — resolve blockers first"}</h2><p>{exportValidation.allowed ? "The equipment schedule can move forward, but the following points remain unverified and will be labelled as assumptions." : "The proposal export validator has found issues that must be resolved before this template can be exported."}</p><div className="wm-proposal-readiness"><strong>{readinessScore}%</strong><span>Proposal readiness</span></div></section>
-          {exportValidation.blockers.length > 0 && (
-            <section className="wm-template-validation-blockers">
-              <h3><AlertTriangle /> Export blockers ({exportValidation.blockers.length})</h3>
-              <ul>
-                {exportValidation.blockers.map((blocker) => (
-                  <li key={blocker.id} className="wm-validation-blocker">
-                    <strong>{blocker.domain}</strong>: {blocker.message}
-                    <span className="wm-validation-fix">{blocker.fix}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-          {exportValidation.warnings.length > 0 && (
-            <section className="wm-template-validation-warnings">
-              <h3>Warnings ({exportValidation.warnings.length})</h3>
-              <ul>
-                {exportValidation.warnings.map((warning) => (
-                  <li key={warning.id} className="wm-validation-warning">
-                    <strong>{warning.domain}</strong>: {warning.message}
-                    <span className="wm-validation-fix">{warning.fix}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-          <section><h3>Unresolved assumptions</h3><ul>{template.validationItems.map((item) => <li key={item}><span>Validate</span>{item}</li>)}</ul></section>
-          <aside>
-            <button className="wm-button is-primary is-full" type="button" onClick={createProposal} disabled={!exportValidation.allowed} title={exportValidation.allowed ? "Create proposal" : `Export blocked: ${exportValidation.blockers.length} blocker(s) must be resolved first`}><FileText /> Create proposal</button>
-            <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateProposal} disabled={!exportValidation.allowed} title={exportValidation.allowed ? "Export proposal" : `Export blocked: ${exportValidation.blockers.length} blocker(s) must be resolved first`}><Download /> Export proposal</button>
-            <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateBom}><Download /> Export equipment schedule</button>
-            <button className="wm-button is-secondary is-full" type="button" onClick={saveTemplateProject}><Save /> Save as project</button>
-            <button className="wm-button is-secondary is-full" type="button" onClick={saveTemplateDesign}><LayoutTemplate /> Save as template</button>
-          </aside>
-        </div> : null}
+        {activeTab === "Proposal" ? (
+          <TemplateProposalPanel
+            template={template}
+            validation={proposal.exportValidation}
+            readinessScore={proposal.readinessScore}
+            pricingSummary={proposal.pricingSummary}
+            surveyGaps={proposal.surveyGaps}
+            onRecordSurveyDetail={proposal.savedWall?.projectId ? proposal.recordSurveyDetail : null}
+            pricing={proposal.pricingDraft}
+            bomRows={proposal.bomRows}
+            installation={proposal.installation}
+            rateCard={proposal.rateCard}
+            rateCardError={proposal.rateCardError}
+            onCurrency={proposal.setCurrency}
+            onUnitPrice={proposal.setUnitPrice}
+            onInstallationRate={proposal.setInstallationRate}
+            onRestoreInstallationRates={proposal.restoreInstallationRates}
+            tableRestore={false}
+            onSaveRateCard={proposal.saveRateCard}
+            onCreateProposal={proposal.createProposal}
+            onExportProposal={proposal.exportProposal}
+            onExportSchedule={proposal.exportSchedule}
+            onSaveProject={proposal.saveProject}
+            onSaveTemplate={proposal.saveTemplate}
+          />
+        ) : null}
       </main>
 
       {detailRow ? <div className="wm-equipment-drawer-backdrop"><button type="button" className="absolute inset-0 cursor-default" onClick={() => setDetailRow(null)} aria-label="Close equipment details" /><aside className="wm-equipment-drawer" role="dialog" aria-modal="true" aria-labelledby="equipment-drawer-title">
@@ -356,19 +279,19 @@ export function TemplateReviewPage() {
         {!(["engineering", "maintenance"].includes(projectScopeSection(detailRow))) && (detailRow.sku.startsWith("BY-OTHERS") || detailRow.sku.startsWith("CUSTOM")) && (
           <div className="wm-drawer-fields">
             <h4>Populate from the manufacturer's product page</h4>
-            <label className="wm-drawer-model-field">Product page URL<input type="url" value={productPageUrl} placeholder="Paste a public https product page URL" onChange={(event) => setProductPageUrl(event.target.value)} /></label>
+            <label className="wm-drawer-model-field">Product page URL<input type="url" value={productPage.productPageUrl} placeholder="Paste a public https product page URL" onChange={(event) => productPage.setProductPageUrl(event.target.value)} /></label>
             <div className="wm-room-wizard-actions">
-              <button type="button" className="wm-ui-button wm-ui-button-secondary" disabled={!productPageUrl.trim() || readingProductPage} onClick={() => readProductPage(detailRow.id)}>{readingProductPage ? "Reading product page…" : "Read product details"}</button>
+              <button type="button" className="wm-ui-button wm-ui-button-secondary" disabled={!productPage.productPageUrl.trim() || productPage.readingProductPage} onClick={() => productPage.readProductPage(detailRow.id)}>{productPage.readingProductPage ? "Reading product page…" : "Read product details"}</button>
               {detailRow.sourceUrl ? <a className="wm-ui-button wm-ui-button-secondary" href={detailRow.sourceUrl} target="_blank" rel="noreferrer">Open product page{detailRow.sourceCheckedOn ? ` (read ${detailRow.sourceCheckedOn})` : ""}</a> : null}
             </div>
-            {productPageMessage ? <p role="status">{productPageMessage}</p> : null}
+            {productPage.productPageMessage ? <p role="status">{productPage.productPageMessage}</p> : null}
             <h4>Replace placeholder</h4>
             <label>Manufacturer<input type="text" value={detailRow.manufacturer ?? ""} placeholder="e.g. WyreStorm, Crestron, Extron" onChange={(event) => updateManufacturer(detailRow.id, event.target.value)} /></label>
-            <label className="wm-drawer-model-field">Model<input type="text" value={detailRow.model ?? ""} placeholder="Type SKU or product name to search catalogue..." onChange={(event) => { updateRowField(detailRow.id, "model", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, model: event.target.value } : prev); handleModelSearch(event.target.value, detailRow.id); }} /></label>
+            <label className="wm-drawer-model-field">Model<input type="text" value={detailRow.model ?? ""} placeholder="Type SKU or product name to search catalogue..." onChange={(event) => { updateRowField(detailRow.id, "model", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, model: event.target.value } : prev); productPage.searchModels(event.target.value); }} /></label>
             {detailRow.manufacturer && !isWyreStormManufacturer(detailRow.manufacturer) && <label>Product relationship<select value={detailRow.productRelationship ?? "complementary"} onChange={(event) => { updateRowField(detailRow.id, "productRelationship", event.target.value); setDetailRow((prev) => prev && prev.id === detailRow.id ? { ...prev, productRelationship: event.target.value as TemplateBomRow["productRelationship"] } : prev); }}><option value="complementary">Complements the WyreStorm system</option><option value="competitor">Alternative to a WyreStorm product</option></select></label>}
-            {modelSearchResults.length > 0 && detailRow.id && (
+            {productPage.modelSearchResults.length > 0 && detailRow.id && (
               <div className="wm-drawer-search-results" role="listbox" aria-label="Product catalogue search results">
-                {modelSearchResults.map((result) => {
+                {productPage.modelSearchResults.map((result) => {
                   const productTags = classifyProduct(result);
                   const roleCheck = detailRow.role ? checkRoleCompatibility(detailRow.role, productTags) : null;
                   return (

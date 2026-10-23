@@ -132,7 +132,7 @@ export function buildProductCheatSheetHtml(options: CheatSheetOptions): string {
     ${reviewBanner}
 
     <div class="grid">
-      <div class="main">
+      <div>
         ${block("What it is", narrative.whatItIs)}
         ${block("Where it fits in the room", narrative.whereItSits)}
         ${familyBlock}
