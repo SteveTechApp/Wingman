@@ -47,6 +47,7 @@
 
 - [x] Pin browser CI jobs to Ubuntu 24.04 after the latest runner migrated to unsupported Ubuntu 26.04.
 - [x] Update Vite to 8.3.5 and Vitest/coverage to 4.1.12 to address published security advisories.
+- [x] Address the follow-up review by deriving promoted SKUs from official WyreStorm product URLs; test specification-led titles and untrusted or non-product URLs.
 - [ ] Recheck the clean install, build, dependency audits, visual checks and full test lane, then merge PR #269 after CI passes.
 
 ## Verification recorded before publication
