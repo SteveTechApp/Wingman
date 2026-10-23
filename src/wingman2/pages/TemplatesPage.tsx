@@ -45,7 +45,7 @@ export function TemplatesPage({ discoveryEntry = false }: { discoveryEntry?: boo
   function startCustom() { navigate(`${routeCatalogByKey.templates.path}/new`); }
   function manageCustom(template: CustomRoomTemplate) {
     writeDiscoveryHandoff(createCustomTemplateEditHandoff(template));
-    navigate(`${routeCatalogByKey.templates.path}/${encodeURIComponent(template.id)}${isGuided ? "" : "/edit"}`);
+    navigate(`${routeCatalogByKey.templates.path}/${encodeURIComponent(template.id)}/edit`);
   }
   function update<K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) { setPersonalisation((current) => current ? { ...current, [key]: value } : current); setSaved(false); }
   function applyDraft() { if (definition && personalisation) { saveTemplateDraft(definition, personalisation); setSaved(true); } }
