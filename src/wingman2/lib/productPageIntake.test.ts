@@ -75,6 +75,31 @@ describe("applyProductPageDetailsToBomRow", () => {
     }).sku).toBe("NHD-600-TX");
   });
 
+  it("uses the official product URL when the title begins with a specification", () => {
+    const row = applyProductPageDetailsToBomRow(placeholderRow, {
+      ok: true, manufacturer: "WyreStorm", title: "100m 4K HDBaseT Extender with USB",
+      model: "100m", resolvedUrl: "https://www.wyrestorm.com/product/ex-100-h2/",
+    });
+    expect(row.model).toBe("EX-100-H2");
+    expect(row.sku).toBe("EX-100-H2");
+    const proposal = buildTemplateProposal(roomTemplates[0], [row]);
+    expect(proposal.products.map(product => product.sku)).toEqual(["EX-100-H2"]);
+    expect(proposal.applicationProposal?.productSpecifications?.map(product => product.sku)).toContain("EX-100-H2");
+  });
+
+  it.each([
+    "https://www.wyrestorm.com/products/",
+    "https://www.wyrestorm.com/product/100m-4k/",
+    "https://wyrestorm.com.example.com/product/ex-100-h2/",
+    "https://www.example.com/product/ex-100-h2/",
+  ])("retains placeholder identity without an official product URL: %s", resolvedUrl => {
+    const row = applyProductPageDetailsToBomRow(placeholderRow, {
+      ok: true, manufacturer: "WyreStorm", title: "100m 4K HDBaseT Extender with USB", resolvedUrl,
+    });
+    expect(row.sku).toBe(placeholderRow.sku);
+    expect(buildTemplateProposal(roomTemplates[0], [row]).products).toEqual([]);
+  });
+
   it("retains a placeholder when the WyreStorm page has no identifiable model", () => {
     expect(applyProductPageDetailsToBomRow(placeholderRow, {
       ok: true, manufacturer: "WyreStorm", title: "NetworkHD products",

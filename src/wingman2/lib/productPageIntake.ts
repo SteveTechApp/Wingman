@@ -29,7 +29,20 @@ function modelFromProductUrl(url: string): string {
   }
 }
 
+function wyreStormModelFromProductUrl(url: string): string {
+  try {
+    const source = new URL(url);
+    if (!/(^|\.)wyrestorm\.com$/i.test(source.hostname) || !/^\/product\/[^/]+\/?$/i.test(source.pathname)) return "";
+    const model = modelFromProductUrl(url);
+    return /^[A-Z]+-[A-Z0-9-]+$/.test(model) ? model : "";
+  } catch {
+    return "";
+  }
+}
+
 export function suggestModelFromProductPage(details: ProductPageDetails): string {
+  const officialModel = wyreStormModelFromProductUrl(details.resolvedUrl || "");
+  if (officialModel) return officialModel;
   const title = String(details.title || "").split("|")[0].trim();
   const heading = title.split(/\s+[-–—]\s+/)[0].trim();
   const sku = heading.match(/\b[A-Z0-9]+(?:-[A-Z0-9]+)+\b/i)?.[0];
@@ -105,6 +118,7 @@ export function applyProductPageDetailsToBomRow(row: TemplateBomRow, details: Pr
   const resolvedUrl = String(details.resolvedUrl || row.sourceUrl || "").trim();
   const checkedOn = String(details.fetchedAt || new Date().toISOString()).slice(0, 10);
   const wyreStormProduct = isWyreStormManufacturer(manufacturer);
+  const identifiedSku = wyreStormModelFromProductUrl(details.resolvedUrl || "");
   const genericDescription = !row.description?.trim() || /placeholder|added product|scope allowance/i.test(row.description);
   const description = genericDescription && summary ? summary.slice(0, 160) : row.description;
   const notes = [
@@ -118,6 +132,8 @@ export function applyProductPageDetailsToBomRow(row: TemplateBomRow, details: Pr
     ...row,
     sku: wyreStormProduct && row.sku.startsWith("BY-OTHERS") && detectedModel
       ? detectedModel.trim().toUpperCase() : row.sku,
+    sku: wyreStormProduct && row.sku.startsWith("BY-OTHERS") && identifiedSku
+      ? identifiedSku : row.sku,
     manufacturer,
     model,
     description,
