@@ -212,6 +212,7 @@ aside:not(.wm-sidebar):not(.wingman-sidebar) {
    (index.html + src source tree); v4 achieves this through the
    @tailwindcss/vite plugin with explicit sources and utilities-only import:
    Wingman's reset owns base elements, so no preflight or components layer. */
+@import "tailwindcss/theme.css" source(none);
 @import "tailwindcss/utilities" source(none);
 @source "../../";
 @source "../../../index.html";

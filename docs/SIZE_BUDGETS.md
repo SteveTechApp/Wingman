@@ -14,6 +14,11 @@ do not fail because source text grew while shipped output stayed flat.
 
 ## Why the budgets exist
 
+Think of these as download-size checks. They warn when a change makes users
+download substantially more code or styling, so we can distinguish required
+features from accidental duplication or obsolete UI. A failure does not mean
+the application cannot compile; it means its growth needs investigation.
+
 Wingman ships several large chunks. The size ratchet protects what users
 download; the architecture gate protects maintainability with maximum line
 counts and dependency direction. Separating those concerns avoids using raw
@@ -185,6 +190,26 @@ file is excluded from the usage corpus so it cannot protect its own entries.
 stylesheet the gate scans when the allowlist needs draining.
 
 ## Approved exceptions
+
+### 2026-10-20 — Dashboard CSS cleanup (no limit increase)
+
+The restored Tailwind theme exposed a CSS budget failure: total emitted CSS
+was approximately 1,005 KB against the existing 993 KB ceiling (945 KB baseline
+plus 5% tolerance). Required theme tokens and spacing utilities were retained.
+Excluding test sources produced negligible savings, so that was not adopted.
+
+Removed 197 rules from `wingman-route-overrides.css` whose selector branches
+all required unused classes from the retired dashboard layout. Current
+confirmation and verification cards and the reference dashboard were retained.
+Empty conditional blocks left by this removal were also removed. Emitted CSS
+fell to 994,697 bytes (971.38 KB); all existing budgets pass without changing
+the baseline or tolerance.
+
+Validation: production build and compiled Tailwind guard; 26 targeted tests;
+dashboard layout, CSS import and style-drift guards; identical desktop
+dashboard screenshots in both views; unchanged geometry and computed styles
+for all 106 focused-view and 238 expert-view dashboard elements at 390px.
+The removed rules remain recoverable in Git history.
 
 ### 2026-10-02 — Lazy visual-canvas split (initial:js and total:css lower, total:js and chunk:project-workflow raise)
 
