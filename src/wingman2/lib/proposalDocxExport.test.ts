@@ -13,6 +13,7 @@ import { defaultWallRequirements, wallCanvasPlan, wallResolutionSummary } from "
 import { wallStartPresets } from "./videowallDecision";
 import { wallStartingPointOrigin } from "./wallStartingPointOrigin";
 import { PARITY_MARKERS, parityBom, parityProposal, parityWizard } from "../../../e2e/fixtures/proposal-output-parity";
+import { getWyreStormSkuBusinessStatus } from "./wyrestormSkuBusinessStatus";
 
 const proposal: StoredProjectProposal = {
   title: "Government Control Room - NetworkHD 600",
@@ -53,11 +54,18 @@ describe("proposal DOCX export", () => {
       PARITY_MARKERS.requirement, PARITY_MARKERS.recommendation, PARITY_MARKERS.dependency,
       PARITY_MARKERS.assumption, PARITY_MARKERS.risk,      PARITY_MARKERS.discoveryQuestion, PARITY_MARKERS.discoveryAnswer, PARITY_MARKERS.disclaimer,
       PARITY_MARKERS.displaySchedule,
-      "NHD-600-TX", "NHD-600-RX", "NHD-CTL-PRO-V2",
+      "NHD-600-E-TX", "NHD-600-E-RX", "NHD-CTL-PRO-V2",
     ];
     for (const marker of requiredMarkers) {
       expect(screenText).toContain(marker);
       expect(docxText).toContain(marker);
+    }
+
+    // The evidence document is a customer-facing artefact, so every part it
+    // quotes has to be quotable today: a fixture that drifts onto a retired SKU
+    // would publish the retired product in all three formats.
+    for (const sku of parityBom.map((row) => row.sku)) {
+      expect(getWyreStormSkuBusinessStatus(sku), `${sku} is not an active WyreStorm SKU`).toBe("active");
     }
 
     if (process.env.WINGMAN_WRITE_PROPOSAL_PARITY === "1") {
@@ -70,7 +78,7 @@ describe("proposal DOCX export", () => {
       fs.writeFileSync(path.join(outputDir, "manifest.json"), JSON.stringify({
         fixture: "northstar-parity",
         requiredSections: ["Customer Requirement", "Recommended Solution", "Display Schedule", "Equipment Schedule", "Technical Architecture", "Discovery Conversation", "Assumptions", "Risks and Dependencies", "Best-Efforts Disclaimer"],
-        requiredMarkers, quantities: { "NHD-600-TX": 2, "NHD-600-RX": 4, "NHD-CTL-PRO-V2": 1 },
+        requiredMarkers, quantities: { "NHD-600-E-TX": 2, "NHD-600-E-RX": 4, "NHD-CTL-PRO-V2": 1 },
         artifacts: { screenHtml: "proposal-screen.html", docx: "proposal.docx", docxText: "proposal-docx.txt" },
       }, null, 2));
     }

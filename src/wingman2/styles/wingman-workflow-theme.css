@@ -342,20 +342,6 @@ html[data-wingman-route="discovery"] .wm-discovery-trail-card {
   padding-bottom: 48px;
 }
 
-.wm-recommendations-page .wingman-hero-next {
-  display: flex;
-  gap: 7px;
-  align-items: baseline;
-  justify-content: center;
-  margin-top: 8px;
-  color: var(--wm-ref-muted);
-  font-size: 0.72rem;
-}
-
-.wm-recommendations-page .wingman-hero-next strong {
-  color: var(--wm-ref-text);
-}
-
 .wm-rec-stage-content {
   display: grid;
   gap: 14px;
@@ -2657,9 +2643,7 @@ body.compare-workspace-open .wm-compare-sku-action-copy small {
   font-size: 0.64rem;
 }
 
-body.compare-workspace-open .compare-native-hidden-submit,
-body.compare-workspace-open button[hidden],
-body.compare-workspace-open .wm-compare-selected-manufacturer-badge {
+body.compare-workspace-open .compare-native-hidden-submit, body.compare-workspace-open button[hidden] {
   display: none;
 }
 
@@ -6985,17 +6969,6 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="compare"] .wm-compare-pa
   padding: 4px 8px;
   font-size: .65rem;
 }
-html[data-wingman-ui-mode="guided"][data-wingman-route="compare"] .wm-compare-page .compare-native-input-area {
-  padding: 10px;
-  gap: 8px;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="compare"] .wm-compare-page .compare-native-input-area h2 {
-  font-size: .88rem;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="compare"] .wm-compare-page .compare-native-input-area textarea {
-  min-height: 80px;
-  font-size: .75rem;
-}
 html[data-wingman-ui-mode="guided"][data-wingman-route="compare"] .wm-compare-page .compare-native-results {
   padding: 10px;
   gap: 8px;
@@ -7003,9 +6976,6 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="compare"] .wm-compare-pa
 html[data-wingman-ui-mode="guided"][data-wingman-route="compare"] .wm-compare-page .compare-native-best-card {
   padding: 12px;
   gap: 8px;
-}
-html[data-wingman-ui-mode="guided"][data-wingman-route="compare"] .wm-compare-page .compare-native-product-card {
-  padding: 8px 10px;
 }
 
 /* ── Guided mode: compact Projects page ────────────────────────── */

@@ -164,11 +164,10 @@ async function signInViaSettings(page) {
   const workspaceSection = page.locator('section[aria-labelledby="wingman-settings-workspace"]');
   await workspaceSection.waitFor({ state: "visible", timeout: 15_000 });
 
-  // The Vite dev server installs a local-session fallback that answers the
-  // session endpoint with a synthetic "Local Wingman Admin" (DEV + loopback
-  // only, src/wingman2/utils/installWingmanLocalSessionFallback.ts). The
-  // Profile page therefore opens already "signed in" - sign that session out
-  // first so the real Email/Password form is revealed and exercised.
+  // A session left behind by an earlier run (or by the developer's own sign-in)
+  // hides the form, so sign it out first and let this run's credentials be the
+  // ones exercised. The dev server issues no session of its own: the endpoint
+  // is the real API's, proxied.
   const signOutButton = workspaceSection.getByTestId("workspace-sign-out");
   if (await signOutButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
     await signOutButton.click();

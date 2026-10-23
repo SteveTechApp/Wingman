@@ -6,9 +6,14 @@ import {
   getWingmanSession,
   loginWingmanWorkspace,
   logoutWingmanWorkspace,
+  openDevelopmentWorkspace,
   signUpWingmanWorkspace,
   type WingmanWorkspaceSession,
 } from "../api/wingmanApi";
+import {
+  forgetDevelopmentWorkspace,
+  rememberDevelopmentWorkspace,
+} from "../utils/devWorkspaceSession";
 import {
   hydrateProjectStoreFromBackend,
   projectBackendSyncEnabled,
@@ -271,10 +276,30 @@ export function ProfilePage() {
     }
   }
 
+  /**
+   * The development API's own workspace, chosen once per browser: the session it
+   * answers with is a real one, so project sync in dev reaches the server.
+   */
+  async function handleLocalDevSignIn() {
+    setWorkspaceBusy(true);
+    try {
+      const response = await openDevelopmentWorkspace();
+      rememberDevelopmentWorkspace();
+      await activateWorkspace(response.session, "Signed in to the local development workspace");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "The local development workspace is not available.");
+    } finally {
+      setWorkspaceBusy(false);
+    }
+  }
+
   async function handleSignOut() {
     setWorkspaceBusy(true);
     try {
       await logoutWingmanWorkspace();
+      // A signed-out browser must stay signed out: the local development
+      // workspace is restored on load only for a rep who chose it.
+      forgetDevelopmentWorkspace();
       clearProductIntelligenceIndexCache();
       setSession(null);
       resetProjectBackendSyncSessionState();
@@ -484,6 +509,9 @@ export function ProfilePage() {
               <>
                 <button className="wm-button wm-button-secondary" type="button" data-testid="workspace-sign-in" onClick={handleSignIn} disabled={workspaceBusy}>Sign in</button>
                 <button className="wm-button wm-button-primary" type="button" onClick={handleCreateWorkspace} disabled={workspaceBusy}>Create workspace</button>
+                {import.meta.env.DEV && (
+                  <button className="wm-button wm-button-ghost" type="button" data-testid="workspace-local-dev-sign-in" onClick={handleLocalDevSignIn} disabled={workspaceBusy}>Use the local dev workspace</button>
+                )}
               </>
             )}
           </div>

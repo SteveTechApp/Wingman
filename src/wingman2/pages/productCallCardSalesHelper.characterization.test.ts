@@ -119,7 +119,7 @@ describe("buildProductSalesHelperCopy (composed sales copy)", () => {
 
   it("respects the structural caps and de-duplicates regardless of input", () => {
     const noisy = makeProductCard({
-      sku: "NHD-600-TX",
+      sku: "NHD-600-E-TX",
       family: "NetworkHD 600",
       questions: Array.from({ length: 12 }, (_value, index) => `Question ${index}?`),
       proofPoints: Array.from({ length: 12 }, (_value, index) => `Proof ${index}.`),

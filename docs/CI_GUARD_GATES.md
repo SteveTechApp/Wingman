@@ -161,10 +161,12 @@ deliberately accepted debt, a reviewed `npm run audit:dead-css:baseline`
 regeneration. Detection is shared with `tools/consolidate-dead-class-css.mjs`
 (`tools/lib/dead-css.mjs`) and is structural: a selector is dead when every
 comma branch contains a compound whose classes are all unused, so a rule scoped
-by an ancestor class that is gone still fails while its descendant class is in
-use, and a dead branch inside a live list is reported on its own. Runtime-assembled class fragments and known third-party prefixes are
-treated as live, and the baseline file itself is never counted as evidence that
-a class is used. The allowlist is currently empty; `node
+by an ancestor class that is gone still fails while its descendant class isin use, and a dead branch inside a live list is reported on its own. A class
+family is treated as runtime-assembled only where source builds a class with
+it — a `className=`/`class=`/`classList` position, or a declaration or function
+named for classes — so a prefix mentioned in a regex, a comment, a DOM id or a
+download filename keeps nothing; known third-party prefixes are always live,
+and the baseline file itself is never counted as evidence that a class is used. The allowlist is currently empty; `node
 tools/consolidate-dead-class-css.mjs --all --apply` prunes every stylesheet the
 gate scans.
 
@@ -202,6 +204,19 @@ class fails, and an entry that has gained a style also fails, so the file
 cannot keep stale allowances. Clear entries by adding the rule or removing the
 class, then regenerate with `npm run audit:unstyled-classes:baseline`.
 Detection lives in `tools/lib/unstyled-classes.mjs`.
+
+`npm run report:dead-css-triage` is the reading step between "a family is
+dead" and deleting it. It groups every unmatchable selector by class family
+(the text up to a class name's first hyphen) and prints the evidence the gate
+used: the rule text that is dead, the assembled fragments source actually
+builds with that prefix, and the places the prefix is merely mentioned (a
+regex, a DOM id, a download filename, a comment). A family with no evidence is
+marked safe to remove; one with any is marked for review, because a mention is
+exactly what a person has to read before deleting. Mentions are probed at each
+dead name's longest hyphen prefix, with near matches first, so a live sibling
+does not bury the place that matters. It writes `reports/dead-css-triage.md`
+and `.json`, reads `tools/lib/dead-css.mjs` rather than re-deriving the rule,
+and always exits 0 — it reports, the gate decides.
 
 `npm run report:css-coverage` supplies the evidence both CSS gates act on. It
 loads every route in `src/wingman2/app/route-manifest.json` in Chromium at a

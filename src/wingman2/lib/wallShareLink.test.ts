@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { wallLinkFromSearch } from "./wallLink";
 import { DEFAULT_WALL_REVIEW_PASS, WALL_REVIEW_PASS_PARAM } from "./wallReviewPass";
-import { WALL_SHARE_COPY_FAILED, wallShareClipboard, wallShareNote, wallSharePassName, wallShareSearch } from "./wallShareLink";
+import { WALL_SHARE_COPY_FAILED, wallShareClipboard, wallShareNote, wallSharePassName, wallShareSearch, wallSharedLinkNote } from "./wallShareLink";
+import { wallPhysicalSize } from "./wallPhysicalSize";
 import { WALL_PICK_PARAM } from "./wallPick";
 import { defaultWallRequirements, type WallRequirements } from "./videowallOptions";
 
@@ -78,6 +79,25 @@ describe("wallShareNote", () => {
     expect(note).toContain("Survey measurements stay with the room");
   });
 
+  it("names the display with the same phrase the pasted line carries", () => {
+    const design = wall({ columns: 2, rows: 2, sources: 2, panelDiagonalInches: 65 });
+
+    // The rep reads the display in the confirmation and then sees the paste
+    // quote the same size, so a copied link cannot describe two different walls.
+    expect(wallShareNote(design, "wall")).toContain(", 65 in panels,");
+    expect(wallShareNote(design, "wall")).toContain(wallPhysicalSize(design).basis);
+    expect(wallShareClipboard({ requirements: design, pass: "wall", address: "https://wingman.test/wall" })).toContain(
+      wallPhysicalSize(design).basis,
+    );
+  });
+
+  it("names an LED pitch or a projector image instead of calling every wall a panel", () => {
+    expect(wallShareNote(wall({ application: "led", pixelPitchMm: 1.9 }), "wall")).toContain(", 1.9 mm pixel pitch,");
+    expect(wallShareNote(wall({ application: "projection", projectors: 2, panelDiagonalInches: 86 }), "wall")).toContain(
+      ", 86 in images,",
+    );
+  });
+
   it("names the default pass and counts one source in the singular", () => {
     expect(wallShareNote(wall({ sources: 1 }), DEFAULT_WALL_REVIEW_PASS)).toContain("with 1 source,");
     expect(wallShareNote(wall({ sources: 1 }), DEFAULT_WALL_REVIEW_PASS)).toContain("opening on the design pass");
@@ -97,6 +117,32 @@ describe("wallShareNote", () => {
 
   it("says the copy failed rather than looking as though it worked", () => {
     expect(WALL_SHARE_COPY_FAILED).toContain("Could not copy the link");
+  });
+});
+
+describe("wallSharedLinkNote", () => {
+  const address = "https://wingman.test/wingman/videowall?pass=transport";
+
+  it("names the arriving wall with the display phrase the confirmation and paste quote", () => {
+    const design = wall({ columns: 3, rows: 2, sources: 4, panelDiagonalInches: 65 });
+    const note = wallSharedLinkNote(design);
+
+    // The rep reads one size across the banner, the copy confirmation and the
+    // line that gets pasted, so the shared wall cannot be described two ways.
+    expect(note).toContain("the 3 × 2 array");
+    expect(note).toContain(wallPhysicalSize(design).basis);
+    expect(note).toContain(", 65 in panels.");
+    expect(wallShareNote(design, "wall")).toContain(wallPhysicalSize(design).basis);
+    expect(wallShareClipboard({ requirements: design, pass: "wall", address })).toContain(wallPhysicalSize(design).basis);
+    // Still a note rather than a recording.
+    expect(note).toContain("Survey measurements stay with the room");
+  });
+
+  it("quotes the surface the shared wall is built on, not a panel it has none of", () => {
+    expect(wallSharedLinkNote(wall({ application: "led", pixelPitchMm: 1.9 }))).toContain("1.9 mm pixel pitch");
+    expect(
+      wallSharedLinkNote(wall({ application: "projection", projectors: 2, panelDiagonalInches: 86 })),
+    ).toContain("86 in images");
   });
 });
 

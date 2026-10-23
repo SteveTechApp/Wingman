@@ -73,7 +73,7 @@ export function ProposalBomPricing({
           ) : (
             <tr>
               <td colSpan={5}>
-                No final WyreStorm BOM is attached yet. Open Product Finder, or
+                No final WyreStorm BOM is attached yet. Open Products, or
                 explicitly continue with a design proposal without a final
                 equipment schedule.
               </td>

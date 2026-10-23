@@ -10,8 +10,136 @@ import { seedWallRequirements, type VideoWallHandoff } from "./videowallHandoff"
 import { normalizeWallSurveyReview } from "./wallSurveyReview";
 import { normalizeLinkDetails } from "./videowallTransport";
 import { wallStartingPointFromSummary, type WallStartingPointOrigin } from "./wallStartingPointOrigin";
+import { wallBriefSignature } from "./wallStartingPoints";
 
 export const VIDEO_WALL_DRAFT_KEY = "wingman:videowall-builder:v2";
+
+/** What the builder opens on, and where the design came from. */
+export type VideowallDraft = {
+  requirements: WallRequirements;
+  selectedId: string;
+  startingPoint?: WallStartingPointOrigin;
+  /**
+   * True when the address named a wall this browser had not stored, so the
+   * design on screen is the sender's rather than a copy of the saved one.
+   */
+  fromLink?: boolean;
+};
+
+function asSummary(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+/** When a stored design was written, or NaN when it does not say. */
+function writtenAt(summary: Record<string, unknown> | null): number {
+  const value = summary && typeof summary.updatedAt === "string" ? Date.parse(summary.updatedAt) : NaN;
+  return Number.isFinite(value) ? value : NaN;
+}
+
+/**
+ * The design this builder would reopen: the project's saved wall, or the local
+ * draft when that holds newer work.
+ *
+ * The draft is written on every edit, so it is normally newer than the copy it
+ * was made from — an edit the rep has not saved yet must not be thrown away by
+ * a reload. A draft older than the project's wall is what another device has
+ * since replaced, so the saved wall wins there.
+ */
+function storedWallSummary(): Record<string, unknown> | null {
+  try {
+    const projectDraft = getCurrentWorkflowProject()?.videowall?.summary;
+    const project = projectDraft?.version === 2 ? asSummary(projectDraft) : null;
+    const local = asSummary(JSON.parse(window.localStorage.getItem(VIDEO_WALL_DRAFT_KEY) || "null"));
+    if (!project) return local;
+    if (!local) return project;
+    const localAt = writtenAt(local);
+    const projectAt = writtenAt(project);
+    if (!Number.isFinite(localAt)) return project;
+    if (!Number.isFinite(projectAt)) return local;
+    return localAt > projectAt ? local : project;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The local draft's own facts: when this browser wrote it, and which project
+ * the builder was working on at the time.
+ *
+ * The owner is what lets a project page speak for its own draft only — this
+ * browser may hold another project's wall in progress, and reporting that work
+ * against the wrong project would be a claim nobody made.
+ */
+export type StoredVideowallDraft = {
+  updatedAt: string;
+  projectId: string | null;
+};
+
+/**
+ * This browser's wall draft, or null when it holds none. The builder compares
+ * the stamp with the project's saved wall, so a rep can see that a reload is
+ * safe while the project copy is behind.
+ */
+export function storedVideowallDraft(): StoredVideowallDraft | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const draft = asSummary(JSON.parse(window.localStorage.getItem(VIDEO_WALL_DRAFT_KEY) || "null"));
+    const updatedAt = typeof draft?.updatedAt === "string" ? draft.updatedAt : "";
+    if (!Number.isFinite(Date.parse(updatedAt))) return null;
+    const owner = typeof draft?.projectId === "string" ? draft.projectId.trim() : "";
+    return { updatedAt, projectId: owner || null };
+  } catch {
+    return null;
+  }
+}
+
+/** When this browser last wrote a wall draft, or null when it holds none. */
+export function storedVideowallDraftUpdatedAt(): string | null {
+  return storedVideowallDraft()?.updatedAt ?? null;
+}
+
+/**
+ * Keep the wall the rep is working on, so a reload reopens it — survey cells
+ * and all. Saving writes the same draft with the full design evidence; this is
+ * the lighter copy every edit leaves behind.
+ *
+ * Returns the stamp it wrote, so the builder can say how current the draft is
+ * without reading storage back during render; null means the write failed.
+ */
+export function rememberVideowallDraft(draft: {
+  requirements: WallRequirements;
+  selectedId?: string;
+  startingPoint?: WallStartingPointOrigin | null;
+}): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const updatedAt = new Date().toISOString();
+    window.localStorage.setItem(VIDEO_WALL_DRAFT_KEY, JSON.stringify({
+      version: 2,
+      requirements: draft.requirements,
+      selectedId: draft.selectedId ?? "",
+      startingPoint: draft.startingPoint ?? null,
+      // The wall keeps its owner, so a project page can tell this browser's
+      // draft of that wall apart from another project's work in progress.
+      projectId: getCurrentWorkflowProject()?.id ?? null,
+      updatedAt,
+    }));
+    return updatedAt;
+  } catch {
+    // Storage can be unavailable in a private window; the design stays on screen.
+    return null;
+  }
+}
+
+/** Whether the wall in the address is the one already stored here. */
+function namesStoredWall(stored: unknown, shared: WallRequirements): boolean {
+  if (!stored || typeof stored !== "object" || Array.isArray(stored)) return false;
+  try {
+    return wallBriefSignature(stored as WallRequirements) === wallBriefSignature(shared);
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Restore the builder from a handoff, a shared wall link, the current project,
@@ -21,20 +149,27 @@ export const VIDEO_WALL_DRAFT_KEY = "wingman:videowall-builder:v2";
  * replaced the address; a link outranks the project and the draft because the
  * sender chose that wall, and opening the recipient's own draft instead is
  * exactly what the link exists to prevent.
+ *
+ * The builder writes `?wall=` on every edit, though, so a reload carries the
+ * rep's own brief back to them. A link is answers only — the survey stays with
+ * the room it was measured in — so a link that names the wall already stored
+ * here is this browser's own address, and the stored design is the fuller copy.
+ * Only a link naming some other wall outranks it.
  */
 export function restoreVideowallDraft(
   handoff: VideoWallHandoff | null,
   shared?: WallRequirements | null,
-): { requirements: WallRequirements; selectedId: string; startingPoint?: WallStartingPointOrigin } {
+): VideowallDraft {
   const fallback = { requirements: { ...defaultWallRequirements }, selectedId: "" };
   // An explicit handoff from Discovery or a template outranks the saved draft.
   const seeded = seedWallRequirements(handoff);
   if (seeded) return { requirements: seeded, selectedId: "" };
-  if (shared) return { requirements: normalizeWallDesignMetadata(shared), selectedId: "" };
+  const raw = storedWallSummary();
+  const r = raw?.requirements as WallRequirements | undefined;
+  if (shared && !namesStoredWall(r, shared)) {
+    return { requirements: normalizeWallDesignMetadata(shared), selectedId: "", fromLink: true };
+  }
   try {
-    const projectDraft = getCurrentWorkflowProject()?.videowall?.summary;
-    const raw = projectDraft?.version === 2 ? projectDraft : JSON.parse(window.localStorage.getItem(VIDEO_WALL_DRAFT_KEY) || "null");
-    const r = raw?.requirements;
     if (!r || !wallApplications.some((application) => application.value === r.application)
       || !["single", "split", "quad", "nine", "custom", "independent"].includes(r.layout)
       || !["local", "distributed"].includes(r.sourceLocation)
@@ -69,7 +204,7 @@ export function restoreVideowallDraft(
     const startingPoint = wallStartingPointFromSummary(raw);
     return {
       requirements: normalizeWallDesignMetadata(requirements),
-      selectedId: typeof raw.selectedId === "string" ? raw.selectedId : "",
+      selectedId: typeof raw?.selectedId === "string" ? raw.selectedId : "",
       ...(startingPoint ? { startingPoint } : {}),
     };
   } catch {

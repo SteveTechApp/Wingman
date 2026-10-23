@@ -16,8 +16,8 @@ export const PARITY_MARKERS = {
 } as const;
 
 export const parityBom: SalesBomRow[] = [
-  { item: 1, sku: "NHD-600-TX", description: "NetworkHD 600 encoder", role: "Encode operator sources", qty: 2, type: "Required", status: "included", evidence: "Two confirmed operator sources", notes: "Install in the equipment rack." },
-  { item: 2, sku: "NHD-600-RX", description: "NetworkHD 600 decoder", role: "Decode display feeds", qty: 4, type: "Required", status: "included", evidence: "Four independently routed displays", notes: "One decoder per display." },
+  { item: 1, sku: "NHD-600-E-TX", description: "NetworkHD 600 SDVoE encoder", role: "Encode operator sources", qty: 2, type: "Required", status: "included", evidence: "Two confirmed operator sources", notes: "Install in the equipment rack." },
+  { item: 2, sku: "NHD-600-E-RX", description: "NetworkHD 600 SDVoE decoder", role: "Decode display feeds", qty: 4, type: "Required", status: "included", evidence: "Four independently routed displays", notes: "One decoder per display." },
   { item: 3, sku: "NHD-CTL-PRO-V2", description: "NetworkHD controller", role: "Routing control", qty: 1, type: "Required", status: "included", evidence: "Central routing and control requirement", notes: "Confirm firmware compatibility." },
 ];
 
@@ -55,7 +55,7 @@ export const parityWizard = (() => {
   });
   wizard.proposalReference = "WM-PARITY-001";
   wizard.proposalDate = "2026-09-11";
-  wizard.bomUnitPrices = { "NHD-600-TX": "1000", "NHD-600-RX": "1100", "NHD-CTL-PRO-V2": "1250" };
+  wizard.bomUnitPrices = { "NHD-600-E-TX": "1000", "NHD-600-E-RX": "1100", "NHD-CTL-PRO-V2": "1250" };
   wizard.solutionConfirmed = true;
   wizard.reviewConfirmed = true;
   return wizard;

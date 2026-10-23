@@ -37,6 +37,7 @@ import {
   handleWingmanAuditGet,
   handleWingmanInvitationAcceptPost,
   handleWingmanInvitationResolveGet,
+  handleWingmanAuthDevSessionPost,
   handleWingmanAuthLoginPost,
   handleWingmanAuthLogoutPost,
   handleWingmanAuthSessionGet,
@@ -2355,6 +2356,15 @@ const ROUTES = [
     method: "POST",
     path: "/api/wingman/auth/logout",
     handler: (req, res, url, { sendJson }) => handleWingmanAuthLogoutPost(req, res, url, { sendJson }),
+  },
+  // Development only, and the handler is what enforces it: a production process,
+  // a shared database and a request from another machine are all refused. A
+  // development server uses it to hold a real workspace session, so project sync
+  // in dev talks to this API instead of a browser-side stand-in.
+  {
+    method: "POST",
+    path: "/api/wingman/auth/dev-session",
+    handler: (req, res, _url, { sendJson }) => handleWingmanAuthDevSessionPost(req, res, { sendJson }),
   },
   {
     method: "POST",

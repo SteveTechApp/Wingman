@@ -27,11 +27,13 @@ import { clearVideoWallHandoff, readVideoWallHandoff } from "../lib/videowallHan
 import { wallWizardConcernChecks, type WallReviewStageKey } from "../lib/videowallWizard";
 import { useUiMode } from "../data/uiMode";
 import { restoreVideowallDraft, VIDEO_WALL_DRAFT_KEY } from "../lib/videowallDraft";
+import { useVideowallDraftAutosave } from "./videowall/useVideowallDraftAutosave";
+import { WallDraftStatusNote } from "./videowall/WallDraftStatusNote";
 import { VideowallWizard } from "./videowall/VideowallWizard";
 import { wallSurveyReviewAuditNote } from "../lib/wallSurveyReview";
 import { wallPickFromSearch, wallPickedOption } from "../lib/wallPick";
 import { readWallReviewPass, rememberWallReviewPass, wallReviewPassFromSearch } from "../lib/wallReviewPass";
-import { WALL_SHARE_COPY_FAILED, wallShareClipboard, wallShareNote, wallShareSearch } from "../lib/wallShareLink";
+import { WALL_SHARE_COPY_FAILED, wallShareClipboard, wallShareNote, wallShareSearch, wallSharedLinkNote } from "../lib/wallShareLink";
 import { wallLinkFromSearch } from "../lib/wallLink";
 import "../styles/wingman-videowall.css";
 
@@ -39,7 +41,9 @@ export function VideoWallPage() {
   const [searchParams] = useSearchParams();
   const [handoff] = useState(() => readVideoWallHandoff());
   // A wall in the address is the sender's design, so it is restored instead of
-  // this browser's draft; a handoff still outranks it.
+  // this browser's draft; a handoff still outranks it. The address this builder
+  // writes on every edit names the rep's own wall, and the restore keeps the
+  // saved design in that case, survey cells included.
   const [sharedWall] = useState(() => wallLinkFromSearch(searchParams));
   const [draft] = useState(() => restoreVideowallDraft(handoff, sharedWall));
   const [requirements, setRequirements] = useState(draft.requirements);
@@ -60,8 +64,9 @@ export function VideoWallPage() {
   // records runs it now holds, so a sheet imported into a wall nobody saved
   // leaves nothing claiming them.
   const [sheetNotes, setSheetNotes] = useState<string[]>([]);
-  // The wall arrived in the address rather than from this browser's draft.
-  const [shared, setShared] = useState(() => Boolean(sharedWall) && !handoff);
+  // The wall arrived in the address rather than from this browser's draft — a
+  // link that names a wall this browser has not stored.
+  const [shared, setShared] = useState(() => draft.fromLink === true);
   const { isGuided, setMode } = useUiMode();
   const navigate = useNavigate();
   const location = useLocation();
@@ -108,6 +113,10 @@ export function VideoWallPage() {
     if (next === location.search.replace(/^\?/, "")) return;
     navigate({ search: `?${next}` }, { replace: true });
   }, [location.search, requirements, pass, pickedId, navigate]);
+
+  // The design is kept on every edit rather than only on Save, so a reload
+  // reopens the wall nobody saved yet; the hook skips the restored first pass.
+  const draftSavedAt = useVideowallDraftAutosave(requirements, selected?.id ?? "", startingPoint);
 
   function update(patch: Partial<WallRequirements>) {
     setRequirements((current) => ({ ...current, ...patch }));
@@ -270,10 +279,11 @@ export function VideoWallPage() {
 
   // The wall arrived in the address rather than from this browser's draft, so
   // the rep reading it knows whose answers these are. It is a note, not a live
-  // region: the copy confirmation owns the status role.
+  // region: the copy confirmation owns the status role. The draft line sits with
+  // it because both answer "which copy of this wall am I looking at?".
   const sharedWallNote = shared && !handoff ? (
     <p className="vw-builder-note" data-testid="videowall-shared-wall">
-      This wall came with a shared link, not from this browser&apos;s draft. Survey measurements stay with the room they were taken in.
+      {wallSharedLinkNote(requirements)}
     </p>
   ) : null;
 
@@ -281,13 +291,14 @@ export function VideoWallPage() {
     return (
       <>
         {sharedWallNote}
+        <WallDraftStatusNote draftSavedAt={draftSavedAt} />
         <VideowallWizard
           requirements={requirements}
           decision={decision}
           selected={selected}
           message={message}
           handoffLabel={handoff?.label ?? null}
-          startAtResult={Boolean(handoff) || shared}
+          startAtResult={Boolean(handoff) || Boolean(sharedWall)}
           concerns={concerns}
           onConcerns={setConcerns}
           onChange={update}
@@ -328,6 +339,7 @@ export function VideoWallPage() {
         </p>
       ) : null}
       {sharedWallNote}
+      <WallDraftStatusNote draftSavedAt={draftSavedAt} />
 
       <VideowallExpertReview
         requirements={requirements}

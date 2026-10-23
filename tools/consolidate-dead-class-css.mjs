@@ -9,9 +9,11 @@ import { createDeadSelectorTests, parseRules, partitionSelectorBranches, relativ
 // checks rely on survive.
 //
 // Tokens assembled at runtime (`wm-polish-${accent}`, `tier--${tone}`) never
-// appear literally. A class-like source word with a trailing hyphen, or any
-// shorter hyphen-delimited prefix of it, marks the family as dynamic and the
-// rule is kept.
+// appear literally. The fragment is evidence only where source builds a class
+// with it — inside `className=`/`class=`/`classList`, or a declaration or
+// function named for classes — right before a `${` or before a `+`. A prefix
+// that is merely mentioned elsewhere (a regex, a comment, a DOM id, a download
+// filename) is not assembly and keeps nothing.
 //
 // Usage:
 //   node tools/consolidate-dead-class-css.mjs                 # report current files

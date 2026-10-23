@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
-import { projectAnchors, projectDetailSections } from "../lib/projectAnchors";
+import { projectAnchors, projectDetailSections, projectSectionHref } from "../lib/projectAnchors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { deleteProject, updateStoredProject, storedProject } = vi.hoisted(() => ({
@@ -143,6 +143,33 @@ describe("Project Detail review controls", () => {
     expect(screen.getByRole("link", { name: "Equipment" }).getAttribute("aria-current")).toBe("page");
     expect(screen.getByTestId("location").textContent).toBe("/wingman/projects/project-1?view=products#project-equipment");
     expect(document.activeElement?.id).toBe("project-equipment");
+  });
+
+  it("lists exactly the anchor registry's sections in the project pages navigator", () => {
+    renderPage();
+
+    const pages = screen.getByRole("navigation", { name: "Project pages" });
+    const links = Array.from(pages.querySelectorAll("a"));
+
+    // One link per section the page carries, in the navigator's order and
+    // labelled the same way. The navigator reads `projectDetailSections`
+    // itself, and that list is derived from `projectAnchors`, so this compares
+    // what a rep sees with the registry rather than with a second list that
+    // could be kept in step by hand.
+    expect(links.map((link) => link.textContent)).toEqual(projectDetailSections.map((section) => section.label));
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(
+      projectDetailSections.map((section) => projectSectionHref("project-1", section.id)),
+    );
+
+    // The other direction: a panel registered in a section the page does not
+    // list would leave that section unreachable, so the sections the registry
+    // names and the sections on screen have to be the same set.
+    const renderedSections = links.map((link) => {
+      const href = link.getAttribute("href") ?? "";
+      return href.split("?view=")[1]?.split("#")[0] ?? "";
+    });
+    const registrySections = projectAnchors.map((anchor) => anchor.section);
+    expect(new Set(renderedSections)).toEqual(new Set(registrySections));
   });
 
   it("copies a section chip's full address without leaving the reading", async () => {

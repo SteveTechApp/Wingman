@@ -63,6 +63,10 @@ describe("copying a builder link", () => {
     const status = screen.getByText(/Link copied:/).textContent ?? "";
     expect(status).toContain("opening on the transport and survey pass");
     expect(status).toContain("Survey measurements stay with the room");
+    // This wall is a pair of 86 in projectors, so the confirmation names the
+    // image each one throws — the same phrase the pasted line carries.
+    expect(writeText.mock.calls[0][0]).toContain("86 in images");
+    expect(status).toContain("86 in images");
   });
 
   it("names the opening pass when the rep is reading the design", async () => {

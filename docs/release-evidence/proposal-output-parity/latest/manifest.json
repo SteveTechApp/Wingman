@@ -21,13 +21,13 @@
     "Four displays",
     "best-efforts basis",
     "Display Schedule",
-    "NHD-600-TX",
-    "NHD-600-RX",
+    "NHD-600-E-TX",
+    "NHD-600-E-RX",
     "NHD-CTL-PRO-V2"
   ],
   "quantities": {
-    "NHD-600-TX": 2,
-    "NHD-600-RX": 4,
+    "NHD-600-E-TX": 2,
+    "NHD-600-E-RX": 4,
     "NHD-CTL-PRO-V2": 1
   },
   "artifacts": {

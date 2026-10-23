@@ -35,10 +35,10 @@ schedule further on. Anything marked optional is still your decision, and work b
 Complete System Design and Responsibilities.
 Encode operator sources
 ITEM MODEL DESCRIPTION QTY STATUS
-1 NHD-600-TX NetworkHD 600 encoder 2 Required
+1 NHD-600-E-TX NetworkHD 600 SDVoE encoder 2 Required
 Decode display feeds
 ITEM MODEL DESCRIPTION QTY STATUS
-2 NHD-600-RX NetworkHD 600 decoder 4 Required
+2 NHD-600-E-RX NetworkHD 600 SDVoE decoder 4 Required
 Routing control
 ITEM MODEL DESCRIPTION QTY STATUS
 3 NHD-CTL-PRO-V2 NetworkHD controller 1 Required
@@ -82,8 +82,8 @@ The confirmed routing and resilience requirement needs a scalable 10GbE fabric.
 Still to confirm: redundant power and switch failover behaviour during commissioning.
 WyreStorm · Northstar Operations Room Page 4 of 13
 Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
-Required WyreStorm products: NHD-600-TX - NetworkHD 600 encoder; NHD-600-RX - NetworkHD
-600 decoder; NHD-CTL-PRO-V2 - NetworkHD controller
+Required WyreStorm products: NHD-600-E-TX - NetworkHD 600 SDVoE encoder; NHD-600-E-RX -
+NetworkHD 600 SDVoE decoder; NHD-CTL-PRO-V2 - NetworkHD controller
 Practical Operation
 This is what the system will do for the people using the room, day to day.
 Operators select an approved source and route it to any display.
@@ -112,17 +112,17 @@ Source 1 (confirm)
 source
 Source 2 (confirm)
 source
-NHD-600-TX
+NHD-600-E-TX
 av-over-ip-encoder
-NHD-600-TX
+NHD-600-E-TX
 av-over-ip-encoder
-NHD-600-RX
+NHD-600-E-RX
 av-over-ip-decoder
-NHD-600-RX
+NHD-600-E-RX
 av-over-ip-decoder
-NHD-600-RX
+NHD-600-E-RX
 av-over-ip-decoder
-NHD-600-RX
+NHD-600-E-RX
 av-over-ip-decoder
 NHD-CTL-PRO-V2
 av-over-ip-controller
@@ -154,24 +154,24 @@ Cable length not confirmed for hdmi run: The Decoder to display connection uses 
 15m). Confirm the actual cable run length is within spec before quoting.
 Cable length not confirmed for hdmi run: The Decoder to display connection uses hdmi transport (max
 15m). Confirm the actual cable run length is within spec before quoting.
-Power source unconfirmed for NHD-600-TX: "NetworkHD 600 encoder" (NHD-600-TX) has no power
-connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
-separate power supply.
-Power source unconfirmed for NHD-600-TX: "NetworkHD 600 encoder" (NHD-600-TX) has no power
-connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
-separate power supply.
-Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) has no power
-connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
-separate power supply.
-Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) has no power
-connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
-separate power supply.
-Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) has no power
-connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
-separate power supply.
-Power source unconfirmed for NHD-600-RX: "NetworkHD 600 decoder" (NHD-600-RX) has no power
-connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or requires a
-separate power supply.
+Power source unconfirmed for NHD-600-E-TX: "NetworkHD 600 SDVoE encoder" (NHD-600-E-TX) has
+no power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or
+requires a separate power supply.
+Power source unconfirmed for NHD-600-E-TX: "NetworkHD 600 SDVoE encoder" (NHD-600-E-TX) has
+no power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or
+requires a separate power supply.
+Power source unconfirmed for NHD-600-E-RX: "NetworkHD 600 SDVoE decoder" (NHD-600-E-RX) has
+no power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or
+requires a separate power supply.
+Power source unconfirmed for NHD-600-E-RX: "NetworkHD 600 SDVoE decoder" (NHD-600-E-RX) has
+no power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or
+requires a separate power supply.
+Power source unconfirmed for NHD-600-E-RX: "NetworkHD 600 SDVoE decoder" (NHD-600-E-RX) has
+no power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or
+requires a separate power supply.
+Power source unconfirmed for NHD-600-E-RX: "NetworkHD 600 SDVoE decoder" (NHD-600-E-RX) has
+no power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or
+requires a separate power supply.
 Power source unconfirmed for NHD-CTL-PRO-V2: "NetworkHD controller" (NHD-CTL-PRO-V2) has no
 power connection in the schematic. Confirm whether it is PoE-powered, has an included PSU, or
 requires a separate power supply.
@@ -186,7 +186,8 @@ CONNECTORS STATUS VALIDATION
 REMINDER
 Source 1
 (confirm) →
-NHD-600-TX
+NHD-600-E-
+TX
 Video 15m SOURCE PORT
 TBD to HDMI
 IN
@@ -203,7 +204,8 @@ resolution/HDR
 requirements.
 Source 2
 (confirm) →
-NHD-600-TX
+NHD-600-E-
+TX
 Video 15m SOURCE PORT
 TBD to HDMI
 IN
@@ -218,8 +220,8 @@ version, EDID
 behaviour, and
 resolution/HDR
 requirements.
-NHD-600-TX
-→ Network
+NHD-600-E-
+TX → Network
 switch
 Network /
 AVoIP
@@ -237,8 +239,8 @@ assignment, PoE
 budget, cable
 category, and network
 topology.
-NHD-600-TX
-→ Network
+NHD-600-E-
+TX → Network
 switch
 Network /
 AVoIP
@@ -258,7 +260,8 @@ category, and network
 topology.
 Network
 switch →
-NHD-600-RX
+NHD-600-E-
+RX
 Network /
 AVoIP
 Not
@@ -282,7 +285,8 @@ CONNECTORS STATUS VALIDATION
 REMINDER
 Network
 switch →
-NHD-600-RX
+NHD-600-E-
+RX
 Network /
 AVoIP
 Not
@@ -300,7 +304,8 @@ category, and network
 topology.
 Network
 switch →
-NHD-600-RX
+NHD-600-E-
+RX
 Network /
 AVoIP
 Not
@@ -318,7 +323,8 @@ category, and network
 topology.
 Network
 switch →
-NHD-600-RX
+NHD-600-E-
+RX
 Network /
 AVoIP
 Not
@@ -354,9 +360,9 @@ assignment, PoE
 budget, cable
 category, and network
 topology.
-NHD-600-RX
-→ Display 1
-(confirm)
+NHD-600-E-
+RX → Display
+1 (confirm)
 Video 15m HDMI OUT to
 DISPLAY
 INPUT
@@ -378,9 +384,9 @@ CABLE RUN TRANSPORT MAX
 LENGTH
 CONNECTORS STATUS VALIDATION
 REMINDER
-NHD-600-RX
-→ Display 2
-(confirm)
+NHD-600-E-
+RX → Display
+2 (confirm)
 Video 15m HDMI OUT to
 DISPLAY
 INPUT
@@ -396,9 +402,9 @@ version, EDID
 behaviour, and
 resolution/HDR
 requirements.
-NHD-600-RX
-→ Display 3
-(confirm)
+NHD-600-E-
+RX → Display
+3 (confirm)
 Video 15m HDMI OUT to
 DISPLAY
 INPUT
@@ -414,9 +420,9 @@ version, EDID
 behaviour, and
 resolution/HDR
 requirements.
-NHD-600-RX
-→ Display 4
-(confirm)
+NHD-600-E-
+RX → Display
+4 (confirm)
 Video 15m HDMI OUT to
 DISPLAY
 INPUT
@@ -450,11 +456,13 @@ WyreStorm · Northstar Operations Room Page 9 of 13
 Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Products in the Solution
 Product photograph unavailable.
-NHD-600-TX — NetworkHD 600 encoder
+NHD-600-E-TX — NetworkHD 600 SDVoE
+encoder
 Role in this design: Encode operator sources
 Official product link to be confirmed.
 Product photograph unavailable.
-NHD-600-RX — NetworkHD 600 decoder
+NHD-600-E-RX — NetworkHD 600 SDVoE
+decoder
 Role in this design: Decode display feeds
 Official product link to be confirmed.
 Product photograph unavailable.
@@ -480,41 +488,43 @@ Basis: Native resolution, feed count and scaling are confirmed when the display 
 Equipment Schedule
 ITEM SKU DESCRIPTION ROLE QTY TYPE NOTES
 1 NHD-600-
-TX
+E-TX
 NetworkHD 600
-encoder
+SDVoE encoder
 Encode
 operator
 sources
 2 Required Install in the
 equipment rack.
 2 NHD-600-
-RX
+E-RX
 NetworkHD 600
-decoder
-Decode display
-feeds
+SDVoE decoder
+Decode
+display feeds
 4 Required One decoder per
 display.
 3 NHD-CTL-
 PRO-V2
 NetworkHD
 controller
-Routing control 1 Required Confirm firmware
+Routing
+control
+1 Required Confirm firmware
 compatibility.
 EQUIPMENT SCHEDULE TOTALS 7 3 line items
-Evidence basis: NHD-600-TX: Two confirmed operator sources | NHD-600-RX: Four independently routed displays | NHD-CTL-
-PRO-V2: Central routing and control requirement
+Evidence basis: NHD-600-E-TX: Two confirmed operator sources | NHD-600-E-RX: Four independently routed displays | NHD-
+CTL-PRO-V2: Central routing and control requirement
 Power Strategy
 The power figures below come from WyreStorm product data for each selected product. They are the
 maximum the published specification states, and should be checked against the current datasheet
 before ordering.
 SKU QTY PER-UNIT MAX TOTAL MAX POWER DATA (WYRESTORM)
-NHD-600-TX 2 Not proven — No power figure published
-NHD-600-RX 4 Not proven — No power figure published
+NHD-600-E-TX 2 Not proven — 802.3at PoE+
+NHD-600-E-RX 4 Not proven — 802.3at PoE+
 NHD-CTL-PRO-V2 1 15.4W 15.4W 12V DC | PoE compliant; Max 15.4W, average 8W
-Stated maximum consumption: approximately 15W across 1 product with proven figures. 1 product (NHD-CTL-
-PRO-V2) requires PoE/PoH — confirm the injector or switch PoE budget covers the total.
+Stated maximum consumption: approximately 15W across 1 product with proven figures. 3 products (NHD-600-E-
+TX, NHD-600-E-RX, NHD-CTL-PRO-V2) require PoE/PoH — confirm the injector or switch PoE budget covers the total.
 Options
 No optional enhancements are currently selected.
 WyreStorm · Northstar Operations Room Page 11 of 13
@@ -573,8 +583,8 @@ The confirmed routing and resilience requirement needs a scalable 10GbE fabric.
 WyreStorm · Northstar Operations Room Page 13 of 13
 Draft Proposal · 11 September 2026Proposal Reference: WYR-WWM800
 Required WyreStorm Products
-NHD-600-TX - NetworkHD 600 encoder
-NHD-600-RX - NetworkHD 600 decoder
+NHD-600-E-TX - NetworkHD 600 SDVoE encoder
+NHD-600-E-RX - NetworkHD 600 SDVoE decoder
 NHD-CTL-PRO-V2 - NetworkHD controller
 Optional Enhancements
 No optional enhancements are currently selected.

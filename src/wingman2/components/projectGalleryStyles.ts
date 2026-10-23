@@ -1,9 +1,9 @@
 /**
  * The action styling the projects page and its gallery card both use.
  *
- * The card renders most of these buttons, and the page still renders the store
- * toolbar and the proposal-draft tiles, so the class strings live here rather
- * than in either file.
+ * The gallery card and the proposal-draft panel render most of these buttons,
+ * and the store toolbar renders its reset action, so the class strings live
+ * here rather than in any one file.
  */
 export const PROJECTS_PILL_BUTTON_CLASS =
   "rounded-lg border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-bold text-[#edf6ff] transition";
