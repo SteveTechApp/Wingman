@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { runTool } from "./test-spawn-guard.mjs";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   DELETION_DIFF_PATH,
@@ -14,6 +14,12 @@ import {
 } from "./autofix-dead-css.mjs";
 import { runDeadCssGate } from "./check-wingman-dead-css-baseline.mjs";
 import { createDeadBranchTest, createDeadSelectorTest } from "./lib/dead-css.mjs";
+
+function runCommand(command, args, options) {
+  // Hook-local Git variables must not redirect a fixture command into this checkout.
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)));
+  return runTool(command, args, "autofix-dead-css", { ...options, env });
+}
 
 const sandboxes = [];
 
@@ -136,11 +142,11 @@ describe("dead rule deletion proposal", () => {
     // The repository pins text files to LF, so an applied patch must land the
     // same bytes the accept path writes instead of the host's CRLF default.
     fs.writeFileSync(path.join(root, ".gitattributes"), "* text=auto eol=lf\n");
-    execFileSync("git", ["init", "-q"], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
+    runCommand("git", ["init", "-q"], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
     const proposal = writeDeletionProposal({ root });
 
-    execFileSync("git", ["apply", "--check", DELETION_DIFF_PATH], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
-    execFileSync("git", ["apply", DELETION_DIFF_PATH], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
+    runCommand("git", ["apply", "--check", DELETION_DIFF_PATH], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
+    runCommand("git", ["apply", DELETION_DIFF_PATH], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
 
     expect(fs.readFileSync(path.join(root, THEME), "utf8")).toBe(proposal.files[0].after);
     expect(fs.readFileSync(path.join(root, BASELINE), "utf8")).toBe(proposal.baseline.after);

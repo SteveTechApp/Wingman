@@ -130,8 +130,6 @@ export function applyProductPageDetailsToBomRow(row: TemplateBomRow, details: Pr
   ].filter(Boolean).join("; ");
   return {
     ...row,
-    sku: wyreStormProduct && row.sku.startsWith("BY-OTHERS") && detectedModel
-      ? detectedModel.trim().toUpperCase() : row.sku,
     sku: wyreStormProduct && row.sku.startsWith("BY-OTHERS") && identifiedSku
       ? identifiedSku : row.sku,
     manufacturer,

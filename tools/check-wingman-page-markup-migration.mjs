@@ -83,6 +83,7 @@ const pageContracts = {
     sources: [
       "src/wingman2/pages/ProposalPage.tsx",
       "src/wingman2/components/ProposalCompletionWizard.tsx",
+      "src/wingman2/components/ProposalCompletionWizardView.tsx",
     ],
     tokens: {
       page: [
