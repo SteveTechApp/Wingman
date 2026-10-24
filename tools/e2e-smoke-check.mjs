@@ -445,6 +445,15 @@ async function main() {
       ...process.env,
       WINGMAN_UI_PORT: String(UI_PORT),
       VITE_WINGMAN_LOCAL_BACKEND_PORT: String(API_PORT),
+      // The dev-pair check below reads the Projects chip after signing in to the
+      // local workspace, and that chip can only report the backend when project
+      // sync is on. `npm run dev` gets this from the developer's own `.env`,
+      // which a CI checkout does not have, so the pair this harness boots is a
+      // sync-disabled one unless the flag is passed here: the smoke run then
+      // fails on a workspace it never enabled. `.env.example` ships the flag as
+      // true, so this makes the booted pair match the documented dev default
+      // rather than turning on something the app does not normally do.
+      VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC: "true",
     },
     stdio: ["ignore", uiLogFd, uiLogFd],
     windowsHide: true,
