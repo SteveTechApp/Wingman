@@ -6,6 +6,7 @@ const root = process.cwd();
 const files = {
   page: path.join(root, "src", "wingman2", "pages", "ProposalPage.tsx"),
   component: path.join(root, "src", "wingman2", "components", "ProposalCompletionWizard.tsx"),
+  view: path.join(root, "src", "wingman2", "components", "ProposalCompletionWizardView.tsx"),
   model: path.join(root, "src", "wingman2", "lib", "proposalWizard.ts"),
   copy: path.join(root, "src", "wingman2", "lib", "proposalCopy.ts"),
   htmlExport: path.join(root, "src", "wingman2", "lib", "proposalExport.ts"),
@@ -31,6 +32,7 @@ function requireMarker(label, source, marker) {
 
 const page = read("Proposal page", files.page);
 const component = read("Proposal wizard component", files.component);
+const view = read("Proposal wizard view", files.view);
 const model = read("Proposal wizard model", files.model);
 const exporter = read("DOCX exporter", files.export);
 const htmlExporter = read("HTML exporter", files.htmlExport);
@@ -43,17 +45,27 @@ const css = read("Proposal wizard CSS", files.css);
 ].forEach((marker) => requireMarker("ProposalPage.tsx", page, marker));
 
 [
+  // The entry holds the state and renders the split view, so the steps it
+  // names are only on screen if the entry hands them to that view.
+  "ProposalCompletionWizardView",
   "Customer and project",
   "Requirements review",
   "Proposed solution",
   "Commercial and delivery",
   "Review and export",
-  "Export formatted DOCX",
   "computeProposalReadiness",
   "saveProjectProposalToProject",
-  "Open Recommendations",
 ].forEach((marker) =>
   requireMarker("ProposalCompletionWizard.tsx", component, marker),
+);
+
+// The step bodies moved into the view with the rest of the markup, so the
+// controls a rep leaves the wizard by are asserted where they render.
+[
+  "Export formatted DOCX",
+  "Open Recommendations",
+].forEach((marker) =>
+  requireMarker("ProposalCompletionWizardView.tsx", view, marker),
 );
 
 [
