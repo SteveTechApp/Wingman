@@ -18,6 +18,14 @@
  *      files are read back and content-asserted (a real <a download> blob
  *      through the browser, not an API mock).
  *
+ * The run also asks the dev-pair sync question (`check-dev-pair-sync.mjs`) while
+ * the pair is still up: it signs in to the local dev workspace once with no
+ * local projects and once over the starter examples the page seeds. That second
+ * pass is the one a fresh workspace cannot show — demo data the browser only
+ * ever held as sample text has to take the workspace copy rather than be
+ * reported as a team member's change — so the regression is gated here instead
+ * of waiting for a developer to notice it.
+ *
  * Repeatable by design: every server uses an env-overridable port and a throwaway
  * data dir, and the whole run tears itself down (servers killed, dir removed)
  * whether it passes or fails. On failure the server logs are preserved so the
@@ -33,6 +41,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkDevPairHealth } from "./check-dev-pair-health.mjs";
+import { checkDevPairSync } from "./check-dev-pair-sync.mjs";
 import { runBrowserSmokeSession } from "./lib/browser-smoke-session.mjs";
 import { chromium } from "@playwright/test";
 
@@ -453,8 +462,17 @@ async function main() {
   });
   await runBrowserSmokeSession({ browser, dataDir, signIn: signInViaSettings, walkDiscovery, runCompare });
 
+  // The starter-example merge runs on this pair so the gate costs no second
+  // server boot: the check opens its own contexts and signs in as the local dev
+  // workspace, which the workspace account above never touches.
+  const { emptyScope, seededScope } = await checkDevPairSync({ uiBase: UI_BASE, apiBase: API_BASE });
+
   console.log(
     "[e2e-smoke] Settings sign-in, discovery project save, compare history save, HTML+CSV export blobs, and the 413 contract all verified end to end.",
+  );
+  console.log(
+    `[e2e-smoke] Dev-pair sync verified: the Projects chip reported the workspace backend with no local projects and over ` +
+    `${seededScope.samples} seeded starter examples, never a conflict ("${emptyScope.chip.text}").`,
   );
 }
 

@@ -248,6 +248,7 @@
     "test:strict": "vitest run --config vitest.config.strict.ts",
     "verify:strict": "npm run typecheck && npm run lint && npm run test:strict && npm run verify:build:strict && npm run verify:data:strict && npm run verify:contract:strict && npm run verify:visual",
     "check:dev-pair": "node tools/check-dev-pair-health.mjs",
+    "check:dev-pair-sync": "node tools/check-dev-pair-sync.mjs",
     "check:discovery-locators": "node tools/check-discovery-locators.mjs",
     "check:tailwind-build": "node tools/check-tailwind-build.mjs",
     "report:audit-findings": "node tools/audit-alert-findings.mjs"

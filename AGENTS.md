@@ -21,6 +21,23 @@ from the code or docs are not repeated here.
   competitor-lookup server (`server/competitor-lookup-server.mjs`) often holds
   8787 already — to serve just the UI run `node node_modules/vite/bin/vite.js`
   from the main checkout.
+- The local dev sign-in is scripted: `npm run check:dev-pair-sync` attaches to a
+  running pair, clicks Settings → Workspace → `workspace-local-dev-sign-in` in a
+  throwaway browser context and fails unless the Projects chip reads a synced
+  workspace, so nothing is signed in on the developer's own browser. Loading any
+  page seeds the starter examples into the legacy project store
+  (`wingman-project-store-v1`) with the moment the page read them, and the
+  sign-in migrates that store into the new workspace scope. A sample is not an
+  edit: `isUntouchedStarterExample` in `data/projectHydrationMerge.ts` takes the
+  workspace copy of a demo the browser has only ever held untouched sample text
+  for, without a conflict, so a page-load stamp cannot outrank it; a sample
+  someone renamed or put work into keeps the normal per-lane policy and still
+  reports the change. The check drops that one legacy key before signing in so
+  the scope starts empty, the way a rep's second machine does. A rename of the
+  key only makes the drop a no-op: the run then reads the samples it migrated.
+  `check:e2e-smoke` runs it against the pair that harness boots, so the merge is
+  gated on every PR instead of checked when someone remembers to start a pair;
+  run the script alone only when debugging it against your own `npm run dev`.
 - On Windows, start preview servers with the PowerShell `Start-Process`
   recipe and stdout/stderr to DIFFERENT log files. `register_preview` with
   `replace: true` stops the previously registered server first.
