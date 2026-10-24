@@ -87,17 +87,28 @@ export function createProjectLifecycleCommands(context: ProjectCommandContext) {
     return normalized;
   };
 
-  const updateStoredProject = (projectId: string, updater: (project: StoredProject) => StoredProject) => {
+  /**
+   * Replace one project where it sits and hand the caller the saved copy.
+   *
+   * The return type is written out rather than inferred: the update used to be
+   * collected in a variable assigned from inside the `map`, and a value set by a
+   * callback is not narrowed, so the inferred result read as `null` and a caller
+   * that checked it could not read the project it had just saved.
+   */
+  const updateStoredProject = (
+    projectId: string,
+    updater: (project: StoredProject) => StoredProject,
+  ): StoredProject | null => {
     const snapshot = read();
-    let updatedProject: StoredProject | null = null;
-    const projects = snapshot.projects.map((project) => {
-      if (project.id !== projectId) return project;
-      const nextProject = updater(project);
-      updatedProject = decodeStoredProject(nextProject) ?? nextProject;
-      return updatedProject;
+    const index = snapshot.projects.findIndex((project) => project.id === projectId);
+    if (index < 0) return null;
+    const nextProject = updater(snapshot.projects[index]);
+    const updatedProject = decodeStoredProject(nextProject) ?? nextProject;
+    write({
+      ...snapshot,
+      projects: snapshot.projects.map((project) => (project.id === projectId ? updatedProject : project)),
+      activeProjectId: projectId,
     });
-    if (!updatedProject) return null;
-    write({ ...snapshot, projects, activeProjectId: projectId });
     return updatedProject;
   };
 
