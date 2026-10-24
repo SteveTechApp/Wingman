@@ -72,6 +72,7 @@
     "src/wingman2/lib/templateRealismAuditEntry.ts",
     "src/wingman2/lib/testHelpers/fullProductIndexRecords.ts",
     "src/wingman2/lib/testHelpers/governedProfilesHarness.ts",
+    "src/wingman2/lib/testHelpers/resultsPager.ts",
     "src/wingman2/logic/matrixOutputModel.ts",
     "src/wingman2/pages/discovery/discoveryCrossFieldRules.ts"
   ],
@@ -86,6 +87,7 @@
     "src/wingman2/lib/templateRealismAuditEntry.ts": "Bundled dynamically by tools/check-template-realism.mjs.",
     "src/wingman2/lib/testHelpers/fullProductIndexRecords.ts": "Full product fixtures for catalogue and recommendation tests.",
     "src/wingman2/lib/testHelpers/governedProfilesHarness.ts": "Governed-profile coverage-loss regression fixture injection.",
+    "src/wingman2/lib/testHelpers/resultsPager.ts": "Shared paging assertions for the paged-list specs, so every PagedItems caller states the same window, page turn and one-page rule.",
     "src/wingman2/logic/matrixOutputModel.ts": "Reference matrix-output model inspected by check-matrix-output-model; retain separate routed/mirrored/loop output semantics for future consolidation, not live comparison evidence.",
     "src/wingman2/pages/discovery/discoveryCrossFieldRules.ts": "Default-answer and saved-project consistency auditors used by discoveryDefaultsValidation and discoverySavedDataConsistency tests."
   }

@@ -2,10 +2,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
+  assembledFragmentFor,
+  compoundClassTokens,
   corpusFiles,
   createDeadSelectorTests,
   deadSelectorEntries,
+  normalizeSelector,
+  parseRules,
   relativePath,
+  selectorBranches,
+  selectorCompounds,
   styleSheetFiles,
 } from "./lib/dead-css.mjs";
 
@@ -31,6 +37,14 @@ import {
  * `review` verdict: the reader sees the places the detector refused and can
  * confirm no class builder hides there. The report never blocks anything; it is
  * input to `npm run audit:dead-css:deletions`.
+ *
+ * The same scan answers the inverse question, which is what keeps the detector
+ * honest: every accepted fragment is listed with the class names no literal
+ * source writes and the selectors no literal source keeps, so a reader can see
+ * what an exemption is buying — and a fragment no live rule needs, which is an
+ * exemption wider than the app asks for. `assembledFragmentFor` decides which
+ * fragment supplies a class, so the report cannot credit a different keeper
+ * than the gate.
  *
  * Usage:
  *   npm run report:dead-css-triage
@@ -112,6 +126,87 @@ export function collectFamilyMentions(root, prefixesByFamily) {
 }
 
 /**
+ * The inverse list: live rules that survive only because source assembles their
+ * prefix.
+ *
+ * A class name source never writes literally stays live while a fragment
+ * supplies it. For each accepted fragment the report names the class names only
+ * it supplies and the selector branches no literal keeps — those are the rules
+ * that would be dead if the builder went away, so they are what an exemption is
+ * audited against. A branch is credited only when every class in it comes from
+ * assembly; a literal sibling already keeps it, so the fragment is not what
+ * makes it match.
+ */
+export function collectExemptions(root, { vocabulary, dynamicFragments, fragments }) {
+  const byFragment = new Map();
+  const entryFor = (fragment) => {
+    if (!byFragment.has(fragment)) byFragment.set(fragment, { fragment, classes: new Set(), selectors: new Map() });
+    return byFragment.get(fragment);
+  };
+  for (const file of styleSheetFiles(root)) {
+    const text = fs.readFileSync(file, "utf8");
+    const relative = relativePath(root, file);
+    for (const rule of parseRules(text)) {
+      for (const branch of selectorBranches(rule.selector)) {
+        const tokens = [...new Set(selectorCompounds(branch).flatMap((compound) => compoundClassTokens(compound)))];
+        if (tokens.length === 0) continue;
+        const keepers = tokens.map((token) => (vocabulary.has(token) ? null : assembledFragmentFor(token, dynamicFragments)));
+        const solelyAssembled = keepers.every(Boolean);
+        const bytes = Buffer.byteLength(branch);
+        const selector = normalizeSelector(branch);
+        for (const fragment of new Set(keepers.filter(Boolean))) {
+          const entry = entryFor(fragment);
+          tokens.forEach((token, index) => {
+            if (keepers[index] === fragment) entry.classes.add(token);
+          });
+          if (!solelyAssembled) continue;
+          const key = `${relative}\u0000${selector}`;
+          const seen = entry.selectors.get(key);
+          if (seen) seen.bytes += bytes;
+          else entry.selectors.set(key, { file: relative, selector, bytes });
+        }
+      }
+    }
+  }
+
+  // Every assembled place is listed once per line, and every accepted fragment
+  // is reported even when it keeps nothing: that is the exemption to tighten.
+  const places = new Map();
+  for (const evidence of fragments) {
+    if (!places.has(evidence.fragment)) places.set(evidence.fragment, new Map());
+    const lines = places.get(evidence.fragment);
+    const key = `${evidence.file}\u0000${evidence.line}`;
+    const seen = lines.get(key);
+    if (seen) seen.count += 1;
+    else lines.set(key, { file: evidence.file, line: evidence.line, text: evidence.text, count: 1 });
+  }
+
+  return [...new Set([...places.keys(), ...byFragment.keys()])]
+    .map((fragment) => {
+      const entry = byFragment.get(fragment);
+      const selectors = [...(entry?.selectors.values() ?? [])]
+        .sort((left, right) => left.file.localeCompare(right.file) || left.selector.localeCompare(right.selector));
+      const classes = [...(entry?.classes ?? [])].sort();
+      return {
+        fragment,
+        // An entry with neither a class nor a selector keeps nothing alive, which
+        // is the state a reader is looking for when auditing these exemptions.
+        verdict: classes.length || selectors.length ? "keeps" : "unused",
+        evidence: [...(places.get(fragment)?.values() ?? [])]
+          .sort((left, right) => left.file.localeCompare(right.file) || left.line - right.line),
+        classes,
+        selectors,
+        selectorCount: selectors.length,
+        bytes: selectors.reduce((sum, selector) => sum + selector.bytes, 0),
+      };
+    })
+    .sort((left, right) => (left.verdict === right.verdict ? 0 : left.verdict === "keeps" ? -1 : 1)
+      || right.selectorCount - left.selectorCount
+      || right.classes.length - left.classes.length
+      || left.fragment.localeCompare(right.fragment));
+}
+
+/**
  * The triage data: one entry per dead family, with the dead rules filed under it
  * and the evidence the gate saw. No files are written.
  */
@@ -123,7 +218,7 @@ export function buildDeadCssTriage({ root = process.cwd() } = {}) {
   const dead = styleSheetFiles(root).flatMap((file) =>
     deadSelectorEntries(fs.readFileSync(file, "utf8"), relativePath(root, file), tests.isDeadBranch),
   );
-  const { deadClassEvidence } = tests;
+  const { deadClassEvidence, vocabulary, dynamicFragments } = tests;
 
   // The gate counts a selector once per file however many rules repeat it, so
   // the report uses the same unit; repeated rules add up to the text they would
@@ -190,6 +285,10 @@ export function buildDeadCssTriage({ root = process.cwd() } = {}) {
     };
   }).sort((left, right) => right.selectorCount - left.selectorCount || left.key.localeCompare(right.key));
 
+  const exemptions = collectExemptions(root, { vocabulary, dynamicFragments, fragments });
+  const exemptedSelectors = new Set(exemptions.flatMap((entry) => entry.selectors.map((selector) => `${selector.file}\u0000${selector.selector}`)));
+  const exemptedClasses = new Set(exemptions.flatMap((entry) => entry.classes));
+
   return {
     generatedAt: new Date().toISOString(),
     totals: {
@@ -197,8 +296,13 @@ export function buildDeadCssTriage({ root = process.cwd() } = {}) {
       families: report.length,
       bytes: [...unique.values()].reduce((sum, entry) => sum + entry.bytes, 0),
       review: report.filter((family) => family.verdict === "review").length,
+      exemptions: exemptions.length,
+      exemptedSelectors: exemptedSelectors.size,
+      exemptedClasses: exemptedClasses.size,
+      unusedExemptions: exemptions.filter((entry) => entry.verdict === "unused").length,
     },
     families: report,
+    exemptions,
   };
 }
 
@@ -256,6 +360,49 @@ function familySection(family) {
   return lines.join("\n");
 }
 
+/** One assembled fragment: where it is built and what it keeps alive. */
+function exemptionSection(entry) {
+  const lines = [];
+  const classes = `${entry.classes.length} class${entry.classes.length === 1 ? "" : "es"}`;
+  const selectors = entry.selectorCount ? ` and ${entry.selectorCount} selector${entry.selectorCount === 1 ? "" : "s"}` : "";
+  const kept = entry.verdict === "unused" ? "keeps nothing alive" : `${classes}${selectors} kept by assembly`;
+  const built = entry.evidence.length
+    ? ` — built in ${entry.evidence.length} place${entry.evidence.length === 1 ? "" : "s"}`
+    : "";
+  lines.push(`### ${code(entry.fragment)} — ${kept}${built}`, "");
+
+  if (entry.evidence.length) {
+    lines.push("**Assembled at** — the class-bearing positions the gate accepted:", "");
+    entry.evidence.slice(0, MAX_EVIDENCE_LINES).forEach((place) => {
+      lines.push(`${evidenceLine(place)} (${place.count} time${place.count === 1 ? "" : "s"})`);
+    });
+    if (entry.evidence.length > MAX_EVIDENCE_LINES) {
+      lines.push(`- …and ${entry.evidence.length - MAX_EVIDENCE_LINES} more.`);
+    }
+    lines.push("");
+  } else {
+    lines.push("**Assembled at** — nothing in source builds this fragment.", "");
+  }
+
+  if (entry.classes.length) {
+    lines.push(`**Classes only it supplies** — no literal source writes ${entry.classes.map(code).join(", ")}:`, "");
+  }
+  if (entry.selectors.length) {
+    lines.push("**Keeps alive** — selectors no literal source keeps, so removing this builder would make them dead:", "");
+    lines.push("| File | Selector | Bytes |", "| --- | --- | --- |");
+    entry.selectors.forEach((selector) => {
+      lines.push(`| ${cell(selector.file)} | ${cell(selector.selector)} | ${formatBytes(selector.bytes)} |`);
+    });
+    lines.push("");
+  } else if (entry.classes.length) {
+    lines.push("**Keeps alive** — no selector depends on it alone; every rule naming these classes is kept by a literal class beside them.", "");
+  } else {
+    lines.push("**Keeps alive** — nothing. No live selector names a class this fragment supplies, so the exemption is wider than the app asks for.", "");
+  }
+
+  return lines.join("\n");
+}
+
 /** The readable report, in the order a cleanup works through it. */
 export function renderDeadCssTriageMarkdown(triage) {
   const { totals } = triage;
@@ -273,11 +420,22 @@ export function renderDeadCssTriageMarkdown(triage) {
     totals.selectors === 0
       ? "No unmatchable selectors: nothing to triage."
       : `${totals.selectors} dead selector${totals.selectors === 1 ? "" : "s"} in ${totals.families} famil${totals.families === 1 ? "y" : "ies"} (${formatBytes(totals.bytes)}); ${totals.review} need a look before removal.`,
+    totals.exemptions === 0
+      ? "No source fragment keeps a live rule alive."
+      : `${totals.exemptions} assembled exemption${totals.exemptions === 1 ? "" : "s"} keep ${totals.exemptedSelectors} live selector${totals.exemptedSelectors === 1 ? "" : "s"} across ${totals.exemptedClasses} class${totals.exemptedClasses === 1 ? "" : "es"}${totals.unusedExemptions ? `; ${totals.unusedExemptions} keep nothing` : ""}.`,
     "",
   ];
   triage.families.forEach((family) => {
     lines.push(familySection(family));
   });
+  lines.push(
+    "## Live exemptions",
+    "",
+    "The inverse list: a class name source never writes literally stays live while a class-bearing position builds its prefix, as in ``className={`status status--${tone}`}``. Each entry is one accepted fragment, the places that build it, and the live selectors only it keeps — the rules that would be dead if the builder went away. An entry that keeps nothing is an exemption wider than the app needs.",
+    "",
+  );
+  if (triage.exemptions.length === 0) lines.push("No source fragment keeps a live rule alive.", "");
+  else triage.exemptions.forEach((entry) => lines.push(exemptionSection(entry)));
   return `${lines.join("\n").trimEnd()}\n`;
 }
 
@@ -302,6 +460,9 @@ export function runDeadCssTriage({ root = process.cwd(), outDir = "reports", log
       log(`[dead-css-triage] ${family.verdict.padEnd(6)} ${family.key} — ${family.selectorCount} selector${family.selectorCount === 1 ? "" : "s"}, ${family.assemblies.length} assembled, ${family.mentions.length} mention${family.mentions.length === 1 ? "" : "s"}`);
     });
   }
+  triage.exemptions.forEach((entry) => {
+    log(`[dead-css-triage] ${entry.verdict.padEnd(6)} ${entry.fragment} — ${entry.classes.length} class${entry.classes.length === 1 ? "" : "es"}, ${entry.selectorCount} selector${entry.selectorCount === 1 ? "" : "s"} kept by assembly, built in ${entry.evidence.length} place${entry.evidence.length === 1 ? "" : "s"}`);
+  });
   log(`[dead-css-triage] Report: ${relativePath(root, markdownPath)} and ${relativePath(root, jsonPath)}`);
   return 0;
 }

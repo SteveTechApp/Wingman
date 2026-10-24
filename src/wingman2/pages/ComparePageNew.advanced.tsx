@@ -36,9 +36,8 @@ import {
   saveRecommendationEvidenceToProject,
   type StoredProductSelection,
 } from "../data/projectStore";
-import { findUcCompetitorProduct, UC_COMPETITOR_PRODUCTS } from "../data/ucCompetitorProducts";
+import { findUcCompetitorProduct } from "../data/ucCompetitorProducts";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
-import { competitorSkuSeeds } from "../lib/competitorProductIntelligence";
 import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "../lib/competitorSpecRegistry";
 import { findSavedCompetitorSpec } from "../lib/savedCompetitorSpecs";
 import { buildWyrestormCompareProfile } from "../lib/wyrestormCompareProfile";
@@ -83,6 +82,22 @@ import { isAtlonaOmeExKitProfile, matrixSkuSizeKey } from "./compare/compareProf
 import { applyCompareEquivalenceGuards, scoreProduct } from "./compare/compareCandidateScoring";
 import { buildAvoipCandidates, buildMatrixCandidates } from "./compare/compareCandidateBuilders";
 import {
+  COMPETITOR_SKU_CATALOG,
+  brandForCompetitorSku,
+  compareReset,
+  compareRunStarted,
+  compareSkuSuggestions,
+  competitorSkusAfterRun,
+  liveLookupFailed,
+  liveLookupPlan,
+  liveLookupSettled,
+  liveResearchToScoredCandidate,
+  lookupCompareIntelligence,
+  mergeLiveResearchCompetitorSummary,
+  needsLiveLookup,
+  skuOptionsForBrand,
+} from "./compare/compareRunLookup";
+import {
   buildCoreComparisonFacts,
   buildWyrestormSummary,
   surfaceValueResolved,
@@ -95,7 +110,6 @@ import {
 } from "../api/wingmanApi";
 import {
   assessLiveCompetitorResearch,
-  shouldAutoResearchCompetitor,
   type LiveCompetitorResearchAssessment,
   type LiveCompetitorResearchStatus,
 } from "../lib/liveCompetitorResearch";
@@ -143,34 +157,10 @@ import { setActiveProjectId } from "../features/projects";
 
 const ROUTE_LOCK_MARKER = "COMPARE_ROUTE_LOCK_V5_TYPEAHEAD_SKU";
 
-const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = competitorSkuSeeds().reduce<Record<string, string[]>>((catalog, seed) => {
-  if (!catalog[seed.brand]) {
-    catalog[seed.brand] = [];
-  }
-
-  if (!catalog[seed.brand].includes(seed.sku)) {
-    catalog[seed.brand].push(seed.sku);
-  }
-
-  return catalog;
-}, {});
-
-for (const product of UC_COMPETITOR_PRODUCTS) {
-  const models = COMPETITOR_SKU_SEED_CATALOG[product.manufacturer] ?? [];
-
-  if (!models.includes(product.model)) {
-    models.push(product.model);
-  }
-
-  COMPETITOR_SKU_SEED_CATALOG[product.manufacturer] = models;
-}
-
-COMPETITOR_SKU_SEED_CATALOG.CUSTOM = [];
-
 const compareManufacturerNames = (left: string, right: string) =>
   left.localeCompare(right, undefined, { sensitivity: "base" });
 
-const MANUFACTURER_SELECT_OPTIONS = Object.keys(COMPETITOR_SKU_SEED_CATALOG)
+const MANUFACTURER_SELECT_OPTIONS = Object.keys(COMPETITOR_SKU_CATALOG)
   .filter((brand) => brand !== "CUSTOM")
   .sort(compareManufacturerNames);
 
@@ -189,10 +179,6 @@ const COMPARE_CANDIDATE_GATE_STATIC_MARKERS = [
   "No suitable WyreStorm match found from the current data",
   "onSubmit={handleSubmit}",
 ];
-
-const ALL_COMPETITOR_SKUS: string[] = Object.values(COMPETITOR_SKU_SEED_CATALOG)
-  .flat()
-  .map((sku) => String(sku));
 
 type CompareStage = "brand" | "sku" | "results";
 type CompareResultTab = "overview" | "cards" | "evidence";
@@ -647,49 +633,6 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
  */
 let ACTIVE_WYRESTORM_PRODUCTS: WyreStormProduct[] = WYRESTORM_PRODUCTS;
 
-function skuOptionsForBrand(brand: string, customSkus: string[] = []): string[] {
-  const seeded = (COMPETITOR_SKU_SEED_CATALOG as Record<string, readonly string[]>)[brand] ?? [];
-  return uniqueSkuOptions([...seeded, ...customSkus]);
-}
-
-export function isCompetitorSkuHeldLocally(brand: string, sku: string): boolean {
-  const skuKey = compareSkuKey(sku);
-  if (!skuKey) return false;
-
-  const catalogued = ((COMPETITOR_SKU_SEED_CATALOG as Record<string, readonly string[]>)[brand] ?? [])
-    .some((candidate) => compareSkuKey(candidate) === skuKey);
-
-  return catalogued || Boolean(findSavedCompetitorSpec(brand, sku));
-}
-
-function compareSkuSuggestions(input: string, brand: string): string[] {
-  const queryKey = compareSkuKey(input);
-  const source = brand ? skuOptionsForBrand(brand) : ALL_COMPETITOR_SKUS;
-
-  if (!queryKey) {
-    return source;
-  }
-
-  return source.filter((skuOption) => {
-    const key = compareSkuKey(skuOption);
-    return key.includes(queryKey) || queryKey.includes(key);
-  });
-}
-
-function brandForCompetitorSku(sku: string): string {
-  const key = compareSkuKey(sku);
-
-  for (const [brand, skus] of Object.entries(COMPETITOR_SKU_SEED_CATALOG)) {
-    const found = skus.some((candidateSku) => compareSkuKey(candidateSku) === key);
-
-    if (found) {
-      return brand;
-    }
-  }
-
-  return "CUSTOM";
-}
-
 function runKnownProfileCompare(profile: CompetitorProfile): CompetitorProfile {
   return applyKnownCompareProfileOverrides(profile);
 }
@@ -731,39 +674,6 @@ function applyKnownCompareProfileOverrides(profile: CompetitorProfile): Competit
       notThis: "Not a matrix, not AV-over-IP, not multiview and not a presentation switcher unless another switching stage is involved.",
     },
   };
-}
-
-function lookupCompareIntelligence(sku: string): Record<string, unknown> | null {
-  const normalizedSku = normalizeCompetitorSku(sku);
-  const resolvedSpec = normalizedSku ? resolveCompetitorSpecProfile(normalizedSku) : null;
-
-  if (!normalizedSku) {
-    return null;
-  }
-
-  return {
-    sku: normalizedSku,
-    brand: resolvedSpec?.brand || brandForCompetitorSku(normalizedSku),
-    title: resolvedSpec?.title,
-    maxResolution: resolvedSpec?.maxResolution,
-    inputCount: resolvedSpec?.inputCount,
-    outputCount: resolvedSpec?.outputCount,
-    transport: resolvedSpec?.transport,
-    role: resolvedSpec?.role,
-  };
-}
-
-function shouldRequestLiveLookupUrl(profile: CompetitorProfile): boolean {
-  // lookupCompareIntelligence() always returns a non-null wrapper object once a
-  // SKU is typed (even when nothing was actually resolved), so `knownProfile
-  // === null` can never be true here - that made this function permanently
-  // return false regardless of input. The real signal for "local data is too
-  // thin to trust" is the competitor's own resolved spec/classification: no
-  // productClass could be determined, or the curated registry has nothing
-  // better than a bare SKU-only guess for it.
-  if (!profile.sku.trim()) return false;
-
-  return profile.productClass === "Unknown" || profile.resolvedSpec?.specTier === "sku-only";
 }
 
 function isSelectableWyrestormRecommendation(candidate: WyreStormProduct | null | undefined): boolean {
@@ -2257,137 +2167,6 @@ function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summar
   );
 }
 
-function liveResearchToScoredCandidate(
-  assessment: LiveCompetitorResearchAssessment | null,
-): ScoredCandidate | null {
-  if (!assessment || assessment.outcome !== "candidate" || !assessment.candidateSku) {
-    return null;
-  }
-
-  const product = findWyrestormProduct(assessment.candidateSku);
-  if (!product) {
-    return null;
-  }
-
-  const approvedDirectMatch =
-    assessment.sourceMode === "stored-intelligence" &&
-    !assessment.reviewRequired &&
-    assessment.readinessStatus === "ready" &&
-    assessment.matchType === "DIRECT MATCH" &&
-    assessment.blockers.length === 0;
-
-  return {
-    product,
-    score: assessment.confidenceScore,
-    verdict: approvedDirectMatch ? "GOOD MATCH" : "VERIFY",
-    matched: uniqueText(assessment.matched, 8),
-    checks: uniqueText(
-      [
-        ...assessment.warnings,
-        ...assessment.nextActions,
-        ...(assessment.sourceMode === "live"
-          ? ["Live web research must be reviewed before this competitor profile is treated as governed local data."]
-          : []),
-      ],
-      8,
-    ),
-    gaps: uniqueText(assessment.warnings, 6),
-    partialMatches: uniqueText(assessment.matched, 6),
-    mismatches: [],
-    unknowns: approvedDirectMatch
-      ? []
-      : [
-          assessment.sourceMode === "stored-intelligence"
-            ? "Approved competitor data is available, but this WyreStorm direction still requires technical review before it can be treated as direct."
-            : "The competitor facts were researched live and have not yet been promoted to approved local intelligence.",
-        ],
-    blockers: uniqueText(assessment.blockers, 6),
-    dependencies: [],
-    outcomeLabel: approvedDirectMatch
-      ? `Approved competitor intelligence. ${assessment.summary}`
-      : assessment.sourceMode === "stored-intelligence"
-        ? `Approved competitor intelligence - match review required. ${assessment.summary}`
-        : `Live researched direction - review required. ${assessment.summary}`,
-    solutionType: approvedDirectMatch ? "direct-equivalent" : "insufficient-evidence",
-    governedTier: approvedDirectMatch ? "official-structured" : "text-inferred",
-    governedLabel: approvedDirectMatch
-      ? "Approved competitor intelligence"
-      : assessment.sourceMode === "stored-intelligence"
-        ? "Approved data - match review required"
-        : "Live researched - review required",
-  };
-}
-
-function mergeLiveResearchCompetitorSummary(
-  base: CompetitorSummary,
-  assessment: LiveCompetitorResearchAssessment | null,
-): CompetitorSummary {
-  if (!assessment) return base;
-
-  const live = assessment.competitor;
-  const technology = live.technologyProfile;
-  const liveFacts = [
-    technology?.vendorTechnology
-      ? { label: "Vendor technology", value: technology.vendorTechnology }
-      : null,
-    technology?.canonicalTransport
-      ? { label: "Canonical transport", value: technology.canonicalTransport }
-      : null,
-    technology?.networkClass
-      ? { label: "Network class", value: technology.networkClass }
-      : null,
-    technology?.codecStandard || technology?.codecName
-      ? {
-          label: "Codec / standard",
-          value: String(technology.codecStandard || technology.codecName),
-        }
-      : null,
-  ].filter((item): item is { label: string; value: string } => Boolean(item));
-
-  const factMap = new Map<string, { label: string; value: string }>();
-  for (const fact of [...liveFacts, ...base.facts]) {
-    if (!factMap.has(fact.label)) factMap.set(fact.label, fact);
-  }
-
-  return {
-    ...base,
-    detail: live.summary || base.detail,
-    recognisedClass:
-      live.category ||
-      live.comparisonDomain ||
-      base.recognisedClass,
-    role: live.role || base.role,
-    transport:
-      technology?.canonicalTransport ||
-      live.transport ||
-      base.transport,
-    ecosystem:
-      technology?.interoperability ||
-      base.ecosystem,
-    facts: Array.from(factMap.values()).slice(0, 8),
-    knownFeatures: uniqueText(
-      [
-        ...base.knownFeatures,
-        technology?.vendorTechnology
-          ? `Vendor technology: ${technology.vendorTechnology}`
-          : "",
-        technology?.networkClass
-          ? `Network class: ${technology.networkClass}`
-          : "",
-        technology?.codecStandard || technology?.codecName
-          ? `Codec / standard: ${technology.codecStandard || technology.codecName}`
-          : "",
-      ],
-      10,
-    ),
-    warning:
-      assessment.sourceMode === "live"
-        ? "Live-researched competitor data - review the source before promoting it to governed local intelligence."
-        : "",
-    sourceUrl: live.sourceUrl || assessment.sourceUrl || base.sourceUrl,
-  };
-}
-
 function LiveResearchStatusCard({
   status,
   assessment,
@@ -2826,20 +2605,23 @@ function ComparePageNew() {
     : [];
   const matrixAlternatives = (exactSizeMatrixAlternatives.length ? exactSizeMatrixAlternatives : matrixCandidatePool).slice(0, 3);
 
-  const requestLiveLookup = shouldRequestLiveLookupUrl(profile)
-    || !isCompetitorSkuHeldLocally(effectiveBrand, competitorInput);
+  const requestLiveLookup = needsLiveLookup({
+    profile,
+    brand: effectiveBrand,
+    sku: competitorInput,
+  });
 
   useEffect(() => {
-    const shouldRun = shouldAutoResearchCompetitor({
+    const sequence = ++liveResearchSequence.current;
+    const plan = liveLookupPlan({
+      onResults: compareStage === "results",
       hasCompared,
       requestLiveLookup,
       manufacturer: effectiveBrand,
       sku: competitorInput,
     });
 
-    const sequence = ++liveResearchSequence.current;
-
-    if (!shouldRun || compareStage !== "results") {
+    if (!plan.run) {
       setLiveResearchStatus("idle");
       setLiveResearchResult(null);
       setLiveResearchError("");
@@ -2851,32 +2633,22 @@ function ComparePageNew() {
     setLiveResearchResult(null);
     setLiveResearchError("");
 
-    runCompetitorMatch({
-      manufacturer: effectiveBrand,
-      model: competitorInput.trim(),
-    })
+    // Applying the outcome is the page's job; deciding what a settled lookup
+    // means belongs to the module, so both branches land the same three values.
+    runCompetitorMatch(plan.request)
       .then((response) => {
         if (cancelled || sequence !== liveResearchSequence.current) return;
-
-        if (!response.ok) {
-          setLiveResearchStatus("error");
-          setLiveResearchResult(response);
-          setLiveResearchError("Live research did not return a usable competitor profile.");
-          return;
-        }
-
-        setLiveResearchResult(response);
-        setLiveResearchStatus("done");
+        const outcome = liveLookupSettled(response);
+        setLiveResearchResult(outcome.result);
+        setLiveResearchStatus(outcome.status);
+        setLiveResearchError(outcome.error);
       })
       .catch((error) => {
         if (cancelled || sequence !== liveResearchSequence.current) return;
-        setLiveResearchResult(null);
-        setLiveResearchStatus("error");
-        setLiveResearchError(
-          error instanceof Error
-            ? error.message
-            : "Live competitor research failed.",
-        );
+        const outcome = liveLookupFailed(error);
+        setLiveResearchResult(outcome.result);
+        setLiveResearchStatus(outcome.status);
+        setLiveResearchError(outcome.error);
       });
 
     return () => {
@@ -2899,7 +2671,7 @@ function ComparePageNew() {
   );
 
   const liveResearchCandidate = useMemo(
-    () => liveResearchToScoredCandidate(liveResearchAssessment),
+    () => liveResearchToScoredCandidate(liveResearchAssessment, findWyrestormProduct),
     [catalogVersion, liveResearchAssessment],
   );
 
@@ -2924,6 +2696,18 @@ function ComparePageNew() {
   ], 6);
   const sourceUrl = liveResearchAssessment?.sourceUrl || fallbackRetrySourceUrl("");
 
+  // One place applies what starting a run changes, so a picked SKU and a typed
+  // one cannot land the rep in different states.
+  const startCompareRun = useCallback((): void => {
+    const started = compareRunStarted();
+    setHasCompared(started.hasCompared);
+    setWorkflowStep(started.workflowStep);
+    setResultTab(started.resultTab);
+    setCandidateIndex(started.candidateIndex);
+    setCompareStage(started.compareStage);
+    setState("results");
+  }, []);
+
   const handleSkuSelect = useCallback((sku: string): void => {
     const normalizedSku = normalizeCompetitorSku(sku);
 
@@ -2937,26 +2721,15 @@ function ComparePageNew() {
       setSelectedBrand(detectedBrand);
     }
 
-    setHasCompared(true);
-    setWorkflowStep("options");
-    setResultTab("overview");
-    setCandidateIndex(0);
-    setCompareStage("results");
-    setState("results");
+    startCompareRun();
   }, [effectiveBrand, mustMatchFeatures]);
 
   const handleSubmit = useCallback((event?: { preventDefault?: () => void }): void => {
     event?.preventDefault?.();
 
     runKnownProfileCompare(profile);
-    setHasCompared(true);
-    setWorkflowStep("options");
-    setResultTab("overview");
-    setCandidateIndex(0);
-    setCompareStage("results");
-    setState("results");
     runCompare();
-  }, [profile, competitorInput, customSkuStore]);
+  }, [profile, competitorInput]);
 
   const handleRetryWithSourceUrl = useCallback((sourceUrlValue?: string): string => {
     const lookupTarget = sourceUrlValue ?? competitorInput;
@@ -2967,7 +2740,6 @@ function ComparePageNew() {
   }, [competitorInput, effectiveBrand, mustMatchFeatures]);
 
   const handleReset = useCallback((): void => {
-    setCandidateIndex(0);
     resetCompare();
   }, []);
 
@@ -3075,26 +2847,22 @@ function ComparePageNew() {
   }
 
   function runCompare(): void {
-    const normalizedSku = normalizeCompetitorSku(competitorInput);
-
-    if (normalizedSku && !ALL_COMPETITOR_SKUS.includes(normalizedSku) && !customSkuStore.includes(normalizedSku)) {
-      setCustomSkuStore((current) => uniqueSkuOptions([...current, normalizedSku]));
-    }
-
-    setHasCompared(true);
-    setWorkflowStep("options");
-    setResultTab("overview");
-    setCompareStage("results");
+    // A typed SKU the catalogue does not hold becomes one of this run's own
+    // options, so the next visit can suggest it again.
+    setCustomSkuStore((current) => competitorSkusAfterRun(competitorInput, current));
+    startCompareRun();
   }
 
   function resetCompare(): void {
-    setResultTab("overview");
+    const reset = compareReset();
+    setResultTab(reset.resultTab);
+    setCandidateIndex(reset.candidateIndex);
     setSelectedBrand("");
     setCompetitorInput("");
     setMustMatchFeatures("");
-    setWorkflowStep("capture");
-    setCompareStage("sku");
-    setHasCompared(false);
+    setWorkflowStep(reset.workflowStep);
+    setCompareStage(reset.compareStage);
+    setHasCompared(reset.hasCompared);
     setCustomSkuStore([]);
     setCustomManufacturerStore([]);
     setCommittedSku(null);

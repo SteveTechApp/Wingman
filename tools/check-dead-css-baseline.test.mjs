@@ -160,6 +160,31 @@ describe("dead CSS detection", () => {
     ]);
   });
 
+  it("reads a RegExp template as a pattern, not as class assembly", () => {
+    const root = sandbox({
+      [THEME]: [
+        ".fixture-text-muted { color: red; }",
+        ".fixture-bg-badge { color: blue; }",
+        ".fixture-tone--warn { color: amber; }",
+      ].join("\n"),
+      [COMPONENT]: [
+        // A pattern list named for classes: a pattern is text the app matches,
+        // so its literals describe a shape rather than building a class.
+        "const visualClassPatterns = [",
+        "  new RegExp(`^fixture-text-${families}-(?:50|100)$`),",
+        "  new RegExp(\"^fixture-bg-\" + families + \"$\"),",
+        "];",
+        // The same file does assemble a class, and that family stays live.
+        "const node = <span className={`fixture-tone--${tone}`} />;",
+      ].join("\n"),
+    });
+
+    expect(collectDeadSelectors(root).map((entry) => entry.selector).sort()).toEqual([
+      ".fixture-bg-badge",
+      ".fixture-text-muted",
+    ]);
+  });
+
   it("accepts a class builder named for the classes it returns", () => {
     const root = sandbox({
       [THEME]: ".fixture-tier--danger { color: red; }\n.fixture-tier--quiet { color: gray; }",

@@ -21,12 +21,54 @@ from the code or docs are not repeated here.
   competitor-lookup server (`server/competitor-lookup-server.mjs`) often holds
   8787 already — to serve just the UI run `node node_modules/vite/bin/vite.js`
   from the main checkout.
+- The local dev sign-in is scripted: `npm run check:dev-pair-sync` attaches to a
+  running pair, clicks Settings → Workspace → `workspace-local-dev-sign-in` in a
+  throwaway browser context and fails unless the Projects chip reads a synced
+  workspace, so nothing is signed in on the developer's own browser. Loading any
+  page seeds the starter examples into the legacy project store
+  (`wingman-project-store-v1`) with the moment the page read them, and the
+  sign-in migrates that store into the new workspace scope. A sample is not an
+  edit: `isUntouchedStarterExample` in `data/projectHydrationMerge.ts` takes the
+  workspace copy of a demo the browser has only ever held untouched sample text
+  for, without a conflict, so a page-load stamp cannot outrank it; a sample
+  someone renamed or put work into keeps the normal per-lane policy and still
+  reports the change. The check drops that one legacy key before signing in so
+  the scope starts empty, the way a rep's second machine does. A rename of the
+  key only makes the drop a no-op: the run then reads the samples it migrated.
+  `check:e2e-smoke` runs it against the pair that harness boots, so the merge is
+  gated on every PR instead of checked when someone remembers to start a pair;
+  run the script alone only when debugging it against your own `npm run dev`.
 - On Windows, start preview servers with the PowerShell `Start-Process`
   recipe and stdout/stderr to DIFFERENT log files. `register_preview` with
   `replace: true` stops the previously registered server first.
 - When a preview screenshot fails with "produced no frames" or the webview
   detaches, DOM-level verification via `preview_evaluate` still works — use it
   as the fallback instead of assuming the page is broken.
+
+## Project store
+
+- `createProjectLifecycleCommands`
+  (`src/wingman2/features/projects/commands/projectLifecycle.ts`) returns the
+  four ways a project is written, and each makes a different promise about the
+  gallery order and about what the rep is reading. `replaceStoredProject`
+  rewrites the row where it sits (a project this browser has not stored joins
+  the end) and leaves `activeProjectId` alone, so an approval arriving from the
+  queue cannot take the rep off their own project. `upsertStoredProject` is a
+  save from the project itself — the rep choosing it — so the row goes to the
+  front and becomes the active project: the one case where order and reading
+  change together. `updateStoredProject` is an edit, so the row keeps its slot
+  and becomes the reading; re-ranking the gallery on every edit is what a save
+  does, not a change. `deleteStoredProject` closes the gap without re-ordering
+  what is left and clears the reading only when the deleted row was the one
+  being read. `projectCommands.test.ts` pins all four; add a spec there rather
+  than trusting a new caller to state which promise it keeps.
+- `updateStoredProject` declares `StoredProject | null` and finds its row with
+  `findIndex`, then replaces it through `map`. The copy used to be collected in
+  a variable assigned inside that `map` callback, and TypeScript does not narrow
+  a value set by a callback, so the return read as `null` and a caller that
+  checked it still could not read the project it had just updated. Keep the
+  lookup and the declared type: an unknown id returns null without writing
+  anything, and the written document and the returned copy stay the same object.
 
 ## Typecheck & tests
 
@@ -115,7 +157,12 @@ from the code or docs are not repeated here.
   class is neither named in non-CSS source nor assembled in one of those
   positions; `collectDeadSelectors(root)` from `tools/lib/dead-css.mjs` gives
   the current answer, and the corpus includes tests, tools and `index.html`,
-  so a class a spec still asserts counts as named.
+  so a class a spec still asserts counts as named. A `new RegExp(\`…\`)`
+  template assembles nothing however its declaration is named: a pattern
+  describes text the app matches (`^text-${families}-\\d+$`), so
+  `normalize-wingman-page-visual-classes.mjs` was exempting the whole `text-`,
+  `bg-` and `border-` families and hiding `bg-slate-950` on the glossary route.
+  `collectDynamicFragments` skips every literal inside a `RegExp(…)` argument.
 - `check:export-validation-domains` (in `verify:contract`) holds every domain
   of `validateProposalExport` to a test: `EXPORT_VALIDATION_DOMAINS` in
   `proposalExportValidation.ts` is the one runtime list, the blocker type
@@ -177,7 +224,17 @@ from the code or docs are not repeated here.
   so its verdicts cannot drift from the gate, probes mentions at each dead
   name's longest hyphen prefix with near matches first (a live `wm-card` sibling
   must not bury `wm-card--tone`), writes `reports/dead-css-triage.{md,json}`,
-  and always exits 0: it reports, the gate decides.
+  and always exits 0: it reports, the gate decides. The same scan prints the
+  inverse list too: every accepted fragment with the class names no literal
+  source writes and the selectors no literal source keeps, so an exemption can
+  be audited against what it actually buys — a fragment no live rule needs is
+  marked `unused` rather than silently widening the gate. A selector is credited
+  to a fragment only when every class in it comes from assembly, so a literal
+  sibling keeps its rule off the list. `assembledFragmentFor` in
+  `tools/lib/dead-css.mjs` decides which fragment supplies a class (the gate and
+  the report cannot name different keepers), and `createDeadSelectorTests` hands
+  back the vocabulary and fragment set it decided with so the report needs no
+  second corpus scan.
 - An unmatched rule is only evidence, never permission: a selector that needs
   a state the sweep never enters (expanded, dialog, drag, print) is unmatched
   but live. Prune a rule only when its every class token is also absent from
@@ -415,7 +472,22 @@ from the code or docs are not repeated here.
   it names the wall it describes — the array and `wallPhysicalSize(...).basis` —
   because a rep opening someone else's answers needs to know what they are in
   front of, and the phrase has to be the one the copy confirmation and the
-  pasted line quote or the same wall reads two ways. Measured runs, install cells
+  pasted line quote or the same wall reads two ways. The handoff banners are
+  held to the same rule: `wallHandoffDisplay(requirements)` is that same array
+  and `basis` phrase inside `wallHandoffNote(handoff, requirements)`, the one
+  sentence both readings print, so a wall that arrived from another room's
+  Discovery answers or from a template reads like one that arrived in a link
+  instead of only saying where it came from. A Discovery handoff also names the
+  room the answers were captured for: `discoveryVideoWallHandoff(answers,
+  projectName)` carries it on `VideoWallHandoff.projectName` (from the saved
+  project, else the draft — a capture nobody named carries none rather than
+  "Unnamed discovery"), and `wallHandoffOrigin(handoff)` composes the recorded
+  phrase, `Discovery: LCD wall, single canvas (Boardroom wall)`. The banner and
+  the saved wall's evidence `origin` both read that one function, and the label
+  keeps naming only the wall behaviour. The focused reading shows that note
+  in its `videowall-wizard-result`, not on a capture step: a handoff opens the
+  wizard at its result, so a note under step one is a note nobody reads.
+  Measured runs, install cells
   and the photo review are never in a link: they belong to one room.
 - The builder says which copy of the wall is current without being asked. The
   autosave hook returns the stamp it wrote (`rememberVideowallDraft` returns it,
@@ -431,7 +503,18 @@ from the code or docs are not repeated here.
   note, which answers the same question.
   The project's Wall transport panel prints the same sentence above the saved
   wall's links, so a rep reading the record knows the builder holds newer work
-  without opening it. That panel asks about one named project, so it passes
+  without opening it, and the sentence ends in a `Continue in the wall builder`
+  link: the rep reading it is the one who can save that work, so it resumes the
+  design instead of starting one. That link names its project
+  (`wallResumeUrl` writes `?project=<id>`) rather than pointing at the bare
+  builder, because a bare link reopens whichever draft in this browser was
+  edited last: `restoreVideowallDraft(handoff, shared, scopedProjectId)` honours
+  the scope — a draft whose `projectId` names another project is that project's
+  work however new it is — and only when the scope names the project the builder
+  is reading anyway, so a stale or hand-edited id borrows nobody's copy. Every
+  other builder address (`Copy link`, the dashboard card) still opens whatever
+  this browser holds, which is what "the wall I was editing" means. That panel
+  asks about one named project, so it passes
   `projectId` and `draftProjectId` and the rule stays silent unless the draft
   names that same project — another project's wall in progress is not this one
   falling behind, and a draft that names nobody cannot be claimed. The owner is
@@ -857,10 +940,17 @@ from the code or docs are not repeated here.
   `compareComparisonFacts` the port/feature comparison and core fact table,
   `compareCandidateScoring` the scored-candidate shape (score, verdict, matched
   lines, gaps, blockers, dependencies) behind `scoreProduct` and
-  `applyCompareEquivalenceGuards`, and `compareCandidateBuilders` the two
+  `applyCompareEquivalenceGuards`, `compareCandidateBuilders` the two
   catalogue shortcuts that answer a brief directly — the AVoIP endpoint pair and
-  the 18Gbps 8x8 HDBaseT matrix. `compareTypes` holds the shapes the modules
-  share, so a rule can be imported without pulling the page in.
+  the 18Gbps 8x8 HDBaseT matrix — and `compareRunLookup` the run/lookup
+  orchestration: the competitor SKU catalogue and its suggestions, whether a
+  typed SKU is held locally or needs research, the plan for one live lookup and
+  what a settled or thrown one means, the state a run starts and a reset leaves,
+  and the reviewed live result as a candidate and a merged fact sheet. The page
+  keeps every `useState` and the effect that issues the request (the sequence
+  guard is a ref there), and applies what those functions return. `compareTypes`
+  holds the shapes the modules share, so a rule can be imported without pulling
+  the page in.
   Nothing re-exports through the page: a consumer imports the module that owns
   the rule, and the one test that read `assessCompetitorConnectorCoverage` off
   the page now reads it from `compareComparisonFacts`. The builders take the

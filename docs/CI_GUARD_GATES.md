@@ -32,6 +32,7 @@ ratchet-style gates share the exception discipline recorded in
 | `check:technical-data` | `verify:data` | governed-profile coverage falling below the recorded baseline | `npm run check:technical-data -- --update-baseline` only when coverage genuinely improved |
 | `check:postgrest-reads` | `verify:build` | an unbounded Supabase/PostgREST full-table read in `server/` or `tools/` | none — add `.range()` pagination (see docs/SUPABASE_SETUP.md) |
 | `check:export-validation-domains` | `verify:contract` | a registered export-validation domain (`EXPORT_VALIDATION_DOMAINS` in `proposalExportValidation.ts`) that no test proves by reading `.domain` off an entry the check produced, a check whose domain is not registered, a registered domain no check produces, or an allowance entry a test has since covered | add the test (preferred); a domain that genuinely cannot be proven yet is recorded with its reason in `tools/wingman-export-validation-domains.json`, and the gate refuses that entry once a test covers it |
+| `check:proposal-wizard` | `verify:contract` | a marker the proposal wizard's contract depends on missing from the file that must hold it: the five step names the entry hands to its split view, `computeProposalReadiness` and the project save the entry calls, the `Export formatted DOCX` / `Open Recommendations` exits, the rep/customer copy split in `proposalCopy.ts`, `CUSTOMER_COPY` in both export builders (with no `REP_COPY` reference or `[complete]`-style authoring prompt reaching them), the DOCX section markers, or the wizard's CSS hooks | none — a failure means the control moved, was renamed or was dropped, so move its assertion to the file that now renders it (the marker lists are per file, and moving a control between the entry and its view means moving its marker with it); the DOCX and CSS markers stay where they are |
 | `check:audit-scopes` | `verify:contract` | an audit entry written with a `scope` that `AuditLogPanel`'s `AUDIT_SCOPES` does not list with a label and icon — a trail type that would print its raw stored key | add the scope to `AUDIT_SCOPES` and `SCOPE_CONFIG` in `src/wingman2/components/AuditLogPanel.tsx` (the typecheck asks for both); there is no allowance file |
 | `check:fixture-sku-lifecycle` | `verify:contract` | a test fixture or sample BOM quoting a discontinued or do-not-spec SKU as then-current equipment (a `sku` inside an object literal that also carries `qty`, `quantity`, `description` or `role`) | replace it with the active successor; an entry in `tools/wingman-fixture-sku-allowlist.json` covers a fixture that exists to prove retirement behaviour, and the gate fails an entry whose row no longer quotes that SKU |
 
@@ -240,6 +241,16 @@ dead name's longest hyphen prefix, with near matches first, so a live sibling
 does not bury the place that matters. It writes `reports/dead-css-triage.md`
 and `.json`, reads `tools/lib/dead-css.mjs` rather than re-deriving the rule,
 and always exits 0 — it reports, the gate decides.
+
+The report's other half is the same scan inverted: every accepted assembly
+fragment, with the class names no literal source writes and the selectors no
+literal source keeps. That is what an exemption buys, so a reader can check the
+builder that justifies it instead of trusting a filename's absence from the dead
+list; a fragment no live rule needs is marked `unused`, which is the exemption
+to narrow. A selector is credited only when every class in it comes from
+assembly — a literal sibling already keeps it — and `assembledFragmentFor`
+decides which fragment supplies a class, so the report and the gate cannot
+disagree about the keeper.
 
 `npm run report:css-coverage` supplies the evidence both CSS gates act on. It
 loads every route in `src/wingman2/app/route-manifest.json` in Chromium at a

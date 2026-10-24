@@ -23,7 +23,7 @@ import {
   type WallStartPreset,
 } from "../lib/videowallDecision";
 import { wallStartingPointOrigin, type WallStartingPointOrigin } from "../lib/wallStartingPointOrigin";
-import { clearVideoWallHandoff, readVideoWallHandoff } from "../lib/videowallHandoff";
+import { clearVideoWallHandoff, readVideoWallHandoff, wallHandoffNote, wallHandoffOrigin } from "../lib/videowallHandoff";
 import { wallWizardConcernChecks, type WallReviewStageKey } from "../lib/videowallWizard";
 import { useUiMode } from "../data/uiMode";
 import { restoreVideowallDraft, VIDEO_WALL_DRAFT_KEY } from "../lib/videowallDraft";
@@ -35,6 +35,7 @@ import { wallPickFromSearch, wallPickedOption } from "../lib/wallPick";
 import { readWallReviewPass, rememberWallReviewPass, wallReviewPassFromSearch } from "../lib/wallReviewPass";
 import { WALL_SHARE_COPY_FAILED, wallShareClipboard, wallShareNote, wallShareSearch, wallSharedLinkNote } from "../lib/wallShareLink";
 import { wallLinkFromSearch } from "../lib/wallLink";
+import { wallResumeProject } from "../lib/wallResume";
 import "../styles/wingman-videowall.css";
 
 export function VideoWallPage() {
@@ -42,10 +43,10 @@ export function VideoWallPage() {
   const [handoff] = useState(() => readVideoWallHandoff());
   // A wall in the address is the sender's design, so it is restored instead of
   // this browser's draft; a handoff still outranks it. The address this builder
-  // writes on every edit names the rep's own wall, and the restore keeps the
-  // saved design in that case, survey cells included.
+  // writes on every edit names the rep's own wall, and the restore keeps that
+  // saved design, survey cells included. A project named beside it is honoured.
   const [sharedWall] = useState(() => wallLinkFromSearch(searchParams));
-  const [draft] = useState(() => restoreVideowallDraft(handoff, sharedWall));
+  const [draft] = useState(() => restoreVideowallDraft(handoff, sharedWall, wallResumeProject(searchParams)));
   const [requirements, setRequirements] = useState(draft.requirements);
   // A link's design outranks the draft's selection: the sender chose this
   // architecture, so the recipient reads the design they were sent.
@@ -162,7 +163,7 @@ export function VideoWallPage() {
       decision,
       transport,
       checks: concernChecks,
-      origin: handoff?.label ?? null,
+      origin: handoff ? wallHandoffOrigin(handoff) : null,
       // The saved wall records the card it came from, so the project and the
       // proposal can say where the design started after this page is gone.
       startingPoint,
@@ -297,7 +298,7 @@ export function VideoWallPage() {
           decision={decision}
           selected={selected}
           message={message}
-          handoffLabel={handoff?.label ?? null}
+          handoffNote={handoff ? wallHandoffNote(handoff, requirements) : null}
           startAtResult={Boolean(handoff) || Boolean(sharedWall)}
           concerns={concerns}
           onConcerns={setConcerns}
@@ -335,7 +336,7 @@ export function VideoWallPage() {
 
       {handoff ? (
         <p className="vw-builder-note" role="status">
-          Started from {handoff.label}. The answers below are taken from that work — adjust anything that differs.
+          {wallHandoffNote(handoff, requirements)}
         </p>
       ) : null}
       {sharedWallNote}

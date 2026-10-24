@@ -5,6 +5,7 @@ import {
   type WallLayout,
   type WallRequirements,
 } from "./videowallOptions";
+import { wallPhysicalSize } from "./wallPhysicalSize";
 
 /**
  * Discovery and templates both reach a point where the wall stops being a
@@ -26,6 +27,12 @@ export type VideoWallHandoff = {
    * record its template instead of the export inferring it later from a project.
    */
   templateId?: string;
+  /**
+   * The project whose Discovery answers this wall came from, when one names it.
+   * The label says what the wall does; the room says which room it was answered
+   * for, which is what a rep opening the builder needs in front of them.
+   */
+  projectName?: string;
 };
 
 type AnswerMap = Record<string, unknown>;
@@ -76,8 +83,14 @@ function handoffLabel(application: WallApplication, independent: boolean, multiW
   return `Discovery: ${wall}, ${behaviour}`;
 }
 
-/** Seed the builder from the wall answers already captured in Discovery. */
-export function discoveryVideoWallHandoff(answers: AnswerMap): VideoWallHandoff | null {
+/**
+ * Seed the builder from the wall answers already captured in Discovery.
+ *
+ * `projectName` is the room those answers describe, when the project or the
+ * draft names one: the wall arrives in a builder that also serves every other
+ * room, so the arrival has to say which room it was answered for.
+ */
+export function discoveryVideoWallHandoff(answers: AnswerMap, projectName?: string | null): VideoWallHandoff | null {
   if (!hasDiscoveryVideoWallIntent(answers)) return null;
 
   const technology = singleAnswer(answers, "video-wall-technology");
@@ -95,9 +108,12 @@ export function discoveryVideoWallHandoff(answers: AnswerMap): VideoWallHandoff 
   const windows = independent ? 1 : multiWindow ? 4 : 1;
   const sources = independent ? columns * rows : Math.max(4, windows);
 
+  const room = (projectName ?? "").trim();
+
   return {
     source: "discovery",
     label: handoffLabel(application, independent, multiWindow),
+    ...(room ? { projectName: room } : {}),
     requirements: {
       application,
       layout,
@@ -171,11 +187,13 @@ export function readVideoWallHandoff(): VideoWallHandoff | null {
     if (parsed.source !== "discovery" && parsed.source !== "template") return null;
     if (!parsed.requirements || typeof parsed.requirements !== "object") return null;
     const templateId = typeof parsed.templateId === "string" ? parsed.templateId.trim() : "";
+    const projectName = typeof parsed.projectName === "string" ? parsed.projectName.trim() : "";
     return {
       source: parsed.source,
       label: typeof parsed.label === "string" && parsed.label.trim() ? parsed.label.trim() : "Wingman discovery",
       requirements: parsed.requirements,
       ...(templateId ? { templateId } : {}),
+      ...(projectName ? { projectName } : {}),
     };
   } catch {
     return null;
@@ -188,6 +206,51 @@ export function clearVideoWallHandoff(): void {
   } catch {
     // Ignore unavailable storage.
   }
+}
+
+/**
+ * The wall a handoff opened, named the way the shared-link banner names one.
+ *
+ * A handoff arrives from another room's Discovery answers or from a template, so
+ * the rep is reading a design they did not build. A banner that only says where
+ * it came from leaves the same question a bare URL leaves — what am I standing
+ * in front of? — so it names the array and the display `wallPhysicalSize`
+ * reports, the phrase the shared-link banner, the copy confirmation and the
+ * pasted line all quote. A wall that reads "55 in panels" here and nothing
+ * there, or another size somewhere else, is two walls to the person comparing a
+ * handoff with a link.
+ */
+export function wallHandoffDisplay(requirements: WallRequirements) {
+  return `the ${requirements.columns} × ${requirements.rows} array, ${wallPhysicalSize(requirements).basis}`;
+}
+
+/**
+ * Where a handoff came from, in the words every surface quotes: the label that
+ * says what the wall does, and — for a Discovery wall — the room it was answered
+ * for.
+ *
+ * The room rides here rather than in `label` because the label also names the
+ * wall's behaviour ("LCD wall, single canvas"), and a builder that serves every
+ * room needs both facts to say what arrived. A template handoff already names
+ * itself, so it has no room to add. The banner and the saved wall's `origin`
+ * both read this, so a record cannot name a wall differently from its arrival.
+ */
+export function wallHandoffOrigin(handoff: VideoWallHandoff): string {
+  const room = (handoff.projectName ?? "").trim();
+  return room ? `${handoff.label} (${room})` : handoff.label;
+}
+
+/**
+ * The one sentence a handoff banner prints, in either reading of the builder.
+ *
+ * Both readings show the same arrival — a wall answered somewhere else — so they
+ * quote one sentence rather than each composing its own, and the origin names
+ * the room a Discovery wall was answered for. A handoff opens the guided
+ * reading on its result, which is why the note belongs there and not on a
+ * capture step the rep never sees.
+ */
+export function wallHandoffNote(handoff: VideoWallHandoff, requirements: WallRequirements) {
+  return `Started from ${wallHandoffOrigin(handoff)} — ${wallHandoffDisplay(requirements)}. The answers below are taken from that work — adjust anything that differs.`;
 }
 
 /** Merge a handoff onto the builder defaults, rejecting anything invalid. */

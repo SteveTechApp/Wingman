@@ -178,6 +178,67 @@ describe("restoreVideowallDraft photo review", () => {
     expect(storedVideowallDraft()?.projectId).toBeNull();
   });
 
+  it("reopens this project's own wall when another project's draft is newer", () => {
+    // The rep clicked "continue" on project 1's record while project 2's wall was
+    // the last thing edited in this browser. Project 2's draft is newer, but it
+    // is not the wall the link asked for.
+    projectWall.id = "project-1";
+    projectWall.summary = {
+      version: 2,
+      requirements: { ...defaultWallRequirements, measuredRuns: { "display-1": 3 } },
+      updatedAt: "2026-10-20T09:00:00.000Z",
+    };
+    window.localStorage.setItem(VIDEO_WALL_DRAFT_KEY, JSON.stringify({
+      version: 2,
+      requirements: { ...defaultWallRequirements, measuredRuns: { "display-1": 12 } },
+      selectedId: "",
+      projectId: "project-2",
+      updatedAt: "2026-10-20T16:00:00.000Z",
+    }));
+
+    expect(restoreVideowallDraft(null, null, "project-1").requirements.measuredRuns).toEqual({ "display-1": 3 });
+  });
+
+  it("still reopens this project's own unsaved edits behind a scoped address", () => {
+    // Scoping narrows the draft to this project; it does not stop the draft from
+    // winning, because an edit the rep has not saved yet is still this wall.
+    projectWall.id = "project-1";
+    projectWall.summary = {
+      version: 2,
+      requirements: { ...defaultWallRequirements, measuredRuns: { "display-1": 3 } },
+      updatedAt: "2026-10-20T09:00:00.000Z",
+    };
+    window.localStorage.setItem(VIDEO_WALL_DRAFT_KEY, JSON.stringify({
+      version: 2,
+      requirements: { ...defaultWallRequirements, measuredRuns: { "display-1": 12 } },
+      selectedId: "",
+      projectId: "project-1",
+      updatedAt: "2026-10-20T16:00:00.000Z",
+    }));
+
+    expect(restoreVideowallDraft(null, null, "project-1").requirements.measuredRuns).toEqual({ "display-1": 12 });
+  });
+
+  it("ignores a scope that names no project the builder is reading", () => {
+    // A hand-edited or stale address cannot borrow another project's copy: the
+    // scope only speaks for the project the builder would have opened anyway.
+    projectWall.id = "project-1";
+    projectWall.summary = {
+      version: 2,
+      requirements: { ...defaultWallRequirements, measuredRuns: { "display-1": 3 } },
+      updatedAt: "2026-10-20T09:00:00.000Z",
+    };
+    window.localStorage.setItem(VIDEO_WALL_DRAFT_KEY, JSON.stringify({
+      version: 2,
+      requirements: { ...defaultWallRequirements, measuredRuns: { "display-1": 12 } },
+      selectedId: "",
+      projectId: "project-2",
+      updatedAt: "2026-10-20T16:00:00.000Z",
+    }));
+
+    expect(restoreVideowallDraft(null, null, "project-9").requirements.measuredRuns).toEqual({ "display-1": 12 });
+  });
+
   it("drops a review the draft can no longer vouch for, without losing the design", () => {
     seed({ ...defaultWallRequirements, surveyReview: { rows: [{ id: "display-1" }] } });
 

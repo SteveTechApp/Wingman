@@ -17,6 +17,17 @@ describe("free-text capture suggestions reach the discovery conversation trail",
     expect(roomWizard).toContain("<DiscoveryCaptureSuggestion step={canonical}");
   });
 
+  it("hands the room's name to the wall builder beside the answers", () => {
+    const source = readFileSync(join(process.cwd(), "src/wingman2/pages/DiscoveryPage.tsx"), "utf8");
+
+    // A wall answered here is answered for one room. The builder otherwise only
+    // learns the wall behaviour, so the capture passes the name it recorded for
+    // the room — from the saved project or the draft — rather than a placeholder.
+    expect(source).toContain('(existingDiscoveryProject?.name || discoveryDraft?.projectName || "").trim()');
+    expect(source).toContain("discoveryVideoWallHandoff(answers, discoveryRoomName)");
+    expect(source).toContain("writeVideoWallHandoff(videoWallHandoff)");
+  });
+
   it("keeps the wording column populated by wiring notes into buildDiscoveryConversation", () => {
     const source = readFileSync(join(process.cwd(), "src/wingman2/pages/DiscoveryPage.tsx"), "utf8");
     const briefBuilder = readFileSync(
