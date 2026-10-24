@@ -219,6 +219,16 @@ does not bury the place that matters. It writes `reports/dead-css-triage.md`
 and `.json`, reads `tools/lib/dead-css.mjs` rather than re-deriving the rule,
 and always exits 0 — it reports, the gate decides.
 
+The report's other half is the same scan inverted: every accepted assembly
+fragment, with the class names no literal source writes and the selectors no
+literal source keeps. That is what an exemption buys, so a reader can check the
+builder that justifies it instead of trusting a filename's absence from the dead
+list; a fragment no live rule needs is marked `unused`, which is the exemption
+to narrow. A selector is credited only when every class in it comes from
+assembly — a literal sibling already keeps it — and `assembledFragmentFor`
+decides which fragment supplies a class, so the report and the gate cannot
+disagree about the keeper.
+
 `npm run report:css-coverage` supplies the evidence both CSS gates act on. It
 loads every route in `src/wingman2/app/route-manifest.json` in Chromium at a
 desktop and a phone viewport, reads the renderer's rule-usage report, and

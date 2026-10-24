@@ -157,7 +157,12 @@ from the code or docs are not repeated here.
   class is neither named in non-CSS source nor assembled in one of those
   positions; `collectDeadSelectors(root)` from `tools/lib/dead-css.mjs` gives
   the current answer, and the corpus includes tests, tools and `index.html`,
-  so a class a spec still asserts counts as named.
+  so a class a spec still asserts counts as named. A `new RegExp(\`…\`)`
+  template assembles nothing however its declaration is named: a pattern
+  describes text the app matches (`^text-${families}-\\d+$`), so
+  `normalize-wingman-page-visual-classes.mjs` was exempting the whole `text-`,
+  `bg-` and `border-` families and hiding `bg-slate-950` on the glossary route.
+  `collectDynamicFragments` skips every literal inside a `RegExp(…)` argument.
 - `check:export-validation-domains` (in `verify:contract`) holds every domain
   of `validateProposalExport` to a test: `EXPORT_VALIDATION_DOMAINS` in
   `proposalExportValidation.ts` is the one runtime list, the blocker type
@@ -207,7 +212,17 @@ from the code or docs are not repeated here.
   so its verdicts cannot drift from the gate, probes mentions at each dead
   name's longest hyphen prefix with near matches first (a live `wm-card` sibling
   must not bury `wm-card--tone`), writes `reports/dead-css-triage.{md,json}`,
-  and always exits 0: it reports, the gate decides.
+  and always exits 0: it reports, the gate decides. The same scan prints the
+  inverse list too: every accepted fragment with the class names no literal
+  source writes and the selectors no literal source keeps, so an exemption can
+  be audited against what it actually buys — a fragment no live rule needs is
+  marked `unused` rather than silently widening the gate. A selector is credited
+  to a fragment only when every class in it comes from assembly, so a literal
+  sibling keeps its rule off the list. `assembledFragmentFor` in
+  `tools/lib/dead-css.mjs` decides which fragment supplies a class (the gate and
+  the report cannot name different keepers), and `createDeadSelectorTests` hands
+  back the vocabulary and fragment set it decided with so the report needs no
+  second corpus scan.
 - An unmatched rule is only evidence, never permission: a selector that needs
   a state the sweep never enters (expanded, dialog, drag, print) is unmatched
   but live. Prune a rule only when its every class token is also absent from
