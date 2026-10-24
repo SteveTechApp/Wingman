@@ -36,6 +36,12 @@ function writtenAt(summary: Record<string, unknown> | null): number {
   return Number.isFinite(value) ? value : NaN;
 }
 
+/** The project a stored draft says it belongs to, when it says. */
+function draftOwner(draft: Record<string, unknown> | null): string | null {
+  const owner = typeof draft?.projectId === "string" ? draft.projectId.trim() : "";
+  return owner || null;
+}
+
 /**
  * The design this builder would reopen: the project's saved wall, or the local
  * draft when that holds newer work.
@@ -44,19 +50,28 @@ function writtenAt(summary: Record<string, unknown> | null): number {
  * was made from — an edit the rep has not saved yet must not be thrown away by
  * a reload. A draft older than the project's wall is what another device has
  * since replaced, so the saved wall wins there.
+ *
+ * A scoped address (`?project=`) asks for one project's wall, so a draft the
+ * builder wrote for some other project is that project's work however new it
+ * is: on its own it would reopen the wrong wall. The scope only means anything
+ * when it names the project the builder is already reading, so another
+ * project's id cannot pull a third project's copy in.
  */
-function storedWallSummary(): Record<string, unknown> | null {
+function storedWallSummary(scopedProjectId?: string | null): Record<string, unknown> | null {
   try {
-    const projectDraft = getCurrentWorkflowProject()?.videowall?.summary;
+    const active = getCurrentWorkflowProject();
+    const projectDraft = active?.videowall?.summary;
     const project = projectDraft?.version === 2 ? asSummary(projectDraft) : null;
     const local = asSummary(JSON.parse(window.localStorage.getItem(VIDEO_WALL_DRAFT_KEY) || "null"));
-    if (!project) return local;
-    if (!local) return project;
-    const localAt = writtenAt(local);
+    const scope = scopedProjectId && scopedProjectId === active?.id ? scopedProjectId : null;
+    const ownDraft = scope && draftOwner(local) !== scope ? null : local;
+    if (!project) return ownDraft;
+    if (!ownDraft) return project;
+    const localAt = writtenAt(ownDraft);
     const projectAt = writtenAt(project);
     if (!Number.isFinite(localAt)) return project;
-    if (!Number.isFinite(projectAt)) return local;
-    return localAt > projectAt ? local : project;
+    if (!Number.isFinite(projectAt)) return ownDraft;
+    return localAt > projectAt ? ownDraft : project;
   } catch {
     return null;
   }
@@ -86,8 +101,7 @@ export function storedVideowallDraft(): StoredVideowallDraft | null {
     const draft = asSummary(JSON.parse(window.localStorage.getItem(VIDEO_WALL_DRAFT_KEY) || "null"));
     const updatedAt = typeof draft?.updatedAt === "string" ? draft.updatedAt : "";
     if (!Number.isFinite(Date.parse(updatedAt))) return null;
-    const owner = typeof draft?.projectId === "string" ? draft.projectId.trim() : "";
-    return { updatedAt, projectId: owner || null };
+    return { updatedAt, projectId: draftOwner(draft) };
   } catch {
     return null;
   }
@@ -155,16 +169,23 @@ function namesStoredWall(stored: unknown, shared: WallRequirements): boolean {
  * the room it was measured in — so a link that names the wall already stored
  * here is this browser's own address, and the stored design is the fuller copy.
  * Only a link naming some other wall outranks it.
+ *
+ * A project-scoped address (the project page's "continue" link) names the wall
+ * it wants, so the draft the builder reopens has to be that project's own: a
+ * newer draft written while working on another wall would otherwise arrive in
+ * its place, which is the one thing the rep did not ask for.
  */
 export function restoreVideowallDraft(
   handoff: VideoWallHandoff | null,
   shared?: WallRequirements | null,
+  /** The project the address names, when it names one. */
+  scopedProjectId?: string | null,
 ): VideowallDraft {
   const fallback = { requirements: { ...defaultWallRequirements }, selectedId: "" };
   // An explicit handoff from Discovery or a template outranks the saved draft.
   const seeded = seedWallRequirements(handoff);
   if (seeded) return { requirements: seeded, selectedId: "" };
-  const raw = storedWallSummary();
+  const raw = storedWallSummary(scopedProjectId);
   const r = raw?.requirements as WallRequirements | undefined;
   if (shared && !namesStoredWall(r, shared)) {
     return { requirements: normalizeWallDesignMetadata(shared), selectedId: "", fromLink: true };

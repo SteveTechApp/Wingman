@@ -354,9 +354,17 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     return modeQuestions.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length;
   }, [answers, modeQuestions]);
 
+  // The room these answers describe, when a saved project or the draft names
+  // one. A capture nobody has named carries no name rather than a placeholder:
+  // the builder prints it, and "Unnamed discovery" is not where a wall came from.
+  const discoveryRoomName = (existingDiscoveryProject?.name || discoveryDraft?.projectName || "").trim();
   // A wall output changes the design problem: offer the dedicated builder as
-  // soon as the capture says the room includes one.
-  const videoWallHandoff = useMemo(() => discoveryVideoWallHandoff(answers), [answers]);
+  // soon as the capture says the room includes one, naming the room it was
+  // answered for.
+  const videoWallHandoff = useMemo(
+    () => discoveryVideoWallHandoff(answers, discoveryRoomName),
+    [answers, discoveryRoomName],
+  );
 
   const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);
   // Integrity gate = mode questions; stranded scan = full visible set, so an

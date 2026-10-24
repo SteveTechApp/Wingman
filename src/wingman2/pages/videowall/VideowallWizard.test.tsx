@@ -19,7 +19,7 @@ function renderWizard(next: WallRequirements) {
         decision={decision}
         selected={decision.recommended?.option ?? null}
         message=""
-        handoffLabel={null}
+        handoffNote={null}
         startAtResult
         concerns={[]}
         onConcerns={vi.fn()}

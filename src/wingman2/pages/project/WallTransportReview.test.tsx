@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { routeCatalogByKey } from "../../app/routeCatalog";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { StoredProject } from "../../features/projects";
 import { wallStartPresets } from "../../lib/videowallDecision";
@@ -62,6 +63,26 @@ describe("WallTransportReview draft status", () => {
     expect(note.getAttribute("data-draft-status")).toBe("draft-ahead");
     expect(note.textContent).toContain("the project copy is behind");
     expect(note.textContent).toContain("A reload is safe");
+    // The note leads into the builder the rep has to open to save that work, so
+    // picking it back up is the next thing offered rather than a page to hunt for.
+    const link = screen.getByRole("link", { name: "Continue in the wall builder" });
+    expect(note.contains(link)).toBe(true);
+    // The link names this project, because a bare builder address would reopen
+    // whichever wall in this browser was edited last.
+    expect(link.getAttribute("href")).toBe(`${routeCatalogByKey.videowall.path}?project=project-1`);
+  });
+
+  it("leads into the builder from the state with no project copy yet", () => {
+    seedDraft("2026-10-20T16:00:00.000Z", "project-1");
+    const saved = project(preset.requirements);
+    const unsaved = { ...saved, videowall: { ...saved.videowall!, savedAt: "" } } as StoredProject;
+    renderPanel(unsaved);
+
+    const note = screen.getByTestId("wall-transport-draft-status");
+    expect(note.getAttribute("data-draft-status")).toBe("draft-only");
+    // The draft is still the work, so the same way back is offered.
+    expect(screen.getByRole("link", { name: "Continue in the wall builder" }).getAttribute("href"))
+      .toBe(`${routeCatalogByKey.videowall.path}?project=project-1`);
   });
 
   it("leaves another project's draft out of this record", () => {
@@ -84,6 +105,8 @@ describe("WallTransportReview draft status", () => {
     renderPanel(project(preset.requirements));
 
     expect(screen.queryByTestId("wall-transport-draft-status")).toBeNull();
+    // Nothing to resume, so the panel offers no way to resume it.
+    expect(screen.queryByTestId("wall-transport-draft-link")).toBeNull();
   });
 });
 

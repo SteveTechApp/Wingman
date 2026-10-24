@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { wallResumeUrl } from "../../lib/wallResume";
 import type { StoredProject } from "../../features/projects";
 import { wallSurveyRows } from "../../lib/wallSurvey";
 import { wallDraftStatus } from "../../lib/wallDraftStatus";
@@ -34,7 +36,10 @@ const GROUPS = [
  *
  * It also says when this browser's builder holds work newer than the saved
  * wall, using the builder's own line: reading the record is where a rep would
- * otherwise assume the record is everything there is.
+ * otherwise assume the record is everything there is. That line leads into the
+ * builder, because the rep reading it is the rep who can save the work — and the
+ * link names this project, so it reopens this wall rather than whichever draft
+ * in this browser happens to be newer.
  */
 export function WallTransportReview({ project }: { project: StoredProject }) {
   const requirements = wallTransportRequirements(wallRequirementsFromSummary(project.videowall ?? null));
@@ -70,7 +75,8 @@ export function WallTransportReview({ project }: { project: StoredProject }) {
             data-testid="wall-transport-draft-status"
             data-draft-status={draftStatus.state}
           >
-            {draftStatus.text}
+            {draftStatus.text}{" "}
+            <Link to={wallResumeUrl(project.id)} data-testid="wall-transport-draft-link">Continue in the wall builder</Link>
           </p>
         ) : null}
         {drift ? (

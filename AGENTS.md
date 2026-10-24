@@ -403,7 +403,22 @@ from the code or docs are not repeated here.
   it names the wall it describes — the array and `wallPhysicalSize(...).basis` —
   because a rep opening someone else's answers needs to know what they are in
   front of, and the phrase has to be the one the copy confirmation and the
-  pasted line quote or the same wall reads two ways. Measured runs, install cells
+  pasted line quote or the same wall reads two ways. The handoff banners are
+  held to the same rule: `wallHandoffDisplay(requirements)` is that same array
+  and `basis` phrase inside `wallHandoffNote(handoff, requirements)`, the one
+  sentence both readings print, so a wall that arrived from another room's
+  Discovery answers or from a template reads like one that arrived in a link
+  instead of only saying where it came from. A Discovery handoff also names the
+  room the answers were captured for: `discoveryVideoWallHandoff(answers,
+  projectName)` carries it on `VideoWallHandoff.projectName` (from the saved
+  project, else the draft — a capture nobody named carries none rather than
+  "Unnamed discovery"), and `wallHandoffOrigin(handoff)` composes the recorded
+  phrase, `Discovery: LCD wall, single canvas (Boardroom wall)`. The banner and
+  the saved wall's evidence `origin` both read that one function, and the label
+  keeps naming only the wall behaviour. The focused reading shows that note
+  in its `videowall-wizard-result`, not on a capture step: a handoff opens the
+  wizard at its result, so a note under step one is a note nobody reads.
+  Measured runs, install cells
   and the photo review are never in a link: they belong to one room.
 - The builder says which copy of the wall is current without being asked. The
   autosave hook returns the stamp it wrote (`rememberVideowallDraft` returns it,
@@ -419,7 +434,18 @@ from the code or docs are not repeated here.
   note, which answers the same question.
   The project's Wall transport panel prints the same sentence above the saved
   wall's links, so a rep reading the record knows the builder holds newer work
-  without opening it. That panel asks about one named project, so it passes
+  without opening it, and the sentence ends in a `Continue in the wall builder`
+  link: the rep reading it is the one who can save that work, so it resumes the
+  design instead of starting one. That link names its project
+  (`wallResumeUrl` writes `?project=<id>`) rather than pointing at the bare
+  builder, because a bare link reopens whichever draft in this browser was
+  edited last: `restoreVideowallDraft(handoff, shared, scopedProjectId)` honours
+  the scope — a draft whose `projectId` names another project is that project's
+  work however new it is — and only when the scope names the project the builder
+  is reading anyway, so a stale or hand-edited id borrows nobody's copy. Every
+  other builder address (`Copy link`, the dashboard card) still opens whatever
+  this browser holds, which is what "the wall I was editing" means. That panel
+  asks about one named project, so it passes
   `projectId` and `draftProjectId` and the rule stays silent unless the draft
   names that same project — another project's wall in progress is not this one
   falling behind, and a draft that names nobody cannot be claimed. The owner is
