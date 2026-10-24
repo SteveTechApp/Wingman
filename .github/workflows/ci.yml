@@ -107,7 +107,8 @@ jobs:
   # its own job, so wall-clock is the slowest stage rather than the sum.
   verify:
     name: Verify (${{ matrix.stage }})
-    runs-on: ubuntu-latest
+    # Playwright 1.60 supports Ubuntu 24.04, not the new latest runner.
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -224,7 +225,7 @@ jobs:
   # devDependency and check:browser already existed; neither had ever run in CI.
   smoke:
     name: Browser Smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
