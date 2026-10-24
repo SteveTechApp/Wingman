@@ -2281,6 +2281,134 @@ export async function handleWingmanAuthLogoutPost(req, res, url, { sendJson }) {
   });
 }
 
+/**
+ * The account a development server signs this machine in as.
+ *
+ * One fixed email, so a reload, a server restart and a second browser window all
+ * land on the same local workspace instead of seeding a new one each time.
+ */
+const DEV_SESSION_EMAIL = "dev@wingman.local";
+const DEV_SESSION_NAME = "Wingman Dev";
+const DEV_SESSION_COMPANY = "Wingman Local";
+
+/** True when the request arrived from a browser on this machine. */
+function isLocalDevRequest(req) {
+  const address = requestClientAddress(req);
+  if (!["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(address)) return false;
+  // The UI reaches this API through Vite's proxy, which keeps the browser's
+  // Host, so a dev browser names localhost. A tunnel or a network address does
+  // not, and must not be handed an account on this store.
+  const host = tidy(req?.headers?.host).toLowerCase();
+  return !host || host.startsWith("localhost") || host.startsWith("127.0.0.1") || host.startsWith("[::1]");
+}
+
+/**
+ * Why this process must not mint a local development session, or "" when it may.
+ *
+ * Each condition alone would be enough for a deployed server to hand out an
+ * account, so all three have to hold: not a production process, writing the
+ * local file store, and called from this machine. The permission lives in the
+ * environment, never in the request - the same rule the agents' sample-reading
+ * switch follows.
+ */
+function developmentSessionRefusal(req) {
+  if (String(process.env.NODE_ENV || "").trim().toLowerCase() === "production") {
+    return "This server does not issue local development sessions.";
+  }
+  let storageMode = "file";
+  try {
+    storageMode = configuredStorageMode();
+  } catch {
+    return "This server's storage is not configured, so it cannot hold a local workspace.";
+  }
+  if (storageMode !== "file") {
+    // A development process pointed at a shared database would seed a local
+    // account into it: a real workspace nobody asked for.
+    return "A local development workspace is only created in the local file store.";
+  }
+  if (!isLocalDevRequest(req)) {
+    return "A local development workspace is only issued to this machine.";
+  }
+  return "";
+}
+
+/**
+ * Sign this browser into the local development workspace.
+ *
+ * This is the honest version of what a fetch shim used to fake: a user and a
+ * workspace in this server's own store, a real session cookie, and therefore a
+ * session every other endpoint recognises - project sync included. The account
+ * it creates is an ordinary owner of one workspace, so the workspace-wide pages
+ * a developer opens behave the way they do for a signed-in rep.
+ */
+export async function handleWingmanAuthDevSessionPost(req, res, { sendJson }) {
+  return withStoreLock(async () => {
+    const refusal = developmentSessionRefusal(req);
+    if (refusal) {
+      logWingmanEvent("warn", "auth.dev_session.refused", { reason: refusal });
+      sendJson(res, 403, { ok: false, error: refusal });
+      return;
+    }
+
+    const db = await readDb();
+    let user = db.users.find((candidate) => candidate.email === DEV_SESSION_EMAIL);
+    const created = !user;
+    if (!user) {
+      // Nobody signs in with a password here: the route is the way in, so the
+      // stored hash is of a secret that is never written anywhere.
+      const passwordRecord = await hashPassword(crypto.randomBytes(32).toString("hex"));
+      user = {
+        id: makeId("user"),
+        name: DEV_SESSION_NAME,
+        company: DEV_SESSION_COMPANY,
+        email: DEV_SESSION_EMAIL,
+        role: "sales",
+        passwordSalt: passwordRecord.salt,
+        passwordHash: passwordRecord.hash,
+        workspaceIds: [],
+        createdAt: nowIso(),
+        lastLoginAt: nowIso(),
+        status: "active",
+      };
+      db.users.push(user);
+    }
+
+    let workspace = db.workspaces.find((candidate) =>
+      candidate.ownerUserId === user.id || getWorkspaceMemberships(candidate).some((membership) => membership.userId === user.id));
+    if (!workspace) {
+      workspace = {
+        id: makeId("ws"),
+        name: DEV_SESSION_COMPANY,
+        slug: slugify(DEV_SESSION_COMPANY),
+        tier: "pilot",
+        ownerUserId: user.id,
+        memberIds: [user.id],
+        memberships: [{ userId: user.id, role: "owner", createdAt: nowIso() }],
+        createdAt: nowIso(),
+      };
+      db.workspaces.push(workspace);
+      user.workspaceIds = unique([...asArray(user.workspaceIds), workspace.id]);
+      ensureWorkspaceState(db, workspace.id);
+    }
+
+    user.lastLoginAt = nowIso();
+    const sessionToken = await createSession(db, user, workspace);
+    appendAuditEvent(db, makeProjectAuditEvent({
+      scope: "auth",
+      action: "dev-sign-in",
+      detail: created
+        ? `Local development workspace ${workspace.name} was created for this machine.`
+        : "Local development session was issued to this machine.",
+      user,
+      workspaceId: workspace.id,
+    }));
+
+    await writeDb(db);
+    setWingmanSessionCookie(res, sessionToken);
+    sendJson(res, 200, makeSessionPayload(user, workspace));
+  });
+}
+
 export async function handleWingmanWorkspaceGet(req, res, url, { sendJson }) {
   const db = await readDb();
   const auth = getAuthContext(req, url, db);

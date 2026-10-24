@@ -51,6 +51,7 @@ const CLEAN_PACKAGE = {
     "postcss-selector-parser@^6.0.10": "^6.1.4",
     "fast-uri": "^3.1.8",
     "js-yaml": "^4.3.2",
+    zod: "^4.6.6",
   },
 };
 
@@ -64,6 +65,7 @@ const CLEAN_LOCK = {
     "node_modules/postcss-selector-parser": { version: "7.1.6" },
     "node_modules/fast-uri": { version: "3.1.8" },
     "node_modules/js-yaml": { version: "4.3.2" },
+    "node_modules/zod": { version: "4.6.7" },
   },
 };
 

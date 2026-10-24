@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessCompetitorConnectorCoverage } from "./ComparePageNew.advanced";
+import { assessCompetitorConnectorCoverage } from "./compare/compareComparisonFacts";
 
 describe("competitor connector coverage", () => {
   it("keeps balanced HDMI plus DVI/VGA I/O viable while disclosing the gaps", () => {

@@ -202,20 +202,6 @@ textarea:focus {
    Compare page
    -------------------------------------------------------------------------- */
 
-.wm-compare-page .wm-compare-layout,
-.wm-compare-layout {
-  display: grid;
-  grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.15fr);
-  gap: 16px;
-  align-items: start;
-}
-
-.wm-compare-page .wm-compare-matrix,
-.wm-compare-matrix {
-  display: grid;
-  gap: 10px;
-}
-
 /* --------------------------------------------------------------------------
    Product Pitch / Proposal
    -------------------------------------------------------------------------- */

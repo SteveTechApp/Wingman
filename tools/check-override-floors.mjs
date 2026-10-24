@@ -103,6 +103,12 @@ const OVERRIDE_FLOORS = [
     floor: "4.3.2",
     why: "js-yaml GHSA-2883-xcg3-v3hh (maxTotalMergeKeys bypass with empty merge sources) was fixed in 4.3.2",
   },
+  {
+    overrideKey: "zod",
+    packageName: "zod",
+    floor: "4.6.6",
+    why: "zod GHSA-mrhx-c7xc-m3w5 (unbounded issue accumulation while validating an oversized constrained array exhausts memory) was fixed in 4.6.6; eslint-plugin-react-hooks declares zod ^3.25.0 || ^4.0.0, so the fixed line resolves under its own range",
+  },
 ];
 
 // The numeric floor of an npm version spec: '^4.28.8'/'~4.28.8'/'>=4.28.8'/

@@ -40,6 +40,7 @@ import {
   wallStartingPointRecordText,
 } from "./wallStartingPointOrigin";
 import { CUSTOMER_COPY, customerCopyText } from "./proposalCopy";
+import { WALL_SURVEY_COLUMN_KEY } from "./wallSurvey";
 
 export const NAVY = "08223A";
 export const AQUA = "16B8B0";
@@ -73,6 +74,24 @@ export function paragraph(text: string, options: { bold?: boolean; size?: number
     spacing: { after: options.after ?? 160, line: 320 },
     children: [new TextRun({ text, bold: options.bold, size: options.size ?? 22, color: options.colour ?? TEXT, font: "Calibri" })],
   });
+}
+
+/**
+ * The cable key under the display schedule.
+ *
+ * The schedule's transport column prints the design's allowance, the cable's
+ * limit and the run the design already holds; the printed proposal explains the
+ * three under the table in the survey sheet's own words, so Word has to print
+ * the same key or the customer meets three numbers with no legend. The entries
+ * come from `WALL_SURVEY_COLUMN_KEY`, and the labels stay bold as the HTML's
+ * `<strong>`, so the two documents cannot describe the column differently.
+ */
+function cableKeyParagraph() {
+  const children = WALL_SURVEY_COLUMN_KEY.flatMap((entry, index) => [
+    new TextRun({ text: `${index ? " " : ""}${entry.label}`, bold: true, size: 18, color: MUTED, font: "Calibri" }),
+    new TextRun({ text: ` — ${entry.text}`, size: 18, color: MUTED, font: "Calibri" }),
+  ]);
+  return new Paragraph({ spacing: { after: 160, line: 320 }, children });
 }
 
 export function heading(text: string, level: 1 | 2 = 1) {
@@ -850,6 +869,9 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
         tableRow({ tableHeader: true, children: headers.map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) }),
         ...displaySchedule.rows.map((row) => tableRow({ children: values(row).map((value, index) => cell(value, widths[index])) })),
       ]),
+      // The key for the transport column prints under the table it explains, as
+      // the printed proposal puts it, and only when that column exists.
+      ...(showsTransport ? [cableKeyParagraph()] : []),
       // Mass and clearance are derived from the size above, so they print with
       // the table they were measured from.
       ...(displaySchedule.mounting ? [paragraph(`Mounting: ${displaySchedule.mounting}`, { size: 18, colour: MUTED })] : []),

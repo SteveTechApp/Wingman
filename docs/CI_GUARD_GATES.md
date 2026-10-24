@@ -33,6 +33,7 @@ ratchet-style gates share the exception discipline recorded in
 | `check:postgrest-reads` | `verify:build` | an unbounded Supabase/PostgREST full-table read in `server/` or `tools/` | none — add `.range()` pagination (see docs/SUPABASE_SETUP.md) |
 | `check:export-validation-domains` | `verify:contract` | a registered export-validation domain (`EXPORT_VALIDATION_DOMAINS` in `proposalExportValidation.ts`) that no test proves by reading `.domain` off an entry the check produced, a check whose domain is not registered, a registered domain no check produces, or an allowance entry a test has since covered | add the test (preferred); a domain that genuinely cannot be proven yet is recorded with its reason in `tools/wingman-export-validation-domains.json`, and the gate refuses that entry once a test covers it |
 | `check:audit-scopes` | `verify:contract` | an audit entry written with a `scope` that `AuditLogPanel`'s `AUDIT_SCOPES` does not list with a label and icon — a trail type that would print its raw stored key | add the scope to `AUDIT_SCOPES` and `SCOPE_CONFIG` in `src/wingman2/components/AuditLogPanel.tsx` (the typecheck asks for both); there is no allowance file |
+| `check:fixture-sku-lifecycle` | `verify:contract` | a test fixture or sample BOM quoting a discontinued or do-not-spec SKU as then-current equipment (a `sku` inside an object literal that also carries `qty`, `quantity`, `description` or `role`) | replace it with the active successor; an entry in `tools/wingman-fixture-sku-allowlist.json` covers a fixture that exists to prove retirement behaviour, and the gate fails an entry whose row no longer quotes that SKU |
 
 Everything below expands the non-obvious rows a dependency or data edit will
 actually hit. "None" under exception path means the fix is to make the data
@@ -59,6 +60,28 @@ reference guards are:
 All three are hard rules with **no exception mechanism**: the fix is editing
 the CSV/prose so the reference resolves to an active product, then running
 `npm run data:sources:build` to regenerate the canonical outputs and manifest.
+
+## Fixture lifecycle gate (what a test may quote as equipment)
+
+`npm run check:fixture-sku-lifecycle` asks the same lifecycle question about the
+test fixtures and sample BOMs that the template gate asks about customer-facing
+room templates. An equipment line is an object literal carrying a `sku` and at
+least one equipment field (`qty`, `quantity`, `description`, `role`) in any file
+under `src/`, `e2e/` or `server/` that is a `*.test.*`/`*.spec.*` file or lives
+under a `fixtures` directory. A bare mention such as
+`expect(sku).toBe("SYN-TOUCH10")` is not a line: naming a retired SKU to prove
+the app rejects or remaps it is what those tests are for.
+
+Statuses resolve through `tools/lib/sku-lifecycle.mjs` (shared with
+`check-template-sku-lifecycle` and `check-lifecycle-successor-refs`), so a
+fixture quoting a `review` placeholder that the app serves through its `-V2`
+form is judged by the active row rather than blocked.
+
+`tools/wingman-fixture-sku-allowlist.json` is the only exception path, and it is
+for retirement coverage: a fixture whose subject is the retirement itself (a
+selector that must drop the old panel, an export gate that must block a dead
+SKU). Each entry names the file, the SKU and the behaviour it proves, and the
+gate fails any entry the fixture no longer needs, so the list only shrinks.
 
 ## Generated-manifest drift gates
 
@@ -161,10 +184,12 @@ deliberately accepted debt, a reviewed `npm run audit:dead-css:baseline`
 regeneration. Detection is shared with `tools/consolidate-dead-class-css.mjs`
 (`tools/lib/dead-css.mjs`) and is structural: a selector is dead when every
 comma branch contains a compound whose classes are all unused, so a rule scoped
-by an ancestor class that is gone still fails while its descendant class is in
-use, and a dead branch inside a live list is reported on its own. Runtime-assembled class fragments and known third-party prefixes are
-treated as live, and the baseline file itself is never counted as evidence that
-a class is used. The allowlist is currently empty; `node
+by an ancestor class that is gone still fails while its descendant class isin use, and a dead branch inside a live list is reported on its own. A class
+family is treated as runtime-assembled only where source builds a class with
+it — a `className=`/`class=`/`classList` position, or a declaration or function
+named for classes — so a prefix mentioned in a regex, a comment, a DOM id or a
+download filename keeps nothing; known third-party prefixes are always live,
+and the baseline file itself is never counted as evidence that a class is used. The allowlist is currently empty; `node
 tools/consolidate-dead-class-css.mjs --all --apply` prunes every stylesheet the
 gate scans.
 
@@ -202,6 +227,19 @@ class fails, and an entry that has gained a style also fails, so the file
 cannot keep stale allowances. Clear entries by adding the rule or removing the
 class, then regenerate with `npm run audit:unstyled-classes:baseline`.
 Detection lives in `tools/lib/unstyled-classes.mjs`.
+
+`npm run report:dead-css-triage` is the reading step between "a family is
+dead" and deleting it. It groups every unmatchable selector by class family
+(the text up to a class name's first hyphen) and prints the evidence the gate
+used: the rule text that is dead, the assembled fragments source actually
+builds with that prefix, and the places the prefix is merely mentioned (a
+regex, a DOM id, a download filename, a comment). A family with no evidence is
+marked safe to remove; one with any is marked for review, because a mention is
+exactly what a person has to read before deleting. Mentions are probed at each
+dead name's longest hyphen prefix, with near matches first, so a live sibling
+does not bury the place that matters. It writes `reports/dead-css-triage.md`
+and `.json`, reads `tools/lib/dead-css.mjs` rather than re-deriving the rule,
+and always exits 0 — it reports, the gate decides.
 
 `npm run report:css-coverage` supplies the evidence both CSS gates act on. It
 loads every route in `src/wingman2/app/route-manifest.json` in Chromium at a

@@ -323,8 +323,7 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   color: var(--wm-ref-muted);
 }
 
-.wingman-page-host .wm-page-header,
-.wingman-page-host .wingman-page-header {
+.wingman-page-host .wm-page-header {
   display: grid;
   gap: 7px;
   margin: 0 0 22px;

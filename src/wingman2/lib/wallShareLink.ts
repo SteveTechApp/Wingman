@@ -41,7 +41,7 @@ export function wallSharePassName(pass: WallReviewStageKey) {
  * A confirmation that only says "link copied" leaves the rep guessing whether
  * the survey travelled, which pass the recipient will land on, or whether the
  * design they picked over the recommendation went with it. So it names the wall
- * by its array and sources, names the pass, names the chosen design when there
+ * by its array, its sources and the display it is built on, names the pass, names the chosen design when there
  * is one, and says the measurements stay behind — the link is a brief, not a
  * recording.
  */
@@ -52,7 +52,23 @@ export function wallShareNote(
 ) {
   const sources = `${requirements.sources} source${requirements.sources === 1 ? "" : "s"}`;
   const pick = pickTitle ? `, carrying ${pickTitle} as the chosen design` : "";
-  return `Link copied: the ${requirements.columns} × ${requirements.rows} array with ${sources}, opening on the ${wallSharePassName(pass)} pass${pick}. Survey measurements stay with the room.`;
+  // The display is the clipboard's own phrase, so the confirmation and the line
+  // that gets pasted cannot describe the same wall differently.
+  const display = wallPhysicalSize(requirements).basis;
+  return `Link copied: the ${requirements.columns} × ${requirements.rows} array with ${sources}, ${display}, opening on the ${wallSharePassName(pass)} pass${pick}. Survey measurements stay with the room.`;
+}
+
+/**
+ * What the shared-wall banner says once a link has opened someone else's answers.
+ *
+ * The rep is looking at a wall they did not build, so the banner names it by the
+ * array and by `wallPhysicalSize(...).basis` — the same display phrase the copy
+ * confirmation and the pasted line quote — instead of only saying a link
+ * arrived. A wall that names "55 in panels" here and "86 in images" there would
+ * be two walls to the person reading both.
+ */
+export function wallSharedLinkNote(requirements: WallRequirements) {
+  return `This wall came with a shared link, not from this browser's draft: the ${requirements.columns} × ${requirements.rows} array, ${wallPhysicalSize(requirements).basis}. Survey measurements stay with the room they were taken in.`;
 }
 
 /**

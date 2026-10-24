@@ -4,7 +4,7 @@ import { productSelectionsFromVideowallSummary, readProjectStore, resetProjectSt
 describe("videowall equipment quantities", () => {
   beforeEach(() => resetProjectStore());
   it("retains quantities and ignores invalid allowances", () => {
-    const products = productSelectionsFromVideowallSummary({ recommendation: { products: ["NHD-500-TX", "NHD-500-RX", "NHD-CTL-PRO"], equipment: [{ sku: "NHD-500-TX", quantity: 4 }, { sku: "NHD-500-RX", quantity: 9 }, { sku: "NHD-CTL-PRO", quantity: -1 }] } });
+    const products = productSelectionsFromVideowallSummary({ recommendation: { products: ["NHD-500-TX", "NHD-500-RX", "NHD-CTL-PRO-V2"], equipment: [{ sku: "NHD-500-TX", quantity: 4 }, { sku: "NHD-500-RX", quantity: 9 }, { sku: "NHD-CTL-PRO-V2", quantity: -1 }] } });
     expect(products.map(p => p.quantity)).toEqual([4, 9, undefined]);
   });
   it("replaces a previous builder architecture on the same project", () => {

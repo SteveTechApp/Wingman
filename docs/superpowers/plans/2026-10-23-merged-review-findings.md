@@ -41,7 +41,6 @@
 ### Task 4: Publish
 
 - [x] Run strict typecheck, lint, full tests, architecture, production build and size budgets.
-- [ ] Commit and push the focused branch, open a PR, and report verification and any main-checkout sync conflicts.
 - [x] Commit and push the focused branch, open PR #269, and report verification and any main-checkout sync conflicts.
 
 ### Task 5: Merge prerequisites

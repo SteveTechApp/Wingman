@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import {
   useProjectStore,
+  replaceStoredProject,
   upsertStoredProject,
   type ProposalApprovalStatus,
   type StoredProjectProposal,
@@ -74,7 +75,9 @@ export function useApproveProposal() {
         decision: "approve",
         comment: comments,
       });
-      upsertStoredProject(response.project);
+      // The queue decides the proposal, not which project is open: replacing the
+      // row in place keeps the gallery and the active project as the rep left them.
+      replaceStoredProject(response.project);
       return true;
     },
     [projects],
@@ -97,7 +100,7 @@ export function useRejectProposal() {
         decision: "reject",
         comment: comments,
       });
-      upsertStoredProject(response.project);
+      replaceStoredProject(response.project);
       return true;
     },
     [projects],

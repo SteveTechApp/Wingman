@@ -1,29 +1,20 @@
 import { PagedItems } from "../components/PagedItems";
 import { useMemo, useState } from "react";
-import { AlertTriangle, Check, Cloud, Copy, Filter, LayoutTemplate, RotateCcw, Search, Trash2, Users } from "lucide-react";
+import { LayoutTemplate } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { FeedbackConsolidationPanel } from "../components/FeedbackConsolidationPanel";
 import { SectionCard } from "../components/SectionCard";
-import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
-import { useProjectStore, type StoredProjectSyncStatus } from "../data/projectStore";
-import { projectsNeedingSurveyAttention, SURVEY_REVIEW_STALE_DAYS } from "../lib/wallSurveyReview";
+import { ProjectStoreToolbar } from "../components/ProjectStoreToolbar";
+import { ProjectsFilterBar, type ProjectsTeamFilter } from "../components/ProjectsFilterBar";
+import { useProjectStore } from "../data/projectStore";
+import { projectsNeedingSurveyAttention } from "../lib/wallSurveyReview";
 import { useTeamMembers } from "../data/useTeamMembers";
 import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { ProjectGalleryCard } from "../components/ProjectGalleryCard";
+import { ProposalDraftPanel } from "../components/ProposalDraftPanel";
 import { TemplatePickerDialog } from "../components/TemplatePickerDialog";
-import {
-  PROJECTS_DARK_BUTTON_CLASS,
-  PROJECTS_ICON_BUTTON_CLASS,
-  PROJECTS_PILL_BUTTON_CLASS,
-} from "../components/projectGalleryStyles";
 import QuoteSafetyDashboardPage from "./QuoteSafetyDashboardPage";
-
-function syncStatusVariant(state: StoredProjectSyncStatus["state"]): StatusChipVariant {
-  if (state === "synced") return "success";
-  if (state === "error" || state === "conflict") return "danger";
-  return "neutral";
-}
 
 function ProjectsListPage() {
   const navigate = useNavigate();
@@ -42,7 +33,7 @@ function ProjectsListPage() {
   const migratedWalls = projects.filter(project => project.videowall?.ownershipMigratedAt).length;
   const { members, currentUserId, getMemberName, getMemberInitials } = useTeamMembers();
 
-  const [teamFilter, setTeamFilter] = useState<"mine" | "team" | "all">("mine");
+  const [teamFilter, setTeamFilter] = useState<ProjectsTeamFilter>("mine");
   const [memberFilter, setMemberFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   // A switch over the view the tabs and search already chose, not a fourth tab:
@@ -75,29 +66,13 @@ function ProjectsListPage() {
   const surveyAttentionProjects = useMemo(() => projectsNeedingSurveyAttention(filteredProjects), [filteredProjects]);
   const visibleProjects = surveyAttentionOnly ? surveyAttentionProjects : filteredProjects;
 
-
-  const [confirmDeleteDraftId, setConfirmDeleteDraftId] = useState<string | null>(null);
-  const [confirmReset, setConfirmReset] = useState(false);
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
 
-  function handleDeleteDraftClick(draftId: string) {
-    if (confirmDeleteDraftId === draftId) {
-      deleteProposalDraft(draftId);
-      setConfirmDeleteDraftId(null);
-      return;
-    }
-
-    setConfirmDeleteDraftId(draftId);
-  }
-
-  function handleResetClick() {
-    if (confirmReset) {
-      resetStore();
-      setConfirmReset(false);
-      return;
-    }
-
-    setConfirmReset(true);
+  // A member chip only exists inside the team view, so choosing another view
+  // has to clear it: the next view is not that member's projects.
+  function chooseTeamFilter(value: ProjectsTeamFilter) {
+    setTeamFilter(value);
+    setMemberFilter(null);
   }
 
   const realProjectCount = projects.filter((project) => !project.isDemo).length;
@@ -138,127 +113,26 @@ function ProjectsListPage() {
           subtitle="Your spaces, plans and next steps."
           showHelp={false}
         >
-          {/* Team filter tabs */}
-          <div className="wm-projects-team-filter">
-            <div className="wm-projects-filter-tabs" role="tablist" aria-label="Project filter">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={teamFilter === "mine"}
-                className={`wm-projects-filter-tab ${teamFilter === "mine" ? "is-active" : ""}`}
-                onClick={() => { setTeamFilter("mine"); setMemberFilter(null); }}
-              >
-                <Filter size={14} aria-hidden="true" />
-                My projects
-                {currentUserId && (
-                  <span className="wm-projects-filter-count">
-                    {projects.filter((p) => p.ownerId === currentUserId || p.ownerId === undefined).length}
-                  </span>
-                )}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={teamFilter === "team"}
-                className={`wm-projects-filter-tab ${teamFilter === "team" ? "is-active" : ""}`}
-                onClick={() => { setTeamFilter("team"); setMemberFilter(null); }}
-              >
-                <Users size={14} aria-hidden="true" />
-                Team
-                <span className="wm-projects-filter-count">
-                  {currentUserId ? projects.filter((p) => p.ownerId !== currentUserId).length : 0}
-                </span>
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={teamFilter === "all"}
-                className={`wm-projects-filter-tab ${teamFilter === "all" ? "is-active" : ""}`}
-                onClick={() => { setTeamFilter("all"); setMemberFilter(null); }}
-              >
-                All
-                <span className="wm-projects-filter-count">{projects.length}</span>
-              </button>
-            </div>
-            <div className="wm-projects-search-wrap">
-              <Search size={14} className="wm-projects-search-icon" aria-hidden="true" />
-              <input
-                type="text"
-                className="wm-projects-search"
-                placeholder="Search projects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="Search projects"
-              />
-            </div>
-            <button
-              type="button"
-              className={`wm-projects-filter-tab self-start ${surveyAttentionOnly ? "is-active" : ""}`}
-              aria-pressed={surveyAttentionOnly}
-              onClick={() => setSurveyAttentionOnly((current) => !current)}
-              title={`Keeps the surveys a rep still has to work: rows a photo review cleared, and readings older than ${SURVEY_REVIEW_STALE_DAYS} days that need re-confirming.`}
-            >
-              <AlertTriangle size={14} aria-hidden="true" />
-              Survey needs attention
-              <span className="wm-projects-filter-count">{surveyAttentionProjects.length}</span>
-            </button>
-            {teamFilter === "team" && members.length > 1 && (
-              <div className="wm-projects-member-filter">
-                <span className="wm-projects-member-filter-label">Filter by member:</span>
-                <div className="wm-projects-member-chips">
-                  <button
-                    type="button"
-                    className={`wm-projects-member-chip ${memberFilter === null ? "is-active" : ""}`}
-                    onClick={() => setMemberFilter(null)}
-                  >
-                    All
-                  </button>
-                  {members.filter((m) => m.id !== currentUserId).map((member) => (
-                    <button
-                      key={member.id}
-                      type="button"
-                      className={`wm-projects-member-chip ${memberFilter === member.id ? "is-active" : ""}`}
-                      onClick={() => setMemberFilter(memberFilter === member.id ? null : member.id)}
-                    >
-                      <span className="wm-projects-member-avatar" aria-hidden="true">
-                        {member.name.split(" ").map((p) => p.charAt(0)).join("").toUpperCase().slice(0, 2)}
-                      </span>
-                      {member.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="wm-projects-store-toolbar">
-              <StatusChip
-                className="max-w-xl"
-                variant={syncStatusVariant(syncStatus.state)}
-                label={syncStatus.state === "local" ? "Saved in this browser" : syncStatus.message}
-                title={syncStatus.message}
-                icon={syncStatus.state === "synced" ? (
-                  <Check className="h-4 w-4" />
-                ) : syncStatus.state === "error" || syncStatus.state === "conflict" ? (
-                  <AlertTriangle className="h-4 w-4" />
-                ) : (
-                  <Cloud className="h-4 w-4" />
-                )}
-              />
-              <button
-                type="button"
-                onClick={handleResetClick}
-                onBlur={() => setConfirmReset(false)}
-                title={
-                  realProjectCount || realDraftCount
-                    ? `Restores the built-in starter examples. Your ${realProjectCount} project(s) and ${realDraftCount} draft(s) are never affected.`
-                    : "Restores the built-in starter examples."
-                }
-                className={`inline-flex items-center gap-2 ${PROJECTS_PILL_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`}
-              >
-                <RotateCcw className="h-4 w-4" />
-                {confirmReset ? "Confirm reset?" : "Reset sample store"}
-              </button>
-          </div>
+          <ProjectsFilterBar
+            projects={projects}
+            teamFilter={teamFilter}
+            memberFilter={memberFilter}
+            searchQuery={searchQuery}
+            surveyAttentionOnly={surveyAttentionOnly}
+            surveyAttentionCount={surveyAttentionProjects.length}
+            members={members}
+            currentUserId={currentUserId}
+            onTeamFilterChange={chooseTeamFilter}
+            onMemberFilterChange={setMemberFilter}
+            onSearchChange={setSearchQuery}
+            onSurveyAttentionToggle={() => setSurveyAttentionOnly((current) => !current)}
+          />
+          <ProjectStoreToolbar
+            syncStatus={syncStatus}
+            projectCount={realProjectCount}
+            draftCount={realDraftCount}
+            onReset={resetStore}
+          />
 
           <PagedItems items={visibleProjects} resetKey={`${searchQuery}:${teamFilter}:${memberFilter}:${surveyAttentionOnly}`}>{(pageItems) => (<div className="wm-project-gallery">
                 {visibleProjects.length ? (
@@ -299,60 +173,11 @@ function ProjectsListPage() {
           </div>)}</PagedItems>
         </SectionCard>
 
-        <SectionCard
-          title="Proposal-ready drafts"
-          subtitle="Continue shaping your customer documents."
-          showHelp={false}
-        >
-          {proposalDrafts.length ? (
-            <div className="wm-project-draft-grid">
-              {proposalDrafts.map((draft) => (
-                <div key={draft.id} className="wm-project-draft-tile wm-ui-card">
-                  <div className="wm-draft-paper-icon" aria-hidden="true"><span /><span /><span /></div>
-                  <div className="wm-project-draft-main">
-                    <p className="wm-project-draft-customer wm-ui-copy">{draft.customer}</p>
-                    <h3 className="wm-project-draft-title wm-ui-title">{draft.name}</h3>
-                    <p className="wm-project-draft-state wm-ui-copy">{draft.state}</p>
-                  </div>
-
-                  <div className="wm-project-draft-actions">
-                    <Link
-                      to={routeCatalogByKey.responsePack.path}
-                      className={`wm-project-draft-open ${PROJECTS_DARK_BUTTON_CLASS}`}
-                    >
-                      Open
-                    </Link>
-
-                    <button
-                      className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`].filter(Boolean).join(" ")}
-                      type="button"
-                      onClick={() => copyProposalDraft(draft.id)}
-                      title={`Copy ${draft.name}`}
-                      aria-label={`Copy ${draft.name}`}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </button>
-
-                    <button
-                      className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`].filter(Boolean).join(" ")}
-                      type="button"
-                      onClick={() => handleDeleteDraftClick(draft.id)}
-                      onBlur={() => setConfirmDeleteDraftId((current) => (current === draft.id ? null : current))}
-                      title={confirmDeleteDraftId === draft.id ? `Click again to permanently delete ${draft.name}` : `Delete ${draft.name}`}
-                      aria-label={confirmDeleteDraftId === draft.id ? `Confirm delete ${draft.name}` : `Delete ${draft.name}`}
-                    >
-                      {confirmDeleteDraftId === draft.id ? <AlertTriangle className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-2xl border p-8 text-center text-sm text-[#cfe6f7] wm-ui-card wm-ui-copy">
-              No proposal drafts are currently listed. Use Reset sample store to restore the starter examples.
-            </div>
-          )}
-        </SectionCard>
+        <ProposalDraftPanel
+          drafts={proposalDrafts}
+          onCopy={copyProposalDraft}
+          onDelete={deleteProposalDraft}
+        />
 
         <FeedbackConsolidationPanel />
       </div>

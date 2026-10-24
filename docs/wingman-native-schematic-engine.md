@@ -10,7 +10,7 @@ The engine turns a Wingman project brief into a structured schematic model conta
 - signal paths for video, USB, audio, network, control and power;
 - proposal-safe assumptions;
 - warnings where the design needs validation;
-- BOM dependency hints such as NHD-CTL-PRO for NetworkHD systems.
+- BOM dependency hints such as NHD-CTL-PRO-V2 for NetworkHD systems.
 
 ## Design principle
 

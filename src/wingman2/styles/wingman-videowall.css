@@ -227,19 +227,6 @@
    width comes from the drawing in drawing units, so the component sets it. */
 .vw-wall-bezel { fill: none; stroke: var(--vw-preview-deep); }
 .vw-wall-panel-label { fill: #dff2fa; paint-order: stroke; stroke: #04121a; stroke-width: 4px; stroke-linejoin: round; }
-/* A grouped wall is wired feed by feed: the boundary between two feeds is a
-   wider lane than a panel seam (the component sets its width) and the chip
-   names the feed in its corner. Content windows stay dashed. */
-.vw-wall-feed { fill: none; stroke: #020b12; }
-.vw-wall-feed-chip { fill: #04121a; stroke: var(--vw-aqua); stroke-width: 1.5; }
-.vw-wall-feed-label { fill: var(--vw-aqua); font-weight: 700; }
-/* A projection screen is one surface carrying one image per projector: the
-   dashed amber seam and the P-numbered chip say where each image ends, so a
-   two-projector wall does not read as one LED canvas. Amber keeps the seam out
-   of the teal the composed windows and feed chips own. */
-.vw-wall-projector-seam { fill: none; stroke: #f2b45a; stroke-dasharray: 10 8; }
-.vw-wall-projector-chip { fill: #1b1206; stroke: #f2b45a; stroke-width: 1.5; }
-.vw-wall-projector-label { fill: #f7d08a; font-weight: 700; }
 .vw-wall-warning { display: grid; gap: 10px; padding: 10px 12px; border-left: 3px solid var(--vw-warning); border-radius: 4px; background: var(--vw-warning-bg); color: var(--vw-warning-text); font-size: .76rem; line-height: 1.5; }
 .vw-wall-warning strong { color: var(--vw-warning-heading); }
 .vw-wall-warning-text { margin: 0; }
@@ -314,11 +301,6 @@
    rep checks the measurement — on the sheet, in the photo review or straight in
    the transport table — before it is applied or handed off. */
 .vw-transport .vw-transport-run-warning { display: block; margin-top: 4px; max-width: 190px; color: var(--vw-warning-heading); font-size: .7rem; line-height: 1.4; }
-/* The status names a flagged run; the name opens the row the review kept, so
-   the record is one click from the sentence that reports it. */
-.vw-transport .vw-transport-status-jump { margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; cursor: pointer; }
-.vw-transport .vw-transport-status-jump:hover { color: var(--vw-highlight); }
-.vw-transport .vw-transport-status-jump:focus-visible { outline: 2px solid var(--vw-highlight); outline-offset: 2px; border-radius: 2px; }
 .vw-transport .vw-transport-review tr[data-highlighted="true"] { background: var(--vw-warning-bg); }
 .vw-transport-measure { width: 96px; padding: 6px 8px; border: 1px solid var(--vw-border-soft); border-radius: 6px; background: var(--vw-card-bg); color: var(--vw-text-soft); font: inherit; }
 .vw-transport-measure::placeholder { color: var(--vw-text-dim); }
@@ -336,7 +318,6 @@
 .vw-transport-review h3 { margin: 0; font-size: .86rem; }
 .vw-transport-review tr[data-accepted="no"] { opacity: .55; }
 .vw-transport-review input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--vw-border-accent); cursor: pointer; }
-.vw-transport-apply-bar { display: grid; gap: 6px; }
 .vw-transport .vw-transport-apply-flags { margin: 0; color: var(--vw-warning-heading); font-size: .72rem; line-height: 1.45; }
 .vw-transport-apply-flags strong { display: block; font-weight: 700; }
 .vw-transport-review-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -491,34 +472,10 @@
 .vw-wizard-stage-copy small { color: var(--vw-muted); font-size: .72rem; line-height: 1.35; }
 .vw-wizard-stage { display: grid; gap: 18px; }
 .vw-wizard-stage-intro { color: var(--vw-muted); font-size: .8rem; line-height: 1.5; max-width: 80ch; }
-.vw-wizard-warning { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; justify-items: start; gap: 8px 14px; margin: 0; }
-.vw-wizard-warning p { margin: 0; }
-.vw-wizard-warning button { padding: 8px 14px; border-color: var(--vw-warning); color: var(--vw-warning-heading); }
-.vw-wizard-warning details { grid-column: 1 / -1; }
-.vw-wizard-warning summary { cursor: pointer; color: var(--vw-warning-heading); font-size: .76rem; font-weight: 700; }
-.vw-wizard-warning details > p { margin-top: 6px; font-size: .76rem; line-height: 1.5; }
-.vw-wizard-command {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px 18px;
-  padding: 12px 16px;
-  border: 1px solid var(--vw-border-soft);
-  border-radius: 12px;
-  background: var(--vw-panel-deep);
-}
-.vw-wizard-command-copy { display: grid; gap: 4px; min-width: 0; }
-.vw-wizard-command-copy strong { font-size: .92rem; }
-.vw-wizard-command-copy small { color: var(--vw-muted); font-size: .74rem; line-height: 1.4; }
-.vw-wizard-command .vw-builder-actions { margin-left: auto; }
-.vw-wizard-command [role="status"] { flex-basis: 100%; margin: 0; }
 
 @media (max-width: 900px) {
   .vw-wizard-progress { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .vw-wizard-stages { grid-template-columns: minmax(0, 1fr); }
-  .vw-wizard-warning { grid-template-columns: minmax(0, 1fr); }
-  .vw-wizard-command .vw-builder-actions { margin-left: 0; }
 }
 
 @media (max-width: 640px) {

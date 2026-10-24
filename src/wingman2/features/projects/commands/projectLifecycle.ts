@@ -63,6 +63,30 @@ export function createProjectLifecycleCommands(context: ProjectCommandContext) {
     return normalized;
   };
 
+  /**
+   * Replace a project where it already sits, leaving the active project alone.
+   *
+   * An approval decision is about the proposal under review, not about opening
+   * the project: deciding one from the queue must not choose what the rep works
+   * on next, and must not re-rank the gallery by moving the row to the front.
+   * upsertStoredProject does both, which is right for a save that comes from the
+   * project itself and wrong for a decision that lands from another screen.
+   */
+  const replaceStoredProject = (project: StoredProject) => {
+    const snapshot = read();
+    const normalized = decodeStoredProject(project) ?? project;
+    const known = snapshot.projects.some((item) => item.id === normalized.id);
+    write({
+      ...snapshot,
+      // A project the store has never seen is appended rather than promoted, so
+      // an approval cannot rearrange a gallery it is not part of.
+      projects: known
+        ? snapshot.projects.map((item) => (item.id === normalized.id ? normalized : item))
+        : [...snapshot.projects, normalized],
+    });
+    return normalized;
+  };
+
   const updateStoredProject = (projectId: string, updater: (project: StoredProject) => StoredProject) => {
     const snapshot = read();
     let updatedProject: StoredProject | null = null;
@@ -158,6 +182,7 @@ export function createProjectLifecycleCommands(context: ProjectCommandContext) {
       write({ ...snapshot, activeProjectId: projectId && snapshot.projects.some((project) => project.id === projectId) ? projectId : null });
     },
     upsertStoredProject,
+    replaceStoredProject,
     updateStoredProject,
     createWorkflowProject,
   };

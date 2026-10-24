@@ -26,7 +26,7 @@ const proposal: StoredProjectProposal = {
 
 const row: SalesBomRow = {
   item: 1,
-  sku: "NHD-600-TX",
+  sku: "NHD-600-E-TX",
   description: "NetworkHD 600 encoder",
   role: "Source distribution",
   qty: 2,

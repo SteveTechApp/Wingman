@@ -1,10 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { StoredProject } from "../../features/projects";
 import { wallStartPresets } from "../../lib/videowallDecision";
 import { wallStartingPointOrigin } from "../../lib/wallStartingPointOrigin";
 import type { WallRequirements } from "../../lib/videowallOptions";
+import { VIDEO_WALL_DRAFT_KEY } from "../../lib/videowallDraft";
 import { WallTransportReview } from "./WallTransportReview";
 
 const preset = wallStartPresets.find((entry) => entry.key === "two-up")!;
@@ -36,6 +37,55 @@ function renderPanel(value: StoredProject) {
     </MemoryRouter>,
   );
 }
+
+/** This browser's draft of a wall, stamped and owned like the builder writes it. */
+function seedDraft(updatedAt: string, projectId: string | null) {
+  window.localStorage.setItem(VIDEO_WALL_DRAFT_KEY, JSON.stringify({
+    version: 2,
+    requirements: preset.requirements,
+    selectedId: "",
+    projectId,
+    updatedAt,
+  }));
+}
+
+describe("WallTransportReview draft status", () => {
+  beforeEach(() => window.localStorage.clear());
+
+  it("says the builder holds newer work than the wall this project saved", () => {
+    seedDraft("2026-10-20T16:00:00.000Z", "project-1");
+    renderPanel(project(preset.requirements));
+
+    const note = screen.getByTestId("wall-transport-draft-status");
+    // The same sentence the builder prints, because it is one fact about one
+    // pair of copies rather than a second opinion.
+    expect(note.getAttribute("data-draft-status")).toBe("draft-ahead");
+    expect(note.textContent).toContain("the project copy is behind");
+    expect(note.textContent).toContain("A reload is safe");
+  });
+
+  it("leaves another project's draft out of this record", () => {
+    // The rep is building a second wall; this project's record has not moved.
+    seedDraft("2026-10-20T16:00:00.000Z", "project-2");
+    renderPanel(project(preset.requirements));
+
+    expect(screen.queryByTestId("wall-transport-draft-status")).toBeNull();
+  });
+
+  it("says nothing for a draft that names no project", () => {
+    seedDraft("2026-10-20T16:00:00.000Z", null);
+    renderPanel(project(preset.requirements));
+
+    expect(screen.queryByTestId("wall-transport-draft-status")).toBeNull();
+  });
+
+  it("says nothing when the saved wall already holds the draft's work", () => {
+    seedDraft("2026-10-20T09:00:00.000Z", "project-1");
+    renderPanel(project(preset.requirements));
+
+    expect(screen.queryByTestId("wall-transport-draft-status")).toBeNull();
+  });
+});
 
 describe("WallTransportReview starting point", () => {
   it("names the card a saved wall started on and the answers the room changed", () => {

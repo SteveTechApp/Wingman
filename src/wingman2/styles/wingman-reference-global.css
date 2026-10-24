@@ -86,11 +86,11 @@ body {
   box-shadow: inset 3px 0 0 var(--wm-ref-aqua), 0 0 24px rgba(32, 224, 203, 0.06) !important;
 }
 
-.wingman-topbar-page-label, .wingman-kicker, .wm-ui-badge, .wm-vs-eyebrow, .wm-polish-eyebrow {
+.wingman-topbar-page-label, .wm-vs-eyebrow, .wm-polish-eyebrow {
   color: var(--wm-ref-aqua) !important;
 }
 
-.wingman-topbar-page-summary, .wingman-hero-purpose, .wm-ui-context, .wingman-section-help, small {
+.wingman-topbar-page-summary, .wingman-section-help, small {
   color: var(--wm-ref-muted) !important;
 }
 

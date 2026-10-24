@@ -15,8 +15,10 @@ import { WALL_TRANSPORT_REVIEW_ANCHOR } from "./wallTransportReview";
  * else has to know which section a panel hides in.
  *
  * Every section has a panel anchor (`projectSectionAnchor`), which is what lets
- * the same mechanism serve any panel rather than one privileged panel, and what
- * a test can hold the registry to as sections are added.
+ * the same mechanism serve any panel rather than one privileged panel — and it
+ * is the only section list there is: `projectDetailSections` is derived from
+ * the registry below, so a section and the panel that renders it are one entry,
+ * not two lists to keep in step.
  *
  * A panel that lists rows can be addressed more precisely than the panel: a
  * hash may also name `#<panel>-row-<row id>`, which lands the reader on that
@@ -31,29 +33,25 @@ export type ProjectAnchor = {
   section: string;
   /** What the panel is called, for a link that has to name its destination. */
   label: string;
+  /**
+   * What the navigator calls the section, on the panel the section opens on.
+   * Only where the two readings differ: most sections are named exactly like the
+   * panel they open on, and the navigator falls back to the panel's own name.
+   */
+  sectionLabel?: string;
 };
-
-/** The sections the project page shows, in the order its navigator lists them. */
-export const projectDetailSections: readonly { id: string; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "confirm", label: "Requirements" },
-  { id: "products", label: "Equipment" },
-  { id: "decide", label: "Product fit" },
-  { id: "capture", label: "Evidence" },
-  { id: "conversation", label: "Answers" },
-  { id: "history", label: "Saved work" },
-  { id: "handoff", label: "Handoff" },
-  { id: "audit", label: "Activity" },
-];
 
 /**
  * The panels a link can name, and the section each is rendered in. The first
  * entry for a section is that section's own anchor, so a section link lands on
  * the panel a reader would call the section rather than on whatever happens to
  * be listed first in markup.
+ *
+ * Adding a panel in a new section is what adds the section: there is no second
+ * list to update, and none to forget.
  */
 export const projectAnchors: readonly ProjectAnchor[] = [
-  { id: "project-current-result", section: "overview", label: "Current result" },
+  { id: "project-current-result", section: "overview", label: "Current result", sectionLabel: "Overview" },
   { id: "project-requirements", section: "confirm", label: "Requirements" },
   // The wall's transport and its survey review live in the Requirements
   // section but are their own panels: an audit entry opens the row it names,
@@ -61,15 +59,37 @@ export const projectAnchors: readonly ProjectAnchor[] = [
   { id: WALL_TRANSPORT_REVIEW_ANCHOR, section: "confirm", label: "Wall transport" },
   { id: WALL_SURVEY_REVIEW_ANCHOR, section: "confirm", label: "Site survey photo review" },
   { id: "project-equipment", section: "products", label: "Equipment" },
-  { id: "project-recommendation-evidence", section: "decide", label: "Recommendation evidence" },
-  { id: "project-evidence", section: "capture", label: "Evidence trace" },
-  { id: "project-discovery-conversation", section: "conversation", label: "Captured answers" },
-  { id: "project-saved-work", section: "history", label: "Saved comparisons" },
+  { id: "project-recommendation-evidence", section: "decide", label: "Recommendation evidence", sectionLabel: "Product fit" },
+  { id: "project-evidence", section: "capture", label: "Evidence trace", sectionLabel: "Evidence" },
+  { id: "project-discovery-conversation", section: "conversation", label: "Captured answers", sectionLabel: "Answers" },
+  { id: "project-saved-work", section: "history", label: "Saved comparisons", sectionLabel: "Saved work" },
   { id: "project-response-versions", section: "history", label: "Response versions" },
-  { id: "project-handoff", section: "handoff", label: "Response handoff" },
+  { id: "project-handoff", section: "handoff", label: "Response handoff", sectionLabel: "Handoff" },
   { id: "project-ready-to-send", section: "handoff", label: "Ready to send?" },
-  { id: "project-activity", section: "audit", label: "Audit log" },
+  { id: "project-activity", section: "audit", label: "Audit log", sectionLabel: "Activity" },
 ];
+
+/** One section of the project page, as the page's navigator lists it. */
+export type ProjectSection = { id: string; label: string };
+
+/**
+ * The sections a registry names, in the order its panels first name them — one
+ * entry per `section`, labelled by the panel that opens it.
+ *
+ * This is the rule the project page's navigator reads, and it is total: a
+ * section exists because a panel says it does, so the two cannot diverge.
+ */
+export function projectSectionsFrom(anchors: readonly ProjectAnchor[]): readonly ProjectSection[] {
+  const sections: ProjectSection[] = [];
+  for (const anchor of anchors) {
+    if (sections.some((section) => section.id === anchor.section)) continue;
+    sections.push({ id: anchor.section, label: anchor.sectionLabel ?? anchor.label });
+  }
+  return sections;
+}
+
+/** The sections the project page shows, in the order its navigator lists them. */
+export const projectDetailSections: readonly ProjectSection[] = projectSectionsFrom(projectAnchors);
 
 /** The hash's id, decoded and stripped, or "" when the address has no hash. */
 function anchorIdFromHash(hash: string) {

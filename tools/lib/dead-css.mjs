@@ -19,13 +19,22 @@ import path from "node:path";
  *   rules that might still match rather than deleting them.
  *
  * Tokens assembled at runtime (`wm-polish-${accent}`, `"wm-tier-" + tone`) never
- * appear literally, so a class-like source word with a trailing hyphen — or any
- * shorter hyphen-delimited prefix of it — marks the family as dynamic and keeps
- * the rule. Third-party runtimes inject their own class names, so their known
- * prefixes are always kept.
+ * appear literally, so the literal fragment that builds them marks the family
+ * as dynamic and keeps the rule. A fragment only counts when the source builds
+ * a *class* with it: the literal sits in a `className=`/`class=`/`classList`
+ * position, and is either the text just before a `${` interpolation or a
+ * quoted literal ending in `-` followed by `+`. Merely *mentioning* a prefix
+ * (`"vw-"` in a regex, a comment, a DOM id, a download filename) is not
+ * assembly: that turned one incidental `vw-` token into evidence for every
+ * `vw-*` rule, and `compare-`, `wingman-`, `product-` and `project-` were kept
+ * alive the same way by ids and filenames. Third-party runtimes inject their
+ * own class names, so their known prefixes are always kept.
  */
 
 const corpusExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".html", ".json"]);
+const classFragmentChar = /[A-Za-z0-9_-]/;
+/** Shortest fragment worth trusting: below this a prefix says nothing. */
+const MIN_DYNAMIC_FRAGMENT = 3;
 const skipDirs = new Set(["node_modules", "dist", "coverage", "reports", "data"]);
 const libraryClass = /^(recharts-|react-flow|xyflow-|monaco-|ace-|tippy-|swiper-|leaflet-|ProseMirror-|rc-|dnd-)/;
 
@@ -139,12 +148,148 @@ export function compoundClassTokens(compound) {
 }
 
 /**
+ * Where a class name may be written: a JSX/host `className=` (or HTML
+ * `class=`), the DOM `classList` calls, and a builder whose own name says it
+ * produces classes (`compareDecisionButtonClass`, `routeClassNames`). Only a
+ * literal inside one of these counts as class assembly — an `id=`, a filename,
+ * a data key or a regex alternative that happens to look like a prefix is not a
+ * class family.
+ */
+const classAttribute = /\bclassName\s*=\s*|\bclass\s*=\s*|\bclassList\s*\.\s*(?:add|remove|toggle|replace)\s*\(\s*/g;
+const classBuilderWords = new Set(["class", "classes", "classname", "classnames", "classlist"]);
+
+/**
+ * Whether a declaration's own name says it builds classes: `statusClass`,
+ * `routeClassNames`, `classForMode`. `buildClassroom` and `classifyProduct`
+ * only start with the letters, so their ids stay mentions.
+ */
+function isClassBuilderName(name) {
+  return name
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .split(/[^A-Za-z]+/)
+    .some((word) => classBuilderWords.has(word.toLowerCase()));
+}
+const nearestDeclaration = /\b(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=/g;
+const nearestFunction = /\bfunction\s+([A-Za-z0-9_$]+)\s*[<(]/g;
+
+/**
+ * Whether a position sits in a class builder: the nearest declaration is named
+ * for classes (`routeClassNames`), or the nearest enclosing function is
+ * (`compareDecisionButtonClass`, whose body may hold an ordinary `const tone`
+ * between the name and the template). An id or filename template inside an
+ * ordinary builder matches neither, so it stays a mention.
+ */
+function enclosingClassBuilder(text, position) {
+  const context = text.slice(Math.max(0, position - 600), position);
+  let declaration = null;
+  let fn = null;
+  for (const match of context.matchAll(nearestDeclaration)) declaration = match[1];
+  for (const match of context.matchAll(nearestFunction)) fn = match[1];
+  return Boolean(
+    (declaration && isClassBuilderName(declaration))
+    || (fn && isClassBuilderName(fn)),
+  );
+}
+
+/** Index just past the class-bearing expression that starts at `start`. */
+function classExpressionEnd(text, start) {
+  const opener = text[start];
+  if (opener === "{") {
+    let depth = 0;
+    let quote = null;
+    for (let index = start; index < text.length; index += 1) {
+      const char = text[index];
+      if (quote) {
+        if (char === "\\") index += 1;
+        else if (char === quote) quote = null;
+        continue;
+      }
+      if (char === '"' || char === "'" || char === "`") {
+        quote = char;
+        continue;
+      }
+      if (char === "{") depth += 1;
+      else if (char === "}") {
+        depth -= 1;
+        if (depth === 0) return index;
+      }
+    }
+    return text.length;
+  }
+  if (opener === "`") return text.indexOf("`", start + 1) + 1 || text.length;
+  if (opener === '"' || opener === "'") return text.indexOf(opener, start + 1) + 1 || text.length;
+  return start;
+}
+
+/**
+ * Literal prefix fragments a source file uses to assemble a class name.
+ *
+ * Evidence comes only from a class-bearing position: inside `className=` /
+ * `class=` (a template literal, or any expression in its braces), inside
+ * `classList` calls, and inside a declaration whose own name says it builds
+ * classes. Within one, a template literal contributes the class-shaped text
+ * immediately before each `${`, and a quoted literal ending in `-` directly
+ * followed by `+` contributes that literal. A word that merely ends in a
+ * hyphen somewhere in the file — a regex alternative, a comment, a DOM id, a
+ * download filename — contributes nothing: it is a mention, not assembly, and
+ * one such mention used to keep an entire stylesheet alive.
+ */
+export function collectDynamicFragments(text, fragments, onFragment) {
+  const add = (fragment, at) => {
+    if (fragment.length < MIN_DYNAMIC_FRAGMENT || !fragment.endsWith("-")) return;
+    fragments.add(fragment);
+    onFragment?.(fragment, at);
+  };
+  const addInterpolations = (from, to) => {
+    for (let index = text.indexOf("${", from); index !== -1 && index < to; index = text.indexOf("${", index + 2)) {
+      let start = index;
+      while (start > from && classFragmentChar.test(text[start - 1])) start -= 1;
+      add(text.slice(start, index), start);
+    }
+  };
+  const addConcatenations = (from, to) => {
+    for (const match of text.slice(from, to).matchAll(/(["'`])([^"'`\n]{1,200}?)\1\s*\+/g)) {
+      add(match[2].match(/[A-Za-z0-9_-]+$/)?.[0] ?? "", from + match.index);
+    }
+  };
+  for (const match of text.matchAll(classAttribute)) {
+    const start = match.index + match[0].length;
+    const end = classExpressionEnd(text, start);
+    addInterpolations(start, end);
+    addConcatenations(start, end);
+  }
+  for (let index = text.indexOf("${"); index !== -1; index = text.indexOf("${", index + 2)) {
+    if (!enclosingClassBuilder(text, index)) continue;
+    let start = index;
+    while (start > 0 && classFragmentChar.test(text[start - 1])) start -= 1;
+    add(text.slice(start, index), start);
+  }
+  for (const match of text.matchAll(/(["'`])([^"'`\n]{1,200}?)\1\s*\+/g)) {
+    if (!enclosingClassBuilder(text, match.index)) continue;
+    add(match[2].match(/[A-Za-z0-9_-]+$/)?.[0] ?? "", match.index);
+  }
+  return fragments;
+}
+
+/** The text of the source line a position sits on, trimmed for a report. */
+export function sourceLine(text, position, limit = 160) {
+  const start = text.lastIndexOf("\n", Math.max(0, position - 1)) + 1;
+  const end = text.indexOf("\n", position);
+  const line = text.slice(start, end === -1 ? text.length : end).trim();
+  return line.length > limit ? `${line.slice(0, limit - 1)}…` : line;
+}
+
+/**
  * Class tokens referenced by shipped source, plus the literal fragments used
  * to assemble class names at runtime.
  */
-export function buildVocabulary(root) {
-  const vocabulary = new Set();
-  const dynamicFragments = new Set();
+/**
+ * The source files whose text counts as evidence: every readable file under the
+ * root except stylesheets, the checked-in baseline, ignored build output and
+ * `reports/`. Sorted, so a report that lists these places reads the same twice.
+ */
+export function corpusFiles(root) {
+  const files = [];
   (function walk(directory) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       if (entry.isDirectory()) {
@@ -158,13 +303,36 @@ export function buildVocabulary(root) {
       const full = path.join(directory, entry.name);
       if (full === path.join(root, BASELINE_PATH)) continue;
       if (fs.statSync(full).size > 4 * 1024 * 1024) continue;
-      const text = fs.readFileSync(full, "utf8");
-      for (const token of text.match(/[A-Za-z_][A-Za-z0-9_-]{2,}/g) ?? []) {
-        vocabulary.add(token);
-        if (token.length >= 3 && token.endsWith("-")) dynamicFragments.add(token);
-      }
+      files.push(full);
     }
   })(root);
+  return files.sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+}
+
+/**
+ * Class tokens referenced by shipped source, plus the literal fragments used
+ * to assemble class names at runtime.
+ *
+ * `onFragment` receives each accepted fragment with the place that builds it,
+ * so the triage report can show its evidence without re-implementing the rule.
+ */
+export function buildVocabulary(root, { onFragment } = {}) {
+  const vocabulary = new Set();
+  const dynamicFragments = new Set();
+  for (const full of corpusFiles(root)) {
+    const text = fs.readFileSync(full, "utf8");
+    for (const token of text.match(/[A-Za-z_][A-Za-z0-9_-]{2,}/g) ?? []) vocabulary.add(token);
+    if (!onFragment) {
+      collectDynamicFragments(text, dynamicFragments);
+      continue;
+    }
+    collectDynamicFragments(text, dynamicFragments, (fragment, at) => onFragment({
+      fragment,
+      file: relativePath(root, full),
+      line: text.slice(0, at).split("\n").length,
+      text: sourceLine(text, at),
+    }));
+  }
   return { vocabulary, dynamicFragments };
 }
 
@@ -219,8 +387,8 @@ export function parseRules(css) {
  *   A live sibling branch keeps the rule, but the dead branch is still
  *   removable text, and it would otherwise hide inside the rule forever.
  */
-export function createDeadSelectorTests(root) {
-  const { vocabulary, dynamicFragments } = buildVocabulary(root);
+export function createDeadSelectorTests(root, options = {}) {
+  const { vocabulary, dynamicFragments } = buildVocabulary(root, options);
   const literalCache = new Map();
   function maybeDynamic(token) {
     if (literalCache.has(token)) return literalCache.get(token);
@@ -229,7 +397,7 @@ export function createDeadSelectorTests(root) {
       for (let i = 0; i < token.length && !dynamic; i += 1) {
         if (token[i] !== "-") continue;
         const fragment = token.slice(0, i + 1);
-        if (fragment.length >= 3 && dynamicFragments.has(fragment)) dynamic = true;
+        if (fragment.length >= MIN_DYNAMIC_FRAGMENT && dynamicFragments.has(fragment)) dynamic = true;
       }
     }
     literalCache.set(token, dynamic);
