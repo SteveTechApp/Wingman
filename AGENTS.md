@@ -271,48 +271,52 @@ from the code or docs are not repeated here.
   (`videowallDecision.ts`) are whole briefs (wall type, array, sources,
   layout, transport, panel size) named for what the wall does, and
   `wallStartPresetGroups` folds them into LCD/LED/projection for the shared
-  `VideowallStartPresets` picker. Each preset's `leadsTo` is read from the
-  decision engine at import, so a card cannot advertise an architecture its
-  answers no longer reach; `wallStartPresetFacts` is the one-line comparison
-  (size, windows, lead) and `videowall-preset-<key>` is the walkthrough id. A
-  test fails on a preset that names a market vertical, because the same wall
-  has to be quotable for any customer. Adding a preset means adding it to the
-  brief list only — the groups, facts and card all derive from it. The two
+  `VideowallStartPresets` picker. The picker is a list of rows, not a grid of
+  tiles: the name leads, the brief sits beside it and `wallStartPresetFacts`
+  (size, windows, lead) holds its own right-aligned column, because twenty
+  bordered cards of equal size read as twenty decisions while aligned facts let
+  two walls be compared without reading both sentences — every wall and every
+  fact is still on the page. Each preset's `leadsTo` is read from the decision
+  engine at import, so a wall cannot advertise an architecture its answers no
+  longer reach, and `videowall-preset-<key>` is the walkthrough id. A test fails
+  on a preset that names a market vertical, because the same wall has to be
+  quotable for any customer. Adding a preset means adding it to the brief list
+  only — the groups, facts and row all derive from it. The two
   custom LED walls are the placement pair: `led-floating-windows` (floating,
   4K30 sources) reaches NHD-150-RX, and `led-fixed-windows` (16 fixed X/Y
   windows) reaches NHD-600-TRX. Each option's own blockers point at the other
   — the 150 rejects a recalled fixed layout and the 600 rejects floating
   windows — so the picker must not offer a preset that answers both ways.
 - A rep's own wall joins that picker: `wallStartingPoints.ts` saves the current
-  answers to localStorage, one card per brief keyed by a stable hash of the
+  answers to localStorage, one wall per brief keyed by a stable hash of the
   brief with the survey fields (`measuredRuns`, `linkDetails`, `surveyReview`)
   stripped, so another room's measurements never ride along and re-saving a wall
-  moves its card to the front instead of duplicating it. The save and load paths
-  both run `wallStartingPointBrief` — the one shape rule — or a card's key would
+  moves its row to the front instead of duplicating it. The save and load paths
+  both run `wallStartingPointBrief` — the one shape rule — or a wall's key would
   change between saving and the next visit; a stored entry that fails the
   builder's own validation is dropped. `wallStartPresetGroupsWithSaved` places
-  the card first in its family with `Saved ·` on the facts line; the remove
-  action sits outside the card button (a control cannot nest in a button) and
-  `wallStartPresetFrom` derives family and `leadsTo` for saved and shipped
-  cards alike. The save action and the picker share one snapshot
+  the saved wall first in its family with `Saved ·` on the facts line; the
+  remove action sits outside the row button (a control cannot nest in a button)
+  and `wallStartPresetFrom` derives family and `leadsTo` for saved and shipped
+  walls alike. The save action and the picker share one snapshot
   (`useWallStartingPoints` in `data/wallStartingPoints.ts` over
-  `subscribeWallStartingPoints`), which is why a saved card is already beside
-  the shipped walls when the rep returns to the start; writes publish a new
+  `subscribeWallStartingPoints`), which is why a saved wall is already beside
+  the shipped ones when the rep returns to the start; writes publish a new
   cached array so `useSyncExternalStore` sees a stable identity otherwise. The
   guided result's `Save as starting point` and the expert start panel write the
   same store, capped at six walls.
-- The picker also narrows on the facts its cards print: `wallStartPresetFilter.ts`
+- The picker also narrows on the facts its rows print: `wallStartPresetFilter.ts`
   filters windows, sources and a transport bucket, and every chip value comes
-  from the cards themselves so no chip is a dead end. A per-panel wall counts as
+  from the walls themselves so no chip is a dead end. A per-panel wall counts as
   the pictures it shows (`columns × rows`), not the brief's `windows: 1`.
   `WallStartPreset.transport` is read from the engine's recommended family in
   `wallStartPresetFrom`, never typed onto a brief, so a chip cannot contradict
-  the `leadsTo` the card advertises. A count is a floor, not an equality:
+  the `leadsTo` the wall advertises. A count is a floor, not an equality:
   windows and sources read as "at least this many" (a nine-window wall can show
   four) and the transport chip is the connection the site offers, so it keeps
   the walls at or below it — an exact match hid every other wall and left a rep
-  looking at one card. The copy under the chips says so, because a chip that
-  keeps larger walls has to admit it. Filtering hides cards only: families keep
+  looking at one wall. The copy under the chips says so, because a chip that
+  keeps larger walls has to admit it. Filtering hides rows only: families keep
   their order, a family with no match folds away, and an empty result says so
   with its own Clear filters. The filter is local view state, not part of the
   brief or the saved starting point.
@@ -325,13 +329,14 @@ from the code or docs are not repeated here.
   card's answers are stored with it as the same brief `wallStartingPointBrief`
   produces, so drift is measured against the card rather than against the
   rep's memory of it, and `normalizeWallStartingPointOrigin` drops a rotted
-  entry instead of measuring against a card that never existed. The picker marks
-  that card on its key: `data-started="true"`, a solid aqua edge (see the
-  videowall stylesheet) and a `Started here · ` prefix on the facts line. It is
-  deliberately not `aria-pressed`: pressed means the answers still match the card
-  exactly, and a rep coming back to the start is asking which wall this design
-  came from, which a changed answer does not undo. A saved card is marked the
-  same way, reading `Started here · Saved · ` because both facts are true. Drift is per
+  entry instead of measuring against a wall that never existed. The picker marks
+  that wall on its key: `data-started="true"` on the row, an aqua inset edge on
+  its left (see the videowall stylesheet) and a `Started here · ` prefix on the
+  facts line. It is deliberately not `aria-pressed`: pressed means the answers
+  still match the wall exactly, and a rep coming back to the start is asking
+  which wall this design came from, which a changed answer does not undo. A
+  saved wall is marked the same way, reading `Started here · Saved · ` because
+  both facts are true. Drift is per
   answer, not per model field (`driftFields`), because a rep changed "the
   layout", not `layout` plus `windows` plus `customMode`; the field table is the
   only place to add an answer, and it quotes the builder's own words. The
@@ -436,6 +441,25 @@ from the code or docs are not repeated here.
   show the same per-stage status lines. Move the shared review chrome there,
   not into either view, or the two readings drift apart; the expert component
   also keeps the page entry under the 400-line architecture budget.
+- The expert design pass is read in the order a rep decides, each level quieter
+  than the one above it: the wall, then `VideowallVerdict`, then
+  `Adjust the answers`, then the designs tested against it. Its heading is
+  `The wall` because the picker under it sets every answer — a size question set
+  over a list of whole walls named something the block was not. The four
+  questions are `<details>` rows (`videowall-step-<n>`) whose summary carries the
+  question and the answer in use (`wallWizardAnswers`, shared with the guided
+  result), so the brief reads without opening anything and the answers stop
+  competing with the wall; opening a row is the controls that step always
+  rendered. `VideowallOptionsList` is reference rather than a choice, so it
+  opens from a summary naming `decision.considered` and `decision.viableCount`.
+- The verdict answers before it argues: `VideowallVerdict` puts the signal-path
+  sentence under the summary of the design it recommends, keeps `Why this meets
+  the need` as one column, and closes `Confirm before ordering` behind
+  `vw-builder-checks-details` with its count on the line. Those checks are
+  worked through at ordering time, so six of them open beside the reasons made
+  the decision a reading exercise; the folded line still says how many there
+  are, and the manufacturer references and their research date travel with
+  them.
 - Which pass was on screen is view state, not design evidence: `wallReviewPass.ts`
   keeps it in localStorage beside the wall draft, and `VideoWallPage` owns it so
   both readings render the same pass and a click writes it once. Saving,
