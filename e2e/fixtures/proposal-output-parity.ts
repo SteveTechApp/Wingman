@@ -16,8 +16,8 @@ export const PARITY_MARKERS = {
 } as const;
 
 export const parityBom: SalesBomRow[] = [
-  { item: 1, sku: "NHD-600-E-TX", description: "NetworkHD 600 SDVoE encoder", role: "Encode operator sources", qty: 2, type: "Required", status: "included", evidence: "Two confirmed operator sources", notes: "Install in the equipment rack." },
-  { item: 2, sku: "NHD-600-E-RX", description: "NetworkHD 600 SDVoE decoder", role: "Decode display feeds", qty: 4, type: "Required", status: "included", evidence: "Four independently routed displays", notes: "One decoder per display." },
+  { item: 1, sku: "NHD-600-E-TX", description: "NetworkHD 600 encoder", role: "Encode operator sources", qty: 2, type: "Required", status: "included", evidence: "Two confirmed operator sources", notes: "Install in the equipment rack." },
+  { item: 2, sku: "NHD-600-E-RX", description: "NetworkHD 600 decoder", role: "Decode display feeds", qty: 4, type: "Required", status: "included", evidence: "Four independently routed displays", notes: "One decoder per display." },
   { item: 3, sku: "NHD-CTL-PRO-V2", description: "NetworkHD controller", role: "Routing control", qty: 1, type: "Required", status: "included", evidence: "Central routing and control requirement", notes: "Confirm firmware compatibility." },
 ];
 
