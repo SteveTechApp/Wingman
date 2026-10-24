@@ -511,9 +511,12 @@ from the code or docs are not repeated here.
   edited last: `restoreVideowallDraft(handoff, shared, scopedProjectId)` honours
   the scope — a draft whose `projectId` names another project is that project's
   work however new it is — and only when the scope names the project the builder
-  is reading anyway, so a stale or hand-edited id borrows nobody's copy. Every
-  other builder address (`Copy link`, the dashboard card) still opens whatever
-  this browser holds, which is what "the wall I was editing" means. That panel
+  is reading anyway, so a stale or hand-edited id borrows nobody's copy. The
+  saved survey's photo review offers the same scoped link from the project
+  record, so finishing a survey cannot reopen another room's draft. The
+  remaining bare builder addresses (`Copy link`, the dashboard card) still open
+  whatever this browser holds, which is what "the wall I was editing" means.
+  That panel
   asks about one named project, so it passes
   `projectId` and `draftProjectId` and the rule stays silent unless the draft
   names that same project — another project's wall in progress is not this one
@@ -676,6 +679,12 @@ from the code or docs are not repeated here.
   draft can otherwise carry them straight into the document.
   `check:proposal-wizard` fails if either export builder names `REP_COPY` or
   carries a rep marker, so new guidance has to be added to the rep layer.
+  The wizard's own markers are split with the component: the entry
+  (`ProposalCompletionWizard.tsx`) is asserted for composing
+  `ProposalCompletionWizardView` and for the five step names it hands over, and
+  the view for `Export formatted DOCX` and `Open Recommendations`, which moved
+  with the markup. Moving a control between the two means moving its marker, or
+  the gate fails naming the file that no longer holds it.
   A standing printed sentence belongs to `CUSTOMER_COPY` too, not to the builder
   that renders it: the comparison notice is
   `CUSTOMER_COPY.competitorExclusion`, and `check:workflow` holds the constant
@@ -738,6 +747,18 @@ from the code or docs are not repeated here.
   equipment total, beside the same section's `Services and Commercial
   Allowances`; the HTML/PDF customer copy prints the scope by item but no
   prices, matching its equipment schedule, which carries none either.
+- The installation table's column names are one list:
+  `INSTALLATION_TABLE_COLUMN_LABELS` in `installationSchedule.ts`, read through
+  `installationTableHeaders([...])`, which is where the unpriced customer copy,
+  the priced customer copy, the Word quote and the rep's pricing panel print
+  their headings from. A heading typed in each builder is how one column came to
+  read "Site survey detail" in one document and "Survey detail" in the other. A
+  table that prints two columns in one cell names them as a group
+  (`["detail", "links"]` reads "Survey detail / Links") rather than inventing a
+  wording, and Word's widths are keyed by the column, not the label, so renaming
+  a heading cannot silently fall back to the default width. The equipment tables
+  keep their own headings — their price column is `Unit price`, not
+  `Unit rate` — because they are a different schedule.
 - A template-driven proposal is priced on the template review page, not in the
   wizard: `templateProposalPricing.ts` keeps the two rate maps (equipment by SKU,
   installation by line id) under a storage key per template, and
@@ -994,9 +1015,12 @@ from the code or docs are not repeated here.
   choice is remembered rather than made on every load. Signing out forgets it,
   or a reload would sign the rep back in. Nothing fakes a session in the
   browser any more: the `installWingmanLocalSessionFallback` fetch shim is
-  gone, and dev sync is switched on by
-  `VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=true` in the local (untracked)
-  `.env`.
+  gone, and `.env.example` ships
+  `VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=true` so a fresh checkout that
+  copies it to `.env` syncs in dev; the dev workspace above is the way in, and
+  a browser that has not chosen it keeps the local-mode message. A production
+  build keeps the flag in `.env.production.example`, and the local (untracked)
+  `.env` can still set it either way.
 - `/api/wingman/agents/wall-survey-scan` reads a photographed measurement
   worksheet. It requires `links` (the printed rows) as well as the image, so a
   transcription can only name links the design has; the client re-checks that
@@ -1236,9 +1260,17 @@ from the code or docs are not repeated here.
   `projectSectionsFrom` takes one section per `section` its panels name, in
   first-panel order, labelled by that panel's `sectionLabel` (falling back to
   the panel's own name where the two readings agree), and `projectDetailSections`
-  is that derivation. A new panel therefore brings its section with it, and the
-  navigator reads `projectDetailSections` itself rather than being handed a
-  list — there is no second list to forget. Renaming a section means editing the
+  is that derivation. The section's *id type* is derived too:
+  `ProjectSectionId` is the union of the `section` values those entries name,
+  which is what makes a section conditional safe — `useWorkflowPage` is generic
+  over its page ids, so the page reads `?view=` back as `ProjectSectionId`, and
+  an `activeSection === "…"` branch naming a section no panel renders is a type
+  error rather than a screen a reader never reaches. Read the id off the
+  registry, never a hand-typed literal; a hand-edited address can still carry
+  any string, so the reader keeps the first section when the value names none.
+  A new panel therefore brings its section with it, and the navigator reads
+  `projectDetailSections` itself rather than being handed a list — there is no
+  second list to forget. Renaming a section means editing the
   `sectionLabel` of the panel that opens it, because that is where a rep's word
   for it lives. Every section has a panel anchor, so a section link
   lands on the section's own panel rather than whatever is listed first;
