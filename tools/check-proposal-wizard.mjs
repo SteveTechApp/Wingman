@@ -59,6 +59,13 @@ const css = read("Proposal wizard CSS", files.css);
   requireMarker("ProposalCompletionWizard.tsx", component, marker),
 );
 
+// The completion step renders from the view half of the split, so the actions a
+// rep issues from it are asserted there: the wizard can still produce a
+// formatted document and still send a rep back to Recommendations.
+[
+  "Export formatted DOCX",
+  "Open Recommendations",
+].forEach((marker) => requireMarker("ProposalCompletionWizardView.tsx", view, marker));
 // The step bodies moved into the view with the rest of the markup, so the
 // controls a rep leaves the wizard by are asserted where they render.
 [
