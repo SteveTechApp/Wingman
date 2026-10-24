@@ -845,10 +845,17 @@ from the code or docs are not repeated here.
   `compareComparisonFacts` the port/feature comparison and core fact table,
   `compareCandidateScoring` the scored-candidate shape (score, verdict, matched
   lines, gaps, blockers, dependencies) behind `scoreProduct` and
-  `applyCompareEquivalenceGuards`, and `compareCandidateBuilders` the two
+  `applyCompareEquivalenceGuards`, `compareCandidateBuilders` the two
   catalogue shortcuts that answer a brief directly — the AVoIP endpoint pair and
-  the 18Gbps 8x8 HDBaseT matrix. `compareTypes` holds the shapes the modules
-  share, so a rule can be imported without pulling the page in.
+  the 18Gbps 8x8 HDBaseT matrix — and `compareRunLookup` the run/lookup
+  orchestration: the competitor SKU catalogue and its suggestions, whether a
+  typed SKU is held locally or needs research, the plan for one live lookup and
+  what a settled or thrown one means, the state a run starts and a reset leaves,
+  and the reviewed live result as a candidate and a merged fact sheet. The page
+  keeps every `useState` and the effect that issues the request (the sequence
+  guard is a ref there), and applies what those functions return. `compareTypes`
+  holds the shapes the modules share, so a rule can be imported without pulling
+  the page in.
   Nothing re-exports through the page: a consumer imports the module that owns
   the rule, and the one test that read `assessCompetitorConnectorCoverage` off
   the page now reads it from `compareComparisonFacts`. The builders take the
