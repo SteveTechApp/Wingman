@@ -33,6 +33,98 @@ describe("project domain commands", () => {
     expect(commands.snapshot().activeProjectId).toBeNull();
   });
 
+  it("replaces a project where it sits and leaves the rep on their own project", () => {
+    const commands = harness([
+      project({ id: "project-1", name: "Project one" }),
+      project({ id: "project-2", name: "Project two" }),
+      project({ id: "project-3", name: "Project three" }),
+    ]);
+    commands.lifecycle.setActiveProjectId("project-2");
+
+    // An approval decision is about the proposal, not about opening the project:
+    // the row is rewritten where it is, and the gallery keeps its order.
+    const replaced = commands.lifecycle.replaceStoredProject({
+      ...project({ id: "project-1" }),
+      name: "Project one (approved)",
+      status: "recommended",
+    });
+
+    expect(replaced.name).toBe("Project one (approved)");
+    expect(commands.snapshot().projects.map((item) => item.id)).toEqual(["project-1", "project-2", "project-3"]);
+    expect(commands.snapshot().projects[0]).toMatchObject({ name: "Project one (approved)", status: "recommended" });
+    expect(commands.snapshot().activeProjectId).toBe("project-2");
+  });
+
+  it("promotes a saved project to the front and makes it active, unlike a replace", () => {
+    const commands = harness([
+      project({ id: "project-1", name: "Project one" }),
+      project({ id: "project-2", name: "Project two" }),
+      project({ id: "project-3", name: "Project three" }),
+    ]);
+    commands.lifecycle.setActiveProjectId("project-2");
+
+    // A save from the project itself is the rep choosing it, so the same row
+    // moves to the front and becomes the active project.
+    commands.lifecycle.upsertStoredProject({ ...project({ id: "project-3" }), name: "Project three (saved)" });
+
+    expect(commands.snapshot().projects.map((item) => item.id)).toEqual(["project-3", "project-1", "project-2"]);
+    expect(commands.snapshot().projects[0].name).toBe("Project three (saved)");
+    expect(commands.snapshot().activeProjectId).toBe("project-3");
+  });
+
+  it("appends a project the store has never seen instead of promoting it", () => {
+    const commands = harness([
+      project({ id: "project-1", name: "Project one" }),
+      project({ id: "project-2", name: "Project two" }),
+    ]);
+
+    // A replace can name a project this browser has not stored yet (a decision
+    // that landed from another device). It joins the list at the end and the
+    // reading stays where it was; promoting it is an upsert's job.
+    commands.lifecycle.replaceStoredProject(project({ id: "project-9", name: "Project nine" }));
+
+    expect(commands.snapshot().projects.map((item) => item.id)).toEqual(["project-1", "project-2", "project-9"]);
+    expect(commands.snapshot().activeProjectId).toBe("project-1");
+  });
+
+  it("updates a project where it sits and makes it the one being read", () => {
+    const commands = harness([
+      project({ id: "project-1", name: "Project one" }),
+      project({ id: "project-2", name: "Project two" }),
+      project({ id: "project-3", name: "Project three" }),
+    ]);
+    commands.lifecycle.setActiveProjectId("project-1");
+
+    // An edit is about the project the rep is working on, not a save that
+    // re-ranks the gallery: the row stays in its slot and becomes the reading.
+    commands.lifecycle.updateStoredProject("project-2", (current) => ({ ...current, name: "Project two (edited)" }));
+
+    expect(commands.snapshot().projects.map((item) => item.id)).toEqual(["project-1", "project-2", "project-3"]);
+    expect(commands.snapshot().projects[1].name).toBe("Project two (edited)");
+    expect(commands.snapshot().activeProjectId).toBe("project-2");
+  });
+
+  it("deletes a project, keeping the order and only clearing the reading it removed", () => {
+    const commands = harness([
+      project({ id: "project-1", name: "Project one" }),
+      project({ id: "project-2", name: "Project two" }),
+      project({ id: "project-3", name: "Project three" }),
+    ]);
+    commands.lifecycle.setActiveProjectId("project-1");
+
+    // Deleting someone else's row closes a gap rather than re-ordering what is
+    // left, and the rep keeps reading the project they were on.
+    commands.lifecycle.deleteStoredProject("project-2");
+    expect(commands.snapshot().projects.map((item) => item.id)).toEqual(["project-1", "project-3"]);
+    expect(commands.snapshot().activeProjectId).toBe("project-1");
+
+    // The row the rep was reading is the only one that can take the reading with it.
+    commands.lifecycle.setActiveProjectId("project-3");
+    commands.lifecycle.deleteStoredProject("project-3");
+    expect(commands.snapshot().projects.map((item) => item.id)).toEqual(["project-1"]);
+    expect(commands.snapshot().activeProjectId).toBeNull();
+  });
+
   it("saves discovery and videowall data with workflow handoffs", () => {
     const commands = harness();
     commands.discovery.saveDiscoveryBriefToProject({ roomModel: { roomType: "Boardroom" }, savedAt: NOW, capturedPercent: 50 }, null);
