@@ -28,6 +28,31 @@ from the code or docs are not repeated here.
   detaches, DOM-level verification via `preview_evaluate` still works — use it
   as the fallback instead of assuming the page is broken.
 
+## Project store
+
+- `createProjectLifecycleCommands`
+  (`src/wingman2/features/projects/commands/projectLifecycle.ts`) returns the
+  four ways a project is written, and each makes a different promise about the
+  gallery order and about what the rep is reading. `replaceStoredProject`
+  rewrites the row where it sits (a project this browser has not stored joins
+  the end) and leaves `activeProjectId` alone, so an approval arriving from the
+  queue cannot take the rep off their own project. `upsertStoredProject` is a
+  save from the project itself — the rep choosing it — so the row goes to the
+  front and becomes the active project: the one case where order and reading
+  change together. `updateStoredProject` is an edit, so the row keeps its slot
+  and becomes the reading; re-ranking the gallery on every edit is what a save
+  does, not a change. `deleteStoredProject` closes the gap without re-ordering
+  what is left and clears the reading only when the deleted row was the one
+  being read. `projectCommands.test.ts` pins all four; add a spec there rather
+  than trusting a new caller to state which promise it keeps.
+- `updateStoredProject` declares `StoredProject | null` and finds its row with
+  `findIndex`, then replaces it through `map`. The copy used to be collected in
+  a variable assigned inside that `map` callback, and TypeScript does not narrow
+  a value set by a callback, so the return read as `null` and a caller that
+  checked it still could not read the project it had just updated. Keep the
+  lookup and the declared type: an unknown id returns null without writing
+  anything, and the written document and the returned copy stay the same object.
+
 ## Typecheck & tests
 
 - Tailwind v4 runs through `@tailwindcss/vite`. A nested worktree can discover
