@@ -2714,7 +2714,7 @@ body .wm-pcc-preview .wm-pcc-actions button {
       justify-items: start;
     }}
 
-.wm-page, .wingman-page, .product-workspace, .discovery-page {
+.wm-page, .wingman-page, .discovery-page {
   min-height: 0;
   height: auto;
   max-height: none;
@@ -3597,7 +3597,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
   color: var(--wm-text);
 }
 
-.wm-ui-hero, .compare-native-hero {
+.wm-ui-hero {
   border: 1px solid var(--wm-aqua-border);
   border-radius: var(--wm-radius-2xl);
   background:
@@ -3611,12 +3611,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
   color: var(--wm-text);
 }
 
-.wm-ui-card,
-.compare-native-card,
-.compare-native-stage-card,
-.compare-native-results,
-.wingman-page-host .wingman-card,
-.wingman-page-host .wingman-panel {
+.wm-ui-card, .compare-native-card, .compare-native-results, .wingman-page-host .wingman-card, .wingman-page-host .wingman-panel {
   border-color: var(--wm-border-light);
   border-radius: var(--wm-radius-xl);
   background:
@@ -3643,14 +3638,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
   text-align: center;
 }
 
-.wm-ui-button,
-.wingman-new-project-button,
-.compare-native-reset,
-.compare-native-more,
-.compare-native-secondary-action,
-.compare-native-chip,
-.wingman-page-host button,
-.wingman-page-host a[role="button"] {
+.wm-ui-button, .wingman-new-project-button, .compare-native-more, .compare-native-secondary-action, .wingman-page-host button, .wingman-page-host a[role="button"] {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
@@ -3672,10 +3660,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
     box-shadow 160ms ease;
 }
 
-.wingman-page-host button:hover,
-.wingman-page-host a[role="button"]:hover,
-.wm-ui-button:hover,
-.compare-native-chip:hover {
+.wingman-page-host button:hover, .wingman-page-host a[role="button"]:hover, .wm-ui-button:hover {
   border-color: rgba(99, 243, 255, 0.48);
   background: rgba(99, 243, 255, 0.15);
   color: var(--wm-palette-paper);
@@ -3692,9 +3677,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
   box-shadow: 0 12px 28px color-mix(in srgb, var(--wm-aqua) 24%, transparent);
 }
 
-.wm-ui-button-secondary,
-.compare-native-secondary-action,
-.compare-native-reset {
+.wm-ui-button-secondary, .compare-native-secondary-action {
   background: rgba(255, 255, 255, 0.045);
   color: var(--wm-text);
 }
@@ -3712,8 +3695,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
 }
 
 @media (max-width: 900px) {
-  .wm-ui-hero,
-    .compare-native-hero {
+  .wm-ui-hero {
       padding: 1rem;
     }}
 .wm-ui-hero:not(.wm-dashboard-resume-card) {
@@ -3730,23 +3712,6 @@ html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
   justify-items: center;
   gap: 0.55rem;
   width: min(100%, 72rem);
-}
-
-.wm-ui-centered-card :is(input, select, textarea) {
-  width: 100%;
-  text-align: center;
-}
-
-.wingman-page-host .wm-ui-centered-actions {
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.8rem;
-  padding: 1rem;
-  text-align: center;
-}
-
-.wm-ui-centered-actions > .wm-ui-action-row {
-  justify-content: center;
 }
 
 .wingman-page-host .wm-ui-action-row {
@@ -6487,14 +6452,7 @@ html[data-wingman-route="compare"] main.wm-compare-page, .wm-route-compare main.
 }
 
 /* Match Templates hero behaviour */
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header,
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .compare-native-hero,
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header,
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero,
-.wm-route-compare main[data-wingman-page="compare"] > header,
-.wm-route-compare main[data-wingman-page="compare"] > .compare-native-hero,
-.wm-route-compare main[data-wingman-page="compare"] > .wm-page-header,
-.wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header, html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header, html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero, .wm-route-compare main[data-wingman-page="compare"] > header, .wm-route-compare main[data-wingman-page="compare"] > .wm-page-header, .wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
@@ -6508,7 +6466,7 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-
 }
 
 /* Force all hero text left */
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span), html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .compare-native-hero :is(div, p, h1, h2, span), html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span), html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > .compare-native-hero :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span) {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span), html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span), html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span), .wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span) {
   text-align: left;
   justify-self: start;
   margin-left: 0;
@@ -6524,14 +6482,7 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] h1,
 }
 
 /* Reset button should be a compact action, not a large panel */
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header button,
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .compare-native-hero button,
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header button,
-html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero button,
-.wm-route-compare main[data-wingman-page="compare"] > header button,
-.wm-route-compare main[data-wingman-page="compare"] > .compare-native-hero button,
-.wm-route-compare main[data-wingman-page="compare"] > .wm-page-header button,
-.wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero button {
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header button, html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header button, html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero button, .wm-route-compare main[data-wingman-page="compare"] > header button, .wm-route-compare main[data-wingman-page="compare"] > .wm-page-header button, .wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero button {
   justify-self: end;
   align-self: center;
   width: auto;
@@ -9603,42 +9554,18 @@ html[data-wingman-route="compare"] .compare-governed-status--reject {
   margin: 0;
 }
 
-.compare-compact-next-action {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 0.75rem;
-  padding: 0.75rem 0.9rem;
-  border: 1px solid rgba(100, 116, 139, 0.24);
-  background: rgba(2, 12, 27, 0.52);
-}
-
-.compare-compact-next-action > div:first-child {
-  display: grid;
-  gap: 0.2rem;
-}
-
-.compare-compact-next-action > div:first-child span {
-  color: rgba(203, 213, 225, 0.74);
-  font-size: 0.82rem;
-}
-
-.compare-native-technical-details,
-.compare-native-support-details {
+.compare-native-technical-details {
   margin-top: 0.35rem;
   border-color: rgba(100, 116, 139, 0.24);
   background: rgba(2, 12, 27, 0.34);
 }
 
-.compare-native-technical-details > summary,
-.compare-native-support-details > summary {
+.compare-native-technical-details > summary {
   color: rgba(203, 213, 225, 0.76);
   font-size: 0.82rem;
   font-weight: 750;
 }
 
-.compare-native-support-details[open],
 .compare-native-technical-details[open] {
   padding: 0.85rem;
 }
@@ -9696,11 +9623,6 @@ html[data-wingman-route="compare"] .compare-governed-status--reject {
   .compare-compact-result__arrow {
     justify-self: center;
     transform: rotate(90deg);
-  }
-
-  .compare-compact-next-action {
-    align-items: stretch;
-    flex-direction: column;
   }}
 
 @media (max-width: 620px) {
@@ -9734,42 +9656,6 @@ main.wm-compare-page[data-compare-state="result"] > .compare-native-results {
   min-height: calc(100dvh - var(--compare-result-header-offset));
   padding: 0;
   overflow: visible;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 12px;
-  margin: 0;
-  border: 1px solid rgba(100, 116, 139, 0.22);
-  border-radius: 12px;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar > div:first-child {
-  align-items: baseline;
-  justify-content: start;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar h1 {
-  line-height: 1.1;
-  margin: 0;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar p {
-  margin: 0;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar__actions {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  background: transparent;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar__actions .wm-ui-button {
-  white-space: nowrap;
 }
 
 main.wm-compare-page[data-compare-state="result"] .compare-native-scroll-target,
@@ -9859,49 +9745,11 @@ main.wm-compare-page[data-compare-state="result"] :is(.compare-native-technical-
   overflow: visible;
 }
 
-main.wm-compare-page[data-compare-state="result"] .compare-result-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  padding: 5px;
-  border: 1px solid rgba(100, 116, 139, 0.24);
-  border-radius: 12px;
-  background: rgba(2, 12, 27, 0.56);
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-tabs__button {
-  min-height: 42px;
-  padding: 7px 14px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  background: transparent;
-  color: rgba(203, 213, 225, 0.78);
-  font-weight: 800;
-  cursor: pointer;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-tabs__button:hover {
-  background: rgba(30, 41, 59, 0.64);
-  color: var(--wm-palette-cloud);
-}
-
 main.wm-compare-page[data-compare-state="result"] .compare-result-tabs__button.is-active {
   border-color: rgba(45, 212, 191, 0.5);
   background: rgba(13, 148, 136, 0.22);
   color: #ccfbf1;
   box-shadow: inset 0 -2px 0 rgba(45, 212, 191, 0.8);
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-tab-panel {
-  min-width: 0;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-tab-panel[hidden] {
-  display: none;
-}
-
-main.wm-compare-page[data-compare-state="result"] .compare-result-tab-panel > .wm-showdown {
-  padding: 14px;
 }
 
 main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .wm-showdown__face-off {
@@ -9921,14 +9769,6 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
   main.wm-compare-page[data-compare-state="result"] {
     --compare-result-header-offset: 148px;
     padding-inline: 14px;
-  }
-
-  main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar__actions {
-    grid-column: 1 / -1;
   }
 
   main.wm-compare-page[data-compare-state="result"] .compare-reported-status-rail {
@@ -9967,28 +9807,7 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
     grid-template-columns: 1fr;
   }}
 
-@media (max-width: 620px) {
-  main.wm-compare-page[data-compare-state="result"] .compare-result-tabs {
-    display: flex;
-    overflow-x: auto;
-  }
 
-  main.wm-compare-page[data-compare-state="result"] .compare-result-tabs__button {
-    flex: 1 0 auto;
-  }
-
-  main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar, main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar > div:first-child {
-    grid-template-columns: 1fr;
-  }
-
-  main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar p {
-    grid-column: auto;
-  }
-
-  main.wm-compare-page[data-compare-state="result"] .compare-result-toolbar__actions {
-    grid-column: auto;
-    flex-wrap: wrap;
-  }}
 
 /* WINGMAN_LOCATIONS_CONNECTIONS_START */
 
@@ -11872,33 +11691,6 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
   font-size: 0.68rem;
   text-decoration: underline;
   word-break: break-all;
-}
-.compare-native-governance-strip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-}
-.compare-native-governance-strip__dot {
-  width: 9px;
-  height: 9px;
-  flex: 0 0 auto;
-  border-radius: 999px;
-  background: #24d6a3;
-  box-shadow: 0 0 0 4px rgba(36, 214, 163, 0.18);
-}
-.compare-native-governance-strip p {
-  display: grid;
-  gap: 2px;
-  margin: 0;
-}
-.compare-native-governance-strip p strong {
-  font-size: 0.82rem;
-}
-.compare-native-governance-strip p span {
-  color: var(--wm-ref-muted, #8798aa);
-  font-size: 0.72rem;
-  line-height: 1.4;
 }
 
 /* Governed-data badge on Product Pitch selector rows: the result card is a

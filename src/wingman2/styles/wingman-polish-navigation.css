@@ -1495,10 +1495,6 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
   align-items: center;
 }
 
-.wm-compare-page .compare-native-reset {
-  align-self: center;
-}
-
 /* Three-column heading layout (icon + copy + inline actions) only from the
    wide breakpoint; narrower widths let the actions wrap below the copy so the
    copy is not crushed. The tripled class (0,4,0) beats the route rules (0,3,2)
