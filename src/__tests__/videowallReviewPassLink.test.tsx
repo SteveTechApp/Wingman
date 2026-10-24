@@ -7,6 +7,7 @@ import { wallLinkFromSearch, wallLinkToken } from "../wingman2/lib/wallLink";
 import { wallStartingPointBrief } from "../wingman2/lib/wallStartingPoints";
 import { VIDEO_WALL_DRAFT_KEY } from "../wingman2/lib/videowallDraft";
 import { defaultWallRequirements, type WallRequirements } from "../wingman2/lib/videowallOptions";
+import { wallPhysicalSize } from "../wingman2/lib/wallPhysicalSize";
 import { VideoWallPage } from "../wingman2/pages/VideowallBuilderPage";
 
 const UI_MODE_KEY = "wingman-ui-mode-v1";
@@ -125,6 +126,49 @@ describe("the wall a builder link carries", () => {
     expect(wallLinkFromSearch(addressParams())?.projectors).toBe(2);
   });
 
+  it("keeps an edit the rep has not saved yet", async () => {
+    const { unmount } = renderBuilder();
+
+    fireEvent.click(screen.getByRole("button", { name: /One wide picture across two projectors/ }));
+    fireEvent.click(screen.getByTestId("videowall-review-transport"));
+    fireEvent.change(screen.getAllByLabelText(/Measured run for/)[0], { target: { value: "12" } });
+
+    // The design is written as the rep edits, not only when they save it.
+    await waitFor(() => {
+      const draft = JSON.parse(window.localStorage.getItem(VIDEO_WALL_DRAFT_KEY) || "null");
+      expect(Object.values(draft?.requirements?.measuredRuns ?? {})).toContain(12);
+    });
+
+    const draft = JSON.parse(window.localStorage.getItem(VIDEO_WALL_DRAFT_KEY)!);
+    unmount();
+    renderBuilder(`/wingman/videowall?wall=${wallLinkToken(draft.requirements)}&pass=transport`);
+
+    // Reloading the builder's own address reopens the draft, which is newer than
+    // the brief in the address, so the unsaved run is still on the wall.
+    expect((screen.getAllByLabelText(/Measured run for/)[0] as HTMLInputElement).value).toBe("12");
+  });
+
+  it("keeps the survey when the address is the builder's own", async () => {
+    const own = wall({
+      application: "projection",
+      projectors: 2,
+      layout: "single",
+      windows: 1,
+      sources: 2,
+      measuredRuns: { "display-1": 12 },
+    });
+    window.localStorage.setItem(VIDEO_WALL_DRAFT_KEY, JSON.stringify({ requirements: own, selectedId: "" }));
+
+    renderBuilder(`/wingman/videowall?wall=${wallLinkToken(own)}`);
+
+    // The page wrote this address itself while the rep was reading it, so it is
+    // not news: the saved design reopens with the survey still on it.
+    await waitFor(() => expect(screen.queryByTestId("videowall-shared-wall")).toBeNull());
+    fireEvent.click(screen.getByTestId("videowall-review-transport"));
+    const run = screen.getByLabelText("Measured run for Projector 1 (metres)") as HTMLInputElement;
+    expect(run.value).toBe("12");
+  });
+
   it("stops calling the wall shared once the rep starts again", () => {
     const shared = wall({ application: "projection", projectors: 2, layout: "single", windows: 1, sources: 2 });
     renderBuilder(`/wingman/videowall?wall=${wallLinkToken(shared)}`);
@@ -147,7 +191,10 @@ describe("the wall a builder link carries", () => {
     // The recipient lands on the design, not on the preset picker, and the
     // page says the wall arrived with the link rather than from this browser.
     expect(screen.getByTestId("videowall-wizard")).toBeTruthy();
-    expect(screen.getByTestId("videowall-shared-wall")).toBeTruthy();
+    const banner = screen.getByTestId("videowall-shared-wall");
+    // The banner names what the rep is looking at, in the confirmation's own
+    // display phrase, rather than only saying that a link arrived.
+    expect(banner.textContent).toContain(`the ${shared.columns} × ${shared.rows} array, ${wallPhysicalSize(shared).basis}`);
     expect(screen.getAllByText(/2 projectors/).length).toBeGreaterThan(0);
   });
 

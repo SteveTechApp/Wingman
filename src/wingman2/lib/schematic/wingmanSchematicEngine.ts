@@ -64,13 +64,13 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
 
   if (requiresNetworkHdController(products)) {
     bomHints.push({
-      sku: "NHD-CTL-PRO",
+      sku: "NHD-CTL-PRO-V2",
       reason: "Required controller for NetworkHD AV-over-IP routing and system management.",
       required: true,
     });
 
-    nodes.push(makeNode("nhd-controller", "NHD-CTL-PRO", "av-over-ip-controller", 1, 0, {
-      sku: "NHD-CTL-PRO",
+    nodes.push(makeNode("nhd-controller", "NHD-CTL-PRO-V2", "av-over-ip-controller", 1, 0, {
+      sku: "NHD-CTL-PRO-V2",
       required: true,
       note: "Required for NetworkHD system control.",
     }));

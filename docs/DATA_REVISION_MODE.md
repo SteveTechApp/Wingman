@@ -30,7 +30,12 @@ equivalence merely because acceptance gates are paused.
 The former verification chains remain available as `verify:data:strict`,
 `verify:contract:strict` and `verify:build:strict`. `npm run verify:strict` combines
 the full suite and former verification stages. The pause prints explicitly in
-`verify:data`; it does not report that the catalogue passed quality checks.
+`verify:data`; it does not report that the catalogue passed quality checks. The
+reference-resolution, governance and generated-manifest guards still run in the
+default `verify:data` lane, after that notice, and the room-template lifecycle,
+realism and signal-path gates run in the default `verify:contract` lane, because
+they protect the data a rep quotes rather than certifying the catalogue; the
+acceptance suites stay strict-only.
 
 Automatic governed-data, evidence-freshness and vendor-refresh workflow jobs are
 paused unless repository variable `WINGMAN_ENABLE_DATA_GATES` is `true`.

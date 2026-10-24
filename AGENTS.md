@@ -21,12 +21,54 @@ from the code or docs are not repeated here.
   competitor-lookup server (`server/competitor-lookup-server.mjs`) often holds
   8787 already — to serve just the UI run `node node_modules/vite/bin/vite.js`
   from the main checkout.
+- The local dev sign-in is scripted: `npm run check:dev-pair-sync` attaches to a
+  running pair, clicks Settings → Workspace → `workspace-local-dev-sign-in` in a
+  throwaway browser context and fails unless the Projects chip reads a synced
+  workspace, so nothing is signed in on the developer's own browser. Loading any
+  page seeds the starter examples into the legacy project store
+  (`wingman-project-store-v1`) with the moment the page read them, and the
+  sign-in migrates that store into the new workspace scope. A sample is not an
+  edit: `isUntouchedStarterExample` in `data/projectHydrationMerge.ts` takes the
+  workspace copy of a demo the browser has only ever held untouched sample text
+  for, without a conflict, so a page-load stamp cannot outrank it; a sample
+  someone renamed or put work into keeps the normal per-lane policy and still
+  reports the change. The check drops that one legacy key before signing in so
+  the scope starts empty, the way a rep's second machine does. A rename of the
+  key only makes the drop a no-op: the run then reads the samples it migrated.
+  `check:e2e-smoke` runs it against the pair that harness boots, so the merge is
+  gated on every PR instead of checked when someone remembers to start a pair;
+  run the script alone only when debugging it against your own `npm run dev`.
 - On Windows, start preview servers with the PowerShell `Start-Process`
   recipe and stdout/stderr to DIFFERENT log files. `register_preview` with
   `replace: true` stops the previously registered server first.
 - When a preview screenshot fails with "produced no frames" or the webview
   detaches, DOM-level verification via `preview_evaluate` still works — use it
   as the fallback instead of assuming the page is broken.
+
+## Project store
+
+- `createProjectLifecycleCommands`
+  (`src/wingman2/features/projects/commands/projectLifecycle.ts`) returns the
+  four ways a project is written, and each makes a different promise about the
+  gallery order and about what the rep is reading. `replaceStoredProject`
+  rewrites the row where it sits (a project this browser has not stored joins
+  the end) and leaves `activeProjectId` alone, so an approval arriving from the
+  queue cannot take the rep off their own project. `upsertStoredProject` is a
+  save from the project itself — the rep choosing it — so the row goes to the
+  front and becomes the active project: the one case where order and reading
+  change together. `updateStoredProject` is an edit, so the row keeps its slot
+  and becomes the reading; re-ranking the gallery on every edit is what a save
+  does, not a change. `deleteStoredProject` closes the gap without re-ordering
+  what is left and clears the reading only when the deleted row was the one
+  being read. `projectCommands.test.ts` pins all four; add a spec there rather
+  than trusting a new caller to state which promise it keeps.
+- `updateStoredProject` declares `StoredProject | null` and finds its row with
+  `findIndex`, then replaces it through `map`. The copy used to be collected in
+  a variable assigned inside that `map` callback, and TypeScript does not narrow
+  a value set by a callback, so the return read as `null` and a caller that
+  checked it still could not read the project it had just updated. Keep the
+  lookup and the declared type: an unknown id returns null without writing
+  anything, and the written document and the returned copy stay the same object.
 
 ## Typecheck & tests
 
@@ -101,6 +143,26 @@ from the code or docs are not repeated here.
   live sibling. The allowlist is empty today; `node
   tools/consolidate-dead-class-css.mjs --all --apply` prunes the same file set
   the gate scans and drops emptied `@media` blocks.
+- A class family counts as runtime-assembled only when source actually builds a
+  class with it: the literal sits in a `className=`/`class=`/`classList`
+  position, or in a declaration or function named for classes
+  (`routeClassNames`, `compareDecisionButtonClass`), and is either the text just
+  before a `${` or a quoted literal ending in `-` followed by `+`. Only the
+  fragment built there is evidence; a shorter hyphen prefix of it, and any
+  literal outside those positions, is a mention. The old "any word ending in a
+  hyphen" rule let one incidental token exempt a whole stylesheet — `vw-` in a
+  competitor-matching regex kept every `vw-*` rule alive, `compare-` came from
+  a DOM id, `wingman-` from a download filename — which is why 95 rules had
+  accumulated as invisible dead CSS. Before deleting a family, confirm the
+  class is neither named in non-CSS source nor assembled in one of those
+  positions; `collectDeadSelectors(root)` from `tools/lib/dead-css.mjs` gives
+  the current answer, and the corpus includes tests, tools and `index.html`,
+  so a class a spec still asserts counts as named. A `new RegExp(\`…\`)`
+  template assembles nothing however its declaration is named: a pattern
+  describes text the app matches (`^text-${families}-\\d+$`), so
+  `normalize-wingman-page-visual-classes.mjs` was exempting the whole `text-`,
+  `bg-` and `border-` families and hiding `bg-slate-950` on the glossary route.
+  `collectDynamicFragments` skips every literal inside a `RegExp(…)` argument.
 - `check:export-validation-domains` (in `verify:contract`) holds every domain
   of `validateProposalExport` to a test: `EXPORT_VALIDATION_DOMAINS` in
   `proposalExportValidation.ts` is the one runtime list, the blocker type
@@ -119,6 +181,18 @@ from the code or docs are not repeated here.
   discontinued, do-not-spec or admin-blocked SKU, or one a current product
   replaced, blocks the export, while a cable or an unlisted line is not a
   lifecycle failure.
+- `check:fixture-sku-lifecycle` (in `verify:contract`) asks the lifecycle
+  question about the fixtures proposals are tested against: an equipment line is
+  an object literal carrying a `sku` plus `qty`, `quantity`, `description` or
+  `role`, in a `*.test.*`/`*.spec.*` file or under a `fixtures` directory, and a
+  discontinued or do-not-spec SKU in one fails. A bare mention is not a line —
+  naming a retired SKU to prove the app rejects or remaps it is what those tests
+  are for. Statuses resolve through `tools/lib/sku-lifecycle.mjs`, shared with
+  `check:template-sku-lifecycle` and `check:lifecycle-successor-refs` so a
+  `review` placeholder read through its active `-V2` form does not block; a
+  fixture that exists to prove retirement behaviour is recorded with its reason
+  in `tools/wingman-fixture-sku-allowlist.json`, and the gate fails an entry the
+  fixture no longer needs, so the list only ratchets down.
 - `check:unstyled-classes` is the inverse of `check:dead-css`: a class name in
   markup that no stylesheet answers fails unless it is in
   `tools/wingman-unstyled-classes-baseline.json`. `<style>` blocks inside export
@@ -140,6 +214,27 @@ from the code or docs are not repeated here.
   Tailwind-expanded rules are marked generated. Pass routes without a leading
   slash (`--routes=wingman,wingman/compare`): Git Bash rewrites a `/...`
   argument into a Windows path before Node sees it.
+- `npm run report:dead-css-triage` answers the question a cleanup asks next, per
+  dead family (the text up to a class name's first hyphen): the rule text that
+  is dead, the fragments source actually assembles with that prefix
+  (`className=`/`classList`/a builder named for classes), and the places the
+  prefix is only mentioned — a regex, an id or a filename, which is what a
+  person re-reads before deleting. A family with no evidence is marked safe to
+  remove, anything else is marked for review. It reads `tools/lib/dead-css.mjs`
+  so its verdicts cannot drift from the gate, probes mentions at each dead
+  name's longest hyphen prefix with near matches first (a live `wm-card` sibling
+  must not bury `wm-card--tone`), writes `reports/dead-css-triage.{md,json}`,
+  and always exits 0: it reports, the gate decides. The same scan prints the
+  inverse list too: every accepted fragment with the class names no literal
+  source writes and the selectors no literal source keeps, so an exemption can
+  be audited against what it actually buys — a fragment no live rule needs is
+  marked `unused` rather than silently widening the gate. A selector is credited
+  to a fragment only when every class in it comes from assembly, so a literal
+  sibling keeps its rule off the list. `assembledFragmentFor` in
+  `tools/lib/dead-css.mjs` decides which fragment supplies a class (the gate and
+  the report cannot name different keepers), and `createDeadSelectorTests` hands
+  back the vocabulary and fragment set it decided with so the report needs no
+  second corpus scan.
 - An unmatched rule is only evidence, never permission: a selector that needs
   a state the sweep never enters (expanded, dialog, drag, print) is unmatched
   but live. Prune a rule only when its every class token is also absent from
@@ -373,8 +468,60 @@ from the code or docs are not repeated here.
   replaced the address) and a link above the project and local draft. A link
   makes `restored` true, so the focused view opens the result rather than the
   preset picker, and both readings print `videowall-shared-wall` saying the wall
-  arrived with the link. Measured runs, install cells and the photo review are
-  never in a link: they belong to one room.
+  arrived with the link. That banner is `wallSharedLinkNote(requirements)`, and
+  it names the wall it describes — the array and `wallPhysicalSize(...).basis` —
+  because a rep opening someone else's answers needs to know what they are in
+  front of, and the phrase has to be the one the copy confirmation and the
+  pasted line quote or the same wall reads two ways. The handoff banners are
+  held to the same rule: `wallHandoffDisplay(requirements)` is that same array
+  and `basis` phrase inside `wallHandoffNote(handoff, requirements)`, the one
+  sentence both readings print, so a wall that arrived from another room's
+  Discovery answers or from a template reads like one that arrived in a link
+  instead of only saying where it came from. A Discovery handoff also names the
+  room the answers were captured for: `discoveryVideoWallHandoff(answers,
+  projectName)` carries it on `VideoWallHandoff.projectName` (from the saved
+  project, else the draft — a capture nobody named carries none rather than
+  "Unnamed discovery"), and `wallHandoffOrigin(handoff)` composes the recorded
+  phrase, `Discovery: LCD wall, single canvas (Boardroom wall)`. The banner and
+  the saved wall's evidence `origin` both read that one function, and the label
+  keeps naming only the wall behaviour. The focused reading shows that note
+  in its `videowall-wizard-result`, not on a capture step: a handoff opens the
+  wizard at its result, so a note under step one is a note nobody reads.
+  Measured runs, install cells
+  and the photo review are never in a link: they belong to one room.
+- The builder says which copy of the wall is current without being asked. The
+  autosave hook returns the stamp it wrote (`rememberVideowallDraft` returns it,
+  `storedVideowallDraftUpdatedAt` reads it back for the first paint) and
+  `wallDraftStatus({ draftSavedAt, projectSavedAt })` compares it with the active
+  project's `videowall.savedAt`: a newer draft prints one line naming both facts
+  (a reload is safe, the project copy is behind), an absent project wall says so
+  instead, and a draft at or behind the save prints nothing. Equal is not behind
+  because saving writes the draft and the project together. It is a note rather
+  than a live region — the save confirmation owns `role="status"` — and
+  `WallDraftStatusNote` reads the project time itself so the page entry stays
+  under its 400-line allowance. Both readings mount it beside the shared-link
+  note, which answers the same question.
+  The project's Wall transport panel prints the same sentence above the saved
+  wall's links, so a rep reading the record knows the builder holds newer work
+  without opening it, and the sentence ends in a `Continue in the wall builder`
+  link: the rep reading it is the one who can save that work, so it resumes the
+  design instead of starting one. That link names its project
+  (`wallResumeUrl` writes `?project=<id>`) rather than pointing at the bare
+  builder, because a bare link reopens whichever draft in this browser was
+  edited last: `restoreVideowallDraft(handoff, shared, scopedProjectId)` honours
+  the scope — a draft whose `projectId` names another project is that project's
+  work however new it is — and only when the scope names the project the builder
+  is reading anyway, so a stale or hand-edited id borrows nobody's copy. Every
+  other builder address (`Copy link`, the dashboard card) still opens whatever
+  this browser holds, which is what "the wall I was editing" means. That panel
+  asks about one named project, so it passes
+  `projectId` and `draftProjectId` and the rule stays silent unless the draft
+  names that same project — another project's wall in progress is not this one
+  falling behind, and a draft that names nobody cannot be claimed. The owner is
+  written by `rememberVideowallDraft` (the active project at the time of the
+  edit) and read through `storedVideowallDraft`, so the builder's own note, which
+  passes no project id, keeps comparing the draft with whatever project is
+  active.
 - `Copy link` in the builder's action bar copies that address instead of asking a
   rep to think of the address bar: `wallShareSearch` composes the three rules
   that own a half — `wallLinkSearch`, `wallReviewPassSearch`, `wallPickSearch`
@@ -388,7 +535,9 @@ from the code or docs are not repeated here.
   an LED canvas its pixel pitch and a projector pair the image each one throws;
   the helper reads the wall's own `panelDiagonalInches`, so the sentence names
   the size the design carries rather than a house default. The confirmation
-  in the builder is `wallShareNote` — the array, the source count and the pass
+  in the builder is `wallShareNote` — the array, the source count, the same
+  `basis` display phrase the pasted line quotes (so the confirmation and the
+  clipboard cannot name the wall differently) and the pass
   named in prose (`wallSharePassName`, which strips the rail's article), the
   chosen design when there is one, plus the fact that the survey stays with the
   room. A browser that refuses the clipboard says so (`WALL_SHARE_COPY_FAILED`)
@@ -757,7 +906,11 @@ from the code or docs are not repeated here.
   margin each side. A projection screen keeps the derived opening but reports
   no mass, because mass follows its surface, not its outline. Change the
   constants in `wallPhysicalSize.ts`, never the schedule strings, and let the
-  DOCX `fittedWidths` share the table width when a column is added.
+  DOCX `fittedWidths` share the table width when a column is added. The cable
+  column's key prints under the schedule in both exports from
+  `WALL_SURVEY_COLUMN_KEY` (`data-wall-cable-key` in the HTML, the private
+  `cableKeyParagraph` in Word), only when the transport column is there, so the
+  customer never meets an allowance or a limit with no legend.
 - Word rows are built through the private `tableRow` helper in
   `proposalDocxExport.ts`, which always sets `cantSplit`: a bare
   `new TableRow` would let Word cut a cell in half across a page. The printed
@@ -779,6 +932,33 @@ from the code or docs are not repeated here.
   (`.compare-verdict-lead--X .compare-verdict-lead__banner`), not a compound.
 - Compare/verdict styling lives in `wingman-workflow-theme.css` scoped under
   `html[data-wingman-route="compare"]`.
+- The page entry is being emptied into `src/wingman2/pages/compare/` the way the
+  proposal wizard was: pure logic leaves, React stays. `compareProductTaxonomy`
+  owns the tag vocabulary and its class/role/transport inference,
+  `compareProfileSignals` the small profile predicates both layers ask,
+  `compareCompetitorFacts` the fact sheet built from a competitor profile,
+  `compareComparisonFacts` the port/feature comparison and core fact table,
+  `compareCandidateScoring` the scored-candidate shape (score, verdict, matched
+  lines, gaps, blockers, dependencies) behind `scoreProduct` and
+  `applyCompareEquivalenceGuards`, `compareCandidateBuilders` the two
+  catalogue shortcuts that answer a brief directly — the AVoIP endpoint pair and
+  the 18Gbps 8x8 HDBaseT matrix — and `compareRunLookup` the run/lookup
+  orchestration: the competitor SKU catalogue and its suggestions, whether a
+  typed SKU is held locally or needs research, the plan for one live lookup and
+  what a settled or thrown one means, the state a run starts and a reset leaves,
+  and the reviewed live result as a candidate and a merged fact sheet. The page
+  keeps every `useState` and the effect that issues the request (the sequence
+  guard is a ref there), and applies what those functions return. `compareTypes`
+  holds the shapes the modules share, so a rule can be imported without pulling
+  the page in.
+  Nothing re-exports through the page: a consumer imports the module that owns
+  the rule, and the one test that read `assessCompetitorConnectorCoverage` off
+  the page now reads it from `compareComparisonFacts`. The builders take the
+  WyreStorm lookup as an argument (`WyrestormProductLookup`) because the page
+  swaps its catalogue for the real one after load and keeps owning that mutable
+  list; their test passes its own lookup to pin the SKUs each shortcut means and
+  to prove a brief that is not an 18Gbps 8x8 HDBaseT matrix stands down without
+  touching the catalogue.
 
 ## Backend API (`server/`)
 
@@ -796,6 +976,27 @@ from the code or docs are not repeated here.
   manufacturer/model.
 - `parseJsonBody` enforces `MAX_JSON_BODY_BYTES` (413); a CSRF double-submit
   guard exists but is inert until `WINGMAN_CSRF_ENFORCE=true`.
+- A development server holds a real workspace session instead of a browser-side
+  stand-in. `POST /api/wingman/auth/dev-session`
+  (`handleWingmanAuthDevSessionPost`) creates one fixed local owner
+  (`dev@wingman.local`, workspace `Wingman Local`) in the API's own store and
+  answers with the ordinary `wingman_session` cookie, so dev project sync runs
+  through the real endpoints and lands in `data/runtime`. It refuses a
+  production process, a process whose storage mode is not `file` (a dev server
+  pointed at a shared database must not seed an account into it) and a request
+  that did not arrive from this machine, so the permission is the
+  environment's, never the request's. Settings → Workspace offers
+  `workspace-local-dev-sign-in` only under `import.meta.env.DEV`; choosing it
+  writes `wingman:development-workspace`, and `restoreDevelopmentWorkspace`
+  (`main.tsx`, before the first project hydrate) restores the session on a
+  later load whose cookie has expired. A browser that never chose it — a
+  Playwright spec, the e2e smoke check — is left signed out, which is why the
+  choice is remembered rather than made on every load. Signing out forgets it,
+  or a reload would sign the rep back in. Nothing fakes a session in the
+  browser any more: the `installWingmanLocalSessionFallback` fetch shim is
+  gone, and dev sync is switched on by
+  `VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=true` in the local (untracked)
+  `.env`.
 - `/api/wingman/agents/wall-survey-scan` reads a photographed measurement
   worksheet. It requires `links` (the printed rows) as well as the image, so a
   transcription can only name links the design has; the client re-checks that
@@ -1027,11 +1228,19 @@ from the code or docs are not repeated here.
   when to offer the action and the command only checks the review's shape.
 - The project page's address is one contract: `?view=<section>` names the
   section on screen, `#<anchor>` names a panel inside it. `projectAnchors.ts`
-  owns both halves — the section list, the anchor table and
-  `projectAnchorHref` — so a link (the survey flag included) builds its address
-  from that registry instead of spelling out a section, and
-  `useProjectAnchorJump` reads the hash back, opens the section the panel lives
-  in and lands on the panel (or the row the hash names). Every section has a panel anchor, so a section link
+  owns both halves — the anchor table and `projectAnchorHref` — so a link (the
+  survey flag included) builds its address from that registry instead of
+  spelling out a section, and `useProjectAnchorJump` reads the hash back, opens
+  the section the panel lives in and lands on the panel (or the row the hash
+  names). The section list is derived, not kept beside the table:
+  `projectSectionsFrom` takes one section per `section` its panels name, in
+  first-panel order, labelled by that panel's `sectionLabel` (falling back to
+  the panel's own name where the two readings agree), and `projectDetailSections`
+  is that derivation. A new panel therefore brings its section with it, and the
+  navigator reads `projectDetailSections` itself rather than being handed a
+  list — there is no second list to forget. Renaming a section means editing the
+  `sectionLabel` of the panel that opens it, because that is where a rep's word
+  for it lives. Every section has a panel anchor, so a section link
   lands on the section's own panel rather than whatever is listed first;
   `projectSectionAnchor` is that default, and the survey review is the second
   anchor in Requirements. A hash may also name one row of a panel —

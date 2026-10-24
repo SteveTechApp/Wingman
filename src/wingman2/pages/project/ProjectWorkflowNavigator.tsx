@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ClipboardList, Send } from "lucide-react";
 import { discoveryResumeUrl } from "../../lib/discoveryResume";
-import { projectSectionAnchor, projectSectionHref } from "../../lib/projectAnchors";
+import { projectDetailSections, projectSectionAnchor, projectSectionHref } from "../../lib/projectAnchors";
 import { CopyPanelLink } from "./CopyPanelLink";
 
 /**
@@ -11,8 +11,9 @@ import { CopyPanelLink } from "./CopyPanelLink";
  * The records list is real links rather than buttons: each entry is a section of
  * the project's own address, so a rep can open Equipment in another tab,
  * bookmark Requirements, or middle-click Handoff while the current reading stays
- * where it is. A page the address registry does not know has no address to link
- * to, so it is left out rather than offered as one that lands on the overview.
+ * where it is. The list is the anchor registry's own sections, not a second copy
+ * of them: a section exists here because a panel renders it, so this navigator
+ * cannot offer a section with no panel (or miss one that has a panel).
  *
  * Each chip also carries its own address: a small copy action beside the link
  * sends that section to a colleague without leaving the reading in front of the
@@ -20,8 +21,8 @@ import { CopyPanelLink } from "./CopyPanelLink";
  * link — and it copies the same anchor the link navigates to, so the chips and
  * the copied addresses cannot drift apart.
  */
-export function ProjectWorkflowNavigator({ pages, current, projectId, responsePath }: {
-  pages: readonly { id: string; label: string }[]; current: string; projectId: string; responsePath: string;
+export function ProjectWorkflowNavigator({ current, projectId, responsePath }: {
+  current: string; projectId: string; responsePath: string;
 }) {
   return <section className="wm-project-workspace" aria-label="Project workflow">
     <header><div><p className="wm-ui-kicker">Continue this project</p><h2>Update Discovery or prepare a response</h2></div></header>
@@ -29,7 +30,7 @@ export function ProjectWorkflowNavigator({ pages, current, projectId, responsePa
       <Link to={discoveryResumeUrl(projectId)}><ClipboardList aria-hidden="true" /><span><strong>Edit in Discovery</strong><small>Reopen the standard questions with this project’s saved answers.</small></span><ArrowRight aria-hidden="true" /></Link>
       <Link to={responsePath}><Send aria-hidden="true" /><span><strong>Build response</strong><small>Continue with the project’s equipment and evidence.</small></span><ArrowRight aria-hidden="true" /></Link>
     </div>
-    <details className="wm-project-records"><summary>Review project records</summary><nav aria-label="Project pages">{pages.map((page) => {
+    <details className="wm-project-records"><summary>Review project records</summary><nav aria-label="Project pages">{projectDetailSections.map((page) => {
       const href = projectSectionHref(projectId, page.id);
       if (!href) return null;
       const anchor = projectSectionAnchor(page.id);

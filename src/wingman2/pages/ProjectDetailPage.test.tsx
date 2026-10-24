@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
-import { projectAnchors, projectDetailSections } from "../lib/projectAnchors";
+import { projectAnchors, projectDetailSections, projectSectionHref } from "../lib/projectAnchors";
+import { VIDEO_WALL_DRAFT_KEY } from "../lib/videowallDraft";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { deleteProject, updateStoredProject, storedProject } = vi.hoisted(() => ({
@@ -71,6 +72,7 @@ function renderPage(query = "") {
       <Routes>
         <Route path="/wingman/projects/:projectId" element={<><ProjectDetailPage /><LocationProbe /></>} />
         <Route path="/wingman/discovery" element={<div>Standard Discovery</div>} />
+        <Route path="/wingman/videowall" element={<LocationProbe />} />
         <Route path="/wingman/projects" element={<div>Projects list</div>} />
       </Routes>
     </MemoryRouter>,
@@ -85,6 +87,9 @@ describe("Project Detail review controls", () => {
     storedProject.videowall = undefined;
     storedProject.compareRuns = [];
     storedProject.auditTrail = [];
+    // A test that seeds this browser's wall draft cleans it up here, so the
+    // panel's note cannot leak into the next case.
+    window.localStorage.removeItem(VIDEO_WALL_DRAFT_KEY);
   });
 
   it("opens the detail editor from the landing page edit action", () => {
@@ -143,6 +148,33 @@ describe("Project Detail review controls", () => {
     expect(screen.getByRole("link", { name: "Equipment" }).getAttribute("aria-current")).toBe("page");
     expect(screen.getByTestId("location").textContent).toBe("/wingman/projects/project-1?view=products#project-equipment");
     expect(document.activeElement?.id).toBe("project-equipment");
+  });
+
+  it("lists exactly the anchor registry's sections in the project pages navigator", () => {
+    renderPage();
+
+    const pages = screen.getByRole("navigation", { name: "Project pages" });
+    const links = Array.from(pages.querySelectorAll("a"));
+
+    // One link per section the page carries, in the navigator's order and
+    // labelled the same way. The navigator reads `projectDetailSections`
+    // itself, and that list is derived from `projectAnchors`, so this compares
+    // what a rep sees with the registry rather than with a second list that
+    // could be kept in step by hand.
+    expect(links.map((link) => link.textContent)).toEqual(projectDetailSections.map((section) => section.label));
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(
+      projectDetailSections.map((section) => projectSectionHref("project-1", section.id)),
+    );
+
+    // The other direction: a panel registered in a section the page does not
+    // list would leave that section unreachable, so the sections the registry
+    // names and the sections on screen have to be the same set.
+    const renderedSections = links.map((link) => {
+      const href = link.getAttribute("href") ?? "";
+      return href.split("?view=")[1]?.split("#")[0] ?? "";
+    });
+    const registrySections = projectAnchors.map((anchor) => anchor.section);
+    expect(new Set(renderedSections)).toEqual(new Set(registrySections));
   });
 
   it("copies a section chip's full address without leaving the reading", async () => {
@@ -489,6 +521,46 @@ describe("Project Detail review controls", () => {
     // The reader lands on the transport panel, where the allowance and limit
     // that run was checked against sit beside it.
     expect(document.activeElement?.id).toBe("wall-transport-review");
+  });
+
+  it("says the builder holds newer work and follows its offer into this project's wall", () => {
+    storedProject.videowall = {
+      savedAt: "2026-10-20T14:12:00.000Z",
+      wallType: "lcd",
+      summary: {
+        version: 2,
+        requirements: {
+          application: "lcd-direct",
+          columns: 2,
+          rows: 1,
+          sources: 1,
+          sourceLocation: "local",
+          sourceResolution: "4k60",
+          measuredRuns: { "display-1": 4 },
+        },
+      },
+    };
+    // This project's wall was edited after it was saved, so the record is behind
+    // the copy the builder would reopen.
+    window.localStorage.setItem(VIDEO_WALL_DRAFT_KEY, JSON.stringify({
+      version: 2,
+      requirements: { application: "lcd-direct", columns: 2, rows: 1, sources: 1, measuredRuns: { "display-1": 9 } },
+      selectedId: "",
+      projectId: "project-1",
+      updatedAt: "2026-10-20T16:00:00.000Z",
+    }));
+    renderPage("?view=confirm");
+
+    const note = screen.getByTestId("wall-transport-draft-status");
+    expect(note.getAttribute("data-draft-status")).toBe("draft-ahead");
+    expect(note.textContent).toContain("the project copy is behind");
+
+    // Following the offer lands on the builder with the project named, so the
+    // wall the rep resumes is this one — not whichever draft in this browser was
+    // edited last.
+    fireEvent.click(screen.getByRole("link", { name: "Continue in the wall builder" }));
+
+    expect(screen.getByTestId("location").textContent).toBe("/wingman/videowall?project=project-1");
   });
 
   it("shows an imported sheet's runs beside the photo review, without opening Activity", () => {

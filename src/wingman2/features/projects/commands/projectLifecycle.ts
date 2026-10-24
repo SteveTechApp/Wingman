@@ -63,17 +63,52 @@ export function createProjectLifecycleCommands(context: ProjectCommandContext) {
     return normalized;
   };
 
-  const updateStoredProject = (projectId: string, updater: (project: StoredProject) => StoredProject) => {
+  /**
+   * Replace a project where it already sits, leaving the active project alone.
+   *
+   * An approval decision is about the proposal under review, not about opening
+   * the project: deciding one from the queue must not choose what the rep works
+   * on next, and must not re-rank the gallery by moving the row to the front.
+   * upsertStoredProject does both, which is right for a save that comes from the
+   * project itself and wrong for a decision that lands from another screen.
+   */
+  const replaceStoredProject = (project: StoredProject) => {
     const snapshot = read();
-    let updatedProject: StoredProject | null = null;
-    const projects = snapshot.projects.map((project) => {
-      if (project.id !== projectId) return project;
-      const nextProject = updater(project);
-      updatedProject = decodeStoredProject(nextProject) ?? nextProject;
-      return updatedProject;
+    const normalized = decodeStoredProject(project) ?? project;
+    const known = snapshot.projects.some((item) => item.id === normalized.id);
+    write({
+      ...snapshot,
+      // A project the store has never seen is appended rather than promoted, so
+      // an approval cannot rearrange a gallery it is not part of.
+      projects: known
+        ? snapshot.projects.map((item) => (item.id === normalized.id ? normalized : item))
+        : [...snapshot.projects, normalized],
     });
-    if (!updatedProject) return null;
-    write({ ...snapshot, projects, activeProjectId: projectId });
+    return normalized;
+  };
+
+  /**
+   * Replace one project where it sits and hand the caller the saved copy.
+   *
+   * The return type is written out rather than inferred: the update used to be
+   * collected in a variable assigned from inside the `map`, and a value set by a
+   * callback is not narrowed, so the inferred result read as `null` and a caller
+   * that checked it could not read the project it had just saved.
+   */
+  const updateStoredProject = (
+    projectId: string,
+    updater: (project: StoredProject) => StoredProject,
+  ): StoredProject | null => {
+    const snapshot = read();
+    const index = snapshot.projects.findIndex((project) => project.id === projectId);
+    if (index < 0) return null;
+    const nextProject = updater(snapshot.projects[index]);
+    const updatedProject = decodeStoredProject(nextProject) ?? nextProject;
+    write({
+      ...snapshot,
+      projects: snapshot.projects.map((project) => (project.id === projectId ? updatedProject : project)),
+      activeProjectId: projectId,
+    });
     return updatedProject;
   };
 
@@ -158,6 +193,7 @@ export function createProjectLifecycleCommands(context: ProjectCommandContext) {
       write({ ...snapshot, activeProjectId: projectId && snapshot.projects.some((project) => project.id === projectId) ? projectId : null });
     },
     upsertStoredProject,
+    replaceStoredProject,
     updateStoredProject,
     createWorkflowProject,
   };

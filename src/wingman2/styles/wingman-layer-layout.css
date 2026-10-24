@@ -14,7 +14,7 @@
   min-height: 100vh;
 }
 
-.wingman-sidebar, .wm-layout > aside[aria-label="Sidebar"], .wingman-layout > aside[aria-label="Sidebar"] {
+.wingman-sidebar, .wm-layout > aside[aria-label="Sidebar"] {
   position: sticky;
   top: 0;
   height: 100vh;
@@ -25,7 +25,7 @@
   border-right: 1px solid var(--wm-border);
 }
 
-.wingman-main, main {
+main {
   min-width: 0;
 }
 
@@ -49,23 +49,20 @@
   padding: 24px;
 }
 
-.wm-page-header,
-.wingman-page-header {
+.wm-page-header {
   display: grid;
   gap: 8px;
   margin-bottom: 18px;
 }
 
-.wm-page-title,
-.wingman-page-title {
+.wm-page-title {
   margin: 0;
   color: var(--wm-heading);
   font-size: clamp(1.5rem, 1.2vw + 1.1rem, 2.25rem);
   font-weight: 760;
 }
 
-.wm-page-description,
-.wingman-page-description {
+.wm-page-description {
   max-width: 880px;
   margin: 0;
   color: var(--wm-text-soft);
@@ -191,7 +188,7 @@ body:has(#root:empty) {
   background: #050b14;
 }
 
-.wm-layout > main, .wingman-layout > main {
+.wm-layout > main {
   min-width: 0;
   width: 100%;
 }
@@ -202,7 +199,7 @@ aside:not(.wm-sidebar):not(.wingman-sidebar) {
 }
 
 /* Sidebar content should not vanish on dark background */
-.wingman-sidebar *, .wm-layout > aside[aria-label="Sidebar"] *, .wingman-layout > aside[aria-label="Sidebar"] * {
+.wingman-sidebar *, .wm-layout > aside[aria-label="Sidebar"] * {
   color: inherit;
 }
 /* Generate the layout, spacing and typography utilities used by existing views.

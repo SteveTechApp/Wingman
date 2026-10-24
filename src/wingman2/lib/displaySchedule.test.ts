@@ -9,6 +9,26 @@ import { buildProposalDocx } from "./proposalDocxExport";
 import { createProposalWizardDefaults } from "./proposalWizard";
 import { defaultWallRequirements, wallCanvasPlan, wallResolutionSummary, type WallRequirements } from "./videowallOptions";
 import { wallPhysicalSize } from "./wallPhysicalSize";
+import { WALL_SURVEY_COLUMN_KEY } from "./wallSurvey";
+
+/** One HTML fragment or Word run as the reader meets it: no tags, no entities. */
+function plainText(fragment: string): string {
+  return fragment
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** The Word document's paragraphs, in order, each as one line of text. */
+function docxParagraphs(xml: string): string[] {
+  return [...xml.matchAll(/<w:p(?:\s[^>]*)?>([\s\S]*?)<\/w:p>/g)].map((paragraph) =>
+    plainText([...paragraph[1].matchAll(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g)].map((run) => run[1]).join("")));
+}
 
 /** The exact payload shape the video wall builder saves onto the project. */
 function wallFor(overrides: Partial<WallRequirements>): StoredVideowallSummary {
@@ -339,7 +359,7 @@ describe("buildDisplaySchedule", () => {
     const schedule = buildDisplaySchedule(
       proposalWith({}),
       bom([
-        { sku: "NHD-600-TX", description: "NetworkHD 600 encoder", role: "Source endpoint", qty: 2 },
+        { sku: "NHD-600-E-TX", description: "NetworkHD 600 encoder", role: "Source endpoint", qty: 2 },
         { sku: "DISP-86", description: "86 inch 4K display", role: "Operator display", qty: 2 },
         { sku: "DISP-98", description: "98 inch signage screen", role: "Lobby screen", qty: 1 },
       ]),
@@ -369,7 +389,7 @@ describe("buildDisplaySchedule", () => {
   });
 
   it("returns no schedule when nothing describes a screen", () => {
-    expect(buildDisplaySchedule(proposalWith({}), bom([{ sku: "NHD-600-TX", description: "NetworkHD 600 encoder", qty: 1 }]))).toBeNull();
+    expect(buildDisplaySchedule(proposalWith({}), bom([{ sku: "NHD-600-E-TX", description: "NetworkHD 600 encoder", qty: 1 }]))).toBeNull();
   });
 });
 
@@ -563,7 +583,49 @@ describe("display schedule in the proposal outputs", () => {
     expect(text).toContain("HDMI 2.0 copper (passive) · ≈5 m · 15 m passive limit");
     expect(text).toContain("HDMI loop-through (panel to panel) · ≈3 m per hop · ≈20 m chain · 15 m limit per hop");
     expect(text).toContain("Fill, edges cropped on a 2560 × 2160 canvas");
+    // The cable column's numbers are explained in the survey sheet's own words,
+    // exactly as the printed proposal explains them under the same table.
+    expect(text).toContain("Allowance — The cable length the design assumes for this link.");
+    expect(text).toContain("Limit — The longest run this cable and transport carry.");
+    expect(text).toContain("In design — The run the saved design already holds for this link, for reference only.");
+    // The key sits under the table it explains, before the derived mounting and
+    // basis lines, so a reader meets the legend before the numbers they follow.
+    expect(text.indexOf("Allowance —")).toBeGreaterThan(text.indexOf("Panel 1"));
+    expect(text.indexOf("Allowance —")).toBeLessThan(text.indexOf("Mounting:"));
     expect(text).toContain("Basis:");
+
+    // A schedule with no transport column prints no key for one, matching the
+    // screen export's rule rather than carrying a legend with nothing above it.
+    const catalogueBuffer = await Packer.toBuffer(buildProposalDocx(displayScopeProposal(), [], wizard));
+    const catalogueXml = await (await JSZip.loadAsync(catalogueBuffer)).file("word/document.xml")!.async("string");
+    expect(catalogueXml.replace(/<[^>]+>/g, " ")).not.toContain("Allowance — The cable length");
+  });
+
+  it("prints one cable key across the HTML and Word exports of the same saved wall", async () => {
+    const wall = wallFor({ application: "lcd-loop", layout: "single", columns: 2, rows: 3, windows: 1 });
+    const html = buildProposalHtml(proposalWith({}), [], [], null, wall);
+    const htmlKey = plainText(html.match(/<p data-wall-cable-key[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? "");
+
+    const wizard = createProposalWizardDefaults({
+      projectId: "display-cable-key",
+      projectName: "Display cable key",
+      preparedBy: "Team",
+      executiveSummary: "Summary",
+      architectureNarrative: "Architecture",
+    });
+    const buffer = await Packer.toBuffer(buildProposalDocx(proposalWith({}), [], wizard, {}, wall));
+    const xml = await (await JSZip.loadAsync(buffer)).file("word/document.xml")!.async("string");
+    const docxKey = docxParagraphs(xml).find((line) => line.startsWith(`${WALL_SURVEY_COLUMN_KEY[0].label} —`)) ?? "";
+
+    // One saved wall through both exports: the legend under the transport
+    // column has to read as one sentence pair, not as two hand-kept copies.
+    expect(htmlKey).not.toBe("");
+    expect(docxKey).toBe(htmlKey);
+    // All three entries survive the round trip, not just the first one.
+    expect(htmlKey.match(/ — /g)).toHaveLength(WALL_SURVEY_COLUMN_KEY.length);
+    for (const entry of WALL_SURVEY_COLUMN_KEY) {
+      expect(htmlKey).toContain(`${entry.label} — ${entry.text}`);
+    }
   });
 
   it("lists the wall's transport limits in the DOCX export", async () => {

@@ -107,7 +107,8 @@ jobs:
   # its own job, so wall-clock is the slowest stage rather than the sum.
   verify:
     name: Verify (${{ matrix.stage }})
-    runs-on: ubuntu-latest
+    # Playwright 1.60 supports Ubuntu 24.04, not the new latest runner.
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -224,7 +225,7 @@ jobs:
   # devDependency and check:browser already existed; neither had ever run in CI.
   smoke:
     name: Browser Smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -253,7 +254,11 @@ jobs:
       # Boots the real API (throwaway file-mode data dir) and the Vite dev UI,
       # then drives a browser through settings sign-in, discovery project save
       # + HTML brief export, compare history save + CSV export, and the 413
-      # oversized-body contract - no manual session needed.
+      # oversized-body contract - no manual session needed. While that pair is
+      # up it also signs in to the local dev workspace over the starter examples
+      # the page seeds, so a sample the browser only ever held as text has to
+      # take the workspace copy instead of being reported as a team member's
+      # edit (check-dev-pair-sync.mjs).
       - name: Run end-to-end smoke check
         run: npm run check:e2e-smoke
 

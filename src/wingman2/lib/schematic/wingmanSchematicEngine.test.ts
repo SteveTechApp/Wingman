@@ -23,10 +23,10 @@ describe("Wingman native schematic engine", () => {
     expect(schematic.connections.some((connection) => connection.signal === "video")).toBe(true);
     expect(schematic.connections.some((connection) => connection.signal === "usb")).toBe(false);
     expect(schematic.warnings.some(w => w.title === "USB routing requires design")).toBe(true);
-    expect(schematic.bomHints.some((hint) => hint.sku === "NHD-CTL-PRO")).toBe(false);
+    expect(schematic.bomHints.some((hint) => hint.sku === "NHD-CTL-PRO-V2")).toBe(false);
   });
 
-  it("adds NHD-CTL-PRO as a BOM dependency for NetworkHD systems", () => {
+  it("adds the current NHD-CTL-PRO-V2 as a BOM dependency for NetworkHD systems", () => {
     const schematic = buildWingmanSchematic({
       title: "NetworkHD distribution",
       sources: [{ label: "Media player" }],
@@ -39,12 +39,12 @@ describe("Wingman native schematic engine", () => {
     });
 
     expect(schematic.bomHints).toContainEqual({
-      sku: "NHD-CTL-PRO",
+      sku: "NHD-CTL-PRO-V2",
       reason: "Required controller for NetworkHD AV-over-IP routing and system management.",
       required: true,
     });
 
-    expect(schematic.nodes.some((node) => node.sku === "NHD-CTL-PRO")).toBe(true);
+    expect(schematic.nodes.some((node) => node.sku === "NHD-CTL-PRO-V2")).toBe(true);
     expect(schematic.connections.some((connection) => connection.transport === "network")).toBe(true);
 
     // Both displays must be driven by their own decoder, not straight off the
@@ -145,7 +145,7 @@ describe("Wingman native schematic engine", () => {
     });
 
     expect(schematic.nodes.some((node) => node.kind === "video-wall-processor" && node.sku === "SW-0206-VW")).toBe(true);
-    expect(schematic.bomHints.some((hint) => hint.sku === "NHD-CTL-PRO")).toBe(false);
+    expect(schematic.bomHints.some((hint) => hint.sku === "NHD-CTL-PRO-V2")).toBe(false);
   });
 
   it("uses proposal-safe source language when connector evidence is not proven", () => {

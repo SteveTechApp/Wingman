@@ -30,6 +30,7 @@ import { ProjectComparisonHistory } from "./project/ProjectComparisonHistory";
 import { WallSurveyPhotoReview } from "./project/WallSurveyPhotoReview";
 import { WallSurveySheetImports } from "./project/WallSurveySheetImports";
 import { WallTransportReview } from "./project/WallTransportReview";
+import { projectDetailSections } from "../lib/projectAnchors";
 import { AuditEntryLinks } from "./project/AuditEntryLinks";
 import { useProjectAnchorJump } from "./project/useProjectAnchorJump";
 import { DealOutcomeSection } from "./project/DealOutcomeSection";
@@ -146,19 +147,6 @@ type ProjectReadinessGate = {
   nextAction: string;
   route: string;
 };
-
-const projectDetailSections = [
-  { id: "overview", label: "Overview" },
-  { id: "confirm", label: "Requirements" },
-  { id: "products", label: "Equipment" },
-  { id: "decide", label: "Product fit" },
-  { id: "capture", label: "Evidence" },
-  { id: "conversation", label: "Answers" },
-  { id: "history", label: "Saved work" },
-  { id: "handoff", label: "Handoff" },
-  { id: "audit", label: "Activity" },
-];
-
 
 
 export function ProjectDetailPage() {
@@ -686,7 +674,7 @@ export function ProjectDetailPage() {
         </section>
       ) : null}
 
-        <ProjectWorkflowNavigator pages={projectDetailSections} current={activeSection} projectId={project.id} responsePath={responsePath} />
+        <ProjectWorkflowNavigator current={activeSection} projectId={project.id} responsePath={responsePath} />
       <div id="project-overview" className="wm-project-detail-stack space-y-6">
         {savedTemplatePath ? (
           <section className="rounded-2xl border p-3 text-sm wm-output-panel">

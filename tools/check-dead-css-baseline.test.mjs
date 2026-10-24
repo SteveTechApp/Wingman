@@ -50,7 +50,7 @@ describe("dead CSS detection", () => {
         ".fixture-dead,\n.fixture-dead-2 { color: black; }",
       ].join("\n"),
       [WIDGET]: ".fixture-widget-shell { display: grid; }",
-      [COMPONENT]: "const tone = \"fixture-dynamic--\" + status;\nconst shell = \"fixture-live fixture-widget-shell\";\n",
+      [COMPONENT]: "const toneClass = \"fixture-dynamic--\" + status;\nconst shell = \"fixture-live fixture-widget-shell\";\n",
     });
 
     expect(collectDeadSelectors(root).map((entry) => entry.selector).sort()).toEqual([
@@ -109,7 +109,7 @@ describe("dead CSS detection", () => {
       ].join("\n"),
       [COMPONENT]: [
         "const cls = \"fixture-live-card\";",
-        "const tone = \"fixture-retired--\" + status;",
+        "const toneClass = \"fixture-retired--\" + status;",
       ].join("\n"),
     });
 
@@ -119,6 +119,109 @@ describe("dead CSS detection", () => {
       ".fixture-retired-one",
       ".fixture-retired-two, .fixture-retired-three",
       ".fixture-retired-six svg",
+    ]);
+  });
+
+  it("keeps a family a class attribute builds, and only that family", () => {
+    const root = sandbox({
+      [THEME]: [
+        ".fixture-status--ok { color: green; }",
+        ".fixture-status--watch { color: amber; }",
+        ".fixture-status-latest { color: gray; }",
+      ].join("\n"),
+      [COMPONENT]: "const node = <span className={`fixture-status fixture-status--${link.status}`} />;\n",
+    });
+
+    // The interpolation is evidence for the family it actually assembles, and
+    // a longer class that merely shares part of it is still dead.
+    expect(collectDeadSelectors(root).map((entry) => entry.selector)).toEqual([".fixture-status-latest"]);
+  });
+
+  it("does not treat a prefix mentioned in prose, an id or a filename as assembly", () => {
+    const root = sandbox({
+      [THEME]: [
+        ".vw-badge { color: red; }",
+        ".compare-badge { color: orange; }",
+        ".report-badge { color: blue; }",
+      ].join("\n"),
+      [COMPONENT]: [
+        // A regex alternative that happens to look like a class prefix.
+        "const marker = /\\b(video\\s*wall|vw-|multiview)\\b/i;",
+        // A DOM id, and a download filename.
+        "items.push({ id: `compare-${index}` });",
+        "download(new Blob([csv]), `report-${projectId}-runs.csv`);",
+      ].join("\n"),
+    });
+
+    expect(collectDeadSelectors(root).map((entry) => entry.selector).sort()).toEqual([
+      ".compare-badge",
+      ".report-badge",
+      ".vw-badge",
+    ]);
+  });
+
+  it("reads a RegExp template as a pattern, not as class assembly", () => {
+    const root = sandbox({
+      [THEME]: [
+        ".fixture-text-muted { color: red; }",
+        ".fixture-bg-badge { color: blue; }",
+        ".fixture-tone--warn { color: amber; }",
+      ].join("\n"),
+      [COMPONENT]: [
+        // A pattern list named for classes: a pattern is text the app matches,
+        // so its literals describe a shape rather than building a class.
+        "const visualClassPatterns = [",
+        "  new RegExp(`^fixture-text-${families}-(?:50|100)$`),",
+        "  new RegExp(\"^fixture-bg-\" + families + \"$\"),",
+        "];",
+        // The same file does assemble a class, and that family stays live.
+        "const node = <span className={`fixture-tone--${tone}`} />;",
+      ].join("\n"),
+    });
+
+    expect(collectDeadSelectors(root).map((entry) => entry.selector).sort()).toEqual([
+      ".fixture-bg-badge",
+      ".fixture-text-muted",
+    ]);
+  });
+
+  it("accepts a class builder named for the classes it returns", () => {
+    const root = sandbox({
+      [THEME]: ".fixture-tier--danger { color: red; }\n.fixture-tier--quiet { color: gray; }",
+      [COMPONENT]: [
+        "function rowClassName(tier) {",
+        "  const value = tier.toLowerCase();",
+        "  return `fixture-row fixture-tier--${value}`;",
+        "}",
+      ].join("\n"),
+    });
+
+    expect(collectDeadSelectors(root)).toEqual([]);
+  });
+
+  it("reads the class word in a builder name, not its first letters", () => {
+    const root = sandbox({
+      [THEME]: [
+        ".fixture-mode--dark { color: red; }",
+        ".fixture-room-badge { color: blue; }",
+        ".fixture-classification-badge { color: orange; }",
+      ].join("\n"),
+      [COMPONENT]: [
+        "function classForMode(mode) {",
+        "  return `fixture-mode fixture-mode--${mode}`;",
+        "}",
+        "function buildClassroomIndex(rooms) {",
+        "  return rooms.map((room) => `fixture-room-${room.id}`);",
+        "}",
+        "const classify = (row) => `fixture-classification-${row.id}`;",
+      ].join("\n"),
+    });
+
+    // `classForMode` builds classes; `buildClassroomIndex` and `classify` only
+    // start with the letters, so their ids are still mentions.
+    expect(collectDeadSelectors(root).map((entry) => entry.selector).sort()).toEqual([
+      ".fixture-classification-badge",
+      ".fixture-room-badge",
     ]);
   });
 

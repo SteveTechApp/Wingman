@@ -17,34 +17,14 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+// One CSV reader for every lifecycle gate (see tools/lib/sku-lifecycle.mjs),
+// re-exported because this tool's tests drive the parser through it.
+import { parseLifecycleCsv } from "./lib/sku-lifecycle.mjs";
+
+export { parseLifecycleCsv };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-
-export function parseLifecycleCsv(text) {
-  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter(Boolean);
-  const header = lines[0].split(",").map((cell) => cell.trim().replace(/^"|"$/g, ""));
-  const rows = [];
-  for (const line of lines.slice(1)) {
-    const values = [];
-    let current = "";
-    let inQuotes = false;
-    for (const char of line) {
-      if (char === '"') inQuotes = !inQuotes;
-      else if (char === "," && !inQuotes) {
-        values.push(current);
-        current = "";
-      } else current += char;
-    }
-    values.push(current);
-    const row = {};
-    header.forEach((name, index) => {
-      row[name] = (values[index] ?? "").replace(/^"|"$/g, "").trim();
-    });
-    rows.push(row);
-  }
-  return rows;
-}
 
 export function normaliseSku(value) {
   return String(value || "")

@@ -7,24 +7,57 @@ import {
   projectDetailSections,
   projectSectionAnchor,
   projectSectionHref,
+  projectSectionsFrom,
 } from "./projectAnchors";
 import { WALL_SURVEY_REVIEW_ANCHOR, wallSurveyReviewRowAnchor } from "./wallSurveyReview";
 
 describe("project anchors", () => {
-  it("gives every section a panel of its own", () => {
+  it("derives the page's sections from the registry, one per section its panels name", () => {
+    // The navigator and `?view=` read this list, and it is the registry's own
+    // sections in the order their first panel names them — a section cannot be
+    // listed without a panel behind it.
+    expect(projectDetailSections.map((section) => section.id)).toEqual([
+      ...new Set(projectAnchors.map((anchor) => anchor.section)),
+    ]);
     for (const section of projectDetailSections) {
-      const anchor = projectSectionAnchor(section.id);
-      // A section with no anchor could be shown by `?view=` but never linked to.
-      expect(anchor, section.id).not.toBeNull();
-      expect(anchor?.section).toBe(section.id);
+      const opening = projectSectionAnchor(section.id);
+      expect(opening, section.id).not.toBeNull();
+      // The section's name and the panel that opens it are one entry, so they
+      // cannot disagree about either.
+      expect(section.label).toBe(opening?.sectionLabel ?? opening?.label);
     }
   });
 
-  it("names only sections the page shows", () => {
-    const sections = new Set(projectDetailSections.map((section) => section.id));
-    for (const anchor of projectAnchors) {
-      expect(sections.has(anchor.section), anchor.id).toBe(true);
-    }
+  it("names the sections the navigator lists", () => {
+    // The list is derived now, so the section names a rep reads are the
+    // registry's own words: this is where a rename has to land.
+    expect(projectDetailSections.map((section) => `${section.id}: ${section.label}`)).toEqual([
+      "overview: Overview",
+      "confirm: Requirements",
+      "products: Equipment",
+      "decide: Product fit",
+      "capture: Evidence",
+      "conversation: Answers",
+      "history: Saved work",
+      "handoff: Handoff",
+      "audit: Activity",
+    ]);
+  });
+
+  it("adds a section by adding its panel, with no second list to update", () => {
+    const sections = projectSectionsFrom([
+      { id: "one", section: "overview", label: "Current result", sectionLabel: "Overview" },
+      { id: "two", section: "confirm", label: "Requirements" },
+      // A second panel in a section is a panel, not another section.
+      { id: "three", section: "confirm", label: "Wall transport" },
+      { id: "four", section: "added", label: "A panel that arrived with its section" },
+    ]);
+
+    expect(sections).toEqual([
+      { id: "overview", label: "Overview" },
+      { id: "confirm", label: "Requirements" },
+      { id: "added", label: "A panel that arrived with its section" },
+    ]);
   });
 
   it("gives each panel one id", () => {

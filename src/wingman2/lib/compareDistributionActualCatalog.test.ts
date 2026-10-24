@@ -3,7 +3,7 @@ import fixture from "./__fixtures__/productIntelligenceIndexSample.json";
 import {
   mapRealCatalogEntryToCompareCandidate,
   type ProductIntelligenceIndexEntry,
-} from "../pages/ComparePageNew.advanced";
+} from "../pages/compare/compareProductTaxonomy";
 import { buildWyrestormCompareProfile } from "./wyrestormCompareProfile";
 import { resolveCompetitorSpecProfile } from "./competitorSpecRegistry";
 import { classifyCompetitorCompareDecision } from "./competitorCompareDecision";

@@ -45,7 +45,7 @@ export function VideowallWizard({
   decision,
   selected,
   message,
-  handoffLabel,
+  handoffNote,
   startAtResult,
   concerns,
   onConcerns,
@@ -67,7 +67,7 @@ export function VideowallWizard({
   decision: WallDecision;
   selected: WallOption | null;
   message: string;
-  handoffLabel: string | null;
+  handoffNote: string | null;
   startAtResult: boolean;
   concerns: string[];
   onConcerns: (keys: string[]) => void;
@@ -160,12 +160,6 @@ export function VideowallWizard({
           <Link to={routeCatalogByKey.discovery.path}>Back to Opportunities</Link>
         </div>
       </header>
-
-      {handoffLabel && step === 0 ? (
-        <p className="vw-builder-note" role="status">
-          Started from {handoffLabel}. The questions below start from that work — change anything that differs.
-        </p>
-      ) : null}
 
       {step > 0 ? (
         <ol className="vw-wizard-progress" aria-label="Wizard progress">
@@ -452,6 +446,9 @@ export function VideowallWizard({
 
       {atResult ? (
         <div className="vw-wizard-result" data-testid="videowall-wizard-result">
+          {handoffNote ? (
+            <p className="vw-builder-note" data-testid="videowall-handoff-origin">{handoffNote}</p>
+          ) : null}
           <section className="vw-wizard-card" aria-labelledby="vw-wizard-answers-title">
             <header>
               <h2 id="vw-wizard-answers-title">Your answers</h2>

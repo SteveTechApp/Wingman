@@ -518,6 +518,16 @@ export function logoutWingmanWorkspace() {
   return postWingmanJson<{ ok: boolean }>("/api/wingman/auth/logout", {});
 }
 
+/**
+ * Sign this browser into the local development workspace: a user and workspace
+ * in the API's own store, with a real session cookie, so project sync in dev
+ * reaches the server. A production process and a process writing a shared
+ * database both refuse it, so this is a development convenience only.
+ */
+export function openDevelopmentWorkspace() {
+  return postWingmanJson<WingmanSessionResponse>("/api/wingman/auth/dev-session", {});
+}
+
 export type TeamMember = {
   id: string;
   name: string;

@@ -1,4 +1,3 @@
-import { installWingmanLocalSessionFallback } from "./wingman2/utils/installWingmanLocalSessionFallback";
 /* Wingman Design System — layered cascade (tokens → reset → layout → components).
    The @xyflow stylesheet is owned by the lazy visual-canvas chunk
    (VisualStudioCanvas is its only consumer), so it must not be imported here:
@@ -34,6 +33,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { installCsrfFetch } from "./wingman2/api/csrf";
+import { restoreDevelopmentWorkspace } from "./wingman2/utils/devWorkspaceSession";
 import { installRuntimeTelemetry } from "./wingman2/lib/runtimeTelemetry";
 import { installFeatureAnalytics } from "./wingman2/lib/featureAnalytics";
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
@@ -55,8 +55,6 @@ if (!rootElement) {
 }
 
 
-installWingmanLocalSessionFallback();
-
 // Register service worker for offline caching of product data.
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
@@ -66,12 +64,21 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
   });
 }
 
-createRoot(rootElement).render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ErrorBoundary>
-  </React.StrictMode>,
-);
+// A development browser that chose the local workspace gets its session back
+// before the first project hydrate, so dev sync starts from the API rather than
+// falling back to local mode for the visit. In a production build this returns
+// immediately without touching the network.
+async function start(root: HTMLElement) {
+  await restoreDevelopmentWorkspace();
+  createRoot(root).render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ErrorBoundary>
+    </React.StrictMode>,
+  );
+}
+
+void start(rootElement);

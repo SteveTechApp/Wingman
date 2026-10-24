@@ -45,6 +45,9 @@ const css = read("Proposal wizard CSS", files.css);
 ].forEach((marker) => requireMarker("ProposalPage.tsx", page, marker));
 
 [
+  // The entry holds the state and renders the split view, so the steps it
+  // names are only on screen if the entry hands them to that view.
+  "ProposalCompletionWizardView",
   "Customer and project",
   "Requirements review",
   "Proposed solution",
@@ -63,6 +66,14 @@ const css = read("Proposal wizard CSS", files.css);
   "Export formatted DOCX",
   "Open Recommendations",
 ].forEach((marker) => requireMarker("ProposalCompletionWizardView.tsx", view, marker));
+// The step bodies moved into the view with the rest of the markup, so the
+// controls a rep leaves the wizard by are asserted where they render.
+[
+  "Export formatted DOCX",
+  "Open Recommendations",
+].forEach((marker) =>
+  requireMarker("ProposalCompletionWizardView.tsx", view, marker),
+);
 
 [
   "discoveryPercent",

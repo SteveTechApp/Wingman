@@ -4,7 +4,7 @@ import {
   normaliseCompareProducts,
   runCompareRuntimePipeline,
 } from "./compareRuntimePipeline";
-import { buildRealWyrestormCandidates } from "../pages/ComparePageNew.advanced";
+import { buildRealWyrestormCandidates } from "../pages/compare/compareProductTaxonomy";
 
 type AnyRecord = Record<string, any>;
 

@@ -3,10 +3,26 @@ import path from "node:path";
 
 const root = process.cwd();
 
-const filesToScan = [
-  "src/wingman2/pages/ComparePageNew.advanced.tsx",
-  "src/__tests__/compareWorkflowRendered.test.tsx"
+const pageEntry = "src/wingman2/pages/ComparePageNew.advanced.tsx";
+const compareModuleDir = "src/wingman2/pages/compare";
+
+// The compare page is emptied into `pages/compare/` one rule at a time, so the
+// copy this gate is about moves with it. Scan the page plus every non-test
+// module it renders from; scanning only the page entry would pass a check whose
+// sentence merely changed file, and scanning only the modules would miss the
+// copy the page still owns.
+const compareSurfaceFiles = [
+  pageEntry,
+  ...(fs.existsSync(path.join(root, compareModuleDir))
+    ? fs
+        .readdirSync(path.join(root, compareModuleDir))
+        .filter((name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name))
+        .sort()
+        .map((name) => `${compareModuleDir}/${name}`)
+    : []),
 ];
+
+const filesToScan = [...compareSurfaceFiles, "src/__tests__/compareWorkflowRendered.test.tsx"];
 
 const bannedGenericClaims = [
   "local HDMI or USB-C source",
@@ -42,20 +58,29 @@ for (const relativeFile of filesToScan) {
   }
 }
 
-const compareText = fs.readFileSync(path.join(root, "src/wingman2/pages/ComparePageNew.advanced.tsx"), "utf8");
+const compareText = compareSurfaceFiles
+  .filter((relativeFile) => fs.existsSync(path.join(root, relativeFile)))
+  .map((relativeFile) => fs.readFileSync(path.join(root, relativeFile), "utf8"))
+  .join("\n");
 
 for (const phrase of requiredSafePhrases) {
   if (!compareText.includes(phrase)) {
-    failures.push(`ComparePageNew.tsx should use safe wording such as "${phrase}" when connector evidence is not proven.`);
+    failures.push(`The compare surface should use safe wording such as "${phrase}" when connector evidence is not proven.`);
   }
 }
 
-if (/KDS-EN6[\s\S]{0,500}USB-C/i.test(compareText)) {
-  failures.push("KDS-EN6 appears near USB-C in ComparePageNew.tsx. Do not mention USB-C for KDS-EN6 unless verified by source data.");
-}
+for (const relativeFile of compareSurfaceFiles) {
+  const fullPath = path.join(root, relativeFile);
+  if (!fs.existsSync(fullPath)) continue;
+  const text = fs.readFileSync(fullPath, "utf8");
 
-if (/USB-C[\s\S]{0,500}KDS-EN6/i.test(compareText)) {
-  failures.push("USB-C appears near KDS-EN6 in ComparePageNew.tsx. Do not mention USB-C for KDS-EN6 unless verified by source data.");
+  if (/KDS-EN6[\s\S]{0,500}USB-C/i.test(text)) {
+    failures.push(`${relativeFile}: KDS-EN6 appears near USB-C. Do not mention USB-C for KDS-EN6 unless verified by source data.`);
+  }
+
+  if (/USB-C[\s\S]{0,500}KDS-EN6/i.test(text)) {
+    failures.push(`${relativeFile}: USB-C appears near KDS-EN6. Do not mention USB-C for KDS-EN6 unless verified by source data.`);
+  }
 }
 
 if (failures.length > 0) {

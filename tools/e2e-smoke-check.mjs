@@ -18,6 +18,14 @@
  *      files are read back and content-asserted (a real <a download> blob
  *      through the browser, not an API mock).
  *
+ * The run also asks the dev-pair sync question (`check-dev-pair-sync.mjs`) while
+ * the pair is still up: it signs in to the local dev workspace once with no
+ * local projects and once over the starter examples the page seeds. That second
+ * pass is the one a fresh workspace cannot show — demo data the browser only
+ * ever held as sample text has to take the workspace copy rather than be
+ * reported as a team member's change — so the regression is gated here instead
+ * of waiting for a developer to notice it.
+ *
  * Repeatable by design: every server uses an env-overridable port and a throwaway
  * data dir, and the whole run tears itself down (servers killed, dir removed)
  * whether it passes or fails. On failure the server logs are preserved so the
@@ -33,6 +41,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkDevPairHealth } from "./check-dev-pair-health.mjs";
+import { checkDevPairSync } from "./check-dev-pair-sync.mjs";
 import { runBrowserSmokeSession } from "./lib/browser-smoke-session.mjs";
 import { chromium } from "@playwright/test";
 
@@ -164,11 +173,10 @@ async function signInViaSettings(page) {
   const workspaceSection = page.locator('section[aria-labelledby="wingman-settings-workspace"]');
   await workspaceSection.waitFor({ state: "visible", timeout: 15_000 });
 
-  // The Vite dev server installs a local-session fallback that answers the
-  // session endpoint with a synthetic "Local Wingman Admin" (DEV + loopback
-  // only, src/wingman2/utils/installWingmanLocalSessionFallback.ts). The
-  // Profile page therefore opens already "signed in" - sign that session out
-  // first so the real Email/Password form is revealed and exercised.
+  // A session left behind by an earlier run (or by the developer's own sign-in)
+  // hides the form, so sign it out first and let this run's credentials be the
+  // ones exercised. The dev server issues no session of its own: the endpoint
+  // is the real API's, proxied.
   const signOutButton = workspaceSection.getByTestId("workspace-sign-out");
   if (await signOutButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
     await signOutButton.click();
@@ -437,6 +445,15 @@ async function main() {
       ...process.env,
       WINGMAN_UI_PORT: String(UI_PORT),
       VITE_WINGMAN_LOCAL_BACKEND_PORT: String(API_PORT),
+      // The dev-pair check below reads the Projects chip after signing in to the
+      // local workspace, and that chip can only report the backend when project
+      // sync is on. `npm run dev` gets this from the developer's own `.env`,
+      // which a CI checkout does not have, so the pair this harness boots is a
+      // sync-disabled one unless the flag is passed here: the smoke run then
+      // fails on a workspace it never enabled. `.env.example` ships the flag as
+      // true, so this makes the booted pair match the documented dev default
+      // rather than turning on something the app does not normally do.
+      VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC: "true",
     },
     stdio: ["ignore", uiLogFd, uiLogFd],
     windowsHide: true,
@@ -454,8 +471,17 @@ async function main() {
   });
   await runBrowserSmokeSession({ browser, dataDir, signIn: signInViaSettings, walkDiscovery, runCompare });
 
+  // The starter-example merge runs on this pair so the gate costs no second
+  // server boot: the check opens its own contexts and signs in as the local dev
+  // workspace, which the workspace account above never touches.
+  const { emptyScope, seededScope } = await checkDevPairSync({ uiBase: UI_BASE, apiBase: API_BASE });
+
   console.log(
     "[e2e-smoke] Settings sign-in, discovery project save, compare history save, HTML+CSV export blobs, and the 413 contract all verified end to end.",
+  );
+  console.log(
+    `[e2e-smoke] Dev-pair sync verified: the Projects chip reported the workspace backend with no local projects and over ` +
+    `${seededScope.samples} seeded starter examples, never a conflict ("${emptyScope.chip.text}").`,
   );
 }
 

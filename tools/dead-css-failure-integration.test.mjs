@@ -1,9 +1,15 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync, spawnSync } from "node:child_process";
+import { runTool, runToolBare } from "./test-spawn-guard.mjs";
 import { afterEach, expect, it } from "vitest";
 import YAML from "js-yaml";
+
+// Each temporary repository must stay independent of the parent commit hook.
+const fixtureEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)));
+function runCommand(command, args, options) {
+  return runTool(command, args, "dead-css-failure-integration", { ...options, env: fixtureEnv });
+}
 
 const roots = [];
 const sourceRoot = process.cwd();
@@ -23,21 +29,21 @@ function fixture() {
     "check:dead-css": "node tools/check-wingman-dead-css-baseline.mjs",
     "precommit:check": "node -e \"throw new Error('Later checks must not run')\"",
   } }));
-  execFileSync("git", ["init", "-q"], { cwd: root, stdio: "pipe" });
+  runCommand("git", ["init", "-q"], { cwd: root, stdio: "pipe" });
   return root;
 }
 
 it("the actual precommit hook blocks new dead rules and prints an applicable proposal", () => {
   const root = fixture();
   const bash = process.platform === "win32" ? path.join(process.env.ProgramFiles || "C:/Program Files", "Git/bin/bash.exe") : "bash";
-  const run = spawnSync(bash, [".githooks/pre-commit"], { cwd: root, encoding: "utf8", timeout: 20000 });
+  const run = runToolBare(bash, [".githooks/pre-commit"], "dead-css-failure-integration", { cwd: root, encoding: "utf8", timeout: 20000, env: fixtureEnv });
   expect(run.error).toBeUndefined();
   expect(run.status, run.stderr).toBe(1);
   expect(run.stdout).toContain("Commit blocked (dead CSS gate failed)");
   expect(run.stdout).toContain("-.fixture-obsolete { color: red; }");
   expect(run.stdout).not.toContain("Later checks must not run");
   expect(fs.readFileSync(path.join(root, "src/wingman2/theme.css"), "utf8")).toContain(".fixture-obsolete");
-  execFileSync("git", ["apply", "--check", "reports/dead-css-proposal.diff"], { cwd: root, stdio: "pipe" });
+  runCommand("git", ["apply", "--check", "reports/dead-css-proposal.diff"], { cwd: root, stdio: "pipe" });
 }, 30000);
 
 it("the CI failure artifact paths resolve to files produced by its real command", () => {
@@ -52,7 +58,7 @@ it("the CI failure artifact paths resolve to files produced by its real command"
   expect(upload.uses).toMatch(/^actions\/upload-artifact@/);
   const [command, ...args] = generate.run.split(" ");
   expect(command).toBe("node");
-  execFileSync(process.execPath, args, { cwd: root, stdio: "pipe" });
+  runCommand(process.execPath, args, { cwd: root, stdio: "pipe" });
   for (const file of upload.with.path.trim().split(/\r?\n/)) expect(fs.statSync(path.join(root, file.trim())).size).toBeGreaterThan(0);
-  execFileSync("git", ["apply", "--check", "reports/dead-css-proposal.diff"], { cwd: root, stdio: "pipe" });
+  runCommand("git", ["apply", "--check", "reports/dead-css-proposal.diff"], { cwd: root, stdio: "pipe" });
 });

@@ -1,5 +1,9 @@
+import { Link } from "react-router-dom";
+import { wallResumeUrl } from "../../lib/wallResume";
 import type { StoredProject } from "../../features/projects";
 import { wallSurveyRows } from "../../lib/wallSurvey";
+import { wallDraftStatus } from "../../lib/wallDraftStatus";
+import { storedVideowallDraft } from "../../lib/videowallDraft";
 import { WALL_TRANSPORT_REVIEW_ANCHOR, wallTransportReviewRowAnchor } from "../../lib/wallTransportReview";
 import { wallRequirementsFromSummary } from "../../lib/videowallOptions";
 import {
@@ -29,6 +33,13 @@ const GROUPS = [
  * on it instead of the table it sits in. The page hides the panel for a wall
  * with no costable links, the same way the transport estimate itself needs
  * answers to quote anything.
+ *
+ * It also says when this browser's builder holds work newer than the saved
+ * wall, using the builder's own line: reading the record is where a rep would
+ * otherwise assume the record is everything there is. That line leads into the
+ * builder, because the rep reading it is the rep who can save the work — and the
+ * link names this project, so it reopens this wall rather than whichever draft
+ * in this browser happens to be newer.
  */
 export function WallTransportReview({ project }: { project: StoredProject }) {
   const requirements = wallTransportRequirements(wallRequirementsFromSummary(project.videowall ?? null));
@@ -39,6 +50,16 @@ export function WallTransportReview({ project }: { project: StoredProject }) {
   // adjusted wall from the card the customer was shown.
   const drift = wallStartingPointDrift(wallStartingPointFromSummary(project.videowall?.summary), requirements);
   const rows = wallSurveyRows(plan, requirements.linkDetails);
+  // Read here rather than passed down: the panel is the surface that shows the
+  // saved wall, and this browser's draft is only about this project when the
+  // draft says so. Both are read on mount, which is when the page opens.
+  const draft = storedVideowallDraft();
+  const draftStatus = wallDraftStatus({
+    draftSavedAt: draft?.updatedAt ?? null,
+    draftProjectId: draft?.projectId ?? null,
+    projectSavedAt: project.videowall?.savedAt ?? null,
+    projectId: project.id,
+  });
 
   return (
     <ProjectPanel
@@ -48,6 +69,16 @@ export function WallTransportReview({ project }: { project: StoredProject }) {
       subtitle="Every physical link in the saved wall, with the allowance the design assumed, the limit the cable has to stay under, the run recorded on site and the install detail that belongs to it."
     >
       <div data-testid="wall-transport-review">
+        {draftStatus ? (
+          <p
+            className="text-sm leading-6 wm-ui-copy"
+            data-testid="wall-transport-draft-status"
+            data-draft-status={draftStatus.state}
+          >
+            {draftStatus.text}{" "}
+            <Link to={wallResumeUrl(project.id)} data-testid="wall-transport-draft-link">Continue in the wall builder</Link>
+          </p>
+        ) : null}
         {drift ? (
           <section className="mb-3" aria-label="Where this wall started" data-testid="wall-starting-point">
             <p className="text-sm leading-6 wm-ui-copy" data-wall-starting-point={drift.card.key}>

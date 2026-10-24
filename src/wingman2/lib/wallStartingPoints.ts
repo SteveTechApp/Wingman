@@ -71,11 +71,22 @@ export function wallStartingPointName(requirements: WallRequirements): string {
 }
 
 /**
+ * The brief as one stable string, so two walls can be compared as the same
+ * brief. Key order in the two objects is not the brief's business: a stored
+ * design and a decoded link carry the same answers in whatever order their
+ * objects were built, and a comparison that read that order would call one wall
+ * two.
+ */
+export function wallBriefSignature(requirements: WallRequirements): string {
+  return stable(wallStartingPointBrief(requirements));
+}
+
+/**
  * A stable key for a brief, so the same wall cannot be saved twice and a card
  * keeps its id across reloads.
  */
 export function wallStartingPointKey(requirements: WallRequirements): string {
-  const text = stable(wallStartingPointBrief(requirements));
+  const text = wallBriefSignature(requirements);
   let hash = 0x811c9dc5;
   for (let index = 0; index < text.length; index += 1) {
     hash ^= text.charCodeAt(index);
