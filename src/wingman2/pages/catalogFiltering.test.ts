@@ -1,12 +1,37 @@
 import { describe, expect, it } from "vitest";
 import index from "../../../public/product-intelligence-summary.json";
 import { applyCatalogOverrides, buildFacetIndex, createDefaultCatalogFilterState, filterCatalogProducts } from "../../features/catalog/catalogIntelligence";
+import { applyRuntimeAdminRecords } from "../lib/productIntelligenceIndexCache";
 
 const catalog = applyCatalogOverrides(index.products);
 const state = { ...createDefaultCatalogFilterState(), includeAccessories: true, excludeEolSoon: false };
 const skus = (patch: Partial<typeof state>) => filterCatalogProducts(catalog, { ...state, ...patch }).map((p) => p.sku);
 
 describe("catalogue filter accuracy", () => {
+  it("keeps family references out when live records replace their descriptions", () => {
+    const products = [
+      { sku: "SW-130-TX", summary: "Family reference, not an orderable SKU" },
+      { sku: "SW-130-TX-UK", name: "3-input presentation switcher" },
+      { sku: "SW-130-TX-US", name: "3-input presentation switcher" },
+      { sku: "EXP-SW-0201-8K", name: "2-input HDMI switcher" },
+      { sku: "EXP-SW-0401-8K", name: "4-input HDMI switcher" },
+    ];
+    const merged = applyRuntimeAdminRecords({ products }, [
+      { sku: "SW-130-TX", summary: "3-input presentation switcher", status: "approved" },
+      { sku: "SW-0X01-8K", name: "8K HDMI switcher", status: "approved" },
+      { sku: "EXP-SW-0X01-8K", name: "8K HDMI switcher", status: "approved" },
+    ]);
+    const entries = applyCatalogOverrides(Array.isArray(merged) ? merged : merged.products);
+    for (const matchMode of ["find", "filter"] as const) {
+      const results = filterCatalogProducts(entries, { ...state, matchMode, families: ["Presentation Switching"] });
+      expect(results.map((product) => product.sku).sort()).toEqual([
+        "EXP-SW-0201-8K", "EXP-SW-0401-8K", "SW-130-TX-UK", "SW-130-TX-US",
+      ]);
+      expect(filterCatalogProducts(entries, { ...state, matchMode, search: "SW-130-TX" })
+        .map((product) => product.sku)).toEqual(["SW-130-TX-UK", "SW-130-TX-US"]);
+    }
+  });
+
   it("finds exact SKUs with spaces or punctuation without returning compatible hosts", () => {
     for (const search of ["APO-DG2", "apo dg2", "APODG2"]) {
       expect(skus({ search })).toEqual(["APO-DG2"]);
