@@ -29,6 +29,12 @@ import path from "node:path";
  * `vw-*` rule, and `compare-`, `wingman-`, `product-` and `project-` were kept
  * alive the same way by ids and filenames. Third-party runtimes inject their
  * own class names, so their known prefixes are always kept.
+ *
+ * A `new RegExp(\`…\`)` template is a mention however it is named: a pattern
+ * describes text the app matches (`^text-${families}-\d+$`), so a tool whose
+ * pattern list is called `visualClassPatterns` builds no class with it. Without
+ * that rule the Tailwind families counted as assembled at runtime, and every
+ * selector starting `text-`, `bg-` or `border-` looked live.
  */
 
 const corpusExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".html", ".json"]);
@@ -222,6 +228,86 @@ function classExpressionEnd(text, start) {
 }
 
 /**
+ * Index just past the string or template literal opening at `start`.
+ *
+ * A template's `${…}` is scanned as the expression it is, so a pattern built
+ * from nested calls still ends at its own closing backtick rather than at the
+ * first one inside an interpolation.
+ */
+function literalEnd(text, start) {
+  const quote = text[start];
+  let cursor = start + 1;
+  while (cursor < text.length) {
+    const char = text[cursor];
+    if (char === "\\") {
+      cursor += 2;
+      continue;
+    }
+    if (quote === "`" && char === "$" && text[cursor + 1] === "{") {
+      cursor = bracketEnd(text, cursor + 1) + 1;
+      continue;
+    }
+    if (char === quote) return cursor + 1;
+    cursor += 1;
+  }
+  return text.length;
+}
+
+const closingBracket = { "(": ")", "{": "}", "[": "]" };
+
+/**
+ * Index of the bracket closing the one at `open`, or the end of the text when
+ * nothing closes it. Strings, templates and comments are skipped, so a brace in
+ * a message cannot end an argument list early.
+ */
+function bracketEnd(text, open) {
+  const opener = text[open];
+  const closer = closingBracket[opener];
+  if (!closer) return open;
+  let depth = 0;
+  let cursor = open;
+  while (cursor < text.length) {
+    const char = text[cursor];
+    if (char === '"' || char === "'" || char === "`") {
+      cursor = literalEnd(text, cursor);
+      continue;
+    }
+    if (char === "/" && text[cursor + 1] === "/") {
+      const lineEnd = text.indexOf("\n", cursor);
+      cursor = lineEnd === -1 ? text.length : lineEnd;
+      continue;
+    }
+    if (char === "/" && text[cursor + 1] === "*") {
+      const commentEnd = text.indexOf("*/", cursor + 2);
+      cursor = commentEnd === -1 ? text.length : commentEnd + 2;
+      continue;
+    }
+    if (char === opener) depth += 1;
+    else if (char === closer) {
+      depth -= 1;
+      if (depth === 0) return cursor;
+    }
+    cursor += 1;
+  }
+  return text.length;
+}
+
+/**
+ * Spans of `RegExp(…)` / `new RegExp(…)` argument lists.
+ *
+ * A pattern is not a class, so no literal inside one is assembly evidence —
+ * even in a file whose own names read as class builders.
+ */
+function regExpArgumentRanges(text) {
+  const ranges = [];
+  for (const match of text.matchAll(/(?<![\w$])RegExp\s*\(/g)) {
+    const open = match.index + match[0].length - 1;
+    ranges.push([open, bracketEnd(text, open)]);
+  }
+  return ranges;
+}
+
+/**
  * Literal prefix fragments a source file uses to assemble a class name.
  *
  * Evidence comes only from a class-bearing position: inside `className=` /
@@ -235,7 +321,13 @@ function classExpressionEnd(text, start) {
  * one such mention used to keep an entire stylesheet alive.
  */
 export function collectDynamicFragments(text, fragments, onFragment) {
+  // A pattern describes the text the app matches, so nothing inside one builds a
+  // class — see the header. Checked here rather than per call site, because
+  // every way of writing a fragment passes through `add`.
+  const patternRanges = regExpArgumentRanges(text);
+  const inPattern = (at) => patternRanges.some(([from, to]) => at >= from && at <= to);
   const add = (fragment, at) => {
+    if (inPattern(at)) return;
     if (fragment.length < MIN_DYNAMIC_FRAGMENT || !fragment.endsWith("-")) return;
     fragments.add(fragment);
     onFragment?.(fragment, at);
@@ -380,6 +472,23 @@ export function parseRules(css) {
 }
 
 /**
+ * The literal fragment that keeps a class token alive at runtime, or null.
+ *
+ * A token survives without being written literally when one of its hyphen
+ * prefixes is a fragment source assembles in a class-bearing position. That is
+ * the second half of "live", and it lives here so the gate and the triage
+ * report's exemption list cannot name different keepers for the same class.
+ */
+export function assembledFragmentFor(token, dynamicFragments) {
+  for (let index = 0; index < token.length; index += 1) {
+    if (token[index] !== "-") continue;
+    const fragment = token.slice(0, index + 1);
+    if (fragment.length >= MIN_DYNAMIC_FRAGMENT && dynamicFragments.has(fragment)) return fragment;
+  }
+  return null;
+}
+
+/**
  * Detection predicates sharing one vocabulary scan.
  *
  * - `isDeadSelector`: the whole rule can never match (every comma branch dead).
@@ -392,14 +501,9 @@ export function createDeadSelectorTests(root, options = {}) {
   const literalCache = new Map();
   function maybeDynamic(token) {
     if (literalCache.has(token)) return literalCache.get(token);
-    let dynamic = libraryClass.test(token) || vocabulary.has(token);
-    if (!dynamic) {
-      for (let i = 0; i < token.length && !dynamic; i += 1) {
-        if (token[i] !== "-") continue;
-        const fragment = token.slice(0, i + 1);
-        if (fragment.length >= MIN_DYNAMIC_FRAGMENT && dynamicFragments.has(fragment)) dynamic = true;
-      }
-    }
+    const dynamic = libraryClass.test(token)
+      || vocabulary.has(token)
+      || assembledFragmentFor(token, dynamicFragments) !== null;
     literalCache.set(token, dynamic);
     return dynamic;
   }
@@ -419,7 +523,10 @@ export function createDeadSelectorTests(root, options = {}) {
     unusedClasses: [...new Set(selectorCompounds(branch)
       .filter((compound) => !liveCompound(compound)).flatMap(compoundClassTokens))],
   }));
-  return { isDeadSelector, isDeadBranch, deadClassEvidence };
+  // The vocabulary and fragments come back with the predicates so the triage
+  // report can ask the inverse question — which live class survives only
+  // because source assembles its prefix — without a second corpus scan.
+  return { isDeadSelector, isDeadBranch, deadClassEvidence, vocabulary, dynamicFragments };
 }
 
 /** Predicate: true when the selector can never match. */

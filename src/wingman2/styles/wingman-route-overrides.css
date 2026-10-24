@@ -1905,17 +1905,11 @@ main[data-wingman-page="product-call-cards"] .wm-page-hero h1 {
   line-height: 1.05;
 }
 
-html[data-wingman-route="glossary"] .wm-glossary-page .bg-slate-900,
-html[data-wingman-route="glossary"] .wm-glossary-page .bg-slate-950,
-html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-900"],
-html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-950"] {
+html[data-wingman-route="glossary"] .wm-glossary-page .bg-slate-900, html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-900"], html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-950"] {
   color: var(--wm-consistency-text);
 }
 
-html[data-wingman-route="glossary"] .wm-glossary-page .bg-slate-900 *,
-html[data-wingman-route="glossary"] .wm-glossary-page .bg-slate-950 *,
-html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-900"] *,
-html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-950"] * {
+html[data-wingman-route="glossary"] .wm-glossary-page .bg-slate-900 *, html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-900"] *, html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-950"] * {
   color: inherit;
 }
 

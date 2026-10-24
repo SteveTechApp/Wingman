@@ -149,6 +149,96 @@ describe("dead CSS triage evidence", () => {
   });
 });
 
+describe("dead CSS triage exemptions", () => {
+  it("lists the live class an assembled prefix supplies, and the rule only it keeps", () => {
+    const root = sandbox({
+      [THEME]: ".fixture-status--ok { color: green; }\n",
+      [COMPONENT]: "const node = <span className={`fixture-status fixture-status--${tone}`} />;\n",
+    });
+
+    const triage = buildDeadCssTriage({ root });
+    const exemption = triage.exemptions.find((entry) => entry.fragment === "fixture-status--");
+
+    // The inverse of a dead family: the class is live, and the exemption is the
+    // only evidence for it, so a reader checks the builder rather than the rule.
+    expect(exemption.verdict).toBe("keeps");
+    expect(exemption.classes).toEqual(["fixture-status--ok"]);
+    expect(exemption.selectors.map((entry) => entry.selector)).toEqual([".fixture-status--ok"]);
+    expect(exemption.evidence).toEqual([{ file: COMPONENT, line: 1, text: "const node = <span className={`fixture-status fixture-status--${tone}`} />;", count: 1 }]);
+    expect(triage.totals).toMatchObject({ exemptions: 1, exemptedSelectors: 1, exemptedClasses: 1, unusedExemptions: 0 });
+  });
+
+  it("does not credit a fragment for a rule a literal class already keeps", () => {
+    const root = sandbox({
+      [THEME]: ".fixture-live .fixture-status--ok { color: green; }\n",
+      [COMPONENT]: [
+        "const cls = \"fixture-live\";",
+        "const node = <span className={`fixture-live fixture-status--${tone}`} />;",
+      ].join("\n"),
+    });
+
+    const exemption = buildDeadCssTriage({ root }).exemptions.find((entry) => entry.fragment === "fixture-status--");
+
+    // The class still survives only on assembly, but removing the builder would
+    // not make this rule dead, so the exemption is not blamed for it.
+    expect(exemption.classes).toEqual(["fixture-status--ok"]);
+    expect(exemption.selectors).toEqual([]);
+    expect(renderDeadCssTriageMarkdown(buildDeadCssTriage({ root }))).toContain("no selector depends on it alone");
+  });
+
+  it("reports a fragment that keeps nothing, so an over-broad exemption is visible", () => {
+    const root = sandbox({
+      [THEME]: ".fixture-live { color: red; }\n",
+      [COMPONENT]: [
+        "const cls = \"fixture-live\";",
+        "const node = <span className={`fixture-gone-${tone}`} />;",
+      ].join("\n"),
+    });
+
+    const triage = buildDeadCssTriage({ root });
+    const exemption = triage.exemptions.find((entry) => entry.fragment === "fixture-gone-");
+
+    // No rule needs it, so the exemption buys nothing and is the one to tighten.
+    expect(exemption.verdict).toBe("unused");
+    expect(exemption.classes).toEqual([]);
+    expect(triage.totals).toMatchObject({ selectors: 0, exemptions: 1, unusedExemptions: 1 });
+    // The list is the report's other half, so a clean tree still prints it.
+    const markdown = renderDeadCssTriageMarkdown(triage);
+    expect(markdown).toContain("No unmatchable selectors");
+    expect(markdown).toContain("## Live exemptions");
+    expect(markdown).toContain("wider than the app asks for");
+  });
+
+  it("leaves a class source also writes literally out of the list", () => {
+    const root = sandbox({
+      [THEME]: ".fixture-status--ok { color: green; }\n",
+      [COMPONENT]: [
+        "const literal = \"fixture-status--ok\";",
+        "const node = <span className={`fixture-status--${tone}`} />;",
+      ].join("\n"),
+    });
+
+    const triage = buildDeadCssTriage({ root });
+    const exemption = triage.exemptions.find((entry) => entry.fragment === "fixture-status--");
+
+    // The class is live on its own words, so the fragment is not its keeper.
+    expect(exemption.verdict).toBe("unused");
+    expect(triage.totals.exemptedClasses).toBe(0);
+  });
+
+  it("names each exemption in the console summary", () => {
+    const root = sandbox({
+      [THEME]: ".fixture-status--ok { color: green; }\n",
+      [COMPONENT]: "const node = <span className={`fixture-status--${tone}`} />;\n",
+    });
+
+    const lines = [];
+    expect(runDeadCssTriage({ root, log: (line) => lines.push(line) })).toBe(0);
+
+    expect(lines.join("\n")).toContain("fixture-status-- — 1 class, 1 selector kept by assembly, built in 1 place");
+  });
+});
+
 describe("dead CSS triage report", () => {
   it("writes the readable and machine-readable reports without gating", () => {
     const root = sandbox({
