@@ -181,6 +181,18 @@ from the code or docs are not repeated here.
   discontinued, do-not-spec or admin-blocked SKU, or one a current product
   replaced, blocks the export, while a cable or an unlisted line is not a
   lifecycle failure.
+- `check:fixture-sku-lifecycle` (in `verify:contract`) asks the lifecycle
+  question about the fixtures proposals are tested against: an equipment line is
+  an object literal carrying a `sku` plus `qty`, `quantity`, `description` or
+  `role`, in a `*.test.*`/`*.spec.*` file or under a `fixtures` directory, and a
+  discontinued or do-not-spec SKU in one fails. A bare mention is not a line —
+  naming a retired SKU to prove the app rejects or remaps it is what those tests
+  are for. Statuses resolve through `tools/lib/sku-lifecycle.mjs`, shared with
+  `check:template-sku-lifecycle` and `check:lifecycle-successor-refs` so a
+  `review` placeholder read through its active `-V2` form does not block; a
+  fixture that exists to prove retirement behaviour is recorded with its reason
+  in `tools/wingman-fixture-sku-allowlist.json`, and the gate fails an entry the
+  fixture no longer needs, so the list only ratchets down.
 - `check:unstyled-classes` is the inverse of `check:dead-css`: a class name in
   markup that no stylesheet answers fails unless it is in
   `tools/wingman-unstyled-classes-baseline.json`. `<style>` blocks inside export

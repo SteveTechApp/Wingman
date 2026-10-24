@@ -34,6 +34,7 @@ ratchet-style gates share the exception discipline recorded in
 | `check:export-validation-domains` | `verify:contract` | a registered export-validation domain (`EXPORT_VALIDATION_DOMAINS` in `proposalExportValidation.ts`) that no test proves by reading `.domain` off an entry the check produced, a check whose domain is not registered, a registered domain no check produces, or an allowance entry a test has since covered | add the test (preferred); a domain that genuinely cannot be proven yet is recorded with its reason in `tools/wingman-export-validation-domains.json`, and the gate refuses that entry once a test covers it |
 | `check:proposal-wizard` | `verify:contract` | a marker the proposal wizard's contract depends on missing from the file that must hold it: the five step names the entry hands to its split view, `computeProposalReadiness` and the project save the entry calls, the `Export formatted DOCX` / `Open Recommendations` exits, the rep/customer copy split in `proposalCopy.ts`, `CUSTOMER_COPY` in both export builders (with no `REP_COPY` reference or `[complete]`-style authoring prompt reaching them), the DOCX section markers, or the wizard's CSS hooks | none — a failure means the control moved, was renamed or was dropped, so move its assertion to the file that now renders it (the marker lists are per file, and moving a control between the entry and its view means moving its marker with it); the DOCX and CSS markers stay where they are |
 | `check:audit-scopes` | `verify:contract` | an audit entry written with a `scope` that `AuditLogPanel`'s `AUDIT_SCOPES` does not list with a label and icon — a trail type that would print its raw stored key | add the scope to `AUDIT_SCOPES` and `SCOPE_CONFIG` in `src/wingman2/components/AuditLogPanel.tsx` (the typecheck asks for both); there is no allowance file |
+| `check:fixture-sku-lifecycle` | `verify:contract` | a test fixture or sample BOM quoting a discontinued or do-not-spec SKU as then-current equipment (a `sku` inside an object literal that also carries `qty`, `quantity`, `description` or `role`) | replace it with the active successor; an entry in `tools/wingman-fixture-sku-allowlist.json` covers a fixture that exists to prove retirement behaviour, and the gate fails an entry whose row no longer quotes that SKU |
 
 Everything below expands the non-obvious rows a dependency or data edit will
 actually hit. "None" under exception path means the fix is to make the data
@@ -60,6 +61,28 @@ reference guards are:
 All three are hard rules with **no exception mechanism**: the fix is editing
 the CSV/prose so the reference resolves to an active product, then running
 `npm run data:sources:build` to regenerate the canonical outputs and manifest.
+
+## Fixture lifecycle gate (what a test may quote as equipment)
+
+`npm run check:fixture-sku-lifecycle` asks the same lifecycle question about the
+test fixtures and sample BOMs that the template gate asks about customer-facing
+room templates. An equipment line is an object literal carrying a `sku` and at
+least one equipment field (`qty`, `quantity`, `description`, `role`) in any file
+under `src/`, `e2e/` or `server/` that is a `*.test.*`/`*.spec.*` file or lives
+under a `fixtures` directory. A bare mention such as
+`expect(sku).toBe("SYN-TOUCH10")` is not a line: naming a retired SKU to prove
+the app rejects or remaps it is what those tests are for.
+
+Statuses resolve through `tools/lib/sku-lifecycle.mjs` (shared with
+`check-template-sku-lifecycle` and `check-lifecycle-successor-refs`), so a
+fixture quoting a `review` placeholder that the app serves through its `-V2`
+form is judged by the active row rather than blocked.
+
+`tools/wingman-fixture-sku-allowlist.json` is the only exception path, and it is
+for retirement coverage: a fixture whose subject is the retirement itself (a
+selector that must drop the old panel, an export gate that must block a dead
+SKU). Each entry names the file, the SKU and the behaviour it proves, and the
+gate fails any entry the fixture no longer needs, so the list only shrinks.
 
 ## Generated-manifest drift gates
 

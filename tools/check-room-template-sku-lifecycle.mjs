@@ -21,10 +21,13 @@
 // while keeping the existing debt visible on every run instead of silent.
 // Remove entries as they are resolved; never add to it to make a build pass.
 
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadPublishedTemplates } from "./check-template-realism.mjs";
+// The alias-aware status rule lives in one place, shared with the fixture gate:
+// a private copy here is how the two would come to disagree about "review"
+// placeholder rows that resolve to an active `-V2` form.
+import { loadLifecycleRows, resolveSkuStatus } from "./lib/sku-lifecycle.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -32,47 +35,7 @@ const KNOWN_OUTSTANDING = new Map([]);
 
 const ACCEPTABLE = new Set(["active"]);
 
-function loadLifecycle() {
-  const raw = readFileSync(path.join(projectRoot, "data-sources", "wyrestorm", "lifecycle.csv"), "utf8");
-  const lines = raw.split(/\r?\n/).filter(Boolean);
-  const header = lines[0].split(",").map((h) => h.trim());
-  const rows = new Map();
-
-  for (const line of lines.slice(1)) {
-    const cells = [];
-    let current = "";
-    let quoted = false;
-    for (const char of line) {
-      if (char === '"') quoted = !quoted;
-      else if (char === "," && !quoted) { cells.push(current); current = ""; }
-      else current += char;
-    }
-    cells.push(current);
-    const row = Object.fromEntries(header.map((h, i) => [h, (cells[i] ?? "").trim()]));
-    if (row.sku) rows.set(row.sku.toUpperCase(), row);
-  }
-  return rows;
-}
-
-// Mirrors wyrestormSkuBusinessStatus.ts: a non-definitive "review" placeholder
-// row must fall through to the canonical alias rather than block.
-const DEFINITIVE = new Set(["active", "discontinued", "do-not-spec", "cable"]);
-
-function resolveStatus(sku, lifecycle) {
-  const key = sku.toUpperCase();
-  const direct = lifecycle.get(key);
-  if (direct && DEFINITIVE.has(String(direct.lifecycle_status).toLowerCase())) {
-    return String(direct.lifecycle_status).toLowerCase();
-  }
-  const canonical = lifecycle.get(`${key}-V2`);
-  if (canonical && DEFINITIVE.has(String(canonical.lifecycle_status).toLowerCase())) {
-    return String(canonical.lifecycle_status).toLowerCase();
-  }
-  if (direct) return String(direct.lifecycle_status).toLowerCase();
-  return "unlisted";
-}
-
-const lifecycle = loadLifecycle();
+const lifecycle = loadLifecycleRows(projectRoot);
 const templates = await loadPublishedTemplates(projectRoot);
 const skus = [...new Set(templates.flatMap((template) => template.bom.map((row) => row.sku)))];
 
@@ -81,7 +44,7 @@ const outstanding = [];
 
 for (const sku of skus) {
   if (sku.startsWith("BY-OTHERS")) continue; // third-party scope placeholders, deliberately not WyreStorm SKUs
-  const status = resolveStatus(sku, lifecycle);
+  const status = resolveSkuStatus(sku, lifecycle);
   if (ACCEPTABLE.has(status)) continue;
 
   if (KNOWN_OUTSTANDING.has(sku)) {
