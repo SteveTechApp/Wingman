@@ -1,0 +1,11 @@
+{
+  "rule": "Only for a test fixture that exists to prove retirement behaviour. The gate fails an entry once the fixture stops quoting that SKU as equipment, so this list can only shrink.",
+  "entries": {
+    "src/wingman2/lib/productSelectorEngine.test.ts": {
+      "MXV-0808-H2A": "Catalogue fixture for the test that the selector dedupes the discontinued 8x8 panel onto the current MXV-0808-H2A-MK2."
+    },
+    "src/wingman2/lib/proposalExportValidation.test.ts": {
+      "CAB-HAOC-6": "The row is the blocked product in the lifecycle blocker test: an export must refuse a discontinued SKU."
+    }
+  }
+}
