@@ -690,7 +690,10 @@ export function applyCatalogOverrides(input: unknown, overrideSource?: Record<st
 
       // A family landing page is not an orderable product. Keep its actual
       // transmitter/receiver and regional SKUs available as separate results.
-      if (/\bnot an orderable SKU\b|\bnot an orderable product\b/i.test(summary)
+      // Runtime records can replace the summary, so known family identities
+      // must not depend on the wording of the current description.
+      if (/^(?:SW-130-TX|(?:EXP-)?SW-0X01-8K)$/i.test(rawSku)
+        || /\bnot an orderable SKU\b|\bnot an orderable product\b/i.test(summary)
         || (/^NHD-/i.test(rawSku) && /encoder\s*(?:&|and)\s*decoder/i.test(name))) return null;
 
       if (normalizedSku.startsWith("NHD-")) {
