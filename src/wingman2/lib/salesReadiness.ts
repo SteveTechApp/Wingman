@@ -244,7 +244,7 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
   const bomRows: SalesBomRow[] = [];
   const audioDesign = readDiscoveryAudioDesign(input.discovery.audioDesign);
   if (audioDesign) {
-    validationNotes.push(audioDesign.direction, audioDesign.zoning, audioDesign.signalPath);
+    validationNotes.push(...[audioDesign.direction, audioDesign.route, audioDesign.zoning, audioDesign.signalPath].filter((line): line is string => Boolean(line)));
     governanceWarnings.push(...audioDesign.validation);
     bomRows.push(...audioDesign.requiredScope.map((scope) => ({ item: 0, sku: `BY-OTHERS-DISCOVERY-AUDIO-${scope.key.toUpperCase()}`, description: scope.description, role: "Audio and room scope by others", qty: 1, type: "Required" as const, status: "included", evidence: `${audioDesign.direction} ${audioDesign.basis}`, notes: `${scope.notes} Quantity 1 is a complete measured package allowance; confirm all constituent quantities and supplier/model before pricing.` })));
   }

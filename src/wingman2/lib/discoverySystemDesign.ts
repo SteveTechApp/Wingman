@@ -395,7 +395,12 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
       label: "Room audio",
       purpose: "Drives the room's speakers so everyone can hear the source and the far end.",
       quantity: 1,
-      derivedFrom: [`Audio requirement: ${text(room.audioNeeds) || text(room.audioPath)}`],
+      // The route is what makes the room-audio slot specific: which feed the
+      // amplifier or DSP is being asked to play, in the rep's own words.
+      derivedFrom: [
+        `Audio requirement: ${text(room.audioNeeds) || text(room.audioPath)}`,
+        ...(text(room.audioRoute) ? [`Programme audio route: ${text(room.audioRoute)}`] : []),
+      ],
       required: true,
       supply: "wyrestorm",
       match: { tokens: ["amplifier", "dsp"], primaryCategory: ["Audio"] },
