@@ -705,8 +705,8 @@ scheduled** schedule (or staging), not the per-PR verify chain:
 
 - **Server already on the port** — the harness's own server uses port 8897
   (registry: 413 test 8876, agents 8877/8878, unread-tail 8879, e2e-smoke
-  8892, docx-check 8893, stranded-loop 8894, contract check 8898, workflow
-  check 8899). Override with the `LOAD_TEST_API_PORT` env var.
+  8892, docx-check 8893, contract check 8898, workflow check 8899). Override
+  with the `LOAD_TEST_API_PORT` env var.
 - **Signup rate-limited against an external server** — the default limit is 8
   signups/IP/window (`WINGMAN_AUTH_RATE_LIMIT_MAX_REQUESTS`). Reuse one session
   with `--cookie`, or raise the limit on a server you control.

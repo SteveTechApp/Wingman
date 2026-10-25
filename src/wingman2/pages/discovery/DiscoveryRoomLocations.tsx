@@ -5,7 +5,7 @@ export function DiscoveryRoomLocations({ topology, onChange }: { topology: Proje
   const [name, setName] = useState("");
   const [type, setType] = useState<ProjectLocationType>("table");
   const update = (next: ProjectTopology) => onChange({ ...next, updatedAt: new Date().toISOString() });
-  return <section aria-label="Room input and output locations">
+  return <section className="wm-room-locations" aria-label="Room input and output locations">
     <h3>Where will people connect, watch and listen?</h3><p>Name each position—for example, lectern laptop, table connection, front screen or rear confidence screen. Cable lengths can remain open until the site survey.</p>
     <div className="wm-room-wizard-fields"><label>Location name<input value={name} onChange={event => setName(event.target.value)} placeholder="Lectern laptop connection" /></label>
       <label>Position<select value={type} onChange={event => setType(event.target.value as ProjectLocationType)}><option value="table">Table</option><option value="lectern">Lectern</option><option value="display-wall">Display wall</option><option value="ceiling">Ceiling</option><option value="room-rack">Equipment rack</option><option value="floor-box">Floor connection</option><option value="custom">Another position</option></select></label>
