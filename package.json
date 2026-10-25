@@ -195,6 +195,7 @@
     "govern:wyrestorm": "node tools/govern-wyrestorm-profiles.mjs --apply --strict && npm run check:technical-data -- --update-baseline && npm run check:technical-data:strict && npm run check:spec-sheet-ingest && node tools/audit-wyrestorm-technical-data.mjs && npm run check:governed-drift && npm run check:governed-review-pass && npm run check:technical-data-tests && npm run check:governed-coverage-render && npm run check:competitor-decisions && npm run check:compare-trust-layer",
     "govern:wyrestorm:dry": "node tools/govern-wyrestorm-profiles.mjs",
     "check:proposal-wizard": "node tools/check-proposal-wizard.mjs",
+    "check:pr-description": "node tools/check-pr-description-freshness.mjs",
     "check:export-validation-domains": "node tools/check-export-validation-domains.mjs",
     "check:audit-scopes": "node tools/check-audit-scopes.mjs",
     "check:dead-css": "node tools/check-wingman-dead-css-baseline.mjs",
