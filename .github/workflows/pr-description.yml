@@ -1,0 +1,45 @@
+name: PR description
+
+# A pull request's description is written while its branch is still moving, so
+# it goes stale in two ways a reviewer has to notice by hand: it keeps
+# reporting failing checks the head no longer has, or it still lists work the
+# branch has already done. tools/check-pr-description-freshness.mjs compares
+# the body with the head's latest check runs and the files the pull request
+# changes.
+#
+# `edited` is in the trigger list on purpose: the fix for a failing run is an
+# edit to the description, and this workflow is deliberately small enough to
+# re-run on every body edit. The verify matrix stays on pushes only, so a
+# sentence change does not rebuild the app.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+
+concurrency:
+  group: pr-description-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  freshness:
+    name: PR description matches the latest checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Check the description against the head
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node tools/check-pr-description-freshness.mjs

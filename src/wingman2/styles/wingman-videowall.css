@@ -564,31 +564,53 @@
    questions are reachable before the list is read rather than after it. */
 .vw-wizard-job-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
 .vw-wizard-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
-.vw-wizard-options button { display: grid; align-content: start; gap: 6px; padding: 14px; min-height: 74px; }
+/* The #root prefix outranks the shell's compact page-control rule, which
+   otherwise cuts these cards to three pixels of padding and centres their
+   column: a centred grid column sizes to the longest line of each card, so the
+   copy started at a different left edge on every card and the widest
+   description ran past the padding. The cards fill their box. */
+#root .vw-wizard-options button { display: grid; align-content: start; justify-content: stretch; gap: 6px; padding: 14px; min-height: 74px; }
 .vw-wizard-options strong { font-size: .9rem; }
 .vw-wizard-options span { color: var(--vw-muted); font-size: .76rem; line-height: 1.4; }
 .vw-wizard-fieldset { display: grid; gap: 8px; }
 .vw-wizard-label { color: var(--vw-muted); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
 .vw-wizard-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: 8px; }
-.vw-wizard-chips button { display: grid; justify-items: center; gap: 3px; padding: 9px 6px; text-align: center; }
+#root .vw-wizard-chips button { display: grid; justify-items: center; gap: 3px; padding: 9px 6px; text-align: center; }
 .vw-wizard-chips strong { font-size: 1rem; }
 .vw-wizard-chips span { color: var(--vw-muted); font-size: .68rem; }
 .vw-wizard-hint { color: var(--vw-muted); font-size: .78rem; line-height: 1.5; }
 .vw-wizard-nav { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; padding-top: 6px; }
 .vw-wizard-primary { background: var(--vw-aqua); color: var(--vw-deep); border-color: var(--vw-aqua); font-weight: 750; }
 .vw-wizard-secondary { border-color: var(--vw-border); }
+/* The shell's page-wide control rule sizes every button in the page host —
+   28px tall, .2rem/.55rem padding, .78rem text — and it outranks a plain class
+   here, so a wizard whose rows and option cards carry 14-16px of padding got
+   its own controls back as strips: the step action under the wall list, the
+   Change button beside an answer, and the result-stage tabs each lost the
+   padding this file gives them. The same #root prefix the option and chip
+   cards use restores a control's own size; nothing here changes what a
+   page-level control looks like. */
+#root .vw-wizard-nav button { min-height: 38px; padding: 9px 16px; border-radius: 9px; font-size: .84rem; }
 .vw-wizard-result { display: grid; gap: 22px; }
 .vw-wizard-answer-list { display: grid; gap: 6px; }
 .vw-wizard-answer-list > div { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-radius: 8px; background: var(--vw-deep); }
 .vw-wizard-answer-list strong { display: block; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--vw-muted); }
 .vw-wizard-answer-list span { display: block; font-size: .84rem; margin-top: 3px; }
-.vw-wizard-answer-list button { flex: 0 0 auto; padding: 7px 12px; font-size: .76rem; }
+/* Same prefix as the step action above: the Change button keeps the size of the
+   row it sits in instead of the shell's page-control size. */
+#root .vw-wizard-answer-list button { flex: 0 0 auto; min-height: 30px; padding: 7px 12px; border-radius: 7px; font-size: .76rem; }
+/* The answer takes the width the row has. Without this the label and value
+   shrink to their own narrow column while the row keeps the space unused, so a
+   long answer wraps three lines beside a Change button and two empty thirds. */
+.vw-wizard-answer-list > div > div { flex: 1 1 auto; min-width: 0; }
 
 /* Result review passes ----------------------------------------------------
    The result is read one pass at a time, so the decision, the drawing and the
    wiring each get a screen instead of stacking into one long page. */
-.vw-wizard-stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.vw-wizard-stages button { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px 14px; }
+.vw-wizard-stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+/* Same #root prefix as the wizard controls above: a stage tab is a card the
+   rep reads two lines in, not a page-level button. */
+#root .vw-wizard-stages button { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; justify-content: stretch; min-height: 0; padding: 12px 14px; border-radius: 10px; font-size: .84rem; }
 .vw-wizard-stage-number {
   display: grid;
   place-items: center;
