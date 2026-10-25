@@ -4,8 +4,14 @@ import type {
   StoredProject,
   StoredProposalBomRow,
 } from "../../data/projectStore";
+import { readDiscoveryAudioDesign } from "../discoveryAudioDesign";
 import { normaliseSku, productNodeKind } from "./schematicProductRules";
-import type { SchematicEndpointBrief, SchematicProductBrief, SchematicProjectBrief } from "./schematicTypes";
+import type {
+  SchematicAudioRoute,
+  SchematicEndpointBrief,
+  SchematicProductBrief,
+  SchematicProjectBrief,
+} from "./schematicTypes";
 
 /**
  * Adapts a real, saved Wingman project (StoredProject) into the
@@ -227,6 +233,22 @@ function fallbackTextEndpoint(
   return projectHas(project, terms) ? [{ label }] : [];
 }
 
+/**
+ * The programme-audio route the room's discovery recorded, as the drawing needs
+ * it: which device gives the sound up and every destination it has to reach.
+ *
+ * It is read from the saved audio design rather than from the project's free
+ * text, so a schematic cannot claim a path the rep never answered, and a design
+ * that recorded only one half stays undrawn — the design's own validation line
+ * already asks for the missing end.
+ */
+function deriveAudioRoute(project: StoredProject | null | undefined): SchematicAudioRoute | undefined {
+  const design = readDiscoveryAudioDesign(project?.discoveryBrief?.roomModel?.audioDesign);
+  if (!design?.extraction || !design.destinations?.length) return undefined;
+
+  return { extraction: design.extraction, destinations: design.destinations, summary: design.route };
+}
+
 function deriveMaxSignalDistance(project: StoredProject | null | undefined): number | undefined {
   const roomModel = project?.discoveryBrief?.roomModel;
   return firstNumber([recordValue(roomModel, ["cableRun", "longestRun", "distance"])]);
@@ -253,7 +275,8 @@ export function buildSchematicBriefFromProject(project: StoredProject | null | u
     : fallbackTextEndpoint(project, ["touch panel", "touch-panel"], "Control touch panel");
 
   const usbRequired = projectHas(project, ["usb", "usb-c", "byod", "byom", "teams", "zoom", "kvm"]) || cameraEndpoints.length > 0 || speakerphoneEndpoints.length > 0;
-  const audioRequired = projectHas(project, ["audio", "dante", "speaker", "microphone", "sound reinforcement"]) || speakerphoneEndpoints.length > 0;
+  const audioRoute = deriveAudioRoute(project);
+  const audioRequired = Boolean(audioRoute) || projectHas(project, ["audio", "dante", "speaker", "microphone", "sound reinforcement"]) || speakerphoneEndpoints.length > 0;
   const controlRequired = projectHas(project, ["control", "rs-232", "cec", "touch panel", "third-party control"]) || touchPanelEndpoints.length > 0;
   const networkAvailable = !projectHas(project, ["no network", "network unavailable", "air-gapped"]);
 
@@ -269,6 +292,7 @@ export function buildSchematicBriefFromProject(project: StoredProject | null | u
     products: toSchematicProducts(realProducts),
     usbRequired,
     audioRequired,
+    audioRoute,
     controlRequired,
     networkAvailable,
     maxSignalDistanceM: deriveMaxSignalDistance(project),

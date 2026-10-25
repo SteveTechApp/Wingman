@@ -108,6 +108,12 @@ function mapNodeKind(kind: SchematicNodeKind, hasSku: boolean): VisualNodeKind {
 }
 
 function thirdPartyLabel(node: SchematicNode): string {
+  // A destination the rep recorded keeps its own name: two audio destinations
+  // would otherwise both draw as "Audio system — by others".
+  if (node.metadata?.audioRouteDestination) {
+    return `${node.label} — by others`;
+  }
+
   if (node.kind === "network-switch") {
     return "Network switch — customer supplied";
   }
