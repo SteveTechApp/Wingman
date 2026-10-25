@@ -287,6 +287,14 @@ from the code or docs are not repeated here.
   windows) reaches NHD-600-TRX. Each option's own blockers point at the other
   — the 150 rejects a recalled fixed layout and the 600 rejects floating
   windows — so the picker must not offer a preset that answers both ways.
+- The shell re-sizes every button in the page host — 28px tall,
+  `.2rem`/`.55rem` padding, `.78rem` text — and that page-wide control rule
+  outranks a plain class. The wizard's own controls (`vw-wizard-nav`,
+  `vw-wizard-answer-list`, `vw-wizard-stages`) and its option and chip cards
+  therefore declare their size behind `#root`: without it a step action, a
+  Change button and a review-stage tab came back as 28-32px strips inside cards
+  carrying 14-16px of padding. The stage rail is shared by both readings, so a
+  fix there lands in both.
 - A rep's own wall joins that picker: `wallStartingPoints.ts` saves the current
   answers to localStorage, one wall per brief keyed by a stable hash of the
   brief with the survey fields (`measuredRuns`, `linkDetails`, `surveyReview`)
