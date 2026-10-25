@@ -22,6 +22,7 @@ import type { WallStartingPointOrigin } from "../../lib/wallStartingPointOrigin"
 export function useVideowallDraftAutosave(
   requirements: WallRequirements,
   selectedId: string,
+  variantId: string,
   startingPoint: WallStartingPointOrigin | null,
 ) {
   const edited = useRef(false);
@@ -33,8 +34,8 @@ export function useVideowallDraftAutosave(
       edited.current = true;
       return;
     }
-    const writtenAt = rememberVideowallDraft({ requirements, selectedId, startingPoint });
+    const writtenAt = rememberVideowallDraft({ requirements, selectedId, variantId, startingPoint });
     if (writtenAt) setDraftSavedAt(writtenAt);
-  }, [requirements, selectedId, startingPoint]);
+  }, [requirements, selectedId, variantId, startingPoint]);
   return draftSavedAt;
 }

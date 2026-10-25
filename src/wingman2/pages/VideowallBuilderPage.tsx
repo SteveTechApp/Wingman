@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { getCurrentWorkflowProject, saveVideowallToProject } from "../features/projects";
+import { saveVideowallToProject } from "../features/projects";
 import { VideowallExpertReview } from "./videowall/VideowallExpertReview";
 import { wallTransportPlan, withMeasuredRuns } from "../lib/videowallTransport";
 import { wallDesignEvidence } from "../lib/videowallEvidence";
@@ -10,7 +10,6 @@ import {
   assessVideowallOptions,
   defaultWallRequirements,
   FLOATING_WINDOW_LIMIT,
-  wallApplications,
   wallCanvasPlan,
   wallResolutionBudget,
   type WallOption,
@@ -18,7 +17,6 @@ import {
 } from "../lib/videowallOptions";
 import {
   decideVideowall,
-  wallFitReasons,
   type WallLayoutChoice,
   type WallStartPreset,
 } from "../lib/videowallDecision";
@@ -32,8 +30,10 @@ import { WallDraftStatusNote } from "./videowall/WallDraftStatusNote";
 import { VideowallWizard } from "./videowall/VideowallWizard";
 import { wallSurveyReviewAuditNote } from "../lib/wallSurveyReview";
 import { wallPickFromSearch, wallPickedOption } from "../lib/wallPick";
+import { wallOptionWithVariant } from "../lib/wallVariants";
+import { useWallClipboardActions } from "./videowall/useWallClipboardActions";
 import { readWallReviewPass, rememberWallReviewPass, wallReviewPassFromSearch } from "../lib/wallReviewPass";
-import { WALL_SHARE_COPY_FAILED, wallShareClipboard, wallShareNote, wallShareSearch, wallSharedLinkNote } from "../lib/wallShareLink";
+import { wallShareSearch, wallSharedLinkNote } from "../lib/wallShareLink";
 import { wallLinkFromSearch } from "../lib/wallLink";
 import { wallResumeProject } from "../lib/wallResume";
 import "../styles/wingman-videowall.css";
@@ -54,6 +54,10 @@ export function VideoWallPage() {
     () => wallPickedOption(assessVideowallOptions(draft.requirements), wallPickFromSearch(searchParams))?.id
       ?? draft.selectedId,
   );
+  // The build of the chosen design, when that design ships in more than one.
+  // `""` is the catalogue build, so a wall saved before builds existed opens
+  // as the one its schedule was always quoted from.
+  const [variantId, setVariantId] = useState(draft.variantId);
   const [message, setMessage] = useState("");
   // The card the answers started on, so the picker can mark it and the design
   // panel can measure how far this room has moved from it. A card pick writes
@@ -96,7 +100,11 @@ export function VideoWallPage() {
   const decision = decideVideowall(requirements);
   const recommended = decision.recommended?.option ?? null;
   const override = wallPickedOption(options, overrideId);
-  const selected = override ?? recommended;
+  // The design as it would be ordered: the chosen build's part numbers and its
+  // own check, with the design's id untouched so the pick, the draft and a
+  // saved wall all still name one architecture.
+  const chosen = override ?? recommended;
+  const selected = chosen ? wallOptionWithVariant(chosen, variantId) : null;
   const lcd = requirements.application.startsWith("lcd");
   const panels = requirements.columns * requirements.rows;
   const resolutionBudget = wallResolutionBudget(requirements);
@@ -117,11 +125,18 @@ export function VideoWallPage() {
 
   // The design is kept on every edit rather than only on Save, so a reload
   // reopens the wall nobody saved yet; the hook skips the restored first pass.
-  const draftSavedAt = useVideowallDraftAutosave(requirements, selected?.id ?? "", startingPoint);
+  const draftSavedAt = useVideowallDraftAutosave(requirements, selected?.id ?? "", variantId, startingPoint);
 
   function update(patch: Partial<WallRequirements>) {
     setRequirements((current) => ({ ...current, ...patch }));
     setOverrideId("");
+    setVariantId("");
+    setMessage("");
+  }
+
+  /** The build belongs to the design on screen, so choosing another design drops it. */
+  function chooseVariant(next: string) {
+    setVariantId(next);
     setMessage("");
   }
 
@@ -163,6 +178,9 @@ export function VideoWallPage() {
       decision,
       transport,
       checks: concernChecks,
+      // The schedule already carries the chosen build's part numbers; this says
+      // which build they are, so a reordered design still explains itself.
+      variantId,
       origin: handoff ? wallHandoffOrigin(handoff) : null,
       // The saved wall records the card it came from, so the project and the
       // proposal can say where the design started after this page is gone.
@@ -196,59 +214,25 @@ export function VideoWallPage() {
     }
   }
 
-  async function copy() {
-    if (!selected) return;
-    const reasons = decision.recommended?.option.id === selected.id
-      ? decision.recommended.reasons
-      : wallFitReasons(selected, requirements);
-    const text = [
-      "Wingman video wall design",
-      wallApplications.find((application) => application.value === requirements.application)?.title,
-      `${requirements.columns} × ${requirements.rows} array; ${requirements.sources} sources; ${requirements.windows} window${requirements.windows === 1 ? "" : "s"}`,
-      selected.title,
-      selected.summary,
-      `Resolution budget: ${resolutionBudget.text}`,
-      `Recommended canvas fit: ${canvasPlan.rationale}`,
-      `Transport estimate: ${transport.headline}`,
-      ...transport.flags.map((flag) => `Transport: ${flag}`),
-      ...(surveyWarning ? [surveyWarning] : []),
-      "Why this meets the need:",
-      ...reasons,
-      ...selected.equipment.map((item) => `${item.quantity} × ${item.sku} — ${item.role}`),
-      `Signal path: ${selected.path.join(" → ")}`,
-      ...selected.blockers.map((blocker) => `Not suitable: ${blocker}`),
-      "Confirm before ordering:",
-      ...selected.checks,
-      ...concernChecks,
-      ...selected.sources.map((item) => `${item.label}: ${item.url}`),
-    ].join("\n");
-    try {
-      await navigator.clipboard.writeText(text);
-      setMessage("Design summary copied.");
-    } catch {
-      setMessage("Clipboard access is unavailable. Select the design text and copy it manually.");
-    }
-  }
-
-  /** Copy the wall, the pass and the chosen design as an address, and say what travelled. */
-  async function copyLink() {
-    try {
-      const search = wallShareSearch(location.search, requirements, pass, override?.id ?? null);
-      // An absolute address: the paste target is usually chat or email.
-      const address = new URL(`${location.pathname}?${search.toString()}`, window.location.origin).href;
-      // The clipboard gets the sentence as well as the address, so a paste into
-      // chat names whose wall it is and which panel it opens.
-      await navigator.clipboard.writeText(wallShareClipboard({
-        project: getCurrentWorkflowProject()?.name ?? null,
-        requirements,
-        pass,
-        address,
-      }));
-      setMessage(wallShareNote(requirements, pass, override?.title ?? null));
-    } catch {
-      setMessage(WALL_SHARE_COPY_FAILED);
-    }
-  }
+  // Both clipboard actions are the same text and address the screen holds, so
+  // they live together beside the view rather than in this entry.
+  const { copy, copyLink } = useWallClipboardActions({
+    requirements,
+    selected,
+    decision,
+    pickedId: override?.id ?? null,
+    pickedTitle: override?.title ?? null,
+    pass,
+    pathname: location.pathname,
+    search: location.search,
+    resolutionText: resolutionBudget.text,
+    canvasRationale: canvasPlan.rationale,
+    transportHeadline: transport.headline,
+    transportFlags: transport.flags,
+    surveyWarning,
+    concernChecks,
+    onMessage: setMessage,
+  });
 
   /** Moving between review passes remembers the reading and names it in the address. */
   function choosePass(stage: WallReviewStageKey) {
@@ -261,6 +245,7 @@ export function VideoWallPage() {
     setRequirements(preset.requirements);
     setStartingPoint(wallStartingPointOrigin(preset));
     setOverrideId("");
+    setVariantId("");
     setMessage("");
     // A card is a fresh wall: the previous room's notes and the link it arrived
     // on describe a design that is no longer on screen.
@@ -273,6 +258,7 @@ export function VideoWallPage() {
     // No card: a wall answered from scratch is its own starting point.
     setStartingPoint(null);
     setOverrideId("");
+    setVariantId("");
     setMessage("");
     setSheetNotes([]);
     setShared(false);
@@ -297,13 +283,14 @@ export function VideoWallPage() {
           requirements={requirements}
           decision={decision}
           selected={selected}
+          options={options}
           message={message}
           handoffNote={handoff ? wallHandoffNote(handoff, requirements) : null}
           startAtResult={Boolean(handoff) || Boolean(sharedWall)}
           concerns={concerns}
           onConcerns={setConcerns}
           onChange={update}
-          onReplace={(next) => { setRequirements(next); setOverrideId(""); setMessage(""); }}
+          onReplace={(next) => { setRequirements(next); setOverrideId(""); setVariantId(""); setMessage(""); }}
           onChooseLayout={chooseLayout}
           onChoosePanels={choosePanels}
           onSave={() => save()}
@@ -311,9 +298,12 @@ export function VideoWallPage() {
           onCopy={copy}
           onCopyLink={copyLink}
           onRestart={restart}
-          onUnblock={(next) => { setRequirements(next); setOverrideId(""); setMessage("Requirement changed to open the catalogue."); }}
-          onUse={() => { setOverrideId(""); setMessage("Showing Wingman's recommendation."); }}
-          onApply={(id) => { setOverrideId(id); setMessage(""); }}
+          onUnblock={(next) => { setRequirements(next); setOverrideId(""); setVariantId(""); setMessage("Requirement changed to open the catalogue."); }}
+          onUse={() => { setOverrideId(""); setVariantId(""); setMessage("Showing Wingman's recommendation."); }}
+          onApply={(id) => { setOverrideId(id); setVariantId(""); setMessage(""); }}
+          variantId={variantId}
+          onVariant={chooseVariant}
+          onSelect={(id) => { setOverrideId(id === recommended?.id ? "" : id); setVariantId(""); setMessage(""); }}
           onOpenExpert={() => setMode("unguided")}
         />
       </>
@@ -326,7 +316,7 @@ export function VideoWallPage() {
         <div>
           <p className="wm-ui-kicker">Video wall builder</p>
           <h1>One wall. The right signal path.</h1>
-          <p>Answer four questions. Wingman narrows every WyreStorm wall design to one recommendation and says why the rest do not fit.</p>
+          <p>Start from the wall closest to the room, or answer four questions. Wingman narrows every WyreStorm wall design to one recommendation and says why the rest do not fit.</p>
         </div>
         <div className="vw-builder-header-actions">
           <button type="button" data-testid="videowall-open-wizard" onClick={() => setMode("guided")}>Guided wizard</button>
@@ -359,10 +349,12 @@ export function VideoWallPage() {
         onMeasure={measure}
         onApplyMeasuredRuns={applyMeasuredRuns}
         onSheetImported={(note) => setSheetNotes((notes) => [...notes, note])}
-        onUse={() => { setOverrideId(""); setMessage("Showing Wingman's recommendation."); }}
-        onUnblock={(next) => { setRequirements(next); setOverrideId(""); setMessage("Requirement changed to open the catalogue."); }}
-        onApply={(id) => { setOverrideId(id); setMessage(""); }}
-        onSelect={(id) => { setOverrideId(id === recommended?.id ? "" : id); setMessage(""); }}
+        variantId={variantId}
+        onVariant={chooseVariant}
+        onUse={() => { setOverrideId(""); setVariantId(""); setMessage("Showing Wingman's recommendation."); }}
+        onUnblock={(next) => { setRequirements(next); setOverrideId(""); setVariantId(""); setMessage("Requirement changed to open the catalogue."); }}
+        onApply={(id) => { setOverrideId(id); setVariantId(""); setMessage(""); }}
+        onSelect={(id) => { setOverrideId(id === recommended?.id ? "" : id); setVariantId(""); setMessage(""); }}
       />
 
       {surveyWarning ? <label><input type="checkbox" checked={Boolean(requirements.surveyDraftOverride)} onChange={(event) => update({ surveyDraftOverride: event.target.checked })} />Save as a pre-survey draft: installation details remain unconfirmed.</label> : null}

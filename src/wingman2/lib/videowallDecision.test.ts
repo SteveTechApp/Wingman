@@ -7,6 +7,9 @@ import {
   wallPreferenceOrder,
   wallStartPresetFacts,
   wallStartPresetGroups,
+  wallStartPresetShortlist,
+  wallStartPresetShortlistCoverage,
+  wallStartPresetShortlistKeys,
   wallStartPresets,
   wallPresetTransportOf,
 } from "./videowallDecision";
@@ -261,6 +264,19 @@ describe("videowall decision", () => {
       expect(group.presets.length).toBeGreaterThan(0);
       expect(group.presets.every((preset) => preset.family === group.family)).toBe(true);
     }
+  });
+  it("keeps the guided step's shortlist curated and within the catalogue", () => {
+    const coverage = wallStartPresetShortlistCoverage();
+
+    // Every key names a shipped wall, so a renamed or retired brief drops out
+    // rather than rendering a row for a wall that no longer exists.
+    expect(coverage.unknownKeys).toEqual([]);
+    expect(coverage.curated).toBe(wallStartPresetShortlistKeys.length);
+    // Every family stays on screen while the list is folded, so no band goes
+    // missing for the rep who picks by construction.
+    expect(coverage.families).toEqual({ lcd: 3, led: 1, projection: 2 });
+    // A shortlist, not a second catalogue.
+    expect(coverage.curated).toBeLessThan(coverage.catalogue / 2);
   });
   it("names each wall by what it does, not the room it is sold into", () => {
     const room = /reception|control room|boardroom|retail|classroom|lobby|huddle|showroom/i;

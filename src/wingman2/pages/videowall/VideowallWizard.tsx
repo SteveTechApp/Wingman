@@ -5,7 +5,7 @@ import { VideowallVisual } from "./VideowallVisual";
 import { VideowallTransport } from "./VideowallTransport";
 import { wallTransportPlan, withMeasuredRuns } from "../../lib/videowallTransport";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../../lib/wallSurvey";
-import { wallDecisionSummary, wallStartPresets, type WallDecision, type WallLayoutChoice } from "../../lib/videowallDecision";
+import { wallDecisionSummary, type WallDecision, type WallLayoutChoice } from "../../lib/videowallDecision";
 import { wallApplications, type WallOption, type WallRequirements } from "../../lib/videowallOptions";
 import {
   videowallLocationChoices,
@@ -28,6 +28,10 @@ import {
   wallWizardSteps,
 } from "../../lib/videowallWizard";
 import { VideowallVerdict } from "./VideowallVerdict";
+import { wallVariantLabel } from "../../lib/wallVariants";
+import { VideowallOptionsList } from "./VideowallOptionsList";
+import { VideowallResultPages } from "./VideowallResultPages";
+import { VideowallStartPresets } from "./VideowallStartPresets";
 
 const RESULT = wallWizardSteps.length;
 
@@ -44,6 +48,8 @@ export function VideowallWizard({
   requirements,
   decision,
   selected,
+  options,
+  variantId,
   message,
   handoffNote,
   startAtResult,
@@ -61,11 +67,17 @@ export function VideowallWizard({
   onUnblock,
   onUse,
   onApply,
+  onSelect,
+  onVariant,
   onOpenExpert,
 }: {
   requirements: WallRequirements;
   decision: WallDecision;
   selected: WallOption | null;
+  /** Every design tested, so the result can show the whole field. */
+  options: WallOption[];
+  /** The build of the selected design; `""` is the catalogue build. */
+  variantId: string;
   message: string;
   handoffNote: string | null;
   startAtResult: boolean;
@@ -84,6 +96,8 @@ export function VideowallWizard({
   onUnblock: (next: WallRequirements) => void;
   onUse: () => void;
   onApply: (id: string) => void;
+  onSelect: (id: string) => void;
+  onVariant: (variantId: string) => void;
   onOpenExpert: () => void;
 }) {
   const [step, setStep] = useState(() => (startAtResult ? RESULT : 0));
@@ -161,7 +175,7 @@ export function VideowallWizard({
         </div>
       </header>
 
-      {step > 0 ? (
+      {step > 0 && !atResult ? (
         <ol className="vw-wizard-progress" aria-label="Wizard progress">
           {wallWizardSteps.map((item, index) => (
             <li
@@ -178,26 +192,27 @@ export function VideowallWizard({
 
       {step === 0 ? (
         <section className="vw-wizard-card" data-testid="videowall-wizard-step-job" aria-labelledby="vw-wizard-job-title">
-          <h2 id="vw-wizard-job-title">Common walls</h2>
-          <div className="vw-builder-starts">
-            <div>
-              {wallStartPresets.map((preset) => (
-                <button
-                  key={preset.key}
-                  type="button"
-                  onClick={() => { onReplace(preset.requirements); onConcerns([]); setStep(RESULT); }}
-                >
-                  <strong>{preset.label}</strong>
-                  <span>{preset.detail}</span>
-                </button>
-              ))}
+          {/* The way past the walls sits on the heading line rather than under
+              the list, so a rep on a phone who already knows the brief reaches
+              the four questions without scrolling a catalogue first. */}
+          <div className="vw-wizard-job-head">
+            <h2 id="vw-wizard-job-title">Common walls</h2>
+            <div className="vw-wizard-nav">
+              <button type="button" className="vw-wizard-secondary" onClick={() => setStep(1)}>
+                Answer the questions instead
+              </button>
             </div>
           </div>
-          <div className="vw-wizard-nav">
-            <button type="button" className="vw-wizard-secondary" onClick={() => setStep(1)}>
-              Answer the questions instead
-            </button>
-          </div>
+          {/* The same rows the expert picker uses, without its narrowings and
+              folded to the curated walls: the four questions below are how
+              this reading narrows, so a filter panel above them would be a
+              second way to answer the same thing, and twenty rows in front of
+              the first question would be a catalogue rather than a question. */}
+          <VideowallStartPresets
+            shortlist
+            showFilter={false}
+            onPick={(preset) => { onReplace(preset.requirements); onConcerns([]); setStep(RESULT); }}
+          />
         </section>
       ) : null}
 
@@ -446,74 +461,92 @@ export function VideowallWizard({
 
       {atResult ? (
         <div className="vw-wizard-result" data-testid="videowall-wizard-result">
-          {handoffNote ? (
-            <p className="vw-builder-note" data-testid="videowall-handoff-origin">{handoffNote}</p>
-          ) : null}
-          <section className="vw-wizard-card" aria-labelledby="vw-wizard-answers-title">
-            <header>
-              <h2 id="vw-wizard-answers-title">Your answers</h2>
-              <p>Change any answer and the recommendation updates.</p>
-            </header>
-            <div className="vw-wizard-answer-list">
-              {answers.map((answer) => (
-                <div key={answer.key}>
-                  <div><strong>{answer.label}</strong><span>{answer.value}</span></div>
-                  <button type="button" onClick={() => edit(answer.step)}>Change</button>
-                </div>
-              ))}
-              {concerns.length > 0 ? (
-                <div>
-                  <div>
-                    <strong>Must-haves</strong>
-                    <span>{wallWizardConcerns.filter((concern) => concerns.includes(concern.key)).map((concern) => concern.label).join(" · ")}</span>
-                  </div>
-                  <button type="button" onClick={() => edit(wallWizardSteps.length - 1)}>Change</button>
-                </div>
+          <VideowallResultPages pages={{
+            brief: <>
+              {handoffNote ? (
+                <p className="vw-builder-note" data-testid="videowall-handoff-origin">{handoffNote}</p>
               ) : null}
-            </div>
-          </section>
+              <section className="vw-wizard-card" aria-labelledby="vw-wizard-answers-title">
+                <header>
+                  <h2 id="vw-wizard-answers-title">Your answers</h2>
+                  <p>Change any answer and the recommendation updates.</p>
+                </header>
+                <div className="vw-wizard-answer-list">
+                  {answers.map((answer) => (
+                    <div key={answer.key}>
+                      <div><strong>{answer.label}</strong><span>{answer.value}</span></div>
+                      <button type="button" onClick={() => edit(answer.step)}>Change</button>
+                    </div>
+                  ))}
+                  {concerns.length > 0 ? (
+                    <div>
+                      <div>
+                        <strong>Must-haves</strong>
+                        <span>{wallWizardConcerns.filter((concern) => concerns.includes(concern.key)).map((concern) => concern.label).join(" · ")}</span>
+                      </div>
+                      <button type="button" onClick={() => edit(wallWizardSteps.length - 1)}>Change</button>
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+            </>,
+            layout: <VideowallVisual requirements={requirements} onRequirementsChange={onChange} onMappingChange={(mapping) => onChange({ mapping })} />,
+            survey: <VideowallTransport
+              plan={transport}
+              requirements={requirements}
+              measuredRuns={requirements.measuredRuns}
+              linkDetails={requirements.linkDetails}
+              displayMounts={requirements.displayMounts}
+              onMeasure={measure}
+              onMeasuredRuns={applyMeasuredRuns}
+              onLinkDetails={(linkDetails) => onChange({ linkDetails })}
+              onDisplayMounts={(displayMounts) => onChange({ displayMounts })}
+              surveyReview={requirements.surveyReview}
+              onSurveyReview={(surveyReview) => onChange({ surveyReview })}
+              onRequirementsChange={(next) => onChange(next)}
+            />,
+            recommendation: <>
+              <VideowallVerdict
+                decision={decision}
+                selected={selected}
+                requirements={requirements}
+                extraChecks={[...checks, ...transport.flags]}
+                variantLabel={selected ? wallVariantLabel(selected.id, variantId) : null}
+                onUse={onUse}
+                onUnblock={onUnblock}
+                onApply={onApply}
+              />
+              {/* The field sits under the answer rather than behind the expert
+                  view: a rep comparing a matrix against the 500 series is doing
+                  the same job in either reading. */}
+              <VideowallOptionsList
+                decision={decision}
+                options={options}
+                selected={selected}
+                recommendedId={decision.recommended?.option.id ?? null}
+                variantId={variantId}
+                onSelect={onSelect}
+                onVariant={onVariant}
+              />
+            </>,
+            save: <>
+              {surveyWarning ? <label><input type="checkbox" checked={Boolean(requirements.surveyDraftOverride)} onChange={(event) => onChange({ surveyDraftOverride: event.target.checked })} />Save as a pre-survey draft: installation details remain unconfirmed.</label> : null}
+              {surveyWarning ? (
+                <p className="vw-builder-warning" role="alert" data-testid="videowall-survey-gaps">
+                  {surveyWarning} Record the missing cells in the transport table before this design is handed off.
+                </p>
+              ) : null}
 
-          <VideowallVisual requirements={requirements} onRequirementsChange={onChange} onMappingChange={(mapping) => onChange({ mapping })} />
-          <VideowallTransport
-            plan={transport}
-            requirements={requirements}
-            measuredRuns={requirements.measuredRuns}
-            linkDetails={requirements.linkDetails}
-            displayMounts={requirements.displayMounts}
-            onMeasure={measure}
-            onMeasuredRuns={applyMeasuredRuns}
-            onLinkDetails={(linkDetails) => onChange({ linkDetails })}
-            onDisplayMounts={(displayMounts) => onChange({ displayMounts })}
-            surveyReview={requirements.surveyReview}
-            onSurveyReview={(surveyReview) => onChange({ surveyReview })}
-            onRequirementsChange={(next) => onChange(next)}
-          />
-
-          <VideowallVerdict
-            decision={decision}
-            selected={selected}
-            requirements={requirements}
-            extraChecks={[...checks, ...transport.flags]}
-            onUse={onUse}
-            onUnblock={onUnblock}
-            onApply={onApply}
-          />
-
-          {surveyWarning ? <label><input type="checkbox" checked={Boolean(requirements.surveyDraftOverride)} onChange={(event) => onChange({ surveyDraftOverride: event.target.checked })} />Save as a pre-survey draft: installation details remain unconfirmed.</label> : null}
-          {surveyWarning ? (
-            <p className="vw-builder-warning" role="alert" data-testid="videowall-survey-gaps">
-              {surveyWarning} Record the missing cells in the transport table before this design is handed off.
-            </p>
-          ) : null}
-
-          <footer className="vw-builder-actions">
-            <button type="button" disabled={!selected || selected.blockers.length > 0 || Boolean(surveyWarning && !requirements.surveyDraftOverride)} onClick={() => onSave()}>Save to project</button>
-            <button type="button" disabled={!selected || selected.blockers.length > 0 || Boolean(surveyWarning && !requirements.surveyDraftOverride)} onClick={onSaveProposal}>Save and open proposal</button>
-            <button type="button" disabled={!selected} onClick={onCopy}>Copy summary</button>
-            {onCopyLink ? <button type="button" onClick={onCopyLink}>Copy link</button> : null}
-            <button type="button" onClick={restart}>Start again</button>
-            <button type="button" onClick={onOpenExpert}>Open in Expert view</button>
-          </footer>
+              <footer className="vw-builder-actions">
+                <button type="button" disabled={!selected || selected.blockers.length > 0 || Boolean(surveyWarning && !requirements.surveyDraftOverride)} onClick={() => onSave()}>Save to project</button>
+                <button type="button" disabled={!selected || selected.blockers.length > 0 || Boolean(surveyWarning && !requirements.surveyDraftOverride)} onClick={onSaveProposal}>Save and open proposal</button>
+                <button type="button" disabled={!selected} onClick={onCopy}>Copy summary</button>
+                {onCopyLink ? <button type="button" onClick={onCopyLink}>Copy link</button> : null}
+                <button type="button" onClick={restart}>Start again</button>
+                <button type="button" onClick={onOpenExpert}>Open in Expert view</button>
+              </footer>
+            </>,
+          }} />
           {message ? <p role="status">{message}</p> : null}
         </div>
       ) : null}

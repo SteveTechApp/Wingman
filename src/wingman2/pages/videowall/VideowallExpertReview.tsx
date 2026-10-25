@@ -20,7 +20,12 @@ import { videowallLocationChoices, videowallLocationKeyFor } from "../../lib/vid
 import { formatMillimetres, wallPhysicalSize } from "../../lib/wallPhysicalSize";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../../lib/wallSurvey";
 import { wallTransportPlan } from "../../lib/videowallTransport";
-import { wallReviewStageStatuses, type WallReviewStageKey } from "../../lib/videowallWizard";
+import {
+  wallReviewStageStatuses,
+  wallWizardAnswers,
+  type WallReviewStageKey,
+  type WallWizardStepKey,
+} from "../../lib/videowallWizard";
 import { wallSharePassName } from "../../lib/wallShareLink";
 import { SaveWallStartingPoint } from "./WallStartingPointSave";
 import { VideowallFeedFields } from "./VideowallFeedFields";
@@ -32,6 +37,7 @@ import { VideowallStartPresets } from "./VideowallStartPresets";
 import { VideowallStep } from "./VideowallStep";
 import { VideowallTransport } from "./VideowallTransport";
 import { VideowallVerdict } from "./VideowallVerdict";
+import { wallVariantLabel } from "../../lib/wallVariants";
 import { VideowallVisual } from "./VideowallVisual";
 import { WallStartingPointOriginNote } from "./WallStartingPointOriginNote";
 
@@ -40,6 +46,12 @@ import { WallStartingPointOriginNote } from "./WallStartingPointOriginNote";
  * design, the drawing and the wiring are three passes, not one long page. Every
  * answer stays in the design pass, so nothing a rep changes is out of reach,
  * and the drawing and transport table each get a screen of their own.
+ *
+ * The design pass itself is read in one order: the wall, then what Wingman
+ * answers with, then the questions behind that answer. The four questions open
+ * one at a time and state the answer they hold, because the wall card sets all
+ * four — opened together they were forty tiles of equal weight beside the
+ * picker, and a rep could not tell which block chose the design.
  */
 export function VideowallExpertReview({
   requirements,
@@ -47,6 +59,7 @@ export function VideowallExpertReview({
   selected,
   options,
   recommendedId,
+  variantId,
   startingPoint,
   reviewStage,
   onReviewStage,
@@ -63,12 +76,15 @@ export function VideowallExpertReview({
   onUnblock,
   onApply,
   onSelect,
+  onVariant,
 }: {
   requirements: WallRequirements;
   decision: WallDecision;
   selected: WallOption | null;
   options: WallOption[];
   recommendedId: string | null;
+  /** The build of the selected design; `""` is the catalogue build. */
+  variantId: string;
   /** The card the answers were adjusted from, if the rep picked one. */
   startingPoint?: WallStartingPointOrigin | null;
   /** The pass on screen, owned by the builder so a save or reload keeps it. */
@@ -89,6 +105,7 @@ export function VideowallExpertReview({
   onUnblock: (next: WallRequirements) => void;
   onApply: (id: string) => void;
   onSelect: (id: string) => void;
+  onVariant: (variantId: string) => void;
 }) {
   const lcd = requirements.application.startsWith("lcd");
   const panels = requirements.columns * requirements.rows;
@@ -113,6 +130,10 @@ export function VideowallExpertReview({
   // The share action is named for the pass it sends: three buttons reading
   // "Copy link" would be three interchangeable controls to a screen reader.
   const copyLabel = onCopyLink ? `Copy link to the ${wallSharePassName(reviewStage)} pass` : undefined;
+  // The same sentences the guided result prints under each step, so an answer
+  // reads the same in both views.
+  const answers = wallWizardAnswers(requirements);
+  const answerFor = (key: WallWizardStepKey) => answers.find((answer) => answer.key === key)?.value ?? "";
   const statuses = wallReviewStageStatuses({
     selectedTitle: selected?.title ?? null,
     unblockers: decision.unblockers.length,
@@ -129,17 +150,15 @@ export function VideowallExpertReview({
         <section className="vw-wizard-stage" data-testid="videowall-expert-panel-decision" aria-label="The design">
           <section className="vw-builder-decide" aria-labelledby="wall-requirements-title">
             <header className="vw-builder-decide-head">
-              <h2 id="wall-requirements-title">Size the wall</h2>
-              <p>Each answer removes designs from the field. You do not need to know the catalogue.</p>
+              <h2 id="wall-requirements-title">The wall</h2>
+              <p>Pick the wall closest to the room. One tap sets every answer; adjust anything the customer differs on.</p>
             </header>
             <div className="vw-builder-starts" role="group" aria-label="Wall starting points">
-              <p>Start from the wall</p>
               <VideowallStartPresets
                 requirements={requirements}
                 startedKey={startingPoint?.key ?? null}
                 onPick={onPickPreset}
               />
-              <p className="vw-builder-starts-hint">One tap sets every answer. Adjust anything the customer differs on.</p>
               <WallStartingPointOriginNote origin={startingPoint} requirements={requirements} />
               <SaveWallStartingPoint
                 requirements={requirements}
@@ -147,9 +166,31 @@ export function VideowallExpertReview({
                 label="Save this wall as a starting point"
               />
             </div>
+          </section>
 
+          <VideowallVerdict
+            decision={decision}
+            selected={selected}
+            requirements={requirements}
+            extraChecks={transport.flags}
+            variantLabel={selected ? wallVariantLabel(selected.id, variantId) : null}
+            onUse={onUse}
+            onUnblock={onUnblock}
+            onApply={onApply}
+          />
+
+          <section className="vw-builder-adjust" aria-labelledby="wall-adjust-title">
+            <header className="vw-builder-adjust-head">
+              <h2 id="wall-adjust-title">Adjust the answers</h2>
+              <p>The wall above sets these. Open one when this room differs.</p>
+            </header>
             <ol className="vw-builder-steps">
-              <VideowallStep index={1} question={wallDecisionQuestions.application} hint="This decides whether the panels take separate feeds, groups of feeds, or one composed canvas.">
+              <VideowallStep
+                index={1}
+                question={wallDecisionQuestions.application}
+                answer={answerFor("picture")}
+                hint="This decides whether the panels take separate feeds, groups of feeds, or one composed canvas."
+              >
                 <div className="vw-builder-applications" role="group" aria-label="Display application">
                   {wallApplications.map((application) => (
                     <button
@@ -181,6 +222,7 @@ export function VideowallExpertReview({
               <VideowallStep
                 index={2}
                 question={wallDecisionQuestions.scale}
+                answer={answerFor("size")}
                 hint={requirements.application === "projection"
                   ? "The projectors and the source count set the size of the box."
                   : "The array and the source count set the size of the box."}
@@ -189,7 +231,12 @@ export function VideowallExpertReview({
                   budget={resolutionBudget} plan={canvasPlan} onUpdate={onUpdate} onPanels={onChoosePanels} />
               </VideowallStep>
 
-              <VideowallStep index={3} question={wallDecisionQuestions.layout} hint="Windows are composed in one design. A source per screen is a different design.">
+              <VideowallStep
+                index={3}
+                question={wallDecisionQuestions.layout}
+                answer={answerFor("layout")}
+                hint="Windows are composed in one design. A source per screen is a different design."
+              >
                 <div className="vw-builder-choices" role="group" aria-label="Content layout">
                   {layoutChoices.map((choice) => (
                     <button
@@ -208,7 +255,12 @@ export function VideowallExpertReview({
                 </div>
               </VideowallStep>
 
-              <VideowallStep index={4} question={wallDecisionQuestions.location} hint="Distance decides between local HDMI and network transport.">
+              <VideowallStep
+                index={4}
+                question={wallDecisionQuestions.location}
+                answer={answerFor("location")}
+                hint="Distance decides between local HDMI and network transport."
+              >
                 <div className="vw-builder-choices" role="group" aria-label="Source location">
                   {videowallLocationChoices.map((choice) => (
                     <button
@@ -228,22 +280,14 @@ export function VideowallExpertReview({
             <VideowallRefineFields requirements={requirements} lcd={lcd} errors={errors} onUpdate={onUpdate} />
           </section>
 
-          <VideowallVerdict
-            decision={decision}
-            selected={selected}
-            requirements={requirements}
-            extraChecks={transport.flags}
-            onUse={onUse}
-            onUnblock={onUnblock}
-            onApply={onApply}
-          />
-
           <VideowallOptionsList
             decision={decision}
             options={options}
             selected={selected}
             recommendedId={recommendedId}
+            variantId={variantId}
             onSelect={onSelect}
+            onVariant={onVariant}
           />
 
           <VideowallReviewNav

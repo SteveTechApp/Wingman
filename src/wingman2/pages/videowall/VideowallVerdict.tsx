@@ -6,12 +6,14 @@ import {
 } from "../../lib/videowallDecision";
 import { WALL_RESEARCH_DATE, type WallOption, type WallRequirements } from "../../lib/videowallOptions";
 
-export function VideowallVerdict({ decision, selected, requirements, extraChecks = [], onUse, onUnblock, onApply }: {
+export function VideowallVerdict({ decision, selected, requirements, extraChecks = [], variantLabel = null, onUse, onUnblock, onApply }: {
   decision: WallDecision;
   selected: WallOption | null;
   requirements: WallRequirements;
   /** Requirements captured outside the product model, such as HDCP or 24/7 operation. */
   extraChecks?: string[];
+  /** The build the equipment and checks below are quoted in, when it is not the catalogue one. */
+  variantLabel?: string | null;
   onUse: (id: string) => void;
   onUnblock: (next: WallRequirements) => void;
   onApply: (id: string) => void;
@@ -55,6 +57,12 @@ export function VideowallVerdict({ decision, selected, requirements, extraChecks
           <p className="wm-ui-kicker">{isLead ? "Wingman's decision" : "Your selection"}</p>
           <h2 id="wall-selected-title">{selected.title}</h2>
           <p className="vw-builder-verdict-family">{family?.label} · {family?.rationale}</p>
+          {/* The part numbers and the check below follow the build, so the
+              title says which build they are rather than leaving a rep to
+              infer it from a swapped SKU. */}
+          {variantLabel ? (
+            <p className="vw-builder-verdict-build" data-testid="videowall-selected-build">Ordering build: {variantLabel}</p>
+          ) : null}
         </div>
         <span className="vw-builder-verdict-status">{isLead ? "Recommended" : "Not the recommendation"}</span>
       </div>
@@ -67,30 +75,37 @@ export function VideowallVerdict({ decision, selected, requirements, extraChecks
         </div>
       ) : null}
 
-      <div className="vw-builder-verdict-columns">
-        <div>
-          <h3>Why this meets the need</h3>
-          <ul className="vw-builder-reasons">
-            {reasons.map((reason) => <li key={reason}>{reason}</li>)}
-          </ul>
-        </div>
-        <div>
-          <h3>Confirm before ordering</h3>
-          <ul className="vw-builder-checks">
-            {checks.map((check) => <li key={check}>{check}</li>)}
-          </ul>
-          <div className="vw-builder-references">
-            {selected.sources.map((item) => (
-              <a key={item.url} href={item.url} target="_blank" rel="noreferrer">{item.label} ↗</a>
-            ))}
-          </div>
-          <p className="vw-builder-note">Manufacturer references checked {WALL_RESEARCH_DATE}.</p>
-        </div>
-      </div>
-
+      {/* The answer in plain words comes before its evidence: this is the route
+          the signal takes, which a rep can read out to a customer, and the
+          reasons and checks below say why it is right. */}
       <ol className="vw-builder-path" aria-label="Signal path">
         {selected.path.map((step, index) => <li key={step}><span>{index + 1}</span>{step}</li>)}
       </ol>
+
+      <div className="vw-builder-verdict-fit">
+        <h3>Why this meets the need</h3>
+        <ul className="vw-builder-reasons">
+          {reasons.map((reason) => <li key={reason}>{reason}</li>)}
+        </ul>
+      </div>
+
+      {/* A working checklist, not part of the pitch: folded to its count so the
+          decision is not read through six warnings a rep needs at ordering time. */}
+      <details className="vw-builder-checks-details">
+        <summary>
+          <h3>Confirm before ordering</h3>
+          <span>{checks.length} checks</span>
+        </summary>
+        <ul className="vw-builder-checks">
+          {checks.map((check) => <li key={check}>{check}</li>)}
+        </ul>
+        <div className="vw-builder-references">
+          {selected.sources.map((item) => (
+            <a key={item.url} href={item.url} target="_blank" rel="noreferrer">{item.label} ↗</a>
+          ))}
+        </div>
+        <p className="vw-builder-note">Manufacturer references checked {WALL_RESEARCH_DATE}.</p>
+      </details>
 
       <div className="vw-builder-equipment">
         <h3>Equipment allowance</h3>

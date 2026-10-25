@@ -1,6 +1,8 @@
 /* Video wall builder
-   One decision surface per screen: four questions, then a single
-   recommendation with its reasoning, then the designs that were ruled out.
+   One decision surface per screen, read in the order a rep makes it: the wall,
+   the recommendation with its reasoning, then the four questions that adjust
+   it, then the designs that were ruled out. Each level is quieter than the one
+   above it, so the page does not read as forty choices of equal weight.
    The stylesheet is route-owned (imported only by VideowallBuilderPage). */
 
 .vw-builder {
@@ -79,9 +81,16 @@
 }
 .vw-builder-decide-head { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; flex-wrap: wrap; }
 .vw-builder-decide-head p { color: var(--vw-muted); font-size: .85rem; }
-.vw-builder-starts { display: grid; gap: 8px; padding-bottom: 18px; border-bottom: 1px solid var(--vw-border-soft); }
+.vw-builder-starts { display: grid; gap: 8px; }
 .vw-builder-starts > p:first-child { color: var(--vw-muted); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
 .vw-builder-starts-hint { color: var(--vw-muted); font-size: .72rem; }
+
+/* The questions behind the answer: quieter than the wall and the verdict, with a
+   heading that says what the block is for. */
+.vw-builder-adjust { display: grid; gap: 12px; padding: 18px 22px; border: 1px solid var(--vw-border-soft); border-radius: 14px; background: var(--vw-deep); }
+.vw-builder-adjust-head { display: grid; gap: 4px; }
+.vw-builder-adjust-head h2 { font-size: .95rem; }
+.vw-builder-adjust-head p { color: var(--vw-muted); font-size: .78rem; }
 
 /* Starting-point provenance ----------------------------------------------
    A card sets the whole brief, so the design is that card plus whatever the
@@ -217,22 +226,37 @@
   #root .vw-preset-filter-chips button { padding: 2px 8px; font-size: .66rem; }
 }
 
-.vw-builder-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
-.vw-builder-step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; align-items: start; padding-top: 18px; border-top: 1px solid var(--vw-border-soft); }
-.vw-builder-step:first-child { padding-top: 0; border-top: 0; }
+/* The questions read as lines until opened. Each line carries the question and
+   the answer the design is using, so the brief can be checked at a glance and
+   the four blocks stop competing with the wall above them. */
+.vw-builder-steps { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--vw-border-soft); }
+.vw-builder-step { border-bottom: 1px solid var(--vw-border-soft); }
+.vw-builder-step-details > summary { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 13px 2px; cursor: pointer; list-style: none; }
+.vw-builder-step-details > summary::-webkit-details-marker { display: none; }
+.vw-builder-step-details > summary::after { content: "Adjust"; color: var(--vw-aqua); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
+.vw-builder-step-details[open] > summary::after { content: "Done"; }
+.vw-builder-step-details > summary:hover .vw-builder-step-copy strong { color: var(--vw-text); }
 .vw-builder-step-number {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  border: 1px solid var(--vw-aqua);
+  border: 1px solid var(--vw-border-accent);
   color: var(--vw-aqua);
-  font-size: .8rem;
+  font-size: .74rem;
   font-weight: 700;
 }
-.vw-builder-step-body { display: grid; gap: 10px; min-width: 0; }
+.vw-builder-step-copy { display: grid; gap: 2px; min-width: 0; }
+.vw-builder-step-copy strong { color: var(--vw-text-soft); font-size: .76rem; font-weight: 650; }
+.vw-builder-step-copy span { font-size: .88rem; line-height: 1.45; }
+.vw-builder-step-body { display: grid; gap: 12px; margin: 0 0 16px 42px; padding: 14px 16px; border: 1px solid var(--vw-border-soft); border-radius: 12px; background: var(--vw-canvas-bg); }
 .vw-builder-step-hint { color: var(--vw-muted); font-size: .78rem; }
+
+/* Each chip row names what it sets, so panel size, panel resolution and source
+   timing stop reading as three grids of numbers that differ only by their values. */
+.vw-builder-choices-group { display: grid; gap: 7px; }
+.vw-builder-choices-label { color: var(--vw-muted); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
 
 .vw-builder-applications { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .vw-builder-applications button, .vw-builder-choices button { display: grid; align-content: start; justify-items: start; gap: 6px; }
@@ -433,11 +457,24 @@
 .vw-builder-verdict-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
 .vw-builder-verdict h2 { font-size: clamp(1.35rem, 2vw, 1.85rem); }
 .vw-builder-verdict-family { color: var(--vw-muted); font-size: .85rem; margin-top: 6px; max-width: 70ch; }
+/* The part numbers and the check below follow the build, so the headline says
+   which build they are instead of leaving a swapped SKU to explain itself. */
+.vw-builder-verdict-build { color: var(--vw-aqua); font-size: .78rem; margin-top: 6px; }
 .vw-builder-verdict-status { flex: 0 0 auto; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--vw-canvas-bg); background: var(--vw-aqua); border-radius: 999px; padding: 6px 12px; font-weight: 800; }
 .vw-builder-verdict-summary { color: var(--vw-muted); font-size: .86rem; }
 .vw-builder-verdict-switch { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px 16px; border: 1px dashed var(--vw-control-border); border-radius: 10px; font-size: .84rem; }
 .vw-builder-verdict-switch button { padding: 9px 14px; }
-.vw-builder-verdict-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; }
+.vw-builder-verdict-fit { display: grid; gap: 10px; }
+/* The checklist names its count on a closed line: a rep needs it when they
+   order, not while deciding, and six warnings beside the reasons turned the
+   decision into a reading exercise. */
+.vw-builder-checks-details > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding-top: 14px; border-top: 1px solid var(--vw-border-soft); cursor: pointer; list-style: none; }
+.vw-builder-checks-details > summary::-webkit-details-marker { display: none; }
+.vw-builder-checks-details > summary h3 { margin: 0; font-size: .95rem; }
+.vw-builder-checks-details > summary span { color: var(--vw-warning); font-size: .72rem; letter-spacing: .04em; }
+.vw-builder-checks-details > summary::after { content: "Open"; margin-left: auto; color: var(--vw-aqua); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
+.vw-builder-checks-details[open] > summary { margin-bottom: 12px; }
+.vw-builder-checks-details[open] > summary::after { content: "Close"; }
 .vw-builder-reasons, .vw-builder-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: .84rem; }
 .vw-builder-reasons li { padding-left: 18px; position: relative; }
 .vw-builder-reasons li::before { content: ""; position: absolute; left: 0; top: .55em; width: 7px; height: 7px; border-radius: 50%; background: var(--vw-aqua); }
@@ -445,9 +482,12 @@
 .vw-builder-checks li::before { content: "!"; position: absolute; left: 0; top: 0; color: var(--vw-warning); font-weight: 800; }
 .vw-builder-references { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; font-size: .8rem; }
 
-.vw-builder-path { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0; margin: 0; }
-.vw-builder-path li { flex: 1 1 150px; background: var(--vw-card-bg); border-bottom: 2px solid #287b83; border-radius: 8px; padding: 12px; font-size: .8rem; }
-.vw-builder-path span { display: block; color: var(--vw-aqua); margin-bottom: 8px; font-size: .7rem; font-weight: 700; }
+/* One route from source to screens, read as a sentence. Three bordered tiles
+   before this looked like three more options to pick from. */
+.vw-builder-path { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 0; list-style: none; padding: 0; margin: 0; font-size: .84rem; line-height: 1.7; }
+.vw-builder-path li { display: inline; }
+.vw-builder-path span { color: var(--vw-aqua); margin-right: 6px; font-size: .7rem; font-weight: 700; }
+.vw-builder-path li + li::before { content: "→"; margin: 0 10px; color: var(--vw-muted); }
 
 .vw-builder-equipment { display: grid; gap: 10px; }
 .vw-builder-table-wrap { overflow-x: auto; }
@@ -469,8 +509,17 @@
 
 /* The eliminated field ---------------------------------------------------- */
 .vw-builder-field { display: grid; gap: 14px; }
-.vw-builder-field > header { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; flex-wrap: wrap; }
-.vw-builder-field > header p { color: var(--vw-muted); font-size: .82rem; max-width: 76ch; }
+/* The field is always open: a rep choosing an architecture is choosing between
+   the ranges, so folding the alternatives behind a disclosure hid the answer. */
+.vw-builder-field-head { display: grid; gap: 4px; }
+.vw-builder-field-head h2, .vw-builder-field-head h3 { margin: 0; font-size: .95rem; }
+.vw-builder-field-head p { color: var(--vw-muted); font-size: .76rem; }
+/* Which range answers which job, above the walls: a rep choosing between a
+   matrix and three NetworkHD series is choosing a range before a part number. */
+.vw-builder-range-key { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.vw-builder-range-key li { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-left: 2px solid var(--vw-aqua); border-radius: 8px; background: #08181f; }
+.vw-builder-range-key strong { font-size: .8rem; }
+.vw-builder-range-key span { color: var(--vw-muted); font-size: .72rem; line-height: 1.45; }
 .vw-builder-option-list { display: grid; gap: 8px; }
 .vw-builder-field-row { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 14px; align-items: center; padding: 8px; border: 1px solid var(--vw-border-soft); border-radius: 10px; background: #0a1f2d; }
 .vw-builder-field-row > button { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 0; background: transparent; padding: 8px 10px; }
@@ -478,7 +527,16 @@
 .vw-builder-field-row > button strong { font-size: .88rem; }
 .vw-builder-field-row > button small { color: var(--vw-muted); font-size: .72rem; margin-top: 4px; }
 .vw-builder-field-row > button em { font-size: .64rem; font-style: normal; letter-spacing: .08em; text-transform: uppercase; color: var(--vw-muted); flex: 0 0 auto; }
-.vw-builder-field-row > p { font-size: .78rem; color: var(--vw-muted); padding-right: 10px; }
+.vw-builder-field-copy { display: grid; gap: 4px; padding-right: 10px; }
+.vw-builder-field-copy p { font-size: .78rem; color: var(--vw-muted); }
+.vw-builder-field-when { color: var(--vw-muted); font-size: .72rem; line-height: 1.45; }
+/* The builds of one design: chips rather than rows, because they swap the
+   schedule of the design already on screen instead of describing a new one. */
+.vw-builder-variants { display: grid; gap: 10px; padding-top: 12px; border-top: 1px solid var(--vw-border-soft); }
+.vw-builder-variant-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.vw-builder-variant-chips button { padding: 8px 14px; border: 1px solid var(--vw-control-border); border-radius: 999px; background: var(--vw-control-bg); font-size: .78rem; }
+.vw-builder-variant-chips button[aria-pressed="true"] { border-color: var(--vw-aqua); color: var(--vw-aqua); }
+.vw-builder-variant-summary { color: var(--vw-text-soft); font-size: .78rem; line-height: 1.5; max-width: 80ch; }
 .vw-builder-field-row[data-status="recommended"] { border-color: var(--vw-aqua); background: #0d2b38; }
 .vw-builder-field-row[data-status="recommended"] > button em { color: var(--vw-aqua); }
 .vw-builder-field-row[data-status="ruled-out"] { background: #081722; border-color: #1a2f3d; }
@@ -502,6 +560,9 @@
 .vw-wizard-card { border: 1px solid var(--vw-border); border-radius: 16px; background: linear-gradient(160deg, var(--vw-panel) 0%, var(--vw-panel-deep) 100%); padding: 24px; display: grid; gap: 18px; }
 .vw-wizard-card > header { display: grid; gap: 6px; }
 .vw-wizard-card > header p { color: var(--vw-muted); font-size: .82rem; }
+/* The first step's heading and the way past the walls share a line, so the
+   questions are reachable before the list is read rather than after it. */
+.vw-wizard-job-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
 .vw-wizard-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
 .vw-wizard-options button { display: grid; align-content: start; gap: 6px; padding: 14px; min-height: 74px; }
 .vw-wizard-options strong { font-size: .9rem; }
@@ -560,7 +621,6 @@
 
 @media (max-width: 1100px) {
   .vw-builder-applications { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .vw-builder-verdict-columns { grid-template-columns: minmax(0, 1fr); }
   .vw-builder-field-row { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -568,8 +628,19 @@
   .vw-builder { padding: 12px; }
   .vw-builder-header, .vw-builder-decide-head { flex-direction: column; align-items: flex-start; }
   .vw-builder-applications { grid-template-columns: minmax(0, 1fr); }
-  .vw-builder-step { grid-template-columns: 26px minmax(0, 1fr); gap: 10px; }
-  .vw-builder-step-number { width: 24px; height: 24px; font-size: .72rem; }
-  .vw-builder-path { flex-direction: column; }
+  .vw-builder-step-body { margin-left: 0; }
+  .vw-builder-step-number { width: 24px; height: 24px; font-size: .72rem; margin-top: 1px; }
   .vw-builder-verdict { padding: 18px; }
+  /* Three narrowing rows, read one way: a label over its chips on every row,
+     rather than the one row whose chips still fit sitting beside its label. */
+  .vw-preset-filter-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+  /* A narrow pass reads top to bottom: the answer wraps across the row instead
+     of the two thirds left once the Adjust word takes a column, and the step
+     number sits with its question rather than halfway down a five-line answer. */
+  .vw-builder-step-details > summary { grid-template-columns: 24px minmax(0, 1fr); align-items: start; gap: 6px 10px; }
+  .vw-builder-step-details > summary::after { grid-column: 2; margin-top: 2px; }
+  /* What qualifies the design stacks under it, so a sentence never wraps in a
+     sliver beside a button. */
+  .vw-builder-verdict-head { gap: 10px; }
+  .vw-builder-verdict-switch, .vw-builder-unblockers li { flex-direction: column; align-items: flex-start; }
 }

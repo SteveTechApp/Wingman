@@ -18,6 +18,12 @@ export const VIDEO_WALL_DRAFT_KEY = "wingman:videowall-builder:v2";
 export type VideowallDraft = {
   requirements: WallRequirements;
   selectedId: string;
+  /**
+   * The build of that design the rep chose, when the design ships in more than
+   * one. `""` is the catalogue build, so a wall saved before builds existed is
+   * the one it was always quoted as.
+   */
+  variantId: string;
   startingPoint?: WallStartingPointOrigin;
   /**
    * True when the address named a wall this browser had not stored, so the
@@ -34,6 +40,19 @@ function asSummary(value: unknown): Record<string, unknown> | null {
 function writtenAt(summary: Record<string, unknown> | null): number {
   const value = summary && typeof summary.updatedAt === "string" ? Date.parse(summary.updatedAt) : NaN;
   return Number.isFinite(value) ? value : NaN;
+}
+
+/**
+ * The build a stored design names, if it names one.
+ *
+ * A build is a short slug on a design, so anything else is a rotted record
+ * rather than a build this wall can be ordered in. Whether the design actually
+ * offers it is decided where the design is read, against the design's own list.
+ */
+function storedVariantId(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const id = value.trim();
+  return /^[a-z0-9-]{1,32}$/.test(id) ? id : "";
 }
 
 /** The project a stored draft says it belongs to, when it says. */
@@ -123,6 +142,7 @@ export function storedVideowallDraftUpdatedAt(): string | null {
 export function rememberVideowallDraft(draft: {
   requirements: WallRequirements;
   selectedId?: string;
+  variantId?: string;
   startingPoint?: WallStartingPointOrigin | null;
 }): string | null {
   if (typeof window === "undefined") return null;
@@ -132,6 +152,9 @@ export function rememberVideowallDraft(draft: {
       version: 2,
       requirements: draft.requirements,
       selectedId: draft.selectedId ?? "",
+      // The build rides with the design: reopening the wall reopens the pair
+      // that was quoted, not the catalogue's default build.
+      selectedVariantId: draft.variantId ?? "",
       startingPoint: draft.startingPoint ?? null,
       // The wall keeps its owner, so a project page can tell this browser's
       // draft of that wall apart from another project's work in progress.
@@ -181,14 +204,14 @@ export function restoreVideowallDraft(
   /** The project the address names, when it names one. */
   scopedProjectId?: string | null,
 ): VideowallDraft {
-  const fallback = { requirements: { ...defaultWallRequirements }, selectedId: "" };
+  const fallback = { requirements: { ...defaultWallRequirements }, selectedId: "", variantId: "" };
   // An explicit handoff from Discovery or a template outranks the saved draft.
   const seeded = seedWallRequirements(handoff);
-  if (seeded) return { requirements: seeded, selectedId: "" };
+  if (seeded) return { requirements: seeded, selectedId: "", variantId: "" };
   const raw = storedWallSummary(scopedProjectId);
   const r = raw?.requirements as WallRequirements | undefined;
   if (shared && !namesStoredWall(r, shared)) {
-    return { requirements: normalizeWallDesignMetadata(shared), selectedId: "", fromLink: true };
+    return { requirements: normalizeWallDesignMetadata(shared), selectedId: "", variantId: "", fromLink: true };
   }
   try {
     if (!r || !wallApplications.some((application) => application.value === r.application)
@@ -226,6 +249,7 @@ export function restoreVideowallDraft(
     return {
       requirements: normalizeWallDesignMetadata(requirements),
       selectedId: typeof raw?.selectedId === "string" ? raw.selectedId : "",
+      variantId: storedVariantId(raw?.selectedVariantId),
       ...(startingPoint ? { startingPoint } : {}),
     };
   } catch {
