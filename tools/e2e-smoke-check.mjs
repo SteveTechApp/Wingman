@@ -102,6 +102,26 @@ async function waitForHealth(baseUrl, label, timeoutMs = 30_000) {
     `Logs kept at ${dataDir}/`);
 }
 
+/**
+ * Open a page and wait for it to be ready to drive, not for its network to fall
+ * idle.
+ *
+ * `waitUntil: "networkidle"` asks whether the page has gone quiet, and this app
+ * does not stay quiet on purpose: the shell batches analytics to the telemetry
+ * endpoint every 30 s, a comparison re-runs the competitor lookup as soon as it
+ * is made, and one slow module or asset holds a connection open past any window
+ * a step can reasonably wait for. Whichever it is, the navigation then sat
+ * behind a request the step never needed, so a slow run failed the compare step
+ * before its first keystroke and the report read like a missing product rather
+ * than a wait that asked the wrong question. A page is ready when the control
+ * the next line uses is on it, which is what this waits for; whatever the page
+ * is still fetching is asserted by the steps that depend on it.
+ */
+async function openPage(page, pathname, ready) {
+  await page.goto(`${UI_BASE}${pathname}`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await ready.waitFor({ state: "visible", timeout: 30_000 });
+}
+
 async function postJson(baseUrl, requestPath, body, cookie = "") {
   const headers = { "content-type": "application/json" };
   if (cookie) headers.cookie = cookie;
@@ -168,8 +188,9 @@ async function signInViaSettings(page) {
   //    recovery). The login request goes through the Vite proxy to the real
   //    API server and its Set-Cookie lands on the UI origin, exactly like a
   //    real user session - no cookie is injected for this flow.
-  await page.goto(`${UI_BASE}/wingman/profile`, { waitUntil: "networkidle", timeout: 60_000 });
-  await page.getByTestId("workflow-page-workspace").click();
+  const workspacePage = page.getByTestId("workflow-page-workspace");
+  await openPage(page, "/wingman/profile", workspacePage);
+  await workspacePage.click();
   const workspaceSection = page.locator('section[aria-labelledby="wingman-settings-workspace"]');
   await workspaceSection.waitFor({ state: "visible", timeout: 15_000 });
 
@@ -231,14 +252,45 @@ async function saveDiscoveryProjectAndExportBrief(page) {
   console.log(`[e2e-smoke] Discovery brief exported as HTML blob (${briefFileName}, ${briefHtml.length} chars) with captured answers.`);
 }
 
+/**
+ * Start the walk from an empty browser store, without waiting for the page to
+ * fall idle first.
+ *
+ * The old order was open → clear → reload: clearing had to happen on a page
+ * that had finished booting, because the app writes its own first-run keys
+ * while it mounts, so a clear during the boot could be undone by the very keys
+ * it meant to remove. Waiting for that boot is what needed `networkidle`, and
+ * this app is never idle by design — so the walk either waited on a request it
+ * never needed or cleared a half-booted page and reloaded into an uncertain
+ * store.
+ *
+ * Clearing from an init script asks the question in the right order instead:
+ * the script runs before the document's own scripts, so the app's first read is
+ * already the empty store and one navigation is enough. The session sentinel
+ * means it happens once — later steps keep the state they create, so the sign-in
+ * before this walk and the comparison after it are untouched.
+ */
+const STORAGE_RESET_SENTINEL = "wingman:e2e-smoke-storage-reset";
+
+async function resetBrowserStoreBeforeBoot(page) {
+  await page.addInitScript((sentinel) => {
+    try {
+      if (window.sessionStorage.getItem(sentinel) === "1") return;
+      window.localStorage.clear();
+      window.sessionStorage.clear();
+      window.sessionStorage.setItem(sentinel, "1");
+    } catch {
+      // Storage can be denied; the walk then runs on whatever the browser holds.
+    }
+  }, STORAGE_RESET_SENTINEL);
+}
+
 async function walkDiscovery(page) {
-  await page.goto(`${UI_BASE}/wingman/discovery`, { waitUntil: "networkidle", timeout: 60_000 });
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
-  await page.reload({ waitUntil: "networkidle" });
-  await page.waitForTimeout(600);
+  await resetBrowserStoreBeforeBoot(page);
+  // The guided landing's own heading is the ready condition: it is what the
+  // walk reads next, and the market entry the expert view adds is asserted
+  // below, so nothing here waits on a quiet network.
+  await openPage(page, "/wingman/discovery", page.getByTestId("templates-title"));
 
   const marketEntry = page.getByTestId("discovery-market-entry");
   const viewSwitcher = page.locator(".wm-topbar-mode-toggle");
@@ -257,7 +309,6 @@ async function walkDiscovery(page) {
     throw new Error("[e2e-smoke] Focused view did not activate from the header switch.");
   }
 
-  await page.getByTestId("templates-title").waitFor({ state: "visible" });
   await expertView.click();
   const corporateButton = marketEntry.getByTestId("discovery-market-corporate");
   await corporateButton.waitFor({ state: "visible", timeout: 15_000 });
@@ -346,10 +397,12 @@ async function walkDiscovery(page) {
 }
 
 async function runCompare(page) {
-  await page.goto(`${UI_BASE}/wingman/compare`, { waitUntil: "networkidle", timeout: 60_000 });
-
   const manufacturerInput = page.getByTestId("compare-manufacturer");
   const skuInput = page.getByTestId("compare-sku");
+  // The compare form is the ready condition: it is what the next line types
+  // into, and any lookup the page starts on its own is not something this step
+  // should be waiting for.
+  await openPage(page, "/wingman/compare", manufacturerInput);
   await manufacturerInput.fill("Crestron");
   await skuInput.fill("DM-NVX-350");
 
