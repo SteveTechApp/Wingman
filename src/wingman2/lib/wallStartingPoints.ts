@@ -235,9 +235,16 @@ export function removeWallStartingPoint(key: string): WallStartPreset[] {
 /**
  * The picker's groups with the rep's own walls first in their family, so a
  * saved wall reads beside the shipped walls it was adjusted from.
+ *
+ * `groups` lets the caller hand over bands already ordered by something else —
+ * the rep's pinned walls — so a saved wall still leads its family and a pin
+ * orders the shipped walls underneath it.
  */
-export function wallStartPresetGroupsWithSaved(saved: WallStartPreset[]) {
-  return wallStartPresetGroups.map((group) => {
+export function wallStartPresetGroupsWithSaved(
+  saved: WallStartPreset[],
+  groups: typeof wallStartPresetGroups = wallStartPresetGroups,
+) {
+  return groups.map((group) => {
     const mine = saved.filter((preset) => preset.family === group.family);
     return mine.length ? { ...group, presets: [...mine, ...group.presets] } : group;
   });

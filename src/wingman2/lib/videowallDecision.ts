@@ -874,6 +874,54 @@ export const wallStartPresetGroups = wallStartPresetFamilies
   .map((group) => ({ ...group, presets: wallStartPresets.filter((preset) => preset.family === group.family) }))
   .filter((group) => group.presets.length > 0);
 
+/**
+ * The walls the guided first step shows before a rep asks for the catalogue:
+ * one per job a rep actually starts from, with every family represented so no
+ * band disappears while the list is folded. They are named here rather than
+ * derived, because "the first of each family" is an ordering accident — the
+ * order of the brief list, not a statement about which walls are common — and
+ * a hand-picked set is the one a rep can be told about in a sentence.
+ *
+ * The keys are resolved through the shipped presets below, so a key that names
+ * no wall (a rename, a retired brief) drops out instead of rendering an empty
+ * row, and `wallStartPresetShortlistCoverage` reports it in a test.
+ */
+export const wallStartPresetShortlistKeys: readonly string[] = [
+  "single-canvas",
+  "quad-canvas",
+  "per-panel",
+  "led-canvas",
+  "projector-quad",
+  "projector-pair",
+];
+
+/** The curated walls, in the brief list's order so a family keeps its order. */
+export const wallStartPresetShortlist: WallStartPreset[] = wallStartPresets.filter((preset) =>
+  wallStartPresetShortlistKeys.includes(preset.key),
+);
+
+/**
+ * How the shortlist reads against the catalogue, for the test that keeps it
+ * honest: every key names a shipped wall, every family is represented, and the
+ * list is a shortlist rather than a second catalogue.
+ */
+export function wallStartPresetShortlistCoverage(): {
+  unknownKeys: string[];
+  families: Record<WallStartPresetFamily, number>;
+  curated: number;
+  catalogue: number;
+} {
+  const shipped = new Set(wallStartPresets.map((preset) => preset.key));
+  const families: Record<WallStartPresetFamily, number> = { lcd: 0, led: 0, projection: 0 };
+  for (const preset of wallStartPresetShortlist) families[preset.family] += 1;
+  return {
+    unknownKeys: wallStartPresetShortlistKeys.filter((key) => !shipped.has(key)),
+    families,
+    curated: wallStartPresetShortlist.length,
+    catalogue: wallStartPresets.length,
+  };
+}
+
 /** The numbers a rep compares on a picker card, before committing to a wall. */
 export function wallStartPresetFacts(preset: WallStartPreset): string {
   const r = preset.requirements;

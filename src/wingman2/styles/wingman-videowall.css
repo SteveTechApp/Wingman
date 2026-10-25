@@ -113,35 +113,108 @@
 .vw-preset-filter .vw-preset-filter-clear { padding: 0; border: 0; background: none; color: var(--vw-aqua); font-size: .7rem; }
 .vw-preset-filter .vw-preset-filter-clear:hover:not(:disabled) { background: none; text-decoration: underline; }
 .vw-preset-filter-note { margin: 2px 0 0; color: var(--vw-muted); font-size: .68rem; line-height: 1.45; }
+/* The narrowings stay open: a rep comparing twenty walls has to see that the
+   list can be cut down, and a discipline nobody opens is one nobody uses. The
+   count and Clear sit on the line above them. */
+.vw-preset-filter-bar { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-radius: 12px; background: var(--vw-deep); }
 .vw-preset-filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .vw-preset-filter-label { min-width: 72px; color: var(--vw-muted); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
 .vw-preset-filter-chips { display: flex; flex-wrap: wrap; gap: 5px; }
 #root .vw-preset-filter-chips button { padding: 3px 10px; border: 1px solid var(--vw-border-soft); border-radius: 999px; background: var(--vw-panel); color: var(--vw-text-soft); font-size: .7rem; line-height: 1.5; }
 #root .vw-preset-filter-chips button[aria-pressed="true"] { border-color: var(--vw-aqua); background: var(--vw-surface-accent); color: var(--vw-text); }
 .vw-preset-empty { display: grid; gap: 8px; justify-items: start; padding: 14px; border: 1px dashed var(--vw-border-soft); border-radius: 10px; color: var(--vw-muted); font-size: .78rem; }
-.vw-preset-groups { display: grid; gap: 14px; }
-.vw-preset-group { display: grid; gap: 7px; }
-.vw-preset-group-label { color: var(--vw-muted); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
-.vw-preset-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.vw-preset-grid button { display: grid; align-content: start; justify-items: start; gap: 4px; padding: 11px 12px; border-style: dashed; }
-.vw-preset-grid strong { font-size: .86rem; line-height: 1.3; }
-.vw-preset-grid span { color: var(--vw-muted); font-size: .73rem; line-height: 1.4; }
-.vw-preset-grid small { color: var(--vw-text-soft); font-size: .7rem; line-height: 1.4; }
-.vw-preset-grid button[aria-pressed="true"] { border-style: solid; }
-/* The card this design started on, which an adjusted answer does not unmark:
-   aqua rather than the pressed state's own edge, so the two read apart. */
-.vw-preset-grid button[data-started="true"] { border-style: solid; border-color: var(--vw-aqua); }
-/* A saved card keeps its remove action outside the card button, which would not
-   be a valid control inside another button. The #root prefix outranks the shell's
-   compact button padding, which would otherwise make it a second card. */
-.vw-preset-item { display: grid; align-content: start; gap: 4px; min-width: 0; }
-#root .vw-preset-grid .vw-preset-item > button.vw-preset-remove { justify-self: start; padding: 0; border: 0; background: none; color: var(--vw-muted); font-size: .66rem; text-align: left; }
-#root .vw-preset-grid .vw-preset-item > button.vw-preset-remove:hover:not(:disabled) { background: none; color: var(--vw-text-soft); }
-@media (max-width: 1100px) {
-  .vw-preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.vw-preset-groups { display: grid; gap: 16px; }
+.vw-preset-group { display: grid; gap: 4px; }
+/* The family band carries its own count, so the list reads as three short lists
+   and a rep can see which one to look in before reading a single wall. */
+.vw-preset-group-label { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--vw-border-soft); color: var(--vw-text-soft); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+.vw-preset-group-count { color: var(--vw-muted); font-size: .68rem; letter-spacing: .04em; }
+/* One wall per row: its drawing, then the name over the brief, then the facts as
+   chips in their own column. Twenty bordered cards of equal size read as twenty
+   decisions; a row can be recognised by its shape and compared down a column.
+   The #root prefix outranks the shell's compact page-control rule, which would
+   otherwise cut the row to three pixels of padding and centre its column. */
+.vw-preset-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.vw-preset-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
+#root .vw-preset-item > button.vw-preset-row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 4px 16px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
 }
-@media (max-width: 640px) {
-  .vw-preset-grid { grid-template-columns: minmax(0, 1fr); }
+/* The shell gives any button's child an icon chip (a padded, bordered box at
+   0.82rem), which shrank this drawing to a dot. The row owns the size: the
+   #root prefix outranks that rule and the glyph keeps its drawing box. */
+#root .vw-preset-item > button.vw-preset-row > .vw-preset-glyph { display: block; width: 96px; height: 54px; padding: 0; border: 0; background: none; box-shadow: none; filter: none; }
+.vw-preset-glyph-frame { fill: var(--vw-preview-deep); stroke: #355d72; stroke-width: 1.5; }
+.vw-preset-glyph-panel { fill: var(--vw-card-bg); }
+/* The same tint the elevation gives a mapped source, so a window reads as
+   content rather than as one more panel. */
+.vw-preset-glyph-window { fill: hsl(182 53% 34% / .55); }
+.vw-preset-glyph-seam { stroke: #f5a524; stroke-width: 1.6; stroke-dasharray: 3 2; }
+.vw-preset-copy { display: grid; gap: 2px; min-width: 0; }
+.vw-preset-copy strong { color: var(--vw-text); font-size: .88rem; line-height: 1.3; }
+.vw-preset-copy span { color: var(--vw-muted); font-size: .76rem; line-height: 1.4; }
+/* The three facts sit in three columns of their own, so the array, the pictures
+   and the architecture line up down the whole list and can be compared without
+   reading a sentence. Right-aligned pills of three different widths could not be
+   compared that way — the numbers started wherever the value before them ended. */
+.vw-preset-facts { display: grid; grid-template-columns: 112px 82px minmax(0, 1fr); align-items: center; gap: 4px 6px; justify-items: start; }
+.vw-preset-fact { padding: 2px 8px; border: 1px solid var(--vw-border-soft); border-radius: 999px; color: var(--vw-text-soft); font-size: .68rem; line-height: 1.5; white-space: nowrap; }
+.vw-preset-marks { grid-column: 1 / -1; color: var(--vw-aqua); font-size: .66rem; letter-spacing: .04em; }
+#root .vw-preset-item > button.vw-preset-row:hover:not(:disabled) { background: var(--vw-surface-accent); border-color: var(--vw-border-soft); }
+/* Two different facts, so two marks: the answers still match this wall
+   (pressed) and this is the wall the design came from (started), which a changed
+   answer does not undo. */
+#root .vw-preset-item > button.vw-preset-row[aria-pressed="true"] { background: var(--vw-surface-accent); border-color: var(--vw-aqua); }
+#root .vw-preset-item > button.vw-preset-row[aria-pressed="true"] strong { color: var(--vw-aqua); }
+.vw-preset-item[data-started="true"] > button.vw-preset-row { box-shadow: inset 3px 0 0 var(--vw-aqua); }
+/* A saved wall keeps its remove action outside the row button, which would not
+   be a valid control inside another button. The #root prefix outranks the
+   shell's compact button padding, which would otherwise make it a second card. */
+#root .vw-preset-item > button.vw-preset-remove { width: auto; padding: 0 8px; border: 0; background: none; color: var(--vw-muted); font-size: .66rem; }
+#root .vw-preset-item > button.vw-preset-remove:hover:not(:disabled) { background: none; color: var(--vw-text-soft); text-decoration: underline; }
+/* A pinned wall leads its family band, so the pin sits beside the row the way
+   the saved wall's remove action does — outside the row button, which cannot
+   hold another control. It reads as set only when pressed, because the colour
+   is the state, not the action's name. */
+#root .vw-preset-item > button.vw-preset-pin { align-self: center; width: auto; min-height: 28px; padding: 4px 8px; border: 0; background: none; color: var(--vw-muted); font-size: .66rem; }
+#root .vw-preset-item > button.vw-preset-pin[aria-pressed="true"] { color: var(--vw-aqua); }
+#root .vw-preset-item > button.vw-preset-pin:hover:not(:disabled) { background: none; color: var(--vw-text-soft); text-decoration: underline; }
+/* The guided first step shows one wall per family and folds the rest away, so
+   this is the action that asks for the catalogue. It sits under the walls on
+   its own line, and the #root prefix keeps a control's own size against the
+   shell's compact page-control rule, like the rows above it. */
+#root .vw-preset-more { justify-self: start; padding: 6px 14px; border: 1px solid var(--vw-border-soft); border-radius: 999px; background: var(--vw-panel); color: var(--vw-aqua); font-size: .74rem; }
+#root .vw-preset-more:hover:not(:disabled) { border-color: var(--vw-aqua); color: var(--vw-text); }
+@media (max-width: 1100px) {
+  /* The facts fold under the name once there is no column left for them; the
+     drawing stays beside the name, so the shape still leads the row. */
+  #root .vw-preset-item > button.vw-preset-row { grid-template-columns: 84px minmax(0, 1fr); row-gap: 6px; }
+  #root .vw-preset-item > button.vw-preset-row > .vw-preset-glyph { width: 84px; height: 48px; }
+  .vw-preset-facts { grid-column: 2; }
+}
+@media (max-width: 620px) {
+  /* Two facts on a line, the architecture across the line below: the widest
+     value gets the whole row instead of wrapping in a column too narrow for it. */
+  #root .vw-preset-item > button.vw-preset-row { grid-template-columns: 56px minmax(0, 1fr); gap: 3px 10px; padding: 7px 2px; }
+  #root .vw-preset-item > button.vw-preset-row > .vw-preset-glyph { width: 56px; height: 34px; }
+  .vw-preset-facts { grid-template-columns: minmax(0, 1fr) auto; gap: 3px 6px; }
+  .vw-preset-facts > .vw-preset-fact:last-child { grid-column: 1 / -1; }
+  .vw-preset-fact { padding: 1px 7px; font-size: .64rem; }
+  /* The label takes its own line so the chips wrap against the full width, not
+     against a column that the label has already narrowed. */
+  .vw-preset-filter { padding: 8px 10px; }
+  .vw-preset-filter-bar { padding: 8px 10px; }
+  .vw-preset-filter-row { display: grid; gap: 4px; }
+  .vw-preset-filter-label { min-width: 0; font-size: .64rem; }
+  #root .vw-preset-filter-chips button { padding: 2px 8px; font-size: .66rem; }
 }
 
 .vw-builder-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
