@@ -34,6 +34,7 @@ ratchet-style gates share the exception discipline recorded in
 | `check:export-validation-domains` | `verify:contract` | a registered export-validation domain (`EXPORT_VALIDATION_DOMAINS` in `proposalExportValidation.ts`) that no test proves by reading `.domain` off an entry the check produced, a check whose domain is not registered, a registered domain no check produces, or an allowance entry a test has since covered | add the test (preferred); a domain that genuinely cannot be proven yet is recorded with its reason in `tools/wingman-export-validation-domains.json`, and the gate refuses that entry once a test covers it |
 | `check:proposal-wizard` | `verify:contract` | a marker the proposal wizard's contract depends on missing from the file that must hold it: the five step names the entry hands to its split view, `computeProposalReadiness` and the project save the entry calls, the `Export formatted DOCX` / `Open Recommendations` exits, the rep/customer copy split in `proposalCopy.ts`, `CUSTOMER_COPY` in both export builders (with no `REP_COPY` reference or `[complete]`-style authoring prompt reaching them), the DOCX section markers, or the wizard's CSS hooks | none — a failure means the control moved, was renamed or was dropped, so move its assertion to the file that now renders it (the marker lists are per file, and moving a control between the entry and its view means moving its marker with it); the DOCX and CSS markers stay where they are |
 | `check:audit-scopes` | `verify:contract` | an audit entry written with a `scope` that `AuditLogPanel`'s `AUDIT_SCOPES` does not list with a label and icon — a trail type that would print its raw stored key | add the scope to `AUDIT_SCOPES` and `SCOPE_CONFIG` in `src/wingman2/components/AuditLogPanel.tsx` (the typecheck asks for both); there is no allowance file |
+| `check:pr-description` | `PR description` workflow | a description that reports failing checks the head no longer has, or lists open work this pull request has already done | none — edit the description (the workflow reruns on the edit), or annotate a genuinely open item with `<!-- keep-outstanding: reason -->` |
 | `check:fixture-sku-lifecycle` | `verify:contract` | a test fixture or sample BOM quoting a discontinued or do-not-spec SKU as then-current equipment (a `sku` inside an object literal that also carries `qty`, `quantity`, `description` or `role`) | replace it with the active successor; an entry in `tools/wingman-fixture-sku-allowlist.json` covers a fixture that exists to prove retirement behaviour, and the gate fails an entry whose row no longer quotes that SKU |
 
 Everything below expands the non-obvious rows a dependency or data edit will
@@ -157,6 +158,42 @@ files against `lifecycle.csv`:
 No exception path — reconcile the governance JSON with lifecycle, then re-run
 the gate (and `check:generated-manifests`, since governed profiles feed the
 technology-profiles materialisation).
+
+## Pull request description gate
+
+`npm run check:pr-description` — the `PR description` workflow
+(`.github/workflows/pr-description.yml`), not a `verify` stage, because it reads
+GitHub's check runs and changed files — fails a pull request whose description
+no longer describes the branch it is attached to. The workflow triggers on
+`edited` as well as pushes, since editing the body is the fix, and it is small
+enough that a sentence change does not re-run the verify matrix.
+
+Two claims are checked and nothing else:
+
+- **A failure claim** (`still failing`, `checks are red`, `not passing`, a
+  count of failing checks) is stale once every completed check run on the head
+  passes and at least one of them ran. Runs still in flight are ignored — this
+  gate is one of them — and a head with nothing completed yet is not judged. A
+  line about a previous run ("failed before this change", "used to fail", "no
+  failing tests"), a fenced log block or a quoted line is not a claim.
+- **An outstanding claim** — an unticked `- [ ]` box, a bullet under a
+  `Remaining` / `Still to do` / `TODO` heading, or a line saying the work
+  "still needs" doing — is stale when the branch has closed it: the item names
+  a file this pull request adds or changes (a bare filename counts only when
+  exactly one changed file carries it), or the item is a checklist box on a
+  non-draft pull request whose latest checks pass. Prose about work that lands
+  in a later pull request is left alone, because it names no file the branch
+  touched.
+
+There is no allowlist file. A genuinely open item is kept by annotating its own
+line, or the heading above it, with `<!-- keep-outstanding: reason -->`; a
+description that deliberately reports another branch's state opts out with
+`<!-- pr-description: skip -->`. Both markers travel with the description, so
+the reason sits beside the item a reviewer is pointed at.
+
+The gate never guesses about a read it could not perform: a fork pull request
+or an API failure skips with a note instead of blocking a merge, while an
+unreadable token fails loudly rather than passing silently.
 
 ## Ratchet gates and where exceptions are recorded
 
