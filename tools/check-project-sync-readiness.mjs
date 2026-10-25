@@ -22,8 +22,11 @@ function expectMarkers(relativePath, markers) {
   }
 }
 
+// The example is what a fresh checkout copies to `.env`, so it ships project
+// sync on: the API is in this checkout, and Settings -> Workspace's local dev
+// workspace is the way to get a session for it.
 expectMarkers(".env.example", [
-  "VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=false",
+  "VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=true",
   "WINGMAN_STORAGE_MODE=file",
   "SUPABASE_WINGMAN_PROJECTS_TABLE=wingman_projects",
 ]);

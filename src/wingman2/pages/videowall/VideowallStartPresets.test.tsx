@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { wallStartPresets } from "../../lib/videowallDecision";
+import { wallStartPresetGroups, wallStartPresetShortlist, wallStartPresets } from "../../lib/videowallDecision";
+import { resetPinnedWallPresetsCache, togglePinnedWallPreset } from "../../lib/wallPinnedPresets";
 import {
   resetWallStartingPointsCache,
   savedWallStartingPoints,
@@ -13,6 +14,7 @@ describe("VideowallStartPresets", () => {
   beforeEach(() => {
     window.localStorage.clear();
     resetWallStartingPointsCache();
+    resetPinnedWallPresetsCache();
   });
 
   it("groups the walls by construction and shows what each card sets", () => {
@@ -137,6 +139,91 @@ describe("VideowallStartPresets", () => {
     fireEvent.click(screen.getByTestId("videowall-preset-filter-clear"));
     expect(screen.queryByTestId("videowall-preset-empty")).toBeNull();
     expect(screen.getByTestId("videowall-preset-led-fixed-windows")).toBeTruthy();
+  });
+
+  it("folds the guided step to the curated walls until the rest is asked for", () => {
+    render(<VideowallStartPresets shortlist showFilter={false} onPick={vi.fn()} />);
+
+    // The curated walls are on screen, whatever their position in the family.
+    for (const preset of wallStartPresetShortlist) {
+      expect(screen.getByTestId(`videowall-preset-${preset.key}`)).toBeTruthy();
+    }
+    expect(screen.getByTestId("videowall-preset-quad-canvas")).toBeTruthy();
+    // A wall that is not curated waits behind Show all.
+    expect(screen.queryByTestId("videowall-preset-nine-feeds")).toBeNull();
+    expect(screen.queryByTestId("videowall-preset-led-ribbon")).toBeNull();
+    // The band still counts the family it stands for, not the rows under it.
+    const lcd = wallStartPresetGroups.find((group) => group.family === "lcd")!;
+    expect(screen.getByRole("region", { name: "LCD walls" }).textContent).toContain(String(lcd.presets.length));
+    expect(screen.queryByTestId("videowall-preset-filter-summary")).toBeNull();
+
+    const more = screen.getByTestId("videowall-preset-show-all");
+    expect(more.textContent).toBe(`Show all ${wallStartPresets.length} walls`);
+    expect(more.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(more);
+
+    expect(screen.getByTestId("videowall-preset-nine-feeds")).toBeTruthy();
+    expect(screen.getByTestId("videowall-preset-led-ribbon")).toBeTruthy();
+    expect(screen.getByTestId("videowall-preset-show-all").getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByTestId("videowall-preset-show-all").textContent).toBe("Show fewer walls");
+  });
+
+  it("keeps a rep's own wall folded in, which the catalogue's order does not", () => {
+    saveWallStartingPoint({
+      ...defaultWallRequirements,
+      application: "led",
+      ledCanvasWidth: 3840,
+      ledCanvasHeight: 2160,
+      layout: "custom",
+      customMode: "floating",
+      windows: 4,
+      sources: 4,
+      sourceResolution: "4k30",
+    });
+    const mine = savedWallStartingPoints()[0];
+    render(<VideowallStartPresets shortlist showFilter={false} onPick={vi.fn()} />);
+
+    // A starting point the rep saved is a wall they came back for, so folding
+    // the list to the catalogue's common walls must not bury it.
+    expect(screen.getByTestId(`videowall-preset-${mine.key}`)).toBeTruthy();
+  });
+
+  it("leads the guided step with the walls the rep pinned", () => {
+    render(<VideowallStartPresets shortlist showFilter={false} onPick={vi.fn()} />);
+
+    const lcd = () => screen.getByRole("region", { name: "LCD walls" });
+    const firstRow = () => lcd().querySelector("button.vw-preset-row")?.getAttribute("data-testid");
+    // The catalogue's order, before the rep has an opinion.
+    expect(firstRow()).toBe("videowall-preset-single-canvas");
+
+    // per-panel is curated but sits last of the LCD walls, so the pin has to
+    // move it rather than agree with the order it already had.
+    fireEvent.click(screen.getByTestId("videowall-preset-pin-per-panel"));
+
+    expect(firstRow()).toBe("videowall-preset-per-panel");
+    const card = screen.getByTestId("videowall-preset-per-panel");
+    expect(card.textContent).toContain("Pinned · ");
+    expect(screen.getByTestId("videowall-preset-pin-per-panel").getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(screen.getByTestId("videowall-preset-pin-per-panel"));
+
+    expect(firstRow()).toBe("videowall-preset-single-canvas");
+    expect(screen.getByTestId("videowall-preset-per-panel").textContent).not.toContain("Pinned");
+  });
+
+  it("offers the pin only where the shortlist is, not in the catalogue reading", () => {
+    togglePinnedWallPreset("per-panel");
+    render(<VideowallStartPresets onPick={vi.fn()} />);
+
+    // The expert reading's order is the catalogue's, so a pin there would
+    // reorder nothing and its control would be a promise the page cannot keep.
+    expect(screen.queryByTestId("videowall-preset-pin-per-panel")).toBeNull();
+    expect(screen.queryByRole("button", { name: /to my shortlist/ })).toBeNull();
+    const lcd = screen.getByRole("region", { name: "LCD walls" });
+    expect(lcd.querySelector("button.vw-preset-row")?.getAttribute("data-testid")).toBe(
+      `videowall-preset-${wallStartPresetGroups.find((group) => group.family === "lcd")!.presets[0].key}`,
+    );
   });
 
   it("marks the preset the current answers already match", () => {

@@ -32,10 +32,21 @@ The active redesign is focused on making Wingman feel like one cohesive workspac
 ## Development
 
 ```bash
+cp .env.example .env
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000/wingman`.
+Open `http://127.0.0.1:3000/wingman`. The example environment turns project
+backend sync on, so a fresh checkout saves projects through the local API that
+`npm run dev` starts on port 8787 instead of only in the browser. Sign in once
+from Settings → Workspace → **Use the local dev workspace**: it creates
+`dev@wingman.local` in the API's own file store and remembers the choice, so
+later loads stay signed in. Until then the app keeps working from browser
+storage and says so.
+
+`npm run check:dev-pair-sync` is that step, scripted: with the pair running it
+signs in to the local dev workspace in a throwaway browser and fails unless the
+Projects chip reports a synced workspace.
 
 For faster local validation during UI work, run:
 

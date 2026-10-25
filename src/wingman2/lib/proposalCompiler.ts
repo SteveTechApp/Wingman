@@ -145,7 +145,9 @@ export function compileProjectApplicationProposal(input: {
     solutionOverview: [input.architecture, audioDesign?.direction, audioDesign?.zoning].filter(Boolean).join(" "),
     benefits: [{ title: "Business value", detail: value }, { title: "Supportability", detail: "Explicit ownership, assumptions and acceptance criteria reduce delivery and handover risk." }],
     userJourney: ["Enter and prepare the room.", "Select the required source or meeting workflow.", "Use the agreed displays, audio, camera and control experience.", "Close the session and return the room to its standard state."],
-    technicalFacts: [...rows.map((row) => `${row.sku}: ${row.role}`), ...(audioDesign ? [audioDesign.basis, audioDesign.signalPath] : [])],
+    // The route sits before the signal path: a reader needs to know which feed
+    // reaches the room before reading how the room's audio chain is built.
+    technicalFacts: [...rows.map((row) => `${row.sku}: ${row.role}`), ...(audioDesign ? [audioDesign.basis, audioDesign.route, audioDesign.signalPath].filter((line): line is string => Boolean(line)) : [])],
     architectureDiagram: rows.map((row) => `${row.role}: ${row.qty} × ${row.sku}`).join(" → "),
     acceptanceCriteria: ["Signal routing and room modes operate as approved.", "Third-party interfaces and responsibilities are validated.", "Training and documentation are complete."],
     visualBriefs: [], verifiedDesignParameters: [], deploymentConditions: input.assumptions,

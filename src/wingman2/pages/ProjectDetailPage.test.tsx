@@ -341,6 +341,16 @@ describe("Project Detail review controls", () => {
     expect(document.activeElement?.id).toBe("project-evidence");
   });
 
+  it("opens the first section when the address names one this page does not have", () => {
+    renderPage("?view=not-a-section");
+
+    // The section id is typed to the registry now, so no code can write this
+    // value — but a hand-edited address still can. It names no panel, so the
+    // page falls back to the section it opens on instead of rendering nothing.
+    expect(screen.getByRole("link", { name: "Overview" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByTestId("location").textContent).toBe("/wingman/projects/project-1?view=not-a-section");
+  });
+
   it("leaves a hash this page does not render alone", () => {
     renderPage("#somewhere-else");
 

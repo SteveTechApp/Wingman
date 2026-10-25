@@ -224,7 +224,7 @@ export function compileDiscoveryBrief({
       ...multiviewDestinations.map((item) => `Multiview destination: ${item}`),
       ...multiviewOperation.map((item) => `Multiview operation: ${item}`),
       ...audioProcessing.map((item) => `Audio processing: ${item}`),
-      ...(audioDesign ? [audioDesign.direction, audioDesign.zoning, audioDesign.signalPath] : []),
+      ...(audioDesign ? [audioDesign.direction, audioDesign.zoning, audioDesign.route, audioDesign.signalPath].filter((line): line is string => Boolean(line)) : []),
     ].filter(Boolean);
     const missingInformationQuestions = progressiveMode === "expert"
       ? discoveryQuestions
@@ -337,6 +337,7 @@ export function compileDiscoveryBrief({
         audioNeeds,
         audioDesign,
         audioDesignDirection: audioDesign?.direction,
+        audioRoute: audioDesign?.route,
         audioSignalPath: audioDesign?.signalPath,
         audioZoning: audioDesign?.zoning,
         audioScope: audioDesign?.requiredScope.map((scope) => `${scope.description} by others: ${scope.notes}`),

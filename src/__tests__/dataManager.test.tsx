@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DataManagerPage } from "@/wingman2/pages/DataManagerPage";
 import { lifecycleToApiStatus, validateProductRecord, type ProductIntelligenceRecord } from "@/wingman2/data/productIntelligenceRepository";
+import { expectResultsWindow, turnResultsPage } from "@/wingman2/lib/testHelpers/resultsPager";
 
 const getWingmanSession = vi.fn();
 const getWingmanJson = vi.fn();
@@ -96,6 +97,39 @@ describe("ADMIN Data Manager", () => {
     fireEvent.click(screen.getByRole("button", { name: /WyreStorm Products/ }));
     expect(await screen.findByText("TEST-1")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Add Product/ })).toBeInTheDocument();
+  });
+
+  it("returns to the first page on a filter change, and leaves the page alone while a record is edited", async () => {
+    getWingmanSession.mockResolvedValue({ ok: true, session: { workspaceRole: "admin", user: { email: "admin@example.com" } } });
+    const records = Array.from({ length: 13 }, (_, index) => ({
+      ...record,
+      id: `wyrestorm::wyrestorm::TEST-${index + 1}`,
+      sku: `TEST-${index + 1}`,
+      name: `Encoder ${index + 1}`,
+    }));
+    getWingmanJson.mockResolvedValue({ ok: true, records });
+
+    render(<MemoryRouter><DataManagerPage /></MemoryRouter>);
+    await screen.findByRole("heading", { name: "Data Manager" });
+    fireEvent.click(screen.getByRole("button", { name: /WyreStorm Products/ }));
+    expect(await screen.findByText("TEST-1")).toBeInTheDocument();
+
+    // Twelve records fit a page, so thirteen need a second one.
+    expectResultsWindow(1, 12, 13);
+    turnResultsPage(13, 13, 13);
+
+    // Editing the record is not narrowing the list: closing the editor returns
+    // the rep to the page the record came from.
+    fireEvent.click(screen.getByRole("button", { name: "Edit product" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expectResultsWindow(13, 13, 13);
+    fireEvent.click(screen.getAllByRole("button", { name: "Close product editor" })[0]);
+    expectResultsWindow(13, 13, 13);
+
+    // A search is a filter, so it returns the list to its first page even
+    // though every record still matches it.
+    fireEvent.change(screen.getByLabelText("Search products"), { target: { value: "Encoder" } });
+    expectResultsWindow(1, 12, 13);
   });
 
   it("allows local development access without an admin session", async () => {

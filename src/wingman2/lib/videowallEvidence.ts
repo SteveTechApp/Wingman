@@ -9,6 +9,7 @@ import {
 import type { WallTransportPlan } from "./videowallTransport";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "./wallSurvey";
 import type { WallStartingPointOrigin } from "./wallStartingPointOrigin";
+import { wallVariantFor } from "./wallVariants";
 
 /**
  * The design evidence saved onto the project by the wall builder. Kept beside
@@ -18,6 +19,12 @@ import type { WallStartingPointOrigin } from "./wallStartingPointOrigin";
 export function wallDesignEvidence(args: {
   requirements: WallRequirements;
   option: WallOption;
+  /**
+   * The build of that design, when it ships in more than one. The equipment on
+   * `option` is already the chosen build's, so this only records which one it
+   * was — a reordered schedule must still say why its part numbers changed.
+   */
+  variantId?: string | null;
   decision: WallDecision;
   transport: WallTransportPlan;
   /** Checks captured outside the product model, such as HDCP or 24/7 operation. */
@@ -33,14 +40,19 @@ export function wallDesignEvidence(args: {
   const canvasPlan = wallCanvasPlan(args.requirements);
   const surveyGaps = wallSurveyGaps(args.transport, args.requirements.linkDetails);
   const isLead = args.decision.recommended?.option.id === args.option.id;
+  const variant = wallVariantFor(args.option.id, args.variantId);
   return {
     version: 2,
     source: "wingman-video-wall-workflow",
     requirements: { ...args.requirements, mapping: args.requirements.mapping ?? (args.requirements.windows > 1 ? "fit" : "fill") },
     selectedId: args.option.id,
+    // Null rather than absent on the catalogue build: a reader can tell "the
+    // one build" from "no record", the same way the starting point reads.
+    selectedVariantId: variant?.id ?? null,
     recommendation: {
       title: args.option.title,
       rationale: args.option.summary,
+      variant: variant?.label ?? null,
       products: args.option.equipment.map((item) => item.sku),
       equipment: args.option.equipment,
       reasons: isLead ? args.decision.recommended?.reasons ?? [] : wallFitReasons(args.option, args.requirements),
