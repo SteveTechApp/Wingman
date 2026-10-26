@@ -106,12 +106,32 @@ const descriptions: Record<RoomTransport, string> = {
   studio: "Two HDMI camera feeds enter CAM-0402-NDI-BRG at the production desk. Its selected/composited HDMI output drives a local confidence monitor and its USB output feeds the production computer. Microphone audio is mixed separately into the recording workflow. HDMI/USB outputs share the programme; an independent preview bus needs a separate production switcher.",
   pods: "Each pod has its own SW-130-TX-UK and RX-700 pair, local laptop input and display. Four dedicated HDBaseT links provide four independent spaces without a shared video network. There is no cross-pod source routing or shared conferencing audio in the base scope.",
 };
+/**
+ * The HDBaseT pair is one switched presentation link, so its sentence has to
+ * follow the room it serves: an assembly-hall projector has no touch surface to
+ * return, while the interactive teaching panel has its USB host path scheduled.
+ * Both facts are read from the design's own schedule, so one shared sentence can
+ * no longer describe a projector as a touch display.
+ */
+function hdbtDescription(d: RoomDeploymentDesign): string {
+  const outputs = d.outputs.map(([name]) => name.toLowerCase()).join(" ");
+  const sources = d.sources.map(([name]) => name.toLowerCase()).join(" ");
+  const destination = outputs.includes("projector") ? "projector" : "display";
+  const touch = /interactive|touch/.test(outputs) || /usb host|touch/.test(sources);
+  return `The SW-130-TX-UK selects one HDMI/USB-C presentation source at a time and sends it over a dedicated category cable to RX-700, then HDMI to the ${destination}.${touch ? " USB touch return uses the matched USB host/device path." : ""} Design at 1080p60 or 4K30; the receiver's higher rating does not raise the transmitter limit, and USB-C is not a laptop charging supply.`;
+}
+
+/** The architecture sentence for a design; only HDBaseT has a room-specific variant. */
+function descriptionFor(d: RoomDeploymentDesign): string {
+  return d.transport === "hdbt" ? hdbtDescription(d) : descriptions[d.transport];
+}
+
 function row(id: string, sku: string, description: string, role: string, qty: number, notes: string): TemplateBomRow {
   return { id, sku, description, role, qty, type: "Required", status: "included", evidence: "Quantity follows the authored room concept and source/output schedule; confirm by site survey.", notes, owner: "wyrestorm" };
 }
 function core(d: RoomDeploymentDesign): TemplateBomRow[] {
   const inputCount = total(d.sources), outputCount = total(d.outputs);
-  const add = (sku: string, label: string, role: string, qty = 1, notes = descriptions[d.transport]) => row(`${d.id}-${role.replace(/\W+/g, "-")}`, sku, label, role, qty, notes);
+  const add = (sku: string, label: string, role: string, qty = 1, notes = descriptionFor(d)) => row(`${d.id}-${role.replace(/\W+/g, "-")}`, sku, label, role, qty, notes);
   if (d.transport === "apollo") return [add("APO-VX20-UC-V2", "Apollo video bar and local presentation core", "Local UC core")];
   if (d.transport === "hdbt" || d.transport === "pods") return [add("SW-130-TX-UK", "HDMI/USB-C wallplate transmitter", "Presentation input transmitter", outputCount), add("RX-700", "Matched display receiver with power supply", "Display receiver", outputCount)];
   if (d.transport === "matrix4") return [add("MX-0404-HDMI", "4×4 HDMI matrix", "Local routing core"), add("EX-70-H2", "Complete HDBaseT extender set (TX and RX)", "Display extension set", outputCount)];
@@ -319,13 +339,13 @@ export function createDeploymentTemplate(d: RoomDeploymentDesign): RoomTemplate 
     statement, environment: d.space, construction: d.construction, occupancy: d.occupancy,
     sources: d.sources, outputs: d.outputs, sourceCount, outputCount, transport: d.transport,
     architectureFamily: families[d.transport], rationale: d.rationale, alternative: d.alternative, capabilities, audio: d.audio,
-    signalFlow: [schedule(d.sources), descriptions[d.transport], schedule(d.outputs)],
+    signalFlow: [schedule(d.sources), descriptionFor(d), schedule(d.outputs)],
     completion: d.completion,
     story,
   };
   return {
     id: d.id, name: d.name, vertical: d.vertical, application: d.activity, scale: `${d.occupancy} · ${sourceCount} source positions · ${outputCount} outputs`,
-    summary: d.activity, customerNarrative: story ? `${story.requirement} ${story.situation} ${statement}` : statement, architecture: descriptions[d.transport], concept, story,
+    summary: d.activity, customerNarrative: story ? `${story.requirement} ${story.situation} ${statement}` : statement, architecture: descriptionFor(d), concept, story,
     bom: completeProjectServiceRows([...core(d), ...(d.inputExtensions ? [row(`${d.id}-source-extension`, "EX-70-H2", "Complete source-to-rack HDBaseT extender set (TX and RX)", "Remote source input extension", d.inputExtensions, "One transmitter at each remote source and one receiver into rack HDMI. Use dedicated category cable; baseline 1080p60 and routes at or below 35m, with higher formats confirmed separately. These are additional to the display extension sets.")] : []), ...completeScope(d), ...completion.rows], d.id),
     designNotes: [
       ...(story ? [

@@ -133,6 +133,24 @@ describe("complete deployment concepts", () => {
     expect(boardroom.concept).toMatchObject({ transport: "matrix4", sourceCount: 4, outputCount: 3 });
     expect(boardroom.bom.find((r) => r.role === "Display extension set")?.qty).toBe(3);
   });
+  it("describes an HDBaseT room from its own schedule instead of one generic display", () => {
+    const hall = roomTemplates.find((t) => t.id === "education-school-hall-hdbaset-projector")!;
+    expect(hall.architecture).toContain("then HDMI to the projector");
+    expect(hall.architecture).not.toContain("USB touch return");
+
+    const teaching = roomTemplates.find((t) => t.id === "education-classroom-hdbaset")!;
+    expect(teaching.architecture).toContain("then HDMI to the display");
+    expect(teaching.architecture).not.toContain("USB touch return");
+
+    // The panel that annotates on its own touch surface keeps the return path.
+    const interactive = roomTemplates.find((t) => t.id === "education-primary-classroom-interactive-panel")!;
+    expect(interactive.architecture).toContain("then HDMI to the display. USB touch return uses the matched USB host/device path.");
+
+    // The site assumption has to describe the audio the room schedules: front
+    // column arrays, not a distributed ceiling system the design does not buy.
+    expect(hall.concept!.construction).toContain("steerable front columns");
+    expect(hall.concept!.construction).not.toContain("distributed ceiling system");
+  });
   it("does not invent extra schematic screens from spare matrix ports", () => {
     const template = roomTemplates.find((t) => t.id === "corporate-boardroom-networkhd500")!;
     const brief = templateBomToSchematicBrief(template, template.bom);
