@@ -5,10 +5,15 @@
 .wm-room-design-page .wm-template-header-actions { display:flex!important; flex-wrap:wrap; justify-content:flex-end; max-width:400px; gap:8px; }
 .wm-room-design-page .wm-template-header-actions > a { font-size:12px!important; }
 .wm-room-design-page .wm-template-tab-row { margin:18px 0!important; }
+.wm-room-design-page .wm-template-section-tabs { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:4px; padding:6px 0 8px; }
+.wm-room-design-page .wm-template-section-tabs button { display:inline-flex; flex:0 0 auto; align-items:center; gap:6px; min-height:28px; padding:4px 10px; border:1px solid #264251; border-radius:999px; background:#081e2c; color:#a6c1d0; font:inherit; font-size:11px; font-weight:650; white-space:nowrap; cursor:pointer; }
+.wm-room-design-page .wm-template-section-tabs button[aria-selected="true"] { border-color:#48d6d0; background:#0e3a47; color:#eaf8fb; }
+.wm-room-design-page .wm-template-section-tabs button:focus-visible { outline:2px solid #51d7da; outline-offset:2px; }
+.wm-room-design-page .wm-template-section-tab-count { display:inline-flex; align-items:center; justify-content:center; min-width:15px; height:15px; padding:0 4px; border-radius:999px; background:rgba(86,214,215,.16); color:#9cebe7; font-size:10px; line-height:1; }
 .wm-room-design-page > main { height:auto!important; max-height:none!important; overflow:visible!important; padding:0!important; }
 .wm-room-design-page .wm-template-context-strip { display:none!important; }
 .wm-design-schedule { color:#eaf3f9; display:grid; gap:12px; }
-.wm-design-schedule__tools { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:4px 0 8px; }
+.wm-design-schedule__tools { display:flex; justify-content:flex-end; align-items:center; gap:20px; padding:4px 0 8px; }
 .wm-design-schedule__tools p { margin:0; color:#a9bfce; font-size:13px; line-height:1.5; }
 .wm-design-schedule__tools label { display:flex; align-items:center; gap:8px; flex-shrink:0; font-size:12px; color:#adc4d2; }
 .wm-design-schedule select { padding:8px; border:1px solid #365767; border-radius:6px; color:#e9f5fa; background:#0a2333; font:inherit; }
