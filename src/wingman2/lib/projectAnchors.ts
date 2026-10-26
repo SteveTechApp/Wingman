@@ -1,5 +1,6 @@
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { rowAnchorId, rowIdFromAnchor } from "./anchorIds";
+import { DISPLAY_RUN_ANCHOR } from "./displayRunRecord";
 import { WALL_SURVEY_REVIEW_ANCHOR } from "./wallSurveyReview";
 import { WALL_TRANSPORT_REVIEW_ANCHOR } from "./wallTransportReview";
 
@@ -45,6 +46,10 @@ const projectAnchorEntries = [
   // not the section's top.
   { id: WALL_TRANSPORT_REVIEW_ANCHOR, section: "confirm", label: "Wall transport" },
   { id: WALL_SURVEY_REVIEW_ANCHOR, section: "confirm", label: "Site survey photo review" },
+  // The surveyed run and the receiver it chose are the room's own record, not a
+  // wall's: a link that names the display run lands on this panel rather than on
+  // the Requirements panel that lists the answers.
+  { id: DISPLAY_RUN_ANCHOR, section: "confirm", label: "Display cable run" },
   { id: "project-equipment", section: "products", label: "Equipment" },
   { id: "project-recommendation-evidence", section: "decide", label: "Recommendation evidence", sectionLabel: "Product fit" },
   { id: "project-evidence", section: "capture", label: "Evidence trace", sectionLabel: "Evidence" },

@@ -55,6 +55,13 @@ export type RoomTemplate = {
   concept?: RoomConcept;
   /** Authored real-world market story, carried into the overview and proposal. */
   story?: TemplateMarketStory;
+  /**
+   * The longest display cable run measured on survey, in metres. Where it is
+   * recorded, the HDBaseT display receiver is chosen from it (see
+   * hdbtDisplayReceiver.ts); without it the template keeps the receiver its
+   * author scheduled.
+   */
+  surveyedRunMetres?: number;
   customTemplate?: boolean;
   applicationProfile?: TemplateApplicationProfile;
 };

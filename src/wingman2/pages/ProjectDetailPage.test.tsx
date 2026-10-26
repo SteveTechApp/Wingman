@@ -31,6 +31,7 @@ const { deleteProject, updateStoredProject, storedProject } = vi.hoisted(() => (
     }>,
     requirements: [],
     productSelections: [],
+    discoveryBrief: undefined as { savedAt: string; roomModel: Record<string, unknown> } | undefined,
     compareRuns: [] as Array<{ id: string; createdAt: string; version?: number; competitorBrand?: string; competitorSku?: string; wyrestormSku?: string; summary?: string; evidence?: string[]; warnings?: string[] }>,
     recommendationEvidence: {
       productDirection: "Presentation / UC",
@@ -66,6 +67,19 @@ function LocationProbe() {
   return <output data-testid="location">{`${location.pathname}${location.search}${location.hash}`}</output>;
 }
 
+/**
+ * The room model a surveyed HDBaseT room saves. The wall panels are seeded the
+ * same way as they are read: a panel with nothing to show is a panel the page
+ * does not render, so a test that walks the anchor registry has to give the
+ * record the fact its panel reads.
+ */
+function seedDisplayRun() {
+  storedProject.discoveryBrief = {
+    savedAt: "2026-10-26T09:00:00.000Z",
+    roomModel: { cableRun: "28 m", longestRun: "28 m" },
+  };
+}
+
 function renderPage(query = "") {
   return render(
     <MemoryRouter initialEntries={[`/wingman/projects/project-1${query}`]}>
@@ -85,6 +99,7 @@ describe("Project Detail review controls", () => {
     updateStoredProject.mockClear();
     delete storedProject.syncConflict;
     storedProject.videowall = undefined;
+    storedProject.discoveryBrief = undefined;
     storedProject.compareRuns = [];
     storedProject.auditTrail = [];
     // A test that seeds this browser's wall draft cleans it up here, so the
@@ -214,6 +229,7 @@ describe("Project Detail review controls", () => {
   });
 
   it("offers every registered panel's own address", () => {
+    seedDisplayRun();
     storedProject.videowall = {
       savedAt: "2026-10-20T14:12:00.000Z",
       wallType: "lcd",
@@ -375,6 +391,7 @@ describe("Project Detail review controls", () => {
   });
 
   it("renders every registered panel in the section that owns it", () => {
+    seedDisplayRun();
     storedProject.videowall = {
       savedAt: "2026-10-20T14:12:00.000Z",
       wallType: "lcd",

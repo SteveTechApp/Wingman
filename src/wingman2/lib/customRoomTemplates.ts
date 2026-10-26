@@ -1,6 +1,7 @@
 import { isProjectScopeSection } from "./projectScope";
 import { useEffect, useState } from "react";
 import { readRoomConcept } from "./roomTemplateDeployment";
+import { metresFromRunText } from "./hdbtDisplayReceiver";
 import { readTemplateMarketStory } from "./templateMarketStories";
 import type { StoredProject, StoredProposalBomRow } from "../data/projectStore";
 import type { RoomTemplate, TemplateBomRow, TemplateBomType } from "./roomTemplates";
@@ -15,7 +16,7 @@ const defaultTemplateBomType: TemplateBomType = "Validate";
 // Bump when the CustomRoomTemplate shape gains fields that older saved records
 // won't have. normalizeTemplate() always fills safe defaults for missing fields,
 // so older records keep loading; this just records what was captured.
-export const CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION = 3;
+export const CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION = 4;
 
 export type DiscoveryAnswerMap = Record<string, string | string[]>;
 export type DiscoveryNoteMap = Record<string, string>;
@@ -85,6 +86,12 @@ function safeStringArray(value: unknown, fallback: string[]) {
 
   const values = value.map((item) => String(item ?? "").trim()).filter(Boolean);
   return values.length ? values : fallback;
+}
+
+/** A surveyed run is a positive number of metres; anything else is no figure at all. */
+function safeRunMetres(value: unknown): number | undefined {
+  const metres = Number(value);
+  return Number.isFinite(metres) && metres > 0 ? Math.round(metres) : undefined;
 }
 
 function safeBomType(value: unknown): TemplateBomType {
@@ -200,6 +207,7 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
     architecture: safeString(record.architecture, "Confirm the room architecture, sources, displays, control and network requirements."),
     concept: readRoomConcept(record.concept),
     story: readTemplateMarketStory(record.story),
+    surveyedRunMetres: safeRunMetres(record.surveyedRunMetres),
     bom: bom.length ? bom : [placeholderBomRow(id)],
     designNotes: Array.isArray(record.designNotes)
       ? record.designNotes
@@ -419,6 +427,11 @@ function projectBomRows(project: StoredProject): TemplateBomRow[] {
 }
 
 export function saveProjectAsRoomTemplate(project: StoredProject) {
+  // A project saved from a template carries the surveyed display run in its room
+  // model, so a template rebuilt from it starts from the same figure instead of
+  // asking for a measurement the rep already took.
+  const roomModel = project.discoveryBrief?.roomModel;
+  const surveyedRunMetres = metresFromRunText(roomModel?.longestRun ?? roomModel?.cableRun ?? roomModel?.distance);
   const summary =
     project.proposal?.summary ||
     project.discoveryBrief?.nextBestQuestion ||
@@ -454,6 +467,7 @@ export function saveProjectAsRoomTemplate(project: StoredProject) {
       upgradePaths: project.recommendationEvidence?.optionalUpgrades?.length
         ? project.recommendationEvidence.optionalUpgrades
         : ["Add optional upgrades after confirming the base design."],
+      ...(surveyedRunMetres ? { surveyedRunMetres } : {}),
     },
     { sourceProjectId: project.id },
   );

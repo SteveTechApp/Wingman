@@ -3,6 +3,7 @@ import type { TemplateArchitectureFamily, TemplateCapability } from "./templateA
 import { audioDesignNotes, roomAudioBom, validRoomAudio, type RoomAudioDesign } from "./roomTemplateAudio";
 import { getTemplateMarketStory, readTemplateMarketStory, type TemplateMarketStory } from "./templateMarketStories";
 import { completeProjectServiceRows } from "./projectScope";
+import { hdbtUsbDataRequired } from "./hdbtDisplayReceiver";
 
 export type RoomTransport = "apollo" | "hdbt" | "matrix4" | "matrix8" | "hybrid" | "nhd100" | "nhd500" | "nhd600" | "wall" | "studio" | "pods";
 export type ScheduleItem = readonly [description: string, qty: number, location: string];
@@ -117,9 +118,7 @@ const descriptions: Record<Exclude<RoomTransport, "hdbt">, string> = {
 };
 /** USB data is what makes the transmitter's receiver a matched pair. */
 function needsUsbData(d: RoomDeploymentDesign): boolean {
-  const outputs = d.outputs.map(([name]) => name.toLowerCase()).join(" ");
-  const sources = d.sources.map(([name]) => name.toLowerCase()).join(" ");
-  return /interactive|touch/.test(outputs) || /usb host|touch/.test(sources);
+  return hdbtUsbDataRequired(d);
 }
 
 /**

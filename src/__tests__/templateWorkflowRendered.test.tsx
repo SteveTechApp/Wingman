@@ -70,6 +70,29 @@ describe("template workflow wiring", () => {
     expect(screen.getByTestId("address").textContent).toBe("");
   });
 
+  it("chooses the display receiver from the surveyed cable run and states the reason", () => {
+    const template = roomTemplates.find((candidate) => candidate.id === "education-classroom-hdbaset")!;
+    renderTemplateRoutes(`/wingman/templates/${template.id}`);
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit room brief" }));
+    fireEvent.change(screen.getByLabelText("Longest surveyed display run (m)"), { target: { value: "24" } });
+    fireEvent.click(screen.getByRole("button", { name: "Done editing brief" }));
+
+    // The room design states the run the receiver was chosen on.
+    expect(screen.getByRole("heading", { name: "Display receiver" })).toBeInTheDocument();
+    expect(screen.getByText(/The survey records a 24 m display run/)).toBeInTheDocument();
+
+    // The schedule quotes the part that run allows, not the 100 m receiver.
+    fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
+    fireEvent.click(screen.getByRole("tab", { name: "Distribution and switching" }));
+    expect(screen.getByLabelText("Quantity for RX-500")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Quantity for RX-700")).not.toBeInTheDocument();
+
+    // The proposal quotes the part the run chose, not the one the template held.
+    fireEvent.click(screen.getByRole("tab", { name: "Proposal" }));
+    expect(screen.getAllByText("RX-500").length).toBeGreaterThan(0);
+  });
+
   it("shows a clear not-found state for an invalid template ID", () => {
     renderTemplateRoutes("/wingman/templates/not-a-real-template");
 
