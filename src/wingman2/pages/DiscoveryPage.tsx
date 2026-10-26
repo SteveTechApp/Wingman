@@ -35,7 +35,8 @@ import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { BASIC_MODE_REQUIRED_IDS, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
-import { DiscoveryGuidedInterview } from "./discovery/DiscoveryGuidedInterview";
+import { DiscoveryGuidedInterview, DiscoveryGuidedInterviewEntry } from "./discovery/DiscoveryGuidedInterview";
+import { DiscoveryCaptureModeSwitch } from "./discovery/DiscoveryCaptureModeSwitch";
 import { DiscoveryRoomWizard } from "./discovery/DiscoveryRoomWizard";
 import { DiscoveryEssentialCapture } from "./discovery/DiscoveryEssentialCapture";
 import { DiscoveryExpertBuilder } from "./discovery/DiscoveryExpertBuilder";
@@ -903,11 +904,24 @@ return (
       {isGuided && !isTemplateAuthoring && <DiscoveryCompactClient clientName={clientName} siteName={siteName} onClientNameChange={setClientName} onSiteNameChange={setSiteName} />}
       {!isTemplateAuthoring && !essentialCapture && <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => { setDetailedCapture(false); setActiveIndex(0); }}>Return to essential details</button>}
 
-      {roomBuilder && !isTemplateAuthoring && <div className="wm-discovery-tool-row" role="group" aria-label="Room capture tools">
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={builderActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(true); setInterviewActive(false); }} data-testid="discovery-room-builder-toggle">Room builder</button>
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-detailed-toggle" aria-pressed={!builderActive && !interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(false); }}>Detailed questions</button>
-        <button type="button" className="wm-ui-button wm-ui-button-secondary" aria-pressed={interviewActive && !essentialCapture} onClick={() => { setDetailedCapture(true); setBuilderActive(false); setInterviewActive(true); }}>Voice interview</button>
-      </div>}
+      {roomBuilder && !isTemplateAuthoring && (
+        <DiscoveryCaptureModeSwitch
+          active={essentialCapture || interviewActive ? null : builderActive ? "room-builder" : "detailed"}
+          onSelect={(mode) => { setDetailedCapture(true); setBuilderActive(mode === "room-builder"); setInterviewActive(false); }}
+        />
+      )}
+      {/* The interview is a different way to capture the room, not a third question
+          set, so it invites the rep with a card carrying the progress it resumes. */}
+      {roomBuilder && !isTemplateAuthoring && !interviewActive && (
+        <DiscoveryGuidedInterviewEntry
+          onStart={() => { setReviewScope("all"); setDetailedCapture(true); setBuilderActive(false); setInterviewActive(true); }}
+          onStartReviewOpen={() => { setReviewScope("open"); setDetailedCapture(true); setBuilderActive(false); setInterviewActive(true); }}
+          answeredCount={answeredCount}
+          total={modeQuestions.length}
+          reviewing={modeQuestions.length > 0 && answeredCount >= modeQuestions.length}
+          openCount={modeQuestions.filter((question) => confirmedSteps[question.id] !== true).length}
+        />
+      )}
       {!isGuided && <DiscoveryAudioDesignSummary answers={answers} notes={notes} />}
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
