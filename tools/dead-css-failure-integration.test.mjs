@@ -17,7 +17,7 @@ afterEach(() => { for (const root of roots.splice(0)) fs.rmSync(root, { recursiv
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "dead-css-hook-"));
   roots.push(root);
-  const copied = [".githooks/pre-commit", "tools/autofix-dead-css.mjs", "tools/check-wingman-dead-css-baseline.mjs", "tools/lib/dead-css.mjs", "tools/lib/atomic-json-writer.mjs"];
+  const copied = [".githooks/pre-commit", "tools/autofix-dead-css.mjs", "tools/check-wingman-dead-css-baseline.mjs", "tools/lib/dead-css.mjs", "tools/lib/shipped-source.mjs", "tools/lib/atomic-json-writer.mjs"];
   for (const file of copied) {
     fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
     fs.copyFileSync(path.join(sourceRoot, file), path.join(root, file));
