@@ -34,7 +34,7 @@ import {
   wallStartingPointFromSummary,
   wallStartingPointRecordText,
 } from "./wallStartingPointOrigin";
-import { buildInstallationSchedule, installationCategoryLabel } from "./installationSchedule";
+import { buildInstallationSchedule, installationCategoryLabel, installationTableHeaders } from "./installationSchedule";
 import { CUSTOMER_COPY } from "./proposalCopy";
 
 export type BomRow = SalesBomRow;
@@ -814,7 +814,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <p>${escapeHtml(installation.text)}</p>
   ${proposal.pricing ? pricedInstallationHtml(installation, proposal.pricing) : `<table>
     <thead>
-      <tr><th>Service</th><th>Site survey detail</th><th>Qty</th><th>Links</th></tr>
+      <tr>${installationTableHeaders(["service", "detail", "quantity", "links"]).map((label) => `<th>${label}</th>`).join("")}</tr>
     </thead>
     <tbody>
       ${installation.lines.map((line) => `<tr data-installation-line="${escapeHtml(line.id)}"><td>${escapeHtml(installationCategoryLabel(line.category))}</td><td>${escapeHtml(line.detail)}</td><td>${line.quantity}</td><td>${escapeHtml(line.links.join(", "))}</td></tr>`).join("")}

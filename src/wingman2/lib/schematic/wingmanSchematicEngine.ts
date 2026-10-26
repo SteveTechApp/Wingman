@@ -2,17 +2,17 @@ import { expandMatrixDisplayPaths } from "./matrixDisplayPaths";
 import { buildHdbasetPresentationSchematic } from "./hdbasetPresentationSchematic";
 import type {
   SchematicBomHint,
-  SchematicConnection,
   SchematicModel,
   SchematicNode,
   SchematicNodeKind,
   SchematicProductBrief,
   SchematicProjectBrief,
-  SchematicSignalKind,
   SchematicTransportKind,
   SchematicWarning,
 } from "./schematicTypes";
 import { applySchematicLayout } from "./schematicLayoutEngine";
+import { makeSchematicConnection as makeConnection, makeSchematicNode as makeNode, type DraftConnection } from "./schematicElements";
+import { wireAudioRoute } from "./audioRouteSchematic";
 import { validateSchematicConstraints, violationsToWarnings } from "./schematicConstraintValidator";
 import {
   hasAvoipProducts,
@@ -25,7 +25,6 @@ import {
   schematicEndpointCapacity,
 } from "./schematicProductRules";
 
-type DraftConnection = Omit<SchematicConnection, "points">;
 export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicModel {
   const presentation = buildHdbasetPresentationSchematic(brief);
   if (presentation) return presentation;
@@ -247,10 +246,20 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
     for (const display of displayNodes) connections.push(makeConnection(effectiveSwitchingNode, display, "video", transport, "Video to display"));
   }
 
+  // The programme-audio route the rep recorded, drawn as its own paths: the
+  // device the sound is taken from, one node per destination, and the audio
+  // connection between them. It runs after the displays so a leg that lands on
+  // a display's own speakers uses the display already on the drawing.
+  const audioRouteDrawn = wireAudioRoute({ route: brief.audioRoute, nodes, connections, assumptions });
+
   if (brief.usbRequired || cameraNodes.length || speakerphoneNodes.length) {
     warnings.push({ severity: "warning", title: "USB routing requires design", message: "Specify the computer host, peripheral ports and supported USB extension path. No USB connection is issued from the requirement alone." });
   }
-  if (brief.audioRequired) {
+  // The warning is about an audio requirement nobody has placed yet. Once the
+  // route is drawn the schematic shows where the sound comes from and goes, so
+  // saying no switcher output is assumed would contradict the drawing; a route
+  // recorded with only one end still leaves the requirement unplaced.
+  if (brief.audioRequired && !audioRouteDrawn) {
     warnings.push({ severity: "warning", title: "Audio routing requires design", message: "Specify audio interfaces, signal levels and amplification. No switcher audio output is assumed from an audio requirement." });
   }
   if (brief.controlRequired) {
@@ -438,51 +447,6 @@ function wireAvoipNetwork(nodes: SchematicNode[], connections: DraftConnection[]
       connections.push(connection);
     }
   }
-}
-
-function makeNode(
-  id: string,
-  label: string,
-  kind: SchematicNodeKind,
-  column: number,
-  lane: number,
-  options: {
-    sku?: string;
-    required?: boolean;
-    note?: string;
-  } = {},
-): SchematicNode {
-  return {
-    id,
-    label,
-    kind,
-    sku: options.sku,
-    column,
-    lane,
-    x: 0,
-    y: 0,
-    required: options.required ?? true,
-    proposalSafeNote: options.note,
-  };
-}
-
-function makeConnection(
-  from: SchematicNode,
-  to: SchematicNode,
-  signal: SchematicSignalKind,
-  transport: SchematicTransportKind,
-  label: string,
-): DraftConnection {
-  return {
-    id: `${from.id}__${signal}__${to.id}`,
-    from: from.id,
-    to: to.id,
-    signal,
-    transport,
-    label,
-    required: true,
-    proposalSafeNote: transport === "unknown" ? "Transport must be confirmed before quoting." : undefined,
-  };
 }
 
 function dedupeNodes(nodes: SchematicNode[]): SchematicNode[] {

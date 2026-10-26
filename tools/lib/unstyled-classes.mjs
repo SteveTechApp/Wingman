@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { relativePath, STYLE_SCAN_ROOT, styleSheetFiles } from "./dead-css.mjs";
+import { shippedFiles } from "./shipped-source.mjs";
 
 /**
  * The inverse of the dead-CSS gate: markup that names a class no stylesheet
@@ -112,20 +113,29 @@ export function collectClassUsage(root) {
   return [...entries.values()].sort((left, right) => left.file.localeCompare(right.file) || left.name.localeCompare(right.name));
 }
 
-/** Source files that can carry markup, in a deterministic order. */
+/**
+ * Source files that can carry markup, in a deterministic order: shipped source
+ * only, so a component parked in an ignored directory asks for no styles it
+ * would never render. The stylesheets on the other side of the question read the
+ * same rule through `styleSheetFiles`.
+ */
 export function markupFiles(root, directory = path.join(root, MARKUP_SCAN_ROOT)) {
   if (!fs.existsSync(directory)) return [];
+  return shippedFiles(root, walkMarkup(directory))
+    .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+}
+
+function walkMarkup(directory) {
   return fs.readdirSync(directory, { withFileTypes: true })
     .flatMap((entry) => {
       const absolute = path.join(directory, entry.name);
       if (entry.isDirectory()) {
         if (entry.name.startsWith(".") || skipDirs.has(entry.name)) return [];
-        return markupFiles(root, absolute);
+        return walkMarkup(absolute);
       }
       if (testFile.test(entry.name) || !markupExtensions.has(path.extname(entry.name))) return [];
       return fs.statSync(absolute).size > 4 * 1024 * 1024 ? [] : [absolute];
-    })
-    .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+    });
 }
 
 /** Stylesheet text an export builder embeds in the documents it generates. */

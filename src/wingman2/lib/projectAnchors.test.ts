@@ -8,6 +8,7 @@ import {
   projectSectionAnchor,
   projectSectionHref,
   projectSectionsFrom,
+  type ProjectSectionId,
 } from "./projectAnchors";
 import { WALL_SURVEY_REVIEW_ANCHOR, wallSurveyReviewRowAnchor } from "./wallSurveyReview";
 
@@ -154,8 +155,20 @@ describe("project anchors", () => {
     expect(projectSectionHref("harbour 12", "products")).toBe(
       "/wingman/projects/harbour%2012?view=products#project-equipment",
     );
-    // A section the page does not show has no address to offer.
-    expect(projectSectionHref("project-1", "not-a-section")).toBeNull();
+  });
+
+  it("types the sections the registry names, so a conditional cannot invent one", () => {
+    // The section id is the registry's own `section` values, which is what
+    // makes a `?view=` literal or an `activeSection === "…"` branch naming a
+    // section nobody renders a type error. The `@ts-expect-error` below is the
+    // assertion: widen the id back to `string` and this line compiles, failing
+    // the typecheck instead.
+    // @ts-expect-error a section the page does not render has no id
+    const invented: ProjectSectionId = "not-a-section";
+    // A hand-edited address can still carry that string. Types are erased, so
+    // the value survives; what the page does with it is `useWorkflowPage`'s
+    // fallback, exercised against the real page rather than here.
+    expect(invented).toBe("not-a-section");
   });
 
   it("encodes a row id rather than breaking the hash on it", () => {

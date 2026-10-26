@@ -2,6 +2,7 @@ import { render, waitFor } from "@testing-library/react";
 import { useEffect, useState } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+import type { ProjectSectionId } from "../../lib/projectAnchors";
 import { useProjectAnchorJump } from "./useProjectAnchorJump";
 
 /**
@@ -14,13 +15,13 @@ function Host({
   initialSection = "audit",
   withRow = false,
 }: {
-  openSection: (section: string) => void;
+  openSection: (section: ProjectSectionId) => void;
   delayMs?: number;
-  initialSection?: string;
+  initialSection?: ProjectSectionId;
   /** A review panel that lists one row, like the survey photo review. */
   withRow?: boolean;
 }) {
-  const [section, setSection] = useState(initialSection);
+  const [section, setSection] = useState<ProjectSectionId>(initialSection);
   useProjectAnchorJump(section, (next) => {
     openSection(next);
     setSection(next);
@@ -54,12 +55,12 @@ function Host({
 
 function renderHost(
   path: string,
-  openSection = vi.fn(),
+  openSection: (section: ProjectSectionId) => void = vi.fn(),
   {
     delayMs = 0,
     initialSection = "audit",
     withRow = false,
-  }: { delayMs?: number; initialSection?: string; withRow?: boolean } = {},
+  }: { delayMs?: number; initialSection?: ProjectSectionId; withRow?: boolean } = {},
 ) {
   render(
     <MemoryRouter initialEntries={[path]}>

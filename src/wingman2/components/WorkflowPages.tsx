@@ -1,15 +1,22 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-export type WorkflowPage = { id: string; label: string };
+export type WorkflowPage<Id extends string = string> = { id: Id; label: string };
 
-export function useWorkflowPage(pages: readonly WorkflowPage[], parameter = "view", initial?: string) {
+/**
+ * The page the address asks for, read back at the id type the page's own list
+ * carries — so a caller whose pages are a derived union (the project page's
+ * sections) gets `current` as that union, and a screen conditional naming an
+ * id the list does not hold is a type error. An address that names no page on
+ * this list falls back to the first one; `pages` is expected to be non-empty.
+ */
+export function useWorkflowPage<Id extends string>(pages: readonly WorkflowPage<Id>[], parameter = "view", initial?: Id) {
   const [params] = useSearchParams();
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
-  const requested = params.get(parameter) ?? initial;
-  const current = pages.find((page) => page.id === requested)?.id ?? pages[0].id;
-  function go(id: string) {
+  const requested: string | undefined = params.get(parameter) ?? initial;
+  const current: Id = pages.find((page) => page.id === requested)?.id ?? pages[0].id;
+  function go(id: Id) {
     if (!pages.some((page) => page.id === id)) return;
     const next = new URLSearchParams(search);
     next.set(parameter, id);

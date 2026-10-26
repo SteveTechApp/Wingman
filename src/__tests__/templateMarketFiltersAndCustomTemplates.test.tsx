@@ -240,7 +240,7 @@ describe("Template-to-summary handoff", () => {
 
     expect(screen.getByRole("heading", { name: original.name, level: 1 })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
-    expect(screen.getByLabelText("Schedule section")).toBeInTheDocument();
+    expect(screen.getByRole("tablist", { name: "Design section" })).toBeInTheDocument();
     expect(screen.queryByText(/Pre-populated from template:/)).not.toBeInTheDocument();
   });
 

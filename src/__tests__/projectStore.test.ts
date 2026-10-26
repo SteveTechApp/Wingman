@@ -57,6 +57,8 @@ import {
   type ProjectStoreSnapshot,
 } from "@/wingman2/data/projectStore";
 import { buildHydrationSinceManifest, mergeProjectVersionsForHydration } from "@/wingman2/data/projectHydrationMerge";
+import { createDefaultProjectStore } from "@/wingman2/features/projects/model/projectDefaults";
+import { decodeStoredProject } from "@/wingman2/features/projects/persistence/projectCodecs";
 import { changedProjectLanes, projectLaneLabel, PROJECT_SYNC_CONFLICT_LANES } from "@/wingman2/data/projectSyncConflict";
 
 // Mock localStorage
@@ -1977,6 +1979,80 @@ describe("mergeProjectVersionsForHydration (per-sub-document hydration merge)", 
     expect(project.proposal?.title).toBe("Acme Proposal - rev 2");
     expect(project.syncRevision).toBe(2);
     expect(conflict).toBe(false);
+  });
+
+  it("takes the workspace copy of a starter example instead of the page-load stamp outranking it", () => {
+    const seededAt = "2026-10-24T09:30:00.000Z";
+    const savedInWorkspace = "2026-09-12T10:00:00.000Z";
+    const sample = decodeStoredProject(createDefaultProjectStore(() => seededAt).projects[0])!;
+    // The second machine seeds the sample when the page loads; the workspace
+    // already holds the same sample, saved (and stamped) weeks earlier.
+    const workspaceCopy = decodeStoredProject({
+      ...sample,
+      createdAt: savedInWorkspace,
+      updatedAt: savedInWorkspace,
+      syncRevision: 4,
+      ownerId: "tester-1",
+    })!;
+
+    const { project, conflict } = mergeProjectVersionsForHydration(
+      { ...sample, createdAt: seededAt, updatedAt: seededAt },
+      workspaceCopy,
+    );
+
+    expect(conflict, "two copies of one sample are not a change anyone made").toBe(false);
+    expect(project.updatedAt, "the workspace copy is the sample of record").toBe(savedInWorkspace);
+    expect(project.syncRevision).toBe(4);
+    expect(project.name).toBe(sample.name);
+  });
+
+  it("takes the workspace copy when the sample there has picked up work", () => {
+    const seededAt = "2026-10-24T09:30:00.000Z";
+    const sample = decodeStoredProject(createDefaultProjectStore(() => seededAt).projects[0])!;
+    const workspaceCopy = decodeStoredProject({
+      ...sample,
+      createdAt: T0,
+      updatedAt: T0,
+      syncRevision: 4,
+      discoveryBrief: mergeBrief(T0, 45, "Northbridge"),
+    })!;
+
+    const { project, conflict } = mergeProjectVersionsForHydration(
+      { ...sample, createdAt: seededAt, updatedAt: seededAt },
+      workspaceCopy,
+    );
+
+    expect(project.discoveryBrief?.capturedPercent, "the sample the team has been working in is the one kept").toBe(45);
+    expect(conflict).toBe(false);
+  });
+
+  it("keeps a starter example this browser actually edited, and still reports it", () => {
+    const seededAt = "2026-10-24T09:30:00.000Z";
+    const sample = decodeStoredProject(createDefaultProjectStore(() => seededAt).projects[0])!;
+    const local = { ...sample, name: "Northbridge Meeting Room Refresh (edited here)", createdAt: seededAt, updatedAt: seededAt };
+    const workspaceCopy = decodeStoredProject({ ...sample, createdAt: T0, updatedAt: T0, syncRevision: 4 })!;
+
+    const { project, conflict } = mergeProjectVersionsForHydration(local, workspaceCopy);
+
+    expect(project.name, "an edited sample is work, not demo data to discard").toBe("Northbridge Meeting Room Refresh (edited here)");
+    expect(conflict).toBe(true);
+  });
+
+  it("keeps a starter example this browser put work into, and still reports it", () => {
+    const seededAt = "2026-10-24T09:30:00.000Z";
+    const sample = decodeStoredProject(createDefaultProjectStore(() => seededAt).projects[0])!;
+    const local = {
+      ...sample,
+      createdAt: seededAt,
+      updatedAt: seededAt,
+      discoveryBrief: mergeBrief(seededAt, 30, "Northbridge"),
+    };
+    const workspaceCopy = decodeStoredProject({ ...sample, createdAt: T0, updatedAt: T0, syncRevision: 4 })!;
+
+    const { project, conflict } = mergeProjectVersionsForHydration(local, workspaceCopy);
+
+    expect(project.discoveryBrief?.capturedPercent, "the sample's own discovery work survives").toBe(30);
+    expect(conflict).toBe(true);
   });
 
   it("unions the append-mostly lanes by id: local-only kept, backend-only added, same id resolved to the backend row", () => {

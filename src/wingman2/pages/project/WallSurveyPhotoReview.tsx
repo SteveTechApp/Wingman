@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { routeCatalogByKey } from "../../app/routeCatalog";
 import type { StoredProject } from "../../features/projects";
+import { wallResumeUrl } from "../../lib/wallResume";
 import {
   WALL_SURVEY_REVIEW_ANCHOR,
   wallSurveyReviewCounts,
@@ -26,7 +26,8 @@ import { ProjectPanel } from "./ProjectPanel";
  * rejected, because that value is what the decision was about. A run the rep
  * typed by hand is marked where it sits when it fell far from the link's
  * printed allowance, because the record has to carry the same doubt the apply
- * bar raised before the row landed.
+ * bar raised before the row landed. The way back into the builder names this
+ * project, so finishing the survey cannot reopen another room's draft.
  */
 export function WallSurveyPhotoReview({ project }: { project: StoredProject }) {
   const review = wallSurveyReviewFromSummary(project.videowall ?? null);
@@ -102,7 +103,7 @@ export function WallSurveyPhotoReview({ project }: { project: StoredProject }) {
           {rejected
             ? `${rejected} row${rejected === 1 ? " was" : "s were"} cleared, so those links keep the run and install detail already recorded on the design.`
             : "Every row the photo offered was accepted onto the design."}{" "}
-          <Link to={routeCatalogByKey.videowall.path}>Open the wall builder</Link> to record a run by hand.
+          <Link to={wallResumeUrl(project.id)}>Open the wall builder</Link> to record a run by hand.
         </p>
       </div>
     </ProjectPanel>

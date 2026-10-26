@@ -1,6 +1,6 @@
 import type { StoredProjectProposal } from "../data/projectStore";
 import type { SalesBomRow } from "./salesReadiness";
-import { installationCategoryLabel, installationTotals, type InstallationSchedule } from "./installationSchedule";
+import { installationCategoryLabel, installationTableHeaders, installationTotals, type InstallationSchedule } from "./installationSchedule";
 
 type Pricing = NonNullable<StoredProjectProposal["pricing"]>;
 const escape = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
@@ -39,5 +39,7 @@ export function pricedInstallationHtml(schedule: InstallationSchedule, pricing: 
     running += line.total ?? 0;
     return [installationCategoryLabel(line.category), `${line.detail} — ${line.links.join(", ")}`, String(line.quantity), line.unit === null ? "TBC" : money(line.unit, pricing), line.total === null ? "TBC" : money(line.total, pricing), money(running, pricing)];
   });
-  return table(["Service", "Site survey detail / links", "Qty", "Unit rate", "Line total", "Running priced total"], rows, priced.total, priced.lines.reduce((sum, line) => sum + line.quantity, 0), priced.complete, pricing);
+  // The links ride in the detail cell here to keep the priced table narrow, so
+  // its heading is the two shared labels joined rather than a third wording.
+  return table(installationTableHeaders(["service", ["detail", "links"], "quantity", "unitRate", "lineTotal", "runningTotal"] as const), rows, priced.total, priced.lines.reduce((sum, line) => sum + line.quantity, 0), priced.complete, pricing);
 }

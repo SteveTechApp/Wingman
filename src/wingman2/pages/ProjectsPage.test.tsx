@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { setActiveProjectId, type StoredProject } from "../data/projectStore";
+import { expectResultsWindow, turnResultsPage } from "../lib/testHelpers/resultsPager";
 
 const { useProjectStoreMock, reconfirmWallSurveyReviewMock } = vi.hoisted(() => ({
   useProjectStoreMock: vi.fn(),
@@ -432,5 +433,38 @@ describe("projects list survey re-confirm", () => {
     // to work rather than a room to check again.
     expect(within(screen.getByText("Fresh Survey Project").closest("article")!).queryByRole("button", { name: /Re-confirm/ })).toBeNull();
     expect(within(screen.getByText("Cleared Survey Project").closest("article")!).queryByRole("button", { name: /Re-confirm/ })).toBeNull();
+  });
+});
+
+describe("projects list paging reset", () => {
+  function pagedProjects() {
+    return Array.from({ length: 9 }, (_, index) =>
+      baseProject({ id: `project-${index + 1}`, name: `Room ${index + 1}` }),
+    );
+  }
+
+  it("returns to the first page on a filter change, and leaves the page alone on a card click", () => {
+    renderProjects(pagedProjects());
+
+    // Eight cards fit a page and nine rooms need two, so the arrow between them
+    // is on screen.
+    expectResultsWindow(1, 8, 9);
+    turnResultsPage(9, 9, 9);
+    expect(screen.getByText("Room 9")).toBeTruthy();
+    expect(screen.queryByText("Room 1")).toBeNull();
+
+    // Working a card is not narrowing the list: copying it and arming its delete
+    // leave the rep on the page they were reading.
+    fireEvent.click(screen.getByRole("button", { name: "Copy Room 9" }));
+    fireEvent.click(screen.getByRole("button", { name: "Delete Room 9" }));
+    expectResultsWindow(9, 9, 9);
+    expect(screen.getByText("Room 9")).toBeTruthy();
+
+    // The search is a filter, so it returns the list to its first page even
+    // though every room still matches it.
+    fireEvent.change(screen.getByLabelText("Search projects"), { target: { value: "Room" } });
+    expectResultsWindow(1, 8, 9);
+    expect(screen.getByText("Room 1")).toBeTruthy();
+    expect(screen.queryByText("Room 9")).toBeNull();
   });
 });

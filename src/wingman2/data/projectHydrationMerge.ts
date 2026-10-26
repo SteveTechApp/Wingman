@@ -274,6 +274,52 @@ export function mergeIdKeyedCollectionItems(
 }
 
 /**
+ * The sample's own copy: what makes a starter example the one it is, and where
+ * it resumes. A sample is seeded with no sub-documents, so any other key on a
+ * local copy is work a rep put there.
+ */
+const STARTER_EXAMPLE_FIELDS = ["id", "name", "owner", "stage", "status", "resumeTo"] as const;
+
+/**
+ * Metadata a page load, a save or a sync stamps on a project. None of it says
+ * whether the sample's own copy changed, so it cannot decide this question.
+ */
+const STARTER_EXAMPLE_METADATA_KEYS = new Set([
+  "updated",
+  "createdAt",
+  "updatedAt",
+  "isDemo",
+  "ownerId",
+  "syncRevision",
+  "syncConflict",
+  "baseRevision",
+  "_merge",
+]);
+
+/**
+ * Whether this browser's copy is still an untouched starter example that the
+ * workspace also holds.
+ *
+ * Starter examples are shipped sample data, and loading a page stamps them with
+ * the moment this browser read them. Signing in migrates that copy into the
+ * workspace project scope, where a page-load stamp made the sample outrank the
+ * copy the team already held and the Projects chip reported a conflict over
+ * demo data. Two copies of the same untouched sample have nothing to arbitrate,
+ * so the workspace copy is taken and no conflict is recorded; a sample someone
+ * edited or put work into carries a different field value or an extra key and
+ * keeps the normal per-lane policy.
+ */
+export function isUntouchedStarterExample(local: StoredProject, backend: StoredProject): boolean {
+  if (local.isDemo !== true || backend.isDemo !== true) return false;
+  const sampleFields = new Set<string>(STARTER_EXAMPLE_FIELDS);
+  const carriesOnlyTheSample = Object.keys(local).every(
+    (key) => sampleFields.has(key) || STARTER_EXAMPLE_METADATA_KEYS.has(key),
+  );
+  if (!carriesOnlyTheSample) return false;
+  return STARTER_EXAMPLE_FIELDS.every((field) => local[field] === backend[field]);
+}
+
+/**
  * Merges one LOCAL project with the BACKEND copy of the same project during
  * reload hydration using the SAME per-sub-document policy as the server merge
  * (ADR-0001 §1.2f): project-level fields resolve by (updatedAt, revision
@@ -288,6 +334,11 @@ export function mergeProjectVersionsForHydration(local: StoredProject, backend: 
   project: StoredProject;
   conflict: boolean;
 } {
+  // A starter example is not a version: the workspace copy of the same sample
+  // is the one the team holds, and the page-load stamp on this browser's copy
+  // is not an edit that deserves to outrank it (or to be reported as one).
+  if (isUntouchedStarterExample(local, backend)) return { project: backend, conflict: false };
+
   const localBasis = Math.max(0, Number(local.syncRevision) || 0);
   const backendBasis = Math.max(0, Number(backend.syncRevision) || 0);
 

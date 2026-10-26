@@ -36,6 +36,9 @@ describe("print and Word output contracts", () => {
     expect(html).toContain("Missing display housing, run entry or termination: Source 1; Panel 1; Panel 2");
     expect(html).toContain("£14,000.00");
     expect(html).toContain("Running priced total");
+    // The priced installation table folds the links into its detail column, so
+    // its heading is the two shared labels joined — not a wording of its own.
+    expect(html).toContain("Survey detail / Links");
     expect(html).toContain("<tfoot>");
     expect(html).toContain("@page :first");
     expect(html).toContain('aria-label="Document control"');

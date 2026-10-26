@@ -111,6 +111,21 @@ export interface SchematicProductBrief {
   quantity?: number;
 }
 
+/**
+ * The programme-audio route recorded in discovery, in the rep's own values:
+ * where the sound leaves the video path and everywhere it must arrive. The
+ * schematic draws it as audio connections instead of only warning that audio
+ * needs designing, so a reader can see what was asked for.
+ */
+export interface SchematicAudioRoute {
+  /** A discovery `extract-` value: the source, the matrix/switcher or a display. */
+  extraction?: string;
+  /** Discovery `route-` values: amplifier, UC host, recorder, Dante, display speakers. */
+  destinations: string[];
+  /** The recorded sentence, kept for anything that narrates the drawing. */
+  summary?: string;
+}
+
 export interface SchematicProjectBrief {
   id?: string;
   title: string;
@@ -125,6 +140,7 @@ export interface SchematicProjectBrief {
   products?: SchematicProductBrief[];
   usbRequired?: boolean;
   audioRequired?: boolean;
+  audioRoute?: SchematicAudioRoute;
   controlRequired?: boolean;
   networkAvailable?: boolean;
   maxSignalDistanceM?: number;

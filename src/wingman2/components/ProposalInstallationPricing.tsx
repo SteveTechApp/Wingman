@@ -10,6 +10,7 @@ import {
 import {
   installationCategoryLabel,
   installationLineLabel,
+  INSTALLATION_TABLE_COLUMN_LABELS,
   type InstallationSchedule,
   type InstallationUnitPrices,
   type installationTotals,
@@ -104,11 +105,11 @@ export function ProposalInstallationPricing({
         <table>
           <thead>
             <tr>
-              <th>Service</th>
-              <th>Survey detail</th>
-              <th>Links</th>
-              <th>Qty</th>
-              <th>Unit rate ({currency})</th>
+              <th>{INSTALLATION_TABLE_COLUMN_LABELS.service}</th>
+              <th>{INSTALLATION_TABLE_COLUMN_LABELS.detail}</th>
+              <th>{INSTALLATION_TABLE_COLUMN_LABELS.links}</th>
+              <th>{INSTALLATION_TABLE_COLUMN_LABELS.quantity}</th>
+              <th>{INSTALLATION_TABLE_COLUMN_LABELS.unitRate} ({currency})</th>
             </tr>
           </thead>
           <tbody>

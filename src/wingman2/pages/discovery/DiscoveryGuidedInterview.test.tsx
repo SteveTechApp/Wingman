@@ -2,7 +2,6 @@ import { useState } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
-  DiscoveryEntryRail,
   DiscoveryGuidedInterview,
   DiscoveryGuidedInterviewEntry,
 } from "./DiscoveryGuidedInterview";
@@ -520,15 +519,15 @@ describe("DiscoveryGuidedInterview resume", () => {
     expect(screen.getByText("First question")).toBeTruthy();
   });
 
-  it("shows the re-verify open-questions entry on the rail when rows are open", () => {
+  it("shows the re-verify open-questions entry while rows are still open", () => {
     const onStartReviewOpen = vi.fn();
     render(
-      <DiscoveryEntryRail
+      <DiscoveryGuidedInterviewEntry
         onStart={vi.fn()}
         onStartReviewOpen={onStartReviewOpen}
-        onQuickStart={vi.fn()}
         answeredCount={2}
         total={2}
+        reviewing
         openCount={1}
       />,
     );
@@ -540,12 +539,12 @@ describe("DiscoveryGuidedInterview resume", () => {
 
   it("hides the re-verify open-questions entry when everything is confirmed", () => {
     render(
-      <DiscoveryEntryRail
+      <DiscoveryGuidedInterviewEntry
         onStart={vi.fn()}
         onStartReviewOpen={vi.fn()}
-        onQuickStart={vi.fn()}
         answeredCount={2}
         total={2}
+        reviewing
         openCount={0}
       />,
     );
@@ -921,14 +920,14 @@ describe("DiscoveryGuidedInterview stranded defaults in the review trail", () =>
   });
 });
 
-describe("DiscoveryEntryRail", () => {
+describe("voice interview review and resume entry", () => {
   it("offers a review entry once every question is answered, without hiding", () => {
     render(
-      <DiscoveryEntryRail
+      <DiscoveryGuidedInterviewEntry
         onStart={vi.fn()}
-        onQuickStart={vi.fn()}
         answeredCount={5}
         total={5}
+        reviewing
       />,
     );
     expect(screen.getByText("Review voice interview")).toBeTruthy();
@@ -937,9 +936,8 @@ describe("DiscoveryEntryRail", () => {
 
   it("shows a resume entry for a partially complete discovery", () => {
     render(
-      <DiscoveryEntryRail
+      <DiscoveryGuidedInterviewEntry
         onStart={vi.fn()}
-        onQuickStart={vi.fn()}
         answeredCount={3}
         total={10}
       />,
