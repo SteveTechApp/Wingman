@@ -7,7 +7,7 @@ import { readProjectStore } from "../data/projectStore";
 import { DISCOVERY_SNAPSHOT_KEY, readLatestDiscoverySnapshot, writeLatestDiscoverySnapshot } from "../data/workflowHandoff";
 import { getCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates } from "../lib/roomTemplates";
-import { projectScopeSection } from "../lib/projectScope";
+import { PROJECT_SCOPE_SECTIONS, projectScopeSection } from "../lib/projectScope";
 import { OpportunitiesPage } from "./OpportunitiesPage";
 import { TemplateReviewPage } from "./TemplateReviewPage";
 import { TemplateBuilderPage } from "./TemplateBuilderPage";
@@ -38,7 +38,7 @@ describe("Focused and Expert room workflows", () => {
     expect(screen.queryByRole("region", { name: "Full room builder" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: template.name }));
     fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
-    fireEvent.change(screen.getByLabelText("Schedule section"), { target: { value: projectScopeSection(row) } });
+    fireEvent.click(screen.getByRole("tab", { name: PROJECT_SCOPE_SECTIONS.find(section => section.id === projectScopeSection(row))!.title }));
     fireEvent.change(screen.getByRole("spinbutton", { name: `Quantity for ${row.sku}` }), { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Save as project" }));
     const project = readProjectStore().projects.find(item => item.name === template.name)!;
@@ -48,7 +48,7 @@ describe("Focused and Expert room workflows", () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "guided");
     mount(`/wingman/templates/${template.id}`);
     fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
-    fireEvent.change(screen.getByLabelText("Schedule section"), { target: { value: projectScopeSection(row) } });
+    fireEvent.click(screen.getByRole("tab", { name: PROJECT_SCOPE_SECTIONS.find(section => section.id === projectScopeSection(row))!.title }));
     fireEvent.change(screen.getByRole("spinbutton", { name: `Quantity for ${row.sku}` }), { target: { value: "4" } });
     fireEvent.click(screen.getByRole("button", { name: /^Expert view:/ }));
     expect(await screen.findByRole("heading", { name: "Room builder", level: 1 })).toBeVisible();

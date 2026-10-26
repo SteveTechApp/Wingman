@@ -26,21 +26,6 @@ import { WALL_TRANSPORT_REVIEW_ANCHOR } from "./wallTransportReview";
  * a registry of them would have to keep up with every save — the hash is parsed
  * against the panel it belongs to instead.
  */
-export type ProjectAnchor = {
-  /** DOM id and URL hash of the panel. */
-  id: string;
-  /** The workflow section that renders the panel. */
-  section: string;
-  /** What the panel is called, for a link that has to name its destination. */
-  label: string;
-  /**
-   * What the navigator calls the section, on the panel the section opens on.
-   * Only where the two readings differ: most sections are named exactly like the
-   * panel they open on, and the navigator falls back to the panel's own name.
-   */
-  sectionLabel?: string;
-};
-
 /**
  * The panels a link can name, and the section each is rendered in. The first
  * entry for a section is that section's own anchor, so a section link lands on
@@ -48,9 +33,11 @@ export type ProjectAnchor = {
  * be listed first in markup.
  *
  * Adding a panel in a new section is what adds the section: there is no second
- * list to update, and none to forget.
+ * list to update, and none to forget. The ids stay literal here rather than
+ * widening to `string`, because they are where the page's two id types come
+ * from — see `ProjectSectionId` below.
  */
-export const projectAnchors: readonly ProjectAnchor[] = [
+const projectAnchorEntries = [
   { id: "project-current-result", section: "overview", label: "Current result", sectionLabel: "Overview" },
   { id: "project-requirements", section: "confirm", label: "Requirements" },
   // The wall's transport and its survey review live in the Requirements
@@ -67,10 +54,46 @@ export const projectAnchors: readonly ProjectAnchor[] = [
   { id: "project-handoff", section: "handoff", label: "Response handoff", sectionLabel: "Handoff" },
   { id: "project-ready-to-send", section: "handoff", label: "Ready to send?" },
   { id: "project-activity", section: "audit", label: "Audit log", sectionLabel: "Activity" },
-];
+] as const;
 
-/** One section of the project page, as the page's navigator lists it. */
-export type ProjectSection = { id: string; label: string };
+/** The id of a panel a link can name. */
+export type ProjectAnchorId = (typeof projectAnchorEntries)[number]["id"];
+
+/**
+ * The id of a section the project page can be on.
+ *
+ * This is derived from the registry rather than declared, so it cannot list a
+ * section the page has no panel for: `?view=<section>` — read back as this type
+ * by `useWorkflowPage` — and every `activeSection === "…"` branch are checked
+ * against the panels that actually render. A branch naming a section nobody
+ * renders is a type error instead of a screen a reader never reaches.
+ */
+export type ProjectSectionId = (typeof projectAnchorEntries)[number]["section"];
+
+export type ProjectAnchor = {
+  /** DOM id and URL hash of the panel. */
+  id: ProjectAnchorId;
+  /** The workflow section that renders the panel. */
+  section: ProjectSectionId;
+  /** What the panel is called, for a link that has to name its destination. */
+  label: string;
+  /**
+   * What the navigator calls the section, on the panel the section opens on.
+   * Only where the two readings differ: most sections are named exactly like the
+   * panel they open on, and the navigator falls back to the panel's own name.
+   */
+  sectionLabel?: string;
+};
+
+/** The registry itself, at the id types above rather than the wider `string`. */
+export const projectAnchors: readonly ProjectAnchor[] = projectAnchorEntries;
+
+/**
+ * One section of the project page, as the page's navigator lists it. Generic so
+ * `projectSectionsFrom` can be exercised with a registry of its own, while the
+ * page's own list is `ProjectSectionId`.
+ */
+export type ProjectSection<Id extends string = ProjectSectionId> = { id: Id; label: string };
 
 /**
  * The sections a registry names, in the order its panels first name them — one
@@ -79,8 +102,10 @@ export type ProjectSection = { id: string; label: string };
  * This is the rule the project page's navigator reads, and it is total: a
  * section exists because a panel says it does, so the two cannot diverge.
  */
-export function projectSectionsFrom(anchors: readonly ProjectAnchor[]): readonly ProjectSection[] {
-  const sections: ProjectSection[] = [];
+export function projectSectionsFrom<Id extends string>(
+  anchors: readonly { id: string; section: Id; label: string; sectionLabel?: string }[],
+): readonly ProjectSection<Id>[] {
+  const sections: ProjectSection<Id>[] = [];
   for (const anchor of anchors) {
     if (sections.some((section) => section.id === anchor.section)) continue;
     sections.push({ id: anchor.section, label: anchor.sectionLabel ?? anchor.label });
@@ -138,7 +163,7 @@ export function projectAnchorFromHash(hash: string): ProjectAnchor | null {
 }
 
 /** The panel a section opens on, which is the anchor a section link uses. */
-export function projectSectionAnchor(section: string): ProjectAnchor | null {
+export function projectSectionAnchor(section: ProjectSectionId): ProjectAnchor | null {
   return projectAnchors.find((anchor) => anchor.section === section) ?? null;
 }
 
@@ -166,7 +191,7 @@ export function projectAnchorHref(projectId: string, anchorId: string, rowId?: s
  * this page does not render has no address, so a caller cannot offer a link
  * that quietly lands on the overview.
  */
-export function projectSectionHref(projectId: string, section: string): string | null {
+export function projectSectionHref(projectId: string, section: ProjectSectionId): string | null {
   const anchor = projectSectionAnchor(section);
   return anchor ? projectAnchorHref(projectId, anchor.id) : null;
 }

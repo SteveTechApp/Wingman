@@ -149,6 +149,15 @@ try {
   await page.getByTestId("videowall-wizard-expert").click();
   await expect(page.getByRole("heading", { name: "One wall. The right signal path.", exact: true }))
     .toBeVisible({ timeout: 15_000 });
+  // The design pass reads as folded lines: an answer stays closed until a rep
+  // opens it, so the controls this walk sets are reached the way a rep reaches
+  // them - open the two questions it answers, then choose.
+  for (const index of [1, 2]) {
+    const step = page.getByTestId(`videowall-step-${index}`);
+    if (!(await step.evaluate((element) => element.open))) {
+      await step.locator("summary").click();
+    }
+  }
   await page.getByRole("group", { name: "Panel array", exact: true })
     .getByRole("button", { name: /^3 × 3/ }).click();
   await expect(page.getByRole("button", { name: /^MX-0404-SCL/ })).toBeDisabled();

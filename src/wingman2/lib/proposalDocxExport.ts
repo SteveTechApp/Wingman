@@ -26,7 +26,9 @@ import { buildDisplaySchedule } from "./displaySchedule";
 import {
   buildInstallationSchedule,
   installationCategoryLabel,
+  installationTableHeaders,
   installationTotals,
+  INSTALLATION_TABLE_COLUMN_LABELS,
   type InstallationSchedule,
 } from "./installationSchedule";
 import { wallRequirementsFromSummary } from "./videowallOptions";
@@ -199,8 +201,13 @@ function equipmentTable(rows: SalesBomRow[], wizard: ProposalWizardDraft) {
  * prints TBC and holds the total, exactly as an unpriced equipment row does.
  */
 function installationTable(schedule: InstallationSchedule, wizard: ProposalWizardDraft) {
-  const headers = ["Service", "Survey detail", "Qty", "Unit rate", "Line total", "Links"];
-  const widths = fittedWidths(headers, { Service: 1500, "Survey detail": 2400, Qty: 650, "Unit rate": 1350, "Line total": 1450, Links: 2010 });
+  // The headings are the shared list's, and the widths are keyed by the column
+  // rather than by a label typed here, so a renamed heading cannot quietly fall
+  // back to the default column width.
+  const columns = ["service", "detail", "quantity", "unitRate", "lineTotal", "links"] as const;
+  const headers = installationTableHeaders(columns);
+  const baseWidths: Record<(typeof columns)[number], number> = { service: 1500, detail: 2400, quantity: 650, unitRate: 1350, lineTotal: 1450, links: 2010 };
+  const widths = fittedWidths(headers, Object.fromEntries(columns.map((column) => [INSTALLATION_TABLE_COLUMN_LABELS[column], baseWidths[column]])));
   const header = tableRow({ tableHeader: true, children: headers.map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) });
   const { lines, complete, total } = installationTotals(schedule, wizard.installationUnitPrices);
   const body = lines.map((line) => {

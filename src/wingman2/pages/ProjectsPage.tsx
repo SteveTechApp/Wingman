@@ -1,4 +1,3 @@
-import { PagedItems } from "../components/PagedItems";
 import { useMemo, useState } from "react";
 import { LayoutTemplate } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -11,7 +10,7 @@ import { useProjectStore } from "../data/projectStore";
 import { projectsNeedingSurveyAttention } from "../lib/wallSurveyReview";
 import { useTeamMembers } from "../data/useTeamMembers";
 import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
-import { ProjectGalleryCard } from "../components/ProjectGalleryCard";
+import { ProjectGallery } from "../components/ProjectGallery";
 import { ProposalDraftPanel } from "../components/ProposalDraftPanel";
 import { TemplatePickerDialog } from "../components/TemplatePickerDialog";
 import QuoteSafetyDashboardPage from "./QuoteSafetyDashboardPage";
@@ -134,43 +133,21 @@ function ProjectsListPage() {
             onReset={resetStore}
           />
 
-          <PagedItems items={visibleProjects} resetKey={`${searchQuery}:${teamFilter}:${memberFilter}:${surveyAttentionOnly}`}>{(pageItems) => (<div className="wm-project-gallery">
-                {visibleProjects.length ? (
-                  pageItems.map((project) => (
-                    <ProjectGalleryCard
-                      key={project.id}
-                      project={project}
-                      projects={projects}
-                      activeProjectId={activeProjectId}
-                      currentUserId={currentUserId}
-                      ownerName={project.ownerId ? getMemberName(project.ownerId) : project.owner}
-                      ownerInitials={getMemberInitials(project.ownerId)}
-                      migratedWalls={migratedWalls}
-                      onCopy={copyProject}
-                      onDelete={deleteProject}
-                    />
-                  ))
-                ) : surveyAttentionOnly ? (
-                  <article className="wm-project-gallery-empty">
-                    <div>
-                      No projects in this view need survey attention. A survey lands here when a photo review clears a row, or when the last reading is old enough to re-confirm.
-                      <button type="button" className="wm-project-row-link underline" onClick={() => setSurveyAttentionOnly(false)}>
-                        Show all projects
-                      </button>
-                    </div>
-                  </article>
-                ) : (
-                  <article className="wm-project-gallery-empty">
-                    <div>
-                      {teamFilter === "mine"
-                        ? "No projects found for you. Create a new project or switch to Team view."
-                        : teamFilter === "team"
-                          ? "No team projects found. Team members need to create projects in a shared workspace."
-                          : "No active projects are currently listed. Use Reset sample store to restore the starter examples."}
-                    </div>
-                  </article>
-                )}
-          </div>)}</PagedItems>
+          <ProjectGallery
+            projects={projects}
+            visibleProjects={visibleProjects}
+            activeProjectId={activeProjectId}
+            currentUserId={currentUserId}
+            migratedWalls={migratedWalls}
+            teamFilter={teamFilter}
+            surveyAttentionOnly={surveyAttentionOnly}
+            resetKey={`${searchQuery}:${teamFilter}:${memberFilter}:${surveyAttentionOnly}`}
+            getMemberName={getMemberName}
+            getMemberInitials={getMemberInitials}
+            onCopy={copyProject}
+            onDelete={deleteProject}
+            onShowAllProjects={() => setSurveyAttentionOnly(false)}
+          />
         </SectionCard>
 
         <ProposalDraftPanel

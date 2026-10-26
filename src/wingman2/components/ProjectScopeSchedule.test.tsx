@@ -5,11 +5,11 @@ import { roomTemplates } from "../lib/roomTemplates";
 
 afterEach(cleanup);
 describe("functional room schedule", () => {
-  it("leads with ALL, presents functional sections and edits the original item", () => {
+  it("leads with ALL, shows the section it is given and edits the original item", () => {
     const template = roomTemplates[0];
     const onQuantity = vi.fn();
     const onEdit = vi.fn();
-    render(<ProjectScopeSchedule template={template} rows={template.bom} library={null} onQuantity={onQuantity} onEdit={onEdit} onToggle={vi.fn()} onAdd={vi.fn()} />);
+    render(<ProjectScopeSchedule template={template} rows={template.bom} sectionId="inputs" library={null} onQuantity={onQuantity} onEdit={onEdit} onToggle={vi.fn()} onAdd={vi.fn()} />);
     expect((screen.getByRole("combobox", { name: "Schedule items" }) as HTMLSelectElement).value).toBe("all");
     expect(screen.getByRole("heading", { name: "Input sources" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Installation and engineering services" })).toBeNull();
@@ -18,7 +18,10 @@ describe("functional room schedule", () => {
     expect(onQuantity).toHaveBeenCalledWith(input.id, 3);
     fireEvent.click(screen.getByRole("button", { name: `Edit ${input.description}` }));
     expect(onEdit).toHaveBeenCalledWith(input);
-    fireEvent.change(screen.getByRole("combobox", { name: "Schedule section" }), { target: { value: "maintenance" } });
+  });
+  it("shows the section the page chose, not the first one", () => {
+    const template = roomTemplates[0];
+    render(<ProjectScopeSchedule template={template} rows={template.bom} sectionId="maintenance" library={null} onQuantity={vi.fn()} onEdit={vi.fn()} onToggle={vi.fn()} onAdd={vi.fn()} />);
     expect(screen.queryByRole("heading", { name: "Input sources" })).toBeNull();
     const maintenance = screen.getByLabelText("Include Optional maintenance and support agreement") as HTMLInputElement;
     expect(maintenance.checked).toBe(false);

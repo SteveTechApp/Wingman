@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { gitListedFiles, shippedFiles } from "./shipped-source.mjs";
 
 /**
  * Shared dead-class detection for the CSS consolidation tool and the
@@ -58,16 +59,25 @@ export function relativePath(root, file) {
   return path.relative(root, file).split(path.sep).join("/");
 }
 
-/** Every `.css` file under `src/wingman2`, in a deterministic order. */
+/**
+ * Every shipped `.css` file under `src/wingman2`, in a deterministic order. A
+ * stylesheet git ignores cannot answer a class either: it is not in the build
+ * the app ships, so the same shipped-file rule that narrows the source corpus
+ * narrows this one.
+ */
 export function styleSheetFiles(root, directory = path.join(root, STYLE_SCAN_ROOT)) {
   if (!fs.existsSync(directory)) return [];
+  return shippedFiles(root, walkStyleSheets(directory))
+    .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+}
+
+function walkStyleSheets(directory) {
   return fs.readdirSync(directory, { withFileTypes: true })
     .flatMap((entry) => {
       const absolute = path.join(directory, entry.name);
-      if (entry.isDirectory()) return styleSheetFiles(root, absolute);
+      if (entry.isDirectory()) return walkStyleSheets(absolute);
       return entry.name.endsWith(".css") ? [absolute] : [];
-    })
-    .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+    });
 }
 
 const combinators = new Set([" ", "\t", "\n", "\r", ">", "+", "~"]);
@@ -376,29 +386,50 @@ export function sourceLine(text, position, limit = 160) {
  * to assemble class names at runtime.
  */
 /**
- * The source files whose text counts as evidence: every readable file under the
- * root except stylesheets, the checked-in baseline, ignored build output and
- * `reports/`. Sorted, so a report that lists these places reads the same twice.
+ * The source files whose text counts as evidence: shipped source under the root
+ * — every tracked file plus untracked files git does not ignore — except
+ * stylesheets, the checked-in baseline, ignored build output and `reports/`.
+ * Sorted, so a report that lists these places reads the same twice.
+ *
+ * Ignored trees are left out on purpose. A copy of an old component parked in
+ * `_backups/`, an abandoned worktree or a local export is not shipped source,
+ * and one such copy still naming a retired class was enough to keep the rule
+ * alive here while the same branch failed the gate on a clean checkout. Git
+ * answers the question when the root is a checkout; anywhere else (a sandbox, an
+ * unpacked tarball) the tree is walked as before.
  */
 export function corpusFiles(root) {
+  const listed = gitListedFiles(root);
   const files = [];
-  (function walk(directory) {
-    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        if (entry.name.startsWith(".") || skipDirs.has(entry.name)) continue;
-        walk(path.join(directory, entry.name));
-        continue;
-      }
-      // Stylesheets are the thing being checked; their own selectors must not
-      // count as evidence that a class is used.
-      if (!corpusExtensions.has(path.extname(entry.name))) continue;
-      const full = path.join(directory, entry.name);
-      if (full === path.join(root, BASELINE_PATH)) continue;
-      if (fs.statSync(full).size > 4 * 1024 * 1024) continue;
-      files.push(full);
+  if (listed) {
+    for (const relative of listed) {
+      const segments = relative.split("/").slice(0, -1);
+      if (segments.some((segment) => segment.startsWith(".") || skipDirs.has(segment))) continue;
+      const full = path.join(root, relative);
+      if (isCorpusFile(root, full)) files.push(full);
     }
-  })(root);
+  } else {
+    (function walk(directory) {
+      for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+        if (entry.isDirectory()) {
+          if (entry.name.startsWith(".") || skipDirs.has(entry.name)) continue;
+          walk(path.join(directory, entry.name));
+          continue;
+        }
+        const full = path.join(directory, entry.name);
+        if (isCorpusFile(root, full)) files.push(full);
+      }
+    })(root);
+  }
   return files.sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+}
+
+function isCorpusFile(root, full) {
+  // Stylesheets are the thing being checked; their own selectors must not count
+  // as evidence that a class is used.
+  if (!corpusExtensions.has(path.extname(full))) return false;
+  if (full === path.join(root, BASELINE_PATH)) return false;
+  return fs.statSync(full).size <= 4 * 1024 * 1024;
 }
 
 /**

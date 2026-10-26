@@ -113,8 +113,13 @@ from the code or docs are not repeated here.
   longer dead: the file only ratchets down. Detection is shared with
   `tools/consolidate-dead-class-css.mjs` via `tools/lib/dead-css.mjs`, and the
   baseline file is excluded from the usage corpus so it cannot protect its own
-  entries. Regenerate only after deleting dead rules
-  (`npm run audit:dead-css:baseline`).
+  entries. The corpus is what git ships from the checkout — tracked files plus
+  untracked ones no ignore rule covers — so an old component parked in
+  `_backups/`, an abandoned worktree or a local export is not evidence that a
+  class is live. Walking the tree instead is the fallback for a root that is not
+  a checkout; it is also what made a red branch pass locally, because a stale
+  copy of the retired page still named the class. Regenerate only after deleting
+  dead rules (`npm run audit:dead-css:baseline`).
 - `npm run autofix:dead-css` runs before the gate in the pre-commit hook. It
   only **splits** a mixed selector list (`.a, .b` → `.b`, live declarations
   copied byte-for-byte); a rule whose every branch is dead is left for a
@@ -200,7 +205,10 @@ from the code or docs are not repeated here.
   Tailwind utilities are decided by compiling them with the `tailwindcss`
   compiler rather than a hand-kept list — so adding a utility never needs a
   baseline update. Runtime-assembled names and test-file assertions are out of
-  scope; detection lives in `tools/lib/unstyled-classes.mjs`. A string literal
+  scope; detection lives in `tools/lib/unstyled-classes.mjs`. Markup and sheets
+  are read through the same shipped-file corpus as `check:dead-css`
+  (`tools/lib/shipped-source.mjs`), so a component or stylesheet parked in an
+  ignored directory neither asks for a style nor answers one. A string literal
   that is an operand of `===`/`!==` inside a `className` expression is a value
   being tested, not a class (`mode === "guided" ? "is-active" : ""` renders
   only `is-active`), so the detector skips comparison operands. The baseline is
@@ -242,6 +250,25 @@ from the code or docs are not repeated here.
   or doc still names. `:not()`/`:is()`/`:where()`/`:has()` selectors stay out
   of a blanket prune: a class inside the argument is not what the rule needs,
   so `a:not(.wm-old)` would look removable while still matching every link.
+- `check:pr-description` (the `PR description` workflow, deliberately not a
+  `verify` stage, because it reads GitHub) holds a pull request's body to its
+  own branch. A present-tense failure claim — "still failing", "checks are
+  red", "not passing" — is stale once every completed check run on the head
+  passes and at least one of them ran; in-flight runs are ignored because this
+  gate is one of them, and a line about an earlier run, a fenced log or a quote
+  is not a claim. An open item — an unticked `- [ ]` box, a bullet under a
+  `Remaining`/`Still to do`/`TODO` heading, a line saying the work "still
+  needs" doing — is stale once the branch closes it: the item names a file this
+  pull request adds or changes, or it is a box on a non-draft pull request
+  whose checks pass. Prose with no file evidence is left alone, so a note about
+  work that lands later stays legal. There is no allowlist file: an item is
+  kept with `<!-- keep-outstanding: reason -->` on its line or heading, and a
+  body describing another branch's state opts out with
+  `<!-- pr-description: skip -->`, both markers travelling with the
+  description. The workflow is separate from `ci.yml` and also triggers on
+  `edited`, so fixing a description re-runs a small job instead of the verify
+  matrix. A fork pull request or an API failure skips with a note; an
+  unreadable token fails instead of passing silently.
 - `check:sales-facing-language` scans ALL source, including test comments and
   CSS comments, not just UI copy. Developer wording such as "demoted",
   "confusing", "has moved into", "workflow consolidated" fails
@@ -252,6 +279,49 @@ from the code or docs are not repeated here.
   style-drift ratchets — those only fire inside `verify:build` /
   `verify:visual`. Use plain `build` to verify compilation without ratchet
   noise.
+
+## Discovery
+
+- Every Discovery step body is one card language: the `.wm-room-wizard` panel,
+  `.wm-brief-question` with its count on the title line, `.wm-brief-option`
+  tick cards, `#root .wm-room-wizard-option` for a pressed button choice, and
+  `.wm-expert-capture-count` for the answered total. The voice interview is a
+  conversation rather than a form, so `.wm-guided-*` adds only the capture
+  meter, the listen bar, the wording that was heard and the chips that settle
+  it, and reuses the same option card for its manual answers. Two page-host
+  rules outrank a plain class and have to be answered behind `#root`:
+  headings are capped at `clamp(1rem,1.08vw,1.22rem) !important`, and every
+  form control takes the host's dark fill and border, so the spoken-language
+  `<select>` inside a chip declares its own (also `!important`) or it renders
+  as a box inside the pill; a chip in a wrapping row needs `flex:0 0 auto` or
+  it squeezes its own label into two lines.
+- The programme-audio route is one question (`audio-route`) holding both ends:
+  values prefixed `extract-` name where sound leaves the video path, `route-`
+  name where it must arrive. `deriveDiscoveryAudioDesign`
+  (`discoveryAudioDesign.ts`) splits them by prefix and writes `route` — an
+  optional field, because designs saved before the question existed carry only
+  a direction and a signal path, and `readDiscoveryAudioDesign` has to keep
+  loading them. The route travels as its own line: the brief's `audioRoute`,
+  the system design's room-audio evidence, `technicalFacts` in the proposal
+  (before the signal path it explains) and the audio summary panel. A USB-audio
+  or recording destination adds its own `requiredScope` entry, a Dante
+  destination turns on the `network` scope the audio inventory alone would miss,
+  and a half-recorded route becomes a `validation` question rather than a
+  default. Adding a destination means adding its phrase to
+  `DESTINATION_PHRASES` and its scope in that function, not a second question.
+  The design also keeps the answer as values (`extraction`, `destinations`),
+  because a surface that has to act on the route cannot parse the sentence: the
+  room schematic does (`audioRouteSchematic.ts`), so a recorded route draws the
+  de-embed point and one node per destination instead of only warning that audio
+  needs designing. `wireAudioRoute` anchors each leg on a real device — the
+  matrix/switcher, each source's own output or a display — and lands a
+  display-speakers destination on the display already on the drawing; a route
+  recorded with only one end draws nothing and keeps the warning, which is why
+  the function reports whether it drew. `AUDIO_ROUTE_DESTINATIONS` is the
+  diagram's own short label for each value, the one table to extend with a new
+  destination (a spec fails when a recorded value has no entry), and a node it
+  creates carries `metadata.audioRouteDestination` so both visual builders name
+  it for what it is rather than drawing two "Audio system — by others" boxes.
 
 ## Video wall
 
@@ -272,11 +342,44 @@ from the code or docs are not repeated here.
   layout, transport, panel size) named for what the wall does, and
   `wallStartPresetGroups` folds them into LCD/LED/projection for the shared
   `VideowallStartPresets` picker. The picker is a list of rows, not a grid of
-  tiles: the name leads, the brief sits beside it and `wallStartPresetFacts`
-  (size, windows, lead) holds its own right-aligned column, because twenty
-  bordered cards of equal size read as twenty decisions while aligned facts let
-  two walls be compared without reading both sentences — every wall and every
-  fact is still on the page. Each preset's `leadsTo` is read from the decision
+  tiles: the wall's own drawing leads (`WallPresetGlyph` in
+  `VideowallStartPresetRow.tsx`, drawn from `wallVisualLayout` so a 2 × 2 wall,
+  an LED ribbon and a projector pair are told apart before the name is read),
+  the name sits over the brief, and `wallStartPresetFacts` (size, windows,
+  lead) fills three grid columns of its own, because twenty bordered cards of
+  equal size read as twenty decisions while a value that starts at the same x
+  on every row can be compared down the list — every wall and every fact is
+  still on the page. The facts are chips there, and the glyph repeats what they
+  say, so it stays `aria-hidden`. Each family carries its count on its band. The
+  families and rows are the same component in both readings: the guided
+  wizard's start step mounts the picker with `showFilter={false}`, because its
+  next four questions are the narrowing, and with `shortlist`, which shows the
+  curated walls — `wallStartPresetShortlistKeys` in `videowallDecision.ts`,
+  one per job a rep starts from with every family represented, resolved
+  through the shipped presets so a renamed brief drops out instead of drawing
+  an empty row — plus any wall this browser saved, and folds the rest behind
+  `Show all N walls` — `aria-expanded` on that action,
+  `videowall-preset-show-all` as its id. It is a named list rather than "the
+  first of each family", which is only the order of the brief list, and
+  `wallStartPresetShortlistCoverage` keeps it honest (no unknown key, at least
+  one wall per family, fewer than half the catalogue). A rep whose rooms repeat
+  a different few pins them (`wallPinnedPresets.ts`): a pin is a key on a
+  curated card, not a copy of its brief, stored per browser beside the draft, and
+  it only reorders rows — the pinned walls lead their family band with
+  `Pinned · ` on the facts line and stay on screen while the list is folded, so
+  `foldedPresets` keeps a pinned key even after the curated set moves on. The
+  pin control rides outside the row button like the saved wall's remove action,
+  `pinned` and `pinnable` are passed down to the row, and only the shortlist
+  reading offers it: the expert reading's order is the catalogue's, so a pin
+  there would reorder nothing. A pin still loses to a saved wall's place at the
+  head of its family, because that wall is the rep's own brief
+  (`wallStartPresetGroupsWithSaved` takes the already-ordered bands). Twenty rows in front of the
+  first question is a catalogue, so the guided step's heading line carries
+  `Answer the questions instead` (`.vw-wizard-job-head`) and a phone rep
+  reaches the four questions without scrolling the walls; the expert reading
+  keeps the whole list and its filters, and the band keeps counting the family
+  rather than the row under it.
+  Each preset's `leadsTo` is read from the decision
   engine at import, so a wall cannot advertise an architecture its answers no
   longer reach, and `videowall-preset-<key>` is the walkthrough id. A test fails
   on a preset that names a market vertical, because the same wall has to be
@@ -324,9 +427,13 @@ from the code or docs are not repeated here.
   four) and the transport chip is the connection the site offers, so it keeps
   the walls at or below it — an exact match hid every other wall and left a rep
   looking at one wall. The copy under the chips says so, because a chip that
-  keeps larger walls has to admit it. Filtering hides rows only: families keep
-  their order, a family with no match folds away, and an empty result says so
-  with its own Clear filters. The filter is local view state, not part of the
+  keeps larger walls has to admit it — and it is written only once a chip is
+  set, so the default state is three rows of chips and a wall count rather than
+  a paragraph about rules nobody has applied. The chips stay open above the
+  walls (a narrowing nobody can see is one nobody uses) with the count and
+  Clear filters on the line above them. Filtering hides rows only: families
+  keep their order, a family with no match folds away, and an empty result says
+  so with its own Clear filters. The filter is local view state, not part of the
   brief or the saved starting point.
 - A design remembers the card it started on: `wallStartingPointOrigin.ts` holds
   `{ key, label, brief }`, written by the builder's card pick (and only by it —
@@ -380,6 +487,25 @@ from the code or docs are not repeated here.
   SDVoE), which is why there is a card per option rather than one per wall shape.
   An array used on a card belongs in `videowallPanelPresets` too, or the guided
   size step shows no selected chip for the wall the rep just picked.
+- Both readings show the whole tested field, not just the recommendation and one
+  alternative: `VideowallOptionsList` is always open under the verdict, with a
+  range key above the rows. A rep is choosing between WyreStorm ranges before
+  part numbers — `wallProductRanges` (`wallRanges.ts`) says what the 100, 500
+  and 600 series and a local HDMI rack each answer, every row repeats its own
+  range's sentence, and `wallRangesInPlay` keys only the ranges the catalogue
+  covers. `wallOptionRangeKey` files an id by what it transports: the 500 +
+  multiview stage stays 500, while `NHD-0401-MV` is a local HDMI multiviewer, so
+  an NHD- SKU is not the test for a networked design. A design's builds
+  are chips on its row (`wallVariants.ts`): the 500 as the full or Lite (-E)
+  pair, the 600 on copper or fibre. A build keeps the design's id and swaps only
+  its schedule SKUs plus one check, so `wallOptionWithVariant` is where the
+  quoted parts change and `wallVariantFor` is the one rule that drops an id the
+  design does not offer. The builder owns `variantId` (state, not the brief),
+  passes the built option downstream so the verdict's equipment and checks
+  follow it, names the build on the verdict, and clears it when the design or an
+  answer changes — a build belongs to the answers it was chosen for. It rides in
+  the draft and the saved summary as `selectedVariantId` (null on the catalogue
+  build), never in a link: a link's `?pick=` still names a design.
 - A projection screen can be several projectors: `WallRequirements.projectors`
   (bounded by `MAX_WALL_PROJECTORS`) is read through `wallProjectorCount`, and
   the units sit side by side carrying one canvas, a slice each. The canvas is as

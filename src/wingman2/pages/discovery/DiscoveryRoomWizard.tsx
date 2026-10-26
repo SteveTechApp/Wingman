@@ -59,7 +59,7 @@ export function DiscoveryRoomWizard(props: Props) {
       onClick={() => onActiveIndexChange(step.firstIndex)}>{step.label}</button>)}</nav>}
     <div className="wm-room-wizard-layout"><div>
       {stage === "questions" ? <>
-        <p>{question.prompt}</p>
+        <p className="wm-room-wizard-prompt">{question.prompt}</p>
         {["sources", "displays"].includes(question.id) && <label>Exact number, if known (up to 256)<input type="number" min="1" max="256" step="1" value={String(answers[question.id === "sources" ? "source-count-exact" : "display-count-exact"] || "")} onChange={event => {
           const count = Number(event.target.value);
           if (event.target.value && (!Number.isInteger(count) || count < 1 || count > 256)) return;

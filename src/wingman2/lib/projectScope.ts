@@ -38,6 +38,15 @@ export function projectScopeSection(row: TemplateBomRow): ProjectScopeSectionId 
 export function groupProjectScope(rows: TemplateBomRow[]) {
   return PROJECT_SCOPE_SECTIONS.map(section => ({ ...section, rows: rows.filter(row => projectScopeSection(row) === section.id) }));
 }
+/**
+ * The sections a rep works through in the room schedule: every authored
+ * section, plus "additional" once it holds a row of its own. The schedule tabs
+ * and the section on screen read this one list, so a tab cannot name a section
+ * the panel will not show.
+ */
+export function projectScopeScheduleSections(rows: TemplateBomRow[]) {
+  return groupProjectScope(rows).filter(group => group.id !== "additional" || group.rows.length > 0);
+}
 export function orderedProjectScopeRows(rows: TemplateBomRow[]) {
   return groupProjectScope(rows).flatMap(section => section.rows);
 }

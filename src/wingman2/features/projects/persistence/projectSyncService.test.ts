@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProjectStoreSnapshot, StoredProject } from "../model/projectTypes";
+import { createDefaultProjectStore } from "../model/projectDefaults";
 import type { ProjectRepository } from "./projectRepository";
 import { createProjectSyncService } from "./projectSyncService";
 
@@ -94,6 +95,31 @@ describe("projectSyncService", () => {
     await service.hydrate();
     expect(repository.current.projects[0].discoveryBrief?.roomModel?.customer).toBe("Local");
     expect(repository.current.syncStatus?.state).toBe("conflict");
+  });
+
+  it("signs in over the seeded starter examples without reporting a conflict over demo data", async () => {
+    // The second machine seeds the samples as the page loads; the workspace
+    // already holds the same samples, saved earlier and with a revision.
+    const seeded = createDefaultProjectStore(() => NOW).projects;
+    const workspaceCopies = seeded.map((project) => ({
+      ...project,
+      createdAt: "2026-09-10T09:00:00.000Z",
+      updatedAt: "2026-09-10T09:00:00.000Z",
+      syncRevision: 3,
+    }));
+    const repository = memoryRepository(snapshot(seeded));
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ projects: workspaceCopies }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    }));
+    const service = createProjectSyncService({ repository, backendEnabled: true, fetchImpl: fetchImpl as unknown as typeof fetch, now: () => NOW });
+
+    await service.hydrate();
+
+    expect(repository.current.syncStatus?.state).toBe("synced");
+    expect(repository.current.projects.every((project) => project.syncConflict === undefined)).toBe(true);
+    expect(repository.current.projects[0].updatedAt).toBe("2026-09-10T09:00:00.000Z");
+    expect(repository.current.projects[0].syncRevision).toBe(3);
   });
 
   it("hydrates once per session and can be reset for a later session", async () => {

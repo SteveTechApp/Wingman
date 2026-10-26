@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { decideVideowall, wallStartPresets } from "../../lib/videowallDecision";
 import { assessVideowallOptions, defaultWallRequirements, type WallRequirements } from "../../lib/videowallOptions";
 import { wallStartingPointOrigin, type WallStartingPointOrigin } from "../../lib/wallStartingPointOrigin";
+import { wallOptionWithVariant } from "../../lib/wallVariants";
 import type { WallReviewStageKey } from "../../lib/videowallWizard";
 import { VideowallExpertReview } from "./VideowallExpertReview";
 
@@ -14,15 +15,21 @@ function ExpertReviewHarness({ requirements, initialStage, startingPoint }: {
   startingPoint?: WallStartingPointOrigin;
 }) {
   const [reviewStage, setReviewStage] = useState<WallReviewStageKey>(initialStage);
+  // The page owns the build and swaps the design's schedule; the harness does
+  // the same so a chip click is tested through the component that renders it.
+  const [variantId, setVariantId] = useState("");
   const options = assessVideowallOptions(requirements);
   const decision = decideVideowall(requirements);
+  const chosen = decision.recommended?.option ?? null;
   return (
     <VideowallExpertReview
       requirements={requirements}
       decision={decision}
-      selected={decision.recommended?.option ?? null}
+      selected={chosen ? wallOptionWithVariant(chosen, variantId) : null}
       options={options}
       recommendedId={decision.recommended?.option.id ?? null}
+      variantId={variantId}
+      onVariant={setVariantId}
       startingPoint={startingPoint}
       reviewStage={reviewStage}
       onReviewStage={setReviewStage}
@@ -59,11 +66,35 @@ describe("VideowallExpertReview", () => {
     renderReview();
 
     expect(screen.getByTestId("videowall-expert-panel-decision")).toBeTruthy();
-    expect(screen.getByText("Size the wall")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "The wall" })).toBeTruthy();
     // The whole point of the passes: neither the drawing nor the cable table
     // is stacked under the answers.
     expect(screen.queryByTestId("videowall-expert-panel-wall")).toBeNull();
     expect(screen.queryByTestId("videowall-transport")).toBeNull();
+  });
+
+  it("reads the four questions as lines until one is opened", () => {
+    renderReview();
+
+    // Each line carries the question and the answer in use, so the brief is
+    // readable without opening anything and the answers do not compete with the
+    // wall above them.
+    const step = screen.getByTestId("videowall-step-1");
+    expect(step.hasAttribute("open")).toBe(false);
+    expect(step.textContent).toContain("What is going on the wall?");
+    expect(step.textContent).toContain("LCD · feed per display");
+
+    fireEvent.click(step.querySelector("summary")!);
+    expect(step.hasAttribute("open")).toBe(true);
+    expect(screen.getByRole("group", { name: "Display application" })).toBeTruthy();
+  });
+
+  it("folds the pre-order checklist to its count", () => {
+    renderReview();
+
+    const checklist = screen.getByText("Confirm before ordering").closest("details");
+    expect(checklist?.hasAttribute("open")).toBe(false);
+    expect(checklist?.querySelector("summary")?.textContent).toMatch(/\d+ checks/);
   });
 
   it("names the card the answers started from beside the picker", () => {

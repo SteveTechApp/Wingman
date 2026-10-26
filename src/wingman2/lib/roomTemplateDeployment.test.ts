@@ -133,6 +133,40 @@ describe("complete deployment concepts", () => {
     expect(boardroom.concept).toMatchObject({ transport: "matrix4", sourceCount: 4, outputCount: 3 });
     expect(boardroom.bom.find((r) => r.role === "Display extension set")?.qty).toBe(3);
   });
+  it("describes an HDBaseT room from its own schedule instead of one generic display", () => {
+    const hall = roomTemplates.find((t) => t.id === "education-school-hall-hdbaset-projector")!;
+    expect(hall.architecture).toContain("then HDMI to the projector");
+    expect(hall.architecture).not.toContain("USB touch return");
+
+    const teaching = roomTemplates.find((t) => t.id === "education-classroom-hdbaset")!;
+    expect(teaching.architecture).toContain("then HDMI to the display");
+    expect(teaching.architecture).not.toContain("USB touch return");
+
+    // The panel that annotates on its own touch surface keeps the return path.
+    const interactive = roomTemplates.find((t) => t.id === "education-primary-classroom-interactive-panel")!;
+    expect(interactive.architecture).toContain("then HDMI to the display. USB touch return uses the matched USB host/device path");
+
+    // Without USB data the transmitter needs no particular receiver, so the
+    // sentence and the receiver row both leave the choice to the cable run;
+    // where USB travels with the picture the matched part is stated.
+    const ALLOWED = "Any HDBaseT receiver suited to the cable run will do";
+    expect(hall.architecture).toContain(ALLOWED);
+    expect(teaching.architecture).toContain(ALLOWED);
+    expect(interactive.architecture).not.toContain(ALLOWED);
+    const receiverOf = (template: (typeof roomTemplates)[number]) => template.bom.find((row) => row.role === "Display receiver")?.description;
+    expect(receiverOf(hall)).toBe("HDBaseT display receiver with power supply");
+    expect(receiverOf(interactive)).toBe("Matched display receiver with power supply");
+
+    // A video-only pod room is the same rule: laptops and displays, no USB data.
+    const pods = roomTemplates.find((t) => t.id === "corporate-agile-collaboration-zone-networkhd500")!;
+    expect(pods.architecture).toContain(ALLOWED);
+    expect(receiverOf(pods)).toBe("HDBaseT display receiver with power supply");
+
+    // The site assumption has to describe the audio the room schedules: front
+    // column arrays, not a distributed ceiling system the design does not buy.
+    expect(hall.concept!.construction).toContain("steerable front columns");
+    expect(hall.concept!.construction).not.toContain("distributed ceiling system");
+  });
   it("does not invent extra schematic screens from spare matrix ports", () => {
     const template = roomTemplates.find((t) => t.id === "corporate-boardroom-networkhd500")!;
     const brief = templateBomToSchematicBrief(template, template.bom);

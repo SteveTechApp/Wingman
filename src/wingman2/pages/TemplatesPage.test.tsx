@@ -2,7 +2,9 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes, useParams } from "react-router-dom";
 import { roomTemplates } from "../lib/roomTemplates";
+import { templateMatchesMarketFilter } from "../lib/templateMarkets";
 import { readDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
+import { expectResultsWindow, turnResultsPage } from "../lib/testHelpers/resultsPager";
 import type { CustomRoomTemplate } from "../lib/customRoomTemplates";
 import { TemplatesPage } from "./TemplatesPage";
 
@@ -39,4 +41,36 @@ it.each([true, false])("edits the original custom template in guided=%s", isGuid
   expect(readDiscoveryHandoff()).toMatchObject({
     mode: "template-edit", templateId: customTemplate.id, answers: customTemplate.discoveryAnswers,
   });
+});
+
+it("returns to the first page on a market change, and leaves the page alone on a card click", () => {
+  mode.isGuided = true;
+  const inMarket = (market: string) => roomTemplates.filter(template => templateMatchesMarketFilter(template, market)).length;
+  const education = inMarket("Education");
+  const hospitality = inMarket("Hospitality");
+  // Eight cards fit a page, so both markets need an arrow: the second page is
+  // what a filter change has to undo.
+  expect(education).toBeGreaterThan(8);
+  expect(hospitality).toBeGreaterThan(8);
+
+  render(<MemoryRouter initialEntries={["/wingman/templates"]}><Routes>
+    <Route path="/wingman/templates" element={<TemplatesPage />} />
+    <Route path="/wingman/templates/:id" element={<div>Review destination</div>} />
+  </Routes></MemoryRouter>);
+
+  fireEvent.click(screen.getByRole("button", { name: "Education" }));
+  expectResultsWindow(1, 8, education);
+  turnResultsPage(9, education, education);
+
+  // Personalising a card opens the preview over the list; closing it returns the
+  // rep to the page they were reading, because no filter moved.
+  fireEvent.click(screen.getAllByRole("button", { name: "Personalise" })[0]);
+  expect(screen.getByRole("dialog")).toBeTruthy();
+  expectResultsWindow(9, education, education);
+  fireEvent.click(screen.getAllByRole("button", { name: "Close template preview" })[0]);
+  expectResultsWindow(9, education, education);
+
+  // A market is a filter, so it returns the list to its first page.
+  fireEvent.click(screen.getByRole("button", { name: "Hospitality" }));
+  expectResultsWindow(1, 8, hospitality);
 });

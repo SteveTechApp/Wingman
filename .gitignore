@@ -131,6 +131,9 @@ _wingman_backup_*/
 
 # --- One-off fix evidence screenshots (never consumed; regenerate on demand) ---
 artifacts/
+# Screenshots the app and preview tools save at the repo root are the same kind
+# of evidence: kept locally, never committed.
+/screenshots/
 
 # --- Supabase backend seed stores (obsolete file-mode store; replaced by
 # --- supabase-tables mode + remote tables; last touched 2026-03) ---

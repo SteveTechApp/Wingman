@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { runUnstyledClassGate } from "./check-wingman-unstyled-classes.mjs";
+import { runTool } from "./test-spawn-guard.mjs";
 import {
   classTokensIn,
   collectClassUsage,
@@ -22,6 +23,12 @@ function sandbox(files) {
     fs.mkdirSync(path.dirname(absolute), { recursive: true });
     fs.writeFileSync(absolute, content);
   }
+  return root;
+}
+
+function gitSandbox(files) {
+  const root = sandbox(files);
+  runTool("git", ["init", "--quiet"], "unstyled-class-sandbox", { cwd: root });
   return root;
 }
 
@@ -99,6 +106,28 @@ describe("stylesheet answers", () => {
     expect(names.has("fixture-declared")).toBe(true);
     expect(names.has("fixture-document")).toBe(true);
     expect(names.has("fixture-commented")).toBe(false);
+  });
+
+  it("asks only about markup the build ships and sheets it ships", () => {
+    const root = gitSandbox({
+      ".gitignore": "scratch/\n",
+      [THEME]: ".fixture-declared { color: red; }\n",
+      // Untracked work in progress is still source: nothing is ignored here.
+      [COMPONENT]: '<div className="fixture-declared fixture-orphan" />\n',
+      // A parked copy of an old component is not markup the app renders, so the
+      // class only it names must not be asked about.
+      "src/wingman2/scratch/Old.tsx": '<div className="fixture-from-scratch" />\n',
+      // Nor is a scratch sheet one the build ships: it cannot answer a class.
+      "src/wingman2/scratch/answer.css": ".fixture-orphan { color: blue; }\n",
+    });
+
+    expect(collectClassUsage(root)).toEqual([
+      { file: COMPONENT, name: "fixture-declared" },
+      { file: COMPONENT, name: "fixture-orphan" },
+    ]);
+    const answered = styleSheetClassNames(root);
+    expect(answered.has("fixture-declared")).toBe(true);
+    expect(answered.has("fixture-orphan")).toBe(false);
   });
 
   it("asks the Tailwind compiler which candidates are utilities", async () => {

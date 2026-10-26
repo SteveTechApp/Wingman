@@ -69,7 +69,6 @@ import {
   type InterviewLangId,
 } from "./discoveryGuidedInterviewI18n";
 import { getStoredWingmanCaptureLanguage } from "../../data/wingmanLanguage";
-import { DiscoveryQuickStartEntry } from "./discoveryQuickStartPanel";
 import { DiscoveryDefaultsConflictAlert } from "./DiscoveryDefaultsConflictAlert";
 import { DISCOVERY_CAPTURE_PRESENTATION } from "./discoveryProgressiveDisclosure";
 
@@ -151,68 +150,39 @@ export function DiscoveryGuidedInterviewEntry({
   }, []);
 
   return (
-    <div data-wingman-guided-interview="true" data-guided-interview-entry="true">
-      <button
-        type="button"
-        onClick={onStart}
-        className="mx-auto mb-4 block w-full max-w-3xl rounded-xl border border-purple-500/30 bg-purple-900/20 px-4 py-3 text-left transition hover:bg-purple-900/30"
-      >
-        <span className="flex items-center gap-3">
-          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-500 text-sm font-bold text-purple-950">🎙️</span>
-          <span>
-            <span className="block text-sm font-bold text-purple-300">{reviewing ? `Review ${DISCOVERY_CAPTURE_PRESENTATION.label.toLowerCase()}` : resuming ? `Continue ${DISCOVERY_CAPTURE_PRESENTATION.label.toLowerCase()}` : DISCOVERY_CAPTURE_PRESENTATION.label}</span>
-            <span className="block text-xs text-[#8fb8d0]">
-              {reviewing ? `${answeredCount} of ${total} captured` : resuming ? `${answeredCount} of ${total} captured` : "Answer aloud"}
-              {reviewing && <span className="sr-only"> Re-walk every question.</span>}
-            </span>
-          </span>
+    <div className="wm-guided-entry" data-wingman-guided-interview="true" data-guided-interview-entry="true">
+      <button type="button" onClick={onStart} className="wm-guided-entry-card">
+        <span className="wm-guided-entry-icon" aria-hidden="true"><Mic /></span>
+        <span className="wm-guided-entry-copy">
+          <strong>{reviewing ? `Review ${DISCOVERY_CAPTURE_PRESENTATION.label.toLowerCase()}` : resuming ? `Continue ${DISCOVERY_CAPTURE_PRESENTATION.label.toLowerCase()}` : DISCOVERY_CAPTURE_PRESENTATION.label}</strong>
+          <small>
+            {reviewing
+              ? `${answeredCount} of ${total} captured`
+              : resuming
+                ? `${answeredCount} of ${total} captured — pick up at the first open question`
+                : "Answer aloud — Wingman asks each question and keeps the wording you answer with"}
+            {reviewing && <span className="sr-only"> Re-walk every question.</span>}
+          </small>
+        </span>
+        <span className="wm-guided-entry-go" aria-hidden="true">
+          {reviewing ? "Review" : resuming ? "Continue" : "Start"}
+          <ArrowRight />
         </span>
       </button>
       {reviewing && openCount > 0 && onStartReviewOpen && (
-        <button
-          type="button"
-          onClick={onStartReviewOpen}
-          className="mx-auto mb-4 block w-full max-w-3xl rounded-xl border border-amber-500/30 bg-amber-900/20 px-4 py-3 text-left transition hover:bg-amber-900/30"
-        >
-          <span className="flex items-center gap-3">
-            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500 text-sm font-bold text-amber-950">✅</span>
-            <span>
-              <span className="block text-sm font-bold text-amber-300">Re-verify open questions — voice Q&A</span>
-              <span className="block text-xs text-[#8fb8d0]">{openCount} question{openCount === 1 ? " is" : "s are"} still marked “to be confirmed” — walk only those before sign-off, answers stay saved.</span>
-            </span>
+        <button type="button" onClick={onStartReviewOpen} className="wm-guided-entry-card is-open">
+          <span className="wm-guided-entry-icon" aria-hidden="true"><ListChecks /></span>
+          <span className="wm-guided-entry-copy">
+            <strong>Re-verify open questions — voice Q&A</strong>
+            <small>{openCount} question{openCount === 1 ? " is" : "s are"} still marked “to be confirmed” — walk only those before sign-off, answers stay saved.</small>
+          </span>
+          <span className="wm-guided-entry-go" aria-hidden="true">
+            Open
+            <ArrowRight />
           </span>
         </button>
       )}
     </div>
-  );
-}
-
-// Entry rail above Discovery: Quick Start only while nothing is captured yet,
-// plus the guided interview entry (start, continue, or review). The entry stays
-// visible once every question is answered so a rep can re-walk the whole
-// conversation in review mode without resetting anything.
-export function DiscoveryEntryRail({
-  onStart,
-  onStartReviewOpen,
-  onQuickStart,
-  answeredCount,
-  total,
-  openCount = 0,
-}: {
-  onStart: () => void;
-  onStartReviewOpen?: () => void;
-  onQuickStart: (answers: DiscoveryAnswers) => void;
-  answeredCount: number;
-  total: number;
-  /** Questions still "to be confirmed" — shown as a focused re-verify entry. */
-  openCount?: number;
-}) {
-  const reviewing = total > 0 && answeredCount >= total;
-  return (
-    <>
-      {answeredCount === 0 && <DiscoveryQuickStartEntry onAnswers={onQuickStart} />}
-      <DiscoveryGuidedInterviewEntry onStart={onStart} onStartReviewOpen={onStartReviewOpen} answeredCount={answeredCount} total={total} reviewing={reviewing} openCount={openCount} />
-    </>
   );
 }
 
@@ -686,12 +656,9 @@ export function DiscoveryGuidedInterview({
 
   if (!currentQuestion) {
     return (
-      <div className="mx-auto max-w-3xl py-10 text-center">
-        <button
-          type="button"
-          className="rounded-full border border-white/10 px-5 py-2.5 text-sm font-semibold text-[#8fb8d0]"
-          onClick={onExit}
-        >
+      <div className="wm-guided-empty">
+        <p className="wm-guided-copy">No questions are open in this walk.</p>
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={onExit}>
           Back to Discovery
         </button>
       </div>
@@ -719,123 +686,109 @@ export function DiscoveryGuidedInterview({
   const matchTierStyle =
     match && match.values.length > 0
       ? confidenceForMatch(match) === "high"
-        ? { label: "High confidence", badge: "bg-emerald-500/15 text-emerald-300", bar: "bg-emerald-500", bars: 3 }
+        ? { label: "High confidence", tone: "high", bars: 3 }
         : confidenceForMatch(match) === "matched"
-          ? { label: "Matched", badge: "bg-emerald-500/15 text-emerald-300", bar: "bg-emerald-500", bars: 2 }
-          : { label: "Low confidence — verify", badge: "bg-amber-500/15 text-amber-300", bar: "bg-amber-500", bars: 1 }
+          ? { label: "Matched", tone: "matched", bars: 2 }
+          : { label: "Low confidence — verify", tone: "low", bars: 1 }
       : null;
 
   return (
-    <div
-      className="mx-auto mb-6 max-w-4xl space-y-4"
-      data-wingman-guided-interview="true"
-    >
+    <div className="wm-guided-interview" data-wingman-guided-interview="true">
       {/* Interview header + progress */}
-      <section className="rounded-2xl border border-white/10 bg-[#0b1824]/80 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-purple-500/20 text-lg" aria-hidden="true">
-              🎙️
-            </span>
-            <div>
-              <p className="text-sm font-bold text-[#edf6ff]">{DISCOVERY_CAPTURE_PRESENTATION.label}</p>
-              <p className="text-xs text-[#8fb8d0]">
-                Wingman asks, you answer — notes and product selection build as you go.
+      <section className="wm-guided-panel wm-guided-header">
+        <div className="wm-guided-header-main">
+          <div className="wm-guided-header-copy">
+            <p className="wm-guided-eyebrow">{DISCOVERY_CAPTURE_PRESENTATION.label}</p>
+            <h2 className="wm-guided-title">Answer aloud — the wording is kept with the answer.</h2>
+            <p className="wm-guided-copy">
+              Wingman asks, you answer — notes and product selection build as you go.
+            </p>
+            {focusedReview ? (
+              <p className="wm-guided-note is-warning">
+                Re-verifying {openQuestions.length} open question{openQuestions.length === 1 ? "" : "s"} still marked “to be confirmed” — confirm with the customer to settle each row before sign-off.
               </p>
-              {focusedReview ? (
-                <p className="mt-1 text-xs text-amber-300">
-                  Re-verifying {openQuestions.length} open question{openQuestions.length === 1 ? "" : "s"} still marked “to be confirmed” — confirm with the customer to settle each row before sign-off.
-                </p>
-              ) : reviewMode ? (
-                <p className="mt-1 text-xs text-purple-300">
-                  Reviewing conversation — every question is captured. Answers stay saved; change anything before sign-off.
-                </p>
-              ) : startedResumed ? (
-                <p className="mt-1 text-xs text-purple-300">
-                  Resumed — continuing at the first open question. Earlier answers are saved.
-                </p>
-              ) : null}
-            </div>
+            ) : reviewMode ? (
+              <p className="wm-guided-note">
+                Reviewing conversation — every question is captured. Answers stay saved; change anything before sign-off.
+              </p>
+            ) : startedResumed ? (
+              <p className="wm-guided-note">
+                Resumed — continuing at the first open question. Earlier answers are saved.
+              </p>
+            ) : null}
           </div>
-          <div className="flex items-center gap-2">
-            {ttsSupported && (
-              <button
-                type="button"
-                onClick={() => setAutoSpeak((current) => !current)}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                  autoSpeak
-                    ? "border-purple-500/40 bg-purple-500/15 text-purple-300"
-                    : "border-white/10 bg-white/[0.03] text-[#8fb8d0] hover:text-[#cfe6f7]"
-                }`}
-                aria-pressed={autoSpeak}
-                title={autoSpeak ? "Wingman reads each question aloud" : "Questions are not read aloud"}
-              >
-                {autoSpeak ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
-                {autoSpeak ? "Speak on" : "Speak off"}
-              </button>
-            )}
-            {ttsSupported && (
-              <button
-                type="button"
-                onClick={previewVoice}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
-                title={`Hear the voice for ${activeSpeechLang}`}
-              >
-                <Volume1 className="h-3.5 w-3.5" />
-                Preview voice
-              </button>
-            )}
-            {ttsSupported && (
-              <label
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-[#8fb8d0]"
-                title="Spoken language for this call — the profile capture language is unchanged"
-              >
-                <Languages className="h-3.5 w-3.5" />
-                <span>Speak in</span>
-                <select
-                  value={activeInterviewLang}
-                  onChange={(event) => {
-                    const next = event.target.value;
-                    // Selecting the profile language clears the override so the
-                    // stored profile stays the source of truth.
-                    setSpokenLangOverride(
-                      normalizeInterviewLang(next) === interviewLang ? null : next,
-                    );
-                  }}
-                  aria-label="Spoken language"
-                  className="cursor-pointer bg-transparent font-semibold text-[#cfe6f7] outline-none [&>option]:bg-[#0b1824]"
-                >
-                  {SPOKEN_LANGUAGE_OPTIONS.map((option) => (
-                    <option key={option.lang} value={option.lang}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-            <button
-              type="button"
-              onClick={exitInterview}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
-            >
-              Exit to standard questions
-            </button>
+          <div className="wm-expert-capture-count">
+            <strong>{answeredCount}</strong>
+            <span>of {questions.length} captured</span>
           </div>
         </div>
 
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-xs text-[#8fb8d0]">
+        <div className="wm-guided-meter">
+          <div className="wm-guided-meter-line">
             <span>
               {answeredCount} of {questions.length} questions captured
             </span>
-            <span>{percent}%</span>
+            <b>{percent}%</b>
           </div>
-          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[0.06]">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-purple-500 to-cyan-400 transition-all"
-              style={{ width: `${percent}%` }}
-            />
+          <div className="wm-guided-meter-track" aria-hidden="true">
+            <span style={{ width: `${percent}%` }} />
           </div>
+        </div>
+
+        <div className="wm-guided-chips">
+          {ttsSupported && (
+            <button
+              type="button"
+              onClick={() => setAutoSpeak((current) => !current)}
+              className={autoSpeak ? "wm-guided-chip is-active" : "wm-guided-chip"}
+              aria-pressed={autoSpeak}
+              title={autoSpeak ? "Wingman reads each question aloud" : "Questions are not read aloud"}
+            >
+              {autoSpeak ? <Volume2 /> : <VolumeX />}
+              {autoSpeak ? "Speak on" : "Speak off"}
+            </button>
+          )}
+          {ttsSupported && (
+            <button
+              type="button"
+              onClick={previewVoice}
+              className="wm-guided-chip"
+              title={`Hear the voice for ${activeSpeechLang}`}
+            >
+              <Volume1 />
+              Preview voice
+            </button>
+          )}
+          {ttsSupported && (
+            <label
+              className="wm-guided-chip"
+              title="Spoken language for this call — the profile capture language is unchanged"
+            >
+              <Languages />
+              <span>Speak in</span>
+              <select
+                value={activeInterviewLang}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  // Selecting the profile language clears the override so the
+                  // stored profile stays the source of truth.
+                  setSpokenLangOverride(
+                    normalizeInterviewLang(next) === interviewLang ? null : next,
+                  );
+                }}
+                aria-label="Spoken language"
+              >
+                {SPOKEN_LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.lang} value={option.lang}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <button type="button" onClick={exitInterview} className="wm-guided-chip">
+            Exit to standard questions
+          </button>
         </div>
       </section>
 
@@ -869,9 +822,8 @@ export function DiscoveryGuidedInterview({
       ) : (
         <>
           {reviewMode && sectionStops.length > 1 && (
-            <section className="rounded-2xl border border-white/10 bg-[#0b1824]/80 p-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold text-[#8fb8d0]">Jump to section:</span>
+            <section className="wm-guided-jumps" aria-label="Jump to section">
+              <span className="wm-guided-jumps-label">Jump to section:</span>
                 {sectionStops.map((stop) => {
                   const active = currentQuestion?.section === stop.label;
                   return (
@@ -884,54 +836,40 @@ export function DiscoveryGuidedInterview({
                         setInterim("");
                         setIndex(stop.firstIndex);
                       }}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                        active
-                          ? "border-purple-500/40 bg-purple-500/15 text-purple-300"
-                          : "border-white/10 bg-white/[0.03] text-[#8fb8d0] hover:text-[#cfe6f7]"
-                      }`}
+                      className="wm-guided-jump"
                       aria-pressed={active}
                     >
                       {stop.label}
                     </button>
                   );
                 })}
-              </div>
             </section>
           )}
 
           {/* Current question */}
           <section
-            className="rounded-2xl border border-white/10 bg-[#0b1824]/80 p-6"
+            className="wm-guided-question"
             data-guided-question={currentQuestion.id}
           >
-            <div className="flex items-center justify-between text-xs text-[#8fb8d0]">
-              <span className="rounded-full bg-white/[0.05] px-2.5 py-1 font-semibold">
+            <div className="wm-guided-question-meta">
+              <span className="wm-guided-section">
                 {currentQuestion.section}
               </span>
-              <span>
+              <span className="wm-guided-step">
                 {focusedReview
                   ? `Open question ${safeIndex + 1} of ${walkQuestions.length}`
                   : `Question ${safeIndex + 1} of ${questions.length}`}
               </span>
             </div>
 
-            <h2 className="mt-3 text-2xl font-black leading-snug text-[#edf6ff]">
-              {currentView.question}
-            </h2>
-            <p className="mt-1.5 text-sm leading-6 text-[#8fb8d0]">{currentView.prompt}</p>
+            <h2>{currentView.question}</h2>
+            <p className="wm-guided-prompt">{currentView.prompt}</p>
             {activeInterviewLang !== "en" && (
-              <p
-                lang={activeSpeechLang}
-                className="mt-2 border-l-2 border-purple-500/40 pl-3 text-sm italic leading-6 text-purple-300/80"
-              >
+              <p lang={activeSpeechLang} className="wm-guided-stem">
                 {spokenText.question}
                 {languageTablesPending && (
-                  <span
-                    className="ml-2 inline-flex items-center gap-1.5 text-xs not-italic text-slate-400"
-                    role="status"
-                    aria-label="Loading language tables"
-                  >
-                    <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />
+                  <span className="wm-guided-stem-status" role="status" aria-label="Loading language tables">
+                    <Loader2 aria-hidden="true" className="animate-spin" />
                     loading language tables…
                   </span>
                 )}
@@ -940,35 +878,20 @@ export function DiscoveryGuidedInterview({
 
             {/* Currently captured — review mode summary for this question */}
             {capturedLabel && (
-              <div
-                className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4"
-                data-guided-captured="true"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-300">
-                    Currently captured
-                  </p>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                      capturedConfirmed
-                        ? "bg-cyan-500/20 text-cyan-300"
-                        : "bg-amber-500/15 text-amber-300"
-                    }`}
-                  >
+              <div className="wm-guided-state is-captured" data-guided-captured="true">
+                <div className="wm-guided-state-head">
+                  <p className="wm-guided-state-label">Currently captured</p>
+                  <span className={capturedConfirmed ? "wm-guided-tag is-captured" : "wm-guided-tag is-open"}>
                     {capturedConfirmed
                       ? "Confirmed with customer"
                       : "To be confirmed"}
                   </span>
                 </div>
-                <p className="mt-1.5 text-sm font-semibold text-slate-100">
-                  {capturedLabel}
-                </p>
+                <p className="wm-guided-state-text">{capturedLabel}</p>
                 {capturedNote && (
-                  <p className="mt-1 text-xs italic text-slate-400">
-                    “{capturedNote}”
-                  </p>
+                  <p className="wm-guided-state-quote">“{capturedNote}”</p>
                 )}
-                <p className="mt-1.5 text-[11px] text-slate-400">
+                <p className="wm-guided-state-hint">
                   Captured earlier — change it below before sign-off. Nothing
                   else in the discovery is reset.
                 </p>
@@ -976,14 +899,10 @@ export function DiscoveryGuidedInterview({
             )}
 
             {/* Controls */}
-            <div className="mt-5 flex flex-wrap items-center gap-2">
+            <div className="wm-guided-tools">
               {ttsSupported && (
-                <button
-                  type="button"
-                  onClick={speakCurrent}
-                  className="inline-flex items-center gap-2 rounded-full border border-purple-500/40 bg-purple-500/10 px-4 py-2 text-sm font-semibold text-purple-300 transition hover:bg-purple-500/20"
-                >
-                  <Volume2 className="h-4 w-4" />
+                <button type="button" onClick={speakCurrent} className="wm-guided-chip">
+                  <Volume2 />
                   Read question
                 </button>
               )}
@@ -991,97 +910,81 @@ export function DiscoveryGuidedInterview({
                 type="button"
                 onClick={beginListening}
                 aria-pressed={listening}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition ${
-                  listening
-                    ? "animate-pulse bg-red-500 text-red-950 hover:bg-red-400"
-                    : "bg-purple-500 text-purple-950 hover:bg-purple-400"
-                }`}
+                className={listening ? "wm-guided-mic is-listening" : "wm-guided-mic"}
               >
-                {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                {listening ? <MicOff /> : <Mic />}
                 {listening ? "Listening — tap to stop" : "Open mic — answer by voice"}
               </button>
-              <button
-                type="button"
-                onClick={skipQuestion}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
-              >
+              <button type="button" onClick={skipQuestion} className="wm-guided-chip">
                 Skip for now
               </button>
               {safeIndex > 0 && (
-                <button
-                  type="button"
-                  onClick={goBack}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
-                >
-                  <ChevronLeft className="h-4 w-4" />
+                <button type="button" onClick={goBack} className="wm-guided-chip">
+                  <ChevronLeft />
                   Previous question
                 </button>
               )}
             </div>
 
             {!micSupported && (
-              <p className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
+              <p className="wm-guided-warning">
                 Voice capture needs a supported browser (Chrome or Edge). Type an
                 answer or choose an option below — everything else still works.
               </p>
             )}
-            {micError && (
-              <p className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
-                {micError}
-              </p>
-            )}
+            {micError && <p className="wm-guided-warning">{micError}</p>}
 
             {/* Live transcript while listening */}
             {listening && (
-              <div className="mt-4 rounded-xl border border-purple-500/30 bg-purple-500/10 p-4">
-                <p className="flex items-center gap-2 text-xs font-bold text-purple-300">
-                  <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-red-400" />
+              <div className="wm-guided-live" aria-live="polite">
+                <p className="wm-guided-live-label">
+                  <span className="wm-guided-live-dot" aria-hidden="true" />
                   Listening… speak your answer
                 </p>
-                <p className="mt-2 text-lg text-[#edf6ff]">{interim || "…"}</p>
+                <p className="wm-guided-live-text">{interim || "…"}</p>
               </div>
             )}
 
             {/* Heard answer + interpretation */}
             {!listening && heard && (
-              <div
-                className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4"
-                data-guided-heard="true"
-              >
-                <p className="text-xs font-bold uppercase tracking-wide text-[#8fb8d0]">You said</p>
-                <p className="mt-1 text-lg text-[#edf6ff]">“{heard}”</p>
+              <div className="wm-guided-state" data-guided-heard="true">
+                <p className="wm-guided-state-label">You said</p>
+                <p className="wm-guided-state-text">“{heard}”</p>
 
                 {match && match.values.length > 0 && matchTierStyle ? (
-                  <div className="mt-3">
-                    <p className="text-sm text-slate-100">
-                      <span
-                        className={`mr-1.5 inline-flex rounded-full px-2 py-0.5 text-xs font-bold ${matchTierStyle.badge}`}
-                      >
+                  <>
+                    <div className="wm-guided-state-head">
+                      <span className={`wm-guided-match is-${matchTierStyle.tone}`}>
                         {matchTierStyle.label}
                       </span>
                       <span
-                        className="mr-1.5 inline-flex items-center gap-0.5 align-middle"
+                        className="wm-guided-bars"
+                        role="img"
                         title={`Confidence ${matchTierStyle.bars} of 3`}
                         aria-label={`Confidence ${matchTierStyle.bars} of 3`}
                       >
                         {[1, 2, 3].map((bar) => (
                           <span
                             key={bar}
-                            className={`h-1.5 w-3 rounded-full ${bar <= matchTierStyle.bars ? matchTierStyle.bar : "bg-white/10"}`}
+                            className={`wm-guided-bar${bar <= matchTierStyle.bars ? " is-on" : ""}${matchTierStyle.tone === "low" ? " is-low" : ""}`}
                           />
                         ))}
                       </span>
-                      <Check className="mr-1 inline h-3.5 w-3.5 text-emerald-300" />
-                      {match.labels.join(", ")}
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    </div>
+                    <ul className="wm-guided-heard-list">
+                      <li>
+                        <Check aria-hidden="true" />
+                        {match.labels.join(", ")}
+                      </li>
+                    </ul>
+                    <div className="wm-guided-tools">
                       <button
                         type="button"
                         onClick={confirmHeardAnswer}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-4 py-2 text-sm font-bold text-emerald-950 transition hover:bg-emerald-400"
+                        className="wm-ui-button wm-ui-button-primary"
                       >
                         That's right
-                        <ArrowRight className="h-4 w-4" />
+                        <ArrowRight />
                       </button>
                       <button
                         type="button"
@@ -1090,26 +993,26 @@ export function DiscoveryGuidedInterview({
                           setMatch(null);
                           window.setTimeout(beginListening, 120);
                         }}
-                        className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
+                        className="wm-guided-chip"
                       >
-                        <RotateCcw className="mr-1.5 inline h-3.5 w-3.5" />
+                        <RotateCcw />
                         Try again
                       </button>
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <div className="mt-3">
-                    <p className="text-sm text-[#cfe6f7]">
+                  <>
+                    <p className="wm-guided-state-hint">
                       I didn't quite catch that. Try again, or choose from the options below.
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="wm-guided-tools">
                       <button
                         type="button"
                         onClick={() => {
                           applyAnswer([], heard);
                           advance();
                         }}
-                        className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
+                        className="wm-guided-chip"
                       >
                         Keep as note only
                       </button>
@@ -1120,13 +1023,13 @@ export function DiscoveryGuidedInterview({
                           setMatch(null);
                           window.setTimeout(beginListening, 120);
                         }}
-                        className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
+                        className="wm-guided-chip"
                       >
-                        <RotateCcw className="mr-1.5 inline h-3.5 w-3.5" />
+                        <RotateCcw />
                         Try again
                       </button>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
             )}
@@ -1141,12 +1044,12 @@ export function DiscoveryGuidedInterview({
             />
 
             {/* Manual options — always available as the fallback */}
-            <div className="mt-5">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[#8fb8d0]">
+            <div className="wm-guided-answer">
+              <p className="wm-guided-label">
                 Or choose an option
                 {wmDiscoveryIsMultiSelectStep(currentQuestion) ? " (pick all that apply)" : ""}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="wm-room-wizard-options">
                 {currentView.options.map((option) => {
                   const selected = Array.isArray(answers[currentQuestion.id])
                     ? (answers[currentQuestion.id] as string[]).includes(option.value)
@@ -1157,11 +1060,7 @@ export function DiscoveryGuidedInterview({
                       type="button"
                       onClick={() => selectOption(option.value)}
                       aria-pressed={selected}
-                      className={`rounded-full border px-3.5 py-2 text-left text-sm font-medium transition ${
-                        selected
-                          ? "border-purple-400 bg-purple-500/20 text-purple-200"
-                          : "border-white/10 bg-white/[0.03] text-[#cfe6f7] hover:border-white/25"
-                      }`}
+                      className="wm-room-wizard-option"
                     >
                       {option.label}
                     </button>
@@ -1172,43 +1071,43 @@ export function DiscoveryGuidedInterview({
                 <button
                   type="button"
                   onClick={advance}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-cyan-500 px-5 py-2.5 text-sm font-bold text-cyan-950 transition hover:bg-cyan-400"
+                  className="wm-ui-button wm-ui-button-primary wm-guided-next"
                 >
                   Next question
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight />
                 </button>
               )}
             </div>
           </section>
 
           {/* Notes trail */}
-          <section className="rounded-2xl border border-white/10 bg-[#0b1824]/60">
+          <section className="wm-guided-panel wm-guided-trail">
             <button
               type="button"
               onClick={() => setTrailOpen((current) => !current)}
-              className="flex w-full items-center justify-between px-5 py-3.5 text-left"
+              className="wm-guided-trail-toggle"
               aria-expanded={trailOpen}
             >
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#edf6ff]">
-                <ListChecks className="h-4 w-4 text-purple-400" />
+              <span>
+                <ListChecks />
                 Notes captured so far ({answeredCount})
               </span>
               <ChevronDown
-                className={`h-4 w-4 text-[#8fb8d0] transition-transform ${trailOpen ? "rotate-180" : ""}`}
+                className={trailOpen ? "wm-guided-trail-chevron is-open" : "wm-guided-trail-chevron"}
               />
             </button>
             {trailOpen && (
-              <div className="border-t border-white/5 px-5 py-4">
+              <div className="wm-guided-trail-body">
                 {questions.filter(
                   (question) =>
                     wmDiscoveryHasAnswer(answers[question.id]) ||
                     Boolean(notes[question.id]?.trim()),
                 ).length === 0 ? (
-                  <p className="text-sm text-[#8fb8d0]">
+                  <p className="wm-guided-trail-empty">
                     No notes yet — answer the first question to get started.
                   </p>
                 ) : (
-                  <ul className="space-y-2.5">
+                  <ul className="wm-guided-trail-list">
                     {questions
                       .filter(
                         (question) =>
@@ -1219,13 +1118,11 @@ export function DiscoveryGuidedInterview({
                         const localized = translateInterviewQuestion(question, activeInterviewLang);
                         const localizedDiffers = localized.question !== question.question;
                         return (
-                          <li key={question.id} className="text-sm">
-                            <div className="flex items-start justify-between gap-3">
-                              <span>
-                                <span className="font-semibold text-[#cfe6f7]">
-                                  {question.shortLabel}:
-                                </span>{" "}
-                                <span className="text-[#8fb8d0]">
+                          <li key={question.id} className="wm-guided-trail-row">
+                            <div className="wm-guided-trail-copy">
+                              <p>
+                                <strong>{question.shortLabel}</strong>
+                                <span>
                                   {wmDiscoveryHasAnswer(answers[question.id])
                                     ? getOptionLabel(question, answers[question.id], application)
                                     : "Note only"}
@@ -1233,29 +1130,22 @@ export function DiscoveryGuidedInterview({
                                     ? ` — ${notes[question.id].trim()}`
                                     : ""}
                                 </span>
-                              </span>
-                              {onConfirmedChange && (
-                                <button
-                                  type="button"
-                                  className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                                    confirmed[question.id] === true
-                                      ? "bg-emerald-500/15 text-emerald-300"
-                                      : "bg-amber-500/15 text-amber-300"
-                                  }`}
-                                  aria-pressed={confirmed[question.id] === true}
-                                  onClick={() => toggleConfirmed(question.id)}
-                                >
-                                  {confirmed[question.id] === true ? "Confirmed" : "Confirm with customer"}
-                                </button>
+                              </p>
+                              {localizedDiffers && (
+                                <p lang={activeSpeechLang} className="wm-guided-stem">
+                                  {question.question} — {localized.question}
+                                </p>
                               )}
                             </div>
-                            {localizedDiffers && (
-                              <p
-                                lang={activeSpeechLang}
-                                className="mt-1 border-l-2 border-purple-500/40 pl-2 text-xs italic leading-5 text-purple-300/80"
+                            {onConfirmedChange && (
+                              <button
+                                type="button"
+                                className="wm-guided-confirm"
+                                aria-pressed={confirmed[question.id] === true}
+                                onClick={() => toggleConfirmed(question.id)}
                               >
-                                {question.question} — {localized.question}
-                              </p>
+                                {confirmed[question.id] === true ? "Confirmed" : "Confirm with customer"}
+                              </button>
                             )}
                           </li>
                         );
@@ -1335,28 +1225,26 @@ function SummaryPanel({
   ).length;
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-[#0b1824]/80 p-6">
-      <div className="flex items-center gap-3">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-xl" aria-hidden="true">
-          <Sparkles className="h-5 w-5 text-emerald-300" />
+    <section className="wm-guided-panel wm-guided-summary">
+      <div className="wm-guided-summary-head">
+        <span className="wm-guided-summary-icon" aria-hidden="true">
+          <Sparkles />
         </span>
         <div>
-          <h2 className="text-xl font-black text-[#edf6ff]">Interview complete</h2>
-          <p className="text-sm text-[#8fb8d0]">
-            Here is everything Wingman noted from the conversation.
-          </p>
+          <h2>Interview complete</h2>
+          <p>Here is everything Wingman noted from the conversation.</p>
         </div>
       </div>
 
       {unansweredCount > 0 && (
-        <p className="mt-4 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+        <p className="wm-guided-warning">
           {unansweredCount} question{unansweredCount === 1 ? " was" : "s were"} left
           open — Wingman will flag these for confirmation rather than assume them.
         </p>
       )}
       {lowConfidenceAnswers && lowConfidenceAnswers.length > 0 && (
-        <p className="mt-4 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
-          <CheckCheck className="mr-1.5 inline h-4 w-4" />
+        <p className="wm-guided-warning">
+          <CheckCheck aria-hidden="true" />{" "}
           {lowConfidenceAnswers.length} low-confidence answer
           {lowConfidenceAnswers.length === 1 ? " was" : "s were"} captured on
           partial matches — re-verify before generating recommendations:{" "}
@@ -1364,48 +1252,32 @@ function SummaryPanel({
         </p>
       )}
 
-      <ul className="mt-4 space-y-2">
+      <ul className="wm-guided-summary-list">
         {questions.map((question) => {
           const hasAnswer = wmDiscoveryHasAnswer(answers[question.id]);
           const note = notes[question.id]?.trim() ?? "";
           const localized = translateInterviewQuestion(question, interviewLang);
           const localizedDiffers = localized.question !== question.question;
           return (
-            <li
-              key={question.id}
-              className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3"
-            >
-              <div className="flex items-start justify-between gap-3">
+            <li key={question.id} className="wm-guided-summary-row">
+              <div className="wm-guided-summary-row-head">
                 <div>
-                  <p className="text-sm font-semibold text-[#cfe6f7]">{question.shortLabel}</p>
-                  <p className="text-xs text-[#6a97b0]">{question.question}</p>
+                  <strong>{question.shortLabel}</strong>
+                  <small>{question.question}</small>
                   {localizedDiffers && (
-                    <p
-                      lang={speechLang}
-                      className="mt-0.5 border-l-2 border-purple-500/40 pl-2 text-xs italic leading-5 text-purple-300/80"
-                    >
+                    <p lang={speechLang} className="wm-guided-stem">
                       {localized.question}
                     </p>
                   )}
                 </div>
-                <span className="flex shrink-0 flex-col items-end gap-1.5">
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                      hasAnswer
-                        ? "bg-emerald-500/15 text-emerald-300"
-                        : "bg-amber-500/15 text-amber-300"
-                    }`}
-                  >
+                <span className="wm-guided-tags">
+                  <span className={hasAnswer ? "wm-guided-tag is-captured" : "wm-guided-tag is-open"}>
                     {hasAnswer ? "Captured" : "Open"}
                   </span>
                   {onConfirmedChange && (
                     <button
                       type="button"
-                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                        confirmed[question.id] === true
-                          ? "bg-cyan-500/20 text-cyan-300"
-                          : "bg-white/5 text-slate-400 hover:text-slate-200"
-                      }`}
+                      className="wm-guided-confirm"
                       aria-pressed={confirmed[question.id] === true}
                       onClick={() =>
                         onConfirmedChange((previous) => ({
@@ -1422,13 +1294,11 @@ function SummaryPanel({
                 </span>
               </div>
               {hasAnswer && (
-                <p className="mt-1.5 text-sm text-[#edf6ff]">
+                <p className="wm-guided-summary-row-answer">
                   {getOptionLabel(question, answers[question.id], application)}
                 </p>
               )}
-              {note && (
-                <p className="mt-1 text-xs italic text-[#8fb8d0]">“{note}”</p>
-              )}
+              {note && <p className="wm-guided-summary-row-note">“{note}”</p>}
             </li>
           );
         })}
@@ -1436,25 +1306,19 @@ function SummaryPanel({
 
       {(strandedQuickStart && strandedQuickStart.length > 0) ||
       (applicationDrift && applicationDrift.items.length > 0) ? (
-        <div className="mt-4">
-          <DiscoveryStrandedDefaultsNotice
-            items={strandedQuickStart ?? []}
-            applicationDrift={applicationDrift}
-            onOpenStep={onOpenStrandedStep}
-            onRemoveStranded={onRemoveStranded}
-            onRemoveDrift={onRemoveDrift}
-          />
-        </div>
+        <DiscoveryStrandedDefaultsNotice
+          items={strandedQuickStart ?? []}
+          applicationDrift={applicationDrift}
+          onOpenStep={onOpenStrandedStep}
+          onRemoveStranded={onRemoveStranded}
+          onRemoveDrift={onRemoveDrift}
+        />
       ) : null}
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={onFinish}
-          className="inline-flex items-center gap-2 rounded-full bg-cyan-500 px-6 py-3 text-sm font-bold text-cyan-950 transition hover:bg-cyan-400"
-        >
+      <div className="wm-guided-summary-actions">
+        <button type="button" onClick={onFinish} className="wm-ui-button wm-ui-button-primary">
           Generate product recommendations
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight />
         </button>
         {onConfirmedChange && unconfirmedCapturedCount > 0 && (
           <button
@@ -1466,42 +1330,26 @@ function SummaryPanel({
                 return next;
               })
             }
-            className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-5 py-2.5 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500/20"
+            className="wm-ui-button wm-ui-button-secondary"
           >
-            <CheckCheck className="mr-1.5 inline h-4 w-4" />
+            <CheckCheck />
             Confirm all captured ({unconfirmedCapturedCount})
           </button>
         )}
         {openCount > 0 && onReviewOpen && (
-          <button
-            type="button"
-            onClick={onReviewOpen}
-            className="rounded-full border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-300 transition hover:bg-amber-500/20"
-          >
-            <ListChecks className="mr-1.5 inline h-4 w-4" />
+          <button type="button" onClick={onReviewOpen} className="wm-ui-button wm-ui-button-secondary">
+            <ListChecks />
             Re-verify {openCount} open question{openCount === 1 ? "" : "s"}
           </button>
         )}
-        <button
-          type="button"
-          onClick={onReview}
-          className="rounded-full border border-purple-500/40 bg-purple-500/10 px-5 py-2.5 text-sm font-semibold text-purple-300 transition hover:bg-purple-500/20"
-        >
-          <ListChecks className="mr-1.5 inline h-4 w-4" />
+        <button type="button" onClick={onReview} className="wm-ui-button wm-ui-button-secondary">
+          <ListChecks />
           Review all questions
         </button>
-        <button
-          type="button"
-          onClick={onBack}
-          className="rounded-full border border-white/10 bg-white/[0.03] px-5 py-2.5 text-sm font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
-        >
+        <button type="button" onClick={onBack} className="wm-guided-chip">
           Back to questions
         </button>
-        <button
-          type="button"
-          onClick={onExit}
-          className="rounded-full border border-white/10 bg-white/[0.03] px-5 py-2.5 text-sm font-semibold text-[#8fb8d0] transition hover:text-[#cfe6f7]"
-        >
+        <button type="button" onClick={onExit} className="wm-guided-chip">
           Exit to standard questions
         </button>
       </div>

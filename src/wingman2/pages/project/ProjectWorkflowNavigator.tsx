@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ClipboardList, Send } from "lucide-react";
 import { discoveryResumeUrl } from "../../lib/discoveryResume";
-import { projectDetailSections, projectSectionAnchor, projectSectionHref } from "../../lib/projectAnchors";
+import { projectDetailSections, projectSectionAnchor, projectSectionHref, type ProjectSectionId } from "../../lib/projectAnchors";
 import { CopyPanelLink } from "./CopyPanelLink";
 
 /**
@@ -22,7 +22,7 @@ import { CopyPanelLink } from "./CopyPanelLink";
  * the copied addresses cannot drift apart.
  */
 export function ProjectWorkflowNavigator({ current, projectId, responsePath }: {
-  current: string; projectId: string; responsePath: string;
+  current: ProjectSectionId; projectId: string; responsePath: string;
 }) {
   return <section className="wm-project-workspace" aria-label="Project workflow">
     <header><div><p className="wm-ui-kicker">Continue this project</p><h2>Update Discovery or prepare a response</h2></div></header>

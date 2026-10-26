@@ -10,7 +10,7 @@ import { templateMatchesMarketFilter } from "../wingman2/lib/templateMarkets";
 import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
 import { TemplatesPage } from "../wingman2/pages/TemplatesPage";
 import { getTemplateApplicationProfile } from "../wingman2/lib/templateApplicationProfiles";
-import { projectScopeSection } from "../wingman2/lib/projectScope";
+import { PROJECT_SCOPE_SECTIONS, projectScopeSection } from "../wingman2/lib/projectScope";
 
 /** The address the page is on, so a test can see what a link would send. */
 function AddressProbe() {
@@ -118,7 +118,7 @@ describe("template workflow wiring", () => {
 
     renderTemplateRoutes(`/wingman/templates/${template.id}`);
     fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
-    fireEvent.change(screen.getByLabelText("Schedule section"), { target: { value: "displays" } });
+    fireEvent.click(screen.getByRole("tab", { name: "Displays and projection" }));
     fireEvent.click(screen.getAllByRole("button", { name: /^Edit / })[0]);
 
     fireEvent.change(screen.getByLabelText("Product page URL"), { target: { value: "https://www.example-displays.com/products/propanel-65" } });
@@ -209,7 +209,7 @@ describe("template workflow wiring", () => {
     renderTemplateRoutes(`/wingman/templates/${saved.id}`);
 
     fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
-    fireEvent.change(screen.getByLabelText("Schedule section"), { target: { value: projectScopeSection(optionalRow) } });
+    fireEvent.click(screen.getByRole("tab", { name: PROJECT_SCOPE_SECTIONS.find(section => section.id === projectScopeSection(optionalRow))!.title }));
     fireEvent.change(screen.getByLabelText("Schedule items"), { target: { value: "optional" } });
 
     const fibreRow = screen.getByText("Wireless presentation option").closest("article");

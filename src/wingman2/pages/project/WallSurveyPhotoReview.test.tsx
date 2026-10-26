@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
+import { routeCatalogByKey } from "../../app/routeCatalog";
 import type { StoredProject } from "../../features/projects";
 import type { WallSurveyReview } from "../../lib/wallSurveyReview";
 import { WallSurveyPhotoReview } from "./WallSurveyPhotoReview";
@@ -107,6 +108,13 @@ describe("WallSurveyPhotoReview", () => {
     );
     // Every other row is left alone, so the mark means something.
     expect(document.querySelector('[data-survey-review-row="source-1"]')?.getAttribute("data-flagged-run")).toBeNull();
+  });
+
+  it("names this project in the builder link so it cannot reopen another project's draft", () => {
+    renderPanel(project());
+
+    const link = screen.getByRole("link", { name: "Open the wall builder" });
+    expect(link.getAttribute("href")).toBe(`${routeCatalogByKey.videowall.path}?project=project-1`);
   });
 
   it("says how many rows were cleared and how they were handled", () => {

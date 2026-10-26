@@ -4,6 +4,7 @@ import { rowAnchorId } from "../../lib/anchorIds";
 import {
   projectAnchorTargetFromHash,
   type ProjectAnchorTarget,
+  type ProjectSectionId,
 } from "../../lib/projectAnchors";
 
 /** How long a landing waits for the panel to render, at one frame per look. */
@@ -27,7 +28,7 @@ const LANDING_LOOKS = 90;
  * the table lands on its panel instead of failing — the review may have been
  * replaced since the link was copied.
  */
-export function useProjectAnchorJump(section: string, openSection: (section: string) => void) {
+export function useProjectAnchorJump(section: ProjectSectionId, openSection: (section: ProjectSectionId) => void) {
   const { hash, pathname, search } = useLocation();
   const navigate = useNavigate();
   const [target, setTarget] = useState<ProjectAnchorTarget | null>(null);

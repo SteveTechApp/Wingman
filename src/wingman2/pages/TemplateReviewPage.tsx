@@ -1,6 +1,6 @@
 import { TemplateProposalPanel } from "../components/TemplateProposalPanel";
-import { ProjectScopeSchedule } from "../components/ProjectScopeSchedule";
-import { completeProjectServiceRows, PROJECT_SCOPE_SECTIONS, projectScopeSection, type ProjectScopeSectionId } from "../lib/projectScope";
+import { ProjectScopeSchedule, ProjectScopeSectionTabs } from "../components/ProjectScopeSchedule";
+import { completeProjectServiceRows, PROJECT_SCOPE_SECTIONS, projectScopeScheduleSections, projectScopeSection, type ProjectScopeSectionId } from "../lib/projectScope";
 import { lazy, Suspense, type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -53,6 +53,9 @@ export function TemplateReviewPage() {
   const [briefEdits, setBriefEdits] = useState<Partial<RoomTemplate>>({});
   const editedTemplate = useMemo(() => selectedTemplate ? { ...selectedTemplate, ...briefEdits } : undefined, [selectedTemplate, briefEdits]);
   const [designStep, setDesignStep] = useState<"brief" | "schedule" | "review">("brief");
+  // The schedule's design sections sit in the tab row beside Room design /
+  // Drawings / Proposal, so the page owns which one is on screen.
+  const [scopeSection, setScopeSection] = useState<ProjectScopeSectionId>("inputs");
   const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() => selectedTemplate ? completeProjectServiceRows(selectedTemplate.bom, selectedTemplate.id).map(normalizeProductIdentity) : []);
   // A stage in the address is an address for the Proposal tab, so a link a rep
   // was sent opens the reading it points at rather than the room design.
@@ -75,6 +78,7 @@ export function TemplateReviewPage() {
   const [savedProjectPath, setSavedProjectPath] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
+  const scopeSections = useMemo(() => projectScopeScheduleSections(selectedRows), [selectedRows]);
   const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated" | "native" | "visual-studio">("native");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   // The template the page was showing: a shared stage link sets the tab on the
@@ -83,7 +87,7 @@ export function TemplateReviewPage() {
 
   useEffect(() => {
     if (selectedTemplate) {
-      setBriefEdits({}); setDesignStep("brief");
+      setBriefEdits({}); setDesignStep("brief"); setScopeSection("inputs");
       setSelectedRows(completeProjectServiceRows(selectedTemplate.bom, selectedTemplate.id).map(normalizeProductIdentity)); setDirty(false);
       // The address decides the tab on the first render; only a move to another
       // template resets it here, so a shared stage link is not overwritten by
@@ -210,7 +214,7 @@ export function TemplateReviewPage() {
         <div className="wm-template-tabs" role="tablist" aria-label="Template workspace">
           {tabs.map((tab, index) => <button key={tab} ref={(node) => { tabRefs.current[index] = node; }} type="button" role="tab" id={`template-tab-${tab}`} aria-selected={activeTab === tab} aria-controls={`template-panel-${tab}`} tabIndex={activeTab === tab ? 0 : -1} onClick={() => chooseTab(tab)} onKeyDown={(event) => onTabKeyDown(event, index)}>{tab}{tab === "Room design" && dirty ? <i aria-label="Unsaved changes" /> : null}</button>)}
         </div>
-
+        {activeTab === "Room design" && designStep === "schedule" ? <ProjectScopeSectionTabs sections={scopeSections} sectionId={scopeSection} onSection={setScopeSection} /> : null}
       </div>
 
       <main id={`template-panel-${activeTab}`} role="tabpanel" aria-labelledby={`template-tab-${activeTab}`} tabIndex={0}>
@@ -235,7 +239,7 @@ export function TemplateReviewPage() {
           <div className="wm-review-step"><label>Working on <select aria-label="Room design step" value={designStep} onChange={event => setDesignStep(event.target.value as typeof designStep)}><option value="brief">1. Room brief</option><option value="schedule">2. Equipment and services</option><option value="review">3. Review and confirmations</option></select></label><p>Template → your brief and schedule → checked design → saved project and proposal.</p></div>
           {designStep === "brief" ? <TemplateRoomBrief template={template} onChange={updateBrief} /> : null}
           {designStep === "review" ? <TemplateDesignReview template={template} onChange={updateBrief} /> : null}
-          {designStep === "schedule" ? <ProjectScopeSchedule template={template} rows={selectedRows} onQuantity={updateRowQty} onToggle={toggleRow} onEdit={setDetailRow} onAdd={addScopeItem}
+          {designStep === "schedule" ? <ProjectScopeSchedule template={template} rows={selectedRows} sectionId={scopeSection} onQuantity={updateRowQty} onToggle={toggleRow} onEdit={setDetailRow} onAdd={addScopeItem}
             library={<EquipmentLibraryPanel locations={[{ id: "room", name: template.name }]} onSelect={(item, _location, quantity) => {
               const own = isWyreStormManufacturer(item.manufacturer);
               mutateRows(rows => [...rows, { id: crypto.randomUUID(), sku: own ? item.model : `BY-OTHERS:${item.model}`, description: `${item.manufacturer} ${item.model}`, role: item.role, qty: quantity, type: "Validate", status: "validate", manufacturer: item.manufacturer, model: item.model, owner: own ? "wyrestorm" : "integrator", productRelationship: own ? undefined : item.relationship, evidence: item.sourceUrl || "Specifications to confirm", notes: [item.description, item.connections, item.specifications, item.accessories, item.notes].filter(Boolean).join("; ") }]);

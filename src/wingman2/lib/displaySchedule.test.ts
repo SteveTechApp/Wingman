@@ -10,6 +10,7 @@ import { createProposalWizardDefaults } from "./proposalWizard";
 import { defaultWallRequirements, wallCanvasPlan, wallResolutionSummary, type WallRequirements } from "./videowallOptions";
 import { wallPhysicalSize } from "./wallPhysicalSize";
 import { WALL_SURVEY_COLUMN_KEY } from "./wallSurvey";
+import { INSTALLATION_TABLE_COLUMN_LABELS } from "./installationSchedule";
 
 /** One HTML fragment or Word run as the reader meets it: no tags, no entities. */
 function plainText(fragment: string): string {
@@ -28,6 +29,12 @@ function plainText(fragment: string): string {
 function docxParagraphs(xml: string): string[] {
   return [...xml.matchAll(/<w:p(?:\s[^>]*)?>([\s\S]*?)<\/w:p>/g)].map((paragraph) =>
     plainText([...paragraph[1].matchAll(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g)].map((run) => run[1]).join("")));
+}
+
+/** Every table row in the Word document, in order, each as its cells' text. */
+function docxCellRows(xml: string): string[][] {
+  return [...xml.matchAll(/<w:tr(?:\s[^>]*)?>([\s\S]*?)<\/w:tr>/g)].map((row) =>
+    [...row[1].matchAll(/<w:tc(?:\s[^>]*)?>([\s\S]*?)<\/w:tc>/g)].map((cell) => plainText(cell[1])));
 }
 
 /** The exact payload shape the video wall builder saves onto the project. */
@@ -626,6 +633,80 @@ describe("display schedule in the proposal outputs", () => {
     for (const entry of WALL_SURVEY_COLUMN_KEY) {
       expect(htmlKey).toContain(`${entry.label} — ${entry.text}`);
     }
+  });
+
+  it("prints one wall's installation detail and its column labels through both exports", async () => {
+    const wall = wallFor({
+      application: "lcd-direct",
+      layout: "independent",
+      columns: 2,
+      rows: 1,
+      sources: 2,
+      windows: 2,
+      linkDetails: {
+        "source-1": { enclosure: "Rack shelf", termination: "HDMI faceplate", entry: "Rack rear" },
+        "source-2": { enclosure: "Rack shelf", termination: "HDMI faceplate", entry: "Rack rear" },
+        "display-1": { enclosure: "Back box", termination: "HDMI faceplate", entry: "Floor box" },
+        "display-2": { enclosure: "Back box", termination: "HDMI faceplate", entry: "Floor box" },
+      },
+      displayMounts: { "display-1": "Tilt bracket", "display-2": "Tilt bracket" },
+    });
+    const html = buildProposalHtml(proposalWith({}), [], [], null, wall);
+    const wizard = createProposalWizardDefaults({
+      projectId: "display-install-detail",
+      projectName: "Display installation detail",
+      preparedBy: "Team",
+      executiveSummary: "Summary",
+      architectureNarrative: "Architecture",
+    });
+    const buffer = await Packer.toBuffer(buildProposalDocx(proposalWith({}), [], wizard, {}, wall));
+    const xml = await (await JSZip.loadAsync(buffer)).file("word/document.xml")!.async("string");
+    const wordRows = docxCellRows(xml);
+
+    // The per-link table under the display schedule: five column names, spelled
+    // once, and one survey row per link in the order the transport plan lists them.
+    const htmlDetail = html.slice(html.indexOf("<h3>Installation Detail</h3>"));
+    const htmlDetailLabels = [...(htmlDetail.match(/<thead>([\s\S]*?)<\/thead>/)?.[1] ?? "").matchAll(/<th>([\s\S]*?)<\/th>/g)]
+      .map((cell) => plainText(cell[1]));
+    const htmlDetailRows = [...(htmlDetail.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1] ?? "").matchAll(/<tr>([\s\S]*?)<\/tr>/g)]
+      .map((row) => [...row[1].matchAll(/<td>([\s\S]*?)<\/td>/g)].map((cell) => plainText(cell[1])));
+    const wordDetailHeader = wordRows.findIndex((cells) => cells[0] === "Link" && cells.includes("Run entry"));
+
+    expect(htmlDetailLabels).toEqual(["Link", "Display housing", "Mount", "Termination", "Run entry"]);
+    expect(wordRows[wordDetailHeader]).toEqual(htmlDetailLabels);
+    expect(htmlDetailRows).toHaveLength(4);
+    // The mount is recorded per display, not per link, and still lands on the row
+    // for the display it belongs to in both documents.
+    expect(htmlDetailRows[2]).toEqual(["Panel 1", "Back box", "Tilt bracket", "HDMI faceplate", "Floor box"]);
+    expect(wordRows.slice(wordDetailHeader + 1, wordDetailHeader + 1 + htmlDetailRows.length)).toEqual(htmlDetailRows);
+
+    // The grouped installation scope below the equipment schedule: the customer
+    // copy lists it by item and the Word quote prices it, so Word adds the two
+    // rate columns and changes nothing else about the rows or their labels.
+    const htmlScope = html.slice(html.indexOf("<h3>Installation and Services</h3>"));
+    const htmlScopeLabels = [...(htmlScope.match(/<thead>([\s\S]*?)<\/thead>/)?.[1] ?? "").matchAll(/<th>([\s\S]*?)<\/th>/g)]
+      .map((cell) => plainText(cell[1]));
+    const htmlScopeRows = [...html.matchAll(/<tr data-installation-line="[^"]+">([\s\S]*?)<\/tr>/g)]
+      .map((row) => [...row[1].matchAll(/<td>([\s\S]*?)<\/td>/g)].map((cell) => plainText(cell[1])));
+    const wordScopeHeader = wordRows.findIndex((cells) => cells[0] === "Service" && cells.includes("Unit rate"));
+    const wordScopeTotal = wordRows.findIndex((cells, index) => index > wordScopeHeader && cells[0] === "Installation and services total");
+    const wordScopeLabels = wordRows[wordScopeHeader] ?? [];
+
+    expect(htmlScopeLabels).toEqual(["Service", "Survey detail", "Qty", "Links"]);
+    expect(wordScopeLabels).toEqual(["Service", "Survey detail", "Qty", "Unit rate", "Line total", "Links"]);
+    // The columns both copies print are spelled with the same words, because
+    // both ask the one list rather than each naming the column itself.
+    expect(htmlScopeLabels.filter((label) => wordScopeLabels.includes(label))).toEqual(htmlScopeLabels);
+    // Every heading either document prints is a label from that list, and the
+    // detail column names the survey rather than a product line.
+    const sharedLabels: string[] = Object.values(INSTALLATION_TABLE_COLUMN_LABELS);
+    expect([...htmlScopeLabels, ...wordScopeLabels].filter((label) => !sharedLabels.includes(label))).toEqual([]);
+    expect(htmlScopeLabels[1]).toBe(INSTALLATION_TABLE_COLUMN_LABELS.detail);
+    expect(wordScopeLabels[1]).toBe(INSTALLATION_TABLE_COLUMN_LABELS.detail);
+    // One wall, one scope: dropping Word's two rate columns leaves the customer
+    // copy's rows, in the same order, with the same quantities and link names.
+    expect(wordRows.slice(wordScopeHeader + 1, wordScopeTotal).map(([service, detail, qty, , , links]) => [service, detail, qty, links]))
+      .toEqual(htmlScopeRows);
   });
 
   it("lists the wall's transport limits in the DOCX export", async () => {

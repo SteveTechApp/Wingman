@@ -158,8 +158,15 @@ export const PROJECT_STORE_KEY = "wingman-project-store-v1";
 
 /** Settings → Workspace, the section the local sign-in lives in. */
 async function openWorkspaceSection(page, uiBase) {
-  await page.goto(`${uiBase}/wingman/profile`, { waitUntil: "networkidle", timeout: 60_000 });
-  await page.getByTestId("workflow-page-workspace").click();
+  // Ready is the control this opens, not a quiet network. The profile page asks
+  // the session endpoint several times while it hydrates, so waiting for every
+  // connection to close asked a question the page does not answer: inside
+  // `check:e2e-smoke` it sat for its full 60 s on a page that was already
+  // usable, which is what made the run time out intermittently.
+  const workspacePage = page.getByTestId("workflow-page-workspace");
+  await page.goto(`${uiBase}/wingman/profile`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await workspacePage.waitFor({ state: "visible", timeout: 30_000 });
+  await workspacePage.click();
   const section = page.locator('section[aria-labelledby="wingman-settings-workspace"]');
   await section.waitFor({ state: "visible", timeout: 15_000 });
   return section;
@@ -236,7 +243,20 @@ async function signInPass(browser, { uiBase, timeoutMs, overSeededExamples }) {
     let samples = 0;
 
     if (overSeededExamples) {
-      await page.goto(`${uiBase}/wingman/projects`, { waitUntil: "networkidle", timeout: 60_000 });
+      await page.goto(`${uiBase}/wingman/projects`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+      // The starter examples are written into the legacy store while the page
+      // boots, so the store itself is this load's ready condition. The wait is
+      // bounded and the count below still owns the failure message.
+      await page
+        .waitForFunction((key) => {
+          try {
+            const store = JSON.parse(window.localStorage.getItem(key) || "null");
+            return Array.isArray(store?.projects) && store.projects.length > 0;
+          } catch {
+            return false;
+          }
+        }, PROJECT_STORE_KEY, { timeout: 15_000 })
+        .catch(() => undefined);
       samples = await seededSampleCount(page);
       if (!samples) {
         throw new Error(
@@ -249,7 +269,12 @@ async function signInPass(browser, { uiBase, timeoutMs, overSeededExamples }) {
     await signInToDevelopmentWorkspace(page, uiBase, { clearLegacyStore: !overSeededExamples });
     await assertSessionCookie(context, uiBase);
 
-    await page.goto(`${uiBase}/wingman/projects`, { waitUntil: "networkidle", timeout: 60_000 });
+    await page.goto(`${uiBase}/wingman/projects`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    // The chip is both this load's ready condition and its assertion:
+    // `waitForSyncedChip` polls it from the first frame, so the navigation must
+    // not wait for the hydrate it exists to watch. The chip missing altogether
+    // stays that function's failure, with its own sentence.
+    await page.locator(".wm-projects-store-toolbar").waitFor({ state: "attached", timeout: 30_000 }).catch(() => undefined);
     return { chip: await waitForSyncedChip(() => readProjectsChip(page), { timeoutMs }), samples };
   } finally {
     await context.close().catch(() => undefined);

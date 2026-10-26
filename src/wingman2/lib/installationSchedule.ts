@@ -78,6 +78,48 @@ export function installationCategoryLabel(category: InstallationLineCategory) {
 }
 
 /**
+ * The installation table's column names, spelled once for every surface.
+ *
+ * The customer copy and the Word quote are the same schedule read at two
+ * widths: Word prices it, so it adds the two rate columns. A heading typed in
+ * each builder is how one column came to read "Site survey detail" in the
+ * proposal and "Survey detail" in the document, so both ask this list instead
+ * and renaming a column is one line. A table that prints two columns as one
+ * cell composes that heading from the labels it merges rather than inventing a
+ * third wording.
+ */
+export type InstallationTableColumn =
+  | "service"
+  | "detail"
+  | "links"
+  | "quantity"
+  | "unitRate"
+  | "lineTotal"
+  | "runningTotal";
+
+export const INSTALLATION_TABLE_COLUMN_LABELS: Record<InstallationTableColumn, string> = {
+  service: "Service",
+  detail: "Survey detail",
+  links: "Links",
+  quantity: "Qty",
+  unitRate: "Unit rate",
+  lineTotal: "Line total",
+  runningTotal: "Running priced total",
+};
+
+/** A heading group: one column, or several the table prints in a single cell. */
+export type InstallationColumnGroup = InstallationTableColumn | readonly InstallationTableColumn[];
+
+/** One installation table's headings, in the order that table prints them. */
+export function installationTableHeaders(groups: readonly InstallationColumnGroup[]) {
+  return groups.map((group) =>
+    (typeof group === "string" ? [group] : group)
+      .map((column) => INSTALLATION_TABLE_COLUMN_LABELS[column])
+      .join(" / "),
+  );
+}
+
+/**
  * Group the survey's install detail into priced line items.
  *
  * A wall whose summary predates the layout answers has no costable links, so it
