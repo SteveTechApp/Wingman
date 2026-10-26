@@ -27,6 +27,7 @@ import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePan
 import { DiscoveryConversationReview } from "../components/DiscoveryConversationReview";
 import { ProposalVersionHistory } from "../components/ProposalVersionHistory";
 import { ProjectComparisonHistory } from "./project/ProjectComparisonHistory";
+import { DisplayRunReview } from "./project/DisplayRunReview";
 import { WallSurveyPhotoReview } from "./project/WallSurveyPhotoReview";
 import { WallSurveySheetImports } from "./project/WallSurveySheetImports";
 import { WallTransportReview } from "./project/WallTransportReview";
@@ -1092,6 +1093,7 @@ export function ProjectDetailPage() {
 
         </ProjectPanel> : null}
 
+        {activeSection === "confirm" && project ? <DisplayRunReview project={project} /> : null}
         {activeSection === "confirm" && project ? <WallTransportReview project={project} /> : null}
         {activeSection === "confirm" && project ? <WallSurveyPhotoReview project={project} /> : null}
         {activeSection === "confirm" && project ? <WallSurveySheetImports project={project} /> : null}

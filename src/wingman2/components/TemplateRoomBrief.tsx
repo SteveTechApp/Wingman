@@ -1,8 +1,22 @@
 import { useState } from "react";
-import type { RoomTemplate } from "../lib/roomTemplates";
+import type { RoomTemplate, TemplateBomRow } from "../lib/roomTemplates";
+import { hasHdbtDisplayReceiver, hdbtDisplayReceiverForTemplate, quotesHdbtDisplayReceiver } from "../lib/hdbtDisplayReceiver";
 
-export function TemplateRoomBrief({ template, onChange }: { template: RoomTemplate; onChange: (patch: Partial<RoomTemplate>) => void }) {
+/** A cleared field is no measurement, not zero metres. */
+function readRunMetres(value: string): number | undefined {
+  const metres = Number(value);
+  return value.trim() === "" || !Number.isFinite(metres) || metres <= 0 ? undefined : Math.round(metres);
+}
+
+export function TemplateRoomBrief({ template, onChange, rows }: { template: RoomTemplate; onChange: (patch: Partial<RoomTemplate>) => void; rows?: TemplateBomRow[] }) {
   const [editing, setEditing] = useState(false);
+  // The run chooses a display receiver, so the field belongs to the rooms that
+  // schedule one — a design rebuilt from a project carries the figure even when
+  // its concept was never re-read. Without a schedule to look at, the transport
+  // is what says so; every other far end is fixed by the architecture.
+  const hdbt = rows ? hasHdbtDisplayReceiver(rows) : (template.concept?.transport === "hdbt" || template.concept?.transport === "pods");
+  const receiver = hdbt ? hdbtDisplayReceiverForTemplate(template) : null;
+  const receiverNote = receiver && (!rows || quotesHdbtDisplayReceiver(rows)) ? receiver.reason : null;
   const updateConcept = (field: "environment" | "construction", value: string) => {
     if (template.concept) onChange({ concept: { ...template.concept, [field]: value } });
   };
@@ -14,12 +28,15 @@ export function TemplateRoomBrief({ template, onChange }: { template: RoomTempla
       <label>Users and capacity<input value={template.concept?.occupancy || template.scale} onChange={e => onChange({ scale: e.target.value, concept: template.concept ? { ...template.concept, occupancy: e.target.value } : undefined })} /></label>
       <label>Customer requirement and room use<textarea value={template.story?.requirement || template.customerNarrative} onChange={e => onChange({ customerNarrative: e.target.value, story: template.story ? { ...template.story, requirement: e.target.value } : undefined, concept: template.concept ? { ...template.concept, statement: e.target.value } : undefined })} /></label>
       {template.concept ? <><label>Room dimensions and layout<textarea value={template.concept.environment} onChange={e => updateConcept("environment", e.target.value)} /></label><label>Construction and site conditions<textarea value={template.concept.construction} onChange={e => updateConcept("construction", e.target.value)} /></label></> : null}
+      {hdbt ? <label>Longest surveyed display run (m)<input type="number" min="1" max="200" step="1" value={template.surveyedRunMetres ?? ""} onChange={e => onChange({ surveyedRunMetres: readRunMetres(e.target.value) })} /></label> : null}
+      {receiverNote ? <p>{receiverNote}</p> : null}
       <label>System design and operation<textarea value={template.architecture} onChange={e => onChange({ architecture: e.target.value })} /></label>
       <p>These edits update the saved design and proposal narrative. Change equipment in the next step; a narrative edit does not change routing or product compatibility.</p>
     </div> : <div>
       <h3>What the room needs to do</h3><p>{template.story?.requirement || template.customerNarrative}</p>
       <h3>People and physical room</h3><p>{template.concept?.occupancy || template.scale}{template.concept ? ` · ${template.concept.environment}` : ""}</p>{template.concept ? <p>{template.concept.construction}</p> : null}
       <h3>How the system works</h3><p>{template.architecture}</p>
+      {receiverNote ? <><h3>Display receiver</h3><p>{receiverNote}</p></> : null}
     </div>}
   </section>;
 }

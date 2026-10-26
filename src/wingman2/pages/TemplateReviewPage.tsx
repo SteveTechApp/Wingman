@@ -26,6 +26,7 @@ import { applyProductPageDetailsToBomRow, type ProductPageDetails } from "../lib
 import { buildTemplateVisualDiagram } from "../lib/schematic/templateVisualDiagram";
 import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates, type TemplateBomRow, type RoomTemplate } from "../lib/roomTemplates";
+import { applyHdbtReceiver } from "../lib/hdbtDisplayReceiver";
 import { TEMPLATE_PRE_ISSUE_STAGE_PARAM } from "../lib/templatePreIssuePass";
 import type { ProductSearchResult } from "../lib/productSearch";
 import { classifyProduct, checkRoleCompatibility } from "../lib/roleCompatibility";
@@ -57,6 +58,10 @@ export function TemplateReviewPage() {
   // Drawings / Proposal, so the page owns which one is on screen.
   const [scopeSection, setScopeSection] = useState<ProjectScopeSectionId>("inputs");
   const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() => selectedTemplate ? completeProjectServiceRows(selectedTemplate.bom, selectedTemplate.id).map(normalizeProductIdentity) : []);
+  // A surveyed run chooses the display receiver, so the schedule, the drawings,
+  // the saved project and the proposal all read the rows that rule produced
+  // rather than the receiver the template was authored with.
+  const displayRows = useMemo(() => applyHdbtReceiver(selectedRows, editedTemplate ?? {}), [selectedRows, editedTemplate]);
   // A stage in the address is an address for the Proposal tab, so a link a rep
   // was sent opens the reading it points at rather than the room design.
   const [activeTab, setActiveTab] = useState<Tab>(() =>
@@ -102,7 +107,7 @@ export function TemplateReviewPage() {
     templateId: templateId ?? "",
     template: editedTemplate,
     pricingTemplate: selectedTemplate,
-    selectedRows,
+    selectedRows: displayRows,
     navigate,
     onSavedProject: setSavedProjectPath,
     onSavedTemplate: setSavedTemplatePath,
@@ -226,20 +231,20 @@ export function TemplateReviewPage() {
                 <ExcalidrawBlockSchematic />
               </Suspense>
             ) : connectivityView === "native" ? (
-              <NativeTemplateSchematic template={template} rows={selectedRows} />
+              <NativeTemplateSchematic template={template} rows={displayRows} />
             ) : connectivityView === "visual-studio" ? (
-              <VisualStudioCanvas model={buildTemplateVisualDiagram(template, selectedRows)} mode="technical" />
+              <VisualStudioCanvas model={buildTemplateVisualDiagram(template, displayRows)} mode="technical" />
             ) : (
-              <TemplateSchematic template={template} rows={selectedRows} />
+              <TemplateSchematic template={template} rows={displayRows} />
             )}
           </div>
         ) : null}
 
         {activeTab === "Room design" ? <>
           <div className="wm-review-step"><label>Working on <select aria-label="Room design step" value={designStep} onChange={event => setDesignStep(event.target.value as typeof designStep)}><option value="brief">1. Room brief</option><option value="schedule">2. Equipment and services</option><option value="review">3. Review and confirmations</option></select></label><p>Template → your brief and schedule → checked design → saved project and proposal.</p></div>
-          {designStep === "brief" ? <TemplateRoomBrief template={template} onChange={updateBrief} /> : null}
+          {designStep === "brief" ? <TemplateRoomBrief template={template} onChange={updateBrief} rows={displayRows} /> : null}
           {designStep === "review" ? <TemplateDesignReview template={template} onChange={updateBrief} /> : null}
-          {designStep === "schedule" ? <ProjectScopeSchedule template={template} rows={selectedRows} sectionId={scopeSection} onQuantity={updateRowQty} onToggle={toggleRow} onEdit={setDetailRow} onAdd={addScopeItem}
+          {designStep === "schedule" ? <ProjectScopeSchedule template={template} rows={displayRows} sectionId={scopeSection} onQuantity={updateRowQty} onToggle={toggleRow} onEdit={setDetailRow} onAdd={addScopeItem}
             library={<EquipmentLibraryPanel locations={[{ id: "room", name: template.name }]} onSelect={(item, _location, quantity) => {
               const own = isWyreStormManufacturer(item.manufacturer);
               mutateRows(rows => [...rows, { id: crypto.randomUUID(), sku: own ? item.model : `BY-OTHERS:${item.model}`, description: `${item.manufacturer} ${item.model}`, role: item.role, qty: quantity, type: "Validate", status: "validate", manufacturer: item.manufacturer, model: item.model, owner: own ? "wyrestorm" : "integrator", productRelationship: own ? undefined : item.relationship, evidence: item.sourceUrl || "Specifications to confirm", notes: [item.description, item.connections, item.specifications, item.accessories, item.notes].filter(Boolean).join("; ") }]);

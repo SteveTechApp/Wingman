@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { TemplateRoomBrief, TemplateDesignReview } from "./TemplateRoomBrief";
 import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
+import { applyHdbtReceiver } from "../lib/hdbtDisplayReceiver";
 import { buildTemplateProject } from "../lib/templateReviewProposal";
 import { getCustomRoomTemplates, saveRoomTemplateCopy } from "../lib/customRoomTemplates";
 
@@ -40,5 +41,34 @@ describe("room review data flow", () => {
     expect(restored.concept?.environment).toBe("Surveyed 5m by 4m meeting room");
     fireEvent.click(screen.getByRole("button", { name: "Reopen check" }));
     expect(screen.getByRole("heading", { name: "1 checks remaining" })).toBeTruthy();
+  });
+
+  it("records the surveyed display run and states which receiver it chose", () => {
+    const teaching = roomTemplates.find(template => template.id === "education-classroom-hdbaset")!;
+    let latest = teaching;
+    function Harness() {
+      const [template, setTemplate] = useState<RoomTemplate>(teaching);
+      latest = template;
+      const update = (patch: Partial<RoomTemplate>) => setTemplate(current => ({ ...current, ...patch }));
+      return <TemplateRoomBrief template={template} onChange={update} rows={applyHdbtReceiver(template.bom, template)} />;
+    }
+    render(<Harness />);
+
+    // No measured run, no receiver claim: the template keeps its authored line.
+    expect(screen.queryByRole("heading", { name: "Display receiver" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit room brief" }));
+    fireEvent.change(screen.getByLabelText("Longest surveyed display run (m)"), { target: { value: "24" } });
+    expect(latest.surveyedRunMetres).toBe(24);
+    expect(screen.getByText(/so the room takes RX-500/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Done editing brief" }));
+    expect(screen.getByRole("heading", { name: "Display receiver" })).toBeTruthy();
+    expect(screen.getByText(/The survey records a 24 m display run/)).toBeTruthy();
+
+    // Clearing the field leaves the room unmeasured rather than at zero metres.
+    fireEvent.click(screen.getByRole("button", { name: "Edit room brief" }));
+    fireEvent.change(screen.getByLabelText("Longest surveyed display run (m)"), { target: { value: "" } });
+    expect(latest.surveyedRunMetres).toBeUndefined();
   });
 });

@@ -93,6 +93,11 @@ export function buildTemplateProposal(
 export function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): StoredProject {
   const timestamp = new Date().toISOString();
   const proposal = buildTemplateProposal(template, rows);
+  // The surveyed run is the fact the display receiver was chosen on, so the
+  // saved project records the distance in the shape Discovery writes it. The
+  // schematic distance, the completion model and a rebuilt design all read it
+  // from here rather than from the quotation the run produced.
+  const surveyedRun = template.surveyedRunMetres;
   return {
     id: `template-${template.id}-${Date.now()}`, name: template.name, owner: "Wingman user", stage: "Templates",
     status: "recommended", updated: "Just now", resumeTo: `${routeCatalogByKey.templates.path}/${template.id}`,
@@ -109,6 +114,7 @@ export function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRo
         scale: template.scale,
         summary: template.customerNarrative,
         inferredArchitectureDirection: template.architecture,
+        ...(surveyedRun ? { cableRun: `${surveyedRun} m`, longestRun: `${surveyedRun} m` } : {}),
         sourceTemplateId: template.id,
         sourceTemplateName: template.name,
       },
