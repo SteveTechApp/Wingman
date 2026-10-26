@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -376,29 +377,70 @@ export function sourceLine(text, position, limit = 160) {
  * to assemble class names at runtime.
  */
 /**
- * The source files whose text counts as evidence: every readable file under the
- * root except stylesheets, the checked-in baseline, ignored build output and
- * `reports/`. Sorted, so a report that lists these places reads the same twice.
+ * The source files whose text counts as evidence: shipped source under the root
+ * — every tracked file plus untracked files git does not ignore — except
+ * stylesheets, the checked-in baseline, ignored build output and `reports/`.
+ * Sorted, so a report that lists these places reads the same twice.
+ *
+ * Ignored trees are left out on purpose. A copy of an old component parked in
+ * `_backups/`, an abandoned worktree or a local export is not shipped source,
+ * and one such copy still naming a retired class was enough to keep the rule
+ * alive here while the same branch failed the gate on a clean checkout. Git
+ * answers the question when the root is a checkout; anywhere else (a sandbox, an
+ * unpacked tarball) the tree is walked as before.
  */
 export function corpusFiles(root) {
+  const listed = gitListedFiles(root);
   const files = [];
-  (function walk(directory) {
-    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        if (entry.name.startsWith(".") || skipDirs.has(entry.name)) continue;
-        walk(path.join(directory, entry.name));
-        continue;
-      }
-      // Stylesheets are the thing being checked; their own selectors must not
-      // count as evidence that a class is used.
-      if (!corpusExtensions.has(path.extname(entry.name))) continue;
-      const full = path.join(directory, entry.name);
-      if (full === path.join(root, BASELINE_PATH)) continue;
-      if (fs.statSync(full).size > 4 * 1024 * 1024) continue;
-      files.push(full);
+  if (listed) {
+    for (const relative of listed) {
+      const segments = relative.split("/").slice(0, -1);
+      if (segments.some((segment) => segment.startsWith(".") || skipDirs.has(segment))) continue;
+      const full = path.join(root, relative);
+      if (isCorpusFile(root, full)) files.push(full);
     }
-  })(root);
+  } else {
+    (function walk(directory) {
+      for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+        if (entry.isDirectory()) {
+          if (entry.name.startsWith(".") || skipDirs.has(entry.name)) continue;
+          walk(path.join(directory, entry.name));
+          continue;
+        }
+        const full = path.join(directory, entry.name);
+        if (isCorpusFile(root, full)) files.push(full);
+      }
+    })(root);
+  }
   return files.sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+}
+
+function isCorpusFile(root, full) {
+  // Stylesheets are the thing being checked; their own selectors must not count
+  // as evidence that a class is used.
+  if (!corpusExtensions.has(path.extname(full))) return false;
+  if (full === path.join(root, BASELINE_PATH)) return false;
+  return fs.statSync(full).size <= 4 * 1024 * 1024;
+}
+
+/**
+ * Paths git would ship from `root`, POSIX-separated: tracked files plus untracked
+ * files no ignore rule covers. `--exclude-standard` is the whole point — it is
+ * what keeps a backup copy out of the evidence. Null when `root` is not a git
+ * checkout, so the caller can fall back to walking the tree.
+ */
+function gitListedFiles(root) {
+  try {
+    const listed = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z"], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    return listed.split("\0").filter(Boolean).map((entry) => entry.split("\\").join("/"));
+  } catch {
+    return null;
+  }
 }
 
 /**

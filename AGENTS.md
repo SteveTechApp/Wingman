@@ -113,8 +113,13 @@ from the code or docs are not repeated here.
   longer dead: the file only ratchets down. Detection is shared with
   `tools/consolidate-dead-class-css.mjs` via `tools/lib/dead-css.mjs`, and the
   baseline file is excluded from the usage corpus so it cannot protect its own
-  entries. Regenerate only after deleting dead rules
-  (`npm run audit:dead-css:baseline`).
+  entries. The corpus is what git ships from the checkout — tracked files plus
+  untracked ones no ignore rule covers — so an old component parked in
+  `_backups/`, an abandoned worktree or a local export is not evidence that a
+  class is live. Walking the tree instead is the fallback for a root that is not
+  a checkout; it is also what made a red branch pass locally, because a stale
+  copy of the retired page still named the class. Regenerate only after deleting
+  dead rules (`npm run audit:dead-css:baseline`).
 - `npm run autofix:dead-css` runs before the gate in the pre-commit hook. It
   only **splits** a mixed selector list (`.a, .b` → `.b`, live declarations
   copied byte-for-byte); a rule whose every branch is dead is left for a

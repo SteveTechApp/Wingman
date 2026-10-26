@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { runDeadCssGate } from "./check-wingman-dead-css-baseline.mjs";
+import { runTool } from "./test-spawn-guard.mjs";
 import {
   compoundClassTokens,
   collectDeadSelectors,
@@ -26,6 +27,13 @@ function sandbox(files) {
     fs.mkdirSync(path.dirname(absolute), { recursive: true });
     fs.writeFileSync(absolute, content);
   }
+  return root;
+}
+
+function gitSandbox(files, track = []) {
+  const root = sandbox(files);
+  runTool("git", ["init", "--quiet"], "dead-css-sandbox", { cwd: root });
+  if (track.length > 0) runTool("git", ["add", "--", ...track], "dead-css-sandbox", { cwd: root });
   return root;
 }
 
@@ -256,6 +264,29 @@ describe("dead CSS detection", () => {
     });
 
     expect(styleSheetFiles(root).map((file) => relativePath(root, file))).toEqual([WIDGET, THEME].sort());
+  });
+
+  it("counts shipped source and leaves ignored copies out of the evidence", () => {
+    const root = gitSandbox(
+      {
+        ".gitignore": "backups/\n",
+        [THEME]: [
+          ".fixture-live-tracked { color: red; }",
+          ".fixture-live-untracked { color: blue; }",
+          ".fixture-retired-from-backup { color: orange; }",
+        ].join("\n"),
+        [COMPONENT]: "const tracked = \"fixture-live-tracked\";\n",
+        // Work in progress is not committed yet, but it is still source.
+        "src/wingman2/components/Untracked.tsx": "const untracked = \"fixture-live-untracked\";\n",
+        // A parked copy of an old component is not shipped source: one of these
+        // naming a retired class kept the rule alive here while a clean checkout
+        // failed the gate.
+        "backups/DiscoveryPage.tsx": "const retired = \"fixture-retired-from-backup\";\n",
+      },
+      [THEME, COMPONENT],
+    );
+
+    expect(collectDeadSelectors(root).map((entry) => entry.selector)).toEqual([".fixture-retired-from-backup"]);
   });
 
   it("normalizes multiline selectors to a stable baseline key", () => {
