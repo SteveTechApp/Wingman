@@ -7,7 +7,7 @@ export function TemplateRoomBrief({ template, onChange }: { template: RoomTempla
     if (template.concept) onChange({ concept: { ...template.concept, [field]: value } });
   };
   return <section className="wm-review-task">
-    <header><div><h2>Room brief</h2><p>Start with the template's suggested room. Record what the customer needs and what the site survey establishes.</p></div><button type="button" onClick={() => setEditing(!editing)}>{editing ? "Done editing brief" : "Edit room brief"}</button></header>
+    <header><div><h2>Room brief</h2><p>Start with the template's suggested room.</p></div><button type="button" onClick={() => setEditing(!editing)}>{editing ? "Done editing brief" : "Edit room brief"}</button></header>
     {editing ? <div className="wm-review-form">
       <label>Room name<input value={template.name} onChange={e => onChange({ name: e.target.value })} /></label>
       <label>Room summary<input value={template.summary} onChange={e => onChange({ summary: e.target.value })} /></label>
