@@ -464,13 +464,6 @@ body {
     padding: 5px 7px !important;
   }
 
-  html[data-wingman-route="discovery"] .wm-discovery-question-layout {
-    grid-template-columns:
-      minmax(0, 1fr)
-      minmax(260px, 300px) !important;
-    gap: 10px !important;
-  }
-
   html[data-wingman-route="discovery"] .wm-discovery-question-card {
     gap: 10px !important;
     padding: 14px !important;
