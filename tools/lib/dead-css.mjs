@@ -1,6 +1,6 @@
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { gitListedFiles, shippedFiles } from "./shipped-source.mjs";
 
 /**
  * Shared dead-class detection for the CSS consolidation tool and the
@@ -59,16 +59,25 @@ export function relativePath(root, file) {
   return path.relative(root, file).split(path.sep).join("/");
 }
 
-/** Every `.css` file under `src/wingman2`, in a deterministic order. */
+/**
+ * Every shipped `.css` file under `src/wingman2`, in a deterministic order. A
+ * stylesheet git ignores cannot answer a class either: it is not in the build
+ * the app ships, so the same shipped-file rule that narrows the source corpus
+ * narrows this one.
+ */
 export function styleSheetFiles(root, directory = path.join(root, STYLE_SCAN_ROOT)) {
   if (!fs.existsSync(directory)) return [];
+  return shippedFiles(root, walkStyleSheets(directory))
+    .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+}
+
+function walkStyleSheets(directory) {
   return fs.readdirSync(directory, { withFileTypes: true })
     .flatMap((entry) => {
       const absolute = path.join(directory, entry.name);
-      if (entry.isDirectory()) return styleSheetFiles(root, absolute);
+      if (entry.isDirectory()) return walkStyleSheets(absolute);
       return entry.name.endsWith(".css") ? [absolute] : [];
-    })
-    .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)));
+    });
 }
 
 const combinators = new Set([" ", "\t", "\n", "\r", ">", "+", "~"]);
@@ -421,26 +430,6 @@ function isCorpusFile(root, full) {
   if (!corpusExtensions.has(path.extname(full))) return false;
   if (full === path.join(root, BASELINE_PATH)) return false;
   return fs.statSync(full).size <= 4 * 1024 * 1024;
-}
-
-/**
- * Paths git would ship from `root`, POSIX-separated: tracked files plus untracked
- * files no ignore rule covers. `--exclude-standard` is the whole point — it is
- * what keeps a backup copy out of the evidence. Null when `root` is not a git
- * checkout, so the caller can fall back to walking the tree.
- */
-function gitListedFiles(root) {
-  try {
-    const listed = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z"], {
-      cwd: root,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-      maxBuffer: 64 * 1024 * 1024,
-    });
-    return listed.split("\0").filter(Boolean).map((entry) => entry.split("\\").join("/"));
-  } catch {
-    return null;
-  }
 }
 
 /**

@@ -205,7 +205,10 @@ from the code or docs are not repeated here.
   Tailwind utilities are decided by compiling them with the `tailwindcss`
   compiler rather than a hand-kept list — so adding a utility never needs a
   baseline update. Runtime-assembled names and test-file assertions are out of
-  scope; detection lives in `tools/lib/unstyled-classes.mjs`. A string literal
+  scope; detection lives in `tools/lib/unstyled-classes.mjs`. Markup and sheets
+  are read through the same shipped-file corpus as `check:dead-css`
+  (`tools/lib/shipped-source.mjs`), so a component or stylesheet parked in an
+  ignored directory neither asks for a style nor answers one. A string literal
   that is an operand of `===`/`!==` inside a `className` expression is a value
   being tested, not a class (`mode === "guided" ? "is-active" : ""` renders
   only `is-active`), so the detector skips comparison operands. The baseline is
