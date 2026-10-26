@@ -93,9 +93,18 @@ const families: Record<RoomTransport, TemplateArchitectureFamily> = {
   apollo: "Local UC", hdbt: "HDBaseT", matrix4: "Matrix", matrix8: "Matrix", hybrid: "Hybrid",
   nhd100: "AV over IP", nhd500: "AV over IP", nhd600: "AV over IP", wall: "Video wall", studio: "Local UC", pods: "HDBaseT",
 };
-const descriptions: Record<RoomTransport, string> = {
+/**
+ * The SW-130-TX-UK is a transmitter, not half of a fixed pair: it drives any
+ * HDBaseT receiver that suits the installed cable run. Only USB data — an
+ * interactive surface or USB KVM — needs the matched receiver, because the USB
+ * path back to the source lives in that part. Saying otherwise quotes a
+ * receiver the room does not need, and leaves the rep unable to value-engineer
+ * a long or short run.
+ */
+const HDBT_RECEIVER_RULE = "Any HDBaseT receiver suited to the cable run will do: the matched receiver is only needed where USB data travels with the picture, for an interactive display or USB KVM.";
+
+const descriptions: Record<Exclude<RoomTransport, "hdbt">, string> = {
   apollo: "The laptop connects to the Apollo bar by USB-C; HDMI presentation also needs the documented USB host connection for conferencing. The bar feeds one display over HDMI and supplies the room camera, microphone and loudspeakers. Calls run on the connected computer.",
-  hdbt: "The SW-130-TX-UK selects one HDMI/USB-C presentation source at a time and sends it over a dedicated category cable to RX-700, then HDMI to the display. USB touch return uses the matched USB host/device path. Design at 1080p60 or 4K30; the receiver's higher rating does not raise the transmitter limit, and USB-C is not a laptop charging supply.",
   matrix4: "An MX-0404-HDMI routes up to four HDMI sources independently to four output ports. Each scheduled display has a complete EX-70-H2 transmitter/receiver set, dedicated category run and short HDMI tails. Design the installed path at 1080p60 with runs at or below 35m; verify the exact resolution and cable limit before a higher-format quotation. USB, microphone and control paths are separate from the video matrix.",
   matrix8: "An MX-0808-KIT-V2 routes up to eight HDMI sources to eight independent HDBaseT zones. Its eight receivers are included in the kit and are not purchased again. Each used zone gets a dedicated category run and HDMI tail, with a 35m maximum design allowance. Mirrored HDMI sockets are not extra independent routes. Confirm the required colour format; 4K60 4:4:4 is not the baseline for this kit.",
   hybrid: "One MX-1007-HYB serves the local room. Up to four display destinations use HDMI outputs with complete EX-70-H2 extender sets; any fifth and sixth destinations use the two native HDBaseT 3.0 outputs with RX3-100 receivers. Source devices present HDMI locally at the rack. The NetworkHD ports are unused in this base design. Audio and USB conferencing are separately scheduled and commissioned.",
@@ -104,16 +113,42 @@ const descriptions: Record<RoomTransport, string> = {
   nhd600: "One NHD-600-TRX in transmit mode serves each HDMI source; a separate NHD-600-TRX in receive mode serves each physical display. NHD-CTL-PRO-V2 and an engineered 10Gb AV fabric provide routing. The 600-series built-in wall/multiview modes must be configured for the agreed layouts; latency varies with mode and the complete display chain. No separate 500-series multiview processor is included.",
   wall: "An SW-0204-VW processes the selected HDMI content into a four-panel LCD canvas. Four short HDMI links feed four matching panels, with one maintained bezel/EDID layout. The panels are outputs of one composition, not four independent routed rooms. A CMS player supplies the correctly proportioned artwork.",
   studio: "Two HDMI camera feeds enter CAM-0402-NDI-BRG at the production desk. Its selected/composited HDMI output drives a local confidence monitor and its USB output feeds the production computer. Microphone audio is mixed separately into the recording workflow. HDMI/USB outputs share the programme; an independent preview bus needs a separate production switcher.",
-  pods: "Each pod has its own SW-130-TX-UK and RX-700 pair, local laptop input and display. Four dedicated HDBaseT links provide four independent spaces without a shared video network. There is no cross-pod source routing or shared conferencing audio in the base scope.",
+  pods: `Each pod has its own SW-130-TX-UK transmitter, HDBaseT receiver and display, fed from a local laptop input. Four dedicated HDBaseT links provide four independent spaces without a shared video network. ${HDBT_RECEIVER_RULE} There is no cross-pod source routing or shared conferencing audio in the base scope.`,
 };
+/** USB data is what makes the transmitter's receiver a matched pair. */
+function needsUsbData(d: RoomDeploymentDesign): boolean {
+  const outputs = d.outputs.map(([name]) => name.toLowerCase()).join(" ");
+  const sources = d.sources.map(([name]) => name.toLowerCase()).join(" ");
+  return /interactive|touch/.test(outputs) || /usb host|touch/.test(sources);
+}
+
+/**
+ * The HDBaseT link is one switched presentation path, so its sentence has to
+ * follow the room it serves: an assembly-hall projector has no touch surface to
+ * return, while the interactive teaching panel has its USB host path scheduled.
+ * Both facts are read from the design's own schedule, so one shared sentence can
+ * no longer describe a projector as a touch display.
+ */
+function hdbtDescription(d: RoomDeploymentDesign): string {
+  const destination = d.outputs.map(([name]) => name.toLowerCase()).join(" ").includes("projector") ? "projector" : "display";
+  return `The SW-130-TX-UK selects one HDMI/USB-C presentation source at a time and sends it over a dedicated category cable to the HDBaseT receiver at the far end, then HDMI to the ${destination}.${needsUsbData(d) ? " USB touch return uses the matched USB host/device path, which is why this room takes the matched receiver." : ` ${HDBT_RECEIVER_RULE}`} Design at 1080p60 or 4K30; the receiver's higher rating does not raise the transmitter limit, and USB-C is not a laptop charging supply.`;
+}
+
+/** The architecture sentence for a design; only HDBaseT has a room-specific variant. */
+function descriptionFor(d: RoomDeploymentDesign): string {
+  return d.transport === "hdbt" ? hdbtDescription(d) : descriptions[d.transport];
+}
+
 function row(id: string, sku: string, description: string, role: string, qty: number, notes: string): TemplateBomRow {
   return { id, sku, description, role, qty, type: "Required", status: "included", evidence: "Quantity follows the authored room concept and source/output schedule; confirm by site survey.", notes, owner: "wyrestorm" };
 }
 function core(d: RoomDeploymentDesign): TemplateBomRow[] {
   const inputCount = total(d.sources), outputCount = total(d.outputs);
-  const add = (sku: string, label: string, role: string, qty = 1, notes = descriptions[d.transport]) => row(`${d.id}-${role.replace(/\W+/g, "-")}`, sku, label, role, qty, notes);
+  const add = (sku: string, label: string, role: string, qty = 1, notes = descriptionFor(d)) => row(`${d.id}-${role.replace(/\W+/g, "-")}`, sku, label, role, qty, notes);
   if (d.transport === "apollo") return [add("APO-VX20-UC-V2", "Apollo video bar and local presentation core", "Local UC core")];
-  if (d.transport === "hdbt" || d.transport === "pods") return [add("SW-130-TX-UK", "HDMI/USB-C wallplate transmitter", "Presentation input transmitter", outputCount), add("RX-700", "Matched display receiver with power supply", "Display receiver", outputCount)];
+  // The receiver row names the same choice the sentence describes: the matched
+  // part where USB data travels, a receiver chosen for the run where it does not.
+  if (d.transport === "hdbt" || d.transport === "pods") return [add("SW-130-TX-UK", "HDMI/USB-C wallplate transmitter", "Presentation input transmitter", outputCount), add("RX-700", needsUsbData(d) ? "Matched display receiver with power supply" : "HDBaseT display receiver with power supply", "Display receiver", outputCount)];
   if (d.transport === "matrix4") return [add("MX-0404-HDMI", "4×4 HDMI matrix", "Local routing core"), add("EX-70-H2", "Complete HDBaseT extender set (TX and RX)", "Display extension set", outputCount)];
   if (d.transport === "matrix8") return [add("MX-0808-KIT-V2", "8×8 HDBaseT matrix kit including eight receivers", "Local routing core")];
   if (d.transport === "hybrid") return [add("MX-1007-HYB", "Local hybrid presentation matrix", "Local routing core"), add("EX-70-H2", "Complete HDMI-output extension set (TX and RX)", "Display extension set", Math.min(4, outputCount)), ...(outputCount > 4 ? [add("RX3-100", "HDBaseT 3.0 receiver", "Display receiver", outputCount - 4)] : [])];
@@ -319,13 +354,13 @@ export function createDeploymentTemplate(d: RoomDeploymentDesign): RoomTemplate 
     statement, environment: d.space, construction: d.construction, occupancy: d.occupancy,
     sources: d.sources, outputs: d.outputs, sourceCount, outputCount, transport: d.transport,
     architectureFamily: families[d.transport], rationale: d.rationale, alternative: d.alternative, capabilities, audio: d.audio,
-    signalFlow: [schedule(d.sources), descriptions[d.transport], schedule(d.outputs)],
+    signalFlow: [schedule(d.sources), descriptionFor(d), schedule(d.outputs)],
     completion: d.completion,
     story,
   };
   return {
     id: d.id, name: d.name, vertical: d.vertical, application: d.activity, scale: `${d.occupancy} · ${sourceCount} source positions · ${outputCount} outputs`,
-    summary: d.activity, customerNarrative: story ? `${story.requirement} ${story.situation} ${statement}` : statement, architecture: descriptions[d.transport], concept, story,
+    summary: d.activity, customerNarrative: story ? `${story.requirement} ${story.situation} ${statement}` : statement, architecture: descriptionFor(d), concept, story,
     bom: completeProjectServiceRows([...core(d), ...(d.inputExtensions ? [row(`${d.id}-source-extension`, "EX-70-H2", "Complete source-to-rack HDBaseT extender set (TX and RX)", "Remote source input extension", d.inputExtensions, "One transmitter at each remote source and one receiver into rack HDMI. Use dedicated category cable; baseline 1080p60 and routes at or below 35m, with higher formats confirmed separately. These are additional to the display extension sets.")] : []), ...completeScope(d), ...completion.rows], d.id),
     designNotes: [
       ...(story ? [
