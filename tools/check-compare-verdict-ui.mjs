@@ -1,3 +1,17 @@
+/**
+ * The compare verdict contract: one union, and a mapping that keeps VERIFY.
+ *
+ * A verdict a surface renders but the mapping cannot produce, a second `Verdict`
+ * declared beside the real one, or a VERIFY branch that fell behind the
+ * PARTIAL MATCH fallback are all failures of the same promise — that the chip a
+ * rep reads is the outcome the engine decided. None of them is a type error, so
+ * this asks instead.
+ *
+ * `check:compare-verdict-ui` runs in `verify:contract` and in
+ * `verify:contract:strict`, so the commit that moves a marker is the commit that
+ * finds out. This file used to be reachable from no script at all, which made
+ * every green run a run that never asked it.
+ */
 import fs from "node:fs";
 import path from "node:path";
 
