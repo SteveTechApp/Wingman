@@ -61,7 +61,7 @@ import {
   wallStartStepFailure,
 } from "./lib/wall-start-step.mjs";
 import { SAVED_DESIGN_NAME_FLOOR, designNameWidthClause, savedDesignNameFailure } from "./lib/saved-design-names.mjs";
-import { stepCardFailure, stepCardStateFailure } from "./lib/proposal-step-cards.mjs";
+import { readStepCard } from "./lib/proposal-step-cards.mjs";
 import {
   recentChipLabelsFailure,
   recentColumnDivergenceFailure,
@@ -3332,19 +3332,16 @@ async function assertProposalStepCards(page) {
       // same card measured closed: the history is opened by a click, and a card
       // that never received it would report a fit for content that was not there.
       // What the boxes mean is `lib/proposal-step-cards.mjs`; this pass owns the
-      // reading itself, which only a browser can take.
+      // reading itself, which only a browser can take. One call returns the state
+      // check, the card's own boxes and the line they add up to, so this pass
+      // cannot ask one and forget the other, and the numbers it prints are the
+      // numbers the verdict was made from.
       const expectedRows = withHistory ? CRM_HISTORY_ROWS.length : 0;
-      const stateFailure = stepCardStateFailure(measured, { at, described, expectedRows, withHistory });
-      if (stateFailure) throw new Error(stateFailure);
+      const { verdict, summary } = readStepCard(measured, { at, described, expectedRows, withHistory });
+      if (verdict) throw new Error(verdict);
       if (viewport.width === 360 || viewport.width === 560) {
-        readings.push(`${heading} ${step}${withHistory ? " with history open" : ""}: card ${measured.card.width}px with ${measured.content}px of content, widest box ${measured.widest}px`);
+        readings.push(`${heading} ${step}${withHistory ? " with history open" : ""}: ${summary}`);
       }
-      // The box that escaped is named before the card's own scroll reading: the
-      // leaking child is the thing to change, and the card is only as wide as
-      // its widest one. One call, so a caller cannot ask one rule and forget the
-      // others.
-      const failure = stepCardFailure(measured, { at, described });
-      if (failure) throw new Error(failure);
     }
   }
 

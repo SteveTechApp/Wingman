@@ -11,9 +11,14 @@
  * The sentences live here rather than in the walk because they are the promise,
  * not the measurement: the walk owns the `page.evaluate` that produces the boxes
  * (only a browser can produce them) and this module owns what those boxes mean,
- * so a rule cannot be tightened in one place and loosened in another. Each
- * function returns the first thing the card does not do, or `null`, which is what
- * lets the caller print a reading for a card that holds instead of catching one.
+ * so a rule cannot be tightened in one place and loosened in another.
+ *
+ * One reader answers the whole card (`readStepCard`), for the reason the guided
+ * strip's reader gives: the state the card was measured in and the boxes it laid
+ * out are one verdict, and a caller that could ask one and forget the other would
+ * report a fit for a card it never confirmed was the card. The line that says
+ * what the card held comes back from the same call, so the numbers a report
+ * prints and the verdict beside them can only describe one measurement.
  */
 
 /**
@@ -51,18 +56,37 @@ function escapedFailure(escaped, described, at) {
 }
 
 /**
- * The first thing the card does not do, or `null`.
+ * The state the card was measured in, held to the state the walk opened.
  *
- * `described` is the card and the state it was measured in (`step 5 (Review and
- * export) card with the CRM send history open`), because the two card readings
- * differ and a report that said only "the card" would not say which one came
- * apart. The order is the order a rep would notice: content that left the card,
- * then a card that scrolls sideways, then a card wider than the box that clips it.
- * The leaking child is named before the card's own scroll reading because the
- * child is the thing to change and the card is only as wide as its widest one.
+ * A step measured with the send history open is a different reading from the same
+ * step measured closed, and only the card can say which one it is: the history is
+ * opened by a click, so a card that never received it would report a fit for
+ * content that was not there.
+ *
+ * This is asked before the card's boxes, because the boxes of a card that lost the
+ * list are the boxes of content the rep never saw — a containment failure there
+ * would send someone to fix the wrong layout.
  */
-export function stepCardFailure(measured, { at, described } = {}) {
-  if (!measured) return null;
+function stateFailure(measured, { at, described, expectedRows, withHistory }) {
+  if (measured.history.rows !== expectedRows) {
+    return `The response builder's ${described} held ${measured.history.rows} CRM history rows at ${at}; `
+      + `the walk expected ${expectedRows} on a card ${withHistory ? "with the send view open" : "without one"}.`;
+  }
+  if (withHistory && !measured.history.open) {
+    return `The response builder's ${described} lost the expanded conversation at ${at}, so the tallest block it holds was not laid out.`;
+  }
+  return null;
+}
+
+/**
+ * The first way the card failed to lay its content out at the width it has.
+ *
+ * The order is the order a rep would notice: content that left the card, then a
+ * card that scrolls sideways, then a card wider than the box that clips it. The
+ * leaking child is named before the card's own scroll reading because the child is
+ * the thing to change and the card is only as wide as its widest one.
+ */
+function containmentFailure(measured, { at, described }) {
   const escaped = measured.escaped ?? [];
   if (escaped.length) return escapedFailure(escaped, described, at);
   if (measured.card.scroll > measured.card.width + 1) {
@@ -76,21 +100,30 @@ export function stepCardFailure(measured, { at, described } = {}) {
 }
 
 /**
- * The state the card was measured in, held to the state the walk opened.
+ * A step card's whole reading: `{ verdict, summary }`.
  *
- * A step measured with the send history open is a different reading from the same
- * step measured closed, and only the card can say which one it is: the history is
- * opened by a click, so a card that never received it would report a fit for
- * content that was not there.
+ * `verdict` is the first thing the card does not do, or `null` when it holds.
+ * `summary` is the line a report prints for a card that was measured — the card's
+ * own width, the width of the content inside it and the widest box it laid out —
+ * and it is returned beside the verdict rather than in a second call, because the
+ * two describe one measurement and a reading whose numbers came from somewhere
+ * else would be a claim nobody checked. Both are `null` for a card that was never
+ * measured.
+ *
+ * `described` names the card and the state it was measured in (`step 5 (Review and
+ * export) card with the CRM send history open`), because the two card readings
+ * differ and a report that said only "the card" would not say which one came
+ * apart. `expectedRows` defaults to none, so a step that never opened the send
+ * view is held to an empty list rather than excused from the question.
  */
-export function stepCardStateFailure(measured, { at, described, expectedRows, withHistory } = {}) {
-  if (!measured) return null;
-  if (measured.history.rows !== expectedRows) {
-    return `The response builder's ${described} held ${measured.history.rows} CRM history rows at ${at}; `
-      + `the walk expected ${expectedRows} on a card ${withHistory ? "with the send view open" : "without one"}.`;
-  }
-  if (withHistory && !measured.history.open) {
-    return `The response builder's ${described} lost the expanded conversation at ${at}, so the tallest block it holds was not laid out.`;
-  }
-  return null;
+export function readStepCard(measured, { at, described, expectedRows = 0, withHistory = false } = {}) {
+  if (!measured) return { verdict: null, summary: null };
+
+  const verdict = stateFailure(measured, { at, described, expectedRows, withHistory })
+    ?? containmentFailure(measured, { at, described });
+
+  return {
+    verdict,
+    summary: `card ${measured.card.width}px with ${measured.content}px of content, widest box ${measured.widest}px`,
+  };
 }
