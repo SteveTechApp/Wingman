@@ -1141,7 +1141,7 @@ html[data-wingman-route="projects"] .wm-projects-store-toolbar {
 }
 
 /* The row shapes this rule lays out are one named list, not a description here:
-   `GALLERY_ROW_STATES` in tools/browser-smoke-check.mjs seeds every state, and
+   `GALLERY_ROW_STATES` in tools/lib/gallery-row-states.mjs seeds every state, and
    `assertGalleryCardActions` measures each of them at 1366px, 1151px, 1150px,
    1024px, 390px and 360px by the same rules — the row fit, its link count and
    every design name. The two middle widths are the pair either side of the
