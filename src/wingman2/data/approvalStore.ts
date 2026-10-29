@@ -13,17 +13,6 @@ import { postWingmanJson } from "../api/wingmanApi";
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-export type ApprovalAction = "submit" | "approve" | "reject";
-
-export type ApprovalDecision = {
-  action: ApprovalAction;
-  proposalTitle: string;
-  projectId: string;
-  by: string;
-  at: string;
-  comments?: string;
-};
-
 export type PendingProposal = {
   projectId: string;
   projectName: string;
@@ -168,24 +157,4 @@ export function usePendingApprovals(): PendingProposal[] {
           new Date(a.submittedAt).getTime(),
       );
   }, [projects]);
-}
-
-/**
- * Get the approval status for a specific project's proposal.
- */
-export function useProposalApprovalStatus(
-  projectId: string,
-): ProposalApprovalStatus {
-  const { projects } = useProjectStore();
-  const project = projects.find((p) => p.id === projectId);
-  return project?.proposal?.approvalStatus || "draft";
-}
-
-/**
- * Team review is optional. Export screens additionally check technical validation.
- */
-export function useCanExportProposal(projectId: string): boolean {
-  const { projects } = useProjectStore();
-  const proposal = projects.find((project) => project.id === projectId)?.proposal;
-  return Boolean(proposal?.designRevision?.canIssue);
 }

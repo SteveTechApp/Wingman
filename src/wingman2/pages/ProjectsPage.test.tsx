@@ -1,7 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setActiveProjectId, type StoredProject } from "../data/projectStore";
+import { saveCustomRoomTemplate } from "../lib/customRoomTemplates";
+import { roomTemplates } from "../lib/roomTemplates";
 import { expectResultsWindow, turnResultsPage } from "../lib/testHelpers/resultsPager";
 
 const { useProjectStoreMock, reconfirmWallSurveyReviewMock } = vi.hoisted(() => ({
@@ -76,6 +78,38 @@ describe("projects list card actions", () => {
     // Looking away is not a delete.
     fireEvent.blur(armed);
     expect(screen.getByRole("button", { name: "Delete Alpha Room" })).toBeTruthy();
+  });
+});
+
+describe("projects list saved-design links", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });  it("lists the room's saved design as a link, and counts nothing beside it", () => {
+    saveCustomRoomTemplate(
+      { ...roomTemplates[0], id: "custom-alpha", name: "Alpha template" },
+      { id: "custom-alpha", sourceProjectId: "project-alpha" },
+    );
+
+    renderProjects([
+      baseProject({ id: "project-alpha", name: "Alpha Room" }),
+      baseProject({ id: "project-beta", name: "Beta Room" }),
+    ]);
+
+    // The action row answers the question the flag column used to: one link per
+    // design, each naming it, worded as the dashboard card's menu entry.
+    const alpha = within(screen.getByRole("article", { name: "Alpha Room" }));
+    expect(alpha.getByRole("link", { name: "Open template: Alpha template" }))
+      .toHaveAttribute("href", "/wingman/templates/custom-alpha");
+
+    // So the card carries no chip counting the designs it already links: the
+    // chip is Home's unguided card, where the designs are one menu away instead
+    // of on screen.
+    expect(alpha.queryByRole("link", { name: /Saved as .*templates?/ })).toBeNull();
+
+    // And a room nobody has saved says nothing about templates at all.
+    const beta = within(screen.getByRole("article", { name: "Beta Room" }));
+    expect(beta.queryByRole("link", { name: /Saved as .*templates?/ })).toBeNull();
+    expect(beta.queryByRole("link", { name: /Open template:/ })).toBeNull();
   });
 });
 
@@ -383,6 +417,23 @@ describe("projects list team-change conflict badge", () => {
     // A project with no conflict shows no badge.
     const cleanRow = screen.getByText("Clean Project").closest("article");
     expect(cleanRow?.textContent).not.toContain("Team changed:");
+  });
+
+  it("reads the same change on the store's own line above the cards", () => {
+    // The store is saved in this browser, so the sync status says nothing about
+    // a team member: the line reads the rooms' own conflict flags, which is what
+    // the cards under it read.
+    renderProjects([
+      baseProject({
+        id: "project-with-conflict",
+        name: "Conflicted Project",
+        syncConflict: { fields: ["proposal", "requirements"], detectedAt: "2026-08-16T15:00:00.000Z" },
+      }),
+    ]);
+
+    const toolbarChip = document.querySelector(".wm-projects-store-toolbar .wm-status-chip");
+    expect(toolbarChip?.textContent).toContain("Team changed: Proposal, Requirements");
+    expect(toolbarChip?.className).toContain("wm-projects-sync-conflict");
   });
 });
 

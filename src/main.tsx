@@ -36,6 +36,8 @@ import { installCsrfFetch } from "./wingman2/api/csrf";
 import { restoreDevelopmentWorkspace } from "./wingman2/utils/devWorkspaceSession";
 import { installRuntimeTelemetry } from "./wingman2/lib/runtimeTelemetry";
 import { installFeatureAnalytics } from "./wingman2/lib/featureAnalytics";
+import { sweepWebhookHistory } from "./wingman2/lib/crmWebhook";
+import { sweepRetiredStorage, takeRetiredStorageReclaim } from "./wingman2/lib/retiredStorage";
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
 installCsrfFetch();
@@ -47,6 +49,27 @@ installRuntimeTelemetry();
 // Track feature usage patterns for product intelligence improvements.
 // Best-effort and silent on failure; no customer data is collected.
 installFeatureAnalytics();
+
+// Both boot sweeps report what they gave back into one report, and the take comes
+// first: this load lifts what a previous load's sweeps left, and only then do this
+// load's own write theirs, so what a rep is shown is the space that came back last
+// time rather than the space this load is still taking back. One report is what
+// lets one strip name everything boot gave back, instead of only the largest
+// single source.
+takeRetiredStorageReclaim();
+
+// The CRM send history is cleaned once per load, before any screen asks for it:
+// delivered snapshot bodies and rows over its ceilings are storage the projects
+// need. A browser already clean is read and not written, so this costs one read
+// and nothing else until the next send makes it dirty again.
+sweepWebhookHistory();
+
+// A store this build no longer reads is still bytes in the browser. The wall
+// builder used to duplicate every saved summary into
+// `wingman:video-wall-last-summary`; nothing reads that copy now and the builder
+// will never open it again, so a load that finds it takes the space back. A clean
+// browser is read and not written.
+sweepRetiredStorage();
 
 const rootElement = document.getElementById("root");
 

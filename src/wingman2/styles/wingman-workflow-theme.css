@@ -1362,8 +1362,16 @@ html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .w
   align-items: start;
 }
 
+/* The card is a grid used as a stacker, and an implicit `auto` track is sized by
+   its content: with no column declared, the one track resolved to the widest
+   child's max-content (501.938px in step 5) inside a card that is 368px on a
+   phone, so every child was laid out at ~500px and the page host's overflow cut
+   the right-hand ~130px off — the CRM panel's row controls among them. Declaring
+   the single column is what makes the card lay its content out at the width it
+   actually has. */
 html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .wm-proposal-step-card {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
   min-width: 0;
   padding: 22px;
@@ -3726,7 +3734,7 @@ html[data-wingman-route="templates"] .wm-template-manage-actions {
 .wm-solution-card-visual { display:flex; align-items:flex-end; justify-content:space-between; height:70px; padding:12px 16px; color:var(--wm-text-muted); background:linear-gradient(135deg,var(--wm-surface-muted),var(--wm-surface)); border-bottom:1px solid var(--wm-border); }.wm-solution-card-visual svg { width:25px; }.wm-solution-card-visual span { font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; }.wm-solution-card h3 { margin:9px 0 6px; font-size:1rem; font-weight:650; }.wm-solution-card p { margin:0; color:var(--wm-text-muted); font-size:.8rem; line-height:1.45; }.wm-solution-card small { display:block; margin-top:8px; color:var(--wm-text-muted); font-size:.7rem; }.wm-solution-card ul { margin:10px 0 12px; padding-left:18px; color:var(--wm-text); font-size:.75rem; }.wm-solution-card li { margin:3px 0; }.wm-solution-card .wm-template-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; }.wm-solution-card .wm-button { min-height:34px; padding:6px 8px; font-size:.75rem; }.wm-solution-card details { margin-top:10px; font-size:.72rem; color:var(--wm-text-muted); }.wm-template-manage-actions { display:flex; flex-wrap:wrap; gap:5px; padding-top:7px; }.wm-template-manage-actions button { border:1px solid var(--wm-border); border-radius:6px; padding:4px 7px; background:var(--wm-surface); color:var(--wm-text); }
 .wm-template-drawer-backdrop { position:fixed; inset:0; z-index:80; display:flex; justify-content:flex-end; }.wm-template-drawer-scrim { position:absolute; inset:0; border:0; background:rgba(7,12,18,.58); }.wm-template-preview-drawer { position:relative; display:grid; grid-template-rows:auto minmax(0,1fr) auto; width:min(760px,92vw); height:100%; background:var(--wm-background); border-left:1px solid var(--wm-border); box-shadow:-12px 0 40px rgba(0,0,0,.24); }.wm-template-preview-drawer > header { display:flex; justify-content:space-between; gap:20px; padding:18px 22px; background:var(--wm-surface); border-bottom:1px solid var(--wm-border); }.wm-template-preview-drawer h2 { margin:3px 0 0; font-size:1.25rem; }.wm-template-preview-drawer > footer { display:flex; justify-content:flex-end; gap:8px; padding:12px 20px; background:var(--wm-surface); border-top:1px solid var(--wm-border); }
 .wm-template-preview-content,.wm-personalisation-form { overflow:auto; padding:20px 22px; }.wm-template-preview-content section { margin-bottom:18px; }.wm-template-preview-content h3,.wm-personalisation-form legend { margin:0 0 7px; font-size:.8rem; font-weight:650; text-transform:uppercase; letter-spacing:.04em; }.wm-template-preview-content p,.wm-template-preview-content li { color:var(--wm-text-muted); font-size:.82rem; line-height:1.55; }.wm-template-preview-split { display:grid; grid-template-columns:1fr 1fr; gap:18px; }.wm-template-preview-content .wm-status { margin-right:6px; }.wm-template-validation-warning { padding:10px; border:1px solid var(--wm-warning); border-radius:8px; }
-.wm-personalisation-form fieldset { margin:0 0 18px; padding:14px; border:1px solid var(--wm-border); border-radius:10px; background:var(--wm-surface); }.wm-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }.wm-personalisation-form label { display:grid; gap:5px; margin-bottom:9px; color:var(--wm-text-muted); font-size:.74rem; text-transform:capitalize; }.wm-personalisation-form input,.wm-personalisation-form textarea,.wm-personalisation-form select { width:100%; border:1px solid var(--wm-border); border-radius:7px; padding:8px 9px; background:var(--wm-background); color:var(--wm-text); font:inherit; }.wm-personalisation-form textarea { min-height:72px; resize:vertical; }.wm-personalisation-form .wm-check-row { display:flex; grid-template-columns:auto 1fr; align-items:center; gap:8px; text-transform:none; }.wm-personalisation-form .wm-check-row input { width:auto; }
+.wm-personalisation-form fieldset { margin:0 0 18px; padding:14px; border:1px solid var(--wm-border); border-radius:10px; background:var(--wm-surface); }.wm-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }.wm-personalisation-form label { display:grid; gap:5px; margin-bottom:9px; color:var(--wm-text-muted); font-size:.74rem; text-transform:capitalize; }.wm-personalisation-form input,.wm-personalisation-form textarea,.wm-personalisation-form select { width:100%; border:1px solid var(--wm-border); border-radius:7px; padding:8px 9px; background:var(--wm-background); color:var(--wm-text); font:inherit; }.wm-personalisation-form textarea { min-height:72px; resize:vertical; }
 @media(max-width:1100px){.wm-solution-card-grid{grid-template-columns:repeat(2,minmax(240px,1fr));}}@media(max-width:760px){.wm-templates-page{padding:14px}.wm-solution-header{align-items:flex-start;flex-direction:column}.wm-template-stages{overflow:auto}.wm-template-browser{grid-template-columns:1fr}.wm-market-rail{position:static;display:flex;overflow:auto}.wm-market-rail h2{display:none}.wm-market-rail button{min-width:max-content}.wm-solution-card-grid,
 .wm-template-preview-split,.wm-form-grid{grid-template-columns:1fr}.wm-template-results-heading>p{display:none}}
 /* Templates viewport grid: keep page chrome fixed and scroll template cards only. */
@@ -5819,6 +5827,18 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="dashboard"] #root {
 .wm-guided-hero-path small { color: #8fa8b8; font-size: .72rem; line-height: 1.4; }
 .wm-guided-primary-action { display: inline-flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 18px; border-radius: 12px; background: var(--guided-aqua); color: #03202a; font-weight: 760; text-decoration: none; box-shadow: 0 10px 30px rgba(93,230,237,.16); transition: transform .2s, box-shadow .2s; }
 .wm-guided-primary-action:hover { transform: translateY(-2px); box-shadow: 0 14px 38px rgba(93,230,237,.26); }
+/* A second way to start, not the page's primary action: a feature card with a
+   glyph, a name and what it builds. `.wm-polish-shell` is a grid, so a bare
+   inline-flex child stretches the full width — the cap and `justify-self` are
+   what keep this a card instead of a page-wide banner. */
+.wm-guided-wall-entry { display: flex; justify-self: start; align-items: center; gap: 14px; width: min(560px, 100%); padding: 14px 16px; border: 1px solid rgba(93,230,237,.2); border-radius: 16px; background: linear-gradient(135deg, rgba(9,44,57,.78), rgba(6,17,30,.9)); color: var(--wm-text); text-decoration: none; transition: border-color .2s, background .2s; }
+.wm-guided-wall-entry:hover { border-color: rgba(93,230,237,.46); background: linear-gradient(135deg, rgba(12,55,70,.86), rgba(6,17,30,.94)); }
+.wm-guided-wall-entry:focus-visible { outline: 2px solid var(--guided-aqua); outline-offset: 3px; }
+.wm-guided-wall-entry__icon { display: grid; flex: 0 0 auto; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: rgba(93,230,237,.13); color: var(--guided-aqua); }
+.wm-guided-wall-entry__copy { display: grid; min-width: 0; gap: 2px; }
+.wm-guided-wall-entry__copy strong { font-size: .92rem; letter-spacing: -.01em; }
+.wm-guided-wall-entry__copy small { color: #8fa8b8; font-size: .74rem; line-height: 1.45; }
+.wm-guided-wall-entry > svg { flex: 0 0 auto; margin-left: auto; color: var(--guided-aqua); }
 .wm-guided-journeys { margin-top: 20px; }
 .wm-guided-journeys-header { margin-bottom: 10px; }
 .wm-guided-journeys-header span { display: block; margin-bottom: 5px; color: var(--guided-aqua); font-size: .68rem; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
@@ -5849,7 +5869,17 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="dashboard"] #root {
 .wm-guided-recent-heading { margin-bottom: 10px; }
 .wm-guided-recent-heading > span { display: block; margin-bottom: 5px; color: var(--guided-aqua); font-size: .68rem; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
 .wm-guided-recent h2 { margin: 0; color: var(--wm-text); font-size: clamp(1.15rem, 1.4vw, 1.4rem); letter-spacing: -.02em; }
-.wm-guided-recent-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+/* Three cards, three columns: the strip prints three, and two columns left the
+   third one alone under the row. A third of the strip is narrower than the same
+   card is in the single-column band, so here the leading status chip takes a row
+   of its own and hands the copy column the width it has — the shape the phone
+   block already gives it, and what keeps the widest survey reading whole in a
+   1181px card (`Browser Smoke` measures one, 49px short of it with the chip in
+   the row). Below that the cards stack, one wide card per row. */
+.wm-guided-recent-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 1180px) {
+  .wm-guided-recent-list { grid-template-columns: 1fr; }
+}
 .wm-guided-recent-card { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-width: 0; min-height: 68px; padding: 12px 14px; border-radius: 14px; color: var(--wm-text); text-decoration: none; }
 .wm-guided-recent-copy { display: grid; min-width: 0; gap: 3px; }
 .wm-guided-recent-copy strong { overflow: hidden; font-size: .86rem; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
@@ -5859,14 +5889,42 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="dashboard"] #root {
 .wm-guided-recent-hit { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
 .wm-guided-recent-hit:focus-visible { outline: 2px solid var(--guided-aqua); outline-offset: 2px; }
 .wm-guided-recent-card .wm-guided-recent-copy a.wm-status-chip { position: relative; z-index: 2; }
+/* The two flags a card may carry — the survey chip and the re-confirm action —
+   live in one wrapper so the phone block can put them on a line without moving
+   the card's own grid. It stacks on a wide card, where there is room for one
+   reading per row. A saved template is not one of these: the card prints a link
+   per design below, which is the same fact with the name attached. */
+.wm-guided-recent-copy .wm-guided-recent-flags { display: grid; justify-items: start; gap: 4px; min-width: 0; }
 .wm-guided-recent-card .wm-guided-recent-copy .wm-guided-recent-reconfirm { position: relative; z-index: 2; justify-self: start; min-height: 1.9rem; padding: .3rem .6rem; font-size: .68rem; }
+/* The named template entry, above the card's overlay for the same reason the
+   flag is: it navigates somewhere else. Truncated, because a long design name
+   must not widen the strip — but not below a floor: 30 characters of the link's
+   own text, capped at the cell that holds it, the same shape of floor the
+   gallery card gives its design entries. The link is one nowrap line clipped by
+   the copy column, so a squeezed column prints the name's first letters and the
+   card reads as a design nobody can identify; the floor is inert at every width
+   the strip is laid out at today (the narrowest column is ~256px on a phone and
+   ~316px in the three-column band, against ~168px here) and exists so a later
+   rule cannot squeeze it without the row overflowing. Held on a phone too, by
+   the walk's design-link reading, which is taken at every width rather than only
+   in the band. */
+.wm-guided-recent-card .wm-guided-recent-copy .wm-guided-recent-template { position: relative; z-index: 2; justify-self: start; min-width: min(30ch, 100%); max-width: 100%; overflow: hidden; color: var(--guided-aqua); font-size: .7rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; text-decoration: underline; text-underline-offset: 2px; }
 @media (max-width: 900px) {
   .wm-guided-hero { grid-template-columns: 1fr; min-height: auto; }
   .wm-guided-hero-path { display: none; }
   .wm-guided-journeys-cards { grid-template-columns: 1fr; }
   .wm-guided-journey,
 .wm-guided-journey-copy p { min-height: 0; }
-  .wm-guided-recent-list { grid-template-columns: 1fr; }
+}
+/* The three-column band gives the leading status chip a row of its own, the shape
+   the phone block already gives it: a third of the strip is narrower than the
+   single-column card, and the widest survey reading a card prints does not fit
+   beside that chip in one. It stands after the card's own rule, because the rule
+   that sets the chip's cell at every other width has the same specificity and a
+   media block before it loses the cascade. */
+@media (min-width: 1181px) {
+  .wm-guided-recent-card { grid-template-columns: minmax(0, 1fr) auto; }
+  .wm-guided-recent-card > .wm-status-chip { grid-column: 1 / -1; justify-self: start; }
 }
 @media (max-width: 560px) {
   .wm-guided-dashboard { padding: 12px 14px 16px; }
@@ -5875,6 +5933,31 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="dashboard"] #root {
   .wm-guided-journey-icon { width: 36px; height: 36px; }
   .wm-guided-recent-card { grid-template-columns: minmax(0, 1fr) auto; }
   .wm-guided-recent-card > .wm-status-chip { grid-column: 1 / -1; justify-self: start; }
+  /* The verb gives way to the name here: the column is ~256px, so keeping
+     "Open template: " would spend the line on the same six words twice. The
+     link's accessible name still says it navigates to a template. */
+  .wm-guided-recent-card .wm-guided-recent-copy .wm-guided-recent-template-verb { display: none; }
+  /* Those flags share a line where they fit: a chip hugs its own label and never
+     shrinks it, so a long survey reading stays whole instead of being clipped.
+     A template name stays out of this row — it is the payload, and pairing two
+     of them would truncate the design the rep is choosing between. The row holds
+     readings about the room, so nothing here has to count its designs. */
+  .wm-guided-recent-card .wm-guided-recent-copy .wm-guided-recent-flags {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+  }
+}
+@media (max-width: 382px) {
+  /* At 382px and below the chevron's 28px leaves the copy column narrower than the
+     longest reading a card carries: with the chevron the column is
+     `width - 104`, so the widest stale reading (279px at 11 months) needs 383px
+     and up to print whole — at 381 the column is 277px, 2px short, and the chip
+     ellipsised its label, the half that says what the reading is, into the gap
+     where the chevron sits. The chevron is decorative (the whole card is one hit
+     area), so from 382 down the column takes its 28px: 305px at 381 for that
+     279px reading, and every flag and name prints whole. 381 is the width the
+     browser walk holds — one pixel inside this band, the edge it protects. */
+  .wm-guided-recent-card { grid-template-columns: minmax(0, 1fr); }
+  .wm-guided-recent-card .wm-guided-recent-arrow { display: none; }
 }
 
 /* ── Guided mode: compact discovery page ──────────────────────── */
@@ -7051,7 +7134,7 @@ html[data-wingman-route="templates"] .wm-template-context-strip p{grid-column:1/
 }
 .wm-feature-journey__actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.65rem; }
 .wm-feature-journey__action { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; min-height: 4.25rem; padding: 0.75rem 0.85rem; border: 1px solid rgba(157, 176, 195, 0.22); border-radius: 0.8rem; background: rgba(7, 21, 34, 0.78); color: var(--wm-palette-ice); text-decoration: none; }
-.wm-feature-journey__action--compact { align-self: start; justify-self: start; width: auto; min-height: 2.7rem; padding: 0.55rem 0.75rem; }
+.wm-feature-journey__action--compact { align-self: start; justify-self: start; width: auto; max-width: 100%; min-height: 2.7rem; padding: 0.55rem 0.75rem; }
 .wm-feature-journey__action:hover, .wm-feature-journey__action:focus-visible { border-color: var(--wm-palette-aqua); transform: translateY(-1px); }
 .wm-feature-journey__action span { display: grid; gap: 0.2rem; }
 .wm-feature-journey__action small { color: #9db0c3; line-height: 1.35; }
@@ -7765,8 +7848,10 @@ html[data-wingman-route="discovery"] .wm-discovery-market-entry__heading h2 { fo
 .wm-project-action-menu { position: relative; margin-left: auto; }
 .wm-project-action-menu > button { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #29465e; border-radius: 9px; background: #0d2133; color: #cfe6f7; }
 .wm-project-action-menu__panel { position: absolute; right: 0; top: 40px; z-index: 30; width: 238px; padding: 8px; border: 1px solid #365a70; border-radius: 12px; background: #0b1d2d; box-shadow: 0 16px 40px #0008; }
-.wm-project-action-menu__panel button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px; border-radius: 7px; text-align: left; color: var(--wm-palette-ice); }
-.wm-project-action-menu__panel button:hover { background: #16364a; }
+.wm-project-action-menu__panel button,
+.wm-project-action-menu__panel a { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px; border-radius: 7px; text-align: left; color: var(--wm-palette-ice); text-decoration: none; }
+.wm-project-action-menu__panel button:hover,
+.wm-project-action-menu__panel a:hover { background: #16364a; }
 .wm-project-action-menu__panel svg { width: 16px; height: 16px; }
 .wm-project-action-menu__panel .is-danger { color: #ff9aab; border-top: 1px solid #29465e; margin-top: 5px; }
 .wm-project-action-menu__panel p { padding: 8px 10px; font-size: 12px; line-height: 1.5; color: #cfe6f7; }
@@ -7778,7 +7863,7 @@ html[data-wingman-route="discovery"] .wm-discovery-market-entry__heading h2 { fo
 .wm-project-workspace > header > span { font-size: 12px; color: #9bb6c9; }
 .wm-project-workspace h3 { color: var(--wm-palette-ice); font-weight: 750; font-size: 16px; }
 .wm-project-workspace small { display: block; color: #9bb6c9; font-size: 12px; font-weight: 400; }
-.wm-project-workspace button:focus-visible, .wm-project-action-menu button:focus-visible, .wm-reference-project-open:focus-visible { outline: 2px solid #43dcde; outline-offset: 3px; }
+.wm-project-workspace button:focus-visible, .wm-project-action-menu button:focus-visible, .wm-project-action-menu a:focus-visible, .wm-reference-project-open:focus-visible { outline: 2px solid #43dcde; outline-offset: 3px; }
 .wm-project-editor-intro { grid-column: 1 / -1; }
 .wm-project-editor-intro h2 { font-size: 20px; font-weight: 750; }
 .wm-project-editor-intro > p:last-child { color: #b5cddd; font-size: 13px; margin-top: 6px; }

@@ -129,7 +129,7 @@
     "key": "videowall",
     "path": "/wingman/videowall",
     "segment": "videowall",
-    "label": "Video Wall",
+    "label": "Video wall designer",
     "navLabel": "Video Wall",
     "pageFile": "VideowallBuilderPage.tsx",
     "summary": "Build video wall and multiview system shapes."

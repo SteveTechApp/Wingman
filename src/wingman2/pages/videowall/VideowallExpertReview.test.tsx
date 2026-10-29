@@ -73,7 +73,7 @@ describe("VideowallExpertReview", () => {
     expect(screen.queryByTestId("videowall-transport")).toBeNull();
   });
 
-  it("reads the four questions as lines until one is opened", () => {
+  it("reads the questions as lines until one is opened", () => {
     renderReview();
 
     // Each line carries the question and the answer in use, so the brief is

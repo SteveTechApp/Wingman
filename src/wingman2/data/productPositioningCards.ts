@@ -1433,34 +1433,3 @@ export function getBestProductPositioningCardForSku(sku: string): ProductPositio
     return cardSku.endsWith(" SERIES") && normalisedSku.startsWith(cardSku.replace(/\s+SERIES$/, ""));
   });
 }
-
-export function searchProductPositioningCards(query: string): ProductPositioningCard[] {
-  const normalisedQuery = query.trim().toLowerCase();
-
-  if (!normalisedQuery) {
-    return PRODUCT_POSITIONING_CARDS;
-  }
-
-  return PRODUCT_POSITIONING_CARDS.filter((card) => {
-    const searchable = [
-      card.sku,
-      card.productName,
-      card.productFamily,
-      card.technologyType,
-      card.salientPoint,
-      card.oneLinePositioning,
-      ...card.bestFitApplications,
-      ...card.customerProblems,
-      ...card.listenForTriggers,
-      ...card.attachProducts.map((item) => `${item.sku ?? ""} ${item.productFamily ?? ""} ${item.reason}`),
-      ...card.competitorAngles.flatMap((item) => [
-        item.competitorBrand ?? "",
-        item.competitorCategory ?? "",
-        item.positioningNote,
-        ...item.compareSearchTerms,
-      ]),
-    ].join(" ").toLowerCase();
-
-    return searchable.includes(normalisedQuery);
-  });
-}

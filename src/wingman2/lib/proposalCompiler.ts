@@ -112,9 +112,7 @@ export function compileTemplateApplicationProposal(template: RoomTemplate, rows:
       "All validation items are closed or recorded as accepted exclusions.",
       "The customer receives training, test results and agreed handover documentation.",
     ],
-    visualBriefs: [{ title: `${template.name} room concept`, purpose: "Illustrate the intended market application and operating environment." }],
     verifiedDesignParameters: template.concept ? [] : template.designNotes.map((note) => note.label),
-    deploymentConditions: [...template.assumptions, ...template.validationItems.map((item) => `Validate: ${item}`)],
     marketStory: story
       ? `For this ${template.vertical.toLowerCase()} application, success is measured by ${value}. ${story.successLooksLike.join(" ")} Decisions still open with the customer: ${story.customerDecisions.join(" ")}`
       : `For this ${template.vertical.toLowerCase()} application, success is measured by ${value}. The technology therefore supports the room's operational story rather than acting as an isolated equipment list.`,
@@ -150,7 +148,7 @@ export function compileProjectApplicationProposal(input: {
     technicalFacts: [...rows.map((row) => `${row.sku}: ${row.role}`), ...(audioDesign ? [audioDesign.basis, audioDesign.route, audioDesign.signalPath].filter((line): line is string => Boolean(line)) : [])],
     architectureDiagram: rows.map((row) => `${row.role}: ${row.qty} × ${row.sku}`).join(" → "),
     acceptanceCriteria: ["Signal routing and room modes operate as approved.", "Third-party interfaces and responsibilities are validated.", "Training and documentation are complete."],
-    visualBriefs: [], verifiedDesignParameters: [], deploymentConditions: input.assumptions,
+    verifiedDesignParameters: [],
     marketStory: `The proposal is focused on ${value}, with WyreStorm forming the signal-management portion of the wider room system.`,
     productSpecifications: productSpecifications(rows), thirdPartyScope: thirdPartyScope(rows),
   };

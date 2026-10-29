@@ -1,8 +1,11 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { deleteStoredProject, readProjectStore, upsertStoredProject } from "../data/projectStore";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { saveCustomRoomTemplate } from "../lib/customRoomTemplates";
+import { roomTemplates } from "../lib/roomTemplates";
+import { WALL_ENTRY_INTRO, WALL_ENTRY_NAME } from "../lib/wallEntry";
 import { DashboardPage } from "./DashboardPage";
 import { UiModeProvider } from "../data/uiMode";
 
@@ -450,5 +453,183 @@ describe("dashboard survey re-confirm", () => {
     // outside the card's own hit area, which would otherwise open the project.
     expect(action.closest("a")).toBeNull();
     expect(recent.getByTestId("survey-review-flag").getAttribute("data-survey-review-age")).toBe("stale");
+  });
+});
+
+describe("dashboard saved-as-a-template flag", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
+  });
+
+  function saveTemplateFrom(
+    projectId: string,
+    id = "custom-acme",
+    name = "Acme standard room",
+  ) {
+    saveCustomRoomTemplate(
+      { ...roomTemplates[0], id, name },
+      { id, sourceProjectId: projectId },
+    );
+  }
+
+  function recentProject(id: string, name: string) {
+    upsertStoredProject({
+      id,
+      name,
+      owner: "Steve",
+      stage: "Proposal Builder",
+      status: "recommended",
+      updated: "Just now",
+      resumeTo: routeCatalogByKey.projects.path,
+      createdAt: "2026-10-20T14:12:00.000Z",
+      updatedAt: "2026-10-20T14:12:00.000Z",
+    });
+  }
+
+  it("marks the recent room that is already a template, and opens that template", () => {
+    recentProject("acme-boardroom", "Acme Boardroom");
+    saveTemplateFrom("acme-boardroom");
+
+    const recentProjects = renderDashboard();
+    const card = recentProjects.getByText("Acme Boardroom").closest("article")!;
+
+    // The card answers the question the gallery card does, without the rep
+    // opening the projects page to find out.
+    const chip = within(card).getByRole("link", {
+      name: "Saved as a template: Acme standard room",
+    });
+    expect(chip.getAttribute("href")).toBe("/wingman/templates/custom-acme");
+  });
+
+  it("offers the same template from the card's action menu", () => {
+    recentProject("acme-menu", "Acme Menu Room");
+    saveTemplateFrom("acme-menu");
+
+    const recentProjects = renderDashboard();
+    const card = recentProjects.getByText("Acme Menu Room").closest("article")!;
+
+    // The chip is a link of its own; this is the way in when the rep already has
+    // the menu open to act on the room.
+    fireEvent.click(
+      within(card).getByRole("button", { name: "Project actions for Acme Menu Room" }),
+    );
+    const entry = within(card).getByRole("link", {
+      name: "Open template: Acme standard room",
+    });
+    expect(entry.getAttribute("href")).toBe("/wingman/templates/custom-acme");
+  });
+
+  it("says nothing about templates for a room nobody has saved", () => {
+    recentProject("acme-unpublished", "Acme Unpublished");
+
+    const recentProjects = renderDashboard();
+    const card = recentProjects.getByText("Acme Unpublished").closest("article")!;
+
+    expect(within(card).queryByRole("link", { name: /Saved as a template/ })).toBeNull();
+  });
+
+  it("prints one entry per saved design on the focused card, and no count beside it", () => {
+    window.localStorage.setItem("wingman-ui-mode-v1", "guided");
+    recentProject("focused-template", "Focused Template Room");
+    saveTemplateFrom("focused-template");
+    saveTemplateFrom("focused-template", "custom-acme-second", "Acme review room");
+
+    render(
+      <MemoryRouter initialEntries={["/wingman"]}>
+        <UiModeProvider>
+          <DashboardPage />
+        </UiModeProvider>
+      </MemoryRouter>,
+    );
+
+    const recent = within(screen.getByLabelText("Continue where you left off"));
+
+    // Two designs, two entries: the card answers "how many" by listing them.
+    expect(recent.getByRole("link", { name: "Open template: Acme standard room" })).toBeTruthy();
+    expect(recent.getByRole("link", { name: "Open template: Acme review room" })).toBeTruthy();
+
+    // So it carries no chip counting them: "Saved as 2 templates" above the two
+    // names would be the same answer a third time, on a card whose flag row has
+    // one row to spare at 360px.
+    expect(recent.queryByRole("link", { name: /Saved as .*templates?/ })).toBeNull();
+  });
+
+  it("offers the video wall designer as a feature entry, not a second primary action", () => {
+    window.localStorage.setItem("wingman-ui-mode-v1", "guided");
+
+    render(
+      <MemoryRouter initialEntries={["/wingman"]}>
+        <UiModeProvider>
+          <DashboardPage />
+        </UiModeProvider>
+      </MemoryRouter>,
+    );
+
+    const entry = screen.getByRole("link", { name: "Video wall designer" });
+    expect(entry.getAttribute("href")).toBe("/wingman/videowall");
+    // The hero already owns the page's primary action; this one is its own card,
+    // so it says what it builds instead of repeating the CTA's treatment.
+    expect(entry.className).toContain("wm-guided-wall-entry");
+    expect(entry.className).not.toContain("wm-guided-primary-action");
+    // The beginning is the shared sentence rather than a phrase written here: the
+    // step it describes changed once, and a literal copy of the old wording kept
+    // passing nothing.
+    expect(entry.textContent).toContain(WALL_ENTRY_INTRO);
+  });
+
+  it("offers the wall entry under one name and one start in both readings", () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman"]}>
+        <UiModeProvider>
+          <DashboardPage />
+        </UiModeProvider>
+      </MemoryRouter>,
+    );
+
+    // The unguided reading's card: one of six equal cards, so its title is the
+    // entry's name and its body opens on how a design begins.
+    const hub = within(screen.getByLabelText("Primary Wingman actions"));
+    const card = hub.getByRole("link", { name: `Open ${WALL_ENTRY_NAME} in Wingman` });
+    expect(card.getAttribute("href")).toBe(routeCatalogByKey.videowall.path);
+    expect(card.textContent).toContain(WALL_ENTRY_INTRO);
+
+    cleanup();
+    window.localStorage.setItem("wingman-ui-mode-v1", "guided");
+    render(
+      <MemoryRouter initialEntries={["/wingman"]}>
+        <UiModeProvider>
+          <DashboardPage />
+        </UiModeProvider>
+      </MemoryRouter>,
+    );
+
+    // The focused reading's card says the same two things, so a rep who
+    // switches readings is not told a different story about where a wall
+    // design starts.
+    const focused = screen.getByRole("link", { name: WALL_ENTRY_NAME });
+    expect(focused.getAttribute("href")).toBe(routeCatalogByKey.videowall.path);
+    expect(focused.textContent).toContain(WALL_ENTRY_INTRO);
+  });
+
+  it("offers the same template entry on the focused dashboard's card", () => {
+    window.localStorage.setItem("wingman-ui-mode-v1", "guided");
+    recentProject("focused-entry", "Focused Entry Room");
+    saveTemplateFrom("focused-entry");
+
+    render(
+      <MemoryRouter initialEntries={["/wingman"]}>
+        <UiModeProvider>
+          <DashboardPage />
+        </UiModeProvider>
+      </MemoryRouter>,
+    );
+
+    const recent = within(screen.getByLabelText("Continue where you left off"));
+    const entry = recent.getByRole("link", { name: "Open template: Acme standard room" });
+
+    // The wording and destination the unguided card's menu and the gallery
+    // card's action row use, so the two Home readings offer one action.
+    expect(entry.getAttribute("href")).toBe("/wingman/templates/custom-acme");
   });
 });

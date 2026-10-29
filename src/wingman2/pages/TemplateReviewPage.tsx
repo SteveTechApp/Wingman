@@ -16,6 +16,8 @@ const ExcalidrawBlockSchematic = lazy(() =>
   import("../components/ExcalidrawBlockSchematic"),
 );
 import { TemplateSchematic } from "../components/TemplateSchematic";
+import { TemplateLineageNote } from "../components/TemplateLineageNote";
+import { OpenTemplateLink } from "../components/OpenTemplateLink";
 import { TemplateRoomBrief, TemplateDesignReview } from "../components/TemplateRoomBrief";
 import { NativeTemplateSchematic } from "../components/NativeTemplateSchematic";
 import VisualStudioCanvas from "../components/visualStudioCanvasEntry";
@@ -27,6 +29,8 @@ import { buildTemplateVisualDiagram } from "../lib/schematic/templateVisualDiagr
 import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates, type TemplateBomRow, type RoomTemplate } from "../lib/roomTemplates";
 import { applyHdbtReceiver } from "../lib/hdbtDisplayReceiver";
+import { templateDependencyPrompts } from "../lib/dependencyScope";
+import { templateRowWrites } from "./template/templateRowWrites";
 import { TEMPLATE_PRE_ISSUE_STAGE_PARAM } from "../lib/templatePreIssuePass";
 import type { ProductSearchResult } from "../lib/productSearch";
 import { classifyProduct, checkRoleCompatibility } from "../lib/roleCompatibility";
@@ -81,7 +85,8 @@ export function TemplateReviewPage() {
   }
   const [dirty, setDirty] = useState(false);
   const [savedProjectPath, setSavedProjectPath] = useState("");
-  const [savedTemplatePath, setSavedTemplatePath] = useState("");
+  // The design this visit saved, kept whole because the confirmation names it.
+  const [savedTemplate, setSavedTemplate] = useState<{ id: string; name: string } | null>(null);
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
   const scopeSections = useMemo(() => projectScopeScheduleSections(selectedRows), [selectedRows]);
   const [connectivityView, setConnectivityView] = useState<"excalidraw" | "generated" | "native" | "visual-studio">("native");
@@ -99,7 +104,7 @@ export function TemplateReviewPage() {
       // the mount.
       if (mountedTemplateId.current && mountedTemplateId.current !== selectedTemplate.id) setActiveTab("Room design");
       mountedTemplateId.current = selectedTemplate.id;
-      setSavedProjectPath(""); setSavedTemplatePath(""); setDetailRow(null);
+      setSavedProjectPath(""); setSavedTemplate(null); setDetailRow(null);
     }
   }, [selectedTemplate]);
 
@@ -110,12 +115,15 @@ export function TemplateReviewPage() {
     selectedRows: displayRows,
     navigate,
     onSavedProject: setSavedProjectPath,
-    onSavedTemplate: setSavedTemplatePath,
+    onSavedTemplate: setSavedTemplate,
     onSaved: () => setDirty(false),
   });
   // A template that includes wall processing is a wall design, so the full
   // builder for it is the Video Wall builder rather than room discovery.
   const { wallHandoff, openFullRoomBuilder } = useTemplateHandoff({ template: editedTemplate, selectedRows, navigate });
+  // Read from the rows the gate validates, so a placeholder the pricing table
+  // already dropped is not offered as an open question either.
+  const dependencyPrompts = useMemo(() => templateDependencyPrompts(proposal.bomRows), [proposal.bomRows]);
 
   /** What the manufacturer's page said about the open row, on the row and its drawer copy. */
   function applyProductPageDetails(rowId: string, details: ProductPageDetails) {
@@ -170,6 +178,14 @@ export function TemplateReviewPage() {
       evidence: "Added during room design review; confirm suitability and scope.", notes: "Agree the specification, supplier, quantity and delivery responsibility before pricing." };
     mutateRows(rows => [...rows, row]); setDetailRow(row);
   }
+  // The two schedule writes and the reasoning for each live in their own module
+  // (`templateRowWrites`), because this page sits at its line ceiling.
+  const { scheduleDisplayRunSpans, recordDependency } = templateRowWrites({
+    rows: selectedRows,
+    template,
+    mutateRows,
+    updateBrief,
+  });
   function onTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
     if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
@@ -186,8 +202,9 @@ export function TemplateReviewPage() {
         <div className="wm-template-breadcrumb"><Link to={routeCatalogByKey.templates.path}>Templates</Link><ChevronRight /> <span>{template.name}</span></div>
         <div className="wm-template-header-row">
           <div>
-            <div className="wm-template-title-line"><h1>{template.name}</h1>{dirty ? <span className="wm-status is-unsaved">Unsaved changes</span> : <span className="wm-status is-saved"><Check /> {savedProjectPath || savedTemplatePath ? "Saved" : "Template starting point"}</span>}</div>
+            <div className="wm-template-title-line"><h1>{template.name}</h1>{dirty ? <span className="wm-status is-unsaved">Unsaved changes</span> : <span className="wm-status is-saved"><Check /> {savedProjectPath || savedTemplate ? "Saved" : "Template starting point"}</span>}</div>
             <p>{template.summary}</p>
+            <TemplateLineageNote template={template} />
           </div>
           <div className="wm-template-header-actions">
             <Link className="wm-button wm-button-secondary" to={routeCatalogByKey.templates.path}><ArrowLeft /> Back to templates</Link>
@@ -208,11 +225,16 @@ export function TemplateReviewPage() {
         </div>
       </header>
 
-      {(savedProjectPath || savedTemplatePath) ? <div className="wm-template-save-notice"><CheckCircle2 />
-        {savedTemplatePath ? <span>Room design saved as a custom template.</span> : null}
+      {/* The confirmation is the only place this page can offer the design it
+          just wrote — the library is another route — so it carries the saved
+          design and prints the app's one link to a template, which names it.
+          A bare "Open template" left a rep who had saved two designs from two
+          rooms with two links reading the same. */}
+      {(savedProjectPath || savedTemplate) ? <div className="wm-template-save-notice"><CheckCircle2 />
+        {savedTemplate ? <span>Room design saved as a custom template.</span> : null}
         {savedProjectPath ? <span>Room design saved as a project.</span> : null}
         {savedProjectPath ? <Link to={savedProjectPath}>Open project</Link> : null}
-        {savedTemplatePath ? <Link to={savedTemplatePath}>Open template</Link> : null}
+        {savedTemplate ? <OpenTemplateLink template={savedTemplate} /> : null}
       </div> : null}
 
       <div className="wm-template-tab-row">
@@ -260,6 +282,9 @@ export function TemplateReviewPage() {
             pricingSummary={proposal.pricingSummary}
             surveyGaps={proposal.surveyGaps}
             onRecordSurveyDetail={proposal.savedWall?.projectId ? proposal.recordSurveyDetail : null}
+            onScheduleDisplayRunSpans={scheduleDisplayRunSpans}
+            dependencyPrompts={dependencyPrompts}
+            onRecordDependency={recordDependency}
             pricing={proposal.pricingDraft}
             bomRows={proposal.bomRows}
             installation={proposal.installation}

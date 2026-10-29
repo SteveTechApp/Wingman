@@ -1076,7 +1076,3 @@ export function wingmanHardwareTypePriority(product: WingmanProductLike) {
 
   return 80;
 }
-
-export function wingmanProductClassLabel(product: WingmanProductLike) {
-  return classifyWingmanProduct(product).salesType;
-}

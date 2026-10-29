@@ -5,6 +5,7 @@ import {
   governedDependencyToBomRow,
   type GovernedDependency,
 } from "./dependencyGovernance";
+import { isDependencyPromptSku } from "./dependencyScope";
 import {
   buildDesignAssuranceLedger,
   type DesignAssuranceLedger,
@@ -55,6 +56,12 @@ export type SalesReadinessInput = {
   compareRun?: StoredCompareRun | null;
   /** The captured project topology, used for chain validation. */
   topology?: unknown;
+  /**
+   * Dependency prompts the rep has recorded as documented dependencies rather
+   * than quotation lines. They keep their place in `governedDependencies` — the
+   * document prints the question — but the BOM stops carrying a placeholder.
+   */
+  unquotedDependencySkus?: string[];
   /** The rep's market/region from the Wingman profile. */
   region?: string;
   /** Feedback from other projects, used for the learning loop. */
@@ -267,8 +274,20 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
     if (product.cautions?.length) governanceWarnings.push(...product.cautions.map((item) => `${product.sku}: ${item}`));
   });
 
+  // A prompt answered as a documented dependency is not a quote line: the
+  // customer document names the open question in its dependency list, so the
+  // BOM does not also carry a placeholder nobody can price. Only prompts are
+  // ever dropped — an exact dependency names a part the design needs, and a
+  // stored list that named one must not take equipment out of the room.
+  const unquoted = new Set((input.unquotedDependencySkus ?? []).map((sku) => sku.trim().toUpperCase()));
+  const isUnquoted = (dependency: GovernedDependency) =>
+    isDependencyPromptSku(dependency.sku) && unquoted.has(dependency.sku.trim().toUpperCase());
   if (input.products.length) {
-    bomRows.push(...governedDependencies.map((dependency) => governedDependencyToBomRow(dependency)));
+    bomRows.push(
+      ...governedDependencies
+        .filter((dependency) => !isUnquoted(dependency))
+        .map((dependency) => governedDependencyToBomRow(dependency)),
+    );
   }
   evidence.push(
     ...governedDependencies.map((dependency) => {

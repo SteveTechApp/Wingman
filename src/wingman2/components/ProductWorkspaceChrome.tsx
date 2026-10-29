@@ -85,20 +85,3 @@ export function ProductSearchField({
 export function ProductFilterPanel({ children }: { children: ReactNode }) {
   return <section className="wm-product-filter-panel wm-ui-card">{children}</section>;
 }
-
-export function ProductFilterGroup({
-  label,
-  children,
-  compact = false,
-}: {
-  label: string;
-  children: ReactNode;
-  compact?: boolean;
-}) {
-  return (
-    <div className={`wm-product-filter-group${compact ? " is-compact" : ""}`}>
-      <span className="wm-product-filter-label">{label}</span>
-      <div className="wm-product-filter-controls">{children}</div>
-    </div>
-  );
-}

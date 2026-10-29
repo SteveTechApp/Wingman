@@ -32,13 +32,18 @@ import { wallVariantLabel } from "../../lib/wallVariants";
 import { VideowallOptionsList } from "./VideowallOptionsList";
 import { VideowallResultPages } from "./VideowallResultPages";
 import { VideowallStartPresets } from "./VideowallStartPresets";
+import { VideowallLedBrief } from "./VideowallLedBrief";
+import { VideowallFeedStep } from "./VideowallFeedStep";
 
 const RESULT = wallWizardSteps.length;
+/** Steps are addressed by name so inserting a question renumbers nothing by hand. */
+const STEP = Object.fromEntries(wallWizardSteps.map((item, index) => [item.key, index])) as Record<string, number>;
 
 const STEP_HEADINGS: Record<string, { title: string; hint: string }> = {
-  job: { title: "Start from the job", hint: "Pick the closest common wall and Wingman pre-answers the rest, or answer each question yourself." },
+  job: { title: "Start from the job", hint: "Write the LED brief — canvas, pitch and cabinet array — or start from the closest common wall and Wingman pre-answers the rest." },
   picture: { title: "What is going on the wall?", hint: "This decides whether the panels take separate feeds or one composed canvas." },
   size: { title: "How big is the wall?", hint: "The array, the panel pixels and the source count set the size of the box." },
+  feeding: { title: "How is the wall fed?", hint: "One canvas the wall scales, or a feed per panel — then the box that produces that canvas." },
   layout: { title: "How should the sources appear?", hint: "Windows are composed in one design. A source per screen is a different design." },
   location: { title: "Where do the sources sit?", hint: "Distance decides between local HDMI and network transport." },
   detail: { title: "What must the design handle?", hint: "These answers do not change the recommendation, but each one becomes a check in the saved design." },
@@ -154,7 +159,18 @@ export function VideowallWizard({
     onConcerns([]);
     onRestart();
     setEditing(false);
-    setStep(0);
+    setStep(STEP.job);
+  }
+
+  /**
+   * The LED brief is the size and the array, so the questions it leaves are the
+   * connection and the layout. Jumping to the size step would ask the same three
+   * things twice, in the wizard's words rather than the rep's.
+   */
+  function startLedBrief(next: WallRequirements) {
+    onReplace(next);
+    onConcerns([]);
+    setStep(STEP.feeding);
   }
 
   const heading = atResult
@@ -190,21 +206,37 @@ export function VideowallWizard({
         </ol>
       ) : null}
 
-      {step === 0 ? (
-        <section className="vw-wizard-card" data-testid="videowall-wizard-step-job" aria-labelledby="vw-wizard-job-title">
+      {step === STEP.job ? (
+        <section className="vw-wizard-card" data-testid="videowall-wizard-step-job" aria-labelledby="vw-wizard-led-title">
+          {/* The LED brief leads, because canvas, pitch and cabinet array are the
+              customer's three facts: a preset wall answers all of them already,
+              and a rep starting an LED design should not begin from someone
+              else's wall. The connection question follows, since who scales the
+              canvas only means something once the canvas exists. */}
+          <div className="vw-wizard-job-head">
+            <h2 id="vw-wizard-led-title">Start an LED wall</h2>
+          </div>
+          <p className="vw-wizard-hint">
+            The canvas, the pitch and the cabinet array are the brief. Wingman asks how the wall is fed next.
+          </p>
+          <VideowallLedBrief requirements={requirements} onStart={startLedBrief} />
+          <hr />
           {/* The way past the walls sits on the heading line rather than under
               the list, so a rep on a phone who already knows the brief reaches
-              the four questions without scrolling a catalogue first. */}
+              the questions without scrolling a catalogue first. */}
           <div className="vw-wizard-job-head">
             <h2 id="vw-wizard-job-title">Common walls</h2>
             <div className="vw-wizard-nav">
-              <button type="button" className="vw-wizard-secondary" onClick={() => setStep(1)}>
+              <button type="button" className="vw-wizard-secondary" onClick={() => setStep(STEP.picture)}>
                 Answer the questions instead
               </button>
             </div>
           </div>
+          <p className="vw-wizard-hint">
+            Or start from a wall a rep already built and change what differs: Wingman pre-answers the rest.
+          </p>
           {/* The same rows the expert picker uses, without its narrowings and
-              folded to the curated walls: the four questions below are how
+              folded to the curated walls: the questions below are how
               this reading narrows, so a filter panel above them would be a
               second way to answer the same thing, and twenty rows in front of
               the first question would be a catalogue rather than a question. */}
@@ -216,7 +248,7 @@ export function VideowallWizard({
         </section>
       ) : null}
 
-      {step === 1 ? (
+      {step === STEP.picture ? (
         <section className="vw-wizard-card" data-testid="videowall-wizard-step-picture" aria-label="What is going on the wall?">
           <div className="vw-wizard-options" role="group" aria-label="Display application">
             {wallApplications.map((application) => (
@@ -231,11 +263,11 @@ export function VideowallWizard({
               </button>
             ))}
           </div>
-          <WizardBack onBack={() => back(0)} />
+          <WizardBack onBack={() => back(STEP.job)} />
         </section>
       ) : null}
 
-      {step === 2 ? (
+      {step === STEP.size ? (
         <section className="vw-wizard-card" data-testid="videowall-wizard-step-size" aria-label="How big is the wall?">
           {requirements.application === "led" ? (
             <div className="vw-wizard-fieldset" role="group" aria-label="LED canvas pixels">
@@ -388,7 +420,7 @@ export function VideowallWizard({
             onRequirementsChange={(next) => onChange(next)}
           />
           <div className="vw-wizard-nav">
-            <button type="button" className="vw-wizard-secondary" onClick={() => back(1)}>Back</button>
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.picture)}>Back</button>
             <button type="button" className="vw-wizard-primary" onClick={next}>
               Continue with {panels} panel{panels === 1 ? "" : "s"} and {requirements.sources} source{requirements.sources === 1 ? "" : "s"}
             </button>
@@ -396,7 +428,16 @@ export function VideowallWizard({
         </section>
       ) : null}
 
-      {step === 3 ? (
+      {step === STEP.feeding ? (
+        <VideowallFeedStep
+          requirements={requirements}
+          onChange={onChange}
+          onBack={() => back(STEP.size)}
+          onNext={next}
+        />
+      ) : null}
+
+      {step === STEP.layout ? (
         <section className="vw-wizard-card" data-testid="videowall-wizard-step-layout" aria-label="How should the sources appear?">
           <div className="vw-wizard-options">
             {layouts.map((choice) => (
@@ -411,11 +452,11 @@ export function VideowallWizard({
               </button>
             ))}
           </div>
-          <WizardBack onBack={() => back(2)} />
+          <WizardBack onBack={() => back(STEP.feeding)} />
         </section>
       ) : null}
 
-      {step === 4 ? (
+      {step === STEP.location ? (
         <section className="vw-wizard-card" data-testid="videowall-wizard-step-location" aria-label="Where do the sources sit?">
           <div className="vw-wizard-options">
             {videowallLocationChoices.map((choice) => (
@@ -430,11 +471,11 @@ export function VideowallWizard({
               </button>
             ))}
           </div>
-          <WizardBack onBack={() => back(3)} />
+          <WizardBack onBack={() => back(STEP.layout)} />
         </section>
       ) : null}
 
-      {step === 5 ? (
+      {step === STEP.detail ? (
         <section className="vw-wizard-card" data-testid="videowall-wizard-step-detail" aria-label="What must the design handle?">
           <p className="vw-wizard-hint">Choose any that apply. Wingman adds each one to “Confirm before ordering” and to the saved design.</p>
           <div className="vw-wizard-options">
@@ -451,7 +492,7 @@ export function VideowallWizard({
             ))}
           </div>
           <div className="vw-wizard-nav">
-            <button type="button" className="vw-wizard-secondary" onClick={() => back(4)}>Back</button>
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.location)}>Back</button>
             <button type="button" className="vw-wizard-primary" onClick={() => { setEditing(false); setStep(RESULT); }}>
               See the design
             </button>

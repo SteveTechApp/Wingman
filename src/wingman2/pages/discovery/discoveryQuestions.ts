@@ -1085,8 +1085,6 @@ function getApplicationDiscoveryQuestions(selectedApplication: string): Discover
   return withProfile;
 }
 
-
-
 export function getVisibleDiscoveryQuestions(
   selectedApplication: string,
   answers: DiscoveryAnswers = {},
@@ -1210,15 +1208,6 @@ export type DiscoveryRouteInsight = {
   decisions: string[];
 };
 
-export function getDiscoveryRouteInsight(selectedApplication: string): DiscoveryRouteInsight | undefined {
-  if (selectedApplication !== "video-wall") return undefined;
-  return {
-    label: "Video wall route selected",
-    summary: "Wingman has removed generic conferencing, camera, microphone, USB and display-count steps. The shortened route concentrates on wall technology, content behaviour, sources, signal quality, control, audio scope and cable paths.",
-    decisions: ["LCD, LED or projection canvas", "Full canvas, independent tiles, signage or multiview", "Processing, control and signal-path implications"],
-  };
-}
-
 type ApplicationSpecificDiscoveryQuestionGuidance = {
   likelyDirection: string;
   askNext: string;
@@ -1289,7 +1278,6 @@ const applicationSpecificDiscoveryQuestionGuidance: Record<string, ApplicationSp
     ],
   },
 };
-
 
 // Readiness-required application-specific discovery question guidance.
 // production-readiness-check.mjs verifies baseQuestionStrategyByStep and getQuestionStrategy are present.

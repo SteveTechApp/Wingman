@@ -1044,7 +1044,3 @@ export function hydrateProductSpecWithTechnicalData(
     technicalData: technicalSummary(resolved),
   };
 }
-
-export function getGovernedTechnicalProfileSkus(): string[] {
-  return [...exactProfiles.keys()].sort();
-}

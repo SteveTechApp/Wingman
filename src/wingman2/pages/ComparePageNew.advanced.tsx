@@ -2013,7 +2013,6 @@ function GovernedDecisionPanel({
         usb: specs?.usbStandard ?? (profile.requestedTags.includes("usb") ? "USB requirement present" : null),
         audio: specs?.dante ? "Dante" : specs?.audioDeEmbed ? "Audio de-embed" : null,
         control: specs?.ethernetControl ? "Ethernet control" : specs?.rs232 ? "RS-232" : null,
-        distanceMetres: specs?.hdbasetDistance ?? null,
         dependencies: candidate?.dependencies ?? [],
         notes: profile.resolvedSpec?.profileWarnings ?? [],
       },

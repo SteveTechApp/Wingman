@@ -1,8 +1,4 @@
-import type {
-  SchematicNodeKind,
-  SchematicProductBrief,
-  SchematicTransportKind,
-} from "./schematicTypes";
+import { SchematicNodeKind, SchematicProductBrief } from "./schematicTypes";
 
 export function normaliseSku(sku: string): string {
   return sku.trim().toUpperCase().replace(/\s+/g, "-");
@@ -144,22 +140,6 @@ export function schematicEndpointCapacity(product: SchematicProductBrief, kind: 
   }
 
   return { localInputs: 0, localOutputs: 0 };
-}
-
-export function defaultTransportForDistance(distanceM: number | undefined): SchematicTransportKind {
-  if (distanceM === undefined) {
-    return "unknown";
-  }
-
-  if (distanceM <= 7) {
-    return "hdmi";
-  }
-
-  if (distanceM <= 100) {
-    return "hdbaset";
-  }
-
-  return "av-over-ip";
 }
 
 export function hasAvoipProducts(products: SchematicProductBrief[] = []): boolean {

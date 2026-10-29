@@ -104,7 +104,6 @@ function fingerprintFor(row: CompetitorRow): CompetitorMatchDecision["fingerprin
   const summary = text(row.summary);
   const specs = (row.specs ?? {}) as Record<string, unknown>;
   const video = (specs.video ?? {}) as Record<string, unknown>;
-  const distance = (specs.distance ?? {}) as Record<string, unknown>;
   const inputCount = Number(row.routedInputCount ?? row.matrixInputs ?? specs.matrixInputs);
   const routedOutputCount = Number(row.routedOutputCount ?? row.matrixOutputs ?? specs.matrixOutputs);
   const control = Array.isArray(row.control) ? (row.control as unknown[]).map(text) : [];
@@ -126,7 +125,6 @@ function fingerprintFor(row: CompetitorRow): CompetitorMatchDecision["fingerprin
     usb: /usb/i.test(blob) ? "USB present" : null,
     audio: audio.length ? audio.join(" / ") : null,
     control: control.length ? control.join(" / ") : null,
-    distanceMetres: Number.isFinite(Number(distance.metersLong)) && Number(distance.metersLong) > 0 ? Number(distance.metersLong) : null,
     dependencies: [],
     notes: cleanList([row.notes, row.knownLimitations]).slice(0, 6),
   };

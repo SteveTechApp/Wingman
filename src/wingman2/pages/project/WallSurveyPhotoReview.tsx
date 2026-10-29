@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { StoredProject } from "../../features/projects";
 import { wallResumeUrl } from "../../lib/wallResume";
+import { WALL_ENTRY_SENTENCE_NAME } from "../../lib/wallEntry";
 import {
   WALL_SURVEY_REVIEW_ANCHOR,
   wallSurveyReviewCounts,
@@ -18,7 +19,7 @@ import { ProjectPanel } from "./ProjectPanel";
  * The worksheet photo review as the project keeps it, for someone who is not
  * the person who applied it.
  *
- * The wall builder shows the review while the rep is working; the project
+ * The video wall designer shows the review while the rep is working; the project
  * record has to explain it afterwards, when a colleague asks why a run is
  * missing or why a length differs from the sheet. So this panel is read-only:
  * every row the photo offered, the run it read, and whether the design kept it
@@ -103,7 +104,7 @@ export function WallSurveyPhotoReview({ project }: { project: StoredProject }) {
           {rejected
             ? `${rejected} row${rejected === 1 ? " was" : "s were"} cleared, so those links keep the run and install detail already recorded on the design.`
             : "Every row the photo offered was accepted onto the design."}{" "}
-          <Link to={wallResumeUrl(project.id)}>Open the wall builder</Link> to record a run by hand.
+          <Link to={wallResumeUrl(project.id)}>Open {WALL_ENTRY_SENTENCE_NAME}</Link> to record a run by hand.
         </p>
       </div>
     </ProjectPanel>

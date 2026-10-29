@@ -18,6 +18,8 @@ type ProjectGalleryProps = {
   activeProjectId: string | null;
   currentUserId?: string | null;
   migratedWalls: number;
+  /** The stored room templates, so a card can say which room already has one. */
+  templates: readonly { id: string; name: string; sourceProjectId?: string }[];
   teamFilter: ProjectsTeamFilter;
   surveyAttentionOnly: boolean;
   /** Changes with the filters, so paging returns to the first page. */
@@ -46,6 +48,7 @@ export function ProjectGallery({
   activeProjectId,
   currentUserId,
   migratedWalls,
+  templates,
   teamFilter,
   surveyAttentionOnly,
   resetKey,
@@ -70,6 +73,7 @@ export function ProjectGallery({
                 ownerName={project.ownerId ? getMemberName(project.ownerId) : project.owner}
                 ownerInitials={getMemberInitials(project.ownerId)}
                 migratedWalls={migratedWalls}
+                templates={templates}
                 onCopy={onCopy}
                 onDelete={onDelete}
               />

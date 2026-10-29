@@ -1,16 +1,19 @@
 import { SavedWallStatus } from "../components/SavedWallStatus";
+import { ProjectTemplateLineage } from "../components/ProjectTemplateLineage";
+import { OpenTemplateLink } from "../components/OpenTemplateLink";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Pencil, Save, Trash2, X } from "lucide-react";
+import { Pencil, Save, Trash2, X } from "lucide-react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { AuditLogPanel } from "../components/AuditLogPanel";
+import { WebhookDropsNote } from "../components/WebhookDropsNote";
 import { useWorkflowPage } from "../components/WorkflowPages";
 import { PageHero } from "../components/PageHero";
 import { ProjectSyncConflictBanner } from "../components/SyncConflictBanner";
 
+
 import {
   removeProductSelectionFromProject,
-  saveProjectRequirementsToProject,
   setActiveProjectId,
   updateStoredProject,
   type StoredCompareRun,
@@ -20,13 +23,14 @@ import {
 import { CrmSharePanel } from "../components/CrmSharePanel";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
-import { saveProjectAsRoomTemplate } from "../lib/customRoomTemplates";
+import { projectRoomTemplate, saveProjectAsRoomTemplate } from "../lib/customRoomTemplates";
 import { getProjectRequirementRecords } from "../lib/projectRequirements";
 import { repTierLabelFromRun } from "../lib/repScript";
 import { RecommendationEvidencePanel } from "./project/RecommendationEvidencePanel";
 import { DiscoveryConversationReview } from "../components/DiscoveryConversationReview";
 import { ProposalVersionHistory } from "../components/ProposalVersionHistory";
 import { ProjectComparisonHistory } from "./project/ProjectComparisonHistory";
+import { DependencyScopeReview } from "./project/DependencyScopeReview";
 import { DisplayRunReview } from "./project/DisplayRunReview";
 import { WallSurveyPhotoReview } from "./project/WallSurveyPhotoReview";
 import { WallSurveySheetImports } from "./project/WallSurveySheetImports";
@@ -38,6 +42,8 @@ import { DealOutcomeSection } from "./project/DealOutcomeSection";
 
 import { ProjectWorkflowNavigator } from "./project/ProjectWorkflowNavigator";
 import { ProjectPanel } from "./project/ProjectPanel";
+import { ProjectRequirementList } from "./project/ProjectRequirementList";
+import { ProjectPositioningNote } from "./project/ProjectPositioningNote";
 import { CopyPanelLink } from "./project/CopyPanelLink";
 import {
   dedupeText,
@@ -47,7 +53,6 @@ import {
   projectText,
 } from "./project/projectDetailText";
 
-// Editable requirements
 function compareDeepLink(compareRun: StoredCompareRun, projectId?: string) {
   const params = new URLSearchParams();
   if (projectId) params.set("projectId", projectId);
@@ -150,6 +155,12 @@ type ProjectReadinessGate = {
 };
 
 
+/** The template a page action produced, carried on the confirmation it prints. */
+type TemplateLink = { id: string; name: string };
+
+/** One line under the hero: what happened, and where to look if it made a record. */
+type PageNotice = { text: string; template?: TemplateLink };
+
 export function ProjectDetailPage() {
   const { projectId } = useParams();
 
@@ -162,21 +173,30 @@ export function ProjectDetailPage() {
   function deleteSavedComparison(runId: string) {
     if (!project) return;
     updateStoredProject(project.id, (current) => ({ ...current, compareRuns: (current.compareRuns ?? []).filter((run) => run.id !== runId), updated: "Just now", updatedAt: new Date().toISOString() }));
-    setMessage("Saved comparison snapshot deleted.");
+    say("Saved comparison snapshot deleted.");
   }
 
   function removeProductLine(sku: string) {
     if (!project || !window.confirm(`Remove ${sku} from this project?`)) return;
     const updated = removeProductSelectionFromProject(project.id, sku);
-    setMessage(updated ? `${sku} removed from the project.` : `${sku} could not be removed.`);
+    say(updated ? `${sku} removed from the project.` : `${sku} could not be removed.`);
   }
   const initialRequirements = useMemo(
     () => (project ? getProjectRequirementRecords(project) : []),
     [project],
   );
   const [requirements, setRequirements] = useState<StoredRequirementRecord[]>(initialRequirements);
-  const [message, setMessage] = useState("");
-  const [savedTemplatePath, setSavedTemplatePath] = useState("");
+  const [notice, setNotice] = useState<PageNotice | null>(null);
+  /**
+   * The one line under the hero for whatever this page just did.
+   *
+   * A notice may carry the template the action produced, so a save can offer the
+   * record instead of only naming it; every other caller drops it, because a
+   * saved requirement must not sit beside a link to a template it never touched.
+   */
+  function say(text: string, template?: TemplateLink) {
+    setNotice(text ? { text, ...(template ? { template } : {}) } : null);
+  }
   const { current: activeSection, go: setActiveSection } = useWorkflowPage(projectDetailSections);
   // The address's hash is the page's one way into a panel: the Activity
   // timeline's links are ordinary addresses, so the same reader lands them as a
@@ -460,7 +480,7 @@ export function ProjectDetailPage() {
 
     const answer = blockerDraft.trim();
     if (!answer) {
-      setMessage("Enter or select an answer before saving this requirement.");
+      say("Enter or select an answer before saving this requirement.");
       return;
     }
 
@@ -531,7 +551,7 @@ export function ProjectDetailPage() {
 
     setRequirements(nextRequirements);
     setBlockerDraft("");
-    setMessage(`Requirement saved: ${nextRequirement.label}.`);
+    say(`Requirement saved: ${nextRequirement.label}.`);
 
     const remainingCount = Math.max(0, projectReadinessGate.blockers.length - 1);
     if (remainingCount === 0) {
@@ -543,15 +563,15 @@ export function ProjectDetailPage() {
     setActiveBlockerIndex((current) => Math.min(current, remainingCount - 1));
   }
 
-  useEffect(() => {
-    setRequirements(initialRequirements);
-    setMessage("");
-    setSavedTemplatePath("");
-    setProjectDraft({ name: project?.name ?? "", owner: project?.owner ?? "" });
-    setConfirmDelete(false);
-    setShowBlockerReview(false);
-    setActiveBlockerIndex(0);
-  }, [initialRequirements, project?.name, project?.owner]);
+  // The rows follow the record: an answer saved elsewhere — Discovery in another
+  // tab, a teammate's save, a sync — reaches the panel without a reload.
+  useEffect(() => { setRequirements(initialRequirements); }, [initialRequirements]);
+  // The editor follows the record's identity, and the page's transient state
+  // restarts on the room. Kept apart from the rows because a write to *this*
+  // room (a deal outcome, a proposal save) is not a move to another project, and
+  // one effect for both closed the sentence an action had just printed.
+  useEffect(() => { setProjectDraft({ name: project?.name ?? "", owner: project?.owner ?? "" }); }, [project?.name, project?.owner]);
+  useEffect(() => { setNotice(null); setConfirmDelete(false); setShowBlockerReview(false); setActiveBlockerIndex(0); }, [project?.id]);
 
   useEffect(() => {
     if (projectId) {
@@ -559,24 +579,23 @@ export function ProjectDetailPage() {
     }
   }, [projectId]);
 
-  function updateRequirement(id: string, patch: Partial<StoredRequirementRecord>) {
-    setRequirements((current) =>
-      current.map((requirement) => (requirement.id === id ? { ...requirement, ...patch } : requirement)),
-    );
-  }
-
-  function saveRequirements() {
-    if (!project) return;
-    saveProjectRequirementsToProject(project.id, requirements);
-    setMessage("Project requirements saved.");
-  }
-
   function saveCurrentProjectAsTemplate() {
     if (!project) return;
 
-    const template = saveProjectAsRoomTemplate(project);
-    setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${template.id}`);
-    setMessage("Project saved as a custom room template.");
+    // A room has one template, so a second save republishes the record the first
+    // one wrote. Ask before saving which of the two the click is about to do,
+    // and say it: "saved" when nothing was there, "updated" when something was.
+    const existing = projectRoomTemplate(project.id);
+    // The written record is what the confirmation opens, so the link names the
+    // template the sentence just described — including the id of the record a
+    // second click republished rather than the project's own id.
+    const saved = saveProjectAsRoomTemplate(project);
+    say(
+      existing
+        ? `Updated this room's existing template: ${saved.name}.`
+        : "Saved a new custom room template for this room.",
+      { id: saved.id, name: saved.name },
+    );
   }
 
   function saveProjectDetails() {
@@ -584,7 +603,7 @@ export function ProjectDetailPage() {
     const name = projectDraft.name.trim();
     const owner = projectDraft.owner.trim();
     if (!name) {
-      setMessage("Project name is required.");
+      say("Project name is required.");
       return;
     }
 
@@ -596,7 +615,7 @@ export function ProjectDetailPage() {
       updatedAt: new Date().toISOString(),
     }));
     setIsEditingProject(false);
-    setMessage("Project details saved.");
+    say("Project details saved.");
   }
 
   function deleteCurrentProject() {
@@ -637,6 +656,30 @@ export function ProjectDetailPage() {
         ]}
       />
 
+      {/* The page's confirmations — a saved template, saved requirements, a
+          removed line — surface here, under the action that produced them. */}
+      {notice ? (
+        <p className="wm-ui-copy" role="status" data-testid="project-detail-message">
+          {notice.text}
+          {notice.template ? (
+            // The same row the lineage strip prints, from the same component: a
+            // long name wraps at the page's left edge instead of centring in a
+            // pill, and the wording cannot drift from the other surfaces.
+            <OpenTemplateLink
+              template={notice.template}
+              className="wm-project-template-lineage__link"
+              labelClassName="wm-project-template-lineage__name"
+              trailing={
+                <span className="wm-project-template-lineage__arrow" aria-hidden="true">
+                  →
+                </span>
+              }
+              data-testid="project-detail-message-template"
+            />
+          ) : null}
+        </p>
+      ) : null}
+
       <details><summary>Project actions</summary><nav className="wm-project-detail-nav wm-ui-card" aria-label="Project review navigation">
         <div className="wm-project-detail-nav__actions">
           <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => { setActiveProjectId(project.id); navigate(discoveryResumeUrl(project.id)); }}>
@@ -657,6 +700,10 @@ export function ProjectDetailPage() {
       </nav></details>
 
       <ProjectSyncConflictBanner conflict={project.syncConflict} />
+      {/* Record-level, like the sync banner: the record can hold a full set of
+          answers and still have no market or space behind them, and the sections
+          below only show what is saved rather than what was never asked. */}
+      <ProjectPositioningNote projectId={project.id} brief={project.discoveryBrief} />
 
       {isEditingProject ? (
         <section className="wm-project-detail-editor wm-ui-section wm-ui-card" aria-label="Edit project details">
@@ -677,17 +724,7 @@ export function ProjectDetailPage() {
 
         <ProjectWorkflowNavigator current={activeSection} projectId={project.id} responsePath={responsePath} />
       <div id="project-overview" className="wm-project-detail-stack space-y-6">
-        {savedTemplatePath ? (
-          <section className="rounded-2xl border p-3 text-sm wm-output-panel">
-            <div className="flex flex-wrap items-center gap-3">
-              <CheckCircle2 className="h-4 w-4" />
-              <span className="font-semibold">This project is now available as a custom room template.</span>
-              <Link to={savedTemplatePath} className="rounded-full border px-3 py-1 font-semibold wm-ui-button wm-ui-button-secondary">
-                Open template
-              </Link>
-            </div>
-          </section>
-        ) : null}
+        <ProjectTemplateLineage projectId={project.id} />
 
         {activeSection === "overview" ? (
         <section
@@ -1088,12 +1125,16 @@ export function ProjectDetailPage() {
           title="Requirements"
           subtitle="Reopen the saved Discovery answers to review customer requirements."
         >
+          {/* The list is read-only: it is the state the saved questions left
+              behind, so the action that changes them sits above it rather than
+              beside each row. */}
           <p className="wm-ui-copy">Review and update these requirements in the standard Discovery questions.</p>
           <Link to={discoveryResumeUrl(project.id)} className="wm-ui-button wm-ui-button-primary">Edit in Discovery</Link>
-
+          <ProjectRequirementList requirements={requirements} projectId={project.id} />
         </ProjectPanel> : null}
 
         {activeSection === "confirm" && project ? <DisplayRunReview project={project} /> : null}
+        {activeSection === "confirm" && project ? <DependencyScopeReview project={project} /> : null}
         {activeSection === "confirm" && project ? <WallTransportReview project={project} /> : null}
         {activeSection === "confirm" && project ? <WallSurveyPhotoReview project={project} /> : null}
         {activeSection === "confirm" && project ? <WallSurveySheetImports project={project} /> : null}
@@ -1138,6 +1179,12 @@ export function ProjectDetailPage() {
             title="Audit Log"
             subtitle="Track who changed what and when across this project. Discovery edits, product changes, proposal modifications, and approvals are recorded automatically."
           >
+            {/* The record's reading of what happened to this room's sends. The
+                note is browser-wide storage rather than a project event, so it
+                stands above the trail and says whose count it is — but this is
+                the log a rep opens to ask what the system did, and it is where
+                someone who never opens the CRM panel learns that sends went. */}
+            <WebhookDropsNote />
             <SavedWallStatus project={project} projects={projects} showReview />
             <AuditLogPanel
               entries={project.auditTrail ?? []}

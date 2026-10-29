@@ -43,6 +43,13 @@ import {
 } from "./wallStartingPointOrigin";
 import { CUSTOMER_COPY, customerCopyText } from "./proposalCopy";
 import { WALL_SURVEY_COLUMN_KEY } from "./wallSurvey";
+import {
+  buildDocumentAppendix,
+  documentSectionPlan,
+  type DocumentAppendix,
+  type DocumentSectionId,
+} from "./documentSections";
+import { HOUSE_DOCUMENT_BRAND, type DocumentDetail } from "./solutionTemplates";
 
 export const NAVY = "08223A";
 export const AQUA = "16B8B0";
@@ -559,27 +566,37 @@ function createSchematicDataUrl(diagram: string) {
 
 // ─── Native Schematic Renderer for DOCX ──────────────────────────────────────
 
-const TRANSPORT_COLORS: Record<string, string> = {
-  hdmi: SCHEMATIC_COLORS.aqua,
-  hdbaset: SCHEMATIC_COLORS.blue,
-  "av-over-ip": SCHEMATIC_COLORS.blue,
-  usb: SCHEMATIC_COLORS.violet,
-  network: SCHEMATIC_COLORS.blue,
-  control: SCHEMATIC_COLORS.amber,
-  unknown: SCHEMATIC_COLORS.slate,
-};
-
-const NODE_COLORS: Record<string, string> = SCHEMATIC_NODE_COLORS;
-
 /**
  * Renders a native SchematicModel (from buildWingmanSchematic) onto a canvas
  * for embedding in DOCX exports. Unlike the legacy createSchematicDataUrl
  * which draws sequential boxes from a text string, this renders real
  * topology-aware connectivity with proper node types, transport labels,
  * and orthogonal routing.
+ *
+ * The two colour tables below are built here rather than at module scope, and
+ * that is not a style preference: this module and `schematicVisualPalette` are
+ * in a cycle across chunks (`wm-room-design` → `wm-room-catalogue` →
+ * `wm-project-workflow` → `wm-proposal-generation` → `wm-room-design`), and read
+ * the way a bundler orders those chunks, the palette can be read before it has
+ * been initialized. A module-scope table read `SCHEMATIC_COLORS.aqua` and the
+ * whole template review page died on `Cannot read properties of undefined
+ * (reading 'aqua')` in the built app while the dev server, which loads one
+ * module at a time, never showed it. Reading the palette inside the render that
+ * needs it asks the question when the answer exists.
  */
 export function createNativeSchematicDataUrl(schematic: SchematicModel): string | undefined {
   if (typeof document === "undefined") return undefined;
+
+  const transportColours: Record<string, string> = {
+    hdmi: SCHEMATIC_COLORS.aqua,
+    hdbaset: SCHEMATIC_COLORS.blue,
+    "av-over-ip": SCHEMATIC_COLORS.blue,
+    usb: SCHEMATIC_COLORS.violet,
+    network: SCHEMATIC_COLORS.blue,
+    control: SCHEMATIC_COLORS.amber,
+    unknown: SCHEMATIC_COLORS.slate,
+  };
+  const nodeColours: Record<string, string> = SCHEMATIC_NODE_COLORS;
 
   const NODE_W = 150;
   const NODE_H = 50;
@@ -661,7 +678,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
     const y2 = to.y + NODE_H / 2;
     const midX = Math.round((x1 + x2) / 2);
 
-    const color = TRANSPORT_COLORS[conn.transport] || "#94a3b8";
+    const color = transportColours[conn.transport] || "#94a3b8";
 
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
@@ -690,7 +707,7 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
 
   // Draw nodes
   for (const node of nodes) {
-    const color = NODE_COLORS[node.kind] || "#6b7280";
+    const color = nodeColours[node.kind] || "#6b7280";
 
     // Background
     ctx.fillStyle = "rgba(8,29,48,0.92)";
@@ -741,7 +758,31 @@ export function createNativeSchematicDataUrl(schematic: SchematicModel): string 
   return canvas.toDataURL("image/png");
 }
 
-export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft, assets: ProposalDocxAssets = {}, videoWall: StoredVideowallSummary | null = null) {
+/**
+ * The evidence appendix a Technical document carries: one row per equipment
+ * line, at the widths the reference table is built with.
+ */
+function appendixTable(appendix: DocumentAppendix) {
+  const widths = [600, 2400, 3200, 1600, 1560];
+  const headers = ["Item", "Equipment line", "Evidence for this line", "Source read", "Verification"];
+  return fixedTable(widths, [
+    tableRow({ tableHeader: true, children: headers.map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) }),
+    ...appendix.rows.map((row) => tableRow({ children: [String(row.item), row.line, row.evidence, row.source, row.verification].map((value, index) => cell(value, widths[index])) })),
+  ]);
+}
+
+/**
+ * The Word document, printed at the detail level the document's own
+ * personalisation chose.
+ *
+ * Every section prints through the level's plan (`documentSections.ts`), so
+ * which parts of the document appear is one decision rather than a rule each
+ * call site keeps: a section is printed because of the level it is filed under
+ * there, and moving it between levels is a change in that table alone. The
+ * default is the house level, so a proposal that never chose one — every
+ * document issued before the level reached print — is the whole document.
+ */
+export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft, assets: ProposalDocxAssets = {}, videoWall: StoredVideowallSummary | null = null, detail: DocumentDetail = HOUSE_DOCUMENT_BRAND.detail) {
   const config = getProposalDocumentTypeConfig(wizard.documentType);
   const displaySchedule = buildDisplaySchedule(proposal, bomRows, videoWall);
   const company = proposal.companyName || "WyreStorm";
@@ -772,9 +813,14 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     new Paragraph({ children: [new PageBreak()] }),
   ];
 
-  addSection(children, "Executive Summary", [paragraph(wizard.executiveSummary || proposal.summary || "Executive summary to be confirmed.", { justified: true })]);
+  const sections = documentSectionPlan(detail);
+  const addPlannedSection = (id: DocumentSectionId, title: string, content: Array<Paragraph | Table>) => {
+    if (sections.has(id)) addSection(children, title, content);
+  };
+
+  addPlannedSection("executive-summary", "Executive Summary", [paragraph(wizard.executiveSummary || proposal.summary || "Executive summary to be confirmed.", { justified: true })]);
   const brief = proposalRoomBrief(proposal, bomRows);
-  addSection(children, "Room at a glance", [
+  addPlannedSection("room-at-a-glance", "Room at a glance", [
     paragraph(brief.application, { bold: true }), paragraph(wizard.customerObjectives || brief.purpose),
     heading("Room and design details", 2),
     ...(brief.facts.length ? brief.facts.map(bullet) : [paragraph("Room dimensions, capacity and site conditions require confirmation.")]),
@@ -787,24 +833,24 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     ])]),
     ...(!brief.groups.length ? [paragraph(CUSTOMER_COPY.noEquipment)] : []),
   ]);
-  addSection(children, "Solution Overview", [
+  addPlannedSection("solution-overview", "Solution Overview", [
     paragraph(wizard.proposedSolution || story.overview, { justified: true }),
     heading("How the solution will work", 2), ...story.operation.map((item, index) => paragraph(`${index + 1}. ${item}`)),
     heading("What successful delivery looks like", 2), ...story.acceptance.map(bullet),
   ]);
-  if (application) addSection(children, "Market and Application Story", [
+  if (application) addPlannedSection("market-and-application-story", "Market and Application Story", [
     paragraph(application.marketStory || application.customerNeed, { justified: true }),
     heading("Intended room experience", 2),
     ...application.userJourney.map(bullet),
     heading("Business outcomes", 2),
     ...application.benefits.map((benefit) => bullet(`${benefit.title}: ${benefit.detail}`)),
   ]);
-  addSection(children, "Client Objectives and Current Challenge", [paragraph(wizard.customerObjectives || proposal.summary || "The client objectives require confirmation.", { justified: true })]);
-  addSection(children, "Discovery Conversation", discoveryConversationContent(proposal));
-  addSection(children, "Unresolved Discovery Items", unresolvedDiscoveryContent(proposal));
-  addSection(children, "What You Asked For and How We Designed It", canonicalDesignContent(proposal));
-  addSection(children, "Proposed Solution and Business Value", [paragraph(wizard.proposedSolution || "The proposed solution requires confirmation.", { justified: true }), bullet("A supportable architecture aligned to the stated operational requirement."), bullet("A controlled route from design approval to quotation, delivery and acceptance."), bullet("Clear ownership of equipment, services, dependencies and by-others scope.")]);
-  addSection(children, "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is quoted."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
+  addPlannedSection("client-objectives", "Client Objectives and Current Challenge", [paragraph(wizard.customerObjectives || proposal.summary || "The client objectives require confirmation.", { justified: true })]);
+  addPlannedSection("discovery-conversation", "Discovery Conversation", discoveryConversationContent(proposal));
+  addPlannedSection("unresolved-discovery-items", "Unresolved Discovery Items", unresolvedDiscoveryContent(proposal));
+  addPlannedSection("design-trace", "What You Asked For and How We Designed It", canonicalDesignContent(proposal));
+  addPlannedSection("proposed-solution-and-business-value", "Proposed Solution and Business Value", [paragraph(wizard.proposedSolution || "The proposed solution requires confirmation.", { justified: true }), bullet("A supportable architecture aligned to the stated operational requirement."), bullet("A controlled route from design approval to quotation, delivery and acceptance."), bullet("Clear ownership of equipment, services, dependencies and by-others scope.")]);
+  addPlannedSection("scope-of-work", "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is quoted."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
   if (displaySchedule) {
     // The transport column only exists when a saved wall supplied the link
     // estimate; catalogue schedules keep their five-column table.
@@ -861,7 +907,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     // Five install columns share the table width the four used: the run-entry
     // cell is its own question, so it gets its own column.
     const installWidths = [2600, 1900, 1600, 1900, 1360];
-    addSection(children, "Display Schedule", [
+    addPlannedSection("display-schedule", "Display Schedule", [
       paragraph(displaySchedule.headline, { justified: true }),
       ...(assets.wallElevation ? [imageParagraph(assets.wallElevation, 560, 315)] : []),
       ...(assets.wallElevation && wallLayout
@@ -900,7 +946,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
         : []),
     ]);
   }
-  addSection(children, "Equipment and Pricing", [
+  addPlannedSection("equipment-and-pricing", "Equipment and Pricing", [
     paragraph(equipment.complete ? `The equipment total is ${money(equipment.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.` : "COMMERCIAL HOLD: one or more equipment prices are missing. This draft must not be issued as an exact quotation until every TBC value is resolved.", { bold: true, colour: equipment.complete ? NAVY : "9B1C1C" }),
     equipment.table,
     paragraph("Pricing covers only the listed equipment. Services, third-party equipment, freight, taxes and by-others work are excluded unless expressly priced below.", { size: 18, colour: MUTED }),
@@ -916,8 +962,8 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
       ),
     ] : []),
   ]);
-  addSection(children, "Services and Commercial Allowances", [pipeTable(wizard.servicesAndAllowances, ["Service / discipline", "Responsibility", "Commercial status"], [3900, 2460, 3000])]);
-  addSection(children, "Complete System Design and Responsibilities", [
+  addPlannedSection("services-and-commercial-allowances", "Services and Commercial Allowances", [pipeTable(wizard.servicesAndAllowances, ["Service / discipline", "Responsibility", "Commercial status"], [3900, 2460, 3000])]);
+  addPlannedSection("complete-system-design", "Complete System Design and Responsibilities", [
     paragraph(CUSTOMER_COPY.scopeIntro),
     // The story is already customer copy; a draft field can still hold the
     // rep prompts the wizard seeded it with, so it goes through the same gate.
@@ -926,31 +972,38 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
       CUSTOMER_COPY.scopePending,
     ),
   ]);
-  addSection(children, "Third-Party System Scope", [
+  addPlannedSection("third-party-system-scope", "Third-Party System Scope", [
     paragraph("WyreStorm is one part of the complete AV solution. The equipment and delivery tasks below still need an owner and a price before we can issue a final quotation. A TBC in this table is an allowance to be agreed, not a price included in the total.", { justified: true }),
     scopeTable(proposal),
   ]);
-  addSection(children, "Technical Architecture", [
+  addPlannedSection("technical-architecture", "Technical Architecture", [
     paragraph(wizard.architectureNarrative || application?.solutionOverview || "The technical architecture requires confirmation.", { justified: true }),
     ...(assets.schematic ? [imageParagraph(assets.schematic, 560, 620)] : []),
     paragraph("Concept signal-flow diagram: confirm physical connections, cable routes, third-party interfaces and operating modes before installation.", { colour: MUTED }),
     ...(!assets.schematic ? [architectureTable(application?.architectureDiagram || "")] : []),
   ]);
-  addSection(children, "Cable Schedule", cableScheduleContent(proposal, bomRows));
-  addSection(children, "Products in the Solution", proposalProductCards(bomRows, assets.media).flatMap((card) => [
+  addPlannedSection("cable-schedule", "Cable Schedule", cableScheduleContent(proposal, bomRows));
+  addPlannedSection("products-in-the-solution", "Products in the Solution", proposalProductCards(bomRows, assets.media).flatMap((card) => [
     heading(`${card.sku} — ${card.name}`, 2),
     ...(assets.products?.[card.sku] ? [imageParagraph(assets.products[card.sku], 460, 170)] : [paragraph("Product photograph unavailable.", { colour: MUTED })]),
     paragraph(`Role in this design: ${card.role || "To be confirmed"}`),
     ...(card.url ? [new Paragraph({ children: [new ExternalHyperlink({ link: card.url, children: [new TextRun({ text: "Manufacturer product page and documentation", style: "Hyperlink" })] })] })] : [paragraph("Official product link to be confirmed.", { colour: MUTED })]),
   ]));
-  addSection(children, "WyreStorm Product Specifications", productSpecificationContent(proposal));
-  addSection(children, "Power Strategy", powerStrategyContent(proposal.products));
-  if (application?.acceptanceCriteria.length) addSection(children, "Testing and Acceptance Criteria", application.acceptanceCriteria.map(bullet));
-  addSection(children, "Timeline and Phases", [paragraph("The programme below is indicative and begins only after design approval, commercial acceptance, stock confirmation and site readiness.", { colour: MUTED }), pipeTable(wizard.implementationTimeline, ["Phase", "Activity", "Indicative timing", "Dependency / output"], [1250, 2500, 1500, 4110])]);
-  addSection(children, "Responsibilities and Dependencies", [heading("Responsibilities", 2), ...bulletLines(wizard.responsibilities, "Responsibilities are to be agreed."), heading("Dependencies", 2), ...bulletLines(wizard.dependencies, "Dependencies are to be confirmed.")]);
-  addSection(children, "Assumptions, Risks and Exclusions", [heading("Assumptions", 2), ...bulletLines(wizard.assumptions, "Final assumptions are to be confirmed."), heading("Open risks and validation", 2), ...(risks.length ? risks : ["Validate datasheets, lifecycle, accessories, firmware, regional suitability and site dependencies before order."]).map(bullet)]);
-  addSection(children, "Next Steps", [...bulletLines(wizard.nextSteps, "Confirm the final design, equipment schedule, responsibilities and commercial quotation."), paragraph(`Quotation validity: ${wizard.validityDays} days from the proposal date, subject to stock and written confirmation.`, { colour: MUTED })]);
-  addSection(children, "Best-Efforts Disclaimer", [
+  addPlannedSection("product-specifications", "WyreStorm Product Specifications", productSpecificationContent(proposal));
+  addPlannedSection("power-strategy", "Power Strategy", powerStrategyContent(proposal.products));
+  if (application?.acceptanceCriteria.length) addPlannedSection("testing-and-acceptance", "Testing and Acceptance Criteria", application.acceptanceCriteria.map(bullet));
+  addPlannedSection("timeline-and-phases", "Timeline and Phases", [paragraph("The programme below is indicative and begins only after design approval, commercial acceptance, stock confirmation and site readiness.", { colour: MUTED }), pipeTable(wizard.implementationTimeline, ["Phase", "Activity", "Indicative timing", "Dependency / output"], [1250, 2500, 1500, 4110])]);
+  addPlannedSection("responsibilities-and-dependencies", "Responsibilities and Dependencies", [heading("Responsibilities", 2), ...bulletLines(wizard.responsibilities, "Responsibilities are to be agreed."), heading("Dependencies", 2), ...bulletLines(wizard.dependencies, "Dependencies are to be confirmed.")]);
+  addPlannedSection("assumptions-risks-and-exclusions", "Assumptions, Risks and Exclusions", [heading("Assumptions", 2), ...bulletLines(wizard.assumptions, "Final assumptions are to be confirmed."), heading("Open risks and validation", 2), ...(risks.length ? risks : ["Validate datasheets, lifecycle, accessories, firmware, regional suitability and site dependencies before order."]).map(bullet)]);
+  addPlannedSection("next-steps", "Next Steps", [...bulletLines(wizard.nextSteps, "Confirm the final design, equipment schedule, responsibilities and commercial quotation."), paragraph(`Quotation validity: ${wizard.validityDays} days from the proposal date, subject to stock and written confirmation.`, { colour: MUTED })]);
+  // The appendix is the document's last content section and its own level's
+  // only addition, so the legal notice below still closes every document.
+  const appendix = buildDocumentAppendix(bomRows);
+  addPlannedSection("technical-appendix", "Appendix — Equipment Evidence and Verification", [
+    paragraph(appendix.headline, { justified: true }),
+    ...(appendix.rows.length ? [appendixTable(appendix)] : []),
+  ]);
+  addPlannedSection("best-efforts-disclaimer", "Best-Efforts Disclaimer", [
     paragraph("This document has been prepared on a best-efforts basis to support your sales and design process. Product specifications, compatibility, lifecycle status, regional availability, pricing and lead times must be verified against the current WyreStorm documentation, datasheet or order desk before this document is used as a quotation, order or statement of capability. Competitor information is approximate and provided only to start a comparison conversation. Wingman provides no warranty and accepts no liability for any errors, omissions or reliance on the content of this document.", { justified: true, colour: MUTED }),
   ]);
 
@@ -967,7 +1020,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   });
 }
 
-export async function exportProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft, videoWall: StoredVideowallSummary | null = null) {
+export async function exportProposalDocx(proposal: StoredProjectProposal, bomRows: SalesBomRow[], wizard: ProposalWizardDraft, videoWall: StoredVideowallSummary | null = null, detail: DocumentDetail = HOUSE_DOCUMENT_BRAND.detail) {
   if (typeof window === "undefined") return;
   // A wall whose own schedule lists an over-limit run cannot be issued: the
   // exporter refuses before it packs a document that contradicts itself.
@@ -1027,7 +1080,7 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
     }))
     : [];
   const wallPreviews = previews ? { chosen: previews.chosen, options: previewOptions } : undefined;
-  const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic, wallElevation, wallPreviews, products: productAssets, media }, videoWall));
+  const blob = await Packer.toBlob(buildProposalDocx(proposal, bomRows, wizard, { logo, room, schematic, wallElevation, wallPreviews, products: productAssets, media }, videoWall, detail));
   downloadBlob(blob, `${fileBaseName(wizard.projectName || proposal.title)}.proposal.docx`);
   trackDesignProjectExport(proposal.designRevision, "docx");
 }

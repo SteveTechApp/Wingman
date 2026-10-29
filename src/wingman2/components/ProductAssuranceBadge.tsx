@@ -174,44 +174,4 @@ export function ProductAssuranceBadge({
   );
 }
 
-// ─── Inline Badge (smaller version for tight spaces) ─────────────────────────
-
-export function ProductAssuranceInlineBadge({
-  sku,
-  productAssurance,
-  assuranceItems = [],
-}: {
-  sku: string;
-  productAssurance?: ProductAssurance;
-  assuranceItems?: DesignAssuranceItem[];
-}) {
-  const skuItems = assuranceItems.filter(
-    (item) => item.sku?.toUpperCase() === sku.toUpperCase(),
-  );
-
-  const blockers = skuItems.filter((item) => item.severity === "blocker");
-  const warnings = skuItems.filter((item) => item.severity === "warning");
-  const status = getAssuranceStatus(productAssurance, skuItems);
-
-  if (status === "ready" && blockers.length === 0 && warnings.length === 0) {
-    return null;
-  }
-
-  return (
-    <span className={`wm-assurance-inline-badge wm-assurance-inline-badge--${status}`}>
-      {getStatusIcon(status)}
-      {blockers.length > 0 && (
-        <span className="wm-assurance-inline-badge__count wm-assurance-inline-badge__count--blocker">
-          {blockers.length}
-        </span>
-      )}
-      {warnings.length > 0 && (
-        <span className="wm-assurance-inline-badge__count wm-assurance-inline-badge__count--warning">
-          {warnings.length}
-        </span>
-      )}
-    </span>
-  );
-}
-
 export default ProductAssuranceBadge;

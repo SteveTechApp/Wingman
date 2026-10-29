@@ -82,7 +82,3 @@ export function resolveWyrestormSkuAlias(inputSku: string): string {
 export function skuAliasMatches(candidateSku: string, productSku: string): boolean {
   return normaliseSkuKey(resolveWyrestormSkuAlias(candidateSku)) === normaliseSkuKey(resolveWyrestormSkuAlias(productSku));
 }
-
-export function skuAliasSummary(): string[] {
-  return WYRESTORM_CANONICAL_SKU_ALIASES.map((entry) => `${entry.canonicalSku}: ${entry.aliases.join(", ")}`);
-}

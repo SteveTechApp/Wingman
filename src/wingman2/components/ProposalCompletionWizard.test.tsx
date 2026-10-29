@@ -236,6 +236,88 @@ describe("ProposalCompletionWizard", () => {
     });
   }
 
+  /**
+   * A room whose survey measured a 130 m display run: the schedule quotes
+   * RX-700, so the export gate holds the document until the link is carried in
+   * spans. Seeded with the products the wizard builds its BOM from, because a
+   * receiver the schedule does not quote is a run with nothing to measure.
+   */
+  function seedDisplayRunProject() {
+    seedActiveProject();
+    const receiver = { sku: "RX-700", title: "HDBaseT receiver", category: "Display receiver", quantity: 1, status: "recommended" as const, evidence: ["Survey measured 130 m"] };
+    const matrix = { sku: "MX-0402-MST", title: "Presentation matrix", category: "Switching", quantity: 1, status: "recommended" as const, evidence: ["Customer brief"] };
+    upsertStoredProject({
+      ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
+      discoveryBrief: {
+        capturedPercent: 40,
+        roomModel: { cableRun: "130 m", longestRun: "130 m" },
+        discoveryConversation: [{ stepId: "opportunity", question: "Room purpose", answer: "Presentation", note: "Share slides", confirmed: false }],
+      },
+      productSelections: [matrix, receiver],
+      proposal: {
+        title: "Presentation room", summary: "Share slides", sections: [], assumptions: ["Cable routes to measure"],
+        updatedAt: new Date().toISOString(), approvalStatus: "draft" as const,
+        products: [matrix, receiver],
+        bomRows: [
+          { item: 1, sku: matrix.sku, description: matrix.title, role: matrix.category, qty: 1, type: "Required", status: "included", evidence: "Customer brief", notes: "" },
+          { item: 2, sku: receiver.sku, description: receiver.title, role: receiver.category, qty: 1, type: "Required", status: "included", evidence: "Survey measured 130 m", notes: "" },
+        ],
+        validationNotes: ["Display receiver: The survey records a 130 m display run, beyond the 100 m rating of RX-700, so the receiver alone cannot carry the link: allow a mid-span repeater or a fibre link at survey before issue."],
+      },
+    });
+  }
+
+  it("clears a display run past the receiver's rating from the export gate", () => {
+    seedDisplayRunProject();
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
+
+    // The block names the run, and the action under it names the spans it will
+    // create — without the rep opening the details toggle first.
+    expect(screen.getByText(/beyond the 100 m rating of the longest HDBaseT receiver/)).not.toBeNull();
+    expect(screen.getByText(/2 spans of 65 m/)).not.toBeNull();
+    // This room also carries governed dependency placeholders for its matrix,
+    // so the count — not the export state — is what shows this run clearing.
+    expect(screen.getByText(/2 blocker\(s\) must be resolved/)).not.toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Schedule the mid-span repeater" }));
+
+    // The room records the span, and its own schedule now quotes the set.
+    const saved = readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!;
+    expect(saved.discoveryBrief?.roomModel).toMatchObject({ cableRun: "130 m", servedRun: "65 m" });
+    expect((saved.productSelections ?? []).some((product) => product.sku === "EX3-100-EARC")).toBe(true);
+    // The run's blocker is gone, and with it the offer: this page asked the
+    // receiver to serve the span it now carries.
+    expect(screen.queryByText(/beyond the 100 m rating of the longest HDBaseT receiver/)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Schedule the mid-span repeater" })).toBeNull();
+    expect(screen.getByText(/1 blocker\(s\) must be resolved/)).not.toBeNull();
+  });
+
+  it("records a dependency prompt from the export gate so the room is not held by it", () => {
+    seedDisplayRunProject();
+    renderWizard();
+    fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
+
+    // Both prompts this room carries are offered where the block is read, so a
+    // rep exporting from the project answers one without leaving the page.
+    const rows = [...document.querySelectorAll("[data-dependency-scope-row]")];
+    expect(rows.length).toBe(2);
+    const sku = rows[0].getAttribute("data-dependency-scope-row")!;
+    const label = rows[0].querySelector("span")?.textContent ?? "";
+    expect(screen.getByText(/BOM row\(s\) are still placeholders/).textContent).toContain("2 BOM row(s)");
+
+    fireEvent.click(screen.getByRole("button", { name: `Record ${label} as a documented dependency` }));
+
+    // The decision is stored on the project, so a later visit and the document
+    // build both honour it.
+    const saved = readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!;
+    expect(saved.unquotedDependencySkus).toContain(sku);
+    // The gate counts the prompt it still holds, and the one just answered is
+    // no longer offered as a decision to take.
+    expect(screen.getByText(/BOM row\(s\) are still placeholders/).textContent).toContain("1 BOM row(s)");
+    expect(document.querySelector(`[data-dependency-scope-row="${sku}"]`)).toBeNull();
+  });
+
   it("warns that the wall survey is short of install detail without blocking the export", () => {
     seedExportReadyProject({ "display-1": 3, "display-2": 3 });
 

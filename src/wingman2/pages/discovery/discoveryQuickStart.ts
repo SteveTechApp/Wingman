@@ -357,11 +357,6 @@ export function findQuickStartApplicationDrift(
   return drift;
 }
 
-// Get the number of questions that will be shown based on Quick Start selection
-export function estimatedQuestionCount(roomType: QuickStartRoomType): number {
-  return quickStartConfigs[roomType].estimatedQuestions;
-}
-
 // Apply smart defaults to existing answers (don't overwrite user answers)
 export function applyRoomTypeSmartDefaults(
   roomType: QuickStartRoomType,
@@ -405,96 +400,4 @@ export function mergeRoomAndStandardProfiles(roomType: QuickStartRoomType): Disc
         : seeded;
   }
   return merged;
-}
-
-// Get the next recommended question based on Quick Start selection
-export function getNextRecommendedQuestion(
-  roomType: QuickStartRoomType,
-  currentAnswers: DiscoveryAnswers,
-): string | null {
-  const defaults = quickStartConfigs[roomType].defaults;
-  const questionOrder = [
-    "opportunity",
-    "scale",
-    "sources",
-    "source-connection",
-    "displays",
-    "display-behaviour",
-    "signal-standard",
-    "uc-purpose",
-    "uc-platform",
-    "uc-camera",
-    "uc-microphones",
-    "usb",
-    "audio",
-    "control",
-  ];
-
-  // Find the first unanswered question that has a default
-  for (const questionId of questionOrder) {
-    if (
-      questionId in defaults &&
-      (!(questionId in currentAnswers) ||
-        currentAnswers[questionId] === "" ||
-        currentAnswers[questionId] === undefined)
-    ) {
-      return questionId;
-    }
-  }
-
-  return null;
-}
-
-// Check if a question should be shown based on Quick Start mode
-export function shouldShowInQuickStart(
-  questionId: string,
-  roomType: QuickStartRoomType,
-): boolean {
-  const config = quickStartConfigs[roomType];
-
-  // In Quick Start mode, only show questions that are in the defaults
-  // or are essential core questions
-  const coreQuestions = [
-    "opportunity",
-    "scale",
-    "sources",
-    "source-connection",
-    "displays",
-  ];
-
-  if (coreQuestions.includes(questionId)) return true;
-  if (questionId in config.defaults) return true;
-
-  return false;
-}
-
-// Get a summary of what the Quick Start has configured
-export function getQuickStartSummary(roomType: QuickStartRoomType): string[] {
-  const config = quickStartConfigs[roomType];
-  const summary: string[] = [];
-
-  if (config.defaults.displays) {
-    summary.push(
-      `${plainLanguageLabels[config.defaults.displays as string] || config.defaults.displays} display`,
-    );
-  }
-
-  if (config.defaults["uc-purpose"]) {
-    const purposes = Array.isArray(config.defaults["uc-purpose"])
-      ? config.defaults["uc-purpose"]
-      : [config.defaults["uc-purpose"]];
-    if (purposes.includes("video-conferencing")) {
-      summary.push("Video conferencing ready");
-    }
-  }
-
-  if (config.defaults["uc-camera"]) {
-    summary.push("Camera configured");
-  }
-
-  if (config.defaults["uc-microphones"]) {
-    summary.push("Microphone configured");
-  }
-
-  return summary;
 }

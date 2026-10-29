@@ -3,6 +3,7 @@ import { Navigate, useLocation, useRoutes } from "react-router-dom";
 
 import { VoiceAnswerCaptureOverlay } from "../components/VoiceAnswerCaptureOverlay";
 import { OfflineBanner } from "../components/OfflineBanner";
+import { RetiredStorageNote } from "../components/RetiredStorageNote";
 import { UiModeProvider } from "../data/uiMode";
 import { trackFeatureEvent } from "../lib/featureAnalytics";
 import { routeByPath } from "./routeCatalog";
@@ -25,6 +26,10 @@ export default function WingmanApp() {
   return (
     <UiModeProvider>
       <OfflineBanner />
+      {/* Above the routes, like the offline banner: the sweep's work is the
+          browser's rather than a room's, so it belongs to no page in particular
+          and every page can carry it. */}
+      <RetiredStorageNote />
       {routes}
       <VoiceAnswerCaptureOverlay />
     </UiModeProvider>

@@ -15,7 +15,13 @@ import { powerBudgetSummary } from "./powerBudget";
 import { resolveProductTechnicalData } from "./governedProductTechnicalData";
 import { resolveProductLifecycle } from "./wyrestormProductLifecycle";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "./wallSurvey";
+import { WALL_ENTRY_SENTENCE_NAME } from "./wallEntry";
 import { wallTransportPlan, wallTransportRequirements, type WallTransportLink } from "./videowallTransport";
+import {
+  HDBT_DISPLAY_RUN_LIMIT_METRES,
+  quotedHdbtDisplayReceiverRow,
+  type DisplayReceiverRow,
+} from "./hdbtDisplayReceiver";
 import type { WallRequirements } from "./videowallOptions";
 import { buildInstallationSchedule, installationLineLabel, type InstallationUnitPrices } from "./installationSchedule";
 import {
@@ -41,11 +47,21 @@ export const EXPORT_VALIDATION_DOMAINS = [
   "lifecycle",
   "discovery",
   "transport",
+  "display-run",
   "survey",
   "currency",
 ] as const;
 
 export type ExportValidationDomain = (typeof EXPORT_VALIDATION_DOMAINS)[number];
+
+/**
+ * The one blocker a dependency prompt raises.
+ *
+ * Named here so every surface that can clear one — the wizard's gate, the
+ * project record and a template's own schedule — looks for the row it offers
+ * the answer for rather than matching its own copy of the string.
+ */
+export const DEPENDENCY_PROMPT_BLOCKER_ID = "chain-tbc-dependencies";
 
 export type ExportValidationBlocker = {
   id: string;
@@ -303,7 +319,7 @@ function validateChainCompleteness(
   const tbcRows = bomRows.filter((row) => row.sku?.startsWith("TBC-"));
   if (tbcRows.length > 0) {
     blockers.push({
-      id: "chain-tbc-dependencies",
+      id: DEPENDENCY_PROMPT_BLOCKER_ID,
       domain: "chain",
       severity: "blocker",
       message: `${tbcRows.length} BOM row(s) are still placeholders (TBC). Resolve these before export.`,
@@ -499,6 +515,46 @@ export function wallTransportBlockers(
 }
 
 /**
+ * A display link measured beyond the longest HDBaseT receiver's rating.
+ *
+ * The receiver is the part the document quotes, so a room measured past its
+ * rating cannot issue: the receiver alone does not close the link, and the
+ * schedule would present a part that cannot do the job as though it could. The
+ * reason on the receiver row says the same thing, but a sentence a rep can read
+ * past is not a stop — this is what holds the document.
+ *
+ * The clearing change is a measured span (a mid-span repeater or a fibre
+ * extender pair, so the receiver serves the run it is rated for) or a shorter
+ * run, and the template page applies the span change from the blocker itself
+ * (`DisplayRunSpanFix` over `displayRunSpanFix`). A room that quotes no HDBaseT
+ * receiver — it went to fibre, or dropped the line — has nothing for the rating
+ * to block, so nothing is raised.
+ */
+export function displayRunBlockers({
+  runMetres,
+  rows,
+}: {
+  /** The longest display run the survey measured, when one is recorded. */
+  runMetres?: number | null;
+  /** The rows the document prints, where the quoted display receiver is found. */
+  rows: readonly DisplayReceiverRow[];
+}): ExportValidationBlocker[] {
+  if (typeof runMetres !== "number" || !Number.isFinite(runMetres)) return [];
+  const run = Math.round(runMetres);
+  if (run <= HDBT_DISPLAY_RUN_LIMIT_METRES) return [];
+  const receiver = quotedHdbtDisplayReceiverRow(rows);
+  if (!receiver) return [];
+  return [{
+    id: "display-run-over-limit",
+    domain: "display-run",
+    severity: "blocker",
+    sku: receiver.sku,
+    message: `The ${run} m display run is beyond the ${HDBT_DISPLAY_RUN_LIMIT_METRES} m rating of the longest HDBaseT receiver in the range, so the quoted ${receiver.sku} cannot carry this link on its own.`,
+    fix: `Carry the link in spans — a mid-span repeater or a fibre extender pair — and record the run the receiver then serves, or shorten the run to ${HDBT_DISPLAY_RUN_LIMIT_METRES} m or less, so the quotation and the survey agree before the document issues.`,
+  }];
+}
+
+/**
  * Wall links the survey has not finished: the display housing, run entry or
  * termination is missing.
  *
@@ -523,7 +579,7 @@ export function wallSurveyCompletenessWarnings(
     domain: "survey",
     severity: "warning",
     message: wallSurveyGapText(gaps, wallSurveyDisplayCount(plan)),
-    fix: "Record the display housing, run entry and termination for those links in the wall builder's transport table or on the survey sheet, so the proposal prints the install detail it has.",
+    fix: `Record the display housing, run entry and termination for those links in ${WALL_ENTRY_SENTENCE_NAME}'s transport table or on the survey sheet, so the proposal prints the install detail it has.`,
   }];
 }
 
@@ -608,6 +664,7 @@ export function validateProposalExport({
   topology,
   discoveryConversation,
   wallRequirements,
+  displayRunMetres,
   pricing,
 }: {
   products: StoredProductSelection[];
@@ -616,6 +673,13 @@ export function validateProposalExport({
   discoveryConversation?: DiscoveryConversationItem[];
   /** Saved wall design, when the proposal carries one. */
   wallRequirements?: WallRequirements | null;
+  /**
+   * The run the quoted display receiver serves, when the room records one: a
+   * run past the longest receiver's rating holds a document that quotes that
+   * receiver. A room that carried the link in spans records the span, which is
+   * the figure the rating is measured against.
+   */
+  displayRunMetres?: number | null;
   /**
    * What the document is priced with, when the caller prices the survey's
    * installation lines: a rate still holding a card number from another
@@ -634,6 +698,7 @@ export function validateProposalExport({
     ...validateLifecycle(products),
     ...validateDiscoveryConversation(discoveryConversation),
     ...wallTransportBlockers(wallRequirements),
+    ...displayRunBlockers({ runMetres: displayRunMetres, rows: bomRows }),
     ...wallSurveyCompletenessWarnings(wallRequirements),
     ...installationRateCurrencyWarnings({
       requirements: wallRequirements,

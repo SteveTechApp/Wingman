@@ -91,9 +91,7 @@ function displayScopeProposal(): StoredProjectProposal {
       technicalFacts: [],
       architectureDiagram: "",
       acceptanceCriteria: [],
-      visualBriefs: [],
       verifiedDesignParameters: [],
-      deploymentConditions: [],
       thirdPartyScope: [
         {
           category: "Displays",

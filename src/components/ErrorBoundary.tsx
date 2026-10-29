@@ -63,7 +63,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#071828] to-[#040d18] p-6">
+        <div
+          data-testid="app-error-boundary"
+          className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#071828] to-[#040d18] p-6"
+        >
           <div className="w-full max-w-lg rounded-3xl border border-[#29465e] bg-[#0a1826]/95 p-8 shadow-2xl">
             <div className="mb-6 flex items-center gap-4">
               <div className="grid h-14 w-14 place-items-center rounded-2xl bg-rose-500/15 text-rose-400">
@@ -81,7 +84,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             {error && (
               <div className="mb-6 rounded-2xl border border-rose-500/20 bg-rose-950/30 p-4">
-                <p className="font-mono text-sm text-rose-300">
+                <p data-testid="app-error-boundary-message" className="font-mono text-sm text-rose-300">
                   {error.message || "Unknown error"}
                 </p>
               </div>

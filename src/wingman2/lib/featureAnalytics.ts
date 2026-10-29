@@ -134,15 +134,3 @@ export function trackSearch(feature: string, queryLength: number): void {
 export function trackJourneyEvent(name: string, metadata: Record<string, string | number | boolean>): void {
   trackFeatureEvent("journey", name, metadata);
 }
-
-// Test seam: resets state so each test starts clean.
-export function resetAnalyticsForTests(): void {
-  sentCount = 0;
-  sessionStart = Date.now();
-  pendingEvents = [];
-  if (batchTimer !== null) {
-    clearInterval(batchTimer);
-    batchTimer = null;
-  }
-  installed = false;
-}

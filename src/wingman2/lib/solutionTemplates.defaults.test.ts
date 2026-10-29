@@ -1,42 +1,22 @@
-// Pins the proposal-template default tables so drift fails CI. The proposal
-// wizard and DOCX exports derive their section list from
-// DEFAULT_DOCUMENT_SECTIONS and convert every room template to a published
-// SolutionTemplateDefinition; a section removed or renamed, a template id
-// duplicated, a blueprint diverging from the pinned list, or a template that
-// would convert to an INVALID published solution (missing required field)
-// all fail here.
+// Pins the proposal-template default tables so drift fails CI: every room
+// template converts to a published SolutionTemplateDefinition, a template id
+// duplicated or a template that would convert to an INVALID published solution
+// (missing required field) fails here, and so does a document draft that stops
+// printing at the depth it stored. The sections a document prints are pinned
+// where they are built — `DOCUMENT_SECTIONS` in `documentSections.test.ts` — not
+// here, because a template's shape is not a document's shape.
 
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { roomTemplates } from "./roomTemplates";
 import {
-  DEFAULT_DOCUMENT_SECTIONS,
+  defaultPersonalisation,
+  templateDocumentDetail,
   toSolutionTemplate,
   validatePublishedTemplate,
 } from "./solutionTemplates";
 
-const PINNED_DOCUMENT_SECTIONS = [
-  "Branded cover",
-  "Executive summary",
-  "Customer requirement",
-  "Market context",
-  "Objectives",
-  "User experience",
-  "Recommended solution",
-  "Architecture",
-  "Room or application overview",
-  "Equipment overview",
-  "Required BOM",
-  "Optional upgrades",
-  "Third-party dependencies",
-  "Assumptions",
-  "Risks and unresolved questions",
-  "Next steps",
-];
-
 describe("proposal template defaults", () => {
-  it("pins DEFAULT_DOCUMENT_SECTIONS exactly (no removals, additions, renames or resequencing)", () => {
-    expect(DEFAULT_DOCUMENT_SECTIONS).toEqual(PINNED_DOCUMENT_SECTIONS);
-  });
+  beforeEach(() => window.localStorage.clear());
 
   it("keeps every template id unique and non-empty across the catalogue", () => {
     const seen = new Map<string, number>();
@@ -50,19 +30,6 @@ describe("proposal template defaults", () => {
     expect(duplicates).toEqual([]);
   });
 
-  it("gives every template a documentBlueprint equal to the pinned section list", () => {
-    const problems: string[] = [];
-    for (const template of roomTemplates) {
-      const blueprint = toSolutionTemplate(template).documentBlueprint;
-      if (JSON.stringify(blueprint) !== JSON.stringify(PINNED_DOCUMENT_SECTIONS)) {
-        problems.push(
-          `template "${template.id}" blueprint diverges: ${JSON.stringify(blueprint)} vs pinned sections`,
-        );
-      }
-    }
-    expect(problems).toEqual([]);
-  });
-
   it("converts every room template to a valid published solution template", () => {
     const problems: string[] = [];
     for (const template of roomTemplates) {
@@ -72,6 +39,21 @@ describe("proposal template defaults", () => {
       }
     }
     expect(problems).toEqual([]);
+  });
+
+  it("prints at the depth the stored document draft chose, and the house depth otherwise", () => {
+    const template = roomTemplates[0];
+    expect(templateDocumentDetail(template.id)).toBe("Standard");
+    window.localStorage.setItem("wingman-template-document-drafts-v1", JSON.stringify({
+      [template.id]: { personalisation: { ...defaultPersonalisation(toSolutionTemplate(template)), detail: "Technical" } },
+    }));
+    expect(templateDocumentDetail(template.id)).toBe("Technical");
+    // A value that names no level is ignored rather than read as one, so a
+    // hand-edited draft cannot decide the document prints nothing.
+    window.localStorage.setItem("wingman-template-document-drafts-v1", JSON.stringify({
+      [template.id]: { personalisation: { ...defaultPersonalisation(toSolutionTemplate(template)), detail: "Deep" } },
+    }));
+    expect(templateDocumentDetail(template.id)).toBe("Standard");
   });
 
   it("keeps custom templates draft-safe and rejects incomplete published governance", () => {

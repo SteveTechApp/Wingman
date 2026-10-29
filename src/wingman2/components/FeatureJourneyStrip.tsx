@@ -12,7 +12,7 @@ export function FeatureJourneyStrip({ routeKey, context = {} }: { routeKey: Wing
     <div className="wm-feature-journey__actions">
       {actions.map((action) => {
         const isCallCoach = action.routeKey === "callCoach";
-        return <Link key={`${action.routeKey}-${action.label}`} to={action.to} className={`wm-feature-journey__action${isCallCoach ? " wm-feature-journey__action--compact" : ""}`}><span><strong>{action.label}</strong></span><ArrowRight aria-hidden="true" /></Link>;
+        return <Link key={`${action.routeKey}-${action.label}`} to={action.to} className={`wm-feature-journey__action${isCallCoach ? " wm-feature-journey__action--compact" : ""}`}><span><strong>{action.label}</strong><small>{action.reason}</small></span><ArrowRight aria-hidden="true" /></Link>;
       })}
     </div>
   </details>;

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { wallResumeUrl } from "../../lib/wallResume";
+import { WALL_ENTRY_SENTENCE_NAME } from "../../lib/wallEntry";
 import type { StoredProject } from "../../features/projects";
 import { wallSurveyRows } from "../../lib/wallSurvey";
 import { wallDraftStatus } from "../../lib/wallDraftStatus";
@@ -22,7 +23,7 @@ const GROUPS = [
 /**
  * The saved wall's links, as the project record keeps them.
  *
- * A proposal quotes the transport, and the builder is where the runs are
+ * A proposal quotes the transport, and the designer is where the runs are
  * entered, but a colleague asking "which link is this, and what was it allowed"
  * should not have to open either. One row per physical link — never a folded
  * group, because a folded row is a screen convenience and this is the record —
@@ -76,7 +77,7 @@ export function WallTransportReview({ project }: { project: StoredProject }) {
             data-draft-status={draftStatus.state}
           >
             {draftStatus.text}{" "}
-            <Link to={wallResumeUrl(project.id)} data-testid="wall-transport-draft-link">Continue in the wall builder</Link>
+            <Link to={wallResumeUrl(project.id)} data-testid="wall-transport-draft-link">Continue in {WALL_ENTRY_SENTENCE_NAME}</Link>
           </p>
         ) : null}
         {drift ? (

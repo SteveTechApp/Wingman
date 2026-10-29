@@ -48,9 +48,9 @@ import { WallStartingPointOriginNote } from "./WallStartingPointOriginNote";
  * and the drawing and transport table each get a screen of their own.
  *
  * The design pass itself is read in one order: the wall, then what Wingman
- * answers with, then the questions behind that answer. The four questions open
- * one at a time and state the answer they hold, because the wall card sets all
- * four — opened together they were forty tiles of equal weight beside the
+ * answers with, then the questions behind that answer. The questions open one
+ * at a time and state the answer they hold, because the wall card sets every
+ * one of them — opened together they were forty tiles of equal weight beside the
  * picker, and a rep could not tell which block chose the design.
  */
 export function VideowallExpertReview({

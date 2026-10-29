@@ -27,7 +27,7 @@ const proposal: StoredProjectProposal = {
     userJourney: ["Operators select an operational source and route it to an approved display."],
     technicalFacts: [], architectureDiagram: "Operational sources → NetworkHD 600 fabric → Operator displays",
     acceptanceCriteria: ["All approved source-to-display routes pass functional testing."],
-    visualBriefs: [], verifiedDesignParameters: [], deploymentConditions: [],
+    verifiedDesignParameters: [],
     marketStory: "The room supports rapid, controlled decision-making.",
     productSpecifications: [{ sku: "NHD-CTL-PRO-V2", name: "NetworkHD controller", role: "Routing control", quantity: 1, summary: "Controls the NetworkHD system.", keyFeatures: ["Central routing management"], validation: ["Confirm firmware compatibility"] }],
     thirdPartyScope: [{ category: "Displays", description: "Operator and overview displays", responsibility: "Integrator", status: "allowance", quantity: 4, notes: "Confirm size and mounting." }],

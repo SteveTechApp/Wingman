@@ -395,7 +395,6 @@ export function gateCompareCandidate(
     }
   }
 
-
   const requestedEndpointRole = endpointRoleFromText(clean(context.competitorRole));
   if (
     (competitorClass === "HDBASET" || competitorClass === "AVOIP")
@@ -453,28 +452,4 @@ export function gateCompareCandidate(
     blockedBy: [],
     evidence,
   };
-}
-
-export function filterComparableCandidates<T extends CompareCandidateGateInput>(
-  candidates: T[],
-  context: CompareCandidateGateContext,
-): {
-  allowed: T[];
-  blocked: Array<{ candidate: T; gate: CompareCandidateGateResult }>;
-} {
-  const allowed: T[] = [];
-  const blocked: Array<{ candidate: T; gate: CompareCandidateGateResult }> = [];
-
-  for (const candidate of candidates) {
-    const gate = gateCompareCandidate(candidate, context);
-
-    if (gate.allowed) {
-      allowed.push(candidate);
-      continue;
-    }
-
-    blocked.push({ candidate, gate });
-  }
-
-  return { allowed, blocked };
 }

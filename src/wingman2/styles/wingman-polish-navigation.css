@@ -1140,13 +1140,88 @@ html[data-wingman-route="projects"] .wm-projects-store-toolbar {
   min-width: 0;
 }
 
+/* The row shapes this rule lays out are one named list, not a description here:
+   `GALLERY_ROW_STATES` in tools/browser-smoke-check.mjs seeds every state, and
+   `assertGalleryCardActions` measures each of them at 1366px, 1151px, 1150px,
+   1024px, 390px and 360px by the same rules — the row fit, its link count and
+   every design name. The two middle widths are the pair either side of the
+   gallery's three-to-two change, where the card a rep actually sees is at its
+   widest for two columns.
+   Add a shape to that list and it is seeded, measured and printed without an
+   edit in this file, so the check and this rule cannot drift into describing the
+   same row in two sets of words.
+
+   What the rule promises about all of them, and why it is `flex-wrap`: every
+   state's trailing Copy/Delete pair stays inside the card's content box at every
+   width, because the row wraps around the pair instead of through it. A `nowrap`
+   row shrinks the design entry to its floor rather than wrapping, which is how a
+   room with several saved designs used to push its second `Open template` entry
+   under the card's clipping edge.
+
+   The one state with a reading of its own is the short name: it shares its line
+   with Copy and Delete wherever the design line has room for both — at 1024px a
+   432px card gives the entry 253px beside the pair, and at 1150px, where the
+   gallery drops to two columns, the 495px card's own line holds them too — and at
+   phone width the entry's floor below takes that line instead. Room is asked of
+   the design line's measured width rather than of a column count or a width in
+   the walk: the three-column card at 1151px is narrower than any two-column one,
+   so there the entry takes a line of its own instead of squeezing the pair.
+
+   The row is laid out as three items — the two links that open the room, then one
+   design line holding the entries and the closing pair — so the pair can never be
+   split across two lines. That split is not hypothetical: at 1150px the row fits
+   Detail, Resume and the design entry at 43 + 109 + 253px in 461px of row, and a
+   greedy row then put Copy on that line and Delete alone at the left of the next,
+   which is a row a rep cannot read as a pair. Wrapping the whole design line moves
+   the entries and the pair together, and the pair is pushed to the card's right
+   edge by `margin-left: auto` whether it shares the design line or closes one of
+   its own.
+
+   No fit may be paid for with a design's name: the same pass reads every entry's
+   visible characters one at a time, so none of these states fits by printing a
+   stub — at 360px the widest card's first entry is 250px and prints 23 of its 79
+   characters. The sync-conflict badge above the row is read with it, at 215px of
+   lane label at 360px. */
 html[data-wingman-route="projects"] .wm-project-row-actions {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
   gap: 6px;
-  min-width: max-content;
+  /* max-content made the row as wide as every action put together, so the
+     wrapping above never happened: a room with two saved designs pushed the
+     second `Open template` entry and the Copy/Delete buttons outside the card,
+     where the card's overflow clipped them. The row takes the card's width and
+     wraps instead. */
+  min-width: 0;
+}
+
+/* The row's two fixed groups: the links that open the room, and the design line
+   that carries the entries plus the pair. Each is one flex item in the row, so a
+   line break happens between them rather than through the pair. */
+html[data-wingman-route="projects"] .wm-project-row-links,
+html[data-wingman-route="projects"] .wm-project-row-designs {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+html[data-wingman-route="projects"] .wm-project-row-designs {
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+
+html[data-wingman-route="projects"] .wm-project-row-icon-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  /* On the design line it closes the card's edge; alone on a wrapped line it is
+     the only item there, and this is what still ends it on that edge. */
+  margin-left: auto;
 }
 
 html[data-wingman-route="projects"] .wm-project-row-link {
@@ -1156,6 +1231,43 @@ html[data-wingman-route="projects"] .wm-project-row-link {
   min-height: 32px;
   white-space: nowrap;
   text-decoration: none;
+}
+
+/* A design name is longer than a card column at every width below a wide
+   desktop, so the `Open template` entry shrinks to the line it is on and
+   truncates; the full name is in its title. Without this the pill keeps its
+   content width — a flex item will not shrink below `auto` — and runs off the
+   card in a two- or one-column gallery. */
+html[data-wingman-route="projects"] .wm-project-row-actions .wm-project-template-link {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+html[data-wingman-route="projects"] .wm-project-row-actions .wm-project-template-link-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A design entry opens with "Open template: ", so the width the entry is given is
+   the whole of what a rep can read: an entry squeezed to share a line prints the
+   verb and a letter or two of the design name, which is the same card with the
+   name gone. It therefore keeps 30 characters of its own label (the verb plus
+   about fifteen characters of the name), and a row that cannot give it that much
+   wraps the entry onto a line of its own, where the card's width shows the name.
+   The floor is the entry's rather than the phone block's: it held there first
+   because that is where a card is narrow enough to squeeze the entry, and a card
+   above it — the two-column band — can be squeezed the same way by a rule added
+   later. At every width it is capped at the row's own width so a narrower row is
+   never overflowed by it, and the full name stays in the entry's title wherever
+   it truncates. Held by assertGalleryCardActions in tools/browser-smoke-check.mjs,
+   which reads the characters the browser printed against
+   `SAVED_DESIGN_NAME_FLOOR`. */
+html[data-wingman-route="projects"] .wm-project-row-actions .wm-project-template-link {
+  min-width: min(30ch, 100%);
 }
 
 html[data-wingman-route="projects"] .wm-project-draft-grid {
@@ -1495,18 +1607,27 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
   align-items: center;
 }
 
-/* Three-column heading layout (icon + copy + inline actions) only from the
-   wide breakpoint; narrower widths let the actions wrap below the copy so the
-   copy is not crushed. The tripled class (0,4,0) beats the route rules (0,3,2)
-   that would otherwise impose a 2-column icon-less layout. */
+/* Three-column heading layout (icon + copy + inline actions) from the wide
+   breakpoint; narrower widths let the action row take a line of its own so the
+   copy is not crushed. `:has()` finds the hero's third child, so the template
+   lives here once: the per-page three-column rules (0,4,0) and the important
+   override that had to outrank the reference layer are gone with it. The icon
+   column is `auto` because the layers resize the icon itself (54px, 49px from
+   1024px), so this template follows whatever width the icon takes. */
 @media (min-width: 981px) {
-  .wm-compare-page .compare-native-hero.wm-polish-hero.wm-polish-hero {
-    grid-template-columns: 54px minmax(0, 1fr) auto;
+  .wm-polish-hero:has(> :nth-child(3)) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
   }
+}
 
-  .wm-projects-page .wm-polish-hero.wm-polish-hero.wm-polish-hero,
-  .wm-settings-page .wm-polish-hero.wm-polish-hero.wm-polish-hero {
-    grid-template-columns: 50px minmax(0, 1fr) auto;
+/* Below the wide breakpoint the hero is a two-column grid, so its third child —
+   the action row — would land in the icon column: a 48px strip that broke
+   "Print this page" across three lines at 360px and pushed Reset out of the
+   row. It takes a full-width row of its own there, left-aligned under the icon
+   and copy, and the wide template above gives it the column back. */
+@media (max-width: 980px) {
+  .wm-polish-hero > :nth-child(n + 3) {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1526,10 +1647,18 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
   margin-bottom: 0;
 }
 
+/* The row's own shape, which the page owns: the shared hero grid places the
+   third child, and these keep a hero action labelled — the row wraps whole
+   buttons rather than compressing one into a stack of words. */
 .wm-settings-page .wm-settings-hero-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 8px;
+}
+
+.wm-settings-page .wm-settings-hero-actions .wm-button {
+  flex: 0 0 auto;
 }
 
 /* Compact secondary-page system: Projects, Compare and Templates only. */
@@ -1878,13 +2007,7 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
   box-shadow: 0 0 0 3px rgba(54, 219, 224, 0.12);
 }
 
-.wm-product-filter-group {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-}
-
-.wm-product-filter-controls, .wm-catalog-toggle-row, .wm-pcc-chips {
+.wm-catalog-toggle-row, .wm-pcc-chips {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

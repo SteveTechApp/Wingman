@@ -33,3 +33,47 @@
 #root .wm-project-detail-page .wm-project-panel-link[data-copy-state="copied"] { border-color: #3c8273; color: #a7e7cd; }
 #root .wm-project-detail-page .wm-project-panel-link[data-copy-state="failed"] { border-color: #7a5a2a; color: #efcd91; }
 #root .wm-project-detail-page .wm-project-current-result__topline { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+
+/* A room that has been saved as a template says so above the record's panels.
+   The name is a row rather than a pill: a long project's template name wraps at
+   the card's left edge and the arrow stays on the first line, because a centred
+   pill turned one long name into four short lines and pushed the summary down
+   the phone screen. Rows carry no box of their own — the panel is the box. */
+#root .wm-project-detail-page .wm-project-template-lineage { display: grid; gap: 8px; padding: 12px 14px; }
+#root .wm-project-detail-page .wm-project-template-lineage__lead { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: #d6e9f2; font-weight: 650; line-height: 1.4; text-wrap: balance; }
+#root .wm-project-detail-page .wm-project-template-lineage__lead svg { flex: 0 0 16px; width: 16px; height: 16px; margin-top: 2px; color: #57d9d6; }
+#root .wm-project-detail-page .wm-project-template-lineage__list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+#root .wm-project-detail-page .wm-project-template-lineage__list li { min-width: 0; }
+#root .wm-project-detail-page .wm-project-template-lineage__link { display: block; min-width: 0; margin: 0 -6px; padding: 5px 6px; border: 0; border-radius: 6px; background: none; color: #cce0eb; font-size: 13px; font-weight: 600; line-height: 1.35; text-align: left; text-decoration: none; overflow-wrap: anywhere; }
+#root .wm-project-detail-page .wm-project-template-lineage__arrow { margin-left: 6px; color: #57d9d6; }
+#root .wm-project-detail-page .wm-project-template-lineage__link:hover { background: #12303e; color: #eafcff; }
+#root .wm-project-detail-page .wm-project-template-lineage__link:hover .wm-project-template-lineage__name { text-decoration: underline; }
+#root .wm-project-detail-page .wm-project-template-lineage__link:focus-visible { outline: 2px solid #43dcde; outline-offset: 3px; }
+
+/* The shortfall filter above the requirement rows. Two pressed buttons rather
+   than a select, because the choice is between two readings and the counts are
+   the point: a rep reads the shortfall before choosing it. */
+#root .wm-project-detail-page .wm-project-requirement-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+#root .wm-project-detail-page .wm-project-requirement-filter button { display: inline-flex; align-items: center; padding: 6px 10px; border: 1px solid #315568; border-radius: 8px; background: #102938; background-image: none; box-shadow: none; color: #cce0eb; font-size: 12px; font-weight: 650; line-height: 1.2; white-space: nowrap; cursor: pointer; }
+#root .wm-project-detail-page .wm-project-requirement-filter button:hover { border-color: #57d9d6; background: #12303e; color: #eafcff; }
+#root .wm-project-detail-page .wm-project-requirement-filter button[aria-pressed="true"] { border-color: #57d9d6; background: #12303e; color: #eafcff; }
+#root .wm-project-detail-page .wm-project-requirement-filter button:focus-visible { outline: 2px solid #43dcde; outline-offset: 2px; }
+
+/* The saved requirement rows. A row is a label over its answer with the status
+   chip on the right, because the chip is the one thing a rep scans for; the
+   rows own no box, since the panel already is one. */
+#root .wm-project-detail-page .wm-project-requirement-list { display: grid; gap: 0; margin: 14px 0 0; padding: 0; list-style: none; }
+#root .wm-project-detail-page .wm-project-requirement-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; padding: 9px 0; border-top: 1px solid #1e3a49; }
+#root .wm-project-detail-page .wm-project-requirement-row:first-child { border-top: 0; }
+#root .wm-project-detail-page .wm-project-requirement-row__copy { min-width: 0; }
+#root .wm-project-detail-page .wm-project-requirement-row__label { display: block; color: #d6e9f2; font-size: 13px; font-weight: 650; line-height: 1.4; }
+#root .wm-project-detail-page .wm-project-requirement-row__value { display: block; margin-top: 2px; color: #b3cbd8; font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+/* The unconfirmed row's one action: it opens the Discovery question that records
+   this answer, so a rep fixing a single row lands on that question. It is a link
+   rather than a control, so it wears the panel's pill finish and no row gains a
+   second button. */
+#root .wm-project-detail-page .wm-project-requirement-row__question { display: inline-flex; align-items: center; margin-top: 6px; padding: 4px 9px; border: 1px solid #315568; border-radius: 8px; background: #102938; background-image: none; box-shadow: none; color: #cce0eb; font-size: 12px; font-weight: 650; line-height: 1.2; text-decoration: none; white-space: nowrap; }
+#root .wm-project-detail-page .wm-project-requirement-row__question:hover { border-color: #57d9d6; background: #12303e; color: #eafcff; }
+#root .wm-project-detail-page .wm-project-requirement-row__question:focus-visible { outline: 2px solid #43dcde; outline-offset: 2px; }
+#root .wm-project-detail-page .wm-project-requirement-row .wm-status-chip { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 560px) { #root .wm-project-detail-page .wm-project-requirement-row { grid-template-columns: 1fr; gap: 6px; } }

@@ -53,17 +53,27 @@ export function readTemplateMarketStory(value: unknown): TemplateMarketStory | u
 }
 
 export function getTemplateMarketStory(templateId: string): TemplateMarketStory | undefined {
-  return TEMPLATE_MARKET_STORIES[templateId];
+  return templateMarketStories()[templateId];
 }
 
 /** Ids of published templates without a complete story — empty is the contract. */
 export function missingTemplateMarketStories(templateIds: string[]): string[] {
-  return templateIds.filter((id) => !readTemplateMarketStory(TEMPLATE_MARKET_STORIES[id]));
+  return templateIds.filter((id) => !readTemplateMarketStory(templateMarketStories()[id]));
 }
 
-export const TEMPLATE_MARKET_STORIES: Readonly<Record<string, TemplateMarketStory>> = Object.freeze({
-  ...STORY_PART_1,
-  ...STORY_PART_2,
-  ...STORY_PART_3,
-  ...COVERAGE_MARKET_STORIES,
-});
+let storyTable: Readonly<Record<string, TemplateMarketStory>> | undefined;
+
+/**
+ * The four story parts, assembled when the table is first asked for rather than
+ * when this module loads: each part file is its own chunk, and a chunk pair that
+ * imports each other can evaluate this module first, which would freeze an empty
+ * table into the session and make every published template read as storyless.
+ */
+export function templateMarketStories(): Readonly<Record<string, TemplateMarketStory>> {
+  return (storyTable ??= Object.freeze({
+    ...STORY_PART_1,
+    ...STORY_PART_2,
+    ...STORY_PART_3,
+    ...COVERAGE_MARKET_STORIES,
+  }));
+}

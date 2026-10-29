@@ -164,7 +164,12 @@ describe("template workflow wiring", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save as template" }));
 
     expect(screen.getByText("Room design saved as a custom template.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open template" })).toHaveAttribute(
+    // The confirmation prints the app's one link to a template, so it names the
+    // design it just wrote instead of reading as a bare "Open template" beside
+    // the sentence that saved it.
+    expect(
+      screen.getByRole("link", { name: `Open template: ${template.name} - Custom` }),
+    ).toHaveAttribute(
       "href",
       expect.stringContaining("/wingman/templates/custom-"),
     );

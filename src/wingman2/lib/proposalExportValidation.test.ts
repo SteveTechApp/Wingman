@@ -7,6 +7,7 @@ import {
 } from "./proposalExportValidation";
 import { defaultWallRequirements, type WallRequirements } from "./videowallOptions";
 import type { DiscoveryConversationItem } from "../data/projectStore";
+import type { SalesBomRow } from "./salesReadiness";
 
 function run(discoveryConversation: DiscoveryConversationItem[]) {
   return validateProposalExport({
@@ -487,5 +488,75 @@ describe("validateProposalExport installation rate currency", () => {
   it("has no opinion when the caller prices nothing", () => {
     expect(validateProposalExport({ products: [], bomRows: [], wallRequirements: wall() }).warnings
       .filter((entry) => entry.domain === "currency")).toEqual([]);
+  });
+});
+
+/** The one line the run is measured against, in the shape the document prints. */
+function receiverRow(sku: string, patch: Partial<SalesBomRow> = {}): SalesBomRow {
+  return {
+    item: 1,
+    sku,
+    description: `HDBaseT display receiver ${sku}`,
+    role: "Display receiver",
+    qty: 1,
+    type: "Required",
+    status: "included",
+    evidence: "Survey 26 October",
+    notes: "Chosen from the surveyed display run.",
+    ...patch,
+  };
+}
+
+const displayRunEntries = (result: ReturnType<typeof validateProposalExport>) =>
+  result.blockers.filter((entry) => entry.domain === "display-run");
+
+describe("validateProposalExport display-run gate", () => {
+  it("holds a document that quotes a receiver on a run past the range's rating", () => {
+    const result = validateProposalExport({
+      products: [],
+      bomRows: [receiverRow("RX-700")],
+      displayRunMetres: 130,
+    });
+    const [blocker] = displayRunEntries(result);
+
+    expect(blocker.domain).toBe("display-run");
+    expect(blocker.severity).toBe("blocker");
+    expect(blocker.sku).toBe("RX-700");
+    expect(blocker.message).toContain("130 m display run");
+    expect(blocker.message).toContain("100 m rating");
+    // The fix is the change a rep can make: measured spans, or a shorter run.
+    expect(blocker.fix).toContain("mid-span repeater or a fibre extender pair");
+    expect(blocker.fix).toContain("100 m or less");
+    // It lands among the blockers, which is what stops the export.
+    expect(result.blockers.some((entry) => entry.id === "display-run-over-limit")).toBe(true);
+  });
+
+  it("allows a run the longest receiver is rated for", () => {
+    const result = validateProposalExport({
+      products: [],
+      bomRows: [receiverRow("RX-700")],
+      displayRunMetres: 100,
+    });
+    expect(displayRunEntries(result)).toEqual([]);
+  });
+
+  it("raises nothing for a room that quotes no HDBaseT receiver", () => {
+    const result = validateProposalExport({
+      products: [],
+      bomRows: [receiverRow("RX-700", { status: "excluded", qty: 0 })],
+      displayRunMetres: 130,
+    });
+    expect(displayRunEntries(result)).toEqual([]);
+  });
+
+  it("raises nothing when the room records no run", () => {
+    for (const displayRunMetres of [undefined, null]) {
+      const result = validateProposalExport({
+        products: [],
+        bomRows: [receiverRow("RX-500")],
+        displayRunMetres,
+      });
+      expect(displayRunEntries(result)).toEqual([]);
+    }
   });
 });

@@ -1,13 +1,4 @@
-import {
-  assessVideowallOptions,
-  defaultWallRequirements,
-  wallApplications,
-  wallDisplayFeeds,
-  wallProjectorCount,
-  wallResolutionSummary,
-  type WallOption,
-  type WallRequirements,
-} from "./videowallOptions";
+import { assessVideowallOptions, defaultWallRequirements, wallDisplayFeeds, wallProjectorCount, wallResolutionSummary, type WallOption, type WallRequirements } from "./videowallOptions";
 
 /**
  * The builder already knows which designs are impossible. This module owns the
@@ -982,5 +973,3 @@ export const wallLayoutChoices: WallLayoutChoice[] = [
   },
   { key: "independent", value: "independent", label: "A different source per screen", detail: "Each panel behaves as its own display.", windows: 1, applications: ["lcd-direct"] },
 ];
-
-export const wallApplicationChoices = wallApplications;

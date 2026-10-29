@@ -62,6 +62,13 @@ export type RoomTemplate = {
    * author scheduled.
    */
   surveyedRunMetres?: number;
+  /**
+   * The span each display receiver serves when the surveyed run is carried in
+   * spans with a mid-span repeater, in metres. The measurement stays in
+   * `surveyedRunMetres`; this is the figure the receiver's rating is measured
+   * against, so recording it is what clears a run past the range's rating.
+   */
+  servedRunMetres?: number;
   customTemplate?: boolean;
   applicationProfile?: TemplateApplicationProfile;
 };
@@ -966,4 +973,3 @@ const roomDesigns: RoomDeploymentDesign[] = [
 ];
 
 export const roomTemplates: RoomTemplate[] = [...roomDesigns, ...extraRoomDesigns, ...emergencyRoomDesigns, ...marketCoverageDesigns].map(createDeploymentTemplate);
-export const roomTemplateVerticals = ["All", ...Array.from(new Set(roomTemplates.map((template) => template.vertical)))];

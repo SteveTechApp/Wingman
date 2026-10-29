@@ -7,6 +7,7 @@ import {
 } from "./videowallOptions";
 import { videowallLocationChoices, videowallLocationKeyFor } from "./videowallDraft";
 import { wallPhysicalSize } from "./wallPhysicalSize";
+import { wallFeedingAnswer } from "./wallFeeding";
 
 /**
  * The focused view asks the questions a rep would ask in the room, one screen
@@ -16,12 +17,18 @@ import { wallPhysicalSize } from "./wallPhysicalSize";
  * checks a rep must close before quoting.
  */
 
-export type WallWizardStepKey = "job" | "picture" | "size" | "layout" | "location" | "detail";
+export type WallWizardStepKey = "job" | "picture" | "size" | "feeding" | "layout" | "location" | "detail";
 
+/**
+ * The size comes before the connection because the wall decides the canvas,
+ * and the connection before the layout because a window count only means
+ * something once the wall is known to receive one composed picture.
+ */
 export const wallWizardSteps: { key: WallWizardStepKey; label: string }[] = [
   { key: "job", label: "The job" },
   { key: "picture", label: "On the wall" },
   { key: "size", label: "Size and pixels" },
+  { key: "feeding", label: "Connection" },
   { key: "layout", label: "Layout" },
   { key: "location", label: "Sources" },
   { key: "detail", label: "Must-haves" },
@@ -58,6 +65,7 @@ export function wallWizardAnswers(r: WallRequirements): WallWizardAnswer[] {
   return [
     { key: "picture", step: STEP_INDEX.picture, label: "On the wall", value: picture },
     { key: "size", step: STEP_INDEX.size, label: "Size and pixels", value: `${size} · ${wallPhysicalSize(r).text} · ${sourceTiming(r)} source` },
+    { key: "feeding", step: STEP_INDEX.feeding, label: "Connection", value: wallFeedingAnswer(r) },
     { key: "layout", step: STEP_INDEX.layout, label: "Layout", value: layout },
     { key: "location", step: STEP_INDEX.location, label: "Sources", value: location },
   ];

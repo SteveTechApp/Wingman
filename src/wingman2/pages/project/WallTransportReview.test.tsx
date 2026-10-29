@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { routeCatalogByKey } from "../../app/routeCatalog";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { StoredProject } from "../../features/projects";
+import { WALL_ENTRY_SENTENCE_NAME } from "../../lib/wallEntry";
 import { wallStartPresets } from "../../lib/videowallDecision";
 import { wallStartingPointOrigin } from "../../lib/wallStartingPointOrigin";
 import type { WallRequirements } from "../../lib/videowallOptions";
@@ -63,9 +64,10 @@ describe("WallTransportReview draft status", () => {
     expect(note.getAttribute("data-draft-status")).toBe("draft-ahead");
     expect(note.textContent).toContain("the project copy is behind");
     expect(note.textContent).toContain("A reload is safe");
-    // The note leads into the builder the rep has to open to save that work, so
-    // picking it back up is the next thing offered rather than a page to hunt for.
-    const link = screen.getByRole("link", { name: "Continue in the wall builder" });
+    // The note leads into the page the rep has to open to save that work, and it
+    // names that page the way the page's own chrome does, so picking it back up
+    // is the next thing offered rather than a page to hunt for.
+    const link = screen.getByRole("link", { name: `Continue in ${WALL_ENTRY_SENTENCE_NAME}` });
     expect(note.contains(link)).toBe(true);
     // The link names this project, because a bare builder address would reopen
     // whichever wall in this browser was edited last.
@@ -81,7 +83,7 @@ describe("WallTransportReview draft status", () => {
     const note = screen.getByTestId("wall-transport-draft-status");
     expect(note.getAttribute("data-draft-status")).toBe("draft-only");
     // The draft is still the work, so the same way back is offered.
-    expect(screen.getByRole("link", { name: "Continue in the wall builder" }).getAttribute("href"))
+    expect(screen.getByRole("link", { name: `Continue in ${WALL_ENTRY_SENTENCE_NAME}` }).getAttribute("href"))
       .toBe(`${routeCatalogByKey.videowall.path}?project=project-1`);
   });
 

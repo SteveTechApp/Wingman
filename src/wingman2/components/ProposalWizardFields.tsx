@@ -3,9 +3,10 @@ import { REP_COPY, customerCopyText } from "../lib/proposalCopy";
 /**
  * The two editable fields the proposal steps use.
  *
- * They are handed to the view through its values bag, which is why they sit
- * beside it rather than inside one step: every step renders the same field, so
- * the rep only has to learn one input.
+ * Every step renders the same field, so the rep only has to learn one input.
+ * The view imports these directly rather than receiving them through its values
+ * bag: a component passed as a value is typed `any` at the call site, so its
+ * `onChange` let every handler parameter become an implicit `any`.
  */
 export function InputField(props: {
   label: string;

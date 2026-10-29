@@ -58,11 +58,3 @@ export function allNotesAsText(): string {
   }
   return lines.join("\n");
 }
-
-/** Get all SKUs that have at least one non-empty note. */
-export function skusWithNotes(): string[] {
-  const all = safeGet();
-  return Object.entries(all)
-    .filter(([, notes]) => notes.some((n) => n.trim()))
-    .map(([sku]) => sku);
-}

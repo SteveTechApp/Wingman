@@ -4,6 +4,7 @@ import { Download, FileText, LayoutTemplate, Save } from "lucide-react";
 import type { InstallationSchedule, InstallationUnitPrices } from "../lib/installationSchedule";
 import type { InstallationRateCard } from "../lib/installationRateCard";
 import type { ExportValidationResult } from "../lib/proposalExportValidation";
+import type { DependencyPrompt } from "../lib/dependencyScope";
 import type { RoomTemplate } from "../lib/roomTemplates";
 import {
   templatePreIssueResumeStage,
@@ -52,6 +53,19 @@ export type TemplateProposalPanelProps = {
   pricingSummary: TemplatePricingSummary;
   surveyGaps: WallSurveyGap[];
   onRecordSurveyDetail: ((linkDetails: Record<string, WallLinkDetail>) => boolean) | null;
+  /**
+   * Schedules the mid-span repeater and records the span each receiver then
+   * serves, clearing a display run past the range's rating. Null when the caller
+   * cannot write the schedule, so the block keeps its prose fix only.
+   */
+  onScheduleDisplayRunSpans: (() => boolean) | null;
+  /**
+   * The dependency prompts the schedule still carries, and the write that
+   * records one. A template built from a project inherits that project's BOM
+   * verbatim, so a placeholder the rep never answered can hold this page.
+   */
+  dependencyPrompts?: DependencyPrompt[];
+  onRecordDependency?: ((sku: string) => boolean) | null;
   pricing: TemplateProposalPricing;
   bomRows: Parameters<typeof TemplatePricingPanel>[0]["bomRows"];
   installation: InstallationSchedule | null;
@@ -91,6 +105,9 @@ function TemplateProposalWalk({
   pricingSummary,
   surveyGaps,
   onRecordSurveyDetail,
+  onScheduleDisplayRunSpans,
+  dependencyPrompts,
+  onRecordDependency,
   pricing,
   bomRows,
   installation,
@@ -150,6 +167,11 @@ function TemplateProposalWalk({
     });
   }, [template.id, pricing.currency, pricing.bomUnitPrices, pricing.installationUnitPrices]);
 
+  // The fix is offered only where this page can write both halves of it, and
+  // only for a run the blocker is actually about.
+  const displayRunFix = onScheduleDisplayRunSpans && template.surveyedRunMetres
+    ? { runMetres: template.surveyedRunMetres, onSchedule: onScheduleDisplayRunSpans }
+    : null;
   const blocked = !validation.allowed;
   const blockedTitle = (action: string) =>
     blocked ? `Export blocked: ${validation.blockers.length} blocker(s) must be resolved first` : action;
@@ -195,7 +217,15 @@ function TemplateProposalWalk({
           {validation.blockers.length ? (
             <>
               <p>Each one stops the document until it is cleared. The fix is the change that clears it.</p>
-              <TemplateExportValidation part="blockers" validation={validation} surveyGaps={surveyGaps} onRecordSurveyDetail={onRecordSurveyDetail} />
+              <TemplateExportValidation
+                part="blockers"
+                validation={validation}
+                surveyGaps={surveyGaps}
+                onRecordSurveyDetail={onRecordSurveyDetail}
+                displayRun={displayRunFix}
+                dependencyPrompts={dependencyPrompts}
+                onRecordDependency={onRecordDependency}
+              />
             </>
           ) : (
             <p data-testid="template-preissue-blockers-clear">No blockers — nothing is holding the document.</p>

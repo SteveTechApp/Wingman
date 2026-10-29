@@ -1,4 +1,4 @@
-import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.mjs?url";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
 
 export type ExtractedDocument = {
   fileName: string;
@@ -25,7 +25,7 @@ function extensionWarning(fileName: string) {
 }
 
 async function extractPdfText(file: File, onWarning: (warning: string) => void): Promise<string> {
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdfjs = await import("pdfjs-dist/build/pdf.mjs");
   pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
   const pdf = await pdfjs.getDocument({
@@ -100,10 +100,69 @@ async function extractPdfText(file: File, onWarning: (warning: string) => void):
   return text;
 }
 
+/**
+ * Word text, read straight out of the OOXML body.
+ *
+ * A .docx is a zip whose `word/document.xml` holds the runs, so ingest reads it
+ * the way the XLSX path below reads its worksheets — the same `JSZip` chunk and
+ * the same `DOMParser` — instead of shipping a Word parser. Mammoth did this job
+ * and cost 480 KB, and it was code a rep's first page never ran: nothing loaded
+ * it but dropping a .docx on the ingest page. A paragraph is one line, and a
+ * table row is one tab-separated line, because the spec tables this is used for
+ * are useless once a cell reads as a stray sentence.
+ */
 async function extractDocxText(file: File) {
-  const mammoth = await import("mammoth/mammoth.browser");
-  const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
-  return String(result.value || "").trim();
+  const { default: JSZip } = await import("jszip");
+  const archive = await JSZip.loadAsync(await file.arrayBuffer());
+  const bodyXml = await archive.file("word/document.xml")?.async("string");
+  if (!bodyXml) return "";
+
+  const body = xmlDocument(bodyXml).documentElement;
+  // A Word element is `w:p` in the archive's own namespace, which a CSS type
+  // selector does not reach, so elements are found by local name.
+  const elements = (root: Element, localName: string) => Array.from(root.getElementsByTagNameNS("*", localName));
+  const nearest = (element: Element, localName: string) => {
+    let node = element.parentElement;
+    while (node && node.localName !== localName) node = node.parentElement;
+    return node;
+  };
+  const paragraphText = (paragraph: Element) =>
+    elements(paragraph, "t")
+      .map((run) => run.textContent ?? "")
+      .join("")
+      .replace(/\s+/g, " ")
+      .trim();
+  const cellText = (cell: Element, row: Element) =>
+    elements(cell, "p")
+      // A cell holding a nested table keeps that table's own lines, not a copy
+      // of them glued into this cell.
+      .filter((paragraph) => nearest(paragraph, "tr") === row)
+      .map(paragraphText)
+      .filter(Boolean)
+      .join(" ");
+
+  const lines: string[] = [];
+  const rowsRead = new Set<Element>();
+
+  for (const paragraph of elements(body, "p")) {
+    const row = nearest(paragraph, "tr");
+    if (row) {
+      // The row prints once, at the first paragraph a rep reaches in it.
+      if (rowsRead.has(row)) continue;
+      rowsRead.add(row);
+      const cells = Array.from(row.children)
+        .filter((child) => child.localName === "tc")
+        .map((cell) => cellText(cell, row));
+      const line = cells.join("\t").trim();
+      if (line) lines.push(line);
+      continue;
+    }
+
+    const text = paragraphText(paragraph);
+    if (text) lines.push(text);
+  }
+
+  return lines.join("\n").trim();
 }
 
 function xmlDocument(xml: string): Document {
