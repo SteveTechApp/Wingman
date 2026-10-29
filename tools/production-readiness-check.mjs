@@ -240,8 +240,11 @@ const projectDetailSource = readFileSync(
   "utf8",
 );
 
-if (!projectDetailSource.includes("Editable requirements") || !projectDetailSource.includes("saveProjectRequirementsToProject")) {
-  errors.push("Project detail requirement editor is missing.");
+// Requirement edits belong to Discovery: the project record reviews what the
+// saved answers produced and routes a correction back to the questions that own
+// it, so the readiness check follows that route rather than an inline editor.
+if (!projectDetailSource.includes("Edit in Discovery") || !projectDetailSource.includes("discoveryResumeUrl(project.id)")) {
+  errors.push("Project detail no longer routes requirement edits to Discovery.");
 }
 
 const projectRequirementsSource = readFileSync(

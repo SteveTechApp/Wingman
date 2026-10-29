@@ -29,8 +29,10 @@ equivalence merely because acceptance gates are paused.
 `npm run test:strict` runs all ordinary suites, including those acceptance suites.
 The former verification chains remain available as `verify:data:strict`,
 `verify:contract:strict` and `verify:build:strict`. `npm run verify:strict` combines
-the full suite and former verification stages. The pause prints explicitly in
-`verify:data`; it does not report that the catalogue passed quality checks. The
+the full suite and former verification stages. The pause prints explicitly at the
+start of the data stage — `npm run notice:data-revision`, which both
+`verify:data` and `verify:data:strict` run — and it does not report that the
+catalogue passed quality checks. The
 reference-resolution, governance and generated-manifest guards still run in the
 default `verify:data` lane, after that notice, and the room-template lifecycle,
 realism and signal-path gates run in the default `verify:contract` lane, because

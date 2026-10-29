@@ -1,37 +1,40 @@
 import fs from "node:fs";
 import path from "node:path";
+import { atomicWriteJsonSync } from "./lib/atomic-json-writer.mjs";
+import {
+  ROUTE_REGISTRY_PATHS,
+  STALE_LINK_BASELINE_PATH,
+  STALE_LINK_BASELINE_POLICY,
+  compareStaleLinks,
+  mergeStaleLinkBaseline,
+  readRouteRegistryDirect,
+} from "./lib/route-registry-direct.mjs";
+
+/**
+ * The reporter for the direct route-registry audit.
+ *
+ * What this script is for — the registry's own imports, catalogue paths, the Product
+ * Call Cards ownership verdict, the `/wingman` links no route table serves and the orphan
+ * ComparePage — is read by `readRouteRegistryDirect`, which `route-registry-direct.test.mjs`
+ * holds against trees written for each shape. What is left here is the adapters: the
+ * walk over `src` and the reading of each file, because that is the part that has to
+ * touch this checkout, and the printing, because that is the part that has to look
+ * like the report it has always printed.
+ *
+ * The route manifest is an adapter too, and one that fails the run rather than reading
+ * as an answer: the link scan is held to the addresses it declares, so a manifest this
+ * cannot read would list every link in the tree as stale — a report that looks like a
+ * broken tree when the broken thing is the read.
+ *
+ * The stale-link section is the one part of this report that sets the exit code, and the
+ * baseline it is held to (`STALE_LINK_BASELINE_PATH`) fails the run when the file is
+ * there but cannot be read, for the same reason the manifest does: a file that has
+ * drifted into rubbish would report every decision as work and every recorded file as
+ * suspect. An absent file is not that — it reads as no decisions made yet, so the run
+ * reports every stale link as work (and the updater can create the file).
+ */
 
 const repo = process.cwd();
-
-function read(relPath) {
-  const full = path.join(repo, relPath);
-  if (!fs.existsSync(full)) return "";
-  return fs.readFileSync(full, "utf8");
-}
-
-function lineNumber(text, index) {
-  return text.slice(0, index).split(/\r?\n/).length;
-}
-
-function resolveImport(fromRel, importPath) {
-  if (!importPath.startsWith(".")) return "";
-
-  const fromDir = path.dirname(path.join(repo, fromRel));
-  const base = path.resolve(fromDir, importPath);
-
-  const attempts = [
-    base,
-    `${base}.tsx`,
-    `${base}.ts`,
-    `${base}.jsx`,
-    `${base}.js`,
-    path.join(base, "index.tsx"),
-    path.join(base, "index.ts"),
-  ];
-
-  const found = attempts.find((file) => fs.existsSync(file));
-  return found ? path.relative(repo, found).replaceAll("\\", "/") : "";
-}
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -56,143 +59,200 @@ function walk(dir) {
   return files;
 }
 
+const sourceFiles = walk(path.join(repo, "src")).map((file) => ({
+  path: path.relative(repo, file).replaceAll("\\", "/"),
+  text: fs.readFileSync(file, "utf8"),
+}));
+
+const manifestFile = path.join(repo, ROUTE_REGISTRY_PATHS.routeManifest);
+let routeManifest = [];
+try {
+  routeManifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
+} catch {
+  console.log("");
+  console.log("== WINGMAN ROUTE REGISTRY DIRECT AUDIT ==");
+  console.log("");
+  console.log(`Missing: ${ROUTE_REGISTRY_PATHS.routeManifest}`);
+  process.exit(1);
+}
+
+const baselineFile = path.join(repo, STALE_LINK_BASELINE_PATH);
+let staleLinkBaseline = [];
+try {
+  const parsed = JSON.parse(fs.readFileSync(baselineFile, "utf8"));
+  if (!Array.isArray(parsed?.links)) {
+    throw new Error("it has no links array");
+  }
+  staleLinkBaseline = parsed.links;
+} catch (error) {
+  if (error.code !== "ENOENT") {
+    console.log("");
+    console.log("== WINGMAN ROUTE REGISTRY DIRECT AUDIT ==");
+    console.log("");
+    console.log(`Unreadable: ${STALE_LINK_BASELINE_PATH} (${error.message})`);
+    process.exit(1);
+  }
+}
+
+const reading = readRouteRegistryDirect({ sourceFiles, routeManifest });
+
+// The one way to write the baseline, and it writes from the run's own reading rather
+// than from what a person typed: the file then says exactly what the tree holds, and the
+// reason field is left empty for the entries that are new, so the next run reports them
+// instead of accepting them.
+if (process.argv.includes("--update-baseline")) {
+  staleLinkBaseline = mergeStaleLinkBaseline({
+    baseline: staleLinkBaseline,
+    links: reading.unownedLinks,
+  });
+  atomicWriteJsonSync(baselineFile, {
+    policy: STALE_LINK_BASELINE_POLICY,
+    updatedAt: new Date().toISOString().slice(0, 10),
+    links: staleLinkBaseline,
+  });
+  console.log("");
+  console.log(`Updated ${STALE_LINK_BASELINE_PATH} from this run's reading.`);
+}
+
 console.log("");
 console.log("== WINGMAN ROUTE REGISTRY DIRECT AUDIT ==");
 console.log("");
 
-const routesRel = "src/wingman2/app/routes.tsx";
-const catalogRel = "src/wingman2/app/routeCatalog.ts";
-const routesText = read(routesRel);
-const catalogText = read(catalogRel);
-
-if (!routesText) {
-  console.log(`Missing: ${routesRel}`);
+if (reading.missingRoutesFile) {
+  console.log(`Missing: ${reading.routesPath}`);
   process.exit(1);
 }
 
 console.log("== routes.tsx lazy imports ==");
-const routeImports = [];
-
-for (const match of routesText.matchAll(/([A-Za-z0-9_]+)\s*:\s*lazy\s*\([\s\S]*?import\s*\(\s*["']([^"']+)["']\s*\)[\s\S]*?\)/g)) {
-  const key = match[1];
-  const source = match[2];
-  const line = lineNumber(routesText, match.index ?? 0);
-  const resolved = resolveImport(routesRel, source);
-
-  routeImports.push({ key, source, line, resolved });
-  console.log(`${key.padEnd(24)} line ${String(line).padStart(3)}  ${source}  =>  ${resolved || "UNRESOLVED"}`);
+for (const item of reading.routeImports) {
+  console.log(
+    `${item.key.padEnd(24)} line ${String(item.line).padStart(3)}  ${item.source}  =>  ${item.resolved || "UNRESOLVED"}`,
+  );
 }
 
-if (!routeImports.length) {
+if (!reading.routeImports.length) {
   console.log("No lazy route imports found. routes.tsx may use a different pattern.");
 }
 
 console.log("");
 console.log("== routeCatalog.ts /wingman paths ==");
-const catalogPaths = [];
-
-for (const match of catalogText.matchAll(/([A-Za-z0-9_]+)\s*:\s*["'](\/wingman[^"']*)["']/g)) {
-  const key = match[1];
-  const routePath = match[2];
-  const line = lineNumber(catalogText, match.index ?? 0);
-
-  catalogPaths.push({ key, routePath, line });
-  console.log(`${key.padEnd(24)} line ${String(line).padStart(3)}  ${routePath}`);
+for (const item of reading.catalogPaths) {
+  console.log(`${item.key.padEnd(24)} line ${String(item.line).padStart(3)}  ${item.routePath}`);
 }
 
 console.log("");
 console.log("== page files imported by routes.tsx ==");
-for (const item of routeImports) {
-  const status = item.resolved && fs.existsSync(path.join(repo, item.resolved)) ? "OK" : "MISSING";
-  console.log(`${status.padEnd(8)} ${item.key.padEnd(24)} ${item.resolved || item.source}`);
+for (const item of reading.importStatuses) {
+  console.log(`${(item.exists ? "OK" : "MISSING").padEnd(8)} ${item.key.padEnd(24)} ${item.resolved || item.source}`);
 }
 
 console.log("");
 console.log("== Product Call Cards ownership ==");
-const canonicalProductCallCardsFile = "src/wingman2/pages/ProductCallCardsPage.tsx";
-const legacyProductCallCardsDirectory = "src/wingman2/pages/productCallCards";
-const canonicalExists = fs.existsSync(path.join(repo, canonicalProductCallCardsFile));
-const legacyDirectoryPath = path.join(repo, legacyProductCallCardsDirectory);
-const legacyExists = fs.existsSync(legacyDirectoryPath) && walk(legacyDirectoryPath).length > 0;
+const { canonicalPath, canonicalExists, legacyPath, legacyFiles, ownershipOk } = reading.productCallCards;
+console.log(`${canonicalExists ? "OK" : "MISSING"}  ${canonicalPath}`);
+console.log(
+  `${legacyFiles.length ? "STALE" : "OK"}  one routed implementation; no legacy multi-page duplicate` +
+    (legacyFiles.length ? ` (${legacyPath} holds ${legacyFiles.length}: ${legacyFiles.join(", ")})` : ""),
+);
 
-console.log(`${canonicalExists ? "OK" : "MISSING"}  ${canonicalProductCallCardsFile}`);
-console.log(`${legacyExists ? "STALE" : "OK"}  one routed implementation; no legacy multi-page duplicate`);
-
-if (!canonicalExists || legacyExists) {
+if (!ownershipOk) {
   process.exitCode = 1;
 }
 
 console.log("");
 console.log("== files importing Product Call Cards files ==");
-const allFiles = walk(path.join(repo, "src"));
-
-for (const file of allFiles) {
-  const text = fs.readFileSync(file, "utf8");
-  const relFile = path.relative(repo, file).replaceAll("\\", "/");
-
-  if (
-    text.includes("ProductCallCardsPage")
-  ) {
-    console.log(relFile);
-  }
+for (const file of reading.productCallCardsImporters) {
+  console.log(file);
 }
 
 console.log("");
-console.log("== possible stale /wingman links ==");
-const knownCatalogPaths = new Set(catalogPaths.map((item) => item.routePath.replace(/\/$/, "")));
-knownCatalogPaths.add("/wingman");
+console.log("== /wingman links the route tables do not serve ==");
+console.log(
+  `held to ${reading.declaredAddresses.length} addresses from ${reading.routeManifestPath}`
+    + ` and ${reading.routerAddresses.length} rows registered by ${reading.routesPath};`
+    + " a parameter and a splat each serve the addresses below them:",
+);
+if (!reading.unownedLinks.length) {
+  console.log("No /wingman link names an address the manifest or the router does not serve.");
+}
+for (const link of reading.unownedLinks) {
+  const compared = link.address === link.routePath ? "" : `  (as ${link.address})`;
+  console.log(`${link.file}:${link.line}  ${link.routePath}${compared}`);
+}
 
-const wingmanLinks = [];
+// The verdict. A stale link here is either a link to fix or a decision to write down, and
+// the run cannot tell which without the baseline, so the section named each one and left
+// it at that — which read as a pass. It is the one question in this report about the
+// tree's behaviour rather than the registry's shape: a renamed address is a link a rep
+// clicks into a dead page, and the lines above are how the last rename was found.
+const staleLinkGate = compareStaleLinks({
+  links: reading.unownedLinks,
+  baseline: staleLinkBaseline,
+});
 
-for (const file of allFiles) {
-  const text = fs.readFileSync(file, "utf8");
-  const relFile = path.relative(repo, file).replaceAll("\\", "/");
-
-  for (const match of text.matchAll(/["'](\/wingman[^"']*)["']/g)) {
-    const routePath = match[1];
-    const cleanPath = routePath.replace(/\/$/, "");
-
-    if (
-      routePath.includes(".json") ||
-      routePath.includes("${") ||
-      knownCatalogPaths.has(cleanPath)
-    ) {
-      continue;
-    }
-
-    wingmanLinks.push({
-      file: relFile,
-      line: lineNumber(text, match.index ?? 0),
-      routePath,
-    });
+if (staleLinkGate.added.length) {
+  console.error("");
+  console.error(
+    `[route-registry-direct] FAILED. ${staleLinkGate.added.length} stale /wingman link(s) no decision covers:`,
+  );
+  for (const link of staleLinkGate.added) {
+    console.error(`- ${link.file}:${link.line}  ${link.routePath}`);
   }
+  console.error(
+    "Each one is a link to a page the route tables do not serve. Fix the address, or — if the address is the point, as a spec's negative case is — record it with its reason:",
+  );
+  console.error(`  node tools/audit-wingman-route-registry-direct.mjs --update-baseline  then fill in reason in ${STALE_LINK_BASELINE_PATH}`);
+  process.exitCode = 1;
 }
 
-if (!wingmanLinks.length) {
-  console.log("No stale links found by this direct scan.");
+if (staleLinkGate.stale.length) {
+  console.error("");
+  console.error(
+    `[route-registry-direct] FAILED. ${staleLinkGate.stale.length} recorded allowance(s) this tree no longer needs: the baseline only ratchets down.`,
+  );
+  for (const entry of staleLinkGate.stale) {
+    console.error(`- ${entry.file} — ${entry.address}`);
+  }
+  console.error(
+    `The link was fixed or removed, so the entry is now a note that its file is suspect. Drop it: node tools/audit-wingman-route-registry-direct.mjs --update-baseline`,
+  );
+  process.exitCode = 1;
 }
 
-for (const link of wingmanLinks) {
-  console.log(`${link.file}:${link.line}  ${link.routePath}`);
+if (staleLinkGate.unreasoned.length) {
+  console.error("");
+  console.error(
+    `[route-registry-direct] FAILED. ${staleLinkGate.unreasoned.length} recorded allowance(s) do not say what the address is for:`,
+  );
+  for (const entry of staleLinkGate.unreasoned) {
+    console.error(`- ${entry.file} — ${entry.address}`);
+  }
+  console.error(
+    `An allowance is a decision, and a decision without a sentence is one a reader cannot review. Say what the address is for in ${STALE_LINK_BASELINE_PATH}.`,
+  );
+  process.exitCode = 1;
+}
+
+if (
+  reading.unownedLinks.length &&
+  !staleLinkGate.added.length &&
+  !staleLinkGate.stale.length &&
+  !staleLinkGate.unreasoned.length
+) {
+  console.log(
+    `Every one of them is recorded with its reason in ${STALE_LINK_BASELINE_PATH}; a link added or renamed here fails the run.`,
+  );
 }
 
 console.log("");
 console.log("== orphan ComparePage check ==");
-const comparePath = "src/wingman2/pages/ComparePage.tsx";
-const compareExists = fs.existsSync(path.join(repo, comparePath));
-
-if (!compareExists) {
+if (!reading.comparePage.exists) {
   console.log("ComparePage.tsx does not exist.");
 } else {
-  const importedBy = allFiles
-    .filter((file) => {
-      const text = fs.readFileSync(file, "utf8");
-      return text.includes("ComparePage") || text.includes("./pages/ComparePage") || text.includes("./ComparePage");
-    })
-    .map((file) => path.relative(repo, file).replaceAll("\\", "/"));
-
-  console.log(`${comparePath} exists`);
-  console.log(`Imported by: ${importedBy.length ? importedBy.join(", ") : "nothing detected"}`);
+  console.log(`${reading.comparePage.path} exists`);
+  console.log(
+    `Imported by: ${reading.comparePage.importedBy.length ? reading.comparePage.importedBy.join(", ") : "nothing detected"}`,
+  );
 }
 
 console.log("");

@@ -1,0 +1,5 @@
+{
+  "updatedAt": "2026-10-26T21:27:01.756Z",
+  "rule": "Fields of a persisted record that nothing in the app reads, recorded so the gate fails on new ones only. Regenerate with `node tools/check-stored-records.mjs --update-baseline` after giving a field a reader or removing it; the gate fails an entry that has gained one.",
+  "unreadFields": []
+}

@@ -3,6 +3,9 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+// The build records the bytes it read, which is what the browser walk asks for
+// before it measures the bundle: a file time cannot tell an edit from a checkout.
+import { buildManifestPlugin } from "./tools/lib/build-freshness.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -92,7 +95,13 @@ function wingmanChunkBudget(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [tailwindcss(), react(), wingmanServiceWorkerVersion(), wingmanChunkBudget()],
+  plugins: [
+    tailwindcss(),
+    react(),
+    wingmanServiceWorkerVersion(),
+    wingmanChunkBudget(),
+    buildManifestPlugin(),
+  ],
   // Inline configuration prevents parent/nested checkouts from supplying a v3 PostCSS relic.
   css: { postcss: { plugins: [] } },
   resolve: {
