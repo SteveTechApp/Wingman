@@ -1,9 +1,18 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
-const page = readFileSync(resolve(root, "src/wingman2/pages/ComparePageNew.advanced.tsx"), "utf8");
+// The page entry is a route component over modules in `pages/compare/`, so the
+// contract follows the markup rather than one file path: reading only the entry
+// made a moved combobox look like a removed one.
+const comparePageDir = resolve(root, "src/wingman2/pages/compare");
+const page = [
+  readFileSync(resolve(root, "src/wingman2/pages/ComparePageNew.advanced.tsx"), "utf8"),
+  ...readdirSync(comparePageDir)
+    .filter((file) => /\.tsx?$/.test(file))
+    .map((file) => readFileSync(resolve(comparePageDir, file), "utf8")),
+].join("\n");
 const css = readFileSync(resolve(root, "src/wingman2/styles/wingman-workflow-theme.css"), "utf8");
 
 describe("Compare inline dropdown contract", () => {

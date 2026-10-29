@@ -96,7 +96,18 @@ if (failures.length === 0) {
     failures.push(`Unable to parse competitor match ledger: ${error.message}`);
   }
 
-  const comparePage = read(files.comparePage);
+  // The page is emptied into `pages/compare/` block by block, so the governed
+  // wiring this gate is about moves with it. Read the page entry plus every
+  // non-test module it renders from: reading the entry alone would report
+  // markers that merely changed file as missing.
+  const compareModuleDir = "src/wingman2/pages/compare";
+  const compareModules = fs
+    .readdirSync(path.join(root, compareModuleDir))
+    .filter((name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name))
+    .sort()
+    .map((name) => compareModuleDir + "/" + name);
+  const comparePage = [files.comparePage, ...compareModules].map(read).join("\n\n");
+
   const requiredRuntimeMarkers = [
     "readCompetitorMatchDecisionLedger",
     "resolveApprovedGovernedDecision",
