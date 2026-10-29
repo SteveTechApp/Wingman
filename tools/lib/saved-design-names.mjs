@@ -21,14 +21,66 @@
  * 761px — a room saved as a design needs a card that can print the design's name,
  * and a 250px card cannot — so the narrowest two-column card is a ~370px one, and
  * the tightest reading either surface meets is 23: the gallery card's 250px phone
- * entry prints 23 of a 103-character name, and the strip's narrowest column keeps
- * 40 of an 87-character one. 20 is under that tightest measurement by enough that
- * a different font's metrics cannot fail a card that is not a stub, and it is far
- * above the verb and a letter, which is the failure this floor exists to catch —
- * the number the gallery could hold at 14 was a floor that let a real design name
- * be cut to a stub.
+ * entry prints 23 of a 79-character name, and the strip's narrowest column keeps
+ * 40 of an 87-character one. That 23 is a column's, not a fixture's — the pass's
+ * short seeds carry 34 characters, so the entry they feed is clipped on the narrow
+ * cards and the count beside it is what a column agreed to show; while a seed name
+ * of 23 characters was printing whole at every width, the tightest line reported a
+ * fixture's length and the floor's headroom was measured against nothing. 20 is
+ * under that tightest measurement by enough that a different font's metrics cannot
+ * fail a card that is not a stub, and it is far above the verb and a letter, which
+ * is the failure this floor exists to catch — the number the gallery could hold at
+ * 14 was a floor that let a real design name be cut to a stub.
  */
 export const SAVED_DESIGN_NAME_FLOOR = 20;
+
+/**
+ * The entry with the most name to lose, at each width the gallery was measured at.
+ *
+ * The number that says what a width keeps is the one from a name longer than its
+ * column, not the smallest count on the page: a card saved as "Kingsway Training
+ * 75 in wall display" is 34 characters and prints all 34 of them at 1366px, so
+ * picking the smallest count names that card at eight of nine widths and says
+ * nothing about any of them. The pick is therefore the longest name at that width — the cell with
+ * the most to lose — and the count beside it is the column's reading. A tie goes to
+ * the smaller count, because two names of equal length are distinguished by which
+ * column cut one.
+ *
+ * Widest first, because that is the order a reader compares a layout in and the
+ * order the widths are listed in.
+ */
+export function mostToLosePerWidth(readings = []) {
+  const byWidth = new Map();
+  for (const reading of readings) {
+    if (!Number.isFinite(reading?.width) || !Number.isFinite(reading?.printed)) continue;
+    const held = byWidth.get(reading.width);
+    if (!held) {
+      byWidth.set(reading.width, reading);
+      continue;
+    }
+    const riskier = (reading.characters ?? 0) > (held.characters ?? 0)
+      || ((reading.characters ?? 0) === (held.characters ?? 0) && reading.printed < held.printed);
+    if (riskier) byWidth.set(reading.width, reading);
+  }
+  return [...byWidth.values()].sort((left, right) => right.width - left.width);
+}
+
+/**
+ * The same numbers as one sentence: every width, its count, and the card it came
+ * from.
+ *
+ * Returning `""` for no readings is deliberate — a pass with no design entry has
+ * nothing to promise, and a caller that prints an empty clause prints no claim
+ * rather than a claim of zero.
+ */
+export function designNameWidthClause(readings = []) {
+  const rows = mostToLosePerWidth(readings);
+  if (!rows.length) return "";
+  const parts = rows.map((row) => `${row.printed} of ${row.characters} at ${row.width}px`
+    + `${row.room ? ` on ${row.room}'s card` : ""}`);
+  return `By width, the longest-named design entry printed ${parts.slice(0, -1).join(", ")}`
+    + `${parts.length > 1 ? " and " : ""}${parts.at(-1)}.`;
+}
 
 /**
  * A saved-design link printed too little of the name to tell one design from another.

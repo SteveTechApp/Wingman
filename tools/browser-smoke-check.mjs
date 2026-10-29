@@ -36,7 +36,7 @@ import {
   wallStartReadoutFailure,
   wallStartStepFailure,
 } from "./lib/wall-start-step.mjs";
-import { SAVED_DESIGN_NAME_FLOOR, savedDesignNameFailure } from "./lib/saved-design-names.mjs";
+import { SAVED_DESIGN_NAME_FLOOR, designNameWidthClause, savedDesignNameFailure } from "./lib/saved-design-names.mjs";
 import { stepCardFailure, stepCardStateFailure } from "./lib/proposal-step-cards.mjs";
 import {
   recentChipLabelsFailure,
@@ -525,10 +525,17 @@ const GALLERY_ROW_STATES = [
     // design line with. The names stay short so the row's wrap is about the count
     // of entries rather than about their length, and the room is a store state
     // because the three starters are already a row each above.
+    //
+    // They carry a room and a display size too, which is the one thing this row
+    // owes the floor rather than its own wrap: a name of `Kingsway Training 75 in`
+    // is 23 characters and a card prints all 23 of them at every width, so the
+    // tightest reading the gallery pass reported was that fixture's length and not
+    // any column's. At 34 characters the entry is clipped on the narrow cards, so
+    // the count beside the narrowest one is what a column agreed to show.
     key: "two-short",
     roomId: TWO_SHORT_DESIGN_PROJECT.id,
     room: TWO_SHORT_DESIGN_PROJECT.name,
-    designs: ["Kingsway Training 75 in", "Kingsway Training 86 in"],
+    designs: ["Kingsway Training 75 in wall display", "Kingsway Training 86 in wall display"],
     project: TWO_SHORT_DESIGN_PROJECT,
     rowLines: 3,
     headline: "the row two short-named designs share, which the single-short-name row cannot speak for",
@@ -1638,7 +1645,11 @@ async function assertGalleryCardActions(page) {
     (tightest, reading) => ((reading.printed ?? 0) < (tightest.printed ?? 0) ? reading : tightest),
     designNameReadings[0],
   );
-  console.log(`[browser-smoke] ${GALLERY_ROW_STATES.length} gallery card row states hold their action rows at ${measuredWidths}, each one seeded and measured from the same list: ${rowClauses.join("; ")}. ${sharingClause}The store line above the cards names the same lanes at those widths: at 360px the card's lane label holds ${cardLabelAt360}px and the line's ${narrowestLabel}px. Each design entry prints at least ${SAVED_DESIGN_NAME_FLOOR} characters of the design's name — at 360px the longest-named entry ("${firstEntry?.name}") is ${firstEntry?.width}px and prints ${firstEntry?.nameCharacters} of ${firstEntry?.name.length} characters, and the tightest entry this run met was ${tightestName?.printed} of ${tightestName?.characters} on ${tightestName?.room}'s card at ${tightestName?.at} (a ${tightestName?.entry}px entry in a ${tightestName?.columns}-column gallery, ${tightestName?.sharedLine ? "the pair on its line" : "the pair below it"}).`);
+  // Each width's own count, so a width that clears the floor still names its number:
+  // the 581px reading was the one the floor question was asked about, and the
+  // sentence above it only ever printed the run's global minimum.
+  const designNameByWidth = designNameWidthClause(designNameReadings);
+  console.log(`[browser-smoke] ${GALLERY_ROW_STATES.length} gallery card row states hold their action rows at ${measuredWidths}, each one seeded and measured from the same list: ${rowClauses.join("; ")}. ${sharingClause}The store line above the cards names the same lanes at those widths: at 360px the card's lane label holds ${cardLabelAt360}px and the line's ${narrowestLabel}px. Each design entry prints at least ${SAVED_DESIGN_NAME_FLOOR} characters of the design's name — at 360px the longest-named entry ("${firstEntry?.name}") is ${firstEntry?.width}px and prints ${firstEntry?.nameCharacters} of ${firstEntry?.name.length} characters, and the tightest entry this run met was ${tightestName?.printed} of ${tightestName?.characters} on ${tightestName?.room}'s card at ${tightestName?.at} (a ${tightestName?.entry}px entry in a ${tightestName?.columns}-column gallery, ${tightestName?.sharedLine ? "the pair on its line" : "the pair below it"}). ${designNameByWidth}`);
 }
 
 /**
