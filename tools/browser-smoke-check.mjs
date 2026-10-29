@@ -30,6 +30,12 @@ import {
   readHeroActionRow,
 } from "./lib/hero-header-layout.mjs";
 import { readRecentStripPick } from "./lib/recent-strip-pick.mjs";
+import {
+  WALL_START_VIEWPORTS,
+  wallStartBriefLeadsFailure,
+  wallStartReadoutFailure,
+  wallStartStepFailure,
+} from "./lib/wall-start-step.mjs";
 import { SAVED_DESIGN_NAME_FLOOR, savedDesignNameFailure } from "./lib/saved-design-names.mjs";
 import { stepCardFailure, stepCardStateFailure } from "./lib/proposal-step-cards.mjs";
 import {
@@ -3809,6 +3815,177 @@ async function assertProposalStepCards(page) {
 }
 
 /**
+ * The guided wall wizard's start step, measured: the card's box, every block it
+ * lays out, the brief against the common walls, and the read-out against the two
+ * canvas fields.
+ *
+ * What those boxes mean is `lib/wall-start-step.mjs`; this is the `page.evaluate`
+ * that produces them, which only a browser can take. The brief is measured where
+ * the step mounts it rather than by a selector of its own internals, so a control
+ * that moved inside the brief would answer here as a narrower brief instead of a
+ * passing reading.
+ */
+async function measureWallStartStep(page) {
+  return page.evaluate(() => {
+    const card = document.querySelector('[data-testid="videowall-wizard-step-job"]');
+    if (!card) return null;
+
+    const cardBox = card.getBoundingClientRect();
+    const cardStyle = getComputedStyle(card);
+    const contentBox = {
+      left: cardBox.left + parseFloat(cardStyle.paddingLeft),
+      right: cardBox.right - parseFloat(cardStyle.paddingRight),
+    };
+    const outside = (box, within) => box.left < within.left - 1 || box.right > within.right + 1;
+    const name = (node) =>
+      `${node.tagName.toLowerCase()}${node.classList.length ? `.${[...node.classList].slice(0, 2).join(".")}` : ""}`;
+    const rect = (node) => {
+      if (!node) return null;
+      const box = node.getBoundingClientRect();
+      return {
+        left: Math.round(box.left),
+        right: Math.round(box.right),
+        top: Math.round(box.top),
+        bottom: Math.round(box.bottom),
+        width: Math.round(box.width),
+        height: Math.round(box.height),
+      };
+    };
+
+    let clip = null;
+    for (let node = card.parentElement; node; node = node.parentElement) {
+      const nodeStyle = getComputedStyle(node);
+      if (nodeStyle.overflowX !== "visible" || nodeStyle.overflowY !== "visible") {
+        clip = node.getBoundingClientRect();
+        break;
+      }
+    }
+
+    const tree = [];
+    for (let node = card; node; node = node.parentElement) {
+      const nodeStyle = getComputedStyle(node);
+      tree.push({
+        node: `${node.tagName.toLowerCase()}${node.classList.length ? `.${[...node.classList].slice(0, 3).join(".")}` : ""}`,
+        width: node.clientWidth,
+        scroll: node.scrollWidth,
+        display: nodeStyle.display,
+        columns: nodeStyle.gridTemplateColumns,
+        overflowX: nodeStyle.overflowX,
+      });
+    }
+
+    const escaped = [];
+    let widest = 0;
+    const walk = (node) => {
+      for (const child of node.children) {
+        const childStyle = getComputedStyle(child);
+        const childBox = child.getBoundingClientRect();
+        // A drawer or an overlay is anchored to the viewport, so its box says
+        // nothing about where the card put it.
+        if (childStyle.position === "fixed") continue;
+        // A closed disclosure keeps its computed display and a layout rect, so
+        // nothing but checkVisibility says it is off screen.
+        const rendered = typeof child.checkVisibility === "function"
+          ? child.checkVisibility({ checkVisibilityCSS: true })
+          : childBox.width > 0 && childBox.height > 0;
+        if (!rendered) continue;
+        widest = Math.max(widest, Math.round(childBox.width));
+        // A box that scrolls or clips answers for its own content, and the
+        // content inside it is reached rather than cut.
+        if (childStyle.overflowX !== "visible") continue;
+        if (outside(childBox, contentBox)) {
+          escaped.push({
+            name: name(child),
+            node: name(child),
+            width: Math.round(childBox.width),
+            past: Math.round(childBox.right - contentBox.right),
+          });
+          continue;
+        }
+        walk(child);
+      }
+    };
+    walk(card);
+
+    const brief = document.querySelector('[data-testid="videowall-led-brief"]');
+    const readout = document.querySelector('[data-testid="videowall-led-brief-readout"]');
+    const walls = [...document.querySelectorAll('[data-testid^="videowall-preset-"]')];
+    // The heading over the list, found by its own words: it is the block the
+    // brief has to end above, and a step that lost it is a failure rather than a
+    // comparison against nothing.
+    const commonWalls = [...card.querySelectorAll("h2")]
+      .find((heading) => (heading.textContent ?? "").trim() === "Common walls") ?? null;
+    const questions = [...card.querySelectorAll("button")]
+      .find((button) => /Answer the questions instead/.test(button.textContent ?? "")) ?? null;
+    const canvasInputs = [...(brief?.querySelectorAll('input[type="number"]') ?? [])];
+
+    return {
+      card: { width: card.clientWidth, scroll: card.scrollWidth },
+      content: Math.round(contentBox.right - contentBox.left),
+      widest,
+      tree,
+      clipped: clip ? outside(cardBox, clip) : null,
+      escaped,
+      brief: rect(brief),
+      commonWalls: rect(commonWalls),
+      questions: rect(questions),
+      firstWall: rect(walls[0] ?? null),
+      rows: walls.length,
+      readout: readout
+        ? { ...rect(readout), scroll: readout.scrollWidth, text: (readout.textContent ?? "").trim() }
+        : null,
+      canvas: {
+        width: Number(canvasInputs[0]?.value ?? 0),
+        height: Number(canvasInputs[1]?.value ?? 0),
+      },
+    };
+  });
+}
+
+/**
+ * The guided wall wizard's start step, at the laptop width and on both phones.
+ *
+ * The step was reordered so an LED design begins with its own brief — canvas,
+ * pitch, cabinet array — instead of a wall someone else answered, and that
+ * ordering is what this pass holds: the brief's box ends above the common walls,
+ * the way past those walls sits above the first of them, and the read-out states
+ * the canvas the fields hold. The card's own containment is read in the same
+ * sweep, because the phone widths are where a row of chips is widest against the
+ * card.
+ *
+ * The step is opened by its address rather than by clicking through the wizard:
+ * it is step one, which is where the route lands, so the reading cannot be taken
+ * on a step a rep had to answer three questions to reach.
+ */
+async function assertWallWizardStartStep(page) {
+  await page.goto(`http://127.0.0.1:${port}/wingman/videowall`, { waitUntil: "networkidle" });
+  await expect(
+    page.getByTestId("videowall-wizard-step-job"),
+    "The wall wizard should open on its start step",
+  ).toBeVisible({ timeout: 15_000 });
+
+  const readings = [];
+  for (const viewport of WALL_START_VIEWPORTS) {
+    await page.setViewportSize(viewport);
+    const at = `${viewport.width}px`;
+    const measured = await measureWallStartStep(page);
+    const failure = wallStartStepFailure(measured, { at })
+      ?? wallStartBriefLeadsFailure(measured, { at })
+      ?? wallStartReadoutFailure(measured, { at });
+    if (failure) throw new Error(failure);
+    readings.push(
+      `${at}: card ${measured.card.width}px holding ${measured.content}px,`
+      + ` brief ${measured.brief.width}×${measured.brief.height}px above ${measured.rows} walls,`
+      + ` read-out ${measured.readout.width}px, widest block ${measured.widest}px`,
+    );
+  }
+
+  await page.setViewportSize({ width: 1366, height: 900 });
+  console.log(
+    `[browser-smoke] The guided wall wizard's start step leads with the LED brief and holds it at 1366px, 390px and 360px — ${readings.join("; ")}.`,
+  );
+}
+/**
  * The one hero in the app whose header carries an action row, and the actions it
  * carries: three buttons is the most a phone-width row has to hold on one line.
  *
@@ -5165,6 +5342,10 @@ try {
   await assertRetiredStorageNote(page);
 
   await assertHeroHeaders(page);
+
+  // Before the expert view is opened below: the guided start step is what a rep
+  // sees first, and switching the page to the expert reading leaves it unmeasured.
+  await assertWallWizardStartStep(page);
 
   await assertPageText(page, "/wingman/videowall", "Start from the job");
   await page.getByTestId("videowall-wizard-expert").click();
