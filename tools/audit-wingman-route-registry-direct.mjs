@@ -78,12 +78,18 @@ try {
 
 const baselineFile = path.join(repo, STALE_LINK_BASELINE_PATH);
 let staleLinkBaseline = [];
+// The date the allowance was last written, read beside the entries so the run can
+// print it: a count with no date says how much the list allows, not whether it grew
+// this week or two months ago. Null when the file does not exist, which the report
+// says apart from a file that is simply empty.
+let staleLinkBaselineUpdatedAt = null;
 try {
   const parsed = JSON.parse(fs.readFileSync(baselineFile, "utf8"));
   if (!Array.isArray(parsed?.links)) {
     throw new Error("it has no links array");
   }
   staleLinkBaseline = parsed.links;
+  staleLinkBaselineUpdatedAt = typeof parsed.updatedAt === "string" ? parsed.updatedAt : "undated";
 } catch (error) {
   if (error.code !== "ENOENT") {
     console.log("");
@@ -105,9 +111,10 @@ if (process.argv.includes("--update-baseline")) {
     baseline: staleLinkBaseline,
     links: reading.unownedLinks,
   });
+  staleLinkBaselineUpdatedAt = new Date().toISOString().slice(0, 10);
   atomicWriteJsonSync(baselineFile, {
     policy: STALE_LINK_BASELINE_POLICY,
-    updatedAt: new Date().toISOString().slice(0, 10),
+    updatedAt: staleLinkBaselineUpdatedAt,
     links: staleLinkBaseline,
   });
   console.log("");
@@ -171,6 +178,14 @@ console.log(
   `held to ${reading.declaredAddresses.length} addresses from ${reading.routeManifestPath}`
     + ` and ${reading.routerAddresses.length} rows registered by ${reading.routesPath};`
     + " a parameter and a splat each serve the addresses below them:",
+);
+const allowanceSince = staleLinkBaselineUpdatedAt && staleLinkBaselineUpdatedAt !== "undated"
+  ? `, last updated ${staleLinkBaselineUpdatedAt}`
+  : ", with no updatedAt recorded";
+console.log(
+  staleLinkBaselineUpdatedAt
+    ? `Allowance: ${staleLinkBaseline.length} stale link(s) in ${STALE_LINK_BASELINE_PATH}${allowanceSince}.`
+    : `Allowance: none — there is no ${STALE_LINK_BASELINE_PATH} yet, so every stale link below fails the run.`,
 );
 if (!reading.unownedLinks.length) {
   console.log("No /wingman link names an address the manifest or the router does not serve.");
