@@ -6,8 +6,11 @@ import {
   STALE_LINK_BASELINE_PATH,
   STALE_LINK_BASELINE_POLICY,
   compareStaleLinks,
+  entriesAddedByWrite,
   mergeStaleLinkBaseline,
   readRouteRegistryDirect,
+  sameStaleLinkEntries,
+  staleLinkKey,
 } from "./lib/route-registry-direct.mjs";
 
 /**
@@ -107,11 +110,21 @@ const reading = readRouteRegistryDirect({ sourceFiles, routeManifest });
 // reason field is left empty for the entries that are new, so the next run reports them
 // instead of accepting them.
 if (process.argv.includes("--update-baseline")) {
-  staleLinkBaseline = mergeStaleLinkBaseline({
+  const today = new Date().toISOString().slice(0, 10);
+  const merged = mergeStaleLinkBaseline({
     baseline: staleLinkBaseline,
     links: reading.unownedLinks,
+    today,
   });
-  staleLinkBaselineUpdatedAt = new Date().toISOString().slice(0, 10);
+  // `updatedAt` is the date the list last changed, not the date it was last written: the
+  // report reads the entries dated by it as the count's growth, so a write that adds
+  // nothing has to leave it alone or every run would re-date the whole list and no entry
+  // would ever look newer than the last one. The file is still rewritten, because that
+  // is how a policy line or a hand-edited field is brought back in line with the code.
+  const undated = !staleLinkBaselineUpdatedAt || staleLinkBaselineUpdatedAt === "undated";
+  const changed = !sameStaleLinkEntries(staleLinkBaseline, merged);
+  staleLinkBaseline = merged;
+  if (changed || undated) staleLinkBaselineUpdatedAt = today;
   atomicWriteJsonSync(baselineFile, {
     policy: STALE_LINK_BASELINE_POLICY,
     updatedAt: staleLinkBaselineUpdatedAt,
@@ -182,9 +195,21 @@ console.log(
 const allowanceSince = staleLinkBaselineUpdatedAt && staleLinkBaselineUpdatedAt !== "undated"
   ? `, last updated ${staleLinkBaselineUpdatedAt}`
   : ", with no updatedAt recorded";
+// A count says how much the list permits. The entries newer than the write it is dated
+// by are what the rise consists of, so they are marked on the rows below rather than
+// counted here: the reader looking for the cause of a rise is already reading that list,
+// and a marker on the row keeps the file and the address together instead of naming each
+// one a second time under the number.
+const addedByWrite = new Map(
+  entriesAddedByWrite({ baseline: staleLinkBaseline, updatedAt: staleLinkBaselineUpdatedAt })
+    .map((entry) => [staleLinkKey(entry), entry.addedAt]),
+);
+const growthNote = addedByWrite.size
+  ? ` (${addedByWrite.size} entr${addedByWrite.size === 1 ? "y" : "ies"} added by that write)`
+  : "";
 console.log(
   staleLinkBaselineUpdatedAt
-    ? `Allowance: ${staleLinkBaseline.length} stale link(s) in ${STALE_LINK_BASELINE_PATH}${allowanceSince}.`
+    ? `Allowance: ${staleLinkBaseline.length} stale link(s) in ${STALE_LINK_BASELINE_PATH}${allowanceSince}${growthNote}.`
     : `Allowance: none — there is no ${STALE_LINK_BASELINE_PATH} yet, so every stale link below fails the run.`,
 );
 if (!reading.unownedLinks.length) {
@@ -192,7 +217,9 @@ if (!reading.unownedLinks.length) {
 }
 for (const link of reading.unownedLinks) {
   const compared = link.address === link.routePath ? "" : `  (as ${link.address})`;
-  console.log(`${link.file}:${link.line}  ${link.routePath}${compared}`);
+  const addedAt = addedByWrite.get(staleLinkKey(link));
+  const added = addedAt ? `  (added ${addedAt})` : "";
+  console.log(`${link.file}:${link.line}  ${link.routePath}${compared}${added}`);
 }
 
 // The verdict. A stale link here is either a link to fix or a decision to write down, and

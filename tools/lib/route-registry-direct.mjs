@@ -353,6 +353,7 @@ export const STALE_LINK_BASELINE_PATH = "tools/wingman-stale-route-links-baselin
 export const STALE_LINK_BASELINE_POLICY = [
   "A /wingman link the route tables do not serve, reviewed and kept.",
   "Each entry names the file and the address as it was compared, with the reason that address is the right one there — a spec's negative case, or a stored value no surface follows.",
+  "It also carries the date it entered the list, and `updatedAt` is the date the list last changed, so a count that grew can be read as the entries it grew by.",
   "It is not a way to silence a renamed link: the run fails on a link no entry covers, on an entry whose link is gone (the list only ratchets down), and on an entry that does not say what the address is for.",
   "The entry is the pair of file and address, never a line number, so editing a file above a recorded link does not unpin it.",
 ].join(" ");
@@ -413,11 +414,16 @@ export function compareStaleLinks({ links = [], baseline = [] } = {}) {
  * accepting it, so updating the baseline is a list of work to explain and not a way to
  * make the gate quiet.
  */
-export function mergeStaleLinkBaseline({ baseline = [], links = [] } = {}) {
+export function mergeStaleLinkBaseline({ baseline = [], links = [], today } = {}) {
   const reasons = new Map();
+  const addedAt = new Map();
+  const known = new Set();
   for (const entry of Array.isArray(baseline) ? baseline : []) {
     const key = staleLinkKey(entry);
-    if (key) reasons.set(key, String(entry?.reason ?? ""));
+    if (!key) continue;
+    known.add(key);
+    reasons.set(key, String(entry?.reason ?? ""));
+    if (typeof entry?.addedAt === "string" && entry.addedAt.trim()) addedAt.set(key, entry.addedAt);
   }
 
   const merged = [];
@@ -426,8 +432,52 @@ export function mergeStaleLinkBaseline({ baseline = [], links = [] } = {}) {
     const key = staleLinkKey(link);
     if (!key || seen.has(key)) continue;
     seen.add(key);
-    merged.push({ file: link.file, address: link.address, reason: reasons.get(key) ?? "" });
+    const entry = { file: link.file, address: link.address, reason: reasons.get(key) ?? "" };
+    // A surviving entry keeps the date it entered the list. A new one is dated by the
+    // write that adds it, and an entry that arrived without a date stays undated rather
+    // than being stamped with today: being in the file already is what separates it from
+    // a new one, and a date nobody can know would put a hand-written entry in the growth
+    // list as this week's work.
+    const entered = known.has(key) ? addedAt.get(key) : today;
+    if (typeof entered === "string" && entered.trim()) entry.addedAt = entered;
+    merged.push(entry);
   }
 
   return merged;
+}
+
+/**
+ * Whether two entry lists are the same allowance: the same links, in the same order.
+ *
+ * The audit asks this before writing, because `updatedAt` means "the date the list last
+ * changed" and a write that adds nothing must not re-date the whole list. It compares the
+ * pair of file and address rather than the entries, so re-reading a file that was hand-
+ * edited does not read as a change when only a reason or a missing date differs.
+ */
+export function sameStaleLinkEntries(before = [], after = []) {
+  const left = (Array.isArray(before) ? before : []).map(staleLinkKey).filter(Boolean);
+  const right = (Array.isArray(after) ? after : []).map(staleLinkKey).filter(Boolean);
+  return left.length === right.length && left.every((key, index) => key === right[index]);
+}
+
+/**
+ * The entries a growing allowance consists of: the ones dated by the write `updatedAt`
+ * names, or later than it.
+ *
+ * This is how a count becomes a change. A run that prints only how many entries the
+ * baseline holds says how much the list permits; the entries this returns are the ones
+ * that made it that size, so a reader meets the addressed file rather than doing the
+ * subtraction themselves.
+ *
+ * A date is a day, so two writes on one day cannot be told apart — every entry either
+ * write added reads as this write's. An undated entry is not reported here at all: it
+ * cannot be placed against a date, and calling it new would be a guess. A baseline with
+ * no `updatedAt` reports nothing, because there is nothing to compare against.
+ */
+export function entriesAddedByWrite({ baseline = [], updatedAt } = {}) {
+  if (typeof updatedAt !== "string" || !updatedAt || updatedAt === "undated") return [];
+
+  return (Array.isArray(baseline) ? baseline : []).filter(
+    (entry) => typeof entry?.addedAt === "string" && entry.addedAt.trim() && entry.addedAt >= updatedAt,
+  );
 }

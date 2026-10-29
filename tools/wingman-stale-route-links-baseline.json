@@ -1,16 +1,18 @@
 {
-  "policy": "A /wingman link the route tables do not serve, reviewed and kept. Each entry names the file and the address as it was compared, with the reason that address is the right one there — a spec's negative case, or a stored value no surface follows. It is not a way to silence a renamed link: the run fails on a link no entry covers, on an entry whose link is gone (the list only ratchets down), and on an entry that does not say what the address is for. The entry is the pair of file and address, never a line number, so editing a file above a recorded link does not unpin it.",
+  "policy": "A /wingman link the route tables do not serve, reviewed and kept. Each entry names the file and the address as it was compared, with the reason that address is the right one there — a spec's negative case, or a stored value no surface follows. It also carries the date it entered the list, and `updatedAt` is the date the list last changed, so a count that grew can be read as the entries it grew by. It is not a way to silence a renamed link: the run fails on a link no entry covers, on an entry whose link is gone (the list only ratchets down), and on an entry that does not say what the address is for. The entry is the pair of file and address, never a line number, so editing a file above a recorded link does not unpin it.",
   "updatedAt": "2026-10-29",
   "links": [
     {
       "file": "src/wingman2/app/routeCatalog.test.ts",
       "address": "/wingman/not-a-feature",
-      "reason": "The catalogue's negative case. The spec asserts routeByPath returns undefined for an address outside every table, so an address nothing serves is the input rather than a link: serving it would delete the reading."
+      "reason": "The catalogue's negative case. The spec asserts routeByPath returns undefined for an address outside every table, so an address nothing serves is the input rather than a link: serving it would delete the reading.",
+      "addedAt": "2026-10-29"
     },
     {
       "file": "src/wingman2/components/SiteSurveyChecklist.test.tsx",
       "address": "/wingman/site-survey/acme-hq-boardroom",
-      "reason": "A fixture project's stored resumeTo, to stand in for the address the survey flow writes on a room. There is no /wingman/site-survey page — the survey is a section of the project record — and the spec renders the checklist from the fixture without following it, so the value is data rather than a link. Fixing this address means giving survey rooms a page to resume to, which is a product decision rather than a link repair."
+      "reason": "A fixture project's stored resumeTo, to stand in for the address the survey flow writes on a room. There is no /wingman/site-survey page — the survey is a section of the project record — and the spec renders the checklist from the fixture without following it, so the value is data rather than a link. Fixing this address means giving survey rooms a page to resume to, which is a product decision rather than a link repair.",
+      "addedAt": "2026-10-29"
     }
   ]
 }

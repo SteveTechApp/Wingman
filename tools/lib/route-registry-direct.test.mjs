@@ -4,10 +4,12 @@ import {
   STALE_LINK_BASELINE_PATH,
   STALE_LINK_BASELINE_POLICY,
   compareStaleLinks,
+  entriesAddedByWrite,
   lineAt,
   mergeStaleLinkBaseline,
   readRouteRegistryDirect,
   resolveImport,
+  sameStaleLinkEntries,
 } from "./route-registry-direct.mjs";
 
 /**
@@ -551,6 +553,36 @@ describe("mergeStaleLinkBaseline", () => {
     expect(merged).toEqual([]);
   });
 
+  it("keeps the date each entry entered the list, and dates a new one with the write", () => {
+    const [notDeclared, projectsExtra] = links();
+    const merged = mergeStaleLinkBaseline({
+      baseline: [
+        { file: notDeclared.file, address: notDeclared.address, reason: "the negative case", addedAt: "2026-06-02" },
+      ],
+      links: [notDeclared, projectsExtra],
+      today: "2026-10-29",
+    });
+
+    // The survivor keeps its own date, or every rewrite would make the whole allowance
+    // look like this morning's work; the new entry is dated by the write that added it,
+    // which is what makes a growing count readable as the entries it grew by.
+    expect(merged[0].addedAt).toBe("2026-06-02");
+    expect(merged[1].addedAt).toBe("2026-10-29");
+  });
+
+  it("leaves an entry that arrived without a date undated rather than calling it new", () => {
+    const [notDeclared] = links();
+    const merged = mergeStaleLinkBaseline({
+      baseline: [{ file: notDeclared.file, address: notDeclared.address, reason: "hand-written" }],
+      links: [notDeclared],
+      today: "2026-10-29",
+    });
+
+    // A hand-edited entry was not added by today's write, and stamping it would put a
+    // file in the growth list that nobody added.
+    expect(merged[0]).toEqual({ file: notDeclared.file, address: notDeclared.address, reason: "hand-written" });
+  });
+
   it("writes one entry for an address a file uses twice", () => {
     const [notDeclared] = links();
     const merged = mergeStaleLinkBaseline({
@@ -566,6 +598,54 @@ describe("mergeStaleLinkBaseline", () => {
   });
 });
 
+describe("sameStaleLinkEntries", () => {
+  const entry = (address, extra = {}) => ({ file: "src/wingman2/app/routeCatalog.test.ts", address, ...extra });
+
+  it("reads a reason or a date changing as the same allowance", () => {
+    // What decides the list is which links it holds: a filled-in reason and a date are
+    // fields of an entry, not a new decision about a link.
+    expect(sameStaleLinkEntries(
+      [entry("/wingman/a"), entry("/wingman/b")],
+      [entry("/wingman/a", { reason: "written", addedAt: "2026-10-29" }), entry("/wingman/b")],
+    )).toBe(true);
+  });
+
+  it("reads an added, removed or reordered entry as a change", () => {
+    expect(sameStaleLinkEntries([entry("/wingman/a")], [entry("/wingman/a"), entry("/wingman/b")])).toBe(false);
+    expect(sameStaleLinkEntries([entry("/wingman/a")], [])).toBe(false);
+    // Order is part of it, because the write re-reads the tree in the tree's order and a
+    // rewrite that shuffled the list would otherwise look like no change at all.
+    expect(sameStaleLinkEntries([entry("/wingman/a"), entry("/wingman/b")], [entry("/wingman/b"), entry("/wingman/a")]))
+      .toBe(false);
+  });
+});
+
+describe("entriesAddedByWrite", () => {
+  const dated = (address, addedAt) => ({ file: "src/wingman2/app/routeCatalog.test.ts", address, addedAt });
+
+  it("names the entries the write that set the date added", () => {
+    const baseline = [dated("/wingman/old", "2026-06-02"), dated("/wingman/new", "2026-10-29")];
+
+    expect(entriesAddedByWrite({ baseline, updatedAt: "2026-10-29" })).toEqual([baseline[1]]);
+  });
+
+  it("names an entry dated after the write, because that growth is not yet stamped", () => {
+    const late = dated("/wingman/late", "2026-11-02");
+
+    expect(entriesAddedByWrite({ baseline: [late], updatedAt: "2026-10-29" })).toEqual([late]);
+  });
+
+  it("reports nothing it cannot place: no date, no addedAt, or none at all", () => {
+    const baseline = [{ file: "src/wingman2/app/routeCatalog.test.ts", address: "/wingman/a" }, dated("/wingman/b", "2026-10-29")];
+
+    expect(entriesAddedByWrite({ baseline, updatedAt: undefined })).toEqual([]);
+    expect(entriesAddedByWrite({ baseline, updatedAt: "undated" })).toEqual([]);
+    // No date to compare against is not "nothing is newer": it is a question this cannot
+    // answer, so the report stays quiet rather than calling every entry old.
+    expect(entriesAddedByWrite({ baseline })).toEqual([]);
+  });
+});
+
 describe("the stale-link baseline's own documentation", () => {
   it("promises the three failures the gate implements", () => {
     // The prose is written into the file the baseline is, before the list, so a reader
@@ -576,5 +656,8 @@ describe("the stale-link baseline's own documentation", () => {
     expect(STALE_LINK_BASELINE_POLICY).toContain("whose link is gone");
     expect(STALE_LINK_BASELINE_POLICY).toContain("what the address is for");
     expect(STALE_LINK_BASELINE_POLICY).toContain("never a line number");
+    // The policy also tells the reader how to read a rise, because the count and the
+    // dates are what the report prints and nothing else explains what they mean.
+    expect(STALE_LINK_BASELINE_POLICY).toContain("the entries it grew by");
   });
 });
