@@ -36,6 +36,28 @@ _Last updated: 2026-09-17_
 | `docs/design/0001-project-workspace-persistence.md` | ADR-0001: B1 storage-model decision — server-authoritative with local cache vs local-first, with phases and exit criteria (closes P1-3). |
 | `docs/CI_GUARD_GATES.md` | Verify-chain guard gates: what a dependency, lockfile, or product/governance-data edit must satisfy (reference-resolution, generated-manifest, build-deps, override-floor, governance-data, and ratchet gates), with the exception path for each. |
 
+## Surface notes
+
+`AGENTS.md` states each surface's invariant and why it exists; these files hold the
+narrative behind those statements — the rule in full, the probe that proved it, the
+layout it was measured on. Change the invariant and its narrative together. Current
+measurements are in `reports/browser-readings.md` — filed by surface, and dated by
+[the run](../reports/browser-readings.md#the-run) that produced them — never here.
+
+| Document | Purpose |
+|---|---|
+| `docs/PROJECT_STORE.md` | Project write paths and gallery order, stored-record codecs, CRM send history, storage reclaim sweeps, the store's sync line, the gallery card's saved design, and the browser walk's rules for those surfaces. |
+| `docs/TYPECHECK_AND_BUILD.md` | The strict typecheck gate, the test harness, and the chunk init-order audit. |
+| `docs/QUALITY_GATES.md` | Verify stages, guards and ratchets: stage and chain guards, size and style-drift budgets, dead and unstyled CSS, coverage evidence, export-domain and PR checks. |
+| `docs/SHELL_AND_FRAME.md` | Workspace grid, page frame and gutter, the shared hero template, and control sizing in the page host. |
+| `docs/DISCOVERY.md` | Discovery step card language and the programme-audio question. |
+| `docs/VIDEO_WALL.md` | Wall builder: entry copy, starting points and picker, projectors and blend, review passes and addresses, elevation, transport, survey readings. |
+| `docs/PROPOSAL_OUTPUT.md` | The printed document: print surface, section ladder, copy layers, export gates and fixes, pricing, templates, Word export. |
+| `docs/DRAWING_SYMBOLS.md` | The Visio stencil package, symbol geometry, and the pre-write package check. |
+| `docs/COMPARE_FEATURE.md` | Verdict tone and status classes, compare route scoping, and the page's module split. |
+| `docs/BACKEND_API.md` | API envelope and gates, the development session, and the agent routes. |
+| `docs/PROJECT_SURVEY.md` | Project record address and anchors, survey review and reconfirmation, worksheet CSV and install detail. |
+
 ## Product governance
 
 | Document | Purpose |
