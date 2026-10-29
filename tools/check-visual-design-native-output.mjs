@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { readRouteStyles } from "./lib/route-stylesheets.mjs";
 
 const root = process.cwd();
 
@@ -15,10 +16,9 @@ const cssPath = resolve(
   root,
   "src/wingman2/styles/wingman-style-stack.css",
 );
-const cssOverridesPath = resolve(
-  root,
-  "src/wingman2/styles/wingman-route-overrides.css",
-);
+// Route-owned rules live in one page stylesheet per route plus the shared
+// remainder; the CSS markers below are looked up across the whole set.
+const routeOverrides = readRouteStyles(root).text;
 
 const failures = [];
 
@@ -33,7 +33,7 @@ function readRequired(filePath, label) {
 
 const proposal = readRequired(proposalPath, "Proposal Visuals page");
 const canvas = readRequired(canvasPath, "native Visual Studio canvas");
-const css = readRequired(cssPath, "Wingman style stack") + readRequired(cssOverridesPath, "Wingman route overrides");
+const css = readRequired(cssPath, "Wingman style stack") + routeOverrides;
 
 const requiredProposalMarkers = [
   'data-wingman-proposal-visuals="true"',

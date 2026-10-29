@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { routeStylesheetPaths } from "./lib/route-stylesheets.mjs";
 import { verifyChainIncludes } from "./verify-chain.mjs";
 
 const repoRoot = process.cwd();
@@ -8,7 +9,6 @@ const files = {
   guruDrawer: path.join(repoRoot, "src", "wingman2", "components", "WingmanGuruDrawer.tsx"),
   callInterpreter: path.join(repoRoot, "src", "wingman2", "components", "GuruCallNotesInterpreter.tsx"),
   discovery: path.join(repoRoot, "src", "wingman2", "pages", "DiscoveryPage.tsx"),
-  css: path.join(repoRoot, "src", "wingman2", "styles", "wingman-route-overrides.css"),
   packageJson: path.join(repoRoot, "package.json"),
 };
 
@@ -38,7 +38,9 @@ function refuseMarker(label, source, marker) {
 const guruDrawer = read(files.guruDrawer);
 const callInterpreter = read(files.callInterpreter);
 const discovery = read(files.discovery);
-const css = read(files.css);
+// Route-owned rules are one page file per route plus the shared remainder, so
+// the section markers are found whichever file now carries them.
+const css = routeStylesheetPaths(repoRoot).map(read).join("\n");
 const packageJson = JSON.parse(read(files.packageJson) || "{}");
 
 // The Guru drawer is intentionally decluttered: the assistant is header ->
@@ -79,7 +81,7 @@ const activeImports = css
   .filter((line) => line.startsWith("@import"));
 
 if (activeImports.length) {
-  errors.push("wingman-route-overrides.css must not contain active @import lines.");
+  errors.push("the route-owned stylesheets must not contain active @import lines.");
 }
 
 if (!packageJson.scripts?.["check:short-workflow-pages"]) {

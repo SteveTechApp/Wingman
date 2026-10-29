@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { createDeadSelectorTests, parseRules, partitionSelectorBranches, relativePath, stripEmptyConditionalBlocks, styleSheetFiles } from "./lib/dead-css.mjs";
+import { ROUTE_STYLESHEETS } from "./lib/route-stylesheets.mjs";
 
 // Phase 8 pass 3: remove class-scoped CSS rules whose class tokens are not
 // referenced anywhere in shipped markup, tests or tooling. Rules are parsed
@@ -40,6 +41,9 @@ const ALL = process.argv.includes("--all");
 const { isDeadBranch } = createDeadSelectorTests(root);
 
 // Files this pass owns. wingman-videowall.css is route-owned and excluded.
+// The route overrides are the shared remainder plus one page file per route, so
+// the list comes from the shared module rather than naming the remainder only; a
+// page that gains a file in a later tranche is picked up without an edit here.
 const TARGETS = [
   "wingman-layer-components.css",
   "wingman-layer-layout.css",
@@ -47,7 +51,7 @@ const TARGETS = [
   "wingman-polish-navigation.css",
   "wingman-reference-global.css",
   "wingman-reference-theme.css",
-  "wingman-route-overrides.css",
+  ...ROUTE_STYLESHEETS,
   "wingman-workflow-theme.css",
 ];
 const FILES = ALL

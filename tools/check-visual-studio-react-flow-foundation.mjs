@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { GOVERNED_MAIN_CSS_IMPORTS } from "./lib/route-stylesheets.mjs";
 
 const root = process.cwd();
 
@@ -23,16 +24,10 @@ const cssImports = [
   ...main.matchAll(/import\s+["']([^"']+\.css)["'];/g),
 ].map((match) => match[1]);
 
-const expectedImports = [
-  "@xyflow/react/dist/style.css",
-  "./wingman2/styles/wingman-layer-tokens.css",
-  "./wingman2/styles/wingman-layer-reset.css",
-  "./wingman2/styles/wingman-layer-layout.css",
-  "./wingman2/styles/wingman-layer-components.css",
-  "./wingman2/styles/wingman-route-overrides.css",
-  "./wingman2/styles/wingman-reference-theme.css",
-  "./wingman2/styles/wingman-workflow-theme.css",
-];
+// The governed order lives in one module: the shared remainder, the page-owned
+// route stylesheets, then the companion themes. @xyflow's stylesheet is owned by
+// the lazy canvas chunk, so it is not part of this entry's list.
+const expectedImports = [...GOVERNED_MAIN_CSS_IMPORTS];
 
 const errors = [];
 
@@ -43,9 +38,8 @@ if (
   errors.push(`Incorrect main CSS import order: ${cssImports.join(", ")}`);
 }
 
-if (!guard.includes('"@xyflow/react/dist/style.css"')) {
-  errors.push("CSS import guard does not permit the React Flow stylesheet.");
-}
+// The guard no longer names @xyflow's stylesheet: the lazy visual-canvas chunk
+// owns it, so this entry's governed list does not carry it at all.
 
 [
   "WINGMAN_VISUAL_STUDIO_RESIZE_FIT_START",

@@ -7,8 +7,20 @@ import "./wingman2/styles/wingman-layer-reset.css";
 import "./wingman2/styles/wingman-layer-layout.css";
 import "./wingman2/styles/wingman-layer-components.css";
 
-/* Route/page-specific overrides — loads after the design system */
+/* Route/page-specific overrides — loads after the design system.
+   The shared remainder loads first, then the page-owned stylesheets: a rule is
+   in a page file only when that page's route plumbing scopes all of it, and the
+   ones that would flip a tie with a later shared rule stay in the remainder. */
 import "./wingman2/styles/wingman-route-overrides.css";
+import "./wingman2/styles/wingman-route-call-coach.css";
+import "./wingman2/styles/wingman-route-compare.css";
+import "./wingman2/styles/wingman-route-dashboard.css";
+import "./wingman2/styles/wingman-route-discovery.css";
+import "./wingman2/styles/wingman-route-glossary.css";
+import "./wingman2/styles/wingman-route-projects.css";
+import "./wingman2/styles/wingman-route-sales-helper.css";
+import "./wingman2/styles/wingman-route-settings.css";
+import "./wingman2/styles/wingman-route-templates.css";
 
 /* Companion theme files — load after the core layers */
 import "./wingman2/styles/wingman-reference-theme.css";

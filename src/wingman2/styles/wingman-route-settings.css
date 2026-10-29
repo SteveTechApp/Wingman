@@ -1,0 +1,28 @@
+/* Wingman route overrides — Settings.
+   Every selector here is scoped to this page by the plumbing AppShell sets:
+   html[data-wingman-route="profile"] and .wm-route-settings. Blocks that
+   also name another page, a page markup attribute (data-wingman-page) or a
+   route token no longer in the catalogue stay in wingman-route-overrides.css.
+   html:is() groups naming two live routes are split here, one copy per page.
+   A block whose tie with a later shared rule would flip by moving stays behind
+   as well, so this split changes which file a rule loads from, not which wins. */
+
+.wm-route-settings main > section:first-child,
+.wm-route-settings .wingman-page-hero,
+.wm-route-settings .wm-page-hero {
+  background: linear-gradient(135deg, rgba(7, 20, 34, 0.98), rgba(4, 13, 24, 0.98));
+  background-image: linear-gradient(135deg, rgba(7, 20, 34, 0.98), rgba(4, 13, 24, 0.98));
+  border: 1px solid rgba(64, 224, 208, 0.24);
+  border-radius: 24px;
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.26);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 22px 26px;
+  margin-bottom: 16px;
+}
+
+.wm-route-settings main > section:first-child *,
+.wm-route-settings .wingman-page-hero *,
+.wm-route-settings .wm-page-hero * {
+  color: inherit;
+  text-shadow: none;
+}

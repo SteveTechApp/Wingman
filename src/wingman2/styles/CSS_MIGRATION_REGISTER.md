@@ -8,7 +8,16 @@ The app uses a layered CSS cascade (2026-08-25):
 - `wingman-layer-reset.css` — Reset & base elements
 - `wingman-layer-layout.css` — App shell, sidebar, grid, responsive
 - `wingman-layer-components.css` — Cards, buttons, forms, nav, tables, etc.
-- `wingman-route-overrides.css` — Route/page-specific overrides (legacy)
+- `wingman-route-overrides.css` — The shared remainder of the route overrides (legacy)
+- `wingman-route-<route>.css` — One page-owned stylesheet per route (`call-coach`,
+  `compare`, `dashboard`, `discovery`, `glossary`, `projects`, `sales-helper`,
+  `settings`, `templates`). A rule is in a page file only when every selector
+  branch is scoped to that page by `html[data-wingman-route="<key>"]` or
+  `.wm-route-<segment>`; a block that also names another page, a
+  `data-wingman-page` attribute or a retired route token stays in the remainder.
+  The list and load order live in `tools/lib/route-stylesheets.mjs`, which is
+  also the governed `src/main.tsx` CSS import list, so a gate that reads "the
+  route overrides" reads every file rather than one path.
 - `wingman-reference-theme.css` — Post-process polish
 - `wingman-workflow-theme.css` — Workflow/route theme overrides
 - `wingman-polish-navigation.css` — Navigation polish

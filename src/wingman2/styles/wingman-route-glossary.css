@@ -1,0 +1,133 @@
+/* Wingman route overrides — Glossary.
+   Every selector here is scoped to this page by the plumbing AppShell sets:
+   html[data-wingman-route="glossary"] and .wm-route-glossary. Blocks that
+   also name another page, a page markup attribute (data-wingman-page) or a
+   route token no longer in the catalogue stay in wingman-route-overrides.css.
+   html:is() groups naming two live routes are split here, one copy per page.
+   A block whose tie with a later shared rule would flip by moving stays behind
+   as well, so this split changes which file a rule loads from, not which wins. */
+
+html[data-wingman-route="glossary"] .wm-glossary-cautions,
+html[data-wingman-route="glossary"] .wm-glossary-related {
+  display: none;
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-workspace {
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+}
+
+
+
+@media (max-width: 1180px) {
+html[data-wingman-route="glossary"] .wm-glossary-workspace {
+      grid-template-columns: 1fr;
+    }
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .bg-slate-900,
+html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-900"],
+html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-950"] {
+  color: var(--wm-consistency-text);
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .bg-slate-900 *,
+html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-900"] *,
+html[data-wingman-route="glossary"] .wm-glossary-page [class*="from-slate-950"] * {
+  color: inherit;
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page input,
+html[data-wingman-route="glossary"] .wm-glossary-page select,
+.wm-route-glossary .wm-glossary-page input,
+.wm-route-glossary .wm-glossary-page select {
+  color: #06111f;
+  background: var(--wm-consistency-text);
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page input::placeholder,
+.wm-route-glossary .wm-glossary-page input::placeholder {
+  color: #526173;
+  opacity: 1;
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button[aria-pressed="true"],
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button[aria-selected="true"],
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button[data-state="active"],
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar .active,
+html[data-wingman-route="glossary"] .wm-glossary-page section[aria-label*="Glossary"] button[aria-pressed="true"],
+html[data-wingman-route="glossary"] .wm-glossary-page section[aria-label*="glossary"] button[aria-pressed="true"],
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button[aria-pressed="true"],
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button[aria-selected="true"],
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button[data-state="active"],
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar .active {
+  background: linear-gradient(135deg, rgba(64, 224, 208, 0.24), rgba(64, 224, 208, 0.1));
+  color: #66f2e4;
+  border-color: rgba(64, 224, 208, 0.65);
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button span,
+html[data-wingman-route="glossary"] .wm-glossary-page section[aria-label*="Glossary"] button span,
+html[data-wingman-route="glossary"] .wm-glossary-page section[aria-label*="glossary"] button span,
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button span {
+  color: inherit;
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button span:last-child,
+html[data-wingman-route="glossary"] .wm-glossary-page section[aria-label*="Glossary"] button span:last-child,
+html[data-wingman-route="glossary"] .wm-glossary-page section[aria-label*="glossary"] button span:last-child,
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button span:last-child {
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list button *,
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button *,
+.wm-route-glossary .wm-glossary-page .wm-glossary-term-list button *,
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button * {
+  color: inherit;
+  text-shadow: none;
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list button span,
+.wm-route-glossary .wm-glossary-page .wm-glossary-term-list button span {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list button strong,
+.wm-route-glossary .wm-glossary-page .wm-glossary-term-list button strong {
+  color: var(--wm-consistency-text);
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button span:last-child,
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button span:last-child {
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list .bg-white,
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list .bg-slate-50,
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list .bg-slate-100,
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar .bg-white,
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar .bg-slate-50,
+html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar .bg-slate-100 {
+  background: rgba(8, 22, 38, 0.96);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-search .wm-input,
+.wm-route-glossary .wm-glossary-search .wm-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px 0 38px;
+  color: var(--wm-text);
+  background: rgba(7, 16, 29, 0.72);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
+.wm-route-glossary .wm-glossary-search .wm-input::placeholder {
+  color: var(--wm-muted);
+}

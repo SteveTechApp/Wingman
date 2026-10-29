@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { routeStylesheetPaths } from "./lib/route-stylesheets.mjs";
 import { verifyChainIncludes } from "./verify-chain.mjs";
 
 const repoRoot = process.cwd();
@@ -7,7 +8,6 @@ const repoRoot = process.cwd();
 const files = {
   component: path.join(repoRoot, "src", "wingman2", "components", "AVSignalFlowDiagram.tsx"),
   css: path.join(repoRoot, "src", "wingman2", "styles", "wingman-style-stack.css"),
-  cssOverrides: path.join(repoRoot, "src", "wingman2", "styles", "wingman-route-overrides.css"),
   packageJson: path.join(repoRoot, "package.json"),
 };
 
@@ -29,7 +29,9 @@ function requireMarker(label, source, marker) {
 }
 
 const component = read(files.component);
-const css = read(files.css) + read(files.cssOverrides);
+// Route-owned rules are one page file per route plus the shared remainder, so
+// the marker is looked up across every route stylesheet in load order.
+const css = read(files.css) + routeStylesheetPaths(repoRoot).map(read).join("\n");
 const packageJson = JSON.parse(read(files.packageJson) || "{}");
 
 [

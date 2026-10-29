@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { readRouteStyles } from "./lib/route-stylesheets.mjs";
 
 const root = process.cwd();
 const pagesDirectory = path.join(root, "src", "wingman2", "pages");
@@ -33,7 +34,10 @@ function displayPath(...segments) {
 
 const manifest = JSON.parse(read("src/wingman2/app/route-manifest.json") || "[]");
 const appShell = read("src/wingman2/layout/AppShell.tsx");
-const css = read("src/wingman2/styles/wingman-style-stack.css") + read("src/wingman2/styles/wingman-route-overrides.css");
+// The route overrides are one page file per route plus the shared remainder, so
+// the audit reads the whole set: a consistency marker answers from whichever
+// file now owns it.
+const css = read("src/wingman2/styles/wingman-style-stack.css") + readRouteStyles(root).text;
 
 for (const marker of [
   'data-wingman-page-header="true"',

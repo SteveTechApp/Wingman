@@ -1,0 +1,76 @@
+/* Wingman route overrides — Dashboard.
+   Every selector here is scoped to this page by the plumbing AppShell sets:
+   html[data-wingman-route="dashboard"] and .wm-route-dashboard. Blocks that
+   also name another page, a page markup attribute (data-wingman-page) or a
+   route token no longer in the catalogue stay in wingman-route-overrides.css.
+   html:is() groups naming two live routes are split here, one copy per page.
+   A block whose tie with a later shared rule would flip by moving stays behind
+   as well, so this split changes which file a rule loads from, not which wins. */
+
+/*
+  Final Guru launcher model:
+  - legacy GuruHelper hidden
+  - AppShell Guru button remains the only launcher
+  - robot icon is rendered as button::after, so it cannot disappear behind child layers
+  - green sweep is rendered as button::before
+  - dashboard content is left-aligned after the sidebar
+*/
+/* Keep only the AppShell-owned Guru launcher. */
+/* Remove the leftover dashboard gutter without breaking the sidebar. */
+html[data-wingman-route="dashboard"] #root > .wingman-shell,
+html[data-wingman-route="dashboard"] #root > .wingman-shell.wingman-authority-shell,
+html[data-wingman-route="dashboard"] .wingman-shell.wingman-authority-shell {
+  display: flex;
+  width: 100vw;
+  max-width: 100vw;
+  gap: 0;
+}
+
+html[data-wingman-route="dashboard"] .wingman-sidebar {
+  flex: 0 0 var(--wm-sidebar-width, 268px);
+  width: var(--wm-sidebar-width, 268px);
+  max-width: var(--wm-sidebar-width, 268px);
+}
+
+html[data-wingman-route="dashboard"] .wingman-app-main > *,
+html[data-wingman-route="dashboard"] .wingman-page-host > *,
+html[data-wingman-route="dashboard"] main > * {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
+  display: none;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-rail .wm-ui-kicker {
+  display: none;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+html[data-wingman-route="dashboard"] .wingman-app-main > .wingman-page-host {
+  padding: 0;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-main {
+  gap: var(--wm-density-gap);
+}
+
+html[data-wingman-route="dashboard"] .wm-badge {
+  min-height: 1.35rem;
+  padding: 0.16rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  line-height: 1.1;
+}
+
+html[data-wingman-route="dashboard"] .wm-section-title {
+  margin-top: 0.45rem;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}

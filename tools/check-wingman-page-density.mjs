@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
+import { readRouteStyles } from "./lib/route-stylesheets.mjs";
 
 const root = process.cwd();
 const pagesDir = path.join(root, "src", "wingman2", "pages");
 const styleStackPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
-const routeOverridesPath = path.join(root, "src", "wingman2", "styles", "wingman-route-overrides.css");
 const layoutIndexPath = path.join(root, "src", "wingman2", "components", "layout", "index.ts");
 
 function fail(message) {
@@ -25,7 +25,13 @@ if (!fs.existsSync(layoutIndexPath)) {
 }
 
 const styleStack = fs.readFileSync(styleStackPath, "utf8");
-const routeOverrides = fs.existsSync(routeOverridesPath) ? fs.readFileSync(routeOverridesPath, "utf8") : "";
+// Route-owned rules are one page file per route plus the shared remainder.
+let routeOverrides = "";
+try {
+  routeOverrides = readRouteStyles(root).text;
+} catch (error) {
+  fail(error instanceof Error ? error.message : String(error));
+}
 const combinedCss = styleStack + routeOverrides;
 
 if (!combinedCss.includes(".wingman-page-host") || !combinedCss.includes(".wingman-section-card")) {
