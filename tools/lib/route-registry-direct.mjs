@@ -354,6 +354,7 @@ export const STALE_LINK_BASELINE_POLICY = [
   "A /wingman link the route tables do not serve, reviewed and kept.",
   "Each entry names the file and the address as it was compared, with the reason that address is the right one there — a spec's negative case, or a stored value no surface follows.",
   "It also carries the date it entered the list, and `updatedAt` is the date the list last changed, so a count that grew can be read as the entries it grew by.",
+  "It also carries `addedBy`, the write that added it, and `writeSeq` counts the writes that have changed the list: a day holds as many writes as the tree needs, so two additions on one day are told apart by the write that made each entry rather than by the date they share.",
   "It is not a way to silence a renamed link: the run fails on a link no entry covers, on an entry whose link is gone (the list only ratchets down), and on an entry that does not say what the address is for.",
   "The entry is the pair of file and address, never a line number, so editing a file above a recorded link does not unpin it.",
 ].join(" ");
@@ -413,10 +414,17 @@ export function compareStaleLinks({ links = [], baseline = [] } = {}) {
  * a new entry has no reason yet, and `compareStaleLinks` reports that rather than
  * accepting it, so updating the baseline is a list of work to explain and not a way to
  * make the gate quiet.
+ *
+ * `writeSeq` is the write this call is making, and a new entry is stamped with it as
+ * `addedBy`. That is the half a date cannot do: two writes can land on one day, and an
+ * entry dated by both would read as either one's. A surviving entry keeps the `addedBy`
+ * it arrived with, for the same reason it keeps its date — the write that added it is a
+ * fact about the entry, not about this run.
  */
-export function mergeStaleLinkBaseline({ baseline = [], links = [], today } = {}) {
+export function mergeStaleLinkBaseline({ baseline = [], links = [], today, writeSeq } = {}) {
   const reasons = new Map();
   const addedAt = new Map();
+  const addedBy = new Map();
   const known = new Set();
   for (const entry of Array.isArray(baseline) ? baseline : []) {
     const key = staleLinkKey(entry);
@@ -424,7 +432,10 @@ export function mergeStaleLinkBaseline({ baseline = [], links = [], today } = {}
     known.add(key);
     reasons.set(key, String(entry?.reason ?? ""));
     if (typeof entry?.addedAt === "string" && entry.addedAt.trim()) addedAt.set(key, entry.addedAt);
+    if (Number.isInteger(entry?.addedBy) && entry.addedBy > 0) addedBy.set(key, entry.addedBy);
   }
+
+  const thisWrite = Number.isInteger(writeSeq) && writeSeq > 0 ? writeSeq : null;
 
   const merged = [];
   const seen = new Set();
@@ -440,6 +451,11 @@ export function mergeStaleLinkBaseline({ baseline = [], links = [], today } = {}
     // list as this week's work.
     const entered = known.has(key) ? addedAt.get(key) : today;
     if (typeof entered === "string" && entered.trim()) entry.addedAt = entered;
+    // The write is stamped the same way and for the same reason. A surviving entry whose
+    // `addedBy` is missing stays without one: it arrived before the record kept writes,
+    // and naming this run as its author would be a guess the date rule already refuses.
+    const wrote = known.has(key) ? addedBy.get(key) : thisWrite;
+    if (Number.isInteger(wrote)) entry.addedBy = wrote;
     merged.push(entry);
   }
 
@@ -461,23 +477,95 @@ export function sameStaleLinkEntries(before = [], after = []) {
 }
 
 /**
- * The entries a growing allowance consists of: the ones dated by the write `updatedAt`
- * names, or later than it.
+ * How long a recorded decision is trusted before the run says it is worth reading again.
+ *
+ * The allowance's entries are review decisions rather than repairs: each says a
+ * `/wingman` literal is not a link a rep follows, in the words of the page or spec it
+ * names. The list is meant to sit still — `updatedAt` moves when an entry arrives or
+ * leaves, not on every write — so an old date is not neglect on its own. That is why
+ * this is a warning and not a fifth failure: the gate already fails when an entry
+ * covers nothing or says nothing, and what the age adds is that nobody has looked at
+ * the sentences since.
+ *
+ * A quarter is long enough that a list which legitimately has not changed stays quiet,
+ * and short enough that a reason is re-read while whoever wrote it still remembers the
+ * page it was written about.
+ */
+export const STALE_LINK_ALLOWANCE_REVIEW_DAYS = 90;
+
+/**
+ * A date as a UTC day number, or null when it is not one.
+ *
+ * Both halves of the age are taken this way: `updatedAt` is written as `YYYY-MM-DD` and
+ * has no time in it, so reading it as a local midnight would move the boundary an hour
+ * either side of the day it names, and a machine in a timezone behind UTC would count
+ * one day fewer than the file says. A `Date` is read through its UTC date, which is what
+ * `toISOString().slice(0, 10)` gives the writer of the baseline.
+ */
+function allowanceDay(value) {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate());
+  }
+  if (typeof value !== "string") return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+  const day = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  // `Date.UTC` rolls a day that does not exist forward into the next month, so the day
+  // has to come back out the way it went in for the string to have named a date.
+  return new Date(day).toISOString().slice(0, 10) === value.trim() ? day : null;
+}
+
+/**
+ * The warning an allowance's age earns, or null while it is young enough to say nothing.
+ *
+ * `updatedAt` dates the last change to the list rather than the last write of the file,
+ * so the number is days since a decision moved. `today` is handed in rather than read
+ * from the clock, because a threshold measured against the machine's own clock answers
+ * differently on the same tree; the caller passes the day it is already using for the
+ * write. An absent, `undated` or unreadable date earns nothing here — no date is not an
+ * old date, the report already says `with no updatedAt recorded` for the undated file,
+ * and an age derived from a string that is not a date would be a number nobody measured.
+ * A date in the future is not old either: the rule is about how long ago the list
+ * changed, and only the past counts.
+ */
+export function staleLinkAllowanceAgeWarning({
+  updatedAt,
+  today = new Date(),
+  maxAgeDays = STALE_LINK_ALLOWANCE_REVIEW_DAYS,
+} = {}) {
+  const written = allowanceDay(updatedAt);
+  const now = allowanceDay(today);
+  if (written === null || now === null) return null;
+
+  const ageDays = Math.round((now - written) / 86_400_000);
+  if (ageDays <= maxAgeDays) return null;
+
+  return `the stale-link allowance is ${ageDays} day(s) old, last changed ${String(updatedAt).trim()} `
+    + `(the run warns past ${maxAgeDays})`;
+}
+
+/**
+ * The entries a growing allowance consists of: the ones the write `writeSeq` names added.
  *
  * This is how a count becomes a change. A run that prints only how many entries the
  * baseline holds says how much the list permits; the entries this returns are the ones
  * that made it that size, so a reader meets the addressed file rather than doing the
  * subtraction themselves.
  *
- * A date is a day, so two writes on one day cannot be told apart — every entry either
- * write added reads as this write's. An undated entry is not reported here at all: it
- * cannot be placed against a date, and calling it new would be a guess. A baseline with
- * no `updatedAt` reports nothing, because there is nothing to compare against.
+ * The write is the identity rather than the date because a date is a day and a day can
+ * hold more than one write: comparing `addedAt` against `updatedAt` marks every entry
+ * either of those writes added, so a second addition that afternoon reads as the first
+ * one's — the growth a reader is looking for disappears into a number that did not move.
+ * `addedBy` is stamped by `mergeStaleLinkBaseline` from the write's own sequence, so each
+ * entry names the write that made it and only that write's entries are returned.
+ *
+ * An entry with no `addedBy` is not reported here at all: it arrived before the record
+ * kept writes, or was written by hand, and calling it this write's would be a guess. A
+ * baseline with no sequence reports nothing, because there is no write to compare
+ * against — the report says the list is undated apart from this.
  */
-export function entriesAddedByWrite({ baseline = [], updatedAt } = {}) {
-  if (typeof updatedAt !== "string" || !updatedAt || updatedAt === "undated") return [];
+export function entriesAddedByWrite({ baseline = [], writeSeq } = {}) {
+  if (!Number.isInteger(writeSeq) || writeSeq < 1) return [];
 
-  return (Array.isArray(baseline) ? baseline : []).filter(
-    (entry) => typeof entry?.addedAt === "string" && entry.addedAt.trim() && entry.addedAt >= updatedAt,
-  );
+  return (Array.isArray(baseline) ? baseline : []).filter((entry) => entry?.addedBy === writeSeq);
 }

@@ -801,16 +801,26 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   every occurrence of that pair in that file.
   The list also remembers when it grew, because a count says how much the allowance
   permits and not what the rise consists of. Each entry carries `addedAt`, the date it
-  entered the list, and `updatedAt` is the date the list last changed rather than the date
-  it was last written: a write that adds nothing leaves it alone, which is what an
-  unchanged `--update-baseline` run was read to do — the file's `2026-10-29` survived the
-  rewrite. The reporter prints the entries newer than that date as `(added <date>)` on
-  their own rows, and says how many on the allowance line, so a rise is the files it came
-  from rather than one more than last week. An entry that arrived without a date stays
-  undated instead of being stamped with today, or a hand-written decision would read as
-  this week's work; a date is a day, so two writes on one day cannot be told apart — a
-  temporary `/wingman/nope-not-a-route` export reported "3 entries added by that write"
-  with all three marked, and the file and baseline were restored byte-identical (`sha256`).
+  entered the list, and `addedBy`, the write that added it; `updatedAt` and `writeSeq` are
+  the date and the count of the write that last changed the list, rather than of the write
+  that last touched the file: a write that adds nothing leaves both alone, which is what
+  an unchanged `--update-baseline` run was read to do — the file's `2026-10-29` survived
+  the rewrite. The reporter prints that write's entries as `(added <date> by write <n>)`
+  on their own rows and says how many on the allowance line — "last updated 2026-10-29 by
+  write 2 (1 entry added by that write)" — so a rise is the files it came from rather
+  than one more than last week. The write, not the date, is what identifies them, because
+  a date is a day: the first version compared `addedAt` against `updatedAt`, and a second
+  addition the same afternoon joined the first — a temporary `/wingman/nope-not-a-route`
+  export reported "3 entries added by that write" with all three marked when one was that
+  write's. `writeSeq` moves when the list does and `addedBy` is stamped from it, so two
+  writes on one day stay two writes; the same probe after an unchanged rewrite read back
+  as `write 2 (1 entry added by that write)` with one row marked and the two entries of
+  the same day left out, and the tree and baseline were then restored byte-identical
+  (`sha256`). An entry that arrived without a date stays undated instead of being stamped
+  with today, or a hand-written decision would read as this week's work; one that arrived
+  without a write stays without one for the same reason — a file written before the
+  record kept writes names the one write that made it, and does not re-attribute the
+  entries it already held to that write.
   The list's age is printed beside its date, because an entry is a sentence written about
   a page and a page can move on while the sentence stays: `updatedAt` more than
   `STALE_LINK_ALLOWANCE_REVIEW_DAYS` (90) old makes the run warn — "the stale-link

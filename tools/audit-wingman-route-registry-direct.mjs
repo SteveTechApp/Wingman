@@ -10,6 +10,7 @@ import {
   mergeStaleLinkBaseline,
   readRouteRegistryDirect,
   sameStaleLinkEntries,
+  staleLinkAllowanceAgeWarning,
   staleLinkKey,
 } from "./lib/route-registry-direct.mjs";
 
@@ -86,13 +87,24 @@ let staleLinkBaseline = [];
 // this week or two months ago. Null when the file does not exist, which the report
 // says apart from a file that is simply empty.
 let staleLinkBaselineUpdatedAt = null;
+// The write the list was last changed by, read beside the date for the same reason and
+// for one more: a date is a day, so two additions on one day both read as that day's
+// work. The sequence is what separates them, and null here means there is no file to
+// have a sequence yet.
+let staleLinkBaselineWriteSeq = null;
+let baselineFileExists = false;
 try {
   const parsed = JSON.parse(fs.readFileSync(baselineFile, "utf8"));
   if (!Array.isArray(parsed?.links)) {
     throw new Error("it has no links array");
   }
+  baselineFileExists = true;
   staleLinkBaseline = parsed.links;
   staleLinkBaselineUpdatedAt = typeof parsed.updatedAt === "string" ? parsed.updatedAt : "undated";
+  // A file written before the record kept writes holds one write — the one that made it
+  // — and claiming otherwise would make the next addition read as the second of some
+  // earlier pair this file never had.
+  staleLinkBaselineWriteSeq = Number.isInteger(parsed.writeSeq) && parsed.writeSeq > 0 ? parsed.writeSeq : 1;
 } catch (error) {
   if (error.code !== "ENOENT") {
     console.log("");
@@ -105,16 +117,24 @@ try {
 
 const reading = readRouteRegistryDirect({ sourceFiles, routeManifest });
 
+// One day for the whole run: the write stamps it and the age below is read against it, so
+// a refresh cannot date the list today while measuring the old date against yesterday.
+const today = new Date().toISOString().slice(0, 10);
+
 // The one way to write the baseline, and it writes from the run's own reading rather
 // than from what a person typed: the file then says exactly what the tree holds, and the
 // reason field is left empty for the entries that are new, so the next run reports them
 // instead of accepting them.
 if (process.argv.includes("--update-baseline")) {
-  const today = new Date().toISOString().slice(0, 10);
+  // The sequence this write would be, used to stamp the entries it adds. A write that
+  // turns out to have changed nothing added nothing either, so the provisional number
+  // reaches no entry and the final one keeps the previous write's identity.
+  const previousSeq = staleLinkBaselineWriteSeq ?? 0;
   const merged = mergeStaleLinkBaseline({
     baseline: staleLinkBaseline,
     links: reading.unownedLinks,
     today,
+    writeSeq: previousSeq + 1,
   });
   // `updatedAt` is the date the list last changed, not the date it was last written: the
   // report reads the entries dated by it as the count's growth, so a write that adds
@@ -125,9 +145,13 @@ if (process.argv.includes("--update-baseline")) {
   const changed = !sameStaleLinkEntries(staleLinkBaseline, merged);
   staleLinkBaseline = merged;
   if (changed || undated) staleLinkBaselineUpdatedAt = today;
+  // The same rule as the date, one level finer: the sequence moves when the list does, so
+  // a second addition on the same day is a second write rather than more of the first.
+  staleLinkBaselineWriteSeq = changed || !baselineFileExists ? previousSeq + 1 : previousSeq;
   atomicWriteJsonSync(baselineFile, {
     policy: STALE_LINK_BASELINE_POLICY,
     updatedAt: staleLinkBaselineUpdatedAt,
+    writeSeq: staleLinkBaselineWriteSeq,
     links: staleLinkBaseline,
   });
   console.log("");
@@ -195,30 +219,50 @@ console.log(
 const allowanceSince = staleLinkBaselineUpdatedAt && staleLinkBaselineUpdatedAt !== "undated"
   ? `, last updated ${staleLinkBaselineUpdatedAt}`
   : ", with no updatedAt recorded";
-// A count says how much the list permits. The entries newer than the write it is dated
-// by are what the rise consists of, so they are marked on the rows below rather than
-// counted here: the reader looking for the cause of a rise is already reading that list,
-// and a marker on the row keeps the file and the address together instead of naming each
-// one a second time under the number.
+// Which write the date is, so the growth below is that write's rather than the day's.
+const allowanceWrite = Number.isInteger(staleLinkBaselineWriteSeq)
+  ? ` by write ${staleLinkBaselineWriteSeq}`
+  : "";
+// A count says how much the list permits. The entries the write named are what the rise
+// consists of, so they are marked on the rows below rather than counted here: the reader
+// looking for the cause of a rise is already reading that list, and a marker on the row
+// keeps the file and the address together instead of naming each one a second time under
+// the number. The write rather than the date is what selects them, because a day can hold
+// two additions and only the later one is this write's.
 const addedByWrite = new Map(
-  entriesAddedByWrite({ baseline: staleLinkBaseline, updatedAt: staleLinkBaselineUpdatedAt })
-    .map((entry) => [staleLinkKey(entry), entry.addedAt]),
+  entriesAddedByWrite({ baseline: staleLinkBaseline, writeSeq: staleLinkBaselineWriteSeq })
+    .map((entry) => [staleLinkKey(entry), entry]),
 );
 const growthNote = addedByWrite.size
   ? ` (${addedByWrite.size} entr${addedByWrite.size === 1 ? "y" : "ies"} added by that write)`
   : "";
 console.log(
   staleLinkBaselineUpdatedAt
-    ? `Allowance: ${staleLinkBaseline.length} stale link(s) in ${STALE_LINK_BASELINE_PATH}${allowanceSince}${growthNote}.`
+    ? `Allowance: ${staleLinkBaseline.length} stale link(s) in ${STALE_LINK_BASELINE_PATH}${allowanceSince}${allowanceWrite}${growthNote}.`
     : `Allowance: none — there is no ${STALE_LINK_BASELINE_PATH} yet, so every stale link below fails the run.`,
 );
+// The age of the list, said where the list is kept: `--update-baseline` runs this report
+// after its own write, so a refresh that changed nothing prints the date it read and this
+// note with it, and one that changed something has already dated the list today and says
+// nothing. A warning rather than a failure, because a list that has not moved is not a
+// broken one — the gate above already fails on an entry that covers nothing or says
+// nothing, and what an old date adds is that nobody has read the reasons since.
+const allowanceAgeWarning = staleLinkAllowanceAgeWarning({ updatedAt: staleLinkBaselineUpdatedAt, today });
+if (allowanceAgeWarning) {
+  console.warn(
+    `[route-registry-direct] WARNING - ${allowanceAgeWarning}. Read the reasons in ${STALE_LINK_BASELINE_PATH} again: `
+      + "one that still holds needs nothing, and one that does not is a link to fix.",
+  );
+}
 if (!reading.unownedLinks.length) {
   console.log("No /wingman link names an address the manifest or the router does not serve.");
 }
 for (const link of reading.unownedLinks) {
   const compared = link.address === link.routePath ? "" : `  (as ${link.address})`;
-  const addedAt = addedByWrite.get(staleLinkKey(link));
-  const added = addedAt ? `  (added ${addedAt})` : "";
+  const addedEntry = addedByWrite.get(staleLinkKey(link));
+  const added = addedEntry
+    ? `  (added ${addedEntry.addedAt ?? "undated"} by write ${addedEntry.addedBy})`
+    : "";
   console.log(`${link.file}:${link.line}  ${link.routePath}${compared}${added}`);
 }
 

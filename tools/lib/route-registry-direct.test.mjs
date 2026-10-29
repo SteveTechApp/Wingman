@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ROUTE_REGISTRY_PATHS,
+  STALE_LINK_ALLOWANCE_REVIEW_DAYS,
   STALE_LINK_BASELINE_PATH,
   STALE_LINK_BASELINE_POLICY,
   compareStaleLinks,
@@ -10,6 +11,7 @@ import {
   readRouteRegistryDirect,
   resolveImport,
   sameStaleLinkEntries,
+  staleLinkAllowanceAgeWarning,
 } from "./route-registry-direct.mjs";
 
 /**
@@ -583,6 +585,48 @@ describe("mergeStaleLinkBaseline", () => {
     expect(merged[0]).toEqual({ file: notDeclared.file, address: notDeclared.address, reason: "hand-written" });
   });
 
+  it("stamps a new entry with the write that added it, so two writes on a day are told apart", () => {
+    const [notDeclared, projectsExtra] = links();
+    const first = mergeStaleLinkBaseline({
+      baseline: [],
+      links: [notDeclared],
+      today: "2026-10-29",
+      writeSeq: 1,
+    });
+    const second = mergeStaleLinkBaseline({
+      baseline: first,
+      links: [notDeclared, projectsExtra],
+      today: "2026-10-29",
+      writeSeq: 2,
+    });
+
+    // Both writes land on one day, so the date cannot say which added what: the second
+    // entry has to carry its own write or it reads as part of the first addition.
+    expect(second[0].addedAt).toBe(second[1].addedAt);
+    expect(first[0].addedBy).toBe(1);
+    // A survivor keeps the write that added it, the way it keeps its date.
+    expect(second[0].addedBy).toBe(1);
+    expect(second[1].addedBy).toBe(2);
+    expect(entriesAddedByWrite({ baseline: second, writeSeq: 2 })).toEqual([second[1]]);
+  });
+
+  it("leaves an entry that arrived before the record without a write", () => {
+    const [notDeclared] = links();
+    const merged = mergeStaleLinkBaseline({
+      baseline: [
+        { file: notDeclared.file, address: notDeclared.address, reason: "hand-written", addedAt: "2026-10-29" },
+      ],
+      links: [notDeclared],
+      today: "2026-10-29",
+      writeSeq: 4,
+    });
+
+    // Naming this run as its author would put a hand-written decision in the growth list,
+    // which is the same guess the date rule refuses for an entry with no date.
+    expect(merged[0].addedBy).toBeUndefined();
+    expect(entriesAddedByWrite({ baseline: merged, writeSeq: 4 })).toEqual([]);
+  });
+
   it("writes one entry for an address a file uses twice", () => {
     const [notDeclared] = links();
     const merged = mergeStaleLinkBaseline({
@@ -621,33 +665,46 @@ describe("sameStaleLinkEntries", () => {
 });
 
 describe("entriesAddedByWrite", () => {
-  const dated = (address, addedAt) => ({ file: "src/wingman2/app/routeCatalog.test.ts", address, addedAt });
-
-  it("names the entries the write that set the date added", () => {
-    const baseline = [dated("/wingman/old", "2026-06-02"), dated("/wingman/new", "2026-10-29")];
-
-    expect(entriesAddedByWrite({ baseline, updatedAt: "2026-10-29" })).toEqual([baseline[1]]);
+  const written = (address, addedBy, addedAt = "2026-10-29") => ({
+    file: "src/wingman2/app/routeCatalog.test.ts",
+    address,
+    addedAt,
+    addedBy,
   });
 
-  it("names an entry dated after the write, because that growth is not yet stamped", () => {
-    const late = dated("/wingman/late", "2026-11-02");
+  it("names the entries that write added, not every entry its day touched", () => {
+    const first = written("/wingman/first", 1);
+    const second = written("/wingman/second", 2);
 
-    expect(entriesAddedByWrite({ baseline: [late], updatedAt: "2026-10-29" })).toEqual([late]);
+    // The two writes share a date, which is why the write is the identity here: a date
+    // comparison names both, and the second addition disappears into the first.
+    expect(second.addedAt).toBe(first.addedAt);
+    expect(entriesAddedByWrite({ baseline: [first, second], writeSeq: 2 })).toEqual([second]);
+    expect(entriesAddedByWrite({ baseline: [first, second], writeSeq: 1 })).toEqual([first]);
   });
 
-  it("reports nothing it cannot place: no date, no addedAt, or none at all", () => {
-    const baseline = [{ file: "src/wingman2/app/routeCatalog.test.ts", address: "/wingman/a" }, dated("/wingman/b", "2026-10-29")];
+  it("reads the write rather than the date, so a later date is not what makes an entry new", () => {
+    const late = written("/wingman/late", 1, "2026-11-02");
 
-    expect(entriesAddedByWrite({ baseline, updatedAt: undefined })).toEqual([]);
-    expect(entriesAddedByWrite({ baseline, updatedAt: "undated" })).toEqual([]);
-    // No date to compare against is not "nothing is newer": it is a question this cannot
-    // answer, so the report stays quiet rather than calling every entry old.
-    expect(entriesAddedByWrite({ baseline })).toEqual([]);
+    // A date after the write used to be read as growth not yet stamped. The write is what
+    // says who added it, and this entry says an earlier one did.
+    expect(entriesAddedByWrite({ baseline: [late], writeSeq: 2 })).toEqual([]);
+  });
+
+  it("reports nothing it cannot place: no sequence, no addedBy, or none at all", () => {
+    const attributed = written("/wingman/b", 1);
+    const handWritten = { file: "src/wingman2/app/routeCatalog.test.ts", address: "/wingman/a" };
+
+    expect(entriesAddedByWrite({ baseline: [handWritten, attributed], writeSeq: 1 })).toEqual([attributed]);
+    // No write to compare against is not "nothing was added": it is a question this
+    // cannot answer, so the report stays quiet rather than calling every entry old.
+    expect(entriesAddedByWrite({ baseline: [attributed] })).toEqual([]);
+    expect(entriesAddedByWrite({ baseline: [attributed], writeSeq: 0 })).toEqual([]);
+    expect(entriesAddedByWrite({ baseline: [attributed], writeSeq: "2" })).toEqual([]);
   });
 });
 
-describe("the stale-link baseline's own documentation", () => {
-  it("promises the three failures the gate implements", () => {
+describe("the stale-link baseline's own documentation", () => {  it("promises the three failures the gate implements", () => {
     // The prose is written into the file the baseline is, before the list, so a reader
     // meets the rule there. Held here because the file is data: nothing in it can notice
     // the code dropping one of the three.
@@ -659,5 +716,69 @@ describe("the stale-link baseline's own documentation", () => {
     // The policy also tells the reader how to read a rise, because the count and the
     // dates are what the report prints and nothing else explains what they mean.
     expect(STALE_LINK_BASELINE_POLICY).toContain("the entries it grew by");
+    // And which write a rise came from, because a day can hold two additions and the
+    // date alone would report the second as the first.
+    expect(STALE_LINK_BASELINE_POLICY).toContain("addedBy");
+    expect(STALE_LINK_BASELINE_POLICY).toContain("writeSeq");
+    expect(STALE_LINK_BASELINE_POLICY).toContain("two additions on one day");
+  });
+});
+
+describe("the allowance's age", () => {
+  it("says nothing while the list is inside the review window", () => {
+    // Both dates are days in the file's own shape: `updatedAt` is written as YYYY-MM-DD,
+    // so an age read against the machine's clock would move this boundary an hour either
+    // side of the day it names.
+    expect(staleLinkAllowanceAgeWarning({ updatedAt: "2026-10-29", today: "2026-12-01" })).toBeNull();
+  });
+
+  it("warns from the day after the window, not on the day it closes", () => {
+    // The window is the last day the list is trusted whole, so a list exactly at the
+    // threshold is still quiet and the next day is the first reading that says something.
+    expect(staleLinkAllowanceAgeWarning({ updatedAt: "2026-08-01", today: "2026-10-30" })).toBeNull();
+
+    const warning = staleLinkAllowanceAgeWarning({ updatedAt: "2026-08-01", today: "2026-10-31" });
+    expect(warning).toContain("91 day(s) old");
+    expect(warning).toContain("last changed 2026-08-01");
+    expect(warning).toContain(`past ${STALE_LINK_ALLOWANCE_REVIEW_DAYS}`);
+  });
+
+  it("counts whole days from the date the list changed", () => {
+    const warning = staleLinkAllowanceAgeWarning({ updatedAt: "2026-05-28", today: "2026-10-29" });
+
+    expect(warning).toContain("154 day(s) old");
+  });
+
+  it("says nothing when there is no date to age", () => {
+    // No date is not an old date. The undated file is already said apart by the report's
+    // allowance line, and guessing an age from a string that is not a date would name a
+    // number nobody measured — including a day that does not exist, which `Date.UTC`
+    // would quietly roll into the next month.
+    for (const updatedAt of [undefined, "", "undated", "not-a-date", "2026-02-31", null]) {
+      expect(staleLinkAllowanceAgeWarning({ updatedAt, today: "2026-10-29" })).toBeNull();
+    }
+  });
+
+  it("reads today as a day, so the clock a caller holds cannot move the reading", () => {
+    // The script hands in the same day it stamps the file with; this takes a Date as well
+    // because a caller with a clock has one, and the two have to answer alike.
+    expect(staleLinkAllowanceAgeWarning({ updatedAt: "2026-05-28", today: new Date("2026-10-30T23:45:00Z") }))
+      .toBe(staleLinkAllowanceAgeWarning({ updatedAt: "2026-05-28", today: "2026-10-30" }));
+  });
+
+  it("does not warn about a date in the future", () => {
+    // The rule is how long ago the list changed. A date after today is a clock or a
+    // hand-written entry that disagrees with this run, and a negative age is not an age.
+    expect(staleLinkAllowanceAgeWarning({ updatedAt: "2026-11-02", today: "2026-10-29" })).toBeNull();
+  });
+
+  it("takes a window from its caller, and defaults to the one the audit prints", () => {
+    // The spec reader should not have to keep the number in their head twice, so the
+    // constant is read here as the default the function uses; a caller passing its own
+    // window is how this is exercised without waiting a quarter.
+    expect(STALE_LINK_ALLOWANCE_REVIEW_DAYS).toBe(90);
+    expect(staleLinkAllowanceAgeWarning({ updatedAt: "2026-10-01", today: "2026-10-20" })).toBeNull();
+    expect(staleLinkAllowanceAgeWarning({ updatedAt: "2026-10-01", today: "2026-10-20", maxAgeDays: 10 }))
+      .toContain("19 day(s) old");
   });
 });
