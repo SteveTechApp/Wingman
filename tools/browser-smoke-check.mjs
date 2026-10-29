@@ -4,7 +4,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, expect } from "@playwright/test";
 import { assertFreshBuild, buildSummaryLines, failedSummaryLines, refusedSummaryLines } from "./lib/build-freshness.mjs";
-import { copyAndDeleteSplitFailure, describeBands } from "./lib/gallery-row-bands.mjs";
+import {
+  bandComparison,
+  designEntryNameFailure,
+  designLinkCountFailure,
+  entrySharesLineWithIconPair,
+  galleryActionRowFailure,
+  galleryColumnsFailure,
+  iconPairInset,
+  longestNamedEntry,
+  rowBandComparisonFailure,
+  rowShapeFailure,
+  rowStateClause,
+  sharedLineReading,
+  sharedLineSummaryClause,
+  shortNameSharedLineFailure,
+  tightestPrintedEntry,
+} from "./lib/gallery-card-rows.mjs";
 import {
   crmPanelClippedFailure,
   crmRemovalBodyMentionFailure,
@@ -954,137 +970,6 @@ async function measureCardActionRow(card) {
 }
 
 /**
- * What every card's row is held to, whatever it carries: no action leaves the
- * card, neither the card nor its row scrolls sideways, the trailing pair shares
- * a line, and that line ends on the card's right edge. Returns how much of the
- * card's width the pair left over, which is what the caller prints.
- *
- * `expectedActions` is what a card that finished rendering carries — Detail,
- * Resume, one link per saved design, Copy and Delete — so a row caught mid-render
- * fails here rather than reading as a shorter row.
- */
-/**
- * What a design entry owes the rep: enough of the design's name to be a name.
- *
- * The entry prints "Open template: <name>" on one ellipsized line, so its width is
- * the whole of what is readable — a row that fits by sharing a line with another
- * action prints the verb and one or two letters, which is the same card with the
- * name gone. The stylesheet gives an entry a floor at phone width and wraps it
- * onto a line of its own below that; this holds the floor to what the browser
- * printed rather than to the rule that was supposed to apply.
- */
-function assertDesignEntryNames(measured, { at, room }) {
-  if (!measured.designEntries.length) {
-    throw new Error(`Gallery card for ${room} carries no design entry to measure at ${at}.`);
-  }
-  const stubs = measured.designEntries
-    .filter((entry) => entry.nameCharacters === null || entry.nameCharacters < SAVED_DESIGN_NAME_FLOOR)
-    .map((entry) => savedDesignNameFailure({
-      surface: "gallery card",
-      room,
-      design: entry.name,
-      visible: entry.nameCharacters === null ? 0 : entry.nameCharacters,
-      characters: entry.name.length,
-      floor: SAVED_DESIGN_NAME_FLOOR,
-      at,
-    }));
-  if (stubs.length) throw new Error(stubs.join(" "));
-}
-
-function assertActionRowClose(measured, { at, room, expectedActions }) {
-  if (measured.actionCount < expectedActions) {
-    throw new Error(
-      `Gallery card for ${room} rendered ${measured.actionCount} actions at ${at}; the action row was not on screen.`,
-    );
-  }
-  if (measured.escaped.length) {
-    throw new Error(`Gallery card actions left the card at ${at}: ${measured.escaped.join(", ")} (${room}).`);
-  }
-  if (measured.card.scroll > measured.card.width + 1) {
-    throw new Error(`Gallery card overflows at ${at} (${measured.card.scroll} > ${measured.card.width}) (${room}).`);
-  }
-  if (measured.row.scroll > measured.row.width + 1) {
-    throw new Error(`Gallery card action row overflows at ${at} (${measured.row.scroll} > ${measured.row.width}) (${room}).`);
-  }
-  if (measured.iconButtons.length !== 2) {
-    throw new Error(
-      `Gallery card for ${room} rendered ${measured.iconButtons.length} icon buttons at ${at}; Copy and Delete should close the action row.`,
-    );
-  }
-  // Widest first, and said as one button rather than as a list — the rule the hero
-  // header's children are held to. Copy and Delete share this line, so a pair pushed
-  // out of the card is usually one defect seen twice: the box to change is whichever
-  // runs furthest past the content box. A list of boxes left the reader to subtract
-  // them and decide which one had actually gone, which is the work a failure should
-  // have done. The rest are named without boxes, so the message says the pair came
-  // apart without asking anyone to compare arithmetic.
-  const lostIconButtons = measured.iconButtons
-    .map((button) => ({
-      button,
-      past: Math.max(measured.content.left - button.left, button.right - measured.content.right),
-    }))
-    .filter((entry) => entry.past > 1)
-    .sort((left, right) => right.past - left.past);
-  if (lostIconButtons.length) {
-    const [widest, ...also] = lostIconButtons;
-    const quoted = (entry) => `"${entry.button.label}"`;
-    throw new Error(
-      `Gallery card for ${room} lets ${quoted(widest)} run ${widest.past}px past its own content box `
-      + `(${measured.content.left}-${measured.content.right}px) at ${at}`
-      + `${also.length ? `, the widest of ${lostIconButtons.length} controls that leave it (${also.map(quoted).join(", ")})` : ""}`
-      + ": Copy and Delete have to close the row inside the card.",
-    );
-  }
-  // Which line each of the pair landed on, from `copyAndDeleteSplitFailure` — the
-  // same module whose `describeBands` prints the row's band lists, so this failure and
-  // the band-count ones cannot describe one row two ways. The sentence names both
-  // lines by the number the list uses and then prints the list under it, which says
-  // what took each line; the pair is one item, so a break belongs between the design
-  // line's entries and the pair, never through it.
-  const splitFailure = copyAndDeleteSplitFailure({
-    room,
-    at,
-    iconButtons: measured.iconButtons,
-    bands: measured.bands,
-  });
-  if (splitFailure) throw new Error(splitFailure);
-  // Closing the row's right edge: a row that wraps along the design links leaves
-  // the trailing pair at the start of their own line unless something in front
-  // of them takes the space, so the card's right edge would be set by whatever
-  // wrapped above them — 289px of it at 1366px and 180px at 360px before this was
-  // held. Copy and Delete are the last actions a rep reads, and a row they do not
-  // close reads as an unfinished list.
-  const iconInset = Math.min(
-    ...measured.iconButtons.map((button) => measured.content.right - button.right),
-  );
-  if (iconInset > 1) {
-    throw new Error(
-      `Gallery card left Copy and Delete ${iconInset}px short of the card's content edge at ${at}: the trailing pair has to close the row's right edge (${room}).`,
-    );
-  }
-  return iconInset;
-}
-
-/**
- * Whether a design entry and the trailing pair were laid out on the same line.
- *
- * Read from vertical overlap rather than from equal tops: the entry and the two
- * buttons are boxes of different heights, and the pair is centred on the line the
- * link shares, so equal tops would report a shared line as two. The row this
- * answers for is the short-named one — a name that fits beside Copy and Delete
- * must not be given a line of its own, because the row then costs the card a line
- * and breaks where nothing needed to.
- */
-function entrySharesLineWithIconPair(entry, measured) {
-  if (!entry || measured.iconButtons.length !== 2) return false;
-  const pairTop = Math.min(...measured.iconButtons.map((button) => button.top));
-  const pairBottom = Math.max(...measured.iconButtons.map((button) => button.bottom));
-  const overlap = Math.min(entry.bottom, pairBottom) - Math.max(entry.top, pairTop);
-  const shortest = Math.min(entry.bottom - entry.top, pairBottom - pairTop);
-  return shortest > 0 && overlap >= shortest / 2;
-}
-
-/**
  * How many columns the gallery itself is laying out at the current width.
  *
  * Read from the grid the page computed rather than from a media query repeated
@@ -1310,15 +1195,9 @@ async function assertGalleryCardActions(page) {
     // row with another card gives the short name the pair's line, and a single
     // column is the one case where the entry's phone floor wins that line instead.
     const columns = await measureGalleryColumns(page);
-    // A width that states its column count is half of a promise about the layout:
-    // the pair either side of the three-to-two change has to read 3 and then 2, or
-    // the card it was added for — the widest two-column card — is not on screen.
-    if (viewport.columns !== undefined && columns !== viewport.columns) {
-      throw new Error(
-        `The gallery laid out ${columns} columns at ${at}, where its three-to-two change puts ${viewport.columns}: `
-          + "the widths either side of that change are what hold the widest two-column card, so a breakpoint "
-          + "that moved out from between them leaves it unmeasured.",
-      );
+    if (viewport.columns !== undefined) {
+      const columnsFailure = galleryColumnsFailure(columns, { at, expected: viewport.columns });
+      if (columnsFailure) throw new Error(columnsFailure);
     }
 
     // Every state by the same rules, from the one list: a row that is added to it
@@ -1327,32 +1206,29 @@ async function assertGalleryCardActions(page) {
     for (const state of GALLERY_ROW_STATES) {
       const reading = readings.get(state.key);
       const measured = await measureCardActionRow(cards.get(state.key));
-      const inset = assertActionRowClose(measured, {
+      const rowFailure = galleryActionRowFailure(measured, {
         at,
         room: state.room,
         expectedActions: state.designs.length + 4,
       });
+      if (rowFailure) throw new Error(rowFailure);
+      // How much of the card's width the pair left over, which the summary prints.
+      const inset = iconPairInset(measured);
 
-      // The state is part of the reading: a row carrying a link this state does not
-      // have is not the row under test, whatever its boxes say.
-      if (measured.designEntries.length !== state.designs.length) {
-        throw new Error(
-          `Gallery card for ${state.room} carries ${measured.designEntries.length} design `
-            + `link${measured.designEntries.length === 1 ? "" : "s"} at ${at}; the "${state.key}" row has `
-            + `${state.designs.length}, so the store state under test is not the one measured.`,
-        );
-      }
+      const linkFailure = designLinkCountFailure(measured, {
+        at,
+        room: state.room,
+        stateKey: state.key,
+        expected: state.designs.length,
+      });
+      if (linkFailure) throw new Error(linkFailure);
       // Every entry's name, because the name is what the entry is for and the row's
       // own fit is not allowed to be paid for with it. A state with no designs has
       // no name to read — and its clause above already proved there is nothing to.
       if (state.designs.length) {
-        assertDesignEntryNames(measured, { at, room: state.room });
-        const narrowestName = measured.designEntries.reduce(
-          (tightest, candidate) => ((candidate.nameCharacters ?? 0) < (tightest.nameCharacters ?? 0)
-            ? candidate
-            : tightest),
-          measured.designEntries[0],
-        );
+        const nameFailure = designEntryNameFailure(measured, { at, room: state.room });
+        if (nameFailure) throw new Error(nameFailure);
+        const narrowestName = tightestPrintedEntry(measured);
         designNameReadings.push({
           at,
           width: viewport.width,
@@ -1369,63 +1245,21 @@ async function assertGalleryCardActions(page) {
       }
 
       if (state.sharesLine) {
-        // The entry under test is the one with the least name to show, not the first
-        // one the store lists. The two-short row has two entries, and picking by
-        // position made this reading follow the seed's order: a seed written the
-        // other way round would have measured the wider of the two and reported the
-        // phone floor as holding the name that never needed it.
-        const entry = measured.designEntries.reduce(
-          (narrowest, candidate) => ((candidate.labelWidth ?? candidate.width) < (narrowest.labelWidth ?? narrowest.width)
-            ? candidate
-            : narrowest),
-          measured.designEntries[0],
-        );
-        const sharesLine = entrySharesLineWithIconPair(entry, measured);
-        // Whether the row had room for the pair beside the name, asked of the page:
-        // the label's unellipsized width plus the pair's own, against the width the
-        // row actually has. The column count alone was the wrong question — the
-        // three-column card at 1151px is narrower than any two-column card, and at
-        // 300px of row a 253px name and the 110px pair cannot share a line. There
-        // the name takes a line of its own, which is the wrap the stylesheet
-        // promises wherever the row cannot hold both.
-        // The design line is what has to hold both — the row's whole width when the
-        // line has one of its own, and less than that at 1151px, where the row is a
-        // narrow three-column card.
-        const room = measured.designGroup?.width ?? measured.content.right - measured.content.left;
-        // The pair's span is the furthest right edge minus the furthest left one, not
-        // the last child's right minus the first child's left: the group is what a
-        // rep reads as the pair, and the width should not depend on which of the two
-        // the DOM happens to list first.
-        const pairWidth = measured.iconButtons.length === 2
-          ? Math.max(...measured.iconButtons.map((button) => button.right))
-            - Math.min(...measured.iconButtons.map((button) => button.left))
-          : 0;
-        const entryNeeds = (entry?.labelWidth ?? entry?.width ?? 0) + pairWidth;
-        const hasRoom = entryNeeds <= room;
-        if (columns > 1 && hasRoom && !sharesLine) {
-          throw new Error(
-            `Gallery card for ${state.room} gave its short design name a line of its own at ${at} `
-              + `in a ${columns}-column gallery, where its design line has ${room}px for the ${entry?.labelWidth}px name `
-              + `and the ${pairWidth}px pair: "${entry?.name}" is the row's narrowest entry at ${entry?.width}px `
-              + `(${entry?.left}-${entry?.right}px) and the trailing pair starts at `
-              + `${Math.min(...measured.iconButtons.map((button) => button.top))}px. `
-              + "Where the card shares its row and has room for both, the link shares the line Copy and Delete are on.",
-          );
-        }
+        // Both halves — which entry is the reading, and whether the row had room
+        // for the name and the pair together — are the module's rule, so a wrap
+        // the stylesheet does not promise fails here rather than reading as room.
+        const sharingFailure = shortNameSharedLineFailure(measured, {
+          at,
+          room: state.room,
+          columns,
+        });
+        if (sharingFailure) throw new Error(sharingFailure);
+        const sharing = sharedLineReading(measured, { columns });
         // Every width that states a column count is printed, shared or not: at the
         // change the row is too narrow for both, and a summary that listed only the
         // widths where the line was shared would leave that width unaccounted for.
-        if (viewport.columns !== undefined) {
-          sharedLineReadings.set(viewport.width, {
-            columns,
-            sharedLine: sharesLine,
-            entry: entry?.width ?? null,
-            card: measured.card.width,
-            room,
-            needs: entryNeeds,
-          });
-        }
-        if (viewport.width === 360) reading.sharedLine = sharesLine;
+        if (viewport.columns !== undefined) sharedLineReadings.set(viewport.width, sharing);
+        if (viewport.width === 360) reading.sharedLine = sharing.sharedLine;
       }
 
       if (state.banner) {
@@ -1449,16 +1283,7 @@ async function assertGalleryCardActions(page) {
         // and this says what was left over when it was not.
         if (viewport.width === 360) {
           cardLabelAt360 = measured.bannerLabel.width;
-          // The example the summary prints is the entry with the most name to lose,
-          // not the first one the store lists. With three designs the first is
-          // whichever the seed wrote first, so the printed number followed the
-          // seed's order and could name any of them as if it were the worst case.
-          reading.entry = measured.designEntries.reduce(
-            (longest, candidate) => ((candidate.name?.length ?? 0) > (longest.name?.length ?? 0)
-              ? candidate
-              : longest),
-            measured.designEntries[0],
-          );
+          reading.entry = longestNamedEntry(measured);
         }
       }
 
@@ -1475,14 +1300,7 @@ async function assertGalleryCardActions(page) {
       if (viewport.shape) {
         reading.shapeComparisons = [
           ...(reading.shapeComparisons ?? []),
-          {
-            width: viewport.width,
-            columns,
-            hold: viewport.shape,
-            lines: measured.lines,
-            card: measured.card.width,
-            bands: describeBands(measured.bands),
-          },
+          bandComparison({ width: viewport.width, columns, hold: viewport.shape, measured }),
         ];
       }
       // The row's bands at the width where its card is widest: the boxes above
@@ -1490,21 +1308,8 @@ async function assertGalleryCardActions(page) {
       // than its state has is the shape going wrong where nothing else could see it
       // — an entry given a line it did not need, or a group breaking through a pair.
       if (viewport.rowShape) {
-        if (typeof state.rowLines !== "number") {
-          throw new Error(
-            `The "${state.key}" row state declares no row shape, so ${at} — the width where the card is as wide `
-              + "as a two-column card gets — has no band count to hold it to. Declare `rowLines` on the state "
-              + "or drop `rowShape` from the width.",
-          );
-        }
-        if (measured.lines !== state.rowLines) {
-          throw new Error(
-            `Gallery card for ${state.room} wrapped its action row over ${measured.lines} lines at ${at}, where the `
-              + `"${state.key}" row has ${state.rowLines}: the card there is ${measured.card.width}px wide, the widest `
-              + `a two-column card gets, so the row has all the room its shape asks for. It printed `
-              + `${describeBands(measured.bands)}.`,
-          );
-        }
+        const shapeFailure = rowShapeFailure(measured, { at, state });
+        if (shapeFailure) throw new Error(shapeFailure);
         reading.row = {
           width: viewport.width,
           lines: measured.lines,
@@ -1515,37 +1320,19 @@ async function assertGalleryCardActions(page) {
     }
   }
 
-  // Every marked width is held to the band count the widest card has, so a card in
-  // a band that wraps differently is named rather than left to its own boxes. The
-  // number promised is always the widest card's, read off the page at 1150px: the
-  // tablet's card is narrower than that one, so an extra band there is a line the row
-  // spent on width alone and fewer is a rule scoped below 1150px; the top of the
-  // single-column block is wider than it, so only more bands there says a rule inside
-  // that block spends a line — a row with fewer bands has simply been given room.
+  // Every marked width is held to the widest card's band count, by the rule in
+  // `gallery-card-rows.mjs`: the number promised is always that one, so a card in a
+  // band that wraps differently is named rather than left to its own boxes.
   for (const state of GALLERY_ROW_STATES) {
     const reading = readings.get(state.key);
-    const within = reading.row;
     for (const comparison of reading.shapeComparisons ?? []) {
-      if (!within) {
-        throw new Error(
-          `The "${state.key}" row has no band count at the widest card's width, so the ${comparison.width}px `
-            + "reading has nothing to be held to. Declare `rowShape` on that width or drop the comparison.",
-        );
-      }
-      const held = comparison.hold === "same"
-        ? comparison.lines === within.lines
-        : comparison.lines <= within.lines;
-      if (held) continue;
-      const layout = comparison.columns === within.columns
-        ? `both widths are inside the ${comparison.columns}-column band, so the shape of the row has to be the same one`
-        : `the gallery lays out ${comparison.columns} column${comparison.columns === 1 ? "" : "s"} there against `
-          + `${within.columns} at the widest card, and that card is ${comparison.card}px against ${within.card}px, so `
-          + `${comparison.hold === "same" ? "the shape of the row has to be the same one" : "the row has at least the room the widest card's row had"}`;
-      throw new Error(
-        `Gallery card for ${state.room} wrapped its action row over ${comparison.lines} lines at ${comparison.width}px, `
-          + `where the widest card at ${within.width}px has ${within.lines}: ${layout}. `
-          + `At ${comparison.width}px it printed ${comparison.bands}.`,
-      );
+      const comparisonFailure = rowBandComparisonFailure({
+        room: state.room,
+        stateKey: state.key,
+        comparison,
+        within: reading.row,
+      });
+      if (comparisonFailure) throw new Error(comparisonFailure);
     }
   }
 
@@ -1578,63 +1365,18 @@ async function assertGalleryCardActions(page) {
   await page.setViewportSize({ width: 1366, height: 900 });
   // Built from the same list the seeding and the measuring come from, so a state
   // added there prints its own clause instead of the walk keeping a sentence that
-  // describes four shapes in prose it no longer measures.
+  // describes four shapes in prose it no longer measures. The words — the band
+  // counts' order and the short name's line — live in `gallery-card-rows.mjs` with a
+  // spec, because the sentence is the one part of this pass a green run cannot read.
   const rowClauses = GALLERY_ROW_STATES.map((state) => {
-    const reading = readings.get(state.key);
-    const lines = `${reading.lines} line${reading.lines === 1 ? "" : "s"}`;
-    // Read off the page at the width that states a row shape, beside the 360px
-    // reading: the phone says the row fits, and the widest two-column card says the
-    // row is the shape its state has rather than one band longer.
-    //
-    // Every band count is reported as a number of its own, and the top of the
-    // single-column block's sits beside the widest card's: those two are the pair a
-    // reader compares — the wider card must not need more lines than the widest
-    // two-column one — and stating only the hold left the second number to be found
-    // in another clause. The tablet's count follows, because it is the same number
-    // promised again rather than a second measurement to compare.
-    // The sequence those counts print in comes from the promises themselves, not from
-    // the order this function happens to list them: each width's own
-    // `rowShape`/`shape` marker decides where its count goes, and within one promise
-    // the wider width is printed first. That order and the words for it live in
-    // `gallery-band-counts.mjs`, with a spec — the sentence is the one part of this
-    // pass a green run cannot read, so the table is held without a browser.
-    const sequence = readBandCountSequence({
-      sources: [
-        reading.row ? { promise: "declares", width: reading.row.width, lines: reading.row.lines } : null,
-        ...(reading.shapeComparisons ?? []).map((comparison) => ({
-          promise: comparison.hold,
-          width: comparison.width,
-          lines: comparison.lines,
-        })),
-      ].filter(Boolean),
-    });
-    if (!sequence.ok) {
-      throw new Error(
-        bandCountSequenceFailure({ unplaced: sequence.unplaced, promises: sequence.promises }),
-      );
-    }
-    const bands = bandCountsClause(sequence.counts);
-    const clause = `${state.headline}: ${reading.inset}px left over at 360px, wrapped over ${lines}${bands}`;
-    return reading.sharedLine === undefined
-      ? clause
-      : `${clause}, where the entry's phone floor ${reading.sharedLine ? "still leaves the link on" : "takes"} Copy and Delete's line`;
+    const { clause, failure } = rowStateClause(state, readings.get(state.key));
+    if (failure) throw new Error(failure);
+    return clause;
   });
   // Every width that states a column count prints where the short name's line went,
   // widest first, so the two-column card at the change and the tablet's are read
-  // side by side rather than one standing in for the other — and the width where the
-  // row is too narrow for both says so, because a wrap there is the layout's answer
-  // rather than a missing reading.
-  const sharingClauses = [...sharedLineReadings.entries()]
-    .sort((left, right) => right[0] - left[0])
-    .map(([width, reading]) => {
-      const columns = `${reading.columns} column${reading.columns === 1 ? "" : "s"}`;
-      return reading.sharedLine
-        ? `at ${width}px the gallery lays out ${columns} and its ${reading.card}px card gives the entry ${reading.entry}px, so the link shares Copy and Delete's line`
-        : `at ${width}px the gallery lays out ${columns} and its design line has ${reading.room}px for a ${reading.needs}px name-plus-pair, so the name takes a line of its own there`;
-    });
-  const sharingClause = sharingClauses.length
-    ? `The short name's line was read at every width that states a column count: ${sharingClauses.join("; ")}. `
-    : "";
+  // side by side rather than one standing in for the other.
+  const sharingClause = sharedLineSummaryClause(sharedLineReadings);
   const widthList = GALLERY_CARD_VIEWPORTS.map((viewport) => `${viewport.width}px`);
   const measuredWidths = `${widthList.slice(0, -1).join(", ")} and ${widthList[widthList.length - 1]}`;
   const firstEntry = readings.get(bannerState.key)?.entry;
