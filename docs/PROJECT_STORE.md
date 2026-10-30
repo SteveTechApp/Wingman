@@ -618,13 +618,17 @@ measured. The shared floor is 20, under the tightest case either meets — the
 counts it is argued from are
 [the project gallery](../reports/browser-readings.md#project-gallery)'s reading,
 never a copy of them here, so a floor cannot outlive the run that measured it. It
-is not higher because the narrowest case is a two-column card's one line: 31
-characters of a 92-character name at 761px and at 1151px, where a card shares its
-row. The phone used to be the tightest case at 23, and that number turned out to be
-a reading of one font profile rather than of the card — the app names `Geist
-Variable` and `Inter` and ships neither, so the CI runner's wider fallback sans
-printed 17 of the same name in the same 250px entry and the floor failed on a
-branch where nothing about the card had changed. The room was never there to
+is not higher because the narrowest case is a two-column card's one line, where
+a card shares its row — the counts it is argued from are the report's reading and
+not a copy of them. The phone used to be the tightest case, and that number was a
+reading of the machine's fonts rather than of the card: the app named `Geist
+Variable` and `Inter` and shipped neither, so the CI runner's wider fallback sans
+printed 17 characters of a name the developer's machine printed 23 of in the same
+250px entry, and the floor failed on a branch where nothing about the card had
+changed. That is fixed at the cause rather than at the floor: `src/main.tsx`
+imports `@fontsource-variable/geist` ahead of the style layers, so the family the
+tokens name arrives with the bundle and a pixel measured on the runner is a pixel
+on a rep's machine. The room was never there to
 spend: a 286px card gives its entry 250px of 250px, so a `min-width` of 60ch
 changes nothing. So below 761px — the width where the gallery stops being one card
 per row — the label takes a second line and prints the whole name, which is what

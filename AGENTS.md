@@ -194,13 +194,14 @@ states is one they trust by mistake.
   guided strip's saved-design link carries the same rule. The number is one
   shared floor with one failure sentence, because a floor per surface let the
   gallery allow a stub the strip would have failed; it is a stub guard, not a
-  target either surface is measured against, and it is 20 because a card in the
-  two-column band prints 31 characters of a long name on one line — under that by
-  enough that a wider fallback font still clears it — while the phone and the
+  target either surface is measured against, and it is 20 because a card's
+  two-column line keeps more of a long name than that — while the phone and the
   single-column band print the name whole, because below 761px the label takes a
-  second line. A name that only fits on one line is a reading of the font as much
-  as of the card: the app names a typeface it does not ship, so the runner's wider
-  sans printed 17 where the developer's machine printed 23 and the floor failed. What each width actually kept is
+  second line. A name that only fits on one line is a reading of the typeface as
+  much as of the card, which is why the family is delivered rather than merely
+  named: with a fallback sans the runner printed 17 where the developer's machine
+  printed 23 in the same entry and the floor failed on a branch where nothing
+  about the card had changed. What each width actually kept is
   read off `designNameWidthClause` in `tools/lib/saved-design-names.mjs`: the
   longest-named entry, its card, and the runner-up beside it, which is what
   separates a column's budget from one card's own width. The numbers a floor is
@@ -402,11 +403,17 @@ states is one they trust by mistake.
 - The shell re-sizes every button in the page host, and a page-wide control rule
   outranks a plain class: a component's own controls have to declare their size
   at a specificity that wins, or they come back as strips inside their cards.
-- The generic button texture has to keep excluding the primary classes on every
-  branch. Its attribute-selector branch carries enough specificity to beat the
-  primary rule below it, so a new primary-shaped class belongs in both
+- The generic button texture has to keep excluding the primary classes  on every branch. Its attribute-selector branch carries enough specificity to beat
+  the primary rule below it, so a new primary-shaped class belongs in both
   branches' exclusion lists, not only in the primary rule — otherwise that
   button reads as greyed-out text on a dark pill.
+- `--wm-font` names a family the app ships, and that is what makes a text reading
+  a reading. `src/main.tsx` imports `@fontsource-variable/geist` ahead of the
+  layer files; named and not delivered, every machine rendered the app in its own
+  fallback sans — 12.6% wider on the CI runner than on a Windows machine — so a
+  walk holding a character count or a pixel of slack passed in one place and
+  failed in the other, and the surfaces it names looked like layout bugs. A
+  surface that needs a font adds the import, not the name.
   [Narrative](docs/SHELL_AND_FRAME.md)
 
 ## Discovery

@@ -295,14 +295,20 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   `flex-wrap` is what keeps that from crowding — a chip takes its content width,
   so a long survey reading moves whole onto its own line instead of squeezing its
   neighbours. It does not give the chip somewhere to go once it is wider than the
-  column, though, and a 360px card showed it: a stale survey reading
-  (`Survey reviewed · 4 months ago · re-confirm`, 276px) came out at 265px with its
-  label ellipsised — the half that says what the reading is, gone — and overhung
-  the 256px column by 9px into the gap where the card's chevron sits. The <=382px
-  block therefore drops that chevron (`wm-guided-recent-arrow`; the whole card is
-  one hit area) and gives its 28px to the copy column: the widest stale reading
-  (279px at 11 months) and a cleared one (249px for 12 rows) then print whole at
-  360, and the re-confirm action follows on its own line. The `Open template:
+  column, though, and a 360px card showed it: a stale survey reading came out with
+  its label ellipsised — the half that says what the reading is, gone — and
+  overhung the column into the gap where the card's chevron sits. So on the phone
+  the chip wraps its own label instead of clipping it, the shape the projects
+  list's sync-conflict chip already takes at that width and for the same reason,
+  and the promise becomes one no width can break: a reading prints whole, on a
+  second line where the column leaves it none. That rule is what let the app
+  render in the typeface it names, whose wider glyphs made the widest reading
+  285px where the fallback printed 279px: at 383px the column is 279px, six under
+  it, so the chip takes the second line there instead of losing its label. The
+  <=382px block also drops the chevron (`wm-guided-recent-arrow`; the whole card
+  is one hit area) and gives its 28px to the copy column, so from 360 to 382 that
+  same reading prints on one line — 305px at 381 for the 285px one — and the
+  re-confirm action follows on its own line. The `Open template:
   <name>` links stay out of that row on purpose: the name is the payload, and
   pairing two designs on one line truncates exactly the name a rep is choosing
   between. The current reading — the widths the strip holds, each card's copy
@@ -326,33 +332,31 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   the chevron at the band's edge could still fit its reading there, and the pass
   would report a rule it never met.
   That row was then swept one pixel at a time from 360 to 560, with the pass's
-  own seeded cards and its own invariants: it holds at all 201 widths, and it is
-  tightest at 381px — the first width where the chevron returns, where the copy
-  column drops from 304px to 277px, the narrowest in the band, and caps the
-  widest reading 2px under its own 279px, the label showing 1px of that (inside
-  the walk's tolerance, with none of it to spare). With the chevron the column is
-  `width - 104`, so that reading needs 383px and up for the chevron to stay and
-  print it whole — the block covered 360-380, which left its boundary 2px early
-  for what it protects.  It covers 360-382 now, so the chevron returns at 383 and
-  the column holds the widest reading with nothing to spare: the tightest width in
-  the app. Both sides of that edge are measured. 383px is the width
+  own seeded cards and its own invariants: it holds at all 201 widths, and the
+  tightest moment in it is the chevron's return, where the copy column drops its
+  28px between 382 and 383 — 305px to 279px, against a 285px reading. With the
+  chevron the column is `width - 104`, so that reading needs 390px and up to print
+  beside it, and 383 to 389 are the widths where the chip takes its second line
+  instead; the block covers 360-382. Both sides of that edge are measured. 383px
+  is the width
   the chevron comes back at, so that is where the pass reads the chevron's own
   `display`, requires each card's own reading to fit inside that card's copy
   column, and prints how much room each had, and 1px over is allowed, the walk's
-  own tolerance, so a
-  fallback font's pixel does not fail a correctly laid-out card while a 2px squeeze
-  does. That fit is not only asked at 383px: every card's slack is read at every
+  own tolerance, so a fractional pixel from the browser's own layout does not fail
+  a correctly laid-out card while a 2px squeeze does. That fit is not only asked at 383px: every card's slack is read at every
   width the walk loads, because the cards' columns are not the same width. 381px is one pixel inside the band, where the column has
   room to spare; it is held because a rule that never gave up the
   chevron would still fit the reading there and only the chevron reading catches
-  it, which is the one thing 383 cannot tell. 360 and 390 stay for the same
-  reason they were chosen: this app
-  names `Geist Variable`, `Geist` and `Inter` in `--wm-font` with no `@font-face`
-  and no webfont link in the tree, so a chip measured to the pixel here is not
-  that number on the ubuntu runner the Browser Smoke job uses, and the margin the
-  report prints at 360 and 390 is what makes those two holdable on both — which
-  is also why 383's reading is a floor with a pixel of slack rather than an
-  equality. Probing it by moving the block to `max-width: 383px`, so the chevron
+  it, which is the one thing 383 cannot tell. 360 and 390 stay for the reason
+  they were chosen, and 390 has since become the tightest reading in the strip:
+  it is the narrowest width where the reading still prints beside the chevron on
+  one line, a 286px column holding the 285px one, while 360 is the narrowest phone
+  the walk loads and the width inside the band. Both are the runner's numbers now
+  — the app ships the family `--wm-font` names (`@fontsource-variable/geist`,
+  imported by `src/main.tsx` before the layer files), so a chip measured to the
+  pixel here is the same number on the ubuntu runner the Browser Smoke job uses,
+  and before that import the fallback sans was 12.6% wider there and moved every
+  reading about text. Probing it by moving the block to `max-width: 383px`, so the chevron
   returns a pixel late, stops the walk at 383px with "The recent card dropped its
   chevron at 383px, where there is room for both" — the width is read, not
   assumed.

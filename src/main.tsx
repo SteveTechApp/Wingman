@@ -2,6 +2,14 @@
    The @xyflow stylesheet is owned by the lazy visual-canvas chunk
    (VisualStudioCanvas is its only consumer), so it must not be imported here:
    an eager import would pull the whole @xyflow graph into the initial preload set. */
+/* The typeface `--wm-font` names, delivered rather than hoped for. `Geist
+   Variable` leads that stack and `@fontsource-variable/geist` was already a
+   dependency with nothing importing it, so every machine rendered the app in its
+   own fallback sans: 12.6% wider on a CI runner than on a developer's Windows
+   machine, and that moved every reading the browser walk takes about text. It
+   loads before the layers so the family is declared before anything styles with
+   it. */
+import "@fontsource-variable/geist";
 import "./wingman2/styles/wingman-layer-tokens.css";
 import "./wingman2/styles/wingman-layer-reset.css";
 import "./wingman2/styles/wingman-layer-layout.css";

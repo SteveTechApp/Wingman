@@ -5339,17 +5339,33 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="dashboard"] #root {
   .wm-guided-recent-card .wm-guided-recent-copy .wm-guided-recent-flags {
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
   }
+  /* The row wraps so a long reading moves to a second line, but a chip wider
+     than the row had no line to move to and ellipsised its label instead — and
+     the label is the half that says what the reading is. So on the phone a flag
+     wraps inside its own pill rather than clipping: the projects list's
+     sync-conflict chip crosses a phone the same way, for the same reason, and
+     this is the one card where the survey reading is the payload. A reading that
+     fits still prints on one line; the rule only spends the second line when the
+     column cannot hold the first. */
+  .wm-guided-recent-card .wm-guided-recent-copy .wm-guided-recent-flags > .wm-status-chip {
+    width: auto; max-width: 100%; white-space: normal;
+  }
+  .wm-guided-recent-card .wm-guided-recent-copy .wm-guided-recent-flags > .wm-status-chip .wm-status-chip-label {
+    overflow: visible; text-overflow: clip;
+  }
+  .wm-guided-recent-card .wm-guided-recent-copy .wm-guided-recent-flags > .wm-status-chip svg { flex: none; }
 }
 @media (max-width: 382px) {
   /* At 382px and below the chevron's 28px leaves the copy column narrower than the
      longest reading a card carries: with the chevron the column is
-     `width - 104`, so the widest stale reading (279px at 11 months) needs 383px
-     and up to print whole — at 381 the column is 277px, 2px short, and the chip
-     ellipsised its label, the half that says what the reading is, into the gap
-     where the chevron sits. The chevron is decorative (the whole card is one hit
-     area), so from 382 down the column takes its 28px: 305px at 381 for that
-     279px reading, and every flag and name prints whole. 381 is the width the
-     browser walk holds — one pixel inside this band, the edge it protects. */
+     `width - 104`, so the widest stale reading (285px at 11 months) needs 390px
+     and up to print beside it — at 383 the column is 279px, six short, and the
+     chip would take the second line the rule above allows it. The chevron is
+     decorative (the whole card is one hit area), so from 382 down the column
+     takes its 28px: 305px at 381 for that 285px reading, and every flag and name
+     prints on one line rather than a two-line pill beside a chevron. 381 is the
+     width the browser walk holds — one pixel inside this band, the edge it
+     protects. */
   .wm-guided-recent-card { grid-template-columns: minmax(0, 1fr); }
   .wm-guided-recent-card .wm-guided-recent-arrow { display: none; }
 }

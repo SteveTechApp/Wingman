@@ -449,3 +449,26 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   2 controls that leave it (\"Copy Northbridge Meeting Room Refresh\"): Copy and
   Delete have to close the row inside the card." A single escaper drops the
   trailing clause, as it does for the hero.
+
+The typeface is a shipped asset, not an aspiration. `--wm-font` leads with
+`Geist Variable`, and `@fontsource-variable/geist` had been a dependency with
+nothing importing it, so the whole app rendered in each machine's own fallback
+sans and every reading the browser walk takes about text was a reading of the
+runner's fonts. Probing the same string at 12px in Chromium is what showed it:
+`"Geist Variable"` alone measured 138.5px, identical to `serif`, i.e. absent —
+the stack resolved to Segoe UI on the developer's Windows machine and to DejaVu
+Sans on the runner, 506px against 449px on a real design name, 12.6% wider. The
+saved-design floor is where that surfaced first and is not where it belonged: a
+name in the same 250px entry printed 23 characters locally and 17 on CI, and the
+floor failed on a branch where nothing about the card had changed. `src/main.tsx`
+therefore imports the font before the layer files, so the family is declared
+before anything styles with it and a pixel measured on the runner is a pixel on a
+rep's machine. What that immediately cost is the useful half of the story: with
+the real glyphs live, each surface the walk holds paid for its old margin at
+once. The guided Home strip's widest survey reading, 279px under the fallback,
+became 285px, and at 383px its copy column is 279px — so the card's chip now
+wraps its own label there rather than ellipsising the half that says what the
+reading is, which is the shape the projects list's sync-conflict chip already
+took at that width. A surface that only fits because the machine's font is
+narrower than the one it names was never fitting; the import is the fix, and the
+walk is what names the next one.
