@@ -311,6 +311,14 @@ states is one they trust by mistake.
   which is the population the split moved; a page rule against a shared rule no
   route scopes is a different question, and the summary names it rather than
   letting a green run imply it.
+- A pair whose two subjects share no token is settled by the page rather than
+  reviewed as a decision: the settle tool asks each route's DOM at two widths
+  whether any element matches both selectors, and the baseline keeps what it
+  proves cannot meet in a per-page `settled` list with the measurement beside it.
+  The CSS gate only holds the bookkeeping — a settled pair cannot also be pinned,
+  a settlement needs its evidence line, a settled entry cannot go stale — because
+  it cannot open a page. The tool is the re-proof, and it fails when a settled
+  pair starts reaching one element.
 - Route scope has two vocabularies, not one fact written twice:
   `html[data-wingman-route="<key>"]` takes the catalogue keys and
   `.wm-route-<segment>` takes the manifest segments, and 14 of 29 routes differ,

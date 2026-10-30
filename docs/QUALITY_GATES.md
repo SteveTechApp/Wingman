@@ -325,6 +325,27 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   than one place (two rules with the same selectors, or a repeated block), so the
   baseline matches counts rather than a set and a repeated line means "this pair
   happens this often".
+- A pair whose two subjects share no token is the tail of that list, and the
+  ranking is a reading order rather than a judgement: nothing in the text says
+  whether `.wm-glossary-term` and `.wm-glossary-toolbar` can be one element. The
+  rendered page says it, so those pairs are settled by measurement instead of
+  pinned as a decision. `tools/settle-route-order-pairs.mjs` opens each route in a
+  browser at two widths — 1366 and 390, because a page can mount a region only
+  inside a breakpoint — and for every pair asks whether any element matches both
+  selectors. A pair with no such element cannot re-decide a declaration, so it
+  moves out of the page's `pairs` and into its `settled` list, with one
+  `settledEvidence` line per page naming the build, the widths and the page that
+  were asked. The settled list carries the same multiplicity the pinned list does:
+  a pair the reading finds twice is settled twice, or one entry would stand in for
+  the other. The CSS gate still holds the bookkeeping and cannot open a page, so it
+  fails when a settled pair is also pinned (one pair, two answers), when a page
+  settles pairs without an evidence line, and when a settled entry has stopped
+  occurring; the tool is what proves the claim, and it is also the re-proof — with
+  no flag it compares the page against the settled entries and fails if one of them
+  now reaches an element, so a page that starts mounting that region brings its
+  pair back into `pairs` instead of silently outgrowing the measurement. Re-run it
+  when a route's markup changes; like the other measurements in this repo it is a
+  run, not a number quoted into prose.
 - The gate checks the two readings it depends on rather than assuming them: that
   `wingman-route-overrides.css` loads before every page stylesheet, because the
   comparison calls the page files "after the split" and an inverted import order

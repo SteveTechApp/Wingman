@@ -37,6 +37,7 @@ import {
   describeRouteOrderPages,
   describeRouteOrderReport,
   routeOrderBaselineFailure,
+  routeOrderBaselineTotals,
   routeStylesheetOrderReport,
 } from "./lib/route-stylesheet-order.mjs";
 import { LEGACY_ROUTE_OVERRIDES, ROUTE_PAGE_STYLESHEETS, ROUTE_STYLESHEETS } from "./lib/route-stylesheets.mjs";
@@ -96,7 +97,9 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
+const answered = routeOrderBaselineTotals(report, baseline);
 console.log(
-  `[route-order] every re-decided pair is reviewed: ${report.totals.conflicts} pinned across ${report.totals.pages} page decisions, `
-  + `${report.totals.likely} of them on a subject that can be one element.`,
+  `[route-order] every re-decided pair is answered for: ${answered.settled} settled by the page they render on, `
+  + `${answered.pinned} pinned across ${report.totals.pages} page decisions, `
+  + `${answered.likelyPinned} of those on a subject that can be one element.`,
 );

@@ -10,6 +10,7 @@ import {
   routeOrderBaselineFailure,
   routeOrderPagePairs,
   routeOrderPairKey,
+  routeOrderPinnedKey,
   routeOwnedCss,
   routeStylesheetOrderReport,
 } from "./route-stylesheet-order.mjs";
@@ -197,6 +198,54 @@ describe("route stylesheet order baseline", () => {
 
     expect(failure).toContain("twice");
   });
+
+  const SETTLED_EVIDENCE = "Measured 2026-10-30 against a build of this tree at 1366×900 and 390×844: no element the "
+    + "page renders matches both selectors, so the split cannot re-decide a declaration through it.";
+
+  /** The compare page's one subject-disjoint pair, moved out of the decisions. */
+  function settledPages() {
+    return reviewedPages(report).map((page) => {
+      if (page.route !== "compare") return page;
+      const [pair] = page.pairs;
+      return { ...page, pairs: [], settled: [{ key: routeOrderPinnedKey(pair) }], settledEvidence: SETTLED_EVIDENCE };
+    });
+  }
+
+  it("accepts a pair the rendered page proves its selectors cannot both reach", () => {
+    expect(routeOrderBaselineFailure(report, { pages: settledPages() })).toEqual([]);
+  });
+
+  it("refuses a settlement that does not say what was measured", () => {
+    const pages = settledPages().map((page) =>
+      page.route === "compare" ? { ...page, settledEvidence: "no element matches" } : page,
+    );
+
+    const [failure] = routeOrderBaselineFailure(report, { pages });
+    expect(failure).toContain("without saying how they were measured");
+  });
+
+  it("refuses a settled pair that stopped occurring", () => {
+    const pages = settledPages().map((page) =>
+      page.route === "compare"
+        ? { ...page, settled: [...page.settled, { key: `${routeOrderPinnedKey(page.settled[0])}|.wm-route-compare .gamma` }] }
+        : page,
+    );
+
+    const failures = routeOrderBaselineFailure(report, { pages });
+    const failure = failures.find((line) => line.includes("settles"));
+    expect(failure).toContain("settled pair that stopped occurring");
+  });
+
+  it("refuses a pair that is both a decision and a settlement", () => {
+    const pages = reviewedPages(report).map((page) =>
+      page.route === "compare"
+        ? { ...page, settled: [{ key: routeOrderPinnedKey(page.pairs[0]) }], settledEvidence: SETTLED_EVIDENCE }
+        : page,
+    );
+
+    const [failure] = routeOrderBaselineFailure(report, { pages });
+    expect(failure).toContain("both pins and settles");
+  });
 });
 
 describe("the shipped baseline", () => {
@@ -211,6 +260,9 @@ describe("the shipped baseline", () => {
     for (const page of baseline.pages) {
       expect(page.reason.length).toBeGreaterThan(60);
       expect(Array.isArray(page.pairs)).toBe(true);
+      // A page that settles pairs carries the measurement that says so; a
+      // settlement with no line behind it is a pin under another word.
+      if ((page.settled ?? []).length > 0) expect(page.settledEvidence?.length ?? 0).toBeGreaterThan(60);
     }
   });
 });

@@ -178,7 +178,12 @@ export function routeOrderPagePairs(page) {
   }));
 }
 
-function pinnedKey(pair) {
+/**
+ * The identity a baseline entry carries, whether it was written by hand or by
+ * the settle run. A pair may carry its own `key`; a hand-written one is
+ * recomputed from the fields a reviewer reads.
+ */
+export function routeOrderPinnedKey(pair) {
   return pair.key ?? [
     pair.property,
     pair.important ? "important" : "normal",
@@ -187,6 +192,13 @@ function pinnedKey(pair) {
     pair.first,
     pair.second,
   ].join(" | ");
+}
+
+/** The fields a settled entry carries only as its key, for a failure sentence. */
+export function routeOrderIdentityFields(key) {
+  const parts = String(key ?? "").split(" | ");
+  if (parts.length < 6) return null;
+  return { property: parts[0], important: parts[1] === "important", specificity: parts[2], media: parts[3], first: parts[4], second: parts[5] };
 }
 
 /**
@@ -243,9 +255,41 @@ export function routeOrderBaselineFailure(report, baseline) {
 
     const pinned = new Map();
     for (const pair of Array.isArray(entry.pairs) ? entry.pairs : []) {
-      const key = pinnedKey(pair);
+      const key = routeOrderPinnedKey(pair);
       const seen = pinned.get(key);
-      pinned.set(key, { pair, count: (seen?.count ?? 0) + 1 });
+      pinned.set(key, { pair, count: (seen?.count ?? 0) + 1, settled: false });
+    }
+
+    // The rendered page settles a pair the two selectors cannot both reach: it
+    // is not an order decision nobody read, it is one the page says cannot
+    // happen. The claim is a measurement, so the entry needs the line that says
+    // what was measured — a settlement with no evidence is a pin under a
+    // different word.
+    const settledPairs = Array.isArray(entry.settled) ? entry.settled : [];
+    if (settledPairs.length > 0 && (typeof entry.settledEvidence !== "string" || entry.settledEvidence.trim().length < 60)) {
+      failures.push(
+        `The route-stylesheet order baseline settles ${settledPairs.length} pair(s) on ${page.route} without saying how they were measured. `
+        + "A settlement is a measurement of that page, so the entry needs the line naming the build, the widths and the page that were asked.",
+      );
+    }
+    for (const pair of settledPairs) {
+      const key = routeOrderPinnedKey(pair);
+      if (!routeOrderIdentityFields(key)) {
+        failures.push(`A settled entry on ${page.route} is not a pair identity (${JSON.stringify(pair)}), so it names nothing the reading can match.`);
+        continue;
+      }
+      const existing = pinned.get(key);
+      if (existing && !existing.settled) {
+        failures.push(
+          `The route-stylesheet order baseline both pins and settles \`${routeOrderIdentityFields(key).property}\` on ${page.route} `
+          + `(${routeOrderIdentityFields(key).first} / ${routeOrderIdentityFields(key).second}). A pair is one decision: either the page says it cannot meet, or a person said which copy wins.`,
+        );
+        continue;
+      }
+      // A pair that meets twice is settled twice: the settled list carries the
+      // same multiplicity the pinned list does, or one entry would stand in for
+      // a pair the reading finds twice.
+      pinned.set(key, { pair, count: (existing?.count ?? 0) + 1, settled: true });
     }
 
     const current = new Map();
@@ -270,6 +314,15 @@ export function routeOrderBaselineFailure(report, baseline) {
     for (const [key, before] of pinned) {
       const now = current.get(key)?.count ?? 0;
       if (now >= before.count) continue;
+      if (before.settled) {
+        const fields = routeOrderIdentityFields(key);
+        failures.push(
+          `The route-stylesheet order baseline settles \`${fields.property}\` on ${page.route} and the split no longer reads that pair `
+          + `(${now === 0 ? "gone" : `now ${now} of ${before.count}`}) (${fields.first} / ${fields.second}). `
+          + "A settled pair that stopped occurring has to leave the file.",
+        );
+        continue;
+      }
       failures.push(
         `The route-stylesheet order baseline pins \`${before.pair.property}\` on ${page.route} ${before.count} time(s) and nothing decides it `
         + `${now === 0 ? "any more" : `as often (${now})`} (${before.pair.first} / ${before.pair.second}). `
@@ -292,6 +345,39 @@ export function describeRouteOrderReport(report) {
 
   return `${head}: ${totals.conflicts} order-decidable pair(s) re-decided, `
     + `${totals.likely} on a subject that can be one element and ${totals.subjectDisjoint} on subjects sharing no token.`;
+}
+
+/**
+ * How the baseline answers for the split: what the pages settled, what a person
+ * pinned, and how many of the pinned pairs could be one element.
+ *
+ * The two halves are counted separately because they are different statements.
+ * A settled pair is a measurement of one page — no element matches both
+ * selectors — while a pinned pair is a decision that this page's copy may win
+ * the tie. A run that reported them as one number would let a page's measured
+ * impossibilities stand in for the decisions a person made.
+ */
+export function routeOrderBaselineTotals(report, baseline) {
+  const byRoute = new Map((Array.isArray(baseline?.pages) ? baseline.pages : []).map((entry) => [entry.route, entry]));
+  let pinned = 0;
+  let settled = 0;
+  let likelyPinned = 0;
+
+  for (const page of report.pages) {
+    const entry = byRoute.get(page.route);
+    const settledKeys = new Set((Array.isArray(entry?.settled) ? entry.settled : []).map((pair) => routeOrderPinnedKey(pair)));
+    for (const conflict of page.conflicts) {
+      const key = routeOrderPairKey(conflict);
+      if (settledKeys.has(key)) {
+        settled += 1;
+        continue;
+      }
+      pinned += 1;
+      if (conflict.rank <= 1) likelyPinned += 1;
+    }
+  }
+
+  return { pinned, settled, likelyPinned };
 }
 
 /** One line per page, so a failure names the page before the property. */
