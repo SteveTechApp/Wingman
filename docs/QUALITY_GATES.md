@@ -346,6 +346,17 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   pair back into `pairs` instead of silently outgrowing the measurement. Re-run it
   when a route's markup changes; like the other measurements in this repo it is a
   run, not a number quoted into prose.
+- The browser walk asks that question too, on every run, because a reading that
+  is only re-taken when someone remembers to re-take it is a reading that goes
+  stale between runs. Both callers go through
+  `tools/lib/route-order-settlement.mjs` — one place that builds the answers,
+  navigates the two widths and decides what a count means — so the tool that
+  writes the baseline and the pass that re-proves it cannot ask it two ways. The
+  walk's pass also names a pair nobody has answered for and says which answer it
+  is: an element matching both is a decision owed in `pairs`, no element matching
+  is a settlement waiting to be written. That is the case the CSS gate can only
+  report as "not reviewed", and asking the page turns it into which of the two
+  the reviewer owes.
 - The gate checks the two readings it depends on rather than assuming them: that
   `wingman-route-overrides.css` loads before every page stylesheet, because the
   comparison calls the page files "after the split" and an inverted import order

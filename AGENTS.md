@@ -317,8 +317,13 @@ states is one they trust by mistake.
   proves cannot meet in a per-page `settled` list with the measurement beside it.
   The CSS gate only holds the bookkeeping — a settled pair cannot also be pinned,
   a settlement needs its evidence line, a settled entry cannot go stale — because
-  it cannot open a page. The tool is the re-proof, and it fails when a settled
-  pair starts reaching one element.
+  it cannot open a page. The tool is the re-proof, and the browser walk asks the
+  same question on every run through the same lib, so a page that starts
+  mounting a settled pair is named in the walk that measured it rather than
+  waiting for the next CSS change to call it unreviewed. The walk also names a
+  pair nobody has answered for at all, and says which answer it is: one element
+  matching both is a decision the baseline owes in `pairs`, none matching is a
+  reading the tool should write.
 - Route scope has two vocabularies, not one fact written twice:
   `html[data-wingman-route="<key>"]` takes the catalogue keys and
   `.wm-route-<segment>` takes the manifest segments, and 14 of 29 routes differ,

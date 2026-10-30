@@ -31,10 +31,16 @@ import { chromium } from "@playwright/test";
 import { assertFreshBuild } from "./lib/build-freshness.mjs";
 import {
   ROUTE_ORDER_BASELINE_FILE,
-  routeOrderPairKey,
   routeOrderPinnedKey,
   routeStylesheetOrderReport,
 } from "./lib/route-stylesheet-order.mjs";
+import {
+  ROUTE_ORDER_VIEWPORTS,
+  readRouteOrderAnswers,
+  routeOrderAnswers,
+  routeOrderSettlementClause,
+  routeOrderSettlementFailures,
+} from "./lib/route-order-settlement.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const projectRoot = path.resolve(path.dirname(__filename), "..");
@@ -46,7 +52,7 @@ const previewArgs = process.platform === "win32"
   : ["vite", "preview", "--host", "127.0.0.1", "--port", String(port)];
 
 /** Two widths, because a route can mount a region only inside a breakpoint. */
-const VIEWPORTS = [{ width: 1366, height: 900 }, { width: 390, height: 844 }];
+const VIEWPORTS = ROUTE_ORDER_VIEWPORTS;
 
 function stopWindowsPortListener() {
   if (process.platform !== "win32") return;
@@ -125,6 +131,7 @@ const preview = spawn(previewCommand, previewArgs, {
 let browser;
 const failures = [];
 const settledByRoute = new Map();
+const readingsByRoute = {};
 try {
   await waitForPreview();
   browser = await chromium.launch({
@@ -141,64 +148,25 @@ try {
       continue;
     }
     const entry = baseline.pages.find((candidate) => candidate.route === page.route);
-
-    // Keyed by position, because a repeated pair is a repeated occurrence: one
-    // selector pair that meets twice is two lines in the reviewed list, and a
-    // map keyed by identity would quietly settle only the first.
-    const answers = disjoint.map((conflict, index) => ({
-      index,
-      key: routeOrderPairKey(conflict),
-      property: conflict.property,
-      first: conflict.beforeFirst.selector,
-      second: conflict.beforeSecond.selector,
-      both: 0,
-      unmatched: false,
-    }));
+    const answers = routeOrderAnswers(disjoint);
 
     const context = await browser.newContext();
     const tab = await context.newPage();
+    let asked;
     try {
-      for (const viewport of VIEWPORTS) {
-        await tab.setViewportSize(viewport);
-        await tab.goto(`http://127.0.0.1:${port}${routePath}`, { waitUntil: "networkidle" });
-        await tab.waitForTimeout(400);
-        const readings = await tab.evaluate((entries) => {
-          const query = (selector) => {
-            try {
-              return [...document.querySelectorAll(selector)];
-            } catch {
-              return null;
-            }
-          };
-          return entries.map((entry) => {
-            const first = query(entry.first);
-            const second = query(entry.second);
-            if (!first || !second) return { index: entry.index, both: 0, unmatched: true };
-            let both = 0;
-            for (const element of first) {
-              try {
-                if (element.matches(entry.second)) both += 1;
-              } catch {
-                return { index: entry.index, both: 0, unmatched: true };
-              }
-            }
-            return { index: entry.index, both, unmatched: false };
-          });
-        }, answers.map((answer) => ({ index: answer.index, first: answer.first, second: answer.second })));
-        for (const reading of readings) {
-          const held = answers.find((answer) => answer.index === reading.index);
-          held.both = Math.max(held.both, reading.both);
-          held.unmatched = held.unmatched || reading.unmatched;
-        }
-      }
+      asked = await readRouteOrderAnswers(tab, {
+        url: `http://127.0.0.1:${port}${routePath}`,
+        answers,
+      });
     } finally {
       await context.close();
     }
 
-    const settled = answers.filter((answer) => !answer.unmatched && answer.both === 0);
-    const open = answers.filter((answer) => !answer.unmatched && answer.both > 0);
-    const unknown = answers.filter((answer) => answer.unmatched);
+    const settled = asked.filter((answer) => !answer.unmatched && answer.both === 0);
+    const open = asked.filter((answer) => !answer.unmatched && answer.both > 0);
+    const unknown = asked.filter((answer) => answer.unmatched);
     settledByRoute.set(page.route, settled.map((answer) => answer.key));
+    readingsByRoute[page.route] = asked;
     console.log(
       `[settle] ${page.route} (${routePath}): ${settled.length} settled, ${open.length} can be one element, `
       + `${unknown.length} unreadable`,
@@ -209,33 +177,19 @@ try {
 
     if (WRITE) continue;
     if (!entry) continue;
-
-    // The re-proof: what the baseline calls settled has to still be settled.
-    const recorded = (entry.settled ?? []).map((pair) => pair.key);
-    for (const answer of open) {
-      if (recorded.includes(answer.key)) {
-        failures.push(
-          `The route-stylesheet order baseline settled a pair on ${page.route} that now reaches one element: `
-          + `${answer.both} element(s) match both \`${answer.first}\` and \`${answer.second}\` (${answer.property}). `
-          + "A page that started mounting that element has to bring the pair back into `pairs` with a decision.",
-        );
-      }
-    }
-    for (const key of recorded) {
-      if (disjoint.every((conflict) => routeOrderPairKey(conflict) !== key)) {
-        failures.push(
-          `The route-stylesheet order baseline settles a pair on ${page.route} that the split no longer reads (${key}). `
-          + "A settled entry that stopped occurring has to leave the file.",
-        );
-      }
-    }
   }
 
-  const settledTotal = [...settledByRoute.values()].reduce((sum, keys) => sum + keys.length, 0);
-  console.log(
-    `\n[settle] ${settledTotal} of ${report.totals.subjectDisjoint} subject-disjoint occurrence(s) cannot be one element `
-    + `on their route's page at ${VIEWPORTS.map((viewport) => viewport.width).join("px and ")}px.`,
-  );
+  // The re-proof asks the same lib the walk asks, so the two cannot disagree
+  // about what the baseline claims or what the page answered.
+  if (!WRITE) {
+    failures.push(...routeOrderSettlementFailures({
+      report,
+      baseline,
+      readings: readingsByRoute,
+    }));
+  }
+
+  console.log(`\n[settle] ${routeOrderSettlementClause({ report, readings: readingsByRoute })}`);
 
   if (WRITE) {
     const measuredAt = new Date().toISOString().slice(0, 10);

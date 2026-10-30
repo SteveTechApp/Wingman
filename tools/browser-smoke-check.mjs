@@ -69,6 +69,14 @@ import {
   GALLERY_TEMPLATE_KEY,
 } from "./lib/gallery-row-states.mjs";
 import { WALL_START_VIEWPORTS, readWallStartStep } from "./lib/wall-start-step.mjs";
+import { ROUTE_ORDER_BASELINE_FILE, routeStylesheetOrderReport } from "./lib/route-stylesheet-order.mjs";
+import {
+  readRouteOrderAnswers,
+  routeOrderAnswers,
+  routeOrderPaths,
+  routeOrderSettlementClause,
+  routeOrderSettlementFailures,
+} from "./lib/route-order-settlement.mjs";
 import { recentChipLabelsFailure, recentPickFailure } from "./lib/recent-strip-rows.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -4419,6 +4427,61 @@ function writeRunSummary(lines, { replaces = null } = {}) {
   }
 }
 
+/**
+ * The route-stylesheet order gate's rendered half, asked on every walk.
+ *
+ * The CSS gate reads two rule orders and cannot open a page, so it treats every
+ * pair whose selectors share no token as a reviewed decision. The page is what
+ * settles that: the settle tool writes those answers into the baseline once, and
+ * this pass re-asks them on each run so a page that starts mounting one of those
+ * regions is named here instead of waiting for the next CSS change to report it
+ * as an unreviewed line. It also names a pair nobody has answered for at all —
+ * settleable, or an owed decision — which is the case the gate can only report as
+ * "not reviewed".
+ *
+ * Both halves ask through `lib/route-order-settlement.mjs`, so the write and the
+ * re-proof cannot disagree about what the question is.
+ */
+async function assertRouteOrderSettlement(page) {
+  const report = routeStylesheetOrderReport({ root: projectRoot });
+  const paths = routeOrderPaths(projectRoot);
+  const baseline = JSON.parse(
+    readFileSync(path.join(projectRoot, ROUTE_ORDER_BASELINE_FILE), "utf8"),
+  );
+
+  const readings = {};
+  for (const entry of report.pages) {
+    const disjoint = entry.conflicts.filter((conflict) => conflict.rank > 1);
+    if (!disjoint.length) continue;
+    const routePath = paths.get(entry.route);
+    if (!routePath) {
+      throw new Error(
+        `The walk has no manifest path for the ${entry.route} page, so its order pairs were never asked.`,
+      );
+    }
+    readings[entry.route] = await readRouteOrderAnswers(page, {
+      url: `http://127.0.0.1:${port}${routePath}`,
+      answers: routeOrderAnswers(disjoint),
+    });
+  }
+
+  // The next pass measures at the laptop width it expects to find.
+  await page.setViewportSize({ width: 1366, height: 900 });
+
+  const failures = routeOrderSettlementFailures({ report, baseline, readings });
+  console.log(
+    `[browser-smoke] Route order: ${routeOrderSettlementClause({ report, readings })}`,
+  );
+  if (failures.length) {
+    throw new Error(
+      [
+        "Route-stylesheet order: the page reading no longer matches the reviewed baseline:",
+        ...failures.map((failure) => `  - ${failure}`),
+      ].join("\n"),
+    );
+  }
+}
+
 recordBuildOnRunSummary(build);
 
 stopWindowsPortListener();
@@ -4518,6 +4581,10 @@ try {
   if (wallSize.scroll > wallSize.width + 1) throw new Error("Video wall builder overflows on mobile.");
 
   await assertTemplateSaveNotice(page);
+
+  // Last before the manifest sweep, which wants the laptop width: this pass
+  // visits four routes at two widths of its own and restores the viewport.
+  await assertRouteOrderSettlement(page);
 
   await assertManifestRoutesRender(page);
 
