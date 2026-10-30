@@ -206,25 +206,6 @@ html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact.is-ex
   overflow: visible;
 }
 
-html[data-wingman-route="discovery"] .wm-route-stepper button > span {
-  margin-right: 0.35rem;
-}
-
-html[data-wingman-route="discovery"] .wm-route-step-actions {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  width: 100%;
-}
-
-html[data-wingman-route="discovery"] .wm-route-step-actions > button:first-child {
-  justify-self: start;
-}
-
-html[data-wingman-route="discovery"] .wm-route-step-actions > button:last-child {
-  justify-self: end;
-}
-
 html[data-wingman-route="discovery"] .wm-discovery-mic-button.is-listening {
   color: var(--wm-ref-text);
   background: color-mix(in srgb, var(--wm-ref-red) 16%, var(--wm-ref-panel));
@@ -1136,12 +1117,6 @@ html[data-wingman-route="recommendations"] .wm-rec-unresolved {
 }
 
 /* WINGMAN_DISCOVERY_TWO_ROW_TRAIL_END */
-
-/* WINGMAN_DISCOVERY_MULTISELECT_UI_START */
-
-
-
-/* WINGMAN_DISCOVERY_MULTISELECT_UI_END */
 
 /* WINGMAN_DISCOVERY_PHASE_GROUPING_START */
 
@@ -2105,26 +2080,6 @@ html:is([data-wingman-route="proposal"], [data-wingman-route="responsePack"]) .w
 
 /* WINGMAN_PROPOSAL_WIZARD_END */
 
-/* WINGMAN_TEMPLATE_LIBRARY_TOOLBAR_START */
-
-/*
-   Compact Template Library toolbar
-   - removes the oversized summary panel
-   - keeps the live filtered count beside the label
-   - prevents the New Custom Template action stretching full width
-*/
-
-/*
-   Retire any older full-width behaviour if legacy selectors still exist
-   elsewhere in the global style stack.
-*/
-
-
-
-
-
-/* WINGMAN_TEMPLATE_LIBRARY_TOOLBAR_END */
-
 /* WINGMAN_COMPARE_STEP_RAIL_START */
 
 /*
@@ -3017,134 +2972,11 @@ body.compare-workspace-open .compare-product-info-card__actions .compare-native-
 
 /*
    React Flow's official base stylesheet is loaded globally before this layer.
-   These rules style Wingman's route; they do not recreate React Flow internals.
+   These rules style Wingman's canvas; they do not recreate React Flow internals.
+   The retired visual-studio route used to own them, so they are scoped to the
+   proposal-visuals page, which is where the canvas renders now.
 */
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-page {
-  display: grid;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  min-height: 0;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 10px;
-  margin: 0;
-  padding: 12px 14px 24px;
-  transform: none;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 210px;
-  gap: 12px;
-  align-items: center;
-  min-height: 0;
-  padding: 12px 14px;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-header-copy {
-  display: grid;
-  min-width: 0;
-  gap: 3px;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-header-copy :where(h1, p) {
-  margin: 0;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 10px;
-  align-items: start;
-  width: 100%;
-  min-width: 0;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-canvas-shell {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  overflow: hidden;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-canvas-toolbar {
-  display: flex;
-  min-width: 0;
-  min-height: 62px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px 11px;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-canvas-toolbar :where(h2, p) {
-  margin: 0;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-toolbar-actions {
-  display: flex;
-  width: auto;
-  flex: 0 0 auto;
-  gap: 7px;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-toolbar-actions button {
-  width: auto;
-  min-width: max-content;
-  min-height: 35px;
-  padding: 7px 10px;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-canvas {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  overflow: hidden;
-  background: #f4f7fb;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"],
-  html[data-wingman-route="proposalVisuals"]
-) .wm-vs-canvas-stage {
+html[data-wingman-route="proposalVisuals"] .wm-vs-canvas-stage {
   position: relative;
   width: 100%;
   min-width: 0;
@@ -3160,23 +2992,14 @@ body.compare-workspace-open .compare-product-info-card__actions .compare-native-
   background-size: 24px 24px;
 }
 
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"],
-  html[data-wingman-route="proposalVisuals"]
-) .wm-vs-canvas-stage > .react-flow {
+html[data-wingman-route="proposalVisuals"] .wm-vs-canvas-stage > .react-flow {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-canvas-stage .react-flow__edge-path {
+html[data-wingman-route="proposalVisuals"] .wm-vs-canvas-stage .react-flow__edge-path {
   opacity: 1;
   visibility: visible;
   stroke-opacity: 1;
@@ -3186,10 +3009,7 @@ body.compare-workspace-open .compare-product-info-card__actions .compare-native-
   vector-effect: non-scaling-stroke;
 }
 
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-canvas-stage .react-flow__edge-text {
+html[data-wingman-route="proposalVisuals"] .wm-vs-canvas-stage .react-flow__edge-text {
   opacity: 1;
   visibility: visible;
   paint-order: stroke;
@@ -3198,443 +3018,13 @@ body.compare-workspace-open .compare-product-info-card__actions .compare-native-
   stroke-linejoin: round;
 }
 
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-canvas-stage .react-flow__edge-textbg {
+html[data-wingman-route="proposalVisuals"] .wm-vs-canvas-stage .react-flow__edge-textbg {
   opacity: 1;
   visibility: visible;
   fill: rgba(255, 255, 255, 0.97);
 }
 
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-node-handle {
-  width: 9px;
-  height: 9px;
-  opacity: 1;
-  visibility: visible;
-  background: var(--wm-palette-paper);
-  border: 2px solid #0f766e;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-sheet-header {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  left: 12px;
-  z-index: 12;
-  pointer-events: none;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-signal-legend {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  left: 12px;
-  z-index: 12;
-  pointer-events: none;
-}
-
-:is(
-  html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
-) .wm-vs-schematic-footer {
-  width: 100%;
-  min-width: 0;
-  min-height: 58px;
-  overflow: hidden;
-}
-
-@media (max-width: 1050px) {
-  :is(
-    html[data-wingman-route="visualStudio"],
-    html[data-wingman-route="visual-studio"]
-  ) .wm-vs-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 680px) {
-  :is( html[data-wingman-route="visualStudio"], html[data-wingman-route="visual-studio"] ) .wm-vs-header {
-    grid-template-columns: 1fr;
-  }
-
-  :is(
-    html[data-wingman-route="visualStudio"],
-    html[data-wingman-route="visual-studio"]
-  ) .wm-vs-canvas-toolbar {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  :is(
-    html[data-wingman-route="visualStudio"],
-    html[data-wingman-route="visual-studio"]
-  ) .wm-vs-toolbar-actions {
-    width: 100%;
-  }
-
-  :is(
-    html[data-wingman-route="visualStudio"],
-    html[data-wingman-route="visual-studio"]
-  ) .wm-vs-toolbar-actions button {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-}
-
 /* WINGMAN_VISUAL_STUDIO_REACT_FLOW_FOUNDATION_END */
-/* WINGMAN_DISCOVERY_COMPACT_NAV_START
-   Replaces the oversized Discovery Trail with one compact active-step row.
-   ========================================================================== */
-
-
-
-/* WINGMAN_DISCOVERY_COMPACT_NAV_END */
-
-/* WINGMAN_SIMPLE_ROUTE_PLANNER_START
-   Compact sales-led room position and signal-distance capture.
-   ========================================================================== */
-
-html[data-wingman-route="discovery"] .wm-route-planner {
-  display: grid;
-  gap: 14px;
-  padding: 0;
-  overflow: hidden;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 13px 14px;
-  background: color-mix(in srgb, var(--wm-ref-aqua) 5%, var(--wm-ref-panel-soft));
-  border: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 20%, var(--wm-ref-border));
-  border-radius: 10px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-head > div:first-child {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-head > div:first-child > span,
-html[data-wingman-route="discovery"] .wm-route-result-card > div:first-child > span,
-html[data-wingman-route="discovery"] .wm-route-advanced-panel > header span {
-  color: var(--wm-ref-aqua);
-  font-size: 0.68rem;
-  font-weight: 780;
-  letter-spacing: 0.075em;
-  text-transform: uppercase;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-head > div:first-child > strong {
-  color: var(--wm-ref-text);
-  font-size: 0.92rem;
-  line-height: 1.3;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-head small {
-  max-width: 760px;
-  color: var(--wm-ref-muted);
-  font-size: 0.72rem;
-  line-height: 1.4;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-flow {
-  display: grid;
-  gap: 12px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-step {
-  display: grid;
-  gap: 10px;
-  min-width: 0;
-  margin: 0;
-  padding: 13px;
-  background: color-mix(in srgb, var(--wm-ref-panel-soft) 90%, transparent);
-  border: 1px solid var(--wm-ref-border);
-  border-radius: 10px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-step > legend {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 5px;
-  color: var(--wm-ref-text);
-  font-size: 0.82rem;
-  font-weight: 720;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-step > legend > span {
-  display: inline-grid;
-  width: 23px;
-  height: 23px;
-  place-items: center;
-  color: var(--wm-ref-bg);
-  font-size: 0.68rem;
-  background: var(--wm-ref-aqua);
-  border-radius: 999px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-planner-intro {
-  margin: -2px 0 0;
-  color: var(--wm-ref-muted);
-  font-size: 0.72rem;
-  line-height: 1.4;
-}
-
-html[data-wingman-route="discovery"] .wm-route-choice-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 8px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-distance-grid {
-  grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
-}
-
-html[data-wingman-route="discovery"] .wm-route-choice {
-  display: grid;
-  gap: 4px;
-  min-height: 72px;
-  align-content: start;
-  padding: 10px 11px;
-  color: var(--wm-ref-copy);
-  text-align: left;
-  background: color-mix(in srgb, var(--wm-ref-panel) 88%, transparent);
-  border: 1px solid var(--wm-ref-border);
-  border-radius: 8px;
-  box-shadow: none;
-  cursor: pointer;
-  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
-}
-
-html[data-wingman-route="discovery"] .wm-route-choice:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--wm-ref-aqua) 38%, var(--wm-ref-border));
-}
-
-html[data-wingman-route="discovery"] .wm-route-choice.is-selected {
-  color: var(--wm-ref-text);
-  background: color-mix(in srgb, var(--wm-ref-aqua) 10%, var(--wm-ref-panel));
-  border-color: color-mix(in srgb, var(--wm-ref-aqua) 62%, transparent);
-  box-shadow: inset 0 -2px 0 var(--wm-ref-aqua);
-}
-
-html[data-wingman-route="discovery"] .wm-route-choice strong {
-  color: inherit;
-  font-size: 0.74rem;
-  font-weight: 720;
-  line-height: 1.25;
-}
-
-html[data-wingman-route="discovery"] .wm-route-choice small {
-  color: var(--wm-ref-muted);
-  font-size: 0.66rem;
-  line-height: 1.35;
-}
-
-html[data-wingman-route="discovery"] .wm-route-distance-visual {
-  display: grid;
-  grid-template-columns: minmax(120px, auto) minmax(180px, 1fr) minmax(120px, auto);
-  gap: 10px;
-  align-items: center;
-  padding: 9px 11px;
-  color: var(--wm-ref-muted);
-  font-size: 0.68rem;
-  background: color-mix(in srgb, var(--wm-ref-bg) 32%, transparent);
-  border: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 14%, var(--wm-ref-border));
-  border-radius: 8px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-distance-visual > span:last-child {
-  text-align: right;
-}
-
-html[data-wingman-route="discovery"] .wm-route-distance-visual > div {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 7px;
-  align-items: center;
-  color: var(--wm-ref-aqua);
-}
-
-html[data-wingman-route="discovery"] .wm-route-distance-visual i {
-  display: block;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--wm-ref-aqua));
-}
-
-html[data-wingman-route="discovery"] .wm-route-distance-visual i:last-child {
-  background: linear-gradient(90deg, var(--wm-ref-aqua), transparent);
-}
-
-html[data-wingman-route="discovery"] .wm-route-distance-visual strong {
-  font-size: 0.68rem;
-  white-space: nowrap;
-}
-
-html[data-wingman-route="discovery"] .wm-route-exception-choice-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-html[data-wingman-route="discovery"] .wm-route-exception-fields {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(180px, 0.7fr);
-  gap: 10px;
-  padding-top: 2px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-exception-fields label {
-  display: grid;
-  gap: 5px;
-  color: var(--wm-ref-muted);
-  font-size: 0.68rem;
-  font-weight: 650;
-}
-
-html[data-wingman-route="discovery"] .wm-route-result-card {
-  display: grid;
-  gap: 11px;
-  padding: 14px;
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--wm-ref-aqua) 10%, transparent), transparent 38%),
-    color-mix(in srgb, var(--wm-ref-panel-strong) 94%, transparent);
-  border: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 30%, var(--wm-ref-border));
-  border-radius: 10px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-result-card h3 {
-  margin: 3px 0 0;
-  color: var(--wm-ref-text);
-  font-size: 1rem;
-  line-height: 1.2;
-}
-
-html[data-wingman-route="discovery"] .wm-route-result-card dl {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0;
-}
-
-html[data-wingman-route="discovery"] .wm-route-result-card dl > div {
-  display: grid;
-  gap: 3px;
-  padding: 9px 10px;
-  background: color-mix(in srgb, var(--wm-ref-panel-soft) 82%, transparent);
-  border: 1px solid var(--wm-ref-border);
-  border-radius: 8px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-result-card dt {
-  color: var(--wm-ref-muted);
-  font-size: 0.63rem;
-  line-height: 1.25;
-}
-
-html[data-wingman-route="discovery"] .wm-route-result-card dd {
-  margin: 0;
-  color: var(--wm-ref-text);
-  font-size: 0.74rem;
-  font-weight: 700;
-}
-
-html[data-wingman-route="discovery"] .wm-route-result-card ul {
-  display: grid;
-  gap: 4px;
-  margin: 0;
-  padding-left: 18px;
-  color: var(--wm-ref-copy);
-  font-size: 0.69rem;
-  line-height: 1.4;
-}
-
-html[data-wingman-route="discovery"] .wm-route-advanced-panel {
-  display: grid;
-  gap: 11px;
-  padding: 13px;
-  background: color-mix(in srgb, var(--wm-ref-panel-soft) 90%, transparent);
-  border: 1px solid var(--wm-ref-border);
-  border-radius: 10px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-advanced-panel > header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-advanced-panel > header > div {
-  display: grid;
-  gap: 3px;
-}
-
-html[data-wingman-route="discovery"] .wm-route-advanced-panel > header strong {
-  color: var(--wm-ref-text);
-  font-size: 0.78rem;
-}
-
-html[data-wingman-route="discovery"] .wm-route-advanced-panel > header small {
-  max-width: 420px;
-  color: var(--wm-ref-muted);
-  font-size: 0.66rem;
-  line-height: 1.4;
-  text-align: right;
-}
-
-@media (max-width: 960px) {
-  html[data-wingman-route="discovery"] .wm-route-result-card dl {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  html[data-wingman-route="discovery"] .wm-route-distance-visual {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  html[data-wingman-route="discovery"] .wm-route-distance-visual > span:last-child {
-    text-align: center;
-  }
-}
-
-@media (max-width: 720px) {
-  html[data-wingman-route="discovery"] .wm-route-planner-head,
-  html[data-wingman-route="discovery"] .wm-route-advanced-panel > header {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  html[data-wingman-route="discovery"] .wm-route-advanced-panel > header small {
-    max-width: none;
-    text-align: left;
-  }
-
-  html[data-wingman-route="discovery"] .wm-route-choice-grid,
-  html[data-wingman-route="discovery"] .wm-route-exception-choice-grid,
-  html[data-wingman-route="discovery"] .wm-route-result-card dl,
-  html[data-wingman-route="discovery"] .wm-route-exception-fields {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* WINGMAN_SIMPLE_ROUTE_PLANNER_END */
 
 /* Compact, viewport-bound template review workspace. */
@@ -5866,8 +5256,12 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="dashboard"] #root {
 .wm-guided-journey-copy h3 { margin: 7px 0 8px; font-size: 1.15rem; }
 .wm-guided-journey-copy p { min-height: 48px; font-size: .8rem; line-height: 1.45; }
 .wm-guided-journey-cta { margin-top: 9px; }
-.wm-guided-recent-heading { margin-bottom: 10px; }
-.wm-guided-recent-heading > span { display: block; margin-bottom: 5px; color: var(--guided-aqua); font-size: .68rem; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+/* The heading carries the way out of the strip, three cards wide, so it is a row
+   with the copy at its start and the link at its end. The link wraps under the
+   copy in the narrow bands rather than squeezing the title, which is the one
+   line of this block a rep reads first. */
+.wm-guided-recent-heading { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 6px 16px; margin-bottom: 10px; }
+.wm-guided-recent-heading-copy > span { display: block; margin-bottom: 5px; color: var(--guided-aqua); font-size: .68rem; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
 .wm-guided-recent h2 { margin: 0; color: var(--wm-text); font-size: clamp(1.15rem, 1.4vw, 1.4rem); letter-spacing: -.02em; }
 /* Three cards, three columns: the strip prints three, and two columns left the
    third one alone under the row. A third of the strip is narrower than the same

@@ -360,12 +360,14 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   the gate cannot disagree about which scope is live.
 - `tools/wingman-route-scope-liveness-baseline.json` holds the dead values the
   tree keeps, one entry per value with the count of rules that name it and the
-  story behind it — a retired `visual-studio` route, and the planner-era class
-  scopes the retired planner left behind. The count is pinned, so a pinned scope
-  that spreads has to be read again; an entry whose rules are gone has to come
-  down; and a value with no entry fails. It is a delegation of a cleanup rather
-  than a way past a red run: the gate names the file and one selector for every
-  value it reports.
+  story behind it. The count is pinned, so a pinned scope that spreads has to be
+  read again; an entry whose rules are gone has to come down; and a value with no
+  entry fails. It is a delegation of a cleanup rather than a way past a red run:
+  the gate names the file and one selector for every value it reports. It lists
+  nothing today — the retired `visual-studio` route and the planner-era class
+  scopes it once pinned were deleted on 2026-10-30 (see
+  `docs/SIZE_BUDGETS.md`) — and the empty file is the point: the next retired
+  route has to be argued into it rather than inherited.
 - `check:dead-css` (in `verify:visual`) fails when an unmatchable selector is
   not in `tools/wingman-dead-css-baseline.json` **or** a listed selector is no
   longer dead: the file only ratchets down. Detection is shared with

@@ -247,6 +247,22 @@ download before the dashboard is interactive — falls by 29.5%, and the limit
 should travel back downward as the Phase 2 extraction programme named in the
 remediation lands.
 
+### 2026-10-30 — dead route-scope removal (total:css lower)
+
+`check:route-scope-liveness` had pinned 17 dead values across 105 rule
+references, all in `src/wingman2/styles/wingman-workflow-theme.css`: the retired
+`visual-studio` route in both spellings, and the planner-era class scopes
+(`.wm-route-planner-head`, `.wm-route-choice*`, `.wm-route-result-card`, …) the
+retired planner left behind. They are gone: 69 rules deleted, and the three React
+Flow edge rules the canvas contract depends on re-scoped to `proposalVisuals` —
+the live route that renders that canvas — rather than dropped with the route that
+used to own them. The route-scope baseline is now empty, so a retired route that
+leaves a rule behind fails on the commit that retires it instead of being pinned.
+
+**`total:css` lowered 843,899 → 788,448 bytes** (measured 769.97 KB across 3
+emitted files; −14,432 source bytes in the theme alone). Empty `@media` blocks
+and the three sections those rules had emptied were removed with them.
+
 ### 2026-09-30 — Phase 8 dead route-override consolidation (total:css lower)
 
 The remediation named in the 2026-09-30 raise landed: mechanical removal of

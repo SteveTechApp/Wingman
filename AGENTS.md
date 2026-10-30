@@ -324,7 +324,9 @@ states is one they trust by mistake.
   runtime, an attribute is not a class), and the prune tool asks the same lib so
   the two cannot disagree. Its baseline pins each dead value by count and by the
   story that left it; it ratchets down, and adding a value is a decision about
-  dead styling rather than a way past a red run.
+  dead styling rather than a way past a red run. It lists nothing today: the
+  visual-studio route and the planner-era class scopes it pinned were deleted,
+  and the baseline came down to match.
 - Coverage and triage reports are the evidence side of the same question, and an
   unmatched rule is only evidence, never permission: a selector that needs a
   state the sweep never enters (expanded, dialog, drag, print) is unmatched but
