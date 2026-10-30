@@ -276,7 +276,15 @@ states is one they trust by mistake.
   and no guard inside them can report it, because their runners leave with the
   job. The strict-chain guard pins the strict twins against the stages they
   replace, and the coverage guard asks the next question — whether anything runs
-  the scripts that exist at all.
+  the scripts that exist at all — then asks it one level down, because a script
+  can be wired to a stage and still call a file nothing else names. A tool under
+  `tools/` that no script, workflow or import reaches is declared in
+  `tools/tool-reach-exemptions.json` with what it is instead: a writer that ran
+  once, a report, a companion to a gate, a gate no stage asks yet. The reading
+  counts an import position rather than a mention — a failure sentence naming the
+  tool that fixes it is prose, not a caller — and a spec naming a tool is the
+  guard's subject rather than its caller, so a helper its own spec imports is
+  declared as one.
 - The pre-commit hook runs the dead-CSS autofix and gate, then the fast lane and
   architecture boundaries; the full chain adds the two debt ratchets, size
   budgets and style drift. A ratchet with no baseline is a gate that fails on

@@ -240,6 +240,23 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   both lanes named the gate as the orphan, since `verify:contract` and
   `verify:contract:strict` each reach it; and declaring a wired gate in the file
   failed with "declares 1 script that a verify stage already reaches".
+  The same guard asks the same question one level down, of the `tools/` file a
+  script calls: a script can be wired into a stage and still point at a tool
+  nothing else names, and deleting the `npm run` line that called it is one edit
+  that leaves the file sitting there and every check green. A tool file is reached
+  by a script name, a workflow, an import position, or a root config that names it
+  — `vitest.config.ts`'s `globalSetup` is a call site the import rule cannot see —
+  and anything else is declared in `tools/tool-reach-exemptions.json` with what it
+  is instead. The reading is narrower than a grep on purpose: a mention in prose
+  is not a caller, which is why the sentence telling a reviewer to run the settle
+  tool does not make that tool reached, and a spec naming a tool is the guard's
+  subject rather than its caller. It records 64 decisions over 242 tool files
+  today, and the two ratchets are the script half's: a declared file something
+  starts calling fails, and a declaration for a file that is gone fails. The
+  largest group is one-shot writers, and one group is still a queue rather than a
+  decision — eight check tools no stage asks, seven of them green on this tree and
+  `check-app-page-style-consistency` red until its audit document is regenerated —
+  which the file says in that group's own reason.
 - The pre-commit hook runs the dead CSS autofix and gate, then the fast lane
   plus architecture boundaries. The full verify chain additionally enforces
   two debt-ratchets:

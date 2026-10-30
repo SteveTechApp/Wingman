@@ -1,13 +1,19 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+
+const LONG_REASON =
+  "A writer that changed stored data once; running it again is not a step in any pipeline.";
 import { expandVerifyChain } from "./verify-chain.mjs";
 import {
   EXEMPTIONS_FILE,
   GUARD_SCRIPT,
+  TOOL_EXEMPTIONS_FILE,
   VERIFY_ROOTS,
   checkVerifyScriptCoverage,
+  collectToolReachProblems,
   collectVerifyScriptCoverageProblems,
+  isToolFile,
   reachableFromVerify,
 } from "./check-verify-script-coverage.mjs";
 
@@ -201,5 +207,80 @@ describe("the guard's own wiring", () => {
 
   it("reads the two entry points a person actually types", () => {
     expect(VERIFY_ROOTS).toEqual(["verify", "verify:strict"]);
+  });
+});
+
+describe("tool files a script does not reach", () => {
+  const toolFiles = ["called-gate.mjs", "uncalled-gate.mjs", "declared-writer.mjs"];
+  const referenced = new Map([["called-gate.mjs", "script `check:called`"]]);
+
+  it("counts a tool file but not a spec, whose glob is the runner's job", () => {
+    expect(isToolFile("repair-thing.mjs")).toBe(true);
+    expect(isToolFile("repair-thing.test.mjs")).toBe(false);
+    expect(isToolFile("lib/repair-thing.mjs")).toBe(true);
+  });
+
+  it("passes when every tool is called or declared", () => {
+    const exemptions = {
+      tools: [{ reason: LONG_REASON, files: ["uncalled-gate.mjs", "declared-writer.mjs"] }],
+    };
+
+    expect(collectToolReachProblems({ toolFiles, referenced, exemptions })).toEqual([]);
+  });
+
+  it("names a tool no script, workflow or import reaches", () => {
+    const exemptions = { tools: [{ reason: LONG_REASON, files: ["declared-writer.mjs"] }] };
+
+    const [problem] = collectToolReachProblems({ toolFiles, referenced, exemptions });
+
+    // The quiet failure is a script renamed and the file it called left sitting
+    // there: nothing goes red, and the question simply stops being asked.
+    expect(problem).toContain("1 tool file under tools/ is reached by no script, no workflow and no import");
+    expect(problem).toContain("uncalled-gate.mjs");
+    expect(problem).not.toContain("called-gate.mjs,");
+  });
+
+  it("refuses a declaration for a file something already calls", () => {
+    const exemptions = {
+      tools: [{ reason: LONG_REASON, files: ["called-gate.mjs", "uncalled-gate.mjs", "declared-writer.mjs"] }],
+    };
+
+    const [problem] = collectToolReachProblems({ toolFiles, referenced, exemptions });
+
+    expect(problem).toContain("declares 1 file something already reaches");
+    expect(problem).toContain("called-gate.mjs ← script `check:called`");
+    expect(problem).toContain("drop the entry");
+  });
+
+  it("refuses a declaration for a file tools/ no longer has", () => {
+    const exemptions = {
+      tools: [{ reason: LONG_REASON, files: ["queued-gate.mjs", "uncalled-gate.mjs", "declared-writer.mjs"] }],
+    };
+
+    const [problem] = collectToolReachProblems({ toolFiles, referenced, exemptions });
+
+    expect(problem).toContain("1 file that tools/ no longer has");
+    expect(problem).toContain("queued-gate.mjs");
+  });
+
+  it("refuses a declaration that says nothing, and one file declared twice", () => {
+    const exemptions = {
+      tools: [
+        { reason: "", files: ["uncalled-gate.mjs"] },
+        { reason: LONG_REASON, files: ["uncalled-gate.mjs", "declared-writer.mjs"] },
+      ],
+    };
+
+    const problems = collectToolReachProblems({ toolFiles, referenced, exemptions }).join("\n");
+
+    expect(problems).toContain("with no reason");
+    expect(problems).toContain("declares `uncalled-gate.mjs` twice");
+  });
+
+  it("reads a tree that declares nothing as every tool being orphaned", () => {
+    const problems = collectToolReachProblems({ toolFiles: ["a.mjs"], referenced: new Map() });
+
+    expect(problems.join("\n")).toContain("a.mjs");
+    expect(problems.join("\n")).toContain(TOOL_EXEMPTIONS_FILE);
   });
 });
