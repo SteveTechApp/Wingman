@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   GOVERNED_MAIN_CSS_IMPORTS,
+  GOVERNED_CSS_IMPORT_SITES,
   ROUTE_PAGE_STYLESHEETS,
   ROUTE_STYLESHEETS,
 } from "./lib/route-stylesheets.mjs";
@@ -26,11 +27,7 @@ const referenceGlobalFinish = path.join(
   "styles",
   "wingman-reference-global.css",
 );
-const allowed = new Set([
-  "src/main.tsx",
-  "src/wingman2/pages/VideowallBuilderPage.tsx",
-  "src/wingman2/components/VisualStudioCanvas.tsx",
-]);
+const allowed = new Set(GOVERNED_CSS_IMPORT_SITES);
 
 // The order lives in one place: the route-owned stylesheets are part of the
 // governed list, and every other gate reads the same module instead of a path.

@@ -1,11 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
-import { readRouteStyles } from "./lib/route-stylesheets.mjs";
+import { GOVERNED_CSS_IMPORT_SITES, readRouteStyles } from "./lib/route-stylesheets.mjs";
 
 const root = process.cwd();
 const pagesDir = path.join(root, "src", "wingman2", "pages");
 const styleStackPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
-const layoutIndexPath = path.join(root, "src", "wingman2", "components", "layout", "index.ts");
 
 function fail(message) {
   console.error(`[page-density] ${message}`);
@@ -18,10 +17,6 @@ if (!fs.existsSync(pagesDir)) {
 
 if (!fs.existsSync(styleStackPath)) {
   fail("wingman-style-stack.css was not found.");
-}
-
-if (!fs.existsSync(layoutIndexPath)) {
-  fail("shared layout primitives index.ts was not found.");
 }
 
 const styleStack = fs.readFileSync(styleStackPath, "utf8");
@@ -54,10 +49,6 @@ for (const file of pageFiles) {
   const smallCount = [...raw.matchAll(/<small[\s>]/g)].length;
   const buttonCount = [...raw.matchAll(/<button[\s>]/g)].length;
   const helperMentions = [...raw.matchAll(/helper|guidance|support|callout|description/gi)].length;
-  const layoutPrimitiveImports =
-    raw.includes("components/layout") ||
-    raw.includes("../components/layout") ||
-    raw.includes("./components/layout");
 
   rows.push({
     file: relative,
@@ -66,11 +57,13 @@ for (const file of pageFiles) {
     small: smallCount,
     buttons: buttonCount,
     helperMentions,
-    usesLayoutPrimitives: layoutPrimitiveImports,
   });
 }
 
-const offenders = rows.filter((row) => row.cssImports > 0);
+const pageStylesheetImportsAllowed = new Set(GOVERNED_CSS_IMPORT_SITES);
+const offenders = rows.filter(
+  (row) => row.cssImports > 0 && !pageStylesheetImportsAllowed.has(row.file),
+);
 
 if (offenders.length > 0) {
   console.error("[page-density] Page-level CSS imports are not allowed:");

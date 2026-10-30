@@ -18,7 +18,22 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
 - A page frame is 17px narrower than its host on every route, and that is
   `scrollbar-gutter: stable` on the app main reserving one scrollbar, not a
   missing padding. It keeps the layout from jumping between a short page and a
-  scrolling one, so do not "fix" the right gutter.
+  scrolling  one, so do not "fix" the right gutter.
+- The topbar names the page and then says what it is for: `activeLabel` in the
+  label line and `activeSummary` in a line under it, both read from the route
+  catalogue. The second line is what a rep reads without hovering, and it is the
+  one that leaves easily, because nothing fails when it goes: the summary's rules
+  are shared with `.wingman-section-help` and `small`, so an unwrapped class is
+  not dead styling a gate would catch, and the only remaining place the sentence
+  survived was the `title` attribute on the wrapper — reachable by a mouse and by
+  nothing else. `check:app-page-style` holds both markers on the shell, which is
+  how the missing one was found rather than assumed; the restoration is one span
+  reading the value the nav tooltips already used, and the column the theme
+  already declares for it (`grid`, 2px gap, 780px ellipsis) is what makes the two
+  lines sit apart without a new rule. The dashboard route hides the pair
+  (`visibility: hidden` on `.wingman-topbar-title`), so the home page's own hero
+  is still the title it shows.
+
 - `.wm-polish-hero` is a two-column grid (icon, copy), so a header written with
   three children puts its third — the action row — in the icon column. Settings'
   header is that shape, and `wingman-reference-global.css` declares the template

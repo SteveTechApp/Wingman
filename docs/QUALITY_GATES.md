@@ -107,11 +107,11 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   excused in the next. It lives in `verify:fast` (the pre-commit hook, CI's
   `Pre-commit lane ×2`) so the commit that adds the script is the one that fails,
   and a spec asserts the fast lane still reaches it, since a guard invoked only by
-  hand is the same silence one level up. Measured on this tree: 116 of 258 scripts
-  reached, 142 declared across the groups, and one of those groups — eight `check:`
-  scripts nothing decides when to run — is a queue to work through rather than a
-  decision, which the file says in its own reason. A queue entry leaves by that
-  first rule: `check:data-maintenance` was declared there and now runs at the end of
+  hand is the same silence one level up. Measured on this tree: 127 of 270 scripts
+  reached, 143 declared across the groups, and no group is a queue any more — the
+  last one, eight `check:` scripts nothing decided when to run, is empty and each
+  of those eight now sits in the stage that owns its question. A queue entry leaves
+  by that first rule: `check:data-maintenance` was declared there and now runs at the end of
   `verify:data` and `verify:data:strict` — two lines for one decision, because
   `check:strict-verify-chains` asks the twin for every gate the normal stage runs —
   since what it judges is committed data and nothing else: the canonical store's
@@ -250,13 +250,16 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   is instead. The reading is narrower than a grep on purpose: a mention in prose
   is not a caller, which is why the sentence telling a reviewer to run the settle
   tool does not make that tool reached, and a spec naming a tool is the guard's
-  subject rather than its caller. It records 64 decisions over 242 tool files
+  subject rather than its caller. It records 56 decisions over 242 tool files
   today, and the two ratchets are the script half's: a declared file something
   starts calling fails, and a declaration for a file that is gone fails. The
-  largest group is one-shot writers, and one group is still a queue rather than a
-  decision — eight check tools no stage asks, seven of them green on this tree and
-  `check-app-page-style-consistency` red until its audit document is regenerated —
-  which the file says in that group's own reason.
+  largest group is one-shot writers, and every group is now a decision rather
+  than a queue: the eight check tools that sat in the last one — no stage asked
+  them, and `check-app-page-style-consistency` was red besides — were wired into
+  the stages that ask their questions, two into `verify:data`, four into
+  `verify:contract` and two into `verify:visual`. A stage is the right answer for
+  a gate, which is why the declaration lost its queue group rather than gaining a
+  better reason.
 - The pre-commit hook runs the dead CSS autofix and gate, then the fast lane
   plus architecture boundaries. The full verify chain additionally enforces
   two debt-ratchets:

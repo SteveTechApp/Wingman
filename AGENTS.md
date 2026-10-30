@@ -280,11 +280,13 @@ states is one they trust by mistake.
   can be wired to a stage and still call a file nothing else names. A tool under
   `tools/` that no script, workflow or import reaches is declared in
   `tools/tool-reach-exemptions.json` with what it is instead: a writer that ran
-  once, a report, a companion to a gate, a gate no stage asks yet. The reading
-  counts an import position rather than a mention — a failure sentence naming the
-  tool that fixes it is prose, not a caller — and a spec naming a tool is the
-  guard's subject rather than its caller, so a helper its own spec imports is
-  declared as one.
+  once, a report, a companion to a gate. A gate is not a declaration — it goes in
+  the stage that owns its question, and the stage's list is where that decision is
+  read from — because a gate nothing runs reports nothing and its silence reads
+  exactly like a pass. The reading counts an import position rather than a mention
+  — a failure sentence naming the tool that fixes it is prose, not a caller — and a
+  spec naming a tool is the guard's subject rather than its caller, so a helper its
+  own spec imports is declared as one.
 - The pre-commit hook runs the dead-CSS autofix and gate, then the fast lane and
   architecture boundaries; the full chain adds the two debt ratchets, size
   budgets and style drift. A ratchet with no baseline is a gate that fails on
@@ -309,6 +311,12 @@ states is one they trust by mistake.
 - The unstyled-classes gate is the inverse: markup naming no stylesheet fails
   unless baselined, and `<style>` blocks inside export builders count as
   stylesheets, because the generated document's own sheet is one.
+- A page does not import its own stylesheet, and the files that may are a list in
+  one module: `GOVERNED_CSS_IMPORT_SITES` in `tools/lib/route-stylesheets.mjs`,
+  read by the CSS-import guard and by the page-density report. Two copies of that
+  list is how they stopped agreeing — the report's copy lacked the two reviewed
+  entries, so it failed on an import the guard allowed, which leaves a report a
+  person cannot run rather than a stricter gate.
 - A route stylesheet's move is answered by the equivalence lib rather than by a
   byte diff: the split gate reads each page's own file against the rules the
   shared remainder still holds for that page, and a run has to come back proven
@@ -380,6 +388,13 @@ states is one they trust by mistake.
   own below it, with an `!important` companion beside the reference layer's
   template because an important rule can only be outranked by another. A page
   owns its row's internals but not the hero's shape.
+- The topbar names the page twice — the route's label and its one-line summary —
+  and both are read from the route catalogue rather than written per page. The
+  summary is the half that goes missing without a failure: its styling stays,
+  because the rules are shared with other selectors, and the route's purpose ends
+  up reachable only by hovering the title. The page-style gate holds both markers
+  for that reason, so a shell edit that drops one is a red run rather than a
+  quieter topbar.
 - The shell re-sizes every button in the page host, and a page-wide control rule
   outranks a plain class: a component's own controls have to declare their size
   at a specificity that wins, or they come back as strips inside their cards.

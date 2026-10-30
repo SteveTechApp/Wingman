@@ -62,6 +62,24 @@ export const GOVERNED_MAIN_CSS_IMPORTS = Object.freeze([
   "./wingman2/pages/templateLibraryLayout.css",
 ]);
 
+/**
+ * The files allowed to import a stylesheet themselves, repo-relative.
+ *
+ * `src/main.tsx` is the governed entry: the whole design system, the route
+ * overrides and the companion themes all arrive through its import list. The
+ * other two are reviewed exceptions — a page whose canvas is only ever mounted
+ * on that route, and the diagram surface that ships its own presentation sheet —
+ * so "a page must not bring its own CSS" is a rule with a written list rather
+ * than a rule with silences. Both readers of that rule (`wm:guard-css` and the
+ * page-density report) read this constant, because two copies of the list is how
+ * the two stopped agreeing once already.
+ */
+export const GOVERNED_CSS_IMPORT_SITES = Object.freeze([
+  "src/main.tsx",
+  "src/wingman2/pages/VideowallBuilderPage.tsx",
+  "src/wingman2/components/VisualStudioCanvas.tsx",
+]);
+
 /** Where the governed CSS files live, relative to the repo root. */
 const STYLE_DIRECTORY = path.join("src", "wingman2", "styles");
 

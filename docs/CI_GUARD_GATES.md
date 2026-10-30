@@ -366,10 +366,17 @@ The honest answer is usually the first one: a gate goes in the stage that should
 ask it. A declaration is for a script that is not a gate to run on a checkout — a
 dev server, a writer that moves the baseline a gate compares, a read-only report,
 a suite that needs a browser and a served build, a check whose subject is a
-deployed database or a third party's page. One group of ten `check:` scripts is
-declared that way today because nothing yet decides when they should run; that
-group is a queue to work through, and adding one to a stage means deleting its
-line.
+deployed database or a third party's page. No group is a queue today: the `check:`
+scripts that were declared only because nothing had decided where they belonged
+are in stages now, and which stage owns a question is the whole of that decision —
+`verify:data` for the two that judge committed catalogue data (focused
+classification coverage, one SKU's resolution row), `verify:contract` for the four
+that judge what a page or a pack says (three compare gates and the trusted-tester
+pack), `verify:visual` for the two that judge a rendered surface (the governed page
+style and the React Flow diagram foundation). Wiring one means adding its script
+to the stage and deleting its line here, and a stage with a strict twin needs both
+lines because `check:strict-verify-chains` holds the twin to every gate the normal
+stage runs.
 
 ## Ratchet gates and where exceptions are recorded
 

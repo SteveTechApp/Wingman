@@ -16,19 +16,6 @@
       ]
     },
     {
-      "reason": "A gate no stage asks. Seven of these eight run clean against this tree today; `check-app-page-style-consistency` is red until its audit document is regenerated. Wiring each one is a decision about which stage owns that question, and until it is made they are declared here so the silence is a line a person wrote rather than a script nobody noticed.",
-      "files": [
-        "check-app-page-style-consistency.mjs",
-        "check-compare-atlona-extender-gate.mjs",
-        "check-compare-battle-card-alignment.mjs",
-        "check-compare-decision-workflow.mjs",
-        "check-focused-product-classifications.mjs",
-        "check-mx0402-mst-resolution.mjs",
-        "check-trusted-tester-pack.mjs",
-        "check-visual-studio-react-flow-foundation.mjs"
-      ]
-    },
-    {
       "reason": "A companion to a gate rather than a gate: it proposes a patch and a person reads it before applying. The gate that holds the baseline runs on every commit; this is the tool a reviewer reaches for when that baseline has to move.",
       "files": [
         "consolidate-dead-class-css.mjs",
