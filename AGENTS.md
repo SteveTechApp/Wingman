@@ -301,6 +301,30 @@ states is one they trust by mistake.
 - The unstyled-classes gate is the inverse: markup naming no stylesheet fails
   unless baselined, and `<style>` blocks inside export builders count as
   stylesheets, because the generated document's own sheet is one.
+- A route stylesheet's move is answered by the equivalence lib rather than by a
+  byte diff: the split gate reads each page's own file against the rules the
+  shared remainder still holds for that page, and a run has to come back proven
+  or with a ranked list whose pairs a person has pinned. The baseline carries one
+  reviewed decision per page and the pairs beneath it, and fails both ways — an
+  unreviewed pair, and a pinned pair that stopped occurring — so the split can
+  only ever re-decide what was read. Both sides are that page's own route scope,
+  which is the population the split moved; a page rule against a shared rule no
+  route scopes is a different question, and the summary names it rather than
+  letting a green run imply it.
+- Route scope has two vocabularies, not one fact written twice:
+  `html[data-wingman-route="<key>"]` takes the catalogue keys and
+  `.wm-route-<segment>` takes the manifest segments, and 14 of 29 routes differ,
+  so a kebab-cased segment is never an attribute value and a camelCase key is
+  never a class. Both live sets are read from their writers — the union, the
+  manifest, and the admin literal the shell sets in both spellings — never from
+  a list that merely looks like the right shape, because a union of the two is
+  how `data-wingman-route="call-coach"` would count as live while matching
+  nothing. `check:route-scope-liveness` fails on a scope naming a value nothing
+  writes, which no other reading can see (the class family is assembled at
+  runtime, an attribute is not a class), and the prune tool asks the same lib so
+  the two cannot disagree. Its baseline pins each dead value by count and by the
+  story that left it; it ratchets down, and adding a value is a decision about
+  dead styling rather than a way past a red run.
 - Coverage and triage reports are the evidence side of the same question, and an
   unmatched rule is only evidence, never permission: a selector that needs a
   state the sweep never enters (expanded, dialog, drag, print) is unmatched but

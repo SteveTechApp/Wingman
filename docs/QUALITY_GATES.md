@@ -289,6 +289,83 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
 - `check:style-drift-baseline` counts every CSS rule block whose selector
   matches page/compare patterns (e.g. `html[data-wingman-route="compare"] ...`)
   as one "pageSection" — adding N such rules raises the baseline by ~N.
+- `check:route-stylesheet-order` holds the split that gave each page a stylesheet
+  of its own to the equivalence lib in `tools/lib/style-order-equivalence.mjs`,
+  so a move answers for itself instead of being called harmless by inspection.
+  It asks the question per page rather than over the whole stack: each page's own
+  file is read against the rules `wingman-route-overrides.css` still holds for
+  that same page, with the page's file first and then last, which is the one move
+  the split actually made. The first of those two is not a reconstruction of the
+  old file — where a moved block sat among the leftovers is no longer in the tree
+  — it is the arrangement in which the leftovers win, so every pair reported is one
+  whose winner the file placement alone decides, and the page's copy wins only
+  because its file loads last. Both sides are filtered to the page's own route keys
+  (`html[data-wingman-route="…"]` values and `.wm-route-<segment>` classes), and
+  that filter is the scope of the check rather than a claim about the cascade: a
+  page rule against a shared rule no route scopes is a different question with a
+  different owner, and the summary says which pairs were read instead of letting a
+  green run imply the rest was cleared. Reading the whole stack as one move is
+  what makes the unscoped population swamp the answer — thousands of pairs whose
+  only relation is a design-system class two components share — while the split's
+  own move is the page, where the population is hundreds of pairs rather than
+  thousands and most page files never tie with their leftovers at all. The gate
+  prints the totals it read, so the numbers are its output rather than a figure
+  copied into this sentence.
+- `tools/wingman-route-stylesheet-order-baseline.json` is the reviewed answer, and
+  its unit is the page: one reason per stylesheet saying why that page's rules may
+  load after what the shared file kept, with the pairs it decides pinned beneath
+  it. Pinning by identity is what makes the file fail both ways — a pair that is
+  not pinned as often as it occurs, and a pinned pair that has stopped occurring —
+  so the split can only ever re-decide what a person read. The identity is the
+  property, its importance, the specificity both rules share, the conditions they
+  live under and both selectors, never a declared value and never a line number:
+  editing a value must not unpin a pair, while the same selectors meeting under a
+  width are a different decision, which is why the equivalence lib's conflict now
+  carries the media chain each side lives under. One selector pair can meet in more
+  than one place (two rules with the same selectors, or a repeated block), so the
+  baseline matches counts rather than a set and a repeated line means "this pair
+  happens this often".
+- The gate checks the two readings it depends on rather than assuming them: that
+  `wingman-route-overrides.css` loads before every page stylesheet, because the
+  comparison calls the page files "after the split" and an inverted import order
+  would have the baseline arguing about a move the app no longer makes; and that
+  both arrangements hold the same rules, because a rule that is neither added nor
+  removed is the only one a move can re-decide, and a count that disagrees means
+  the two readings saw different text. Failures are reported in the lib's ranking —
+  subjects sharing a class token, then an element name, then nothing visible — so a
+  reviewer reads the pairs that probably are one element first, and every
+  unreviewed pair is still listed: the ranking is a reading order, not permission
+  to drop the tail. It lives in `verify:visual`, which has no strict twin, so
+  `verify:strict` still runs it as it is.
+- `check:route-scope-liveness` (in `verify:visual`) is the route-scope
+  counterpart of the dead-CSS gate, because neither existing reading can see
+  this debt: a `.wm-route-<segment>` family is assembled at runtime, so every
+  member of it is exempt from the class reading, and an attribute selector is
+  not a class at all. It reads every stylesheet the app loads
+  (`GOVERNED_MAIN_CSS_IMPORTS`) and asks one question per value: does any page
+  write it? The two spellings are two vocabularies rather than one fact written
+  twice — `html[data-wingman-route="<key>"]` takes the `WingmanRouteKey`
+  members, `.wm-route-<segment>` takes the manifest segments, and 14 of the 29
+  routes differ (`callCoach`/`call-coach`, `profile`/`settings`,
+  `analyticsDashboard`/`analytics`). So both live sets are read from the writers
+  and never from a list that looks like the right shape:
+  `tools/lib/route-scope-liveness.mjs` parses the union, the manifest, and the two
+  literals `AppShell` writes for the admin page, which is not a catalogue route
+  and is live in both spellings. A value in one set is never admitted to the
+  other by inference, because that is the one mistake that turns the check off
+  while it still reports a number: `data-wingman-route="call-coach"` matches
+  nothing even though `call-coach` is a live segment, and `.wm-route-callCoach`
+  matches nothing even though `callCoach` is a live key. The prune tool
+  (`tools/consolidate-route-overrides.mjs`) asks the same lib, so the removal and
+  the gate cannot disagree about which scope is live.
+- `tools/wingman-route-scope-liveness-baseline.json` holds the dead values the
+  tree keeps, one entry per value with the count of rules that name it and the
+  story behind it — a retired `visual-studio` route, and the planner-era class
+  scopes the retired planner left behind. The count is pinned, so a pinned scope
+  that spreads has to be read again; an entry whose rules are gone has to come
+  down; and a value with no entry fails. It is a delegation of a cleanup rather
+  than a way past a red run: the gate names the file and one selector for every
+  value it reports.
 - `check:dead-css` (in `verify:visual`) fails when an unmatchable selector is
   not in `tools/wingman-dead-css-baseline.json` **or** a listed selector is no
   longer dead: the file only ratchets down. Detection is shared with

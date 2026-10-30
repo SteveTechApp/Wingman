@@ -571,12 +571,17 @@ export function compareRuleOrder({ before = [], after = [], routes = [] }) {
             selector: firstBefore.before.selector,
             file: firstBefore.before.file,
             order: firstBefore.before.order,
+            // The conditions the tie lives under: two rules that only meet at a
+            // width are a different decision from two that always meet, so a
+            // caller that pins conflicts has to be able to tell them apart.
+            media: firstBefore.before.media,
             declarations: firstBefore.before.declarations,
           },
           beforeSecond: {
             selector: secondBefore.before.selector,
             file: secondBefore.before.file,
             order: secondBefore.before.order,
+            media: secondBefore.before.media,
             declarations: secondBefore.before.declarations,
           },
           afterFirst: { selector: firstBefore.after.selector, file: firstBefore.after.file, order: firstBefore.after.order },
