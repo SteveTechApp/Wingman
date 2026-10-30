@@ -7,6 +7,7 @@ import {
   roomBriefDiscoveryAnswers,
   setupArchetypes,
   survivingArchetypes,
+  type RoomBriefAnswers,
 } from "./roomBrief";
 
 /**
@@ -120,6 +121,93 @@ describe("the decision", () => {
     // claims both, so the later answer wins and the earlier one is dropped.
     const surviving = survivingArchetypes(answer({ purpose: "present", partition: "yes", audience: "yes" }));
     expect(surviving.length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * How long the ladder is, as the surface walks it.
+ *
+ * The claim these pin is the one `AGENTS.md` and `docs/DISCOVERY.md` make: a
+ * huddle is decided in two questions and a divisible boardroom in three, not
+ * twelve. A count alone would not catch a reordering — the same two questions
+ * asked the other way round is a different brief — so each case pins the
+ * questions in the order the engine asks them, and the room they decide.
+ */
+describe("the ladder's length", () => {
+  /** Ask the way the surface does, and answer only what was asked. */
+  const walk = (seed: RoomBriefAnswers, says: Record<string, string>) => {
+    const answers: RoomBriefAnswers = { ...seed };
+    const asked: string[] = [];
+    for (;;) {
+      const question = nextRoomBriefQuestion(answers);
+      if (!question) return { answers, asked };
+      const value = says[question.id];
+      // A room the table has no answer for is a case that fell behind the ladder,
+      // not a ladder that failed, so it says so rather than looping.
+      if (!value) throw new Error(`\`${question.id}\` was asked, and this case has no answer for it.`);
+      answers[question.id] = value;
+      asked.push(question.id);
+    }
+  };
+
+  // Typed, because a room says only the answers it has: a tuple of literals
+  // unifies their shapes and makes the missing keys `undefined`.
+  type Walk = {
+    room: string;
+    seed: RoomBriefAnswers;
+    says: Record<string, string>;
+    asks: string[];
+    lands: string;
+  };
+
+  const walks: Walk[] = [
+    {
+      room: "a huddle",
+      seed: { purpose: "present", occupancy: "squad" },
+      says: { screens: "same", "far-end": "sometimes" },
+      asks: ["screens", "far-end"],
+      lands: "huddle-byod",
+    },
+    {
+      room: "a divisible boardroom",
+      seed: { purpose: "present", occupancy: "medium" },
+      says: { screens: "different", "far-end": "yes", partition: "yes" },
+      asks: ["screens", "far-end", "partition"],
+      lands: "divisible-boardroom",
+    },
+    {
+      room: "a teaching room",
+      seed: { purpose: "teach", occupancy: "medium" },
+      says: { partition: "no", "far-end": "no" },
+      asks: ["partition", "far-end"],
+      lands: "classroom",
+    },
+    {
+      room: "a control room",
+      seed: { purpose: "show-many", occupancy: "medium" },
+      says: { reach: "yes", "far-end": "yes" },
+      asks: ["reach", "far-end"],
+      lands: "control-room",
+    },
+    {
+      room: "a hospitality venue",
+      seed: { purpose: "signage", occupancy: "large" },
+      says: { screens: "different", reach: "yes" },
+      asks: ["screens", "reach"],
+      lands: "venue",
+    },
+  ];
+
+  it.each(walks)("decides $room in the questions the ladder asks, and lands on it", ({ seed, says, asks, lands }) => {
+    const { answers, asked } = walk(seed, says);
+    expect(asked).toEqual(asks);
+
+    const decision = resolveRoomBrief(answers);
+    expect(decision.archetype).toBe(lands);
+    // A room is decided, not merely narrowed: nothing is left for a rep to ask.
+    expect(decision.unresolved).toEqual([]);
+    // Whichever room it is, the ladder is short — that is the whole method.
+    expect(asked.length).toBeLessThanOrEqual(3);
   });
 });
 
