@@ -147,10 +147,6 @@ let FINGERPRINTS: Fingerprint[] = [];
 // quotes against, so its internal consistency is guarded automatically.
 export let CURATED_FINGERPRINTS: ReadonlyArray<Fingerprint> = FINGERPRINTS;
 
-export function normaliseFingerprintKey(value: string): string {
-  return normKey(value);
-}
-
 export type FingerprintIntegrityIssue = {
   sku: string;
   key?: string;

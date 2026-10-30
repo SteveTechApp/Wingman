@@ -60,9 +60,16 @@ function LegacyTaskRedirect({ to }: { to: string }) {
   return <Navigate to={`${to}${search ? `?${search}` : ""}`} replace />;
 }
 
+// The `route-loading-fallback` id is the walk's signal that a route's own chunk
+// has replaced this placeholder; before that, "nothing on screen" and "not
+// loaded yet" look the same.
 function RouteFallback() {
   return (
-    <div data-wingman-sales-helper="true" className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-6 text-sm font-semibold text-slate-600">
+    <div
+      data-testid="route-loading-fallback"
+      data-wingman-sales-helper="true"
+      className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-6 text-sm font-semibold text-slate-600"
+    >
       Loading Wingman view...
     </div>
   );
@@ -101,10 +108,16 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "support", element: <Navigate to="/wingman/call-coach" replace /> },
       { path: "quote-safety", element: <Navigate to="/wingman/projects?view=quote-safety" replace /> },
       { path: "analytics", element: <Navigate to="/wingman/admin/data-manager?view=analytics" replace /> },
-      ...routeCatalog.filter((route) => route.key !== "dashboard" && !consolidatedRedirectKeys.has(route.key)).map((route) => ({
-        path: route.key === "productCallCards" ? `${route.segment}/*` : route.segment,
-        element: routeElement(pageRegistry[route.key as keyof typeof pageRegistry]),
-      })),
+      // Written out rather than built from the catalogue row: a shape that only
+      // exists as an interpolated template cannot be turned into an address by a
+      // walk, so the card page under this base path would never be loaded cold.
+      { path: "product-call-cards/*", element: routeElement(pageRegistry.productCallCards) },
+      ...routeCatalog
+        .filter((route) => route.key !== "dashboard" && route.key !== "productCallCards" && !consolidatedRedirectKeys.has(route.key))
+        .map((route) => ({
+          path: route.segment,
+          element: routeElement(pageRegistry[route.key as keyof typeof pageRegistry]),
+        })),
     ],
   },
 ];

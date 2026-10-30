@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 /**
  * One answer of the design pass, read as a line until it is opened.
  *
- * The pass holds the wall, four questions and the verdict. Opened all at once
+ * The pass holds the wall, the questions and the verdict. Opened all at once
  * the questions read as forty choices of equal weight beside the picker, so a
  * rep cannot tell which block decides the design. The line keeps the question,
  * the answer the design is using and the step number, so the brief can be read

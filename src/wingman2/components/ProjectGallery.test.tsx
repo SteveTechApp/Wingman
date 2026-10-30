@@ -38,6 +38,7 @@ function galleryProps(overrides: Partial<GalleryProps> = {}): GalleryProps {
     activeProjectId: null,
     currentUserId: null,
     migratedWalls: 0,
+    templates: [],
     teamFilter: "mine",
     surveyAttentionOnly: false,
     resetKey: "",

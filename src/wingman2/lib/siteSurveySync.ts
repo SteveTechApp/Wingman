@@ -387,26 +387,3 @@ export function stopSurveySync(): void {
     editedListener = null;
   }
 }
-
-/**
- * Manually trigger a sync push.
- */
-export function manualSync(projectId: string): Promise<SurveySyncResult> {
-  return pushEditsToBackend(projectId);
-}
-
-/**
- * Notify sync system of a local edit.
- */
-export function notifyEdit(projectId: string): void {
-  const edits = getProjectEdits(projectId);
-  const pendingCount = countPendingEdits(edits);
-
-  updateStatus({
-    state: "syncing",
-    message: "Change detected, syncing...",
-    pendingChanges: pendingCount,
-  });
-
-  scheduleSync(projectId);
-}

@@ -40,7 +40,7 @@ export const parityProposal: StoredProjectProposal = {
     benefits: [{ title: "Operational continuity", detail: "Operators retain controlled access to approved sources." }],
     userJourney: ["Operators select an approved source and route it to any display."], technicalFacts: [],
     architectureDiagram: PARITY_MARKERS.schematic,
-    acceptanceCriteria: ["Every approved source-to-display route passes functional testing."], visualBriefs: [], verifiedDesignParameters: [], deploymentConditions: [],
+    acceptanceCriteria: ["Every approved source-to-display route passes functional testing."], verifiedDesignParameters: [],
     marketStory: "The room supports controlled, resilient operational decision-making.", productSpecifications: [], thirdPartyScope: [{ category: "Displays", description: "Operator displays", responsibility: "Integrator", status: "allowance", quantity: 4, notes: "Confirm size and mounting." }],
   },
   companyName: "WyreStorm", preparedBy: "Solutions Team", proposalFooter: "Northstar parity evidence fixture",

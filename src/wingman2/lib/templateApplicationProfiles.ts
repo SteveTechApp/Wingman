@@ -4,7 +4,10 @@ import { normalizeTemplateMarket } from "./templateMarkets";
 export type TemplateArchitectureFamily = "Local UC" | "HDBaseT" | "Matrix" | "AV over IP" | "Video wall" | "Hybrid";
 export type TemplateCapability = "video" | "audio" | "microphones" | "uc" | "control" | "network" | "recording" | "signage" | "resilience" | "accessibility";
 export type TemplateReviewStatus = "reviewed" | "needs-review";
-export type TemplateApplicationProfile = { templateId: string; canonicalMarket: string; architectureFamily: TemplateArchitectureFamily; imageKey: string; userJourney: string; sizingBasis: string[]; capabilities: TemplateCapability[]; environmentConstraints: string[]; inclusions: string[]; exclusions: string[]; reviewStatus: TemplateReviewStatus; reviewNotes: string[] };
+// The site validation items a profile could restate are rendered from the room
+// template itself, and a review note would only repeat `reviewStatus` in prose,
+// so neither is carried here: the profile holds what the preview draws.
+export type TemplateApplicationProfile = { templateId: string; canonicalMarket: string; architectureFamily: TemplateArchitectureFamily; imageKey: string; userJourney: string; sizingBasis: string[]; capabilities: TemplateCapability[]; inclusions: string[]; exclusions: string[]; reviewStatus: TemplateReviewStatus };
 export type TemplateDesignFacts = { requiredSkuCount: number; sourceEndpointCount: number; outputEndpointCount: number; architectureFamily: TemplateArchitectureFamily };
 
 const images = {
@@ -150,11 +153,9 @@ function buildPublishedProfile(template: RoomTemplate, imageKey = imageFor(templ
     userJourney: template.story ? `${template.story.requirement} ${template.story.situation}` : template.customerNarrative,
     sizingBasis: sizingBasisFor(template),
     capabilities: capabilitiesFor(template),
-    environmentConstraints: [...template.validationItems],
     inclusions: governedRows(template).filter((row) => row.type === "Required").map((row) => `${row.qty} × ${row.sku}: ${row.role}`),
     exclusions: template.bom.filter((row) => row.sku.startsWith("BY-OTHERS")).map((row) => row.description),
     reviewStatus: "reviewed",
-    reviewNotes: [`Reviewed for ${template.scale}: ${template.application}`, `The authored ${architectureFamily} architecture and BOM quantities form the published baseline.`],
   };
 }
 
@@ -165,7 +166,7 @@ export function getTemplateApplicationProfiles(): Readonly<Record<string, Templa
 }
 
 function customProfile(template: RoomTemplate): TemplateApplicationProfile {
-  return { ...buildPublishedProfile(template, images.boardroom), canonicalMarket: normalizeTemplateMarket(template.vertical) || "Custom", reviewStatus: "needs-review", reviewNotes: ["Custom template requires technical review before publication."] };
+  return { ...buildPublishedProfile(template, images.boardroom), canonicalMarket: normalizeTemplateMarket(template.vertical) || "Custom", reviewStatus: "needs-review" };
 }
 
 export function getTemplateApplicationProfile(template: RoomTemplate): TemplateApplicationProfile {

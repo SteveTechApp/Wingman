@@ -112,6 +112,67 @@ describe("Templates market filters", () => {
   });
 });
 
+/** A stored design, optionally naming the project it was saved from. */
+function seedTemplate(name: string, sourceProjectId?: string, vertical = "Corporate") {
+  const draft = createBlankCustomRoomTemplate({
+    name,
+    vertical,
+    application: "Meeting room / boardroom",
+    scale: "Single large room",
+    summary: `${name} summary.`,
+    discoveryAnswers: { opportunity: "meeting-room" },
+  });
+  return saveCustomRoomTemplate(draft, sourceProjectId ? { sourceProjectId } : {});
+}
+
+describe("Templates library lineage filter", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+  });
+
+  it("offers the projects a rep's designs came from, and narrows the library to one", () => {
+    seedTemplate("Northbridge Boardroom", "northbridge-meeting-room-refresh");
+    seedTemplate("Harbour Signage Room", "harbour-retail-signage-rollout");
+    seedTemplate("Unattributed Huddle");
+    renderApp();
+
+    const group = screen.getByRole("group", { name: "Templates saved from a project" });
+    // A project no stored design names is not offered, so no chip is a dead end.
+    expect(within(group).queryByRole("button", { name: /Westbrook/ })).not.toBeInTheDocument();
+
+    fireEvent.click(within(group).getByRole("button", { name: /Northbridge Meeting Room Refresh/ }));
+
+    expect(screen.getByText("Saved from Northbridge Meeting Room Refresh")).toBeInTheDocument();
+    expect(screen.getByText("1 templates")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Northbridge Boardroom" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Harbour Signage Room" })).not.toBeInTheDocument();
+    // A design saved from no project is not this project's design.
+    expect(screen.queryByRole("heading", { name: "Unattributed Huddle" })).not.toBeInTheDocument();
+  });
+
+  it("searches every market while a source is chosen, and gives it up when a market is", () => {
+    // The design's own market is not the one the rail opens on.
+    seedTemplate("Education From Boardroom", "northbridge-meeting-room-refresh", "Education");
+    renderApp();
+    expect(screen.queryByRole("heading", { name: "Education From Boardroom" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Northbridge Meeting Room Refresh/ }));
+    expect(screen.getByRole("heading", { name: "Education From Boardroom" })).toBeInTheDocument();
+
+    const marketRail = screen.getByRole("complementary", { name: "Market filters" });
+    expect(within(marketRail).queryAllByRole("button", { pressed: true })).toHaveLength(0);
+
+    fireEvent.click(within(marketRail).getByRole("button", { name: "Corporate" }));
+
+    // Choosing a market is the other way to browse, so the source gives way.
+    expect(screen.queryByText("Saved from Northbridge Meeting Room Refresh")).not.toBeInTheDocument();
+    expect(within(screen.getByRole("group", { name: "Templates saved from a project" })).getByRole("button", { name: /Northbridge Meeting Room Refresh/ }))
+      .toHaveAttribute("aria-pressed", "false");
+    expect(screen.queryByRole("heading", { name: "Education From Boardroom" })).not.toBeInTheDocument();
+  });
+});
+
 describe("New Custom Template creation via Discovery", () => {
   beforeEach(() => {
     window.localStorage.clear();

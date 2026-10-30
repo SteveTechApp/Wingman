@@ -1,4 +1,5 @@
 import { isProjectScopeSection } from "./projectScope";
+import { isDependencyPromptSku } from "./dependencyScope";
 import { useEffect, useState } from "react";
 import { readRoomConcept } from "./roomTemplateDeployment";
 import { metresFromRunText } from "./hdbtDisplayReceiver";
@@ -27,6 +28,10 @@ export type CustomRoomTemplate = RoomTemplate & {
   updatedAt: string;
   schemaVersion: number;
   sourceTemplateId?: string;
+  /**
+   * The project this template was saved from. The templates library groups a
+   * rep's designs by it, so a template made from no project has none.
+   */
   sourceProjectId?: string;
   // Raw Discovery question answers/notes captured when this template was
   // created or edited via Discovery's template-creation mode. Reusing
@@ -208,6 +213,7 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
     concept: readRoomConcept(record.concept),
     story: readTemplateMarketStory(record.story),
     surveyedRunMetres: safeRunMetres(record.surveyedRunMetres),
+    servedRunMetres: safeRunMetres(record.servedRunMetres),
     bom: bom.length ? bom : [placeholderBomRow(id)],
     designNotes: Array.isArray(record.designNotes)
       ? record.designNotes
@@ -320,7 +326,7 @@ export function createBlankCustomRoomTemplate(input: CreateCustomRoomTemplateInp
 }
 
 export function saveCustomRoomTemplate(
-  template: RoomTemplate & { discoveryAnswers?: DiscoveryAnswerMap; discoveryNotes?: DiscoveryNoteMap; topology?: ProjectTopology },
+  template: RoomTemplate & { discoveryAnswers?: DiscoveryAnswerMap; discoveryNotes?: DiscoveryNoteMap; topology?: ProjectTopology; sourceProjectId?: string },
   options: { id?: string; sourceTemplateId?: string; sourceProjectId?: string } = {},
 ) {
   const existingTemplates = readCustomTemplates();
@@ -336,7 +342,9 @@ export function saveCustomRoomTemplate(
       updatedAt: timestamp,
       schemaVersion: CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION,
       sourceTemplateId: options.sourceTemplateId ?? existingTemplate?.sourceTemplateId,
-      sourceProjectId: options.sourceProjectId ?? existingTemplate?.sourceProjectId,
+      // A copy made from a project-derived template names the same project: the
+      // library filters a rep's designs by where they came from.
+      sourceProjectId: options.sourceProjectId ?? existingTemplate?.sourceProjectId ?? template.sourceProjectId,
       discoveryAnswers: template.discoveryAnswers ?? existingTemplate?.discoveryAnswers,
       discoveryNotes: template.discoveryNotes ?? existingTemplate?.discoveryNotes,
       topology: template.topology ?? existingTemplate?.topology,
@@ -363,15 +371,19 @@ export function duplicateCustomRoomTemplate(templateId: string): CustomRoomTempl
   const timestamp = nowIso();
   const name = `${source.name} Copy`;
   const id = createCustomTemplateId(name, existingTemplates);
+  // The copy is another starting point, so it starts from the same rule as
+  // every other new template: named parts, and a placeholder named as a
+  // dependency to confirm.
+  const copy = templateSchedule(source.bom, source.validationItems);
 
   const duplicate: CustomRoomTemplate = {
     ...source,
     id,
     name,
-    bom: source.bom.map((row) => ({ ...row })),
+    bom: copy.bom.map((row) => ({ ...row })),
     designNotes: source.designNotes.map((note) => ({ ...note })),
     assumptions: [...source.assumptions],
-    validationItems: [...source.validationItems],
+    validationItems: copy.validationItems,
     upgradePaths: [...source.upgradePaths],
     discoveryAnswers: { ...source.discoveryAnswers },
     discoveryNotes: { ...source.discoveryNotes },
@@ -386,12 +398,20 @@ export function duplicateCustomRoomTemplate(templateId: string): CustomRoomTempl
 }
 
 export function saveRoomTemplateCopy(template: RoomTemplate, rows?: TemplateBomRow[]) {
+  // A template whose page still holds a placeholder copies the same decision:
+  // the copy starts from the named parts, and the dependency it came with is
+  // named among the copy's own unresolved items.
+  const copy = templateSchedule(
+    (rows?.length ? rows : template.bom).map((row) => ({ ...row })),
+    template.validationItems,
+  );
   return saveCustomRoomTemplate(
     {
       ...template,
       name: `${template.name} - Custom`,
       summary: `Custom copy of ${template.name}. ${template.summary}`,
-      bom: rows?.length ? rows.map((row) => ({ ...row })) : template.bom.map((row) => ({ ...row })),
+      bom: copy.bom,
+      validationItems: copy.validationItems,
     },
     { sourceTemplateId: template.id },
   );
@@ -426,12 +446,80 @@ function projectBomRows(project: StoredProject): TemplateBomRow[] {
   }));
 }
 
+/**
+ * A template's schedule and open work, with its dependency prompts recorded
+ * rather than quoted.
+ *
+ * A `TBC-` row is a question this room's products, survey and Discovery answers
+ * raised — which receiver pairs with this transmitter, whether this site's cable
+ * is certified — and not scope. A template is a starting point for a different
+ * room, whose own answers raise their own prompts, so quoting this room's
+ * question as a schedule line would assert scope the next room may not have and
+ * would hold that template's export on a decision it never offered.
+ *
+ * The question is not dropped, it changes shape: a template prints its open work
+ * as unresolved items, so the dependency is named there and the placeholder is
+ * not a line. Only prompts travel this way — an exact dependency names a part
+ * the design needs, and taking that out would remove equipment from the room.
+ *
+ * Every path that makes a new template from an existing one goes through this:
+ * a project saved as a template, a template copied from its page and a stored
+ * template duplicated from the library carry the same question forward, so
+ * leaving one of them out would let a placeholder reappear in a fresh copy.
+ */
+function templateSchedule(rows: readonly TemplateBomRow[], validationItems: readonly string[]) {
+  const dependencies = rows
+    .filter((row) => isDependencyPromptSku(row.sku))
+    .map((row) => (row.description || row.sku).trim());
+  const items = [...validationItems];
+  for (const dependency of dependencies) {
+    if (!dependency) continue;
+    // An existing item usually names the dependency inside a longer sentence; a
+    // second, terser line about it would say it twice.
+    const named = items.some((item) => item.toLowerCase().includes(dependency.toLowerCase()));
+    if (!named) items.push(dependency);
+  }
+  return { bom: rows.filter((row) => !isDependencyPromptSku(row.sku)), validationItems: items };
+}
+
+/**
+ * The record a previous Save as template wrote for this room, if it is still
+ * here.
+ *
+ * A copy is never the room's template: `saveRoomTemplateCopy` names the design
+ * it came from, and a copy is a starting point of its own. A record without that
+ * mark is the one this action wrote, and updating it is what keeps a second
+ * click from minting another template with the same name beside it — a room has
+ * one template, and saving again republishes that record.
+ *
+ * The oldest match wins where a store already holds more than one, because
+ * records earlier saves left behind are older than any the rep made from them.
+ *
+ * Exported because the save is also the answer to "did this replace something or
+ * add something": the caller asks this before saving so its confirmation can
+ * say which happened, and the save asks the same question to choose the record
+ * it republishes. One lookup keeps the message and the write from disagreeing.
+ */
+export function projectRoomTemplate(projectId: string): CustomRoomTemplate | null {
+  return (
+    readCustomTemplates()
+      .filter((template) => template.sourceProjectId === projectId && !template.sourceTemplateId)
+      .reduce<CustomRoomTemplate | undefined>(
+        (oldest, template) => (!oldest || template.createdAt < oldest.createdAt ? template : oldest),
+        undefined,
+      ) ?? null
+  );
+}
+
 export function saveProjectAsRoomTemplate(project: StoredProject) {
   // A project saved from a template carries the surveyed display run in its room
   // model, so a template rebuilt from it starts from the same figure instead of
   // asking for a measurement the rep already took.
   const roomModel = project.discoveryBrief?.roomModel;
   const surveyedRunMetres = metresFromRunText(roomModel?.longestRun ?? roomModel?.cableRun ?? roomModel?.distance);
+  // The span the receiver serves survives with the measurement: a template
+  // rebuilt from a room carried in spans must not ask for the repeater again.
+  const servedRunMetres = metresFromRunText(roomModel?.servedRun);
   const summary =
     project.proposal?.summary ||
     project.discoveryBrief?.nextBestQuestion ||
@@ -439,11 +527,18 @@ export function saveProjectAsRoomTemplate(project: StoredProject) {
     `Reusable room template saved from ${project.name}.`;
   const direction = project.recommendationEvidence?.productDirection || project.productSelections?.[0]?.family || "Project design";
   const timestamp = nowIso();
+  const unresolved = project.proposal?.governanceWarnings?.length
+    ? project.proposal.governanceWarnings
+    : ["Confirm the project-derived template still matches the next customer's room."];
+  const schedule = templateSchedule(projectBomRows(project), unresolved);
+  const existing = projectRoomTemplate(project.id);
 
   return saveCustomRoomTemplate(
     {
       id: project.id,
-      name: `${project.name} template`,
+      // The rep's own label for this room's template is theirs to keep: saving
+      // again refreshes the design from the project, not the name from it.
+      name: existing?.name ?? `${project.name} template`,
       vertical: project.productSelections?.[0]?.category || project.stage || "Custom",
       application: direction,
       scale: project.discoveryBrief?.roomModel ? "Project-derived" : "Custom",
@@ -453,7 +548,7 @@ export function saveProjectAsRoomTemplate(project: StoredProject) {
         project.recommendationEvidence?.systemShape ||
         project.proposal?.outputPurpose?.summary ||
         "Project-derived room design. Review architecture before reuse.",
-      bom: projectBomRows(project),
+      bom: schedule.bom,
       designNotes: [
         { label: "Saved from project", description: `${project.name} was converted to a reusable room template on ${timestamp}.` },
         ...(project.proposal?.validationNotes ?? []).slice(0, 4).map((note) => ({ label: "Proposal note", description: note })),
@@ -461,15 +556,14 @@ export function saveProjectAsRoomTemplate(project: StoredProject) {
       assumptions: project.proposal?.assumptions?.length
         ? project.proposal.assumptions
         : ["Project-derived template assumptions should be reviewed before customer issue."],
-      validationItems: project.proposal?.governanceWarnings?.length
-        ? project.proposal.governanceWarnings
-        : ["Confirm the project-derived template still matches the next customer's room."],
+      validationItems: schedule.validationItems,
       upgradePaths: project.recommendationEvidence?.optionalUpgrades?.length
         ? project.recommendationEvidence.optionalUpgrades
         : ["Add optional upgrades after confirming the base design."],
       ...(surveyedRunMetres ? { surveyedRunMetres } : {}),
+      ...(servedRunMetres ? { servedRunMetres } : {}),
     },
-    { sourceProjectId: project.id },
+    { ...(existing ? { id: existing.id } : {}), sourceProjectId: project.id },
   );
 }
 

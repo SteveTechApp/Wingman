@@ -57,7 +57,7 @@ function project(id: string, name: string): StoredProject {
     updated: "Today",
     updatedAt: "2026-10-20T09:00:00.000Z",
     createdAt: "2026-10-18T09:00:00.000Z",
-    resumeTo: "/wingman/proposals",
+    resumeTo: "/wingman/proposal",
     compareRuns: [],
     proposal: pendingProposal(id, `${name} proposal`),
   };
@@ -72,7 +72,7 @@ function seedStore() {
 
 function renderQueue() {
   return render(
-    <MemoryRouter initialEntries={["/wingman/approvals"]}>
+    <MemoryRouter initialEntries={["/wingman/approval-queue"]}>
       <ApprovalQueuePage />
     </MemoryRouter>,
   );

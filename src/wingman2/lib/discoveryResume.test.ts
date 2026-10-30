@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { StoredDiscoveryBrief } from "../data/projectStore";
 import {
   DISCOVERY_RESUME_INTERVIEW_QUERY,
+  discoveryQuestionUrl,
   discoveryResumeInfo,
   discoveryResumeUrl,
 } from "./discoveryResume";
@@ -56,5 +57,23 @@ describe("discoveryResumeInfo", () => {
     expect(url).toContain(DISCOVERY_RESUME_INTERVIEW_QUERY);
     expect(url).toContain("resume=project");
     expect(url).toContain("interview=1");
+  });
+});
+
+describe("discoveryQuestionUrl", () => {
+  it("opens the named question, in the room the link came from", () => {
+    expect(discoveryQuestionUrl("sources", "project-1"))
+      .toBe("/wingman/discovery?edit=sources&projectId=project-1");
+  });
+
+  it("carries a question id that needs escaping", () => {
+    expect(discoveryQuestionUrl("uc microphone", "project 1"))
+      .toBe("/wingman/discovery?edit=uc%20microphone&projectId=project%201");
+  });
+
+  it("leaves the project off when the caller has none", () => {
+    // Discovery then reads this browser's own discovery snapshot, which is what
+    // a link from outside a project record means.
+    expect(discoveryQuestionUrl("scale")).toBe("/wingman/discovery?edit=scale");
   });
 });

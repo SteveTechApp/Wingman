@@ -95,7 +95,43 @@ export function projectLaneLabel(lane: string): string {
   return lane.replace(/([A-Z])/g, " $1").replace(/^./, (initial) => initial.toUpperCase()).trim();
 }
 
-export function syncConflictStatusMessage(conflicts: Array<{ name: string; fields: string[] }>): string {
+/** One room's conflict, in the shape the store reports and the UI prints. */
+export type ProjectSyncConflictSummary = { name: string; fields: string[] };
+
+/**
+ * The lanes a conflict chip prints: the first couple of labels a rep can read
+ * and a count for the rest. A chip is one line's worth of room, so a room with
+ * six changed lanes would otherwise be a paragraph; the whole list stays in the
+ * chip's title, which is where the sentence below is read.
+ */
+export function changedLaneLabels(fields: readonly string[], maxVisible = 2): string {
+  const labels = fields.map(projectLaneLabel);
+  const visible = labels.slice(0, maxVisible).join(", ");
+  const extra = labels.length > maxVisible ? ` +${labels.length - maxVisible} more` : "";
+  return visible + extra;
+}
+
+/**
+ * The store-level conflict chip's reading: the lanes a team member changed,
+ * folded the way a gallery card folds its own, and how many rooms they are
+ * spread over — the cards under it name each room's lanes, so the store line
+ * only has to say that the work moved and how widely.
+ *
+ * It reads the rooms it is handed rather than the sync status, so the line
+ * agrees with the badges on the cards beneath it in every storage mode: a
+ * browser whose session ended still holds both, and a store that reported a
+ * conflict the rep has not resolved cannot go quiet above them.
+ */
+export function syncConflictChipLabel(changedRooms: readonly ProjectSyncConflictSummary[], maxVisible = 2): string {
+  const lanes: string[] = [];
+  for (const room of changedRooms) {
+    for (const lane of room.fields) if (!lanes.includes(lane)) lanes.push(lane);
+  }
+  const folded = changedLaneLabels(lanes, maxVisible);
+  return changedRooms.length > 1 ? `Team changed in ${changedRooms.length} rooms: ${folded}` : `Team changed: ${folded}`;
+}
+
+export function syncConflictStatusMessage(conflicts: ProjectSyncConflictSummary[]): string {
   if (conflicts.length === 1) {
     const conflict = conflicts[0];
     return `A team member changed ${conflict.fields.map(projectLaneLabel).join(", ")} in "${conflict.name}" since your last sync.`;

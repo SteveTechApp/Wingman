@@ -130,9 +130,10 @@ assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
   "Current model",
   "View full model",
 ]);
+// The record reviews saved requirements and routes a correction to Discovery,
+// which is where they are edited and saved; there is no inline editor here.
 assertSourceContains("src/wingman2/pages/ProjectDetailPage.tsx", [
-  "Editable requirements",
-  "saveProjectRequirementsToProject",
+  "Requirements",
   "discoveryResumeUrl(project.id)",
   "Edit in Discovery",
 ]);

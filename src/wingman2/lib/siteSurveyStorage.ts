@@ -15,7 +15,6 @@ export type SurveyCableEdit = {
 };
 
 export type SurveyDeviceEdit = {
-  deviceId: string;
   verified: boolean;
   notes?: string;
 };
@@ -125,15 +124,6 @@ export function saveSyncedProjectEdits(
   return true;
 }
 
-/* ──────────────────────────────────────────────
-   Cable edit operations
-   ────────────────────────────────────────────── */
-
-export function getCableEdit(projectId: string, cableId: string): SurveyCableEdit | null {
-  const edits = getProjectEdits(projectId);
-  return edits.cableEdits[cableId] ?? null;
-}
-
 export function setCableLength(
   projectId: string,
   cableId: string,
@@ -172,32 +162,13 @@ export function setCableNotes(projectId: string, cableId: string, notes: string)
   saveProjectEdits(edits);
 }
 
-/* ──────────────────────────────────────────────
-   Device edit operations
-   ────────────────────────────────────────────── */
-
-export function getDeviceEdit(projectId: string, deviceId: string): SurveyDeviceEdit | null {
-  const edits = getProjectEdits(projectId);
-  return edits.deviceEdits[deviceId] ?? null;
-}
-
 export function setDeviceVerified(projectId: string, deviceId: string, verified: boolean): void {
   const edits = getProjectEdits(projectId);
   edits.deviceEdits[deviceId] = {
-    deviceId,
     verified,
     notes: edits.deviceEdits[deviceId]?.notes,
   };
   saveProjectEdits(edits);
-}
-
-/* ──────────────────────────────────────────────
-   Location edit operations
-   ────────────────────────────────────────────── */
-
-export function getLocationEdit(projectId: string, locationId: string): SurveyLocationEdit | null {
-  const edits = getProjectEdits(projectId);
-  return edits.locationEdits[locationId] ?? null;
 }
 
 export function setLocationNotes(projectId: string, locationId: string, notes: string): void {

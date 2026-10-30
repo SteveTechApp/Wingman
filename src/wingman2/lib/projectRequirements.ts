@@ -168,6 +168,41 @@ export function buildRequirementRecordsFromProject(project: StoredProject): Stor
   return [...seeds, ...ingestRequirements, ...ingestUnknowns].map((seed) => record(seed, timestamp));
 }
 
+/**
+ * The Discovery question that owns each saved requirement row, by record id.
+ *
+ * A rep reading a row a response cannot rely on should land on the question that
+ * records that answer rather than at the top of the interview, so the panel links
+ * the two. The values are question ids written here, not imported from
+ * `discoveryQuestions`: that module is the lazy Discovery chunk and the project
+ * record is eager, so a map that read the question set would pull it into the
+ * first paint. `projectRequirements.test.ts` holds these ids against
+ * `canonicalDiscoveryQuestions`, so a renamed question fails a test instead of
+ * leaving a link that lands nowhere.
+ *
+ * A row with no entry is a row no Discovery question owns: the inferred
+ * architecture is Wingman's own reading of the saved answers, and the document
+ * rows were recorded by Document Ingest, so neither carries a question link.
+ */
+const REQUIREMENT_QUESTION_IDS: Record<string, string> = {
+  application: "opportunity",
+  "room-size": "scale",
+  network: "network-path",
+  "source-count": "sources",
+  "source-connections": "source-connection",
+  "display-count": "displays",
+  "display-behaviour": "display-behaviour",
+  "usb-transport": "usb",
+  "signal-distance": "locations-connections",
+  audio: "audio",
+  control: "control",
+};
+
+/** The Discovery question id that owns a saved requirement row, or "" for none. */
+export function requirementQuestionId(requirementId: string) {
+  return REQUIREMENT_QUESTION_IDS[requirementId] ?? "";
+}
+
 export function getProjectRequirementRecords(project: StoredProject) {
   return project.requirements?.length ? project.requirements : buildRequirementRecordsFromProject(project);
 }

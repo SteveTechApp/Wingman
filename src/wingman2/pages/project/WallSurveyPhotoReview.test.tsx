@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { routeCatalogByKey } from "../../app/routeCatalog";
 import type { StoredProject } from "../../features/projects";
+import { WALL_ENTRY_SENTENCE_NAME } from "../../lib/wallEntry";
 import type { WallSurveyReview } from "../../lib/wallSurveyReview";
 import { WallSurveyPhotoReview } from "./WallSurveyPhotoReview";
 
@@ -110,10 +111,12 @@ describe("WallSurveyPhotoReview", () => {
     expect(document.querySelector('[data-survey-review-row="source-1"]')?.getAttribute("data-flagged-run")).toBeNull();
   });
 
-  it("names this project in the builder link so it cannot reopen another project's draft", () => {
+  it("names this project, and the page the rep arrives on, in the builder link", () => {
     renderPanel(project());
 
-    const link = screen.getByRole("link", { name: "Open the wall builder" });
+    // The instruction prints the entry's own name, so following it lands on the
+    // page it named rather than a differently-named one.
+    const link = screen.getByRole("link", { name: `Open ${WALL_ENTRY_SENTENCE_NAME}` });
     expect(link.getAttribute("href")).toBe(`${routeCatalogByKey.videowall.path}?project=project-1`);
   });
 

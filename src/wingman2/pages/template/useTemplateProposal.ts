@@ -25,6 +25,7 @@ import {
 } from "../../lib/templateProposalPricing";
 import { proposalReadiness } from "../../lib/proposalReadiness";
 import { buildTemplateProposal, buildTemplateProject, savedTemplateWall, templateBomRows, templateProducts } from "../../lib/templateReviewProposal";
+import { templateDocumentDetail } from "../../lib/solutionTemplates";
 import type { RoomTemplate, TemplateBomRow } from "../../lib/roomTemplates";
 import { recordWallInstallDetail } from "../../features/projects";
 
@@ -55,7 +56,13 @@ export function useTemplateProposal({
   selectedRows: TemplateBomRow[];
   navigate: NavigateFunction;
   onSavedProject: (path: string) => void;
-  onSavedTemplate: (path: string) => void;
+  /**
+   * The design the save wrote — not only where it landed. Its own link is the
+   * page's confirmation (`OpenTemplateLink`), and that link names the design it
+   * opens, so the notice needs the id and the name rather than a path it would
+   * have to read a name out of.
+   */
+  onSavedTemplate: (template: { id: string; name: string }) => void;
   /** Marks the room design clean after an action saves it. */
   onSaved: () => void;
 }) {
@@ -114,13 +121,17 @@ export function useTemplateProposal({
       products,
       bomRows,
       wallRequirements,
+      // The run the quoted receiver serves: a receiver measured past its rating
+      // cannot carry the link, so re-measuring on this page moves the gate — and
+      // a run carried in spans is measured against the span, not the whole run.
+      displayRunMetres: template?.servedRunMetres ?? template?.surveyedRunMetres,
       pricing: {
         currency: pricingDraft.currency,
         rateCard: rateCardState.card,
         installationUnitPrices: pricingDraft.installationUnitPrices,
       },
     }),
-    [products, bomRows, wallRequirements, pricingDraft.currency, pricingDraft.installationUnitPrices, rateCardState.card],
+    [products, bomRows, wallRequirements, template?.surveyedRunMetres, template?.servedRunMetres, pricingDraft.currency, pricingDraft.installationUnitPrices, rateCardState.card],
   );
   // The same shortfall the pre-issue walk reads, so the page's still-to-price
   // block and the walk cannot name different lines.
@@ -184,7 +195,10 @@ export function useTemplateProposal({
     proposal.products = proposal.products.map(product => ({ ...product, quantity: pricingDraft.bomQuantities[product.sku] ?? product.quantity }));
     const wizard = pricingDraft;
     proposal.pricing = { currency: wizard.currency, pricesExcludeTax: wizard.pricesExcludeTax, bomUnitPrices: wizard.bomUnitPrices, installationUnitPrices: wizard.installationUnitPrices };
-    await exportProposalDocx(proposal, bomRows, wizard, savedWall);
+    // The depth is the document draft's own setting, read as the document
+    // leaves rather than when the page opened: a rep who changes Detail in the
+    // personalisation drawer and then exports gets the document they asked for.
+    await exportProposalDocx(proposal, bomRows, wizard, savedWall, templateDocumentDetail(template.id));
   }
 
   function saveProject() {
@@ -213,7 +227,7 @@ export function useTemplateProposal({
   function saveTemplate() {
     if (!template) return;
     const copy = saveRoomTemplateCopy(template, selectedRows);
-    onSavedTemplate(`${routeCatalogByKey.templates.path}/${copy.id}`);
+    onSavedTemplate(copy);
     onSaved();
   }
 

@@ -34,21 +34,6 @@ export const USB_GLOBAL_RULES = {
   productsNotListedDoNotSupportUsb: true,
 } as const;
 
-export const USB_PRODUCTS_WITH_ENHANCED_CASCADING = [
-  "EX-100-KVM",
-  "SW-120-TX3",
-  "SW-120-TX3-UK",
-  "SW-120-TX3-US",
-  "RX3-100",
-  "SWX-100-HDBT3",
-  "SWX-100-IW-UK",
-  "EX-40-KVM-5K",
-  "NHD-500-TX",
-  "NHD-500-RX",
-  "NHD-500-DNT-TX",
-  "NHD-510-TX",
-] as const;
-
 export const USB_TIER_RULES: readonly UsbProductUsbRule[] = [
   {
     sku: "EX-60-USB2",

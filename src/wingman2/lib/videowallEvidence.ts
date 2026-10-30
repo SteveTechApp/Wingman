@@ -2,7 +2,6 @@ import { wallFitReasons, type WallDecision } from "./videowallDecision";
 import {
   wallCanvasPlan,
   wallResolutionSummary,
-  WALL_RESEARCH_DATE,
   type WallOption,
   type WallRequirements,
 } from "./videowallOptions";
@@ -52,7 +51,6 @@ export function wallDesignEvidence(args: {
     recommendation: {
       title: args.option.title,
       rationale: args.option.summary,
-      variant: variant?.label ?? null,
       products: args.option.equipment.map((item) => item.sku),
       equipment: args.option.equipment,
       reasons: isLead ? args.decision.recommended?.reasons ?? [] : wallFitReasons(args.option, args.requirements),
@@ -80,7 +78,6 @@ export function wallDesignEvidence(args: {
       text: wallSurveyGapText(surveyGaps, wallSurveyDisplayCount(args.transport)),
     },
     evidence: args.option.sources,
-    evidenceCheckedAt: WALL_RESEARCH_DATE,
     origin: args.origin,
     // Null rather than absent: a wall saved from a handoff or from scratch says
     // so, and a reader does not have to tell "no card" from "field missing".

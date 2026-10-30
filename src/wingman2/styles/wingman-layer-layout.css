@@ -174,7 +174,10 @@ main {
    App mount and layout stabilisation patch
    -------------------------------------------------------------------------- */
 
-#root > :not(.wm-offline-banner) {
+/* The two root-level strips are chrome above the shell, not the shell itself: the
+   offline banner and the note about storage a sweep took back, which would each
+   otherwise be stretched to a viewport of their own and push the app down. */
+#root > :not(.wm-offline-banner):not(.wm-storage-reclaim) {
   min-height: 100vh;
 }
 

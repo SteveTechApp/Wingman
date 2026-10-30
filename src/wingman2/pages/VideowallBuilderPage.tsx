@@ -36,6 +36,10 @@ import { readWallReviewPass, rememberWallReviewPass, wallReviewPassFromSearch } 
 import { wallShareSearch, wallSharedLinkNote } from "../lib/wallShareLink";
 import { wallLinkFromSearch } from "../lib/wallLink";
 import { wallResumeProject } from "../lib/wallResume";
+// The page names itself with the entry's name: a rep arrives here from a card
+// that offered `Video wall designer`, so the kicker says the thing they followed
+// rather than a second name for it.
+import { WALL_ENTRY_NAME } from "../lib/wallEntry";
 import "../styles/wingman-videowall.css";
 
 export function VideoWallPage() {
@@ -205,8 +209,11 @@ export function VideoWallPage() {
         ...(sheetNotes.length ? { sheetNotes } : {}),
       });
       setSheetNotes([]);
+      // Two homes, read by different surfaces: the draft is the copy a reload
+      // reopens, the project is the copy the gallery and the proposal read.
+      // Nothing else is written here, so the design has one record per reader
+      // rather than a third copy of the same summary that nothing opens.
       window.localStorage.setItem(VIDEO_WALL_DRAFT_KEY, JSON.stringify(summary));
-      window.localStorage.setItem("wingman:video-wall-last-summary", JSON.stringify(summary));
       setMessage(`Design direction saved to ${saved.name}. Equipment quantities and checks are included.`);
       if (destination) navigate(destination);
     } catch {
@@ -314,9 +321,9 @@ export function VideoWallPage() {
     <main className="vw-builder" data-wingman-page="videowall">
       <header className="vw-builder-header">
         <div>
-          <p className="wm-ui-kicker">Video wall builder</p>
+          <p className="wm-ui-kicker">{WALL_ENTRY_NAME}</p>
           <h1>One wall. The right signal path.</h1>
-          <p>Start from the wall closest to the room, or answer four questions. Wingman narrows every WyreStorm wall design to one recommendation and says why the rest do not fit.</p>
+          <p>Start from the wall closest to the room, or answer the questions. Wingman narrows every WyreStorm wall design to one recommendation and says why the rest do not fit.</p>
         </div>
         <div className="vw-builder-header-actions">
           <button type="button" data-testid="videowall-open-wizard" onClick={() => setMode("guided")}>Guided wizard</button>
@@ -381,11 +388,6 @@ export function VideoWallPage() {
     </main>
   );
 }
-
-export const VideoWallBuilderPage = VideoWallPage;
 export const VideowallBuilderPage = VideoWallPage;
-export const VideowallPage = VideoWallPage;
-export const VideoWallWizardPage = VideoWallPage;
-export const VideoWallBuilder = VideoWallPage;
 export const VideoWall = VideoWallPage;
 export default VideoWallPage;

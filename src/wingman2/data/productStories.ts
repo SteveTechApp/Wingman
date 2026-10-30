@@ -4107,10 +4107,6 @@ export function getProductStory(sku: string): ProductStory | undefined {
   return PRODUCT_STORY_BY_SKU[literalStorySkuKey(sku)] ?? PRODUCT_STORY_BY_ALIAS_SKU[normaliseStorySku(sku)];
 }
 
-export function hasProductStory(sku: string): boolean {
-  return Boolean(getProductStory(sku));
-}
-
 export function productStoryRelatedText(story: ProductStory): string[] {
   return story.worksWith.map((item) => `${item.sku}: ${item.reason}`);
 }

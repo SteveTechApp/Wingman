@@ -112,11 +112,6 @@ export function compileDesignProposal(project: StoredProject, compiledAt = new D
   return { ...draft, revisionId: contentHash, contentHash };
 }
 
-export function approvalMatchesDesignRevision(project: StoredProject) {
-  const proposal = project.proposal; if (!proposal?.designRevision) return false;
-  return proposal.approvalStatus !== "approved" || proposal.approvedRevisionHash === proposal.designRevision.contentHash;
-}
-
 export function withRefreshedDesignRevision(project: StoredProject, compiledAt = new Date().toISOString()): StoredProject {
   if (!project.proposal) return project;
   const designRevision = compileDesignProposal(project, compiledAt);

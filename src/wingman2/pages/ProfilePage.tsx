@@ -1,4 +1,5 @@
 import { WorkflowPages } from "../components/WorkflowPages";
+import { SolutionDocumentDefaults } from "../components/SolutionDocumentDefaults";
 import { clearProductIntelligenceIndexCache } from "../lib/productIntelligenceIndexCache";
 import { useEffect, useRef, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
@@ -382,7 +383,7 @@ export function ProfilePage() {
               </select>
             </label>
           </div>
-        </section></> },
+        </section><SolutionDocumentDefaults /></> },
         { id: "contact", label: "Contact", content: <><section className="wm-section-card" aria-labelledby="wingman-settings-user">
           <h2 id="wingman-settings-user" className="wm-card-title">Contact details</h2>
 

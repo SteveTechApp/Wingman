@@ -38,7 +38,7 @@ describe("CatalogBrowserPage admin record editing", () => {
     });
 
     render(
-      <MemoryRouter initialEntries={["/wingman/products/catalog"]}>
+      <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
         <CatalogBrowserPage />
       </MemoryRouter>,
     );
@@ -61,7 +61,7 @@ describe("CatalogBrowserPage admin record editing", () => {
     });
 
     render(
-      <MemoryRouter initialEntries={["/wingman/products/catalog"]}>
+      <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
         <CatalogBrowserPage />
       </MemoryRouter>,
     );

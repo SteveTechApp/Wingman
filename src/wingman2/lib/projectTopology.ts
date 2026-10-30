@@ -1149,10 +1149,6 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   };
 }
 
-export function migrateLegacyDiscoveryTopology(seed: DiscoveryTopologySeed): ProjectTopology {
-  return generateProjectTopologyFromDiscovery(seed);
-}
-
 export function projectTopologyHasContent(value: unknown): boolean {
   const topology = normaliseProjectTopology(value);
   return topology.devices.length >= 2 && topology.connections.length >= 1;

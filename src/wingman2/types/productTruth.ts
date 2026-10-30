@@ -39,19 +39,3 @@ export type CompetitorEquivalenceRecord = {
   verifiedAt?: string | null; confidence: DataConfidence;
 };
 
-export type DiscoveryEvidence = {
-  application?: string; roomType?: string; roomSize?: string; customerWording?: string;
-  sources?: string[]; sourceLocations?: string[]; sourceConnections?: string[]; displays?: string[]; displayLocations?: string[];
-  resolution?: string; distances?: string[]; usbRequirement?: string; ucRequirement?: string; cameraRequirement?: string;
-  microphoneRequirement?: string; audioRequirement?: string; networkRequirement?: string; controlRequirement?: string;
-  processingRequirement?: string; videoWallRequirement?: string; assumptions?: string[]; missingInformation?: string[];
-  blockers?: string[]; nextBestQuestion?: string; likelyArchitecture?: string;
-};
-
-export type ProjectEvidenceFoundation = {
-  discoveryEvidence?: DiscoveryEvidence; requirements?: string[]; architectureDirection?: string;
-  productRecommendations?: string[]; comparisonRecordIds?: string[]; savedProductPitchIds?: string[];
-  diagrams?: string[]; bom?: Array<{ sku: string; quantity: number }>; proposalHistory?: string[];
-  assumptions?: string[]; risks?: string[]; missingInformation?: string[]; nextActions?: string[];
-  readiness?: "ready" | "review" | "blocked"; confidence?: DataConfidence;
-};

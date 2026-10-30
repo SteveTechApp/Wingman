@@ -26,7 +26,6 @@ export type ExtractedCompetitorSku = {
   description: string;
   manufacturer: string;
   productClass: IngestProductClass;
-  classLabel: string;
   role: IngestSkuRole;
   confidence: "high" | "medium" | "low";
   sourceLine: string;
@@ -42,7 +41,6 @@ export type ProductSetOpportunity = {
   summary: string;
   skuCount: number;
   skus: string[];
-  productClasses: IngestProductClass[];
   salesDirection: string;
   relationship: "family-direction" | "supporting-only" | "needs-evidence";
   checks: string[];
@@ -110,23 +108,6 @@ const NON_SKU_TOKENS = new Set([
   "POC",
   "PSE",
 ]);
-
-const CLASS_LABELS: Record<IngestProductClass, string> = {
-  "hdbaset-extender-kit": "HDBaseT extender kit",
-  "hdbaset-transmitter": "HDBaseT transmitter",
-  "hdbaset-receiver": "HDBaseT receiver",
-  "hdbaset-matrix": "HDBaseT / AV matrix",
-  "hdmi-splitter": "HDMI splitter / distribution amplifier",
-  "hdmi-switcher": "HDMI switcher",
-  "presentation-switcher": "Presentation switcher",
-  "usb-extender": "USB extender",
-  "usb-kvm": "USB / KVM workflow product",
-  "audio-dante": "Dante / network-audio product",
-  "audio-analogue": "Analogue audio product",
-  "signal-manager": "Signal manager / converter",
-  "accessory-power": "Power accessory",
-  unknown: "Unknown product class",
-};
 
 function clean(value: unknown): string {
   return String(value ?? "").replace(/\s+/g, " ").trim();
@@ -337,13 +318,6 @@ function classifySku(sku: string, description = ""): {
   return { productClass: "unknown", role: "unknown", workflowTags: [], confidence: "low" };
 }
 
-function classDisplayLabel(productClass: IngestProductClass, workflowTags: string[]): string {
-  if (productClass === "hdbaset-extender-kit" && workflowTags.includes("usb")) {
-    return "USB / HDBaseT extender kit";
-  }
-  return CLASS_LABELS[productClass];
-}
-
 function buildSkuRisks(productClass: IngestProductClass, role: IngestSkuRole): string[] {
   const risks: string[] = [];
   if (productClass === "unknown") risks.push("Product class is not confirmed; do not recommend an equivalent.");
@@ -451,7 +425,6 @@ function buildProductSets(skus: ExtractedCompetitorSku[]): ProductSetOpportunity
       summary: definition.summary,
       skuCount: members.length,
       skus: members.map((item) => item.sku),
-      productClasses: unique(members.map((item) => item.productClass)) as IngestProductClass[],
       salesDirection: definition.salesDirection,
       relationship: supportingOnly ? "supporting-only" : needsEvidence ? "needs-evidence" : "family-direction",
       checks: definition.checks,
@@ -532,7 +505,6 @@ export function analyzeMultiSkuCompetitorDocument(text: string): MultiSkuCompeti
       description,
       manufacturer,
       productClass: classification.productClass,
-      classLabel: classDisplayLabel(classification.productClass, classification.workflowTags),
       role: classification.role,
       confidence: classification.confidence,
       sourceLine: occurrence.sourceLine,

@@ -8,7 +8,6 @@ import type {
   ProjectAuditEntry,
   ProjectStage,
   ProjectStoreSnapshot,
-  ProposalVisualConnection,
   ProposalVisualAsset,
   ProposalVisualKind,
   ProposalVisualPurpose,
@@ -588,6 +587,7 @@ export function decodeStoredProject(value: unknown): StoredProject | null {
   delete project.discoveryBrief;
   delete project.productSelections;
   delete project.omittedProductSkus;
+  delete project.unquotedDependencySkus;
   delete project.ingest;
   delete project.compareHistoryView;
   delete project.compareRuns;
@@ -613,6 +613,10 @@ export function decodeStoredProject(value: unknown): StoredProject | null {
     .map((sku) => sku.trim().toUpperCase())
     .filter(Boolean);
   if (omittedProductSkus.length) project.omittedProductSkus = omittedProductSkus;
+  const unquotedDependencySkus = stringArray(record.unquotedDependencySkus)
+    .map((sku) => sku.trim().toUpperCase())
+    .filter(Boolean);
+  if (unquotedDependencySkus.length) project.unquotedDependencySkus = unquotedDependencySkus;
 
   const ingest = normalizeIngestAnalysis(record.ingest);
   if (ingest) project.ingest = ingest;
@@ -712,7 +716,6 @@ function normalizeProposalVisualAssets(value: unknown, projectId: string): Propo
       revision: Math.max(1, Number(record.revision) || 1),
       source: objectRecord(record.source) as ProposalVisualAsset["source"] ?? { productSkus: [] },
       model: objectRecord(record.model) ?? undefined,
-      connections: Array.isArray(record.connections) ? record.connections as ProposalVisualConnection[] : undefined,
       render: {
         svg: typeof render.svg === "string" ? render.svg : undefined,
         pngDataUrl: typeof render.pngDataUrl === "string" ? render.pngDataUrl : undefined,

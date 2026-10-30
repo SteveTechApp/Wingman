@@ -301,7 +301,14 @@ export function buildDiscoveryBriefHtml(
 </html>`;
 }
 
-function fileBaseName(title: string) {
+/**
+ * The slug this app names a brief file after: lower case, punctuation folded to
+ * single dashes, no leading or trailing dash.
+ *
+ * Exported because the CRM send attaches the same brief — its attachment name is
+ * spelled by this rule rather than by a second copy of it.
+ */
+export function fileBaseName(title: string) {
   return String(title || "wingman-discovery-brief")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")

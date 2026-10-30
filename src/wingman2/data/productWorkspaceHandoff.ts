@@ -64,8 +64,3 @@ export function readProductWorkspaceHandoff(): ProductWorkspaceHandoff | null {
     return null;
   }
 }
-
-export function clearProductWorkspaceHandoff() {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(PRODUCT_WORKSPACE_HANDOFF_KEY);
-}

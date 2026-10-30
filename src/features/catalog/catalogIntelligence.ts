@@ -343,15 +343,6 @@ export function createDefaultCatalogFilterState(): CatalogFilterState {
   return { ...DEFAULT_CATALOG_FILTER_STATE };
 }
 
-export function parseDependencySkuText(value: string): string[] {
-  return uniqueStrings(
-    value
-      .split(",")
-      .map((item) => normalizeSku(item))
-      .filter(Boolean),
-  );
-}
-
 function normalizeText(value: string): string {
   return value.trim().toLowerCase();
 }

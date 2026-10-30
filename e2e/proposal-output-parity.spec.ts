@@ -1,13 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { readPdfPages } from "../tools/lib/pdf-text.mjs";
 
 const outputDir = path.resolve("docs/release-evidence/proposal-output-parity/latest");
-const bundledPython = process.env.WINGMAN_BUNDLED_PYTHON
-  || (process.platform === "win32"
-    ? "C:/Users/steve/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe"
-    : "python3");
 
 function normalized(value: string) { return value.replace(/\s+/g, " ").trim(); }
 
@@ -29,9 +25,11 @@ test("canonical proposal retains semantic and visual parity across screen, DOCX 
   // and not substitute the browser's own margins.
   await page.pdf({ path: pdfPath, printBackground: true, preferCSSPageSize: true });
   const pdfTextPath = path.join(outputDir, "proposal-pdf.txt");
-  const extraction = spawnSync(bundledPython, ["-c", "from pypdf import PdfReader; import sys,json; print(json.dumps([(p.extract_text() or '') for p in PdfReader(sys.argv[1]).pages]))", pdfPath], { encoding: "utf8", env: { ...process.env, PYTHONIOENCODING: "utf-8" } });
-  expect(extraction.status, extraction.stderr || extraction.error?.message).toBe(0);
-  const pages: string[] = JSON.parse(extraction.stdout);
+  // The PDF's words, read out of the file in this process: `readPdfPages` parses
+  // with `pdfjs-dist`, so the walk needs no runtime outside the browser it starts.
+  // Page by page, because the cover's document control and the running furniture
+  // on the pages after it are readings about different pages.
+  const pages: string[] = await readPdfPages(fs.readFileSync(pdfPath));
   fs.writeFileSync(pdfTextPath, pages.join("\n"));
   const pdfText = normalized(pages.join("\n"));
 

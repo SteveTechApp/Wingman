@@ -23,6 +23,21 @@ const TRANSPORT_MAX_LENGTH_M: Partial<Record<SchematicTransportKind, number>> = 
   control: 100,       // RS-232/IR
 };
 
+/**
+ * The table's answer for a transport the brief names.
+ *
+ * A brief records `transport` as free text, so this cannot index the table
+ * directly — a `string` key is not a `SchematicTransportKind`, which is why the
+ * strict build refused the lookup. The membership check is what makes the key
+ * sound, and an unrecognised transport has no maximum to enforce, which is the
+ * same answer the table gives for a kind it holds no entry for.
+ */
+function transportMaxLengthM(transport: string): number | undefined {
+  return Object.prototype.hasOwnProperty.call(TRANSPORT_MAX_LENGTH_M, transport)
+    ? TRANSPORT_MAX_LENGTH_M[transport as SchematicTransportKind]
+    : undefined;
+}
+
 /* ------------------------------------------------------------------ */
 /*  PoE power classes (watts budget per port)                          */
 /* ------------------------------------------------------------------ */
@@ -53,7 +68,7 @@ function validateCableLengths(
   const violations: ConstraintViolation[] = [];
 
   for (const conn of model.connections) {
-    const maxLen = conn.maxLengthM ?? TRANSPORT_MAX_LENGTH_M[conn.transport];
+    const maxLen = conn.maxLengthM ?? transportMaxLengthM(conn.transport);
     if (maxLen === undefined || !Number.isFinite(maxLen)) continue;
 
     // Use the brief's max distance if available, otherwise flag for confirmation

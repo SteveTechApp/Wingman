@@ -429,14 +429,16 @@ describe("File extension patterns", () => {
     });
   });
 
-  it("should recognize .docx extension (but extraction requires mammoth)", async () => {
-    // The .docx pattern is recognized, but actual extraction would fail
-    // without the mammoth library properly mocked
+  it("should recognize .docx extension (and report an unreadable archive rather than throwing)", async () => {
+    // .docx is read as the zip it is; text a zip reader cannot open is a
+    // warning, never an exception out of ingest. `documentExtract.docx.test.ts`
+    // covers the reading itself against a real archive.
     const file = createMockFile("test.docx", "binary content", { throwOnArrayBuffer: true });
     const result = await extractDocumentText(file);
 
-    // Should attempt extraction and fail gracefully
     expect(result.fileName).toBe("test.docx");
+    expect(result.text).toBe("");
+    expect(result.warnings[0]).toContain("could not be extracted");
   });
 
   it("should recognize .pdf extension (but extraction requires pdfjs)", async () => {

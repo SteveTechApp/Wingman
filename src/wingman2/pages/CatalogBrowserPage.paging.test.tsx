@@ -36,7 +36,7 @@ describe("CatalogBrowserPage paging reset", () => {
   // proportionate budget rather than the default timeout.
   it("returns to the first page on a filter change, and leaves the page alone while a record is edited", async () => {
     render(
-      <MemoryRouter initialEntries={["/wingman/products/catalog"]}>
+      <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
         <CatalogBrowserPage />
       </MemoryRouter>,
     );

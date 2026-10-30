@@ -35,13 +35,6 @@ export function captureConfidenceCell(
   return label;
 }
 
-/** True when a row is a partial keyword-only capture that should be re-verified before quoting. */
-export function isLowConfidence(
-  confidence?: CaptureConfidence | null | string,
-): boolean {
-  return confidence === "low";
-}
-
 /** Colour modifier used by the HTML brief for the confidence cell. */
 export function captureConfidenceTone(
   confidence?: CaptureConfidence | null | string,

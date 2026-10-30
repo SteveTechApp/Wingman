@@ -6,15 +6,18 @@
 // is fully layered". This tool implements the dead-removal half, mechanically:
 //
 //   1. Route-scoped blocks: any top-level rule whose selector requires a
-//      route key that does not exist in the live route union is dead. Route
-//      keys come from the two runtime sources of truth:
-//        - the `wm-route-<segment>` classes AppShell adds per route
+//      route scope that does not exist is dead. The two scopes are separate,
+//      and each is compared with the set it actually comes from:
+//        - `.wm-route-<segment>`, added by AppShell per route
 //          (src/wingman2/app/route-manifest.json segments)
-//        - the `html[data-wingman-route="<key>"]` attribute AppShell sets
+//        - `html[data-wingman-route="<key>"]`, set from `activeRoute.key`
 //          (the WingmanRouteKey union in routeCatalog.ts)
-//      A selector is route-scoped if it contains `.wm-route-<x>` or
-//      `[data-wingman-route="<x>"]` with an x outside the live sets. Blocks
-//      whose selector mentions a live route (or no route at all) are kept.
+//      A camelCase key has no kebab form in the attribute: `callCoach` is the
+//      value the page sets, so `data-wingman-route="call-coach"` is dead even
+//      though `call-coach` is a live segment for the class scope. A selector
+//      is route-scoped if it contains either token with a value outside its
+//      live set. Blocks whose selector mentions a live scope (or no route at
+//      all) are kept.
 //   2. Legacy class-prefixed scoping (`.wm-compare-`-style historical route
 //      names) is NOT guessed at — only the two runtime-verified attributes.
 //
@@ -30,37 +33,33 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { routeScopeWriters } from "./lib/route-scope-liveness.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OVERRIDES = path.join(root, "src", "wingman2", "styles", "wingman-route-overrides.css");
-const MANIFEST = path.join(root, "src", "wingman2", "app", "route-manifest.json");
-const CATALOG = path.join(root, "src", "wingman2", "app", "routeCatalog.ts");
 
 const APPLY = process.argv.includes("--apply");
 const DEDUPE = process.argv.includes("--dedupe");
 
 // ---------------------------------------------------------------------------
-// Live route keys from the two runtime sources of truth
+// Live route keys, from the one reading of the two runtime writers
 // ---------------------------------------------------------------------------
-const manifest = JSON.parse(fs.readFileSync(MANIFEST, "utf8"));
-const liveSegments = new Set(manifest.map((route) => String(route.segment)));
-
-const catalogSource = fs.readFileSync(CATALOG, "utf8").replace(/\r\n/g, "\n");
-const unionBlock = catalogSource.match(/export type WingmanRouteKey\s*=\s*([\s\S]*?);/);
-if (!unionBlock) {
-  console.error("[phase8] could not locate the WingmanRouteKey union in routeCatalog.ts");
-  process.exit(1);
-}
-const liveKeys = new Set([...unionBlock[1].matchAll(/"([a-zA-Z0-9-]+)"/g)].map((m) => m[1]));
-// camelCase key -> kebab-case attribute value used by AppShell (dataset assigns
-// route.key verbatim, so the union members ARE the attribute values).
-const liveRouteKeys = new Set([...liveKeys, ...[...liveKeys].map((k) => k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`))]);
+// `route-scope-liveness.mjs` owns the derivation and the verify stage
+// `check:route-scope-liveness` holds the tree to it, so this tool asks the same
+// question rather than carrying a second answer: which values a page writes,
+// each spelling read from its own writer (the catalogue union for the attribute,
+// the manifest segments for the class, and the admin literal the shell sets in
+// both). A union of the two sets here is how `data-wingman-route="call-coach"`
+// would be counted as live while matching nothing.
+const writers = routeScopeWriters({ root });
+const liveSegments = writers.className;
+const liveKeys = writers.attribute;
 
 console.log(
   `[phase8] live segments (${liveSegments.size}): ${[...liveSegments].join(", ")}`,
 );
 console.log(
-  `[phase8] live route keys (${liveRouteKeys.size}): ${[...liveRouteKeys].join(", ")}`,
+  `[phase8] live attribute values (${liveKeys.size}): ${[...liveKeys].join(", ")}`,
 );
 
 // ---------------------------------------------------------------------------
@@ -137,7 +136,7 @@ function deadRouteIn(selector) {
     if (!liveSegments.has(match[1])) return { kind: "wm-route-class", token: match[0], value: match[1] };
   }
   for (const match of selector.matchAll(RE_DATA_ROUTE)) {
-    if (!liveRouteKeys.has(match[1])) return { kind: "data-wingman-route", token: match[0], value: match[1] };
+    if (!liveKeys.has(match[1])) return { kind: "data-wingman-route", token: match[0], value: match[1] };
   }
   return null;
 }

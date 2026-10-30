@@ -7,11 +7,19 @@ function status(state: StoredProjectSyncStatus["state"], message: string): Store
   return { state, message, updatedAt: "2026-10-23T09:00:00.000Z" };
 }
 
-function renderToolbar(overrides: Partial<{ projectCount: number; draftCount: number; syncStatus: StoredProjectSyncStatus }> = {}) {
+type ToolbarOverrides = Partial<{
+  projectCount: number;
+  draftCount: number;
+  syncStatus: StoredProjectSyncStatus;
+  syncConflicts: Array<{ name: string; fields: string[] }>;
+}>;
+
+function renderToolbar(overrides: ToolbarOverrides = {}) {
   const onReset = vi.fn();
   render(
     <ProjectStoreToolbar
       syncStatus={overrides.syncStatus ?? status("local", "Saved in this browser.")}
+      syncConflicts={overrides.syncConflicts ?? []}
       projectCount={overrides.projectCount ?? 0}
       draftCount={overrides.draftCount ?? 0}
       onReset={onReset}
@@ -44,6 +52,7 @@ describe("project store toolbar", () => {
     render(
       <ProjectStoreToolbar
         syncStatus={status("conflict", "Team changed this project")}
+        syncConflicts={[]}
         projectCount={0}
         draftCount={0}
         onReset={vi.fn()}
@@ -52,6 +61,39 @@ describe("project store toolbar", () => {
     const chips = document.querySelectorAll(".wm-status-chip");
     expect(chips[chips.length - 1].className).toContain("wm-status-danger");
     expect(chips[chips.length - 1].textContent).toContain("Team changed this project");
+    // Even with no lane labels to fold, the sentence is longer than the chip's
+    // shared one-line rule allows, so the whole conflict chip wraps.
+    expect(chips[chips.length - 1].className).toContain("wm-projects-sync-conflict");
+  });
+
+  it("reads a team member's change the way the gallery card's badge reads it", () => {
+    renderToolbar({
+      syncStatus: status("synced", "Project changes are synced to the workspace backend."),
+      syncConflicts: [{ name: "Northbridge Meeting Room Refresh", fields: ["proposal", "requirements", "videowall"] }],
+    });
+
+    // The same words the card one line below prints, folded the same way: the
+    // lanes are the payload, and a fourth lane would sit in the title.
+    expect(chip()?.textContent).toContain("Team changed: Proposal, Requirements +1 more");
+    expect(chip()?.className).toContain("wm-status-danger");
+    expect(chip()?.className).toContain("wm-projects-sync-conflict");
+    expect(chip()?.getAttribute("title")).toBe(
+      'A team member changed Proposal, Requirements, Videowall in "Northbridge Meeting Room Refresh" since your last sync.',
+    );
+  });
+
+  it("says how widely the change landed when several rooms are in conflict", () => {
+    renderToolbar({
+      syncConflicts: [
+        { name: "Alpha Room", fields: ["proposal"] },
+        { name: "Beta Room", fields: ["proposal", "name"] },
+      ],
+    });
+
+    // One room's lanes would read as the whole store, so the count says how
+    // many rooms the change is spread over — each card names its own lanes.
+    expect(chip()?.textContent).toContain("Team changed in 2 rooms: Proposal, Project name");
+    expect(chip()?.getAttribute("title")).toContain("See the Changed badges for details.");
   });
 
   it("tones every sync state from one rule", () => {
@@ -93,7 +135,7 @@ describe("project store toolbar", () => {
 
     // With nothing of their own, there is nothing to promise about.
     render(
-      <ProjectStoreToolbar syncStatus={status("local", "Saved in this browser.")} projectCount={0} draftCount={0} onReset={vi.fn()} />,
+      <ProjectStoreToolbar syncStatus={status("local", "Saved in this browser.")} syncConflicts={[]} projectCount={0} draftCount={0} onReset={vi.fn()} />,
     );
     const buttons = screen.getAllByRole("button", { name: "Reset sample store" });
     expect(buttons[buttons.length - 1].getAttribute("title")).toBe("Restores the built-in starter examples.");

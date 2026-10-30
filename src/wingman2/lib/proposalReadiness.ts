@@ -148,12 +148,3 @@ export function proposalReadiness(
     },
   };
 }
-
-/**
- * Quick score-only accessor for dashboards and badges.
- */
-export function proposalReadinessScore(
-  input: ProposalReadinessInput,
-): number {
-  return proposalReadiness(input).score;
-}

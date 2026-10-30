@@ -46,7 +46,6 @@ function baseDecision(
       usb: "USB extension",
       audio: "Embedded audio",
       control: "Network control",
-      distanceMetres: null,
       dependencies: ["Compatible decoder", "Managed network"],
       notes: [],
     },

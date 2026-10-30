@@ -16,6 +16,7 @@ import { DiscoveryAudioDesignSummary } from "./discovery/DiscoveryAudioDesignSum
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
 import { clearDiscoveryHandoff, readDiscoveryHandoff, type DiscoveryHandoff, type DiscoveryHandoffMode } from "../lib/discoveryTemplateHandoff";
 import { discoveryVideoWallHandoff, writeVideoWallHandoff } from "../lib/videowallHandoff";
+import { WALL_ENTRY_NAME, WALL_ENTRY_SENTENCE_NAME } from "../lib/wallEntry";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
@@ -286,7 +287,6 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
   const marketId = wmDiscoveryAnswerToText(answers.market);
   const environmentId = wmDiscoveryAnswerToText(answers.environment);
-  const showMarketContext = editingMarketContext || (!environmentId && (Boolean(marketId) || !selectedApplication));
   const discoveryQuestions = useMemo(
     () =>
       wmDiscoveryFilterUnifiedCommsQuestions(
@@ -299,6 +299,21 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   // The full question set remains available for technical detail and saved answers.
   const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
   const modeQuestions = useMemo(() => essentialCapture ? discoveryQuestions.filter(question => BASIC_IDS.has(question.id)) : discoveryQuestions, [essentialCapture, discoveryQuestions, BASIC_IDS]);
+
+  // A link that names a question is the rep's reason for being here, so the
+  // market / environment lead-in does not stand in front of it — the lead-in is a
+  // way of positioning a room, not one of the answers a row link asked for. It
+  // only gives way to a question the page can actually show, though: a stale or
+  // renamed id (and the page-level `budget` id, which is not in the question set)
+  // would otherwise drop the rep at the top of the builder, which is not what
+  // they clicked. The lead-in is derived from the saved answers on every render,
+  // so nothing is skipped for good — the room still has no environment recorded,
+  // and the next entry that names no question (the resume link, the dashboard,
+  // the record's own Reopen) puts it back in front of the walk.
+  const namedQuestionOnScreen =
+    Boolean(editQuestionId) && modeQuestions.some((question) => question.id === editQuestionId);
+  const showMarketContext =
+    editingMarketContext || (!environmentId && !namedQuestionOnScreen && (Boolean(marketId) || !selectedApplication));
 
   // Quick-start conflict signals (stranded defaults, application drift).
   const {
@@ -951,9 +966,11 @@ return (
         <section className="wm-ui-card flex flex-wrap items-center justify-between gap-4" aria-label="Video wall requirement">
           <div>
             <p className="wm-ui-kicker">Video wall requirement</p>
-            <h2 className="wm-ui-title">Size the wall in the Video Wall builder</h2>
+            {/* The handoff names the page it opens, the way the page's own
+                chrome names it: a rep who follows this lands on the entry. */}
+            <h2 className="wm-ui-title">Size the wall in {WALL_ENTRY_SENTENCE_NAME}</h2>
             <p className="wm-ui-copy">
-              {videoWallHandoff.label.replace(/^Discovery: /, "")} captured. The builder starts from these answers,
+              {videoWallHandoff.label.replace(/^Discovery: /, "")} captured. The {WALL_ENTRY_NAME} starts from these answers,
               removes the designs that do not fit, and returns one signal path with the checks to confirm.
             </p>
           </div>
@@ -965,7 +982,7 @@ return (
               navigate(routeCatalogByKey.videowall.path);
             }}
           >
-            Open the wall builder
+            Open {WALL_ENTRY_SENTENCE_NAME}
           </button>
         </section>
       ) : null}

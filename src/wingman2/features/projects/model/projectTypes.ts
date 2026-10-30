@@ -1,7 +1,6 @@
 import type { MultiSkuCompetitorAnalysis } from "../../../lib/documentIngest/multiSkuCompetitorIngest";
 import type { ProjectTopology } from "../../../lib/projectTopology";
 import type { StatusVariant } from "../../../types";
-import type { DiscoveryEvidence, ProjectEvidenceFoundation } from "../../../types/productTruth";
 
 export type ProjectStage =
   | "Discovery"
@@ -28,6 +27,13 @@ export type StoredProject = {
   productSelections?: StoredProductSelection[];
   /** SKUs deliberately removed by the user; automatic rebuilds must honour this list. */
   omittedProductSkus?: string[];
+  /**
+   * Governed dependency prompts (`TBC-…`) the rep has recorded as documented
+   * dependencies rather than quotation lines: the question stays in the
+   * customer document's dependency list, and the BOM stops carrying an
+   * unpriced placeholder for a part nobody can name. Rebuilds must honour it.
+   */
+  unquotedDependencySkus?: string[];
   ingest?: StoredIngestAnalysis;
   compareRuns?: StoredCompareRun[];
   compareHistoryView?: { search?: string; filter?: string; sort?: string };
@@ -42,7 +48,6 @@ export type StoredProject = {
   dealOutcomeWhy?: string;
   workflow?: StoredWorkflowState;
   videowall?: StoredVideowallSummary;
-  evidenceFoundation?: ProjectEvidenceFoundation;
   visualAssets?: ProposalVisualAsset[];
   auditTrail?: ProjectAuditEntry[];
   /**
@@ -138,7 +143,6 @@ export type StoredDiscoveryBrief = {
     conflictCount: number;
     canQuote: boolean;
   };
-  structuredEvidence?: DiscoveryEvidence;
   discoveryConversation?: DiscoveryConversationItem[];
 };
 
@@ -389,21 +393,6 @@ export type ProposalVisualKind = "block-diagram" | "technical-schematic" | "room
 export type ProposalVisualPurpose = "proposal" | "customer-explanation" | "technical-review" | "handover";
 export type ProposalVisualStatus = "draft" | "review-required" | "approved";
 
-export type ProposalVisualConnection = {
-  id: string;
-  fromNodeId: string;
-  fromPortId?: string;
-  toNodeId: string;
-  toPortId?: string;
-  signal: "video" | "audio" | "control" | "network" | "usb" | "power";
-  transport: string;
-  cableId?: string;
-  cableSpecification?: string;
-  estimatedLengthM?: number;
-  route: Array<{ x: number; y: number }>;
-  status: "confirmed" | "assumed" | "by-others" | "review";
-};
-
 export type ProposalVisualAsset = {
   id: string;
   projectId: string;
@@ -412,9 +401,8 @@ export type ProposalVisualAsset = {
   purpose: ProposalVisualPurpose;
   status: ProposalVisualStatus;
   revision: number;
-  source: { projectRevision?: string; productSkus: string[]; templateId?: string };
+  source: { productSkus: string[]; templateId?: string };
   model?: Record<string, unknown>;
-  connections?: ProposalVisualConnection[];
   render: { svg?: string; pngDataUrl?: string; thumbnailDataUrl?: string; width: number; height: number };
   caption: string;
   assumptions: string[];
@@ -425,11 +413,9 @@ export type ProposalVisualAsset = {
 
 export type StoredProposalVerification = {
   status: "VERIFIED" | "NOT VERIFIED";
-  baselineVersion?: string;
   verifiedAt?: string;
   verifiedBy?: string;
   sourceTemplateId?: string;
-  acknowledged: boolean;
   summary: string;
   issues: string[];
 };
@@ -437,11 +423,6 @@ export type StoredProposalVerification = {
 export type StoredApplicationProposalBenefit = {
   title: string;
   detail: string;
-};
-
-export type StoredApplicationProposalVisualBrief = {
-  title: string;
-  purpose: string;
 };
 
 export type StoredProposalProductSpecification = {
@@ -474,9 +455,7 @@ export type StoredApplicationProposal = {
   technicalFacts: string[];
   architectureDiagram: string;
   acceptanceCriteria: string[];
-  visualBriefs: StoredApplicationProposalVisualBrief[];
   verifiedDesignParameters: string[];
-  deploymentConditions: string[];
   marketStory?: string;
   roomVisualUrl?: string;
   productSpecifications?: StoredProposalProductSpecification[];

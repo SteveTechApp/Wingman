@@ -18,7 +18,7 @@ export type ProductAssuranceStatus =
 export type ProductAssurance = {
   sku: string;
   known: boolean;
-  active: boolean;
+  /** Whether the SKU may be specified for a design; the ledger gates on this. */
   specifiable: boolean;
   lifecycleStatus: string;
   catalogVisibility: string;
@@ -117,7 +117,6 @@ export function getProductAssurance(sku: string): ProductAssurance {
   return {
     sku: text(sku).toUpperCase(),
     known,
-    active,
     specifiable: active,
     lifecycleStatus: lifecycleStatus || "unknown",
     catalogVisibility: lifecycle.adminOverride?.visibility || "governed-business-list",

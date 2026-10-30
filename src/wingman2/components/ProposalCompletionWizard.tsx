@@ -29,6 +29,7 @@ import {
   recordWallInstallDetail,
   saveProjectProposalToProject,
   saveRecommendationFeedback,
+  updateStoredProject,
   useProjectStore,
   type StoredProject,
   type StoredProjectProposal,
@@ -43,7 +44,6 @@ import { getInstallChecked } from "../lib/siteSurveyStorage";
 import { useWingmanProfile, type WingmanProfile } from "../data/wingmanProfile";
 import { asText, readDiscovery, savedProposalBomRows, standardAssumptions } from "../lib/proposalCompletionModel";
 import { runProposalExport, type ProposalExportContext } from "../lib/proposalWizardExports";
-import { InputField, TextAreaField } from "./ProposalWizardFields";
 import { updateSavedWallRequirements } from "../lib/savedWallUpdates";
 import { wallRequirementsFromSummary } from "../lib/videowallOptions";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../lib/wallSurvey";
@@ -58,6 +58,9 @@ import { ProposalReadinessList } from "./ProposalReadinessList";
 import { ProposalBomPricing } from "./ProposalBomPricing";
 import { ProposalInstallationPricing } from "./ProposalInstallationPricing";
 import { wallTransportPlan, wallTransportRequirements } from "../lib/videowallTransport";
+import { servedDisplayRunMetres } from "../lib/hdbtDisplayReceiver";
+import { displayRunProjectFix } from "../lib/displayRunFix";
+import { dependencyUnquotedProject, pendingDependencyPrompts } from "../lib/dependencyScope";
 import {
   validateProposalExport,
   type ExportValidationResult,
@@ -205,6 +208,9 @@ function ProposalCompletionWizardContent({
         ingest: project.ingest,
         compareRun: project.compareRuns?.[0] ?? null,
         topology: project.discoveryBrief?.topology,
+        // Prompts this rep has already answered stay out of the BOM, and the
+        // document's dependency list still names the question.
+        unquotedDependencySkus: project.unquotedDependencySkus,
         region: profile.region,
         feedback: crossProjectFeedback,
       }),
@@ -218,6 +224,7 @@ function ProposalCompletionWizardContent({
       project.discoveryBrief?.roomModel?.audioDesign,
       project.ingest,
       project.proposal,
+      project.unquotedDependencySkus,
       selectedProducts,
     ],
   );
@@ -481,6 +488,12 @@ function ProposalCompletionWizardContent({
       topology: project.discoveryBrief?.topology,
       discoveryConversation: project.discoveryBrief?.discoveryConversation,
       wallRequirements,
+      // The run this room's survey recorded: a display receiver quoted on a span
+      // past its rating cannot carry the link, so the document is held rather
+      // than issued around it. A project that recorded no run is not blocked.
+      // A project saved from a room carried in spans records the span, so the
+      // wizard measures the receiver against the run it actually serves.
+      displayRunMetres: servedDisplayRunMetres(project.discoveryBrief?.roomModel),
       // A rate still holding the card's number on a quote priced in another
       // currency is named before the document leaves — as a warning, since the
       // rep may hold the card's figure deliberately.
@@ -496,11 +509,56 @@ function ProposalCompletionWizardContent({
       project.discoveryBrief?.discoveryConversation,
       selectedProducts,
       wallRequirements,
+      project.discoveryBrief?.roomModel,
       draft.currency,
       draft.installationUnitPrices,
       rateCardState.card,
     ],
   );
+
+  // The display-run blocker names the change that clears it, and this applies
+  // it: the rep exporting from this project is the one holding the survey, so
+  // sending them to the template to schedule a repeater asks them to walk to
+  // another surface for a decision already made. The write is the project
+  // record's own — the set on its schedule and the span on its room model — so
+  // the same store change reaches this page and the record.
+  const displayRunPlan = useMemo(() => displayRunProjectFix(project)?.plan ?? null, [project]);
+  const displayRunFix = displayRunPlan
+    ? {
+        runMetres: displayRunPlan.runMetres,
+        onSchedule: () => {
+          let applied = false;
+          updateStoredProject(project.id, (current) => {
+            const fix = displayRunProjectFix(current);
+            if (!fix) return current;
+            applied = true;
+            return fix.project;
+          });
+          return applied;
+        },
+      }
+    : null;
+
+  // A dependency prompt has no catalogue part behind it, so the export gate is
+  // where its question has to be answered: the rep records it as a documented
+  // dependency, and the quotation stops carrying a line nobody can price. Each
+  // prompt is answered on its own, because they are separate scope decisions.
+  const dependencyPrompts = pendingDependencyPrompts(salesReadiness.governedDependencies, project.unquotedDependencySkus);
+  const dependencyScopeFixes = dependencyPrompts.length
+    ? {
+        dependencies: dependencyPrompts,
+        onRecord: (sku: string) => {
+          let applied = false;
+          updateStoredProject(project.id, (current) => {
+            const next = dependencyUnquotedProject(current, sku);
+            if (!next) return current;
+            applied = true;
+            return next;
+          });
+          return applied;
+        },
+      }
+    : null;
 
   // Unified product/BOM readiness — same scorer the template path uses.
   const productReadiness = useMemo(
@@ -851,7 +909,7 @@ function ProposalCompletionWizardContent({
     setFeedbackMessage("Thanks - this helps improve future recommendations.");
   }
 
-  return <ProposalCompletionWizardView view={{ InputField, TextAreaField, activeStep, bomRows, customerOutputBlocked, discovery, draft, exportCsv, exportDiscoveryBrief, exportDocx, exportHtml, exportMessage, exportPdf, exportValidation, feedbackMessage, feedbackRating, finalReadinessScore, installation, installationPricing, profile, project, proposal, rateCardState, readiness, recallProposal, requirementRows, salesReadiness, setActiveStep, setDraft, setExportMessage, setShowValidationDetails, showValidationDetails, steps, submitForApproval, submitRecommendationFeedback, topologySurvey, typeConfig, updateDraft, wallRequirements, wallSurvey, wallTransport }} />;
+  return <ProposalCompletionWizardView view={{ activeStep, bomRows, customerOutputBlocked, dependencyScopeFixes, discovery, displayRunFix, draft, exportCsv, exportDiscoveryBrief, exportDocx, exportHtml, exportMessage, exportPdf, exportValidation, feedbackMessage, feedbackRating, finalReadinessScore, installation, installationPricing, profile, project, proposal, rateCardState, readiness, recallProposal, requirementRows, salesReadiness, setActiveStep, setDraft, setExportMessage, setShowValidationDetails, showValidationDetails, steps, submitForApproval, submitRecommendationFeedback, topologySurvey, typeConfig, updateDraft, wallRequirements, wallSurvey, wallTransport }} />;
 }
 
 export default ProposalCompletionWizard;

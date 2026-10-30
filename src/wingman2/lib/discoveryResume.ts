@@ -35,6 +35,25 @@ export function discoveryResumeUrl(projectId?: string): string {
   return `${routeCatalogByKey.discovery.path}?${DISCOVERY_RESUME_INTERVIEW_QUERY}${projectId ? `&projectId=${encodeURIComponent(projectId)}` : ""}`;
 }
 
+/** The query parameter that opens Discovery on one question (`?edit=<question id>`). */
+export const DISCOVERY_QUESTION_EDIT_PARAM = "edit";
+
+/**
+ * Opens Discovery on a single question — the row-level counterpart of the
+ * interview resume above, for a surface that knows which answer a rep means
+ * rather than only which room.
+ *
+ * The project id is what makes the answers on screen the ones the link came
+ * from: with no id Discovery reads this browser's own discovery snapshot, and a
+ * rep following a link from one room's record would land on the right question
+ * of whichever room this browser touched last.
+ */
+export function discoveryQuestionUrl(questionId: string, projectId?: string): string {
+  const question = encodeURIComponent(questionId);
+  const owner = projectId ? `&projectId=${encodeURIComponent(projectId)}` : "";
+  return `${routeCatalogByKey.discovery.path}?${DISCOVERY_QUESTION_EDIT_PARAM}=${question}${owner}`;
+}
+
 export function discoveryResumeInfo(
   brief: Pick<
     StoredDiscoveryBrief,

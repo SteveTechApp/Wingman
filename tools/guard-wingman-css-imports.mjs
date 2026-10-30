@@ -1,5 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
+import {
+  GOVERNED_MAIN_CSS_IMPORTS,
+  GOVERNED_CSS_IMPORT_SITES,
+  ROUTE_PAGE_STYLESHEETS,
+  ROUTE_STYLESHEETS,
+} from "./lib/route-stylesheets.mjs";
 
 const root = process.cwd();
 const srcRoot = path.join(root, "src");
@@ -21,35 +27,11 @@ const referenceGlobalFinish = path.join(
   "styles",
   "wingman-reference-global.css",
 );
-const allowed = new Set([
-  "src/main.tsx",
-  "src/wingman2/pages/VideowallBuilderPage.tsx",
-  "src/wingman2/components/VisualStudioCanvas.tsx",
-]);
+const allowed = new Set(GOVERNED_CSS_IMPORT_SITES);
 
-const expectedMainCssImports = [
-  // Layered design system (2026-08-25) — tokens → reset → layout → components
-  "./wingman2/styles/wingman-layer-tokens.css",
-  "./wingman2/styles/wingman-layer-reset.css",
-  "./wingman2/styles/wingman-layer-layout.css",
-  "./wingman2/styles/wingman-layer-components.css",
-  // Route/page-specific overrides
-  "./wingman2/styles/wingman-route-overrides.css",
-  // Companion theme files
-  "./wingman2/styles/wingman-reference-theme.css",
-  "./wingman2/styles/wingman-workflow-theme.css",
-  "./wingman2/styles/wingman-polish-navigation.css",
-  "./wingman2/styles/wingman-reference-global.css",
-  "./wingman2/styles/wingman-ui-consistency.css",
-  "./wingman2/styles/wingman-sales-workspace.css",
-  "./wingman2/styles/wingman-voice-capture.css",
-  // Shared room-design and project-workspace surfaces, owned by the global entry.
-  "./wingman2/components/diagramPresentation.css",
-  "./wingman2/components/projectScopeSchedule.css",
-  "./wingman2/components/technicalSchematic.css",
-  "./wingman2/pages/project/project-workspace.css",
-  "./wingman2/pages/templateLibraryLayout.css",
-];
+// The order lives in one place: the route-owned stylesheets are part of the
+// governed list, and every other gate reads the same module instead of a path.
+const expectedMainCssImports = [...GOVERNED_MAIN_CSS_IMPORTS];
 const retiredPageStyleFiles = [
   "wingman-visual-polish.css",
   "wingman-approved-reference-alignment.css",
@@ -176,6 +158,7 @@ for (const globalStyle of [
   workflowTheme,
   polishNavigation,
   referenceGlobalFinish,
+  ...ROUTE_STYLESHEETS.map((file) => path.join(root, "src", "wingman2", "styles", file)),
 ]) {
   if (!fs.existsSync(globalStyle)) {
     console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
@@ -208,5 +191,5 @@ if (retiredFilesStillPresent.length > 0) {
 }
 
 console.log(
-  "CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation, global reference finish and route-owned visual-canvas styles only.",
+  `CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation, global reference finish and route-owned visual-canvas styles only, plus ${ROUTE_PAGE_STYLESHEETS.length} page-owned route stylesheets.`,
 );

@@ -1,12 +1,17 @@
-import { ArrowRight, Search, Zap, ArrowLeftRight, Sparkles, ChevronRight } from "lucide-react";
+import { ArrowRight, Search, Zap, ArrowLeftRight, Sparkles, ChevronRight, LayoutGrid } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { useProjectStore } from "../data/projectStore";
 import { StatusChip } from "./StatusChip";
 import { SurveyReviewChip } from "./SurveyReviewChip";
 import { SurveyReconfirmAction } from "./SurveyReconfirmAction";
+import { OpenTemplateLink } from "./OpenTemplateLink";
+import { templatesSavedFromProject } from "../lib/templateLineage";
+import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
 import { setActiveProjectId } from "../data/projectStore";
+import { projectIsOpen } from "../features/projects";
+import { WALL_ENTRY_INTRO, WALL_ENTRY_NAME } from "../lib/wallEntry";
 
 /* ------------------------------------------------------------------ */
 /*  Journey cards — the three things a new user actually needs          */
@@ -26,12 +31,12 @@ const journeys: JourneyCard[] = [
   {
     title: "Discover",
     description:
-      "Choose a room template, adjust its equipment and quantities, then save your project or build a proposal.",
+      "Answer what the room has to do and how many people it holds. Wingman works out the room type and what it needs, then carries it into the brief.",
     icon: Search,
     to: routeCatalogByKey.discovery.path,
     accent: "aqua",
     placeholder: "e.g. Boardroom with 2 displays, HDMI in, USB-C for laptop",
-    step: "Choose and edit a room template",
+    step: "Work out what the room is",
   },
   {
     title: "Compare a competitor",
@@ -89,18 +94,49 @@ function JourneyCard({ card, index }: { card: JourneyCard; index: number }) {
 
 function RecentProjects() {
   const { projects } = useProjectStore();
+  // One read for the strip, so each card can open the designs its room was saved
+  // as without a subscription per card.
+  const customTemplates = useCustomRoomTemplates();
   if (projects.length === 0) return null;
 
-  const recent = projects.slice(0, 2);
+  // Three, which is what the strip lays out in one row: two left a third of the
+  // width unused on a laptop and the third card a row of its own under the two.
+  // Open rooms come first, because the strip says "In progress": a room whose
+  // deal has an outcome is not the work it promises to continue, and recency
+  // alone would let one that was closed yesterday and touched today take a slot
+  // from a room nobody has finished. Sorting is stable, so recency still orders
+  // each group.
+  const recent = [...projects]
+    .sort((a, b) => Number(projectIsOpen(b)) - Number(projectIsOpen(a)))
+    .slice(0, 3);
 
   return (
     <section className="wm-guided-recent" aria-label="Continue where you left off">
       <div className="wm-guided-recent-heading">
-        <span>In progress</span>
-        <h2>Continue your work</h2>
+        <div className="wm-guided-recent-heading-copy">
+          <span>In progress</span>
+          <h2>Continue your work</h2>
+        </div>
+        {/* The strip prints three rooms, so the way to the rest belongs on the
+            page rather than only in the sidebar: a rep on the focused home can
+            hold more unfinished work than the strip does, and the ones it drops
+            are the older open rooms, which is exactly the work that gets
+            forgotten.
+            It is a text link on the same wording and treatment the expert home's
+            rail uses to reach the same list, not a second button — the hero owns
+            the page's one primary action. */}
+        <Link to={routeCatalogByKey.projects.path} className="wm-reference-text-link">
+          See all projects
+          <ArrowRight size={14} aria-hidden="true" />
+        </Link>
       </div>
       <div className="wm-guided-recent-list">
         {recent.map((project) => {
+          // One link per design the room was saved as, each naming it and opening
+          // it — the same action the unguided card's menu offers. The list is the
+          // count, so the card does not also carry a chip above it saying how
+          // many there are; one read of the store feeds both readings.
+          const savedTemplates = templatesSavedFromProject(project.id, customTemplates);
           const resume = discoveryResumeInfo(project.discoveryBrief);
           const resumeInterview = resume && resume.hasContent && !resume.complete;
           const href = resumeInterview
@@ -113,14 +149,35 @@ function RecentProjects() {
               <span className="wm-guided-recent-copy">
                 <strong>{project.name}</strong>
                 <small>{project.stage}</small>
-                <SurveyReviewChip project={project} className="mt-1 justify-self-start" />
-                {/* The quiet card is also where an old reading is settled: the
-                    action records today and the chip above it turns current,
-                    without opening the wall. It sits above the card's own hit
-                    area, like the chip, so a tap reaches it instead. */}
-                <SurveyReconfirmAction project={project} className="wm-guided-recent-reconfirm" />
+                {/* The short flags a card can carry, grouped so a phone can put
+                    two on a line: each is a reading rather than a sentence, and
+                    one per line turned a room with a survey into rows of chips.
+                    What the room was saved as is not one of them — those designs
+                    print below as a link each, so a count chip here would name
+                    them twice and spend a row saying it. */}
+                <span className="wm-guided-recent-flags">
+                  <SurveyReviewChip project={project} />
+                  {/* The quiet card is also where an old reading is settled: the
+                      action records today and the chip above it turns current,
+                      without opening the wall. It sits above the card's own hit
+                      area, like the chip, so a tap reaches it instead. */}
+                  <SurveyReconfirmAction project={project} className="wm-guided-recent-reconfirm" />
+                </span>
+                {savedTemplates.map((template) => (
+                  // The verb is the first thing a narrow column clips, and a
+                  // clipped verb leaves two designs reading the same. The phone
+                  // drops it so the name leads; the accessible name keeps it at
+                  // every width, which is `OpenTemplateLink`'s rule.
+                  <OpenTemplateLink
+                    key={template.id}
+                    template={template}
+                    className="wm-guided-recent-template"
+                    verbClassName="wm-guided-recent-template-verb"
+                    title={template.name}
+                  />
+                ))}
               </span>
-              <ArrowRight size={16} aria-hidden="true" />
+              <ArrowRight size={16} aria-hidden="true" className="wm-guided-recent-arrow" />
               {/* The card's destination lies under its content instead of around
                   it: the survey flag is a link of its own, and a control cannot
                   be nested inside another one. The flag sits above this hit area. */}
@@ -146,7 +203,7 @@ function OnboardingTip() {
     <div className="wm-guided-tip" role="status">
       <Sparkles size={16} className="wm-guided-tip-icon" />
       <p>
-        <strong>Welcome to Wingman.</strong> Start with <strong>Discovery</strong> — choose a room template and edit it to suit your customer.
+        <strong>Welcome to Wingman.</strong> Start with <strong>Discovery</strong> — answer what the room has to do and Wingman works out what it needs.
         No technical knowledge needed.
       </p>
     </div>
@@ -170,19 +227,36 @@ export function GuidedDashboard({ greeting, displayName }: { greeting: string; d
           <h1>{greeting}{displayName ? `, ${displayName}` : ""}</h1>
           <p>What would you like to achieve today?</p>
           <Link className="wm-guided-primary-action" to={routeCatalogByKey.discovery.path}>
-            Choose a room template <ArrowRight size={16} />
+            Work out the room <ArrowRight size={16} />
           </Link>
         </div>
         <aside className="wm-guided-hero-path" aria-label="What Wingman does next">
-          <span className="wm-guided-hero-path-label">From template to proposal</span>
-          <div><strong>Choose</strong><small>The closest room template</small></div>
-          <div><strong>Edit</strong><small>Equipment, quantities and room scope</small></div>
-          <div><strong>Save</strong><small>Your project and customer proposal</small></div>
+          <span className="wm-guided-hero-path-label">From the room to a proposal</span>
+          <div><strong>Describe</strong><small>What the room has to do, and for how many</small></div>
+          <div><strong>Decide</strong><small>The room type and what it needs to work</small></div>
+          <div><strong>Carry</strong><small>Into the brief, the scope and the proposal</small></div>
         </aside>
       </header>
 
       <OnboardingTip />
-      <Link className="wm-guided-primary-action" to={routeCatalogByKey.videowall.path}>Video wall builder <ArrowRight size={16} /></Link>
+      {/* A second way to start, not the page's primary action: the hero's CTA
+          answers the common job, so this one names what it builds and stays a
+          card. It used to reuse the primary action's styling, which made an
+          aqua bar as loud as the CTA and twice as wide. */}
+      <Link
+        className="wm-guided-wall-entry"
+        to={routeCatalogByKey.videowall.path}
+        aria-label={WALL_ENTRY_NAME}
+      >
+        <span className="wm-guided-wall-entry__icon">
+          <LayoutGrid size={20} strokeWidth={1.8} aria-hidden="true" />
+        </span>
+        <span className="wm-guided-wall-entry__copy">
+          <strong>{WALL_ENTRY_NAME}</strong>
+          <small>{WALL_ENTRY_INTRO}</small>
+        </span>
+        <ArrowRight size={16} aria-hidden="true" />
+      </Link>
 
       <section className="wm-guided-journeys" aria-label="Quick start">
         <div className="wm-guided-journeys-header">

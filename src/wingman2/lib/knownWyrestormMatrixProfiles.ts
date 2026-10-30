@@ -1,4 +1,4 @@
-import { hydrateWyrestormCompareProfile, knownWyrestormCompareProfileSkus } from "./knownWyrestormCompareProfiles";
+import { hydrateWyrestormCompareProfile } from "./knownWyrestormCompareProfiles";
 
 const KNOWN_WYRESTORM_MATRIX_PROFILE_ALIASES = [
   "MXV-0808-H2A",
@@ -69,12 +69,4 @@ export function findKnownWyrestormMatrixProfile(sku: string): KnownWyrestormMatr
 export function enrichWyrestormProductWithKnownMatrixProfile<T extends Record<string, unknown>>(product: T, skuOverride?: string): T & Record<string, unknown> {
   const sku = skuOverride ?? String(product.sku ?? product.model ?? product.partNumber ?? "");
   return hydrateWyrestormCompareProfile({ ...product, sku });
-}
-
-export function knownWyrestormMatrixProfileSummary(): string[] {
-  return [
-    ...knownWyrestormCompareProfileSkus(),
-    ...KNOWN_WYRESTORM_MATRIX_PROFILE_ALIASES,
-    KNOWN_WYRESTORM_MATRIX_PROFILE_SOURCE,
-  ];
 }

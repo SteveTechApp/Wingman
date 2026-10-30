@@ -37,8 +37,8 @@ describe("multi-SKU competitor document ingest", () => {
 
     expect(bySku(analysis, "UEX3C-KIT")).toMatchObject({
       productClass: "hdbaset-extender-kit",
-      classLabel: "USB / HDBaseT extender kit",
       role: "kit",
+      workflowTags: ["usb", "hdbaset", "extender kit"],
     });
     expect(bySku(analysis, "SP14CS")?.productClass).toBe("hdmi-splitter");
     expect(bySku(analysis, "SP18CS")?.productClass).toBe("hdmi-splitter");
@@ -141,7 +141,6 @@ Unknown,ABC-999,mystery product
     expect(byTriageSku("PS122")).toMatchObject({
       status: "accessory_dependency",
       batchCompareEligible: false,
-      defaultIncluded: false,
     });
     expect(byTriageSku("QM55B")?.status).toBe("not_wyrestorm_addressable");
     expect(byTriageSku("XTM1U")?.status).toBe("not_wyrestorm_addressable");

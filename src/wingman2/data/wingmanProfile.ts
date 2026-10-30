@@ -1,20 +1,14 @@
 import { useEffect, useState } from "react";
-import type { WingmanLanguageId } from "./wingmanLanguage";
-
 export type WingmanProfile = {
   companyName: string;
   userName: string;
-  userRole: string;
   email: string;
   phone: string;
   region: string;
   defaultAudience: "endUser" | "dealer" | "consultant" | "internal";
-  uiLanguage: WingmanLanguageId;
-  captureLanguage: WingmanLanguageId;
   companyLogoDataUrl: string;
   proposalFooter: string;
   reportPreparedBy: string;
-  intelligenceMode: "manual" | "reviewed" | "autoDraft";
   updatedAt: string;
 };
 
@@ -24,17 +18,13 @@ const profileChangedEvent = "wingman:profile-changed";
 const defaultProfile: WingmanProfile = {
   companyName: "WyreStorm",
   userName: "",
-  userRole: "",
   email: "",
   phone: "",
   region: "United Kingdom",
   defaultAudience: "dealer",
-  uiLanguage: "en-GB",
-  captureLanguage: "en-GB",
   companyLogoDataUrl: "",
   proposalFooter: "Prepared using WyreStorm Wingman.",
   reportPreparedBy: "",
-  intelligenceMode: "reviewed",
   updatedAt: new Date().toISOString(),
 };
 

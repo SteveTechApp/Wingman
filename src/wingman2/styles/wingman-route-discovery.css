@@ -1,0 +1,58 @@
+/* Wingman route overrides — Discovery.
+   Every selector here is scoped to this page by the plumbing AppShell sets:
+   html[data-wingman-route="discovery"] and .wm-route-discovery. Blocks that
+   also name another page, a page markup attribute (data-wingman-page) or a
+   route token no longer in the catalogue stay in wingman-route-overrides.css.
+   html:is() groups naming two live routes are split here, one copy per page.
+   A block whose tie with a later shared rule would flip by moving stays behind
+   as well, so this split changes which file a rule loads from, not which wins. */
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-page {
+  font-size: 0.82rem;
+  overscroll-behavior: contain;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-hero h1 {
+  text-wrap: balance;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-hero p {
+  font-size: 0.9rem;
+  line-height: 1.35;
+  margin: 0;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-completion-card span {
+  line-height: 1.2;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-trail-card,
+html[data-wingman-route="discovery"] .wm-discovery-question-card {
+  padding: 14px;
+  gap: 10px;
+  border-radius: 16px;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-card h2 {
+  font-size: clamp(1.25rem, 1.8vw, 1.8rem);
+  line-height: 1.08;
+  margin: 0 0 8px;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-card p {
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+html[data-wingman-route="discovery"] .wm-ui-action-row {
+  gap: 8px;
+  margin-top: 10px;
+}
+
+html[data-wingman-route="discovery"] .wm-ui-action-row button,
+html[data-wingman-route="discovery"] .wm-ui-button {
+  min-height: 34px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  border-radius: 10px;
+}

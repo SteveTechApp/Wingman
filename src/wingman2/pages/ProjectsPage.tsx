@@ -65,6 +65,17 @@ function ProjectsListPage() {
   const surveyAttentionProjects = useMemo(() => projectsNeedingSurveyAttention(filteredProjects), [filteredProjects]);
   const visibleProjects = surveyAttentionOnly ? surveyAttentionProjects : filteredProjects;
 
+  // The store line's own view of a team member's change: the rooms wearing a
+  // badged conflict, in the shape the toolbar's chip and the stored sentence
+  // both take. A conflict status with no badged room (a hydrate that kept this
+  // copy) is the status's to report, so the two are passed side by side.
+  const syncConflicts = useMemo(
+    () => projects.flatMap((project) => project.syncConflict?.fields.length
+      ? [{ name: project.name, fields: project.syncConflict.fields }]
+      : []),
+    [projects],
+  );
+
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
 
   // A member chip only exists inside the team view, so choosing another view
@@ -128,6 +139,7 @@ function ProjectsListPage() {
           />
           <ProjectStoreToolbar
             syncStatus={syncStatus}
+            syncConflicts={syncConflicts}
             projectCount={realProjectCount}
             draftCount={realDraftCount}
             onReset={resetStore}
@@ -139,6 +151,7 @@ function ProjectsListPage() {
             activeProjectId={activeProjectId}
             currentUserId={currentUserId}
             migratedWalls={migratedWalls}
+            templates={customTemplates}
             teamFilter={teamFilter}
             surveyAttentionOnly={surveyAttentionOnly}
             resetKey={`${searchQuery}:${teamFilter}:${memberFilter}:${surveyAttentionOnly}`}

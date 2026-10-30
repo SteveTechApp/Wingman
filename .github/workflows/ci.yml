@@ -130,10 +130,6 @@ jobs:
         if: matrix.stage == 'visual'
         run: npx playwright install --with-deps chromium
 
-      - name: Install PDF text extraction dependency
-        if: matrix.stage == 'visual'
-        run: python3 -m pip install pypdf
-
       - name: Generate canonical product data
         run: npm run data:canonical-products
 
@@ -336,6 +332,19 @@ jobs:
 
       - name: Build application
         run: npm run build
+
+      # Everything in dist/ is readable by anyone who asks, so a build-written
+      # file that names a source module, a build script or a path from the build
+      # machine publishes the tree the bundle was made from.
+      - name: Check the published surface
+        run: npm run check:published-surface
+
+      # Asks the bundler whether a page load can run a module-scope read before
+      # the chunk it takes from. Rebuilds the app in memory with this checkout's
+      # chunk groups, so a chunk that moved and reordered two chunks is held to
+      # the new graph rather than to the last one anybody looked at.
+      - name: Check cross-chunk init order
+        run: npm run check:init-order
 
       # Ratchet: fails if a tracked chunk, total JS/CSS or source hotspot grows
       # beyond its recorded budget in tools/wingman-size-budgets.json.

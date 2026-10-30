@@ -98,6 +98,10 @@ export function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRo
   // schematic distance, the completion model and a rebuilt design all read it
   // from here rather than from the quotation the run produced.
   const surveyedRun = template.surveyedRunMetres;
+  // A run carried in spans keeps the measurement and records the span the quoted
+  // receiver serves beside it, so a project rebuilt from this template is not
+  // blocked for a run the design already answered.
+  const servedRun = surveyedRun ? template.servedRunMetres : undefined;
   return {
     id: `template-${template.id}-${Date.now()}`, name: template.name, owner: "Wingman user", stage: "Templates",
     status: "recommended", updated: "Just now", resumeTo: `${routeCatalogByKey.templates.path}/${template.id}`,
@@ -115,6 +119,7 @@ export function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRo
         summary: template.customerNarrative,
         inferredArchitectureDirection: template.architecture,
         ...(surveyedRun ? { cableRun: `${surveyedRun} m`, longestRun: `${surveyedRun} m` } : {}),
+        ...(servedRun ? { servedRun: `${servedRun} m` } : {}),
         sourceTemplateId: template.id,
         sourceTemplateName: template.name,
       },

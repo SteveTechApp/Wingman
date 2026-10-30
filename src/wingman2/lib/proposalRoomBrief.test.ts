@@ -15,7 +15,7 @@ const proposal: StoredProjectProposal = {
     vertical: "Corporate", application: "Boardroom", executiveSummary: "Meeting space", customerNeed: "Host hybrid meetings",
     solutionOverview: "Local presentation and conferencing", benefits: [{ title: "Experience", detail: "Share from the table" }],
     userJourney: ["Select Presentation on the touch panel.", "Connect the guest laptop."],
-    technicalFacts: ["Users and capacity: 12 people"], architectureDiagram: "", acceptanceCriteria: [], visualBriefs: [], verifiedDesignParameters: [], deploymentConditions: [],
+    technicalFacts: ["Users and capacity: 12 people"], architectureDiagram: "", acceptanceCriteria: [], verifiedDesignParameters: [],
   },
 };
 const row: SalesBomRow = { item: 7, sku: "TEST-TX", description: "Table transmitter", role: "Sources", qty: 2, type: "Required", status: "included", evidence: "", notes: "" };

@@ -1,0 +1,96 @@
+{
+  "policy": "A tool under tools/ that no script, no workflow and no import reaches is a question nobody asks. Each entry here says what the file is instead of a step, and the entries ratchet both ways: a declared file something starts calling fails, and a declaration for a file that is gone fails.",
+  "tools": [
+    {
+      "reason": "A report a person runs when that question comes up. It reads the tree and prints findings, and fails nothing, so a stage that ran it would add a reading no build can go red on; the gates it overlaps — dead CSS, route consolidation, stored records — are the ones that fail.",
+      "files": [
+        "audit-competitor-technical-spec-completeness.mjs",
+        "audit-product-classifications-v2.mjs",
+        "audit-product-pitch-tester-readiness.mjs",
+        "audit-product-technical-spec-completeness.mjs",
+        "audit-product-technology-normalization.mjs",
+        "audit-room-template-advisor.mjs",
+        "audit-ui-consistency.mjs",
+        "audit-wingman-routing-pages.mjs",
+        "audit-wingman-single-screen.mjs"
+      ]
+    },
+    {
+      "reason": "A companion to a gate rather than a gate: it proposes a patch and a person reads it before applying. The gate that holds the baseline runs on every commit; this is the tool a reviewer reaches for when that baseline has to move.",
+      "files": [
+        "consolidate-dead-class-css.mjs",
+        "consolidate-route-overrides.mjs"
+      ]
+    },
+    {
+      "reason": "The Visio stencil build has no npm script on purpose: `package.json` is an input to the browser walk's fresh-build gate, so adding one would refuse a build that is still current. It is run by hand when a symbol changes, and the package it writes is deterministic down to the byte.",
+      "files": [
+        "build-visio-stencil.mjs"
+      ]
+    },
+    {
+      "reason": "A builder that reads a source document and rewrites catalogue data from it. The document is not in the tree, so there is no stage that could run this: it is called when a new price list, product guide or canonical export lands, and its output is reviewed before it is kept.",
+      "files": [
+        "build-wingman-canonical-data.mjs",
+        "generate-product-call-card-products.mjs",
+        "import-pricelist.mjs"
+      ]
+    },
+    {
+      "reason": "A runner rather than a gate: it starts a server, a spec harness or a load driver for a person checking one thing by hand. Its subject is a running stack, which a verify stage does not own.",
+      "files": [
+        "docker-standup.mjs",
+        "e2e-proposal-docx-check.mjs",
+        "load-test-paste-row.mjs",
+        "test-spawn-guard.mjs"
+      ]
+    },
+    {
+      "reason": "A writer that changed stored data once, kept as the record of what that change was. Running it again is not a step in any pipeline: it rewrites records from a snapshot of the tree it was written against, so a stage that ran it would either do nothing or do something nobody asked for.",
+      "files": [
+        "compact-room-templates-page-safe.mjs",
+        "compact-room-templates-page.mjs",
+        "dedupe-schema-drift-columns.mjs",
+        "draft-missing-technical-profiles.mjs",
+        "draft-technical-profiles-batch1.mjs",
+        "draft-technical-profiles-batch2.mjs",
+        "draft-technical-profiles-batch3.mjs",
+        "draft-technical-profiles-batch4.mjs",
+        "enforce-wingman-vertical-only-layout.mjs",
+        "enrich-product-call-cards-from-wyrestorm.mjs",
+        "enrich-product-technical-summary.mjs",
+        "fix-intelligence-needs-review-pill-exact.mjs",
+        "fix-product-classifications-2026.mjs",
+        "fix-product-intelligence-review-chip-contrast-hard.mjs",
+        "fix-product-intelligence-review-status-chips.mjs",
+        "fix-wingman-scroll-and-disabled-button-contrast.mjs",
+        "force-product-intelligence-chip-dark-source.mjs",
+        "infer-chroma-detail.mjs",
+        "infer-hdmi-hdbaset-versions.mjs",
+        "infer-usb-standard.mjs",
+        "refactor-room-templates-advisor.mjs",
+        "remove-room-template-blank-discovery-header.mjs",
+        "repair-dashboard-style-drift.mjs",
+        "repair-governed-profile-port-pollution.mjs",
+        "repair-product-call-card-accessory-language.mjs",
+        "repair-product-call-card-copy-technology-conflicts.mjs",
+        "repair-product-call-card-practical-copy.mjs",
+        "repair-product-call-card-targeted-questions.mjs",
+        "repair-product-call-cards-invalid-hooks.mjs",
+        "repair-template-detail-horizontal-scroll.mjs",
+        "repair-wingman-page-scrolling.mjs",
+        "revert-unauthorized-competitor-approvals.mjs",
+        "rewrite-product-pitch-sales-desk.mjs",
+        "separate-port-accessories.mjs",
+        "stabilise-product-call-cards-gallery-examples.mjs",
+        "sweep-competitor-live-data.mjs"
+      ]
+    },
+    {
+      "reason": "The measurement behind the order gate's settled half: run by hand with `--write` when a route's markup changes, and re-proved on every browser walk through `lib/route-order-settlement.mjs`. A stage cannot run it because it opens a page.",
+      "files": [
+        "settle-route-order-pairs.mjs"
+      ]
+    }
+  ]
+}

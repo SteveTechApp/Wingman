@@ -1,0 +1,232 @@
+{
+  "about": [
+    "Scripts that are deliberately outside the verify graph, with what each one is instead.",
+    "check:verify-script-coverage reads this file: every script in package.json is either reached",
+    "from `verify` or `verify:strict`, or declared here with a reason. The list ratchets both ways —",
+    "a declared script that a stage reaches fails, and a declared script package.json no longer has",
+    "fails, so a rename has to move both lines together.",
+    "Add the script to the stage that should ask it whenever that is the honest answer; a group here",
+    "is a decision, not a queue, and the last group is the one that still reads as a queue."
+  ],
+  "outside": [
+    {
+      "reason": "Local processes rather than checks: they start a server, install a Git hook or prepare an input a build then reads, so a verify stage that ran them would be reporting on a port rather than on the tree.",
+      "scripts": [
+        "build:prepare-data",
+        "dev",
+        "dev:lookup-api",
+        "dev:ui",
+        "postinstall",
+        "preview",
+        "server:dev",
+        "server:start"
+      ]
+    },
+    {
+      "reason": "Entry points into the pipeline rather than gates inside it: their contents are `verify`, `verify:fast` and `check:architecture-boundaries`, all of which the two roots already reach. Making them roots would hide a `verify` that had stopped composing them.",
+      "scripts": [
+        "precommit:check",
+        "safe:verify"
+      ]
+    },
+    {
+      "reason": "Suites a verify stage cannot be: `test` and `test:strict` are what the lane runs, while these are the watch loop, a coverage run, a crash lane of its own on CI, and the Playwright suites that need a browser and a served build.",
+      "scripts": [
+        "test:catalogue",
+        "test:coverage",
+        "test:crash-atomicity",
+        "test:e2e",
+        "test:e2e:a11y",
+        "test:e2e:ui",
+        "test:e2e:visual",
+        "test:e2e:visual:update",
+        "test:e2e:windows-critical",
+        "test:watch"
+      ]
+    },
+    {
+      "reason": "Walks that need the built app served from loopback plus Playwright: CI's Browser Smoke and end-to-end jobs run them against a preview the verify stages never start, so wiring one into a stage would fail on a missing server rather than on a finding. `readings:freeze` is that same walk with its output written down, so it needs the same preview and belongs beside it.",
+      "scripts": [
+        "check:browser",
+        "check:dev-pair",
+        "check:dev-pair-sync",
+        "check:e2e-smoke",
+        "readings:freeze"
+      ]
+    },
+    {
+      "reason": "Gates whose subject is a deployed environment: the project's Supabase credentials, or the migration state actually applied to a database. A checkout has neither, so the reading is only meaningful where the script is pointed at an environment.",
+      "scripts": [
+        "check:migration-007",
+        "check:migration-live",
+        "check:supabase-rls"
+      ]
+    },
+    {
+      "reason": "Their answers come from outside the tree — the advisory databases `npm audit` queries, and the vendor and competitor pages the evidence gates fetch — so a verify run would depend on the network and on what a third party published that morning. CI's Dependency Audit and evidence jobs run them where that dependence is deliberate.",
+      "scripts": [
+        "check:competitor-evidence-liveness",
+        "check:dependency-audit",
+        "check:evidence-liveness",
+        "check:prod-unpatched"
+      ]
+    },
+    {
+      "reason": "The governed-data lane's deeper checks: `govern:wyrestorm` and the CI jobs around it run them immediately after the profiles and sources they read have been rewritten, so a verify stage would judge the data before the pass that governs it. The read-only gates over the same data that do belong in verify are there.",
+      "scripts": [
+        "check:compare-trust-layer",
+        "check:competitor-decisions",
+        "check:governed-copy",
+        "check:governed-coverage-render",
+        "check:governed-drift",
+        "check:governed-review-pass",
+        "check:technical-data:strict"
+      ]
+    },
+    {
+      "reason": "Read-only reports a person runs to look at something: they print coverage, drift, aging or a triage rather than failing, so there is no verdict for a stage to hold. The gates over the same subjects are the `check:` scripts, and they are in verify.",
+      "scripts": [
+        "audit:compare-candidate-gate",
+        "audit:competitor-intelligence",
+        "audit:css-prune",
+        "audit:data-sources",
+        "audit:engine-routing",
+        "audit:matrix-output-topology",
+        "audit:product-database-quality",
+        "audit:size-budgets",
+        "audit:style-drift",
+        "audit:workflow-clarity",
+        "inspect:compare-workflow",
+        "report:audit-findings",
+        "report:confirmation-aging",
+        "report:css-coverage",
+        "report:dead-css-triage",
+        "review:dead-css:deletions",
+        "text:hygiene",
+        "text:hygiene:full",
+        "wm:audit-css",
+        "wm:audit-legacy-retirement",
+        "wm:check-page-density",
+        "wm:check-page-frames"
+      ]
+    },
+    {
+      "reason": "They write the file a gate then reads — a baseline, a deletion patch, a hygiene fix — so running one inside verify would move what the same run is comparing, which is the ratchet those gates exist to keep.",
+      "scripts": [
+        "apply:dead-css:deletions",
+        "audit:dead-css:baseline",
+        "audit:dead-css:deletions",
+        "audit:page-visual-classes:baseline",
+        "audit:stored-records:baseline",
+        "audit:style-drift:baseline",
+        "audit:technical-data-coverage:baseline",
+        "audit:unstyled-classes:baseline",
+        "autofix:dead-css",
+        "text:hygiene:fix:active",
+        "text:hygiene:fix:full"
+      ]
+    },
+    {
+      "reason": "Authoring, migration and packaging pipelines: they rewrite the sources, generated artefacts or stores a verify stage then reads, and several need a person to decide what to accept. Their read-only counterparts are the gates — `data:sources:check`, `check:generated-manifests`, `check:spec-sheet-ingest` — and those are in verify.",
+      "scripts": [
+        "admin:db",
+        "admin:db:validate",
+        "archive:data-sources",
+        "archive:data-sources:apply",
+        "data:audit-wyrestorm-products",
+        "data:avoip-governance:sources",
+        "data:canonical-products",
+        "data:check-wyrestorm-products",
+        "data:enrich-wyrestorm-products",
+        "data:import-product-guide",
+        "data:import-source-pdfs",
+        "data:product-intelligence-index",
+        "data:product-media-index",
+        "data:refresh-vendor",
+        "data:repair-product-semantics",
+        "data:sources:build",
+        "generate:release-docs",
+        "govern:wyrestorm",
+        "govern:wyrestorm:dry",
+        "ingest:wyrestorm-spec-sheets",
+        "migrate:page-markup",
+        "normalize:page-visual-classes",
+        "product-update:check-incoming",
+        "product-update:doctor",
+        "product-update:import-lifecycle",
+        "product-update:normalize-wyrestorm-catalogue",
+        "product-update:promote-incoming",
+        "product-update:ready-for-production",
+        "refresh:competitor-decisions",
+        "repair:duplicate-classnames",
+        "repair:page-markup-migration",
+        "seed:competitor-decisions",
+        "snapshot:competitor-decisions",
+        "sync:competitor-decisions",
+        "wm:migrate-page-frames"
+      ]
+    },
+    {
+      "reason": "Load and cleanup runs: they drive a live stack and are timed rather than compared, so a verify run would measure the runner. docs/LOAD_TESTING.md is how they are asked for.",
+      "scripts": [
+        "load-test",
+        "load-test:cleanup",
+        "load-test:cleanup:dry-run",
+        "load-test:local-supabase",
+        "load-test:local-supabase:all",
+        "load-test:proposal-export"
+      ]
+    },
+    {
+      "reason": "Older names for a gate a stage already runs — the dashboard layout probes reached `check:dashboard-reference-layout` in `verify:visual`, and the product-update entries run the data-source and catalogue checks `verify:build` and `verify:data` run. Their tools are asked on every commit under the current name, which is why no stage needs the alias.",
+      "scripts": [
+        "audit:product-update-sources",
+        "audit:technical-data-coverage",
+        "check:dashboard-compact-buttons",
+        "check:dashboard-element-typing",
+        "check:dashboard-menu-layout-density",
+        "check:dashboard-original-card-layout",
+        "check:dashboard-primary-buttons",
+        "check:dashboard-short-buttons",
+        "check:dashboard-single-screen-layout",
+        "check:dashboard-visual-correction",
+        "check:dashboard-workflow-menu",
+        "check:product-update-pipeline",
+        "check:product-update-source-schema",
+        "check:product-update-sources:strict",
+        "data:ingest-competitors",
+        "data:ingest-wyrestorm",
+        "product-update:all",
+        "product-update:audit-competitors",
+        "product-update:audit-stories",
+        "product-update:reconcile"
+      ]
+    },
+    {
+      "reason": "The release lane's own reading: it inspects the release-evidence directory a release writes, which a checkout before a release does not have.",
+      "scripts": [
+        "check:release-evidence"
+      ]
+    },
+    {
+      "reason": "CI's PR description job runs them on the pull request itself: the freshness check reads the request body and the files it changed, and the index check reads the body and the branch history it describes, so neither has anything to read in a verify run, where no description exists.",
+      "scripts": [
+        "check:pr-description",
+        "check:pr-commit-index"
+      ]
+    },
+    {
+      "reason": "Checks nothing asks on a schedule or a commit: each is a real gate for one surface or data family, run by hand when that subject changes. They are declared here rather than wired in because nothing yet decides when they should run — this group is the list to work through, and adding one to a stage means deleting its line here.",
+      "scripts": [
+        "check:call-coach-no-loop",
+        "check:hdbaset-avoip-classification",
+        "check:product-classification",
+        "check:stress",
+        "check:stress:strict",
+        "check:vendor-refresh-sanity",
+        "check:wingman-hard-repair",
+        "check:wingman-repair-guard"
+      ]
+    }
+  ]
+}

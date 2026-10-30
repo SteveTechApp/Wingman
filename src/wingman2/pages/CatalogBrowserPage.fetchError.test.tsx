@@ -11,7 +11,7 @@ import { CatalogBrowserPage } from "./CatalogBrowserPage";
 describe("CatalogBrowserPage fetch failure", () => {
   it("shows a distinct error state instead of a plain empty-results message", async () => {
     render(
-      <MemoryRouter initialEntries={["/wingman/products/catalog"]}>
+      <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
         <CatalogBrowserPage />
       </MemoryRouter>,
     );

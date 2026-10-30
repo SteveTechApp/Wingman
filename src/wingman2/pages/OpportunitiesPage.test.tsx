@@ -9,6 +9,7 @@ import { getCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates } from "../lib/roomTemplates";
 import { PROJECT_SCOPE_SECTIONS, projectScopeSection } from "../lib/projectScope";
 import { OpportunitiesPage } from "./OpportunitiesPage";
+import { TemplatesPage } from "./TemplatesPage";
 import { TemplateReviewPage } from "./TemplateReviewPage";
 import { TemplateBuilderPage } from "./TemplateBuilderPage";
 
@@ -18,7 +19,7 @@ function mount(path = "/wingman/discovery") {
     <Route path="/wingman/templates/new" element={<TemplateBuilderPage />} />
     <Route path="/wingman/templates/:templateId/edit" element={<TemplateBuilderPage />} />
     <Route path="/wingman/templates/:templateId" element={<TemplateReviewPage />} />
-    <Route path="/wingman/templates" element={<p>Template library</p>} />
+    <Route path="/wingman/templates" element={<TemplatesPage />} />
   </Routes></UiModeProvider></MemoryRouter>);
 }
 const template = roomTemplates.find(row => row.vertical === "Corporate")!;
@@ -31,10 +32,20 @@ function seedRoomBrief() {
 
 describe("Focused and Expert room workflows", () => {
   beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
-  it("starts Focused discovery with an editable room template and saves its changed quantities", () => {
+  it("starts Focused discovery with the room, not a template", () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "guided");
     mount();
-    expect(screen.getByRole("heading", { name: "Start with a room template" })).toBeVisible();
+    // The guided entry decides the room before it offers a design: a template
+    // answers "which design", which is the wrong question to open with.
+    expect(screen.getByRole("heading", { name: "What has the customer asked for?" })).toBeVisible();
+    expect(screen.getByTestId("room-brief-setup")).toBeVisible();
+    expect(screen.queryByRole("region", { name: "Full room builder" })).toBeNull();
+    fireEvent.click(screen.getByRole("link", { name: "Browse the design library" }));
+    expect(screen.getByTestId("templates-title")).toBeVisible();
+  });
+  it("edits a room template's quantities and saves them as a project", () => {
+    window.localStorage.setItem("wingman-ui-mode-v1", "guided");
+    mount("/wingman/templates");
     expect(screen.queryByRole("region", { name: "Full room builder" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: template.name }));
     fireEvent.change(screen.getByLabelText("Room design step"), { target: { value: "schedule" } });
@@ -54,6 +65,20 @@ describe("Focused and Expert room workflows", () => {
     expect(await screen.findByRole("heading", { name: "Room builder", level: 1 })).toBeVisible();
     await waitFor(() => expect(readLatestDiscoverySnapshot()?.brief.topology?.devices.find(item => item.id === row.id)?.quantity).toBe(4));
     expect(readLatestDiscoverySnapshot()?.state.sourceTemplateId).toBe(template.id);
+  });
+  it("carries a decided room into the interview instead of leaving the rep on the decision", () => {
+    window.localStorage.setItem("wingman-ui-mode-v1", "guided");
+    mount();
+    fireEvent.click(screen.getByRole("radio", { name: "Share a laptop and present to the others in the room" }));
+    fireEvent.click(screen.getByRole("radio", { name: "1–4 people" }));
+    fireEvent.click(screen.getByRole("button", { name: /Work out the room/ }));
+    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
+    fireEvent.click(screen.getByRole("button", { name: /Take this into the discovery brief/ }));
+    // The brief is addressed as ?interview=1 on this same page, so what is on
+    // screen has to follow the address rather than the mount it arrived with.
+    expect(screen.queryByTestId("room-brief")).toBeNull();
+    expect(screen.getByRole("button", { name: /Exit to standard questions/ })).toBeVisible();
   });
   it("opens the full room builder in Expert and saves edited room positions", async () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
@@ -78,7 +103,7 @@ describe("Focused and Expert room workflows", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "Location name" }), { target: { value: "Lectern" } });
     fireEvent.click(screen.getByRole("button", { name: "Add location" }));
     fireEvent.click(screen.getByRole("button", { name: /^Focused view:/ }));
-    expect(screen.getByRole("heading", { name: "Start with a room template" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "What has the customer asked for?" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /^Expert view:/ }));
     fireEvent.click(screen.getByRole("button", { name: "Room builder" }));
     fireEvent.click(screen.getByRole("button", { name: "Equipment and room positions" }));

@@ -187,3 +187,6 @@ tools/build-dep-cache.generated.json
 # --- Local docker-compose overrides (machine-specific ports/bindings; the
 # --- documented deployment lives in the tracked docker-compose.yml) ---
 docker-compose.override.yml
+
+# --- Build manifest written beside dist/ (never served; see tools/lib/build-freshness.mjs) ---
+.*-build-manifest.json

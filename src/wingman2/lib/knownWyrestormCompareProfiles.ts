@@ -525,7 +525,3 @@ export function hydrateWyrestormCompareProfile<T extends Record<string, unknown>
     specTier: profile.dataSource,
   };
 }
-
-export function knownWyrestormCompareProfileSkus(): string[] {
-  return PROFILES.map((profile) => profile.sku);
-}

@@ -47,7 +47,6 @@ export interface CompareTechnicalFingerprint {
   usb?: string | null;
   audio?: string | null;
   control?: string | null;
-  distanceMetres?: number | null;
   dependencies: string[];
   notes: string[];
 }

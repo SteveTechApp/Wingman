@@ -13,7 +13,9 @@ import { StatusChip } from "../components/StatusChip";
 import { SurveyReviewChip } from "../components/SurveyReviewChip";
 import { SurveyReconfirmAction } from "../components/SurveyReconfirmAction";
 import { ProjectActionMenu } from "../components/ProjectActionMenu";
+import { ProjectTemplateChip } from "../components/ProjectTemplateLineage";
 import { GuidedDashboard } from "../components/GuidedDashboard";
+import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { useUiMode } from "../data/uiMode";
 import {
   confirmGovernedProfile,
@@ -39,6 +41,7 @@ import {
   type StoredProject,
 } from "../data/projectStore";
 import type { StatusVariant } from "../types";
+import { WALL_ENTRY_INTRO, WALL_ENTRY_NAME } from "../lib/wallEntry";
 
 const primaryActions = [
   routeAction(
@@ -78,8 +81,11 @@ const primaryActions = [
   ),
   routeAction(
     "videowall",
-    "Video Wall",
-    "Answer four questions. Wingman narrows the wall designs to one recommendation and explains why the rest do not fit.",
+    WALL_ENTRY_NAME,
+    // The same name and the same beginning the focused dashboard's wall entry
+    // uses (see `wallEntry`): a rep reading either Home is offered one job, not
+    // two stories about where a wall design starts.
+    `${WALL_ENTRY_INTRO} Wingman narrows the wall designs to one recommendation and explains why the rest do not fit.`,
     "WALL DESIGN",
     { accent: "magenta", linkLabel: "Design a wall", art: "videowall" },
   ),
@@ -712,6 +718,10 @@ function GovernedCoverageStrip() {
 export function DashboardPage() {
   const { isGuided } = useUiMode();
   const { projects, copyProject, deleteProject } = useProjectStore();
+  // Read once for the page: the card asks which stored templates name this room
+  // rather than subscribing to the template store per row, the same way the
+  // projects gallery hands its cards the list.
+  const customTemplates = useCustomRoomTemplates();
   const navigate = useNavigate();
   const [workspaceSession, setWorkspaceSession] = useState<WingmanWorkspaceSession | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
@@ -828,8 +838,13 @@ export function DashboardPage() {
                             card is outside the project link, so the tap does
                             not open the project. */}
                         <SurveyReconfirmAction project={project} />
+                        {/* The same fact the projects gallery prints: this room
+                            is already a starting point. Home lists the three
+                            recent rooms, so it is where a rep looks before
+                            opening the gallery at all. */}
+                        <ProjectTemplateChip projectId={project.id} templates={customTemplates} />
                       </span>
-                      <ProjectActionMenu name={project.name} onEdit={() => { setActiveProjectId(project.id); navigate(discoveryResumeUrl(project.id)); }} onCopy={() => copyProject(project.id)} onDelete={() => deleteProject(project.id)} />
+                      <ProjectActionMenu name={project.name} projectId={project.id} templates={customTemplates} onEdit={() => { setActiveProjectId(project.id); navigate(discoveryResumeUrl(project.id)); }} onCopy={() => copyProject(project.id)} onDelete={() => deleteProject(project.id)} />
                     </div>
                     <Link className="wm-reference-project-open" to={resumeInterview ? discoveryResumeUrl() : `${routeCatalogByKey.projects.path}/${project.id}`} onClick={() => setActiveProjectId(project.id)}>
                     <div className="wm-reference-project-name">

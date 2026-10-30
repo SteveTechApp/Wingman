@@ -1,4 +1,5 @@
 import { ProposalCoverPreview } from "./ProposalCoverPreview";
+import { InputField, TextAreaField } from "./ProposalWizardFields";
 import {
   CheckCircle,
   CheckCircle2,
@@ -50,7 +51,11 @@ import { REP_COPY, customerCopyText } from "../lib/proposalCopy";
 import { updateSavedWallRequirements } from "../lib/savedWallUpdates";
 import { wallRequirementsFromSummary } from "../lib/videowallOptions";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../lib/wallSurvey";
-import { buildInstallationSchedule, installationTotals } from "../lib/installationSchedule";
+import {
+  buildInstallationSchedule,
+  installationTotals,
+  type InstallationSchedule,
+} from "../lib/installationSchedule";
 import { seedInstallationRates, type InstallationRateCard } from "../lib/installationRateCard";
 import {
   saveInstallationRateCard,
@@ -80,6 +85,7 @@ import { rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking
 import {
   buildSalesReadinessPackage,
   type SalesBomRow,
+  type SalesReadinessPackage,
 } from "../lib/salesReadiness";
 import { compileProjectApplicationProposal } from "../lib/proposalCompiler";
 import { useSubmitForApproval, useRecallProposal } from "../data/approvalStore";
@@ -92,17 +98,23 @@ import {
 import { ApprovalStatusBadge } from "../pages/ApprovalQueuePage";
 import { compileDesignProposal } from "../lib/designProposal";
 import { DesignProposalReview } from "./DesignProposalReview";
+import { DisplayRunSpanFix } from "./DisplayRunSpanFix";
+import { DependencyScopeFixes } from "./DependencyScopeFixes";
 
 type ProposalCompletionWizardViewValues = Record<string, any>;
 
 export function ProposalCompletionWizardView({ view }: { view: ProposalCompletionWizardViewValues }) {
   const {
-    InputField,
-    TextAreaField,
     activeStep,
     bomRows,
     customerOutputBlocked,
+    // The per-prompt answer for a dependency that cannot be quoted, when one is
+    // outstanding. Each keeps its prose fix as well.
+    dependencyScopeFixes,
     discovery,
+    // The mid-span action for a display run past the receiver's rating, when
+    // this project can take it. The blocker keeps its prose fix as well.
+    displayRunFix,
     draft,
     exportCsv,
     exportDiscoveryBrief,
@@ -182,7 +194,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
         className="wm-proposal-step-rail"
         aria-label="Response completion steps"
       >
-        {steps.map((label, index) => (
+        {steps.map((label: string, index: number) => (
           <button
             key={label}
             type="button"
@@ -297,14 +309,14 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
               </div>
 
               <div className="wm-proposal-requirements-grid">
-                {requirementRows.map(({ label, value, question }) => (
+                {requirementRows.map((row: { label: string; value: string; question: string }) => (
                   <Link
-                    key={label}
-                    to={`${routeCatalogByKey.discovery.path}?edit=${encodeURIComponent(question)}`}
-                    aria-label={`Edit ${label} in Discovery`}
+                    key={row.label}
+                    to={`${routeCatalogByKey.discovery.path}?edit=${encodeURIComponent(row.question)}`}
+                    aria-label={`Edit ${row.label} in Discovery`}
                   >
-                    <span>{label}</span>
-                    <strong>{value}</strong>
+                    <span>{row.label}</span>
+                    <strong>{row.value}</strong>
                     <small>Edit in Discovery</small>
                   </Link>
                 ))}
@@ -487,7 +499,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
                       // The installation cells keep what they hold: a rate from
                       // the card is flagged in Pricing rather than silently
                       // converted, and a rate typed for this job is this job's.
-                      setDraft(current => ({ ...current, currency, bomUnitPrices: {}, updatedAt: new Date().toISOString() }));
+                      setDraft((current: ProposalWizardDraft) => ({ ...current, currency, bomUnitPrices: {}, updatedAt: new Date().toISOString() }));
                       setExportMessage("Currency changed. Equipment rates need confirming; installation rates that came from the card are flagged in Pricing.");
                     }}
                   >
@@ -615,7 +627,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
                     <>
                       <p>This proposal cannot be exported for customer issue until these items are resolved:</p>
                       <ul>
-                        {salesReadiness.assurance.blockers.map((item) => (
+                        {salesReadiness.assurance.blockers.map((item: SalesReadinessPackage["assurance"]["blockers"][number]) => (
                           <li key={item.id}>
                             {item.sku ? <strong>{item.sku}: </strong> : null}
                             {item.message}
@@ -639,7 +651,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
                   <ProposalReadinessList
                     missing={readiness.missing}
                     rateCard={rateCardState.card}
-                    lineIds={installation?.lines.map((line) => line.id) ?? []}
+                    lineIds={installation?.lines.map((line: InstallationSchedule["lines"][number]) => line.id) ?? []}
                     rates={draft.installationUnitPrices}
                     currency={draft.currency}
                     onRestoreRates={(rates) =>
@@ -680,14 +692,29 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
                       <p className="wm-proposal-validation-summary">
                         <strong>{exportValidation.blockers.length} blocker(s) must be resolved before export</strong>
                       </p>
-                      {showValidationDetails && (
+                      {(showValidationDetails || displayRunFix || dependencyScopeFixes) && (
                         <ul>
-                          {exportValidation.blockers.map((blocker) => (
+                          {exportValidation.blockers.map((blocker: ExportValidationResult["blockers"][number]) => (
                             <li key={blocker.id} className="wm-proposal-validation-item wm-proposal-validation-item--blocker">
                               <span className="wm-proposal-validation-domain">{blocker.domain}</span>
                               {blocker.sku && <span className="wm-proposal-validation-sku">{blocker.sku}</span>}
                               <span className="wm-proposal-validation-message">{blocker.message}</span>
                               <span className="wm-proposal-validation-fix">Fix: {blocker.fix}</span>
+                              {blocker.id === "chain-tbc-dependencies" && dependencyScopeFixes ? (
+                                // A prompt nobody can answer from this page is a
+                                // block nobody can clear; the list opens itself
+                                // while one is outstanding.
+                                <DependencyScopeFixes
+                                  dependencies={dependencyScopeFixes.dependencies}
+                                  onRecord={dependencyScopeFixes.onRecord}
+                                />
+                              ) : null}
+                              {blocker.domain === "display-run" && displayRunFix ? (
+                                // An action nobody can see is one nobody takes, so
+                                // the list opens itself while this block can be
+                                // cleared here instead of behind a toggle.
+                                <DisplayRunSpanFix runMetres={displayRunFix.runMetres} onSchedule={displayRunFix.onSchedule} />
+                              ) : null}
                             </li>
                           ))}
                         </ul>
@@ -702,7 +729,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
                       </p>
                       {showValidationDetails && (
                         <ul>
-                          {exportValidation.warnings.map((warning) => (
+                          {exportValidation.warnings.map((warning: ExportValidationResult["blockers"][number]) => (
                             <li key={warning.id} className="wm-proposal-validation-item wm-proposal-validation-item--warning">
                               <span className="wm-proposal-validation-domain">{warning.domain}</span>
                               {warning.sku && <span className="wm-proposal-validation-sku">{warning.sku}</span>}
@@ -900,7 +927,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
               type="button"
               disabled={activeStep === 0}
               onClick={() =>
-                setActiveStep((current) =>
+                setActiveStep((current: number) =>
                   Math.max(0, current - 1),
                 )
               }
@@ -917,7 +944,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
               type="button"
               disabled={activeStep === steps.length - 1}
               onClick={() =>
-                setActiveStep((current) =>
+                setActiveStep((current: number) =>
                   Math.min(steps.length - 1, current + 1),
                 )
               }

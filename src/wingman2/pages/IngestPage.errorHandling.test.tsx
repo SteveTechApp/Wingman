@@ -5,7 +5,7 @@ import { readProjectStore } from "../data/projectStore";
 import { BLUSTREAM_PACIFIC_EMAIL_FIXTURE } from "../../__tests__/fixtures/documentIngest/blustreamPacific.fixture";
 
 vi.mock("../lib/documentExtract", () => ({
-  extractDocuments: vi.fn().mockRejectedValue(new Error("mammoth failed to parse the file")),
+  extractDocuments: vi.fn().mockRejectedValue(new Error("the document parser failed")),
 }));
 
 import { IngestPage } from "./IngestPage";
@@ -31,7 +31,7 @@ describe("IngestPage error handling", () => {
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     expect(await screen.findByText("Wingman could not complete the decode.")).not.toBeNull();
-    expect(await screen.findByText(/Could not read the uploaded files: mammoth failed to parse the file/)).not.toBeNull();
+    expect(await screen.findByText(/Could not read the uploaded files: the document parser failed/)).not.toBeNull();
   });
 
   it("warns instead of silently dropping the analysis when there is no active project", () => {

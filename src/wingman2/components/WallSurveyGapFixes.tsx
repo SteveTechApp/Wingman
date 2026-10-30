@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { WallSurveyGap } from "../lib/wallSurvey";
+import { WALL_ENTRY_SENTENCE_NAME } from "../lib/wallEntry";
 import {
   cleanDetailText,
   type WallLinkDetail,
@@ -17,7 +18,7 @@ const FIX_LABEL: Record<WallLinkDetailField, string> = {
  *
  * A short survey does not stop the document, so the rep sees the short links
  * and can record the missing cells where they are reading the warning instead of
- * going back to the wall builder. The proposal and the template review page both
+ * going back to the video wall designer. The proposal and the template review page both
  * read this component, so the two readings name the same links, offer the same
  * cells and clear the same warning.
  */
@@ -28,8 +29,8 @@ export function WallSurveyGapFixes({
   gaps: WallSurveyGap[];
   /**
    * Writes the cells typed here onto the saved wall. Returning false means the
-   * wall could not take them, so the panel points back at the wall builder
-   * instead of implying the warning cleared.
+   * wall could not take them, so the panel points back at the designer name it
+   * prints in its instruction, instead of implying the warning cleared.
    */
   onRecordDetail: (linkDetails: Record<string, WallLinkDetail>) => boolean;
 }) {
@@ -62,7 +63,7 @@ export function WallSurveyGapFixes({
       setFixes({});
       setFixMessage("Recorded on the wall design. This warning clears.");
     } else {
-      setFixMessage("This wall could not be updated here; record it in the wall builder instead.");
+      setFixMessage(`This wall could not be updated here; record it in ${WALL_ENTRY_SENTENCE_NAME} instead.`);
     }
   }
 
@@ -72,7 +73,7 @@ export function WallSurveyGapFixes({
     // squeezed into the label column.
     <div className="mt-3 grid gap-2 col-span-full" data-wall-survey-fix="true">
       <p className="wm-proposal-validation-fix">
-        Record the missing cells below or in the wall builder, and the proposal's installation detail
+        Record the missing cells below or in {WALL_ENTRY_SENTENCE_NAME}, and the proposal's installation detail
         table will quote them. The document still issues without them.
       </p>
       {gaps.map((gap) => (

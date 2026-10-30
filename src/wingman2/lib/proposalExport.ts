@@ -36,6 +36,9 @@ import {
 } from "./wallStartingPointOrigin";
 import { buildInstallationSchedule, installationCategoryLabel, installationTableHeaders } from "./installationSchedule";
 import { CUSTOMER_COPY } from "./proposalCopy";
+import { buildDocumentAppendix, documentSectionPlan } from "./documentSections";
+import { HOUSE_DOCUMENT_BRAND, type DocumentDetail } from "./solutionTemplates";
+import { productDataRevision } from "./productDataRevision";
 
 export type BomRow = SalesBomRow;
 
@@ -350,7 +353,38 @@ function buildPowerStrategyHtml(products: StoredProductSelection[]): string {
   </table>${summaryHtml}`;
 }
 
-export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], media: ProductMediaIndex | null = null, videoWall: StoredVideowallSummary | null = null) {
+/**
+ * The printed appendix a Technical document carries at the back: one row per
+ * equipment line, from the evidence the line was selected on.
+ */
+function appendixHtml(bomRows: BomRow[]) {
+  const appendix = buildDocumentAppendix(bomRows);
+  const rows = appendix.rows.map((row) => `<tr><td>${row.item}</td><td>${escapeHtml(row.line)}</td><td>${escapeHtml(row.evidence)}</td><td>${escapeHtml(row.source)}</td><td>${escapeHtml(row.verification)}</td></tr>`).join("");
+  return `<h2>Appendix — Equipment Evidence and Verification</h2>
+  <p>${escapeHtml(appendix.headline)}</p>
+  ${
+    appendix.rows.length
+      ? `<table>
+    <thead>
+      <tr><th>Item</th><th>Equipment line</th><th>Evidence for this line</th><th>Source read</th><th>Verification</th></tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`
+      : ""
+  }`;
+}
+
+/**
+ * The printed document, at the detail level the document's own personalisation
+ * chose.
+ *
+ * The section a level leaves out is omitted here as well as in the Word output,
+ * because both read one table (`documentSections.ts`): a draft cannot print a
+ * part of the document on screen and drop it from the quote. The default is the
+ * house level, so a proposal that never chose one is the whole document.
+ */
+export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], media: ProductMediaIndex | null = null, videoWall: StoredVideowallSummary | null = null, detail: DocumentDetail = HOUSE_DOCUMENT_BRAND.detail) {
+  const sections = documentSectionPlan(detail);
   const story = proposalSolutionStory(proposal, bomRows);
   const displaySchedule = buildDisplaySchedule(proposal, bomRows, videoWall);
   // Only a saved wall carries a transport estimate, so the column appears only
@@ -416,6 +450,10 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   const currentDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const proposalRef = `WYR-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+  // Which product data and which build produced this document. Printed in the
+  // control block rather than only an attachment, because the reader who needs it
+  // is holding a sheet of paper.
+  const productDataLine = productDataRevision().line;
   // The printed sheet identifies itself: the running header names the document,
   // the margins carry the reference, the draft state and the page number.
   const runningHeader = `${companyName} · ${proposal.title}`;
@@ -695,6 +733,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
         <dt>Prepared by</dt><dd>${escapeHtml(preparedBy || companyName)}</dd>
         <dt>Issue date</dt><dd>${escapeHtml(currentDate)}</dd>
         <dt>Revision</dt><dd>${escapeHtml(proposal.updatedAt)}</dd>
+        <dt>Product data</dt><dd>${escapeHtml(productDataLine)}</dd>
       </dl>
     </section>
     </section>
@@ -714,10 +753,10 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <ul>${story.acceptance.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
 
   <h2>What You Asked For</h2>
-  <p>${escapeHtml(proposal.salesContent?.objectives || proposal.applicationProposal?.customerNeed || proposal.summary || "Your requirement has not been confirmed yet.")}</p>
-  ${buildDiscoveryConversationHtml(proposal)}
+  <p>${escapeHtml(proposal.salesContent?.objectives || proposal.applicationProposal?.customerNeed || proposal.summary || "Your requirement has not been confirmed yet.")}</p>  ${sections.has("discovery-conversation") ? buildDiscoveryConversationHtml(proposal) : ""}
   ${buildUnresolvedDiscoveryHtml(proposal)}
-  ${buildCanonicalDesignHtml(proposal)}
+
+  ${sections.has("design-trace") ? buildCanonicalDesignHtml(proposal) : ""}
 
   <h2>Recommended Solution</h2>
   ${
@@ -738,7 +777,10 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <h2>Commercial and Operational Benefits</h2>
   ${buildBenefitsHtml(proposal, bomRows)}
 
-  <h2>Technical Architecture</h2>
+  ${
+    !sections.has("technical-architecture")
+      ? ""
+      : `<h2>Technical Architecture</h2>
   ${proposal.salesContent?.architecture ? `<p>${escapeHtml(proposal.salesContent.architecture)}</p>` : ""}
   <p>The diagram and cable schedule below show how the system connects together. Both are built from the equipment schedule further on.</p>
   ${buildSchematicSectionHtml(proposal, bomRows)}
@@ -749,10 +791,15 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
           return `<div class="visual-card">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(block.title)}" style="display:block;width:100%;height:auto;margin-bottom:12px;border:1px solid #cbd5e1;border-radius:8px;" />` : ""}<strong>${escapeHtml(block.title)}</strong><p>${escapeHtml(block.summary)}</p><p>${escapeHtml(block.proposalUse)}</p><span>${escapeHtml(block.exportLabel)}</span></div>`;
         }).join("")}</div>`
       : ""
+  }`
   }
 
-  <h2>Products in the Solution</h2>
-  <div class="visual-grid">${cards.map((card) => `<div class="visual-card">${card.imageUrl ? `<img src="${escapeHtml(card.imageUrl)}" alt="${escapeHtml(card.alt)}" style="width:100%;height:140px;object-fit:contain" />` : "<p>Product photograph unavailable.</p>"}<strong>${escapeHtml(card.sku)} — ${escapeHtml(card.name)}</strong><p>Role in this design: ${escapeHtml(card.role || "To be confirmed")}</p>${card.url ? `<a href="${escapeHtml(card.url)}" target="_blank" rel="noopener noreferrer">Manufacturer product page and documentation</a>` : "<p>Official product link to be confirmed.</p>"}</div>`).join("")}</div>
+  ${
+    sections.has("products-in-the-solution")
+      ? `<h2>Products in the Solution</h2>
+  <div class="visual-grid">${cards.map((card) => `<div class="visual-card">${card.imageUrl ? `<img src="${escapeHtml(card.imageUrl)}" alt="${escapeHtml(card.alt)}" style="width:100%;height:140px;object-fit:contain" />` : "<p>Product photograph unavailable.</p>"}<strong>${escapeHtml(card.sku)} — ${escapeHtml(card.name)}</strong><p>Role in this design: ${escapeHtml(card.role || "To be confirmed")}</p>${card.url ? `<a href="${escapeHtml(card.url)}" target="_blank" rel="noopener noreferrer">Manufacturer product page and documentation</a>` : "<p>Official product link to be confirmed.</p>"}</div>`).join("")}</div>`
+      : ""
+  }
   <h2>Complete System Design and Responsibilities</h2>
   <p>${escapeHtml(CUSTOMER_COPY.scopeIntro)}</p>
   <ul>${story.externalScope.split(/\r?\n/).filter(Boolean).map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>
@@ -823,9 +870,13 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   </table>`}
   <p style="margin-top:8px;font-size:12px;color:#475569;">Quantities are the wall links the site survey recorded for each item.</p>` : ""}
 
-  <h2>Power Strategy</h2>
+  ${
+    sections.has("power-strategy")
+      ? `<h2>Power Strategy</h2>
   <p>The power figures below come from WyreStorm product data for each selected product. They are the maximum the published specification states, and should be checked against the current datasheet before ordering.</p>
-  ${buildPowerStrategyHtml(products)}
+  ${buildPowerStrategyHtml(products)}`
+      : ""
+  }
 
   <h2>Options</h2>
   <ul>${
@@ -862,6 +913,8 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   <div class="notice ${hasCoreProducts ? 'notice-success' : ''}">${escapeHtml(readinessNotice)}</div>
   <div class="notice">${escapeHtml(CUSTOMER_COPY.competitorExclusion)}</div>
+
+  ${sections.has("technical-appendix") ? appendixHtml(bomRows) : ""}
 
   <section class="wm-disclaimer" data-wingman-best-efforts-disclaimer="true">
     <h2>Important Notice & Best-Efforts Disclaimer</h2>
@@ -942,9 +995,9 @@ ${proposalPrintPaginationHtml()}
 </html>`;
 }
 
-export async function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], videoWall: StoredVideowallSummary | null = null) {
+export async function exportProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], videoWall: StoredVideowallSummary | null = null, detail: DocumentDetail = HOUSE_DOCUMENT_BRAND.detail) {
   assertWallTransportExportable(wallTransportRequirements(wallRequirementsFromSummary(videoWall)));
-  downloadBlob(new Blob([buildProposalHtml(proposal, bomRows, products, await loadProductMediaIndex(), videoWall)], { type: "text/html;charset=utf-8" }), `${fileBaseName(proposal.title)}.proposal.html`);
+  downloadBlob(new Blob([buildProposalHtml(proposal, bomRows, products, await loadProductMediaIndex(), videoWall, detail)], { type: "text/html;charset=utf-8" }), `${fileBaseName(proposal.title)}.proposal.html`);
   trackDesignProjectExport(proposal.designRevision, "html");
 }
 
@@ -959,7 +1012,7 @@ export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[])
  * every major OS/browser. Avoids pulling in a client-side PDF-generation
  * library purely to duplicate what the HTML export already renders.
  */
-export async function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], videoWall: StoredVideowallSummary | null = null) {
+export async function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[], products: StoredProductSelection[] = [], videoWall: StoredVideowallSummary | null = null, detail: DocumentDetail = HOUSE_DOCUMENT_BRAND.detail) {
   if (typeof window === "undefined") return;
   // Checked before the print tab opens, so a blocked export leaves no blank tab.
   assertWallTransportExportable(wallTransportRequirements(wallRequirementsFromSummary(videoWall)));
@@ -977,7 +1030,7 @@ export async function exportProposalPdf(proposal: StoredProjectProposal, bomRows
     printWindow.focus();
     printWindow.print();
   };
-  printWindow.document.write(buildProposalHtml(proposal, bomRows, products, media, videoWall));
+  printWindow.document.write(buildProposalHtml(proposal, bomRows, products, media, videoWall, detail));
   printWindow.document.close();
   trackDesignProjectExport(proposal.designRevision, "pdf");
 }

@@ -15,9 +15,15 @@ import {
 describe("guided video wall wizard", () => {
   it("summarises each question with the answer the design used", () => {
     const answers = wallWizardAnswers({ ...defaultWallRequirements, columns: 3, rows: 3, sources: 9, layout: "nine" });
-    expect(answers.map((answer) => answer.key)).toEqual(["picture", "size", "layout", "location"]);
+    expect(answers.map((answer) => answer.key)).toEqual(["picture", "size", "feeding", "layout", "location"]);
     expect(answers.find((answer) => answer.key === "size")?.value).toContain("3 × 3 (9 panels)");
     expect(answers.find((answer) => answer.key === "layout")?.value).toBe("Nine windows");
+    // The connection sits between the size and the layout, and reads the build
+    // the answers describe rather than a value kept beside them.
+    const looping = wallWizardAnswers({ ...defaultWallRequirements, application: "lcd-loop", layout: "nine", windows: 9 });
+    expect(looping.map((answer) => answer.key)).toContain("feeding");
+    expect(looping.find((answer) => answer.key === "feeding")?.value).toBe("One canvas, panels tile it");
+    expect(answers.find((answer) => answer.key === "feeding")?.value).toBe("9 feeds, a panel per feed");
     expect(answers.find((answer) => answer.key === "location")?.value).toBe("All in one rack");
   });
 

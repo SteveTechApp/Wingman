@@ -1,0 +1,41 @@
+/* Wingman route overrides — Templates.
+   Every selector here is scoped to this page by the plumbing AppShell sets:
+   html[data-wingman-route="templates"] and .wm-route-templates. Blocks that
+   also name another page, a page markup attribute (data-wingman-page) or a
+   route token no longer in the catalogue stay in wingman-route-overrides.css.
+   html:is() groups naming two live routes are split here, one copy per page.
+   A block whose tie with a later shared rule would flip by moving stays behind
+   as well, so this split changes which file a rule loads from, not which wins. */
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table span,
+.wm-route-templates .wingman-page-host .wm-template-cable-table span {
+  border: 1px solid rgba(74, 245, 230, 0.22);
+  background: rgba(8, 31, 54, 0.84);
+  color: var(--wm-consistency-title-soft, #a8f4ff);
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table,
+.wm-route-templates .wingman-page-host .wm-template-cable-table {
+  border-color: var(--wm-consistency-border, rgba(74, 245, 230, 0.28));
+  background: rgba(3, 14, 25, 0.82);
+  color: var(--wm-consistency-text, #f7fbff);
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table th,
+.wm-route-templates .wingman-page-host .wm-template-cable-table th {
+  border-color: rgba(74, 245, 230, 0.18);
+  background: rgba(74, 245, 230, 0.1);
+  color: var(--wm-consistency-title-soft, #a8f4ff);
+  letter-spacing: 0;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table td,
+.wm-route-templates .wingman-page-host .wm-template-cable-table td {
+  border-color: rgba(74, 245, 230, 0.14);
+  color: var(--wm-consistency-muted, rgba(226, 239, 250, 0.8));
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table td:first-child,
+.wm-route-templates .wingman-page-host .wm-template-cable-table td:first-child {
+  color: var(--wm-consistency-text, #f7fbff);
+}

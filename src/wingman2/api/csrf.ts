@@ -81,11 +81,6 @@ function describeRequest(
   return { method, isApi };
 }
 
-/** Reset the cached token (e.g. after logout). The next request re-fetches it. */
-export function resetCsrfToken(): void {
-  cachedToken = "";
-}
-
 export function installCsrfFetch(): void {
   if (typeof window === "undefined" || typeof window.fetch !== "function") {
     return;

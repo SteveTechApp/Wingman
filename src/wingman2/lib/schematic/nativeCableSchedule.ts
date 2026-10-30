@@ -208,18 +208,6 @@ export function cableValidationStatusLabel(status: NativeCableRow["validationSta
 }
 
 /**
- * Severity colour class for validation status badges.
- */
-export function cableValidationStatusClass(status: NativeCableRow["validationStatus"]): string {
-  switch (status) {
-    case "confirmed": return "cable-status--confirmed";
-    case "needs-site-confirmation": return "cable-status--pending";
-    case "unknown": return "cable-status--unknown";
-    default: return "";
-  }
-}
-
-/**
  * Human-readable label for a cable type, matching the legacy cableToneLabel.
  */
 export function nativeCableToneLabel(type: CableType): string {

@@ -114,21 +114,6 @@ export function generateQrCodeSvg(
 }
 
 /**
- * Generate a data URL for a QR code (useful for embedding in HTML).
- */
-export function generateQrCodeDataUrl(
-  text: string,
-  size: number = 120,
-  moduleSize: number = 4,
-): string {
-  const svg = generateQrCodeSvg(text, size, moduleSize);
-  const encoded = encodeURIComponent(svg)
-    .replace(/'/g, '%27')
-    .replace(/"/g, '%22');
-  return `data:image/svg+xml,${encoded}`;
-}
-
-/**
  * Generate a URL for the digital topology page.
  * This creates a deep link back to the project in Wingman.
  */

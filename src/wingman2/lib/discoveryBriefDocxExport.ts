@@ -165,8 +165,6 @@ export async function exportDiscoveryBriefDocx(brief: StoredDiscoveryBrief, meta
   downloadBlob(blob, `${fileBaseName(meta.projectName || "discovery", "wingman-discovery-brief")}.discovery-brief.docx`);
 }
 
-export { briefFromProposal, briefMetaFromProposal };
-
 /** Convenience: export the DOCX brief directly from a stored proposal. */
 export async function exportProposalDiscoveryBriefDocx(proposal: StoredProjectProposal) {
   await exportDiscoveryBriefDocx(briefFromProposal(proposal), briefMetaFromProposal(proposal));

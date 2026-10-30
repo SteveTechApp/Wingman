@@ -21,6 +21,19 @@ describe("project persistence codecs", () => {
     expect(decoded).not.toHaveProperty("omittedProductSkus");
   });
 
+  it("keeps dependency prompts answered as documented dependencies across a reload", () => {
+    const decoded = decodeStoredProject({
+      ...BASE_PROJECT,
+      unquotedDependencySkus: [" tbc-cable-path ", "TBC-HDBASET-PAIR", ""],
+    });
+
+    // The decision is what stops the BOM carrying an unpriced line, so a reload
+    // has to read it back the way the gate wrote it.
+    expect(decoded?.unquotedDependencySkus).toEqual(["TBC-CABLE-PATH", "TBC-HDBASET-PAIR"]);
+    // A project saved before the field existed simply has none.
+    expect(decodeStoredProject(BASE_PROJECT)).not.toHaveProperty("unquotedDependencySkus");
+  });
+
   it("keeps the photo review stored on a saved wall", () => {
     const surveyReview = {
       reviewedAt: "2026-10-20T14:12:00.000Z",

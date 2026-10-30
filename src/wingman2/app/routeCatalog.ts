@@ -130,14 +130,6 @@ export function primarySectionForRoute(key: WingmanRouteKey): (typeof consolidat
   return null;
 }
 
-export const consolidatedRouteGroups = {
-  callCoach: ["productCallCards", "discovery", "compare"],
-  products: ["productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
-  documents: ["ingest", "templates", "compare", "proposal"],
-  responsePack: ["proposal", "proposalVisuals", "templates"],
-  learn: ["glossary", "support", "productFamilies"],
-} as const satisfies Partial<Record<WingmanRouteKey, readonly WingmanRouteKey[]>>;
-
 export const canonicalWorkflowRoutes = {
   "sales-conversation": ["callCoach", "salesHelper", "callCards", "productCallCards"],
   "response-authoring": ["documents", "responsePack", "proposal"],

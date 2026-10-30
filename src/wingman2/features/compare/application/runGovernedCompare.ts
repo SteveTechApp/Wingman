@@ -14,9 +14,14 @@ export type GovernedCompareDependencies = {
   runPipeline: typeof runCompareRuntimePipeline;
 };
 
-const defaultDependencies: GovernedCompareDependencies = {
-  runPipeline: runCompareRuntimePipeline,
-};
+/**
+ * Built when a run is asked for rather than when this module loads: the engine
+ * is a separate chunk, and a chunk pair that imports each other can evaluate
+ * this module first, leaving the pipeline undefined for the rest of the session.
+ */
+function defaultDependencies(): GovernedCompareDependencies {
+  return { runPipeline: runCompareRuntimePipeline };
+}
 
 /**
  * Application boundary for governed Compare execution. Keeping dependency
@@ -24,7 +29,7 @@ const defaultDependencies: GovernedCompareDependencies = {
  */
 export function runGovernedCompareSync(
   input: GovernedCompareInput,
-  dependencies: GovernedCompareDependencies = defaultDependencies,
+  dependencies: GovernedCompareDependencies = defaultDependencies(),
 ): GovernedCompareResult {
   return dependencies.runPipeline(
     input.inputText,
@@ -37,7 +42,7 @@ export function runGovernedCompareSync(
 
 export async function runGovernedCompare(
   input: GovernedCompareInput,
-  dependencies: GovernedCompareDependencies = defaultDependencies,
+  dependencies: GovernedCompareDependencies = defaultDependencies(),
 ): Promise<GovernedCompareResult> {
   return runGovernedCompareSync(input, dependencies);
 }

@@ -26,6 +26,8 @@ const files = {
   dockerfile: read("Dockerfile"),
   nginx: read("nginx/default.conf.template"),
   render: read("render.yaml"),
+  retiredStorage: read("src/wingman2/lib/retiredStorage.ts"),
+  crmWebhook: read("src/wingman2/lib/crmWebhook.ts"),
 };
 
 const checks = [
@@ -39,6 +41,37 @@ const checks = [
   ["Live Compare executes eligibility ranking", /const\s+ranked\s*=\s*applyCompareEligibilityRanking\(/.test(files.compare)],
   ["Rendered Compare candidates come from rigorous results", files.compare.includes("rigorousResult.matches")],
   ["New Project is owned by the React shell", !files.main.includes("__wingmanNewProjectHandlerInstalled") && !files.main.includes('text.includes("new project")')],
+  ["Boot sweeps the CRM send history", files.main.includes("sweepWebhookHistory()")],
+  ["Boot sweeps storage keys this build no longer reads", files.main.includes("sweepRetiredStorage()")],
+  [
+    // The two calls in this order are the whole promise of the note: the take reads
+    // the report a previous load left, and this load's sweep then writes its own for
+    // the next one. Swapped, a load would print the space it is still taking back.
+    "Boot takes the previously reclaimed storage report before its own sweep reports",
+    files.main.indexOf("takeRetiredStorageReclaim();") !== -1
+      && files.main.indexOf("takeRetiredStorageReclaim();") < files.main.indexOf("sweepRetiredStorage();"),
+  ],
+  [
+    "The retired-storage sweep still names the wall summary copy older builds wrote",
+    files.retiredStorage.includes('"wingman:video-wall-last-summary"'),
+  ],
+  [
+    // The same order applies to the CRM sweep, because its reclaim lands in the
+    // same report: a load that took the report after that sweep would print the
+    // space it is still taking back, and one whose sweep ran first would report
+    // the history's share on the load that made it.
+    "Boot takes the previously reclaimed storage report before the CRM sweep reports",
+    files.main.indexOf("takeRetiredStorageReclaim();") !== -1
+      && files.main.indexOf("takeRetiredStorageReclaim();") < files.main.indexOf("sweepWebhookHistory();"),
+  ],
+  [
+    // One strip names everything boot gave back, so the CRM sweep has to report
+    // through the same write the retired-store sweep uses rather than storing its
+    // own figure that no surface reads.
+    "The CRM send-history sweep reports its reclaim through the boot storage report",
+    files.crmWebhook.includes("recordStorageReclaim(")
+      && files.retiredStorage.includes("export function recordStorageReclaim"),
+  ],
   ["Legacy Product Call Cards DOM patch is not loaded", !files.main.includes("wingmanProductCallCardsCleanUi")],
   ["Legacy Product Call Cards multi-page implementation is retired", !exists("src/wingman2/pages/productCallCards/ProductCallCardsSetupPage.tsx")],
   ["Settings imports real workspace authentication", files.profile.includes("loginWingmanWorkspace") && files.profile.includes("signUpWingmanWorkspace")],

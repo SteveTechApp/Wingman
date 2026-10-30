@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const repoRoot = process.cwd();
@@ -28,10 +28,21 @@ function readRequired(filePath, label) {
 }
 
 const wrapperSource = readRequired(wrapperPath, "ComparePageNew wrapper");
-const advancedSource = readRequired(
-  advancedPath,
-  "ComparePageNew advanced implementation",
-);
+
+// The page is emptied into `pages/compare/` block by block, so the interactions
+// this gate is about move with it. Read the advanced implementation plus every
+// non-test module it renders from; reading the entry alone would report an
+// interaction that merely changed file as missing.
+const compareModuleDir = resolve(repoRoot, "src/wingman2/pages/compare");
+const compareModuleSources = readdirSync(compareModuleDir)
+  .filter((name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name))
+  .sort()
+  .map((name) => readRequired(resolve(compareModuleDir, name), "compare module " + name));
+
+const advancedSource = [
+  readRequired(advancedPath, "ComparePageNew advanced implementation"),
+  ...compareModuleSources,
+].join("\n\n");
 
 const failures = [];
 

@@ -280,15 +280,6 @@ export function setStoredWingmanLanguage(id: WingmanLanguageId) {
   window.dispatchEvent(new CustomEvent(languageChangeEvent, { detail: { id } }));
 }
 
-export function setStoredWingmanCaptureLanguage(id: WingmanLanguageId) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(WINGMAN_CAPTURE_LANGUAGE_STORAGE_KEY, id);
-  window.dispatchEvent(new CustomEvent(languageChangeEvent, { detail: { captureId: id } }));
-}
-
 export function useWingmanLanguage() {
   const [languageId, setLanguageId] = useState<WingmanLanguageId>(() => getStoredWingmanLanguage().id);
 

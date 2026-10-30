@@ -1,5 +1,6 @@
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { rowAnchorId, rowIdFromAnchor } from "./anchorIds";
+import { DEPENDENCY_SCOPE_ANCHOR } from "./dependencyScope";
 import { DISPLAY_RUN_ANCHOR } from "./displayRunRecord";
 import { WALL_SURVEY_REVIEW_ANCHOR } from "./wallSurveyReview";
 import { WALL_TRANSPORT_REVIEW_ANCHOR } from "./wallTransportReview";
@@ -50,6 +51,9 @@ const projectAnchorEntries = [
   // wall's: a link that names the display run lands on this panel rather than on
   // the Requirements panel that lists the answers.
   { id: DISPLAY_RUN_ANCHOR, section: "confirm", label: "Display cable run" },
+  // The dependency questions the response still carries sit beside the run: both
+  // are what a rep confirms about this room before it is issued.
+  { id: DEPENDENCY_SCOPE_ANCHOR, section: "confirm", label: "Dependencies to confirm" },
   { id: "project-equipment", section: "products", label: "Equipment" },
   { id: "project-recommendation-evidence", section: "decide", label: "Recommendation evidence", sectionLabel: "Product fit" },
   { id: "project-evidence", section: "capture", label: "Evidence trace", sectionLabel: "Evidence" },

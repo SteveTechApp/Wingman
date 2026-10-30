@@ -466,7 +466,7 @@ export function buildVocabulary(root, { onFragment } = {}) {
  */
 export function parseRules(css) {
   const rules = [];
-  function parse(start, end) {
+  function parse(start, end, media) {
     let cursor = start;
     while (cursor < end) {
       const open = css.indexOf("{", cursor);
@@ -480,8 +480,12 @@ export function parseRules(css) {
       }
       const prelude = css.slice(cursor, open);
       const trimmed = prelude.trim();
-      if (/^@(media|supports|layer|container)/.test(trimmed)) parse(open + 1, index - 1);
-      else if (!trimmed.startsWith("@")) {
+      if (/^@(media|supports|layer|container)/.test(trimmed)) {
+        // The enclosing conditional is recorded, not flattened away: a rule can
+        // only outrank another where both conditions hold, so a reader that
+        // compares two rules needs to know which preludes they live under.
+        parse(open + 1, index - 1, [...media, trimmed]);
+      } else if (!trimmed.startsWith("@")) {
         const lastCommentEnd = prelude.lastIndexOf("*/");
         const contentStart = lastCommentEnd === -1 ? cursor : cursor + lastCommentEnd + 2;
         const selector = trimmed.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\s+/g, " ").trim();
@@ -492,13 +496,21 @@ export function parseRules(css) {
           const leading = afterComment.match(/^\s*/)[0].length;
           const selectorStart = contentStart + leading;
           const selectorEnd = cursor + prelude.trimEnd().length;
-          rules.push({ selector, contentStart, selectorStart, selectorEnd, deleteEnd: index });
+          rules.push({
+            selector,
+            media,
+            body: css.slice(open + 1, index - 1),
+            contentStart,
+            selectorStart,
+            selectorEnd,
+            deleteEnd: index,
+          });
         }
       }
       cursor = index;
     }
   }
-  parse(0, css.length);
+  parse(0, css.length, []);
   return rules;
 }
 

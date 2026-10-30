@@ -32,7 +32,17 @@ html .wm-project-gallery-page .wm-project-card-updated { grid-column:1/-1; font-
 html .wm-project-gallery-page .wm-project-card-actions { grid-column:1/-1; border-top:1px solid var(--wm-ref-border); padding-top:12px; }
 html .wm-project-gallery-page .wm-project-row-actions { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
 html .wm-project-gallery-page .wm-project-row-actions a { font-size:12px; padding:8px 4px; color:var(--wm-ref-aqua); }
-html .wm-project-gallery-page .wm-project-row-actions a:nth-of-type(2) { margin-right:auto; }
+/* The row's trailing pair — Copy and Delete, the last two buttons — owns the
+   space in front of it. It used to be the second link that took that space, by
+   pushing everything after it right, and that worked only while the design links
+   and the buttons shared one line: a design name longer than the card takes a
+   line of its own (it is the widest thing in the row), so the pair was left at
+   the start of the next line — 289px short of the card's edge at 1366px and
+   180px short at 360px — with the row's right edge set by whatever wrapped above
+   them. An auto margin on the last line's first button closes that edge at every
+   width, and a card with no designs is unchanged: the gap lands after Resume
+   either way. Held by assertGalleryCardActions in tools/browser-smoke-check.mjs. */
+html .wm-project-gallery-page .wm-project-row-actions button:nth-last-of-type(2) { margin-left:auto; }
 html .wm-project-gallery-page .wm-project-gallery-empty { grid-column:1/-1; padding:30px; border:1px dashed var(--wm-ref-border); border-radius:12px; }
 html .wm-project-gallery-page .wm-project-draft-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
 html .wm-project-gallery-page .wm-project-draft-tile { display:grid; grid-template-columns:38px 1fr; padding:16px; gap:12px; background:var(--wm-ref-panel-strong); border:1px solid var(--wm-ref-border); border-radius:10px; }
@@ -95,8 +105,17 @@ html .wingman-shell .wm-response-paper :is(small,span) { color:var(--wm-paper-mu
   html .wingman-shell .wm-response-studio .wm-proposal-wizard-sidebar { max-width:430px; width:100%; justify-self:center; }
   html .wingman-shell .wm-response-studio .wm-proposal-step-rail { grid-template-columns:repeat(5,minmax(80px,1fr)); overflow-x:auto; }
 }
-@media(max-width:580px) {
+/* The two-column band stops where a card still has room for the design it was
+   saved as. At 580px a two-column card is ~250px and its design entry printed 14
+   characters of a name; at 760px one column is a card as wide as the page, which
+   is the room the name needs. The band therefore runs 1150px down to 761px, and
+   the grid is one column from 760px — the width assertGalleryCardActions reads
+   either side of. */
+@media(max-width:760px) {
   html .wm-project-gallery-page .wm-project-gallery,html .wm-project-gallery-page .wm-project-draft-grid { grid-template-columns:1fr; }
+}
+
+@media(max-width:580px) {
   html .wm-project-gallery-page .wm-projects-store-toolbar { flex-wrap:wrap; }
   html .wingman-shell .wm-response-studio .wm-proposal-form-grid { grid-template-columns:1fr; }
   html .wingman-shell .wm-response-studio .wm-proposal-wizard-header { grid-template-columns:1fr; }
@@ -109,6 +128,23 @@ html .wm-project-gallery-page .wm-projects-compact-actions { display:flex; flex-
 .wm-projects-compare-tier { display:inline-flex; align-items:center; max-width:100%; }
 
 .wm-projects-survey-review { display:inline-flex; align-items:center; max-width:100%; }
+/* The sync-conflict banner's payload is which lanes changed, so it cannot be an
+   ellipsized line: the shared chip rule keeps a chip on one line
+   (`white-space:nowrap` with `width:max-content`), and on a phone that cut the
+   lane labels the rep is meant to read while leaving the full sentence in a
+   hover title a touch screen never shows. The name column is the card's full
+   width there, and two lane labels plus "+N more" is at most a second line, so
+   this chip wraps instead and its icon stays on the line the warning starts on. */
+.wm-status-chip.wm-projects-sync-conflict {
+  width:auto;
+  max-width:100%;
+  align-items:flex-start;
+  white-space:normal;
+}
+
+.wm-status-chip.wm-projects-sync-conflict .wm-status-chip-label { overflow:visible; text-overflow:clip; }
+
+.wm-status-chip.wm-projects-sync-conflict svg { flex:none; }
 /* A review that cleared nothing is good news, so its chip says so without the
    alarm the cleared state carries: no fill, softer copy, hairline border. */
 .wm-status-chip[data-survey-review="reviewed"] { color:var(--wm-text-soft); background:transparent; border-color:var(--wm-border); }

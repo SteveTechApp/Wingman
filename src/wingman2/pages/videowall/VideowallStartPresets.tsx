@@ -54,7 +54,7 @@ import { VideowallStartPresetRow } from "./VideowallStartPresetRow";
  *
  * `shortlist` folds that same step to the curated walls — one per job a rep
  * starts from, covering every family — plus any wall this browser saved. The
- * four questions are the guided reading's real narrowing, so its walls are the
+ * questions are the guided reading's real narrowing, so its walls are the
  * common jobs rather than a catalogue a rep has to scroll before the first
  * question; the rest stay one tap away, and the expert reading is still the
  * whole list.

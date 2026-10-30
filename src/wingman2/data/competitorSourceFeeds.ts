@@ -36,7 +36,6 @@ export type CompetitorSourceProduct = {
   maxResolution: string;
   chroma: string;
   latency: string;
-  performanceTier: string;
   inputCount?: number;
   outputCount?: number;
   features: Record<string, boolean>;
@@ -94,7 +93,6 @@ export const competitorSourceProducts: CompetitorSourceProduct[] = (competitorCa
   maxResolution: String(product.video?.maxResolution || ""),
   chroma: String(product.video?.chroma || ""),
   latency: "",
-  performanceTier: String(product.sourceTier || product.approvalStatus || ""),
   inputCount: Number.isFinite(Number(product.routedInputCount)) ? Number(product.routedInputCount) : undefined,
   outputCount: Number.isFinite(Number(product.routedOutputCount)) ? Number(product.routedOutputCount) : undefined,
   features: generatedFeatures(product.features),

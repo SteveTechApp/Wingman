@@ -340,6 +340,14 @@ body {
     padding-bottom: 8px !important;
   }
 
+  /* This template is two columns and important, so on its own it puts a hero's
+     third child — an action row — into the icon column. The companion below
+     keeps that column, which is what lets every hero header share one layout
+     instead of each page carrying an override of its own to outrank this one. */
+  .wm-polish-hero:has(> :nth-child(3)) {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+  }
+
   .wm-polish-hero-icon {
     width: 49px !important;
     min-width: 49px !important;

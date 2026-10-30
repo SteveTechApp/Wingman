@@ -28,19 +28,15 @@ export type DocumentSkuTriageRow = {
   matchType: WyreStormMatchType;
   confidence: DocumentTriageConfidence;
   reason: string;
-  defaultIncluded: boolean;
   batchCompareEligible: boolean;
   retainAsProjectContext: boolean;
 };
 
 export type DocumentSkuTriageAnalysis = {
   rows: DocumentSkuTriageRow[];
-  extractedRowCount: number;
   wyrestormCandidateCount: number;
   architectureAlternativeCount: number;
-  accessoryDependencyCount: number;
   ignoredNoiseCount: number;
-  unknownReviewCount: number;
   batchEligibleRowIds: string[];
 };
 
@@ -291,7 +287,6 @@ function candidateRow(item: ParsedSkuForTriage, index: number): DocumentSkuTriag
       matchType: "not_applicable",
       confidence: "high",
       reason: noise.reason,
-      defaultIncluded: false,
       batchCompareEligible: false,
       retainAsProjectContext: noise.retain,
     };
@@ -312,7 +307,6 @@ function candidateRow(item: ParsedSkuForTriage, index: number): DocumentSkuTriag
       matchType: "governed_sku",
       confidence: "high",
       reason: governed.reason,
-      defaultIncluded: true,
       batchCompareEligible: true,
       retainAsProjectContext: true,
     };
@@ -333,7 +327,6 @@ function candidateRow(item: ParsedSkuForTriage, index: number): DocumentSkuTriag
     matchType: direction.matchType,
     confidence: direction.confidence,
     reason: direction.reason,
-    defaultIncluded: eligible,
     batchCompareEligible: eligible,
     retainAsProjectContext: direction.status !== "unknown_review_required",
   };
@@ -363,7 +356,6 @@ function contextNoiseRows(text: string, existingRows: DocumentSkuTriageRow[], pa
         matchType: "not_applicable" as const,
         confidence: "high" as const,
         reason: noise.reason,
-        defaultIncluded: false,
         batchCompareEligible: false,
         retainAsProjectContext: noise.retain,
       }];
@@ -374,14 +366,14 @@ export function triageDocumentSkuRows(text: string, parsedSkus: ParsedSkuForTria
   const candidateRows = parsedSkus.map(candidateRow);
   const rows = [...candidateRows, ...contextNoiseRows(text, candidateRows, parsedSkus)];
 
+  // The analysis carries only the counts a surface prints. Rows and their
+  // statuses are stored anyway, so a count of accessory or unidentified lines
+  // is a filter away and does not need its own field to drift out of step.
   return {
     rows,
-    extractedRowCount: rows.length,
     wyrestormCandidateCount: rows.filter((row) => row.status === "wyrestorm_candidate").length,
     architectureAlternativeCount: rows.filter((row) => row.status === "architecture_alternative").length,
-    accessoryDependencyCount: rows.filter((row) => row.status === "accessory_dependency").length,
     ignoredNoiseCount: rows.filter((row) => row.status === "not_wyrestorm_addressable").length,
-    unknownReviewCount: rows.filter((row) => row.status === "unknown_review_required").length,
     batchEligibleRowIds: rows.filter((row) => row.batchCompareEligible).map((row) => row.id),
   };
 }
@@ -403,12 +395,9 @@ export function normalizeDocumentSkuTriage(value: unknown): DocumentSkuTriageAna
     : Array.from(eligibleIds);
   return {
     rows,
-    extractedRowCount: rows.length,
     wyrestormCandidateCount: rows.filter((row) => row.status === "wyrestorm_candidate").length,
     architectureAlternativeCount: rows.filter((row) => row.status === "architecture_alternative").length,
-    accessoryDependencyCount: rows.filter((row) => row.status === "accessory_dependency").length,
     ignoredNoiseCount: rows.filter((row) => row.status === "not_wyrestorm_addressable").length,
-    unknownReviewCount: rows.filter((row) => row.status === "unknown_review_required").length,
     batchEligibleRowIds: requestedIds,
   };
 }

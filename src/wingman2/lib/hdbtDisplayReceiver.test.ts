@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
   applyHdbtReceiver,
+  displayRunSpanPlan,
+  HDBT_DISPLAY_RUN_LIMIT_METRES,
+  HDBT_MID_SPAN_REPEATER,
   hdbtDisplayReceiverForRun,
   hdbtUsbDataRequired,
   hasHdbtDisplayReceiver,
   metresFromRunText,
   quotesHdbtDisplayReceiver,
+  servedDisplayRunMetres,
+  surveyedDisplayRunMetres,
 } from "./hdbtDisplayReceiver";
 import { roomTemplates, type TemplateBomRow } from "./roomTemplates";
 import { compileTemplateApplicationProposal } from "./proposalCompiler";
@@ -158,6 +163,81 @@ describe("HDBaseT display receiver from a surveyed run", () => {
     // A room with no measured run keeps its authored notes and reads no run.
     const unmeasured = compileTemplateApplicationProposal(room, room.bom);
     expect(unmeasured.technicalFacts.some((line) => line.startsWith("Display receiver:"))).toBe(false);
+  });
+
+  it("states the span the receiver serves once the link is carried in spans", () => {
+    // A run carried mid-span is measured against the span, not the whole run, so
+    // the sentence names the spans and the part standing between them.
+    const choice = hdbtDisplayReceiverForRun(130, false, 65)!;
+    expect(choice.sku).toBe("RX-700");
+    expect(choice.reason).toContain("130 m display run, carried in 2 spans of 65 m");
+    expect(choice.reason).toContain(`mid-span ${HDBT_MID_SPAN_REPEATER.sku}`);
+    expect(choice.reason).toContain("serves the 65 m span");
+    expect(choice.reason).toContain("inside the 100 m rating of RX-700");
+    // It no longer asks for a repeater the schedule now holds.
+    expect(choice.reason).not.toContain("allow a mid-span repeater");
+
+    // A span short enough for the small part chooses it, and USB still keeps the
+    // matched part in a room whose picture carries USB data.
+    expect(hdbtDisplayReceiverForRun(130, false, 30)!.sku).toBe("RX-500");
+    const usb = hdbtDisplayReceiverForRun(130, true, 30)!;
+    expect(usb.sku).toBe("RX-700");
+    expect(usb.reason).toContain("USB data travels with the picture");
+
+    // A span still past the range says so rather than pretending the split fixed it.
+    expect(hdbtDisplayReceiverForRun(130, false, 120)!.reason)
+      .toContain("still beyond the 100 m rating of RX-700");
+  });
+
+  it("plans the fewest equal spans that bring a run inside the range", () => {
+    expect(displayRunSpanPlan(130)).toEqual({ runMetres: 130, spans: 2, spanMetres: 65, repeaters: 1 });
+    expect(displayRunSpanPlan(101)).toEqual({ runMetres: 101, spans: 2, spanMetres: 51, repeaters: 1 });
+    expect(displayRunSpanPlan(250)).toEqual({ runMetres: 250, spans: 3, spanMetres: 84, repeaters: 2 });
+    // A run one receiver already carries schedules nothing.
+    for (const run of [100, 62, 0, undefined, Number.NaN]) expect(displayRunSpanPlan(run)).toBeNull();
+  });
+
+  it("reads the span a room records, falling back to the whole measurement", () => {
+    expect(servedDisplayRunMetres({ cableRun: "130 m", servedRun: "65 m" })).toBe(65);
+    expect(servedDisplayRunMetres({ cableRun: "130 m" })).toBe(130);
+    expect(servedDisplayRunMetres({ servedRun: "65 m" })).toBe(65);
+    expect(servedDisplayRunMetres(null)).toBeNull();
+  });
+
+  it("keeps the span on the saved project and the template rebuilt from it", () => {
+    window.localStorage.clear();
+    const room = teachingRoom();
+    const template = { ...room, surveyedRunMetres: 130, servedRunMetres: 65 };
+    const rows = applyHdbtReceiver(template.bom, template);
+    // The schedule's own reading says where the receiver's rating is measured.
+    expect(receiverRow(rows).notes).toContain("carried in 2 spans of 65 m");
+
+    const project = buildTemplateProject(template, rows);
+    expect(project.discoveryBrief?.roomModel).toMatchObject({
+      cableRun: "130 m",
+      servedRun: "65 m",
+    });
+    // Measuring the receiver on the saved room reads the span, so the project a
+    // template produces is not held for a run the design already answered.
+    expect(servedDisplayRunMetres(project.discoveryBrief?.roomModel)).toBe(65);
+
+    const rebuilt = saveProjectAsRoomTemplate(project);
+    expect(rebuilt.surveyedRunMetres).toBe(130);
+    expect(rebuilt.servedRunMetres).toBe(65);
+    expect(getCustomRoomTemplates()[0].servedRunMetres).toBe(65);
+  });
+
+  it("reads the run a room model records, under the names a save may use", () => {
+    // One ceiling for the whole range, so the export gate cannot outlive a part.
+    expect(HDBT_DISPLAY_RUN_LIMIT_METRES).toBe(100);
+    expect(surveyedDisplayRunMetres({ cableRun: "28 m", longestRun: "28 m" })).toBe(28);
+    // Discovery writes the same measurement as a distance.
+    expect(surveyedDisplayRunMetres({ distance: "55m endpoint route" })).toBe(55);
+    // A field that is not a distance is skipped rather than read as metres.
+    expect(surveyedDisplayRunMetres({ cableRun: "not measured", distance: 12 })).toBe(12);
+    // No measurement is not zero metres.
+    expect(surveyedDisplayRunMetres({})).toBeNull();
+    expect(surveyedDisplayRunMetres(null)).toBeNull();
   });
 });
 

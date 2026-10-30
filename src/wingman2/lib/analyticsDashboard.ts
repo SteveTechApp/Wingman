@@ -280,16 +280,6 @@ export function formatAnalyticsDate(dateString: string): string {
 }
 
 /**
- * Format a number for display (e.g., 1234 → "1.2k").
- */
-export function formatAnalyticsNumber(num: number): string {
-  if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}k`;
-  }
-  return String(num);
-}
-
-/**
  * Clear all analytics data.
  */
 export function clearAnalyticsData(): void {

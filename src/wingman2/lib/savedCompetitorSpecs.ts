@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import "react";
 import type { CompetitorSourceProduct } from "../data/competitorSourceFeeds";
 
 /**
@@ -109,7 +109,6 @@ export function saveCompetitorSpec(input: SavedCompetitorSpecInput): SavedCompet
     maxResolution: input.maxResolution.trim(),
     chroma: input.chroma.trim(),
     latency: "",
-    performanceTier: "user-saved",
     inputCount: input.inputCount,
     outputCount: input.outputCount,
     features: input.features ?? existing?.features ?? {},
@@ -125,27 +124,4 @@ export function saveCompetitorSpec(input: SavedCompetitorSpecInput): SavedCompet
   const next = [record, ...readAll().filter((item) => item.id !== record.id)];
   writeAll(next);
   return record;
-}
-
-export function deleteSavedCompetitorSpec(id: string) {
-  writeAll(readAll().filter((record) => record.id !== id));
-}
-
-export function useSavedCompetitorSpecs() {
-  const [records, setRecords] = useState<SavedCompetitorSpec[]>(() => readAll());
-
-  useEffect(() => {
-    function refresh() {
-      setRecords(readAll());
-    }
-
-    window.addEventListener(CHANGED_EVENT, refresh);
-    window.addEventListener("storage", refresh);
-    return () => {
-      window.removeEventListener(CHANGED_EVENT, refresh);
-      window.removeEventListener("storage", refresh);
-    };
-  }, []);
-
-  return records;
 }
