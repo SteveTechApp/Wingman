@@ -97,6 +97,11 @@ export const READING_SECTIONS = [
     match: [/^The template save notice/],
   },
   {
+    id: "route-stylesheet-order",
+    title: "Route stylesheet order",
+    match: [/^Route order:/],
+  },
+  {
     id: "routes-and-shell",
     title: "Routes and shell",
     match: [/^All \d+ routes in the manifest/],

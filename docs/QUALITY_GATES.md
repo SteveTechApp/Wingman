@@ -373,7 +373,10 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   is: an element matching both is a decision owed in `pairs`, no element matching
   is a settlement waiting to be written. That is the case the CSS gate can only
   report as "not reviewed", and asking the page turns it into which of the two
-  the reviewer owes.
+  the reviewer owes. What the last run measured is
+  [the route stylesheet order](../reports/browser-readings.md#route-stylesheet-order)
+  reading; the counts in this sentence are the run that decided the rule, not a
+  promise about today's pages.
 - The gate checks the two readings it depends on rather than assuming them: that
   `wingman-route-overrides.css` loads before every page stylesheet, because the
   comparison calls the page files "after the split" and an inverted import order

@@ -87,6 +87,23 @@ describe("filing the walk's readings", () => {
   });
 });
 
+describe("the route order reading", () => {
+  it("files the walk's order sentence under the order gate, not the routes sweep", () => {
+    // Two lines about routes is exactly the pair that would land in one section:
+    // the sweep counts pages that resolved, and this one counts pairs the page
+    // cannot make meet. They are different questions with different owners.
+    const { sections, unplaced, ambiguous } = fileReadings([
+      "Route order: 431 of 433 subject-disjoint occurrence(s) cannot be one element on their route's page at 1366px and 390px.",
+      "All 29 routes in the manifest rendered without a crash.",
+    ]);
+
+    expect(unplaced).toEqual([]);
+    expect(ambiguous).toEqual([]);
+    expect(sections.find((section) => section.id === "route-stylesheet-order").readings).toHaveLength(1);
+    expect(sections.find((section) => section.id === "routes-and-shell").readings).toHaveLength(1);
+  });
+});
+
 describe("the readings index", () => {
   it("has one anchor per surface, and an id a link can be built from", () => {
     const ids = READING_SECTIONS.map((section) => section.id);
