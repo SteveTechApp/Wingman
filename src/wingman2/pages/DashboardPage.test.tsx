@@ -555,6 +555,32 @@ describe("dashboard saved-as-a-template flag", () => {
     expect(recent.queryByRole("link", { name: /Saved as .*templates?/ })).toBeNull();
   });
 
+  it("offers the way to every unfinished room from the focused strip", () => {
+    window.localStorage.setItem("wingman-ui-mode-v1", "guided");
+    recentProject("focused-extra-one", "Focused Extra One");
+    recentProject("focused-extra-two", "Focused Extra Two");
+
+    render(
+      <MemoryRouter initialEntries={["/wingman"]}>
+        <UiModeProvider>
+          <DashboardPage />
+        </UiModeProvider>
+      </MemoryRouter>,
+    );
+
+    const recent = within(screen.getByLabelText("Continue where you left off"));
+
+    // Three cards, and the strip says where the rest of them are: the rooms it
+    // drops are the older ones, so a rep who cannot leave this page would lose
+    // the work that was started first.
+    expect(recent.getAllByRole("article")).toHaveLength(3);
+    const all = recent.getByRole("link", { name: "See all projects" });
+    expect(all.getAttribute("href")).toBe(routeCatalogByKey.projects.path);
+    // A link beside the heading, not the page's second primary action: the hero's
+    // room-template CTA is the only one of those.
+    expect(all.className).not.toContain("wm-guided-primary-action");
+  });
+
   it("offers the video wall designer as a feature entry, not a second primary action", () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "guided");
 

@@ -105,8 +105,21 @@ function RecentProjects() {
   return (
     <section className="wm-guided-recent" aria-label="Continue where you left off">
       <div className="wm-guided-recent-heading">
-        <span>In progress</span>
-        <h2>Continue your work</h2>
+        <div className="wm-guided-recent-heading-copy">
+          <span>In progress</span>
+          <h2>Continue your work</h2>
+        </div>
+        {/* The strip prints three rooms, so the way to the rest belongs on the
+            page rather than only in the sidebar: a rep on the focused home can
+            hold more unfinished work than the strip does, and the ones it drops
+            are the older rooms, which is exactly the work that gets forgotten.
+            It is a text link on the same wording and treatment the expert home's
+            rail uses to reach the same list, not a second button — the hero owns
+            the page's one primary action. */}
+        <Link to={routeCatalogByKey.projects.path} className="wm-reference-text-link">
+          See all projects
+          <ArrowRight size={14} aria-hidden="true" />
+        </Link>
       </div>
       <div className="wm-guided-recent-list">
         {recent.map((project) => {

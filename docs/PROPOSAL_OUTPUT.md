@@ -525,7 +525,13 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   the card's `justify-self: start` plus `width: min(560px, 100%)` is what keeps
   it sized on a laptop and inside a phone (342px at 390px wide). Do not reuse
   `wm-guided-primary-action` outside the hero: two primary buttons on one page
-  leave the rep no ranking to read.
+  leave the rep no ranking to read. The recent strip under the journeys prints
+  three rooms and names where the rest are — `See all projects`, a
+  `wm-reference-text-link`, which is the wording and treatment the expert rail
+  already uses to reach the same list. The strip drops the oldest rooms, so a
+  focused home with no way out of it would lose the work a rep started first;
+  the link is a line of text beside the heading, not a fourth card, because the
+  hero still owns the page's only primary action.
   Every surface that offers a saved design prints the same link,
   `OpenTemplateLink` (`components/OpenTemplateLink.tsx`): the wording
   (`Open template: <name>`), the destination and the accessible name are that
