@@ -618,13 +618,22 @@ measured. The shared floor is 20, under the tightest case either meets — the
 counts it is argued from are
 [the project gallery](../reports/browser-readings.md#project-gallery)'s reading,
 never a copy of them here, so a floor cannot outlive the run that measured it. It
-is not higher because the phone card has nothing to give, measured rather than
-assumed: at 360px the entry is already the design line's whole width, so a
-`min-width` of 60ch changed nothing there, and the widths where the
-floor does bind are the ones that cannot pay for it (a 60ch floor takes the
-short-name row from 2 bands to 3 at 561px and from 1 to 3 at 760px). A floor above
-the narrow end's count would be a number that end cannot keep and a card line the
-wide end spends. That number has to be a column's
+is not higher because the narrowest case is a two-column card's one line: 31
+characters of a 92-character name at 761px and at 1151px, where a card shares its
+row. The phone used to be the tightest case at 23, and that number turned out to be
+a reading of one font profile rather than of the card — the app names `Geist
+Variable` and `Inter` and ships neither, so the CI runner's wider fallback sans
+printed 17 of the same name in the same 250px entry and the floor failed on a
+branch where nothing about the card had changed. The room was never there to
+spend: a 286px card gives its entry 250px of 250px, so a `min-width` of 60ch
+changes nothing. So below 761px — the width where the gallery stops being one card
+per row — the label takes a second line and prints the whole name, which is what
+takes the count off the font's arithmetic; from 761px a card shares its row and a
+taller card costs a row of cards rather than a line inside one, so the name stays
+on one ellipsized line and that count is what the floor sits under. A floor above
+the two-column count would be one that band cannot keep, and the widths where the
+entry is floor-bound cannot pay for it (a 60ch floor takes the short-name row from
+2 bands to 3 at 561px and from 1 to 3 at 760px). That number has to be a column's
 before it can be a floor's witness, and it was not: the short-seeded row's designs
 were 23 characters, a card printed all 23 of them at every width, and so the
 walk's tightest line reported a fixture's length — the same 23, measured against

@@ -1270,6 +1270,28 @@ html[data-wingman-route="projects"] .wm-project-row-actions .wm-project-template
   min-width: min(30ch, 100%);
 }
 
+/* A phone card is 286px and the entry already takes its whole width, so a name
+   that is longer than the card can only be read by taking a second line. One
+   clipped line printed 23 characters of a 79-character name on this machine and
+   17 on a runner whose fallback sans is 12.6% wider — the verb and a letter,
+   which is a card with the design's name gone, and two cards a rep cannot tell
+   apart. Two lines and a clamp print the whole name, and the count stops being
+   the font's arithmetic: the second line buys the room the first one could not.
+   The clamp stops where the gallery stops being one card per row: from 761px a
+   card shares its row, and a taller card there costs a row of cards rather than a
+   line inside one. */
+@media (max-width: 760px) {
+  html[data-wingman-route="projects"] .wm-project-row-actions .wm-project-template-link-label {
+    display: -webkit-box;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    text-overflow: clip;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+}
+
 html[data-wingman-route="projects"] .wm-project-draft-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;

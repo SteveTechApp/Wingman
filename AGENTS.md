@@ -194,9 +194,13 @@ states is one they trust by mistake.
   guided strip's saved-design link carries the same rule. The number is one
   shared floor with one failure sentence, because a floor per surface let the
   gallery allow a stub the strip would have failed; it is a stub guard, not a
-  target either surface is measured against, and it is 20 because the phone entry
-  is already the design line's whole width — a higher floor is a band spent at
-  561px and 760px, not more of a name at 360px. What each width actually kept is
+  target either surface is measured against, and it is 20 because a card in the
+  two-column band prints 31 characters of a long name on one line — under that by
+  enough that a wider fallback font still clears it — while the phone and the
+  single-column band print the name whole, because below 761px the label takes a
+  second line. A name that only fits on one line is a reading of the font as much
+  as of the card: the app names a typeface it does not ship, so the runner's wider
+  sans printed 17 where the developer's machine printed 23 and the floor failed. What each width actually kept is
   read off `designNameWidthClause` in `tools/lib/saved-design-names.mjs`: the
   longest-named entry, its card, and the runner-up beside it, which is what
   separates a column's budget from one card's own width. The numbers a floor is

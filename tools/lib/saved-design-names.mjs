@@ -20,27 +20,32 @@
  * 191px, which printed 14 characters of a 79-character name. The band now stops at
  * 761px — a room saved as a design needs a card that can print the design's name,
  * and a 250px card cannot — so the narrowest two-column card is a ~370px one, and
- * the tightest reading either surface meets is 23: the gallery card's 250px phone
- * entry prints 23 of a 79-character name, and the strip's narrowest column keeps
- * 40 of an 87-character one. That 23 is a column's, not a fixture's — the pass's
- * short seeds carry 34 characters, so the entry they feed is clipped on the narrow
- * cards and the count beside it is what a column agreed to show; while a seed name
- * of 23 characters was printing whole at every width, the tightest line reported a
- * fixture's length and the floor's headroom was measured against nothing. 20 is
- * under that tightest measurement by enough that a different font's metrics cannot
- * fail a card that is not a stub, and it is far above the verb and a letter, which
- * is the failure this floor exists to catch — the number the gallery could hold at
- * 14 was a floor that let a real design name be cut to a stub.
+ * the tightest reading is 31: a card in the two-column band prints 31 of a
+ * 92-character name on one line, where the strip's narrowest column keeps 40 of an
+ * 87-character one. That 31 is a column's, not a fixture's — the pass's short seeds
+ * carry 34 characters, so the entry they feed is clipped on the narrow cards and the
+ * count beside it is what a column agreed to show; while a seed name of 23
+ * characters was printing whole at every width, the tightest line reported a
+ * fixture's length and the floor's headroom was measured against nothing.
  *
- * It is 20 rather than higher because the phone card has nothing to give: probed at
- * 360px, the entry is already the design line's whole width — 250px of 250px inside
- * a 286px card — so a `min-width` of 60ch still printed 23 of 79 characters. That
- * count is the font's arithmetic over the card rather than room the floor left
- * unused, and the widths where the entry is floor-bound are the ones that cannot pay
- * for it: at 561px a 60ch floor takes the short-name row from 2 bands to 3, and at
- * 760px from 1 to 3. A floor above today's 23 would be a number no layout keeps at
- * the narrow end and a spent card line at the wide one, so the guard stays under the
- * measurement it has.
+ * The phone used to be the tightest case at 23, and that number was a reading of one
+ * font profile rather than of the card. The app names `Geist Variable` and `Inter`
+ * and ships neither, so a runner whose fallback sans is 12.6% wider printed 17 of the
+ * same name in the same 250px entry and failed this floor. The room was never there
+ * to spend — a 286px card gave its entry 250px of 250px — so below 761px, where the
+ * gallery is one card per row, the label takes a second line and prints the whole
+ * name (92 of 92, 79 of 79 at 360, 390, 581 and 760px). Above that band a card shares
+ * its row, and a taller card there costs a row of cards rather than a line inside
+ * one, so the name stays on one ellipsized line and 31 is what that line keeps.
+ *
+ * 20 sits under that count for the same reason as before — a wider fallback must not
+ * fail a card that is not a stub, and the same 12.6% would take 31 to 27 — and it is
+ * far above the verb and a letter, which is the failure this floor exists to catch:
+ * the 14 the gallery once held to was a floor that let a real design name be cut to a
+ * stub. Raising it to the phone's whole name would be a number the two-column band
+ * cannot keep, and the widths where the entry is floor-bound cannot pay for one: at
+ * 561px a 60ch `min-width` takes the short-name row from 2 bands to 3, and at 760px
+ * from 1 to 3.
  */
 export const SAVED_DESIGN_NAME_FLOOR = 20;
 
