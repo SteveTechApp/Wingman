@@ -584,6 +584,22 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   `edited`, so fixing a description re-runs a small job instead of the verify
   matrix. A fork pull request or an API failure skips with a note; an
   unreadable token fails instead of passing silently.
+- `check:pr-commit-index` (the same workflow, one step after the freshness
+  check) holds a description's commit index — a `| Theme | Commits |` table
+  mapping each commit to the `### ` section that explains it — to the branch it
+  describes. Four failures read exactly like a correct index, which is why the
+  gate reads the branch rather than the prose: a row listing a commit its
+  section never discusses, a section discussing a commit its row omits, a row
+  ordered by memory rather than by the history its own sentence promises, and a
+  row naming a theme the body no longer has a heading for. It is deliberately
+  whole beyond those: every commit on `base..HEAD` must appear in exactly one
+  row, so a commit found by `git bisect` or `git blame` can be traced into the
+  story. A description with no such table is not assessed — the gate holds an
+  index that was written rather than demanding one — and the workflow checks out
+  full depth, because a shallow clone cannot list the commits and GitHub's merge
+  ref would add one the index never names. Locally,
+  `node tools/check-pr-commit-index.mjs --body-file <path>` asks the same
+  question of a body saved with `gh pr view --json body`.
 - `check:sales-facing-language` scans ALL source, including test comments and
   CSS comments, not just UI copy. Developer wording such as "demoted",
   "confusing", "has moved into", "workflow consolidated" fails

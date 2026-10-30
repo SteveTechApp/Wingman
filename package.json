@@ -210,6 +210,7 @@
     "govern:wyrestorm:dry": "node tools/govern-wyrestorm-profiles.mjs",
     "check:proposal-wizard": "node tools/check-proposal-wizard.mjs",
     "check:pr-description": "node tools/check-pr-description-freshness.mjs",
+    "check:pr-commit-index": "node tools/check-pr-commit-index.mjs",
     "check:export-validation-domains": "node tools/check-export-validation-domains.mjs",
     "check:init-order": "node tools/check-init-order.mjs",
     "check:ci-verify-stage": "node tools/check-ci-verify-stage.mjs",

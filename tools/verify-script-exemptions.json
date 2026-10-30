@@ -209,9 +209,10 @@
       ]
     },
     {
-      "reason": "CI's PR description job runs it on the pull request itself — it reads the request body and the files it changed rather than the tree, so a verify run has nothing here to read.",
+      "reason": "CI's PR description job runs them on the pull request itself: the freshness check reads the request body and the files it changed, and the index check reads the body and the branch history it describes, so neither has anything to read in a verify run, where no description exists.",
       "scripts": [
-        "check:pr-description"
+        "check:pr-description",
+        "check:pr-commit-index"
       ]
     },
     {

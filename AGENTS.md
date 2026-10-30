@@ -371,7 +371,13 @@ states is one they trust by mistake.
   asks the lifecycle question about the fixtures proposals are tested against.
 - The PR-description check reads GitHub, which is why it is its own workflow
   rather than a verify stage: a present-tense failure claim goes stale the
-  moment the checks on the head go green.
+  moment the checks on the head go green. That workflow holds the commit index
+  check too, because a body mapping its commits to the sections that explain
+  them is a claim only the branch can verify: every commit on the base..HEAD
+  range in exactly one row, each row and its section naming the same commits,
+  oldest first. A body carrying no index is not assessed, so most pull requests
+  pass it by not writing one, and the job checks out full depth because the
+  index is read against `git log` rather than the prose.
 - The sales-facing-language check scans all source, test and CSS comments
   included — developer wording about what changed is not for a rep.
 - A competitor catalogue row ages on the same evidence clock as a confirmed

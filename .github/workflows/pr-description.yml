@@ -7,6 +7,14 @@ name: PR description
 # the body with the head's latest check runs and the files the pull request
 # changes.
 #
+# A long branch adds a third claim no person can check by reading: a table saying
+# which commit sits in which section of the story. tools/check-pr-commit-index.mjs
+# reads the branch instead of the prose, and a body with no such table is not
+# assessed, so most pull requests pass it without writing one.
+#
+# The checkout is full-depth because the index is checked against `git log`: a
+# shallow clone cannot list the commits the description claims to describe.
+#
 # `edited` is in the trigger list on purpose: the fix for a failing run is an
 # edit to the description, and this workflow is deliberately small enough to
 # re-run on every body edit. The verify matrix stays on pushes only, so a
@@ -32,6 +40,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -43,3 +53,9 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: node tools/check-pr-description-freshness.mjs
+
+      - name: Check the description's commit index against the branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node tools/check-pr-commit-index.mjs
