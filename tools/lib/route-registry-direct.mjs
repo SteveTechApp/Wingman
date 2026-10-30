@@ -375,15 +375,26 @@ export function staleLinkKey(link) {
  * pin the pair, and pinning it is a decision about both. `stale` and `unreasoned` are
  * read off the baseline instead, in the order the file lists them, because a person
  * wrote them and reading them back in that order is what makes the report editable.
+ *
+ * Every row is read, not one row per pair: a pair recorded twice is two rows in the file,
+ * and the sentence on one of them says nothing about the other. Covering the pair is what
+ * the pair needs, so the first row for it is what `added` is answered from; saying
+ * something is what the file needs, so each row answers that for itself. Folding the two
+ * questions into one map let a second row hand its reason to a first that had none, and
+ * the run went green over a row nobody had explained — which is the growth the gate
+ * exists to stop, arriving one row below the one it reads.
+ *
  * A malformed entry (no file or no address) is skipped rather than matching everything:
  * a baseline that has drifted into rubbish should report the links, not excuse them.
  */
 export function compareStaleLinks({ links = [], baseline = [] } = {}) {
-  const pinned = new Map();
+  const pinned = new Set();
+  const recorded = [];
   for (const entry of Array.isArray(baseline) ? baseline : []) {
     const key = staleLinkKey(entry);
     if (!key) continue;
-    pinned.set(key, entry);
+    pinned.add(key);
+    recorded.push({ key, entry });
   }
 
   const found = new Set();
@@ -397,7 +408,7 @@ export function compareStaleLinks({ links = [], baseline = [] } = {}) {
 
   const stale = [];
   const unreasoned = [];
-  for (const [key, entry] of pinned) {
+  for (const { key, entry } of recorded) {
     if (!found.has(key)) stale.push(entry);
     else if (!String(entry?.reason ?? "").trim()) unreasoned.push(entry);
   }

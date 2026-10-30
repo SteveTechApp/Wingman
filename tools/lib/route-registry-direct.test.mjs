@@ -515,6 +515,29 @@ describe("compareStaleLinks", () => {
     expect(gate.added).toHaveLength(3);
     expect(gate.stale).toEqual([]);
   });
+
+  it("reports a row that says nothing even when another row covers the same pair", () => {
+    const [notDeclared, projectsExtra, proposals] = links();
+    const silent = { file: notDeclared.file, address: notDeclared.address, reason: "" };
+    const gate = compareStaleLinks({
+      links: links(),
+      baseline: [
+        silent,
+        { ...pin(notDeclared), reason: "the pair's decision" },
+        pin(projectsExtra),
+        pin(proposals),
+      ],
+    });
+
+    // The pair is covered, so nothing here is a link the tree has no decision for. The
+    // file still holds a row that says nothing, and the other row's sentence is about the
+    // other row: reading one row per pair let the allowance grow by a reasonless one and
+    // still exit 0, which is the rise this gate is for arriving one row below the row it
+    // read. A covered pair is one question; a row's own words are another.
+    expect(gate.added).toEqual([]);
+    expect(gate.stale).toEqual([]);
+    expect(gate.unreasoned).toEqual([silent]);
+  });
 });
 
 describe("mergeStaleLinkBaseline", () => {

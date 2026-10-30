@@ -798,7 +798,15 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   updating the baseline is a list of sentences to write rather than a quiet run. An
   entry is the file and the address as it was compared, never a line, so editing above a
   recorded link does not report the same decision as new work, and one entry covers
-  every occurrence of that pair in that file.
+  every occurrence of that pair in that file. Covering the pair is one question and a
+  row's own words are another, so the two failures that come from the file are read off
+  every row rather than off one row per pair: a pair recorded twice is two rows, and the
+  second row's sentence says nothing about the first. Folding the two into one lookup by
+  pair was how a rise rode in on a green run — a four-row probe of the two real entries
+  plus a reasonless row beside a reasoned row for the same pair printed `Allowance: 4`
+  and exited 0, and the row that made the count worth reading was never named; the change
+  reports that row and exits 1, and the probe and baseline were restored byte-identical
+  (`sha256`).
   The list also remembers when it grew, because a count says how much the allowance
   permits and not what the rise consists of. Each entry carries `addedAt`, the date it
   entered the list, and `addedBy`, the write that added it; `updatedAt` and `writeSeq` are
