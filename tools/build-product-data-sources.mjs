@@ -673,7 +673,11 @@ async function buildManifest(products, competitors, competitorFiles) {
 
   return {
     schemaVersion: 1,
-    generatedAt: "source-controlled",
+    // The one wall clock in the data pipeline. A proposal has to say when the
+    // product data behind it was assembled, and a document cannot answer that
+    // from a hash. The catalogue files themselves stay deterministic; this field
+    // is why regenerating the data dirties the manifest by exactly one line.
+    generatedAt: new Date().toISOString(),
     generator: "tools/build-product-data-sources.mjs",
     sourceFiles,
     hashes,

@@ -17,6 +17,7 @@ import {
   type CrmWebhookHistoryEntry,
 } from "./crmWebhook";
 import { buildWebhookPayload } from "./crmWebhookPayload";
+import { PRODUCT_DATA_MANIFEST } from "./productDataRevision";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -122,6 +123,11 @@ describe("crmWebhook", () => {
       expect(payload.products).toHaveLength(2);
       expect(payload.products[0].sku).toBe("NHD-500-TX");
       expect(payload.products[0].quantity).toBe(2);
+      // The CRM record outlives the catalogue, so it carries the same revision the
+      // printed documents do.
+      expect(payload.productDataRevision?.manifestHash).toMatch(/^[0-9a-f]{64}$/);
+      expect(payload.productDataRevision?.generatedAt).toBe(PRODUCT_DATA_MANIFEST.generatedAt);
+      expect(payload.productDataRevision?.buildCommit).toBeTruthy();
       expect(payload.discoveryConversation).toHaveLength(2);
       expect(payload.discoveryConversation?.[0].question).toBe("What type of opportunity is this?");
       expect(payload.discoveryConversation?.[0].answer).toBe("Meeting room / boardroom");

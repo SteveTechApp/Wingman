@@ -7,6 +7,7 @@ import type { StoredProjectProposal } from "../data/projectStore";
 import type { SalesBomRow } from "./salesReadiness";
 import { buildProposalDocx, exportProposalDocx } from "./proposalDocxExport";
 import { buildProposalHtml } from "./proposalExport";
+import { productDataRevision } from "./productDataRevision";
 import { createProposalWizardDefaults } from "./proposalWizard";
 import { wallMappingPreviews } from "./wallElevation";
 import { defaultWallRequirements, wallCanvasPlan, wallResolutionSummary } from "./videowallOptions";
@@ -454,5 +455,32 @@ describe("proposal DOCX export", () => {
     const documentXml = await zip.file("word/document.xml")!.async("string");
     expect(documentXml).toContain("COMMERCIAL HOLD");
     expect(documentXml).toContain("TBC");
+  });
+});
+
+describe("product-data revision line in the Word footer", () => {
+  it("names the data digest, the assembly date and the build on every page", async () => {
+    const wizard = createProposalWizardDefaults({
+      projectId: "government-control-room",
+      projectName: proposal.title,
+      preparedBy: "Solutions Team",
+      executiveSummary: proposal.summary,
+      architectureNarrative: "NetworkHD 600 10G AV-over-IP architecture.",
+    });
+    const revision = productDataRevision();
+    const buffer = await Packer.toBuffer(buildProposalDocx(proposal, bom, wizard));
+    const zip = await JSZip.loadAsync(buffer);
+
+    // A footer repeats on every page, which is what makes it the place a revision
+    // stamp belongs: a reader of page 9 has the same evidence as a reader of page 1.
+    const footerNames = Object.keys(zip.files).filter((name) => /^word\/footer\d*\.xml$/.test(name));
+    expect(footerNames.length).toBeGreaterThan(0);
+    const footers = (
+      await Promise.all(footerNames.map((name) => zip.file(name)!.async("string")))
+    ).join(" ");
+
+    expect(footers).toContain(revision.manifestHashShort);
+    expect(footers).toContain(`assembled ${revision.generatedOn}`);
+    expect(footers).toContain(`build ${revision.buildCommit}`);
   });
 });

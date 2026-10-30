@@ -494,6 +494,18 @@ states is one they trust by mistake.
 - `buildProposalHtml` is the only printed and PDF surface, so page setup,
   running headers and section order live there; the PDF export opens it and
   prints. An edit that reaches only a screen has not reached the document.
+- Every proposal document names the product data it was read from: one line
+  carrying the manifest digest, the manifest's assembly time and the build
+  commit. The Word footer, the printed control block and the CRM payload read
+  one record (`productDataRevision()`), so a document cannot quote a revision
+  the send that carries it does not. The digest is over the manifest's content
+  rather than its bytes — two checkouts of one commit disagree about line
+  endings, and `generatedAt` is excluded from it for the same reason in
+  miniature: the timestamp dates a run, the digest identifies the data. A
+  missing value prints `unknown` or `unversioned` instead of a guess, and the
+  commit carries `+dirty` when the tree it was built from was uncommitted,
+  because a document naming a clean commit for uncommitted code is the failure
+  this line exists to prevent. [Narrative](docs/PROPOSAL_OUTPUT.md)
 - A document's detail level decides which sections print: every section is filed
   at the shallowest level that carries it, and the levels are a ladder whose cut
   is the document's own layers. A new section is filed once, not branched on.

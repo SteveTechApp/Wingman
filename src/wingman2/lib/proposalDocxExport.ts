@@ -22,6 +22,7 @@ import { SCHEMATIC_COLORS, SCHEMATIC_NODE_COLORS } from "./schematic/schematicVi
 import { buildNativeCableSchedule, nativeCableToneLabel, cableValidationStatusLabel } from "./schematic/nativeCableSchedule";
 import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
 import { buildDesignProjectDocument, trackDesignProjectExport } from "../features/design-project";
+import { productDataRevision } from "./productDataRevision";
 import { buildDisplaySchedule } from "./displaySchedule";
 import {
   buildInstallationSchedule,
@@ -1014,7 +1015,30 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     sections: [{
       properties: { titlePage: true, page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440, header: 708, footer: 708 } } },
       headers: { first: new Header({ children: [] }), default: new Header({ children: [paragraph(`${company}  |  ${wizard.proposalReference}`, { alignment: AlignmentType.RIGHT, size: 17, colour: MUTED })] }) },
-      footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: `${proposal.proposalFooter || "Prepared using WyreStorm Wingman."}  |  Page `, color: MUTED, size: 16, font: "Calibri" }), new TextRun({ children: [PageNumber.CURRENT], color: MUTED, size: 16, font: "Calibri" })] })] }) },
+      footers: {
+        default: new Footer({
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: `${proposal.proposalFooter || "Prepared using WyreStorm Wingman."}  |  Page `,
+                  color: MUTED,
+                  size: 16,
+                  font: "Calibri",
+                }),
+                new TextRun({ children: [PageNumber.CURRENT], color: MUTED, size: 16, font: "Calibri" }),
+              ],
+            }),
+            // The printed sheet has to name the data behind it, and a Word
+            // document's footer is the one place that repeats on every page.
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [new TextRun({ text: productDataRevision().line, color: MUTED, size: 14, font: "Calibri" })],
+            }),
+          ],
+        }),
+      },
       children,
     }],
   });

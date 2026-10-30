@@ -130,6 +130,21 @@ export type CrmWebhookPayload = {
   };
   /** Timestamp when this payload was generated */
   generatedAt: string;
+  /**
+   * Which product data and build produced the document in this payload.
+   *
+   * The CRM record outlives the catalogue the proposal was read from, so a team
+   * looking at a quote later can tell whether it was built from current product
+   * data without opening Wingman.
+   */
+  productDataRevision?: {
+    /** Full SHA-256 of the product-data manifest content. */
+    manifestHash: string;
+    /** The manifest's own generation timestamp. */
+    generatedAt: string;
+    /** The commit that rendered the document. */
+    buildCommit: string;
+  };
   /** Wingman version marker */
   source: "wingman";
 };

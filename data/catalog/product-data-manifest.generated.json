@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "source-controlled",
+  "generatedAt": "2026-10-30T09:43:00.146Z",
   "generator": "tools/build-product-data-sources.mjs",
   "sourceFiles": [
     "data-sources/wyrestorm/products.csv",

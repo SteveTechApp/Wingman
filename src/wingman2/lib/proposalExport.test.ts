@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { StoredProjectProposal, StoredProductSelection } from "../data/projectStore";
 import { buildBomCsv, buildBomRows, buildProposalHtml, exportProposalHtml } from "./proposalExport";
+import { productDataRevision } from "./productDataRevision";
 import { defaultWallRequirements, wallCanvasPlan, wallResolutionSummary, type WallRequirements } from "./videowallOptions";
 import { wallStartPresets } from "./videowallDecision";
 import { wallStartingPointOrigin } from "./wallStartingPointOrigin";
@@ -571,5 +572,22 @@ describe("proposal download (blob URL lifecycle)", () => {
       Reflect.deleteProperty(URL, "revokeObjectURL");
       vi.restoreAllMocks();
     }
+  });
+});
+
+describe("product-data revision line in the printed proposal", () => {
+  it("names the data digest, the assembly date and the build in the control block", () => {
+    const html = buildProposalHtml(wallProposal(), [], [], null);
+    const revision = productDataRevision();
+
+    // The control block is the one place on the sheet a reader can find it, so the
+    // line lives beside the issue date and the design revision rather than in a
+    // comment or an attachment.
+    expect(html).toContain("<dt>Product data</dt>");
+    expect(html).toContain(revision.manifestHashShort);
+    expect(html).toContain(`assembled ${revision.generatedOn}`);
+    expect(html).toContain(`build ${revision.buildCommit}`);
+    expect(revision.manifestHashShort).toHaveLength(12);
+    expect(revision.manifestHash).toMatch(/^[0-9a-f]{64}$/);
   });
 });

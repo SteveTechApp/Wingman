@@ -1395,3 +1395,46 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
 - The Word export already carries its own running header, page-number footer
   and `tableHeader` rows, so page setup belongs to the HTML builder, not the
   DOCX.
+- Every proposal names the product data behind it, and the three facts that
+  answer "which data was this?" are printed together because each answers a
+  different half: `productDataRevision()` in `productDataRevision.ts` returns the
+  manifest digest, the manifest's assembly time and the build commit, and
+  `line` is the one sentence a document prints. The printed control block carries
+  it as a `Product data` row beside the issue date and the design revision, the
+  Word footer carries it on every page (a footer repeats, so the reader of page 9
+  has the evidence the reader of page 1 has), the PDF inherits it because the PDF
+  is the HTML, and the CRM payload carries the three fields as
+  `productDataRevision` so a record held by the CRM outlives the catalogue the
+  quote was read from. One record rather than four formatters: a send and the
+  document attached to it cannot disagree.
+  The digest is `sha256Hex` over the manifest's *content* — schema version, every
+  source hash and the counts, each list sorted — and deliberately not over the
+  manifest file's bytes. A CRLF checkout and an LF one hold the same product data
+  and hash to two different values, which would turn a traceability line into a
+  platform report; sorting also means a generator that reorders its own output
+  does not read as a data change. `generatedAt` is outside the canonical string
+  for the matching reason: the timestamp dates a run, the digest identifies the
+  data, so regenerating an unchanged catalogue moves one and not the other, and a
+  spec asserts exactly that (`productDataRevision.test.ts` also pins
+  `sha256Hex` against the FIPS 180-4 vectors and against `node:crypto`, which is
+  what makes a hand-written digest a reading rather than a rewrite of a standard
+  library; nothing else in the app hashes anything, and `crypto.subtle` is async
+  in every runtime that would need it).
+  `generatedAt` is the one wall clock in the data pipeline: the manifest used to
+  record the literal string `source-controlled`, which is honest about
+  determinism and useless to a document, so
+  `tools/build-product-data-sources.mjs` now writes the assembly time. The cost
+  is that regenerating the data dirties the manifest by exactly one line, which
+  is the reviewable statement that the data was regenerated; the catalogue files
+  themselves stay byte-deterministic, and the generator's own drift guard still
+  compares source hashes rather than the timestamp.
+  The build commit arrives through `vite.config.ts`: `resolveBuildCommit()` takes
+  `WINGMAN_BUILD_COMMIT` or `GITHUB_SHA` when a job supplies one, otherwise asks
+  git, and appends `+dirty` when the tree had uncommitted changes. It is injected
+  as `__APP_BUILD_COMMIT__`, a name `src/vite-env.d.ts` already declared and
+  nothing defined until now. A test run has no bundle and reads `unversioned`;
+  a manifest whose timestamp is not a date prints `assembled unknown`, because a
+  document that names the wrong commit or date is worse than one that names none.
+  The BOM CSV is the one output without the line: it is an equipment schedule a
+  buyer imports, not a document anyone signs, and a comment row would break the
+  parse it exists for.

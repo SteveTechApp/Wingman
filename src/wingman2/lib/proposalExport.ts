@@ -38,6 +38,7 @@ import { buildInstallationSchedule, installationCategoryLabel, installationTable
 import { CUSTOMER_COPY } from "./proposalCopy";
 import { buildDocumentAppendix, documentSectionPlan } from "./documentSections";
 import { HOUSE_DOCUMENT_BRAND, type DocumentDetail } from "./solutionTemplates";
+import { productDataRevision } from "./productDataRevision";
 
 export type BomRow = SalesBomRow;
 
@@ -449,6 +450,10 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   const currentDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const proposalRef = `WYR-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+  // Which product data and which build produced this document. Printed in the
+  // control block rather than only an attachment, because the reader who needs it
+  // is holding a sheet of paper.
+  const productDataLine = productDataRevision().line;
   // The printed sheet identifies itself: the running header names the document,
   // the margins carry the reference, the draft state and the page number.
   const runningHeader = `${companyName} · ${proposal.title}`;
@@ -728,6 +733,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
         <dt>Prepared by</dt><dd>${escapeHtml(preparedBy || companyName)}</dd>
         <dt>Issue date</dt><dd>${escapeHtml(currentDate)}</dd>
         <dt>Revision</dt><dd>${escapeHtml(proposal.updatedAt)}</dd>
+        <dt>Product data</dt><dd>${escapeHtml(productDataLine)}</dd>
       </dl>
     </section>
     </section>

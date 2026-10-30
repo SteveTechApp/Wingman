@@ -20,6 +20,7 @@
 import type { DiscoveryConversationItem } from "../data/projectStore";
 import type { CrmWebhookPayload } from "./crmWebhook";
 import { buildDiscoveryBriefHtml, fileBaseName } from "./discoveryBriefExport";
+import { productDataRevision } from "./productDataRevision";
 
 /**
  * Build the webhook payload from a StoredProject.
@@ -91,6 +92,14 @@ export function buildWebhookPayload(project: {
       notes: row.notes,
     })),
     generatedAt: new Date().toISOString(),
+    productDataRevision: (() => {
+      const revision = productDataRevision();
+      return {
+        manifestHash: revision.manifestHash,
+        generatedAt: revision.generatedAt,
+        buildCommit: revision.buildCommit,
+      };
+    })(),
     source: "wingman",
   };
 

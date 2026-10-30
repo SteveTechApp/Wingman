@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // The build records the bytes it read, which is what the browser walk asks for
@@ -18,6 +19,40 @@ const backendHost = String(process.env.VITE_WINGMAN_LOCAL_BACKEND_HOST || "127.0
 const parsedBackendPort = Number(process.env.VITE_WINGMAN_LOCAL_BACKEND_PORT || 8787);
 const backendPort = Number.isFinite(parsedBackendPort) ? parsedBackendPort : 8787;
 const apiProxyTarget = String(process.env.VITE_API_PROXY_TARGET || `http://${backendHost}:${backendPort}`).trim();
+
+/**
+ * The commit the bundle was built from, for the product-data revision line a
+ * proposal prints.
+ *
+ * The define is what lets a printed document name its own code without a server
+ * asking on its behalf: a browser has no commit to look up. A CI job supplies its
+ * own SHA, a developer's build asks git, and a checkout git cannot answer for
+ * stays `unversioned` rather than naming a commit it does not have. `+dirty` is
+ * part of the value on purpose — a document generated from uncommitted code names
+ * a commit whose tree it is not, and that is the one thing this line exists to
+ * prevent.
+ */
+function resolveBuildCommit(): string {
+  const injected = String(process.env.WINGMAN_BUILD_COMMIT || process.env.GITHUB_SHA || "").trim();
+  if (injected) return injected.slice(0, 12);
+  try {
+    const commit = execFileSync("git", ["rev-parse", "--short=12", "HEAD"], {
+      cwd: __dirname,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    const dirty = execFileSync("git", ["status", "--porcelain"], {
+      cwd: __dirname,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    return commit ? `${commit}${dirty ? "+dirty" : ""}` : "unversioned";
+  } catch {
+    return "unversioned";
+  }
+}
+
+const buildCommit = resolveBuildCommit();
 
 const serverHost = String(process.env.VITE_SERVER_HOST || process.env.WINGMAN_UI_HOST || "127.0.0.1").trim();
 const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || process.env.VITE_WINGMAN_UI_PORT || 3000);
@@ -95,6 +130,9 @@ function wingmanChunkBudget(): Plugin {
 }
 
 export default defineConfig({
+  // `src/vite-env.d.ts` declares this and three other build-time names; this is
+  // the one a document prints, so it is the one that has to be real.
+  define: { __APP_BUILD_COMMIT__: JSON.stringify(buildCommit) },
   plugins: [
     tailwindcss(),
     react(),
