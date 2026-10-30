@@ -28,7 +28,8 @@ The database-backed deployment procedures below are retained for later use.
 See [data revision mode](DATA_REVISION_MODE.md) for current defaults and restoring gates.
 
 Operational procedures for running Wingman in production: secrets, key rotation,
-storage, monitoring, incident response, and the outstanding security hardening item (CSRF).
+storage, monitoring, incident response, repository hygiene (dropping a stash without
+losing it), and the outstanding security hardening item (CSRF).
 
 This complements `DEPLOYMENT.md` (how to deploy) and `SUPABASE_SETUP.md` (database setup).
 
@@ -296,6 +297,67 @@ workspaces, sessions, projects, invitations, audit, telemetry). To move to produ
 6. Keep the JSON backup until the migration is confirmed in production.
 
 > Do not run a bulk importer blind against production — verify against staging first.
+
+---
+
+## 9. Dropping a stash without losing it
+
+`git stash drop` is the one delete in this workflow with nothing behind it: the commit
+stops being reachable, the reflog entry that named it expires, and a later
+`git gc --prune` is entitled to collect it. Pin first, drop second.
+
+Pin every stash you are about to drop under `refs/archive/`, one ref each:
+
+```
+git update-ref refs/archive/stashes-2026-10-30/0-videowall-template-home "$(git rev-parse stash@{0})"
+```
+
+A ref is what makes a drop reversible; the reflog is not. A pinned commit also keeps its
+parents reachable, which matters here because a stash's never-committed work lives in its
+third parent, `stash@{N}^3` — several of this repo's stashes kept the interesting half
+there rather than in the tracked diff, so a pin that only looked at the stash commit
+itself would still have lost it.
+
+Drop from the highest index down. `git stash drop stash@{0}` renumbers the stack, so a
+loop that counts upward drops a different entry each time after the first:
+
+```
+for i in 7 5 4 3 2 1 0; do git stash drop "stash@{$i}"; done
+```
+
+Then check the pins read. A ref pointing at the wrong commit lists nothing, and an empty
+listing is the failure that otherwise looks like a clean run:
+
+```
+git for-each-ref --format='%(refname) %(objectname:short)' refs/archive/
+git ls-tree -r refs/archive/stashes-2026-10-30/6-stabilization-clean-tree | wc -l
+```
+
+Anything worth keeping goes to disk before the drop, checked against the blob rather than
+trusted:
+
+```
+git cat-file -p <pin>^3:public/brand/logo.webp > public/brand/logo.webp
+git hash-object public/brand/logo.webp      # must equal the next line
+git rev-parse  <pin>^3:public/brand/logo.webp
+```
+
+Pins are local. `git push` does not send them and neither does `git push --all`; they
+survive collection on this machine and nothing else. Work that has to outlive a clone
+belongs on a branch — a pin makes a drop undoable, it is not somewhere to store a change.
+Delete them deliberately once the decision is settled:
+
+```
+git update-ref -d refs/archive/stashes-2026-10-30/0-videowall-template-home
+```
+
+A ref only helps while someone knows what it is. Name it for the stash it shelters rather
+than an index, keep one date per cleanup, and say in the note beside the drop which pin
+holds what — the refs are the only record, because a dropped stash leaves none behind.
+
+> The eight stashes pinned on 2026-10-30 were each re-read out of their pins after the
+> drop to confirm the refs held, and two files were then recovered from those pins to
+> prove a deleted asset was still reachable.
 
 ---
 
