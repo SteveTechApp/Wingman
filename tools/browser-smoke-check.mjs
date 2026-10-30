@@ -36,16 +36,30 @@ import {
   crmWidestRowNotWrappedFailure,
 } from "./lib/crm-history-rows.mjs";
 import {
-  bandCountSequenceFailure,
-  bandCountsClause,
-  readBandCountSequence,
-} from "./lib/gallery-band-counts.mjs";
-import {
   HERO_VIEWPORTS,
   heroContainmentFailure,
   readHeroActionRow,
 } from "./lib/hero-header-layout.mjs";
 import { readRecentStripPick } from "./lib/recent-strip-pick.mjs";
+import {
+  RECENT_SHORT_CHIP,
+  RECENT_STRIP_VIEWPORTS,
+  readRecentStripWidth,
+} from "./lib/recent-strip-layout.mjs";
+import {
+  JOURNEY_SWEEP,
+  journeyEndsClause,
+  journeyEntryFailure,
+  journeyStripReading,
+  journeySweepClause,
+  tightestJourneyColumn,
+} from "./lib/journey-strip.mjs";
+import {
+  SAVED_DESIGN_NAME_FLOOR,
+  designNameWidthAgreementFailure,
+  designNameWidthClause,
+} from "./lib/saved-design-names.mjs";
+import { readStepCard } from "./lib/proposal-step-cards.mjs";
 import {
   GALLERY_CARD_VIEWPORTS,
   GALLERY_CONFLICT_FIELDS,
@@ -54,29 +68,8 @@ import {
   GALLERY_ROW_STATES,
   GALLERY_TEMPLATE_KEY,
 } from "./lib/gallery-row-states.mjs";
-import {
-  WALL_START_VIEWPORTS,
-  wallStartBriefLeadsFailure,
-  wallStartReadoutFailure,
-  wallStartStepFailure,
-} from "./lib/wall-start-step.mjs";
-import { SAVED_DESIGN_NAME_FLOOR, designNameWidthClause, savedDesignNameFailure } from "./lib/saved-design-names.mjs";
-import { readStepCard } from "./lib/proposal-step-cards.mjs";
-import {
-  recentChipLabelsFailure,
-  recentColumnDivergenceFailure,
-  recentColumnMatchFailure,
-  recentDesignMissingFailure,
-  recentDesignNameFailure,
-  recentFlagCountFailure,
-  recentFlagShareLineFailure,
-  recentFlagStackFailure,
-  recentPickFailure,
-  recentRoleFailure,
-  recentRowShapeFailure,
-  recentShortChipFailure,
-  recentSqueezeFailure,
-} from "./lib/recent-strip-rows.mjs";
+import { WALL_START_VIEWPORTS, readWallStartStep } from "./lib/wall-start-step.mjs";
+import { recentChipLabelsFailure, recentPickFailure } from "./lib/recent-strip-rows.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1177,6 +1170,10 @@ async function assertGalleryCardActions(page) {
   // Each width's own count, so a width that clears the floor still names its number:
   // the 581px reading was the one the floor question was asked about, and the
   // sentence above it only ever printed the run's global minimum.
+  // The pick and the cell beside it have to have been given one column, or the count
+  // beside the pick is one card's width printed as the width's reading.
+  const nameAgreementFailure = designNameWidthAgreementFailure(designNameReadings);
+  if (nameAgreementFailure) throw new Error(nameAgreementFailure);
   const designNameByWidth = designNameWidthClause(designNameReadings);
   console.log(`[browser-smoke] ${GALLERY_ROW_STATES.length} gallery card row states hold their action rows at ${measuredWidths}, each one seeded and measured from the same list: ${rowClauses.join("; ")}. ${sharingClause}The store line above the cards names the same lanes at those widths: at 360px the card's lane label holds ${cardLabelAt360}px and the line's ${narrowestLabel}px. Each design entry prints at least ${SAVED_DESIGN_NAME_FLOOR} characters of the design's name — at 360px the longest-named entry ("${firstEntry?.name}") is ${firstEntry?.width}px and prints ${firstEntry?.nameCharacters} of ${firstEntry?.name.length} characters, and the tightest entry this run met was ${tightestName?.printed} of ${tightestName?.characters} on ${tightestName?.room}'s card at ${tightestName?.at} (a ${tightestName?.entry}px entry in a ${tightestName?.columns}-column gallery, ${tightestName?.sharedLine ? "the pair on its line" : "the pair below it"}). ${designNameByWidth}`);
 }
@@ -1236,12 +1233,6 @@ const RECENT_ROOM_IDS = [
 const RECENT_CARD_STATUSES = ["alternative", "recommended", "caution"];
 
 /**
- * The one seeded chip whose label is shorter, and so the one whose card keeps the
- * widest copy column.
- */
-const RECENT_SHORT_CHIP = "caution";
-
-/**
  * One saved design per recent room, named longer than any card can print.
  *
  * The recent card prints a link per design below its survey flags, and the flag
@@ -1291,34 +1282,6 @@ const RECENT_DESIGN_STAMP = "2026-10-24T10:00:00.000Z";
  * the same reading the gallery card's entries are held to.
  */
 /** The floor is `SAVED_DESIGN_NAME_FLOOR`: the same number the gallery card's design links hold. */
-
-/**
- * How far apart the seeded chips have to leave the widest and narrowest columns in
- * the band where the chip is the card's leading cell, in pixels.
- *
- * `alternative` and `caution` are four characters apart, which measures 18px on
- * this card at 561px. A floor of 8px is far enough under that to absorb the
- * runner's fallback font and close enough to catch a chip that stopped widening
- * its column at all — a chip given a fixed grid track, or one taken out of the
- * row above the block, leaves the columns equal and this reading is what says so.
- *
- * One floor serves both readings: the spread between the widest and narrowest
- * columns, and the margin by which the card wearing the short chip has to be the
- * widest of the three. They are two questions about one measurement — whether the
- * columns differ at all, and which card's chip they differ by — so a second number
- * would only be another thing to keep in step with the runners' fallback font.
- */
-const RECENT_SEEDED_DIVERGENCE = 8;
-
-/**
- * The width the strip stops laying its cards out as one row.
- *
- * The stylesheet stacks them below 1181px, one card per row, because a third of a
- * narrower strip cannot hold the widest reading a card carries beside its leading
- * chip; the walk reads both sides of it (1181px and 1180px) so a breakpoint moved
- * to another width fails here instead of leaving the row shape unmeasured.
- */
-const RECENT_STRIP_STACK_BELOW = 1180;
 
 /**
  * A worksheet review as a saved wall keeps it: the design is `project.videowall`
@@ -1481,6 +1444,11 @@ const RECENT_SURVEY_CLEARED = recentWallReview(20, recentReviewRows(2));
  * a pass that indexed into its own seed measured whatever happened to be there and
  * reported a fit for cards it had never seeded. Every failure below names a card by
  * its own text, and the summary pairs each chip with the room the page put it on.
+ *
+ * The rules over what those boxes mean are in `recent-strip-layout.mjs`, with a spec:
+ * the widths, the seeded constants, the flag-band grouping and every per-width verdict.
+ * What is left here is the seeding, the `page.evaluate` that produces the boxes, and the
+ * summary that prints what it kept.
  */
 async function assertGuidedRecentFlags(page) {
   const base = `http://127.0.0.1:${port}`;
@@ -1639,27 +1607,17 @@ async function assertGuidedRecentFlags(page) {
     throw new Error(recentChipLabelsFailure({ cards: leadingChips }));
   }
 
-  // Every width that says something about the copy column: the laptop strip, both
-  // sides of the block whose top lets the flags wrap (561 and 560), the phone width
-  // the strip is most often read at (390), both sides of the chevron's own edge
-  // (383 and 381) and the narrowest phone (360).
+  // Every width in the strip's own table. The rules over what those widths measure live
+  // in `recent-strip-layout.mjs`, asked once per width so a width cannot be held to the
+  // flag-row rule and skipped past the column one; what is left here is the
+  // `page.evaluate` that produces the boxes and the summary that prints them.
   const columnReadings = [];
-  // What each card's saved-design link printed at the widths where three cards share
-  // the strip, for the summary below.
+  // What each card's saved-design link printed at every width the strip is measured at,
+  // for the summary below.
   const designReadings = [];
-  // How many lines a card's flags occupy, read by vertical overlap rather than by
-  // equal tops: the chip is a shorter box than the re-confirm action beside it and
-  // sits centred on the same row, so equal tops would read one line as two.
-  const linesIn = (card) => {
-    const bands = [];
-    for (const flag of [...card.flags].sort((left, right) => left.top - right.top)) {
-      if (bands.some((band) => flag.top < band.bottom - 1 && flag.bottom > band.top + 1)) continue;
-      bands.push({ top: flag.top, bottom: flag.bottom });
-    }
-    return bands.length;
-  };
-  for (const width of [1366, 1181, 1180, 561, 560, 390, 383, 381, 360]) {
-    await page.setViewportSize({ width, height: width >= 1180 ? 900 : 800 });
+  for (const viewport of RECENT_STRIP_VIEWPORTS) {
+    const { width } = viewport;
+    await page.setViewportSize(viewport);
     const at = `${width}px`;
     await expect(staleChip, `The stale survey reading should still be on its card at ${at}`).toBeVisible();
     await expect(clearedChip, `The cleared survey reading should still be on its card at ${at}`).toBeVisible();
@@ -1774,312 +1732,25 @@ async function assertGuidedRecentFlags(page) {
       if (card.missing) {
         throw new Error(`The recent strip lost the card for ${roomName(card.id)} at ${at}.`);
       }
-      if (!card.row) {
-        throw new Error(`The recent card for ${card.name} has no flag row to measure at ${at}.`);
-      }
-      if (card.row.clipped > 1) {
-        throw new Error(
-          `The recent card's flag row is ${card.row.clipped}px wider than its column at ${at}.`,
-        );
-      }
-      if (width <= 560 && (card.row.display !== "flex" || card.row.wrap !== "wrap")) {
-        throw new Error(
-          `The recent card's flag row no longer wraps at ${at} (${card.row.display}/${card.row.wrap}), so a long reading is squeezed instead of moving to a second line.`,
-        );
-      }
-      for (const flag of card.flags) {
-        if (flag.escaped) {
-          throw new Error(`A recent card flag left the card at ${at}: ${flag.name}.`);
-        }
-        if (flag.clipped > 1) {
-          throw new Error(`A recent card flag is ${flag.clipped}px wider than its own box at ${at}: ${flag.name}.`);
-        }
-        if (flag.label > 1) {
-          throw new Error(
-            `A recent card flag truncated its label at ${at}: ${flag.name} printed ${JSON.stringify(flag.labelText)}.`,
-          );
-        }
-      }
     }
-
-    // The saved-design link, read at every width the strip is measured at. It is the
-    // one cell on the card whose payload is a design's name, and it is a single nowrap
-    // line clipped by the copy column — but the reading used to stop at the stacked
-    // band's edge, on the argument that the column widens there, which left the phone
-    // with no reading at all: a rule that squeezed the link under 1181px passed
-    // silently. The stylesheet's own floor (`min-width: min(30ch, 100%)` on the link)
-    // makes the promise at every width, so this asks it at every width. The band's
-    // columns are where the floor is closest to biting and the phone is where the verb
-    // is dropped and the whole line is the name, so both are measured rather than one
-    // standing in for the other. The name is held to the store's own row rather than
-    // only measured for its length: `assertGalleryCardActions` seeds designs for these
-    // same rooms, and a merge that appended instead of replacing would have this
-    // reading taken on the earlier save.
-    if (cards.length) {
-      for (const card of cards) {
-        const expected = RECENT_DESIGN_NAMES[card.id];
-        if (!card.design) {
-          throw new Error(recentDesignMissingFailure({ room: card.name, expected, at }));
-        }
-        if (card.design.name !== expected) {
-          throw new Error(
-            recentDesignNameFailure({ room: card.name, expected, printed: card.design.name, at }),
-          );
-        }
-        if (card.design.escaped) {
-          throw new Error(
-            `The recent card for ${card.name} printed its saved-design link outside the card at ${at}.`,
-          );
-        }
-        if (card.design.visible < SAVED_DESIGN_NAME_FLOOR) {
-          throw new Error(
-            savedDesignNameFailure({
-              surface: "recent card",
-              room: card.name,
-              design: expected,
-              visible: card.design.visible,
-              characters: expected.length,
-              floor: SAVED_DESIGN_NAME_FLOOR,
-              at,
-            }),
-          );
-        }
-      }
-      designReadings.push({
-        width,
-        cards: cards.map((card) => ({
-          room: card.name,
-          visible: card.design.visible,
-          characters: card.design.characters,
-        })),
-      });
+    // One call for the width: the card's own boxes, the design link's name, the column
+    // its reading has to fit, the roles, the row shape, the seeded divergence, both edges
+    // of the phone block and the chevron's own. A caller that could ask one of them and
+    // forget the rest would report a fit for a width whose row was no longer the row.
+    const measuredWidth = readRecentStripWidth(cards, { width, designs: RECENT_DESIGN_NAMES });
+    if (measuredWidth.failure) throw new Error(measuredWidth.failure);
+    if (!measuredWidth.reading) {
+      throw new Error(`The recent strip printed no cards to measure at ${at}.`);
     }
-
-    // The copy column, read after the per-card checks so a card that clips its
-    // label is reported as that rather than as a column width. It is read at every
-    // width the walk loads and not only at the two edges of a band, because the
-    // band's shape used to be arithmetic: while the chevron showed, the column was
-    // the viewport minus 104px, so 383px was said to be the tightest and the top of
-    // the phone block the widest with neither measured. 390px puts a number on the
-    // middle of that range.
-    //
-    // Each card is judged against its own column. The column is what that card's
-    // grid keeps after its leading status chip, its chevron and the two gaps
-    // between them, and those chips are not the same width on a stale card and a
-    // cleared one — so the strip can print a wider reading in a wider column. This
-    // used to record only the card with the least slack and report its reading,
-    // which held the tightest case and left the other card's reading compared with
-    // nothing: a divergence between the two columns would keep one reading 1px
-    // inside its own column while the number the pass printed belonged to the
-    // other card, and the strip would read as verified where the wide reading had
-    // never been measured.
-    const widestReading = (card) =>
-      card.flags.reduce((widest, flag) => (flag.width > widest.width ? { ...flag, width: flag.width } : widest), {
-        width: 0,
-        name: "no reading",
-      });
-    const cardReadings = cards.map((card) => {
-      const reading = widestReading(card);
-      const copy = card.copy ?? 0;
-      return {
-        id: card.id,
-        // The room the card is for, as the card prints it, and the flag the reading
-        // belongs to, kept apart because the summary prints both.
+    columnReadings.push(measuredWidth.reading);
+    designReadings.push({
+      width,
+      cards: cards.map((card) => ({
         room: card.name,
-        chip: card.chip,
-        copy,
-        widest: reading.width,
-        reading: reading.name,
-        slack: copy - reading.width,
-      };
+        visible: card.design.visible,
+        characters: card.design.characters,
+      })),
     });
-    // The strip's widest reading, for the summary: the summary reports what the
-    // strip prints, not what the tightest card happens to print, because the two
-    // are different numbers once the columns diverge.
-    const widestInStrip = cardReadings.reduce((widest, card) => (card.widest > widest.widest ? card : widest));
-    const tightestHere = cardReadings.reduce((min, card) => (card.slack < min.slack ? card : min));
-    for (const card of cardReadings) {
-      if (card.slack >= -1) continue;
-      // One pixel over is tolerated, the way every other box in this walk is:
-      // the app names `Geist Variable`, `Geist` and `Inter` in `--wm-font` with
-      // no `@font-face` in the tree, so the runner's fallback can move a chip by
-      // a pixel. Measured 0px to spare at the chevron's edge, so a squeeze of 2px
-      // or more is a real one.
-      throw new Error(
-        recentSqueezeFailure({
-          room: card.room,
-          reading: card.reading,
-          widest: card.widest,
-          copy: card.copy,
-          slack: card.slack,
-          width,
-          at,
-        }),
-      );
-    }
-    // Which card is the stale one, and which are the cleared ones, is read off the
-    // page rather than taken from the seed's order. Naming them `cards[0]` and
-    // `cards[1]` made the role follow `RECENT_ROOM_IDS`: a list written the other way
-    // round measured a cleared card as the stale one, and the flags count reported
-    // that as a missing action rather than as the seed being ordered differently. The
-    // card carrying the action that settles its survey is the stale one, and the
-    // strip holds exactly one; every other card is a cleared review.
-    const stale = cards.find((card) => card.settles);
-    const cleared = cards.filter((card) => !card.settles);
-    if (!stale || !cleared.length || cards.filter((card) => card.settles).length !== 1) {
-      throw new Error(
-        recentRoleFailure({
-          cards: cards.map((card) => ({ name: card.name, settles: card.settles, flags: card.flags.length })),
-          at,
-        }),
-      );
-    }
-    // The strip's own row shape: three cards on one row above the width it
-    // stacks at, one card per row below it. A breakpoint moved to another width
-    // leaves every reading above green — each card still fits the column it is
-    // given — and only this says the third card stopped sitting beside the other
-    // two, which is the row it was printed for.
-    const rows = new Set(cards.map((card) => card.top)).size;
-    const stacked = width <= RECENT_STRIP_STACK_BELOW;
-    if (stacked ? rows !== cards.length : rows !== 1) {
-      throw new Error(
-        recentRowShapeFailure({ cards, rows, at, stacked, stackBelow: RECENT_STRIP_STACK_BELOW }),
-      );
-    }
-
-    // The divergence the columns have is the walk's own seeding, and it is read
-    // instead of assumed: a chip that stopped widening its card's column above the
-    // block would leave every column the same width with every check above still
-    // green, which is one column measured three times and reported as three. Below
-    // the block the same reading runs the other way, because the chip has a row of
-    // its own there (`grid-column: 1 / -1`) and the divergence is supposed to be gone.
-    const copies = cardReadings.map((card) => card.copy);
-    const divergence = Math.max(...copies) - Math.min(...copies);
-    // Which shape the strip gives the leading chip is read with the widths, not
-    // assumed: it has a row of its own in the phone block and in the three-column
-    // band, where a card is narrower than the strip, and it is the card's leading
-    // grid cell in the single-column band between them. The divergence is held to
-    // that shape — apart where the chip is a cell, matched where it is out of the
-    // row — so a rule that moved either edge of either band is reported as the
-    // columns it actually printed.
-    const chipInOwnRow = width <= 560 || width >= RECENT_STRIP_STACK_BELOW + 1;
-    if (!chipInOwnRow && divergence < RECENT_SEEDED_DIVERGENCE) {
-      throw new Error(
-        recentColumnDivergenceFailure({
-          columns: cardReadings,
-          divergence,
-          chips: cardReadings.map((card) => JSON.stringify(card.chip)),
-          seededDivergence: RECENT_SEEDED_DIVERGENCE,
-          at,
-        }),
-      );
-    }
-    if (chipInOwnRow && divergence > 1) {
-      throw new Error(
-        recentColumnMatchFailure({
-          columns: cardReadings,
-          divergence,
-          chips: cardReadings.map((card) => JSON.stringify(card.chip)),
-          at,
-        }),
-      );
-    }
-
-    // Where the width came from, which the max-to-min reading above cannot say: the
-    // two long labels are the same length, so the only column the seed decides here
-    // is the short chip's, and it belongs to the third card. If that card's chip
-    // stopped widening its column the spread above would still show — the two long
-    // labels leave the columns unequal on their own — so the ordering is read
-    // instead of the spread: the card wearing `caution` keeps the widest column, and
-    // each of the two wearing an eleven-character label keeps a narrower one.
-    if (!chipInOwnRow) {
-      const shortCard = cardReadings.find((card) => card.chip === RECENT_SHORT_CHIP);
-      const longCards = cardReadings.filter((card) => card.chip !== RECENT_SHORT_CHIP);
-      const narrowBy = shortCard && longCards.length === cardReadings.length - 1
-        ? Math.min(...longCards.map((card) => shortCard.copy - card.copy))
-        : null;
-      if (narrowBy === null || narrowBy < RECENT_SEEDED_DIVERGENCE) {
-        throw new Error(
-          recentShortChipFailure({
-            columns: cardReadings,
-            at,
-            shortChip: RECENT_SHORT_CHIP,
-            seededDivergence: RECENT_SEEDED_DIVERGENCE,
-            narrowBy,
-          }),
-        );
-      }
-    }
-    columnReadings.push({ width, cards: cardReadings, widest: widestInStrip, tightest: tightestHere, divergence });
-    // The block's top is read rather than assumed. A block moved one pixel up would
-    // leave the row wrapping at its old top with every box still fitting — the
-    // widths below it would keep their shape and the columns still hold their
-    // readings — so the shape is read at each width instead: above the block the row
-    // is the stacked grid again, one flag per line, because that is what the block
-    // gave up.
-    if (width > 560) {
-      for (const card of cards) {
-        if (card.row.display !== "grid") {
-          throw new Error(
-            `The recent card's flag row is still ${card.row.display}/${card.row.wrap} at ${at}, above the block ` +
-              "that lets the flags share a line: its top is where the row goes back to one flag per row, so a width " +
-              "above it has to read as the stacked grid.",
-          );
-        }
-      }
-    }
-
-    // The chevron is decorative — the whole card is one hit area — so the narrow
-    // band gives its 28px to the copy column, which is what lets the widest
-    // reading print whole at the band's edge. It is read after the readings so a
-    // card that clips its label is reported as that, not as a chevron.
-    for (const card of cards) {
-      if (width <= 382 && card.arrow !== "none") {
-        throw new Error(
-          `The recent card kept its chevron at ${at} (display: ${card.arrow}), where the copy column needs its 28px.`,
-        );
-      }
-      if (width > 382 && card.arrow === "none") {
-        throw new Error(`The recent card dropped its chevron at ${at}, where there is room for both.`);
-      }
-    }
-
-    // The stale card is the widest row the strip holds - its chip and the action
-    // that settles it - and a cleared review is rows to work rather than a date
-    // to renew, so a walk that measured anything less would report a fit it never
-    // met.
-    if (stale.flags.length !== 2) {
-      throw new Error(
-        recentFlagCountFailure({ role: "stale", room: stale.name, count: stale.flags.length, at }),
-      );
-    }
-    const crowded = cleared.find((card) => card.flags.length !== 1);
-    if (crowded) {
-      throw new Error(
-        recentFlagCountFailure({ role: "cleared", room: crowded.name, count: crowded.flags.length, at }),
-      );
-    }
-
-    // What the top of the phone block buys, read there and on the other side of it
-    // rather than inferred from the width: at 560px, the block's last width, the
-    // stale card's chip and the action that settles it share one line, and at 561px
-    // each has a line of its own because the row is the stacked grid again. A rule
-    // that narrowed the copy column inside the block leaves every other reading
-    // green — each flag still fits its own box and the row still fits its column —
-    // and only the pair splitting says the column stopped holding them beside each
-    // other, which is the row the block exists to save.
-    if (width === 560 && linesIn(stale) !== 1) {
-      throw new Error(recentFlagShareLineFailure({ lines: linesIn(stale), at }));
-    }
-    if (width === 561 && (linesIn(stale) !== 2 || cleared.some((card) => linesIn(card) !== 1))) {
-      throw new Error(
-        recentFlagStackFailure({
-          stale: linesIn(stale),
-          cleared: cleared.map((card) => ({ ...card, lines: linesIn(card) })),
-          at,
-        }),
-      );
-    }
   }
 
   await page.setViewportSize({ width: 1366, height: 900 });
@@ -2173,19 +1844,11 @@ async function assertGuidedRecentFlags(page) {
  * ends. The sweep reads only the widths it compares, because it runs at all 1007 of
  * them; the containment and truncation rules run at the width it points to, so a page
  * that re-columns its entries somewhere in between is measured where it squeezes.
- */
-/**
- * The widths the journey strip is swept one pixel at a time, both ends included.
  *
- * A sweep rather than a list of breakpoints, because the entry grid is
- * `repeat(auto-fit, minmax(210px, 1fr))`: the column count changes wherever a
- * whole extra 210px track fits, so the newsprint width — the entry just before
- * that track appears — moves with the page's own insets and the shell's sidebar
- * rather than with a breakpoint anyone wrote down. 360px and 1366px are the ends
- * a rep reads at, not necessarily the tightest place in between.
+ * The rules over those boxes, and over which of the swept widths is the tightest, are in
+ * `journey-strip.mjs` with a spec; what is left here is the page it opens, the widths it
+ * sets and the summary it prints.
  */
-const JOURNEY_SWEEP = { from: 360, to: 1366 };
-
 /**
  * The strip's widths at whatever viewport is set — no boxes per part.
  *
@@ -2224,16 +1887,18 @@ async function readJourneyStripWidths(page) {
  * one reading, and the phone end of it is the screen a rep holds.
  */
 async function findTightestJourneyWidth(page) {
-  let tightest = null;
+  const readings = [];
   for (let width = JOURNEY_SWEEP.from; width <= JOURNEY_SWEEP.to; width += 1) {
     // The height only has to be a page: what the sweep compares is laid out by
     // width, and switching it at every step would resize twice for one reading.
     await page.setViewportSize({ width, height: width <= 480 ? 800 : 900 });
     const read = await readJourneyStripWidths(page);
-    if (!read || !read.copyMin) continue;
-    if (!tightest || read.copyMin < tightest.copyMin) tightest = { width, ...read };
+    if (read) readings.push({ width, ...read });
   }
-  return tightest;
+  // Which of the 1007 readings is the tightest is arithmetic on the list, so it lives in
+  // `journey-strip.mjs` where a spec can write the plateaus — a run of identical columns
+  // and where the tie goes — that a browser only sometimes lays out.
+  return tightestJourneyColumn(readings);
 }
 
 async function assertOpenedFeatureJourney(page) {
@@ -2331,90 +1996,29 @@ async function assertOpenedFeatureJourney(page) {
       };
     });
 
-    if (measured.strip.scroll > measured.strip.width + 1) {
-      throw new Error(
-        `The journey strip scrolls sideways at ${at} (${measured.strip.scroll} > ${measured.strip.width}), so an entry is wider than the page that holds it.`,
-      );
-    }
-    if (!measured.actions) {
-      throw new Error(`The opened journey strip has no entry grid to measure at ${at}.`);
-    }
-    if (measured.actions.scroll > measured.actions.width + 1) {
-      throw new Error(
-        `The journey strip's entries overflow their own grid at ${at} (${measured.actions.scroll} > ${measured.actions.width}).`,
-      );
-    }
-    if (measured.entries.length !== count) {
-      throw new Error(
-        `The journey strip showed ${measured.entries.length} entries at ${at} where it printed ${count} when it opened.`,
-      );
-    }
+    // The strip's own boxes and each entry's: the page hold, the entry grid, the count
+    // the strip opened with, and every label, reason and chevron inside the column the
+    // grid gave it. One call, so a width cannot be asked the containment rules and left
+    // unmeasured for a truncated reason.
+    const failure = journeyEntryFailure(measured, { at, count });
+    if (failure) throw new Error(failure);
 
-    for (const entry of measured.entries) {
-      const name = entry.label || "(an entry with no label)";
-      if (!entry.label) {
-        throw new Error(`A journey strip entry prints no label at ${at}, so the row cannot say where it goes.`);
-      }
-      if (!entry.reason) {
-        throw new Error(`The journey strip's "${name}" entry prints no reason at ${at}.`);
-      }
-      if (!entry.arrow) {
-        throw new Error(`The journey strip's "${name}" entry lost its chevron at ${at}.`);
-      }
-      // The entry's own box is the column the grid gave it: content that pushed it
-      // wider shows up here even when the label's box still fits.
-      if (entry.box.clipped > 1) {
-        throw new Error(
-          `The journey strip's "${name}" entry is ${entry.box.clipped}px wider than its own box at ${at}, so the chevron sits outside the column.`,
-        );
-      }
-      if (entry.escaped) {
-        throw new Error(
-          `The journey strip let "${name}" print ${entry.escaped} of its parts outside its column at ${at}; the label, the reason and the chevron stay inside the entry.`,
-        );
-      }
-      if (entry.labelBox.clipped > 1) {
-        throw new Error(
-          `The journey strip cut "${name}" at ${at}, which spends the label a rep chooses the tool by.`,
-        );
-      }
-      if (entry.reasonBox.clipped > 1) {
-        throw new Error(
-          `The journey strip cut the reason under "${name}" at ${at}, so the entry fits by dropping the sentence that says why to use it.`,
-        );
-      }
-    }
-
-    const widths = measured.entries.map((entry) => entry.copy?.width ?? 0);
-    readings.push({
-      at,
-      width: viewport.width,
-      strip: measured.strip.width,
-      entry: Math.min(...measured.entries.map((entry) => entry.box.width)),
-      copyMin: Math.min(...widths),
-      copyMax: Math.max(...widths),
-    });
+    readings.push(journeyStripReading(measured, { width: viewport.width }));
   }
 
   await page.setViewportSize({ width: 1366, height: 900 });
   const laptop = readings.find((reading) => reading.width === 1366);
   const phone = readings.find((reading) => reading.width === 360);
   const tight = readings.find((reading) => reading.width === tightest.width);
-  const column = (reading) =>
-    !reading
-      ? "no reading"
-      : reading.copyMin === reading.copyMax
-        ? `${reading.copyMin}px`
-        : `${reading.copyMin} to ${reading.copyMax}px`;
-  const ends = [laptop, phone]
-    .filter(Boolean)
-    .map((reading) => `at ${reading.at} a ${reading.strip}px strip holds ${reading.entry}px entries with ${column(reading)} of copy column`);
-  const swept = JOURNEY_SWEEP.to - JOURNEY_SWEEP.from + 1;
+  // Both sentences are the module's: the ends name the strip, entry and copy column each
+  // one measured, and the sweep clause names the width the sweep pointed to — which the
+  // walk then measured again with the rules above — plus whether that width is one of the
+  // ends, because otherwise a reader cannot tell a narrower column in between from a
+  // confirmed phone.
+  const ends = [laptop, phone].filter(Boolean).map(journeyEndsClause);
   console.log(
     `[browser-smoke] The journey strip's ${count} entries held their label and reason inside their own column once opened from "More tools" on the projects page — `
-    + `${ends.join(", and ")}. Swept one pixel at a time across all ${swept} widths from ${JOURNEY_SWEEP.from}px to ${JOURNEY_SWEEP.to}px, the narrowest copy column the strip has is `
-    + `at ${tight?.at}: ${column(tight)} in a ${tight?.strip}px strip holding ${tight?.entry}px entries, where the rules were asked again`
-    + (tight?.width === 360 || tight?.width === 1366 ? ` — the same width as one of the ends, so that end is the tightest` : "") + ".",
+    + `${ends.join(", and ")}. ${journeySweepClause({ tight, ends: [JOURNEY_SWEEP.from, JOURNEY_SWEEP.to] })}`,
   );
 }
 
@@ -3506,15 +3110,12 @@ async function assertWallWizardStartStep(page) {
     await page.setViewportSize(viewport);
     const at = `${viewport.width}px`;
     const measured = await measureWallStartStep(page);
-    const failure = wallStartStepFailure(measured, { at })
-      ?? wallStartBriefLeadsFailure(measured, { at })
-      ?? wallStartReadoutFailure(measured, { at });
-    if (failure) throw new Error(failure);
-    readings.push(
-      `${at}: card ${measured.card.width}px holding ${measured.content}px,`
-      + ` brief ${measured.brief.width}×${measured.brief.height}px above ${measured.rows} walls,`
-      + ` read-out ${measured.readout.width}px, widest block ${measured.widest}px`,
-    );
+    // One call returns the ordering, the layout and the read-out as one verdict, with
+    // the line the report prints beside it, so this pass cannot ask one and forget the
+    // others, and the numbers it prints are the numbers the verdict was made from.
+    const { verdict, summary } = readWallStartStep(measured, { at });
+    if (verdict) throw new Error(verdict);
+    readings.push(`${at}: ${summary}`);
   }
 
   await page.setViewportSize({ width: 1366, height: 900 });
@@ -3522,6 +3123,7 @@ async function assertWallWizardStartStep(page) {
     `[browser-smoke] The guided wall wizard's start step leads with the LED brief and holds it at 1366px, 390px and 360px — ${readings.join("; ")}.`,
   );
 }
+
 /**
  * The one hero in the app whose header carries an action row, and the actions it
  * carries: three buttons is the most a phone-width row has to hold on one line.
