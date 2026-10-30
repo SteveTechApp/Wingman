@@ -46,6 +46,30 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   compression level, a fixed build stamp in `core.xml` — so rebuilding an
   unchanged symbol set produces an identical file and a diff means a symbol
   changed. A new symbol is an entry in `AV_SYMBOLS` and nothing else: the builder,
-  the icon, the page instance and the spec all read that list. Do not add an
-  `npm` script for it; `package.json` is a build input to the browser walk's
-  fresh-build gate, so a new script would refuse a `dist/` that is still current.
+  the icon, the page instance and the spec all read that list.
+- That determinism is what makes byte equality a claim a gate can hold, so the
+  file is tracked and `npm run check:visio-stencil` builds the catalogue again and
+  compares. The failure it exists for is one-directional: a symbol edited in
+  `av-symbols.mjs` without a rebuild, or a rebuild never committed. Neither shows
+  up anywhere else in the tree — the archive is a valid stencil either way — and
+  it surfaces as a symbol a designer drops that does not match the drawing it
+  answers to, months later, on a job already quoted. The gate is in `verify:data`
+  beside `check:generated-manifests`, because both ask the same question of a
+  tracked generated artifact, and it prints the parts that differ rather than a
+  byte offset, because "which symbol changed" is the question a person has. On a
+  stale file it names the master part — swapping in a build with one symbol's line
+  colour changed printed `changed: visio/masters/master2.xml` and exited 1, and
+  restoring the committed bytes turned it green.
+- The gate can only be right if it builds what the writer builds, so the title,
+  description, build stamp and output path live in `tools/lib/av-stencil.mjs`,
+  which `tools/build-visio-stencil.mjs` wraps and the gate calls. Two copies of
+  those four values would fail in the direction that kills a gate: a changed
+  description would leave it red against a stencil that is exactly current, and a
+  red run nobody can fix is one people learn to skip. The comparison reports a
+  committed file that is not a package at all — a truncated download, a text file
+  saved under the name — as its own failure, because a part-by-part diff of
+  something unreadable would only ever say "nothing differs".
+- Do not add an `npm` script for the build; `package.json` is a build input to the
+  browser walk's fresh-build gate, so a new script would refuse a `dist/` that is
+  still current. The gate's own script is the exception to that rule, since a
+  verify stage can only run what `package.json` names.

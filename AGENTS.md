@@ -607,9 +607,18 @@ states is one they trust by mistake.
   prompt back rather than assuming the package is right.
 - The build is deterministic down to the byte, so rebuilding an unchanged symbol
   set produces an identical file and a diff means a symbol changed. A new symbol
-  is one entry in the catalogue and nothing else. Do not add an npm script for
-  it: `package.json` is an input to the browser walk's fresh-build gate, so a new
-  script would refuse a build that is still current.
+  is one entry in the catalogue and nothing else. Because that makes byte
+  equality a real claim, `check:visio-stencil` builds the catalogue again and
+  fails unless the committed stencil is identical, naming the master parts that
+  differ: a rebuilt-but-uncommitted stencil is a designer's drawing one symbol
+  behind, and the drawing is where it surfaces. What the gate builds has to be
+  what the writer builds, so the title, description, build stamp and output path
+  live in the module both read — a gate restating them would go red against a
+  file that is perfectly current. Do not add an npm script for the *build*:
+  `package.json` is an input to the browser walk's fresh-build gate, so a new
+  script there would refuse a build that is still current. The gate's own script
+  is the other side of that rule, because a stage has to be able to name what it
+  runs.
   [Narrative](docs/DRAWING_SYMBOLS.md)
 
 ## Compare feature
