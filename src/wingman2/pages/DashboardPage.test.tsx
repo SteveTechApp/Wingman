@@ -8,6 +8,7 @@ import { roomTemplates } from "../lib/roomTemplates";
 import { WALL_ENTRY_INTRO, WALL_ENTRY_NAME } from "../lib/wallEntry";
 import { DashboardPage } from "./DashboardPage";
 import { UiModeProvider } from "../data/uiMode";
+import type { StoredProject } from "../features/projects/model/projectTypes";
 
 function renderDashboard() {
   render(
@@ -473,7 +474,7 @@ describe("dashboard saved-as-a-template flag", () => {
     );
   }
 
-  function recentProject(id: string, name: string) {
+  function recentProject(id: string, name: string, extra: Partial<StoredProject> = {}) {
     upsertStoredProject({
       id,
       name,
@@ -484,6 +485,7 @@ describe("dashboard saved-as-a-template flag", () => {
       resumeTo: routeCatalogByKey.projects.path,
       createdAt: "2026-10-20T14:12:00.000Z",
       updatedAt: "2026-10-20T14:12:00.000Z",
+      ...extra,
     });
   }
 
@@ -579,6 +581,35 @@ describe("dashboard saved-as-a-template flag", () => {
     // A link beside the heading, not the page's second primary action: the hero's
     // room-template CTA is the only one of those.
     expect(all.className).not.toContain("wm-guided-primary-action");
+  });
+
+  it("keeps a closed room out of the slots an unfinished one needs", () => {
+    window.localStorage.setItem("wingman-ui-mode-v1", "guided");
+    recentProject("open-one", "Open One");
+    recentProject("open-two", "Open Two");
+    recentProject("open-three", "Open Three");
+    // Upserted last, so it is the newest row and would lead a recency-only strip.
+    recentProject("closed-one", "Closed One", { dealOutcome: "won" });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman"]}>
+        <UiModeProvider>
+          <DashboardPage />
+        </UiModeProvider>
+      </MemoryRouter>,
+    );
+
+    const recent = within(screen.getByLabelText("Continue where you left off"));
+    const names = recent.getAllByRole("article").map((card) => card.textContent ?? "");
+
+    // The strip is headed "In progress", so a room whose deal has an outcome is
+    // not the work it promises to continue: three open rooms fill the three
+    // slots, and the closed one is what "See all projects" is for.
+    expect(recent.getAllByRole("article")).toHaveLength(3);
+    expect(names.some((text) => text.includes("Open One"))).toBe(true);
+    expect(names.some((text) => text.includes("Open Two"))).toBe(true);
+    expect(names.some((text) => text.includes("Open Three"))).toBe(true);
+    expect(names.some((text) => text.includes("Closed One"))).toBe(false);
   });
 
   it("offers the video wall designer as a feature entry, not a second primary action", () => {

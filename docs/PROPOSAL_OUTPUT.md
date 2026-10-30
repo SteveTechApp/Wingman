@@ -528,10 +528,14 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   leave the rep no ranking to read. The recent strip under the journeys prints
   three rooms and names where the rest are — `See all projects`, a
   `wm-reference-text-link`, which is the wording and treatment the expert rail
-  already uses to reach the same list. The strip drops the oldest rooms, so a
-  focused home with no way out of it would lose the work a rep started first;
-  the link is a line of text beside the heading, not a fourth card, because the
-  hero still owns the page's only primary action.
+  already uses to reach the same list. It fills its three slots with rooms whose
+  deal has no outcome yet, because it is headed "In progress": recency alone let
+  a room closed yesterday and touched today take a slot from one nobody has
+  finished, so `projectIsOpen` orders the strip and recency only orders inside
+  each group. It still drops the oldest *open* rooms, so a focused home with no
+  way out of it would lose the work a rep started first; the link is a line of
+  text beside the heading, not a fourth card, because the hero still owns the
+  page's only primary action.
   Every surface that offers a saved design prints the same link,
   `OpenTemplateLink` (`components/OpenTemplateLink.tsx`): the wording
   (`Open template: <name>`), the destination and the accessible name are that

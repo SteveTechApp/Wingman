@@ -10,6 +10,7 @@ import { templatesSavedFromProject } from "../lib/templateLineage";
 import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { discoveryResumeInfo, discoveryResumeUrl } from "../lib/discoveryResume";
 import { setActiveProjectId } from "../data/projectStore";
+import { projectIsOpen } from "../features/projects";
 import { WALL_ENTRY_INTRO, WALL_ENTRY_NAME } from "../lib/wallEntry";
 
 /* ------------------------------------------------------------------ */
@@ -100,7 +101,14 @@ function RecentProjects() {
 
   // Three, which is what the strip lays out in one row: two left a third of the
   // width unused on a laptop and the third card a row of its own under the two.
-  const recent = projects.slice(0, 3);
+  // Open rooms come first, because the strip says "In progress": a room whose
+  // deal has an outcome is not the work it promises to continue, and recency
+  // alone would let one that was closed yesterday and touched today take a slot
+  // from a room nobody has finished. Sorting is stable, so recency still orders
+  // each group.
+  const recent = [...projects]
+    .sort((a, b) => Number(projectIsOpen(b)) - Number(projectIsOpen(a)))
+    .slice(0, 3);
 
   return (
     <section className="wm-guided-recent" aria-label="Continue where you left off">
@@ -112,7 +120,8 @@ function RecentProjects() {
         {/* The strip prints three rooms, so the way to the rest belongs on the
             page rather than only in the sidebar: a rep on the focused home can
             hold more unfinished work than the strip does, and the ones it drops
-            are the older rooms, which is exactly the work that gets forgotten.
+            are the older open rooms, which is exactly the work that gets
+            forgotten.
             It is a text link on the same wording and treatment the expert home's
             rail uses to reach the same list, not a second button — the hero owns
             the page's one primary action. */}

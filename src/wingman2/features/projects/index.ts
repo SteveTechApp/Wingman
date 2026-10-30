@@ -4,3 +4,4 @@ export type { ProjectCommandContext, ProjectLifecycleCommands } from "./commands
 export { createProjectCache, createIndexedDbProjectCacheAdapter, createMemoryProjectCacheAdapter } from "./persistence/projectCache";
 export type { ProjectCache, ProjectCacheAdapter, ProjectCacheIndex, ProjectCacheScope } from "./persistence/projectCache";
 export * from "./useProjects";
+export { projectIsOpen } from "./model/projectSelectors";
