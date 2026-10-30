@@ -287,10 +287,10 @@ async function resetBrowserStoreBeforeBoot(page) {
 
 async function walkDiscovery(page) {
   await resetBrowserStoreBeforeBoot(page);
-  // The guided landing's own heading is the ready condition: it is what the
-  // walk reads next, and the market entry the expert view adds is asserted
-  // below, so nothing here waits on a quiet network.
-  await openPage(page, "/wingman/discovery", page.getByTestId("templates-title"));
+  // The guided landing is the room brief now, so that card is the ready
+  // condition: it is what the walk reads next, and the market entry the expert
+  // view adds is asserted below, so nothing here waits on a quiet network.
+  await openPage(page, "/wingman/discovery", page.getByTestId("room-brief"));
 
   const marketEntry = page.getByTestId("discovery-market-entry");
   const viewSwitcher = page.locator(".wm-topbar-mode-toggle");
