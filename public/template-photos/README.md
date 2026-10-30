@@ -10,26 +10,41 @@ Important:
 - Replace these images with owned WyreStorm-approved photography when available.
 - Keep the same file names if replacing photos so the app mapping continues to work.
 
-## Reviewed application assignments
+## What each photograph shows
 
-`TEMPLATE_IMAGE_KEYS` in `src/wingman2/lib/templateApplicationProfiles.ts` is the authoritative, exact template-ID mapping. The groupings below document the intended workflow represented by each licensed asset; they are not runtime keyword rules.
+Read off the photographs themselves, because several file names were chosen for the
+room the template wanted rather than the room the picture is.
 
-| Asset | Intended workflow | Assigned template IDs |
+The template image mapping is where each template is assigned, and it is not restated
+here: a second copy of one list is how the two stop agreeing, and this table's job is
+the asset, not the assignment.
+
+| Asset | What it shows | Rooms it can represent |
 | --- | --- | --- |
-| `photo-boardroom.jpg` | Seated collaboration, formal decision-making, training and screening | `corporate-boardroom-networkhd500`, `hospitality-ballroom-hybrid`, `residential-media-matrix`, `corporate-teams-room-medium-apollo`, `corporate-agile-collaboration-zone-networkhd500`, `government-council-chamber-hybrid-streaming`, `hospitality-private-cinema-screening-room-matrix`, `corporate-training-suite-matrix-uc`, `hospitality-hotel-meeting-room-apollo-hdbaset`, `government-courtroom-hearing-room-matrix` |
-| `photo-huddle-room.jpg` | Compact laptop-led or clinical consultation room | `corporate-huddle-apollo`, `healthcare-telemedicine-consult-room-apollo` |
-| `photo-multicamera-meeting.jpg` | Multi-camera meeting production | `corporate-multi-camera-meeting-bridge` |
-| `photo-classroom.jpg` | Teacher-led classroom with a principal display | `education-classroom-hdbaset`, `education-primary-classroom-interactive-panel` |
-| `photo-flexible-learning.jpg` | Lecture and active-learning spaces | `education-lecture-capture-networkhd`, `education-flexible-learning-networkhd500`, `education-active-learning-nhd600-local-inputs`, `education-university-lecture-theatre-networkhd500` |
-| `photo-hybrid-teaching.jpg` | Distributed teaching, learning commons, STEM and esports | `education-hybrid-collaboration-nhd500-dante`, `education-stem-science-lab-networkhd100`, `education-library-learning-commons-networkhd100`, `education-esports-media-lab-networkhd500` |
-| `photo-school-hall-projector.jpg` | Large audience projection and IMAG | `venue-worship-overflow-networkhd500`, `education-school-hall-hdbaset-projector`, `worship-large-auditorium-imag-networkhd600` |
-| `photo-signage.jpg` | Operational information, wayfinding, menu and queue displays | `retail-signage-networkhd100`, `transport-operations-signage`, `healthcare-clinic-waiting-patient-calling-networkhd100`, `transport-airport-lounge-fids-networkhd500`, `retail-bank-branch-networkhd100`, `corporate-reception-townhall-networkhd100`, `retail-qsr-menu-boards-networkhd100` |
-| `photo-led-wall.jpg` | Feature-wall, showroom and production-studio display | `retail-lcd-wall-processor`, `corporate-experience-centre-networkhd600`, `broadcast-podcast-content-studio-ndi-networkhd500`, `retail-car-showroom-customer-experience-networkhd500` |
-| `photo-sportsbar.jpg` | Multi-screen live entertainment and fitness | `hospitality-sports-bar-networkhd`, `hospitality-large-sportsbar-nhd500`, `leisure-gym-fitness-club-networkhd100` |
-| `photo-pub-matrix.jpg` | Zoned hospitality distribution | `hospitality-local-pub-8x8-matrix`, `hospitality-restaurant-bar-matrix` |
-| `photo-casino.jpg` | Large gaming-floor distribution | `hospitality-large-casino-nhd500` |
-| `photo-bingo.jpg` | Bingo calling and LED-wall presentation | `hospitality-bingo-club-nhd100-led-wall` |
-| `photo-stadium.jpg` | Concourse and hospitality display distribution | `hospitality-stadium-concourse-vip-nhd500` |
-| `photo-security-command.jpg` | Security monitoring and incident response | `government-security-command-nhd100-bridge`, `control-room-security-operations-networkhd600` |
-| `photo-control-room.jpg` | Continuous operations and traffic monitoring | `government-control-room-networkhd600`, `control-room-network-operations-centre-networkhd600`, `control-room-traffic-management-networkhd500` |
-| `photo-situation-room.jpg` | Simulation, clinical review and emergency briefing | `healthcare-simulation-lab`, `government-situation-control-room-nhd600`, `healthcare-mdt-imaging-review-networkhd500`, `government-emergency-briefing-room-networkhd500`, `healthcare-theatre-observation-networkhd500` |
+| `photo-boardroom.jpg` | A committee table with delegate microphones and name tents | Boardrooms, council chambers, meeting and review rooms, production studios |
+| `photo-huddle-room.jpg` | An office team over a charted whiteboard; no room in frame | Huddles, collaboration zones, home office, consult and review corners |
+| `photo-multicamera-meeting.jpg` | A presenter at a lectern with a seated reader and a crest — a hearing | Courtrooms and emergency briefing rooms |
+| `photo-classroom.jpg` | An empty primary classroom | Classrooms, training rooms |
+| `photo-flexible-learning.jpg` | A primary lesson in progress | Teaching and training rooms, learning commons, STEM and simulation labs |
+| `photo-hybrid-teaching.jpg` | A crowd watching a large screen | Halls, auditoriums, lecture theatres, overflow congregations, screening rooms, ballrooms, fitness floors, club spectator screens, home media rooms |
+| `photo-signage.jpg` | A lit wordmark on a patterned wall | Operational information, wayfinding, menu and queue displays |
+| `photo-led-wall.jpg` | A visitor photographing a wall-sized light display | Feature walls, showrooms, experience centres |
+| `photo-pub-matrix.jpg` | A bar counter and stools | Pubs, bars, restaurant bars, sports bars |
+| `photo-casino.jpg` | A slot-machine floor | Gaming floors |
+| `photo-bingo.jpg` | A bingo cage and cards | Bingo clubs |
+| `photo-stadium.jpg` | A grandstand, crowd and floodlights | Stadium concourse and hospitality |
+| `photo-control-room.jpg` | A wall of camera feeds over an operations desk | Control rooms, security and network operations, traffic monitoring |
+| `photo-situation-room.jpg` | An industrial console under a bank of screens | Situation rooms, clinical imaging review, theatre observation, coaching analysis and esports labs |
+
+Each photograph is one file. Three used to be stored twice under a second name, and
+those copies were deleted once every surface named the surviving file: the two
+Discovery market cards were repointed, and the bar copy had no reader left after the
+proposal cover stopped naming it. The asset guard reads every tracked asset in the
+repository rather than this directory alone and holds no recorded photograph pairs,
+so a copy anywhere is a red run — bringing one back means adding the pair to that list
+with the reason it is deliberate. This file is served, so it names the guard rather
+than its path; the source that assigns these images names the file.
+
+Where no photograph of the room exists in this directory, the nearest same-kind picture
+is assigned and the reason is recorded with the mapping. New art is the fix for those,
+and nothing in this repository can produce a photograph.

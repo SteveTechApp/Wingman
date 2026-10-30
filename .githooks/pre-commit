@@ -18,6 +18,29 @@ else
   fi
 fi
 
+# Tracked-asset duplicates: the guard reads the git index, and the commit is the
+# moment a file becomes part of the repository, so this is the only surface where
+# a second copy of a photograph or a document can be refused before it exists.
+# Asked here rather than left to the suite below because the whole question costs
+# about 400ms of hashing: a duplicate names itself in one line now instead of
+# arriving as one failure among thousands of tests minutes later. The address is
+# the spec itself, so there is one implementation of "the same bytes" and a
+# failure here is the sentence that spec writes.
+#
+# The existence test is not decoration: `tools/dead-css-failure-integration.test.mjs`
+# copies this hook into a throwaway repository with no spec in it, and there the
+# runner exits non-zero for finding no test file — which would block that fixture
+# before the gate the fixture exists to prove could answer.
+if [ -f src/__tests__/trackedAssetDuplicates.test.ts ]; then
+  echo "pre-commit: tracked-asset duplicate guard"
+  npx --no-install vitest run src/__tests__/trackedAssetDuplicates.test.ts
+  asset_duplicate_status=$?
+  if [ $asset_duplicate_status -ne 0 ]; then
+    echo "Commit blocked (two tracked assets hold the same bytes - see the failure above)"
+    exit 1
+  fi
+fi
+
 # Dead CSS: split selector branches no markup can match and drop the baseline
 # allowances the split just invalidated, BEFORE the dead-css gate inspects the
 # tree. Only the files this step rewrote are staged, so an unrelated edit

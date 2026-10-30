@@ -296,6 +296,15 @@ states is one they trust by mistake.
   architecture boundaries; the full chain adds the two debt ratchets, size
   budgets and style drift. A ratchet with no baseline is a gate that fails on
   the repo it ships with.
+- The hook asks the tracked-asset duplicate question before any of that, at the
+  spec that owns it rather than through a second implementation. That guard
+  compares bytes from the git index, so the commit is the one moment a second
+  copy of a shipped photograph or document can be refused before it exists, and
+  the step costs a hash of the tree rather than a suite: the pair names itself
+  in one line instead of surfacing as one failure among thousands of tests
+  minutes later. It is claimed by no verify stage for the same reason — the
+  suite already runs it — which is why the hook line is the only record that it
+  runs twice.
 - Size budgets sum every emitted chunk, on-demand libraries included: each has a
   job, and a byte hunt should start from a reading rather than from the total.
 - The style-drift baseline counts page-scoped rule blocks, so it is raised

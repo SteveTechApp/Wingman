@@ -1,5 +1,6 @@
 import { getProductStory } from "../data/productStories";
 import { templateReviewDesignNotes } from "./templateReviewDesignNotes";
+import { templateImageFor } from "./templateImages";
 import { readDiscoveryAudioDesign } from "./discoveryAudioDesign";
 import type {
   StoredApplicationProposal,
@@ -25,17 +26,6 @@ function marketValue(vertical: string) {
   const key = vertical.toLowerCase();
   return Object.entries(MARKET_VALUE).find(([term]) => key.includes(term))?.[1]
     ?? "a dependable user experience, supportable operation and a controlled path for future change";
-}
-
-function visualFor(template: RoomTemplate) {
-  const text = `${template.id} ${template.application}`.toLowerCase();
-  const match = (term: string, file: string) => text.includes(term) ? `/template-photos/${file}` : "";
-  return match("control", "photo-control-room.jpg") || match("situation", "photo-situation-room.jpg") ||
-    match("classroom", "photo-classroom.jpg") || match("teaching", "photo-hybrid-teaching.jpg") ||
-    match("lecture", "photo-flexible-learning.jpg") || match("boardroom", "photo-boardroom.jpg") ||
-    match("huddle", "photo-huddle-room.jpg") || match("sports", "photo-sportsbar.jpg") ||
-    match("stadium", "photo-stadium.jpg") || match("signage", "photo-signage.jpg") ||
-    match("wall", "photo-led-wall.jpg") || "/template-visuals/room-boardroom.jpg";
 }
 
 function productSpecifications(rows: Array<TemplateBomRow | SalesBomRow>): StoredProposalProductSpecification[] {
@@ -116,7 +106,13 @@ export function compileTemplateApplicationProposal(template: RoomTemplate, rows:
     marketStory: story
       ? `For this ${template.vertical.toLowerCase()} application, success is measured by ${value}. ${story.successLooksLike.join(" ")} Decisions still open with the customer: ${story.customerDecisions.join(" ")}`
       : `For this ${template.vertical.toLowerCase()} application, success is measured by ${value}. The technology therefore supports the room's operational story rather than acting as an isolated equipment list.`,
-    roomVisualUrl: visualFor(template),
+    // The cover shows the picture the template's card shows, because "which room is
+    // this" has one reviewed answer and a second table answering it again is how the
+    // two drift: this line used to match keywords from the template's own paragraph,
+    // and prose put a gym on an operations desk ("controlled") and a bingo club on a
+    // feature wall ("led-wall"). A stand-in for a room the repository has no
+    // photograph of is likewise the card's reviewed stand-in, not this file's guess.
+    roomVisualUrl: templateImageFor(template),
     productSpecifications: productSpecifications(activeRows),
     thirdPartyScope: thirdPartyScope(activeRows, false),
   };
