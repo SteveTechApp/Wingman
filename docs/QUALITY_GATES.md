@@ -594,3 +594,29 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   style-drift ratchets — those only fire inside `verify:build` /
   `verify:visual`. Use plain `build` to verify compilation without ratchet
   noise.
+- `check:competitor-evidence-aging` holds a competitor catalogue row to the same
+  evidence clock as a confirmed WyreStorm profile, because both are quoted
+  evidence: the profile behind a recommended product, and the row a comparison
+  puts beside it. `lastReviewed` is when a person last read the manufacturer's
+  page, so the age of that date is the age of the argument, and nothing else in
+  the tree reads it — `check:enrichment-freshness` asks how many rows were
+  enriched in the last week, which is a throughput question and stays quiet on a
+  catalogue nobody is enriching. Both limits are read from
+  `data/governance/profile-confirmation-aging.json`
+  (`verifiedEvidenceWarnAfterDays` 60, `verifiedEvidenceFailAfterDays` 120), the
+  file the technical-data gate already reads, so the two surfaces cannot hold
+  evidence to different ages. The confirmation half of that policy is not
+  consulted, because a competitor row never goes through a human confirmation
+  step. A row past the limit fails one at a time and names the source CSV to
+  edit; the warn band reports as a count and the oldest five rather than a line
+  per row, because measured on 2026-10-30 all 354 rows sat past 60 days with the
+  oldest at 124 — a line each is a wall a reader skips, while one number still
+  states the backlog. `tools/wingman-competitor-evidence-aging-baseline.json` is
+  a ratchet of 14 pins, not a waiver list: it fails on an unpinned row over the
+  limit, on a pin the catalogue no longer carries, on a pin that has come back
+  inside the clock, and on a pin whose recorded date disagrees with the row — so
+  the allowance only shrinks, and a page re-read and still old keeps its pin
+  carrying that read's date. `--update-baseline` re-pins deliberately and is not
+  a way past a red run. The reading lands in
+  `reports/competitor-evidence-aging.json` on every run, which is ignored like
+  the other generated reports.

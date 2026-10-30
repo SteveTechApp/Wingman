@@ -374,6 +374,16 @@ states is one they trust by mistake.
   moment the checks on the head go green.
 - The sales-facing-language check scans all source, test and CSS comments
   included — developer wording about what changed is not for a rep.
+- A competitor catalogue row ages on the same evidence clock as a confirmed
+  WyreStorm profile, and both limits are read from
+  `data/governance/profile-confirmation-aging.json` rather than restated in the
+  gate: two files holding one age is how the catalogue and the profile drift
+  into disagreeing about what current means. The gate fails per row over the
+  limit and names the source CSV, warns as one count rather than a line per row,
+  and its baseline ratchets four ways — unpinned over the limit, a pin the
+  catalogue dropped, a pin that came back inside the clock, a pin whose date
+  disagrees with the row — because a waiver list that only grows is the backlog
+  with a filename. [Narrative](docs/QUALITY_GATES.md)
 - `npm run build` compiles tracked public assets without repairing source
   evidence; catalogue regeneration is explicit, and the ratchets only fire
   inside the verify stages. [Narrative](docs/QUALITY_GATES.md)

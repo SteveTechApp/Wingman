@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "establishedAt": "2026-10-30",
+  "failAfterDays": 120,
+  "purpose": "Competitor rows that were already past the evidence clock when it was introduced. The list only shrinks: a row leaves when its page is re-read and lastReviewed moves inside the limit, and a row that is still old after a real read keeps its pin with that read's date.",
+  "rows": [
+    {
+      "sku": "AT-OME-MS42",
+      "manufacturer": "Atlona",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/atlona.csv"
+    },
+    {
+      "sku": "AT-OME-PS62",
+      "manufacturer": "Atlona",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/atlona.csv"
+    },
+    {
+      "sku": "AT-OMNI-111",
+      "manufacturer": "Atlona",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/atlona.csv"
+    },
+    {
+      "sku": "AT-OMNI-112",
+      "manufacturer": "Atlona",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/atlona.csv"
+    },
+    {
+      "sku": "AT-UHD-EX-100CE-KIT",
+      "manufacturer": "Atlona",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/atlona.csv"
+    },
+    {
+      "sku": "DM-NVX-E30",
+      "manufacturer": "Crestron",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/crestron.csv"
+    },
+    {
+      "sku": "HD-MD4X2-4KZ-E",
+      "manufacturer": "Crestron",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/crestron.csv"
+    },
+    {
+      "sku": "IN1608 XI",
+      "manufacturer": "Extron",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/extron.csv"
+    },
+    {
+      "sku": "NAV D 501",
+      "manufacturer": "Extron",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/extron.csv"
+    },
+    {
+      "sku": "VINX-110-HDMI-ENC",
+      "manufacturer": "Lightware",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/lightware.csv"
+    },
+    {
+      "sku": "VINX-210AP-HDMI-DEC",
+      "manufacturer": "Lightware",
+      "reviewedOn": "2026-06-28",
+      "ageDaysWhenPinned": 124,
+      "sourceFile": "data-sources/competitors/lightware.csv"
+    }
+  ]
+}
