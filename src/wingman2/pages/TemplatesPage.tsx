@@ -4,7 +4,7 @@ import { createCustomTemplateEditHandoff, writeDiscoveryHandoff } from "../lib/d
 import { useUiMode } from "../data/uiMode";
 
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Building2, Check, FilePenLine, LayoutGrid, List, X } from "lucide-react";
 import { TemplateLibraryCard } from "../components/TemplateLibraryCard";
 import { useProjectStore } from "../features/projects";
@@ -22,12 +22,21 @@ import { applyOrganisationDocumentDefaults, defaultPersonalisation, loadTemplate
 type AvailableTemplate = RoomTemplate | CustomRoomTemplate;
 const isCustom = (template: AvailableTemplate): template is CustomRoomTemplate => "customTemplate" in template && template.customTemplate === true;
 
-export function TemplatesPage({ discoveryEntry = false }: { discoveryEntry?: boolean }) {
+export function TemplatesPage() {
   const { isGuided } = useUiMode();
   const customTemplates = useCustomRoomTemplates();
   const { projects } = useProjectStore();
   const navigate = useNavigate();
-  const [market, setMarket] = useState<string>(TEMPLATE_MARKETS[0]);
+  const [searchParams] = useSearchParams();
+  // A room already decided elsewhere opens the library on its own market, so a
+  // rep arriving from the room brief reads designs for that vertical rather than
+  // whichever market the catalogue happens to list first. An unknown value is
+  // ignored rather than trusted: the market on screen is always one the rail can
+  // show as pressed.
+  const [market, setMarket] = useState<string>(() => {
+    const requested = searchParams.get("market") ?? "";
+    return (TEMPLATE_MARKET_FILTERS as readonly string[]).includes(requested) ? requested : TEMPLATE_MARKETS[0];
+  });
   const [sourceProject, setSourceProject] = useState<string | null>(null);
   const [view, setView] = useState<"picture" | "list">("picture");
   const [selected, setSelected] = useState<AvailableTemplate | null>(null);
@@ -79,7 +88,7 @@ export function TemplatesPage({ discoveryEntry = false }: { discoveryEntry?: boo
 
   return <main className="wm-templates-page wm-page" data-wingman-page="templates">
     <header className="wm-solution-header">
-      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 data-testid="templates-title" className="wm-page-title">{discoveryEntry ? "Start with a room template" : "Solution Templates"}</h1><p className="wm-ui-copy">{discoveryEntry ? "Choose the closest room, edit its equipment and quantities, then save your project or build the proposal." : "Choose a market and application, then review and adjust its equipment schedule before producing the proposal."}</p></div>
+      <div><p className="wm-ui-kicker">Guided solution documents</p><h1 data-testid="templates-title" className="wm-page-title">Solution Templates</h1><p className="wm-ui-copy">Choose a market and application, then review and adjust its equipment schedule before producing the proposal.</p></div>
       <div className="wm-solution-header-actions"><Link className="wm-button wm-button-secondary" to={routeCatalogByKey.videowall.path} title={WALL_ENTRY_INTRO}>{WALL_ENTRY_NAME}</Link><button className="wm-button wm-button-secondary" type="button" onClick={() => { setMarket("Custom"); setSourceProject(null); }}>Manage Templates</button>{!isGuided && <button className="wm-button wm-button-primary" type="button" onClick={startCustom}>+ New Custom Template</button>}</div>
     </header>
     <nav className="wm-template-stages" aria-label="Template workflow stages">

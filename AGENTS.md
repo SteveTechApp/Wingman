@@ -443,6 +443,28 @@ states is one they trust by mistake.
   arrive, split by prefix in one derivation. One question, because a rep answers
   both ends in one conversation and two questions let the halves disagree.
   [Narrative](docs/DISCOVERY.md)
+- Guided Discovery decides the room before it offers a design, because "which
+  design" is the second question: a library row asks a rep to recognise a
+  divisible boardroom from somebody else's picture, which is the one thing a
+  junior with the customer's words cannot do. `roomBrief.ts` asks the facts a
+  customer can answer without AV vocabulary — market, what the room has to do,
+  how many people are in it — then chooses every later question because it
+  splits the room types still possible, so a huddle is decided in two questions
+  and a divisible boardroom in three. The decision is a room type and
+  what that room needs to do its job, never a bill of materials, and each
+  requirement carries the answer that asked for it, because a line a rep cannot
+  defend is the first one dropped under price pressure. The library stays one
+  link away for the rep who already knows what they want, and it opens on the
+  market the room was described in (`?market=`), because the vertical is a fact
+  the brief has already read and a rep should not have to say it twice.
+- The decision ends by addressing Discovery again with `?interview=1`, holding
+  the decided room as a handoff, and that parameter is read on every render
+  rather than once at mount: it is a change to the address of a page that is
+  already mounted, and a mount-time snapshot leaves the rep reading the decision
+  they just made while the address says the brief. It does not change the
+  interface mode either — a guided rep who has just described their room lands in
+  the guided interview.
+  [Narrative](docs/DISCOVERY.md)
 
 ## Video wall
 
@@ -542,7 +564,11 @@ states is one they trust by mistake.
   does not travel as scope and does not reach a template's export gate: one rule
   makes a new template out of a project, and every save path goes through it. A
   save is a projection, so the record it came from keeps its own response.
-- The focused home has one primary action, and it is choosing a room template.
+- The focused home has one primary action, and it is working out the room. It was
+  choosing a room template, which asked the rep to recognise a room from somebody
+  else's picture before saying what the room has to do; the hero now leads with
+  the method in `roomBrief.ts`, and the design library is one link away for the
+  rep who already knows what they want.
 - The project record reviews requirements but does not edit them, because the
   record is what was captured and the wizard is where it changes.
 - An unfinished wall survey is a completeness warning rather than a blocker, but

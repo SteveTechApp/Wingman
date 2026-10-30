@@ -31,12 +31,12 @@ const journeys: JourneyCard[] = [
   {
     title: "Discover",
     description:
-      "Choose a room template, adjust its equipment and quantities, then save your project or build a proposal.",
+      "Answer what the room has to do and how many people it holds. Wingman works out the room type and what it needs, then carries it into the brief.",
     icon: Search,
     to: routeCatalogByKey.discovery.path,
     accent: "aqua",
     placeholder: "e.g. Boardroom with 2 displays, HDMI in, USB-C for laptop",
-    step: "Choose and edit a room template",
+    step: "Work out what the room is",
   },
   {
     title: "Compare a competitor",
@@ -203,7 +203,7 @@ function OnboardingTip() {
     <div className="wm-guided-tip" role="status">
       <Sparkles size={16} className="wm-guided-tip-icon" />
       <p>
-        <strong>Welcome to Wingman.</strong> Start with <strong>Discovery</strong> — choose a room template and edit it to suit your customer.
+        <strong>Welcome to Wingman.</strong> Start with <strong>Discovery</strong> — answer what the room has to do and Wingman works out what it needs.
         No technical knowledge needed.
       </p>
     </div>
@@ -227,14 +227,14 @@ export function GuidedDashboard({ greeting, displayName }: { greeting: string; d
           <h1>{greeting}{displayName ? `, ${displayName}` : ""}</h1>
           <p>What would you like to achieve today?</p>
           <Link className="wm-guided-primary-action" to={routeCatalogByKey.discovery.path}>
-            Choose a room template <ArrowRight size={16} />
+            Work out the room <ArrowRight size={16} />
           </Link>
         </div>
         <aside className="wm-guided-hero-path" aria-label="What Wingman does next">
-          <span className="wm-guided-hero-path-label">From template to proposal</span>
-          <div><strong>Choose</strong><small>The closest room template</small></div>
-          <div><strong>Edit</strong><small>Equipment, quantities and room scope</small></div>
-          <div><strong>Save</strong><small>Your project and customer proposal</small></div>
+          <span className="wm-guided-hero-path-label">From the room to a proposal</span>
+          <div><strong>Describe</strong><small>What the room has to do, and for how many</small></div>
+          <div><strong>Decide</strong><small>The room type and what it needs to work</small></div>
+          <div><strong>Carry</strong><small>Into the brief, the scope and the proposal</small></div>
         </aside>
       </header>
 

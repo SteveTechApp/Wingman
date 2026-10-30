@@ -44,3 +44,33 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   destination (a spec fails when a recorded value has no entry), and a node it
   creates carries `metadata.audioRouteDestination` so both visual builders name
   it for what it is rather than drawing two "Audio system — by others" boxes.
+- Guided Discovery decides the room (`roomBrief.ts`) before it offers a design,
+  and the surface that holds it (`RoomBriefWizard.tsx`) has no ladder of its own
+  — it renders whichever question `nextRoomBriefQuestion` returns, so the method
+  exists once. The engine keeps the set of room types the answers still allow
+  (`survivingArchetypes`) and scores each unasked question by the size of the
+  smallest group its answers would leave (`splitScore`), because a question whose
+  answers all point at the same room has already been answered by the room; ties
+  break on the order a person would ask them in. An answer never empties the set:
+  where two answers contradict each other the later one wins, so a rep who says
+  "partition" and then "one presenter" gets a divided teaching space instead of an
+  error, and `unresolved` names the room types the decision could still have been
+  so the rep knows what to ask next. Ten archetypes are reachable by a path a rep
+  could walk, and `roomBrief.test.ts` walks each one from its purpose rather than
+  by id, because a room resolved by id passes on a field no surface reads.
+  The decision is deliberately not a bill of materials: a BOM chosen from four
+  answers is a guess wearing a schedule, so the products still come from the
+  catalogue or the wall builder afterwards. The library is reached with
+  `?market=<vertical>` from both of the brief's links, and `TemplatesPage` reads
+  it once to open on that market; an unknown value is ignored, so the rail's
+  pressed market is always one it can show. The market is the one setup fact
+  that changes no room type — it changes what a rep talks about and which
+  designs are worth reading first — which is why it is carried rather than
+  branched on.
+- The hand-off is `writeDiscoveryHandoff` plus the address `?interview=1`, and the
+  page that composes both (`OpportunitiesPage`) reads that parameter on every
+  render. It has to: the decision and the brief are the same route, so following
+  it is a parameter change on a page that is already mounted, and the mount-time
+  snapshot it used to take left the rep reading the decision with the address
+  saying otherwise. Nothing about it writes the interface mode — a guided rep
+  lands in the guided interview, and the expert view remains a mode they choose.

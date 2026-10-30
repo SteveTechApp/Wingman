@@ -521,7 +521,7 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   narrowest column the sweep met and the three measured widths print.
   Both Home readings filter the same `templatesSavedFromProject`, so a deleted
   design stops being offered on either.
-- The focused home has one primary action. Its hero's `Choose a room template`
+- The focused home has one primary action. Its hero's `Work out the room`
   owns that treatment, and the video wall entry below it is `wm-guided-wall-entry`
   — a card with a glyph, its name and what it starts from, not a second aqua
   button. `.wm-polish-shell` on that page is `display: grid`, so a bare

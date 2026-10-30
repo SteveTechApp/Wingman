@@ -112,6 +112,20 @@ it("applies the organisation's saved defaults to the draft on request, and keeps
   expect(screen.getByTestId("template-brand-defaults-note").textContent).toContain("audience, detail and words are unchanged");
 });
 
+it("opens on the market a decided room arrived with", () => {
+  mode.isGuided = true;
+  const education = roomTemplates.filter(template => templateMatchesMarketFilter(template, "Education")).length;
+  render(<MemoryRouter initialEntries={["/wingman/templates?market=Education"]}><Routes>
+    <Route path="/wingman/templates" element={<TemplatesPage />} />
+    <Route path="/wingman/templates/:id" element={<div>Review destination</div>} />
+  </Routes></MemoryRouter>);
+
+  // The room brief has already read the vertical context, so the library opens
+  // where the decision pointed instead of on the catalogue's first market.
+  expect(screen.getByRole("button", { name: "Education" }).getAttribute("aria-pressed")).toBe("true");
+  expectResultsWindow(1, 8, education);
+});
+
 it("returns to the first page on a market change, and leaves the page alone on a card click", () => {
   mode.isGuided = true;
   const inMarket = (market: string) => roomTemplates.filter(template => templateMatchesMarketFilter(template, market)).length;
