@@ -21,7 +21,7 @@ the asset, not the assignment.
 
 | Asset | What it shows | Rooms it can represent |
 | --- | --- | --- |
-| `photo-boardroom.jpg` | A committee table with delegate microphones and name tents | Boardrooms, council chambers, meeting and review rooms, production studios |
+| `photo-boardroom.jpg` | An empty committee chamber: a horseshoe table with a delegate microphone, a name tent and a screen at every place, a lectern, daylight windows — no front-wall display and no camera | Boardrooms, council chambers, meeting and review rooms, and, as a recorded stand-in, production studios |
 | `photo-huddle-room.jpg` | An office team over a charted whiteboard; no room in frame | Huddles, collaboration zones, home office, consult and review corners |
 | `photo-multicamera-meeting.jpg` | A presenter at a lectern with a seated reader and a crest — a hearing | Courtrooms and emergency briefing rooms |
 | `photo-classroom.jpg` | An empty primary classroom | Classrooms, training rooms |

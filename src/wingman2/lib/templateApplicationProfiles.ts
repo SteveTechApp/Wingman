@@ -24,10 +24,26 @@ export type TemplateDesignFacts = { requiredSkuCount: number; sourceEndpointCoun
  * photograph — is a red run rather than a quiet addition.
  *
  * What each key depicts, read off the photographs rather than their names:
- *   - `boardroom` is a committee table with delegate microphones and name tents.
- *     It is also what the two production studios borrow: a table where people speak
- *     into microphones is nearer a studio than anything else here, and it claims no
- *     venue the way a lectern and a crest would.
+ *   - `boardroom` is an empty committee chamber: a horseshoe table with a delegate
+ *     microphone and a name tent at every place, a screen at each seat, a lectern at
+ *     the far side, daylight windows and wood panelling. Its screens are on the table
+ *     rather than on a front wall and no camera is in frame, so what it sells is the
+ *     table and its audio — which is the cost of using it for a room whose product is
+ *     the display: the repository has no photograph of a meeting room with a front
+ *     screen and a camera, and this is the gap that says so. It is a meeting room and
+ *     reads as the formal kind, which is what it is doing for the boardroom, the
+ *     medium meeting room, the hotel meeting room and the two review rooms — six to
+ *     ten people around a table with a picture being discussed is the room each of
+ *     those names. The multi-camera meeting room has its own horseshoe in the frame,
+ *     and the council chamber's name tents, delegate microphones and lectern are all
+ *     there. It does claim a venue — a lectern is a venue claim — just a corporate or
+ *     municipal one rather than the crest on `hearing`.
+ *     The two production studios are the pair borrowing it as a recorded stand-in: a
+ *     table with microphones at it is where people speak, and the one photograph of
+ *     an operator at a desk of controls belongs to a plant, which is a harder thing to
+ *     put on a podcast. The cost is real and stated rather than argued away — a studio
+ *     card shows an empty committee chamber, with no cameras, no treatment and nobody
+ *     working.
  *   - `huddle` is an office team over a charted whiteboard. No room is in frame,
  *     which is what lets a home office and a review corner borrow it.
  *   - `hearing` is a presenter at a lectern with a seated reader and a crest. The
@@ -59,7 +75,8 @@ export type TemplateDesignFacts = { requiredSkuCount: number; sourceEndpointCoun
  * audience, at a committee table unless it is a meeting room, or at an operations
  * desk unless operators sit at it. Where the repo has no photograph of the room —
  * the ballroom, a science lab, a lecture theatre, a learning commons, an esports
- * lab, a clinical review room, a production studio, a home media room — the nearest
+ * lab, a clinical review room, a production studio, a home media room, a meeting
+ * room with a front display and camera — the nearest
  * same-kind picture stands in and the
  * paragraph above names it, because a gap written down is fixable and a caption
  * that quietly lies is not. New art per key is still the fix, and nothing here can
