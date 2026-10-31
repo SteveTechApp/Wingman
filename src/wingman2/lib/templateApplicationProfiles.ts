@@ -10,6 +10,29 @@ export type TemplateReviewStatus = "reviewed" | "needs-review";
 export type TemplateApplicationProfile = { templateId: string; canonicalMarket: string; architectureFamily: TemplateArchitectureFamily; imageKey: string; userJourney: string; sizingBasis: string[]; capabilities: TemplateCapability[]; inclusions: string[]; exclusions: string[]; reviewStatus: TemplateReviewStatus };
 export type TemplateDesignFacts = { requiredSkuCount: number; sourceEndpointCount: number; outputEndpointCount: number; architectureFamily: TemplateArchitectureFamily };
 
+/**
+ * Three of these files are one photograph under two names — `pub`/`sportsbar`
+ * (`618c8906`), `control`/`security` (`ade8ff38`), `hybrid`/`hall` (`571fa219`) —
+ * and that is a review miss rather than reuse. The way this table says "one
+ * photograph" is to share a key: `images.boardroom` serves thirteen templates and
+ * `images.signage` eight. A second key pointing at a duplicate file hides the
+ * overlap instead of stating it.
+ *
+ * What each shared file shows, read off the photographs themselves:
+ *   - `control`/`security` is a wall of camera feeds over an operations desk. It
+ *     suits both rooms, which makes this the one pair whose picture is defensible
+ *     and still two files where one entry would do.
+ *   - `pub`/`sportsbar` is a bar counter and stools. It fits the pub and restaurant
+ *     assignments; the sports-bar key also dresses `leisure-gym-fitness-club`, so
+ *     a gym is currently shown a bar.
+ *   - `hybrid`/`hall` is a group watching one screen in team colours — neither a
+ *     hybrid teaching space nor a school hall projector, so the five `hybrid` and
+ *     four `hall` templates are all showing a room none of them is.
+ *
+ * New art per key is the fix, and nothing here can produce a photograph. Until it
+ * does, `templateImages.test.ts` holds the list at these three pairs, so a fourth
+ * duplicate is a red run rather than a quiet addition.
+ */
 const images = {
   boardroom: "photo-boardroom.jpg", huddle: "photo-huddle-room.jpg", multicamera: "photo-multicamera-meeting.jpg",
   classroom: "photo-classroom.jpg", flexible: "photo-flexible-learning.jpg", hybrid: "photo-hybrid-teaching.jpg",

@@ -1,8 +1,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { AV_SYMBOLS } from "./lib/av-symbols.mjs";
-import { assertStencilPackage, buildStencilParts, zipParts } from "./lib/visio-stencil.mjs";
+import { buildAvStencil, STENCIL_PATH } from "./lib/av-stencil.mjs";
+import { assertStencilPackage } from "./lib/visio-stencil.mjs";
 
 /**
  * Build the Visio stencil an AV designer can open beside their own drawing.
@@ -24,25 +24,22 @@ import { assertStencilPackage, buildStencilParts, zipParts } from "./lib/visio-s
  *
  * The build is deterministic down to the byte — fixed part timestamps, one
  * compression level — so rebuilding an unchanged symbol set produces an identical
- * file and a diff is a real change rather than a clock.
+ * file and a diff is a real change rather than a clock. That is what lets
+ * `check:visio-stencil` hold the committed file to a fresh build of the same
+ * definition in `lib/av-stencil.mjs`.
+ *
+ * There is deliberately no `npm` script for the build itself: `package.json` is an
+ * input to the browser walk's fresh-build gate, so a script would refuse a `dist/`
+ * that is still current.
  */
 
 const __filename = fileURLToPath(import.meta.url);
 const projectRoot = path.resolve(path.dirname(__filename), "..");
-const outputPath = path.join(projectRoot, "stencils", "wingman-av-symbols.vssx");
+const outputPath = path.join(projectRoot, STENCIL_PATH);
 
-/** Fixed so two builds of the same symbols are the same bytes. */
-const BUILD_STAMP = new Date("2026-10-28T00:00:00Z");
+const { parts, archive, masters } = buildAvStencil();
 
-const parts = buildStencilParts({
-  masters: AV_SYMBOLS.map((symbol) => ({ ...symbol })),
-  title: "Wingman AV symbols",
-  description: "Schematic symbols for AV drawings: display, matrix switcher, ceiling speaker.",
-  now: BUILD_STAMP,
-});
-const archive = zipParts(parts);
-
-const problems = assertStencilPackage({ archive, masters: AV_SYMBOLS });
+const problems = assertStencilPackage({ archive, masters });
 if (problems.length) {
   console.error(`[visio-stencil] The package does not hold together, so it was not written:`);
   for (const problem of problems) console.error(`  - ${problem}`);
@@ -50,10 +47,10 @@ if (problems.length) {
 } else {
   mkdirSync(path.dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, archive);
-  const relative = path.relative(projectRoot, outputPath);
   console.log(
-    `[visio-stencil] ${AV_SYMBOLS.length} masters (${AV_SYMBOLS.map((symbol) => symbol.name).join(", ")}) `
-      + `written to ${relative}: ${parts.length} parts, ${archive.length} bytes. `
-      + "Open it in Visio and quote any repair prompt back — nothing here can open it.",
+    `[visio-stencil] ${masters.length} masters (${masters.map((symbol) => symbol.name).join(", ")}) `
+      + `written to ${STENCIL_PATH}: ${parts.length} parts, ${archive.length} bytes. `
+      + `Open it in Visio and quote any repair prompt back — nothing here can open it. `
+      + "The file is tracked, so commit it.",
   );
 }
