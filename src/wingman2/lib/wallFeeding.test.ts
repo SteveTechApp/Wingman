@@ -20,10 +20,10 @@ const wall = (overrides = {}) => ({ ...defaultWallRequirements, application: "lc
 describe("wall feeding", () => {
   it("is asked after the wall's size and before its windows", () => {
     expect(wallWizardSteps.map((step) => step.key))
-      .toEqual(["job", "picture", "size", "feeding", "layout", "location", "detail"]);
+      .toEqual(["job", "picture", "size", "sources", "feeding", "layout", "visual", "detail"]);
     // The summary a rep reads back carries the same order as the questions.
     expect(wallWizardAnswers(wall()).map((answer) => answer.key))
-      .toEqual(["picture", "size", "feeding", "layout", "location"]);
+      .toEqual(["picture", "size", "sources", "feeding", "layout"]);
   });
 
   it("offers only the models a wall of that kind can be built to", () => {

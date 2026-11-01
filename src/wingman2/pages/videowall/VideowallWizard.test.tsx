@@ -90,8 +90,8 @@ describe("VideowallWizard start step", () => {
       layout: "single",
     }));
     // Not the size step: the brief already answered it, so the next question is
-    // the one the canvas cannot answer — who scales it.
-    expect(screen.getByTestId("videowall-wizard-step-feeding")).toBeTruthy();
+    // what the wall carries and where those sources sit.
+    expect(screen.getByTestId("videowall-wizard-step-sources")).toBeTruthy();
   });
 
   it("does not start a wall from a canvas that has no pixels", () => {
@@ -134,9 +134,11 @@ it("asks how the wall is fed after its size and before its windows", () => {
 
   fireEvent.click(screen.getByRole("button", { name: "Answer the questions instead" }));
   fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
-  // The size answer comes first, so the connection can talk about a canvas
-  // the wall has already been given.
-  fireEvent.click(screen.getByRole("button", { name: /^Continue with 2 panels/ }));
+  // The size answer comes first, then the sources it carries, so the connection
+  // can talk about a canvas the wall has already been given.
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  expect(screen.getByTestId("videowall-wizard-step-sources")).toBeTruthy();
+  fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
 
   expect(screen.getByTestId("videowall-wizard-step-feeding")).toBeTruthy();
   expect(screen.getByTestId("videowall-feeding-per-panel").getAttribute("aria-pressed")).toBe("true");
@@ -153,7 +155,8 @@ it("offers an LED canvas the processor, the multiviewers and a custom canvas", (
 
   fireEvent.click(screen.getByRole("button", { name: "Answer the questions instead" }));
   fireEvent.click(screen.getByRole("button", { name: /^LED · processor input/ }));
-  fireEvent.click(screen.getByRole("button", { name: /^Continue with 1 panel/ }));
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
 
   expect(screen.getByTestId("videowall-feeding-single-input").getAttribute("aria-pressed")).toBe("true");
   expect(screen.queryByTestId("videowall-feeding-per-panel")).toBeNull();
@@ -238,4 +241,29 @@ it("shows one result section at a time and preserves requirements while changing
 
   fireEvent.click(screen.getByTestId("videowall-section-brief"));
   expect(screen.getByRole("heading", { name: "Your answers" }).closest("section")?.textContent).toContain("3 × 3");
+});
+
+it("asks the wall type first, then its sources and layout, one question a screen", () => {
+  renderWizard(requirements(), { atResult: false });
+
+  fireEvent.click(screen.getByRole("button", { name: "Answer the questions instead" }));
+
+  // The rail is the ladder: the wall's type decides which questions exist, so it
+  // is asked before the wall's size; the sources follow the box they fill, and
+  // the layout comes after the connection that decides who composes them.
+  const rail = screen.getByRole("list", { name: "Wizard progress" });
+  expect(within(rail).getAllByRole("listitem").map((item) => item.textContent?.replace(/^\d/, "")))
+    .toEqual(["The job", "Wall type", "Size and pixels", "Sources", "Connection", "Layout", "The design", "Must-haves"]);
+  expect(screen.getByTestId("videowall-wizard-step-picture")).toBeTruthy();
+
+  fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
+  // The size screen stops at the box: the survey that once made it the longest
+  // page in the builder belongs to the result, not to a question.
+  expect(screen.getByTestId("videowall-wizard-step-size")).toBeTruthy();
+  expect(screen.queryByTestId("videowall-transport")).toBeNull();
+
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  expect(screen.getByTestId("videowall-wizard-step-sources")).toBeTruthy();
+  expect(screen.getByRole("group", { name: "Source count" })).toBeTruthy();
+  expect(screen.getByRole("group", { name: "Where the sources sit" })).toBeTruthy();
 });

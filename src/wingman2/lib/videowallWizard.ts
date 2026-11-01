@@ -17,20 +17,29 @@ import { wallFeedingAnswer } from "./wallFeeding";
  * checks a rep must close before quoting.
  */
 
-export type WallWizardStepKey = "job" | "picture" | "size" | "feeding" | "layout" | "location" | "detail";
+export type WallWizardStepKey = "job" | "picture" | "size" | "sources" | "feeding" | "layout" | "visual" | "detail";
 
 /**
- * The size comes before the connection because the wall decides the canvas,
- * and the connection before the layout because a window count only means
- * something once the wall is known to receive one composed picture.
+ * The wall's kind is the first question, because it decides which of the others
+ * exist at all: a projection screen has projectors and a blend, an LED canvas
+ * has a pitch and cabinets, and only an LCD wall can be fed a panel at a time.
+ * The sources come next, since what the wall has to carry is the thing the
+ * design answers. The size comes before the connection because the wall decides
+ * the canvas, and the connection before the layout because a window count only
+ * means something once the wall is known to receive one composed picture.
+ *
+ * The drawing is a reading of those answers rather than a question of its own,
+ * so it gets a screen instead of stacking under the size controls that produced
+ * it; the wiring is the same reading, and belongs to the result's survey pass.
  */
 export const wallWizardSteps: { key: WallWizardStepKey; label: string }[] = [
   { key: "job", label: "The job" },
-  { key: "picture", label: "On the wall" },
+  { key: "picture", label: "Wall type" },
   { key: "size", label: "Size and pixels" },
+  { key: "sources", label: "Sources" },
   { key: "feeding", label: "Connection" },
   { key: "layout", label: "Layout" },
-  { key: "location", label: "Sources" },
+  { key: "visual", label: "The design" },
   { key: "detail", label: "Must-haves" },
 ];
 
@@ -55,19 +64,22 @@ export function wallWizardAnswers(r: WallRequirements): WallWizardAnswer[] {
   const location = videowallLocationChoices.find((choice) => choice.key === videowallLocationKeyFor(r))?.label ?? "Sources";
   const count = `${r.sources} source${r.sources === 1 ? "" : "s"}`;
   const projectors = wallProjectorCount(r);
+  // The wall's size is the array and its pixels; the source count and its
+  // timing belong to the sources answer, so the box and what it carries are two
+  // questions a rep reads back rather than one sentence doing both jobs.
   const size = r.application === "led"
-    ? `${r.ledCanvasWidth} × ${r.ledCanvasHeight} LED canvas · ${count}`
+    ? `${r.ledCanvasWidth} × ${r.ledCanvasHeight} LED canvas`
     : r.application === "projection"
       ? projectors > 1
-        ? `${projectors} projectors at ${panelSize(r)} each · ${count}`
-        : `One projector at ${panelSize(r)} · ${count}`
-      : `${r.columns} × ${r.rows} (${panels} panels) · ${r.orientation} · ${panelSize(r)} panels · ${count}`;
+        ? `${projectors} projectors at ${panelSize(r)} each`
+        : `One projector at ${panelSize(r)}`
+      : `${r.columns} × ${r.rows} (${panels} panels) · ${r.orientation} · ${panelSize(r)} panels`;
   return [
-    { key: "picture", step: STEP_INDEX.picture, label: "On the wall", value: picture },
-    { key: "size", step: STEP_INDEX.size, label: "Size and pixels", value: `${size} · ${wallPhysicalSize(r).text} · ${sourceTiming(r)} source` },
+    { key: "picture", step: STEP_INDEX.picture, label: "Wall type", value: picture },
+    { key: "size", step: STEP_INDEX.size, label: "Size and pixels", value: `${size} · ${wallPhysicalSize(r).text}` },
+    { key: "sources", step: STEP_INDEX.sources, label: "Sources", value: `${count} at ${sourceTiming(r)} · ${location}` },
     { key: "feeding", step: STEP_INDEX.feeding, label: "Connection", value: wallFeedingAnswer(r) },
     { key: "layout", step: STEP_INDEX.layout, label: "Layout", value: layout },
-    { key: "location", step: STEP_INDEX.location, label: "Sources", value: location },
   ];
 }
 

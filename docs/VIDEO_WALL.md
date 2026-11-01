@@ -365,11 +365,19 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   competing with the wall; opening a row is the controls that step always
   rendered. `VideowallOptionsList` is reference rather than a choice, so it
   opens from a summary naming `decision.considered` and `decision.viableCount`.
-- The guided questions run wall type, size, connection, windows, sources and
-  must-haves, and the connection is asked where a rep settles it in the room:
-  after the wall's size has decided the canvas and before the window layout,
-  because a window count only means something once the wall is known to take one
-  composed picture. `wallFeeding.ts` owns that question, and its models are the
+- The guided questions run wall type, size, sources, connection, windows, the
+  design and must-haves, one question a screen. The wall's type is asked first
+  because it decides which of the others exist — a projection screen has
+  projectors and a blend, an LED canvas has a pitch and cabinets, and only an LCD
+  wall can be fed a panel at a time — and the sources come next, since what the
+  wall must carry is the thing the design answers. The connection is asked where
+  a rep settles it in the room: after the wall's size has decided the canvas and
+  before the window layout, because a window count only means something once the
+  wall is known to take one composed picture. The drawing is a reading of those
+  answers rather than a question of its own, so it has a screen instead of
+  stacking under the size controls that produced it, and the transport table
+  belongs to the result's survey pass rather than to a question screen.
+  `wallFeeding.ts` owns that question, and its models are the
   application the decision engine already reads rather than a field beside it:
   one canvas with the panels tiling it is `lcd-loop`, a feed per panel is
   `lcd-direct` with the independent layout, a feed per group is `lcd-grouped`,

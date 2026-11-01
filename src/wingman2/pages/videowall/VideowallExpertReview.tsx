@@ -258,7 +258,7 @@ export function VideowallExpertReview({
               <VideowallStep
                 index={4}
                 question={wallDecisionQuestions.location}
-                answer={answerFor("location")}
+                answer={videowallLocationChoices.find((choice) => choice.key === videowallLocationKeyFor(requirements))?.label ?? ""}
                 hint="Distance decides between local HDMI and network transport."
               >
                 <div className="vw-builder-choices" role="group" aria-label="Source location">
