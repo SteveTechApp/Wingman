@@ -73,8 +73,46 @@ describe("VideowallExpertReview", () => {
     expect(screen.queryByTestId("videowall-transport")).toBeNull();
   });
 
+  it("shows one band of the design pass at a time", () => {
+    renderReview();
+
+    // The picker is the band the pass opens on; the answer, the questions and
+    // the catalogue are not on the page until the rail is asked for them.
+    expect(screen.getByTestId("videowall-band-panel-start")).toBeTruthy();
+    expect(screen.queryByTestId("videowall-band-panel-answer")).toBeNull();
+    expect(screen.queryByTestId("videowall-band-panel-questions")).toBeNull();
+    expect(screen.queryByTestId("videowall-band-panel-options")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("videowall-band-options"));
+    expect(screen.getByTestId("videowall-options")).toBeTruthy();
+    expect(screen.queryByTestId("videowall-band-panel-start")).toBeNull();
+    expect(screen.getByTestId("videowall-band-options").getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("walks the bands in order and leaves the pass from the last one", () => {
+    renderReview();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue to the answer" }));
+    expect(screen.getByTestId("videowall-band-panel-answer")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue to the questions" }));
+    expect(screen.getByTestId("videowall-band-panel-questions")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Back to the answer" }));
+    expect(screen.getByTestId("videowall-band-panel-answer")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue to the questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue to every option" }));
+    expect(screen.getByTestId("videowall-band-panel-options")).toBeTruthy();
+
+    // The last band is the only one that leaves for the drawing.
+    fireEvent.click(screen.getByRole("button", { name: "Continue to the wall" }));
+    expect(screen.getByTestId("videowall-expert-panel-wall")).toBeTruthy();
+  });
+
   it("reads the questions as lines until one is opened", () => {
     renderReview();
+    fireEvent.click(screen.getByTestId("videowall-band-questions"));
 
     // Each line carries the question and the answer in use, so the brief is
     // readable without opening anything and the answers do not compete with the
@@ -91,6 +129,7 @@ describe("VideowallExpertReview", () => {
 
   it("folds the pre-order checklist to its count", () => {
     renderReview();
+    fireEvent.click(screen.getByTestId("videowall-band-answer"));
 
     const checklist = screen.getByText("Confirm before ordering").closest("details");
     expect(checklist?.hasAttribute("open")).toBe(false);
@@ -140,10 +179,7 @@ describe("VideowallExpertReview", () => {
   });
 
   it("walks the passes with the same back and continue actions as the guided result", () => {
-    renderReview();
-
-    fireEvent.click(screen.getByRole("button", { name: "Continue to the wall" }));
-    expect(screen.getByTestId("videowall-expert-panel-wall")).toBeTruthy();
+    renderReview({}, "wall");
 
     fireEvent.click(screen.getByRole("button", { name: "Continue to transport" }));
     expect(screen.getByTestId("videowall-expert-panel-transport")).toBeTruthy();

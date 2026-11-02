@@ -91,14 +91,28 @@ describe("a room brief produces a multi-product system, not one SKU", () => {
         sourceCount: "2",
         displayCount: "1",
         unifiedCommunicationsRequirement: "Yes - Microsoft Teams",
-        microphoneConnections: "2",
+        microphoneCount: "2–4 feeds or pickup zones",
       }),
     );
 
     const kinds = design.slots.map((slot) => slot.kind);
     expect(kinds).toContain("camera");
     expect(kinds).toContain("microphone");
-    expect(design.slots.find((slot) => slot.kind === "microphone")?.quantity).toBe(2);
+    // A feed count asks a device to host that many pickup zones; it is not a
+    // device count, so the role stays one unit and the evidence carries the
+    // band the selector gates and the rep sizes from.
+    expect(design.slots.find((slot) => slot.kind === "microphone")?.quantity).toBe(1);
+    expect(design.slots.find((slot) => slot.kind === "microphone")?.derivedFrom.join(" "))
+      .toContain("2–4 feeds or pickup zones");
+  });
+
+  it("asks for the microphone feed count when a conferencing room has not captured it", () => {
+    const design = buildSystemDesign(
+      brief({ sourceCount: "2", displayCount: "1", unifiedCommunicationsRequirement: "Yes - Microsoft Teams" }),
+    );
+
+    expect(design.slots.find((slot) => slot.kind === "microphone")?.quantity).toBe(1);
+    expect(design.openQuestions).toContain("How many microphone feeds or pickup zones does the room need?");
   });
 
   it("builds a configured direct-view LED wall as a system with an external LED processor", () => {

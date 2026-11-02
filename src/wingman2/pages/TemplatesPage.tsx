@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Building2, Check, FilePenLine, LayoutGrid, List, X } from "lucide-react";
 import { TemplateLibraryCard } from "../components/TemplateLibraryCard";
+import { appendTranscriptNote, VoiceRequestCapture } from "../components/VoiceRequestCapture";
 import { useProjectStore } from "../features/projects";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { deleteCustomRoomTemplate, duplicateCustomRoomTemplate, useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
@@ -128,7 +129,7 @@ function PersonalisationForm({ value, onUpdate, brandNote }: { value: DocumentPe
   const field = (key: keyof DocumentPersonalisation, label: string, type = "text") => <label>{label}<input type={type} value={String(value[key])} onChange={(e) => onUpdate(key, e.target.value as never)} /></label>;
   return <div className="wm-personalisation-form">{brandNote ? <p className="wm-ui-copy" role="status" data-testid="template-brand-defaults-note">{brandNote}</p> : null}<fieldset><legend>Document details</legend><div className="wm-form-grid">{field("documentTitle", "Document title")}{field("customerName", "Customer name")}{field("site", "Site")}{field("projectReference", "Project reference")}{field("author", "Author")}{field("date", "Date", "date")}{field("revision", "Revision")}</div></fieldset>
     <fieldset><legend>Brand</legend><div className="wm-form-grid">{field("organisationLogo", "Organisation logo URL")}{field("customerLogo", "Customer logo URL")}{field("primaryColour", "Primary colour", "color")}{field("secondaryColour", "Secondary colour", "color")}{field("font", "Font")}{field("coverImage", "Cover image URL")}{field("footer", "Footer")}{field("disclaimer", "Disclaimer")}</div></fieldset>
-    <fieldset><legend>Content</legend>{(["purpose", "customerStory", "objectives", "executiveSummary", "scope", "exclusions", "nextSteps"] as const).map((key) => <label key={key}>{key.replace(/([A-Z])/g, " $1")}<textarea value={value[key]} onChange={(e) => onUpdate(key, e.target.value)} /></label>)}</fieldset>
+    <fieldset><legend>Content</legend>{(["purpose", "customerStory", "objectives", "executiveSummary", "scope", "exclusions", "nextSteps"] as const).map((key) => <div key={key} className="wm-template-copy-field"><label>{key.replace(/([A-Z])/g, " $1")}<textarea value={value[key]} onChange={(e) => onUpdate(key, e.target.value)} /></label><VoiceRequestCapture compact onTranscript={(text) => onUpdate(key, appendTranscriptNote(value[key], text))} /></div>)}</fieldset>
     <fieldset><legend>Audience and detail</legend><div className="wm-form-grid"><label>Audience<select value={value.audience} onChange={(e) => onUpdate("audience", e.target.value as DocumentPersonalisation["audience"])}>{["Customer", "Consultant", "Integrator", "Internal"].map(x => <option key={x}>{x}</option>)}</select></label><label>Detail<select value={value.detail} onChange={(e) => onUpdate("detail", e.target.value as DocumentPersonalisation["detail"])}>{["Executive", "Standard", "Technical"].map(x => <option key={x}>{x}</option>)}</select></label></div></fieldset>
   </div>;
 }

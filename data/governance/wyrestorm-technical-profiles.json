@@ -14099,8 +14099,8 @@
       "sku": "SW-0401-H2",
       "status": "verified",
       "productClass": "PRESENTATION",
-      "role": "Signal distribution",
-      "productType": "One-to-many distribution",
+      "role": "Source switching",
+      "productType": "Room source switcher",
       "transport": [
         "HDMI",
         "Presentation switching"

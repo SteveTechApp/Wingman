@@ -30,7 +30,8 @@
     "battleCards",
     "quoteSafetyDashboard",
     "analyticsDashboard",
-    "approvalQueue"
+    "approvalQueue",
+    "help"
   ],
   "retiredRouteKeys": [
     "finder",

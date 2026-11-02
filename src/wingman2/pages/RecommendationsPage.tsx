@@ -2,6 +2,11 @@ import { useWorkflowPage } from "../components/WorkflowPages";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, PencilLine, Plus, RefreshCw, Route, ShieldCheck, XCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  RecommendationBrandLandscape,
+  RecommendationHandoffLinks,
+  RecommendationHandoffPanel,
+} from "./recommendations/RecommendationHandoffStage";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -192,6 +197,7 @@ function productDescription(decision: RecommendationDecision) {
 function selectionFromDecision(
   decision: RecommendationDecision,
   quantity?: number,
+  systemRole?: string,
 ): StoredProductSelection {
   const status =
     decision.status === "compatible"
@@ -202,6 +208,7 @@ function selectionFromDecision(
 
   return {
     sku: decision.sku,
+    systemRole,
     quantity,
     title: productTitle(decision),
     family: productField(decision, "family"),
@@ -324,34 +331,71 @@ export function RecommendationsPage() {
     [systemBrief, slotPool],
   );
 
+  // A role holds one product, so the project's own selection is the authority on
+  // what fills it. Without this the card kept offering the engine's best fit
+  // after a rep had chosen an alternative, and the room ended up with two.
+  const chosenByRole = useMemo(() => {
+    const map = new Map<string, StoredProductSelection>();
+    for (const selection of activeProject?.productSelections ?? []) {
+      const role = String(selection.systemRole ?? "").trim().toLowerCase();
+      if (role) map.set(role, selection);
+    }
+    return map;
+  }, [activeProject?.productSelections]);
+  // A selection written before products recorded their role still fills a role
+  // when it is one of that role's own candidates: the room already holds it, and
+  // reading it as unfilled is how a rep came to add a second product for it.
+  const unroledSelections = useMemo(
+    () => (activeProject?.productSelections ?? []).filter((selection) => !String(selection.systemRole ?? "").trim()),
+    [activeProject?.productSelections],
+  );
+  const chosenFor = (slot: SystemSlot, candidates: RecommendationDecision[] = []) => {
+    const roled = chosenByRole.get(slot.kind.trim().toLowerCase());
+    if (roled) return roled;
+    if (!candidates.length) return undefined;
+    const candidateSkus = new Set(candidates.map((decision) => normaliseSkuKey(decision.sku)));
+    return unroledSelections.find((selection) => candidateSkus.has(normaliseSkuKey(selection.sku)));
+  };
+
   const unfilledSlots = useMemo(
-    () => systemSlots.filter((entry) => entry.slot.supply === "wyrestorm" && !entry.candidates.length),
-    [systemSlots],
+    () => systemSlots.filter((entry) => entry.slot.supply === "wyrestorm" && !entry.candidates.length && !chosenFor(entry.slot, entry.candidates)),
+    [systemSlots, chosenByRole, unroledSelections],
   );
 
-  function addSlotToProject(slot: SystemSlot, decision: RecommendationDecision) {
+  function addSlotToProject(slot: SystemSlot, decision: RecommendationDecision, candidates: RecommendationDecision[]) {
     if (selectionBlockedByStrand) return;
-    const selection = selectionFromDecision(decision, slot.quantity);
-    const savedProject = saveProductSelectionToCurrentProject({
-      ...selection,
-      source: `Discovery system design - ${slot.label}`,
-      evidence: [
-        `Fills the ${slot.label} slot (qty ${slot.quantity}): ${slot.purpose}`,
-        ...(selection.evidence ?? []),
-      ],
-    });
+    const selection = selectionFromDecision(decision, slot.quantity, slot.kind);
+    const replaced = chosenFor(slot, candidates);
+    const savedProject = saveProductSelectionToCurrentProject(
+      {
+        ...selection,
+        source: `Discovery system design - ${slot.label}`,
+        evidence: [
+          `Fills the ${slot.label} slot (qty ${slot.quantity}): ${slot.purpose}`,
+          ...(selection.evidence ?? []),
+        ],
+      },
+      // The role's other candidates belong to the role too, so a product added
+      // for it before roles were stored is replaced rather than left beside it.
+      { roleSiblingSkus: candidates.map((candidate) => candidate.sku) },
+    );
 
+    const replacing = replaced && normaliseSkuKey(replaced.sku) !== normaliseSkuKey(decision.sku);
     setMessage(
       savedProject
-        ? `${decision.sku} added to ${savedProject.name} as ${slot.label} (qty ${slot.quantity}).`
+        ? replacing
+          ? `${decision.sku} replaced ${replaced.sku} as ${slot.label} (qty ${slot.quantity}).`
+          : `${decision.sku} added to ${savedProject.name} as ${slot.label} (qty ${slot.quantity}).`
         : `${decision.sku} could not be added to a project.`,
     );
   }
 
   function addWholeSystemToProject() {
     if (selectionBlockedByStrand) return;
-    const omitted = new Set((activeProject?.omittedProductSkus ?? []).map((sku) => String(sku).trim().toUpperCase()));
-    const filled = systemSlots.filter((entry) => entry.candidates.length && !omitted.has(entry.candidates[0].sku.trim().toUpperCase()));
+    const omitted = new Set((activeProject?.productOmissions ?? []).map((entry) => entry.sku.trim().toUpperCase()));
+    // A role the rep has already filled keeps their product: the batch must not
+    // add the engine's best fit on top of a deliberate choice.
+    const filled = systemSlots.filter((entry) => entry.candidates.length && !chosenFor(entry.slot, entry.candidates) && !omitted.has(entry.candidates[0].sku.trim().toUpperCase()));
 
     if (!filled.length) {
       setMessage("No system slots could be filled from the catalogue yet.");
@@ -362,6 +406,7 @@ export function RecommendationsPage() {
       decision: RecommendationDecision;
       quantity: number;
       slotEvidence: string[];
+      systemRole: string;
     }>();
 
     for (const entry of filled) {
@@ -377,6 +422,7 @@ export function RecommendationsPage() {
           decision,
           quantity: entry.slot.quantity,
           slotEvidence: [slotEvidence],
+          systemRole: entry.slot.kind,
         });
       }
     }
@@ -385,7 +431,7 @@ export function RecommendationsPage() {
     let projectName = "";
 
     for (const entry of selectionsBySku.values()) {
-      const selection = selectionFromDecision(entry.decision, entry.quantity);
+      const selection = selectionFromDecision(entry.decision, entry.quantity, entry.systemRole);
       const savedProject = saveProductSelectionToCurrentProject({
         ...selection,
         source: "Discovery system design - whole system",
@@ -652,7 +698,7 @@ export function RecommendationsPage() {
   ].filter(Boolean);
   const requiredSystemSlots = systemSlots.filter(({ slot }) => slot.required);
   const resolvedSystemSlots = requiredSystemSlots.filter(
-    ({ slot, candidates }) => slot.supply === "external" || candidates.length > 0,
+    ({ slot, candidates }) => slot.supply === "external" || candidates.length > 0 || Boolean(chosenFor(slot, candidates)),
   );
   const systemUnitCount = systemSlots.reduce((total, { slot }) => total + slot.quantity, 0);
 
@@ -1034,7 +1080,23 @@ export function RecommendationsPage() {
               <div className="wm-rec-slot-list">
                 {systemSlots.map(({ slot, candidates, ucCovered }, index) => {
                   const lead = candidates[0];
-                  const alternatives = shouldShowRecommendationAlternatives(showAlternatives) ? candidates.slice(1) : [];
+                  // The rep's own pick is what the card shows once a role is
+                  // filled, and the engine's lead moves into the swap list: a
+                  // role holds one product, so the other candidates are the
+                  // ways to change it rather than a second thing to add.
+                  const chosen = chosenFor(slot, candidates);
+                  // What the card speaks for is the rep's pick when the role is
+                  // filled and the engine's lead otherwise; the remaining
+                  // candidates are the ways to change it, not a second add.
+                  const displayed = chosen
+                    ? { sku: chosen.sku, title: chosen.title || chosen.sku }
+                    : lead
+                      ? { sku: lead.sku, title: productTitle(lead) }
+                      : null;
+                  const shownKey = displayed ? normaliseSkuKey(displayed.sku) : "";
+                  const alternatives = shouldShowRecommendationAlternatives(showAlternatives)
+                    ? candidates.filter((decision) => normaliseSkuKey(decision.sku) !== shownKey)
+                    : [];
                   return (
                     <article className={`wm-rec-slot${slot.supply === "external" ? " is-external" : ""}${!lead && slot.supply === "wyrestorm" && !ucCovered ? " is-unresolved" : ""}${ucCovered ? " is-uc-covered" : ""}`} key={slot.kind}>
                       <div className="wm-rec-slot-index">{index + 1}</div>
@@ -1059,23 +1121,25 @@ export function RecommendationsPage() {
                               <span>Specify the LED manufacturer’s processor/controller separately. It is required, but it is not a WyreStorm product.</span>
                             </div>
                           </div>
-                        ) : lead ? (
+                        ) : displayed ? (
                           <div className="wm-rec-lead-product">
                             <div className="wm-rec-product-check"><Check size={18} aria-hidden="true" /></div>
                             <div>
-                              <span>Best fit for this role</span>
-                              <strong>{lead.sku}</strong>
-                              <p>{productTitle(lead)}</p>
+                              <span>{chosen ? "Selected for this role" : "Best fit for this role"}</span>
+                              <strong>{displayed.sku}</strong>
+                              <p>{displayed.title}</p>
                             </div>
-                            <button
-                              type="button"
-                              className="wm-ui-button wm-ui-button-secondary"
-                              disabled={selectionBlockedByStrand}
-                              title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
-                              onClick={() => addSlotToProject(slot, lead)}
-                            >
-                              Add role
-                            </button>
+                            {chosen || !lead ? null : (
+                              <button
+                                type="button"
+                                className="wm-ui-button wm-ui-button-secondary"
+                                disabled={selectionBlockedByStrand}
+                                title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
+                                onClick={() => addSlotToProject(slot, lead, candidates)}
+                              >
+                                Add role
+                              </button>
+                            )}
                           </div>
                         ) : ucCovered ? (
                           <div className="wm-rec-uc-covered">
@@ -1093,7 +1157,11 @@ export function RecommendationsPage() {
 
                         {alternatives.length ? (
                           <details className="wm-rec-alternatives">
-                            <summary>Compare {alternatives.length} alternative{alternatives.length === 1 ? "" : "s"} for this role</summary>
+                            <summary>
+                              {chosen
+                                ? "Change the product for this role"
+                                : `Compare ${alternatives.length} alternative${alternatives.length === 1 ? "" : "s"} for this role`}
+                            </summary>
                             <div>
                               {alternatives.map((decision) => (
                                 <div className="wm-rec-alternative" key={decision.sku}>
@@ -1102,7 +1170,7 @@ export function RecommendationsPage() {
                                     type="button"
                                     disabled={selectionBlockedByStrand}
                                     title={selectionBlockedByStrand ? "Resolve the stranded discovery answers before selecting a product." : undefined}
-                                    onClick={() => addSlotToProject(slot, decision)}
+                                    onClick={() => addSlotToProject(slot, decision, candidates)}
                                   >
                                     Use this instead
                                   </button>
@@ -1444,47 +1512,7 @@ export function RecommendationsPage() {
           )}
 
           {stage === "handoff" && brandLosses.length > 0 && (
-            <section className="wm-ui-card rounded-2xl border p-5">
-              <header className="mb-4">
-                <p className="wm-ui-kicker">Competitive landscape</p>
-                <h2 className="wm-ui-title text-xl font-black">Brands winning and losing against WyreStorm</h2>
-                <p className="wm-ui-copy text-sm">These patterns are extracted from deal outcomes across your projects. Brands with the most losses are shown first — check the battle cards for objection handling.</p>
-              </header>
-              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {brandLosses.slice(0, 9).map((brand) => (
-                  <li key={brand.brand} className="rounded-xl border border-slate-700/60 bg-slate-900/40 p-3">
-                    <div className="flex items-center justify-between">
-                      <strong className="font-black">{brand.brand}</strong>
-                      <div className="flex gap-1.5">
-                        {brand.lossCount > 0 && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/40 text-red-400">
-                            {brand.lossCount} lost
-                          </span>
-                        )}
-                        {brand.winCount > 0 && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-green-900/40 text-green-400">
-                            {brand.winCount} won
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {brand.whySnippets.length > 0 && (
-                      <p className="mt-2 text-xs opacity-70 line-clamp-2">
-                        {brand.whySnippets[0]}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-4">
-                <Link
-                  className="wm-ui-button wm-ui-button-secondary rounded-xl px-4 py-2 text-sm font-bold"
-                  to={routeCatalogByKey.battleCards?.path ?? "/wingman/battle-cards"}
-                >
-                  Open battle cards for objection handling
-                </Link>
-              </div>
-            </section>
+            <RecommendationBrandLandscape brands={brandLosses} />
           )}
 
           {stage === "validate" && assurance && (assurance.blockers.length || assurance.warnings.length) ? (
@@ -1530,21 +1558,11 @@ export function RecommendationsPage() {
           ) : null}
 
           {stage === "handoff" ? (
-            <section className="wm-rec-handoff" aria-labelledby="wm-rec-handoff-title">
-              <div>
-                <p className="wm-ui-kicker">Ready for the next workflow</p>
-                <h2 id="wm-rec-handoff-title">Carry the reviewed design into the active project.</h2>
-                <p>{unfilledSlots.length ? "Some roles still need review, so keep the design in validation before quoting." : "The role structure is ready to become a project selection. Add the system, then continue to the response pack."}</p>
-              </div>
-              <div className="wm-rec-handoff__actions">
-                <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => openStage("build")}>
-                  <Boxes size={16} aria-hidden="true" /> Review system
-                </button>
-                <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={addWholeSystemToProject}>
-                  <PackageCheck size={16} aria-hidden="true" /> Add complete system
-                </button>
-              </div>
-            </section>
+            <RecommendationHandoffPanel
+              unfilledCount={unfilledSlots.length}
+              onReviewSystem={() => openStage("build")}
+              onAddWholeSystem={addWholeSystemToProject}
+            />
           ) : null}
 
           {message ? (
@@ -1554,24 +1572,7 @@ export function RecommendationsPage() {
           ) : null}
 
           {stage === "handoff" ? (
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Link
-              className="wm-ui-button wm-ui-button-secondary rounded-xl px-4 py-3 font-black"
-              to={
-                activeProject
-                  ? `${routeCatalogByKey.projects.path}/${activeProject.id}`
-                  : routeCatalogByKey.projects.path
-              }
-            >
-              Open project
-            </Link>
-            <Link
-              className="wm-ui-button wm-ui-button-primary rounded-xl px-4 py-3 font-black"
-              to={routeCatalogByKey.proposal.path}
-            >
-              Continue to response pack
-            </Link>
-          </div>
+            <RecommendationHandoffLinks activeProjectId={activeProject?.id ?? null} />
           ) : null}
 
           <VerifyBeforeQuoteNote className="mt-4" />

@@ -25,8 +25,16 @@ export type StoredProject = {
   isDemo?: boolean;
   discoveryBrief?: StoredDiscoveryBrief;
   productSelections?: StoredProductSelection[];
-  /** SKUs deliberately removed by the user; automatic rebuilds must honour this list. */
-  omittedProductSkus?: string[];
+  /**
+   * Products the rep took out of the room, one entry per SKU, with the moment
+   * they took them out. A rebuild honours it, and a sync merge honours it
+   * across copies: a product pieced back in by a stale copy stays out, while
+   * one the rep re-adds afterwards comes back. `StoredProductOmission.at` is
+   * what tells those two apart, so an older document that stored bare SKUs
+   * (`omittedProductSkus`) keeps its removals without ever being newer than a
+   * selection the rep made later.
+   */
+  productOmissions?: StoredProductOmission[];
   /**
    * Governed dependency prompts (`TBC-…`) the rep has recorded as documented
    * dependencies rather than quotation lines: the question stays in the
@@ -146,8 +154,21 @@ export type StoredDiscoveryBrief = {
   discoveryConversation?: DiscoveryConversationItem[];
 };
 
+/** One product the rep took out of the room, and the moment they took it out. */
+export type StoredProductOmission = {
+  sku: string;
+  /** Absent on a document written before omissions carried a time. */
+  at?: string;
+};
+
 export type StoredProductSelection = {
   sku: string;
+  /**
+   * The system role this product fills (`SystemSlot.kind`). It is what lets a
+   * role hold one product: choosing another candidate for the same role
+   * replaces this row instead of adding a second product to the room.
+   */
+  systemRole?: string;
   /** Quantity captured by the workflow slot that selected this product. */
   quantity?: number;
   title?: string;

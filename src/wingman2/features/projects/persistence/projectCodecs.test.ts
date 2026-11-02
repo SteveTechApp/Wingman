@@ -186,6 +186,27 @@ describe("project persistence codecs", () => {
       syncConflict: { fields: [], detectedAt: "2026-01-03T00:00:00.000Z" },
     })).not.toHaveProperty("syncConflict");
   });
+
+  it("keeps when each removed product was removed, and reads a bare legacy SKU list", () => {
+    const decoded = decodeStoredProject({
+      ...BASE_PROJECT,
+      productSelections: [{ sku: "MX-0404-SCL", addedAt: "2026-01-03T00:00:00.000Z" }],
+      productOmissions: [
+        { sku: " rx-70-4k ", at: "2026-01-04T00:00:00.000Z" },
+        { sku: "RX-70-4K", at: "2026-01-02T00:00:00.000Z" },
+      ],
+    });
+
+    // One entry per SKU, keeping the moment the removal was last made: that
+    // stamp is what the sync merge compares a selection against.
+    expect(decoded?.productOmissions).toEqual([{ sku: "RX-70-4K", at: "2026-01-04T00:00:00.000Z" }]);
+
+    // A document written before omissions carried a time still keeps its
+    // removals: they are only older evidence, never newer than a selection.
+    const legacy = decodeStoredProject({ ...BASE_PROJECT, omittedProductSkus: ["mx-0404-scl"] });
+    expect(legacy?.productOmissions).toEqual([{ sku: "MX-0404-SCL" }]);
+    expect(legacy).not.toHaveProperty("omittedProductSkus");
+  });
 });
 
 it("records a legacy wall migration once and honours deliberate cleared ownership", () => {

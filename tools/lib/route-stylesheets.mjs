@@ -22,6 +22,7 @@ export const ROUTE_PAGE_STYLESHEETS = Object.freeze([
   { route: "dashboard", key: "dashboard", segment: "dashboard", file: "wingman-route-dashboard.css", label: "Dashboard" },
   { route: "discovery", key: "discovery", segment: "discovery", file: "wingman-route-discovery.css", label: "Discovery" },
   { route: "glossary", key: "glossary", segment: "glossary", file: "wingman-route-glossary.css", label: "Glossary" },
+  { route: "help", key: "help", segment: "help", file: "wingman-route-help.css", label: "Help" },
   { route: "projects", key: "projects", segment: "projects", file: "wingman-route-projects.css", label: "Projects" },
   { route: "sales-helper", key: "salesHelper", segment: "sales-helper", file: "wingman-route-sales-helper.css", label: "Sales Helper" },
   { route: "settings", key: "profile", segment: "settings", file: "wingman-route-settings.css", label: "Settings" },

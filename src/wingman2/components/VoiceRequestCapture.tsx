@@ -14,7 +14,18 @@ type SpeechWindow = { SpeechRecognition?: new () => Recognition; webkitSpeechRec
 const audioExtensions = /\.(mp3|mp4|mpeg|mpga|m4a|wav|webm|ogg|flac)$/i;
 const maxBytes = 25 * 1024 * 1024;
 
-export function VoiceRequestCapture({ onTranscript, onBusyChange, disabled = false }: { onTranscript: (text: string) => void; onBusyChange?: (busy: boolean) => void; disabled?: boolean }) {
+/**
+ * Adds a spoken note under existing text rather than replacing it: a rep who has
+ * already typed half the brief keeps that half when they finish by voice, and
+ * the two readings meet on their own lines.
+ */
+export function appendTranscriptNote(existing: string, transcript: string): string {
+  const addition = transcript.trim();
+  if (!addition) return existing;
+  return existing.trim() ? `${existing.trimEnd()}\n${addition}` : addition;
+}
+
+export function VoiceRequestCapture({ onTranscript, onBusyChange, disabled = false, compact = false }: { onTranscript: (text: string) => void; onBusyChange?: (busy: boolean) => void; disabled?: boolean; compact?: boolean }) {
   const speechWindow = window as unknown as SpeechWindow;
   const Constructor = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
   const recognition = useRef<Recognition | null>(null);
@@ -151,6 +162,26 @@ export function VoiceRequestCapture({ onTranscript, onBusyChange, disabled = fal
       window.clearTimeout(timeout);
       if (request.current === controller) { request.current = null; setBusy(false); }
     }
+  }
+
+  if (compact) {
+    return <div className="wm-voice-note" aria-label="Voice note">
+      <div className="wm-voice-note-actions">
+        <button type="button" className="wm-ui-button wm-ui-button-secondary" disabled={!Constructor || busy || disabled} onClick={() => (active ? recognition.current?.stop() : start("dictation"))}>
+          {active ? <Square size={14} aria-hidden="true" /> : <Mic size={15} aria-hidden="true" />}{active ? "Stop voice note" : "Record voice note"}
+        </button>
+        <label className="wm-voice-note-upload"><Upload size={15} aria-hidden="true" />Upload voice note
+          <input type="file" accept=".mp3,.mp4,.mpeg,.mpga,.m4a,.wav,.webm,.ogg,.flac" disabled={active || busy || disabled} onChange={e => { chooseFile(e.target.files?.[0]); e.target.value = ""; }} />
+        </label>
+        {file && <small className="wm-voice-note-file">{file.name}</small>}
+        {file && <button type="button" className="wm-ui-button wm-ui-button-primary" disabled={busy || active || disabled} onClick={() => void transcribe()}>Transcribe voice note</button>}
+        {busy && <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => request.current?.abort()}>Cancel transcription</button>}
+        {!Constructor && <small>Live recording is unavailable in this browser — upload a recording instead.</small>}
+      </div>
+      {status && <p role="status">{active && <span className="wm-voice-live-dot" aria-hidden="true" />}{status}</p>}
+      {interim && <p className="wm-voice-interim" aria-label="Live transcript">{interim}</p>}
+      {error && <p role="alert">{error}</p>}
+    </div>;
   }
 
   return <section className="wm-voice-capture" aria-label="Voice capture">

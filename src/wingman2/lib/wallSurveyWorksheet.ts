@@ -196,7 +196,7 @@ export function buildWallSurveyWorksheet(
     .detail-kicker { color: #5b7686; font-size: 6.5pt; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
     .detail-field { display: inline-flex; align-items: center; gap: 3pt; margin-right: 9pt; }
     .detail-label { color: #5b7686; font-size: 6.5pt; letter-spacing: .06em; text-transform: uppercase; }
-    .detail-box { display: inline-block; min-width: 24mm; height: 13pt; padding: 0 3pt; border: 1px solid #aebbc4; border-radius: 2pt; color: #7c919d; font-size: 7.5pt; }
+    .detail-box { display: inline-block; min-width: 24mm; max-width: 52mm; min-height: 13pt; padding: 1pt 3pt; border: 1px solid #aebbc4; border-radius: 2pt; color: #7c919d; font-size: 7.5pt; line-height: 1.3; }
     .notes { break-inside: avoid; }
     .lines { display: grid; gap: 12pt; margin-top: 2pt; }
     .lines span { display: block; height: 1pt; border-bottom: 1px solid #c9d4da; }

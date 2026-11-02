@@ -725,62 +725,46 @@ export const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     id: "audio",
     shortLabel: "Audio",
     section: "Audio, control & conferencing",
-    question: "How should room audio be connected and operated?",
-    prompt: "Select playback, amplification, distribution and reinforcement requirements.",
-    why: "Audio topology defines amplifier, DSP, loudspeaker, cabling and commissioning scope for other vendors.",
+    // One question about where sound comes out, and nothing about speaker
+    // technology: low impedance, 70/100 V, surround, a separate speech mix and a
+    // fallback feed were twelve cards a rep had to choose between, and every one
+    // of them is already asked by the follow-ups that appear once the room has
+    // its own sound (the listening-experience question, the listening-area
+    // question and the programme-audio route). A card list that asks a rep to
+    // pick a loudspeaker circuit before anyone knows whether the room needs
+    // speakers is the complexity, not the answer.
+    question: "Where should the room's sound come out?",
+    prompt: "Pick the closest answer. Speaker type, loudness, listening areas and where the sound is taken from are asked next, and only when the room needs its own sound.",
+    why: "Where sound comes out decides whether the room needs an amplifier, a processor, a network audio path or nothing at all; every other audio question follows from it.",
     required: true,
     selectionMode: "multiple",
     exclusiveValues: ["no-room-audio", "unknown-audio"],
-    capturePlaceholder: "Example: Ceiling speakers with a room amplifier, plus de-embedded programme audio for recording.",
+    capturePlaceholder: "Example: Ceiling speakers on a room amplifier, with a feed to the building's audio network.",
     options: [
       {
-        value: "no-room-audio",
-        label: "No separate room audio system",
-        help: "Audio is not required, remains within the source/display, or is outside this project scope.",
+        value: "room-audio",
+        label: "Room speakers and amplifier",
+        help: "The sound plays through loudspeakers in the room rather than through the screens.",
       },
       {
         value: "display-audio",
-        label: "Display audio",
-      },
-      {
-        value: "source-audio-deembed",
-        label: "Pull sound out separately",
-      },
-      {
-        value: "room-audio",
-        label: "Room loudspeakers and amplifier",
-      },
-      {
-        value: "stereo-low-impedance",
-        label: "Stereo low-impedance programme sound",
-      },
-      {
-        value: "multichannel-audio",
-        label: "Multi-channel or surround audio",
-      },
-      {
-        value: "distributed-70v-100v",
-        label: "Distributed 70 V / 100 V loudspeakers",
-      },
-      {
-        value: "separate-programme-voice",
-        label: "Separate programme sound and voice reinforcement",
-      },
-      {
-        value: "analogue-audio-override",
-        label: "Analogue audio override or fallback",
-      },
-      {
-        value: "digital-audio-interface",
-        label: "Digital audio interface",
+        label: "The screens' own speakers",
+        help: "The displays play the sound; no separate room audio system is needed.",
       },
       {
         value: "dante-network-audio",
-        label: "Dante / AES67 network audio",
+        label: "The building's audio network",
+        help: "Sound is shared as network audio (Dante or AES67) with the rest of the building.",
+      },
+      {
+        value: "no-room-audio",
+        label: "No separate room sound",
+        help: "Audio is not required, stays inside a source device, or is outside this project scope.",
       },
       {
         value: "unknown-audio",
         label: "Unknown — audio scope",
+        help: "Confirm what people need to hear before pricing speakers, amplifiers or interfaces.",
       },
     ],
   },

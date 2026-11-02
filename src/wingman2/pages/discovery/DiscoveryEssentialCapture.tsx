@@ -1,3 +1,4 @@
+import { appendTranscriptNote, VoiceRequestCapture } from "../../components/VoiceRequestCapture";
 import { operationalQuestion, updateOperationalAnswer } from "./operationalDiscovery";
 import type { DiscoveryAnswers, DiscoveryNotes, DiscoveryQuestion } from "./discoveryTypes";
 
@@ -39,6 +40,13 @@ export function DiscoveryEssentialCapture(props: Props) {
       const value = event.target.value;
       props.onNotesChange(previous => ({ ...previous, opportunity: value })); props.onChanged("opportunity");
     }} /></label>
+    {/* The brief is the one question a rep answers in the customer's own words,
+        so it is the one that can be spoken: a voice note lands under whatever
+        has been typed rather than replacing it. */}
+    <div className="wm-room-wizard-field-wide"><VoiceRequestCapture compact onTranscript={text => {
+      props.onNotesChange(previous => ({ ...previous, opportunity: appendTranscriptNote(previous.opportunity || "", text) }));
+      props.onChanged("opportunity");
+    }} /></div>
 
     {singles.length > 0 && <div className="wm-room-wizard-fields">{singles.map(({ canonical, question }) => {
       const selected = [props.answers[question.id]].flat().filter(Boolean);

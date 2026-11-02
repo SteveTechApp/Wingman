@@ -125,6 +125,7 @@ export function compileDiscoveryBrief({
       ? getAvoipNextQuestion(avoipProfileValue, strategy.askNext)
       : strategy.askNext;
     const displayCount = answerLabel("displays");
+    const scaleLabel = answerLabel("scale");
     const displayBehaviour = answerLabel("display-behaviour") || answerLabel("displays");
     const signalStandard = answerLabel("signal-standard");
     const sourceCount = answerLabel("sources");
@@ -298,8 +299,8 @@ export function compileDiscoveryBrief({
         applicationType: application,
         outcome: opportunityDescription || application,
         customerWording: notes.opportunity?.trim() || "",
-        scale: answerLabel("scale"),
-        roomSize: answerLabel("scale"),
+        scale: scaleLabel || undefined,
+        roomSize: scaleLabel || undefined,
         devices: [sourceCount, ...sourceConnections, ...sourceDeviceWorkflows].filter(Boolean),
         sourceTypes: [...sourceConnections, ...sourceDeviceWorkflows],
         sourceConnections,

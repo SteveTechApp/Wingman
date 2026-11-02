@@ -649,14 +649,6 @@ const table: LanguageTable = {
         "display audio",
         "lautsprecher im bildschirm"
       ],
-      "source-audio-deembed": [
-        "de embed",
-        "de-embed",
-        "audio extrahieren",
-        "separater audio ausgang",
-        "audio zum mischer",
-        "extrahieren"
-      ],
       "room-audio": [
         "raum lautsprecher",
         "deckenlautsprecher",
@@ -666,48 +658,6 @@ const table: LanguageTable = {
         "lautsprecher im raum",
         "aktive lautsprecher",
         "raum audio"
-      ],
-      "stereo-low-impedance": [
-        "stereo",
-        "niedrige impedanz",
-        "4 ohm",
-        "8 ohm",
-        "hi fi"
-      ],
-      "multichannel-audio": [
-        "surround",
-        "5.1",
-        "7.1",
-        "mehrkanal",
-        "multi kanal"
-      ],
-      "distributed-70v-100v": [
-        "70 volt",
-        "70v",
-        "100v",
-        "verteilte lautsprecher",
-        "hintergrundmusik",
-        "zonen",
-        "gezont",
-        "konstantspannung"
-      ],
-      "separate-programme-voice": [
-        "getrenntes programm",
-        "sprachverstärkung",
-        "sprache und musik",
-        "programm und sprache"
-      ],
-      "analogue-audio-override": [
-        "analog",
-        "fallback",
-        "lokale übersteuerung"
-      ],
-      "digital-audio-interface": [
-        "digital audio",
-        "aes",
-        "spdif",
-        "spdif ausgang",
-        "aes ebu"
       ],
       "dante-network-audio": [
         "dante",

@@ -725,15 +725,6 @@ const table: LanguageTable = {
         "áudio do ecrã",
         "som do ecrã"
       ],
-      "source-audio-deembed": [
-        "de-embed",
-        "extrair áudio",
-        "extrair audio",
-        "áudio separado",
-        "audio separado",
-        "áudio para a mesa de mistura",
-        "extrair"
-      ],
       "room-audio": [
         "colunas da sala",
         "colunas de teto",
@@ -743,54 +734,6 @@ const table: LanguageTable = {
         "colunas na sala",
         "áudio da sala",
         "audio da sala"
-      ],
-      "stereo-low-impedance": [
-        "estéreo",
-        "estereo",
-        "baixa impedância",
-        "baixa impedancia",
-        "4 ohm",
-        "8 ohm",
-        "hi-fi"
-      ],
-      "multichannel-audio": [
-        "surround",
-        "5.1",
-        "7.1",
-        "multicanal"
-      ],
-      "distributed-70v-100v": [
-        "70 volt",
-        "70v",
-        "100v",
-        "colunas distribuídas",
-        "música ambiente",
-        "música de fundo",
-        "zonas",
-        "zonado",
-        "tensão constante",
-        "tensao constante"
-      ],
-      "separate-programme-voice": [
-        "programa separado",
-        "reforço de voz",
-        "voz e música",
-        "programa e voz"
-      ],
-      "analogue-audio-override": [
-        "analógico",
-        "analogico",
-        "reserva",
-        "anulação local",
-        "anulacao local"
-      ],
-      "digital-audio-interface": [
-        "áudio digital",
-        "audio digital",
-        "aes",
-        "spdif",
-        "saída spdif",
-        "aes ebu"
       ],
       "dante-network-audio": [
         "dante",

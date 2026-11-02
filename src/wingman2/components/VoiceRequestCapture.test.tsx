@@ -1,6 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { VoiceRequestCapture } from "./VoiceRequestCapture";
+import { appendTranscriptNote, VoiceRequestCapture } from "./VoiceRequestCapture";
 
 class FakeRecognition {
   static current: FakeRecognition;
@@ -69,5 +69,32 @@ describe("voice request capture", () => {
     fireEvent.click(screen.getByRole('button', { name: 'Transcribe voice note' }));
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Sign in'));
     expect(append).not.toHaveBeenCalled();
+  });
+});
+
+describe("compact voice note", () => {
+  it("dictates into the field it sits under without the full capture block", () => {
+    const append = vi.fn(); render(<VoiceRequestCapture compact onTranscript={append} />);
+    expect(screen.queryByLabelText("Voice capture")).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Record voice note' }));
+    act(() => FakeRecognition.current.onresult?.({ results: [{ isFinal: true, 0: { transcript: 'Four sources.' } }] }));
+    expect(append).toHaveBeenCalledWith('Four sources.');
+    fireEvent.click(screen.getByRole('button', { name: 'Stop voice note' }));
+    expect(FakeRecognition.current.stop).toHaveBeenCalled();
+  });
+  it("transcribes an uploaded note into the same field", async () => {
+    const append = vi.fn(); const fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, text: 'A 12 by 8 metre room.' }) });
+    vi.stubGlobal('fetch', fetch); render(<VoiceRequestCapture compact onTranscript={append} />);
+    fireEvent.change(screen.getByLabelText('Upload voice note'), { target: { files: [new File(['audio'], 'walkthrough.m4a', { type: 'audio/mp4' })] } });
+    fireEvent.click(screen.getByRole('button', { name: 'Transcribe voice note' }));
+    await waitFor(() => expect(append).toHaveBeenCalledWith('A 12 by 8 metre room.'));
+  });
+});
+
+describe("appendTranscriptNote", () => {
+  it("keeps what was typed and puts the spoken note on its own line", () => {
+    expect(appendTranscriptNote('Boardroom refresh.', 'Two displays and a camera.')).toBe('Boardroom refresh.\nTwo displays and a camera.');
+    expect(appendTranscriptNote('', 'Two displays.')).toBe('Two displays.');
+    expect(appendTranscriptNote('Kept.', '   ')).toBe('Kept.');
   });
 });

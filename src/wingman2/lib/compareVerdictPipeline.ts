@@ -1,3 +1,4 @@
+import { essentialsLineTiebreak } from "./compareEligibilityFit";
 /**
  * Compare verdict pipeline
  *
@@ -350,7 +351,7 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
       // promoted to the direct-equivalent path.
       return true;
     })
-    .sort((a, b) => nearMatchPenalty(a) - nearMatchPenalty(b) || semanticRank(b) - semanticRank(a))
+    .sort((a, b) => nearMatchPenalty(a) - nearMatchPenalty(b) || semanticRank(b) - semanticRank(a) || essentialsLineTiebreak(a.product.sku) - essentialsLineTiebreak(b.product.sku))
     .slice(0, 8);
   return {
     viable,

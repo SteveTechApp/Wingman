@@ -6,10 +6,13 @@ For normal product-data work, read only [`../data-sources/README.md`](../data-so
 For deployment, follow [`../DEPLOYMENT.md`](../DEPLOYMENT.md), then use
 [`LAUNCH_CHECKLIST.md`](./LAUNCH_CHECKLIST.md) as the go/no-go record.
 
+If you are using Wingman rather than changing it, read [`USER_GUIDE.md`](./USER_GUIDE.md).
+
 ## Authoritative documents
 
 | Concern | Source |
 | --- | --- |
+| Using Wingman as a sales or pre-sales user | [`USER_GUIDE.md`](./USER_GUIDE.md) |
 | Project setup and commands | [`../README.md`](../README.md) |
 | Product-data ownership and updates | [`../data-sources/README.md`](../data-sources/README.md) |
 | Deployment | [`../DEPLOYMENT.md`](../DEPLOYMENT.md) |

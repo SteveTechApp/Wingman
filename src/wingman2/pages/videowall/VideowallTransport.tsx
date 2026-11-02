@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { appendTranscriptNote, VoiceRequestCapture } from "../../components/VoiceRequestCapture";
 import {
   appliedRunText,
   mergeDisplayMounts,
@@ -35,6 +36,7 @@ import { printWallSurveyWorksheet } from "../../lib/wallSurveyWorksheet";
 import type { WallRequirements } from "../../lib/videowallOptions";
 import { wallPanelCount, wallProjectorCount } from "../../lib/videowallOptions";
 import {
+  DETAIL_TEXT_LIMIT,
   WALL_LINK_DETAIL_FIELDS,
   applyWallTransportFix,
   cleanDetailText,
@@ -136,6 +138,11 @@ export function VideowallTransport({
   // counts, and so any other status message replaces it.
   const [surveyLanded, setSurveyLanded] = useState<{ id: string; text: string }[]>([]);
   const [readingPhoto, setReadingPhoto] = useState(false);
+  // Which install cell the surveyor was last in, per row. A spoken note lands in
+  // the cell they were working in rather than in a field of its own choosing;
+  // with no cell touched in that row it lands in the housing, the cell the
+  // display schedule prints first.
+  const [voiceCell, setVoiceCell] = useState<{ link: string; field: WallLinkDetailField } | null>(null);
   // Development only: asks a development server for its sample transcription,
   // so the review, apply and reopen steps can be walked without a model key.
   const [samplePhotoRead, setSamplePhotoRead] = useState(false);
@@ -176,6 +183,22 @@ export function VideowallTransport({
 
   function detailMixed(link: WallTransportLink, field: WallLinkDetailField) {
     return new Set(link.memberIds.map((id) => cleanDetailText(linkDetails?.[id]?.[field]))).size > 1;
+  }
+
+  /**
+   * A dictated note is added under whatever the cell already holds, never over
+   * it, so half-typed detail survives finishing the cell by voice. The same
+   * merge the typing path uses writes it, so a folded row is updated for every
+   * link it stands for.
+   */
+  function addSpokenDetail(link: WallTransportLink, text: string) {
+    if (!onLinkDetails) return;
+    const field = voiceCell?.link === link.id ? voiceCell.field : WALL_LINK_DETAIL_FIELDS[0];
+    onLinkDetails(
+      withWallLinkDetails(linkDetails, link.memberIds, {
+        [field]: appendTranscriptNote(detailValue(link, field), text),
+      }) ?? {},
+    );
   }
 
   /** Distinct install lines a folded row covers, for the read-only table. */
@@ -595,7 +618,7 @@ export function VideowallTransport({
                                 <input
                                   key={field}
                                   type="text"
-                                  maxLength={60}
+                                  maxLength={DETAIL_TEXT_LIMIT}
                                   aria-label={`Scanned ${DETAIL_LABEL[field].toLowerCase()} for ${reading.label}`}
                                   placeholder={DETAIL_LABEL[field]}
                                   value={cleanDetailText(reading.detail[field])}
@@ -603,11 +626,10 @@ export function VideowallTransport({
                                     updateEdit(reading.id, { detail: { [field]: event.target.value } })
                                   }
                                 />
-                              ))}
-                              <input
-                                type="text"
-                                maxLength={60}
-                                aria-label={`Scanned mount for ${reading.label}`}
+                              ))}                                <input
+                                  type="text"
+                                  maxLength={DETAIL_TEXT_LIMIT}
+                                  aria-label={`Scanned mount for ${reading.label}`}
                                 placeholder="Mount at display"
                                 value={mountText}
                                 onChange={(event) => updateEdit(reading.id, { displayMountText: event.target.value })}
@@ -719,7 +741,7 @@ export function VideowallTransport({
                   <span>{label}</span>
                   <input
                     type="text"
-                    maxLength={60}
+                    maxLength={DETAIL_TEXT_LIMIT}
                     aria-label={`Mount for ${label}`}
                     value={cleanDetailText(displayMounts?.[id])}
                     onChange={(event) => onDisplayMounts({ ...displayMounts, [id]: event.target.value })}
@@ -786,10 +808,11 @@ export function VideowallTransport({
                           <input
                             key={field}
                             type="text"
-                            maxLength={60}
+                            maxLength={DETAIL_TEXT_LIMIT}
                             aria-label={`${DETAIL_LABEL[field]} for ${link.label}`}
                             placeholder={detailMixed(link, field) ? "Mixed" : DETAIL_LABEL[field]}
                             value={detailValue(link, field)}
+                            onFocus={() => setVoiceCell({ link: link.id, field })}
                             onChange={(event) =>
                               onLinkDetails(
                                 withWallLinkDetails(linkDetails, link.memberIds, { [field]: event.target.value }) ?? {},
@@ -797,6 +820,12 @@ export function VideowallTransport({
                             }
                           />
                         ))}
+                        {/* The note lands in the cell the surveyor was last in,
+                            so one control per row serves all three cells instead
+                            of a microphone beside each of them. */}
+                        <span className="vw-transport-detail-voice">
+                          <VoiceRequestCapture compact onTranscript={(text) => addSpokenDetail(link, text)} />
+                        </span>
                       </span>
                     ) : (
                       <span className="vw-transport-basis">{install || "Not recorded"}</span>

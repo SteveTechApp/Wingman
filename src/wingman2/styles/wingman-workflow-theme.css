@@ -6983,8 +6983,8 @@ html[data-wingman-route="discovery"] .wm-discovery-market-entry__heading h2 { fo
 .wm-brief-question-head { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
 .wm-brief-question-head h3 { margin:0; color:var(--wm-ref-text); font-size:.84rem; line-height:1.3; }
 .wm-brief-question-head p { margin:3px 0 0; color:var(--wm-ref-muted); font-size:.7rem; line-height:1.4; }
-.wm-brief-count { flex:0 0 auto; padding:3px 9px; color:var(--wm-ref-muted); font-size:.64rem; font-weight:800; letter-spacing:.04em; white-space:nowrap; background:color-mix(in srgb, var(--wm-ref-panel-strong) 70%, transparent); border:1px solid var(--wm-ref-border); border-radius:999px; }
-.wm-brief-count.is-selected { color:var(--wm-ref-aqua); border-color:color-mix(in srgb, var(--wm-ref-aqua) 46%, transparent); }
+.wm-brief-question .wm-brief-count { flex:0 0 auto; padding:3px 9px; color:var(--wm-ref-muted); font-size:.64rem; font-weight:800; letter-spacing:.04em; white-space:nowrap; background:color-mix(in srgb, var(--wm-ref-panel-strong) 70%, transparent); border:1px solid var(--wm-ref-border); border-radius:999px; }
+.wm-brief-question .wm-brief-count.is-selected { color:var(--wm-ref-aqua); border-color:color-mix(in srgb, var(--wm-ref-aqua) 46%, transparent); }
 .wm-brief-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
 /* The input stays a real checkbox for the keyboard and the screen reader; the
    label is the card, so the tick sits where the eye already is. */
@@ -6992,8 +6992,18 @@ html[data-wingman-route="discovery"] .wm-discovery-market-entry__heading h2 { fo
 .wm-brief-option:hover { border-color:color-mix(in srgb, var(--wm-ref-aqua) 38%, var(--wm-ref-border)); transform:translateY(-1px); }
 .wm-brief-options .wm-brief-option input { position:absolute; width:1px; min-height:0; height:1px; margin:0; padding:0; overflow:hidden; opacity:0; pointer-events:none; }
 .wm-brief-option:has(input:focus-visible) { outline:2px solid var(--wm-ref-aqua); outline-offset:2px; }
-.wm-brief-option-tick { display:grid; width:17px; height:17px; margin-top:1px; place-items:center; color:transparent; font-size:.68rem; font-weight:900; line-height:1; background:color-mix(in srgb, var(--wm-ref-bg) 60%, transparent); border:1px solid var(--wm-ref-border); border-radius:5px; }
-.wm-brief-option-label { line-height:1.35; }
+/* The page host colours every span it hosts (`.wingman-page-host span`), which
+   outranks one class, so the card's own spans name their block to colour
+   themselves: an empty box is what a rep reads as an option nobody has
+   answered, and the label inherits the card so a chosen row is the one that
+   brightens. */
+.wm-brief-option .wm-brief-option-tick { display:grid; width:17px; height:17px; margin-top:1px; place-items:center; color:transparent; font-size:.68rem; font-weight:900; line-height:1; background:color-mix(in srgb, var(--wm-ref-bg) 60%, transparent); border:1px solid var(--wm-ref-border); border-radius:5px; }
+.wm-brief-option .wm-brief-option-label { color:inherit; line-height:1.35; }
+/* A field's label in the wizard is muted by `.wm-room-wizard label`, which
+   outranks the card's own one-class colour, so the card states its body-copy
+   brightness at the same specificity as its chosen state below: an unread row
+   is a row a rep skips. Order is what separates them, so this stays above. */
+.wm-room-wizard .wm-brief-option { color:var(--wm-ref-copy); }
 .wm-brief-option.is-selected { color:var(--wm-ref-text); background:color-mix(in srgb, var(--wm-ref-aqua) 13%, var(--wm-ref-panel)); border-color:color-mix(in srgb, var(--wm-ref-aqua) 58%, transparent); box-shadow:inset 3px 0 0 var(--wm-ref-aqua); }
 .wm-brief-option.is-selected .wm-brief-option-tick { color:var(--wm-ref-bg); background:var(--wm-ref-aqua); border-color:var(--wm-ref-aqua); }
 .wm-room-wizard-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0; }

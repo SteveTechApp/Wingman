@@ -20,12 +20,17 @@ import type { DiscoveryConversationItem } from "../../data/projectStore";
 // option - a renamed or removed option value would otherwise silently stop
 // the preferred ordering from applying to it (the stale value ranks at 99
 // and the option never moves to the front).
+// The audio question asks one thing — where the sound comes out — so this table
+// ranks the same five answers by which is likeliest in each application. It used
+// to rank loudspeaker technologies too, which is how the card list grew to twelve.
+// `discoveryValueConsumerDrift.test.ts` fails on any value that is not a current
+// option, so a renamed answer cannot silently rank at 99 and stop moving.
 export const AUDIO_PREFERRED_OPTION_ORDER: Record<string, string[]> = {
-  "meeting-room": ["display-audio", "room-audio", "source-audio-deembed", "dante-network-audio", "no-room-audio"],
-  classroom: ["room-audio", "separate-programme-voice", "distributed-70v-100v", "dante-network-audio", "display-audio"],
-  hospitality: ["distributed-70v-100v", "separate-programme-voice", "analogue-audio-override", "dante-network-audio", "display-audio"],
-  "video-wall": ["source-audio-deembed", "room-audio", "display-audio", "analogue-audio-override", "no-room-audio"],
-  "av-over-ip": ["dante-network-audio", "source-audio-deembed", "room-audio", "digital-audio-interface", "no-room-audio"],
+  "meeting-room": ["display-audio", "room-audio", "dante-network-audio", "no-room-audio"],
+  classroom: ["room-audio", "display-audio", "dante-network-audio", "no-room-audio"],
+  hospitality: ["room-audio", "dante-network-audio", "display-audio", "no-room-audio"],
+  "video-wall": ["room-audio", "display-audio", "no-room-audio", "dante-network-audio"],
+  "av-over-ip": ["dante-network-audio", "room-audio", "display-audio", "no-room-audio"],
 };
 
 export const SOURCE_DEVICE_WORKFLOWS_PREFERRED_OPTION_ORDER: Record<string, string[]> = {
@@ -42,11 +47,11 @@ export function getQuestionView(step: DiscoveryQuestion, selectedApplication: st
     const rank = new Map(preferred.map((value, index) => [value, index]));
     const options = [...step.options].sort((left, right) => (rank.get(left.value) ?? 99) - (rank.get(right.value) ?? 99));
     const promptByApplication: Record<string, string> = {
-      "meeting-room": "Choose how calls, presentations and room programme audio should be heard.",
-      classroom: "Choose how teaching audio, programme sound and speech reinforcement should cover the room.",
-      hospitality: "Choose how programme audio, venue zones, announcements and local overrides should operate.",
-      "video-wall": "Choose whether wall content audio is de-embedded, played locally, routed elsewhere or excluded from scope.",
-      "av-over-ip": "Choose how audio should be extracted, routed and distributed across the networked system.",
+      "meeting-room": "Choose where calls, presentations and programme sound should be heard.",
+      classroom: "Choose where teaching audio and speech reinforcement should be heard.",
+      hospitality: "Choose where programme audio, announcements and venue sound should be heard.",
+      "video-wall": "Choose where the wall's sound should be heard.",
+      "av-over-ip": "Choose where sound should be heard, and whether it joins the network.",
     };
     return { ...step, prompt: promptByApplication[selectedApplication] ?? step.prompt, options };
   }

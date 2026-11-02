@@ -1,4 +1,5 @@
 import { wallReviewStages, type WallReviewStageKey } from "../../lib/videowallWizard";
+import { PageBandRail } from "../../components/PageBands";
 
 /**
  * The result is read in three passes instead of one long page. The guided
@@ -11,23 +12,16 @@ export function VideowallReviewStages({ stage, statuses, onStage }: {
   onStage: (stage: WallReviewStageKey) => void;
 }) {
   return (
-    <nav className="vw-wizard-stages" aria-label="Design review stages">
-      {wallReviewStages.map((item, index) => (
-        <button
-          key={item.key}
-          type="button"
-          data-testid={`videowall-review-${item.key}`}
-          aria-pressed={stage === item.key}
-          onClick={() => onStage(item.key)}
-        >
-          <span className="vw-wizard-stage-number" aria-hidden="true">{index + 1}</span>
-          <span className="vw-wizard-stage-copy">
-            <strong>{item.label}</strong>
-            <small>{statuses[item.key]}</small>
-          </span>
-        </button>
-      ))}
-    </nav>
+    <PageBandRail
+      label="Design review stages"
+      bands={wallReviewStages.map((item) => ({ ...item, status: statuses[item.key] }))}
+      active={stage}
+      onSelect={onStage}
+      testIdPrefix="videowall-review"
+      className="vw-wizard-stages"
+      numberClassName="vw-wizard-stage-number"
+      copyClassName="vw-wizard-stage-copy"
+    />
   );
 }
 

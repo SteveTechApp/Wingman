@@ -2,10 +2,12 @@ import { useState } from "react";
 import type { WallSurveyGap } from "../lib/wallSurvey";
 import { WALL_ENTRY_SENTENCE_NAME } from "../lib/wallEntry";
 import {
+  DETAIL_TEXT_LIMIT,
   cleanDetailText,
   type WallLinkDetail,
   type WallLinkDetailField,
 } from "../lib/videowallTransport";
+import { appendTranscriptNote, VoiceRequestCapture } from "./VoiceRequestCapture";
 
 const FIX_LABEL: Record<WallLinkDetailField, string> = {
   enclosure: "Display housing",
@@ -84,16 +86,26 @@ export function WallSurveyGapFixes({
         >
           <span className="wm-proposal-validation-message">{gap.link}</span>
           {gap.missing.map((field) => (
-            <input
-              key={field}
-              type="text"
-              maxLength={60}
-              className="wm-ui-input w-40"
-              aria-label={`${FIX_LABEL[field]} for ${gap.link}`}
-              placeholder={FIX_LABEL[field]}
-              value={fixes[gap.id]?.[field] ?? ""}
-              onChange={(event) => setFix(gap.id, field, event.target.value)}
-            />
+            // One cell, one way in: a surveyor reading the short link off a site
+            // note can dictate that cell instead of typing it, and the spoken
+            // text joins what is already in the box rather than replacing it.
+            <span key={field} className="flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                maxLength={DETAIL_TEXT_LIMIT}
+                className="wm-ui-input w-40"
+                aria-label={`${FIX_LABEL[field]} for ${gap.link}`}
+                placeholder={FIX_LABEL[field]}
+                value={fixes[gap.id]?.[field] ?? ""}
+                onChange={(event) => setFix(gap.id, field, event.target.value)}
+              />
+              <VoiceRequestCapture
+                compact
+                onTranscript={(text) =>
+                  setFix(gap.id, field, appendTranscriptNote(fixes[gap.id]?.[field] ?? "", text))
+                }
+              />
+            </span>
           ))}
         </div>
       ))}

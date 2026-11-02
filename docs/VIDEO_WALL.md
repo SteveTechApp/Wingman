@@ -106,6 +106,37 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   link names into a disclosure without inventing different wording. That alert
   is hidden on the transport pass itself, where the empty cells are the
   subject.
+- An install cell holds a spoken note end to end. The surveyor says
+  "panel in a 3-inch housing, the run enters through the floor box beside the
+  desk, terminated on a keystone jack at the head end" at the display, so the
+  cell has to carry a sentence and not a label. `DETAIL_TEXT_LIMIT`
+  (`src/wingman2/lib/wallLinkDetail.ts`) is the one length — 240 characters —
+  and every path into a cell reads it through `cleanDetailText`: the transport
+  table's `maxLength`, `withWallLinkDetail`'s merge, the saved wall's
+  `normalizeVideowallSummary`, the survey CSV, the photo read and the display
+  mount, which had its own `slice(0, 60)` in two places. The cap was 60, which
+  is shorter than the sentence a surveyor says, so a dictated note arrived cut
+  in half — and the mount was cut at 60 even after the other three cells were
+  widened, which is the shape of a limit copied rather than read. The cells
+  still collapse to one line, because they are a column of the survey sheet and
+  a box on the printed worksheet; a long value is kept whole, not wrapped into
+  the CSV. `VideowallTransport` carries one compact capture per display row
+  rather than one per cell, and the note lands in the cell the surveyor was last
+  in (`voiceCell`, set on focus), falling back to the housing — the cell the
+  display schedule prints first — because three microphones in a table row cost
+  more than the row is worth while one control with a remembered cell does not.
+  The note is appended, never assigned: `appendTranscriptNote` joins it under
+  whatever was typed, so finishing a cell by voice cannot throw away the half
+  that was typed. The gap-fix card on the proposal and template review pages
+  renders this component too, and there each cell is its own row in a form, so
+  the capture sits beside the cell it fills. The printed worksheet's detail box
+  became a minimum height with a maximum width, because a recorded note printed
+  into a fixed 13pt one-line box spilled out of the sheet that asked for it.
+  `wallSurvey.test.ts` holds the round trip — a sentence survives the CSV it is
+  printed on and the sheet it comes back as, and an oversized cell is still
+  capped — and `VideowallTransport.test.tsx` holds the dictation target, that a
+  spoken note joins the termination cell under the typed text and leaves the
+  other cells alone.
 - The focused view starts from a wall, not a room: `wallStartPresets`
   (`videowallDecision.ts`) are whole briefs (wall type, array, sources,
   layout, transport, panel size) named for what the wall does, and
@@ -354,9 +385,16 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   show the same per-stage status lines. Move the shared review chrome there,
   not into either view, or the two readings drift apart; the expert component
   also keeps the page entry under the 400-line architecture budget.
-- The expert design pass is read in the order a rep decides, each level quieter
-  than the one above it: the wall, then `VideowallVerdict`, then
-  `Adjust the answers`, then the designs tested against it. Its heading is
+- The expert design pass is read in bands, one on screen at a time:
+  `wallDesignBands` in `videowallWizard.ts` is the order — the wall the room
+  starts from, `VideowallVerdict`, `Adjust the answers`, then the designs tested
+  against it — and each band carries the sentence that leaves it and the one
+  that returns to it, so the rail, the step actions and the specs read one list.
+  Stacked they were the long page the passes exist to end; a band is a reading
+  inside the pass rather than a fourth pass, so the address, the remembered pass
+  and the share sentence still name three. `VideowallBand` does not render a
+  closed band, because a block hidden behind `hidden` is still in the tab order
+  behind a rail a rep can see. Its first band's heading is
   `The wall` because the picker under it sets every answer — a size question set
   over a list of whole walls named something the block was not. The
   questions are `<details>` rows (`videowall-step-<n>`) whose summary carries the
@@ -365,11 +403,19 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   competing with the wall; opening a row is the controls that step always
   rendered. `VideowallOptionsList` is reference rather than a choice, so it
   opens from a summary naming `decision.considered` and `decision.viableCount`.
-- The guided questions run wall type, size, connection, windows, sources and
-  must-haves, and the connection is asked where a rep settles it in the room:
-  after the wall's size has decided the canvas and before the window layout,
-  because a window count only means something once the wall is known to take one
-  composed picture. `wallFeeding.ts` owns that question, and its models are the
+- The guided questions run wall type, size, sources, connection, windows, the
+  design and must-haves, one question a screen. The wall's type is asked first
+  because it decides which of the others exist — a projection screen has
+  projectors and a blend, an LED canvas has a pitch and cabinets, and only an LCD
+  wall can be fed a panel at a time — and the sources come next, since what the
+  wall must carry is the thing the design answers. The connection is asked where
+  a rep settles it in the room: after the wall's size has decided the canvas and
+  before the window layout, because a window count only means something once the
+  wall is known to take one composed picture. The drawing is a reading of those
+  answers rather than a question of its own, so it has a screen instead of
+  stacking under the size controls that produced it, and the transport table
+  belongs to the result's survey pass rather than to a question screen.
+  `wallFeeding.ts` owns that question, and its models are the
   application the decision engine already reads rather than a field beside it:
   one canvas with the panels tiling it is `lcd-loop`, a feed per panel is
   `lcd-direct` with the independent layout, a feed per group is `lcd-grouped`,
@@ -627,3 +673,15 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   winning a duplicate link, and unions the unread ids into one list to type; a
   failed photo is named without discarding the rest, and only a batch where
   every photo fails rejects.
+
+- The guided result's finish actions state their blocker instead of sitting
+  disabled. Saving needs a selected design, `VideowallOptionsList` refuses a row
+  whose `blockers` are non-empty, and a wall whose every design needs a change
+  therefore ended the walk with three unclickable buttons and no sentence — the
+  dead end was not a missing step but an unexplained one. The footer now names
+  which condition is missing (nothing selected, or a design needing N changes)
+  and carries the one action that clears it: `onSelect` on the recommended
+  design, or `onApply` on the selected one, which is the same call the verdict's
+  own action makes. The layout step stops being choice-only for the same reason:
+  every card advanced, so a rep who was happy with the layout on screen had no
+  action that kept it, and "Keep this layout and continue" is that action.

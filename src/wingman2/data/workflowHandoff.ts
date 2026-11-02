@@ -57,6 +57,8 @@ export type FinderNeedDraft = {
   network: string;
   processing: string;
   control: string;
+  /** Microphone feeds or pickup zones the room must serve, as a floor count. */
+  microphones?: string;
   avoipProfile?: string;
   avoipSeriesHint?: string;
 };
@@ -203,18 +205,56 @@ function technologyTypeFromPath(path: string) {
 function resolutionFromBrief(roomModel: Record<string, unknown>) {
   const signal = lower(roomModel.signalStandard ?? roomModel.signalStandardSummary);
   const tags = list(roomModel.downstreamQualityTags).join(" ").toLowerCase();
+  const quality = `${signal} ${tags}`;
 
-  if (signal.includes("hdr10") || tags.includes("hdr10")) return "4K60 4:4:4";
-  if (signal.includes("4k60")) return "4K60";
+  // Only an explicit full-chroma answer asks for 4:4:4. The premium answer is
+  // an HDR / HDCP demand on top of 4K60 — 10-bit HDR fits an 18Gbps path, so
+  // mapping it to 4:4:4 would hide every 4K60 switcher that does not spell
+  // chroma out, which is most of the catalogue.
+  if (includesAny(quality, ["4:4:4", "4 4 4", "12g"])) return "4K60 4:4:4";
+  if (signal.includes("4k60") || signal.includes("standard 4k")) return "4K60";
   if (signal.includes("1080p")) return "1080p";
   return "Unknown";
+}
+
+/**
+ * Multiview is asked for in its own question (where the composed picture must
+ * appear, and how it operates) as well as in the display-behaviour answer. The
+ * dedicated answers are the ones the selector used to ignore: a rep who said
+ * "multiview on the LCD wall and the confidence monitor" got the same shortlist
+ * as a room that never mentioned composition.
+ */
+function multiviewRequested(roomModel: Record<string, unknown>) {
+  if (/\brequired\b/.test(lower(roomModel.multiviewRequirement))) return true;
+  const answers = [...list(roomModel.multiviewDestinations), ...list(roomModel.multiviewOperation)];
+  return answers.some((answer) => !/not yet confirmed|^unknown\b/i.test(answer));
+}
+
+/**
+ * Microphone feeds the room has to serve, as the floor of the band the rep
+ * answered. The question counts "feeds or pickup zones" and the bands are
+ * ceilings, so a 5–8 answer is five feeds until a survey says otherwise.
+ */
+function microphoneFeedsFromBrief(roomModel: Record<string, unknown>) {
+  const raw = lower(roomModel.microphoneCount);
+  if (!raw || /not yet confirmed|unknown/.test(raw)) return "";
+  if (/^one\b/.test(raw)) return "1";
+  const plus = raw.match(/(\d+)\s*\+/);
+  if (plus) return plus[1];
+  const band = raw.match(/(\d+)\s*(?:[-–—]|to)\s*\d+/);
+  if (band) return band[1];
+  const single = raw.match(/\d+/);
+  return single ? single[0] : "";
 }
 
 function signalStandardAssumptions(roomModel: Record<string, unknown>) {
   const signal = lower(roomModel.signalStandard ?? roomModel.signalStandardSummary);
   const tags = list(roomModel.downstreamQualityTags);
 
-  if (signal.includes("hdr10")) {
+  // The question's premium answer reads "4K60 HDR / HDCP-sensitive", so the
+  // bandwidth and protection checks hang off HDR/HDCP rather than off a
+  // "hdr10" spelling no option prints — that branch never fired.
+  if (includesAny(signal, ["hdr", "hdcp"])) {
     return [
       ...tags,
       "Validate HDMI bandwidth / 18Gbps-class or better",
@@ -348,7 +388,7 @@ function processingFromBrief(roomModel: Record<string, unknown>) {
   const blob = [roomModel.outcome, roomModel.displayBehaviour, roomModel.recommendedProductPath].join(" ").toLowerCase();
   const avoip = [roomModel.roomType, roomModel.avoipProfile, roomModel.avoipSeriesHint].map(lower).join(" ");
   if (includesAny(blob, ["video wall", "wall"])) return "Video wall processing";
-  if (includesAny(blob, ["multiview"])) return "Multiview";
+  if (includesAny(blob, ["multiview"]) || multiviewRequested(roomModel)) return "Multiview";
   if (includesAny(avoip, ["av-over-ip", "av over ip", "networkhd"])) return "AVoIP routing";
   if (includesAny(blob, ["same content"])) return "No processing";
   if (includesAny(blob, ["different content", "source per display"])) return "Matrix / routing";
@@ -515,7 +555,10 @@ export function buildDiscoveryBriefFromState(
     quoteSafetyStatus: integrity.canProceedToRecommendation ? status : "do-not-quote-yet",
     missingInformation: Array.from(new Set([
       ...meta.missingItems,
-      ...integrity.issues.map((issue) => issue.followUpQuestion),
+      // Each item names the question it is about before asking for the answer:
+      // a follow-up sentence alone leaves a rep unable to tell which captured
+      // answer is the one still missing.
+      ...integrity.issues.map((issue) => `${issue.title} — ${issue.followUpQuestion}`),
     ])),
   };
 
@@ -696,6 +739,7 @@ export function discoveryBriefToFinderNeed(brief: StoredDiscoveryBrief | null): 
     network: networkFromBrief(roomModel),
     processing: processingFromBrief(roomModel),
     control: controlFromBrief(roomModel),
+    microphones: microphoneFeedsFromBrief(roomModel),
     avoipProfile: text(roomModel.avoipProfile),
     avoipSeriesHint: text(roomModel.avoipSeriesHint),
   };

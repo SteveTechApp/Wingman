@@ -266,6 +266,15 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   size budgets (`tools/wingman-size-budgets.json`) and style-drift
   (`tools/wingman-style-drift-baseline.json`). Raising either requires the
   documented exception process in `docs/SIZE_BUDGETS.md`.
+- Ahead of both, the hook runs the tracked-asset duplicate guard as its own
+  step, addressed at `src/__tests__/trackedAssetDuplicates.test.ts`. The guard
+  reads the git index and hashes the bytes the commit would carry, so the hook
+  is the only place where a copied photograph, fixture or document is refused
+  while it is still one file on a disk; the suite asks the same question later,
+  which is why nothing in a verify stage names it. The step is a hash and a
+  runner start rather than the full chain — about 400ms of work — and it exists
+  so a duplicate reports as a named pair in one line instead of as a single red
+  test inside a few thousand, minutes after the rep could have fixed it.
 - `total:js` sums every emitted `.js`, so the lazy chunks are in the number too.
   The heavy on-demand libraries each have a job, and two facts about them are
   worth knowing before hunting bytes: `pdfjs-dist`'s legacy build bundles the

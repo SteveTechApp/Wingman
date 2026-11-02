@@ -106,6 +106,22 @@ export function parseCount(value: unknown): number | null {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
+/**
+ * Microphone feeds (or pickup zones) the room has to serve, from the band
+ * Discovery captured. A band is a ceiling, so the design sizes for its floor:
+ * a 5–8 answer is five feeds until a survey says otherwise.
+ */
+export function microphoneFeedCount(value: unknown): number | null {
+  const raw = text(value).toLowerCase();
+  if (!raw || /not yet confirmed|unknown/.test(raw)) return null;
+  if (/^one\b/.test(raw)) return 1;
+  const plus = raw.match(/(\d+)\s*\+/);
+  if (plus) return Number.parseInt(plus[1], 10) || null;
+  const band = raw.match(/(\d+)\s*(?:[-–—]|to)\s*\d+/);
+  if (band) return Number.parseInt(band[1], 10) || null;
+  return parseCount(raw);
+}
+
 function decideArchitecture(room: Record<string, unknown>): { architecture: SystemArchitecture; reason: string } {
   const blob = [
     lower(room.application),
@@ -373,19 +389,28 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
     });
   }
 
+  const microphoneFeeds = microphoneFeedCount(room.microphoneCount);
   if (isUc || text(room.microphoneNeeds)) {
     slots.push({
       kind: "microphone",
       label: "Room microphone",
       purpose: "Picks up people in the room clearly - the most common complaint on a call is not being heard.",
-      quantity: parseCount(room.microphoneConnections) ?? 1,
+      // One device per microphone role. The captured feed count is a
+      // requirement on that device, not a device count: the catalogue's pickup
+      // units are all-in-ones and arrays, so multiplying one per feed would
+      // quote five speakerphones for a room with five pickup zones.
+      quantity: 1,
       derivedFrom: [
         text(room.microphoneNeeds) ? `Microphone requirement: ${text(room.microphoneNeeds)}` : "Room is used for calls",
-      ],
+        microphoneFeeds ? `Microphone feeds captured: ${text(room.microphoneCount)}` : "",
+      ].filter((line): line is string => Boolean(line)),
       required: Boolean(text(room.microphoneNeeds)) || isUc,
       supply: "wyrestorm",
       match: { tokens: ["microphone", "speakerphone"] },
     });
+    if (microphoneFeeds == null) {
+      openQuestions.push("How many microphone feeds or pickup zones does the room need?");
+    }
   }
 
   const audioNeed = `${lower(room.audioNeeds)} ${lower(room.audioPath)}`;

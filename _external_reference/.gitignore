@@ -1,0 +1,16 @@
+# Third-party reference material stays out of Wingman's history.
+#
+# The rule sits at the top of the pen rather than inside each package folder.
+# A nested guard covers only the directory it lives in, so a package extracted
+# beside `EasySchematic/`, or an `extracted/` written straight into here,
+# reached the index with nothing to stop it. Git applies this file to
+# everything below it, which is the whole pen.
+#
+# Everything is ignored, and each note worth keeping is re-opened by name. A
+# directory is re-opened before the file inside it, because git will not
+# re-include a file whose parent it has already excluded — so the directory
+# line is load-bearing rather than tidiness.
+*
+!/.gitignore
+!/EasySchematic/
+!/EasySchematic/README.md

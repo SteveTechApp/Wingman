@@ -119,7 +119,7 @@ describe("programme-audio route in the schematic", () => {
 
   it("reads the route off the project's saved audio design", () => {
     const project = projectWithAudioDesign({
-      audio: ["room-audio", "source-audio-deembed"],
+      audio: ["room-audio"],
       "audio-route": ["extract-at-switcher", "route-to-room-amplifier", "route-to-uc-host"],
     });
 
@@ -136,7 +136,7 @@ describe("programme-audio route in the schematic", () => {
 
   it("names each destination on the room's visual diagram", () => {
     const project = projectWithAudioDesign({
-      audio: ["room-audio", "source-audio-deembed"],
+      audio: ["room-audio"],
       "audio-route": ["extract-at-switcher", "route-to-room-amplifier", "route-to-uc-host"],
     });
 

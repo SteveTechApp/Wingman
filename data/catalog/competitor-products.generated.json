@@ -5125,7 +5125,9 @@
       "matrixInputs": 4,
       "matrixOutputs": 4,
       "routedInputCount": 4,
-      "routedOutputCount": 4
+      "routedOutputCount": 4,
+      "physicalOutputCount": 8,
+      "mirroredOutputCount": 4
     },
     "aliases": [
       "acmx44hdbt",
@@ -13121,7 +13123,10 @@
       "distance": {
         "dmLite4kMeters": 40,
         "dmLite1080pMeters": 70
-      }
+      },
+      "routedOutputCount": 2,
+      "physicalOutputCount": 4,
+      "mirroredOutputCount": 2
     },
     "aliases": [],
     "knownLimitations": "",

@@ -2301,3 +2301,81 @@ describe("buildHydrationSinceManifest (incremental pull)", () => {
     expect(buildHydrationSinceManifest([])).toEqual({});
   });
 });
+
+/**
+ * A removal is a record, not an absence. The per-item union keeps a stale
+ * copy's own selections on purpose, so without an omission carrying the moment
+ * it was made, the product a rep took out came back on the next load — and the
+ * revision basis cannot stand in for that moment, because the removing copy
+ * falls behind the stored row as soon as anyone else saves.
+ */
+describe("product omissions (a removal survives a reload)", () => {
+  const T0 = "2026-09-03T08:00:00.000Z";
+  const T1 = "2026-09-03T08:05:00.000Z";
+  const REMOVED_AT = "2026-09-03T08:10:00.000Z";
+  const READDED_AT = "2026-09-03T08:20:00.000Z";
+
+  function room(overrides: Partial<StoredProject>): StoredProject {
+    return {
+      id: "omissions",
+      name: "Omissions room",
+      owner: "Tester",
+      stage: "Recommendations",
+      status: "recommended",
+      updated: "Just now",
+      resumeTo: "/wingman/recommendations",
+      createdAt: T0,
+      updatedAt: T0,
+      ...overrides,
+    };
+  }
+
+  function selection(sku: string, addedAt: string): StoredProductSelection {
+    return { sku, title: `${sku} title`, addedAt, source: "Recommendations" };
+  }
+
+  it("keeps a product out when this copy never heard of the removal", () => {
+    // This browser is behind (rev 4) and still holds the matrix switcher the
+    // workspace row removed at rev 5.
+    const local = room({ syncRevision: 4, updatedAt: T1, productSelections: [selection("MX-0404-SCL", T0)] });
+    const backend = room({ syncRevision: 5, updatedAt: REMOVED_AT, productOmissions: [{ sku: "MX-0404-SCL", at: REMOVED_AT }] });
+
+    const { project } = mergeProjectVersionsForHydration(local, backend);
+
+    expect(project.productSelections ?? []).toEqual([]);
+    expect(project.productOmissions).toEqual([{ sku: "MX-0404-SCL", at: REMOVED_AT }]);
+  });
+
+  it("keeps the removal when a teammate saved after it, so the removing copy is the stale one", () => {
+    // The rep removed the product at rev 5; a teammate's unrelated save took
+    // the row to rev 6 before this copy synced. The product is in the newer
+    // row only because that copy never saw the removal.
+    const local = room({
+      syncRevision: 5,
+      updatedAt: REMOVED_AT,
+      productOmissions: [{ sku: "MX-0404-SCL", at: REMOVED_AT }],
+    });
+    const backend = room({ syncRevision: 6, updatedAt: T1, productSelections: [selection("MX-0404-SCL", T0)] });
+
+    const { project } = mergeProjectVersionsForHydration(local, backend);
+
+    expect(project.productSelections ?? []).toEqual([]);
+    expect(project.productOmissions).toEqual([{ sku: "MX-0404-SCL", at: REMOVED_AT }]);
+  });
+
+  it("brings a product back only when the rep added it after the removal", () => {
+    const local = room({
+      syncRevision: 6,
+      updatedAt: READDED_AT,
+      productSelections: [selection("MX-0404-SCL", READDED_AT)],
+    });
+    const backend = room({ syncRevision: 6, updatedAt: REMOVED_AT, productOmissions: [{ sku: "MX-0404-SCL", at: REMOVED_AT }] });
+
+    const { project } = mergeProjectVersionsForHydration(local, backend);
+
+    expect(project.productSelections?.map((item) => item.sku)).toEqual(["MX-0404-SCL"]);
+    // The record goes with the re-add, so the next load does not have to
+    // re-argue the removal against a selection that already outranked it.
+    expect(project.productOmissions).toBeUndefined();
+  });
+});

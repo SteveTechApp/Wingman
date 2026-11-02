@@ -767,7 +767,7 @@ function baseClassification(product, text) {
     });
   }
 
-  if (/^SP-/.test(sku) || includesAny(identityText, ["splitter", "distribution amplifier"])) {
+  if (/^SP-/.test(sku) || includesAny(identityOnlyText, ["splitter", "distribution amplifier"])) {
     return make({
       primaryCategory: "Distribution",
       category: "Splitter / distribution amplifier",
@@ -1035,7 +1035,7 @@ function baseClassification(product, text) {
     });
   }
 
-  if (/^SP-/.test(sku) || includesAny(identityText, ["splitter", "distribution amplifier"])) {
+  if (/^SP-/.test(sku) || includesAny(identityOnlyText, ["splitter", "distribution amplifier"])) {
     return make({
       primaryCategory: "Distribution",
       category: "Splitter / distribution amplifier",

@@ -71,6 +71,12 @@ import {
 import { getStoredWingmanCaptureLanguage } from "../../data/wingmanLanguage";
 import { DiscoveryDefaultsConflictAlert } from "./DiscoveryDefaultsConflictAlert";
 import { DISCOVERY_CAPTURE_PRESENTATION } from "./discoveryProgressiveDisclosure";
+import {
+  DISCOVERY_SECTIONS,
+  discoverySectionFor,
+  discoverySectionTitle,
+  type DiscoverySectionId,
+} from "./discoverySections";
 
 export type DiscoveryAnswersUpdater =
   | DiscoveryAnswers
@@ -667,6 +673,40 @@ export function DiscoveryGuidedInterview({
 
   const answeredThisQuestion = wmDiscoveryHasAnswer(answers[currentQuestion.id]);
 
+  // The walk is a room rather than a list. The section is the unit a rep
+  // captures, so the card names the section it is in, how much of it is left,
+  // and lets the rep move to the next section directly instead of stepping
+  // through questions this room has no answer for — the sections are the same
+  // list the expert view files its questions under.
+  const activeSectionId = discoverySectionFor(currentQuestion);
+  const sectionsInWalk = DISCOVERY_SECTIONS.filter((section) =>
+    walkQuestions.some((question) => discoverySectionFor(question) === section.id),
+  );
+  const sectionQuestions = walkQuestions.filter(
+    (question) => discoverySectionFor(question) === activeSectionId,
+  );
+  const sectionPosition =
+    sectionQuestions.findIndex((question) => question.id === currentQuestion.id) + 1;
+  const capturedInSection = (sectionId: DiscoverySectionId) =>
+    walkQuestions.filter(
+      (question) =>
+        discoverySectionFor(question) === sectionId &&
+        wmDiscoveryHasAnswer(answers[question.id]),
+    ).length;
+  const questionsInSection = (sectionId: DiscoverySectionId) =>
+    walkQuestions.filter((question) => discoverySectionFor(question) === sectionId).length;
+  const jumpToSection = (sectionId: DiscoverySectionId) => {
+    const target = walkQuestions.findIndex(
+      (question) => discoverySectionFor(question) === sectionId,
+    );
+    if (target < 0) return;
+    setHeard("");
+    setMatch(null);
+    setInterim("");
+    setShowSummary(false);
+    setIndex(target);
+  };
+
   // In review mode the question card opens with a "currently captured" summary
   // so the rep sees what was already recorded for this question (governed
   // answer, customer wording, confirmed status) without hunting through the
@@ -851,9 +891,29 @@ export function DiscoveryGuidedInterview({
             className="wm-guided-question"
             data-guided-question={currentQuestion.id}
           >
+            {sectionsInWalk.length > 1 && (
+            <div className="wm-guided-chips" role="group" aria-label="Room sections">
+              {sectionsInWalk.map((section) => {
+                const isActive = section.id === activeSectionId;
+                return (
+                  <button
+                    key={section.id}
+                    type="button"
+                    className={isActive ? "wm-guided-chip is-active" : "wm-guided-chip"}
+                    aria-pressed={isActive}
+                    data-guided-section={section.id}
+                    onClick={() => jumpToSection(section.id)}
+                  >
+                    {section.title}
+                    <span>{capturedInSection(section.id)}/{questionsInSection(section.id)}</span>
+                  </button>
+                );
+              })}
+            </div>
+            )}
             <div className="wm-guided-question-meta">
               <span className="wm-guided-section">
-                {currentQuestion.section}
+                {discoverySectionTitle(activeSectionId)} · {sectionPosition} of {sectionQuestions.length} in this section
               </span>
               <span className="wm-guided-step">
                 {focusedReview
@@ -1067,16 +1127,34 @@ export function DiscoveryGuidedInterview({
                   );
                 })}
               </div>
-              {answeredThisQuestion && (
+              {/* Always a way out of a question. A question the rep cannot answer
+                  at the table used to offer only "answer it", so the walk stalled
+                  where a customer had no answer — the finish action was there and
+                  unreachable. Skipping records nothing, which is what an open
+                  question is, and the summary already counts what was left open. */}
+              {!answeredThisQuestion && (
+                <p className="wm-guided-state-hint">
+                  Nothing captured here yet. Skip it and Wingman flags it for confirmation
+                  rather than assuming an answer.
+                </p>
+              )}
+              {safeIndex >= walkQuestions.length - 1 && (
+                <p className="wm-guided-state-hint">
+                  Last question in this walk — continuing opens the review of what was captured.
+                </p>
+              )}
+              <div className="wm-guided-tools">
                 <button
                   type="button"
                   onClick={advance}
-                  className="wm-ui-button wm-ui-button-primary wm-guided-next"
+                  className={answeredThisQuestion
+                    ? "wm-ui-button wm-ui-button-primary wm-guided-next"
+                    : "wm-ui-button wm-ui-button-secondary wm-guided-next"}
                 >
                   Next question
                   <ArrowRight />
                 </button>
-              )}
+              </div>
             </div>
           </section>
 

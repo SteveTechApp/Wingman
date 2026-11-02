@@ -409,6 +409,9 @@ export function AppShell({ children }: AppShellProps) {
           <NavLink to={routeCatalogByKey.profile.path} title="Account and workspace settings" aria-label="Settings" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
             Settings
           </NavLink>
+          <NavLink to={routeCatalogByKey.help.path} title="How Wingman works, step by step" aria-label="Help: how Wingman works, step by step" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
+            Help
+          </NavLink>
           <NavLink to={routeCatalogByKey.terms.path} title="Terms & legal disclaimer" aria-label="Terms and legal disclaimer" className={({ isActive }) => ["wingman-sidebar-footer-link", isActive ? "wingman-sidebar-footer-link-active" : ""].filter(Boolean).join(" ")}>
             Terms &amp; legal
           </NavLink>

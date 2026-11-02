@@ -133,6 +133,22 @@ describe("project domain commands", () => {
     expect(commands.snapshot().projects[0].productSelections?.[0].sku).toBe("MX-1007-HYB");
   });
 
+  it("does not rebuild a wall product the rep took out of the room", () => {
+    const wall = { recommendation: { products: ["MX-1007-HYB", "NHD-400-RX"] } };
+    const commands = harness([project({ productSelections: [
+      { sku: "MX-1007-HYB", title: "Matrix", addedAt: NOW, source: "Video Wall Builder" },
+      { sku: "NHD-400-RX", title: "Receiver", addedAt: NOW, source: "Video Wall Builder" },
+    ] })]);
+    commands.recommendations.removeProductSelectionFromProject("project-1", "nhd-400-rx");
+
+    // Saving the wall again is the same wall, not a request for the product
+    // back: a rebuild that re-added it would also stamp it newer than the
+    // record, which a sync reads as the rep putting it back by hand.
+    commands.discovery.saveVideowallToProject({ wallType: "lcd", summary: wall });
+    expect(commands.snapshot().projects[0].productSelections?.map((item) => item.sku)).toEqual(["MX-1007-HYB"]);
+    expect(commands.snapshot().projects[0].productOmissions).toEqual([{ sku: "NHD-400-RX", at: NOW }]);
+  });
+
   it("records the project and template a saved wall belongs to", () => {
     const commands = harness();
     commands.discovery.saveDiscoveryBriefToProject({ roomModel: { roomType: "Boardroom", sourceTemplateId: "tpl-boardroom" }, savedAt: NOW, capturedPercent: 50 }, null);
@@ -372,9 +388,46 @@ describe("project domain commands", () => {
     const commands = harness([project()]);
     commands.recommendations.saveProductSelectionToProject("project-1", { sku: "RX-70-4K", title: "Receiver", addedAt: NOW });
     commands.recommendations.removeProductSelectionFromProject("project-1", "rx-70-4k");
-    expect(commands.snapshot().projects[0].omittedProductSkus).toEqual(["RX-70-4K"]);
+    // The removal is recorded with the moment it was made: that stamp is what
+    // a sync merge compares a selection against, so a copy that never heard of
+    // the removal cannot put the product back.
+    expect(commands.snapshot().projects[0].productOmissions).toEqual([{ sku: "RX-70-4K", at: NOW }]);
     commands.recommendations.saveRecommendationEvidenceToProject({ customerRequirement: "Route video", productDirection: "Matrix", systemShape: "One source to one display", whyThisFits: [], evidenceUsed: [], quoteChecks: [], missingInformation: [], requiredDependencies: [], optionalUpgrades: [], alternatives: [], customerSafeWording: [], internalGuidance: [], quoteSafetyStatus: "quote-ready", quoteSafetyMessage: "Ready", confidence: "high", updatedAt: NOW, source: "Test" });
     expect(commands.snapshot().projects[0].recommendationEvidence?.productDirection).toBe("Matrix");
+  });
+
+  it("lets a role hold one product, so switching candidate replaces the role's row", () => {
+    const commands = harness([project()]);
+    commands.recommendations.saveProductSelectionToProject("project-1", { sku: "ENC-1", title: "Encoder", systemRole: "source-encoder", addedAt: NOW });
+    commands.recommendations.saveProductSelectionToProject("project-1", { sku: "DEC-1", title: "Decoder", systemRole: "display-decoder", addedAt: NOW });
+    // "Use this instead" is a choice about the role, not a second product: the
+    // role's old row goes, and the other role is left where it is.
+    commands.recommendations.saveProductSelectionToProject("project-1", { sku: "DEC-2", title: "Decoder two", systemRole: "display-decoder", addedAt: NOW });
+
+    expect(commands.snapshot().projects[0].productSelections?.map((item) => item.sku)).toEqual(["DEC-2", "ENC-1"]);
+    // A swap is a removal with an addition on top, so the row that left is
+    // recorded as removed — otherwise a stale copy's sync quotes it again.
+    expect(commands.snapshot().projects[0].productOmissions).toEqual([{ sku: "DEC-1", at: NOW }]);
+
+    // Choosing DEC-1 again is the rep putting it back: the record goes with the
+    // selection, and the product it displaced becomes the recorded removal.
+    commands.recommendations.saveProductSelectionToProject("project-1", { sku: "DEC-1", title: "Decoder", systemRole: "display-decoder", addedAt: NOW });
+    expect(commands.snapshot().projects[0].productSelections?.map((item) => item.sku)).toEqual(["DEC-1", "ENC-1"]);
+    expect(commands.snapshot().projects[0].productOmissions).toEqual([{ sku: "DEC-2", at: NOW }]);
+  });
+
+  it("replaces a product stored for a role before selections recorded one", () => {
+    const commands = harness([project({ productSelections: [{ sku: "MX-0404-HDMI", title: "Legacy matrix", addedAt: NOW }] })]);
+    commands.recommendations.saveProductSelectionToProject(
+      "project-1",
+      { sku: "MX-0404-SCL", title: "Matrix", systemRole: "matrix", addedAt: NOW },
+      { roleSiblingSkus: ["EXP-MX-0402-H2", "MX-0404-HDMI", "MX-0404-KIT", "MX-0404-SCL"] },
+    );
+
+    // The old row was never tagged with a role, but it is one of the role's own
+    // candidates, so the room still ends up with one matrix switcher.
+    expect(commands.snapshot().projects[0].productSelections?.map((item) => item.sku)).toEqual(["MX-0404-SCL"]);
+    expect(commands.snapshot().projects[0].auditTrail?.[0].detail).toContain("MX-0404-HDMI");
   });
 
   it("versions compare history for the same competitor product", () => {

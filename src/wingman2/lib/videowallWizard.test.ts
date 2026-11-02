@@ -7,6 +7,7 @@ import {
   wallWizardConcernChecks,
   wallWizardConcerns,
   wallReviewStageStatuses,
+  wallDesignBands,
   wallReviewStages,
   wallWizardLayoutChoices,
   wallWizardSteps,
@@ -15,7 +16,7 @@ import {
 describe("guided video wall wizard", () => {
   it("summarises each question with the answer the design used", () => {
     const answers = wallWizardAnswers({ ...defaultWallRequirements, columns: 3, rows: 3, sources: 9, layout: "nine" });
-    expect(answers.map((answer) => answer.key)).toEqual(["picture", "size", "feeding", "layout", "location"]);
+    expect(answers.map((answer) => answer.key)).toEqual(["picture", "size", "sources", "feeding", "layout"]);
     expect(answers.find((answer) => answer.key === "size")?.value).toContain("3 × 3 (9 panels)");
     expect(answers.find((answer) => answer.key === "layout")?.value).toBe("Nine windows");
     // The connection sits between the size and the layout, and reads the build
@@ -24,16 +25,19 @@ describe("guided video wall wizard", () => {
     expect(looping.map((answer) => answer.key)).toContain("feeding");
     expect(looping.find((answer) => answer.key === "feeding")?.value).toBe("One canvas, panels tile it");
     expect(answers.find((answer) => answer.key === "feeding")?.value).toBe("9 feeds, a panel per feed");
-    expect(answers.find((answer) => answer.key === "location")?.value).toBe("All in one rack");
+    expect(answers.find((answer) => answer.key === "sources")?.value).toContain("All in one rack");
   });
 
   it("describes LED, projection and custom pixel answers", () => {
     const led = wallWizardAnswers({ ...defaultWallRequirements, application: "led", ledCanvasWidth: 5120, ledCanvasHeight: 1440, sources: 1 });
     expect(led.find((answer) => answer.key === "size")?.value).toContain("5120 × 1440 LED canvas");
     const projector = wallWizardAnswers({ ...defaultWallRequirements, application: "projection", sources: 2, displayResolution: "1080p" });
-    // The guided answer carries the drawn millimetres, not pixels alone.
+    // The box and what it carries are two answers: the drawn millimetres of the
+    // wall, then the sources at their timing and where they sit.
     expect(projector.find((answer) => answer.key === "size")?.value)
-      .toBe("One projector at 1080p · 2 sources · Screen 1,218 × 685 mm (55 in) · 4K60 source");
+      .toBe("One projector at 1080p · Screen 1,218 × 685 mm (55 in)");
+    expect(projector.find((answer) => answer.key === "sources")?.value)
+      .toBe("2 sources at 4K60 · All in one rack");
     const custom = wallWizardAnswers({ ...defaultWallRequirements, displayCustom: true, displayWidth: 2560, displayHeight: 1600 });
     expect(custom.find((answer) => answer.key === "size")?.value).toContain("2560 × 1600 panels");
   });
@@ -63,7 +67,8 @@ describe("guided video wall wizard", () => {
     expect(oneGig.patch).toEqual({ sourceLocation: "distributed", network: "1g" });
     expect(videowallLocationKeyFor({ ...defaultWallRequirements, ...oneGig.patch })).toBe("one-gig");
     expect(videowallLocationKeyFor({ ...defaultWallRequirements, network: "10g" })).toBe("ten-gig");
-    expect(wallWizardAnswers({ ...defaultWallRequirements, ...oneGig.patch }).find((answer) => answer.key === "location")?.value).toBe("1GbE is already there");
+    expect(wallWizardAnswers({ ...defaultWallRequirements, ...oneGig.patch }).find((answer) => answer.key === "sources")?.value)
+      .toContain("1GbE is already there");
   });
 
   it("turns must-haves into ordering checks without inventing products", () => {
@@ -78,6 +83,15 @@ describe("guided video wall wizard", () => {
   it("reviews the result in three passes, decision first and transport last", () => {
     expect(wallReviewStages.map((stage) => stage.key)).toEqual(["decision", "wall", "transport"]);
     expect(wallReviewStages.map((stage) => stage.label)).toEqual(["The design", "The wall", "Transport and survey"]);
+  });
+
+  it("reads the design pass in bands, the picker first and the catalogue last", () => {
+    expect(wallDesignBands.map((item) => item.key)).toEqual(["start", "answer", "questions", "options"]);
+    // Every band says how it is left; the first is the only one with no return,
+    // because the picker is where the pass opens.
+    expect(wallDesignBands.every((item) => item.next.length > 0)).toBe(true);
+    expect(wallDesignBands[0].back).toBeUndefined();
+    expect(wallDesignBands.filter((item) => item.back).length).toBe(wallDesignBands.length - 1);
   });
 
   it("names what each review pass holds without opening it", () => {

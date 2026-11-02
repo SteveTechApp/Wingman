@@ -41,11 +41,12 @@ const STEP = Object.fromEntries(wallWizardSteps.map((item, index) => [item.key, 
 
 const STEP_HEADINGS: Record<string, { title: string; hint: string }> = {
   job: { title: "Start from the job", hint: "Write the LED brief — canvas, pitch and cabinet array — or start from the closest common wall and Wingman pre-answers the rest." },
-  picture: { title: "What is going on the wall?", hint: "This decides whether the panels take separate feeds or one composed canvas." },
-  size: { title: "How big is the wall?", hint: "The array, the panel pixels and the source count set the size of the box." },
+  picture: { title: "What kind of wall?", hint: "The type decides the questions after it: a projection screen has projectors, an LED canvas has a pitch, and only an LCD wall can be fed a panel at a time." },
+  size: { title: "How big is the wall?", hint: "The array, the panel pixels and the pitch set the size of the box." },
+  sources: { title: "What is going on the wall?", hint: "How many sources there are, at what timing, and where they sit — distance decides between local HDMI and network transport." },
   feeding: { title: "How is the wall fed?", hint: "One canvas the wall scales, or a feed per panel — then the box that produces that canvas." },
-  layout: { title: "How should the sources appear?", hint: "Windows are composed in one design. A source per screen is a different design." },
-  location: { title: "Where do the sources sit?", hint: "Distance decides between local HDMI and network transport." },
+  layout: { title: "How should the sources appear?", hint: "Windows composed in one design — the multiview — or a source per screen, which is a different design." },
+  visual: { title: "The wall you have described", hint: "Drawn at the size and mounting height the answers set, with the sources mapped onto it." },
   detail: { title: "What must the design handle?", hint: "These answers do not change the recommendation, but each one becomes a check in the saved design." },
 };
 
@@ -114,9 +115,10 @@ export function VideowallWizard({
   const surveyGaps = wallSurveyGaps(transport, requirements.linkDetails);
   const surveyWarning = surveyGaps.length ? wallSurveyGapText(surveyGaps, wallSurveyDisplayCount(transport)) : null;
   const lcd = requirements.application.startsWith("lcd");
-  const panels = requirements.columns * requirements.rows;
   const layouts = wallWizardLayoutChoices(requirements.application);
   const atResult = step >= RESULT;
+  /** The design the engine answers with — the one action a result with nothing picked can take. */
+  const recommendedId = decision.recommended?.option.id ?? null;
   const stepKey = wallWizardSteps[step]?.key ?? "job";
 
   function next() {
@@ -164,13 +166,13 @@ export function VideowallWizard({
 
   /**
    * The LED brief is the size and the array, so the questions it leaves are the
-   * connection and the layout. Jumping to the size step would ask the same three
-   * things twice, in the wizard's words rather than the rep's.
+   * sources, the connection and the layout. Jumping to the size step would ask
+   * the same three things twice, in the wizard's words rather than the rep's.
    */
   function startLedBrief(next: WallRequirements) {
     onReplace(next);
     onConcerns([]);
-    setStep(STEP.feeding);
+    setStep(STEP.sources);
   }
 
   const heading = atResult
@@ -372,6 +374,20 @@ export function VideowallWizard({
               </div>
             </>
           )}
+          {/* The drawing and the wiring are readings of the answers rather than
+              questions, so the size screen stops at the box: each is drawn on a
+              screen of its own instead of stacking under these controls. */}
+          <div className="vw-wizard-nav">
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.picture)}>Back</button>
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-size-next" onClick={next}>
+              Continue to the sources
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {step === STEP.sources ? (
+        <section className="vw-wizard-card" data-testid="videowall-wizard-step-sources" aria-label="What is going on the wall?">
           <div className="vw-wizard-fieldset" role="group" aria-label="Source count">
             <p className="vw-wizard-label">Sources</p>
             <div className="vw-wizard-chips">
@@ -404,25 +420,26 @@ export function VideowallWizard({
               ))}
             </div>
           </div>
-          <VideowallVisual requirements={requirements} onRequirementsChange={onChange} onMappingChange={(mapping) => onChange({ mapping })} />
-          <VideowallTransport
-            plan={transport}
-            requirements={requirements}
-            measuredRuns={requirements.measuredRuns}
-            linkDetails={requirements.linkDetails}
-            displayMounts={requirements.displayMounts}
-            onMeasure={measure}
-            onMeasuredRuns={applyMeasuredRuns}
-            onLinkDetails={(linkDetails) => onChange({ linkDetails })}
-            onDisplayMounts={(displayMounts) => onChange({ displayMounts })}
-            surveyReview={requirements.surveyReview}
-            onSurveyReview={(surveyReview) => onChange({ surveyReview })}
-            onRequirementsChange={(next) => onChange(next)}
-          />
+          <div className="vw-wizard-fieldset" role="group" aria-label="Where the sources sit">
+            <p className="vw-wizard-label">Where the sources sit</p>
+            <div className="vw-wizard-options">
+              {videowallLocationChoices.map((choice) => (
+                <button
+                  key={choice.key}
+                  type="button"
+                  aria-pressed={videowallLocationKeyFor(requirements) === choice.key}
+                  onClick={() => onChange(choice.patch)}
+                >
+                  <strong>{choice.label}</strong>
+                  <span>{choice.detail}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="vw-wizard-nav">
-            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.picture)}>Back</button>
-            <button type="button" className="vw-wizard-primary" onClick={next}>
-              Continue with {panels} panel{panels === 1 ? "" : "s"} and {requirements.sources} source{requirements.sources === 1 ? "" : "s"}
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.size)}>Back</button>
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-sources-next" onClick={next}>
+              Continue with {requirements.sources} source{requirements.sources === 1 ? "" : "s"}
             </button>
           </div>
         </section>
@@ -432,7 +449,7 @@ export function VideowallWizard({
         <VideowallFeedStep
           requirements={requirements}
           onChange={onChange}
-          onBack={() => back(STEP.size)}
+          onBack={() => back(STEP.sources)}
           onNext={next}
         />
       ) : null}
@@ -452,26 +469,27 @@ export function VideowallWizard({
               </button>
             ))}
           </div>
-          <WizardBack onBack={() => back(STEP.feeding)} />
+          <div className="vw-wizard-nav">
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.feeding)}>Back</button>
+            {/* Choosing a card advances, so a rep who is happy with the layout on
+                screen had no action that kept it. This is that action. */}
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-layout-keep" onClick={next}>
+              Keep this layout and continue
+            </button>
+          </div>
         </section>
       ) : null}
 
-      {step === STEP.location ? (
-        <section className="vw-wizard-card" data-testid="videowall-wizard-step-location" aria-label="Where do the sources sit?">
-          <div className="vw-wizard-options">
-            {videowallLocationChoices.map((choice) => (
-              <button
-                key={choice.key}
-                type="button"
-                aria-pressed={videowallLocationKeyFor(requirements) === choice.key}
-                onClick={() => { onChange(choice.patch); next(); }}
-              >
-                <strong>{choice.label}</strong>
-                <span>{choice.detail}</span>
-              </button>
-            ))}
+      {step === STEP.visual ? (
+        <section className="vw-wizard-card" data-testid="videowall-wizard-step-visual" aria-label="The wall you have described">
+          <p className="vw-wizard-hint">
+            The drawing reads the answers you have given: the array, the mounting height and the sources mapped onto it.
+          </p>
+          <VideowallVisual requirements={requirements} onRequirementsChange={onChange} onMappingChange={(mapping) => onChange({ mapping })} />
+          <div className="vw-wizard-nav">
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.layout)}>Back</button>
+            <button type="button" className="vw-wizard-primary" onClick={next}>Continue to must-haves</button>
           </div>
-          <WizardBack onBack={() => back(STEP.layout)} />
         </section>
       ) : null}
 
@@ -492,7 +510,7 @@ export function VideowallWizard({
             ))}
           </div>
           <div className="vw-wizard-nav">
-            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.location)}>Back</button>
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.visual)}>Back</button>
             <button type="button" className="vw-wizard-primary" onClick={() => { setEditing(false); setStep(RESULT); }}>
               See the design
             </button>
@@ -578,6 +596,36 @@ export function VideowallWizard({
                 </p>
               ) : null}
 
+              {/* A disabled save button is not an answer. The finish actions need a
+                  selected design, so the screen names the thing that is missing and
+                  carries the one action that supplies it — otherwise the result is a
+                  dead end with three greyed buttons. */}
+              {!selected ? (
+                <p className="vw-builder-warning" role="status" data-testid="videowall-save-blocked">
+                  No design is selected yet, so there is nothing to save.
+                  {recommendedId
+                    ? " Use WyreStorm’s recommendation, or pick another design below to see what it needs."
+                    : " Pick a design from the list below."}
+                </p>
+              ) : selected.blockers.length > 0 ? (
+                <p className="vw-builder-warning" role="status" data-testid="videowall-save-blocked">
+                  The selected design needs {selected.blockers.length} change
+                  {selected.blockers.length === 1 ? "" : "s"} before it can be saved. Apply them, then save.
+                </p>
+              ) : null}
+              {!selected && recommendedId ? (
+                <div className="vw-wizard-nav">
+                  <button type="button" className="vw-wizard-primary" data-testid="videowall-use-recommendation" onClick={() => onSelect(recommendedId)}>
+                    Use WyreStorm’s recommendation
+                  </button>
+                </div>
+              ) : selected && selected.blockers.length > 0 ? (
+                <div className="vw-wizard-nav">
+                  <button type="button" className="vw-wizard-primary" data-testid="videowall-apply-design-changes" onClick={() => onApply(selected.id)}>
+                    Apply the changes this design needs
+                  </button>
+                </div>
+              ) : null}
               <footer className="vw-builder-actions">
                 <button type="button" disabled={!selected || selected.blockers.length > 0 || Boolean(surveyWarning && !requirements.surveyDraftOverride)} onClick={() => onSave()}>Save to project</button>
                 <button type="button" disabled={!selected || selected.blockers.length > 0 || Boolean(surveyWarning && !requirements.surveyDraftOverride)} onClick={onSaveProposal}>Save and open proposal</button>
