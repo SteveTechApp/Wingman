@@ -34,7 +34,7 @@ Generated: deterministic static analysis report
 | ProposalPage.tsx | /wingman/proposal | Covered by AppShell | 0 | 2 | 1 | 0 |
 | ProposalVisualsPage.tsx | /wingman/proposal-visuals | Covered by AppShell | 1 | 0 | 8 | 0 |
 | QuoteSafetyDashboardPage.tsx | /wingman/quote-safety | Covered by AppShell | 1 | 6 | 0 | 0 |
-| RecommendationsPage.tsx | /wingman/recommendations | Covered by AppShell | 0 | 3 | 9 | 0 |
+| RecommendationsPage.tsx | /wingman/recommendations | Covered by AppShell | 0 | 3 | 8 | 0 |
 | SalesHelperPage.tsx | /wingman/sales-helper | Covered by AppShell | 1 | 1 | 0 | 0 |
 | TemplatesPage.tsx | /wingman/templates | Covered by AppShell | 1 | 3 | 4 | 0 |
 | TermsPage.tsx | /wingman/terms | Covered by AppShell | 1 | 5 | 4 | 0 |
