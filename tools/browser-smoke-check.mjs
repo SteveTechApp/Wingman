@@ -4553,23 +4553,52 @@ try {
   await page.getByTestId("videowall-wizard-expert").click();
   await expect(page.getByRole("heading", { name: "One wall. The right signal path.", exact: true }))
     .toBeVisible({ timeout: 15_000 });
-  // The design pass reads as folded lines: an answer stays closed until a rep
-  // opens it, so the controls this walk sets are reached the way a rep reaches
-  // them - open the two questions it answers, then choose.
-  for (const index of [1, 2]) {
+  // The design pass is a rail of bands with one on screen at a time, so the
+  // controls below are reached the way a rep reaches them: open the band the
+  // reading lives in, then use it. The pressed chip is asserted after every move,
+  // so a control that moved to another band fails here by name rather than as a
+  // button that is simply missing.
+  const openBand = async (key) => {
+    const chip = page.getByTestId(`videowall-band-${key}`);
+    await chip.click();
+    await expect(chip).toHaveAttribute("aria-pressed", "true", { timeout: 15_000 });
+  };
+
+  // A question is a folded line that stays closed until a rep opens it, and
+  // leaving a band unmounts it, so the questions come back closed each time the
+  // walk returns to that band.
+  const openStep = async (index) => {
     const step = page.getByTestId(`videowall-step-${index}`);
     if (!(await step.evaluate((element) => element.open))) {
       await step.locator("summary").click();
     }
-  }
+  };
+
+  await openBand("questions");
+  for (const index of [1, 2]) await openStep(index);
   await page.getByRole("group", { name: "Panel array", exact: true })
     .getByRole("button", { name: /^3 × 3/ }).click();
+
+  // Every design tested against those answers is the pass's last band: the matrix
+  // that nine panels rule out and the 500-series design that answers them are both
+  // rows there.
+  await openBand("options");
   await expect(page.getByRole("button", { name: /^MX-0404-SCL/ })).toBeDisabled();
   await page.getByRole("button", { name: /^NetworkHD 500 · receiver per display/ }).click();
+
+  // Picking a design writes the answer, so the schedule that counts its receivers
+  // is the band behind the picker rather than a second reading of the option list.
+  await openBand("answer");
   const receiverRow = page.locator("tr").filter({ hasText: "NHD-500-RX" });
   if ((await receiverRow.locator("td").first().innerText()) !== "9") {
     throw new Error("A 3-by-3 direct LCD wall must have nine receivers.");
   }
+
+  // The application is one of the questions, so the walk goes back for it the same
+  // way a rep would: the band reopens, its first question is opened again, and the
+  // array it already set is still there.
+  await openBand("questions");
+  await openStep(1);
   for (const name of [/^LCD · looped/, /^LED · processor input/, /^Large single projection/]) {
     await page.getByRole("button", { name }).click();
     if ((await page.getByRole("button", { name }).getAttribute("aria-pressed")) !== "true") {
