@@ -7,6 +7,7 @@ import {
   wallWizardConcernChecks,
   wallWizardConcerns,
   wallReviewStageStatuses,
+  wallDesignBands,
   wallReviewStages,
   wallWizardLayoutChoices,
   wallWizardSteps,
@@ -82,6 +83,15 @@ describe("guided video wall wizard", () => {
   it("reviews the result in three passes, decision first and transport last", () => {
     expect(wallReviewStages.map((stage) => stage.key)).toEqual(["decision", "wall", "transport"]);
     expect(wallReviewStages.map((stage) => stage.label)).toEqual(["The design", "The wall", "Transport and survey"]);
+  });
+
+  it("reads the design pass in bands, the picker first and the catalogue last", () => {
+    expect(wallDesignBands.map((item) => item.key)).toEqual(["start", "answer", "questions", "options"]);
+    // Every band says how it is left; the first is the only one with no return,
+    // because the picker is where the pass opens.
+    expect(wallDesignBands.every((item) => item.next.length > 0)).toBe(true);
+    expect(wallDesignBands[0].back).toBeUndefined();
+    expect(wallDesignBands.filter((item) => item.back).length).toBe(wallDesignBands.length - 1);
   });
 
   it("names what each review pass holds without opening it", () => {

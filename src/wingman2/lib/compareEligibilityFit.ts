@@ -43,6 +43,19 @@ export function avoipNetworkMismatch(competitorNetworkClass: AvoipNetworkClass, 
 }
 
 
+/**
+ * Which WyreStorm line leads when two products fit the same.
+ *
+ * The Essentials range ("EXP-" SKUs) is the entry line; the pro model is what a
+ * rep should be offered whenever one fits equally well. This is a tiebreak and
+ * nothing more - one point, applied only where every other signal is equal - so
+ * a better-fitting Essentials product still leads, and an Essentials product on
+ * its own is still the answer, which is the one case where preferring it is right.
+ */
+export function essentialsLineTiebreak(sku: string): number {
+  return /^EXP-/i.test(String(sku ?? "").trim()) ? 1 : 0;
+}
+
 export function blocked(sku: string, intent: CompareIntentKind, reasons: string[]): CompareEligibilityResult {
   return {
     eligibility: "blocked",

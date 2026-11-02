@@ -639,13 +639,6 @@ const table: LanguageTable = {
         "屏幕上的回音壁",
         "屏幕音频"
       ],
-      "source-audio-deembed": [
-        "音频解嵌",
-        "分离音频",
-        "单独音频输出",
-        "音频到调音台",
-        "提取音频"
-      ],
       "room-audio": [
         "房间音箱",
         "天花音箱",
@@ -654,48 +647,6 @@ const table: LanguageTable = {
         "放大器",
         "房间扬声器",
         "房间音频"
-      ],
-      "stereo-low-impedance": [
-        "立体声",
-        "低阻抗",
-        "4欧",
-        "8欧",
-        "高保真"
-      ],
-      "multichannel-audio": [
-        "环绕声",
-        "5.1",
-        "7.1",
-        "多声道"
-      ],
-      "distributed-70v-100v": [
-        "70伏",
-        "70v",
-        "100v",
-        "分布式音箱",
-        "背景音乐",
-        "分区",
-        "分区播放",
-        "定压"
-      ],
-      "separate-programme-voice": [
-        "独立节目",
-        "语音增强",
-        "语音和音乐",
-        "节目和人声"
-      ],
-      "analogue-audio-override": [
-        "模拟",
-        "备用",
-        "本地优先",
-        "本地直通"
-      ],
-      "digital-audio-interface": [
-        "数字音频",
-        "aes",
-        "spdif",
-        "spdif输出",
-        "aes ebu"
       ],
       "dante-network-audio": [
         "dante",

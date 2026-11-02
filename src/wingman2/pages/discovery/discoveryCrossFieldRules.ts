@@ -130,7 +130,7 @@ export function auditScaleDisplaysPair(
 
   const scaleValue = single(scale);
   const displayValue = single(displays);
-  if (scaleValue === undefined || displayValue === undefined) return [];
+  if (!scaleValue || !displayValue) return [];
 
   const allowed = DISPLAYS_ALLOWED_BY_SCALE[scaleValue];
   if (!allowed) {

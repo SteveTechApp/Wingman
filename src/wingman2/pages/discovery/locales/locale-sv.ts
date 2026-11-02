@@ -637,60 +637,12 @@ const table: LanguageTable = {
         "soundbar på skärmen",
         "skärmens ljud"
       ],
-      "source-audio-deembed": [
-        "de-embed",
-        "extrahera ljud",
-        "separat ljudutgång",
-        "ljud till mixern",
-        "extrahera"
-      ],
       "room-audio": [
         "rumshögtalare",
         "takhögtalare",
         "förstärkare",
         "högtalare i rummet",
         "rumsaudio"
-      ],
-      "stereo-low-impedance": [
-        "stereo",
-        "låg impedans",
-        "4 ohm",
-        "8 ohm",
-        "hi-fi"
-      ],
-      "multichannel-audio": [
-        "surround",
-        "5.1",
-        "7.1",
-        "flerkanaligt"
-      ],
-      "distributed-70v-100v": [
-        "70 volt",
-        "70v",
-        "100v",
-        "distribuerade högtalare",
-        "bakgrundsmusik",
-        "zoner",
-        "zonerad",
-        "konstant spänning"
-      ],
-      "separate-programme-voice": [
-        "separat program",
-        "talförstärkning",
-        "tal och musik",
-        "program och röst"
-      ],
-      "analogue-audio-override": [
-        "analog",
-        "fallback",
-        "lokal override"
-      ],
-      "digital-audio-interface": [
-        "digitalt ljud",
-        "aes",
-        "spdif",
-        "spdif ut",
-        "aes ebu"
       ],
       "dante-network-audio": [
         "dante",

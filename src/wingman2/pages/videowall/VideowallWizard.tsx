@@ -117,6 +117,8 @@ export function VideowallWizard({
   const lcd = requirements.application.startsWith("lcd");
   const layouts = wallWizardLayoutChoices(requirements.application);
   const atResult = step >= RESULT;
+  /** The design the engine answers with — the one action a result with nothing picked can take. */
+  const recommendedId = decision.recommended?.option.id ?? null;
   const stepKey = wallWizardSteps[step]?.key ?? "job";
 
   function next() {
@@ -467,7 +469,14 @@ export function VideowallWizard({
               </button>
             ))}
           </div>
-          <WizardBack onBack={() => back(STEP.feeding)} />
+          <div className="vw-wizard-nav">
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.feeding)}>Back</button>
+            {/* Choosing a card advances, so a rep who is happy with the layout on
+                screen had no action that kept it. This is that action. */}
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-layout-keep" onClick={next}>
+              Keep this layout and continue
+            </button>
+          </div>
         </section>
       ) : null}
 
@@ -587,6 +596,36 @@ export function VideowallWizard({
                 </p>
               ) : null}
 
+              {/* A disabled save button is not an answer. The finish actions need a
+                  selected design, so the screen names the thing that is missing and
+                  carries the one action that supplies it — otherwise the result is a
+                  dead end with three greyed buttons. */}
+              {!selected ? (
+                <p className="vw-builder-warning" role="status" data-testid="videowall-save-blocked">
+                  No design is selected yet, so there is nothing to save.
+                  {recommendedId
+                    ? " Use WyreStorm’s recommendation, or pick another design below to see what it needs."
+                    : " Pick a design from the list below."}
+                </p>
+              ) : selected.blockers.length > 0 ? (
+                <p className="vw-builder-warning" role="status" data-testid="videowall-save-blocked">
+                  The selected design needs {selected.blockers.length} change
+                  {selected.blockers.length === 1 ? "" : "s"} before it can be saved. Apply them, then save.
+                </p>
+              ) : null}
+              {!selected && recommendedId ? (
+                <div className="vw-wizard-nav">
+                  <button type="button" className="vw-wizard-primary" data-testid="videowall-use-recommendation" onClick={() => onSelect(recommendedId)}>
+                    Use WyreStorm’s recommendation
+                  </button>
+                </div>
+              ) : selected && selected.blockers.length > 0 ? (
+                <div className="vw-wizard-nav">
+                  <button type="button" className="vw-wizard-primary" data-testid="videowall-apply-design-changes" onClick={() => onApply(selected.id)}>
+                    Apply the changes this design needs
+                  </button>
+                </div>
+              ) : null}
               <footer className="vw-builder-actions">
                 <button type="button" disabled={!selected || selected.blockers.length > 0 || Boolean(surveyWarning && !requirements.surveyDraftOverride)} onClick={() => onSave()}>Save to project</button>
                 <button type="button" disabled={!selected || selected.blockers.length > 0 || Boolean(surveyWarning && !requirements.surveyDraftOverride)} onClick={onSaveProposal}>Save and open proposal</button>

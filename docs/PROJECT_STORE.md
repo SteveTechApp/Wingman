@@ -26,6 +26,57 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   checked it still could not read the project it had just updated. Keep the
   lookup and the declared type: an unknown id returns null without writing
   anything, and the written document and the returned copy stay the same object.
+- A product a rep took out is a **record, not an absence**. The selections lane
+  merges per item, and that merge keeps an editor-only item on purpose so an
+  offline addition survives — so a copy that never heard of a removal looks
+  exactly like a copy that added the product offline, and the product the rep
+  had replaced came back on the next reload. `productOmissions`
+  (`{ sku, at }` per SKU, `StoredProductOmission`) is the third fact that tells
+  them apart, and `at` is what makes it answerable: a **selection added after**
+  that moment is the rep putting the product back, while a selection from
+  before it belongs to a copy that never saw the removal.
+  - Revision freshness cannot stand in for the moment. The first cut compared
+    the two copies' revisions instead, and lost the removal in the ordinary
+    case: the rep removes a product at revision 5, a teammate saves anything
+    at all and the row becomes revision 6, and the rep's own sync is then the
+    stale one — its record was discarded because the fresher row still selected
+    the product, which the row did only because it had never heard of the
+    removal. The product returned on the sync that carried the removal.
+    Comparing the two embedded times has no such direction to get wrong, and it
+    is the same evidence the by-sku merge already resolves items with.
+  - The record is written by `withProductOmissions`
+    (`recommendationCommands.ts`), the one place it is rewritten:
+    `saveProductSelectionToProject` clears the selected SKU's record and
+    records every SKU the role swap displaced at the write's own timestamp,
+    `removeProductSelectionFromProject` records the SKU it took out, and
+    `saveRecommendationEvidenceToProject` clears the record because saving a
+    product's evidence is another way of asking for it. A rebuild is not a
+    request either: `saveVideowallToProject` drops the SKUs the record names
+    when it regenerates the wall's products, because a row it re-added would be
+    stamped now and a sync would read that as the rep putting the product back
+    by hand. Two records for one SKU keep the later moment; SKUs are compared
+    uppercased, never by display text.
+  - An **untimed** record is a document written before omissions carried a
+    time: the value is still a decision, it just has no moment, so it keeps its
+    product out — nothing can be shown to have been added after it. The codec
+    reads the retired `omittedProductSkus` string list into exactly that shape,
+    which is why an older document keeps its removals.
+  - Both merges call the rule and both write its result back, because the
+    project-level LWW winner may otherwise carry the other copy's shorter
+    record: `resolveProductOmissions` in `projectHydrationMerge.ts` for a
+    reload, its twin in `server/wingman-app-store.mjs` for a sync. The merged
+    selections are filtered by the resolved record, and an emptied list deletes
+    the key rather than storing `[]`, like every other collection.
+  - `RecommendationsPage` reads the record before a batch add, so a product the
+    rep removed is not quietly put back by adding the whole system around it.
+  - Proof: `server/project-store-id-keyed-collections.parity.test.mjs` feeds
+    one corpus of pairs to both implementations (stale copy vs record, removal
+    against an older basis, re-add after it, untimed record, untimed selection,
+    duplicate records, casing), the hydration suite in
+    `src/__tests__/projectStore.test.ts` pins the reload direction, and
+    `server/project-store-two-session-collections.e2e.test.mjs` drives the real
+    sync: owner removes, a stale teammate syncs over it, and the row still has
+    none of it until the owner re-adds the product afterwards.
 - A stored record carries only fields a surface reads. The codecs are
   allow-lists, so removing one needs no migration: an older document's value is
   simply not read back, and the next write drops it. A sweep of `projectTypes.ts`

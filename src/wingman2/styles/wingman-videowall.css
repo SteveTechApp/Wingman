@@ -406,6 +406,18 @@
 .vw-transport-detail input { padding: 4px 7px; border: 1px solid var(--vw-border-soft); border-radius: 6px; background: var(--vw-card-bg); color: var(--vw-text-soft); font: inherit; font-size: .72rem; }
 .vw-transport-detail input::placeholder { color: var(--vw-text-dim); }
 .vw-transport .vw-transport-detail input:focus-visible { outline: 2px solid var(--vw-highlight); outline-offset: 2px; }
+/* The spoken note belongs to the survey cells, so it takes their measure: at the
+   shell's page-button size the two controls would be taller than the three
+   cells they fill, and a table row would read as a panel. */
+.vw-transport-detail-voice { display: grid; gap: 2px; }
+.vw-transport-detail-voice .wm-voice-note { gap: 4px; }
+.vw-transport-detail-voice .wm-voice-note-actions { gap: 4px; }
+.vw-transport-detail-voice .wm-ui-button,
+.vw-transport .vw-transport-detail-voice .wm-voice-note-upload { min-height: 0; padding: 3px 7px; border-radius: 6px; font-size: .68rem; font-weight: 650; }
+.vw-transport-detail-voice .wm-voice-note p,
+.vw-transport-detail-voice .wm-voice-note small { font-size: .68rem; line-height: 1.35; }
+.vw-transport-detail-voice .wm-voice-note [role="status"],
+.vw-transport-detail-voice .wm-voice-note [role="alert"] { margin-top: 2px; }
 .vw-transport-display-mounts { margin: 18px 0; padding: 12px; border: 1px solid var(--vw-border-soft); border-radius: 10px; }
 .vw-transport-display-mounts legend { padding: 0 6px; color: var(--vw-text-soft); font-weight: 700; }
 .vw-transport-display-mounts__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
@@ -628,6 +640,27 @@
 .vw-wizard-stage-copy small { color: var(--vw-muted); font-size: .72rem; line-height: 1.35; }
 .vw-wizard-stage { display: grid; gap: 18px; }
 .vw-wizard-stage-intro { color: var(--vw-muted); font-size: .8rem; line-height: 1.5; max-width: 80ch; }
+
+/* Bands of one pass --------------------------------------------------------
+   The design pass holds four readings and shows one of them, so the row above
+   the band is a chip rail rather than the pass rail: two rails of equal weight
+   read as one ladder of seven steps, and a rep cannot tell which of them
+   changes the page. */
+.vw-design-bands { display: flex; flex-wrap: wrap; gap: 8px; }
+#root .vw-design-bands button { display: inline-flex; align-items: center; gap: 8px; min-height: 0; padding: 7px 14px; border-radius: 999px; font-size: .78rem; }
+.vw-design-bands button > span {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--vw-muted);
+  font-size: .62rem;
+  font-weight: 700;
+}
+.vw-design-bands button[aria-pressed="true"] > span { color: var(--vw-deep); background: var(--vw-aqua); border-color: var(--vw-aqua); }
+.vw-design-band { display: grid; gap: 12px; }
 
 @media (max-width: 900px) {
   .vw-wizard-progress { grid-template-columns: repeat(3, minmax(0, 1fr)); }

@@ -53,6 +53,14 @@ export type WingmanFinderNeedLike = {
   network?: string;
   audio?: string;
   control?: string;
+  /**
+   * Microphone feeds or pickup zones the room has to serve, as a floor count
+   * ("2", "5", "9"). Discovery answers this as a band of feeds, and the gate
+   * only ever rejects a product that evidences FEWER feeds than the band's
+   * floor — a product that evidences no microphone inputs is unknown, not
+   * excluded.
+   */
+  microphones?: string;
 };
 
 export type WingmanProductLike = {
@@ -135,6 +143,25 @@ export type WingmanProductProfile = {
   searchBlob: string;
   /** Longest verified signal reach in metres (headline figure from the governed technicalProfile), null when not evidenced. */
   distanceMeters: number | null;
+  /**
+   * Headline signal capacity evidenced by the product's own catalogue text:
+   * 1 = HD (1080p), 2 = 4K60, 3 = 4K60 4:4:4 / 12G. Null when the text names
+   * no ceiling at all, because an unevidenced dimension must never exclude a
+   * product — the resolution gate exists to drop the ones that say they cannot
+   * do the room's picture quality, which is how a 4K room stops being offered
+   * a 1080p extender.
+   */
+  resolutionRank: SignalRank | null;
+  /** Microphone feeds or pickup points the product evidences ("2 x MIC", "4 x Mic Array"), null when unevidenced. */
+  micFeeds: number | null;
+};
+
+export type SignalRank = 1 | 2 | 3;
+
+const SIGNAL_RANK_LABEL: Record<SignalRank, string> = {
+  1: "HD (1080p)",
+  2: "4K60",
+  3: "4K60 4:4:4",
 };
 
 function clean(value: unknown) {
@@ -266,6 +293,31 @@ function inferConnectors(text: string, sku: string) {
   if (includesAny(text, ["mic", "microphone"])) connectors.push("Mic");
 
   return unique(connectors);
+}
+
+/**
+ * Signal capacity from the catalogue's own wording. `text` is normalised, so
+ * "4:4:4" reads as "4 4 4" and "12G-SDI" as "12g sdi". The highest named
+ * standard wins: a 4K device that also lists 1080p support is 4K.
+ */
+function inferResolutionRank(text: string): SignalRank | null {
+  if (/\b4 4 4\b|12g/.test(text)) return 3;
+  if (/4k|2160|uhd/.test(text)) return 2;
+  if (/1080p|1080i|full hd|\bfhd\b/.test(text)) return 1;
+  return null;
+}
+
+/**
+ * Microphone feeds or pickup points, stated the way the catalogue states them
+ * ("2 x MIC", "360° 4 x Mic Array"). A room's Discovery answer counts "feeds
+ * or pickup zones", which is the same unit: one input carries one feed, and
+ * one array element picks up one zone.
+ */
+function inferMicFeeds(text: string): number | null {
+  const match = text.match(/(\d+)\s*x\s+mic/);
+  if (!match) return null;
+  const count = Number.parseInt(match[1], 10);
+  return Number.isFinite(count) && count > 0 ? count : null;
 }
 
 function inferFeatures(text: string, sku: string) {
@@ -721,12 +773,70 @@ export function classifyWingmanProduct(product: WingmanProductLike): WingmanProd
     invalidProductPaths: [],
     searchBlob,
     distanceMeters,
+    resolutionRank: inferResolutionRank(text),
+    micFeeds: inferMicFeeds(text),
   };
 }
 
 function needIsNeutral(value: unknown) {
   const text = clean(value);
   return !text || text === "Unknown" || text === "Any / not known" || text === "Core hardware first" || text === "All hardware types";
+}
+
+/** The signal capability a Discovery picture-quality answer asks for. */
+export function resolutionRankForNeed(requested: string | undefined): SignalRank | null {
+  const value = normalise(requested);
+  if (!value) return null;
+  if (/1080/.test(value)) return 1;
+  // Only an explicit full-chroma answer asks for rank 3: "4:4:4" normalises to
+  // "4 4 4". HDR is a 4K60 demand upstream, because 10-bit HDR fits an 18Gbps
+  // path and demanding chroma evidence would hide most 4K60 switchers.
+  if (/\b4 4 4\b|12g/.test(value)) return 3;
+  if (/4k/.test(value)) return 2;
+  return null;
+}
+
+/** The microphone feeds a Discovery answer asks the room to serve, as a floor. */
+export function micFeedNeed(requested: string | undefined): number | null {
+  const parsed = Number.parseInt(String(requested ?? "").replace(/[^0-9]/g, ""), 10);
+  // One feed is the default a UC bar already provides; only a room that asks
+  // for more than that has a microphone requirement worth gating on.
+  return Number.isFinite(parsed) && parsed > 1 ? parsed : null;
+}
+
+/**
+ * Why a product cannot carry the room's picture quality, or "" when it can —
+ * including when its capacity is unknown, because an unevidenced ceiling is not
+ * a refusal.
+ */
+export function resolutionGateReason(profile: WingmanProductProfile, requested: string | undefined) {
+  const need = resolutionRankForNeed(requested);
+  if (need == null || profile.resolutionRank == null) return "";
+  if (profile.resolutionRank >= need) return "";
+  return `Resolution gate: this product evidences ${SIGNAL_RANK_LABEL[profile.resolutionRank]}, below the room's ${SIGNAL_RANK_LABEL[need]} signal requirement.`;
+}
+
+/** Why a product cannot carry the requested processing job, or "" when it can (or the need names none). */
+export function processingGateReason(profile: WingmanProductProfile, requested: string | undefined) {
+  if (needIsNeutral(requested)) return "";
+  if (supportsProcessingNeed(profile, requested)) return "";
+  return `Processing gate: ${requested} is not evidenced on this product.`;
+}
+
+/**
+ * Product classes that host the room's own pickup. An amplifier's mic inputs
+ * are for paging and an accessory's are for one desk, so neither is the room's
+ * microphone path and neither answers to the room's feed count.
+ */
+const MICROPHONE_HOST_CLASSES = new Set<WingmanProductClass>(["uc-room-core", "audio-dsp"]);
+
+/** Why a product cannot serve the room's microphone feeds, or "" when it can (or is unevidenced). */
+export function micFeedGateReason(profile: WingmanProductProfile, requested: string | undefined) {
+  const need = micFeedNeed(requested);
+  if (need == null || profile.micFeeds == null) return "";
+  if (!MICROPHONE_HOST_CLASSES.has(profile.productClass)) return "";
+  if (profile.micFeeds >= need) return "";
+  return `Microphone gate: this product evidences ${profile.micFeeds} mic feed${profile.micFeeds === 1 ? "" : "s"}, fewer than the ${need} the room needs.`;
 }
 
 function minCountForNeed(value: string) {
@@ -999,6 +1109,16 @@ export function matchedGateReasons(profile: WingmanProductProfile, need: Wingman
     }
   }
 
+  const resolutionNeed = resolutionRankForNeed(need.resolution);
+  if (resolutionNeed != null && profile.resolutionRank != null && profile.resolutionRank >= resolutionNeed) {
+    reasons.push(`Resolution gate passed: ${SIGNAL_RANK_LABEL[profile.resolutionRank]} evidence covers the room's ${SIGNAL_RANK_LABEL[resolutionNeed]} requirement.`);
+  }
+
+  const micNeed = micFeedNeed(need.microphones);
+  if (micNeed != null && profile.micFeeds != null && profile.micFeeds >= micNeed && MICROPHONE_HOST_CLASSES.has(profile.productClass)) {
+    reasons.push(`Microphone gate passed: ${profile.micFeeds} evidenced mic feeds cover the ${micNeed} the room needs.`);
+  }
+
   return reasons;
 }
 
@@ -1054,25 +1174,12 @@ export function isWingmanProductEligibleForFinderNeed(product: WingmanProductLik
     return false;
   }
 
+  // Picture quality and microphone feeds are the two Discovery answers that
+  // size a room rather than a role: they apply to whatever fills any slot, so
+  // they are gated here beside the other dimension checks.
+  if (resolutionGateReason(profile, need.resolution)) return false;
+  if (micFeedGateReason(profile, need.microphones)) return false;
+
   return true;
 }
 
-export function wingmanHardwareTypePriority(product: WingmanProductLike) {
-  const profile = classifyWingmanProduct(product);
-
-  if (profile.productClass === "matrix-switch") return 10;
-  if (profile.productClass === "presentation-switcher") return 12;
-  if (profile.productClass === "uc-room-core") return 14;
-  if (profile.productClass === "avoip-encoder" || profile.productClass === "avoip-decoder" || profile.productClass === "avoip-transceiver") return 16;
-  if (profile.productClass === "video-wall-processor" || profile.productClass === "multiview-processor") return 18;
-  if (profile.productClass === "signal-extender-kit") return 24;
-  if (profile.productClass === "transmitter" || profile.productClass === "receiver") return 28;
-  if (profile.productClass === "distribution-amplifier") return 30;
-  if (profile.productClass === "hdmi-switcher") return 32;
-  if (profile.productClass === "camera" || profile.productClass === "camera-bridge") return 34;
-  if (profile.productClass === "audio-amplifier" || profile.productClass === "audio-dsp" || profile.productClass === "control-interface") return 40;
-  if (profile.productClass === "cable") return 110;
-  if (profile.productClass === "accessory") return 120;
-
-  return 80;
-}

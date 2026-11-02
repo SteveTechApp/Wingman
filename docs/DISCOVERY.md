@@ -4,6 +4,12 @@ The narrative behind the invariants in `AGENTS.md`: each rule in full, why it
 exists, and the probe that proved it. A number quoted here records the run that
 decided the rule; `reports/browser-readings.md` is the current measurement.
 
+- An unanswered room scale is absent from the stored room model, even though
+  the Finder need draft uses empty strings for dimensions that are present but
+  unanswered. The cross-field audit treats both missing and empty scale or
+  display values as unanswered; otherwise an empty label is a defined string
+  with no scale rule and gets reported as invalid data.
+
 - Every Discovery step body is one card language: the `.wm-room-wizard` panel,
   `.wm-brief-question` with its count on the title line, `.wm-brief-option`
   tick cards, `#root .wm-room-wizard-option` for a pressed button choice, and
@@ -74,3 +80,24 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   snapshot it used to take left the rep reading the decision with the address
   saying otherwise. Nothing about it writes the interface mode — a guided rep
   lands in the guided interview, and the expert view remains a mode they choose.
+
+- The guided walk is a room, not a list of questions. Its section is the unit a
+  rep captures and reports on, so the walk prints the section it is in, how many
+  of that section's questions are answered, and a rail of the other sections to
+  jump to — the same `DISCOVERY_SECTIONS` list the expert view draws. That list
+  moved out of `DiscoveryExpertBuilder.tsx` into `discoverySections.ts` when the
+  walk started reading it: two surfaces grouping one room two ways is how a rep
+  learns that "Sources" means one thing in one view and something else in the
+  other. A question is filed by what it is about (`discoverySectionFor`), so a
+  new question is filed once and neither reading needs a second table.
+
+  The forward action is unconditional. It used to render only when
+  `wmDiscoveryHasAnswer` was true for the question on screen, which made the
+  end of the walk reachable only by answering — and the questions a customer
+  cannot answer at the table are exactly the ones a capture has to be able to
+  leave open. Skipping records nothing, the summary already counts what was left
+  open, and the "Skip for now" chip in the controls row means the same thing, so
+  there is one skip and it is not repeated under the options. The last question
+  keeps the wording `Next question` and says where continuing goes, because the
+  tests pin that name and a renamed button would be a second way to describe one
+  action.

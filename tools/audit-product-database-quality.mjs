@@ -90,7 +90,12 @@ function parseNumber(value) {
 
 function fieldCount(product, fields) {
   for (const field of fields) {
-    const value = product[field];
+    // The compiler writes structured spec facts under `specs` (older imports
+    // keep some at the top level) while technicalProfile carries its own
+    // normalized shape whose zeroed counts are not facts, so only the product
+    // and its specs are read or this measures
+    // where a fact used to live rather than where it is.
+    const value = product[field] ?? product?.specs?.[field];
 
     if (typeof value === "number" || typeof value === "string") {
       const parsed = parseNumber(value);
@@ -352,10 +357,18 @@ function auditProduct(source, product, officialEvidenceSkus = new Set()) {
   }
 
   if (matrix) {
+    // A one-to-many mirrored device owns no independent crosspoint routes, so a
+    // routed count of zero is its declared model rather than a contradiction
+    // with the matrix size. Every other count is compared as before: measured
+    // routed capacity is the fact a quote depends on.
+    const mirroredTopology =
+      clean(product.outputBehaviour) === "mirrored" ||
+      clean(product.topologyType).includes("one-to-many");
     const trustedInput = routedInputField ?? genericInputField ?? structuredInputs;
     const trustedOutput = routedOutputField ?? genericOutputField ?? structuredRoutedOutputs;
 
-    if (trustedInput !== null && trustedInput !== matrix.inputs) {
+    const routedZeroIsDeclared = mirroredTopology && trustedInput === 0;
+    if (!routedZeroIsDeclared && trustedInput !== null && trustedInput !== matrix.inputs) {
       issues.push(issue("critical", source, product, "input-count-conflict", "Stored input count conflicts with matrix-size evidence.", {
         matrixInputs: matrix.inputs,
         storedInputs: trustedInput,
@@ -363,7 +376,8 @@ function auditProduct(source, product, officialEvidenceSkus = new Set()) {
       }));
     }
 
-    if (trustedOutput !== null && trustedOutput !== matrix.outputs) {
+    const routedOutZeroIsDeclared = mirroredTopology && trustedOutput === 0;
+    if (!routedOutZeroIsDeclared && trustedOutput !== null && trustedOutput !== matrix.outputs) {
       issues.push(issue("critical", source, product, "output-count-conflict", "Stored output count conflicts with routed matrix-size evidence.", {
         matrixOutputs: matrix.outputs,
         storedOutputs: trustedOutput,

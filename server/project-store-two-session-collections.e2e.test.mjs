@@ -474,4 +474,45 @@ describe("two sessions editing requirements and productSelections concurrently",
     expect((afterRemoval.productSelections ?? []).some((item) => item.sku === "NHD-CAM-1")).toBe(true);
     expect((afterRemoval.productSelections ?? []).some((item) => item.sku === B_SKU)).toBe(true);
   });
+
+  it("keeps a removed product out when a stale session syncs over it, and lets a later re-add back in", async () => {
+    const t0 = "2026-09-04T08:00:00.000Z";
+    const projectId = "collections-omission";
+    const base = makeBaseProject(projectId, t0);
+    const baselineRevision = await syncProject(ownerToken, base, 0);
+
+    // The owner takes the shared product out, and records when.
+    const removedAt = "2026-09-04T08:10:00.000Z";
+    const ownerRemoved = cloneProject(base);
+    ownerRemoved.updatedAt = removedAt;
+    ownerRemoved.productSelections = [];
+    ownerRemoved.productOmissions = [{ sku: SHARED_SKU, at: removedAt }];
+    await syncProject(ownerToken, ownerRemoved, baselineRevision);
+    expect(((await getProject(projectId)).productSelections ?? [])).toEqual([]);
+
+    // The teammate is still on the baseline and holds the product, so their
+    // save takes the row past the removal — which makes the copy carrying the
+    // removal the stale one. The removal still stands: the product the owner
+    // took out comes back only from a selection added after it.
+    const teammateSave = cloneProject(base);
+    teammateSave.updatedAt = "2026-09-04T08:12:00.000Z";
+    teammateSave.name = "Acme HQ Meeting Room Refresh (site survey done)";
+    await syncProject(memberToken, teammateSave, baselineRevision);
+
+    const afterTeammate = await getProject(projectId);
+    expect(afterTeammate.productSelections ?? [], "a stale session must not restore a removed product").toEqual([]);
+    expect(afterTeammate.productOmissions).toEqual([{ sku: SHARED_SKU, at: removedAt }]);
+
+    // Putting it back is a NEW selection, so its own moment is what outranks
+    // the record — and the record goes with it.
+    const readdedAt = "2026-09-04T08:20:00.000Z";
+    const ownerReadded = cloneProject(ownerRemoved);
+    ownerReadded.updatedAt = readdedAt;
+    ownerReadded.productSelections = [selection(SHARED_SKU, readdedAt, "Owner", 2)];
+    await syncProject(ownerToken, ownerReadded, afterTeammate.syncRevision);
+
+    const afterReadd = await getProject(projectId);
+    expect((afterReadd.productSelections ?? []).map((item) => item.sku)).toEqual([SHARED_SKU]);
+    expect(afterReadd.productOmissions).toBeUndefined();
+  });
 });

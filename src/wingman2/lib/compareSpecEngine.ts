@@ -1,3 +1,4 @@
+import { essentialsLineTiebreak } from "./compareEligibilityFit";
 /**
  * Compare Spec Engine (spec-first, fail-closed)
  *
@@ -1637,7 +1638,9 @@ export async function runSpecShowdown(brand: string, sku: string): Promise<Showd
     }
     if (b.rating !== a.rating) return b.rating - a.rating;
     if (a.gapFields !== b.gapFields) return a.gapFields - b.gapFields;
-    return b.comparableFields - a.comparableFields;
+    if (a.comparableFields !== b.comparableFields) return b.comparableFields - a.comparableFields;
+    const linePreference = essentialsLineTiebreak(a.sheet.sku) - essentialsLineTiebreak(b.sheet.sku);
+    return linePreference;
   });
 
   return {

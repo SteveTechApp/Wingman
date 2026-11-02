@@ -29,7 +29,7 @@ describe("Discovery audio design direction", () => {
     expect(silent.some((question) => question.id === "audio-route")).toBe(false);
   });
   it("records where programme audio is extracted and where it must arrive", () => {
-    const answers = { audio: ["room-audio", "source-audio-deembed"], "audio-route": ["extract-at-switcher", "route-to-room-amplifier", "route-to-uc-host"] };
+    const answers = { audio: ["room-audio"], "audio-route": ["extract-at-switcher", "route-to-room-amplifier", "route-to-uc-host"] };
     const design = deriveDiscoveryAudioDesign(answers)!;
 
     expect(design.route).toBe("Programme audio is taken from the matrix, switcher or wall processor and delivered to the room amplifier, DSP or loudspeakers and the UC host over USB audio.");
@@ -69,7 +69,7 @@ describe("Discovery audio design direction", () => {
     expect(legacy.route).toBe(design.route);
   });
   it("adds the audio network for a Dante route and asks for the half that was not recorded", () => {
-    const dante = deriveDiscoveryAudioDesign({ audio: "source-audio-deembed", "audio-route": ["extract-at-display", "route-to-dante"] })!;
+    const dante = deriveDiscoveryAudioDesign({ audio: "dante-network-audio", "audio-route": ["extract-at-display", "route-to-dante"] })!;
     expect(dante.route).toContain("the display or projector output");
     expect(dante.requiredScope.map((scope) => scope.key)).toContain("network");
 
@@ -90,7 +90,10 @@ describe("Discovery audio design direction", () => {
     expect(unknown.validation).toContain("Confirm the programme-audio route: the extraction point and every destination.");
   });
   it("specifies independently controlled commercial zones without automatically adding Dante or concert arrays", () => {
-    const design = deriveDiscoveryAudioDesign({ audio: "distributed-70v-100v", "audio-zones": "independent-audio-zones", "audio-programme": "speech-background", "room-acoustics": "treated-room" }, { "audio-zones": "Bar, dining and terrace: three independently selected feeds." })!;
+    // The distributed line comes from what the room must hear, not from a
+    // loudspeaker circuit picked at the first audio question: speech and
+    // background programme across independently controlled areas.
+    const design = deriveDiscoveryAudioDesign({ audio: "room-audio", "audio-zones": "independent-audio-zones", "audio-programme": "speech-background", "room-acoustics": "treated-room" }, { "audio-zones": "Bar, dining and terrace: three independently selected feeds." })!;
     expect(design.direction).toContain("70/100V");
     expect(design.zoning).toContain("independently selects");
     expect(design.requiredScope.map((s) => s.key)).toEqual(["speakers", "amplification", "processing"]);

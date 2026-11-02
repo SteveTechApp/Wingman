@@ -8,6 +8,7 @@ import {
   FileText,
   FileUp,
   FolderKanban,
+  HelpCircle,
   LayoutDashboard,
   LayoutTemplate,
   LifeBuoy,
@@ -52,6 +53,7 @@ export type WingmanRouteKey =
   | "battleCards"
   | "quoteSafetyDashboard"
   | "analyticsDashboard"
+  | "help"
   | "terms";
 
 type RouteManifestEntry = {
@@ -98,6 +100,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   terms: Shield,
   proposalVisuals: Workflow,
   approvalQueue: CheckCircle,
+  help: HelpCircle,
 };
 
 const manifest = routeManifest as RouteManifestEntry[];

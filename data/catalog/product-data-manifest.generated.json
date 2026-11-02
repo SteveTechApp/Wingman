@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T10:02:46.531Z",
+  "generatedAt": "2026-11-01T18:36:39.603Z",
   "generator": "tools/build-product-data-sources.mjs",
   "sourceFiles": [
     "data-sources/wyrestorm/products.csv",
@@ -36,19 +36,19 @@
     "data-sources/competitors/zeevee.csv"
   ],
   "hashes": {
-    "data-sources/wyrestorm/products.csv": "ad705eed2819c7c70dfa2722a9eddfb03139dd17a665422bbe98561145526513",
+    "data-sources/wyrestorm/products.csv": "a25dc239648f7a7edb65aa7b2de5584db55921370350cd20f0637c969101a973",
     "data-sources/wyrestorm/lifecycle.csv": "a1f5ec21ed49f7a67c785881781f045f6f6fd205369e8c72a99294175d737a5c",
-    "data-sources/wyrestorm/enrichment.json": "9e038af616d951d8ee8dcc54ac7cc4c6ef3b7a47e11539001a985e1294955fec",
+    "data-sources/wyrestorm/enrichment.json": "9c27f18089929f37c7b960b21d610915cc332c8e4778f54668ba1c4d48eaae6b",
     "data-sources/competitors/airtame.csv": "b83683d86b02fa6a09c4cf738b49d0fd2147134bcbc2f5f6f2506edd76f468f0",
     "data-sources/competitors/amx.csv": "ac102506d26e5fa7b8f73c330754c9b3567b41fabfec55fc8967136ab08fbd26",
     "data-sources/competitors/atlona.csv": "5122e4cdeff362c0255eea561412a6cb21ef282e7b795b744739c42d96d3375a",
-    "data-sources/competitors/avpro-edge.csv": "1c307c2fb61f130bca323197aedc7de3735d5c44ddc6a15502b5de2dc7745d48",
+    "data-sources/competitors/avpro-edge.csv": "5663170dce7159def991c28f1a9704b362173e8c88762737051d999d3a155697",
     "data-sources/competitors/barco.csv": "5d16345f0e89242b3caab4344d7ccd121d256e25111f8e066c5f556ee92a33e4",
     "data-sources/competitors/binary.csv": "d1b9d1a4f540db8125c3004d8ac213e4710b0d3062fa7b71c4e4424963eae4fd",
     "data-sources/competitors/birddog.csv": "c90c8a44519997946447d8cfc0df961975953a2bdcc3bad7301611d2d1e3995e",
     "data-sources/competitors/black-box.csv": "671d935a2df959bb07ba48565e8c4241e88916ae5010726b96c21bd28a51840b",
     "data-sources/competitors/blustream.csv": "d4786941e2172f9aa2f7722f631d80887f480ffef0f5c5f27ab4550b244b8bd9",
-    "data-sources/competitors/crestron.csv": "f626f2580b0f113ec357c7a4a839cef7f7fcef259066d7b83c7b19823992123f",
+    "data-sources/competitors/crestron.csv": "03a9c71004bb8c9a48d7d062c4dc4e35b91c06e1c4dc231d78b0ef2679ecdaf6",
     "data-sources/competitors/cyp.csv": "ec609f36b59d244e2a2d2c6fa2979587db242f3a3f9b5c7c887791f9729fd8dd",
     "data-sources/competitors/datapath.csv": "97b392051253b151335b0ff162f4f2b9ae747b7466b6b1de0e1dc7efc291010d",
     "data-sources/competitors/extron.csv": "d8b9d18e6b0483ef4f3dd1575d9f8a8d1b4236f40e1c670045579358df111f48",

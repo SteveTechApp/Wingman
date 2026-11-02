@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-07T14:06:34.524Z",
+  "updatedAt": "2026-11-01T18:36:43.911Z",
   "decisions": [
     {
       "id": "airtame-Airtame 2-APO-VX20-UC",
@@ -949,7 +949,7 @@
         "topSkus": [
           "EXP-SP-0102-H2",
           "EXP-SP-0102-8K",
-          "EXP-SP-0104-H2"
+          "SP-0104-H2"
         ],
         "rating": 75,
         "comparableFields": 8,
@@ -957,10 +957,10 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.008Z",
-      "updatedAt": "2026-09-07T14:06:33.008Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
-      "id": "atlona-AT-HDDA-4-EXP-SP-0104-H2",
+      "id": "atlona-AT-HDDA-4-SP-0104-H2",
       "competitorManufacturer": "Atlona",
       "competitorSku": "AT-HDDA-4",
       "fingerprint": {
@@ -985,7 +985,7 @@
           "Fixed one-to-many distribution only; not a switcher (single HDMI input, mirrored to all outputs)."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -997,10 +997,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 75,
@@ -1009,7 +1009,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.008Z",
-      "updatedAt": "2026-09-07T14:06:33.008Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "atlona-AT-HDDA-8-SP-0108-SCL",
@@ -1216,7 +1216,7 @@
       "updatedAt": "2026-09-07T14:06:33.008Z"
     },
     {
-      "id": "atlona-AT-JUNO-451-EXP-SW-0401-H2",
+      "id": "atlona-AT-JUNO-451-SW-0401-H2",
       "competitorManufacturer": "Atlona",
       "competitorSku": "AT-JUNO-451",
       "fingerprint": {
@@ -1241,7 +1241,7 @@
           "Single HDMI output only; HDBaseT-output variant (AT-JUNO-451-HDBT) has been discontinued by Atlona."
         ]
       },
-      "wyrestormSku": "EXP-SW-0401-H2",
+      "wyrestormSku": "SW-0401-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -1253,19 +1253,19 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SW-0401-H2",
+        "wyrestormSku": "SW-0401-H2",
         "topSkus": [
+          "SW-0401-H2",
           "EXP-SW-0401-H2",
-          "MX-0402-MST",
-          "EXP-SW-0401-8K"
+          "MX-0402-MST"
         ],
         "rating": 100,
-        "comparableFields": 9,
+        "comparableFields": 10,
         "gapFields": 0,
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.074Z",
-      "updatedAt": "2026-09-07T14:06:33.074Z"
+      "updatedAt": "2026-11-01T18:20:43.510Z"
     },
     {
       "id": "atlona-AT-OCS-900N-review-required",
@@ -3488,7 +3488,7 @@
       "updatedAt": "2026-09-07T14:06:33.274Z"
     },
     {
-      "id": "binary-B-260-444-HDR-SP14-EXP-SP-0104-H2",
+      "id": "binary-B-260-444-HDR-SP14-SP-0104-H2",
       "competitorManufacturer": "Binary",
       "competitorSku": "B-260-444-HDR-SP14",
       "fingerprint": {
@@ -3513,7 +3513,7 @@
           "Fixed one-to-many distribution only; not a switcher (single HDMI input, mirrored to all outputs)."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -3525,10 +3525,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 75,
@@ -3537,7 +3537,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.274Z",
-      "updatedAt": "2026-09-07T14:06:33.274Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "binary-B-260-444-HDR-SP18-SP-0108-SCL",
@@ -5278,7 +5278,7 @@
       "updatedAt": "2026-09-07T14:06:33.478Z"
     },
     {
-      "id": "blustream-SP14CS-EXP-SP-0104-H2",
+      "id": "blustream-SP14CS-SP-0104-H2",
       "competitorManufacturer": "Blustream",
       "competitorSku": "SP14CS",
       "fingerprint": {
@@ -5303,7 +5303,7 @@
           "Fixed one-to-many distribution only; not a switcher (single HDMI input, mirrored to all outputs)."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -5315,10 +5315,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 75,
@@ -5327,7 +5327,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.478Z",
-      "updatedAt": "2026-09-07T14:06:33.478Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "blustream-SP18CS-SP-0108-SCL",
@@ -5380,7 +5380,7 @@
       "updatedAt": "2026-09-07T14:06:33.478Z"
     },
     {
-      "id": "blustream-SW41AB-V2-EXP-SW-0401-H2",
+      "id": "blustream-SW41AB-V2-SW-0401-H2",
       "competitorManufacturer": "Blustream",
       "competitorSku": "SW41AB-V2",
       "fingerprint": {
@@ -5404,7 +5404,7 @@
           "Official Blustream SW41AB-V2 page. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Blustream SW products are presentation switchers for meeting and classroom environments. | Compare Blustream SW rows against presentation switchers and collaboration switchers, not plain matrices. | Official competitor family guidance applied during canonical sync. | Verified via official Blustream SW41AB-V2 page: 4x1 HDMI2.0/HDCP2.2 auto-switch with audio breakout, RS-232/IR/front-panel control, 5V/2A."
         ]
       },
-      "wyrestormSku": "EXP-SW-0401-H2",
+      "wyrestormSku": "SW-0401-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -5416,11 +5416,11 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SW-0401-H2",
+        "wyrestormSku": "SW-0401-H2",
         "topSkus": [
+          "SW-0401-H2",
           "EXP-SW-0401-H2",
-          "MX-0402-MST",
-          "EXP-SW-0401-8K"
+          "MX-0402-MST"
         ],
         "rating": 89,
         "comparableFields": 9,
@@ -5428,7 +5428,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.478Z",
-      "updatedAt": "2026-09-07T14:06:33.478Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "blustream-UEX3C-KIT-EX-100-IW-USBC",
@@ -6381,8 +6381,8 @@
         "wyrestormSku": "EXP-SW-0201-8K",
         "topSkus": [
           "EXP-SW-0201-8K",
-          "EXP-SW-0401-H2",
-          "MX-0402-MST"
+          "SW-0401-H2",
+          "EXP-SW-0401-H2"
         ],
         "rating": 100,
         "comparableFields": 9,
@@ -6390,7 +6390,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.614Z",
-      "updatedAt": "2026-09-07T14:06:33.614Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "crestron-HD-MD4X2-4KZ-E-MX-0808-SCL",
@@ -7567,7 +7567,7 @@
       "updatedAt": "2026-09-07T14:06:33.747Z"
     },
     {
-      "id": "cyp-QU-4-8K23-EXP-SP-0104-H2",
+      "id": "cyp-QU-4-8K23-SP-0104-H2",
       "competitorManufacturer": "CYP",
       "competitorSku": "QU-4-8K23",
       "fingerprint": {
@@ -7592,7 +7592,7 @@
           "All four outputs mirror one source; the CYP overview contains a stray two-output sentence but its title features and port table consistently specify four."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -7604,10 +7604,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 71,
@@ -7616,7 +7616,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.747Z",
-      "updatedAt": "2026-09-07T14:06:33.747Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "datapath-Fx4-review-required",
@@ -7804,7 +7804,7 @@
         "topSkus": [
           "EXP-SP-0102-H2",
           "EXP-SP-0102-8K",
-          "EXP-SP-0104-H2"
+          "SP-0104-H2"
         ],
         "rating": 75,
         "comparableFields": 8,
@@ -7812,7 +7812,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.747Z",
-      "updatedAt": "2026-09-07T14:06:33.747Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "extron-DA2 HD 8K L-EXP-SP-0102-8K",
@@ -7856,7 +7856,7 @@
         "topSkus": [
           "EXP-SP-0102-8K",
           "EXP-SP-0102-H2",
-          "EXP-SP-0104-H2"
+          "SP-0104-H2"
         ],
         "rating": 75,
         "comparableFields": 8,
@@ -7864,10 +7864,10 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.747Z",
-      "updatedAt": "2026-09-07T14:06:33.747Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
-      "id": "extron-DA4 HD 4K PLUS-EXP-SP-0104-H2",
+      "id": "extron-DA4 HD 4K PLUS-SP-0104-H2",
       "competitorManufacturer": "Extron",
       "competitorSku": "DA4 HD 4K PLUS",
       "fingerprint": {
@@ -7892,7 +7892,7 @@
           "Fixed one-to-many distribution only; not a switcher (single HDMI input, mirrored to all outputs)."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -7904,10 +7904,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 75,
@@ -7916,10 +7916,10 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.747Z",
-      "updatedAt": "2026-09-07T14:06:33.747Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
-      "id": "extron-DA4 HD 8K L-EXP-SP-0104-H2",
+      "id": "extron-DA4 HD 8K L-SP-0104-H2",
       "competitorManufacturer": "Extron",
       "competitorSku": "DA4 HD 8K L",
       "fingerprint": {
@@ -7944,7 +7944,7 @@
           "Fixed one-to-many distribution only; not a switcher (single HDMI input, mirrored to all outputs)."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -7956,10 +7956,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 57,
@@ -7968,7 +7968,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:33.815Z",
-      "updatedAt": "2026-09-07T14:06:33.815Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "extron-DA6 HD 4K PLUS-SP-0108-SCL",
@@ -11128,7 +11128,7 @@
       "updatedAt": "2026-09-07T14:06:34.145Z"
     },
     {
-      "id": "kramer-VM-4HDT-EXP-SP-0104-H2",
+      "id": "kramer-VM-4HDT-SP-0104-H2",
       "competitorManufacturer": "Kramer",
       "competitorSku": "VM-4HDT",
       "fingerprint": {
@@ -11153,7 +11153,7 @@
           "Not a matrix; four receivers are mandatory and receiver power must be planned."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "architecture-alternative",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -11165,10 +11165,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "architecture-alternative",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 57,
@@ -11177,7 +11177,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:34.145Z",
-      "updatedAt": "2026-09-07T14:06:34.145Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "kramer-VP-440X-review-required",
@@ -11669,7 +11669,7 @@
         "topSkus": [
           "EXP-SP-0102-H2",
           "EXP-SP-0102-8K",
-          "EXP-SP-0104-H2"
+          "SP-0104-H2"
         ],
         "rating": 71,
         "comparableFields": 7,
@@ -11677,10 +11677,10 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:34.212Z",
-      "updatedAt": "2026-09-07T14:06:34.212Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
-      "id": "lightware-DA4-HDMI20-C-EXP-SP-0104-H2",
+      "id": "lightware-DA4-HDMI20-C-SP-0104-H2",
       "competitorManufacturer": "Lightware",
       "competitorSku": "DA4-HDMI20-C",
       "fingerprint": {
@@ -11705,7 +11705,7 @@
           "Fixed one-to-many distribution only; not a switcher (single HDMI input, mirrored to all 4 outputs)."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -11717,10 +11717,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 75,
@@ -11729,7 +11729,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:34.212Z",
-      "updatedAt": "2026-09-07T14:06:34.212Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "lightware-MMX4x2-HDMI-MX-0808-SCL",
@@ -12242,7 +12242,7 @@
       "updatedAt": "2026-09-07T14:06:34.275Z"
     },
     {
-      "id": "lightware-UCX-1x1-C40-EXP-SW-0201-8K",
+      "id": "lightware-UCX-1x1-C40-SW-0401-H2",
       "competitorManufacturer": "Lightware",
       "competitorSku": "UCX-1x1-C40",
       "fingerprint": {
@@ -12267,7 +12267,7 @@
           "Docking-station architecture rather than a multi-source matrix; exact peripheral port count should be verified."
         ]
       },
-      "wyrestormSku": "EXP-SW-0201-8K",
+      "wyrestormSku": "SW-0401-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -12279,11 +12279,11 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SW-0201-8K",
+        "wyrestormSku": "SW-0401-H2",
         "topSkus": [
+          "SW-0401-H2",
           "EXP-SW-0201-8K",
-          "EXP-SW-0401-H2",
-          "MX-0402-MST"
+          "EXP-SW-0401-H2"
         ],
         "rating": 88,
         "comparableFields": 8,
@@ -12291,7 +12291,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:34.275Z",
-      "updatedAt": "2026-09-07T14:06:34.275Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "lightware-UCX-2x2-H40-MX-0402-MST",
@@ -13715,7 +13715,7 @@
       "updatedAt": "2026-09-07T14:06:34.400Z"
     },
     {
-      "id": "sy-electronics-HDS14-18G-EXP-SP-0104-H2",
+      "id": "sy-electronics-HDS14-18G-SP-0104-H2",
       "competitorManufacturer": "SY Electronics",
       "competitorSku": "HDS14-18G",
       "fingerprint": {
@@ -13740,7 +13740,7 @@
           "All outputs mirror one source; this is not a routed matrix."
         ]
       },
-      "wyrestormSku": "EXP-SP-0104-H2",
+      "wyrestormSku": "SP-0104-H2",
       "decisionType": "closest-technical-match",
       "reviewStatus": "pending-review",
       "reviewer": null,
@@ -13752,10 +13752,10 @@
       "evidence": [],
       "engineSnapshot": {
         "decisionType": "closest-technical-match",
-        "wyrestormSku": "EXP-SP-0104-H2",
+        "wyrestormSku": "SP-0104-H2",
         "topSkus": [
-          "EXP-SP-0104-H2",
           "SP-0104-H2",
+          "EXP-SP-0104-H2",
           "SP-0108-SCL"
         ],
         "rating": 86,
@@ -13764,7 +13764,7 @@
         "verified": false
       },
       "createdAt": "2026-09-07T14:06:34.400Z",
-      "updatedAt": "2026-09-07T14:06:34.400Z"
+      "updatedAt": "2026-11-01T18:36:43.911Z"
     },
     {
       "id": "sy-electronics-HDX60-18G-EX-40-KVM-5K",

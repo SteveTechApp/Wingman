@@ -1,10 +1,10 @@
 import { isSkuAdminBlocked } from "./adminProductOverrides";
+import { wingmanHardwareTypePriority } from "./productHardwarePriority";
 import {
   classifyWingmanProduct,
   distanceGateReason,
   isWingmanProductEligibleForFinderNeed,
   matchedGateReasons,
-  wingmanHardwareTypePriority,
   type WingmanFinderNeedLike,
   type WingmanProductLike,
   type WingmanProductProfile,

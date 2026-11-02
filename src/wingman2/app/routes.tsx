@@ -41,6 +41,7 @@ const pageRegistry: Record<Exclude<WingmanRouteKey, "documents" | "salesHelper" 
   proposalVisuals: lazy(() => import("../pages/ProposalVisualsPage")),
   terms: lazy(fromNamedExport(() => import("../pages/TermsPage"), "TermsPage")),
   approvalQueue: lazy(fromNamedExport(() => import("../pages/ApprovalQueuePage"), "ApprovalQueuePage")),
+  help: lazy(fromNamedExport(() => import("../pages/HelpPage"), "HelpPage")),
 };
 
 const ProjectDetailRoute = lazy(fromNamedExport(() => import("../pages/ProjectDetailPage"), "ProjectDetailPage"));

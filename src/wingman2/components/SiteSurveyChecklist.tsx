@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import type { StoredProject, StoredProductSelection } from "../data/projectStore";
 import { SiteSurveyPhotoCapture } from "./SiteSurveyPhotoCapture";
+import { appendTranscriptNote, VoiceRequestCapture } from "./VoiceRequestCapture";
 import type { SiteSurveyPhotoResult, PhotoExtractionMapping } from "../lib/siteSurveyPhotoAnalysis";
 import type { PhotoToTopologyResult } from "../lib/siteSurveyPhotoToTopology";
 import type { ProjectTopology } from "../lib/projectTopology";
@@ -725,6 +726,10 @@ function LocationCard({
               onChange={(e) => onLocationNotes(location.id, e.target.value)}
               rows={2}
             />
+            {/* Survey notes are written standing in the room, often with a torch
+                in one hand, so the observation can be spoken into the same
+                field instead of typed. */}
+            <VoiceRequestCapture compact onTranscript={(text) => onLocationNotes(location.id, appendTranscriptNote(locationEdit?.notes ?? "", text))} />
           </div>
         </div>
       )}

@@ -87,7 +87,7 @@ describe("route stylesheet order report", () => {
     expect(byRoute.get("glossary").summary.conflicts).toBe(3);
     expect(byRoute.get("compare").summary.conflicts).toBe(1);
     expect(byRoute.get("settings").summary.proven).toBe(true);
-    expect(report.totals).toMatchObject({ pages: 9, conflicts: 4, likely: 3, subjectDisjoint: 1, provenPages: 7 });
+    expect(report.totals).toMatchObject({ pages: 10, conflicts: 4, likely: 3, subjectDisjoint: 1, provenPages: 8 });
   });
 
   it("ranks the pairs whose subjects can be one element ahead of the rest", () => {
@@ -99,8 +99,8 @@ describe("route stylesheet order report", () => {
   it("answers the verdict in one sentence and each page in another", () => {
     const verdict = describeRouteOrderReport(report);
 
-    expect(verdict).toContain("9 page stylesheets");
-    expect(verdict).toContain("7 proven");
+    expect(verdict).toContain("10 page stylesheets");
+    expect(verdict).toContain("8 proven");
     expect(verdict).toContain("4 order-decidable pair(s) re-decided");
     expect(verdict).toContain("3 on a subject that can be one element");
 

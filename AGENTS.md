@@ -24,6 +24,43 @@ states is one they trust by mistake.
 
 
 
+## Purpose and scope
+
+- Wingman exists for the person selling WyreStorm — including the one who is not
+  an AV designer. Three jobs, in order: read what the room has to do, choose the
+  product or design that answers it, and produce the proposal with the diagrams
+  and detail that carry the sale. Every surface is measured against one of those
+  three. One that serves none is support at best and a second product at worst,
+  because the price is paid by the rep who has to learn it.
+- Expert depth is in scope, and it is depth rather than a longer road. The
+  focused brief (`roomBrief.ts`: three facts the customer can answer, then only
+  the questions that split what is still possible) and the expert workspace
+  (`DiscoveryExpertBuilder.tsx`: the room in sections) are two ways to fill one
+  record. Neither is a prerequisite for the other, and neither may end somewhere
+  the other cannot reach.
+- Both depths owe the same outcome: a decided room — its type, what it needs with
+  the reason each requirement was asked for, what still needs checking on site,
+  what was assumed, and what would change the answer — then the WyreStorm
+  recommendation, then the project that prints the proposal. A rep who moves
+  between depths mid-sale is continuing their room, not starting one.
+- Length is spent, not owed. A question or section stays only if it changes the
+  room, the design or the proposal; anything that cannot is reference the rep
+  opens when it matters, and any section can be skipped so a run finishes from
+  what has been captured. Asking for detail is not a licence to be long-winded,
+  and the expert path is not a penance for wanting it.
+- Different methods, one record. The ladder asks `ROOM_BRIEF_QUESTIONS` and the
+  workspace asks the governed question set, deliberately: the ladder decides, the
+  sections capture. What may not differ is what the rep leaves with, so the room
+  decision is the shared part and a surface renders it rather than holding a
+  reading of its own.
+- The gap this section names: the focused path writes the decision record and the
+  expert workspace does not. It captures the same room in sections, then hands
+  the rep to the recommendation without the decided-room reading — the type, the
+  requirements and their reasons, the checks, the assumptions, the changes-if —
+  that the brief path ends on. Until both write it, the two depths end in one
+  place but not one outcome, and that is the work owed here rather than a new
+  surface.
+
 ## Worktree & dev workflow
 
 - File tools resolve paths from the thread worktree (`.freebuff/worktrees/<id>/`);
@@ -66,6 +103,7 @@ states is one they trust by mistake.
 
 | Section | Narrative |
 |---|---|
+| Purpose, scope, and the two depths into one outcome | [docs/PURPOSE.md](docs/PURPOSE.md) |
 | Project store, CRM send history, storage reclaim, gallery order | [docs/PROJECT_STORE.md](docs/PROJECT_STORE.md) |
 | Typecheck gate, test harness, chunk init order | [docs/TYPECHECK_AND_BUILD.md](docs/TYPECHECK_AND_BUILD.md) |
 | Verify stages, ratchets, dead CSS, script coverage | [docs/QUALITY_GATES.md](docs/QUALITY_GATES.md) |
@@ -405,6 +443,15 @@ states is one they trust by mistake.
 
 ## Shell and page frame
 
+- The Help page prints `docs/USER_GUIDE.md` rather than restating it:
+  `HelpPage.tsx` imports the guide raw and `lib/guideMarkdown.ts` turns each `##`
+  heading into a band, so a section added to the guide is a section Help shows
+  and there is no second copy to drift. Editing the page to fix a sentence
+  creates that second copy; the fix belongs in the guide. The open band lives in
+  `?section=`, and both the shell's footer and the Guru link here, because that
+  is where a rep looks rather than at a file path. Rules are in
+  `wingman-route-help.css`, scoped to the route like any other page's.
+  [Narrative](docs/SHELL_AND_FRAME.md)
 - The workspace is a grid with an auto header row and a `minmax(0, 1fr)` body,
   so the header is the real header and can wrap taller than the topbar variable
   says. Sizing the main column from that variable makes the column overflow, and
@@ -440,13 +487,42 @@ states is one they trust by mistake.
   failed in the other, and the surfaces it names looked like layout bugs. A
   surface that needs a font adds the import, not the name.
   [Narrative](docs/SHELL_AND_FRAME.md)
+- A page shows one reading at a time. `PageBandRail` and `PageBandPanel` in
+  `components/PageBands.tsx` are the one rail and the one panel, reading
+  `PageBandLadder` from `lib/pageBands.ts`, and a surface that has to be read in
+  parts defines its bands as data and renders the shared pair rather than a
+  fourth copy of the same numbered nav. What it ends is the page where the
+  important input was whatever came last: a wall picker, a verdict, four
+  disclosures and a twenty-design catalogue were one scroll. The paint stays the
+  page's own — each surface passes its class names — because the shared part is
+  the markup and the state: one chip per band, the open one pressed, a status
+  line under a name when the surface prints one, and a closed band that renders
+  nothing at all, so a rep cannot tab into a reading they cannot see. The ladder
+  also owns the arithmetic every surface used to repeat: which band an address
+  names (an unknown key opens the first), and what sits either side of it.
+  [Narrative](docs/SHELL_AND_FRAME.md)
 
 ## Discovery
 
+- Finder need drafts use empty strings for dimensions that are present but
+  unanswered; stored room records omit unanswered labels. The scale/display
+  cross-field audit treats an empty value as unanswered, since only defined
+  non-empty labels can be checked against its rule table.
 - Every Discovery step body is one card language: the wizard panel, the brief
   question with its count on the title line, the tick cards, the pressed-choice
   rule and the expert capture count. A new step composes those rather than
   inventing a card, so a rep recognises the same page from step to step.
+- A capture walk always has a way forward, and it always says which part of the
+  room it is in. The guided interview's forward action used to render only once
+  a question was answered, so a question the customer had no answer for offered
+  nothing but "answer it" — the review was reachable and unreachable at the same
+  time. Every question now carries Skip for now and Next question regardless of
+  what was captured, the last question says where continuing goes rather than
+  renaming the button, and the section is a rail of the same sections the expert
+  view files its questions under (`discoverySections.ts`), with the captured
+  count on each chip, because "question 14 of 31" tells a rep nothing about how
+  much of the room is left. One section means no rail: that is a label with a
+  button on it.
 - The programme-audio route is one question holding both ends: values prefixed
   for where sound leaves the video path and values prefixed for where it must
   arrive, split by prefix in one derivation. One question, because a rep answers
@@ -509,7 +585,11 @@ states is one they trust by mistake.
   the one-line status under each name are data, the screen renders only the
   selected pass, and the save actions belong to the pass that decides them. The
   pass on screen is view state in storage and in the address, so a reload and a
-  copied link both reopen it, and a link's pass outranks the stored one.
+  copied link both reopen it, and a link's pass outranks the stored one. The
+  expert design pass is itself read in bands (`wallDesignBands`), one band on
+  screen at a time — the picker, the answer, the questions, the option list —
+  because four readings stacked is the long page the passes exist to end; a band
+  is a reading inside the pass, so the address still names three.
 - The address also names the wall and the rep's pick. The wall token is the
   brief — what the wall has to do — while the pick says which catalogue design
   was chosen, so a choice never rewrites the requirement it answers, and one
@@ -530,6 +610,15 @@ states is one they trust by mistake.
   accepted are applied. Confidence describes reading legibility, not transport
   risk. A batch names a failed photo without discarding the rest and unions the
   rows it could not read into one list to type.
+- A disabled finish action names what it is waiting for, and carries the action
+  that supplies it. The guided result's save buttons need a selected design, and
+  the options list can refuse every row when each one has a blocker, so three
+  greyed buttons with no sentence and no way out was the whole end of the walk.
+  The result now says which condition is missing and offers the one action that
+  clears it — the recommendation, or the changes the selected design needs — and
+  the layout step keeps a way past it that does not require re-picking the card
+  already on screen. A control that is only reachable by choosing is not a
+  control a rep who is happy with what they see can use.
 - The verdict answers before it argues: the signal-path sentence sits under the
   summary of the design it recommends, the reasons are one column, and the
   checks worth confirming before ordering sit behind a details line with their

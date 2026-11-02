@@ -103,10 +103,12 @@ describe("operational discovery branches", () => {
       "usb-microphone-path", "analogue-microphone-path", "analogue-line-level-path",
       "phantom-powered-microphone", "digital-audio-microphone-path", "dante-microphone-path",
     ]));
-    expect(roomAudio.options.map((option) => option.value)).toEqual(expect.arrayContaining([
-      "stereo-low-impedance", "multichannel-audio", "distributed-70v-100v",
-      "separate-programme-voice", "analogue-audio-override", "digital-audio-interface", "dante-network-audio",
-    ]));
+    // The audio question asks where sound comes out and nothing else: speaker
+    // type, a separate voice mix and the extraction point are follow-up questions,
+    // so this list is five answers rather than twelve.
+    expect(roomAudio.options.map((option) => option.value)).toEqual([
+      "room-audio", "display-audio", "dante-network-audio", "no-room-audio", "unknown-audio",
+    ]);
   });
 
   it("prioritises audio choices and wording for the selected application", () => {
@@ -119,11 +121,14 @@ describe("operational discovery branches", () => {
       "video-wall",
     );
 
-    expect(hospitalityAudio.options[0].value).toBe("distributed-70v-100v");
-    expect(hospitalityAudio.prompt).toContain("venue zones");
-    expect(videoWallAudio.options[0].value).toBe("source-audio-deembed");
-    expect(videoWallAudio.prompt).toContain("wall content audio");
+    expect(hospitalityAudio.options[0].value).toBe("room-audio");
+    expect(hospitalityAudio.prompt).toContain("venue sound");
+    expect(videoWallAudio.options[0].value).toBe("room-audio");
+    expect(videoWallAudio.prompt).toContain("the wall's sound");
     expect(videoWallAudio.options.map((option) => option.value)).toContain("no-room-audio");
+    // Every application ranks the same five answers, so nothing can fall back to
+    // the canonical order by accident.
+    expect(hospitalityAudio.options).toHaveLength(5);
   });
 
   it("creates distinct source devices and a DSP bridge from operational answers", () => {

@@ -472,3 +472,33 @@ reading is, which is the shape the projects list's sync-conflict chip already
 took at that width. A surface that only fits because the machine's font is
 narrower than the one it names was never fitting; the import is the fix, and the
 walk is what names the next one.
+- A page shows one reading at a time, and the rail above it is one component. The
+  video wall ended up with four of them before this: three passes read as a rail,
+  the guided result's five sections read as another, and the design pass's bands
+  as a third, each with its own copy of the same numbered buttons. `PageBandRail`
+  and `PageBandPanel` in `components/PageBands.tsx`, over the ladder in
+  `lib/pageBands.ts`, are now what a banded surface renders, and the template
+  pre-issue walk climbs the same pair. The paint is still the page's own — each
+  surface passes the class names its sheet already styles — because what is worth
+  sharing is the markup and the state: one chip per band, the open one pressed, a
+  status line under a name when the surface has one to print, and a closed band
+  that renders nothing rather than hiding, which is what keeps it out of the tab
+  order. The ladder owns the arithmetic the copies repeated: which band an
+  address names, with an unknown key opening the first so a stale link lands a rep
+  at the start of the reading rather than on nothing, and which bands sit either
+  side of the open one, so the nav's back and forward cannot disagree with the
+  rail. A band stays a reading inside a page and not a second route concept: a
+  surface that wants the band in its address writes it through its own parameter,
+  which is what `?section=` and `?pass=` already do.
+- Help is the one surface whose reading does not come from a module at all: the
+  page imports `docs/USER_GUIDE.md` raw and reads its `##` headings as the
+  ladder, so the in-app guide is the file the repository ships rather than a
+  transcription of it, and a section added to the guide is one the page offers
+  without a code change. That is the same reason the ladder is data here: the
+  page owns where a reading sits in the address (`?section=`), never what the
+  reading says. The guide's links are reduced to their text, because they point
+  at Markdown files this app does not serve and a path a rep cannot open reads as
+  a broken link; the page's closing line names the file instead. The rail's own
+  rules live in `wingman-route-help.css`, scoped to the route like every other
+  page's, and its buttons declare a size because the shell's page-host control
+  rule outranks a plain class.

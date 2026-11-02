@@ -21,7 +21,7 @@ const mode = preserve ? "refresh" : "write";
 
 // `shell: true` so the npx shim resolves on every platform (cmd.exe on
 // Windows, sh elsewhere).
-const write = spawnSync("npx", ["vitest", "run", testFile], {
+const write = spawnSync("npx", ["vitest", "run", "--config", "vitest.config.catalogue.ts", testFile], {
   shell: true,
   env: {
     ...process.env,
@@ -37,7 +37,7 @@ if (write.status !== 0) {
 }
 
 console.log("[snapshot] verifying the written baseline against the live engine...");
-const verify = spawnSync("npx", ["vitest", "run", testFile], {
+const verify = spawnSync("npx", ["vitest", "run", "--config", "vitest.config.catalogue.ts", testFile], {
   shell: true,
   env: { ...process.env, SNAPSHOT_COMPETITOR_DECISIONS: "" },
   stdio: "inherit",

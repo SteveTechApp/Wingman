@@ -35,7 +35,7 @@ const CORE_QUESTION_OPTIONS: Record<string, string[]> = {
   "uc-microphones": ["speakerphone", "table-microphone", "ceiling-microphone-array", "wireless-microphone", "lectern-microphone", "existing-microphone-system", "no-microphones", "unknown-microphones"],
   "uc-microphone-count": ["one-microphone-feed", "two-four-microphone-feeds", "five-eight-microphone-feeds", "nine-plus-microphone-feeds", "unknown-microphone-count"],
   usb: ["no-usb", "byod-byom", "room-pc-uc", "switchable-host-usb", "room-host-usb2", "usb3-high-bandwidth-path", "usb-extension-required", "interactive-usb", "unknown-usb"],
-  audio: ["no-room-audio", "display-audio", "source-audio-deembed", "room-audio", "stereo-low-impedance", "multichannel-audio", "distributed-70v-100v", "separate-programme-voice", "analogue-audio-override", "digital-audio-interface", "dante-network-audio", "unknown-audio"],
+  audio: ["room-audio", "display-audio", "dante-network-audio", "no-room-audio", "unknown-audio"],
   control: ["simple-auto", "front-panel-remote", "touch-panel", "software-app-control", "third-party-control", "unknown-control"],
 };
 

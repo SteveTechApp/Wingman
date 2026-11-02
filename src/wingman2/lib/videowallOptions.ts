@@ -1,4 +1,4 @@
-import type { WallLinkDetail } from "./wallLinkDetail";
+import { cleanDetailText, type WallLinkDetail } from "./wallLinkDetail";
 import type { WallSurveyReview } from "./wallSurveyReview";
 
 export type WallApplication = "lcd-direct" | "lcd-grouped" | "lcd-loop" | "led" | "projection";
@@ -846,7 +846,10 @@ export function normalizeWallDesignMetadata(requirements: WallRequirements): Wal
   const linkTransports = requirements.linkTransports && typeof requirements.linkTransports === "object" ? Object.fromEntries(Object.entries(requirements.linkTransports).filter(([, value]) => value && value.cable === "fibre").map(([id, value]) => [id, { cable: "fibre" as const, segments: Number.isFinite(value.segments) ? Math.max(1, Math.min(1000, Math.round(value.segments!))) : 1 }])) : undefined;
   const displayMounts = requirements.displayMounts && typeof requirements.displayMounts === "object"
     ? Object.fromEntries(Object.entries(requirements.displayMounts).flatMap(([id, value]) => {
-      const text = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 60);
+      // One cleaning rule for every install cell: a mount saved here is held to
+      // the same length as the housing, termination and entry beside it, so a
+      // dictated note is not cut short on the way into the store.
+      const text = cleanDetailText(value);
       return /^display-\d+$/.test(id) && text ? [[id, text]] : [];
     }))
     : undefined;
@@ -855,7 +858,7 @@ export function normalizeWallDesignMetadata(requirements: WallRequirements): Wal
   const legacyDetails = requirements.linkDetails && typeof requirements.linkDetails === "object"
     ? Object.fromEntries(Object.entries(requirements.linkDetails).flatMap(([id, detail]) => {
       if (!/^display-\d+$/.test(id) || !detail || typeof detail !== "object") return [];
-      const mount = String((detail as Record<string, unknown>).mount ?? "").replace(/\s+/g, " ").trim().slice(0, 60);
+      const mount = cleanDetailText((detail as Record<string, unknown>).mount);
       return mount ? [[id, mount]] : [];
     }))
     : {};

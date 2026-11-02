@@ -20,6 +20,7 @@ import type {
   StoredIngestAnalysis,
   StoredIngestVisualAttachment,
   StoredProductFamilyScore,
+  StoredProductOmission,
   StoredProductSelection,
   StoredProject,
   StoredProjectProposal,
@@ -84,6 +85,7 @@ export function normalizeProductSelections(value: unknown): StoredProductSelecti
 
       return {
         sku,
+        systemRole: stringValue(record.systemRole, undefined),
         quantity: positiveNumber(record.quantity),
         title: stringValue(record.title, undefined),
         family: stringValue(record.family, undefined),
@@ -97,6 +99,28 @@ export function normalizeProductSelections(value: unknown): StoredProductSelecti
       } satisfies StoredProductSelection;
     })
     .filter((item): item is StoredProductSelection => Boolean(item));
+}
+
+/**
+ * The products the rep took out of the room, one entry per SKU.
+ *
+ * Older documents kept the bare SKUs (`omittedProductSkus`), and that value is
+ * still a decision: it is only missing the moment it was made, so it lands as
+ * an untimed entry. An untimed omission keeps its product out, and no selection
+ * can claim to have been added after it.
+ */
+export function normalizeProductOmissions(value: unknown): StoredProductOmission[] {
+  const bySku = new Map<string, StoredProductOmission>();
+  for (const item of Array.isArray(value) ? value : []) {
+    const record = objectRecord(item);
+    const sku = stringValue(typeof item === "string" ? item : record?.sku).toUpperCase();
+    if (!sku) continue;
+    const at = stringValue(record?.at);
+    const previous = bySku.get(sku);
+    if (previous && at && previous.at && Date.parse(at) < Date.parse(previous.at)) continue;
+    bySku.set(sku, at ? { sku, at } : { sku });
+  }
+  return Array.from(bySku.values());
 }
 
 function normalizeQuoteSafetyStatus(value: unknown): StoredQuoteSafetyStatus {
@@ -586,7 +610,11 @@ export function decodeStoredProject(value: unknown): StoredProject | null {
   // normalizer returns no value.
   delete project.discoveryBrief;
   delete project.productSelections;
-  delete project.omittedProductSkus;
+  delete project.productOmissions;
+  // Retired field: read into `productOmissions` below, never kept as it was
+  // stored. It is not on StoredProject any more, so the compatibility spread
+  // can only carry it in as an untyped key.
+  delete (project as unknown as Record<string, unknown>).omittedProductSkus;
   delete project.unquotedDependencySkus;
   delete project.ingest;
   delete project.compareHistoryView;
@@ -609,10 +637,8 @@ export function decodeStoredProject(value: unknown): StoredProject | null {
 
   const productSelections = normalizeProductSelections(record.productSelections);
   if (productSelections.length) project.productSelections = productSelections;
-  const omittedProductSkus = stringArray(record.omittedProductSkus)
-    .map((sku) => sku.trim().toUpperCase())
-    .filter(Boolean);
-  if (omittedProductSkus.length) project.omittedProductSkus = omittedProductSkus;
+  const productOmissions = normalizeProductOmissions(record.productOmissions ?? record.omittedProductSkus);
+  if (productOmissions.length) project.productOmissions = productOmissions;
   const unquotedDependencySkus = stringArray(record.unquotedDependencySkus)
     .map((sku) => sku.trim().toUpperCase())
     .filter(Boolean);

@@ -643,13 +643,6 @@ const table: LanguageTable = {
         "soundbar op het scherm",
         "audio van het scherm"
       ],
-      "source-audio-deembed": [
-        "de-embed",
-        "audio extraheren",
-        "audio eruit",
-        "audio naar de mixer",
-        "extraheren"
-      ],
       "room-audio": [
         "ruimte luidsprekers",
         "plafondluidsprekers",
@@ -657,47 +650,6 @@ const table: LanguageTable = {
         "amp",
         "luidsprekers in de ruimte",
         "ruimte audio"
-      ],
-      "stereo-low-impedance": [
-        "stereo",
-        "lage impedantie",
-        "4 ohm",
-        "8 ohm",
-        "hifi"
-      ],
-      "multichannel-audio": [
-        "surround",
-        "5.1",
-        "7.1",
-        "multikanaal"
-      ],
-      "distributed-70v-100v": [
-        "70 volt",
-        "70v",
-        "100v",
-        "gedistribueerde luidsprekers",
-        "achtergrondmuziek",
-        "zones",
-        "gezoneerd",
-        "constante spanning"
-      ],
-      "separate-programme-voice": [
-        "gescheiden programma",
-        "spraakversterking",
-        "spraak en muziek",
-        "programma en stem"
-      ],
-      "analogue-audio-override": [
-        "analoog",
-        "fallback",
-        "lokale override"
-      ],
-      "digital-audio-interface": [
-        "digitaal audio",
-        "aes",
-        "spdif",
-        "spdif uitgang",
-        "aes ebu"
       ],
       "dante-network-audio": [
         "dante",

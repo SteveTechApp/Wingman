@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { wallSurveyReviewStamp } from "./wallSurveyReview";
 import { defaultWallRequirements } from "./videowallOptions";
-import { wallTransportPlan, type WallTransportPlan } from "./videowallTransport";
+import {
+  DETAIL_TEXT_LIMIT,
+  cleanDetailText,
+  wallTransportPlan,
+  type WallTransportPlan,
+} from "./videowallTransport";
 import {
   WALL_HANDOFF_DETAIL_FIELDS,
   WALL_SURVEY_HEADER,
@@ -270,6 +275,25 @@ describe("wall survey install detail", () => {
     expect(surveySummary(read, design.allLinks.length)).toBe(
       "1 of 2 links measured. 1 display link recorded housing, termination or run entry.",
     );
+  });
+
+  it("holds a spoken install note whole, and still caps an oversized one", () => {
+    // What a surveyor says standing at the display, stored in the housing cell.
+    // Dictation punctuates with commas, so the sheet has to quote the cell.
+    const spoken =
+      "Panel in a 3 inch housing, the run enters through the floor box beside the desk, terminated on a keystone jack at the head end";
+    expect(cleanDetailText(spoken)).toBe(spoken);
+    expect(cleanDetailText("x".repeat(DETAIL_TEXT_LIMIT + 40))).toHaveLength(DETAIL_TEXT_LIMIT);
+
+    // The note survives the sheet it is printed on and the sheet it comes back as.
+    const linkDetails = { "display-1": { enclosure: spoken } };
+    const design = plan({ columns: 1, rows: 1, sources: 1, linkDetails });
+    const read = parseWallSurveyCsv(wallSurveyCsv(design, linkDetails, undefined), design);
+    expect(read.details).toContainEqual({
+      id: "display-1",
+      detail: { enclosure: spoken, termination: "", entry: "" },
+    });
+    expect(read.problems).toEqual([]);
   });
 
   it("does not claim install detail when the sheet only blanked a cell", () => {

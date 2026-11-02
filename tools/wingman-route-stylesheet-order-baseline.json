@@ -280,6 +280,12 @@
       ]
     },
     {
+      "route": "help",
+      "file": "wingman-route-help.css",
+      "reason": "Nothing is re-decided here: the help page's rules are all scoped to the help route, they load after the shared remainder, and none of them ties with a rule the shared file still holds for that page, so the split cannot change a winner on Help.",
+      "pairs": []
+    },
+    {
       "route": "projects",
       "file": "wingman-route-projects.css",
       "reason": "The projects page's own rules load after the shared remainder's projects rules, and the ties below are heading and section decisions between the project summary, the detail stack, the page host and the projects page wrapper. Read against the running page, one of them is live: the summary h2's `line-height`, where the page file's `1` beats the shared `1.15` and the heading renders at 26.4px rather than 30.36px at 885px wide, which is the tight leading that rule was written for. Its `font-size` twin cannot show, because the same file's `.wm-project-detail-stack > section:first-of-type h2` sets that property at a higher specificity and wins whatever the files' order. The section pairs cannot meet either: a section would have to be a direct child of both the detail stack and the page host. The `.wm-projects-page` and `[data-wingman-page=\"projects\"]` wrappers do not contain the detail page at all, so those two heading pairs are impossible on that route.",

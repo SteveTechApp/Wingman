@@ -108,7 +108,7 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     displays: "three-eight-displays",
     "display-behaviour": "independent-routing-per-display",
     "signal-standard": "4k60-standard",
-    audio: "distributed-70v-100v",
+    audio: "room-audio",
     control: "front-panel-remote",
   },
   "video-wall": {
@@ -128,7 +128,7 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     displays: "three-eight-displays",
     "display-behaviour": "independent-routing-per-display",
     "signal-standard": "4k60-standard",
-    audio: "distributed-70v-100v",
+    audio: "room-audio",
     control: "software-app-control",
   },
 };

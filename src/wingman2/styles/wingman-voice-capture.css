@@ -12,6 +12,21 @@
 .wm-voice-file input { max-width:100%; font-size:12px; }
 .wm-voice-file audio { width:100%; max-width:360px; }
 .wm-voice-file strong { overflow-wrap:anywhere; }
+/* The compact note is the same dictation and transcription as the block above,
+   sized to sit under a field that already exists: a second full capture panel
+   beside every long answer would outweigh the answer itself. */
+.wm-voice-note { display:grid; gap:8px; }
+/* Beside a field rather than inside its label, so the control never joins the
+   field's accessible name: the two wrappers keep the row under its own text. */
+.wm-proposal-voice { display:grid; gap:6px; margin-top:-6px; }
+.wm-template-copy-field { display:grid; gap:6px; }
+.wm-voice-note-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.wm-voice-note .wm-voice-note-upload { display:inline-flex; align-items:center; gap:7px; margin:0; padding:8px 12px; color:var(--wm-ref-copy); font-size:.74rem; font-weight:750; background:color-mix(in srgb, var(--wm-ref-panel-strong) 82%, transparent); border:1px solid var(--wm-ref-border); border-radius:9px; cursor:pointer; }
+.wm-voice-note .wm-voice-note-upload:hover { border-color:color-mix(in srgb, var(--wm-ref-aqua) 38%, var(--wm-ref-border)); }
+.wm-voice-note .wm-voice-note-upload input { position:absolute; width:1px; min-height:0; height:1px; margin:0; padding:0; overflow:hidden; opacity:0; pointer-events:none; }
+.wm-voice-note p, .wm-voice-note small { margin:0; color:var(--wm-ref-muted); font-size:.72rem; line-height:1.45; }
+.wm-voice-note .wm-voice-note-file { color:var(--wm-ref-copy); font-weight:700; overflow-wrap:anywhere; }
+.wm-voice-note [role=alert] { color:var(--wm-ref-amber); }
 .wm-voice-capture [role=alert] { color:var(--wm-ref-amber); }
 .wm-voice-interim { color:var(--wm-ref-aqua); font-style:italic; }
 .wm-voice-live-dot { display:inline-block; width:8px; height:8px; background:var(--wm-ref-aqua); border-radius:50%; margin-right:8px; }

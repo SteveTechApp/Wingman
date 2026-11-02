@@ -1,4 +1,5 @@
 import { REP_COPY, customerCopyText } from "../lib/proposalCopy";
+import { appendTranscriptNote, VoiceRequestCapture } from "./VoiceRequestCapture";
 
 /**
  * The two editable fields the proposal steps use.
@@ -40,14 +41,23 @@ export function TextAreaField(props: {
     ? REP_COPY.scopeGuidance
     : `Record the agreed ${props.label.toLowerCase()} in customer-ready language. This hint is for the rep and is not included in exports.`);
   return (
-    <label className="wm-proposal-field wm-proposal-field-wide">
-      <span>{props.label}</span>
-      {emptyCustomerSection || props.hint ? <small data-rep-only="true">{hint}</small> : null}
-      <textarea
-        value={props.value}
-        rows={props.rows ?? 5}
-        onChange={(event) => props.onChange(event.target.value)}
-      />
-    </label>
+    <>
+      <label className="wm-proposal-field wm-proposal-field-wide">
+        <span>{props.label}</span>
+        {emptyCustomerSection || props.hint ? <small data-rep-only="true">{hint}</small> : null}
+        <textarea
+          value={props.value}
+          rows={props.rows ?? 5}
+          onChange={(event) => props.onChange(event.target.value)}
+        />
+      </label>
+      {/* Every proposal step renders this one field, so the spoken note lands in
+          the section the rep is writing rather than behind a separate capture
+          step of its own. It sits beside the field, not inside its label: a
+          button wrapped in a label becomes part of the field's accessible name. */}
+      <div className="wm-proposal-field-wide wm-proposal-voice">
+        <VoiceRequestCapture compact onTranscript={(text) => props.onChange(appendTranscriptNote(props.value, text))} />
+      </div>
+    </>
   );
 }
