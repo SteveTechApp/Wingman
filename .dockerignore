@@ -41,7 +41,11 @@ test-results
 
 # Documentation
 *.md
-docs
+docs/**
+# The one document the app compiles: Help prints the user guide it imports, so a
+# build context without it cannot resolve the page even though the rest of docs
+# stays out of the image.
+!docs/USER_GUIDE.md
 
 # Supabase local config
 supabase/.temp

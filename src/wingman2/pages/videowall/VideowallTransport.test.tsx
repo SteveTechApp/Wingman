@@ -1,7 +1,7 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defaultWallRequirements } from "../../lib/videowallOptions";
-import { wallTransportPlan } from "../../lib/videowallTransport";
+import { DETAIL_TEXT_LIMIT, wallTransportPlan } from "../../lib/videowallTransport";
 import { WALL_SURVEY_HEADER } from "../../lib/wallSurvey";
 import { readWallSurveyPhotos } from "../../lib/wallSurveyScan";
 import { VideowallTransport } from "./VideowallTransport";
@@ -49,6 +49,58 @@ vi.mock("../../lib/wallSurveyScan", async (importOriginal) => {
 function plan(overrides: Partial<typeof defaultWallRequirements> = {}) {
   return wallTransportPlan({ ...defaultWallRequirements, ...overrides });
 }
+
+class FakeRecognition {
+  static current: FakeRecognition;
+  continuous = false; interimResults = false; lang = "";
+  onstart: (() => void) | null = null;
+  onend: (() => void) | null = null;
+  onerror: ((event: { error: string }) => void) | null = null;
+  onresult: ((event: { results: { isFinal: boolean; 0: { transcript: string } }[] }) => void) | null = null;
+  start = vi.fn(() => this.onstart?.());
+  stop = vi.fn(() => this.onend?.());
+  abort = vi.fn();
+  constructor() { FakeRecognition.current = this; }
+}
+
+describe("VideowallTransport spoken install cells", () => {
+  afterEach(() => { delete (window as unknown as Record<string, unknown>).SpeechRecognition; });
+
+  it("adds a dictated note under the cell the surveyor was in, not over it", () => {
+    Object.defineProperty(window, "SpeechRecognition", { configurable: true, value: FakeRecognition });
+    const onLinkDetails = vi.fn();
+    render(
+      <VideowallTransport
+        plan={plan({ columns: 1, rows: 1, sources: 1 })}
+        linkDetails={{ "display-1": { termination: "Keystone at the panel." } }}
+        onLinkDetails={onLinkDetails}
+      />,
+    );
+
+    // The cell a surveyor was working in is the cell the note joins; the other
+    // two cells of the row are left alone.
+    fireEvent.focus(screen.getByLabelText("Termination for Panel 1"));
+    fireEvent.click(screen.getByRole("button", { name: "Record voice note" }));
+    act(() => {
+      FakeRecognition.current.onresult?.({ results: [{ isFinal: true, 0: { transcript: "Also patch at the head end." } }] });
+    });
+
+    // The cell stays one line — it is a column of the survey sheet — but the
+    // spoken sentence is kept whole rather than cut to the old 60 characters.
+    expect(onLinkDetails).toHaveBeenCalledWith({
+      "display-1": { termination: "Keystone at the panel. Also patch at the head end." },
+    });
+  });
+
+  it("lets the cell hold the sentence a surveyor says instead of 60 characters", () => {
+    render(<VideowallTransport plan={plan({ columns: 1, rows: 1, sources: 1 })} linkDetails={{}} onLinkDetails={vi.fn()} />);
+
+    const housing = screen.getByLabelText("Display housing for Panel 1");
+    expect(housing).toHaveAttribute("maxLength", String(DETAIL_TEXT_LIMIT));
+    // A spoken note is longer than the old cap, so the input must accept it whole.
+    expect(DETAIL_TEXT_LIMIT).toBeGreaterThan(120);
+  });
+});
 
 describe("VideowallTransport measured runs", () => {
   it("shows the saved measurement and records one per link", () => {

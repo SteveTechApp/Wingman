@@ -46,6 +46,8 @@ describe("the design a builder link carries", () => {
 
   it("opens the builder on the design the link names instead of the recommendation", () => {
     renderBuilder(`/wingman/videowall?${WALL_PICK_PARAM}=${alternative.id}`);
+    // The verdict is the second band of the design pass, so the rep opens it.
+    fireEvent.click(screen.getByTestId("videowall-band-answer"));
 
     // The recipient reads the architecture the sender chose, and the verdict
     // says it was a choice rather than Wingman's lead.
@@ -56,6 +58,7 @@ describe("the design a builder link carries", () => {
 
   it("falls back to the recommendation for a design these answers do not reach", () => {
     renderBuilder(`/wingman/videowall?${WALL_PICK_PARAM}=not-a-design`);
+    fireEvent.click(screen.getByTestId("videowall-band-answer"));
 
     // A rotted or hand-edited id is ignored rather than emptying the verdict.
     expect(verdictTitle()).toBe(recommendation.title);
@@ -65,6 +68,7 @@ describe("the design a builder link carries", () => {
   it("copies the rep's choice as well as the wall and the pass", async () => {
     const writeText = stubClipboard();
     renderBuilder();
+    fireEvent.click(screen.getByTestId("videowall-band-answer"));
 
     fireEvent.click(screen.getByRole("button", { name: "Show this design" }));
     expect(verdictTitle()).toBe(alternative.title);

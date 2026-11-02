@@ -1,5 +1,7 @@
 import { useRef, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
+import { PageBandRail } from "../../components/PageBands";
+import { bandIndex, bandKeyAt, bandNeighbours } from "../../lib/pageBands";
 
 const sections = [
   { key: "brief", label: "Brief", hint: "Review the wall requirements" },
@@ -15,9 +17,13 @@ type SectionKey = typeof sections[number]["key"];
 export function VideowallResultPages({ pages }: { pages: Record<SectionKey, ReactNode> }) {
   const [search, setSearch] = useSearchParams();
   const heading = useRef<HTMLHeadingElement>(null);
-  const navigation = useRef<HTMLElement>(null);
-  const index = Math.max(0, sections.findIndex(section => section.key === search.get("section")));
+  const navigation = useRef<HTMLDivElement>(null);
+  // The ladder answers which sections sit either side of the one the address
+  // names, so the address read and the nav read cannot disagree.
+  const key = bandKeyAt(sections, search.get("section")) ?? "brief";
+  const index = bandIndex(sections, key);
   const current = sections[index];
+  const { previous, next } = bandNeighbours(sections, key);
 
   function open(next: SectionKey) {
     setSearch(previous => {
@@ -32,32 +38,30 @@ export function VideowallResultPages({ pages }: { pages: Record<SectionKey, Reac
 
   return (
     <>
-      <nav ref={navigation} className="vw-wizard-stages" aria-label="Video wall sections">
-        {sections.map((section, position) => (
-          <button
-            key={section.key}
-            type="button"
-            data-testid={`videowall-section-${section.key}`}
-            aria-current={section.key === current.key ? "step" : undefined}
-            aria-pressed={section.key === current.key}
-            onClick={() => open(section.key)}
-          >
-            <span className="vw-wizard-stage-number" aria-hidden="true">{position + 1}</span>
-            <span className="vw-wizard-stage-copy"><strong>{section.label}</strong></span>
-          </button>
-        ))}
-      </nav>
-      <section className="vw-wizard-stage" aria-labelledby="videowall-section-title" data-testid={`videowall-page-${current.key}`}>
+      <div ref={navigation}>
+        <PageBandRail
+          label="Video wall sections"
+          bands={sections}
+          active={key}
+          onSelect={open}
+          testIdPrefix="videowall-section"
+          className="vw-wizard-stages"
+          numberClassName="vw-wizard-stage-number"
+          copyClassName="vw-wizard-stage-copy"
+          ariaCurrent="step"
+        />
+      </div>
+      <section className="vw-wizard-stage" aria-labelledby="videowall-section-title" data-testid={`videowall-page-${key}`}>
         <header>
           <p className="wm-ui-kicker">Section {index + 1} of {sections.length}</p>
           <h2 id="videowall-section-title" ref={heading} tabIndex={-1}>{current.label}</h2>
           <p className="vw-wizard-stage-intro">{current.hint}</p>
         </header>
-        {pages[current.key]}
+        {pages[key]}
       </section>
       <div className="vw-wizard-nav" aria-label="Section navigation">
-        {index > 0 ? <button type="button" onClick={() => open(sections[index - 1].key)}>Back to {sections[index - 1].label.toLowerCase()}</button> : <span />}
-        {index < sections.length - 1 ? <button type="button" className="vw-wizard-primary" onClick={() => open(sections[index + 1].key)}>Continue to {sections[index + 1].label.toLowerCase()}</button> : null}
+        {previous ? <button type="button" onClick={() => open(previous.key)}>Back to {previous.label.toLowerCase()}</button> : <span />}
+        {next ? <button type="button" className="vw-wizard-primary" onClick={() => open(next.key)}>Continue to {next.label.toLowerCase()}</button> : null}
       </div>
     </>
   );

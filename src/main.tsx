@@ -25,6 +25,7 @@ import "./wingman2/styles/wingman-route-compare.css";
 import "./wingman2/styles/wingman-route-dashboard.css";
 import "./wingman2/styles/wingman-route-discovery.css";
 import "./wingman2/styles/wingman-route-glossary.css";
+import "./wingman2/styles/wingman-route-help.css";
 import "./wingman2/styles/wingman-route-projects.css";
 import "./wingman2/styles/wingman-route-sales-helper.css";
 import "./wingman2/styles/wingman-route-settings.css";

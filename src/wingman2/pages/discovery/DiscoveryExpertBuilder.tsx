@@ -9,35 +9,11 @@ import { getQuestionView, wmDiscoveryAnswerToText, wmDiscoveryHasAnswer } from "
 import { updateOperationalAnswer } from "./operationalDiscovery";
 import { changeDiscoveryApplication } from "./discoveryMarketContext";
 import { DiscoveryCaptureSuggestion } from "./DiscoveryCaptureSuggestion";
+import { appendTranscriptNote, VoiceRequestCapture } from "../../components/VoiceRequestCapture";
+import { DISCOVERY_SECTIONS as sections, discoverySectionFor as sectionFor, type DiscoverySectionId as SectionId } from "./discoverySections";
 
-const sections = [
-  { id: "brief", title: "Room brief", description: "Purpose, people and scale" },
-  { id: "site", title: "Site & construction", description: "Room dimensions, surfaces and infrastructure" },
-  { id: "sources", title: "Sources", description: "Devices, user connections and source positions" },
-  { id: "outputs", title: "Displays & outputs", description: "Screens, projectors, walls and viewing needs" },
-  { id: "routing", title: "Video routing", description: "Distribution, switching and picture requirements" },
-  { id: "audio", title: "Audio", description: "Microphones, speakers, zones and processing" },
-  { id: "conferencing", title: "Conferencing & USB", description: "Meeting host, cameras, capture and USB paths" },
-  { id: "control", title: "Control", description: "How people operate the room" },
-  { id: "locations", title: "Locations & cabling", description: "Device positions, routes and cable lengths" },
-  { id: "equipment", title: "Equipment schedule", description: "Selected products, placeholders and quantities" },
-  { id: "review", title: "Review & validation", description: "Assumptions and items to confirm" },
-] as const;
 
-type SectionId = (typeof sections)[number]["id"];
 
-function sectionFor(question: DiscoveryQuestion): SectionId {
-  const id = question.id;
-  if (id === "opportunity" || id === "scale") return "brief";
-  if (/^source|wireless-presentation/.test(id)) return "sources";
-  if (/^(display|signal-standard|video-wall|multiview)/.test(id)) return "outputs";
-  if (["network-path", "avoip-profile"].includes(id)) return "routing";
-  if (/^(audio|room-acoustics|uc-microphone|uc-audio)/.test(id)) return "audio";
-  if (["uc-purpose", "uc-platform", "mtr-av-integration", "uc-camera", "uc-camera-count", "uc-multi-camera-path", "uc-camera-routing", "usb"].includes(id)) return "conferencing";
-  if (id === "control") return "control";
-  if (id === "locations-connections") return "locations";
-  return "site";
-}
 
 type Props = {
   questions: DiscoveryQuestion[];
@@ -168,6 +144,9 @@ function ExpertQuestion({ question, application, answer, note, onSelect, onNoteC
       <strong>{option.label}</strong>{option.help && <small>{option.help}</small>}
     </button>)}</div>
     <label>Design notes and exact details<textarea value={note} placeholder={question.capturePlaceholder} onChange={event => onNoteChange(event.target.value)} /></label>
+    {/* Every expert question ends in the same free-text field, so every expert
+        question can be answered aloud instead of typed. */}
+    <VoiceRequestCapture compact onTranscript={text => onNoteChange(appendTranscriptNote(note, text))} />
     <DiscoveryCaptureSuggestion step={question} view={view} note={note} onConfirm={onConfirmCapture} />
     <details><summary>Technical design impact</summary><p>{view.why}</p></details>
   </article>;

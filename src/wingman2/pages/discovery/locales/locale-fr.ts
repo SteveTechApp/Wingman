@@ -642,13 +642,6 @@ const table: LanguageTable = {
         "barre de son sur l'écran",
         "audio de l'écran"
       ],
-      "source-audio-deembed": [
-        "désintégrer",
-        "extraire l'audio",
-        "sortie audio séparée",
-        "audio vers la table de mixage",
-        "extraire"
-      ],
       "room-audio": [
         "haut parleurs de la salle",
         "haut parleurs de plafond",
@@ -658,48 +651,6 @@ const table: LanguageTable = {
         "haut parleurs dans la salle",
         "enceintes amplifiées",
         "audio de salle"
-      ],
-      "stereo-low-impedance": [
-        "stéréo",
-        "basse impédance",
-        "4 ohms",
-        "8 ohms",
-        "hifi"
-      ],
-      "multichannel-audio": [
-        "surround",
-        "5.1",
-        "7.1",
-        "multicanal",
-        "multi canal"
-      ],
-      "distributed-70v-100v": [
-        "70 volts",
-        "70v",
-        "100v",
-        "haut parleurs distribués",
-        "musique d'ambiance",
-        "zones",
-        "zoné",
-        "tension constante"
-      ],
-      "separate-programme-voice": [
-        "programme séparé",
-        "renforcement vocal",
-        "parole et musique",
-        "programme et voix"
-      ],
-      "analogue-audio-override": [
-        "analogique",
-        "repli",
-        "commande locale"
-      ],
-      "digital-audio-interface": [
-        "audio numérique",
-        "aes",
-        "spdif",
-        "sortie spdif",
-        "aes ebu"
       ],
       "dante-network-audio": [
         "dante",

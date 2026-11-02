@@ -1,7 +1,7 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ClipboardCopy, Database, History, House, MessageSquareText, Plus, Send, X } from "lucide-react";
+import { BookOpen, ClipboardCopy, Database, History, House, MessageSquareText, Plus, Send, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { createGuruConversation, guruConversationTitle, loadGuruHistory, saveGuruHistory } from "./guruConversationHistory";
@@ -1789,6 +1789,9 @@ export function WingmanGuruDrawer({
         <nav className="wingman-guru-navigation" aria-label="Guru navigation">
           <button type="button" onClick={() => { onClose(); navigate(routeCatalogByKey.dashboard.path); }}>
             <House size={16} aria-hidden="true" /> Home
+          </button>
+          <button type="button" onClick={() => { onClose(); navigate(routeCatalogByKey.help.path); }}>
+            <BookOpen size={16} aria-hidden="true" /> Guide
           </button>
           <button type="button" aria-pressed={showHistory} onClick={() => setShowHistory((current) => !current)}>
             <History size={16} aria-hidden="true" /> {showHistory ? "Conversation" : "History"}

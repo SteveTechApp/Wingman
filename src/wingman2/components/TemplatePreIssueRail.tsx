@@ -3,6 +3,7 @@ import { Check, Link2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import type { TemplatePreIssueStage, TemplatePreIssueStageKey } from "../lib/templatePreIssue";
 import { templatePreIssueStageSearch } from "../lib/templatePreIssuePass";
+import { PageBandRail } from "./PageBands";
 
 /**
  * The pre-issue walk as four named readings: blockers, unpriced lines,
@@ -17,24 +18,18 @@ export function TemplatePreIssueRail({ stage, stages, onStage }: {
   onStage: (stage: TemplatePreIssueStageKey) => void;
 }) {
   return (
-    <nav className="wm-preissue-rail" aria-label="Pre-issue checks">
-      {stages.map((item, index) => (
-        <button
-          key={item.key}
-          type="button"
-          className={`wm-preissue-step${stage === item.key ? " is-active" : ""}${item.open ? " is-open" : ""}`}
-          data-testid={`template-preissue-${item.key}`}
-          aria-pressed={stage === item.key}
-          onClick={() => onStage(item.key)}
-        >
-          <span className="wm-preissue-step-number" aria-hidden="true">{index + 1}</span>
-          <span className="wm-preissue-step-copy">
-            <strong>{item.label}</strong>
-            <small>{item.status}</small>
-          </span>
-        </button>
-      ))}
-    </nav>
+    <PageBandRail
+      label="Pre-issue checks"
+      bands={stages.map((item) => ({ ...item, state: item.open ? "is-open" : undefined }))}
+      active={stage}
+      onSelect={onStage}
+      testIdPrefix="template-preissue"
+      className="wm-preissue-rail"
+      itemClassName="wm-preissue-step"
+      activeClassName="is-active"
+      numberClassName="wm-preissue-step-number"
+      copyClassName="wm-preissue-step-copy"
+    />
   );
 }
 

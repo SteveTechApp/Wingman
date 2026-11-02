@@ -198,6 +198,98 @@ export function pickCollectionItemVersion(
     : { value: storedItem, editorWon: false };
 }
 
+function productSku(value: unknown) {
+  return String(value ?? "").trim().toUpperCase();
+}
+
+/** One omission entry per SKU, read from either side's document. */
+function omissionEntriesOf(value: unknown): Array<{ sku: string; at: string }> {
+  const entries: Array<{ sku: string; at: string }> = [];
+  for (const item of Array.isArray(value) ? value : []) {
+    const record = objectRecord(item);
+    const sku = productSku(typeof item === "string" ? item : record?.sku);
+    if (!sku) continue;
+    entries.push({ sku, at: typeof record?.at === "string" ? record.at : "" });
+  }
+  return entries;
+}
+
+function selectionWriteTime(value: unknown): number {
+  return Date.parse(String(objectRecord(value)?.addedAt ?? ""));
+}
+
+/**
+ * The products a project may not hold after two copies merge.
+ *
+ * Selections alone cannot say why a product is missing. A copy that never saw a
+ * removal looks exactly like a copy that added the product offline — which the
+ * per-item union keeps on purpose — so a stale copy's product came back on the
+ * next reload, and a room the rep had tidied quoted the replaced matrix
+ * switcher again. An omission is the record that tells the two apart, and it
+ * carries the moment it was made:
+ *
+ *   - a selection added AFTER that moment is the rep putting the product back
+ *     (every path that adds one clears its own omission, so the later selection
+ *     is the evidence), and the omission goes with it;
+ *   - a selection from before it is a copy that never heard of the removal, and
+ *     the product stays out whichever copy is fresher by revision. Deciding
+ *     this by revision instead is how a removal was lost: the removing copy is
+ *     behind the stored row as soon as anyone else saves, and the product it
+ *     took out travelled back in on the very next sync;
+ *   - an omission with no time is a document written before omissions carried
+ *     one, and it keeps its product out, because nothing can be shown to have
+ *     been added after it.
+ *
+ * Two omissions for one SKU keep the later moment. Selections are read by their
+ * `addedAt`, the stamp the by-sku merge already resolves items with, so one
+ * comparison of times answers both which selection survives and whether it
+ * survives at all. Kept identical on the server (parity coverage:
+ * server/project-store-id-keyed-collections.parity.test.mjs), and the order is
+ * the stored copy's first so an unchanged merge does not rewrite it.
+ */
+export function resolveProductOmissions(input: {
+  storedSelections?: unknown;
+  editorSelections?: unknown;
+  storedOmissions?: unknown;
+  editorOmissions?: unknown;
+}): Array<{ sku: string; at?: string }> {
+  const { storedSelections, editorSelections, storedOmissions, editorOmissions } = input;
+
+  const latestOmission = new Map<string, string>();
+  const order: string[] = [];
+  for (const entry of [...omissionEntriesOf(storedOmissions), ...omissionEntriesOf(editorOmissions)]) {
+    if (!latestOmission.has(entry.sku)) {
+      order.push(entry.sku);
+      latestOmission.set(entry.sku, entry.at);
+      continue;
+    }
+    const previous = latestOmission.get(entry.sku) ?? "";
+    if (entry.at && (!previous || Date.parse(entry.at) >= Date.parse(previous))) latestOmission.set(entry.sku, entry.at);
+  }
+
+  const restoredAt = new Map<string, number>();
+  for (const item of [
+    ...(Array.isArray(storedSelections) ? storedSelections : []),
+    ...(Array.isArray(editorSelections) ? editorSelections : []),
+  ]) {
+    const sku = productSku(objectRecord(item)?.sku);
+    const addedAt = selectionWriteTime(item);
+    if (!sku || !Number.isFinite(addedAt)) continue;
+    const best = restoredAt.get(sku);
+    if (best === undefined || addedAt > best) restoredAt.set(sku, addedAt);
+  }
+
+  const resolved: Array<{ sku: string; at?: string }> = [];
+  for (const sku of order) {
+    const at = latestOmission.get(sku) ?? "";
+    const readdedAt = restoredAt.get(sku);
+    const omittedAt = Date.parse(at);
+    if (readdedAt !== undefined && Number.isFinite(omittedAt) && readdedAt > omittedAt) continue;
+    resolved.push(at ? { sku, at } : { sku });
+  }
+  return resolved;
+}
+
 /**
  * Merges one id-keyed collection between the STORED set and the EDITOR's set
  * (pure client twin of the server's mergeIdKeyedCollectionItems, both sides
@@ -398,6 +490,26 @@ export function mergeProjectVersionsForHydration(local: StoredProject, backend: 
     if (mergedItems.length > 0) combined[collectionKey] = mergedItems;
     else delete combined[collectionKey];
   }
+
+  // A product the rep removed or replaced stays removed. The union above is
+  // deliberately non-lossy for a stale copy's own selections, so the omission
+  // record is what keeps a product this copy never heard was taken out from
+  // returning; it is written back because the project-level LWW winner may
+  // otherwise carry the other copy's shorter record.
+  const productOmissions = resolveProductOmissions({
+    storedSelections: backend.productSelections,
+    editorSelections: local.productSelections,
+    storedOmissions: backend.productOmissions,
+    editorOmissions: local.productOmissions,
+  });
+  const omittedSkus = new Set(productOmissions.map((entry) => entry.sku));
+  const keptSelections = (Array.isArray(combined.productSelections) ? combined.productSelections : [])
+    .filter((item) => !omittedSkus.has(productSku(objectRecord(item)?.sku)));
+  if (keptSelections.length > 0) combined.productSelections = keptSelections;
+  else delete combined.productSelections;
+  if (productOmissions.length > 0) combined.productOmissions = productOmissions;
+  else delete combined.productOmissions;
+  delete combined.omittedProductSkus;
 
   return { project: combined as unknown as StoredProject, conflict };
 }

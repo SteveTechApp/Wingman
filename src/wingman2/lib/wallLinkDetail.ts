@@ -22,8 +22,15 @@ export type WallLinkDetailField = (typeof WALL_LINK_DETAIL_FIELDS)[number];
 /** `mount` is accepted only while reading older saved rows; current writes use displayMounts. */
 export type WallLinkDetail = Partial<Record<WallLinkDetailField, string>> & { mount?: string };
 
-/** Longest install note kept from a sheet or a typed cell, in characters. */
-export const DETAIL_TEXT_LIMIT = 60;
+/**
+ * Longest install note kept from a sheet, a typed cell or a spoken note, in
+ * characters. The cap used to be 60, which is shorter than the sentence a
+ * surveyor says on site ("panel in a 3-inch housing, entry through the floor
+ * box beside the desk, terminated on a keystone"), so a dictated note was
+ * stored cut in half. The cells stay one line — they are a column of the survey
+ * CSV and a box on the printed table — but a note is no longer chopped to fit.
+ */
+export const DETAIL_TEXT_LIMIT = 240;
 
 /** One install cell as stored: single line, trimmed, capped. */
 export function cleanDetailText(value: unknown) {

@@ -135,6 +135,32 @@ export function wallReviewStageStatuses(input: {
   return { decision, wall: input.wall, transport };
 }
 
+export type WallDesignBandKey = "start" | "answer" | "questions" | "options";
+
+/**
+ * The design pass is read in bands, one on screen at a time.
+ *
+ * The pass holds four readings: the wall the room starts from, the answer, the
+ * questions behind that answer, and every design tested against it. Stacked,
+ * they are the long page the passes exist to end. A band is not another pass —
+ * the rail above still names three, so a shared link and a remembered pass are
+ * unchanged — and each band carries the sentences that leave and return to it,
+ * so the rail, the step actions and the specs read one list.
+ */
+export const wallDesignBands: {
+  key: WallDesignBandKey;
+  label: string;
+  /** The line on the action that goes to the band after this one. */
+  next: string;
+  /** The line on the action that returns to the band before this one. */
+  back?: string;
+}[] = [
+  { key: "start", label: "Start from a wall", next: "Continue to the answer" },
+  { key: "answer", label: "The answer", next: "Continue to the questions", back: "Back to the wall picker" },
+  { key: "questions", label: "The questions", next: "Continue to every option", back: "Back to the answer" },
+  { key: "options", label: "Every option", next: "Continue to the wall", back: "Back to the questions" },
+];
+
 export type WallWizardConcern = {
   key: string;
   label: string;

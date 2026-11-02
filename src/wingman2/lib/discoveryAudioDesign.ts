@@ -55,8 +55,12 @@ export function deriveDiscoveryAudioDesign(answers: Answers, notes: Record<strin
   const deep = has("room-acoustics", "deep-tiered-room"), reflective = has("room-acoustics", "reflective-room");
   const live = has("audio-programme", "live-performance"), cinema = has("audio-programme", "surround-cinema");
   const full = live || cinema || has("audio-programme", "full-range-programme");
-  const split = has("audio-programme", "separate-speech-programme") || has("audio", "separate-programme-voice");
-  const line = has("audio", "distributed-70v-100v") || (!full && (zones || has("audio-programme", "speech-background")));
+  // A separate voice mix and a distributed loudspeaker line are both reading
+  // answers, not "where does sound come out" answers: the audio question no
+  // longer offers them, so they come from the listening-experience and
+  // listening-area questions that follow it.
+  const split = has("audio-programme", "separate-speech-programme");
+  const line = !full && (zones || has("audio-programme", "speech-background"));
   const routeValues = values(answers, "audio-route");
   const extraction = routeValues.filter((value) => value.startsWith("extract-"));
   const destinations = routeValues.filter((value) => value.startsWith("route-"));

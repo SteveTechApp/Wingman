@@ -1,6 +1,7 @@
 import { runWallSurveyScan, type WallSurveyScanResult } from "../api/wingmanApi";
 import { mergeDisplayMounts, mergeSurveyRuns } from "./wallSurvey";
 import {
+  cleanDetailText,
   hasWallLinkDetail,
   normalizeWallLinkDetail,
   withWallLinkDetail,
@@ -144,7 +145,7 @@ export function parseWallSurveyScan(data: WallSurveyScanResult | undefined, plan
     seen.add(id);
 
     const link = plan.allLinks.find((item) => item.id === id);
-    const displayMount = link?.group === "display" ? String(row?.mount ?? "").replace(/\s+/g, " ").trim().slice(0, 60) : "";
+    const displayMount = link?.group === "display" ? cleanDetailText(row?.mount) : "";
     // Display-end text is independent of the run: a smudged length does not
     // throw away a cell the reader could still make out beside it.
     const detail = normalizeWallLinkDetail(link?.group === "display" ? {
@@ -240,7 +241,7 @@ export function editWallSurveyScan(
     // A corrected cell replaces the read one and a blank cell removes it, so
     // emptying a box is a decision about that field, not a no-op.
     const detail = normalizeWallLinkDetail({ ...reading.detail, ...(edit.detail ?? {}) });
-    const displayMount = edit.displayMount === undefined ? reading.displayMount : String(edit.displayMount).replace(/\s+/g, " ").trim().slice(0, 60) || undefined;
+    const displayMount = edit.displayMount === undefined ? reading.displayMount : cleanDetailText(edit.displayMount) || undefined;
     return { ...reading, metres, detail, displayMount };
   });
   const runs = readings.flatMap((reading) =>

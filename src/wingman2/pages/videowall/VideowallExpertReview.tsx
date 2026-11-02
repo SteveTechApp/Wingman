@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   validateWallRequirements,
   wallApplications,
@@ -21,8 +22,10 @@ import { formatMillimetres, wallPhysicalSize } from "../../lib/wallPhysicalSize"
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../../lib/wallSurvey";
 import { wallTransportPlan } from "../../lib/videowallTransport";
 import {
+  wallDesignBands,
   wallReviewStageStatuses,
   wallWizardAnswers,
+  type WallDesignBandKey,
   type WallReviewStageKey,
   type WallWizardStepKey,
 } from "../../lib/videowallWizard";
@@ -32,6 +35,7 @@ import { VideowallFeedFields } from "./VideowallFeedFields";
 import { VideowallOptionsList } from "./VideowallOptionsList";
 import { VideowallRefineFields } from "./VideowallRefineFields";
 import { VideowallReviewNav, VideowallReviewStages } from "./VideowallReviewStages";
+import { PageBandPanel, PageBandRail } from "../../components/PageBands";
 import { VideowallSizeFields } from "./VideowallSizeFields";
 import { VideowallStartPresets } from "./VideowallStartPresets";
 import { VideowallStep } from "./VideowallStep";
@@ -47,11 +51,15 @@ import { WallStartingPointOriginNote } from "./WallStartingPointOriginNote";
  * answer stays in the design pass, so nothing a rep changes is out of reach,
  * and the drawing and transport table each get a screen of their own.
  *
- * The design pass itself is read in one order: the wall, then what Wingman
- * answers with, then the questions behind that answer. The questions open one
- * at a time and state the answer they hold, because the wall card sets every
- * one of them — opened together they were forty tiles of equal weight beside the
- * picker, and a rep could not tell which block chose the design.
+ * The design pass is itself read in bands, one on screen at a time: the wall to
+ * start from, the answer, the questions behind that answer, then every design
+ * tested against it. Four readings stacked were the long page the passes exist
+ * to end, and the band a rep is reading is not the pass they are in, so the
+ * address, the remembered pass and the share sentence keep naming three. The
+ * questions keep opening one at a time and state the answer they hold, because
+ * the wall card sets every one of them — opened together they were forty tiles
+ * of equal weight beside the picker, and a rep could not tell which block chose
+ * the design.
  */
 export function VideowallExpertReview({
   requirements,
@@ -141,6 +149,12 @@ export function VideowallExpertReview({
     links: transport.allLinks.length,
     gaps: surveyGaps.length,
   });
+  // The band stays where the rep left it while the pass changes, so coming back
+  // from the drawing reopens the band that leaves for it rather than the picker.
+  const [band, setBand] = useState<WallDesignBandKey>("start");
+  const bandIndex = wallDesignBands.findIndex((item) => item.key === band);
+  const currentBand = wallDesignBands[bandIndex];
+  const previousBand = wallDesignBands[bandIndex - 1];
 
   return (
     <div className="vw-wizard-result" data-testid="videowall-expert-review">
@@ -148,43 +162,57 @@ export function VideowallExpertReview({
 
       {reviewStage === "decision" ? (
         <section className="vw-wizard-stage" data-testid="videowall-expert-panel-decision" aria-label="The design">
-          <section className="vw-builder-decide" aria-labelledby="wall-requirements-title">
-            <header className="vw-builder-decide-head">
-              <h2 id="wall-requirements-title">The wall</h2>
-              <p>Pick the wall closest to the room. One tap sets every answer; adjust anything the customer differs on.</p>
-            </header>
-            <div className="vw-builder-starts" role="group" aria-label="Wall starting points">
-              <VideowallStartPresets
-                requirements={requirements}
-                startedKey={startingPoint?.key ?? null}
-                onPick={onPickPreset}
-              />
-              <WallStartingPointOriginNote origin={startingPoint} requirements={requirements} />
-              <SaveWallStartingPoint
-                requirements={requirements}
-                disabled={!selected || selected.blockers.length > 0}
-                label="Save this wall as a starting point"
-              />
-            </div>
-          </section>
-
-          <VideowallVerdict
-            decision={decision}
-            selected={selected}
-            requirements={requirements}
-            extraChecks={transport.flags}
-            variantLabel={selected ? wallVariantLabel(selected.id, variantId) : null}
-            onUse={onUse}
-            onUnblock={onUnblock}
-            onApply={onApply}
+          <PageBandRail
+            label="Bands of the design pass"
+            bands={wallDesignBands}
+            active={band}
+            onSelect={setBand}
+            testIdPrefix="videowall-band"
+            className="vw-design-bands"
           />
 
-          <section className="vw-builder-adjust" aria-labelledby="wall-adjust-title">
-            <header className="vw-builder-adjust-head">
-              <h2 id="wall-adjust-title">Adjust the answers</h2>
-              <p>The wall above sets these. Open one when this room differs.</p>
-            </header>
-            <ol className="vw-builder-steps">
+          <PageBandPanel band={band} of="start" testIdPrefix="videowall-band" className="vw-design-band">
+            <section className="vw-builder-decide" aria-labelledby="wall-requirements-title">
+              <header className="vw-builder-decide-head">
+                <h2 id="wall-requirements-title">The wall</h2>
+                <p>Pick the wall closest to the room. One tap sets every answer; adjust anything the customer differs on.</p>
+              </header>
+              <div className="vw-builder-starts" role="group" aria-label="Wall starting points">
+                <VideowallStartPresets
+                  requirements={requirements}
+                  startedKey={startingPoint?.key ?? null}
+                  onPick={onPickPreset}
+                />
+                <WallStartingPointOriginNote origin={startingPoint} requirements={requirements} />
+                <SaveWallStartingPoint
+                  requirements={requirements}
+                  disabled={!selected || selected.blockers.length > 0}
+                  label="Save this wall as a starting point"
+                />
+              </div>
+            </section>
+          </PageBandPanel>
+
+          <PageBandPanel band={band} of="answer" testIdPrefix="videowall-band" className="vw-design-band">
+            <VideowallVerdict
+              decision={decision}
+              selected={selected}
+              requirements={requirements}
+              extraChecks={transport.flags}
+              variantLabel={selected ? wallVariantLabel(selected.id, variantId) : null}
+              onUse={onUse}
+              onUnblock={onUnblock}
+              onApply={onApply}
+            />
+          </PageBandPanel>
+
+          <PageBandPanel band={band} of="questions" testIdPrefix="videowall-band" className="vw-design-band">
+            <section className="vw-builder-adjust" aria-labelledby="wall-adjust-title">
+              <header className="vw-builder-adjust-head">
+                <h2 id="wall-adjust-title">Adjust the answers</h2>
+                <p>The wall above sets these. Open one when this room differs.</p>
+              </header>
+              <ol className="vw-builder-steps">
               <VideowallStep
                 index={1}
                 question={wallDecisionQuestions.application}
@@ -275,24 +303,35 @@ export function VideowallExpertReview({
                   ))}
                 </div>
               </VideowallStep>
-            </ol>
+              </ol>
 
-            <VideowallRefineFields requirements={requirements} lcd={lcd} errors={errors} onUpdate={onUpdate} />
-          </section>
+              <VideowallRefineFields requirements={requirements} lcd={lcd} errors={errors} onUpdate={onUpdate} />
+            </section>
+          </PageBandPanel>
 
-          <VideowallOptionsList
-            decision={decision}
-            options={options}
-            selected={selected}
-            recommendedId={recommendedId}
-            variantId={variantId}
-            onSelect={onSelect}
-            onVariant={onVariant}
-          />
+          <PageBandPanel band={band} of="options" testIdPrefix="videowall-band" className="vw-design-band">
+            <VideowallOptionsList
+              decision={decision}
+              options={options}
+              selected={selected}
+              recommendedId={recommendedId}
+              variantId={variantId}
+              onSelect={onSelect}
+              onVariant={onVariant}
+            />
+          </PageBandPanel>
 
           <VideowallReviewNav
-            onNext={() => onReviewStage("wall")}
-            nextLabel="Continue to the wall"
+            onBack={previousBand ? () => setBand(previousBand.key) : undefined}
+            backLabel={currentBand.back}
+            onNext={() => {
+              // The last band leaves the pass: the drawing is the next reading,
+              // not a fifth band inside the design.
+              const after = wallDesignBands[bandIndex + 1];
+              if (after) setBand(after.key);
+              else onReviewStage("wall");
+            }}
+            nextLabel={currentBand.next}
             onCopy={onCopyLink}
             copyLabel={copyLabel}
           />

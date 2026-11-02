@@ -1387,6 +1387,76 @@ export const ID_KEYED_COLLECTION_MERGE_KEYS = {
   visualAssets: { idKey: "id", timeKey: "updatedAt" },
 };
 
+function productSku(value) {
+  return String(value ?? "").trim().toUpperCase();
+}
+
+/** One omission entry per SKU, read from either side's document. */
+function omissionEntriesOf(value) {
+  const entries = [];
+  for (const item of asArray(value)) {
+    const sku = productSku(typeof item === "string" ? item : item?.sku);
+    if (!sku) continue;
+    entries.push({ sku, at: typeof item?.at === "string" ? item.at : "" });
+  }
+  return entries;
+}
+
+function selectionWriteTime(value) {
+  return Date.parse(String(value?.addedAt ?? ""));
+}
+
+/**
+ * The products a project may not hold after two copies merge — the server twin
+ * of the client's `resolveProductOmissions` in
+ * src/wingman2/data/projectHydrationMerge.ts, kept identical because both sides
+ * merge the same pair (parity coverage:
+ * server/project-store-id-keyed-collections.parity.test.mjs).
+ *
+ * The per-item union keeps editor-only selections on purpose (an offline
+ * addition must survive), which is why a stale payload's copy of a product the
+ * rep had replaced came straight back through a sync. The omission says which
+ * absences are decisions, and it carries the moment each was made: a selection
+ * added after that moment is the rep putting the product back and the omission
+ * goes with it, while a selection from before it belongs to a copy that never
+ * heard of the removal. Revision freshness cannot answer that — the removing
+ * copy falls behind the stored row the moment anyone else saves.
+ */
+export function resolveProductOmissions(input) {
+  const { storedSelections, editorSelections, storedOmissions, editorOmissions } = input;
+
+  const latestOmission = new Map();
+  const order = [];
+  for (const entry of [...omissionEntriesOf(storedOmissions), ...omissionEntriesOf(editorOmissions)]) {
+    if (!latestOmission.has(entry.sku)) {
+      order.push(entry.sku);
+      latestOmission.set(entry.sku, entry.at);
+      continue;
+    }
+    const previous = latestOmission.get(entry.sku) ?? "";
+    if (entry.at && (!previous || Date.parse(entry.at) >= Date.parse(previous))) latestOmission.set(entry.sku, entry.at);
+  }
+
+  const restoredAt = new Map();
+  for (const item of [...asArray(storedSelections), ...asArray(editorSelections)]) {
+    const sku = productSku(item?.sku);
+    const addedAt = selectionWriteTime(item);
+    if (!sku || !Number.isFinite(addedAt)) continue;
+    const best = restoredAt.get(sku);
+    if (best === undefined || addedAt > best) restoredAt.set(sku, addedAt);
+  }
+
+  const resolved = [];
+  for (const sku of order) {
+    const at = latestOmission.get(sku) ?? "";
+    const readdedAt = restoredAt.get(sku);
+    const omittedAt = Date.parse(at);
+    if (readdedAt !== undefined && Number.isFinite(omittedAt) && readdedAt > omittedAt) continue;
+    resolved.push(at ? { sku, at } : { sku });
+  }
+  return resolved;
+}
+
 /**
  * Deterministic per-item LWW between the STORED and the EDITOR copy of one
  * collection item (pure, both sides identical):
@@ -1950,6 +2020,25 @@ function mergeWorkspaceProjects(existingProjects, incomingProjects, workspaceId,
       if (mergedItems.length > 0) combined[collectionKey] = mergedItems;
       else delete combined[collectionKey];
     }
+
+    // A product the rep removed or replaced stays removed, whichever copy
+    // carries the omission: the per-item union above re-adds a stale payload's
+    // product by design, so this is the rule that keeps it out. The legacy
+    // field is still read because a client on the previous build sends it.
+    const productOmissions = resolveProductOmissions({
+      storedSelections: existing.productSelections,
+      editorSelections: incoming.productSelections,
+      storedOmissions: existing.productOmissions ?? existing.omittedProductSkus,
+      editorOmissions: incoming.productOmissions ?? incoming.omittedProductSkus,
+    });
+    const omittedSkus = new Set(productOmissions.map((entry) => entry.sku));
+    const keptSelections = asArray(combined.productSelections)
+      .filter((item) => !omittedSkus.has(productSku(item?.sku)));
+    if (keptSelections.length > 0) combined.productSelections = keptSelections;
+    else delete combined.productSelections;
+    if (productOmissions.length > 0) combined.productOmissions = productOmissions;
+    else delete combined.productOmissions;
+    delete combined.omittedProductSkus;
 
     combined.syncRevision = Math.max(existingRev, incomingBase) + 1;
     combined._merge = existingMeta;

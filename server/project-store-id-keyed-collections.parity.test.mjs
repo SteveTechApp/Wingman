@@ -24,12 +24,14 @@ import {
   ID_KEYED_COLLECTION_MERGE_KEYS as SERVER_MERGE_KEYS,
   pickCollectionItemVersion as serverPickCollectionItemVersion,
   mergeIdKeyedCollectionItems as serverMergeIdKeyedCollectionItems,
+  resolveProductOmissions as serverResolveProductOmissions,
 } from "./wingman-app-store.mjs";
 import {
   ID_KEYED_COLLECTION_MERGE_KEYS as CLIENT_MERGE_KEYS,
   pickCollectionItemVersion as clientPickCollectionItemVersion,
   mergeIdKeyedCollectionItems as clientMergeIdKeyedCollectionItems,
   mergeProjectVersionsForHydration,
+  resolveProductOmissions as clientResolveProductOmissions,
 } from "../src/wingman2/data/projectHydrationMerge.ts";
 
 function iso(ms) {
@@ -464,5 +466,100 @@ describe("hydration workflow parity (client merge vs server merge helpers)", () 
     expect(noConflict.project[collectionKey]).toHaveLength(2);
     expect(noConflict.project[collectionKey].map((item) => item[idKey]).sort()).toEqual(["asset-1", "asset-2"]);
     expect(noConflict.conflict).toBe(false);
+  });
+});
+
+/**
+ * Parity for the product omission record — the third question §1.2j left open
+ * ("a stale payload can still RE-ADD an item a fresher writer removed"). Both
+ * merges answer "may this project hold this product afterwards" with the same
+ * function, so one corpus feeds both and requires identical output.
+ *
+ * The rule is a comparison of TIMES, not of revisions: a selection added after
+ * the removal is the rep putting the product back, while one from before it
+ * belongs to a copy that never heard of the removal. Revision freshness cannot
+ * decide it, because the removing copy is behind the stored row as soon as
+ * anyone else saves.
+ */
+describe("product omission parity (server vs client)", () => {
+  const t0 = iso(1_700_000_000_000);
+  const t1 = iso(1_700_000_000_001);
+  const t2 = iso(1_700_000_000_002);
+  const selection = (sku, addedAt) => ({ sku, title: sku, addedAt });
+  const omission = (sku, at) => (at === undefined ? { sku } : { sku, at });
+
+  const cases = [
+    {
+      name: "a stale copy's product cannot restore what the other copy removed",
+      stored: { selections: [], omissions: [omission("MX-0404-SCL", t2)] },
+      editor: { selections: [selection("MX-0404-SCL", t0)], omissions: [] },
+      expected: [omission("MX-0404-SCL", t2)],
+    },
+    {
+      name: "a removal made against an older revision survives a newer stored copy",
+      stored: { selections: [selection("MX-0404-SCL", t0)], omissions: [] },
+      editor: { selections: [], omissions: [omission("MX-0404-SCL", t2)] },
+      expected: [omission("MX-0404-SCL", t2)],
+    },
+    {
+      name: "a product added after the removal comes back and the record goes",
+      stored: { selections: [], omissions: [omission("MX-0404-SCL", t0)] },
+      editor: { selections: [selection("MX-0404-SCL", t2)], omissions: [] },
+      expected: [],
+    },
+    {
+      name: "an untimed legacy omission keeps its product out",
+      stored: { selections: [], omissions: [omission("MX-0404-SCL")] },
+      editor: { selections: [selection("MX-0404-SCL", t2)], omissions: [] },
+      expected: [omission("MX-0404-SCL")],
+    },
+    {
+      name: "a selection with no write time cannot claim to come afterwards",
+      stored: { selections: [], omissions: [omission("MX-0404-SCL", t1)] },
+      editor: { selections: [{ sku: "MX-0404-SCL", title: "untimed" }], omissions: [] },
+      expected: [omission("MX-0404-SCL", t1)],
+    },
+    {
+      name: "two records for one SKU keep the later moment",
+      stored: { selections: [], omissions: [omission("MX-0404-SCL", t1)] },
+      editor: { selections: [], omissions: [omission("MX-0404-SCL", t2)] },
+      expected: [omission("MX-0404-SCL", t2)],
+    },
+    {
+      name: "the stored record is written first so an unchanged merge does not rewrite it",
+      stored: { selections: [], omissions: [omission("RX-70-4K", t1), omission("MX-0404-SCL", t1)] },
+      editor: { selections: [], omissions: [omission("ENC-1", t1)] },
+      expected: [omission("RX-70-4K", t1), omission("MX-0404-SCL", t1), omission("ENC-1", t1)],
+    },
+    {
+      name: "no record on either copy is no record",
+      stored: { selections: [selection("RX-70-4K", t0)], omissions: undefined },
+      editor: { selections: [selection("ENC-1", t0)], omissions: [] },
+      expected: [],
+    },
+    {
+      name: "SKUs match on one spelling, whatever case each copy stored",
+      stored: { selections: [], omissions: [{ sku: " mx-0404-scl ", at: t2 }] },
+      editor: { selections: [selection("MX-0404-SCL", t0)], omissions: [] },
+      expected: [omission("MX-0404-SCL", t2)],
+    },
+  ].map((entry) => deepFreeze(entry));
+
+  function run(resolve, entry) {
+    return resolve({
+      storedSelections: entry.stored.selections,
+      editorSelections: entry.editor.selections,
+      storedOmissions: entry.stored.omissions,
+      editorOmissions: entry.editor.omissions,
+    });
+  }
+
+  it("resolves every case identically on both sides", () => {
+    for (const entry of cases) {
+      const server = run(serverResolveProductOmissions, entry);
+      const client = run(clientResolveProductOmissions, entry);
+      expect(json(client), `${entry.name} — client and server records diverge`).toBe(json(server));
+      expect(json(server), `${entry.name} — unexpected resolution`).toBe(json(entry.expected));
+    }
   });
 });

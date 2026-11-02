@@ -74,7 +74,14 @@ export function createDiscoveryCommands(context: ProjectCommandContext, lifecycl
     }) {
       const timestamp = now();
       const existing = getCurrentWorkflowProject();
-      const recommendedProducts = productSelectionsFromVideowallSummary(input.summary, timestamp);
+      // A wall save is a rebuild of that wall's products, and a rep who took
+      // one out did not ask for it back by saving the wall again. Honouring the
+      // record here also keeps the rebuild from defeating it on the way to a
+      // sync: a re-added row is stamped now, which reads there as a rep putting
+      // the product back.
+      const omittedSkus = new Set((existing?.productOmissions ?? []).map((entry) => entry.sku.trim().toUpperCase()));
+      const recommendedProducts = productSelectionsFromVideowallSummary(input.summary, timestamp)
+        .filter((product) => !omittedSkus.has(product.sku.trim().toUpperCase()));
       const recommendedSkus = new Set(recommendedProducts.map((product) => product.sku));
       const productSelections = [...recommendedProducts, ...(existing?.productSelections ?? []).filter((product) => product.source !== "Video Wall Builder" && !recommendedSkus.has(product.sku))].slice(0, 20);
       const workflow: StoredWorkflowState = { source: "Video Wall Builder", lastStep: "Video wall discovery saved", nextRoute: routeCatalogByKey.videowall.path, updatedAt: timestamp };

@@ -23,6 +23,7 @@ Generated: deterministic static analysis report
 | DashboardPage.tsx | /wingman | Covered by AppShell | 1 | 2 | 0 | 0 |
 | DiscoveryPage.tsx | /wingman/discovery | Covered by AppShell | 0 | 5 | 3 | 0 |
 | GlossaryPage.tsx | /wingman/glossary | Covered by AppShell | 1 | 4 | 0 | 0 |
+| HelpPage.tsx | /wingman/help | Covered by AppShell | 2 | 0 | 0 | 0 |
 | IngestPage.tsx | /wingman/ingest | Covered by AppShell | 1 | 0 | 0 | 2 |
 | NavigationHubPages.tsx | /wingman/call-coach, /wingman/products, /wingman/documents, /wingman/responses, /wingman/learn, /wingman/call-cards, /wingman/support | Covered by AppShell | 1 | 2 | 1 | 0 |
 | ProductCallCardsPage.tsx | /wingman/product-call-cards | Covered by AppShell | 1 | 2 | 21 | 0 |
@@ -33,7 +34,7 @@ Generated: deterministic static analysis report
 | ProposalPage.tsx | /wingman/proposal | Covered by AppShell | 0 | 2 | 1 | 0 |
 | ProposalVisualsPage.tsx | /wingman/proposal-visuals | Covered by AppShell | 1 | 0 | 8 | 0 |
 | QuoteSafetyDashboardPage.tsx | /wingman/quote-safety | Covered by AppShell | 1 | 6 | 0 | 0 |
-| RecommendationsPage.tsx | /wingman/recommendations | Covered by AppShell | 0 | 3 | 9 | 0 |
+| RecommendationsPage.tsx | /wingman/recommendations | Covered by AppShell | 0 | 3 | 8 | 0 |
 | SalesHelperPage.tsx | /wingman/sales-helper | Covered by AppShell | 1 | 1 | 0 | 0 |
 | TemplatesPage.tsx | /wingman/templates | Covered by AppShell | 1 | 3 | 4 | 0 |
 | TermsPage.tsx | /wingman/terms | Covered by AppShell | 1 | 5 | 4 | 0 |
@@ -96,6 +97,7 @@ Generated: deterministic static analysis report
 - src/wingman2/pages/ComparePageNew.tsx has no explicit <h1>; confirm that its routed hub/header still supplies a meaningful page title.
 - src/wingman2/pages/ComparePageNew.tsx has no internal shared page-root class; it is currently governed only by AppShell.
 - src/wingman2/pages/DiscoveryPage.tsx has no explicit <h1>; confirm that its routed hub/header still supplies a meaningful page title.
+- src/wingman2/pages/HelpPage.tsx has no internal shared page-root class; it is currently governed only by AppShell.
 - src/wingman2/pages/IngestPage.tsx has no internal shared page-root class; it is currently governed only by AppShell.
 - src/wingman2/pages/IngestPage.tsx contains 2 light-theme utility class occurrence(s); the final governed layer overrides these surfaces, but the markup should be normalised when next edited.
 - src/wingman2/pages/ProductFamilyPage.tsx has no explicit <h1>; confirm that its routed hub/header still supplies a meaningful page title.

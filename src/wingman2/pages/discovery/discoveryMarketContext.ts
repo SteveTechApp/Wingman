@@ -118,7 +118,7 @@ export const RELATED_TEMPLATE_MARKETS: Record<string, readonly string[]> = {
 
 const MARKET_PHOTOS: Record<string, string> = {
   corporate: "photo-boardroom.jpg", education: "discovery-classroom-v2.jpg",
-  government: "photo-security-command.jpg", emergency: "photo-situation-room.jpg",
+  government: "photo-control-room.jpg", emergency: "photo-situation-room.jpg",
   energy: "discovery-energy-market-v1.png", manufacturing: "discovery-manufacturing-market-v1.png",
   healthcare: "photo-multicamera-meeting.jpg", hospitality: "discovery-hospitality-v2.jpg",
   retail: "discovery-retail-market-v1.png", transport: "discovery-transport-market-v1.png",
@@ -135,7 +135,7 @@ export function photoForDiscoveryEnvironment(marketId: string, environmentId: st
   const label = environment?.label.toLowerCase() ?? "";
   if (/meeting|boardroom|consultation|engineering|quality/.test(label)) return "/template-photos/photo-boardroom.jpg";
   if (/classroom|teaching|training|simulation/.test(label)) return "/template-photos/discovery-classroom-v2.jpg";
-  if (/lecture|auditorium|town hall|briefing/.test(label)) return "/template-photos/photo-school-hall-projector.jpg";
+  if (/lecture|auditorium|town hall|briefing/.test(label)) return "/template-photos/photo-hybrid-teaching.jpg";
   if (/campus|whole-home|multi-site/.test(label)) return "/template-photos/discovery-distributed-video-v2.jpg";
   if (marketId === "retail") return photoForDiscoveryMarket("retail");
   if (marketId === "transport") return photoForDiscoveryMarket("transport");

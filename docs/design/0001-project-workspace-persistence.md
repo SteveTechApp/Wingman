@@ -446,7 +446,8 @@ collections to equal the server merge helpers' output for the same pair
 fresh removal honored vs stale keep, conflict flags). The known residual:
 a stale payload can still RE-ADD an item a fresher writer removed (it never
 saw the deletion) — both sides behave alike, and per-item tombstones would
-be the Phase-3 fix. Existing two-session merge/stress and hydration E2Es
+be the Phase-3 fix. Products took that fix in §1.2m; the other four
+collections still carry the residual. Existing two-session merge/stress and hydration E2Es
 stay green, the stress suite now drives a SHARED `requirements` lane
 both sessions edit every round: per-response it asserts the syncing
 session's own items always survive and `req-shared` is always the newest
@@ -638,6 +639,64 @@ this create-per-request scenario accumulated ~100 × ~80 KB rows), the
 whole-store read's O(row count × payload) scaling exposed once the write path
 stops masking it. Scoping the per-project path's read to auth + one row
 (dropping the whole-store read and its queue place) is the remaining lever.
+
+### 1.2m Product removals survive a sync (2026-10-31, parity:
+`server/project-store-id-keyed-collections.parity.test.mjs` §“product omission
+parity”)
+
+§1.2i's residual, closed for the `productSelections` lane: a stale copy could
+re-add a product a fresher writer had removed, because the per-item union keeps
+an editor-only item on purpose (an offline addition must survive) and a copy
+that never heard of the removal is indistinguishable from one that added the
+product offline. The symptom was a room whose rep had replaced the matrix
+switcher quoting the replaced one again after a reload.
+
+The record is `productOmissions: Array<{ sku, at }>` on the project — one entry
+per removed SKU with the moment it was removed. `at` is the whole point. The
+rule compares TIMES: a selection whose `addedAt` is later than the record is the
+rep putting the product back (every path that adds a selection clears its own
+record, and the wall-save rebuild drops the SKUs the record names rather than
+re-adding them), while a selection from before it belongs to a copy that never
+saw the removal and the product stays out. Two records for one SKU keep the later
+moment; SKUs compare uppercased.
+
+**Why not revision freshness.** The first implementation compared the two
+copies' bases, restoring a product when the *other* copy was fresher. That loses
+the removal in the ordinary case: the rep removes a product at revision 5, a
+teammate saves anything and the row becomes revision 6, and the removing copy is
+then the stale one at its own sync — its record is discarded because the fresher
+row still selects the product, which it does only because it never heard of the
+removal. The product returns on the sync that carried the removal.
+
+**Untimed records.** A document written before omissions carried a time stored
+bare SKUs (`omittedProductSkus`); the codec reads that list into `{ sku }`
+entries. An untimed record keeps its product out — nothing can be shown to have
+been added after it — so an older document keeps its removals rather than
+quietly resurrecting them.
+
+Both sides implement one pure function each, identical in behaviour:
+`resolveProductOmissions` in `src/wingman2/data/projectHydrationMerge.ts`
+(reload) and in `server/wingman-app-store.mjs` (sync). Each merge writes the
+resolved record back and filters the merged selections by it, because the
+project-level LWW winner may otherwise carry the other copy's shorter record,
+and deletes the key when it resolves to nothing rather than storing `[]`.
+
+Evidence: the parity suite feeds one frozen corpus of pairs to both
+implementations (stale copy vs record, a removal made against an older basis, a
+re-add after it, an untimed record, an untimed selection, duplicate records for
+one SKU, casing), requires identical output and pins each expected resolution;
+`src/__tests__/projectStore.test.ts` pins the reload direction including the
+teammate-saved-so-the-remover-is-stale case; and
+`server/project-store-two-session-collections.e2e.test.mjs` drives the real
+HTTP path — owner removes, a stale teammate syncs over it (previously the
+product came straight back), then the owner re-adds it and the record clears.
+`projectCommands.test.ts` pins the write side: a role swap records the row it
+displaced, and choosing that product again clears its record and records the
+one it displaced in turn.
+
+Scope: this closes products only. `requirements`, `compareRuns`,
+`proposalVersions` and `visualAssets` still keep the §1.2i residual; a tombstone
+for them would be the same shape with a different key, and is not done here.
 
 ### 1.2c Supabase-tables backend-mode findings (2026-09-03, first attributable load run)
 

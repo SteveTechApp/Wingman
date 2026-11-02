@@ -1,5 +1,11 @@
 [
   {
+    "routeKey": "help",
+    "status": "wired",
+    "summary": "Help prints the shipped user guide, one section at a time, with the open section kept in the address so the Guru or a colleague can point at it.",
+    "needed": []
+  },
+  {
     "routeKey": "dashboard",
     "status": "wired",
     "summary": "Home now answers the starting question by intent and routes users to Call Coach, Products, Compare, Documents, Response Pack or Projects.",

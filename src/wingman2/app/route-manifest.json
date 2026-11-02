@@ -259,5 +259,14 @@
     "navLabel": "Approvals",
     "pageFile": "ApprovalQueuePage.tsx",
     "summary": "Review and approve proposals before they go to customers."
+  },
+  {
+    "key": "help",
+    "path": "/wingman/help",
+    "segment": "help",
+    "label": "Help",
+    "navLabel": "Help",
+    "pageFile": "HelpPage.tsx",
+    "summary": "Read the user guide one section at a time: what each screen asks for and what to do next."
   }
 ]

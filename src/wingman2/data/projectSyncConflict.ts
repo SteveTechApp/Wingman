@@ -53,7 +53,12 @@ export function backendProjectForSync(project: StoredProject) {
  * `auditTrail` (the server appends its own rows per sync), and the
  * append-mostly by-id lanes (attachments/comments/shares) whose item shapes
  * the server sanitizer rebuilds - additions there are additive, not
- * conflicting, and surface in the detail views.
+ * conflicting, and surface in the detail views. `productOmissions` is
+ * excluded for the same reason as the lanes above it: it is the record the
+ * merges read to decide which products a room still holds, so the difference a
+ * rep acts on is the one in `productSelections`, which is a lane. A record
+ * that changed while both copies' selections came out the same is a resolution
+ * neither reading can see.
  */
 export const PROJECT_SYNC_CONFLICT_LANES = [
   "name",

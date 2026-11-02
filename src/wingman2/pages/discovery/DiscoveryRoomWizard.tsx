@@ -1,6 +1,7 @@
 import { RoomConnectionsEditor } from "./RoomConnectionsEditor";
 import { useEffect, useRef, useState } from "react";
 import { EquipmentLibraryPanel } from "../../components/EquipmentLibraryPanel";
+import { appendTranscriptNote, VoiceRequestCapture } from "../../components/VoiceRequestCapture";
 import { addEquipmentToRoom } from "../../lib/equipmentLibrary";
 import type { ProjectTopology } from "../../lib/projectTopology";
 import { operationalQuestion, roomEquipmentSchedule, supportingRoomScope, updateOperationalAnswer } from "./operationalDiscovery";
@@ -70,6 +71,10 @@ export function DiscoveryRoomWizard(props: Props) {
         {question.id === "scale" && <><div className="wm-room-wizard-fields"><label>Number of people<input type="number" min="1" value={String(answers["room-occupancy"] || "")} onChange={event => props.onAnswersChange(previous => ({ ...previous, "room-occupancy": event.target.value }))} /></label><label>Room dimensions and seating<textarea value={String(answers["room-dimensions"] || "")} onChange={event => props.onAnswersChange(previous => ({ ...previous, "room-dimensions": event.target.value }))} placeholder="12 × 8 metres, rows facing the lectern" /></label></div><DiscoverySiteConditions answers={answers} onChange={props.onAnswersChange} compact /></>}
         {question.id === "locations-connections" ? <DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} /> : <div className="wm-room-wizard-options">{question.options.map(option => <button className="wm-room-wizard-option" type="button" key={option.value} aria-pressed={selected.includes(option.value)} onClick={() => choose(option.value)}>{option.label}</button>)}</div>}
         <label>Tell Wingman how people will use this<textarea value={notes[question.id] || ""} onChange={event => { props.onNotesChange(previous => ({ ...previous, [question.id]: event.target.value })); props.onConfirm(question.id, false); }} placeholder={question.capturePlaceholder} /></label>
+        <VoiceRequestCapture compact onTranscript={text => {
+          props.onNotesChange(previous => ({ ...previous, [question.id]: appendTranscriptNote(previous[question.id] || "", text) }));
+          props.onConfirm(question.id, false);
+        }} />
         <DiscoveryCaptureSuggestion step={canonical} view={getQuestionView(canonical, String(answers.opportunity || ""))} note={notes[question.id] || ""}
           onConfirm={(values, confidence) => props.onConfirmCaptureSuggestion(question.id, values, confidence)} />
         <details><summary>How this shapes the design</summary><p>{question.why}</p></details>

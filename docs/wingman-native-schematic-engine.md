@@ -26,11 +26,15 @@ EasySchematic can be used as a reference for canvas and connection behaviour, bu
 - `src/wingman2/lib/schematic/wingmanSchematicEngine.ts`
 - `src/wingman2/lib/schematic/wingmanSchematicEngine.test.ts`
 
-## Integration target
+## Integration
 
-Visual Design Studio should consume `SchematicModel` and render:
+`SchematicModel` is consumed by `src/wingman2/components/TechnicalSchematic.tsx`,
+which renders it inside the template review and the proposal document. There is
+no separate Visual Design Studio route — this document used to name one as the
+consumer, which read as a place in the app that no route reaches. The component
+renders:
 
-- nodes as editable device cards;
+- nodes as device cards;
 - connections as labelled signal paths;
 - warnings as quote-readiness checks;
 - BOM hints as proposal dependencies.

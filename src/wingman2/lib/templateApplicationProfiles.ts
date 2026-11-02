@@ -11,34 +11,83 @@ export type TemplateApplicationProfile = { templateId: string; canonicalMarket: 
 export type TemplateDesignFacts = { requiredSkuCount: number; sourceEndpointCount: number; outputEndpointCount: number; architectureFamily: TemplateArchitectureFamily };
 
 /**
- * Three of these files are one photograph under two names — `pub`/`sportsbar`
- * (`618c8906`), `control`/`security` (`ade8ff38`), `hybrid`/`hall` (`571fa219`) —
- * and that is a review miss rather than reuse. The way this table says "one
- * photograph" is to share a key: `images.boardroom` serves thirteen templates and
- * `images.signage` eight. A second key pointing at a duplicate file hides the
- * overlap instead of stating it.
+ * One key per photograph, and the key names what its file shows rather than what
+ * the template wanted it to show. The table states "one picture serves several
+ * rooms" by sharing a key: `audience` dresses the school hall and the overflow
+ * congregation instead of a second key hiding that they are one file.
  *
- * What each shared file shows, read off the photographs themselves:
- *   - `control`/`security` is a wall of camera feeds over an operations desk. It
- *     suits both rooms, which makes this the one pair whose picture is defensible
- *     and still two files where one entry would do.
- *   - `pub`/`sportsbar` is a bar counter and stools. It fits the pub and restaurant
- *     assignments; the sports-bar key also dresses `leisure-gym-fitness-club`, so
- *     a gym is currently shown a bar.
- *   - `hybrid`/`hall` is a group watching one screen in team colours — neither a
- *     hybrid teaching space nor a school hall projector, so the five `hybrid` and
- *     four `hall` templates are all showing a room none of them is.
+ * Fourteen photographs exist, one file each. Three were once stored twice under a
+ * second name; the copies went once the surfaces that named them moved to the
+ * surviving file, so a key now names a photograph and nothing else does.
+ * `trackedAssetDuplicates.test.ts` asks every tracked data and document file for
+ * shared bytes and holds no recorded pairs, so a copy anywhere — not only another
+ * photograph — is a red run rather than a quiet addition.
  *
- * New art per key is the fix, and nothing here can produce a photograph. Until it
- * does, `templateImages.test.ts` holds the list at these three pairs, so a fourth
- * duplicate is a red run rather than a quiet addition.
+ * What each key depicts, read off the photographs rather than their names:
+ *   - `boardroom` is an empty committee chamber: a horseshoe table with a delegate
+ *     microphone and a name tent at every place, a screen at each seat, a lectern at
+ *     the far side, daylight windows and wood panelling. Its screens are on the table
+ *     rather than on a front wall and no camera is in frame, so what it sells is the
+ *     table and its audio — which is the cost of using it for a room whose product is
+ *     the display: the repository has no photograph of a meeting room with a front
+ *     screen and a camera, and this is the gap that says so. It is a meeting room and
+ *     reads as the formal kind, which is what it is doing for the boardroom, the
+ *     medium meeting room, the hotel meeting room and the two review rooms — six to
+ *     ten people around a table with a picture being discussed is the room each of
+ *     those names. The multi-camera meeting room has its own horseshoe in the frame,
+ *     and the council chamber's name tents, delegate microphones and lectern are all
+ *     there. It does claim a venue — a lectern is a venue claim — just a corporate or
+ *     municipal one rather than the crest on `hearing`.
+ *     The two production studios are the pair borrowing it as a recorded stand-in: a
+ *     table with microphones at it is where people speak, and the one photograph of
+ *     an operator at a desk of controls belongs to a plant, which is a harder thing to
+ *     put on a podcast. The cost is real and stated rather than argued away — a studio
+ *     card shows an empty committee chamber, with no cameras, no treatment and nobody
+ *     working.
+ *   - `huddle` is an office team over a charted whiteboard. No room is in frame,
+ *     which is what lets a home office and a review corner borrow it.
+ *   - `hearing` is a presenter at a lectern with a seated reader and a crest. The
+ *     file is named `multicamera-meeting`, but a hearing room is what it is, so it
+ *     is assigned only to the courtroom and the emergency briefing.
+ *   - `classroom` and `lesson` are a primary classroom, empty and in use.
+ *   - `audience` is a crowd watching a large screen. It fits a school hall, an
+ *     auditorium, an overflow congregation, a screening room and a lecture theatre,
+ *     because each is seats facing a display. It is also the stand-in for the
+ *     fitness floor, for an esports club's spectator screens and for a home media
+ *     room, because each of those is people watching a display even where the room
+ *     is not one this repository has a photograph of. That is the whole of those
+ *     rooms' art gap — the bar the gym used to show is gone.
+ *   - `signage` is a lit wordmark on a patterned wall.
+ *   - `ledwall` is a visitor photographing a wall-sized light display — the surface
+ *     and the visit, with no room and nobody working in it — which is what a feature
+ *     wall, a showroom and an experience centre borrow. A studio and a media room do
+ *     not: the surface is the only thing that matches, and the room and the activity
+ *     are both somebody else's.
+ *   - `bar`, `casino`, `bingo` and `stadium` are the venue itself.
+ *   - `ops` is a wall of camera feeds over an operations desk.
+ *   - `console` is an industrial console under a bank of screens. It stands in for
+ *     the rooms whose work happens at a desk in front of screens and which have no
+ *     photograph of their own: imaging review, a procedure observation gallery, a
+ *     coaching analysis room and an esports lab.
+ *
+ * The rule the table keeps is that a card never shows a room of another kind: no
+ * template points at the bar unless it is a bar, at the crowd unless it is an
+ * audience, at a committee table unless it is a meeting room, or at an operations
+ * desk unless operators sit at it. Where the repo has no photograph of the room —
+ * the ballroom, a science lab, a lecture theatre, a learning commons, an esports
+ * lab, a clinical review room, a production studio, a home media room, a meeting
+ * room with a front display and camera — the nearest
+ * same-kind picture stands in and the
+ * paragraph above names it, because a gap written down is fixable and a caption
+ * that quietly lies is not. New art per key is still the fix, and nothing here can
+ * produce a photograph.
  */
 const images = {
-  boardroom: "photo-boardroom.jpg", huddle: "photo-huddle-room.jpg", multicamera: "photo-multicamera-meeting.jpg",
-  classroom: "photo-classroom.jpg", flexible: "photo-flexible-learning.jpg", hybrid: "photo-hybrid-teaching.jpg",
-  hall: "photo-school-hall-projector.jpg", signage: "photo-signage.jpg", wall: "photo-led-wall.jpg",
-  sportsbar: "photo-sportsbar.jpg", pub: "photo-pub-matrix.jpg", casino: "photo-casino.jpg", bingo: "photo-bingo.jpg",
-  stadium: "photo-stadium.jpg", control: "photo-control-room.jpg", security: "photo-security-command.jpg", situation: "photo-situation-room.jpg",
+  boardroom: "photo-boardroom.jpg", huddle: "photo-huddle-room.jpg", hearing: "photo-multicamera-meeting.jpg",
+  classroom: "photo-classroom.jpg", lesson: "photo-flexible-learning.jpg", audience: "photo-hybrid-teaching.jpg",
+  signage: "photo-signage.jpg", ledwall: "photo-led-wall.jpg", bar: "photo-pub-matrix.jpg",
+  casino: "photo-casino.jpg", bingo: "photo-bingo.jpg", stadium: "photo-stadium.jpg",
+  ops: "photo-control-room.jpg", console: "photo-situation-room.jpg",
 } as const;
 
 /** Reviewed, exact application-image assignment. Published templates never use keyword matching. */
@@ -46,58 +95,58 @@ export const TEMPLATE_IMAGE_KEYS: Readonly<Record<string, string>> = Object.free
   "corporate-huddle-apollo": images.huddle,
   "corporate-boardroom-networkhd500": images.boardroom,
   "education-classroom-hdbaset": images.classroom,
-  "education-lecture-capture-networkhd": images.flexible,
+  "education-lecture-capture-networkhd": images.audience,
   "retail-signage-networkhd100": images.signage,
-  "retail-lcd-wall-processor": images.wall,
-  "hospitality-sports-bar-networkhd": images.sportsbar,
-  "hospitality-ballroom-hybrid": images.boardroom,
-  "healthcare-simulation-lab": images.situation,
-  "government-control-room-networkhd600": images.control,
-  "venue-worship-overflow-networkhd500": images.hall,
+  "retail-lcd-wall-processor": images.ledwall,
+  "hospitality-sports-bar-networkhd": images.bar,
+  "hospitality-ballroom-hybrid": images.audience,
+  "healthcare-simulation-lab": images.lesson,
+  "government-control-room-networkhd600": images.ops,
+  "venue-worship-overflow-networkhd500": images.audience,
   "transport-operations-signage": images.signage,
-  "residential-media-matrix": images.boardroom,
-  "corporate-multi-camera-meeting-bridge": images.multicamera,
-  "education-school-hall-hdbaset-projector": images.hall,
-  "education-flexible-learning-networkhd500": images.flexible,
-  "education-hybrid-collaboration-nhd500-dante": images.hybrid,
-  "education-active-learning-nhd600-local-inputs": images.flexible,
-  "hospitality-large-sportsbar-nhd500": images.sportsbar,
-  "hospitality-local-pub-8x8-matrix": images.pub,
+  "residential-media-matrix": images.audience,
+  "corporate-multi-camera-meeting-bridge": images.boardroom,
+  "education-school-hall-hdbaset-projector": images.audience,
+  "education-flexible-learning-networkhd500": images.lesson,
+  "education-hybrid-collaboration-nhd500-dante": images.lesson,
+  "education-active-learning-nhd600-local-inputs": images.lesson,
+  "hospitality-large-sportsbar-nhd500": images.bar,
+  "hospitality-local-pub-8x8-matrix": images.bar,
   "hospitality-large-casino-nhd500": images.casino,
   "hospitality-bingo-club-nhd100-led-wall": images.bingo,
   "hospitality-stadium-concourse-vip-nhd500": images.stadium,
-  "government-security-command-nhd100-bridge": images.security,
-  "government-situation-control-room-nhd600": images.situation,
+  "government-security-command-nhd100-bridge": images.ops,
+  "government-situation-control-room-nhd600": images.console,
   "corporate-teams-room-medium-apollo": images.boardroom,
-  "corporate-experience-centre-networkhd600": images.wall,
-  "corporate-agile-collaboration-zone-networkhd500": images.boardroom,
+  "corporate-experience-centre-networkhd600": images.ledwall,
+  "corporate-agile-collaboration-zone-networkhd500": images.huddle,
   "education-primary-classroom-interactive-panel": images.classroom,
-  "education-university-lecture-theatre-networkhd500": images.flexible,
-  "education-stem-science-lab-networkhd100": images.hybrid,
-  "control-room-security-operations-networkhd600": images.security,
-  "control-room-network-operations-centre-networkhd600": images.control,
-  "control-room-traffic-management-networkhd500": images.control,
+  "education-university-lecture-theatre-networkhd500": images.audience,
+  "education-stem-science-lab-networkhd100": images.lesson,
+  "control-room-security-operations-networkhd600": images.ops,
+  "control-room-network-operations-centre-networkhd600": images.ops,
+  "control-room-traffic-management-networkhd500": images.ops,
   "government-council-chamber-hybrid-streaming": images.boardroom,
-  "healthcare-mdt-imaging-review-networkhd500": images.situation,
+  "healthcare-mdt-imaging-review-networkhd500": images.console,
   "healthcare-clinic-waiting-patient-calling-networkhd100": images.signage,
-  "leisure-gym-fitness-club-networkhd100": images.sportsbar,
-  "hospitality-private-cinema-screening-room-matrix": images.boardroom,
+  "leisure-gym-fitness-club-networkhd100": images.audience,
+  "hospitality-private-cinema-screening-room-matrix": images.audience,
   "transport-airport-lounge-fids-networkhd500": images.signage,
-  "broadcast-podcast-content-studio-ndi-networkhd500": images.wall,
+  "broadcast-podcast-content-studio-ndi-networkhd500": images.boardroom,
   "retail-bank-branch-networkhd100": images.signage,
-  "worship-large-auditorium-imag-networkhd600": images.hall,
+  "worship-large-auditorium-imag-networkhd600": images.audience,
   "corporate-reception-townhall-networkhd100": images.signage,
-  "corporate-training-suite-matrix-uc": images.boardroom,
-  "education-library-learning-commons-networkhd100": images.hybrid,
-  "education-esports-media-lab-networkhd500": images.hybrid,
+  "corporate-training-suite-matrix-uc": images.lesson,
+  "education-library-learning-commons-networkhd100": images.lesson,
+  "education-esports-media-lab-networkhd500": images.console,
   "hospitality-hotel-meeting-room-apollo-hdbaset": images.boardroom,
-  "hospitality-restaurant-bar-matrix": images.pub,
+  "hospitality-restaurant-bar-matrix": images.bar,
   "retail-qsr-menu-boards-networkhd100": images.signage,
-  "retail-car-showroom-customer-experience-networkhd500": images.wall,
-  "government-courtroom-hearing-room-matrix": images.boardroom,
-  "government-emergency-briefing-room-networkhd500": images.situation,
+  "retail-car-showroom-customer-experience-networkhd500": images.ledwall,
+  "government-courtroom-hearing-room-matrix": images.hearing,
+  "government-emergency-briefing-room-networkhd500": images.hearing,
   "healthcare-telemedicine-consult-room-apollo": images.huddle,
-  "healthcare-theatre-observation-networkhd500": images.situation,
+  "healthcare-theatre-observation-networkhd500": images.console,
   "emergency-station-briefing-hdbaset": "emergency-station-briefing-v1.png",
   "emergency-tactical-coordination-hybrid": "government-briefing-room-v1.png",
   "emergency-dispatch-control-networkhd600": "security-operations-cctv-v1.png",
@@ -110,13 +159,13 @@ export const TEMPLATE_IMAGE_KEYS: Readonly<Record<string, string>> = Object.free
   "manufacturing-shift-training-hdbaset": images.classroom,
   "manufacturing-quality-review-matrix": images.boardroom,
   "logistics-dispatch-information-matrix": "discovery-manufacturing-market-v1.png",
-  "sports-coaching-analysis-matrix": images.boardroom,
-  "sports-esports-review-matrix": images.hybrid,
-  "worship-small-sanctuary-hdbaset": images.hall,
+  "sports-coaching-analysis-matrix": images.console,
+  "sports-esports-review-matrix": images.audience,
+  "worship-small-sanctuary-hdbaset": images.audience,
   "transport-passenger-information-matrix": "discovery-transport-market-v1.png",
-  "broadcast-interview-production-studio": images.multicamera,
+  "broadcast-interview-production-studio": images.boardroom,
   "broadcast-edit-review-matrix": images.boardroom,
-  "residential-multiroom-entertainment-matrix": images.pub,
+  "residential-multiroom-entertainment-matrix": images.audience,
   "residential-home-office-byod": images.huddle,
 });
 
