@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultWallRequirements } from "./videowallOptions";
-import { videowallLocationChoices, videowallLocationKeyFor } from "./videowallDraft";
+import { videowallNetworkChoices, videowallNetworkKeyFor } from "./videowallDraft";
 import {
   wallWizardAnswers,
   wallWizardApplicationPatch,
@@ -16,7 +16,7 @@ import {
 describe("guided video wall wizard", () => {
   it("summarises each question with the answer the design used", () => {
     const answers = wallWizardAnswers({ ...defaultWallRequirements, columns: 3, rows: 3, sources: 9, layout: "nine" });
-    expect(answers.map((answer) => answer.key)).toEqual(["picture", "size", "sources", "feeding", "layout"]);
+    expect(answers.map((answer) => answer.key)).toEqual(["picture", "size", "sources", "network", "feeding", "layout"]);
     expect(answers.find((answer) => answer.key === "size")?.value).toContain("3 × 3 (9 panels)");
     expect(answers.find((answer) => answer.key === "layout")?.value).toBe("Nine windows");
     // The connection sits between the size and the layout, and reads the build
@@ -25,7 +25,8 @@ describe("guided video wall wizard", () => {
     expect(looping.map((answer) => answer.key)).toContain("feeding");
     expect(looping.find((answer) => answer.key === "feeding")?.value).toBe("One canvas, panels tile it");
     expect(answers.find((answer) => answer.key === "feeding")?.value).toBe("9 feeds, a panel per feed");
-    expect(answers.find((answer) => answer.key === "sources")?.value).toContain("All in one rack");
+    expect(answers.find((answer) => answer.key === "sources")?.value).toBe("9 sources at 4K60");
+    expect(answers.find((answer) => answer.key === "network")?.value).toBe("Choose a network option");
   });
 
   it("describes LED, projection and custom pixel answers", () => {
@@ -33,11 +34,11 @@ describe("guided video wall wizard", () => {
     expect(led.find((answer) => answer.key === "size")?.value).toContain("5120 × 1440 LED canvas");
     const projector = wallWizardAnswers({ ...defaultWallRequirements, application: "projection", sources: 2, displayResolution: "1080p" });
     // The box and what it carries are two answers: the drawn millimetres of the
-    // wall, then the sources at their timing and where they sit.
+    // wall, then the sources at their timing.
     expect(projector.find((answer) => answer.key === "size")?.value)
       .toBe("One projector at 1080p · Screen 1,218 × 685 mm (55 in)");
     expect(projector.find((answer) => answer.key === "sources")?.value)
-      .toBe("2 sources at 4K60 · All in one rack");
+      .toBe("2 sources at 4K60");
     const custom = wallWizardAnswers({ ...defaultWallRequirements, displayCustom: true, displayWidth: 2560, displayHeight: 1600 });
     expect(custom.find((answer) => answer.key === "size")?.value).toContain("2560 × 1600 panels");
   });
@@ -62,13 +63,24 @@ describe("guided video wall wizard", () => {
     expect(wallWizardApplicationPatch("led", { layout: "quad" })).toEqual({ application: "led" });
   });
 
-  it("offers the network the site already has as a guided location answer", () => {
-    const oneGig = videowallLocationChoices.find((choice) => choice.key === "one-gig")!;
-    expect(oneGig.patch).toEqual({ sourceLocation: "distributed", network: "1g" });
-    expect(videowallLocationKeyFor({ ...defaultWallRequirements, ...oneGig.patch })).toBe("one-gig");
-    expect(videowallLocationKeyFor({ ...defaultWallRequirements, network: "10g" })).toBe("ten-gig");
-    expect(wallWizardAnswers({ ...defaultWallRequirements, ...oneGig.patch }).find((answer) => answer.key === "sources")?.value)
-      .toContain("1GbE is already there");
+  it("offers existing or new 1Gb and 10Gb networks as separate provision choices", () => {
+    expect(videowallNetworkChoices.map((choice) => choice.key)).toEqual([
+      "existing-1g", "existing-10g", "new-1g", "new-10g",
+    ]);
+    expect(videowallNetworkChoices.map((choice) => choice.label)).toEqual([
+      "Use an existing 1Gb network",
+      "Use an existing 10Gb network",
+      "Supply new 1Gb network switches",
+      "Supply new 10Gb network switches",
+    ]);
+    for (const choice of videowallNetworkChoices) {
+      expect(videowallNetworkKeyFor({ ...defaultWallRequirements, ...choice.patch })).toBe(choice.key);
+      expect(wallWizardAnswers({ ...defaultWallRequirements, ...choice.patch }).find((answer) => answer.key === "network")?.value)
+        .toBe(choice.label);
+    }
+    // Older saved designs only have the network speed, which meant the site
+    // already had that network.
+    expect(videowallNetworkKeyFor({ ...defaultWallRequirements, network: "10g" })).toBe("existing-10g");
   });
 
   it("turns must-haves into ordering checks without inventing products", () => {

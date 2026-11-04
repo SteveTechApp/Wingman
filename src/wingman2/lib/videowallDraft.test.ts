@@ -158,6 +158,19 @@ describe("restoreVideowallDraft photo review", () => {
     expect(restored.selectedId).toBe("mx-0404-scl");
   });
 
+  it("keeps whether the selected network switches are existing or new", () => {
+    rememberVideowallDraft({
+      requirements: { ...defaultWallRequirements, network: "10g", networkProvision: "new", sourceLocation: "distributed" },
+      selectedId: "",
+    });
+
+    expect(restoreVideowallDraft(null).requirements).toMatchObject({
+      network: "10g",
+      networkProvision: "new",
+      sourceLocation: "distributed",
+    });
+  });
+
   it("records the project the draft belongs to, and moves it with the wall", () => {
     projectWall.id = "project-1";
     rememberVideowallDraft({ requirements: defaultWallRequirements });

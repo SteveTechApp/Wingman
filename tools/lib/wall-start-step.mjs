@@ -37,7 +37,7 @@ function containmentFailure(measured, { at }) {
 function wallTypeFailure(measured, { at }) {
   if (!measured.wallTypeStep) return `The walk could not find the wall-type question in the ${STEP} at ${at}.`;
   if (Number.parseInt(at, 10) > 900 && measured.progressRows !== 1) {
-    return `The ${STEP} puts its seven progress steps on ${measured.progressRows} rows at ${at}; they should read as one rail on a desktop.`;
+    return `The ${STEP} puts its eight progress steps on ${measured.progressRows} rows at ${at}; they should read as one rail on a desktop.`;
   }
   if (Number.parseInt(at, 10) > 900 && measured.optionRows !== 2) {
     return `The ${STEP} lays out its five wall types on ${measured.optionRows} rows at ${at}; three choices and two centered choices should balance the card.`;

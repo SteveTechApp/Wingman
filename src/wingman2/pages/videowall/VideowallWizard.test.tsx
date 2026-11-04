@@ -14,6 +14,7 @@ function renderWizard(
   next: WallRequirements,
   { atResult = true }: { atResult?: boolean } = {},
 ) {
+  const onChange = vi.fn();
   const decision = decideVideowall(next);
   render(
     <MemoryRouter>
@@ -30,7 +31,7 @@ function renderWizard(
         onSelect={vi.fn()}
         concerns={[]}
         onConcerns={vi.fn()}
-        onChange={vi.fn()}
+        onChange={onChange}
         onChooseLayout={vi.fn()}
         onChoosePanels={vi.fn()}
         onSave={vi.fn()}
@@ -44,6 +45,7 @@ function renderWizard(
       />
     </MemoryRouter>,
   );
+  return { onChange };
 }
 
 describe("VideowallWizard start step", () => {
@@ -67,7 +69,7 @@ describe("VideowallWizard start step", () => {
 });
 
 it("asks how the wall is fed after its size and before its windows", () => {
-  renderWizard(requirements(), { atResult: false });
+  renderWizard(requirements({ network: "1g", networkProvision: "existing" }), { atResult: false });
 
   fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
   // The size answer comes first, then the sources it carries, so the connection
@@ -75,6 +77,8 @@ it("asks how the wall is fed after its size and before its windows", () => {
   fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
   expect(screen.getByTestId("videowall-wizard-step-sources")).toBeTruthy();
   fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
+  expect(screen.getByTestId("videowall-wizard-step-network")).toBeTruthy();
+  fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));
 
   expect(screen.getByTestId("videowall-wizard-step-feeding")).toBeTruthy();
   expect(screen.getByTestId("videowall-feeding-per-panel").getAttribute("aria-pressed")).toBe("true");
@@ -83,15 +87,16 @@ it("asks how the wall is fed after its size and before its windows", () => {
   expect(screen.getByTestId("videowall-feed-path-matrix-per-panel")).toBeTruthy();
   expect(screen.queryByTestId("videowall-feed-path-nhd600")).toBeNull();
   expect(screen.getAllByTestId("videowall-feeding-check").map((node) => node.textContent).join(" "))
-    .toContain("One output per panel");
+    .toContain("One decoder per panel");
 });
 
 it("offers an LED canvas the processor, the multiviewers and a custom canvas", () => {
-  renderWizard(requirements({ application: "led", columns: 1, rows: 1 }), { atResult: false });
+  renderWizard(requirements({ application: "led", columns: 1, rows: 1, network: "1g", networkProvision: "existing" }), { atResult: false });
 
   fireEvent.click(screen.getByRole("button", { name: /^LED · processor input/ }));
   fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
   fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));
 
   expect(screen.getByTestId("videowall-feeding-single-input").getAttribute("aria-pressed")).toBe("true");
   expect(screen.queryByTestId("videowall-feeding-per-panel")).toBeNull();
@@ -178,15 +183,15 @@ it("shows one result section at a time and preserves requirements while changing
   expect(screen.getByRole("heading", { name: "Your answers" }).closest("section")?.textContent).toContain("3 × 3");
 });
 
-it("asks the wall type first, then its sources and layout, one question a screen", () => {
-  renderWizard(requirements(), { atResult: false });
+it("asks source count and network provision on separate screens", () => {
+  const { onChange } = renderWizard(requirements(), { atResult: false });
 
   // The rail is the ladder: the wall's type decides which questions exist, so it
   // is asked before the wall's size; the sources follow the box they fill, and
   // the layout comes after the connection that decides who composes them.
   const rail = screen.getByRole("list", { name: "Wizard progress" });
   expect(within(rail).getAllByRole("listitem").map((item) => item.textContent?.replace(/^\d/, "")))
-    .toEqual(["Wall type", "Size and pixels", "Sources", "Connection", "Layout", "The design", "Must-haves"]);
+    .toEqual(["Wall type", "Size and pixels", "Sources", "Network", "Connection", "Layout", "The design", "Must-haves"]);
   expect(screen.getByTestId("videowall-wizard-step-picture")).toBeTruthy();
 
   fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
@@ -198,5 +203,20 @@ it("asks the wall type first, then its sources and layout, one question a screen
   fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
   expect(screen.getByTestId("videowall-wizard-step-sources")).toBeTruthy();
   expect(screen.getByRole("group", { name: "Source count" })).toBeTruthy();
-  expect(screen.getByRole("group", { name: "Where the sources sit" })).toBeTruthy();
+  expect(screen.getByRole("group", { name: "Source timing" })).toBeTruthy();
+  expect(screen.queryByRole("group", { name: "Network provision" })).toBeNull();
+
+  fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
+  expect(screen.getByTestId("videowall-wizard-step-network")).toBeTruthy();
+  const network = screen.getByRole("group", { name: "Network provision" });
+  expect(within(network).getAllByRole("button").map((button) => button.querySelector("strong")?.textContent))
+    .toEqual([
+      "Use an existing 1Gb network",
+      "Use an existing 10Gb network",
+      "Supply new 1Gb network switches",
+      "Supply new 10Gb network switches",
+    ]);
+  expect(screen.getByTestId("videowall-wizard-network-next")).toBeDisabled();
+  fireEvent.click(within(network).getByRole("button", { name: /Supply new 10Gb network switches/ }));
+  expect(onChange).toHaveBeenLastCalledWith({ sourceLocation: "distributed", network: "10g", networkProvision: "new" });
 });

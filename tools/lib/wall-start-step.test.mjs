@@ -44,7 +44,7 @@ describe("the Guided wall wizard's opening", () => {
 
   it("keeps the desktop progress rail on one row", () => {
     expect(read({ ...holding(), progressRows: 2 }, "1366px").verdict)
-      .toContain("puts its seven progress steps on 2 rows at 1366px");
+      .toContain("puts its eight progress steps on 2 rows at 1366px");
   });
 
   it("balances the five wall choices into two desktop rows", () => {

@@ -8,8 +8,8 @@ import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../..
 import { wallDecisionSummary, type WallDecision, type WallLayoutChoice } from "../../lib/videowallDecision";
 import { wallApplications, type WallOption, type WallRequirements } from "../../lib/videowallOptions";
 import {
-  videowallLocationChoices,
-  videowallLocationKeyFor,
+  videowallNetworkChoices,
+  videowallNetworkKeyFor,
   videowallPanelPresets,
   videowallSourcePresets,
 } from "../../lib/videowallDraft";
@@ -40,7 +40,8 @@ const STEP = Object.fromEntries(wallWizardSteps.map((item, index) => [item.key, 
 const STEP_HEADINGS: Record<string, { title: string; hint: string }> = {
   picture: { title: "What kind of wall?", hint: "The type decides the questions after it: a projection screen has projectors, an LED canvas has a pitch, and only an LCD wall can be fed a panel at a time." },
   size: { title: "How big is the wall?", hint: "The array, the panel pixels and the pitch set the size of the box." },
-  sources: { title: "What is going on the wall?", hint: "How many sources there are, at what timing, and where they sit — distance decides between local HDMI and network transport." },
+  sources: { title: "How many sources?", hint: "Choose how many sources the wall needs to show and the highest timing they use." },
+  network: { title: "What network will carry the picture?", hint: "Choose the existing network to use, or include new switches in the design." },
   feeding: { title: "How is the wall fed?", hint: "One canvas the wall scales, or a feed per panel — then the box that produces that canvas." },
   layout: { title: "How should the sources appear?", hint: "Windows composed in one design — the multiview — or a source per screen, which is a different design." },
   visual: { title: "The wall you have described", hint: "Drawn at the size and mounting height the answers set, with the sources mapped onto it." },
@@ -367,14 +368,25 @@ export function VideowallWizard({
               ))}
             </div>
           </div>
-          <div className="vw-wizard-fieldset" role="group" aria-label="Where the sources sit">
-            <p className="vw-wizard-label">Where the sources sit</p>
+          <div className="vw-wizard-nav">
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.size)}>Back</button>
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-sources-next" onClick={next}>
+              Continue to network choices
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {step === STEP.network ? (
+        <section className="vw-wizard-card" data-testid="videowall-wizard-step-network" aria-label="What network will carry the picture?">
+          <div className="vw-wizard-fieldset" role="group" aria-label="Network provision">
+            <p className="vw-wizard-label">Network provision</p>
             <div className="vw-wizard-options">
-              {videowallLocationChoices.map((choice) => (
+              {videowallNetworkChoices.map((choice) => (
                 <button
                   key={choice.key}
                   type="button"
-                  aria-pressed={videowallLocationKeyFor(requirements) === choice.key}
+                  aria-pressed={videowallNetworkKeyFor(requirements) === choice.key}
                   onClick={() => onChange(choice.patch)}
                 >
                   <strong>{choice.label}</strong>
@@ -384,9 +396,9 @@ export function VideowallWizard({
             </div>
           </div>
           <div className="vw-wizard-nav">
-            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.size)}>Back</button>
-            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-sources-next" onClick={next}>
-              Continue with {requirements.sources} source{requirements.sources === 1 ? "" : "s"}
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.sources)}>Back</button>
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-network-next" onClick={next} disabled={!videowallNetworkKeyFor(requirements)}>
+              Continue to connection
             </button>
           </div>
         </section>
@@ -396,7 +408,7 @@ export function VideowallWizard({
         <VideowallFeedStep
           requirements={requirements}
           onChange={onChange}
-          onBack={() => back(STEP.sources)}
+          onBack={() => back(STEP.network)}
           onNext={next}
         />
       ) : null}

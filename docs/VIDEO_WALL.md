@@ -7,8 +7,15 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
 - Both workflows begin by choosing the wall type, because LCD, LED and
   projection have different sizing and signal questions. Guided then asks one
   question at a time; its size step gathers the LED canvas pixels, pitch and
-  cabinet array, while Expert offers saved starting points after that initial
-  type choice. The guided wizard does not bypass the Q&A through preset cards.
+  cabinet array, then keeps source count and source timing on their own question.
+  Network provision is a separate question with four answers: use the existing
+  1Gb network, use the existing 10Gb network, supply new 1Gb switches, or supply
+  new 10Gb switches. The answer stores both speed and whether the switches are
+  already present, so the recommendation still reads the speed while the saved
+  design records equipment scope. Older walls that only recorded 1Gb or 10Gb
+  continue to mean an existing network. Expert offers saved starting points
+  after that initial type choice. The guided wizard does not bypass the Q&A
+  through preset cards.
   `wallEntry`'s shared intro sentence describes that same journey at every
   entry point. The guided start checks wall type first, then the type-specific
   size fields; its progress rail and section order are held by

@@ -564,7 +564,7 @@
 
 /* Guided wizard ----------------------------------------------------------- */
 .vw-wizard { max-width: 1180px; }
-.vw-wizard-progress { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.vw-wizard-progress { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
 .vw-wizard-progress li { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-radius: 8px; color: var(--vw-muted); font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; background: var(--vw-deep); }
 .vw-wizard-progress li span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; font-size: .64rem; }
 .vw-wizard-progress li[data-state="done"] { color: var(--vw-aqua); border-color: var(--vw-border-accent); }
