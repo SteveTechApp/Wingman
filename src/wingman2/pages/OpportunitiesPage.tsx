@@ -22,14 +22,14 @@ export function OpportunitiesPage() {
   // Guided, this page decides the room before it offers anything to buy: the
   // library answers "which design", and that question is only worth asking once
   // the room is known. The grid stays one link away for a rep who already does.
-  if (isGuided && !interview) return <>
+  if (isGuided && !interview) return <div className="wm-room-brief-page">
     <RoomBriefWizard />
-    <nav className="wm-ui-card flex flex-wrap gap-2 p-3" aria-label="Other starting points">
+    <nav className="wm-ui-card wm-room-brief-links flex flex-wrap gap-2 p-3" aria-label="Other starting points">
       <Link className="wm-ui-button wm-ui-button-secondary" to={routeCatalogByKey.templates.path}>Browse the design library</Link>
       <Link className="wm-ui-button wm-ui-button-secondary" to={routeCatalogByKey.videowall.path}>{WALL_ENTRY_NAME}</Link>
       <Link className="wm-ui-button wm-ui-button-secondary" to={routeCatalogByKey.callCoach.path}>Prepare a conversation</Link>
     </nav>
-  </>;
+  </div>;
   return <>
     <nav className="wm-ui-card flex flex-wrap gap-2 p-3" aria-label="Opportunity starting points">
       <span className="wm-ui-button wm-ui-button-primary" aria-current="page">Build a room</span>

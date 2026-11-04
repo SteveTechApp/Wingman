@@ -80,6 +80,12 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   that changes no room type — it changes what a rep talks about and which
   designs are worth reading first — which is why it is carried rather than
   branched on.
+  The first screen keeps that short decision in a readable column: purpose and
+  occupancy are distinct grouped questions, and each answer is a full clickable
+  card with a visible selected state. A full-width row of bare radio labels made
+  long purpose answers wrap unpredictably and scattered the choices across the
+  available page; the card grid gives each answer a stable target and reflows
+  from four columns to one as the viewport narrows.
 - The hand-off is `writeDiscoveryHandoff` plus the address `?interview=1`, and the
   page that composes both (`OpportunitiesPage`) reads that parameter on every
   render. It has to: the decision and the brief are the same route, so following

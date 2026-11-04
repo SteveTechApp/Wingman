@@ -549,6 +549,9 @@ states is one they trust by mistake.
   link away for the rep who already knows what they want, and it opens on the
   market the room was described in (`?market=`), because the vertical is a fact
   the brief has already read and a rep should not have to say it twice.
+  Its first screen keeps the customer-level questions in a readable column and
+  presents each answer as a selectable card, so long purpose labels stay aligned
+  and the targets reflow cleanly on narrow screens. [Narrative](docs/DISCOVERY.md)
 - A selected market environment supplies the application when it has a governed
   suggestion, fills unanswered application defaults once for the rep to adjust,
   and the capture uses that answer to adjust its visible questions without

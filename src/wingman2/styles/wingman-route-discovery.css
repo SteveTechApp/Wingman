@@ -56,3 +56,203 @@ html[data-wingman-route="discovery"] .wm-ui-button {
   font-size: 0.78rem;
   border-radius: 10px;
 }
+
+/* The guided room brief is a short decision form. Keep its reading column
+   narrower than the workspace, then give each answer a deliberate target. */
+html[data-wingman-route="discovery"] .wm-room-brief-page {
+  width: min(100%, 1540px);
+  margin-inline: auto;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief {
+  display: block;
+  min-height: 0;
+  padding: clamp(20px, 2.4vw, 34px);
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief .wm-template-stages {
+  width: min(100%, 1260px);
+  margin: 0 auto 30px;
+  padding: 12px 16px;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-content {
+  width: min(100%, 1260px);
+  margin-inline: auto;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-content > .wm-ui-kicker {
+  margin: 0 0 7px;
+  color: var(--wm-primary, #2dd4bf);
+  letter-spacing: 0.12em;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-content > .wm-page-title {
+  max-width: 32ch;
+  margin: 0;
+  font-size: clamp(2rem, 3.2vw, 3rem);
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-content > .wm-ui-copy {
+  max-width: 78ch;
+  margin: 9px 0 22px;
+  color: var(--wm-text-soft, #a8bacb);
+  line-height: 1.55;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-market {
+  display: grid;
+  width: min(100%, 440px);
+  gap: 7px;
+  margin: 0 0 22px;
+  color: var(--wm-text-soft, #a8bacb);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-market select {
+  min-height: 46px;
+  font-size: 0.95rem;
+  letter-spacing: normal;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-question {
+  min-width: 0;
+  margin: 0 0 18px;
+  padding: 18px;
+  border: 1px solid rgba(125, 211, 252, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(15, 38, 57, 0.7), rgba(7, 23, 38, 0.62));
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-question legend {
+  display: block;
+  margin: 0 0 14px;
+  padding: 0;
+  color: var(--wm-text, #eff6ff);
+  font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: left;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-purpose .wm-room-brief-options {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-occupancy .wm-room-brief-options {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-option {
+  display: flex;
+  min-width: 0;
+  min-height: 64px;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 12px;
+  background: rgba(7, 23, 38, 0.6);
+  color: var(--wm-text-soft, #c0cfdb);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.38;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-option:hover {
+  transform: translateY(-1px);
+  border-color: rgba(45, 212, 191, 0.58);
+  background: rgba(13, 49, 65, 0.9);
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-option.is-selected {
+  border-color: rgba(45, 212, 191, 0.84);
+  background: linear-gradient(145deg, rgba(17, 106, 119, 0.58), rgba(8, 54, 74, 0.8));
+  color: #f1ffff;
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.14), 0 5px 20px rgba(0, 0, 0, 0.12);
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-option input[type="radio"] {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin: 1px 0 0;
+  accent-color: #2dd4bf;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-option:focus-within {
+  outline: 2px solid #5eead4;
+  outline-offset: 2px;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief .wm-solution-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-links {
+  display: flex;
+  width: min(100%, 1540px);
+  margin: 12px auto 0;
+  padding: 10px 14px;
+  border-color: rgba(125, 211, 252, 0.12);
+  background: rgba(7, 23, 38, 0.52);
+}
+
+@media (max-width: 1100px) {
+  html[data-wingman-route="discovery"] .wm-room-brief-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  html[data-wingman-route="discovery"] .wm-room-brief-occupancy .wm-room-brief-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  html[data-wingman-route="discovery"] .wm-room-brief {
+    padding: 16px;
+  }
+
+  html[data-wingman-route="discovery"] .wm-room-brief .wm-template-stages {
+    margin-bottom: 22px;
+    padding: 10px;
+  }
+
+  html[data-wingman-route="discovery"] .wm-room-brief-options,
+  html[data-wingman-route="discovery"] .wm-room-brief-purpose .wm-room-brief-options,
+  html[data-wingman-route="discovery"] .wm-room-brief-occupancy .wm-room-brief-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html[data-wingman-route="discovery"] .wm-room-brief-question {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 440px) {
+  html[data-wingman-route="discovery"] .wm-room-brief-options,
+  html[data-wingman-route="discovery"] .wm-room-brief-purpose .wm-room-brief-options,
+  html[data-wingman-route="discovery"] .wm-room-brief-occupancy .wm-room-brief-options {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-wingman-route="discovery"] .wm-room-brief-links {
+    align-items: stretch;
+  }
+}
