@@ -190,7 +190,7 @@ export function VideowallWizard({
             >
               <button
                 type="button"
-                aria-label={`Go back to ${item.label}`}
+                aria-label={`Edit ${item.label}`}
                 data-testid={`videowall-wizard-progress-${item.key}`}
                 disabled={index >= step}
                 onClick={() => {

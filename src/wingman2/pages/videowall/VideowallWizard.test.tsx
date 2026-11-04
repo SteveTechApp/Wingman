@@ -238,6 +238,7 @@ it("lets the user return to a completed answer from the progress buttons", () =>
   expect(screen.getByTestId("videowall-wizard-step-network")).toBeTruthy();
 
   expect(screen.getByTestId("videowall-wizard-progress-size")).not.toBeDisabled();
+  expect(screen.getByRole("button", { name: "Edit Size and pixels" })).toBeTruthy();
   expect(screen.getByTestId("videowall-wizard-progress-network")).toBeDisabled();
   expect(screen.getByTestId("videowall-wizard-progress-feeding")).toBeDisabled();
   fireEvent.click(screen.getByTestId("videowall-wizard-progress-size"));
