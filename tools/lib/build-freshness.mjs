@@ -125,8 +125,11 @@ export function collectBuildInputs(root) {
  * clone, and the manifest's hashes still prove what was measured.
  */
 export function gitRevision(root = process.cwd()) {
+  const env = path.resolve(root) === process.cwd()
+    ? process.env
+    : Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)));
   const run = (args) =>
-    execFileSync("git", args, { cwd: root, stdio: ["ignore", "pipe", "ignore"], windowsHide: true })
+    execFileSync("git", args, { cwd: root, env, stdio: ["ignore", "pipe", "ignore"], windowsHide: true })
       .toString()
       .trim();
   try {

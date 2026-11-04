@@ -23,6 +23,13 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   `<select>` inside a chip declares its own (also `!important`) or it renders
   as a box inside the pill; a chip in a wrapping row needs `flex:0 0 auto` or
   it squeezes its own label into two lines.
+- The market/environment choice is the room-type input for Essential capture.
+  Selecting a different environment replaces its suggested application and
+  fills unanswered smart defaults once for the rep to adjust; a saved deliberate
+  blank stays blank when the brief is reopened. Those answers drive the visible
+  question set. All capture modes omit the duplicate application selector; the
+  market/environment control or, when there is no environment, the compact
+  room-type summary is the correction path.
 - The programme-audio route is one question (`audio-route`) holding both ends:
   values prefixed `extract-` name where sound leaves the video path, `route-`
   name where it must arrive. `deriveDiscoveryAudioDesign`
@@ -73,6 +80,19 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   that changes no room type — it changes what a rep talks about and which
   designs are worth reading first — which is why it is carried rather than
   branched on.
+  The first screen keeps that short decision in a readable column: purpose and
+  occupancy are distinct grouped questions, and each answer is a full clickable
+  card with a visible selected state. A full-width row of bare radio labels made
+  long purpose answers wrap unpredictably and scattered the choices across the
+  available page; the card grid gives each answer a stable target and reflows
+  from four columns to one as the viewport narrows.
+  The purpose choices include one combined local-presentation and video-meeting
+  answer, with a plain-language note that the room's camera and microphones
+  serve remote participants. That choice implies the far end is present and
+  carries the conferencing requirement into the decision, so the ladder does
+  not ask the same thing twice.
+  The handoff carries a known market into Discovery, which lets the guided
+  customer continue at the environment question without reselecting the market.
 - The hand-off is `writeDiscoveryHandoff` plus the address `?interview=1`, and the
   page that composes both (`OpportunitiesPage`) reads that parameter on every
   render. It has to: the decision and the brief are the same route, so following
@@ -80,6 +100,18 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   snapshot it used to take left the rep reading the decision with the address
   saying otherwise. Nothing about it writes the interface mode — a guided rep
   lands in the guided interview, and the expert view remains a mode they choose.
+
+- Discovery keeps a browser snapshot current as the rep answers, and writes the
+  project brief when they save or continue. Recommendations must compare the
+  brief timestamps and use the newer snapshot only when its project owner
+  matches; always preferring the project made a newer, autosaved set of answers
+  look as if it had been lost. The project brief also stores exact option values
+  and customer notes beside the readable `discoveryConversation`. The latter is
+  for review and export; using it to reconstruct answer state can lose choices
+  when labels change or multi-select labels contain delimiters. Project codec
+  and snapshot hydration tests pin both paths. When a rep completes a check on
+  Recommendations, that updated brief is written back to the matching browser
+  snapshot too, so returning to Discovery cannot restore the old open check.
 
 - The guided walk is a room, not a list of questions. Its section is the unit a
   rep captures and reports on, so the walk prints the section it is in, how many
@@ -90,6 +122,29 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   learns that "Sources" means one thing in one view and something else in the
   other. A question is filed by what it is about (`discoverySectionFor`), so a
   new question is filed once and neither reading needs a second table.
+
+  The order now follows the design conversation a systems designer needs:
+  room brief; environment and installation; displays and cameras; audio;
+  switching and signal distribution; room and AV control; lighting; commissioning
+  and handover; then equipment and review. The environment includes site access,
+  wall/floor/ceiling construction, power, containment and first-fix cabling.
+  Source and output positions, estimated distances, video resolution and USB
+  generation belong with switching because they decide how signals can travel.
+  Camera types, counts and destinations sit beside displays; microphone and
+  programme-audio routes sit in Audio. Lighting stays separate from general
+  building notes because daylight, blinds, dimming and control integration
+  change screen visibility and room operation. Commissioning records functional
+  tests, customer acceptance, training, as-built documents and who owns the
+  handover.
+
+  Essential view covers those same product decisions with customer-level
+  language, while the detail view retains the design vocabulary and structured
+  topology. Building and installation facts keep their notes plus a separate
+  responsibility value: "Not known" means a site check is owed, while "By
+  others" names work another party owns. These states must not be mistaken for a
+  confirmed technical answer. The commissioning question offers the same clear
+  unknown and ownership choices, and Essential view labels pre-filled values as
+  suggestions to review.
 
   The forward action is unconditional. It used to render only when
   `wmDiscoveryHasAnswer` was true for the question on screen, which made the

@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   ROOM_BRIEF_QUESTIONS,
+  decisionForCapturedRoom,
   nextRoomBriefQuestion,
   resolveRoomBrief,
   roomArchetypes,
+  roomBriefAnswersFromDiscovery,
   roomBriefDiscoveryAnswers,
+  roomBriefNote,
   setupArchetypes,
   survivingArchetypes,
   type RoomBriefAnswers,
@@ -27,6 +30,20 @@ describe("setup", () => {
     expect(teaching).not.toContain("signage-wall");
     // A purpose nobody has used yet must not empty the list.
     expect(setupArchetypes({ purpose: "" }).length).toBe(roomArchetypes().length);
+  });
+
+  it("treats local presentation with room video conferencing as one combined purpose", () => {
+    const answers = { purpose: "present-and-meet", occupancy: "small" };
+    expect(setupArchetypes(answers)).toEqual([
+      "huddle-byod",
+      "meeting-dual",
+      "divisible-boardroom",
+    ]);
+    // The selected purpose already says a room camera and microphones are used,
+    // so do not ask whether a far end joins a call a second time.
+    expect(nextRoomBriefQuestion(answers)?.id).not.toBe("far-end");
+    const decision = resolveRoomBrief(answers);
+    expect(decision.requirements.some((requirement) => requirement.key === "uc")).toBe(true);
   });
 });
 
@@ -258,11 +275,90 @@ describe("handing off", () => {
     expect(answers.displays).toBe("1");
   });
 
+  it("carries a known market into Discovery so it is not requested again", () => {
+    const decision = resolveRoomBrief(answer({ purpose: "meet", occupancy: "squad" }), "Corporate");
+    expect(roomBriefDiscoveryAnswers(decision).market).toBe("corporate");
+  });
+
   it("sends a signage wall to the video-wall application and a campus to distributed video", () => {
     expect(roomBriefDiscoveryAnswers(resolveRoomBrief(answer({ purpose: "signage", reach: "no", dwell: "pass" }))).opportunity)
       .toBe("video-wall");
     expect(roomBriefDiscoveryAnswers(resolveRoomBrief(answer({ purpose: "campus" }))).opportunity)
       .toBe("av-over-ip");
+  });
+});
+
+/**
+ * The expert workspace says the same room in its own vocabulary. These pin that
+ * both depths ask one engine, that a fact the capture never asked stays absent
+ * rather than defaulted, and that the room the capture names is the room the
+ * decision lands on.
+ */
+describe("the captured room", () => {
+  it("reads the capture's own answers into the facts the ladder asks about", () => {
+    const brief = roomBriefAnswersFromDiscovery({
+      opportunity: "meeting-room",
+      "room-occupancy": "12",
+      "display-behaviour": "independent-routing-per-display",
+      "uc-purpose": ["video-conferencing", "recording-streaming"],
+      "network-path": "corporate-av-vlan",
+    });
+    expect(brief).toMatchObject({
+      purpose: "present",
+      occupancy: "medium",
+      screens: "different",
+      "far-end": "yes",
+      record: "yes",
+      reach: "yes",
+    });
+  });
+
+  it("leaves a fact the capture never asked alone, so the reading can ask for it", () => {
+    // A partition, a dwell and an operator are never captured in the sections,
+    // so the decision reports them as unresolved instead of assuming an answer.
+    expect(roomBriefAnswersFromDiscovery({ opportunity: "meeting-room" })).toEqual({ purpose: "present" });
+  });
+
+  it("decides a dual-screen meeting room from what the sections capture", () => {
+    const decision = decisionForCapturedRoom({
+      opportunity: "meeting-room",
+      "display-behaviour": "independent-routing-per-display",
+      "uc-purpose": ["video-conferencing"],
+      "uc-platform": "microsoft-teams-room",
+    });
+    expect(decision?.archetype).toBe("meeting-dual");
+    // Two screens routed separately is a switcher, and the reading says how
+    // many reasons a rep would have to defend.
+    expect(decision?.requirements.length).toBeGreaterThan(1);
+    expect(decision?.unresolved).toContain("divisible-boardroom");
+  });
+
+  it("lands on the room the application names, not the first one still open", () => {
+    // A captured video wall is a wall: the venue and the building-wide system
+    // are still possible on the other answers, and both are reported.
+    const decision = decisionForCapturedRoom({ opportunity: "video-wall" });
+    expect(decision?.archetype).toBe("signage-wall");
+    expect(decision?.unresolved).toEqual(expect.arrayContaining(["venue", "campus-distribution"]));
+  });
+
+  it("reads the people count into the band the requirements speak in", () => {
+    const decision = decisionForCapturedRoom({
+      opportunity: "meeting-room",
+      "room-occupancy": "8",
+      "uc-purpose": ["video-conferencing"],
+    });
+    const uc = decision?.requirements.find((requirement) => requirement.key === "uc");
+    expect(uc?.because).toContain("five to ten");
+  });
+
+  it("decides nothing for a capture that has not said what the room is for", () => {
+    expect(decisionForCapturedRoom({})).toBeNull();
+    expect(decisionForCapturedRoom({ opportunity: "not-sure" })).toBeNull();
+  });
+
+  it("writes one note, so the two depths cannot record the room differently", () => {
+    const decision = resolveRoomBrief(answer({ purpose: "present", occupancy: "squad", "far-end": "sometimes", screens: "same" }));
+    expect(roomBriefNote(decision)).toBe(`${decision.roomType}: ${decision.summary}`);
   });
 });
 

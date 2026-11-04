@@ -5,10 +5,14 @@ import type { DiscoveryAnswers, DiscoveryNotes } from "./discoveryTypes";
 
 export function discoverySnapshotFromProject(project: StoredProject): DiscoverySnapshot {
   const brief = project.discoveryBrief ?? {};
-  const answers: DiscoveryAnswers = {};
-  const notes: DiscoveryNotes = {};
+  const answers: DiscoveryAnswers = { ...(brief.discoveryAnswers ?? {}) };
+  const notes: DiscoveryNotes = { ...(brief.discoveryNotes ?? {}) };
   const confirmed: Record<string, boolean> = {};
   for (const row of brief.discoveryConversation ?? []) {
+    if (answers[row.stepId] !== undefined) {
+      confirmed[row.stepId] = row.confirmed === true;
+      continue;
+    }
     const question = canonicalDiscoveryQuestions.find((item) => item.id === row.stepId);
     const exact = question?.options.find((option) => option.label === row.answer || option.value === row.answer);
     const matches = exact ? [exact] : question?.options.filter((option) => row.answer.split(", ").includes(option.label)) ?? [];

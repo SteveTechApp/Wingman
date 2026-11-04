@@ -12,6 +12,7 @@ import {
   isInterviewLanguageLoaded,
   loadInterviewLanguage,
 } from "./discoveryGuidedInterviewI18n";
+import { discoverySectionFor } from "./discoverySections";
 
 // The non-English stem tables are lazy-loaded (see loadInterviewLanguage);
 // tests assert the localized stems synchronously after render, so preload the
@@ -327,34 +328,34 @@ describe("DiscoveryGuidedInterview resume", () => {
     renderInterview(all);
 
     expect(screen.getByText("Jump to section:")).toBeTruthy();
-    const firstUc = questions.findIndex((q) => q.section === "Unified Communications");
-    fireEvent.click(screen.getByRole("button", { name: "Unified Communications" }));
-    expect(screen.getByText(`Question ${firstUc + 1} of ${questions.length}`)).toBeTruthy();
-    expect(screen.getByText(questions[firstUc].question)).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Unified Communications" }).getAttribute("aria-pressed")).toBe("true");
+    const firstDisplayAndCamera = questions.findIndex((q) => discoverySectionFor(q) === "outputs");
+    fireEvent.click(screen.getByRole("button", { name: "Displays & cameras" }));
+    expect(screen.getByText(`Question ${firstDisplayAndCamera + 1} of ${questions.length}`)).toBeTruthy();
+    expect(screen.getByText(questions[firstDisplayAndCamera].question)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Displays & cameras" }).getAttribute("aria-pressed")).toBe("true");
   });
 
   it("shows only the sections with open rows in the focused re-verify stepper", () => {
     const questions: DiscoveryQuestion[] = [
       {
-        id: "q1", shortLabel: "First", section: "Sources", question: "First question", prompt: "Prompt one", why: "", required: true, capturePlaceholder: "",
+        id: "opportunity", shortLabel: "First", section: "Room brief", question: "First question", prompt: "Prompt one", why: "", required: true, capturePlaceholder: "",
         options: [{ value: "a", label: "Option A" }],
       },
       {
-        id: "q2", shortLabel: "Second", section: "Unified", question: "Second question", prompt: "Prompt two", why: "", required: true, capturePlaceholder: "",
+        id: "uc-purpose", shortLabel: "Second", section: "Displays & cameras", question: "Second question", prompt: "Prompt two", why: "", required: true, capturePlaceholder: "",
         options: [{ value: "c", label: "Option C" }],
       },
       {
-        id: "q3", shortLabel: "Third", section: "Positions", question: "Third question", prompt: "Prompt three", why: "", required: true, capturePlaceholder: "",
+        id: "control", shortLabel: "Third", section: "Room & AV control", question: "Third question", prompt: "Prompt three", why: "", required: true, capturePlaceholder: "",
         options: [{ value: "d", label: "Option D" }],
       },
     ];
     render(
       <DiscoveryGuidedInterview
         questions={questions}
-        answers={{ q1: "a", q2: "c", q3: "d" }}
+        answers={{ opportunity: "a", "uc-purpose": "c", control: "d" }}
         notes={{}}
-        confirmed={{ q2: true }}
+        confirmed={{ "uc-purpose": true }}
         onAnswersChange={vi.fn()}
         onNotesChange={vi.fn()}
         onExit={vi.fn()}
@@ -363,12 +364,12 @@ describe("DiscoveryGuidedInterview resume", () => {
       />,
     );
 
-    // The confirmed "Unified" question drops its whole section from the stepper.
-    expect(screen.getByRole("button", { name: "Sources" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Positions" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Unified" })).toBeNull();
+    // The confirmed camera/conferencing question drops its section from the stepper.
+    expect(screen.getByRole("button", { name: "Room brief" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Room & AV control" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Displays & cameras" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: "Positions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Room & AV control" }));
     expect(screen.getByText("Open question 2 of 2")).toBeTruthy();
     expect(screen.getByText("Third question")).toBeTruthy();
   });

@@ -198,6 +198,8 @@ export function wallFeedPathKeyFor(r: WallRequirements): WallFeedPathKey {
     return r.network === "1g" || r.network === "10g" ? "avoip-per-panel" : "matrix-per-panel";
   }
   if (r.sourceCustom) return "nhd500";
+  if (r.multiviewSelected && r.network === "10g") return "nhd600";
+  if (r.multiviewSelected && r.network === "1g") return "nhd150";
   if (r.network === "10g") return "nhd600";
   if (r.network === "1g") return r.windows > 1 ? "nhd150" : "avoip-decoder";
   return "scaling-switch";

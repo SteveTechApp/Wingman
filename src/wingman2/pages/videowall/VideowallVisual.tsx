@@ -243,6 +243,9 @@ export function VideowallVisual({ requirements, onMappingChange, onRequirementsC
         <p className="vw-wall-title">Wall elevation</p>
         <span className="vw-wall-aspect">{layout.aspectLabel}</span>
       </div>
+      <p className="vw-wall-selection" data-testid="videowall-visual-selection">
+        {layout.arrayLabel} · {layout.windowLabel}
+      </p>
       <div className="vw-wall-stage">
         <svg
           viewBox={`0 0 ${drawing.width} ${drawing.height}`}

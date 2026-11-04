@@ -53,7 +53,10 @@ export function VideowallFeedStep({
     const item = paths.find((entry) => entry.key === key);
     if (!item) return;
     setPath(item.key);
-    onChange(item.patch);
+    onChange({
+      ...item.patch,
+      multiviewSelected: item.key === "nhd150" || item.key === "nhd600",
+    });
   }
 
   return (

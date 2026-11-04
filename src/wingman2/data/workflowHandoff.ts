@@ -689,10 +689,19 @@ export function readLatestDiscoverySnapshot(): DiscoverySnapshot | null {
 export function readLatestDiscoveryBrief(): StoredDiscoveryBrief | null {
   if (typeof window === "undefined") return null;
 
-  const projectBrief = getCurrentWorkflowProject(readProjectStore())?.discoveryBrief;
+  const snapshot = readLatestDiscoverySnapshot();
+  const snapshotBrief = snapshot?.brief;
+  const currentProject = getCurrentWorkflowProject(readProjectStore());
+  const projectBrief = currentProject?.discoveryBrief;
+  const snapshotBelongsToCurrentProject = !snapshot?.projectId || !currentProject || snapshot.projectId === currentProject.id;
+  if (snapshotBrief && snapshotBelongsToCurrentProject) {
+    const snapshotTime = Date.parse(snapshotBrief.savedAt ?? snapshot?.savedAt ?? "");
+    const projectTime = Date.parse(projectBrief?.savedAt ?? "");
+    if (!projectBrief || !Number.isFinite(projectTime) || (Number.isFinite(snapshotTime) && snapshotTime >= projectTime)) {
+      return snapshotBrief;
+    }
+  }
   if (projectBrief) return projectBrief;
-
-  const snapshotBrief = readLatestDiscoverySnapshot()?.brief;
   if (snapshotBrief) return snapshotBrief;
 
   try {

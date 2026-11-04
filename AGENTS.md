@@ -53,13 +53,11 @@ states is one they trust by mistake.
   sections capture. What may not differ is what the rep leaves with, so the room
   decision is the shared part and a surface renders it rather than holding a
   reading of its own.
-- The gap this section names: the focused path writes the decision record and the
-  expert workspace does not. It captures the same room in sections, then hands
-  the rep to the recommendation without the decided-room reading — the type, the
-  requirements and their reasons, the checks, the assumptions, the changes-if —
-  that the brief path ends on. Until both write it, the two depths end in one
-  place but not one outcome, and that is the work owed here rather than a new
-  surface.
+- Both depths read one `RoomDecision` and render it through
+  `RoomDecisionReading`. The expert path writes the same `room-brief` note when
+  it saves or continues, so a rep can move between depths without losing the
+  type, requirements and their reasons, site checks, assumptions or changes-if.
+  A missing room type stays unresolved; neither path invents one.
 
 ## Worktree & dev workflow
 
@@ -118,6 +116,14 @@ states is one they trust by mistake.
 
 ## Project store
 
+- Discovery's browser snapshot auto-saves as answers change, while the project is
+  written when the rep saves or continues. `readLatestDiscoveryBrief` compares
+  their brief timestamps and uses the newer copy only when its project owner
+  matches; otherwise Recommendations can show checks from an older brief after
+  the rep has already answered them. A saved project brief also carries the
+  exact answer values and notes alongside the readable conversation, so resume
+  does not have to reverse-map labels. The persistence narrative and probes are
+  in [docs/DISCOVERY.md](docs/DISCOVERY.md).
 - `createProjectLifecycleCommands` returns the four ways a project is written,
   and what separates them is the promise each makes about the gallery order and
   about what the rep is reading. `replaceStoredProject` rewrites the row where
@@ -528,6 +534,15 @@ states is one they trust by mistake.
   arrive, split by prefix in one derivation. One question, because a rep answers
   both ends in one conversation and two questions let the halves disagree.
   [Narrative](docs/DISCOVERY.md)
+- Expert Discovery follows the AV design sequence: room brief; environment and
+  installation; displays and cameras; audio; switching and signal distribution;
+  room and AV control; lighting; commissioning and handover; then equipment and
+  review. Source/output locations, route distances, resolution and USB 2.0/3.x
+  are part of distribution; camera paths stay with displays and cameras. The
+  shared section list files both Expert and guided questions. Essential view
+  asks the same decision facts in plain language, with site details recorded as
+  not known or by others where appropriate. Suggested defaults are prompts to
+  review, not customer confirmation. [Narrative](docs/DISCOVERY.md)
 - Guided Discovery decides the room before it offers a design, because "which
   design" is the second question: a library row asks a rep to recognise a
   divisible boardroom from somebody else's picture, which is the one thing a
@@ -542,6 +557,19 @@ states is one they trust by mistake.
   link away for the rep who already knows what they want, and it opens on the
   market the room was described in (`?market=`), because the vertical is a fact
   the brief has already read and a rep should not have to say it twice.
+  Its first screen keeps the customer-level questions in a readable column and
+  presents each answer as a selectable card, so long purpose labels stay aligned
+  and the targets reflow cleanly on narrow screens. [Narrative](docs/DISCOVERY.md)
+  The purpose choices include a combined local-presentation and video-meeting
+  answer; it carries the room-camera and microphone need itself, so the ladder
+  does not ask again whether someone joins remotely. A known market is carried
+  into Discovery so the customer does not have to choose it again.
+- A selected market environment supplies the application when it has a governed
+  suggestion, fills unanswered application defaults once for the rep to adjust,
+  and the capture uses that answer to adjust its visible questions without
+  asking the room type again in any mode. The market/environment control, or the
+  room-type summary when no environment is set, is the correction path.
+  [Narrative](docs/DISCOVERY.md)
 - The decision ends by addressing Discovery again with `?interview=1`, holding
   the decided room as a handoff, and that parameter is read on every render
   rather than once at mount: it is a change to the address of a page that is
@@ -553,9 +581,23 @@ states is one they trust by mistake.
 
 ## Video wall
 
-- The guided wizard's first step leads with the LED brief — canvas pixels,
-  pixel pitch and the cabinet array — with the common walls under them, because
-  those three are the customer's facts and a preset already answers all three.
+- Both wall workflows begin with wall type. Guided is a question-at-a-time
+  wizard; its size step asks for the LED canvas, pitch and cabinet array, while
+  Expert offers the type choice before saved starting points and detailed
+  adjustments.
+- Guided asks source count and timing, then asks network provision separately:
+  use an existing 1Gb or 10Gb network, or supply new switches at either speed.
+  It also offers “Do not use AVoIP”, which keeps the design local. The saved
+  answer keeps both speed and existing/new scope, while older walls with only a
+  speed still read as an existing network. The question order and answer-edit
+  target are held by `wallWizardSteps` and `wallWizardAnswers`.
+  [Narrative](docs/VIDEO_WALL.md)
+- Choosing an NHD-150 or NHD-600 multiview feed path marks the design as needing
+  a multiview layout. The later layout question leaves those incompatible
+  single-picture and source-per-screen choices visible but disabled, and blocks
+  continuing until a multiview layout is selected. The marker is part of the
+  saved wall so editing or reopening the design keeps the same constraint.
+  [Narrative](docs/VIDEO_WALL.md)
 - Four surfaces name the wall workflow, so the entry's name and the sentence
   saying how a design begins live once, in `lib/wallEntry.ts`. They had drifted.
 - The focused view starts from a wall, not a room: a starting point is a whole
@@ -649,6 +691,10 @@ states is one they trust by mistake.
   and the customer layer that may print. Export builders read only the customer
   layer and run free text through the same filter, because a rep's note is not
   customer copy.
+- The proposal cover title and illustrative scene read the application's
+  Discovery answer, while the named project stays on the cover as its reference
+  in Word and HTML exports; a project name can describe the customer site
+  without being the room's use. [Narrative](docs/PROPOSAL_OUTPUT.md)
 - An over-limit wall cable run and a surveyed run past the receiver's rating both
   hold the export, and each offers its own one-tap fix where the rep meets it —
   the template page applies the fix rather than describing it, and the project

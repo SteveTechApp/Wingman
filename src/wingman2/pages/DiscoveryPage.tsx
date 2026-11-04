@@ -34,8 +34,9 @@ import type { TemplateBomRow } from "../lib/roomTemplates";
 import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
 import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
+import { decisionForCapturedRoom, roomBriefNote } from "../lib/roomBrief";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
-import { BASIC_MODE_REQUIRED_IDS, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
+import { applyApplicationSmartDefaults, BASIC_MODE_REQUIRED_IDS, SMART_DEFAULTS, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryGuidedInterviewEntry } from "./discovery/DiscoveryGuidedInterview";
 import { DiscoveryCaptureModeSwitch } from "./discovery/DiscoveryCaptureModeSwitch";
 import { DiscoveryRoomWizard } from "./discovery/DiscoveryRoomWizard";
@@ -168,7 +169,10 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
   const [, setIsReviewingAnswers] = useState(false);
   const [answers, setAnswers] = useState<DiscoveryAnswers>(() => (draftState.answers as DiscoveryAnswers | undefined) ?? {});
-  const [editingMarketContext, setEditingMarketContext] = useState(false);
+  const smartDefaultsApplicationRef = useRef("");
+  const [editingMarketContext, setEditingMarketContext] = useState(
+    () => searchParams.get("edit") === "opportunity",
+  );
   const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
     () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
   );
@@ -287,6 +291,21 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
   const marketId = wmDiscoveryAnswerToText(answers.market);
   const environmentId = wmDiscoveryAnswerToText(answers.environment);
+  useEffect(() => {
+    if (!selectedApplication || smartDefaultsApplicationRef.current === selectedApplication) return;
+    smartDefaultsApplicationRef.current = selectedApplication;
+    const defaults = SMART_DEFAULTS[selectedApplication];
+    if (!defaults) return;
+    if (quickStartSeed?.application === selectedApplication) return;
+
+    const seededAnswers = applyApplicationSmartDefaults(answers, selectedApplication);
+    const seededDefaults = Object.fromEntries(
+      Object.entries(defaults).filter(([questionId]) => !answers[questionId]),
+    ) as Partial<DiscoveryAnswers>;
+    if (Object.keys(seededDefaults).length) setAnswers(seededAnswers);
+    setAppliedDefaults(seededDefaults);
+    setQuickStartSeed({ application: selectedApplication, answers: seededAnswers });
+  }, [answers, quickStartSeed, selectedApplication]);
   const discoveryQuestions = useMemo(
     () =>
       wmDiscoveryFilterUnifiedCommsQuestions(
@@ -295,10 +314,20 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
       ),
     [selectedApplication, answers],
   );
+  const applicationQuestion = discoveryQuestions.find(question => question.id === "opportunity");
+  const selectedApplicationLabel = applicationQuestion
+    ? getOptionLabel(applicationQuestion, answers.opportunity, selectedApplication)
+    : selectedApplication;
 
   // The full question set remains available for technical detail and saved answers.
   const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
-  const modeQuestions = useMemo(() => essentialCapture ? discoveryQuestions.filter(question => BASIC_IDS.has(question.id)) : discoveryQuestions, [essentialCapture, discoveryQuestions, BASIC_IDS]);
+  const modeQuestions = useMemo(() => {
+    // The chosen market environment already supplied this application. It is
+    // retained in the answer model to shape these questions, while the top
+    // context control remains the one place to change it.
+    const roomQuestions = discoveryQuestions.filter(question => question.id !== "opportunity");
+    return essentialCapture ? roomQuestions.filter(question => BASIC_IDS.has(question.id)) : roomQuestions;
+  }, [essentialCapture, discoveryQuestions, BASIC_IDS]);
 
   // A link that names a question is the rep's reason for being here, so the
   // market / environment lead-in does not stand in front of it — the lead-in is a
@@ -314,6 +343,12 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     Boolean(editQuestionId) && modeQuestions.some((question) => question.id === editQuestionId);
   const showMarketContext =
     editingMarketContext || (!environmentId && !namedQuestionOnScreen && (Boolean(marketId) || !selectedApplication));
+
+  useEffect(() => {
+    // Requirement links still name the application answer, but its editor is
+    // the market/environment picker now that no capture mode asks it twice.
+    if (editQuestionId === "opportunity") setEditingMarketContext(true);
+  }, [editQuestionId]);
 
   // Quick-start conflict signals (stranded defaults, application drift).
   const {
@@ -789,9 +824,9 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     });
   }
 
-  function buildDiscoveryBrief(): StoredDiscoveryBrief {
+  function buildDiscoveryBrief(notesOverride: DiscoveryNotes = notes): StoredDiscoveryBrief {
     return compileDiscoveryBrief({
-      answers, notes, topology, discoveryQuestions, modeQuestions, basicQuestionIds: BASIC_IDS,
+      answers, notes: notesOverride, topology, discoveryQuestions, modeQuestions, basicQuestionIds: BASIC_IDS,
       progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
       sourceTemplateId, sourceTemplateName, clientName, contactName, siteName, budgetLevel,
       timeline, completionPercent, reviewPosition, confirmedSteps, confidenceByStep,
@@ -805,10 +840,10 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     setSavedMessage("Discovery saved to your project. Continue to product selection or a proposal when ready.");
   }
 
-  function saveDiscoveryToOwningProject() {
+  function saveDiscoveryToOwningProject(notesOverride: DiscoveryNotes = notes) {
     const ownership = discoveryOwnershipRef.current;
     const savedProject = saveDiscoveryBriefToProject(
-      buildDiscoveryBrief(),
+      buildDiscoveryBrief(notesOverride),
       ownership ? ownership.projectId ?? null : undefined,
     );
     discoveryOwnershipRef.current = {
@@ -816,6 +851,22 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
       projectName: savedProject.name,
     };
     return savedProject;
+  }
+
+  function notesWithRoomDecision(): DiscoveryNotes {
+    const nextNotes = { ...notes };
+    const decision = decisionForCapturedRoom(answers);
+    delete nextNotes["room-brief"];
+    if (decision) nextNotes["room-brief"] = roomBriefNote(decision);
+    return nextNotes;
+  }
+
+  function saveExpertDiscoveryToProject(): void {
+    if (isTemplateAuthoring) { saveDiscoveryToProject(); return; }
+    const nextNotes = notesWithRoomDecision();
+    setNotes(nextNotes);
+    saveDiscoveryToOwningProject(nextNotes);
+    setSavedMessage("Discovery and decided-room reading saved to your project. Continue to product selection or a proposal when ready.");
   }
 
   const canSaveCustomTemplate = templateDraftName.trim().length > 0 && wmDiscoveryHasAnswer(answers.opportunity);
@@ -862,12 +913,12 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     navigate(routeCatalogByKey.templates.path);
   }
 
-  function moveForward(target: "recommendations" | "proposal"): void {
+  function moveForward(target: "recommendations" | "proposal", notesOverride: DiscoveryNotes = notes): void {
     if (isTemplateAuthoring) { setIsReviewingAnswers(true); return; }
     if (!decisionIntegrity.canProceedToRecommendation) {
       setSavedMessage(`Continuing with ${decisionIntegrity.issues.length} open design check${decisionIntegrity.issues.length === 1 ? "" : "s"}. They remain listed as items to confirm.`);
     }
-    saveDiscoveryToOwningProject();
+    saveDiscoveryToOwningProject(notesOverride);
     if (target === "recommendations" && videoWallConfigurationPending) {
       navigate(routeCatalogByKey.videowall.path);
       return;
@@ -955,10 +1006,11 @@ return (
         </section>
       ) : null}
 
-      {!showMarketContext && marketId && environmentId && <DiscoveryMarketContextSummary
+      {!showMarketContext && ((marketId && environmentId) || selectedApplication) && <DiscoveryMarketContextSummary
         marketId={marketId}
         environmentId={environmentId}
         environmentDetail={wmDiscoveryAnswerToText(answers["environment-detail"])}
+        application={selectedApplicationLabel}
         onEdit={() => setEditingMarketContext(true)}
       />}
 
@@ -1001,12 +1053,20 @@ return (
             if (DISCOVERY_TEMPLATE_MARKET[nextMarket]) setTemplateDraftMarket(DISCOVERY_TEMPLATE_MARKET[nextMarket]);
           }}
           onEnvironmentSelect={(nextEnvironment, suggestedApplication, description) => {
-            setAnswers((current) => ({
-              ...current,
+            const application = suggestedApplication || "not-sure";
+            smartDefaultsApplicationRef.current = application;
+            const contextAnswers = {
+              ...changeDiscoveryApplication(answers, application),
               environment: nextEnvironment,
               "environment-detail": description ?? "",
-              ...(!wmDiscoveryHasAnswer(current.opportunity) && suggestedApplication ? { opportunity: suggestedApplication } : {}),
-            }));
+            };
+            const nextAnswers = applyApplicationSmartDefaults(contextAnswers, application);
+            const seededDefaults = Object.fromEntries(
+              Object.entries(nextAnswers).filter(([key]) => !(key in contextAnswers)),
+            ) as Partial<DiscoveryAnswers>;
+            setAnswers(nextAnswers);
+            setAppliedDefaults(seededDefaults);
+            setQuickStartSeed({ application, answers: nextAnswers });
             setEditingMarketContext(false);
           }}
         />
@@ -1037,9 +1097,9 @@ return (
           onAnswersChange={setAnswers} onNotesChange={setNotes}
            onConfirm={(id, confirmed) => setConfirmedSteps(previous => ({ ...previous, [id]: confirmed }))}
            onConfirmCaptureSuggestion={confirmCaptureSuggestion}
-          onTopologyChange={handleTopologyChange} onSave={saveDiscoveryToProject}
+          onTopologyChange={handleTopologyChange} onSave={saveExpertDiscoveryToProject}
           onExport={() => { void import("../lib/discoveryBriefExport").then(module => module.exportDiscoveryBriefHtml(buildDiscoveryBrief(), { projectName: existingDiscoveryName })); }}
-          onContinue={() => moveForward("recommendations")} savedMessage={savedMessage} initialQuestionId={editQuestionId}
+          onContinue={() => moveForward("recommendations", notesWithRoomDecision())} savedMessage={savedMessage} initialQuestionId={editQuestionId}
         />
       )}
 

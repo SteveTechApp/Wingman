@@ -770,6 +770,7 @@ export function RecommendationsPage() {
 
     const nextBrief: StoredDiscoveryBrief = {
       ...brief,
+      savedAt: new Date().toISOString(),
       roomModel: nextRoomModel,
       missingInformation: remainingMissing,
       nextBestQuestion: remainingMissing[0] ?? "",
@@ -782,6 +783,10 @@ export function RecommendationsPage() {
       },
     };
     const nextNeed = discoveryBriefToFinderNeed(nextBrief);
+    const draft = readLatestDiscoverySnapshot();
+    if (draft && (!draft.projectId || !activeProject || draft.projectId === activeProject.id)) {
+      writeLatestDiscoverySnapshot({ ...draft, brief: nextBrief, savedAt: nextBrief.savedAt ?? "" });
+    }
     saveDiscoveryBriefToProject(nextBrief, activeProject?.id);
     setBrief(nextBrief);
     setEditingCheck("");

@@ -8,8 +8,8 @@ import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../..
 import { wallDecisionSummary, type WallDecision, type WallLayoutChoice } from "../../lib/videowallDecision";
 import { wallApplications, type WallOption, type WallRequirements } from "../../lib/videowallOptions";
 import {
-  videowallLocationChoices,
-  videowallLocationKeyFor,
+  videowallNetworkChoices,
+  videowallNetworkKeyFor,
   videowallPanelPresets,
   videowallSourcePresets,
 } from "../../lib/videowallDraft";
@@ -25,14 +25,14 @@ import {
   wallWizardConcernChecks,
   wallWizardConcerns,
   wallWizardLayoutChoices,
+  wallWizardLayoutChoiceIsDisabled,
+  wallWizardLayoutIsMultiview,
   wallWizardSteps,
 } from "../../lib/videowallWizard";
 import { VideowallVerdict } from "./VideowallVerdict";
 import { wallVariantLabel } from "../../lib/wallVariants";
 import { VideowallOptionsList } from "./VideowallOptionsList";
 import { VideowallResultPages } from "./VideowallResultPages";
-import { VideowallStartPresets } from "./VideowallStartPresets";
-import { VideowallLedBrief } from "./VideowallLedBrief";
 import { VideowallFeedStep } from "./VideowallFeedStep";
 
 const RESULT = wallWizardSteps.length;
@@ -40,10 +40,10 @@ const RESULT = wallWizardSteps.length;
 const STEP = Object.fromEntries(wallWizardSteps.map((item, index) => [item.key, index])) as Record<string, number>;
 
 const STEP_HEADINGS: Record<string, { title: string; hint: string }> = {
-  job: { title: "Start from the job", hint: "Write the LED brief — canvas, pitch and cabinet array — or start from the closest common wall and Wingman pre-answers the rest." },
   picture: { title: "What kind of wall?", hint: "The type decides the questions after it: a projection screen has projectors, an LED canvas has a pitch, and only an LCD wall can be fed a panel at a time." },
   size: { title: "How big is the wall?", hint: "The array, the panel pixels and the pitch set the size of the box." },
-  sources: { title: "What is going on the wall?", hint: "How many sources there are, at what timing, and where they sit — distance decides between local HDMI and network transport." },
+  sources: { title: "How many sources?", hint: "Choose how many sources the wall needs to show and the highest timing they use." },
+  network: { title: "What network will carry the picture?", hint: "Choose the existing network to use, or include new switches in the design." },
   feeding: { title: "How is the wall fed?", hint: "One canvas the wall scales, or a feed per panel — then the box that produces that canvas." },
   layout: { title: "How should the sources appear?", hint: "Windows composed in one design — the multiview — or a source per screen, which is a different design." },
   visual: { title: "The wall you have described", hint: "Drawn at the size and mounting height the answers set, with the sources mapped onto it." },
@@ -62,7 +62,6 @@ export function VideowallWizard({
   concerns,
   onConcerns,
   onChange,
-  onReplace,
   onChooseLayout,
   onChoosePanels,
   onSave,
@@ -90,7 +89,6 @@ export function VideowallWizard({
   concerns: string[];
   onConcerns: (keys: string[]) => void;
   onChange: (patch: Partial<WallRequirements>) => void;
-  onReplace: (next: WallRequirements) => void;
   onChooseLayout: (choice: WallLayoutChoice) => void;
   onChoosePanels: (columns: number, rows: number) => void;
   onSave: (destination?: string) => void;
@@ -119,7 +117,7 @@ export function VideowallWizard({
   const atResult = step >= RESULT;
   /** The design the engine answers with — the one action a result with nothing picked can take. */
   const recommendedId = decision.recommended?.option.id ?? null;
-  const stepKey = wallWizardSteps[step]?.key ?? "job";
+  const stepKey = wallWizardSteps[step]?.key ?? "picture";
 
   function next() {
     if (editing) {
@@ -161,18 +159,7 @@ export function VideowallWizard({
     onConcerns([]);
     onRestart();
     setEditing(false);
-    setStep(STEP.job);
-  }
-
-  /**
-   * The LED brief is the size and the array, so the questions it leaves are the
-   * sources, the connection and the layout. Jumping to the size step would ask
-   * the same three things twice, in the wizard's words rather than the rep's.
-   */
-  function startLedBrief(next: WallRequirements) {
-    onReplace(next);
-    onConcerns([]);
-    setStep(STEP.sources);
+    setStep(0);
   }
 
   const heading = atResult
@@ -193,7 +180,7 @@ export function VideowallWizard({
         </div>
       </header>
 
-      {step > 0 && !atResult ? (
+      {!atResult ? (
         <ol className="vw-wizard-progress" aria-label="Wizard progress">
           {wallWizardSteps.map((item, index) => (
             <li
@@ -201,58 +188,27 @@ export function VideowallWizard({
               data-state={atResult || index < step ? "done" : index === step ? "current" : "todo"}
               aria-current={!atResult && index === step ? "step" : undefined}
             >
-              <span>{index + 1}</span>
-              {item.label}
+              <button
+                type="button"
+                aria-label={`Edit ${item.label}`}
+                data-testid={`videowall-wizard-progress-${item.key}`}
+                disabled={index >= step}
+                onClick={() => {
+                  setEditing(false);
+                  setStep(index);
+                }}
+              >
+                <span>{index + 1}</span>
+                {item.label}
+              </button>
             </li>
           ))}
         </ol>
       ) : null}
 
-      {step === STEP.job ? (
-        <section className="vw-wizard-card" data-testid="videowall-wizard-step-job" aria-labelledby="vw-wizard-led-title">
-          {/* The LED brief leads, because canvas, pitch and cabinet array are the
-              customer's three facts: a preset wall answers all of them already,
-              and a rep starting an LED design should not begin from someone
-              else's wall. The connection question follows, since who scales the
-              canvas only means something once the canvas exists. */}
-          <div className="vw-wizard-job-head">
-            <h2 id="vw-wizard-led-title">Start an LED wall</h2>
-          </div>
-          <p className="vw-wizard-hint">
-            The canvas, the pitch and the cabinet array are the brief. Wingman asks how the wall is fed next.
-          </p>
-          <VideowallLedBrief requirements={requirements} onStart={startLedBrief} />
-          <hr />
-          {/* The way past the walls sits on the heading line rather than under
-              the list, so a rep on a phone who already knows the brief reaches
-              the questions without scrolling a catalogue first. */}
-          <div className="vw-wizard-job-head">
-            <h2 id="vw-wizard-job-title">Common walls</h2>
-            <div className="vw-wizard-nav">
-              <button type="button" className="vw-wizard-secondary" onClick={() => setStep(STEP.picture)}>
-                Answer the questions instead
-              </button>
-            </div>
-          </div>
-          <p className="vw-wizard-hint">
-            Or start from a wall a rep already built and change what differs: Wingman pre-answers the rest.
-          </p>
-          {/* The same rows the expert picker uses, without its narrowings and
-              folded to the curated walls: the questions below are how
-              this reading narrows, so a filter panel above them would be a
-              second way to answer the same thing, and twenty rows in front of
-              the first question would be a catalogue rather than a question. */}
-          <VideowallStartPresets
-            shortlist
-            showFilter={false}
-            onPick={(preset) => { onReplace(preset.requirements); onConcerns([]); setStep(RESULT); }}
-          />
-        </section>
-      ) : null}
-
       {step === STEP.picture ? (
         <section className="vw-wizard-card" data-testid="videowall-wizard-step-picture" aria-label="What is going on the wall?">
-          <div className="vw-wizard-options" role="group" aria-label="Display application">
+          <div className="vw-wizard-options vw-wizard-wall-types" role="group" aria-label="Display application">
             {wallApplications.map((application) => (
               <button
                 key={application.value}
@@ -265,7 +221,7 @@ export function VideowallWizard({
               </button>
             ))}
           </div>
-          <WizardBack onBack={() => back(STEP.job)} />
+          <WizardBack onBack={() => back(0)} />
         </section>
       ) : null}
 
@@ -294,6 +250,11 @@ export function VideowallWizard({
                     </button>
                   );
                 })}
+              </div>
+              <p className="vw-wizard-label">Cabinet array</p>
+              <div className="vw-builder-resolution-inputs">
+                <label>Columns<input type="number" min={1} max={100} value={requirements.columns} onChange={(event) => onChange({ columns: Number(event.target.value) })} /></label>
+                <label>Rows<input type="number" min={1} max={100} value={requirements.rows} onChange={(event) => onChange({ rows: Number(event.target.value) })} /></label>
               </div>
             </div>
           ) : (
@@ -379,7 +340,7 @@ export function VideowallWizard({
               screen of its own instead of stacking under these controls. */}
           <div className="vw-wizard-nav">
             <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.picture)}>Back</button>
-            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-size-next" onClick={next}>
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-size-next" onClick={next} disabled={requirements.application === "led" && (!(requirements.ledCanvasWidth > 0) || !(requirements.ledCanvasHeight > 0) || !(Number(requirements.pixelPitchMm) > 0) || !(requirements.columns > 0) || !(requirements.rows > 0))}>
               Continue to the sources
             </button>
           </div>
@@ -420,14 +381,25 @@ export function VideowallWizard({
               ))}
             </div>
           </div>
-          <div className="vw-wizard-fieldset" role="group" aria-label="Where the sources sit">
-            <p className="vw-wizard-label">Where the sources sit</p>
+          <div className="vw-wizard-nav">
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.size)}>Back</button>
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-sources-next" onClick={next}>
+              Continue to network choices
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {step === STEP.network ? (
+        <section className="vw-wizard-card" data-testid="videowall-wizard-step-network" aria-label="What network will carry the picture?">
+          <div className="vw-wizard-fieldset" role="group" aria-label="Network provision">
+            <p className="vw-wizard-label">Network provision</p>
             <div className="vw-wizard-options">
-              {videowallLocationChoices.map((choice) => (
+              {videowallNetworkChoices.map((choice) => (
                 <button
                   key={choice.key}
                   type="button"
-                  aria-pressed={videowallLocationKeyFor(requirements) === choice.key}
+                  aria-pressed={videowallNetworkKeyFor(requirements) === choice.key}
                   onClick={() => onChange(choice.patch)}
                 >
                   <strong>{choice.label}</strong>
@@ -437,9 +409,9 @@ export function VideowallWizard({
             </div>
           </div>
           <div className="vw-wizard-nav">
-            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.size)}>Back</button>
-            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-sources-next" onClick={next}>
-              Continue with {requirements.sources} source{requirements.sources === 1 ? "" : "s"}
+            <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.sources)}>Back</button>
+            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-network-next" onClick={next} disabled={!videowallNetworkKeyFor(requirements)}>
+              Continue to connection
             </button>
           </div>
         </section>
@@ -449,7 +421,7 @@ export function VideowallWizard({
         <VideowallFeedStep
           requirements={requirements}
           onChange={onChange}
-          onBack={() => back(STEP.sources)}
+          onBack={() => back(STEP.network)}
           onNext={next}
         />
       ) : null}
@@ -461,6 +433,7 @@ export function VideowallWizard({
               <button
                 key={choice.key}
                 type="button"
+                disabled={wallWizardLayoutChoiceIsDisabled(choice, Boolean(requirements.multiviewSelected))}
                 aria-pressed={requirements.layout === choice.value && (!choice.customMode || requirements.customMode === choice.customMode)}
                 onClick={() => { onChooseLayout(choice); next(); }}
               >
@@ -473,7 +446,13 @@ export function VideowallWizard({
             <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.feeding)}>Back</button>
             {/* Choosing a card advances, so a rep who is happy with the layout on
                 screen had no action that kept it. This is that action. */}
-            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-layout-keep" onClick={next}>
+            <button
+              type="button"
+              className="vw-wizard-primary"
+              data-testid="videowall-wizard-layout-keep"
+              onClick={next}
+              disabled={Boolean(requirements.multiviewSelected) && !wallWizardLayoutIsMultiview(requirements.layout)}
+            >
               Keep this layout and continue
             </button>
           </div>

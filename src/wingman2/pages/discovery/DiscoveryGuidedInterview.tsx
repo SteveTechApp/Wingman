@@ -241,20 +241,14 @@ export function DiscoveryGuidedInterview({
     reviewMode && reviewOpenOnly && openQuestions.length > 0;
   const walkQuestions = focusedReview ? openQuestions : questions;
 
-  // Section jump targets for review mode: the first walk index of each distinct
-  // question section, so the rep can jump straight to Sources & displays,
-  // Unified Communications, Positions & distance, etc. instead of walking the
-  // whole conversation linearly. In the focused re-verify walk the sections are
-  // derived from the open questions only, so a fully-confirmed section drops
-  // out of the stepper.
+  // Section jump targets use the same section order and question filing as the
+  // expert workspace. In focused re-verify mode, a fully-confirmed section
+  // drops out because its first question is no longer in the walk.
   const sectionStops = useMemo(() => {
-    const stops: { label: string; firstIndex: number }[] = [];
-    walkQuestions.forEach((question, walkIndex) => {
-      if (stops.length === 0 || stops[stops.length - 1].label !== question.section) {
-        stops.push({ label: question.section, firstIndex: walkIndex });
-      }
+    return DISCOVERY_SECTIONS.flatMap((section) => {
+      const firstIndex = walkQuestions.findIndex((question) => discoverySectionFor(question) === section.id);
+      return firstIndex < 0 ? [] : [{ id: section.id, label: section.title, firstIndex }];
     });
-    return stops;
   }, [walkQuestions]);
 
   // Start at the first open question so re-entering a partial discovery
@@ -865,10 +859,10 @@ export function DiscoveryGuidedInterview({
             <section className="wm-guided-jumps" aria-label="Jump to section">
               <span className="wm-guided-jumps-label">Jump to section:</span>
                 {sectionStops.map((stop) => {
-                  const active = currentQuestion?.section === stop.label;
+                  const active = currentQuestion && discoverySectionFor(currentQuestion) === stop.id;
                   return (
                     <button
-                      key={stop.label}
+                      key={stop.id}
                       type="button"
                       onClick={() => {
                         setHeard("");

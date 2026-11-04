@@ -101,6 +101,10 @@ export type WallRequirements = {
    */
   mapping?: "fit" | "fill";
   network: "any" | "none" | "1g" | "10g";
+  /** Whether the selected AV network speed is already available or needs new switches. */
+  networkProvision?: "existing" | "new";
+  /** A selected multiview feed path requires a multi-window layout in the next step. */
+  multiviewSelected?: boolean;
   orientation: "landscape" | "portrait";
   /**
    * Measured cable run in metres, keyed by transport link id (`source-2`,

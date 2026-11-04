@@ -418,6 +418,8 @@ export function compileDiscoveryBrief({
       quoteSafetyStatus: decisionIntegrity.canProceedToRecommendation ? recommendationEvidence.quoteSafetyStatus : "do-not-quote-yet",
       recommendationEvidence,
       discoveryConversation: buildDiscoveryConversation(discoveryQuestions.filter(step => modeQuestions.some(question => question.id === step.id) || wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]?.trim())), answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep),
+      discoveryAnswers: { ...answers },
+      discoveryNotes: { ...notes },
     };
 
 }

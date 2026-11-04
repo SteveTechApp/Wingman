@@ -67,6 +67,8 @@ describe("VideowallExpertReview", () => {
 
     expect(screen.getByTestId("videowall-expert-panel-decision")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "The wall" })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Choose the wall type to design" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Start from a saved wall" })).toBeTruthy();
     // The whole point of the passes: neither the drawing nor the cable table
     // is stacked under the answers.
     expect(screen.queryByTestId("videowall-expert-panel-wall")).toBeNull();

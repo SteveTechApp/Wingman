@@ -20,10 +20,10 @@ const wall = (overrides = {}) => ({ ...defaultWallRequirements, application: "lc
 describe("wall feeding", () => {
   it("is asked after the wall's size and before its windows", () => {
     expect(wallWizardSteps.map((step) => step.key))
-      .toEqual(["job", "picture", "size", "sources", "feeding", "layout", "visual", "detail"]);
+      .toEqual(["picture", "size", "sources", "network", "feeding", "layout", "visual", "detail"]);
     // The summary a rep reads back carries the same order as the questions.
     expect(wallWizardAnswers(wall()).map((answer) => answer.key))
-      .toEqual(["picture", "size", "sources", "feeding", "layout"]);
+      .toEqual(["picture", "size", "sources", "network", "feeding", "layout"]);
   });
 
   it("offers only the models a wall of that kind can be built to", () => {
@@ -64,6 +64,8 @@ describe("wall feeding", () => {
     // The 1GbE receiver is the multi-window answer; one window is a plain decoder.
     expect(wallFeedPathKeyFor(wall({ network: "1g", windows: 4 }))).toBe("nhd150");
     expect(wallFeedPathKeyFor(wall({ network: "10g", windows: 1 }))).toBe("nhd600");
+    expect(wallFeedPathKeyFor(wall({ network: "1g", windows: 1, multiviewSelected: true }))).toBe("nhd150");
+    expect(wallFeedPathKeyFor(wall({ network: "10g", windows: 1, multiviewSelected: true }))).toBe("nhd600");
     expect(wallFeedPathKeyFor(wall({ network: "any", sourceCustom: true }))).toBe("nhd500");
     expect(wallFeedPathKeyFor(wall({ application: "lcd-direct", network: "1g" }))).toBe("avoip-per-panel");
     expect(wallFeedPathKeyFor(wall({ application: "lcd-direct", network: "any" }))).toBe("matrix-per-panel");

@@ -31,6 +31,8 @@ const wording: Record<string, [string, string]> = {
   "room-acoustics": ["What does the room sound like today?", "Is speech clear, is there an echo, or is there distracting background noise?"],
   control: ["How should someone start and operate the room?", "Imagine a first-time visitor: what should happen when they arrive, connect and finish?"],
   "network-path": ["Who will look after connections between rooms?", "Ask the IT team whether existing building connections can carry the pictures. It is fine to leave this open."],
+  "locations-connections": ["Where will people connect, watch and join calls?", "Name the laptop, screen and camera positions. Approximate distances help the designer check which connection will work; exact measurements can wait for a site visit."],
+  commissioning: ["What should be checked and handed over when the room is ready?", "Choose the tests, training or records the customer expects. If another contractor is responsible, say so."],
   "avoip-profile": ["What matters most when sharing pictures across the site?", "Describe readable detail, responsiveness and how many different pictures people need at once."],
   "source-device-workflows": ["What will people connect or watch?", "Select the actual devices and activities rather than cable types."],
   "wireless-presentation-operation": ["How should wireless sharing work?", "Who can share, who approves it, and should several people appear at once?"],
@@ -41,6 +43,8 @@ const wording: Record<string, [string, string]> = {
 };
 const optionWording: Record<string, string> = {
   "4k60-standard": "Sharp detail on modern screens", "1080p-standard-hdmi": "Everyday presentations and video",
+  "4k-dci-resolution": "Cinema or production-grade 4K detail",
+  "8k-resolution": "Exceptional detail on very large or close-viewed screens",
   "4k60-hdr-hdcp": "Premium film playback and colour", "legacy-edid-risk": "A mix of older and newer screens",
   "byom-user-laptop": "Join using the visitor's laptop", "microsoft-teams-room": "A dedicated Microsoft Teams room",
   "zoom-room": "A dedicated Zoom room", "room-pc-conferencing": "Join using the room computer",
@@ -78,6 +82,13 @@ const optionWording: Record<string, string> = {
   "room-host-usb2": "Everyday call, touch screen, keyboard or mouse connections",
   "usb3-high-bandwidth-path": "High-detail cameras or capture equipment need a faster connection",
   "usb-extension-required": "The camera or other device is far from its computer",
+  "commissioning-functional-test": "Check that every screen, camera, speaker and room control works",
+  "commissioning-acceptance-criteria": "The customer needs to test and sign off the finished room",
+  "commissioning-user-training": "Show everyday users how to use the room",
+  "commissioning-operator-training": "Train the people who support or operate the system",
+  "commissioning-as-built-records": "Hand over drawings, settings and connection records",
+  "commissioning-by-others": "Another contractor will test and hand over the system",
+  "commissioning-unknown": "Not known yet — confirm before handover",
 };
 export function operationalQuestion(question: DiscoveryQuestion): DiscoveryQuestion {
   const copy = wording[question.id];

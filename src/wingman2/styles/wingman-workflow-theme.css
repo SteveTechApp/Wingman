@@ -5649,8 +5649,13 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="recommendations"] .wm-re
   padding-bottom: 20px;
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="recommendations"] .wm-rec-stage-picker {
+  display: block;
+  width: min(100%, 1560px);
+  margin: 0 auto 14px;
   padding: 10px;
-  gap: 10px;
+}
+html[data-wingman-ui-mode="guided"][data-wingman-route="recommendations"] .wm-rec-stage-picker__tabs {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="recommendations"] .wm-rec-stage-picker__tabs button {
   min-height: 48px;
@@ -5695,6 +5700,18 @@ html[data-wingman-ui-mode="guided"][data-wingman-route="recommendations"] .wm-re
 }
 html[data-wingman-ui-mode="guided"][data-wingman-route="recommendations"] .wm-rec-flow-step {
   font-size: .62rem;
+}
+
+@media (max-width: 980px) {
+  html[data-wingman-ui-mode="guided"][data-wingman-route="recommendations"] .wm-rec-stage-picker__tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  html[data-wingman-ui-mode="guided"][data-wingman-route="recommendations"] .wm-rec-stage-picker__tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* ── Guided mode: compact Templates page ───────────────────────── */
@@ -6978,7 +6995,6 @@ html[data-wingman-route="discovery"] .wm-discovery-market-entry__heading h2 { fo
 .wm-room-wizard-summary p strong { color:var(--wm-ref-muted); font-size:.66rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
 /* A question reads as one block: the question and its count, then the options. */
 .wm-room-wizard-prompt { margin:0; color:var(--wm-ref-copy); font-size:.8rem; line-height:1.55; }
-.wm-brief-questions { display:grid; gap:12px; }
 .wm-brief-question { display:grid; gap:11px; padding:14px; background:color-mix(in srgb, var(--wm-ref-panel) 72%, transparent); border:1px solid var(--wm-ref-border); border-radius:14px; }
 .wm-brief-question-head { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
 .wm-brief-question-head h3 { margin:0; color:var(--wm-ref-text); font-size:.84rem; line-height:1.3; }

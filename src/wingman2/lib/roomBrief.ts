@@ -100,15 +100,20 @@ const OCCUPANCY = [
 ] as const;
 
 /** What the room has to do — the customer's own words, not a product category. */
-const PURPOSES = [
+const PURPOSES: ReadonlyArray<{ value: string; label: string; description?: string }> = [
   { value: "present", label: "Share a laptop and present to the others in the room" },
   { value: "meet", label: "Meet people elsewhere on video, as a room" },
+  {
+    value: "present-and-meet",
+    label: "Present locally and join video calls",
+    description: "Share content in the room while its camera and microphones serve people joining remotely.",
+  },
   { value: "teach", label: "Teach or train a group, with the teacher at the front" },
   { value: "show-many", label: "Show several sources at once" },
   { value: "address-crowd", label: "Address a large group or an audience" },
   { value: "signage", label: "Show content to people passing through" },
   { value: "campus", label: "Move video between rooms or around a building" },
-] as const;
+];
 
 export const ROOM_BRIEF_OCCUPANCIES = OCCUPANCY;
 export const ROOM_BRIEF_PURPOSES = PURPOSES;
@@ -139,12 +144,12 @@ const ARCHETYPES: Archetype[] = [
     id: "huddle-byod",
     roomType: "Huddle room, bring your own laptop",
     summary: "One small table, one screen, a visiting laptop on a cable, and a bar that carries the call.",
-    purposes: ["present", "meet"],
+    purposes: ["present", "meet", "present-and-meet"],
     requirements: (answers) => [
       { key: "display", label: "One commercial display", quantity: "one 55–65 inch screen on the front wall", because: "one screen is the whole presentation surface, so nothing in the room competes with it." },
       { key: "source", label: "Laptop input at the table", quantity: "one USB-C connection with HDMI fallback", because: "the only source is the visitor's own machine, so the input has to be at the table rather than at the display." },
-      ...(is(answers, "far-end", "yes")
-        ? [{ key: "uc", label: "Conferencing bar as one device", quantity: "camera, microphone array and loudspeaker in one unit", because: `the far end joins this room for ${seatsFor(answers)} people, and a bar keeps the room one device to switch on.` }]
+      ...(is(answers, "far-end", "yes") || is(answers, "purpose", "present-and-meet")
+        ? [{ key: "uc", label: "Room camera, microphones and speaker", quantity: "one conferencing bar or coordinated room system", because: is(answers, "purpose", "present-and-meet") ? "people in the room present locally while remote participants see and hear the room." : `the far end joins this room for ${seatsFor(answers)} people, and a bar keeps the room one device to switch on.` }]
         : []),
       { key: "control", label: "Nothing to learn", quantity: "input select on the source, no control panel", because: "a room this size is used by whoever walks in, so any control surface is a support call waiting to happen." },
     ],
@@ -163,7 +168,7 @@ const ARCHETYPES: Archetype[] = [
     id: "meeting-dual",
     roomType: "Meeting room, two screens",
     summary: "A fixed table, two screens showing different things, local presenters and a joined call.",
-    purposes: ["present", "meet", "show-many"],
+    purposes: ["present", "meet", "present-and-meet", "show-many"],
     requirements: () => [
       { key: "display", label: "Two displays", quantity: "two same-size screens, side by side or one per end", because: "the room shows people and content at once, and one screen forces the room to choose." },
       { key: "source", label: "Fixed and visiting sources", quantity: "two to three inputs, including one at the table", because: "the room has its own machine and still takes a visitor's laptop." },
@@ -185,7 +190,7 @@ const ARCHETYPES: Archetype[] = [
     id: "divisible-boardroom",
     roomType: "Divisible boardroom",
     summary: "One large room that becomes two, each half a working room on its own.",
-    purposes: ["present", "meet", "show-many", "teach"],
+    purposes: ["present", "meet", "present-and-meet", "show-many", "teach"],
     requirements: () => [
       { key: "display", label: "A display per side, per output", quantity: divisibleDisplays(), because: "each half is a room, so each half needs its own surface whether the partition is open or shut." },
       { key: "source", label: "Inputs in both halves", quantity: "a table input in each side, plus a shared one", because: "an input only on one side makes the other half unusable when the room splits." },
@@ -453,6 +458,14 @@ export function setupArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
   return (matching.length ? matching : ARCHETYPES).map((archetype) => archetype.id);
 }
 
+/** A purpose that explicitly includes a room video call already answers this. */
+function withImpliedAnswers(answers: RoomBriefAnswers): RoomBriefAnswers {
+  if (answers.purpose === "present-and-meet" && !answers["far-end"]) {
+    return { ...answers, "far-end": "yes" };
+  }
+  return answers;
+}
+
 /**
  * The room types still possible: setup first, then every answered question.
  *
@@ -462,9 +475,10 @@ export function setupArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
  * and then "one presenter" has a divided teaching space and not an error.
  */
 export function survivingArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
-  let surviving = setupArchetypes(answers);
+  const effectiveAnswers = withImpliedAnswers(answers);
+  let surviving = setupArchetypes(effectiveAnswers);
   for (const question of ROOM_BRIEF_QUESTIONS) {
-    const value = String(answers[question.id] ?? "");
+    const value = String(effectiveAnswers[question.id] ?? "");
     if (!value) continue;
     const option = question.options.find((candidate) => candidate.value === value);
     if (!option) continue;
@@ -498,9 +512,10 @@ export function splitScore(question: RoomBriefQuestion, surviving: RoomArchetype
  * between, because the rep can see which two and ask one question of their own.
  */
 export function nextRoomBriefQuestion(answers: RoomBriefAnswers): RoomBriefQuestion | null {
-  const surviving = survivingArchetypes(answers);
+  const effectiveAnswers = withImpliedAnswers(answers);
+  const surviving = survivingArchetypes(effectiveAnswers);
   if (surviving.length <= 1) return null;
-  const asked = ROOM_BRIEF_QUESTIONS.filter((question) => answers[question.id]);
+  const asked = ROOM_BRIEF_QUESTIONS.filter((question) => effectiveAnswers[question.id]);
   let best: { question: RoomBriefQuestion; score: number } | null = null;
   for (const question of ROOM_BRIEF_QUESTIONS) {
     if (asked.includes(question)) continue;
@@ -521,21 +536,31 @@ export function questionsAsked(answers: RoomBriefAnswers): number {
  * With more than one room type still standing, the first survives: it is the
  * narrower room, and the unresolved list on the result names what a person would
  * have to ask to tell them apart.
+ *
+ * `preferred` is the exception, and it is the capture's own fact rather than a
+ * second method: a rep who captured a video wall has already said which of the
+ * rooms the answers still fit this one is. It only applies while that room is
+ * still standing, so a capture cannot name its way past its own answers.
  */
-export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMarket | "" = ""): RoomDecision {
+export function resolveRoomBrief(
+  answers: RoomBriefAnswers,
+  market: TemplateMarket | "" = "",
+  preferred?: RoomArchetypeId,
+): RoomDecision {
   const surviving = survivingArchetypes(answers);
-  const chosen = ARCHETYPES.find((archetype) => archetype.id === surviving[0]) ?? ARCHETYPES[0];
+  const picked = preferred && surviving.includes(preferred) ? preferred : surviving[0];
+  const chosen = ARCHETYPES.find((archetype) => archetype.id === picked) ?? ARCHETYPES[0];
   return {
     archetype: chosen.id,
     roomType: chosen.roomType,
     summary: chosen.summary,
-    requirements: chosen.requirements(answers),
+    requirements: chosen.requirements(withImpliedAnswers(answers)),
     verifyOnSite: chosen.verifyOnSite,
     assumptions: chosen.assumptions,
     changesIf: chosen.changesIf,
     market,
     questionsAsked: questionsAsked(answers),
-    unresolved: surviving.slice(1),
+    unresolved: surviving.filter((id) => id !== chosen.id),
   };
 }
 
@@ -544,8 +569,8 @@ export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMark
  * starting point rather than a dead end.
  *
  * Only keys whose values this module can guarantee are written. `opportunity`
- * carries the room shape, `scale` the occupancy band, and `displays` the count
- * the decision implies — all three read by the existing capture steps.
+ * carries the room shape, `market` keeps a known vertical with the handoff, and
+ * `displays` carries the count the decision implies — each is read by Discovery.
  */
 export function roomBriefDiscoveryAnswers(decision: RoomDecision): Record<string, string | string[]> {
   const opportunity: Record<RoomArchetypeId, string> = {
@@ -560,14 +585,129 @@ export function roomBriefDiscoveryAnswers(decision: RoomDecision): Record<string
     "signage-wall": "video-wall",
     "campus-distribution": "av-over-ip",
   };
+  const discoveryMarket: Partial<Record<TemplateMarket, string>> = {
+    Corporate: "corporate",
+    Education: "education",
+    Government: "government",
+    "Emergency Services": "emergency",
+    "Energy / Oil & Gas": "energy",
+    "Manufacturing / Logistics": "manufacturing",
+    Healthcare: "healthcare",
+    Hospitality: "hospitality",
+    Retail: "retail",
+    "Sports & Leisure": "venues",
+    "House of Worship": "venues",
+    Transportation: "transport",
+    "Broadcast / Media": "broadcast",
+    Residential: "residential",
+  };
   const displays = decision.requirements
     .find((requirement) => requirement.key === "display")
     ?.quantity.match(/\b(one|two|three|four)\b/)?.[1];
   const count = { one: "1", two: "2", three: "3", four: "4" }[displays ?? ""] ?? "";
   return {
     opportunity: opportunity[decision.archetype],
+    ...(decision.market && discoveryMarket[decision.market] ? { market: discoveryMarket[decision.market] } : {}),
     ...(count ? { displays: count } : {}),
   };
+}
+
+/** A captured discovery answer, in the shape the capture stores it. */
+export type DiscoveryRoomAnswer = string | string[] | undefined;
+
+type DiscoveryRoomAnswers = Record<string, DiscoveryRoomAnswer>;
+
+const readCaptured = (value: DiscoveryRoomAnswer): string =>
+  Array.isArray(value) ? value.join(",") : String(value ?? "").trim();
+
+/** Multi-select answers arrive as arrays, a single choice as one token. */
+const captured = (value: DiscoveryRoomAnswer, token: string): boolean =>
+  readCaptured(value).split(",").map((entry) => entry.trim()).includes(token);
+
+const OCCUPANCY_FOR_SCALE: Record<string, string> = {
+  "single-small-room": "small",
+  "single-large-room": "large",
+  "multi-room": "medium",
+};
+
+const occupancyBand = (people: number): string =>
+  people <= 4 ? "squad" : people <= 10 ? "small" : people <= 20 ? "medium" : people <= 50 ? "large" : "crowd";
+
+/** What the customer asked for, in the brief's words for what the room has to do. */
+const PURPOSE_FOR_OPPORTUNITY: Record<string, string> = {
+  "meeting-room": "present",
+  classroom: "teach",
+  hospitality: "signage",
+  "video-wall": "signage",
+  "av-over-ip": "campus",
+};
+
+/** The room an application names on its own, where it names one of the three a market shares. */
+const ARCHETYPE_FOR_OPPORTUNITY: Partial<Record<string, RoomArchetypeId>> = {
+  "video-wall": "signage-wall",
+  "av-over-ip": "campus-distribution",
+  classroom: "classroom",
+  hospitality: "venue",
+};
+
+const UC_PLATFORMS = ["microsoft-teams-room", "zoom-room", "room-pc-conferencing", "hardware-codec"];
+const NETWORK_PATHS = ["corporate-av-vlan", "dedicated-av-lan"];
+
+/**
+ * The captured room, in the brief's vocabulary.
+ *
+ * The expert sections and the brief ask different questions about one room, so
+ * this is a translation and not a second method: each fact is read only where
+ * the capture actually states it, and a fact it never asked stays absent. An
+ * absent fact is what lets the decision name what a person would still have to
+ * ask instead of filling the gap with a default.
+ */
+export function roomBriefAnswersFromDiscovery(answers: DiscoveryRoomAnswers): RoomBriefAnswers {
+  const brief: RoomBriefAnswers = {};
+
+  const purpose = PURPOSE_FOR_OPPORTUNITY[readCaptured(answers.opportunity)];
+  if (purpose) brief.purpose = purpose;
+
+  const people = Number.parseInt(readCaptured(answers["room-occupancy"]), 10);
+  const scale = OCCUPANCY_FOR_SCALE[readCaptured(answers.scale)];
+  if (Number.isFinite(people) && people > 0) brief.occupancy = occupancyBand(people);
+  else if (scale) brief.occupancy = scale;
+
+  // Only independent routing is read: one picture across a wall is the wall's
+  // canvas, not a room where every screen shows the same thing.
+  if (readCaptured(answers["display-behaviour"]) === "independent-routing-per-display") brief.screens = "different";
+
+  const uc = answers["uc-purpose"];
+  const platform = readCaptured(answers["uc-platform"]);
+  if (captured(uc, "no-uc")) brief["far-end"] = "no";
+  else if (platform === "byom-user-laptop") brief["far-end"] = "sometimes";
+  else if (UC_PLATFORMS.includes(platform) || captured(uc, "video-conferencing")) brief["far-end"] = "yes";
+  if (readCaptured(uc) && !captured(uc, "unknown-uc")) {
+    brief.record = captured(uc, "recording-streaming") ? "yes" : "no";
+  }
+
+  const networkPath = readCaptured(answers["network-path"]);
+  if (NETWORK_PATHS.includes(networkPath)) brief.reach = "yes";
+  else if (networkPath === "no-network-distribution") brief.reach = "no";
+
+  return brief;
+}
+
+/**
+ * The room a capture describes, or null when it has not described one yet.
+ *
+ * Null is the honest answer for a workspace a rep opened and has not filled in:
+ * a decision invented from no application is a room nobody was asked about.
+ */
+export function decisionForCapturedRoom(answers: DiscoveryRoomAnswers): RoomDecision | null {
+  const brief = roomBriefAnswersFromDiscovery(answers);
+  if (!brief.purpose) return null;
+  return resolveRoomBrief(brief, "", ARCHETYPE_FOR_OPPORTUNITY[readCaptured(answers.opportunity)]);
+}
+
+/** The one line both depths write into the room record, so neither can drift. */
+export function roomBriefNote(decision: RoomDecision): string {
+  return `${decision.roomType}: ${decision.summary}`;
 }
 
 /** Every room type, so a surface can explain what the method can decide. */

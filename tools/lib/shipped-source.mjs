@@ -20,8 +20,15 @@ import path from "node:path";
  */
 export function gitListedFiles(root) {
   try {
+    // A git hook exports the parent checkout's paths to child processes. A
+    // caller asking about a scratch checkout must let Git discover that
+    // checkout's own index instead.
+    const env = path.resolve(root) === process.cwd()
+      ? process.env
+      : Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)));
     const listed = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z"], {
       cwd: root,
+      env,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
       maxBuffer: 64 * 1024 * 1024,

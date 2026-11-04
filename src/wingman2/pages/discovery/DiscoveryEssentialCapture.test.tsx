@@ -19,7 +19,7 @@ describe("essential capture", () => {
     expect(screen.getByDisplayValue("Use the existing room displays")).toBeVisible();
     expect(screen.getAllByRole("combobox")).toHaveLength(2);
     fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "one-source" } });
-    expect(onChanged).toHaveBeenCalledWith("sources");
+    expect(onChanged).toHaveBeenCalledWith("displays");
     expect(screen.queryByLabelText(/Confirmed with/)).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Find WyreStorm products" }));
     expect(onContinue).toHaveBeenCalledOnce();

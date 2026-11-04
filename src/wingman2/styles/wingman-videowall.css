@@ -303,6 +303,7 @@
 .vw-wall-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .vw-wall-title { color: var(--vw-muted); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
 .vw-builder .vw-wall-aspect { color: var(--vw-aqua); font-size: .78rem; font-weight: 700; }
+.vw-wall-selection { color: var(--vw-text-soft); font-size: .78rem; font-weight: 700; }
 .vw-wall-stage { display: grid; place-items: center; width: 100%; max-width: 880px; margin-inline: auto; padding: 4px; border-radius: 10px; background: radial-gradient(120% 120% at 50% 0%, #0d2534 0%, #060f18 100%); overflow: hidden; }
 /* The drawing follows its own aspect ratio, so the dimension lines around it
    never get letterboxed into a fixed-height box. */
@@ -564,18 +565,24 @@
 
 /* Guided wizard ----------------------------------------------------------- */
 .vw-wizard { max-width: 1180px; }
-.vw-wizard-progress { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.vw-wizard-progress { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
 .vw-wizard-progress li { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-radius: 8px; color: var(--vw-muted); font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; background: var(--vw-deep); }
+.vw-wizard-progress li > button { display: grid; justify-items: start; gap: 6px; width: 100%; padding: 0; border: 0; border-radius: inherit; color: inherit; background: transparent; font: inherit; letter-spacing: inherit; text-align: left; text-transform: inherit; }
+.vw-wizard-progress li[data-state="done"] > button { cursor: pointer; }
+.vw-wizard-progress li[data-state="done"] > button:hover { color: var(--vw-text); }
+.vw-wizard-progress li > button:focus-visible { outline: 2px solid var(--vw-aqua); outline-offset: 3px; }
+.vw-wizard-progress li > button:disabled { cursor: default; }
 .vw-wizard-progress li span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; font-size: .64rem; }
 .vw-wizard-progress li[data-state="done"] { color: var(--vw-aqua); border-color: var(--vw-border-accent); }
 .vw-wizard-progress li[data-state="current"] { color: var(--vw-deep); background: var(--vw-aqua); border-color: var(--vw-aqua); font-weight: 750; }
 .vw-wizard-card { border: 1px solid var(--vw-border); border-radius: 16px; background: linear-gradient(160deg, var(--vw-panel) 0%, var(--vw-panel-deep) 100%); padding: 24px; display: grid; gap: 18px; }
 .vw-wizard-card > header { display: grid; gap: 6px; }
 .vw-wizard-card > header p { color: var(--vw-muted); font-size: .82rem; }
-/* The first step's heading and the way past the walls share a line, so the
-   questions are reachable before the list is read rather than after it. */
-.vw-wizard-job-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
 .vw-wizard-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.vw-wizard-wall-types { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.vw-wizard-wall-types button { grid-column: span 2; }
+.vw-wizard-wall-types button:nth-child(4) { grid-column: 2 / span 2; }
+.vw-wizard-wall-types button:nth-child(5) { grid-column: 4 / span 2; }
 /* The #root prefix outranks the shell's compact page-control rule, which
    otherwise cuts these cards to three pixels of padding and centres their
    column: a centred grid column sizes to the longest line of each card, so the
@@ -664,11 +671,16 @@
 
 @media (max-width: 900px) {
   .vw-wizard-progress { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vw-wizard-wall-types { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vw-wizard-wall-types button,
+  .vw-wizard-wall-types button:nth-child(4),
+  .vw-wizard-wall-types button:nth-child(5) { grid-column: auto; }
   .vw-wizard-stages { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 640px) {
   .vw-wizard-progress { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vw-wizard-wall-types { grid-template-columns: minmax(0, 1fr); }
   .vw-wizard-card { padding: 16px; }
   .vw-wizard-nav { flex-direction: column; }
   .vw-wizard-nav button { width: 100%; }

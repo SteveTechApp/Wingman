@@ -49,4 +49,24 @@ describe("single transient-spawn retry", () => {
       expect(execFileSync).toHaveBeenCalledTimes(1);
     }
   });
+  it("isolates scratch Git commands while keeping their explicit commit identity", () => {
+    runTool("git", ["commit"], "test", {
+      cwd: "C:/scratch/project",
+      env: {
+        GIT_DIR: "C:/checkout/.git",
+        GIT_WORK_TREE: "C:/checkout",
+        GIT_AUTHOR_NAME: "Scratch Test",
+        GIT_AUTHOR_EMAIL: "scratch@example.com",
+        GIT_COMMITTER_NAME: "Scratch Test",
+        GIT_COMMITTER_EMAIL: "scratch@example.com",
+      },
+    });
+
+    expect(execFileSync.mock.calls[0][2].env).toEqual({
+      GIT_AUTHOR_NAME: "Scratch Test",
+      GIT_AUTHOR_EMAIL: "scratch@example.com",
+      GIT_COMMITTER_NAME: "Scratch Test",
+      GIT_COMMITTER_EMAIL: "scratch@example.com",
+    });
+  });
 });
