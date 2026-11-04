@@ -2,9 +2,9 @@
 
 > **For agentic workers:** Use this plan inline; the user requested the change directly.
 
-**Goal:** Give the Guided video wall wizard separate source and network questions, with four explicit network provision choices.
+**Goal:** Give the Guided video wall wizard separate source and network questions, with four explicit network provision choices plus a local, no-AVoIP option.
 
-**Architecture:** Keep source count and source timing in the Sources step. Add a Network step whose choices record speed and whether the network already exists or switches must be supplied; keep the existing recommendation engine's `network` and `sourceLocation` inputs synchronized with that answer.
+**Architecture:** Keep source count and source timing in the Sources step. Add a Network step whose choices record speed and whether the network already exists or switches must be supplied, plus a no-AVoIP choice that keeps sources local; keep the existing recommendation engine's `network` and `sourceLocation` inputs synchronized with that answer.
 
 **Tech Stack:** React, TypeScript, Vitest.
 

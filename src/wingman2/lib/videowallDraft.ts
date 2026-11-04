@@ -270,7 +270,7 @@ export const videowallPanelPresets = [
 export const videowallSourcePresets = [1, 2, 4, 6, 8, 9, 12, 16];
 
 export type VideowallNetworkChoice = {
-  key: "existing-1g" | "existing-10g" | "new-1g" | "new-10g";
+  key: "existing-1g" | "existing-10g" | "new-1g" | "new-10g" | "no-avoip";
   label: string;
   detail: string;
   patch: Partial<WallRequirements>;
@@ -301,9 +301,16 @@ export const videowallNetworkChoices: VideowallNetworkChoice[] = [
     detail: "Include new 10Gb switches for the AV network.",
     patch: { sourceLocation: "distributed", network: "10g", networkProvision: "new" },
   },
+  {
+    key: "no-avoip",
+    label: "Do not use AVoIP",
+    detail: "Keep the picture on local connections; do not carry video over the network.",
+    patch: { sourceLocation: "local", network: "none", networkProvision: undefined },
+  },
 ];
 
 export function videowallNetworkKeyFor(requirements: WallRequirements): VideowallNetworkChoice["key"] | null {
+  if (requirements.network === "none") return "no-avoip";
   if (requirements.network !== "1g" && requirements.network !== "10g") return null;
   const provision = requirements.networkProvision
     ?? (requirements.network === "1g" || requirements.network === "10g" ? "existing" : undefined);
@@ -313,23 +320,25 @@ export function videowallNetworkKeyFor(requirements: WallRequirements): Videowal
 
 /** Expert view keeps the more technical source-location controls. */
 export type VideowallLocationChoice = {
-  key: "local" | "distributed" | "one-gig" | "ten-gig" | "no-network";
+  key: "local" | "distributed" | "one-gig" | "ten-gig" | "new-one-gig" | "new-ten-gig" | "no-network";
   label: string;
   detail: string;
   patch: Partial<WallRequirements>;
 };
 
 export const videowallLocationChoices: VideowallLocationChoice[] = [
-  { key: "local", label: "All in one rack", detail: "Short HDMI runs; no AV network is needed.", patch: { sourceLocation: "local", network: "any" } },
-  { key: "distributed", label: "Around the building", detail: "Sources and screens are apart; the network carries the picture.", patch: { sourceLocation: "distributed", network: "any" } },
-  { key: "one-gig", label: "1GbE is already there", detail: "The existing 1GbE AV network carries the sources and screens.", patch: { sourceLocation: "distributed", network: "1g" } },
-  { key: "ten-gig", label: "10GbE is already there", detail: "Uncompressed 4K60 4:4:4 over an existing 10GbE network.", patch: { sourceLocation: "distributed", network: "10g" } },
-  { key: "no-network", label: "No AV network allowed", detail: "Keep everything local, even if sources are some distance away.", patch: { sourceLocation: "local", network: "none" } },
+  { key: "local", label: "All in one rack", detail: "Short HDMI runs; no AV network is needed.", patch: { sourceLocation: "local", network: "any", networkProvision: undefined } },
+  { key: "distributed", label: "Around the building", detail: "Sources and screens are apart; the network carries the picture.", patch: { sourceLocation: "distributed", network: "any", networkProvision: undefined } },
+  { key: "one-gig", label: "1GbE is already there", detail: "The existing 1GbE AV network carries the sources and screens.", patch: { sourceLocation: "distributed", network: "1g", networkProvision: "existing" } },
+  { key: "ten-gig", label: "10GbE is already there", detail: "Uncompressed 4K60 4:4:4 over an existing 10GbE network.", patch: { sourceLocation: "distributed", network: "10g", networkProvision: "existing" } },
+  { key: "new-one-gig", label: "Supply new 1Gb network switches", detail: "Include new 1Gb switches for the AV network.", patch: { sourceLocation: "distributed", network: "1g", networkProvision: "new" } },
+  { key: "new-ten-gig", label: "Supply new 10Gb network switches", detail: "Include new 10Gb switches for the AV network.", patch: { sourceLocation: "distributed", network: "10g", networkProvision: "new" } },
+  { key: "no-network", label: "No AV network allowed", detail: "Keep everything local, even if sources are some distance away.", patch: { sourceLocation: "local", network: "none", networkProvision: undefined } },
 ];
 
 export function videowallLocationKeyFor(requirements: WallRequirements): VideowallLocationChoice["key"] {
-  if (requirements.network === "10g") return "ten-gig";
-  if (requirements.network === "1g") return "one-gig";
+  if (requirements.network === "10g") return requirements.networkProvision === "new" ? "new-ten-gig" : "ten-gig";
+  if (requirements.network === "1g") return requirements.networkProvision === "new" ? "new-one-gig" : "one-gig";
   if (requirements.network === "none") return "no-network";
   return requirements.sourceLocation;
 }

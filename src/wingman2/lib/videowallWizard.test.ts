@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultWallRequirements } from "./videowallOptions";
-import { videowallNetworkChoices, videowallNetworkKeyFor } from "./videowallDraft";
+import { videowallLocationChoices, videowallLocationKeyFor, videowallNetworkChoices, videowallNetworkKeyFor } from "./videowallDraft";
 import {
   wallWizardAnswers,
   wallWizardApplicationPatch,
@@ -63,15 +63,16 @@ describe("guided video wall wizard", () => {
     expect(wallWizardApplicationPatch("led", { layout: "quad" })).toEqual({ application: "led" });
   });
 
-  it("offers existing or new 1Gb and 10Gb networks as separate provision choices", () => {
+  it("offers existing/new network speeds and a no-AVoIP choice", () => {
     expect(videowallNetworkChoices.map((choice) => choice.key)).toEqual([
-      "existing-1g", "existing-10g", "new-1g", "new-10g",
+      "existing-1g", "existing-10g", "new-1g", "new-10g", "no-avoip",
     ]);
     expect(videowallNetworkChoices.map((choice) => choice.label)).toEqual([
       "Use an existing 1Gb network",
       "Use an existing 10Gb network",
       "Supply new 1Gb network switches",
       "Supply new 10Gb network switches",
+      "Do not use AVoIP",
     ]);
     for (const choice of videowallNetworkChoices) {
       expect(videowallNetworkKeyFor({ ...defaultWallRequirements, ...choice.patch })).toBe(choice.key);
@@ -81,6 +82,16 @@ describe("guided video wall wizard", () => {
     // Older saved designs only have the network speed, which meant the site
     // already had that network.
     expect(videowallNetworkKeyFor({ ...defaultWallRequirements, network: "10g" })).toBe("existing-10g");
+    expect(videowallNetworkKeyFor({ ...defaultWallRequirements, network: "none" })).toBe("no-avoip");
+  });
+
+  it("keeps Expert's source-location answer aligned with Guided network provision", () => {
+    expect(videowallLocationKeyFor({ ...defaultWallRequirements, network: "1g", networkProvision: "new" }))
+      .toBe("new-one-gig");
+    expect(videowallLocationChoices.find((choice) => choice.key === "new-one-gig")?.patch)
+      .toMatchObject({ network: "1g", networkProvision: "new", sourceLocation: "distributed" });
+    expect(videowallLocationChoices.find((choice) => choice.key === "one-gig")?.patch)
+      .toMatchObject({ network: "1g", networkProvision: "existing" });
   });
 
   it("turns must-haves into ordering checks without inventing products", () => {

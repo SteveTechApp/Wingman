@@ -215,8 +215,11 @@ it("asks source count and network provision on separate screens", () => {
       "Use an existing 10Gb network",
       "Supply new 1Gb network switches",
       "Supply new 10Gb network switches",
+      "Do not use AVoIP",
     ]);
   expect(screen.getByTestId("videowall-wizard-network-next")).toBeDisabled();
   fireEvent.click(within(network).getByRole("button", { name: /Supply new 10Gb network switches/ }));
   expect(onChange).toHaveBeenLastCalledWith({ sourceLocation: "distributed", network: "10g", networkProvision: "new" });
+  fireEvent.click(within(network).getByRole("button", { name: /Do not use AVoIP/ }));
+  expect(onChange).toHaveBeenLastCalledWith({ sourceLocation: "local", network: "none", networkProvision: undefined });
 });

@@ -572,9 +572,10 @@ states is one they trust by mistake.
   adjustments.
 - Guided asks source count and timing, then asks network provision separately:
   use an existing 1Gb or 10Gb network, or supply new switches at either speed.
-  The saved answer keeps both speed and existing/new scope, while older walls
-  with only a speed still read as an existing network. The question order and
-  answer-edit target are held by `wallWizardSteps` and `wallWizardAnswers`.
+  It also offers “Do not use AVoIP”, which keeps the design local. The saved
+  answer keeps both speed and existing/new scope, while older walls with only a
+  speed still read as an existing network. The question order and answer-edit
+  target are held by `wallWizardSteps` and `wallWizardAnswers`.
   [Narrative](docs/VIDEO_WALL.md)
 - Four surfaces name the wall workflow, so the entry's name and the sentence
   saying how a design begins live once, in `lib/wallEntry.ts`. They had drifted.
