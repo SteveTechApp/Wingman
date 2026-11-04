@@ -2964,153 +2964,94 @@ async function assertProposalStepCards(page) {
 }
 
 /**
- * The guided wall wizard's start step, measured: the card's box, every block it
- * lays out, the brief against the common walls, and the read-out against the two
- * canvas fields.
- *
- * What those boxes mean is `lib/wall-start-step.mjs`; this is the `page.evaluate`
- * that produces them, which only a browser can take. The brief is measured where
- * the step mounts it rather than by a selector of its own internals, so a control
- * that moved inside the brief would answer here as a narrower brief instead of a
- * passing reading.
+ * The guided wall wizard's opening: the wall-type card's containment, the five
+ * wall choices, and the fields that follow an LED choice.
  */
 async function measureWallStartStep(page) {
-  return page.evaluate(() => {
-    const card = document.querySelector('[data-testid="videowall-wizard-step-job"]');
+  const start = await page.evaluate(() => {
+    const card = document.querySelector('[data-testid="videowall-wizard-step-picture"]');
     if (!card) return null;
-
     const cardBox = card.getBoundingClientRect();
-    const cardStyle = getComputedStyle(card);
+    const style = getComputedStyle(card);
     const contentBox = {
-      left: cardBox.left + parseFloat(cardStyle.paddingLeft),
-      right: cardBox.right - parseFloat(cardStyle.paddingRight),
+      left: cardBox.left + parseFloat(style.paddingLeft),
+      right: cardBox.right - parseFloat(style.paddingRight),
     };
     const outside = (box, within) => box.left < within.left - 1 || box.right > within.right + 1;
-    const name = (node) =>
-      `${node.tagName.toLowerCase()}${node.classList.length ? `.${[...node.classList].slice(0, 2).join(".")}` : ""}`;
-    const rect = (node) => {
-      if (!node) return null;
-      const box = node.getBoundingClientRect();
-      return {
-        left: Math.round(box.left),
-        right: Math.round(box.right),
-        top: Math.round(box.top),
-        bottom: Math.round(box.bottom),
-        width: Math.round(box.width),
-        height: Math.round(box.height),
-      };
-    };
-
-    let clip = null;
-    for (let node = card.parentElement; node; node = node.parentElement) {
-      const nodeStyle = getComputedStyle(node);
-      if (nodeStyle.overflowX !== "visible" || nodeStyle.overflowY !== "visible") {
-        clip = node.getBoundingClientRect();
-        break;
-      }
-    }
-
+    const name = (node) => `${node.tagName.toLowerCase()}${node.classList.length ? `.${[...node.classList].slice(0, 2).join(".")}` : ""}`;
+    const clip = [...(function* () { for (let n = card.parentElement; n; n = n.parentElement) yield n; })()]
+      .find((node) => {
+        const current = getComputedStyle(node);
+        return current.overflowX !== "visible" || current.overflowY !== "visible";
+      })?.getBoundingClientRect();
     const tree = [];
     for (let node = card; node; node = node.parentElement) {
-      const nodeStyle = getComputedStyle(node);
-      tree.push({
-        node: `${node.tagName.toLowerCase()}${node.classList.length ? `.${[...node.classList].slice(0, 3).join(".")}` : ""}`,
-        width: node.clientWidth,
-        scroll: node.scrollWidth,
-        display: nodeStyle.display,
-        columns: nodeStyle.gridTemplateColumns,
-        overflowX: nodeStyle.overflowX,
-      });
+      const current = getComputedStyle(node);
+      tree.push({ node: name(node), width: node.clientWidth, scroll: node.scrollWidth, display: current.display, columns: current.gridTemplateColumns, overflowX: current.overflowX });
     }
-
     const escaped = [];
-    let widest = 0;
     const walk = (node) => {
       for (const child of node.children) {
         const childStyle = getComputedStyle(child);
-        const childBox = child.getBoundingClientRect();
-        // A drawer or an overlay is anchored to the viewport, so its box says
-        // nothing about where the card put it.
+        const box = child.getBoundingClientRect();
         if (childStyle.position === "fixed") continue;
-        // A closed disclosure keeps its computed display and a layout rect, so
-        // nothing but checkVisibility says it is off screen.
         const rendered = typeof child.checkVisibility === "function"
           ? child.checkVisibility({ checkVisibilityCSS: true })
-          : childBox.width > 0 && childBox.height > 0;
+          : box.width > 0 && box.height > 0;
         if (!rendered) continue;
-        widest = Math.max(widest, Math.round(childBox.width));
-        // A box that scrolls or clips answers for its own content, and the
-        // content inside it is reached rather than cut.
         if (childStyle.overflowX !== "visible") continue;
-        if (outside(childBox, contentBox)) {
-          escaped.push({
-            name: name(child),
-            node: name(child),
-            width: Math.round(childBox.width),
-            past: Math.round(childBox.right - contentBox.right),
-          });
+        if (outside(box, contentBox)) {
+          escaped.push({ name: name(child), node: name(child), width: Math.round(box.width), past: Math.round(box.right - contentBox.right) });
           continue;
         }
         walk(child);
       }
     };
     walk(card);
-
-    const brief = document.querySelector('[data-testid="videowall-led-brief"]');
-    const readout = document.querySelector('[data-testid="videowall-led-brief-readout"]');
-    const walls = [...document.querySelectorAll('[data-testid^="videowall-preset-"]')];
-    // The heading over the list, found by its own words: it is the block the
-    // brief has to end above, and a step that lost it is a failure rather than a
-    // comparison against nothing.
-    const commonWalls = [...card.querySelectorAll("h2")]
-      .find((heading) => (heading.textContent ?? "").trim() === "Common walls") ?? null;
-    const questions = [...card.querySelectorAll("button")]
-      .find((button) => /Answer the questions instead/.test(button.textContent ?? "")) ?? null;
-    const canvasInputs = [...(brief?.querySelectorAll('input[type="number"]') ?? [])];
-
+    const rowCount = (nodes) => new Set([...nodes].map((node) => Math.round(node.getBoundingClientRect().top))).size;
+    const progress = document.querySelectorAll('[aria-label="Wizard progress"] li');
+    const choices = card.querySelectorAll('[aria-label="Display application"] button');
     return {
       card: { width: card.clientWidth, scroll: card.scrollWidth },
       content: Math.round(contentBox.right - contentBox.left),
-      widest,
-      tree,
       clipped: clip ? outside(cardBox, clip) : null,
+      tree,
       escaped,
-      brief: rect(brief),
-      commonWalls: rect(commonWalls),
-      questions: rect(questions),
-      firstWall: rect(walls[0] ?? null),
-      rows: walls.length,
-      readout: readout
-        ? { ...rect(readout), scroll: readout.scrollWidth, text: (readout.textContent ?? "").trim() }
-        : null,
-      canvas: {
-        width: Number(canvasInputs[0]?.value ?? 0),
-        height: Number(canvasInputs[1]?.value ?? 0),
-      },
+      wallTypeStep: true,
+      progressRows: rowCount(progress),
+      wallTypes: choices.length,
+      optionRows: rowCount(choices),
     };
   });
+  if (!start) return null;
+  await page.getByRole("button", { name: /^LED · processor input/ }).click();
+  await expect(page.getByTestId("videowall-wizard-step-size")).toBeVisible();
+  const led = await page.evaluate(() => {
+    const size = document.querySelector('[data-testid="videowall-wizard-step-size"]');
+    if (!size) return { ledSizeStep: false, ledFields: [] };
+    const labels = [...size.querySelectorAll("label")].map((label) => (label.textContent ?? "").toLowerCase());
+    const fields = [];
+    if (labels.some((label) => label.includes("canvas width"))) fields.push("canvas width");
+    if (labels.some((label) => label.includes("canvas height"))) fields.push("canvas height");
+    if ((size.textContent ?? "").includes("Pixel pitch")) fields.push("pixel pitch");
+    if (labels.some((label) => label.includes("columns"))) fields.push("cabinet columns");
+    if (labels.some((label) => label.includes("rows"))) fields.push("cabinet rows");
+    return { ledSizeStep: true, ledFields: fields };
+  });
+  await page.getByRole("button", { name: "Back" }).click();
+  return { ...start, ...led };
 }
 
 /**
- * The guided wall wizard's start step, at the laptop width and on both phones.
- *
- * The step was reordered so an LED design begins with its own brief — canvas,
- * pitch, cabinet array — instead of a wall someone else answered, and that
- * ordering is what this pass holds: the brief's box ends above the common walls,
- * the way past those walls sits above the first of them, and the read-out states
- * the canvas the fields hold. The card's own containment is read in the same
- * sweep, because the phone widths are where a row of chips is widest against the
- * card.
- *
- * The step is opened by its address rather than by clicking through the wizard:
- * it is step one, which is where the route lands, so the reading cannot be taken
- * on a step a rep had to answer three questions to reach.
+ * The guided wall wizard starts with wall type, and an LED choice leads to the
+ * canvas, pitch and cabinet array fields. Read the first card's containment at
+ * desktop and phone widths because option groups are the widest content here.
  */
 async function assertWallWizardStartStep(page) {
   await page.goto(`http://127.0.0.1:${port}/wingman/videowall`, { waitUntil: "networkidle" });
   await expect(
-    page.getByTestId("videowall-wizard-step-job"),
-    "The wall wizard should open on its start step",
+    page.getByTestId("videowall-wizard-step-picture"),
+    "The wall wizard should open on the wall-type question",
   ).toBeVisible({ timeout: 15_000 });
 
   const readings = [];
@@ -3128,7 +3069,7 @@ async function assertWallWizardStartStep(page) {
 
   await page.setViewportSize({ width: 1366, height: 900 });
   console.log(
-    `[browser-smoke] The guided wall wizard's start step leads with the LED brief and holds it at 1366px, 390px and 360px — ${readings.join("; ")}.`,
+    `[browser-smoke] The guided wall wizard's start step asks for wall type and follows LED with canvas, pitch and array fields at 1366px, 390px and 360px — ${readings.join("; ")}.`,
   );
 }
 
@@ -4545,14 +4486,16 @@ try {
 
   await assertHeroHeaders(page);
 
-  // Before the expert view is opened below: the guided start step is what a rep
-  // sees first, and switching the page to the expert reading leaves it unmeasured.
+  // Before the expert view is opened below: the wall-type question is the first
+  // guided step, and switching modes leaves that opening unmeasured.
   await assertWallWizardStartStep(page);
 
-  await assertPageText(page, "/wingman/videowall", "Start from the job");
+  await assertPageText(page, "/wingman/videowall", "What kind of wall?");
   await page.getByTestId("videowall-wizard-expert").click();
   await expect(page.getByRole("heading", { name: "One wall. The right signal path.", exact: true }))
     .toBeVisible({ timeout: 15_000 });
+  await page.getByRole("group", { name: "Choose the wall type to design" })
+    .getByRole("button", { name: /^LCD · feed per display/ }).click();
   // The design pass is a rail of bands with one on screen at a time, so the
   // controls below are reached the way a rep reaches them: open the band the
   // reading lives in, then use it. The pressed chip is asserted after every move,

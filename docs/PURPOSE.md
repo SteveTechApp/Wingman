@@ -69,7 +69,7 @@ room that is already decided. A designer who starts in the sections and stops
 early is leaving the same room with fewer answers. Neither move is a restart, and
 neither may strand the record in a shape the other cannot read.
 
-## Why the focused path is the one that writes the decision
+## Why both depths write one decision
 
 The room brief ends by writing the decided room into the discovery handoff: the
 room shape and the display count the decision implies, the decision itself as a
@@ -77,12 +77,25 @@ note, and an address that reopens the capture at the first open question. Those
 are the keys the module can guarantee — a rule it keeps rather than a list it
 grows — so the interview starts from a decided room instead of a blank form.
 
-The expert workspace captures the same room and does not write that record. It
-ends by handing the rep to the recommendation, so the type, the reasons, the
-checks and the changes-if exist for one path and not the other. That is the gap
-this section names. It is not a missing page — both paths already end in the same
-place. It is a missing record, and until both write it, the two depths only look
-like one process.
+The expert workspace used to capture the same room without writing that record,
+so the type, the reasons, the checks and the changes-if existed for one path and
+not the other: one place to end, two outcomes.
+
+They now write one record, because they ask one engine. The sections answer in
+their own vocabulary — application, people, display behaviour, UC scope, network
+path — and those answers are translated into the facts the ladder asks about, so
+the decision is `resolveRoomBrief` and not a second opinion. Only facts the
+sections actually capture are translated: a partition, a dwell or an operator is
+never asked there, so it stays unresolved and the reading tells the rep what to
+ask instead of inventing an answer. The application the rep captured chooses
+among the rooms those facts still fit, because "video wall" is not a question
+the ladder needs to re-ask; the rooms it could still have been remain listed.
+
+Both surfaces then render `RoomDecisionReading` rather than their own version of
+it, and continuing writes the same `room-brief` note the brief path writes. What
+stays different is the road, not the record: the brief decides in two or three
+questions, the sections let a designer capture what they already know, and a rep
+who moves between them is continuing their room.
 
 ## The test this file exists to answer
 

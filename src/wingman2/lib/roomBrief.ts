@@ -521,10 +521,20 @@ export function questionsAsked(answers: RoomBriefAnswers): number {
  * With more than one room type still standing, the first survives: it is the
  * narrower room, and the unresolved list on the result names what a person would
  * have to ask to tell them apart.
+ *
+ * `preferred` is the exception, and it is the capture's own fact rather than a
+ * second method: a rep who captured a video wall has already said which of the
+ * rooms the answers still fit this one is. It only applies while that room is
+ * still standing, so a capture cannot name its way past its own answers.
  */
-export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMarket | "" = ""): RoomDecision {
+export function resolveRoomBrief(
+  answers: RoomBriefAnswers,
+  market: TemplateMarket | "" = "",
+  preferred?: RoomArchetypeId,
+): RoomDecision {
   const surviving = survivingArchetypes(answers);
-  const chosen = ARCHETYPES.find((archetype) => archetype.id === surviving[0]) ?? ARCHETYPES[0];
+  const picked = preferred && surviving.includes(preferred) ? preferred : surviving[0];
+  const chosen = ARCHETYPES.find((archetype) => archetype.id === picked) ?? ARCHETYPES[0];
   return {
     archetype: chosen.id,
     roomType: chosen.roomType,
@@ -535,7 +545,7 @@ export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMark
     changesIf: chosen.changesIf,
     market,
     questionsAsked: questionsAsked(answers),
-    unresolved: surviving.slice(1),
+    unresolved: surviving.filter((id) => id !== chosen.id),
   };
 }
 
@@ -568,6 +578,104 @@ export function roomBriefDiscoveryAnswers(decision: RoomDecision): Record<string
     opportunity: opportunity[decision.archetype],
     ...(count ? { displays: count } : {}),
   };
+}
+
+/** A captured discovery answer, in the shape the capture stores it. */
+export type DiscoveryRoomAnswer = string | string[] | undefined;
+
+type DiscoveryRoomAnswers = Record<string, DiscoveryRoomAnswer>;
+
+const readCaptured = (value: DiscoveryRoomAnswer): string =>
+  Array.isArray(value) ? value.join(",") : String(value ?? "").trim();
+
+/** Multi-select answers arrive as arrays, a single choice as one token. */
+const captured = (value: DiscoveryRoomAnswer, token: string): boolean =>
+  readCaptured(value).split(",").map((entry) => entry.trim()).includes(token);
+
+const OCCUPANCY_FOR_SCALE: Record<string, string> = {
+  "single-small-room": "small",
+  "single-large-room": "large",
+  "multi-room": "medium",
+};
+
+const occupancyBand = (people: number): string =>
+  people <= 4 ? "squad" : people <= 10 ? "small" : people <= 20 ? "medium" : people <= 50 ? "large" : "crowd";
+
+/** What the customer asked for, in the brief's words for what the room has to do. */
+const PURPOSE_FOR_OPPORTUNITY: Record<string, string> = {
+  "meeting-room": "present",
+  classroom: "teach",
+  hospitality: "signage",
+  "video-wall": "signage",
+  "av-over-ip": "campus",
+};
+
+/** The room an application names on its own, where it names one of the three a market shares. */
+const ARCHETYPE_FOR_OPPORTUNITY: Partial<Record<string, RoomArchetypeId>> = {
+  "video-wall": "signage-wall",
+  "av-over-ip": "campus-distribution",
+  classroom: "classroom",
+  hospitality: "venue",
+};
+
+const UC_PLATFORMS = ["microsoft-teams-room", "zoom-room", "room-pc-conferencing", "hardware-codec"];
+const NETWORK_PATHS = ["corporate-av-vlan", "dedicated-av-lan"];
+
+/**
+ * The captured room, in the brief's vocabulary.
+ *
+ * The expert sections and the brief ask different questions about one room, so
+ * this is a translation and not a second method: each fact is read only where
+ * the capture actually states it, and a fact it never asked stays absent. An
+ * absent fact is what lets the decision name what a person would still have to
+ * ask instead of filling the gap with a default.
+ */
+export function roomBriefAnswersFromDiscovery(answers: DiscoveryRoomAnswers): RoomBriefAnswers {
+  const brief: RoomBriefAnswers = {};
+
+  const purpose = PURPOSE_FOR_OPPORTUNITY[readCaptured(answers.opportunity)];
+  if (purpose) brief.purpose = purpose;
+
+  const people = Number.parseInt(readCaptured(answers["room-occupancy"]), 10);
+  const scale = OCCUPANCY_FOR_SCALE[readCaptured(answers.scale)];
+  if (Number.isFinite(people) && people > 0) brief.occupancy = occupancyBand(people);
+  else if (scale) brief.occupancy = scale;
+
+  // Only independent routing is read: one picture across a wall is the wall's
+  // canvas, not a room where every screen shows the same thing.
+  if (readCaptured(answers["display-behaviour"]) === "independent-routing-per-display") brief.screens = "different";
+
+  const uc = answers["uc-purpose"];
+  const platform = readCaptured(answers["uc-platform"]);
+  if (captured(uc, "no-uc")) brief["far-end"] = "no";
+  else if (platform === "byom-user-laptop") brief["far-end"] = "sometimes";
+  else if (UC_PLATFORMS.includes(platform) || captured(uc, "video-conferencing")) brief["far-end"] = "yes";
+  if (readCaptured(uc) && !captured(uc, "unknown-uc")) {
+    brief.record = captured(uc, "recording-streaming") ? "yes" : "no";
+  }
+
+  const networkPath = readCaptured(answers["network-path"]);
+  if (NETWORK_PATHS.includes(networkPath)) brief.reach = "yes";
+  else if (networkPath === "no-network-distribution") brief.reach = "no";
+
+  return brief;
+}
+
+/**
+ * The room a capture describes, or null when it has not described one yet.
+ *
+ * Null is the honest answer for a workspace a rep opened and has not filled in:
+ * a decision invented from no application is a room nobody was asked about.
+ */
+export function decisionForCapturedRoom(answers: DiscoveryRoomAnswers): RoomDecision | null {
+  const brief = roomBriefAnswersFromDiscovery(answers);
+  if (!brief.purpose) return null;
+  return resolveRoomBrief(brief, "", ARCHETYPE_FOR_OPPORTUNITY[readCaptured(answers.opportunity)]);
+}
+
+/** The one line both depths write into the room record, so neither can drift. */
+export function roomBriefNote(decision: RoomDecision): string {
+  return `${decision.roomType}: ${decision.summary}`;
 }
 
 /** Every room type, so a surface can explain what the method can decide. */

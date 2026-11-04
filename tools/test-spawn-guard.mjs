@@ -38,10 +38,19 @@ function isTransientCode(code) {
   );
 }
 
+function isolateScratchGit(command, options = {}) {
+  if (command.toLowerCase() !== "git" || !options.cwd || options.cwd === process.cwd()) return options;
+  const env = options.env ?? process.env;
+  return {
+    ...options,
+    env: Object.fromEntries(Object.entries(env).filter(([key]) => !/^GIT_/i.test(key))),
+  };
+}
+
 // execFileSync-style: returns stdout, throws on child failure (not retried),
 // retries once on a transient spawn failure.
 export function runToolOnce(command, args, options) {
-  return execFileSync(command, args, { maxBuffer: 16 * 1024 * 1024, ...options });
+  return execFileSync(command, args, { maxBuffer: 16 * 1024 * 1024, ...isolateScratchGit(command, options) });
 }
 
 export function runTool(command, args, label, options) {
@@ -65,13 +74,13 @@ export function runTool(command, args, label, options) {
 export function runToolBare(command, args, label, options) {
   const result = spawnSync(command, args, {
     maxBuffer: 16 * 1024 * 1024,
-    ...options,
+    ...isolateScratchGit(command, options),
   });
   if (!result.error) return result;
   const transient = isTransientCode(result.error.code) && typeof result.status !== "number" && !result.signal;
   if (!transient) return result;
   console.warn(`[${label}] transient spawn failure (${result.error.code}); retrying once: ${command} ${args.join(" ")}`);
-  return spawnSync(command, args, { maxBuffer: 16 * 1024 * 1024, ...options });
+  return spawnSync(command, args, { maxBuffer: 16 * 1024 * 1024, ...isolateScratchGit(command, options) });
 }
 
 // Evented spawn wrapper for tests that drive child.stdout/stderr streams:

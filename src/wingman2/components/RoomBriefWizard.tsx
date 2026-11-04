@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Check, RotateCcw } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
+import { RoomDecisionReading } from "./RoomDecisionReading";
 import { TEMPLATE_MARKETS, type TemplateMarket } from "../lib/templateMarkets";
 import {
   ROOM_BRIEF_OCCUPANCIES,
@@ -11,6 +12,7 @@ import {
   questionsAsked,
   resolveRoomBrief,
   roomBriefDiscoveryAnswers,
+  roomBriefNote,
   type RoomBriefAnswers,
 } from "../lib/roomBrief";
 
@@ -62,7 +64,7 @@ export function RoomBriefWizard() {
     writeDiscoveryHandoff({
       mode: "standard",
       answers: roomBriefDiscoveryAnswers(decision),
-      notes: { "room-brief": `${decision.roomType}: ${decision.summary}` },
+      notes: { "room-brief": roomBriefNote(decision) },
     });
     navigate(`${routeCatalogByKey.discovery.path}?interview=1`);
   };
@@ -192,42 +194,7 @@ export function RoomBriefWizard() {
             {decision.market ? ` · ${decision.market}` : ""}
           </p>
           <h1 id="room-brief-title" className="wm-page-title">{decision.roomType}</h1>
-          <p className="wm-ui-copy">{decision.summary}</p>
-
-          <div className="wm-section-card">
-            <h3 className="wm-section-title">What this room needs</h3>
-            <ul>
-              {decision.requirements.map((requirement) => (
-                <li key={requirement.key}>
-                  <strong>{requirement.label}</strong> — {requirement.quantity}
-                  <p className="wm-ui-copy">{requirement.because}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="wm-template-preview-split">
-            <section>
-              <h3>Check on site</h3>
-              <ul>{decision.verifyOnSite.map((item) => <li key={item}>{item}</li>)}</ul>
-            </section>
-            <section>
-              <h3>Assumed</h3>
-              <ul>{decision.assumptions.map((item) => <li key={item}>{item}</li>)}</ul>
-            </section>
-          </div>
-
-          <div className="wm-section-card">
-            <h3 className="wm-section-title">This changes if</h3>
-            <ul>{decision.changesIf.map((item) => <li key={item}>{item}</li>)}</ul>
-            {decision.unresolved.length ? (
-              <p className="wm-ui-copy">
-                The answers still fit {decision.unresolved.length} other room type
-                {decision.unresolved.length === 1 ? "" : "s"}. Ask what would tell them apart before
-                this is priced.
-              </p>
-            ) : null}
-          </div>
+          <RoomDecisionReading decision={decision} />
 
           <div className="wm-solution-header-actions">
             <button className="wm-button wm-button-primary" type="button" onClick={openBrief}>

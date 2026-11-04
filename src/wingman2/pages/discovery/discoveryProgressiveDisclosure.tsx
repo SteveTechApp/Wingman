@@ -14,6 +14,7 @@
  */
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
+import { discoverySectionFor, discoverySectionTitle } from "./discoverySections";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -54,10 +55,18 @@ export const BASIC_MODE_REQUIRED_IDS = [
   "scale",               // How big? — drives system complexity
   "network-path",        // Corporate AV VLAN or dedicated physical AV LAN, when distributed
   "sources",             // How many sources? — drives input count
+  "source-connection",   // User laptop, installed equipment, or both
   "displays",            // How many displays? — drives output count
   "display-behaviour",   // How should displays behave? — key architectural decision
   "uc-purpose",          // Camera/mic workflows? — key for BYOM/BYOD
+  "uc-camera",           // Camera type changes video and USB routing
+  "uc-camera-count",     // Multiple views require a bridge or compositor
+  "signal-standard",     // 1080p, 4K UHD, HDR and higher-resolution needs
+  "usb",                 // Host, USB 2.0/3.x capability and extension
+  "locations-connections", // Source/output positions and route distance
+  "control",             // Room and AV system operation
   "audio", "audio-route", "audio-zones", "audio-programme", "room-acoustics",
+  "commissioning",       // Acceptance, training, handover and responsibility
 ] as const;
 
 const BASIC_MODE_REQUIRED_SET = new Set<string>(BASIC_MODE_REQUIRED_IDS);
@@ -524,7 +533,7 @@ export function DiscoveryProgressiveDisclosure({
                   </span>
                   <span className="wm-discovery-batch-step-banner__text">
                     <span className="wm-discovery-batch-step-banner__section">
-                      {question.section}
+                      {discoverySectionTitle(discoverySectionFor(question))}
                       {question.required ? "" : " · Optional"}
                     </span>
                     <span className="wm-discovery-batch-step-banner__title">

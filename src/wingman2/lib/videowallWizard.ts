@@ -17,7 +17,7 @@ import { wallFeedingAnswer } from "./wallFeeding";
  * checks a rep must close before quoting.
  */
 
-export type WallWizardStepKey = "job" | "picture" | "size" | "sources" | "feeding" | "layout" | "visual" | "detail";
+export type WallWizardStepKey = "picture" | "size" | "sources" | "feeding" | "layout" | "visual" | "detail";
 
 /**
  * The wall's kind is the first question, because it decides which of the others
@@ -33,7 +33,6 @@ export type WallWizardStepKey = "job" | "picture" | "size" | "sources" | "feedin
  * it; the wiring is the same reading, and belongs to the result's survey pass.
  */
 export const wallWizardSteps: { key: WallWizardStepKey; label: string }[] = [
-  { key: "job", label: "The job" },
   { key: "picture", label: "Wall type" },
   { key: "size", label: "Size and pixels" },
   { key: "sources", label: "Sources" },

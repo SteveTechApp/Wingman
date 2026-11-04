@@ -11,6 +11,8 @@ import { changeDiscoveryApplication } from "./discoveryMarketContext";
 import { DiscoveryCaptureSuggestion } from "./DiscoveryCaptureSuggestion";
 import { appendTranscriptNote, VoiceRequestCapture } from "../../components/VoiceRequestCapture";
 import { DISCOVERY_SECTIONS as sections, discoverySectionFor as sectionFor, type DiscoverySectionId as SectionId } from "./discoverySections";
+import { decisionForCapturedRoom } from "../../lib/roomBrief";
+import { RoomDecisionReading } from "../../components/RoomDecisionReading";
 
 
 
@@ -57,6 +59,10 @@ export function DiscoveryExpertBuilder(props: Props) {
     answers["room-occupancy"] && `${String(answers["room-occupancy"])} people`,
     answers["room-dimensions"] && `Room: ${String(answers["room-dimensions"])}`,
   ].filter(Boolean) as string[];
+  // The room these sections describe, read by the same engine the focused brief
+  // uses. Null while the capture has not said what the room is for: an invented
+  // room is worse than a stated gap.
+  const decision = decisionForCapturedRoom(answers);
 
   const selectOption = (question: DiscoveryQuestion, value: string) => {
     props.onAnswersChange(previous => question.id === "opportunity"
@@ -80,7 +86,7 @@ export function DiscoveryExpertBuilder(props: Props) {
           return <button type="button" key={section.id} className={isActive ? "is-active" : ""}
             aria-current={isActive ? "step" : undefined} onClick={() => setActiveSection(section.id)}>
             <span><strong>{section.title}</strong><small>{section.description}</small></span>
-            <em>{section.id === "equipment" ? topology.devices.length : section.id === "site" ? "6 fields" : `${done}/${rows.length}`}</em>
+            <em>{section.id === "equipment" ? topology.devices.length : section.id === "site" ? "7 fields" : section.id === "lighting" ? "2 fields" : `${done}/${rows.length}`}</em>
           </button>;
         })}
       </nav>
@@ -96,17 +102,14 @@ export function DiscoveryExpertBuilder(props: Props) {
             <label htmlFor="expert-room-dimensions">Room size and seating
               <textarea id="expert-room-dimensions" value={String(answers["room-dimensions"] || "")} placeholder="e.g. 12 × 8 metres, 24 seats around a table" onChange={event => props.onAnswersChange(previous => ({ ...previous, "room-dimensions": event.target.value }))} /></label></div>
         </>}
-        {activeSection === "site" && <DiscoverySiteConditions answers={answers} onChange={props.onAnswersChange} />}
-        {activeSection !== "brief" && activeSection !== "site" && activeSection !== "equipment" && activeSection !== "locations" && activeSection !== "review" && sectionQuestions.map(question =>
+        {activeSection === "site" && <DiscoverySiteConditions answers={answers} onChange={props.onAnswersChange} hideHeader />}
+        {activeSection !== "brief" && activeSection !== "site" && activeSection !== "equipment" && activeSection !== "review" && sectionQuestions.map(question =>
           <ExpertQuestion key={question.id} question={question} application={application} answer={answers[question.id]} note={notes[question.id] ?? ""}
             confirmed={Boolean(confirmed[question.id])} onSelect={value => selectOption(question, value)}
             onNoteChange={value => props.onNotesChange(previous => ({ ...previous, [question.id]: value }))}
             onConfirm={value => props.onConfirm(question.id, value)} onConfirmCapture={(values, confidence) => props.onConfirmCaptureSuggestion(question.id, values, confidence)} />)}
-        {activeSection === "locations" && <><DiscoverySiteConditions answers={answers} onChange={props.onAnswersChange} compact />
-          {sectionQuestions.map(question => <ExpertQuestion key={question.id} question={question} application={application} answer={answers[question.id]} note={notes[question.id] ?? ""}
-            confirmed={Boolean(confirmed[question.id])} onSelect={value => selectOption(question, value)} onNoteChange={value => props.onNotesChange(previous => ({ ...previous, [question.id]: value }))}
-            onConfirm={value => props.onConfirm(question.id, value)} onConfirmCapture={(values, confidence) => props.onConfirmCaptureSuggestion(question.id, values, confidence)} />)}
-          <DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} /></>}
+        {activeSection === "routing" && <DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} />}
+        {activeSection === "lighting" && <DiscoverySiteConditions answers={answers} onChange={props.onAnswersChange} compact area="lighting" hideHeader />}
         {activeSection === "equipment" && <>
           <p>Keep an item as a role placeholder until the manufacturer and model are confirmed. WyreStorm equipment, competitor alternatives, and complementary products retain separate identities.</p>
           <details className="wm-expert-equipment-library"><summary>Add from saved equipment</summary><EquipmentLibraryPanel locations={topology.locations} onSelect={(item, location, quantity) => props.onTopologyChange(addEquipmentToRoom(topology, item, location, quantity))} /></details>
@@ -115,7 +118,11 @@ export function DiscoveryExpertBuilder(props: Props) {
           {topology.devices.length ? <ul>{topology.devices.map(device => <li key={device.id}><strong>{device.quantity} × {device.manufacturer || "Manufacturer to select"} {device.sku || device.name}</strong> — {device.category}; {topology.locations.find(location => location.id === device.locationId)?.name || "location to confirm"}; {device.productRelationship === "competitor" ? "competitor alternative" : device.thirdParty ? "complementary third-party" : "WyreStorm"} · {device.status}</li>)}</ul> : <p>No equipment has been added yet. The room brief can still be saved.</p>}
         </>}
         {activeSection === "review" && <>
-          <h4>Room so far</h4><ul>{roomSummary.length ? roomSummary.map(item => <li key={item}>{item}</li>) : <li>Room purpose and size still need to be confirmed.</li>}</ul>
+          <h4>The decided room</h4>
+          {decision ? <><p className="wm-ui-copy"><strong>{decision.roomType}</strong></p>
+            <RoomDecisionReading decision={decision} /></>
+            : <p>Answer what type of opportunity this is and the room's type, what it needs, and what to check appear here. The brief can still be saved and continued without it.</p>}
+          <h4>Room facts</h4><ul>{roomSummary.length ? roomSummary.map(item => <li key={item}>{item}</li>) : <li>Room purpose and size still need to be confirmed.</li>}</ul>
           <h4>Open checks</h4>{props.issues.length ? <ul>{props.issues.map(issue => <li key={issue}>{issue}</li>)}</ul> : <p>No discovery checks are currently flagged.</p>}
           <p>{topology.devices.length} equipment items, {topology.locations.length} locations, and {topology.connections.length} signal or infrastructure routes are in the room design. Unknowns remain marked for follow-up; they do not prevent saving or continuing.</p>
         </>}

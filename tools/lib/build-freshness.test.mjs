@@ -558,12 +558,13 @@ describe("the manifest a build writes", () => {
  * would otherwise read as a git failure and be rerun by hand.
  */
 function git(root, args) {
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)));
   return runTool("git", args, "build-freshness", {
     cwd: root,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "ignore"],
     env: {
-      ...process.env,
+      ...env,
       GIT_AUTHOR_NAME: "Build Freshness",
       GIT_AUTHOR_EMAIL: "freshness@example.com",
       GIT_COMMITTER_NAME: "Build Freshness",

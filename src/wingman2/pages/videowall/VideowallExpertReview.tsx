@@ -25,6 +25,7 @@ import {
   wallDesignBands,
   wallReviewStageStatuses,
   wallWizardAnswers,
+  wallWizardApplicationPatch,
   type WallDesignBandKey,
   type WallReviewStageKey,
   type WallWizardStepKey,
@@ -175,8 +176,22 @@ export function VideowallExpertReview({
             <section className="vw-builder-decide" aria-labelledby="wall-requirements-title">
               <header className="vw-builder-decide-head">
                 <h2 id="wall-requirements-title">The wall</h2>
-                <p>Pick the wall closest to the room. One tap sets every answer; adjust anything the customer differs on.</p>
+                <p>Choose the kind of wall first. Then start from a saved wall if useful, and adjust its answers for this room.</p>
               </header>
+              <div className="vw-builder-applications" role="group" aria-label="Choose the wall type to design">
+                {wallApplications.map((application) => (
+                  <button
+                    key={application.value}
+                    type="button"
+                    aria-pressed={requirements.application === application.value}
+                    onClick={() => onUpdate(wallWizardApplicationPatch(application.value, requirements))}
+                  >
+                    <strong>{application.title}</strong>
+                    <span>{application.description}</span>
+                  </button>
+                ))}
+              </div>
+              <h3>Start from a saved wall</h3>
               <div className="vw-builder-starts" role="group" aria-label="Wall starting points">
                 <VideowallStartPresets
                   requirements={requirements}

@@ -139,7 +139,7 @@ describe("Discovery rendered workflow handoff", () => {
     fireEvent.change(noteBox, {
       target: { value: customerWording },
     });
-    fireEvent.click(screen.getByRole("button", { name: /classroom \/ teaching space/i }));
+    fireEvent.click(screen.getByRole("button", { name: /single large room/i }));
 
     expect(noteBox).toHaveValue(customerWording);
   });

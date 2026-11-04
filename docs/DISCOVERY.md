@@ -23,6 +23,13 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   `<select>` inside a chip declares its own (also `!important`) or it renders
   as a box inside the pill; a chip in a wrapping row needs `flex:0 0 auto` or
   it squeezes its own label into two lines.
+- The market/environment choice is the room-type input for Essential capture.
+  Selecting a different environment replaces its suggested application and
+  fills unanswered smart defaults once for the rep to adjust; a saved deliberate
+  blank stays blank when the brief is reopened. Those answers drive the visible
+  question set. All capture modes omit the duplicate application selector; the
+  market/environment control or, when there is no environment, the compact
+  room-type summary is the correction path.
 - The programme-audio route is one question (`audio-route`) holding both ends:
   values prefixed `extract-` name where sound leaves the video path, `route-`
   name where it must arrive. `deriveDiscoveryAudioDesign`
@@ -90,6 +97,29 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   learns that "Sources" means one thing in one view and something else in the
   other. A question is filed by what it is about (`discoverySectionFor`), so a
   new question is filed once and neither reading needs a second table.
+
+  The order now follows the design conversation a systems designer needs:
+  room brief; environment and installation; displays and cameras; audio;
+  switching and signal distribution; room and AV control; lighting; commissioning
+  and handover; then equipment and review. The environment includes site access,
+  wall/floor/ceiling construction, power, containment and first-fix cabling.
+  Source and output positions, estimated distances, video resolution and USB
+  generation belong with switching because they decide how signals can travel.
+  Camera types, counts and destinations sit beside displays; microphone and
+  programme-audio routes sit in Audio. Lighting stays separate from general
+  building notes because daylight, blinds, dimming and control integration
+  change screen visibility and room operation. Commissioning records functional
+  tests, customer acceptance, training, as-built documents and who owns the
+  handover.
+
+  Essential view covers those same product decisions with customer-level
+  language, while the detail view retains the design vocabulary and structured
+  topology. Building and installation facts keep their notes plus a separate
+  responsibility value: "Not known" means a site check is owed, while "By
+  others" names work another party owns. These states must not be mistaken for a
+  confirmed technical answer. The commissioning question offers the same clear
+  unknown and ownership choices, and Essential view labels pre-filled values as
+  suggestions to review.
 
   The forward action is unconditional. It used to render only when
   `wmDiscoveryHasAnswer` was true for the question on screen, which made the

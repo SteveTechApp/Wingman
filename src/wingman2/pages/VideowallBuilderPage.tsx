@@ -297,7 +297,6 @@ export function VideoWallPage() {
           concerns={concerns}
           onConcerns={setConcerns}
           onChange={update}
-          onReplace={(next) => { setRequirements(next); setOverrideId(""); setVariantId(""); setMessage(""); }}
           onChooseLayout={chooseLayout}
           onChoosePanels={choosePanels}
           onSave={() => save()}

@@ -6978,7 +6978,6 @@ html[data-wingman-route="discovery"] .wm-discovery-market-entry__heading h2 { fo
 .wm-room-wizard-summary p strong { color:var(--wm-ref-muted); font-size:.66rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
 /* A question reads as one block: the question and its count, then the options. */
 .wm-room-wizard-prompt { margin:0; color:var(--wm-ref-copy); font-size:.8rem; line-height:1.55; }
-.wm-brief-questions { display:grid; gap:12px; }
 .wm-brief-question { display:grid; gap:11px; padding:14px; background:color-mix(in srgb, var(--wm-ref-panel) 72%, transparent); border:1px solid var(--wm-ref-border); border-radius:14px; }
 .wm-brief-question-head { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
 .wm-brief-question-head h3 { margin:0; color:var(--wm-ref-text); font-size:.84rem; line-height:1.3; }

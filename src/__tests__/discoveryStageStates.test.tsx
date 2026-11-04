@@ -28,9 +28,9 @@ describe("Expert room design workspace", () => {
 
     expect(await screen.findByRole("heading", { name: "Build the room section by section" })).toBeInTheDocument();
     const sections = screen.getByRole("navigation", { name: "Room design sections" });
-    fireEvent.click(within(sections).getByRole("button", { name: /Sources/ }));
-    expect(screen.getByRole("region", { name: "Expert room design" })).toHaveAttribute("data-expert-section", "sources");
-    expect(screen.getByRole("heading", { name: "Devices, user connections and source positions" })).toBeInTheDocument();
+    fireEvent.click(within(sections).getByRole("button", { name: /Switching & signal distribution/ }));
+    expect(screen.getByRole("region", { name: "Expert room design" })).toHaveAttribute("data-expert-section", "routing");
+    expect(screen.getByRole("heading", { name: /Source and output positions/ })).toBeInTheDocument();
   });
 
   it("opens the requested technical section from a Proposal edit link, ahead of the market lead-in", async () => {
@@ -44,7 +44,7 @@ describe("Expert room design workspace", () => {
     // in front of it — a rep who clicked a row lands on that row.
     expect(screen.queryByRole("button", { name: /Describe the environment/i })).not.toBeInTheDocument();
     expect(screen.queryByTestId("escalation-confirm")).not.toBeInTheDocument();
-    expect(await screen.findByRole("region", { name: "Expert room design" })).toHaveAttribute("data-expert-section", "outputs");
+    expect(await screen.findByRole("region", { name: "Expert room design" })).toHaveAttribute("data-expert-section", "routing");
     expect(screen.getByRole("heading", { name: "How sharp does the picture need to be?" })).toBeInTheDocument();
   });
 
