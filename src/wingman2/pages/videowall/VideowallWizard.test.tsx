@@ -229,6 +229,25 @@ it("asks source count and network provision on separate screens", () => {
   });
 });
 
+it("lets the user return to a completed answer from the progress buttons", () => {
+  renderWizard(requirements({ network: "1g", networkProvision: "existing" }), { atResult: false });
+
+  fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
+  expect(screen.getByTestId("videowall-wizard-step-network")).toBeTruthy();
+
+  expect(screen.getByTestId("videowall-wizard-progress-size")).not.toBeDisabled();
+  expect(screen.getByTestId("videowall-wizard-progress-network")).toBeDisabled();
+  expect(screen.getByTestId("videowall-wizard-progress-feeding")).toBeDisabled();
+  fireEvent.click(screen.getByTestId("videowall-wizard-progress-size"));
+
+  expect(screen.getByTestId("videowall-wizard-step-size")).toBeTruthy();
+  expect(screen.getByTestId("videowall-wizard-progress-sources")).toBeDisabled();
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  expect(screen.getByTestId("videowall-wizard-step-sources")).toBeTruthy();
+});
+
 it("records a selected multiview feed path for the layout question", () => {
   const { onChange } = renderWizard(requirements({
     application: "lcd-loop",

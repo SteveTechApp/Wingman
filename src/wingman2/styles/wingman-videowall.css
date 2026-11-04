@@ -303,6 +303,7 @@
 .vw-wall-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .vw-wall-title { color: var(--vw-muted); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
 .vw-builder .vw-wall-aspect { color: var(--vw-aqua); font-size: .78rem; font-weight: 700; }
+.vw-wall-selection { color: var(--vw-text-soft); font-size: .78rem; font-weight: 700; }
 .vw-wall-stage { display: grid; place-items: center; width: 100%; max-width: 880px; margin-inline: auto; padding: 4px; border-radius: 10px; background: radial-gradient(120% 120% at 50% 0%, #0d2534 0%, #060f18 100%); overflow: hidden; }
 /* The drawing follows its own aspect ratio, so the dimension lines around it
    never get letterboxed into a fixed-height box. */
@@ -566,6 +567,11 @@
 .vw-wizard { max-width: 1180px; }
 .vw-wizard-progress { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
 .vw-wizard-progress li { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--vw-border-soft); border-radius: 8px; color: var(--vw-muted); font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; background: var(--vw-deep); }
+.vw-wizard-progress li > button { display: grid; justify-items: start; gap: 6px; width: 100%; padding: 0; border: 0; border-radius: inherit; color: inherit; background: transparent; font: inherit; letter-spacing: inherit; text-align: left; text-transform: inherit; }
+.vw-wizard-progress li[data-state="done"] > button { cursor: pointer; }
+.vw-wizard-progress li[data-state="done"] > button:hover { color: var(--vw-text); }
+.vw-wizard-progress li > button:focus-visible { outline: 2px solid var(--vw-aqua); outline-offset: 3px; }
+.vw-wizard-progress li > button:disabled { cursor: default; }
 .vw-wizard-progress li span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; font-size: .64rem; }
 .vw-wizard-progress li[data-state="done"] { color: var(--vw-aqua); border-color: var(--vw-border-accent); }
 .vw-wizard-progress li[data-state="current"] { color: var(--vw-deep); background: var(--vw-aqua); border-color: var(--vw-aqua); font-weight: 750; }

@@ -188,8 +188,19 @@ export function VideowallWizard({
               data-state={atResult || index < step ? "done" : index === step ? "current" : "todo"}
               aria-current={!atResult && index === step ? "step" : undefined}
             >
-              <span>{index + 1}</span>
-              {item.label}
+              <button
+                type="button"
+                aria-label={`Go back to ${item.label}`}
+                data-testid={`videowall-wizard-progress-${item.key}`}
+                disabled={index >= step}
+                onClick={() => {
+                  setEditing(false);
+                  setStep(index);
+                }}
+              >
+                <span>{index + 1}</span>
+                {item.label}
+              </button>
             </li>
           ))}
         </ol>

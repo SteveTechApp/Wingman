@@ -22,6 +22,13 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   `VideowallWizard.test.tsx`. The card keeps the desktop rail on one line and
   balances the five wall choices into three then two; the current measurement
   is [the guided wall start step](../reports/browser-readings.md#guided-wall-start-step).
+  In the guided Q&A, completed steps on the progress rail are buttons that return
+  to those answers; the current and future steps stay disabled. Continuing from
+  an earlier answer follows the questions forward again, while the result's
+  separate Change actions still return directly to the design review. The wall
+  drawing states the physical panel array and source window count together above
+  the elevation, so a 3 × 3 array carrying four windows cannot read as a 2 × 2
+  physical wall.
 - The NHD-150-RX and NHD-600-TRX feed paths are multiview choices. Selecting one
   writes `multiviewSelected` to the wall requirements; the later layout choices
   disable the single-picture and source-per-screen layouts and the wizard will
