@@ -31,6 +31,20 @@ describe("setup", () => {
     // A purpose nobody has used yet must not empty the list.
     expect(setupArchetypes({ purpose: "" }).length).toBe(roomArchetypes().length);
   });
+
+  it("treats local presentation with room video conferencing as one combined purpose", () => {
+    const answers = { purpose: "present-and-meet", occupancy: "small" };
+    expect(setupArchetypes(answers)).toEqual([
+      "huddle-byod",
+      "meeting-dual",
+      "divisible-boardroom",
+    ]);
+    // The selected purpose already says a room camera and microphones are used,
+    // so do not ask whether a far end joins a call a second time.
+    expect(nextRoomBriefQuestion(answers)?.id).not.toBe("far-end");
+    const decision = resolveRoomBrief(answers);
+    expect(decision.requirements.some((requirement) => requirement.key === "uc")).toBe(true);
+  });
 });
 
 describe("question choice", () => {

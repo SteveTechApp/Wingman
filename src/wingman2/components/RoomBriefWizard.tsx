@@ -115,7 +115,10 @@ export function RoomBriefWizard() {
                     checked={answers.purpose === purpose.value}
                     onChange={() => answer("purpose", purpose.value)}
                   />
-                  <span>{purpose.label}</span>
+                  <span className="wm-room-brief-option-copy">
+                    <span>{purpose.label}</span>
+                    {purpose.description ? <small>{purpose.description}</small> : null}
+                  </span>
                 </label>
               ))}
             </div>

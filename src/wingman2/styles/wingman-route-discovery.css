@@ -193,6 +193,19 @@ html[data-wingman-route="discovery"] .wm-room-brief-option input[type="radio"] {
   accent-color: #2dd4bf;
 }
 
+html[data-wingman-route="discovery"] .wm-room-brief-option-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+html[data-wingman-route="discovery"] .wm-room-brief-option-copy small {
+  color: var(--wm-text-muted, #a8bacb);
+  font-size: 0.76rem;
+  font-weight: 450;
+  line-height: 1.4;
+}
+
 html[data-wingman-route="discovery"] .wm-room-brief-option:focus-within {
   outline: 2px solid #5eead4;
   outline-offset: 2px;

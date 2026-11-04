@@ -86,6 +86,11 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   long purpose answers wrap unpredictably and scattered the choices across the
   available page; the card grid gives each answer a stable target and reflows
   from four columns to one as the viewport narrows.
+  The purpose choices include one combined local-presentation and video-meeting
+  answer, with a plain-language note that the room's camera and microphones
+  serve remote participants. That choice implies the far end is present and
+  carries the conferencing requirement into the decision, so the ladder does
+  not ask the same thing twice.
 - The hand-off is `writeDiscoveryHandoff` plus the address `?interview=1`, and the
   page that composes both (`OpportunitiesPage`) reads that parameter on every
   render. It has to: the decision and the brief are the same route, so following

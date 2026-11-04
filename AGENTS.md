@@ -552,6 +552,9 @@ states is one they trust by mistake.
   Its first screen keeps the customer-level questions in a readable column and
   presents each answer as a selectable card, so long purpose labels stay aligned
   and the targets reflow cleanly on narrow screens. [Narrative](docs/DISCOVERY.md)
+  The purpose choices include a combined local-presentation and video-meeting
+  answer; it carries the room-camera and microphone need itself, so the ladder
+  does not ask again whether someone joins remotely.
 - A selected market environment supplies the application when it has a governed
   suggestion, fills unanswered application defaults once for the rep to adjust,
   and the capture uses that answer to adjust its visible questions without

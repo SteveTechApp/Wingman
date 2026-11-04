@@ -100,15 +100,20 @@ const OCCUPANCY = [
 ] as const;
 
 /** What the room has to do — the customer's own words, not a product category. */
-const PURPOSES = [
+const PURPOSES: ReadonlyArray<{ value: string; label: string; description?: string }> = [
   { value: "present", label: "Share a laptop and present to the others in the room" },
   { value: "meet", label: "Meet people elsewhere on video, as a room" },
+  {
+    value: "present-and-meet",
+    label: "Present locally and join video calls",
+    description: "Share content in the room while its camera and microphones serve people joining remotely.",
+  },
   { value: "teach", label: "Teach or train a group, with the teacher at the front" },
   { value: "show-many", label: "Show several sources at once" },
   { value: "address-crowd", label: "Address a large group or an audience" },
   { value: "signage", label: "Show content to people passing through" },
   { value: "campus", label: "Move video between rooms or around a building" },
-] as const;
+];
 
 export const ROOM_BRIEF_OCCUPANCIES = OCCUPANCY;
 export const ROOM_BRIEF_PURPOSES = PURPOSES;
@@ -139,12 +144,12 @@ const ARCHETYPES: Archetype[] = [
     id: "huddle-byod",
     roomType: "Huddle room, bring your own laptop",
     summary: "One small table, one screen, a visiting laptop on a cable, and a bar that carries the call.",
-    purposes: ["present", "meet"],
+    purposes: ["present", "meet", "present-and-meet"],
     requirements: (answers) => [
       { key: "display", label: "One commercial display", quantity: "one 55–65 inch screen on the front wall", because: "one screen is the whole presentation surface, so nothing in the room competes with it." },
       { key: "source", label: "Laptop input at the table", quantity: "one USB-C connection with HDMI fallback", because: "the only source is the visitor's own machine, so the input has to be at the table rather than at the display." },
-      ...(is(answers, "far-end", "yes")
-        ? [{ key: "uc", label: "Conferencing bar as one device", quantity: "camera, microphone array and loudspeaker in one unit", because: `the far end joins this room for ${seatsFor(answers)} people, and a bar keeps the room one device to switch on.` }]
+      ...(is(answers, "far-end", "yes") || is(answers, "purpose", "present-and-meet")
+        ? [{ key: "uc", label: "Room camera, microphones and speaker", quantity: "one conferencing bar or coordinated room system", because: is(answers, "purpose", "present-and-meet") ? "people in the room present locally while remote participants see and hear the room." : `the far end joins this room for ${seatsFor(answers)} people, and a bar keeps the room one device to switch on.` }]
         : []),
       { key: "control", label: "Nothing to learn", quantity: "input select on the source, no control panel", because: "a room this size is used by whoever walks in, so any control surface is a support call waiting to happen." },
     ],
@@ -163,7 +168,7 @@ const ARCHETYPES: Archetype[] = [
     id: "meeting-dual",
     roomType: "Meeting room, two screens",
     summary: "A fixed table, two screens showing different things, local presenters and a joined call.",
-    purposes: ["present", "meet", "show-many"],
+    purposes: ["present", "meet", "present-and-meet", "show-many"],
     requirements: () => [
       { key: "display", label: "Two displays", quantity: "two same-size screens, side by side or one per end", because: "the room shows people and content at once, and one screen forces the room to choose." },
       { key: "source", label: "Fixed and visiting sources", quantity: "two to three inputs, including one at the table", because: "the room has its own machine and still takes a visitor's laptop." },
@@ -185,7 +190,7 @@ const ARCHETYPES: Archetype[] = [
     id: "divisible-boardroom",
     roomType: "Divisible boardroom",
     summary: "One large room that becomes two, each half a working room on its own.",
-    purposes: ["present", "meet", "show-many", "teach"],
+    purposes: ["present", "meet", "present-and-meet", "show-many", "teach"],
     requirements: () => [
       { key: "display", label: "A display per side, per output", quantity: divisibleDisplays(), because: "each half is a room, so each half needs its own surface whether the partition is open or shut." },
       { key: "source", label: "Inputs in both halves", quantity: "a table input in each side, plus a shared one", because: "an input only on one side makes the other half unusable when the room splits." },
@@ -453,6 +458,14 @@ export function setupArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
   return (matching.length ? matching : ARCHETYPES).map((archetype) => archetype.id);
 }
 
+/** A purpose that explicitly includes a room video call already answers this. */
+function withImpliedAnswers(answers: RoomBriefAnswers): RoomBriefAnswers {
+  if (answers.purpose === "present-and-meet" && !answers["far-end"]) {
+    return { ...answers, "far-end": "yes" };
+  }
+  return answers;
+}
+
 /**
  * The room types still possible: setup first, then every answered question.
  *
@@ -462,9 +475,10 @@ export function setupArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
  * and then "one presenter" has a divided teaching space and not an error.
  */
 export function survivingArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
-  let surviving = setupArchetypes(answers);
+  const effectiveAnswers = withImpliedAnswers(answers);
+  let surviving = setupArchetypes(effectiveAnswers);
   for (const question of ROOM_BRIEF_QUESTIONS) {
-    const value = String(answers[question.id] ?? "");
+    const value = String(effectiveAnswers[question.id] ?? "");
     if (!value) continue;
     const option = question.options.find((candidate) => candidate.value === value);
     if (!option) continue;
@@ -498,9 +512,10 @@ export function splitScore(question: RoomBriefQuestion, surviving: RoomArchetype
  * between, because the rep can see which two and ask one question of their own.
  */
 export function nextRoomBriefQuestion(answers: RoomBriefAnswers): RoomBriefQuestion | null {
-  const surviving = survivingArchetypes(answers);
+  const effectiveAnswers = withImpliedAnswers(answers);
+  const surviving = survivingArchetypes(effectiveAnswers);
   if (surviving.length <= 1) return null;
-  const asked = ROOM_BRIEF_QUESTIONS.filter((question) => answers[question.id]);
+  const asked = ROOM_BRIEF_QUESTIONS.filter((question) => effectiveAnswers[question.id]);
   let best: { question: RoomBriefQuestion; score: number } | null = null;
   for (const question of ROOM_BRIEF_QUESTIONS) {
     if (asked.includes(question)) continue;
@@ -539,7 +554,7 @@ export function resolveRoomBrief(
     archetype: chosen.id,
     roomType: chosen.roomType,
     summary: chosen.summary,
-    requirements: chosen.requirements(answers),
+    requirements: chosen.requirements(withImpliedAnswers(answers)),
     verifyOnSite: chosen.verifyOnSite,
     assumptions: chosen.assumptions,
     changesIf: chosen.changesIf,

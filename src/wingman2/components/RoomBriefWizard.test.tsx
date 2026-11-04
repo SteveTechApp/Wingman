@@ -27,6 +27,12 @@ function LibraryDestination() {
 afterEach(() => { cleanup(); sessionStorage.clear(); localStorage.clear(); });
 
 describe("setup", () => {
+  it("offers a combined local presentation and room video call choice", () => {
+    mount();
+    expect(screen.getByRole("radio", { name: /Present locally and join video calls/ })).toBeVisible();
+    expect(screen.getByText(/its camera and microphones serve people joining remotely/)).toBeVisible();
+  });
+
   it("will not start the ladder before the room is described", () => {
     mount();
     const start = screen.getByRole("button", { name: /Work out the room/ }) as HTMLButtonElement;
