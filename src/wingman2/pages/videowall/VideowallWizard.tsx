@@ -25,6 +25,8 @@ import {
   wallWizardConcernChecks,
   wallWizardConcerns,
   wallWizardLayoutChoices,
+  wallWizardLayoutChoiceIsDisabled,
+  wallWizardLayoutIsMultiview,
   wallWizardSteps,
 } from "../../lib/videowallWizard";
 import { VideowallVerdict } from "./VideowallVerdict";
@@ -420,6 +422,7 @@ export function VideowallWizard({
               <button
                 key={choice.key}
                 type="button"
+                disabled={wallWizardLayoutChoiceIsDisabled(choice, Boolean(requirements.multiviewSelected))}
                 aria-pressed={requirements.layout === choice.value && (!choice.customMode || requirements.customMode === choice.customMode)}
                 onClick={() => { onChooseLayout(choice); next(); }}
               >
@@ -432,7 +435,13 @@ export function VideowallWizard({
             <button type="button" className="vw-wizard-secondary" onClick={() => back(STEP.feeding)}>Back</button>
             {/* Choosing a card advances, so a rep who is happy with the layout on
                 screen had no action that kept it. This is that action. */}
-            <button type="button" className="vw-wizard-primary" data-testid="videowall-wizard-layout-keep" onClick={next}>
+            <button
+              type="button"
+              className="vw-wizard-primary"
+              data-testid="videowall-wizard-layout-keep"
+              onClick={next}
+              disabled={Boolean(requirements.multiviewSelected) && !wallWizardLayoutIsMultiview(requirements.layout)}
+            >
               Keep this layout and continue
             </button>
           </div>

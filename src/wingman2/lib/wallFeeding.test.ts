@@ -64,6 +64,8 @@ describe("wall feeding", () => {
     // The 1GbE receiver is the multi-window answer; one window is a plain decoder.
     expect(wallFeedPathKeyFor(wall({ network: "1g", windows: 4 }))).toBe("nhd150");
     expect(wallFeedPathKeyFor(wall({ network: "10g", windows: 1 }))).toBe("nhd600");
+    expect(wallFeedPathKeyFor(wall({ network: "1g", windows: 1, multiviewSelected: true }))).toBe("nhd150");
+    expect(wallFeedPathKeyFor(wall({ network: "10g", windows: 1, multiviewSelected: true }))).toBe("nhd600");
     expect(wallFeedPathKeyFor(wall({ network: "any", sourceCustom: true }))).toBe("nhd500");
     expect(wallFeedPathKeyFor(wall({ application: "lcd-direct", network: "1g" }))).toBe("avoip-per-panel");
     expect(wallFeedPathKeyFor(wall({ application: "lcd-direct", network: "any" }))).toBe("matrix-per-panel");

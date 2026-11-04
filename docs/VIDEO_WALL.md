@@ -22,6 +22,13 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   `VideowallWizard.test.tsx`. The card keeps the desktop rail on one line and
   balances the five wall choices into three then two; the current measurement
   is [the guided wall start step](../reports/browser-readings.md#guided-wall-start-step).
+- The NHD-150-RX and NHD-600-TRX feed paths are multiview choices. Selecting one
+  writes `multiviewSelected` to the wall requirements; the later layout choices
+  disable the single-picture and source-per-screen layouts and the wizard will
+  not continue until a multi-window layout is selected. The feed-path key reads
+  that stored choice back when the design is edited, so the visible selection
+  and the layout constraint survive a reload. Selecting a non-multiview feed
+  clears the marker.
 - Four surfaces name the wall workflow — both readings of Home, the Templates
   page header and the builder page the entry opens onto — so the entry's name and
   the sentence saying how a design begins live once, in `lib/wallEntry.ts`

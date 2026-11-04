@@ -221,5 +221,50 @@ it("asks source count and network provision on separate screens", () => {
   fireEvent.click(within(network).getByRole("button", { name: /Supply new 10Gb network switches/ }));
   expect(onChange).toHaveBeenLastCalledWith({ sourceLocation: "distributed", network: "10g", networkProvision: "new" });
   fireEvent.click(within(network).getByRole("button", { name: /Do not use AVoIP/ }));
-  expect(onChange).toHaveBeenLastCalledWith({ sourceLocation: "local", network: "none", networkProvision: undefined });
+  expect(onChange).toHaveBeenLastCalledWith({
+    sourceLocation: "local",
+    network: "none",
+    networkProvision: undefined,
+    multiviewSelected: false,
+  });
+});
+
+it("records a selected multiview feed path for the layout question", () => {
+  const { onChange } = renderWizard(requirements({
+    application: "lcd-loop",
+    network: "1g",
+    networkProvision: "existing",
+  }), { atResult: false });
+
+  fireEvent.click(screen.getByRole("button", { name: /^LCD · looped \/ tiled/ }));
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));
+  fireEvent.click(screen.getByTestId("videowall-feed-path-nhd150"));
+
+  expect(onChange).toHaveBeenLastCalledWith({
+    sourceLocation: "distributed",
+    network: "1g",
+    multiviewSelected: true,
+  });
+});
+
+it("greys out non-multiview layouts while a multiview feed is selected", () => {
+  renderWizard(requirements({
+    network: "1g",
+    networkProvision: "existing",
+    multiviewSelected: true,
+  }), { atResult: false });
+
+  fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));
+  fireEvent.click(screen.getByRole("button", { name: /Continue with/ }));
+
+  expect(screen.getByTestId("videowall-wizard-step-layout")).toBeTruthy();
+  expect(screen.getByRole("button", { name: /One picture, full wall/ })).toBeDisabled();
+  expect(screen.getByRole("button", { name: /A different source per screen/ })).toBeDisabled();
+  expect(screen.getByRole("button", { name: /Two sources together/ })).not.toBeDisabled();
+  expect(screen.getByTestId("videowall-wizard-layout-keep")).toBeDisabled();
 });

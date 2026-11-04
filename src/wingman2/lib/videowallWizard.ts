@@ -1,4 +1,4 @@
-import { wallLayoutChoices } from "./videowallDecision";
+import { wallLayoutChoices, type WallLayoutChoice } from "./videowallDecision";
 import {
   wallApplications,
   wallProjectorCount,
@@ -104,6 +104,14 @@ export function wallWizardApplicationPatch(
 
 export function wallWizardLayoutChoices(application: WallApplication) {
   return wallLayoutChoices.filter((choice) => !choice.applications || choice.applications.includes(application));
+}
+
+export function wallWizardLayoutIsMultiview(layout: WallRequirements["layout"]): boolean {
+  return layout !== "single" && layout !== "independent";
+}
+
+export function wallWizardLayoutChoiceIsDisabled(choice: WallLayoutChoice, multiviewSelected: boolean): boolean {
+  return multiviewSelected && !wallWizardLayoutIsMultiview(choice.value);
 }
 
 /**

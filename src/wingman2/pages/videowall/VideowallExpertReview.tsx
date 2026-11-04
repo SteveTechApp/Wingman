@@ -26,6 +26,7 @@ import {
   wallReviewStageStatuses,
   wallWizardAnswers,
   wallWizardApplicationPatch,
+  wallWizardLayoutChoiceIsDisabled,
   type WallDesignBandKey,
   type WallReviewStageKey,
   type WallWizardStepKey,
@@ -285,6 +286,7 @@ export function VideowallExpertReview({
                     <button
                       key={choice.key}
                       type="button"
+                      disabled={wallWizardLayoutChoiceIsDisabled(choice, Boolean(requirements.multiviewSelected))}
                       aria-pressed={
                         requirements.layout === choice.value
                         && (!choice.customMode || requirements.customMode === choice.customMode)

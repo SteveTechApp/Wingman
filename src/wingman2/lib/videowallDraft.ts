@@ -220,6 +220,7 @@ export function restoreVideowallDraft(
       || !["1080p", "4k30", "4k60"].includes(r.sourceResolution)
       || !["any", "none", "1g", "10g"].includes(r.network)
       || !["existing", "new", undefined].includes(r.networkProvision)
+      || ![undefined, true, false].includes(r.multiviewSelected)
       || !["portrait", "landscape"].includes(r.orientation)
       || !["fixed", "floating", undefined].includes(r.customMode)
       || !["1080p", "4k", undefined].includes(r.displayResolution)
@@ -305,7 +306,7 @@ export const videowallNetworkChoices: VideowallNetworkChoice[] = [
     key: "no-avoip",
     label: "Do not use AVoIP",
     detail: "Keep the picture on local connections; do not carry video over the network.",
-    patch: { sourceLocation: "local", network: "none", networkProvision: undefined },
+    patch: { sourceLocation: "local", network: "none", networkProvision: undefined, multiviewSelected: false },
   },
 ];
 

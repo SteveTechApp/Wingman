@@ -160,7 +160,7 @@ describe("restoreVideowallDraft photo review", () => {
 
   it("keeps whether the selected network switches are existing or new", () => {
     rememberVideowallDraft({
-      requirements: { ...defaultWallRequirements, network: "10g", networkProvision: "new", sourceLocation: "distributed" },
+      requirements: { ...defaultWallRequirements, network: "10g", networkProvision: "new", sourceLocation: "distributed", multiviewSelected: true },
       selectedId: "",
     });
 
@@ -168,6 +168,7 @@ describe("restoreVideowallDraft photo review", () => {
       network: "10g",
       networkProvision: "new",
       sourceLocation: "distributed",
+      multiviewSelected: true,
     });
   });
 

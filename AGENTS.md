@@ -577,6 +577,12 @@ states is one they trust by mistake.
   speed still read as an existing network. The question order and answer-edit
   target are held by `wallWizardSteps` and `wallWizardAnswers`.
   [Narrative](docs/VIDEO_WALL.md)
+- Choosing an NHD-150 or NHD-600 multiview feed path marks the design as needing
+  a multiview layout. The later layout question leaves those incompatible
+  single-picture and source-per-screen choices visible but disabled, and blocks
+  continuing until a multiview layout is selected. The marker is part of the
+  saved wall so editing or reopening the design keeps the same constraint.
+  [Narrative](docs/VIDEO_WALL.md)
 - Four surfaces name the wall workflow, so the entry's name and the sentence
   saying how a design begins live once, in `lib/wallEntry.ts`. They had drifted.
 - The focused view starts from a wall, not a room: a starting point is a whole
