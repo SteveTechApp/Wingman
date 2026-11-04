@@ -265,7 +265,22 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
       canQuote: objectRecord(record.decisionIntegrity)?.canQuote === true,
     } : undefined,
     discoveryConversation: normalizeDiscoveryConversation(record.discoveryConversation),
+    discoveryAnswers: normalizeDiscoveryAnswers(record.discoveryAnswers),
+    discoveryNotes: objectRecord(record.discoveryNotes)
+      ? Object.fromEntries(Object.entries(objectRecord(record.discoveryNotes)!).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
+      : undefined,
   };
+}
+
+function normalizeDiscoveryAnswers(value: unknown): Record<string, string | string[]> | undefined {
+  const record = objectRecord(value);
+  if (!record) return undefined;
+  const answers: Record<string, string | string[]> = {};
+  for (const [key, answer] of Object.entries(record)) {
+    if (typeof answer === "string") answers[key] = answer;
+    else if (Array.isArray(answer)) answers[key] = answer.filter((item): item is string => typeof item === "string");
+  }
+  return answers;
 }
 
 function normalizeIngestVisualAttachmentKind(value: unknown): StoredIngestVisualAttachment["kind"] {

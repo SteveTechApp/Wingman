@@ -152,6 +152,10 @@ export type StoredDiscoveryBrief = {
     canQuote: boolean;
   };
   discoveryConversation?: DiscoveryConversationItem[];
+  /** Exact governed choices retained so a resumed Discovery does not need to infer values from display labels. */
+  discoveryAnswers?: Record<string, string | string[]>;
+  /** Customer wording captured beside governed Discovery choices. */
+  discoveryNotes?: Record<string, string>;
 };
 
 /** One product the rep took out of the room, and the moment they took it out. */

@@ -14,6 +14,19 @@ const BASE_PROJECT = {
 };
 
 describe("project persistence codecs", () => {
+  it("retains exact Discovery answers and notes in a saved brief", () => {
+    const decoded = decodeStoredProject({
+      ...BASE_PROJECT,
+      discoveryBrief: {
+        roomModel: {},
+        discoveryAnswers: { opportunity: "meeting-room", "uc-purpose": ["video-conferencing", "present-locally"] },
+        discoveryNotes: { opportunity: "12 seats" },
+      },
+    });
+    expect(decoded?.discoveryBrief?.discoveryAnswers).toEqual({ opportunity: "meeting-room", "uc-purpose": ["video-conferencing", "present-locally"] });
+    expect(decoded?.discoveryBrief?.discoveryNotes).toEqual({ opportunity: "12 seats" });
+  });
+
   it("accepts projects saved before omittedProductSkus existed", () => {
     const decoded = decodeStoredProject(BASE_PROJECT);
 

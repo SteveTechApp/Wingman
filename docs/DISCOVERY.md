@@ -101,6 +101,18 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   saying otherwise. Nothing about it writes the interface mode — a guided rep
   lands in the guided interview, and the expert view remains a mode they choose.
 
+- Discovery keeps a browser snapshot current as the rep answers, and writes the
+  project brief when they save or continue. Recommendations must compare the
+  brief timestamps and use the newer snapshot only when its project owner
+  matches; always preferring the project made a newer, autosaved set of answers
+  look as if it had been lost. The project brief also stores exact option values
+  and customer notes beside the readable `discoveryConversation`. The latter is
+  for review and export; using it to reconstruct answer state can lose choices
+  when labels change or multi-select labels contain delimiters. Project codec
+  and snapshot hydration tests pin both paths. When a rep completes a check on
+  Recommendations, that updated brief is written back to the matching browser
+  snapshot too, so returning to Discovery cannot restore the old open check.
+
 - The guided walk is a room, not a list of questions. Its section is the unit a
   rep captures and reports on, so the walk prints the section it is in, how many
   of that section's questions are answered, and a rail of the other sections to

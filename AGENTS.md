@@ -116,6 +116,14 @@ states is one they trust by mistake.
 
 ## Project store
 
+- Discovery's browser snapshot auto-saves as answers change, while the project is
+  written when the rep saves or continues. `readLatestDiscoveryBrief` compares
+  their brief timestamps and uses the newer copy only when its project owner
+  matches; otherwise Recommendations can show checks from an older brief after
+  the rep has already answered them. A saved project brief also carries the
+  exact answer values and notes alongside the readable conversation, so resume
+  does not have to reverse-map labels. The persistence narrative and probes are
+  in [docs/DISCOVERY.md](docs/DISCOVERY.md).
 - `createProjectLifecycleCommands` returns the four ways a project is written,
   and what separates them is the promise each makes about the gallery order and
   about what the rep is reading. `replaceStoredProject` rewrites the row where
