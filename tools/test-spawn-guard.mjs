@@ -43,7 +43,9 @@ function isolateScratchGit(command, options = {}) {
   const env = options.env ?? process.env;
   return {
     ...options,
-    env: Object.fromEntries(Object.entries(env).filter(([key]) => !/^GIT_/i.test(key))),
+    // Keep the identity a scratch-repository test supplies for its own commit;
+    // only strip variables that would redirect Git into the checkout's repo.
+    env: Object.fromEntries(Object.entries(env).filter(([key]) => !/^GIT_(?!AUTHOR_|COMMITTER_)/i.test(key))),
   };
 }
 
