@@ -91,6 +91,8 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   serve remote participants. That choice implies the far end is present and
   carries the conferencing requirement into the decision, so the ladder does
   not ask the same thing twice.
+  The handoff carries a known market into Discovery, which lets the guided
+  customer continue at the environment question without reselecting the market.
 - The hand-off is `writeDiscoveryHandoff` plus the address `?interview=1`, and the
   page that composes both (`OpportunitiesPage`) reads that parameter on every
   render. It has to: the decision and the brief are the same route, so following

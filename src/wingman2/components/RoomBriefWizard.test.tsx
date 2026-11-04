@@ -98,6 +98,7 @@ describe("the decision", () => {
 
   it("hands the decided room to the discovery brief as answers", () => {
     mount();
+    fireEvent.change(screen.getByLabelText("Market"), { target: { value: "Corporate" } });
     answerSetup();
     fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
@@ -106,7 +107,7 @@ describe("the decision", () => {
     // the room rather than from a blank form.
     expect(readDiscoveryHandoff()).toMatchObject({
       mode: "standard",
-      answers: { opportunity: "meeting-room", displays: "1" },
+      answers: { opportunity: "meeting-room", displays: "1", market: "corporate" },
     });
     expect(readDiscoveryHandoff()?.notes?.["room-brief"]).toContain("Huddle room");
   });

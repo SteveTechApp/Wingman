@@ -275,6 +275,11 @@ describe("handing off", () => {
     expect(answers.displays).toBe("1");
   });
 
+  it("carries a known market into Discovery so it is not requested again", () => {
+    const decision = resolveRoomBrief(answer({ purpose: "meet", occupancy: "squad" }), "Corporate");
+    expect(roomBriefDiscoveryAnswers(decision).market).toBe("corporate");
+  });
+
   it("sends a signage wall to the video-wall application and a campus to distributed video", () => {
     expect(roomBriefDiscoveryAnswers(resolveRoomBrief(answer({ purpose: "signage", reach: "no", dwell: "pass" }))).opportunity)
       .toBe("video-wall");

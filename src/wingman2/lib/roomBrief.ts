@@ -569,8 +569,8 @@ export function resolveRoomBrief(
  * starting point rather than a dead end.
  *
  * Only keys whose values this module can guarantee are written. `opportunity`
- * carries the room shape, `scale` the occupancy band, and `displays` the count
- * the decision implies — all three read by the existing capture steps.
+ * carries the room shape, `market` keeps a known vertical with the handoff, and
+ * `displays` carries the count the decision implies — each is read by Discovery.
  */
 export function roomBriefDiscoveryAnswers(decision: RoomDecision): Record<string, string | string[]> {
   const opportunity: Record<RoomArchetypeId, string> = {
@@ -585,12 +585,29 @@ export function roomBriefDiscoveryAnswers(decision: RoomDecision): Record<string
     "signage-wall": "video-wall",
     "campus-distribution": "av-over-ip",
   };
+  const discoveryMarket: Partial<Record<TemplateMarket, string>> = {
+    Corporate: "corporate",
+    Education: "education",
+    Government: "government",
+    "Emergency Services": "emergency",
+    "Energy / Oil & Gas": "energy",
+    "Manufacturing / Logistics": "manufacturing",
+    Healthcare: "healthcare",
+    Hospitality: "hospitality",
+    Retail: "retail",
+    "Sports & Leisure": "venues",
+    "House of Worship": "venues",
+    Transportation: "transport",
+    "Broadcast / Media": "broadcast",
+    Residential: "residential",
+  };
   const displays = decision.requirements
     .find((requirement) => requirement.key === "display")
     ?.quantity.match(/\b(one|two|three|four)\b/)?.[1];
   const count = { one: "1", two: "2", three: "3", four: "4" }[displays ?? ""] ?? "";
   return {
     opportunity: opportunity[decision.archetype],
+    ...(decision.market && discoveryMarket[decision.market] ? { market: discoveryMarket[decision.market] } : {}),
     ...(count ? { displays: count } : {}),
   };
 }
