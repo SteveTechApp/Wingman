@@ -932,7 +932,7 @@ export function wallStartPresetFacts(preset: WallStartPreset): string {
 
 /** The question wording used by the builder, kept next to the logic it drives. */
 export const wallDecisionQuestions = {
-  application: "What is going on the wall?",
+  application: "How does the wall receive its picture?",
   scale: "How big is the wall?",
   layout: "How should the sources appear?",
   location: "Where do the sources sit?",

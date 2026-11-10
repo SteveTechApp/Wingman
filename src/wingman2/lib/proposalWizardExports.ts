@@ -54,8 +54,8 @@ const EXPORT_MESSAGES: Record<ProposalExportKind, ExportMessageSet> = {
     failed: "BOM CSV export failed",
   },
   "discovery-brief": {
-    // The brief is a pre-design hand-off record, not a quotation, so it is the
-    // one output with no guard — the fallback is never read.
+    // The brief is a pre-design hand-off record, so it is the one output with
+    // no guard — the fallback is never read.
     blocked: "Resolve validation issues before exporting.",
     done: "Discovery brief DOCX generated — share it before design sign-off.",
     failed: "Discovery brief export failed",

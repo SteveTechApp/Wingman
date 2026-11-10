@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import {
   readProjectStore,
@@ -8,48 +8,9 @@ import {
   type StoredDiscoveryBrief,
 } from "../data/projectStore";
 import { ProposalCompletionWizard } from "./ProposalCompletionWizard";
-import { createProposalWizardDefaults, PROPOSAL_PRICING_GAP, saveProposalWizardDraft } from "../lib/proposalWizard";
+import { createProposalWizardDefaults, saveProposalWizardDraft } from "../lib/proposalWizard";
 import { setInstallChecked } from "../lib/siteSurveyStorage";
 import { defaultWallRequirements } from "../lib/videowallOptions";
-
-// The card lives on the signed-in rep's workspace now. These tests are about
-// how the wizard uses the card, so the store is the seam: it answers with a
-// card this test seeds and merges a save the way the workspace route does.
-const rateCardStore = vi.hoisted(() => {
-  type Card = { updatedAt: string; currency: string; rates: Record<string, string> };
-  let card: Card = { updatedAt: "", currency: "GBP", rates: {} };
-  const state = () => ({ card, status: "ready" as const, error: "" });
-  return {
-    get: () => card,
-    seed: (next: Card) => { card = next; },
-    reset: () => { card = { updatedAt: "", currency: "GBP", rates: {} }; },
-    useInstallationRateCard: () => state(),
-    saveInstallationRateCard: async (rates: Record<string, string>, currency: string) => {
-      const usable = Object.fromEntries(Object.entries(rates).filter(([, value]) => String(value).trim() !== ""));
-      card = { updatedAt: new Date().toISOString(), currency, rates: { ...card.rates, ...usable } };
-      return state();
-    },
-  };
-});
-
-vi.mock("../data/installationRateCard", async () => {
-  const React = await import("react");
-  return {
-    useInstallationRateCard: rateCardStore.useInstallationRateCard,
-    saveInstallationRateCard: rateCardStore.saveInstallationRateCard,
-    // The real hook seeds once per card revision; the fake keeps that rule so a
-    // save made from this page is not re-applied over the rep's own edit.
-    useInstallationRateCardSeed: (apply: (card: { updatedAt: string; currency: string; rates: Record<string, string> }) => void) => {
-      const card = rateCardStore.get();
-      const applied = React.useRef("");
-      React.useEffect(() => {
-        if (!card.updatedAt || applied.current === card.updatedAt) return;
-        applied.current = card.updatedAt;
-        apply(card);
-      }, [card, apply]);
-    },
-  };
-});
 
 function renderWizard() {
   render(
@@ -77,7 +38,6 @@ function seedActiveProject() {
 describe("ProposalCompletionWizard", () => {
   beforeEach(() => {
     window.localStorage.clear();
-    rateCardStore.reset();
   });
 
   it("prompts to open a project when there is no active project", () => {
@@ -242,7 +202,7 @@ describe("ProposalCompletionWizard", () => {
    * spans. Seeded with the products the wizard builds its BOM from, because a
    * receiver the schedule does not quote is a run with nothing to measure.
    */
-  function seedDisplayRunProject() {
+  function seedDisplayRunProject(roomModelPatch: Record<string, unknown> = {}) {
     seedActiveProject();
     const receiver = { sku: "RX-700", title: "HDBaseT receiver", category: "Display receiver", quantity: 1, status: "recommended" as const, evidence: ["Survey measured 130 m"] };
     const matrix = { sku: "MX-0402-MST", title: "Presentation matrix", category: "Switching", quantity: 1, status: "recommended" as const, evidence: ["Customer brief"] };
@@ -250,7 +210,7 @@ describe("ProposalCompletionWizard", () => {
       ...readProjectStore().projects.find((project) => project.id === "acme-hq-boardroom")!,
       discoveryBrief: {
         capturedPercent: 40,
-        roomModel: { cableRun: "130 m", longestRun: "130 m" },
+        roomModel: { cableRun: "130 m", longestRun: "130 m", ...roomModelPatch },
         discoveryConversation: [{ stepId: "opportunity", question: "Room purpose", answer: "Presentation", note: "Share slides", confirmed: false }],
       },
       productSelections: [matrix, receiver],
@@ -276,9 +236,9 @@ describe("ProposalCompletionWizard", () => {
     // create — without the rep opening the details toggle first.
     expect(screen.getByText(/beyond the 100 m rating of the longest HDBaseT receiver/)).not.toBeNull();
     expect(screen.getByText(/2 spans of 65 m/)).not.toBeNull();
-    // This room also carries governed dependency placeholders for its matrix,
-    // so the count — not the export state — is what shows this run clearing.
-    expect(screen.getByText(/2 blocker\(s\) must be resolved/)).not.toBeNull();
+    // The selected matrix and receiver do not invent generic system
+    // dependencies; the measured run is the only blocker in this room.
+    expect(screen.getByText(/1 blocker\(s\) must be resolved/)).not.toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Schedule the mid-span repeater" }));
 
@@ -290,21 +250,20 @@ describe("ProposalCompletionWizard", () => {
     // receiver to serve the span it now carries.
     expect(screen.queryByText(/beyond the 100 m rating of the longest HDBaseT receiver/)).toBeNull();
     expect(screen.queryByRole("button", { name: "Schedule the mid-span repeater" })).toBeNull();
-    expect(screen.getByText(/1 blocker\(s\) must be resolved/)).not.toBeNull();
   });
 
-  it("records a dependency prompt from the export gate so the room is not held by it", () => {
-    seedDisplayRunProject();
+  it("records an explicitly required dependency prompt from the export gate", () => {
+    seedDisplayRunProject({ controlNeeds: ["Touch panel control programming required"] });
     renderWizard();
     fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
 
-    // Both prompts this room carries are offered where the block is read, so a
-    // rep exporting from the project answers one without leaving the page.
+    // The control requirement is an explicit room need, so it is offered where
+    // the block is read and can be recorded without leaving the page.
     const rows = [...document.querySelectorAll("[data-dependency-scope-row]")];
-    expect(rows.length).toBe(2);
+    expect(rows.length).toBe(1);
     const sku = rows[0].getAttribute("data-dependency-scope-row")!;
     const label = rows[0].querySelector("span")?.textContent ?? "";
-    expect(screen.getByText(/BOM row\(s\) are still placeholders/).textContent).toContain("2 BOM row(s)");
+    expect(screen.getByText(/BOM row\(s\) are still placeholders/).textContent).toContain("1 BOM row(s)");
 
     fireEvent.click(screen.getByRole("button", { name: `Record ${label} as a documented dependency` }));
 
@@ -314,7 +273,7 @@ describe("ProposalCompletionWizard", () => {
     expect(saved.unquotedDependencySkus).toContain(sku);
     // The gate counts the prompt it still holds, and the one just answered is
     // no longer offered as a decision to take.
-    expect(screen.getByText(/BOM row\(s\) are still placeholders/).textContent).toContain("1 BOM row(s)");
+    expect(screen.queryByText(/BOM row\(s\) are still placeholders/)).toBeNull();
     expect(document.querySelector(`[data-dependency-scope-row="${sku}"]`)).toBeNull();
   });
 
@@ -416,213 +375,6 @@ describe("ProposalCompletionWizard", () => {
     expect(document.querySelector("[data-wall-transport-blocked]")).toBeNull();
   });
 
-  it("prices the survey's install scope beside the equipment, one line per item", () => {
-    seedExportReadyProject({ "display-1": 3, "display-2": 3 }, {
-      linkDetails: {
-        "display-1": { enclosure: "Back box", entry: "Ceiling void", termination: "Cat6A outlet" },
-        "display-2": { enclosure: "Back box", entry: "Ceiling void", termination: "Cat6A outlet" },
-      },
-      displayMounts: { "display-2": "Tilt bracket" },
-    });
-
-    renderWizard();
-    fireEvent.click(screen.getByRole("button", { name: /Proposed solution/ }));
-
-    // The survey's cells become scope, not prose: the same back box on both
-    // panels is one line priced once at a quantity of two.
-    const scope = document.querySelector("[data-proposal-installation]");
-    expect(scope?.textContent).toContain("Installation scope from the site survey: 2 display housings, 1 mount, 2 terminations, 2 run entries across 4 wall links.");
-    const backBox = document.querySelector('[data-installation-line="install-enclosure-back-box"]');
-    expect(backBox?.textContent).toContain("Panel 1, Panel 2");
-    const mount = document.querySelector('[data-installation-line="install-mount-tilt-bracket"]');
-    expect(mount?.textContent).toContain("Panel 2");
-
-    // The rep types the rate; nothing here invents one.
-    const rate = screen.getByRole("spinbutton", { name: "Unit rate for Display housing — Back box" });
-    expect((rate as HTMLInputElement).value).toBe("");
-    fireEvent.change(rate, { target: { value: "120" } });
-    expect((rate as HTMLInputElement).value).toBe("120");
-
-    // An unpriced line holds the commercial section the way an unpriced
-    // equipment row does: the readiness list names it instead of exporting.
-    fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
-    expect(screen.getByText(/Enter a unit price for every included equipment and installation line/)).not.toBeNull();
-  });
-
-  it("starts installation rates from the workspace rate card and keeps overrides local", async () => {
-    rateCardStore.seed({
-      updatedAt: "2026-10-20T14:12:00.000Z",
-      currency: "GBP",
-      rates: { "install-enclosure-back-box": "120", "install-termination-cat6a-outlet": "35" },
-    });
-    seedExportReadyProject({ "display-1": 3, "display-2": 3 }, {
-      linkDetails: {
-        "display-1": { enclosure: "Back box", entry: "Ceiling void", termination: "Cat6A outlet" },
-        "display-2": { enclosure: "Back box", entry: "Ceiling void", termination: "Cat6A outlet" },
-      },
-      displayMounts: { "display-2": "Tilt bracket" },
-    });
-
-    renderWizard();
-    fireEvent.click(screen.getByRole("button", { name: /Proposed solution/ }));
-
-    // The card fills the lines this proposal has not priced...
-    const backBox = screen.getByRole("spinbutton", { name: "Unit rate for Display housing — Back box" }) as HTMLInputElement;
-    await waitFor(() => expect(backBox.value).toBe("120"));
-    expect((screen.getByRole("spinbutton", { name: "Unit rate for Termination — Cat6A outlet" }) as HTMLInputElement).value).toBe("35");
-    // ...and a line it does not know stays for the rep to price here.
-    expect((screen.getByRole("spinbutton", { name: "Unit rate for Mount — Tilt bracket" }) as HTMLInputElement).value).toBe("");
-
-    // An exception is typed on this proposal; the card keeps the baseline.
-    fireEvent.change(backBox, { target: { value: "150" } });
-    expect(backBox.value).toBe("150");
-    expect(rateCardStore.get().rates["install-enclosure-back-box"]).toBe("120");
-
-    // Saving merges this proposal's rates back over the card for the next one.
-    fireEvent.click(screen.getByRole("button", { name: "Save as rate card" }));
-    await waitFor(() => expect(rateCardStore.get().rates["install-enclosure-back-box"]).toBe("150"));
-    expect(rateCardStore.get().rates["install-termination-cat6a-outlet"]).toBe("35");
-  });
-
-  it("refills every cleared installation line from the card in one tap, leaving typed lines alone", async () => {
-    rateCardStore.seed({
-      updatedAt: "2026-10-20T14:12:00.000Z",
-      currency: "GBP",
-      rates: { "install-enclosure-back-box": "120", "install-termination-cat6a-outlet": "35" },
-    });
-    seedExportReadyProject({ "display-1": 3, "display-2": 3 }, {
-      linkDetails: {
-        "display-1": { enclosure: "Back box", entry: "Ceiling void", termination: "Cat6A outlet" },
-        "display-2": { enclosure: "Back box", entry: "Ceiling void", termination: "Cat6A outlet" },
-      },
-      displayMounts: { "display-2": "Tilt bracket" },
-    });
-
-    renderWizard();
-    fireEvent.click(screen.getByRole("button", { name: /Proposed solution/ }));
-
-    const rate = (label: string) => screen.getByRole("spinbutton", { name: `Unit rate for ${label}` }) as HTMLInputElement;
-    const backBox = rate("Display housing — Back box");
-    const outlet = rate("Termination — Cat6A outlet");
-    const mount = rate("Mount — Tilt bracket");
-    await waitFor(() => expect(backBox.value).toBe("120"));
-    expect(outlet.value).toBe("35");
-
-    // This quote prices neither card line, and the mount is its own number.
-    fireEvent.click(screen.getByRole("button", { name: "Clear seeded rate for Display housing — Back box" }));
-    fireEvent.click(screen.getByRole("button", { name: "Clear seeded rate for Termination — Cat6A outlet" }));
-    fireEvent.change(mount, { target: { value: "40" } });
-    expect(backBox.value).toBe("");
-    expect(outlet.value).toBe("");
-
-    // One action fills both cleared cells from the card and leaves the typed
-    // rate exactly as the rep entered it.
-    fireEvent.click(screen.getByRole("button", { name: "Restore 2 card rates" }));
-
-    expect(backBox.value).toBe("120");
-    expect(outlet.value).toBe("35");
-    expect(mount.value).toBe("40");
-    // Nothing is left to restore, so the action is gone rather than offered twice.
-    expect(screen.queryByRole("button", { name: /Restore \d+ card rate/ })).toBeNull();
-  });
-
-  it("offers the card's one-tap restore on the readiness item that reports the gap", async () => {
-    rateCardStore.seed({
-      updatedAt: "2026-10-20T14:12:00.000Z",
-      currency: "GBP",
-      rates: { "install-enclosure-back-box": "120", "install-termination-cat6a-outlet": "35" },
-    });
-    seedExportReadyProject({ "display-1": 3, "display-2": 3 }, {
-      linkDetails: {
-        "display-1": { enclosure: "Back box", termination: "Cat6A outlet" },
-        "display-2": { enclosure: "Back box", mount: "Tilt bracket", termination: "Cat6A outlet" },
-      },
-    });
-
-    renderWizard();
-    fireEvent.click(screen.getByRole("button", { name: /Proposed solution/ }));
-
-    const rate = (label: string) => screen.getByRole("spinbutton", { name: `Unit rate for ${label}` }) as HTMLInputElement;
-    const backBox = rate("Display housing — Back box");
-    const outlet = rate("Termination — Cat6A outlet");
-    await waitFor(() => expect(backBox.value).toBe("120"));
-
-    // The equipment and the mount are priced here, and both card lines are
-    // cleared, so the only commercial gap left is what the card can fill.
-    fireEvent.change(screen.getByRole("spinbutton", { name: "Unit price for MX-0402-MST" }), { target: { value: "900" } });
-    fireEvent.change(rate("Mount — Tilt bracket"), { target: { value: "40" } });
-    fireEvent.click(screen.getByRole("button", { name: "Clear seeded rate for Display housing — Back box" }));
-    fireEvent.click(screen.getByRole("button", { name: "Clear seeded rate for Termination — Cat6A outlet" }));
-
-    fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
-
-    // The checklist names the unpriced lines, and the fix sits on that item
-    // rather than a step away.
-    expect(screen.getByText(PROPOSAL_PRICING_GAP)).not.toBeNull();
-    const item = document.querySelector('[data-readiness-item="pricing"]');
-    expect(item?.textContent).toContain(PROPOSAL_PRICING_GAP);
-    const restore = screen.getByRole("button", { name: "Restore 2 rates from the GBP card" });
-    expect(restore.getAttribute("title")).toContain("Equipment prices stay as entered");
-    // The gap says how much one tap would clear, and that the cleared cells were
-    // a decision rather than work left undone.
-    expect(item?.textContent).toContain("Your GBP rate card fills 2 of these lines in one tap.");
-    expect(document.querySelector('[data-readiness-exception="deliberately-unpriced"]')?.textContent)
-      .toContain("2 lines were deliberately left unpriced");
-
-    fireEvent.click(restore);
-
-    // Filling both lines clears the item and retires the action.
-    expect(screen.queryByText(PROPOSAL_PRICING_GAP)).toBeNull();
-    expect(screen.queryByTestId("proposal-readiness-restore-card-rates")).toBeNull();
-    expect(document.querySelector('[data-readiness-exception="deliberately-unpriced"]')).toBeNull();
-
-    // It wrote the card's rates into the same draft the document prints.
-    fireEvent.click(screen.getByRole("button", { name: /Proposed solution/ }));
-    expect(rate("Display housing — Back box").value).toBe("120");
-    expect(rate("Termination — Cat6A outlet").value).toBe("35");
-  });
-
-  it("flags a card rate quoted in another currency before the document leaves", async () => {
-    rateCardStore.seed({
-      updatedAt: "2026-10-20T14:12:00.000Z",
-      currency: "GBP",
-      rates: { "install-enclosure-back-box": "120" },
-    });
-    const detail = { enclosure: "Back box", termination: "Cat6A outlet" };
-    seedExportReadyProject({ "display-1": 3, "display-2": 3 }, {
-      linkDetails: { "source-1": detail, "source-2": detail, "display-1": detail, "display-2": detail },
-    });
-
-    renderWizard();
-    fireEvent.click(screen.getByRole("button", { name: /Proposed solution/ }));
-
-    const backBox = () => screen.getByRole("spinbutton", { name: "Unit rate for Display housing — Back box" }) as HTMLInputElement;
-    await waitFor(() => expect(backBox().value).toBe("120"));
-
-    // The quote is issued in USD while the cell holds the card's GBP number.
-    fireEvent.click(screen.getByRole("button", { name: /Commercial and delivery/ }));
-    fireEvent.change(screen.getByLabelText("Proposal currency"), { target: { value: "USD" } });
-
-    fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
-    fireEvent.click(screen.getByRole("button", { name: "Show details" }));
-
-    const warning = [...document.querySelectorAll(".wm-proposal-validation-item--warning")]
-      .find((entry) => entry.textContent?.includes("rate card"));
-    expect(warning?.textContent).toContain("currency");
-    expect(warning?.textContent).toContain("1 installation line still holds your GBP rate card's number on a USD proposal");
-    expect(warning?.textContent).toContain("Display housing — Back box");
-    expect(warning?.textContent).toContain("Fix: Type that rate in USD");
-    // A warning, not a blocker: it is named before the document leaves.
-    expect(screen.getByRole("button", { name: /Export formatted DOCX/ }).hasAttribute("disabled")).toBe(false);
-
-    // Pricing this line at this job's own number clears it.
-    fireEvent.click(screen.getByRole("button", { name: /Proposed solution/ }));
-    fireEvent.change(backBox(), { target: { value: "155" } });
-    fireEvent.click(screen.getByRole("button", { name: "Go to export" }));
-
-    expect(screen.queryByText(/rate card's number on a USD proposal/)).toBeNull();
-  });
-
   it("records recommendation feedback against the active project", () => {
     seedActiveProject();
     renderWizard();
@@ -646,7 +398,7 @@ describe("ProposalCompletionWizard", () => {
     expect(screen.queryByText("Final approval")).toBeNull();
   });
 
-  it.each(["draft", "pending", "rejected"] as const)("allows an unpriced response with incomplete discovery and %s team review", (approvalStatus) => {
+  it.each(["draft", "pending", "rejected"] as const)("allows a proposal with incomplete discovery and %s team review status when technical checks pass", (approvalStatus) => {
     seedActiveProject();
     upsertStoredProject({
       ...readProjectStore().projects.find(project => project.id === "acme-hq-boardroom")!,

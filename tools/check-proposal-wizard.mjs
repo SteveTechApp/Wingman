@@ -51,7 +51,7 @@ const css = read("Proposal wizard CSS", files.css);
   "Customer and project",
   "Requirements review",
   "Proposed solution",
-  "Commercial and delivery",
+  "Scope and delivery",
   "Review and export",
   "computeProposalReadiness",
   "saveProjectProposalToProject",
@@ -83,7 +83,6 @@ const css = read("Proposal wizard CSS", files.css);
   "solution",
   "approval",
   "blended-proposal",
-  "tender-response",
 ].forEach((marker) =>
   requireMarker("proposalWizard.ts", model, marker),
 );
@@ -115,7 +114,7 @@ for (const [label, source] of [
   "Header",
   "Footer",
   "PageNumber.CURRENT",
-  "Equipment and Pricing",
+  "Equipment Schedule",
   "What You Asked For and How We Designed It",
   ".proposal.docx",
 ].forEach((marker) =>
@@ -139,5 +138,5 @@ if (errors.length) {
 }
 
 console.log(
-  "[proposal-wizard] Verified five-step proposal completion, 100-point readiness and formatted DOCX export contracts.",
+  "[proposal-wizard] Verified proposal completion, technical readiness and formatted DOCX export contracts.",
 );

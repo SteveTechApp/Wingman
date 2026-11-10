@@ -60,6 +60,7 @@ describe("findQuickStartApplicationDrift", () => {
     // Differing defaults are still reported as plain disagreements.
     expect(drift.map((item) => item.questionId).sort()).toEqual([
       "control",
+      "primary-display",
       "signal-standard",
       "uc-camera",
       "uc-purpose",
@@ -90,6 +91,7 @@ describe("mergeRoomAndStandardProfiles", () => {
     expect(merged["signal-standard"]).toBe("1080p-standard-hdmi");
     expect(merged.usb).toBe("room-pc-uc");
     expect(merged["display-behaviour"]).toBe("same-content-all-displays");
+    expect(merged["primary-display"]).toBe("single-projector");
     // Values the profiles agree on stay at the (shared) room value.
     expect(merged.scale).toBe(quickStartConfigs["lecture-hall"].defaults.scale);
     expect(merged.scale).toBe(standard.scale);

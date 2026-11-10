@@ -41,6 +41,27 @@ describe("product assurance", () => {
     expect(ledger.warnings.some((item) => item.domain === "resilience")).toBe(true);
   });
 
+  it("does not create peripheral or room-audio blockers for negative and by-others answers", () => {
+    const ledger = buildDesignAssuranceLedger({
+      products: [{ sku: "EX-70-H2" }],
+      discoveryPercent: 100,
+      requirementText: "No camera or microphone requirements. No USB transport required. Audio system designed by others; confirm only the embedded audio handoff from video switching.",
+    });
+
+    expect(ledger.blockers.some((item) => item.id === "usb-path-unproven")).toBe(false);
+    expect(ledger.blockers.some((item) => item.id === "audio-path-unproven")).toBe(false);
+  });
+
+  it("still blocks an unproven positive USB peripheral requirement", () => {
+    const ledger = buildDesignAssuranceLedger({
+      products: [{ sku: "EX-70-H2" }],
+      discoveryPercent: 100,
+      requirementText: "A USB camera and touch display must connect to the room system.",
+    });
+
+    expect(ledger.blockers.some((item) => item.id === "usb-path-unproven")).toBe(true);
+  });
+
   it("keeps request-only and do-not-spec records out of recommendations", () => {
     expect(productCanAppearInRecommendation({ sku: "A", catalogVisibility: "request-only" })).toBe(false);
     expect(productCanAppearInRecommendation({ sku: "B", doNotSpec: true })).toBe(false);

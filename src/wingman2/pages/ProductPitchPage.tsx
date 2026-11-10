@@ -983,7 +983,7 @@ function ProductPitchSafetyPanel() {
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         <p className="wm-copy"><strong>Qualify:</strong> Confirm application, signal path, endpoint count, USB, audio, control and distance.</p>
         <p className="wm-copy"><strong>Evidence:</strong> Match the product class, role, dependencies and known gaps to the brief.</p>
-        <p className="wm-copy"><strong>Escalate:</strong> Review AVoIP, USB transport, video walls, substitutions and non-standard designs before quotation.</p>
+        <p className="wm-copy"><strong>Escalate:</strong> Review AVoIP, USB transport, video walls, substitutions and non-standard designs before the proposal is issued.</p>
       </div>
     </details>
   );

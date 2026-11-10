@@ -95,36 +95,6 @@ describe("proposal DOCX export", () => {
     expect(text).toContain("Controls the selected endpoints");
   });
 
-  it("creates the required commercial sections and exact equipment totals", async () => {
-    const wizard = createProposalWizardDefaults({
-      projectId: "government-control-room", projectName: proposal.title, preparedBy: "Solutions Team",
-      executiveSummary: proposal.summary, architectureNarrative: "NetworkHD 600 10G AV-over-IP architecture.",
-      customerName: "Example Customer",
-    });
-    wizard.bomUnitPrices = { "NHD-CTL-PRO-V2": "1250.00" };
-
-    const buffer = await Packer.toBuffer(buildProposalDocx(proposal, bom, wizard));
-    const zip = await JSZip.loadAsync(buffer);
-    const documentXml = await zip.file("word/document.xml")!.async("string");
-    const text = documentXml.replace(/<[^>]+>/g, " ");
-
-    expect(text).toContain("Executive Summary");
-    expect(text).toContain("Scope of Work");
-    expect(text).toContain("Equipment and Pricing");
-    expect(text).toContain("£1,250.00");
-    expect(text).toContain("Services and Commercial Allowances");
-    expect(text).toContain("Market and Application Story");
-    expect(text).toContain("Third-Party System Scope");
-    expect(text).toContain("WyreStorm Product Specifications");
-    expect(text).toContain("Testing and Acceptance Criteria");
-    expect(text).toContain("Operator displays");
-    expect(text).toContain("Cabling and consumables");
-    expect(text).toContain("Visio / CAD / as-built drawings");
-    expect(text).toContain("Timeline and Phases");
-    expect(text).toContain("Site survey and preparation");
-    expect(text).toContain("Next Steps");
-  });
-
   it("carries the best-efforts disclaimer in the DOCX body", async () => {
     const wizard = createProposalWizardDefaults({
       projectId: "government-control-room", projectName: proposal.title, preparedBy: "Solutions Team",
@@ -345,73 +315,6 @@ describe("proposal DOCX export", () => {
     );
   });
 
-  it("prices the survey's installation scope in the equipment and services schedule", async () => {
-    const base = createProposalWizardDefaults({
-      projectId: "wall", projectName: proposal.title, preparedBy: "Solutions Team",
-      executiveSummary: proposal.summary, architectureNarrative: "LCD wall.",
-    });
-    const requirements = {
-      ...defaultWallRequirements,
-      application: "lcd-direct" as const,
-      layout: "independent" as const,
-      columns: 2,
-      rows: 1,
-      sources: 1,
-      linkDetails: {
-        "source-1": { enclosure: "Rack shelf", termination: "HDMI faceplate" },
-        "display-2": { enclosure: "Back box", mount: "Tilt bracket", termination: "Cat6A outlet" },
-      },
-    };
-    const resolution = wallResolutionSummary(requirements);
-    const plan = wallCanvasPlan(requirements);
-    const wall = {
-      savedAt: "2026-10-21T00:00:00.000Z",
-      wallType: "lcd",
-      summary: {
-        version: 2,
-        requirements,
-        resolution: { canvas: resolution.canvas, display: resolution.display, source: resolution.source, mapping: resolution.label },
-        canvasPlan: { canvas: plan.canvas, native: plan.native, perPanel: plan.perPanel, recommended: plan.recommended, rationale: plan.rationale, text: plan.text },
-      },
-    };
-    const wizard = {
-      ...base,
-      installationUnitPrices: {
-        "install-enclosure-back-box": "120",
-        "install-enclosure-rack-shelf": "80",
-        "install-mount-tilt-bracket": "150",
-        "install-termination-cat6a-outlet": "45",
-        "install-termination-hdmi-faceplate": "35",
-      },
-    };
-
-    const buffer = await Packer.toBuffer(buildProposalDocx(proposal, bom, wizard, {}, wall));
-    const zip = await JSZip.loadAsync(buffer);
-    const xml = await zip.file("word/document.xml")!.async("string");
-    const text = xml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-
-    // The survey's install detail becomes priced lines, one per item, not per link.
-    expect(text).toContain("Installation and services");
-    expect(text).toContain("Installation scope from the site survey: 2 display housings, 1 mount, 2 terminations across 3 wall links.");
-    expect(text).toContain("Back box");
-    expect(text).toContain("£120.00");
-    expect(text).toContain("The installation and services total is £430.00 excluding VAT / sales tax.");
-
-    // An unpriced line holds the total exactly as an unpriced equipment row does.
-    const unpriced = await Packer.toBuffer(buildProposalDocx(proposal, bom, base, {}, wall));
-    const unpricedXml = await (await JSZip.loadAsync(unpriced)).file("word/document.xml")!.async("string");
-    const unpricedText = unpricedXml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-    expect(unpricedText).toContain("COMMERCIAL HOLD: one or more installation rates are missing");
-    expect(unpricedText).toContain("TBC — pricing incomplete");
-
-    // The screen export schedules the same scope, so the two documents agree on
-    // what installation the customer is buying.
-    const html = buildProposalHtml(proposal, bom, proposal.products, null, wall);
-    expect(html).toContain('data-installation-line="install-enclosure-back-box"');
-    expect(html).toContain("Installation scope from the site survey: 2 display housings, 1 mount, 2 terminations across 3 wall links.");
-    expect(html).toContain("Tilt bracket");
-  });
-
   it("refuses the DOCX when a saved wall run exceeds its transport", async () => {
     const wizard = createProposalWizardDefaults({
       projectId: "wall", projectName: proposal.title, preparedBy: "Solutions Team",
@@ -445,20 +348,6 @@ describe("proposal DOCX export", () => {
       .rejects.toThrow(/Panel 2 cannot carry its run[\s\S]*active or fibre HDMI cable/);
   });
 
-  it("marks missing equipment prices as a commercial hold", async () => {
-    const wizard = createProposalWizardDefaults({
-      projectId: "draft", projectName: proposal.title, preparedBy: "Solutions Team",
-      executiveSummary: proposal.summary, architectureNarrative: "Draft architecture.",
-    });
-    const buffer = await Packer.toBuffer(buildProposalDocx(proposal, bom, wizard));
-    const zip = await JSZip.loadAsync(buffer);
-    const documentXml = await zip.file("word/document.xml")!.async("string");
-    expect(documentXml).toContain("COMMERCIAL HOLD");
-    expect(documentXml).toContain("TBC");
-  });
-});
-
-describe("product-data revision line in the Word footer", () => {
   it("names the data digest, the assembly date and the build on every page", async () => {
     const wizard = createProposalWizardDefaults({
       projectId: "government-control-room",

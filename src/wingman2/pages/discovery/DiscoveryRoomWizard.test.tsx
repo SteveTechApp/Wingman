@@ -10,7 +10,7 @@ describe("focused room wizard", () => {
   it("keeps uncertain answers open and advances without inventing a routing choice", () => {
     const callbacks = props();
     render(<DiscoveryRoomWizard {...callbacks} />);
-    expect(screen.getByRole("heading", { name: "What should people see on each screen?" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "How should the primary and repeater displays behave?" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /I'm not sure/ }));
     const updater = callbacks.onAnswersChange.mock.calls[0][0];
     expect(updater({})).toMatchObject({ "display-behaviour": "unknown-display-behaviour" });

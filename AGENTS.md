@@ -31,7 +31,7 @@ states is one they trust by mistake.
   product or design that answers it, and produce the proposal with the diagrams
   and detail that carry the sale. Every surface is measured against one of those
   three. One that serves none is support at best and a second product at worst,
-  because the price is paid by the rep who has to learn it.
+  because the rep who has to learn it pays in time and attention.
 - Expert depth is in scope, and it is depth rather than a longer road. The
   focused brief (`roomBrief.ts`: three facts the customer can answer, then only
   the questions that split what is still possible) and the expert workspace
@@ -53,13 +53,24 @@ states is one they trust by mistake.
   sections capture. What may not differ is what the rep leaves with, so the room
   decision is the shared part and a surface renders it rather than holding a
   reading of its own.
-- The gap this section names: the focused path writes the decision record and the
-  expert workspace does not. It captures the same room in sections, then hands
-  the rep to the recommendation without the decided-room reading — the type, the
-  requirements and their reasons, the checks, the assumptions, the changes-if —
-  that the brief path ends on. Until both write it, the two depths end in one
-  place but not one outcome, and that is the work owed here rather than a new
-  surface.
+- Both paths write `StoredDiscoveryBrief.roomDecision` through
+  `compileDiscoveryBrief`, which derives the decision from the captured room
+  facts and the shared `resolveRoomBrief` engine. The record carries the room
+  type, reasoned requirements, site checks, assumptions and changes-if; fields
+  the evidence cannot resolve stay open rather than being invented. The proposal
+  reads that same record alongside the detailed room model and product design.
+- Room scale constrains archetypes: a medium or larger space cannot resolve to
+  the small huddle type, and a single-screen meeting room must not gain a second
+  display requirement merely to fit an existing room label.
+- Recommendation handoff's “Build AV proposal draft” action writes the resolved
+  system selections, refreshes the project's design graph, and opens Proposal
+  Builder. That creates a full draft with the captured room/site facts, selected
+  products, BOM, architecture and open checks; it remains a draft until the rep
+  resolves readiness items and issues it.
+- The proposal is system design first. Technical, application and blended
+  proposal drafts and exports carry technical design, equipment quantities,
+  installation scope, assumptions and open dependencies. Pricing, tax, currency,
+  rate cards and quote totals are outside Wingman's workflow for now.
 
 ## Worktree & dev workflow
 
@@ -110,7 +121,7 @@ states is one they trust by mistake.
 | Workspace grid, page frame, hero template, control sizing | [docs/SHELL_AND_FRAME.md](docs/SHELL_AND_FRAME.md) |
 | Discovery steps and the audio question | [docs/DISCOVERY.md](docs/DISCOVERY.md) |
 | Wall builder, presets, elevation, transport, review passes | [docs/VIDEO_WALL.md](docs/VIDEO_WALL.md) |
-| Print surface, section ladder, pricing, templates | [docs/PROPOSAL_OUTPUT.md](docs/PROPOSAL_OUTPUT.md) |
+| Print surface, section ladder, templates | [docs/PROPOSAL_OUTPUT.md](docs/PROPOSAL_OUTPUT.md) |
 | Visio stencil packaging and symbols | [docs/DRAWING_SYMBOLS.md](docs/DRAWING_SYMBOLS.md) |
 | Verdict tone, verdict lead, compare page modules | [docs/COMPARE_FEATURE.md](docs/COMPARE_FEATURE.md) |
 | API envelope, gates, agent routes | [docs/BACKEND_API.md](docs/BACKEND_API.md) |
@@ -331,7 +342,9 @@ states is one they trust by mistake.
   spec naming a tool is the guard's subject rather than its caller, so a helper its
   own spec imports is declared as one.
 - The pre-commit hook runs the dead-CSS autofix and gate, then the fast lane and
-  architecture boundaries; the full chain adds the two debt ratchets, size
+  architecture boundaries. It clears hook-local Git environment variables for
+  that verification subprocess so test-created repositories stay isolated; the
+  full chain adds the two debt ratchets, size
   budgets and style drift. A ratchet with no baseline is a gate that fails on
   the repo it ships with.
 - The hook asks the tracked-asset duplicate question before any of that, at the
@@ -452,6 +465,14 @@ states is one they trust by mistake.
   is where a rep looks rather than at a file path. Rules are in
   `wingman-route-help.css`, scoped to the route like any other page's.
   [Narrative](docs/SHELL_AND_FRAME.md)
+- Guru's definition questions are answered from the shared `AV_GLOSSARY_TERMS`
+  before product search; the glossary's acronym fragments (such as `ARC` in
+  `ARC / eARC`) are direct lookup terms. Product search ignores question
+  stop-words, scores whole tokens, and requires more than one matching feature
+  unless the rep supplied a SKU, because one incidental substring must not turn
+  a term question into unrelated product cards. Search summaries stay short so
+  product index copy cannot become the whole answer.
+  [Narrative](docs/SHELL_AND_FRAME.md)
 - The workspace is a grid with an auto header row and a `minmax(0, 1fr)` body,
   so the header is the real header and can wrap taller than the topbar variable
   says. Sizing the main column from that variable makes the column overflow, and
@@ -504,6 +525,25 @@ states is one they trust by mistake.
 
 ## Discovery
 
+- Room dimensions are captured as separate length, width and height values in
+  metres across the essential brief, guided walk and expert workspace, with
+  seating/layout kept apart. `RoomDimensionsFields.tsx` owns the inputs and
+  `roomDimensionsSummary` is the boundary into the existing saved brief field;
+  the old free-text answer remains readable until edited. The focused brief
+  offers site conditions in a collapsed optional group, while Expert keeps them
+  in its Environment section. Site & construction records building construction,
+  room structure/support, floor type, ceiling type, fixing surfaces, overhead
+  access, containment, routes, power, acoustics and access separately so each
+  unknown stays a named site-survey check.
+  [Narrative](docs/DISCOVERY.md)
+- Display discovery keeps primary display arrangement, total video feed
+  endpoints, repeater screen count and repeater purpose as separate room facts.
+  A wall processor or blended projection canvas can be one feed endpoint even
+  when the physical display has multiple panels, so the physical primary
+  arrangement never replaces the total count. Repeater purpose is conditional
+  on a possible repeater count. `display-behaviour` carries mirroring,
+  independent routing, wall processing and multiview separately.
+  [Narrative](docs/DISCOVERY.md)
 - Finder need drafts use empty strings for dimensions that are present but
   unanswered; stored room records omit unanswered labels. The scale/display
   cross-field audit treats an empty value as unanswered, since only defined
@@ -526,7 +566,12 @@ states is one they trust by mistake.
 - The programme-audio route is one question holding both ends: values prefixed
   for where sound leaves the video path and values prefixed for where it must
   arrive, split by prefix in one derivation. One question, because a rep answers
-  both ends in one conversation and two questions let the halves disagree.
+  both ends in one conversation and two questions let the halves disagree. If
+  room audio is by others, that choice hides the room audio and microphone
+  detail and turns the route into one video-side feed confirmation. The proposal
+  records the handoff without proposing the other supplier's audio system, and
+  topology must not infer microphones, DSP or speakerphone equipment in that
+  branch.
   [Narrative](docs/DISCOVERY.md)
 - Guided Discovery decides the room before it offers a design, because "which
   design" is the second question: a library row asks a rep to recognise a
@@ -537,11 +582,21 @@ states is one they trust by mistake.
   splits the room types still possible, so a huddle is decided in two questions
   and a divisible boardroom in three. The decision is a room type and
   what that room needs to do its job, never a bill of materials, and each
-  requirement carries the answer that asked for it, because a line a rep cannot
-  defend is the first one dropped under price pressure. The library stays one
+  requirement carries the answer that asked for it, because a line without a
+  reason is hard for a rep to explain or validate. The library stays one
   link away for the rep who already knows what they want, and it opens on the
   market the room was described in (`?market=`), because the vertical is a fact
   the brief has already read and a rep should not have to say it twice.
+- A market environment that maps to an application has already answered
+  Discovery's `opportunity` question. Basic and Expert keep that answer in the
+  shared record and omit the repeat; `getVisibleDiscoveryQuestions` then removes
+  application-inapplicable question groups and uses the selected application to
+  tailor the remaining prompts. Changing to an environment with a different
+  mapped application goes through `changeDiscoveryApplication`, which clears
+  stale technical answers before the new questions appear. An unclassified
+  environment clears the previous application so the survey can ask what the
+  customer needs. Market alone is not a technical constraint, so it must not
+  remove otherwise valid signal, network, audio or control choices.
 - The decision ends by addressing Discovery again with `?interview=1`, holding
   the decided room as a handoff, and that parameter is read on every render
   rather than once at mount: it is a change to the address of a page that is
@@ -553,14 +608,23 @@ states is one they trust by mistake.
 
 ## Video wall
 
-- The guided wizard's first step leads with the LED brief — canvas pixels,
-  pixel pitch and the cabinet array — with the common walls under them, because
-  those three are the customer's facts and a preset already answers all three.
+- The guided and expert builders start by choosing the wall type. Guided then
+  asks the size, sources and network before offering wall-specific connection
+  and layout choices; selecting an NHD multiview path requires a multiview
+  layout. The first choice is the technology — LCD, LED or projection — while
+  per-display, grouped and tiled feeds are connection models that follow it.
+  Keeping those answers separate lets each wall type own its valid size, feed
+  and layout choices, so a rep does not configure an LED canvas or projection
+  blend on an LCD wall. The order, type-specific options and multiview
+  constraint are held by shared connection choices in both builders: changing
+  the NHD feed path sets the multiview requirement that constrains layout.
+  [Narrative](docs/VIDEO_WALL.md)
 - Four surfaces name the wall workflow, so the entry's name and the sentence
   saying how a design begins live once, in `lib/wallEntry.ts`. They had drifted.
-- The focused view starts from a wall, not a room: a starting point is a whole
-  brief named for what the wall does, grouped by technology for the shared
-  picker. A rep's own saved wall joins that picker, keyed by a stable hash of
+- The focused view starts with wall technology — LCD, LED or projection — so
+  the wall type decides which size, source, feed and layout choices follow.
+  Saved walls become prefilled starting points after that choice. A rep's own
+  saved wall joins the picker, keyed by a stable hash of
   the brief with the survey fields stripped, so another room's measurements
   never ride along and re-saving a wall moves its row rather than duplicating it.
   The save and load paths run the same shape rule, or a wall's key would change
@@ -658,6 +722,13 @@ states is one they trust by mistake.
   dependency list, where the question belongs, while the BOM drops it. Only
   prompts are ever dropped: a stored list naming an exact dependency takes no
   equipment out of the room.
+  Dependency requirements are detected from the room and topology, separately
+  from selected-product capability evidence. Capability text can inform an
+  exact compatibility rule but cannot create generic USB, audio, control, wall
+  or transport scope. Selected NetworkHD endpoints do not get a duplicate
+  generic endpoint-count prompt; exact missing endpoints and AV network
+  readiness remain governed. USB marked not required and audio marked handled
+  by others do not create those system prompts.
 - A template is a starting point for a different room, so a dependency prompt
   does not travel as scope and does not reach a template's export gate: one rule
   makes a new template out of a project, and every save path goes through it. A
@@ -672,19 +743,16 @@ states is one they trust by mistake.
 - An unfinished wall survey is a completeness warning rather than a blocker, but
   it prints where the proposal is exported and can be cleared from there, so the
   warning and its way out sit together.
-- The survey's per-link install detail is priced scope: the installation
-  schedule reads it, and the Word export prints that priced table after the
-  equipment table so the two read as one scope.
-- Installation rates start from one saved rate card rather than from the last
-  proposal, because a rate typed once should be reused and a rate typed into a
-  document should not become the next document's price.
-- Equipment pricing has one rule, and the printed schedules repeat their header
-  on every page; Word rows go through one private row helper, and the Word
-  export carries its own running header and footer rather than inheriting the
-  screen's.
-- A template-driven proposal is priced on the template review page, not in the
-  proposal wizard, and that review is a staged pre-issue walk rather than one
-  long page. The walk remembers where the rep left it.
+- The survey's per-link install detail is included as technical scope: the
+  installation schedule groups identical details by quantity and prints after
+  the equipment schedule so both describe one system.
+- Proposal output has no price, rate, tax, currency or quote-total fields.
+  Printed schedules repeat their header on every page; Word rows go through one
+  private row helper, and the Word export carries its own running header and
+  footer rather than inheriting the screen's.
+- A template-driven proposal is assembled on the template review page and that
+  review is a staged pre-issue walk rather than one long page. The walk
+  remembers where the rep left it.
 - A template's copy carries the design, not the room it was measured in.
   [Narrative](docs/PROPOSAL_OUTPUT.md)
 

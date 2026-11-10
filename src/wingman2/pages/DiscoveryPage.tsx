@@ -378,8 +378,8 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   // soon as the capture says the room includes one, naming the room it was
   // answered for.
   const videoWallHandoff = useMemo(
-    () => discoveryVideoWallHandoff(answers, discoveryRoomName),
-    [answers, discoveryRoomName],
+    () => discoveryVideoWallHandoff(answers, discoveryRoomName, notes),
+    [answers, discoveryRoomName, notes],
   );
 
   const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);

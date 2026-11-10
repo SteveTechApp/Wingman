@@ -13,6 +13,8 @@ export const PARITY_MARKERS = {
   schematic: "Operator sources → NetworkHD encoders → 10GbE network → NetworkHD decoders → Four displays",
   disclaimer: "best-efforts basis",
   displaySchedule: "Display Schedule",
+  repeaterPlan: "Repeaters: 2 repeater screens",
+  repeaterPurpose: "overflow seating",
 } as const;
 
 export const parityBom: SalesBomRow[] = [
@@ -28,6 +30,13 @@ export const parityProposal: StoredProjectProposal = {
   products: parityBom.map((row) => ({ sku: row.sku, quantity: row.qty, title: row.description, family: "NetworkHD 600", category: "AV over IP", evidence: [row.evidence] })),
   productFamilyScores: [{ family: PARITY_MARKERS.recommendation, score: 96, reasons: ["The confirmed routing and resilience requirement needs a scalable 10GbE fabric."], cautions: [PARITY_MARKERS.risk] }],
   assumptions: [PARITY_MARKERS.assumption],
+  displayPlan: {
+    primaryArrangement: "LCD video wall (2 × 2 panels)",
+    totalFeedCount: "2 outputs",
+    repeaterCount: "2 repeater screens",
+    repeaterPurpose: ["overflow seating", "easy view from anywhere in the room"],
+    behaviour: ["same content on all displays"],
+  },
   governedDependencies: [{ id: "dep-network", sku: PARITY_MARKERS.dependency, label: "Managed 10GbE network switch", role: "AV network", qty: 1, type: "Required", status: "by others", confidence: "confirmed", governanceKind: "Prompt", trigger: "AV-over-IP architecture", evidence: "NetworkHD endpoints require managed 10GbE switching.", validationQuestion: "Confirm switch model, port budget, VLAN and multicast configuration.", customerSafeNote: "Customer IT or the integrator must provide and configure the managed switch." }],
   bomRows: parityBom,
   governanceWarnings: [PARITY_MARKERS.risk],
@@ -55,7 +64,6 @@ export const parityWizard = (() => {
   });
   wizard.proposalReference = "WM-PARITY-001";
   wizard.proposalDate = "2026-09-11";
-  wizard.bomUnitPrices = { "NHD-600-E-TX": "1000", "NHD-600-E-RX": "1100", "NHD-CTL-PRO-V2": "1250" };
   wizard.solutionConfirmed = true;
   wizard.reviewConfirmed = true;
   return wizard;

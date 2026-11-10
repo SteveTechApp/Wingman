@@ -1,5 +1,6 @@
 import type { MultiSkuCompetitorAnalysis } from "../../../lib/documentIngest/multiSkuCompetitorIngest";
 import type { ProjectTopology } from "../../../lib/projectTopology";
+import type { RoomDecision } from "../../../lib/roomBrief";
 import type { StatusVariant } from "../../../types";
 
 export type ProjectStage =
@@ -37,9 +38,9 @@ export type StoredProject = {
   productOmissions?: StoredProductOmission[];
   /**
    * Governed dependency prompts (`TBC-…`) the rep has recorded as documented
-   * dependencies rather than quotation lines: the question stays in the
+   * dependencies rather than product lines: the question stays in the
    * customer document's dependency list, and the BOM stops carrying an
-   * unpriced placeholder for a part nobody can name. Rebuilds must honour it.
+   * placeholder for a part nobody can name. Rebuilds must honour it.
    */
   unquotedDependencySkus?: string[];
   ingest?: StoredIngestAnalysis;
@@ -152,6 +153,11 @@ export type StoredDiscoveryBrief = {
     canQuote: boolean;
   };
   discoveryConversation?: DiscoveryConversationItem[];
+  /** Shared room decision written by both the brief and expert capture paths. */
+  roomDecision?: RoomDecision;
+  /** Governed answers and customer wording, retained so a saved room can reopen for editing. */
+  discoveryAnswers?: Record<string, string | string[]>;
+  discoveryNotes?: Record<string, string>;
 };
 
 /** One product the rep took out of the room, and the moment they took it out. */
@@ -226,7 +232,13 @@ export type StoredCompareRun = {
 };
 
 export type StoredProjectProposal = {
-  pricing?: { currency: "GBP" | "USD" | "EUR"; pricesExcludeTax: boolean; bomUnitPrices: Record<string, string>; installationUnitPrices: Record<string, string> };
+  displayPlan?: {
+    primaryArrangement?: string;
+    totalFeedCount?: string;
+    repeaterCount?: string;
+    repeaterPurpose?: string[];
+    behaviour?: string[];
+  };
   salesContent?: { objectives: string; solutionOverview: string; architecture?: string; externalScope: string };
   title: string;
   summary: string;

@@ -63,8 +63,8 @@ describe("the ladder", () => {
   it("decides in two answers and names the room", () => {
     mount();
     answerSetup();
-    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
+    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     expect(screen.getByRole("heading", { name: "Huddle room, bring your own laptop", level: 1 })).toBeVisible();
     expect(screen.getByText(/Decided in 2 questions/)).toBeVisible();
   });
@@ -82,19 +82,19 @@ describe("the decision", () => {
   it("gives each need a reason, and what to check on site", () => {
     mount();
     answerSetup();
-    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
+    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     expect(screen.getByText("What this room needs")).toBeVisible();
     expect(screen.getByText("Check on site")).toBeVisible();
-    // The reason a rep would keep the requirement under price pressure.
+    // The reason the selected requirement belongs in this design.
     expect(screen.getByText(/the whole presentation surface/)).toBeVisible();
   });
 
   it("hands the decided room to the discovery brief as answers", () => {
     mount();
     answerSetup();
-    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
+    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     fireEvent.click(screen.getByRole("button", { name: /Take this into the discovery brief/ }));
     // The capture steps still ask what only the customer knows; they start from
     // the room rather than from a blank form.

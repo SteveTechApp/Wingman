@@ -28,7 +28,6 @@ import {
   buildInstallationSchedule,
   installationCategoryLabel,
   installationTableHeaders,
-  installationTotals,
   INSTALLATION_TABLE_COLUMN_LABELS,
   type InstallationSchedule,
 } from "./installationSchedule";
@@ -178,63 +177,51 @@ export function addSection(children: Array<Paragraph | Table>, title: string, co
   children.push(heading(title), ...content);
 }
 
-function money(value: number, currency: ProposalWizardDraft["currency"]) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(value);
-}
-
-function equipmentTable(rows: SalesBomRow[], wizard: ProposalWizardDraft) {
-  const widths = [1500, 2700, 650, 1350, 1450, 1710];
-  const header = tableRow({ tableHeader: true, children: ["SKU", "Description", "Qty", "Unit price", "Line total", "Status"].map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) });
-  let total = 0;
-  let complete = rows.length > 0;
+function equipmentTable(rows: SalesBomRow[]) {
+  const widths = [1350, 3000, 1700, 2200, 650, 1060];
+  const header = tableRow({ tableHeader: true, children: ["SKU", "Description", "Role", "Evidence / notes", "Qty", "Status"].map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) });
   const body = rows.map((row) => {
-    const raw = wizard.bomUnitPrices[row.sku];
-    const unit = raw !== undefined && raw !== "" ? Number(raw) : Number.NaN;
-    const valid = Number.isFinite(unit) && unit >= 0;
-    complete &&= valid;
-    const line = valid ? unit * row.qty : Number.NaN;
-    if (valid) total += line;
-    const values = [row.sku || "TBC", row.description || "Selected equipment", String(row.qty), valid ? money(unit, wizard.currency) : "TBC", valid ? money(line, wizard.currency) : "TBC", row.type || "Required"];
-    return tableRow({ children: values.map((value, index) => cell(value, widths[index], { align: index >= 2 && index <= 4 ? AlignmentType.RIGHT : undefined })) });
+    const values = [row.sku || "TBC", row.description || "Selected equipment", row.role || "System component", [row.evidence, row.notes].filter(Boolean).join(" — ") || "See technical validation", String(row.qty), row.type || "Required"];
+    return tableRow({ children: values.map((value, index) => cell(value, widths[index], { align: index === 4 ? AlignmentType.RIGHT : undefined })) });
   });
-  if (!rows.length) body.push(tableRow({ children: [new TableCell({ columnSpan: 6, width: { size: TABLE_WIDTH, type: WidthType.DXA }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [paragraph("No final equipment schedule is attached. This document is not an equipment quotation.", { colour: MUTED })] })] }));
-  if (rows.length) body.push(tableRow({ children: [cell("Equipment total", widths[0] + widths[1] + widths[2], { bold: true, fill: PALE }), cell(complete ? money(total, wizard.currency) : "TBC — pricing incomplete", widths[3] + widths[4], { bold: true, fill: PALE, align: AlignmentType.RIGHT }), cell(wizard.pricesExcludeTax ? "Excl. tax" : "Tax status TBC", widths[5], { bold: true, fill: PALE })] }));
-  return { table: fixedTable(widths, [header, ...body]), complete, total };
+  if (!rows.length) body.push(tableRow({ children: [new TableCell({ columnSpan: 6, width: { size: TABLE_WIDTH, type: WidthType.DXA }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [paragraph("No equipment schedule rows are selected yet.", { colour: MUTED })] })] }));
+  return fixedTable(widths, [header, ...body]);
 }
 
 /**
- * The priced installation schedule: one line per thing the survey recorded, at
- * the quantity of links that need it. Rates are the rep's, filed by line id, so
- * a saved draft keeps them when the survey is edited elsewhere. An unpriced line
- * prints TBC and holds the total, exactly as an unpriced equipment row does.
+ * The installation scope schedule: one line per thing the survey recorded, at
+ * the quantity of links that need it.
  */
-function installationTable(schedule: InstallationSchedule, wizard: ProposalWizardDraft) {
+function installationTable(schedule: InstallationSchedule) {
   // The headings are the shared list's, and the widths are keyed by the column
   // rather than by a label typed here, so a renamed heading cannot quietly fall
   // back to the default column width.
-  const columns = ["service", "detail", "quantity", "unitRate", "lineTotal", "links"] as const;
+  const columns = ["service", "detail", "quantity", "links"] as const;
   const headers = installationTableHeaders(columns);
-  const baseWidths: Record<(typeof columns)[number], number> = { service: 1500, detail: 2400, quantity: 650, unitRate: 1350, lineTotal: 1450, links: 2010 };
+  const baseWidths: Record<(typeof columns)[number], number> = { service: 1800, detail: 3000, quantity: 700, links: 3860 };
   const widths = fittedWidths(headers, Object.fromEntries(columns.map((column) => [INSTALLATION_TABLE_COLUMN_LABELS[column], baseWidths[column]])));
   const header = tableRow({ tableHeader: true, children: headers.map((value, index) => cell(value, widths[index], { bold: true, fill: PALE })) });
-  const { lines, complete, total } = installationTotals(schedule, wizard.installationUnitPrices);
-  const body = lines.map((line) => {
+  const body = schedule.lines.map((line) => {
     const values = [
       installationCategoryLabel(line.category),
       line.detail,
       String(line.quantity),
-      line.unit === null ? "TBC" : money(line.unit, wizard.currency),
-      line.total === null ? "TBC" : money(line.total, wizard.currency),
       line.links.join(", "),
     ];
-    return tableRow({ children: values.map((value, index) => cell(value, widths[index], { align: index === 2 || index === 3 || index === 4 ? AlignmentType.RIGHT : undefined })) });
+    return tableRow({ children: values.map((value, index) => cell(value, widths[index], { align: index === 2 ? AlignmentType.RIGHT : undefined })) });
   });
-  body.push(tableRow({ children: [
-    cell("Installation and services total", widths[0] + widths[1] + widths[2], { bold: true, fill: PALE }),
-    cell(complete ? money(total, wizard.currency) : "TBC — pricing incomplete", widths[3] + widths[4], { bold: true, fill: PALE, align: AlignmentType.RIGHT }),
-    cell(wizard.pricesExcludeTax ? "Excl. tax" : "Tax status TBC", widths[5], { bold: true, fill: PALE }),
-  ] }));
-  return { table: fixedTable(widths, [header, ...body]), complete, total };
+  const totalQuantity = schedule.lines.reduce((sum, line) => sum + line.quantity, 0);
+  const totals = tableRow({ children: [
+    new TableCell({
+      columnSpan: 2,
+      width: { size: widths[0] + widths[1], type: WidthType.DXA },
+      margins: { top: 80, bottom: 80, left: 120, right: 120 },
+      children: [paragraph("Installation schedule totals", { bold: true, colour: NAVY })],
+    }),
+    cell(String(totalQuantity), widths[2], { bold: true, align: AlignmentType.RIGHT }),
+    cell(`${schedule.lines.length} line items`, widths[3], { bold: true }),
+  ] });
+  return fixedTable(widths, [header, ...body, totals]);
 }
 
 function pipeTable(value: string, headers: string[], widths: number[]) {
@@ -325,10 +312,10 @@ function scopeTable(proposal: StoredProjectProposal) {
   const widths = [1550, 3370, 850, 2090, 1500];
   const items = proposal.applicationProposal?.thirdPartyScope ?? [];
   return fixedTable(widths, [
-    tableRow({ tableHeader: true, children: ["Discipline", "Scope / allowance", "Qty", "Responsibility", "Price / allowance"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
+    tableRow({ tableHeader: true, children: ["Discipline", "Scope", "Qty", "Responsibility", "Status"].map((title, index) => cell(title, widths[index], { bold: true, fill: PALE })) }),
     ...(items.length ? items : [{ category: "Third-party scope", description: "Confirm all non-WyreStorm equipment and delivery services.", quantity: 1, responsibility: "Integrator / customer", status: "validate" as const, notes: "" }]).map((item) => tableRow({ children: [
       cell(item.category, widths[0]), cell(`${item.description}${item.notes ? ` — ${item.notes}` : ""} — Scope status: ${item.status}`, widths[1]),
-      cell(String(item.quantity), widths[2], { align: AlignmentType.RIGHT }), cell(item.responsibility, widths[3]), cell("TBC", widths[4]),
+      cell(String(item.quantity), widths[2], { align: AlignmentType.RIGHT }), cell(item.responsibility, widths[3]), cell(item.status, widths[4]),
     ] })),
   ]);
 }
@@ -418,7 +405,7 @@ function unresolvedDiscoveryContent(proposal: StoredProjectProposal): Array<Para
     ] })),
   ]);
   return [
-    paragraph(`The following ${items.length} discovery item${items.length === 1 ? "" : "s"} could not be fully verified during the discovery conversation. Each must be confirmed with the customer before final design sign-off and commercial quotation. Items marked BLOCKER must be resolved before any commitment is made.`, { justified: true }),
+    paragraph(`The following ${items.length} discovery item${items.length === 1 ? "" : "s"} could not be fully verified during the discovery conversation. Confirm each with the customer before final design sign-off. Items marked BLOCKER must be resolved before the design is approved.`, { justified: true }),
     table,
   ];
 }
@@ -428,7 +415,7 @@ function cableScheduleContent(proposal: StoredProjectProposal, bomRows: SalesBom
   try {
     const products = proposal.products ?? [];
     const bomRowsForSchematic = (bomRows.length ? bomRows : proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
-    const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic);
+    const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic, proposal.displayPlan);
     const schematicModel = buildWingmanSchematic(brief);
     const cableRows = buildNativeCableSchedule(schematicModel);
     if (!cableRows.length) return [];
@@ -787,11 +774,11 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   const config = getProposalDocumentTypeConfig(wizard.documentType);
   const displaySchedule = buildDisplaySchedule(proposal, bomRows, videoWall);
   const company = proposal.companyName || "WyreStorm";
-  const equipment = equipmentTable(bomRows, wizard);
-  // Installation comes from the same saved wall the display schedule quotes, so
-  // the priced lines and the install detail table cannot list different scope.
+  const equipment = equipmentTable(bomRows);
+  // Installation comes from the same saved wall as the display schedule, so
+  // the scope and install detail table cannot list different survey detail.
   const installationSchedule = buildInstallationSchedule(wallRequirementsFromSummary(videoWall));
-  const installation = installationSchedule ? installationTable(installationSchedule, wizard) : null;
+  const installation = installationSchedule ? installationTable(installationSchedule) : null;
   const risks = [...(proposal.governanceWarnings ?? []), ...(proposal.validationNotes ?? [])];
   const application = proposal.applicationProposal;
   const story = proposalSolutionStory(proposal, bomRows);
@@ -805,7 +792,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     heading("Document control", 2),
     fixedTable([3000, 6360], [
       tableRow({ children: [cell("Reference", 3000, { bold: true }), cell(wizard.proposalReference || "Not assigned", 6360)] }),
-      tableRow({ children: [cell("Status", 3000, { bold: true }), cell("Draft proposal — subject to design and commercial approval", 6360)] }),
+      tableRow({ children: [cell("Status", 3000, { bold: true }), cell("Draft system proposal — subject to design review and technical validation", 6360)] }),
       tableRow({ children: [cell("Prepared by", 3000, { bold: true }), cell(wizard.preparedBy || company, 6360)] }),
       tableRow({ children: [cell("Issue date", 3000, { bold: true }), cell(wizard.proposalDate || "Not recorded", 6360)] }),
       tableRow({ children: [cell("Revision", 3000, { bold: true }), cell(wizard.updatedAt || proposal.updatedAt, 6360)] }),
@@ -850,8 +837,8 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   addPlannedSection("discovery-conversation", "Discovery Conversation", discoveryConversationContent(proposal));
   addPlannedSection("unresolved-discovery-items", "Unresolved Discovery Items", unresolvedDiscoveryContent(proposal));
   addPlannedSection("design-trace", "What You Asked For and How We Designed It", canonicalDesignContent(proposal));
-  addPlannedSection("proposed-solution-and-business-value", "Proposed Solution and Business Value", [paragraph(wizard.proposedSolution || "The proposed solution requires confirmation.", { justified: true }), bullet("A supportable architecture aligned to the stated operational requirement."), bullet("A controlled route from design approval to quotation, delivery and acceptance."), bullet("Clear ownership of equipment, services, dependencies and by-others scope.")]);
-  addPlannedSection("scope-of-work", "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is quoted."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
+  addPlannedSection("proposed-solution-and-business-value", "Proposed Solution and Business Value", [paragraph(wizard.proposedSolution || "The proposed solution requires confirmation.", { justified: true }), bullet("A supportable architecture aligned to the stated operational requirement."), bullet("A controlled route from design approval through delivery and acceptance."), bullet("Clear ownership of equipment, services, dependencies and by-others scope.")]);
+  addPlannedSection("scope-of-work", "Scope of Work", [heading("Included scope", 2), ...bulletLines(wizard.inclusions, "Supply of the WyreStorm equipment listed in this proposal."), heading("Delivery activities", 2), ...["Validate the final design and interfaces against site conditions.", "Supply and configure the listed WyreStorm hardware where expressly included.", "Complete functional testing and record acceptance results where commissioning is included."].map(bullet), heading("Not included / by others", 2), ...bulletLines(wizard.exclusions, "No exclusions have been recorded.")]);
   if (displaySchedule) {
     // The transport column only exists when a saved wall supplied the link
     // estimate; catalogue schedules keep their five-column table.
@@ -934,7 +921,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
         : []),
       paragraph(`Basis: ${displaySchedule.basis}`, { size: 18, colour: MUTED }),
       // The survey's installation detail prints with the schedule it describes,
-      // so the quote and the wall table cannot disagree about what is installed.
+      // so the system proposal and wall table cannot disagree about what is installed.
       ...(displaySchedule.install
         ? [
             heading("Installation Detail", 2),
@@ -947,23 +934,15 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
         : []),
     ]);
   }
-  addPlannedSection("equipment-and-pricing", "Equipment and Pricing", [
-    paragraph(equipment.complete ? `The equipment total is ${money(equipment.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.` : "COMMERCIAL HOLD: one or more equipment prices are missing. This draft must not be issued as an exact quotation until every TBC value is resolved.", { bold: true, colour: equipment.complete ? NAVY : "9B1C1C" }),
-    equipment.table,
-    paragraph("Pricing covers only the listed equipment. Services, third-party equipment, freight, taxes and by-others work are excluded unless expressly priced below.", { size: 18, colour: MUTED }),
+  addPlannedSection("equipment-schedule", "Equipment Schedule", [
+    paragraph("The following equipment, quantities and technical roles form the proposed system design. Validate selections against final site conditions before ordering.", { bold: true, colour: NAVY }),
+    equipment,
     ...(installation && installationSchedule ? [
-      paragraph("Installation and services", { bold: true, size: 26, colour: NAVY, after: 100 }),
+      paragraph("Installation scope", { bold: true, size: 26, colour: NAVY, after: 100 }),
       paragraph(installationSchedule.text, { size: 18, colour: MUTED }),
-      installation.table,
-      paragraph(
-        installation.complete
-          ? `The installation and services total is ${money(installation.total, wizard.currency)} ${wizard.pricesExcludeTax ? "excluding VAT / sales tax" : "with tax treatment to be confirmed"}.`
-          : "COMMERCIAL HOLD: one or more installation rates are missing. The installation lines above print TBC until every one is priced.",
-        { bold: true, colour: installation.complete ? NAVY : "9B1C1C" },
-      ),
+      installation,
     ] : []),
   ]);
-  addPlannedSection("services-and-commercial-allowances", "Services and Commercial Allowances", [pipeTable(wizard.servicesAndAllowances, ["Service / discipline", "Responsibility", "Commercial status"], [3900, 2460, 3000])]);
   addPlannedSection("complete-system-design", "Complete System Design and Responsibilities", [
     paragraph(CUSTOMER_COPY.scopeIntro),
     // The story is already customer copy; a draft field can still hold the
@@ -974,7 +953,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     ),
   ]);
   addPlannedSection("third-party-system-scope", "Third-Party System Scope", [
-    paragraph("WyreStorm is one part of the complete AV solution. The equipment and delivery tasks below still need an owner and a price before we can issue a final quotation. A TBC in this table is an allowance to be agreed, not a price included in the total.", { justified: true }),
+    paragraph("WyreStorm equipment is one part of the complete AV solution. This scope records complementary equipment and delivery responsibilities that must be coordinated with the proposed design.", { justified: true }),
     scopeTable(proposal),
   ]);
   addPlannedSection("technical-architecture", "Technical Architecture", [
@@ -993,10 +972,10 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
   addPlannedSection("product-specifications", "WyreStorm Product Specifications", productSpecificationContent(proposal));
   addPlannedSection("power-strategy", "Power Strategy", powerStrategyContent(proposal.products));
   if (application?.acceptanceCriteria.length) addPlannedSection("testing-and-acceptance", "Testing and Acceptance Criteria", application.acceptanceCriteria.map(bullet));
-  addPlannedSection("timeline-and-phases", "Timeline and Phases", [paragraph("The programme below is indicative and begins only after design approval, commercial acceptance, stock confirmation and site readiness.", { colour: MUTED }), pipeTable(wizard.implementationTimeline, ["Phase", "Activity", "Indicative timing", "Dependency / output"], [1250, 2500, 1500, 4110])]);
+  addPlannedSection("timeline-and-phases", "Timeline and Phases", [paragraph("The programme below is indicative and begins after design and scope approval, stock confirmation and site readiness.", { colour: MUTED }), pipeTable(wizard.implementationTimeline, ["Phase", "Activity", "Indicative timing", "Dependency / output"], [1250, 2500, 1500, 4110])]);
   addPlannedSection("responsibilities-and-dependencies", "Responsibilities and Dependencies", [heading("Responsibilities", 2), ...bulletLines(wizard.responsibilities, "Responsibilities are to be agreed."), heading("Dependencies", 2), ...bulletLines(wizard.dependencies, "Dependencies are to be confirmed.")]);
   addPlannedSection("assumptions-risks-and-exclusions", "Assumptions, Risks and Exclusions", [heading("Assumptions", 2), ...bulletLines(wizard.assumptions, "Final assumptions are to be confirmed."), heading("Open risks and validation", 2), ...(risks.length ? risks : ["Validate datasheets, lifecycle, accessories, firmware, regional suitability and site dependencies before order."]).map(bullet)]);
-  addPlannedSection("next-steps", "Next Steps", [...bulletLines(wizard.nextSteps, "Confirm the final design, equipment schedule, responsibilities and commercial quotation."), paragraph(`Quotation validity: ${wizard.validityDays} days from the proposal date, subject to stock and written confirmation.`, { colour: MUTED })]);
+  addPlannedSection("next-steps", "Next Steps", bulletLines(wizard.nextSteps, "Confirm the final design, equipment schedule, responsibilities and site dependencies."));
   // The appendix is the document's last content section and its own level's
   // only addition, so the legal notice below still closes every document.
   const appendix = buildDocumentAppendix(bomRows);
@@ -1005,7 +984,7 @@ export function buildProposalDocx(proposal: StoredProjectProposal, bomRows: Sale
     ...(appendix.rows.length ? [appendixTable(appendix)] : []),
   ]);
   addPlannedSection("best-efforts-disclaimer", "Best-Efforts Disclaimer", [
-    paragraph("This document has been prepared on a best-efforts basis to support your sales and design process. Product specifications, compatibility, lifecycle status, regional availability, pricing and lead times must be verified against the current WyreStorm documentation, datasheet or order desk before this document is used as a quotation, order or statement of capability. Competitor information is approximate and provided only to start a comparison conversation. Wingman provides no warranty and accepts no liability for any errors, omissions or reliance on the content of this document.", { justified: true, colour: MUTED }),
+    paragraph("This document has been prepared on a best-efforts basis to support your sales and design process. Product specifications, compatibility, lifecycle status, regional availability and lead times must be verified against the current WyreStorm documentation, datasheet or order desk before this document is used for a project decision. Competitor information is approximate and provided only to start a comparison conversation. Wingman provides no warranty and accepts no liability for any errors, omissions or reliance on the content of this document.", { justified: true, colour: MUTED }),
   ]);
 
   return new Document({
@@ -1057,7 +1036,7 @@ export async function exportProposalDocx(proposal: StoredProjectProposal, bomRow
   try {
     const products = proposal.products ?? [];
     const bomRowsForSchematic = (bomRows.length ? bomRows : proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
-    const brief = proposalSchematicBrief(wizard.projectName || proposal.title || "System schematic", products, bomRowsForSchematic);
+    const brief = proposalSchematicBrief(wizard.projectName || proposal.title || "System schematic", products, bomRowsForSchematic, proposal.displayPlan);
     const schematicModel = buildWingmanSchematic(brief);
     nativeSchematicDataUrl = createNativeSchematicDataUrl(schematicModel);
   } catch {

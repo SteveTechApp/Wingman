@@ -11,7 +11,7 @@ describe("room site conditions", () => {
       return <DiscoverySiteConditions answers={answers} onChange={updater => { onChange(updater); setAnswers(updater); }} />;
     }
     render(<Harness />);
-    fireEvent.click(screen.getAllByRole("button", { name: "Not known yet" })[0]);
+    fireEvent.click(screen.getByRole("group", { name: "Walls and fixing surfaces status" }).querySelector("button")!);
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange.mock.calls[0][0]({})).toEqual({ "site-wall-construction": DISCOVERY_SITE_UNKNOWN });
     expect(screen.getByLabelText("Walls and fixing surfaces")).toBeDisabled();

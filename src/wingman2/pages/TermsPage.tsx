@@ -10,7 +10,7 @@ const termsSections = [
   {
     id: "verify-before-quote",
     heading: "You remain responsible for the quote",
-    body: "Before any product, comparison or proposal is issued to a customer, you must verify the governing specification, compatibility, lifecycle status, regional availability, pricing and lead time against the current WyreStorm documentation, datasheet or order desk. Wingman cannot see your live stock, your customer's installed infrastructure or the final installation conditions.",
+    body: "Before any product, comparison or proposal is issued to a customer, you must verify the governing specification, compatibility, lifecycle status, regional availability and lead time against the current WyreStorm documentation, datasheet or order desk. Wingman cannot see your live stock, your customer's installed infrastructure or the final installation conditions.",
   },
   {
     id: "data-accuracy",
@@ -25,7 +25,7 @@ const termsSections = [
   {
     id: "generated-copy",
     heading: "Generated copy needs your review",
-    body: "Customer-facing wording produced by Wingman is drafted to sound commercially safe, but only you know the specific account, the customer's situation and the commitments that have already been made. Review all generated copy before it is sent, and do not send anything that overstates capability, availability or price.",
+    body: "Customer-facing wording produced by Wingman is drafted to sound appropriate for a customer, but only you know the specific account, the customer's situation and the commitments that have already been made. Review all generated copy before it is sent, and do not send anything that overstates capability or availability.",
   },
   {
     id: "no-liability",

@@ -83,7 +83,7 @@ const APPENDIX_HEADING = "Appendix — Equipment Evidence and Verification";
 const DECISION_HEADINGS = [
   "Executive Summary",
   "Unresolved Discovery Items",
-  "Equipment and Pricing",
+  "Equipment Schedule",
   "Assumptions, Risks and Exclusions",
   "Next Steps",
 ];
@@ -96,8 +96,8 @@ describe("the document detail level decides which sections print", () => {
       "executive-summary", "room-at-a-glance", "solution-overview", "practical-operation",
       "commercial-benefits", "market-and-application-story", "client-objectives",
       "unresolved-discovery-items", "options", "proposed-solution-and-business-value",
-      "scope-of-work", "display-schedule", "equipment-and-pricing",
-      "services-and-commercial-allowances", "complete-system-design", "third-party-system-scope",
+      "scope-of-work", "display-schedule", "equipment-schedule",
+      "complete-system-design", "third-party-system-scope",
       "timeline-and-phases", "testing-and-acceptance", "responsibilities-and-dependencies",
       "assumptions-risks-and-exclusions", "next-steps", "best-efforts-disclaimer",
       "discovery-conversation", "design-trace", "technical-architecture", "cable-schedule",

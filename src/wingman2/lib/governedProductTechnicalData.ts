@@ -958,7 +958,7 @@ export function resolveProductTechnicalData(
     dependencies,
     compatibleFamilies,
     checks: unique([
-      ...missingFields.map((field) => `Confirm ${field} from an official product source before quotation.`),
+      ...missingFields.map((field) => `Confirm ${field} from an official product source before the proposal is issued.`),
       ...(base?.checks ?? []),
     ]),
     evidence: evidenceState.labels,

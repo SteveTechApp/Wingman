@@ -723,7 +723,7 @@ export function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate 
       candidate.gaps[0] ||
       candidate.unknowns[0] ||
       candidate.checks[0] ||
-      "Confirm lifecycle, accessories and complete signal-path compatibility before quotation.",
+      "Confirm lifecycle, accessories and complete signal-path compatibility before the proposal is issued.",
   );
 
   return (

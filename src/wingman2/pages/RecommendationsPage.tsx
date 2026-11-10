@@ -9,6 +9,7 @@ import {
 } from "./recommendations/RecommendationHandoffStage";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { refreshDesignProject } from "../data/projectStore";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import {
@@ -155,7 +156,9 @@ function missingDetailDefinition(item: string): MissingDetailDefinition {
 // drop from the room model. Shared by the two rail removal actions.
 const roomModelFieldByQuestion: Record<string, string[]> = {
   displays: ["displayCount"],
-  "display-behaviour": ["displayBehaviour", "displayArrangement", "displays"],
+  "primary-display": ["primaryDisplayArrangement"],
+  "repeater-displays": ["repeaterDisplayCount"],
+  "display-behaviour": ["displayBehaviour", "displayArrangement", "displays", "repeaterDisplayPurpose"],
   "source-count": ["sourceCount"],
   "source-connection": ["sourceProfile", "sourceConnections"],
   "usb-transport": ["usbTransport", "usbNeeds", "usbOwnership"],
@@ -390,16 +393,22 @@ export function RecommendationsPage() {
     );
   }
 
-  function addWholeSystemToProject() {
-    if (selectionBlockedByStrand) return;
+  function addWholeSystemToProject(): boolean {
+    if (selectionBlockedByStrand || !activeProject) return false;
     const omitted = new Set((activeProject?.productOmissions ?? []).map((entry) => entry.sku.trim().toUpperCase()));
     // A role the rep has already filled keeps their product: the batch must not
     // add the engine's best fit on top of a deliberate choice.
     const filled = systemSlots.filter((entry) => entry.candidates.length && !chosenFor(entry.slot, entry.candidates) && !omitted.has(entry.candidates[0].sku.trim().toUpperCase()));
 
     if (!filled.length) {
-      setMessage("No system slots could be filled from the catalogue yet.");
-      return;
+      const alreadySelected = systemSlots.some((entry) => entry.slot.supply === "wyrestorm" && chosenFor(entry.slot, entry.candidates));
+      if (alreadySelected) {
+        refreshDesignProject(activeProject.id);
+        setMessage("The selected system is already in the project. Its design record is up to date.");
+        return true;
+      }
+      setMessage("No system slots could be filled from the catalogue yet. Resolve a product role before building the proposal.");
+      return false;
     }
 
     const selectionsBySku = new Map<string, {
@@ -448,6 +457,7 @@ export function RecommendationsPage() {
     }
 
     const skipped = unfilledSlots.length;
+    refreshDesignProject(activeProject.id);
     setMessage(
       saved
         ? `${saved} product${saved === 1 ? "" : "s"} added to ${projectName}.${
@@ -455,6 +465,15 @@ export function RecommendationsPage() {
           }`
         : "The system could not be added to a project.",
     );
+    return saved > 0;
+  }
+
+  function buildProposalDraft() {
+    if (!activeProject) {
+      setMessage("Save the Discovery brief to a project before building its proposal.");
+      return;
+    }
+    if (addWholeSystemToProject()) navigate(routeCatalogByKey.proposal.path);
   }
 
   const roomModel = useMemo(() => brief?.roomModel ?? {}, [brief]);
@@ -1562,6 +1581,7 @@ export function RecommendationsPage() {
               unfilledCount={unfilledSlots.length}
               onReviewSystem={() => openStage("build")}
               onAddWholeSystem={addWholeSystemToProject}
+              onBuildProposal={buildProposalDraft}
             />
           ) : null}
 

@@ -106,7 +106,7 @@ const HDBT_RECEIVER_RULE = "Any HDBaseT receiver suited to the cable run will do
 
 const descriptions: Record<Exclude<RoomTransport, "hdbt">, string> = {
   apollo: "The laptop connects to the Apollo bar by USB-C; HDMI presentation also needs the documented USB host connection for conferencing. The bar feeds one display over HDMI and supplies the room camera, microphone and loudspeakers. Calls run on the connected computer.",
-  matrix4: "An MX-0404-HDMI routes up to four HDMI sources independently to four output ports. Each scheduled display has a complete EX-70-H2 transmitter/receiver set, dedicated category run and short HDMI tails. Design the installed path at 1080p60 with runs at or below 35m; verify the exact resolution and cable limit before a higher-format quotation. USB, microphone and control paths are separate from the video matrix.",
+  matrix4: "An MX-0404-HDMI routes up to four HDMI sources independently to four output ports. Each scheduled display has a complete EX-70-H2 transmitter/receiver set, dedicated category run and short HDMI tails. Design the installed path at 1080p60 with runs at or below 35m; verify the exact resolution and cable limit before approving a higher-format design. USB, microphone and control paths are separate from the video matrix.",
   matrix8: "An MX-0808-KIT-V2 routes up to eight HDMI sources to eight independent HDBaseT zones. Its eight receivers are included in the kit and are not purchased again. Each used zone gets a dedicated category run and HDMI tail, with a 35m maximum design allowance. Mirrored HDMI sockets are not extra independent routes. Confirm the required colour format; 4K60 4:4:4 is not the baseline for this kit.",
   hybrid: "One MX-1007-HYB serves the local room. Up to four display destinations use HDMI outputs with complete EX-70-H2 extender sets; any fifth and sixth destinations use the two native HDBaseT 3.0 outputs with RX3-100 receivers. Source devices present HDMI locally at the rack. The NetworkHD ports are unused in this base design. Audio and USB conferencing are separately scheduled and commissioned.",
   nhd100: "Each scheduled HDMI feed has one NHD-120-TX; each display has one NHD-120-RX. NHD-CTL-PRO-V2 manages routes on a dedicated, approved 1Gb multicast AV fabric. The content PCs/VMS outputs provide HDMI: raw CCTV or arbitrary IP streams cannot simply join the transport. Single-content outputs are the baseline; add a compatible multiview decoder only for an agreed window layout.",
@@ -165,7 +165,7 @@ function completeScope(d: RoomDeploymentDesign): TemplateBomRow[] {
   const add = (key: string, description: string, qty: number, notes: string, owner = "integrator") => {
     rows.push({
       ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes),
-      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before quotation.",
+      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before design sign-off.",
       owner, manufacturer: "", model: "",
     });
   };
@@ -225,7 +225,7 @@ function completionScope(d: RoomDeploymentDesign): { rows: TemplateBomRow[]; not
   const add = (key: string, description: string, qty: number, notes: string) => {
     rows.push({
       ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes),
-      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before quotation.",
+      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before design sign-off.",
       owner: "integrator", manufacturer: "", model: "",
     });
   };
@@ -283,7 +283,7 @@ function completionScope(d: RoomDeploymentDesign): { rows: TemplateBomRow[]; not
       notes.push({ label: "Reverberation target", description: `The design target is ${environment.rt60Target}. Acoustic treatment scope in this template exists to reach that measured target; verify after fit-out with the space furnished, because AEC and DSP shape the signal path but cannot shorten room reverberation.` });
     }
     if (environment.illuminationControls) {
-      add("lighting-interface", "Lighting/blind scene integration with the AV control system", 1, "One integration allowance: contact/driver interfaces, scene programming and commissioning with the lighting contractor. Confirm which trade owns dimming drivers before pricing.");
+      add("lighting-interface", "Lighting/blind scene integration with the AV control system", 1, "One integration allowance: contact/driver interfaces, scene programming and commissioning with the lighting contractor. Confirm which trade owns dimming drivers before design sign-off.");
     }
     if (environment.rackThermal && environment.rackThermal !== "passive") {
       notes.push({ label: "Rack thermal design", description: environment.rackThermal === "hvac-cooled"
@@ -295,7 +295,7 @@ function completionScope(d: RoomDeploymentDesign): { rows: TemplateBomRow[]; not
   const assurance = completion.assurance;
   if (assurance) {
     if (assurance.warrantyTier) {
-      notes.push({ label: "Warranty and support tier", description: `State ${warrantyLabels[assurance.warrantyTier]} for the WyreStorm core and the selected third-party lines. Support tier is a design decision that changes price and should be agreed with the client before quotation, not discovered at first fault.` });
+      notes.push({ label: "Warranty and support tier", description: `State ${warrantyLabels[assurance.warrantyTier]} for the WyreStorm core and the selected third-party lines. Agree the support tier with the client before handover so responsibilities are clear when a fault occurs.` });
     }
     if (assurance.monitoringContract && !(control?.monitoring === "24-7-noc")) {
       add("monitoring-noc", "Monitoring and response contract (NOC/SLA)", 1, "One contractual allowance: device health, licence expiry, alert routing, response times and escalation.");
@@ -370,7 +370,7 @@ export function createDeploymentTemplate(d: RoomDeploymentDesign): RoomTemplate 
         { label: "Customer decisions before order", description: story.customerDecisions.join(" ") },
       ] : []),
       { label: "Concept statement", description: statement }, { label: "Source schedule", description: schedule(d.sources) }, { label: "Output schedule", description: schedule(d.outputs) }, { label: "Audio experience and signal path", description: audioDesignNotes(d.audio) }, { label: "Architecture choice", description: d.rationale }, { label: "Alternative approach", description: d.alternative }, ...completion.notes],
-    assumptions: [d.space, d.construction, `Occupancy: ${d.occupancy}.`, `${sourceCount} physical video source positions and ${outputCount} physical outputs; spare product ports are not extra sources or displays.`, ...(outputCount > sourceCount ? [`Shared content is intentional: ${sourceCount} scheduled source feeds repeat across ${outputCount} displays; independent content requires additional sources.`] : []), "Required third-party rows are part of the complete system; supplier/model and measured allowances must be completed before pricing."],
+    assumptions: [d.space, d.construction, `Occupancy: ${d.occupancy}.`, `${sourceCount} physical video source positions and ${outputCount} physical outputs; spare product ports are not extra sources or displays.`, ...(outputCount > sourceCount ? [`Shared content is intentional: ${sourceCount} scheduled source feeds repeat across ${outputCount} displays; independent content requires additional sources.`] : []), "Required third-party rows are part of the complete system; supplier/model and measured scope must be completed before design sign-off."],
     validationItems: [...d.constraints, "Confirm dimensions, cable lengths, structure, sightlines, acoustics and mains provision by site survey.", "Replace third-party placeholders with supplier/model and confirm quantities, interfaces, licences and delivery ownership.", "Test the complete signal format, HDCP/EDID, audio, USB and control path before customer acceptance."],
     upgradePaths: [d.alternative, "Re-engineer endpoint, processing, cabling, power and control quantities when the source/output schedule changes."],
   };

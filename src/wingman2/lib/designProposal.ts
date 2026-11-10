@@ -13,7 +13,11 @@ const ROLE_DEFINITIONS: Array<{ role: StoredDesignRoleCoverage["role"]; label: s
   { role: "transport", label: "Signal transport", patterns: /transport|extend|hdbaset|fibre|fiber|cable|receiver|transmitter|encoder|decoder|rx\b|tx\b|networkhd/i },
   { role: "destination", label: "Displays and destinations", patterns: /display|projector|led|destination|output|receiver|decoder|rx\b|record/i },
   { role: "network", label: "Network infrastructure", patterns: /network|avoip|av over ip|networkhd|ethernet|switch/i },
-  { role: "usb", label: "USB and host ownership", patterns: /usb|byod|byom|host|kvm|camera/i },
+  // USB-C is a video input connector. A USB design role is required only for
+  // peripheral transport, host ownership, extension or KVM; treating every
+  // USB-C laptop connection as peripheral USB blocks ordinary presentation
+  // rooms that have explicitly said no USB transport is needed.
+  { role: "usb", label: "USB and host ownership", patterns: /\bUSB(?:\s+(?:host|device|peripheral|extension|[23](?:\.0|\.x)?|KVM))\b|BYOM|KVM|camera/i },
   { role: "audio", label: "Audio path", patterns: /audio|speaker|microphone|dante|aes67|amp|sound/i },
   { role: "control", label: "Control and user operation", patterns: /control|touch|preset|automation|remote/i },
   { role: "power", label: "Power strategy", patterns: /power|poe|poh|psu|watt/i },
@@ -59,7 +63,17 @@ function requirementsFrom(project: StoredProject): StoredDesignRequirementTrace[
     interpretation: item.state === "confirmed" ? `Confirmed requirement: ${item.value}` : `Wingman inferred: ${item.value}`,
     designConsequence: consequence(item.field, item.value), source: item.source, state: item.state, confidence: item.confidence,
   }));
-  if (explicit.length || evidence.length) return [...explicit, ...evidence];
+  const roomDecision = project.discoveryBrief?.roomDecision;
+  const roomDecisionRequirements = (roomDecision?.requirements ?? []).map((item, index) => ({
+    id: `room-decision-${item.key}-${index + 1}`,
+    customerStatement: `${item.label}: ${item.quantity}`,
+    interpretation: `Room decision for ${roomDecision?.roomType ?? "the room"}: ${item.because}`,
+    designConsequence: item.because,
+    source: "Room decision",
+    state: "inferred" as const,
+    confidence: "medium" as const,
+  }));
+  if (explicit.length || evidence.length || roomDecisionRequirements.length) return [...explicit, ...evidence, ...roomDecisionRequirements];
   return (project.discoveryBrief?.discoveryConversation ?? []).map((item) => ({
     id: item.stepId, customerStatement: item.note || `${item.question}: ${item.answer}`,
     interpretation: `${item.confirmed ? "Confirmed" : "Interpreted"}: ${item.answer}`,
@@ -106,8 +120,18 @@ export function compileDesignProposal(project: StoredProject, compiledAt = new D
   ]);
   const warnings = unique([...unresolved.filter((item) => item.state === "inferred").map((item) => `Confirm Wingman’s interpretation of ${item.customerStatement}.`), ...(project.proposal?.governanceWarnings ?? []), ...(project.proposal?.validationNotes ?? [])]);
   const customerRequirement = requirements.map((item) => item.customerStatement).join(" · ") || "Customer requirement not captured.";
-  const architecture = text(project.proposal?.salesContent?.architecture || project.proposal?.applicationProposal?.solutionOverview, text(project.discoveryBrief?.inference?.architecture, "Architecture requires confirmation."));
-  const draft: StoredDesignProposalRevision = { schemaVersion: 1, revisionId: "", contentHash: "", projectId: project.id, projectName: project.name, compiledAt, customerRequirement, interpretedRequirement: requirements.map((item) => item.interpretation).join(" · ") || "Wingman cannot interpret the requirement yet.", architecture, requirements, roleCoverage: coverage, productOverviews: products, assumptions: unique(project.proposal?.assumptions ?? []), blockers, warnings, canIssue: blockers.length === 0 };
+  const roomDecision = project.discoveryBrief?.roomDecision;
+  const decisionArchitecture = roomDecision ? `${roomDecision.roomType}. ${roomDecision.summary}` : "";
+  const architecture = text(project.proposal?.salesContent?.architecture || project.proposal?.applicationProposal?.solutionOverview, text(decisionArchitecture || project.discoveryBrief?.inference?.architecture, "Architecture requires confirmation."));
+  const decisionAssumptions = [
+    ...(roomDecision?.assumptions ?? []),
+    ...(roomDecision?.changesIf ?? []).map((item) => `Revisit the room decision if: ${item}`),
+  ];
+  const decisionWarnings = [
+    ...(roomDecision?.verifyOnSite ?? []).map((item) => `Confirm on site: ${item}`),
+    ...((roomDecision?.unresolved.length ?? 0) > 0 ? [`Room type still needs confirmation between: ${roomDecision?.unresolved.join(", ")}.`] : []),
+  ];
+  const draft: StoredDesignProposalRevision = { schemaVersion: 1, revisionId: "", contentHash: "", projectId: project.id, projectName: project.name, compiledAt, customerRequirement, interpretedRequirement: requirements.map((item) => item.interpretation).join(" · ") || "Wingman cannot interpret the requirement yet.", architecture, requirements, roleCoverage: coverage, productOverviews: products, assumptions: unique([...(project.proposal?.assumptions ?? []), ...decisionAssumptions]), blockers, warnings: unique([...warnings, ...decisionWarnings]), canIssue: blockers.length === 0 };
   const contentHash = designProposalHash(project.proposal?.salesContent ? { ...draft, salesContent: project.proposal.salesContent } : draft);
   return { ...draft, revisionId: contentHash, contentHash };
 }

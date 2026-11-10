@@ -40,7 +40,7 @@ import { countPdfPages } from "../tools/lib/pdf-pages.mjs";
 
 const ROW_COUNT = 100;
 const SCHEDULE_HEADER = "SCHEDULEHEADER";
-const TOTAL = `Schedule total: £${ROW_COUNT * 10}.00 · ${ROW_COUNT} items · Excl. tax`;
+const TOTAL = `${ROW_COUNT} items`;
 
 interface PrintedPage {
   header: string;
@@ -53,28 +53,28 @@ for (const leadMm of [0, 210, 230]) {
     const fixture = process.env.WINGMAN_PRINT_FIXTURE || path.resolve("reports/export-review/proposal.html");
     expect(fs.existsSync(fixture), "Generate the actual proposal export fixture first").toBe(true);
     await page.setContent(fs.readFileSync(fixture, "utf8"), { waitUntil: "load" });
-    // The export marks the schedule with `data-priced-schedule` — the attribute its
+    // The export marks the equipment schedule with `data-proposal-schedule` — the attribute its
     // own script paginates — rather than with a class of its own.
     await page.evaluate(({ height, header, total, rows: count }) => {
-      const table = document.querySelector<HTMLTableElement>("table[data-priced-schedule]");
+      const table = document.querySelector<HTMLTableElement>("table[data-proposal-schedule]");
       if (!table) throw new Error("Equipment schedule footer missing from the actual export");
       const headerCell = table.querySelector("thead th");
       if (!headerCell) throw new Error("Equipment header missing");
       headerCell.textContent = header;
       const template = table.tBodies[0].rows[0];
-      if (!template) throw new Error("Priced fixture has no rows");
+      if (!template) throw new Error("Equipment schedule fixture has no rows");
       const rows = Array.from({ length: count }, (_, index) => {
         const row = template.cloneNode(true) as HTMLTableRowElement;
         const values = [
-          `ROW-${String(index + 1).padStart(3, "0")}`,
+          String(index + 1),
+          `SKU-${String(index + 1).padStart(3, "0")}`,
           `ROWSTART${index} Equipment ${"with installation detail ".repeat(index % 3 + 1)}ROWEND${index}`,
+          "Display receiver",
           "1",
-          "£10.00",
-          "£10.00",
-          `£${(index + 1) * 10}.00`,
+          "Required",
+          "Confirmed for this system design",
         ];
         [...row.cells].forEach((cell, column) => { cell.textContent = values[column]; });
-        row.dataset.runningFooter = `Running priced total: £${(index + 1) * 10}.00 · ${index + 1} items · Excl. tax`;
         return row;
       });
       table.tBodies[0].replaceChildren(...rows);
@@ -90,7 +90,7 @@ for (const leadMm of [0, 210, 230]) {
     // Nothing is paginated on screen: the chunks are the script's answer to a
     // print, so a build that left them standing would print the schedule twice.
     await expect(page.locator(".wm-schedule-print-page")).toHaveCount(0);
-    await expect(page.locator("table[data-priced-schedule] tbody tr")).toHaveCount(ROW_COUNT);
+    await expect(page.locator("table[data-proposal-schedule] tbody tr")).toHaveCount(ROW_COUNT);
 
     // The script listens for `beforeprint` itself, which `page.pdf()` does not
     // fire from the page's side, so the walk dispatches it and then reads what the
@@ -109,7 +109,7 @@ for (const leadMm of [0, 210, 230]) {
           rows: [...(table?.tBodies[0]?.rows ?? [])].map((row) => ({
             item: text(row.cells[0]),
             description: text(row.cells[1]),
-            runningFooter: (row as HTMLTableRowElement).dataset.runningFooter ?? "",
+            runningFooter: "",
           })),
         };
       });
@@ -141,16 +141,12 @@ for (const leadMm of [0, 210, 230]) {
       const last = printed.rows[printed.rows.length - 1];
       const lastOrdinal = Number(last.item.slice(4));
       if (lastOrdinal === ROW_COUNT) {
-        expect(printed.footer.toLowerCase(), `${label} ends on the schedule's last line and does not print the order total`).toContain("schedule total:");
-        expect(printed.footer).toContain(`£${ROW_COUNT * 10}.00 · ${ROW_COUNT} items`);
+        expect(printed.footer, `${label} ends on the schedule's last line and does not print the item count`).toBe(TOTAL);
       } else {
         expect(
-          printed.footer.toLowerCase(),
-          `${label} prints a footer that is not the running total of the line it ends on (${last.item})`,
-        ).toContain("running priced total:");
-        // Derived from the printed line rather than the fixture, so a footer copied
-        // from an earlier page fails even if the fixture's own text moved.
-        expect(printed.footer).toContain(`£${lastOrdinal * 10}.00 · ${lastOrdinal} items`);
+          printed.footer,
+          `${label} prints a range that does not end on the last item it contains (${last.item})`,
+        ).toContain(`–${lastOrdinal} of ${ROW_COUNT}`);
       }
     }
 

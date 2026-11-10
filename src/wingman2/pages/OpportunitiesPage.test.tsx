@@ -72,8 +72,8 @@ describe("Focused and Expert room workflows", () => {
     fireEvent.click(screen.getByRole("radio", { name: "Share a laptop and present to the others in the room" }));
     fireEvent.click(screen.getByRole("radio", { name: "1–4 people" }));
     fireEvent.click(screen.getByRole("button", { name: /Work out the room/ }));
-    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
+    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
     fireEvent.click(screen.getByRole("button", { name: /Take this into the discovery brief/ }));
     // The brief is addressed as ?interview=1 on this same page, so what is on
     // screen has to follow the address rather than the mount it arrived with.

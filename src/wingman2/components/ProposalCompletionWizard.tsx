@@ -47,16 +47,7 @@ import { runProposalExport, type ProposalExportContext } from "../lib/proposalWi
 import { updateSavedWallRequirements } from "../lib/savedWallUpdates";
 import { wallRequirementsFromSummary } from "../lib/videowallOptions";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../lib/wallSurvey";
-import { buildInstallationSchedule, installationTotals } from "../lib/installationSchedule";
-import { seedInstallationRates, type InstallationRateCard } from "../lib/installationRateCard";
-import {
-  saveInstallationRateCard,
-  useInstallationRateCard,
-  useInstallationRateCardSeed,
-} from "../data/installationRateCard";
-import { ProposalReadinessList } from "./ProposalReadinessList";
-import { ProposalBomPricing } from "./ProposalBomPricing";
-import { ProposalInstallationPricing } from "./ProposalInstallationPricing";
+import { buildInstallationSchedule } from "../lib/installationSchedule";
 import { wallTransportPlan, wallTransportRequirements } from "../lib/videowallTransport";
 import { servedDisplayRunMetres } from "../lib/hdbtDisplayReceiver";
 import { displayRunProjectFix } from "../lib/displayRunFix";
@@ -95,9 +86,48 @@ const steps = [
   "Customer and project",
   "Requirements review",
   "Proposed solution",
-  "Commercial and delivery",
+  "Scope and delivery",
   "Review and export",
 ];
+
+const SITE_CONDITION_LABELS: Record<string, string> = {
+  "site-overall-construction": "Overall construction",
+  "site-room-structure": "Room structure and fixing support",
+  "site-floor-type": "Floor type",
+  "site-ceiling-type": "Ceiling type",
+  "site-wall-construction": "Wall construction and fixing surfaces",
+  "site-ceiling-construction": "Ceiling construction and overhead access",
+  "site-containment-type": "Containment",
+  "site-cable-route": "Cable routes",
+  "site-power-rack": "Power and equipment space",
+  "site-lighting-acoustics": "Lighting, noise and acoustics",
+  "site-access-constraints": "Access and site restrictions",
+};
+
+function discoveryProposalFacts(project: StoredProject): string[] {
+  const brief = project.discoveryBrief;
+  const room = brief?.roomModel ?? {};
+  const siteConditions = room.siteConditions && typeof room.siteConditions === "object"
+    ? room.siteConditions as Record<string, unknown>
+    : {};
+  const decision = brief?.roomDecision;
+  return [
+    room.roomDimensions ? `Room dimensions (L × W × H): ${asText(room.roomDimensions)}` : "",
+    room.roomOccupancy ? `Expected occupancy: ${asText(room.roomOccupancy)}` : "",
+    room.primaryDisplayArrangement ? `Primary display arrangement: ${asText(room.primaryDisplayArrangement)}` : "",
+    room.displayCount ? `Total video feed endpoints: ${asText(room.displayCount)}` : "",
+    room.repeaterDisplayCount ? `Repeater screen count: ${asText(room.repeaterDisplayCount)}` : "",
+    ...(Array.isArray(room.repeaterDisplayPurpose) ? room.repeaterDisplayPurpose.map((item) => `Repeater purpose: ${asText(item)}`) : []),
+    room.connectionSummary ? `Captured signal paths: ${asText(room.connectionSummary)}` : "",
+    ...(Array.isArray(room.equipmentSchedule) ? room.equipmentSchedule.map((item) => `Discovery equipment: ${asText(item)}`) : []),
+    ...Object.entries(SITE_CONDITION_LABELS).flatMap(([key, label]) => siteConditions[key] ? [`${label}: ${asText(siteConditions[key])}`] : []),
+    ...(decision ? [`Room decision: ${decision.roomType} — ${decision.summary}`] : []),
+    ...(decision?.requirements ?? []).map((item) => `${item.label}: ${item.quantity}. ${item.because}`),
+    ...(decision?.verifyOnSite ?? []).map((item) => `Site check: ${item}`),
+    ...(decision?.assumptions ?? []).map((item) => `Assumption: ${item}`),
+    ...(decision?.changesIf ?? []).map((item) => `Revisit the room decision if: ${item}`),
+  ].filter(Boolean);
+}
 
 export function ProposalCompletionWizard() {
   const { activeProject: project, projects } = useProjectStore();
@@ -279,14 +309,12 @@ function ProposalCompletionWizardContent({
         proposalDefaults.customerObjectives = project.proposal.salesContent.objectives;
         proposalDefaults.externalScope = project.proposal.salesContent.externalScope;
       }
-      if (project.proposal?.pricing) {
-        Object.assign(proposalDefaults, project.proposal.pricing);
-      }
       const scope = project.proposal?.applicationProposal?.thirdPartyScope ?? [];
       if (scope.length) {
-        proposalDefaults.servicesAndAllowances = scope
-          .map((item) => `${item.category} | ${item.responsibility} | ${item.status} — ${item.description}`)
-          .join("\n");
+        proposalDefaults.externalScope = [
+          proposalDefaults.externalScope,
+          ...scope.map((item) => `${item.category} | ${item.responsibility} | ${item.status} — ${item.description}`),
+        ].filter(Boolean).join("\n");
       }
       return proposalDefaults;
     },
@@ -315,7 +343,6 @@ function ProposalCompletionWizardContent({
       project.name,
       project.owner,
       project.proposal?.salesContent,
-      project.proposal?.pricing,
       project.proposal?.summary,
       project.proposal?.applicationProposal?.solutionOverview,
       project.proposal?.applicationProposal?.executiveSummary,
@@ -328,18 +355,6 @@ function ProposalCompletionWizardContent({
   const [draft, setDraft] = useState<ProposalWizardDraft>(() =>
     loadProposalWizardDraft(project.id, defaults),
   );
-  // The card is the starting point, not the proposal's prices: it fills the
-  // lines this draft has not reached and never refills a cell the rep cleared,
-  // which is how a price typed for this job stays distinguishable from a line
-  // left out on purpose.
-  const rateCardState = useInstallationRateCard();
-  const seedRateCard = useCallback((card: InstallationRateCard) => {
-    setDraft((current) => ({
-      ...current,
-      installationUnitPrices: seedInstallationRates(card, current.installationUnitPrices),
-    }));
-  }, []);
-  useInstallationRateCardSeed(seedRateCard);
   const [exportMessage, setExportMessage] = useState("");
   const [feedbackRating, setFeedbackRating] = useState<StoredRecommendationFeedback["rating"] | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -376,29 +391,14 @@ function ProposalCompletionWizardContent({
     [baseBomRows, draft.bomQuantities],
   );
 
-  // The survey's install detail is the installation scope the customer is
-  // buying, so it is priced beside the equipment instead of typed as free text.
+  // Keep surveyed installation scope with the proposal schedule.
   const installation = useMemo(
     () => buildInstallationSchedule(wallTransportRequirements(wallRequirementsFromSummary(project.videowall ?? null))),
     [project.videowall],
   );
-  const installationPricing = useMemo(
-    () => (installation ? installationTotals(installation, draft.installationUnitPrices) : null),
-    [installation, draft.installationUnitPrices],
-  );
-  // Pricing is complete only when every line the document prints carries a
-  // rate: an unpriced installation line holds the commercial section just as an
-  // unpriced equipment row does.
-  const commercialPricingComplete =
-    bomRows.length > 0 &&
-    bomRows.every((row) => {
-      const value = Number(draft.bomUnitPrices[row.sku]);
-      return Number.isFinite(value) && value >= 0;
-    }) &&
-    (installationPricing?.complete ?? true);
 
-  const applicationProposal = useMemo(
-    () => project.proposal?.applicationProposal ?? compileProjectApplicationProposal({
+  const applicationProposal = useMemo(() => {
+    const base = project.proposal?.applicationProposal ?? compileProjectApplicationProposal({
       vertical: asText(project.discoveryBrief?.roomModel?.vertical) || "Commercial AV",
       application: discovery.projectTitle,
       summary: draft.executiveSummary || discovery.summary,
@@ -407,9 +407,10 @@ function ProposalCompletionWizardContent({
       bomRows,
       assumptions: linesFromText(draft.assumptions),
       audioDesign: project.discoveryBrief?.roomModel?.audioDesign,
-    }),
-    [bomRows, discovery.architecture, discovery.projectTitle, discovery.summary, draft.architectureNarrative, draft.assumptions, draft.executiveSummary, project.discoveryBrief?.roomModel?.vertical, project.discoveryBrief?.roomModel?.audioDesign, project.proposal?.applicationProposal, selectedProducts],
-  );
+    });
+    const technicalFacts = Array.from(new Set([...base.technicalFacts, ...discoveryProposalFacts(project)]));
+    return { ...base, technicalFacts };
+  }, [bomRows, discovery.architecture, discovery.projectTitle, discovery.summary, draft.architectureNarrative, draft.assumptions, draft.executiveSummary, project.discoveryBrief, project.proposal?.applicationProposal, selectedProducts]);
 
   const discoveryPercent = Number(
     project.discoveryBrief?.capturedPercent ??
@@ -432,11 +433,9 @@ function ProposalCompletionWizardContent({
         continueWithoutBom: draft.continueWithoutBom,
         reviewConfirmed: draft.reviewConfirmed,
         technicalBlockerCount: salesReadiness.assurance.blockers.length,
-        commercialPricingComplete,
       }),
     [
       bomRows.length,
-      commercialPricingComplete,
       discoveryPercent,
       draft.architectureNarrative,
       draft.continueWithoutBom,
@@ -494,14 +493,6 @@ function ProposalCompletionWizardContent({
       // A project saved from a room carried in spans records the span, so the
       // wizard measures the receiver against the run it actually serves.
       displayRunMetres: servedDisplayRunMetres(project.discoveryBrief?.roomModel),
-      // A rate still holding the card's number on a quote priced in another
-      // currency is named before the document leaves — as a warning, since the
-      // rep may hold the card's figure deliberately.
-      pricing: {
-        currency: draft.currency,
-        rateCard: rateCardState.card,
-        installationUnitPrices: draft.installationUnitPrices,
-      },
     }),
     [
       bomRows,
@@ -510,9 +501,6 @@ function ProposalCompletionWizardContent({
       selectedProducts,
       wallRequirements,
       project.discoveryBrief?.roomModel,
-      draft.currency,
-      draft.installationUnitPrices,
-      rateCardState.card,
     ],
   );
 
@@ -541,7 +529,7 @@ function ProposalCompletionWizardContent({
 
   // A dependency prompt has no catalogue part behind it, so the export gate is
   // where its question has to be answered: the rep records it as a documented
-  // dependency, and the quotation stops carrying a line nobody can price. Each
+  // dependency, and the proposal stops carrying an unsupported product line. Each
   // prompt is answered on its own, because they are separate scope decisions.
   const dependencyPrompts = pendingDependencyPrompts(salesReadiness.governedDependencies, project.unquotedDependencySkus);
   const dependencyScopeFixes = dependencyPrompts.length
@@ -587,18 +575,25 @@ function ProposalCompletionWizardContent({
       title:
         draft.projectName ||
         project.name,
-      pricing: {
-        currency: draft.currency,
-        pricesExcludeTax: draft.pricesExcludeTax,
-        bomUnitPrices: draft.bomUnitPrices,
-        installationUnitPrices: draft.installationUnitPrices,
-      },
       salesContent: { objectives: draft.customerObjectives, solutionOverview: draft.proposedSolution, architecture: draft.architectureNarrative, externalScope: draft.externalScope || "" },
       summary:
         draft.executiveSummary ||
         discovery.summary,
       sections: typeConfig.sections,
       products: selectedProducts,
+      displayPlan: {
+        primaryArrangement: asText(project.discoveryBrief?.roomModel?.primaryDisplayArrangement),
+        totalFeedCount: asText(project.discoveryBrief?.roomModel?.displayCount),
+        repeaterCount: asText(project.discoveryBrief?.roomModel?.repeaterDisplayCount),
+        repeaterPurpose: Array.isArray(project.discoveryBrief?.roomModel?.repeaterDisplayPurpose)
+          ? project.discoveryBrief.roomModel.repeaterDisplayPurpose.map(asText)
+          : [],
+        behaviour: Array.isArray(project.discoveryBrief?.roomModel?.displayBehaviour)
+          ? project.discoveryBrief.roomModel.displayBehaviour.map(asText)
+          : project.discoveryBrief?.roomModel?.displayBehaviour
+            ? [asText(project.discoveryBrief.roomModel.displayBehaviour)]
+            : [],
+      },
       productFamilyScores: familyScores,
       assumptions: linesFromText(draft.assumptions),
       outputPurpose: salesReadiness.outputPurpose,
@@ -684,10 +679,6 @@ function ProposalCompletionWizardContent({
     [
       bomRows,
       discovery.summary,
-      draft.bomUnitPrices,
-      draft.currency,
-      draft.installationUnitPrices,
-      draft.pricesExcludeTax,
       draft.assumptions,
       draft.executiveSummary,
       draft.customerObjectives,
@@ -909,7 +900,7 @@ function ProposalCompletionWizardContent({
     setFeedbackMessage("Thanks - this helps improve future recommendations.");
   }
 
-  return <ProposalCompletionWizardView view={{ activeStep, bomRows, customerOutputBlocked, dependencyScopeFixes, discovery, displayRunFix, draft, exportCsv, exportDiscoveryBrief, exportDocx, exportHtml, exportMessage, exportPdf, exportValidation, feedbackMessage, feedbackRating, finalReadinessScore, installation, installationPricing, profile, project, proposal, rateCardState, readiness, recallProposal, requirementRows, salesReadiness, setActiveStep, setDraft, setExportMessage, setShowValidationDetails, showValidationDetails, steps, submitForApproval, submitRecommendationFeedback, topologySurvey, typeConfig, updateDraft, wallRequirements, wallSurvey, wallTransport }} />;
+  return <ProposalCompletionWizardView view={{ activeStep, bomRows, customerOutputBlocked, dependencyScopeFixes, discovery, displayRunFix, draft, exportCsv, exportDiscoveryBrief, exportDocx, exportHtml, exportMessage, exportPdf, exportValidation, feedbackMessage, feedbackRating, finalReadinessScore, installation, profile, project, proposal, readiness, recallProposal, requirementRows, salesReadiness, setActiveStep, setDraft, setExportMessage, setShowValidationDetails, showValidationDetails, steps, submitForApproval, submitRecommendationFeedback, topologySurvey, typeConfig, updateDraft, wallRequirements, wallSurvey, wallTransport }} />;
 }
 
 export default ProposalCompletionWizard;

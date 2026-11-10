@@ -32,15 +32,15 @@
  * come after that, from the catalogue or the wall builder, because a BOM chosen
  * from four answers is a guess wearing a schedule.
  *
- * The requirements carry their own reason. A rep who cannot say *why* a room
- * needs two screens will drop one under price pressure, and the answer to that
- * is a sentence tied to the answer that asked for it.
+ * The requirements carry their own reason. A rep can explain *why* a room needs
+ * two screens because each requirement stays tied to the answer that asked for it.
  */
 import type { TemplateMarket } from "./templateMarkets";
 
 /** A room type this method can decide. One per shape of job, not per product. */
 export type RoomArchetypeId =
   | "huddle-byod"
+  | "meeting-single"
   | "meeting-dual"
   | "divisible-boardroom"
   | "classroom"
@@ -158,6 +158,31 @@ const ARCHETYPES: Archetype[] = [
       "The room must also serve a fixed PC: add a second source position.",
     ],
     assumptions: ["A single enclosed room with a door, not an open-plan pocket."],
+  },
+  {
+    id: "meeting-single",
+    roomType: "Meeting room, single screen",
+    summary: "A larger meeting room with one shared display, a joined call, room audio and managed source selection.",
+    purposes: ["present", "meet"],
+    requirements: (answers) => [
+      { key: "display", label: "One commercial display", quantity: "one large screen sized for the furthest seat", because: `one shared screen serves the full ${seatsFor(answers)} room without adding an unrequested second display.` },
+      { key: "source", label: "Fixed and visiting sources", quantity: "two to four inputs, including a user laptop and the room's fixed source", because: "the room needs both day-to-day presentation and a fixed source without asking users to move cables behind the display." },
+      { key: "switch", label: "Local source switching", quantity: "a room switcher with table input and wireless presentation", because: "the room uses both fixed and visiting sources, and the selected source needs to reach its one shared display." },
+      ...(is(answers, "far-end", "yes")
+        ? [{ key: "uc", label: "Room video conferencing", quantity: "camera, microphones and room speakers for the table", because: "the room joins calls as a room, so its camera and audio must connect to the conferencing host." }]
+        : []),
+      { key: "control", label: "One-touch room control", quantity: "a simple control interface for source and call workflows", because: "a larger shared room needs an understandable start and source-selection path for everyday users." },
+    ],
+    verifyOnSite: [
+      "Viewing distance and screen size from the furthest seat.",
+      "Camera framing, microphone coverage and echo cancellation across the table.",
+      "Table, ceiling and display cable routes, including the USB distance to the conferencing host.",
+    ],
+    changesIf: [
+      "Two screens must show different content: add independent display switching.",
+      "The room must split into two usable spaces: design the partition and room-combine behavior.",
+    ],
+    assumptions: ["One enclosed room with a single shared screen and no operable partition."],
   },
   {
     id: "meeting-dual",
@@ -375,9 +400,9 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
     question: "Are people joining this room from somewhere else, on video?",
     why: "A room that only shows things to itself needs no camera, no microphone and no call.",
     options: [
-      { value: "yes", label: "Yes, the room joins calls as a room", supports: ["huddle-byod", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room"] },
-      { value: "sometimes", label: "Sometimes, from a visiting laptop", supports: ["huddle-byod", "meeting-dual", "classroom"] },
-      { value: "no", label: "No, everything stays in the room", supports: ["classroom", "all-hands", "venue", "signage-wall", "control-room"] },
+      { value: "yes", label: "Yes, the room joins calls as a room", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room"] },
+      { value: "sometimes", label: "Sometimes, from a visiting laptop", supports: ["huddle-byod", "meeting-single", "meeting-dual", "classroom"] },
+      { value: "no", label: "No, everything stays in the room", supports: ["huddle-byod", "classroom", "all-hands", "venue", "signage-wall", "control-room"] },
     ],
   },
   {
@@ -386,7 +411,7 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
     why: "A partition turns one room into two, and every screen and microphone has to follow it.",
     options: [
       { value: "yes", label: "Yes, there is a movable partition", supports: ["divisible-boardroom", "classroom"] },
-      { value: "no", label: "No, it is one room", supports: ["huddle-byod", "meeting-dual", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "no", label: "No, it is one room", supports: ["huddle-byod", "meeting-single", "meeting-dual", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
     ],
   },
   {
@@ -395,7 +420,7 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
     why: "Two screens with two sources is a switcher; one screen is a cable.",
     options: [
       { value: "different", label: "Yes, different things on different screens", supports: ["meeting-dual", "divisible-boardroom", "control-room", "venue", "signage-wall", "all-hands"] },
-      { value: "same", label: "No, the same thing everywhere is fine", supports: ["huddle-byod", "classroom", "lecture-capture", "all-hands", "campus-distribution"] },
+      { value: "same", label: "No, the same thing everywhere is fine", supports: ["huddle-byod", "meeting-single", "classroom", "lecture-capture", "all-hands", "campus-distribution"] },
     ],
   },
   {
@@ -404,7 +429,7 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
     why: "One presenter and one picture is a different room from one where groups watch different things.",
     options: [
       { value: "yes", label: "Yes, one presenter addressing everyone", supports: ["lecture-capture", "all-hands", "classroom"] },
-      { value: "no", label: "No, people work at their own desks or in zones", supports: ["huddle-byod", "meeting-dual", "divisible-boardroom", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "no", label: "No, people work at their own desks or in zones", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "control-room", "venue", "signage-wall", "campus-distribution"] },
     ],
   },
   {
@@ -413,7 +438,7 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
     why: "Capture adds a camera, a mixed audio feed and an uplink, and it must be startable by the presenter.",
     options: [
       { value: "yes", label: "Yes, every session is captured", supports: ["lecture-capture"] },
-      { value: "no", label: "No, or only occasionally by hand", supports: ["classroom", "all-hands", "huddle-byod", "meeting-dual", "divisible-boardroom", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "no", label: "No, or only occasionally by hand", supports: ["classroom", "all-hands", "huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "control-room", "venue", "signage-wall", "campus-distribution"] },
     ],
   },
   {
@@ -422,7 +447,7 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
     why: "Content that crosses a room boundary is a network or transport question, not a cable.",
     options: [
       { value: "yes", label: "Yes, content crosses between rooms", supports: ["campus-distribution", "control-room", "venue"] },
-      { value: "no", label: "No, the room is self-contained", supports: ["huddle-byod", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "signage-wall"] },
+      { value: "no", label: "No, the room is self-contained", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "signage-wall"] },
     ],
   },
   {
@@ -430,7 +455,7 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
     question: "Do people stay in this space, or pass through it?",
     why: "A screen people stop and watch is a room; a screen they walk past is a surface with no chairs to plan around.",
     options: [
-      { value: "stay", label: "They stay: seats, a table, a reason to be there", supports: ["huddle-byod", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "campus-distribution"] },
+      { value: "stay", label: "They stay: seats, a table, a reason to be there", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "campus-distribution"] },
       { value: "pass", label: "They pass through: a foyer, a corridor, a shopfront", supports: ["signage-wall"] },
     ],
   },
@@ -441,7 +466,7 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
     options: [
       { value: "staffed", label: "Staffed: an operator or a control desk runs it", supports: ["control-room"] },
       { value: "presenter", label: "A presenter or teacher runs it during a session", supports: ["classroom", "lecture-capture", "all-hands"] },
-      { value: "anyone", label: "Whoever is in the room, with no training", supports: ["huddle-byod", "meeting-dual", "divisible-boardroom", "venue", "signage-wall", "campus-distribution"] },
+      { value: "anyone", label: "Whoever is in the room, with no training", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "venue", "signage-wall", "campus-distribution"] },
     ],
   },
 ];
@@ -449,8 +474,16 @@ export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
 /** The room types the setup facts allow, before any later question is asked. */
 export function setupArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
   const purpose = String(answers.purpose ?? "");
-  const matching = ARCHETYPES.filter((archetype) => archetype.purposes.includes(purpose));
-  return (matching.length ? matching : ARCHETYPES).map((archetype) => archetype.id);
+  const occupancy = String(answers.occupancy ?? "");
+  const largeRoom = ["medium", "large", "crowd"].includes(occupancy);
+  const matching = purpose === "present-and-meet"
+    ? ARCHETYPES.filter((archetype) => ["huddle-byod", "meeting-dual", "divisible-boardroom"].includes(archetype.id))
+    : ARCHETYPES.filter((archetype) => archetype.purposes.includes(purpose));
+  const capacityFit = matching.filter((archetype) =>
+    !(largeRoom && archetype.id === "huddle-byod") &&
+    !(occupancy === "squad" && archetype.id === "meeting-single") &&
+    !(new Set(["squad", "small"]).has(occupancy) && archetype.id === "all-hands"));
+  return (capacityFit.length ? capacityFit : matching.length ? matching : ARCHETYPES).map((archetype) => archetype.id);
 }
 
 /**
@@ -539,6 +572,54 @@ export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMark
   };
 }
 
+/** Translate the Discovery record into the room facts used by the decision ladder. */
+export function roomBriefAnswersFromDiscovery(answers: Record<string, unknown>): RoomBriefAnswers {
+  const value = (key: string) => String(answers[key] ?? "").trim();
+  const list = (key: string) => Array.isArray(answers[key]) ? (answers[key] as unknown[]).map(String) : value(key) ? [value(key)] : [];
+  const application = value("opportunity");
+  const ucPurpose = list("uc-purpose");
+  const displayBehaviour = list("display-behaviour");
+  const exactOccupancy = Number.parseInt(value("room-occupancy"), 10);
+  const occupancy = Number.isFinite(exactOccupancy) && exactOccupancy > 0
+    ? exactOccupancy <= 4 ? "squad" : exactOccupancy <= 10 ? "small" : exactOccupancy <= 20 ? "medium" : exactOccupancy <= 50 ? "large" : "crowd"
+    : ({ "single-small-room": "small", "single-large-room": "large" } as Record<string, string>)[value("scale")] ?? "";
+  const purposeByApplication: Record<string, string> = {
+    "meeting-room": "present",
+    classroom: "teach",
+    hospitality: "show-many",
+    "video-wall": displayBehaviour.includes("video-wall-or-processor-feed") ? "show-many" : "signage",
+    "av-over-ip": "campus",
+  };
+  const result: RoomBriefAnswers = {};
+  const purpose = purposeByApplication[application];
+  if (purpose) result.purpose = purpose;
+  if (occupancy) result.occupancy = occupancy;
+  if (displayBehaviour.includes("independent-routing-per-display")) result.screens = "different";
+  else if (displayBehaviour.includes("same-content-all-displays")) result.screens = "same";
+  if (ucPurpose.includes("video-conferencing") || ucPurpose.includes("conferencing-recording")) result["far-end"] = "yes";
+  else if (ucPurpose.includes("no-uc")) result["far-end"] = "no";
+  if (ucPurpose.includes("recording-streaming") || ucPurpose.includes("conferencing-recording")) result.record = "yes";
+  else if (ucPurpose.length && !ucPurpose.includes("unknown-uc")) result.record = "no";
+  if (application === "av-over-ip") result.reach = "yes";
+  else if (value("network-path") === "no-network-distribution") result.reach = "no";
+  else if (value("network-path")) result.reach = "yes";
+  if (application === "video-wall" && !displayBehaviour.includes("video-wall-or-processor-feed")) result.dwell = "pass";
+  const control = value("control").toLowerCase();
+  if (control.includes("operator") || control.includes("staff")) result.operated = "staffed";
+  else if (control.includes("presenter") || application === "classroom") result.operated = "presenter";
+  else if (control) result.operated = "anyone";
+  return result;
+}
+
+/** Resolve a captured room when Discovery has named a supported application. */
+export function decisionForCapturedRoom(answers: Record<string, unknown>, market: TemplateMarket | "" = ""): RoomDecision | null {
+  const brief = roomBriefAnswersFromDiscovery(answers);
+  const ucAnswer = answers["uc-purpose"];
+  const ucPurpose = Array.isArray(ucAnswer) ? ucAnswer.map(String) : [String(ucAnswer ?? "")];
+  if (brief.purpose === "present" && (ucPurpose.includes("video-conferencing") || ucPurpose.includes("conferencing-recording"))) brief.purpose = "present-and-meet";
+  return brief.purpose ? resolveRoomBrief(brief, market) : null;
+}
+
 /**
  * The answers the discovery flow already understands, so a decision is a
  * starting point rather than a dead end.
@@ -550,6 +631,7 @@ export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMark
 export function roomBriefDiscoveryAnswers(decision: RoomDecision): Record<string, string | string[]> {
   const opportunity: Record<RoomArchetypeId, string> = {
     "huddle-byod": "meeting-room",
+    "meeting-single": "meeting-room",
     "meeting-dual": "meeting-room",
     "divisible-boardroom": "meeting-room",
     classroom: "classroom",
@@ -566,8 +648,14 @@ export function roomBriefDiscoveryAnswers(decision: RoomDecision): Record<string
   const count = { one: "1", two: "2", three: "3", four: "4" }[displays ?? ""] ?? "";
   return {
     opportunity: opportunity[decision.archetype],
+    ...(decision.market ? { market: decision.market.toLowerCase() } : {}),
     ...(count ? { displays: count } : {}),
   };
+}
+
+/** Short decision label used in the Discovery handoff and proposal record. */
+export function roomBriefNote(decision: RoomDecision): string {
+  return `${decision.roomType}: ${decision.summary}`;
 }
 
 /** Every room type, so a surface can explain what the method can decide. */

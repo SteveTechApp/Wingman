@@ -128,6 +128,7 @@ function decideArchitecture(room: Record<string, unknown>): { architecture: Syst
     lower(room.outcome),
     lower(room.recommendedProductPath),
     lower(room.displayBehaviour),
+    lower(room.primaryDisplayArrangement),
     listText(room.devices),
     lower(room.avoipProfile),
     lower(room.avoipSeriesHint),
@@ -202,7 +203,20 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
 
   const sources = parseCount(room.sourceCount);
   const displays = parseCount(room.displayCount);
-  const wallType = lower(room.wallType || configuredVideowall.wallType);
+  const primaryDisplayArrangement = lower(room.primaryDisplayArrangement);
+  const inferredWallType = /\bled\b|direct[- ]view/.test(primaryDisplayArrangement)
+    ? "led"
+    : /\blcd\b/.test(primaryDisplayArrangement) ? "lcd" : "";
+  const wallType = lower(room.wallType || configuredVideowall.wallType || inferredWallType);
+  const audioDesign = asRecord(room.audioDesign);
+  const switcherAudioFeed = text(audioDesign.audioFeed);
+  const switcherAudioHandoff = text(audioDesign.signalPath);
+  const audioByOthers = /by others|separate audio system/.test([
+    lower(room.audioPath),
+    lower(room.audioNeeds),
+    lower(audioDesign.direction),
+    lower(audioDesign.zoning),
+  ].join(" "));
   const wallBehaviour = `${lower(room.displayBehaviour)} ${lower(configuredLedAnswers.behaviour)}`;
   const sourceLocation = `${lower(room.sourceLocation)} ${lower(configuredLedAnswers.sourceLocation)} ${listText(room.devices)} ${listText(room.sourceTypes)}`;
 
@@ -211,6 +225,9 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
 
   if (sources === null) openQuestions.push("How many sources need to reach the screens?");
   if (displays === null) openQuestions.push("How many displays does the room have?");
+  if (audioByOthers && (!switcherAudioFeed || switcherAudioFeed === "switcher-feed-unknown")) {
+    openQuestions.push("Confirm which audio feed video switching must provide to the separate audio system.");
+  }
 
   switch (architecture) {
     case "avoip":
@@ -390,7 +407,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
   }
 
   const microphoneFeeds = microphoneFeedCount(room.microphoneCount);
-  if (isUc || text(room.microphoneNeeds)) {
+  if (!audioByOthers && (isUc || text(room.microphoneNeeds))) {
     slots.push({
       kind: "microphone",
       label: "Room microphone",
@@ -414,7 +431,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
   }
 
   const audioNeed = `${lower(room.audioNeeds)} ${lower(room.audioPath)}`;
-  if (/amplif|speaker|reinforc|ceiling|dsp|dante|program audio|room audio/.test(audioNeed)) {
+  if (!audioByOthers && /amplif|speaker|reinforc|ceiling|dsp|dante|program audio|room audio/.test(audioNeed)) {
     slots.push({
       kind: "room-audio",
       label: "Room audio",
@@ -450,6 +467,19 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
         excludeTokens: ["networkhd-control", "avoip-infrastructure", "networkhd-100", "networkhd-500", "networkhd-600"],
       },
     });
+  }
+
+  // Audio by others still leaves a video-side handoff. Carry the selected feed
+  // with the switching role so it remains visible without creating a separate
+  // audio-system product requirement.
+  if (audioByOthers && switcherAudioFeed && switcherAudioFeed !== "switcher-feed-unknown") {
+    const switchingSlot = slots.find((slot) => ["matrix", "presentation-core", "wall-processor", "multiview"].includes(slot.kind))
+      ?? slots.find((slot) => ["avoip-encoder", "avoip-decoder", "extension"].includes(slot.kind));
+    if (switchingSlot) {
+      switchingSlot.derivedFrom.push(`Switcher audio handoff: ${switcherAudioHandoff || switcherAudioFeed}`);
+    } else {
+      openQuestions.push("Carry the confirmed audio feed into the video-switching product selection.");
+    }
   }
 
   return { architecture, architectureReason: reason, slots, openQuestions };

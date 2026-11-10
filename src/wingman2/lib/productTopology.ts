@@ -222,7 +222,7 @@ function halo90Profile(product: ProductSpec): ProductTopologyProfile {
       "Confirm whether the display uses HDMI or USB-C video.",
       "Confirm the connected camera or peripheral bandwidth requirement.",
       "Confirm the USB-C power source is suitable when laptop charging is required.",
-      "Resolve the lifecycle conflict before using HALO-90 in a new quotation.",
+      "Resolve the lifecycle conflict before using HALO-90 in a new system design.",
     ],
     warnings: [
       "The microphone array and loudspeaker are integrated into HALO-90; do not draw an external DSP, Dante network or speaker circuit unless the project explicitly includes one.",

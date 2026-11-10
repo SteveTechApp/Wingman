@@ -291,7 +291,7 @@ export function rigorousCompare(
     );
   } else if (topOutcome === "GOOD MATCH") {
     recommendation = `${top.sku} is a credible like-for-like alternative to ${competitorLabel}. ${top.decision.nextAction}`;
-    nextSteps.push(...dedupe([...top.decision.verify, "Confirm pricing, lifecycle and accessory dependencies"]));
+    nextSteps.push(...dedupe([...top.decision.verify, "Confirm lifecycle, regional availability and accessory dependencies"]));
   } else if (topOutcome === "PARTIAL MATCH") {
     recommendation = `${top.sku} is the closest WyreStorm option to ${competitorLabel}, but it is not a drop-in — make the differences clear before quoting.`;
     nextSteps.push(...dedupe([...top.decision.gaps, ...top.decision.verify]));

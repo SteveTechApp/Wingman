@@ -82,8 +82,8 @@ boardroom in three. Each question carries the reason it is being asked, and
 The decision names the room type, what that room needs to do its job, what to
 check on site, what is assumed, and what would change the answer. It also tells
 you when the answers still fit more than one room type — those are the questions
-to ask before anything is priced. A requirement always carries the answer that
-asked for it, which is what makes it defensible under price pressure.
+to ask before the system design is drafted. A requirement always carries the
+answer that asked for it, so the rep can explain and validate the recommendation.
 
 **Take this into the discovery brief** opens the full capture starting from the
 decided room. If you already know exactly what you want,
@@ -120,7 +120,7 @@ network path where it matters, and **Detailed** asks everything.
   video path and where it has to arrive — because a rep answers both ends in one
   conversation and keeping them together stops the halves disagreeing.
 - **Review and validation** closes the capture with the assumptions Wingman
-  made and the items still to confirm. Read it before you price anything.
+  made and the items still to confirm. Read it before drafting the system design.
 - **Site conditions** (walls, ceiling, cable routes, power, lighting and noise,
   access) are free text on purpose: they are your words about this room, not a
   fixed list.
@@ -168,12 +168,13 @@ direction, the reasons for it, and what to confirm before the quote.
 
 ## 4. Video wall designer
 
-A wall starts from a wall, not from a room: either the LED brief — canvas
-pixels, pixel pitch and cabinet array — or one of the common walls, then the
-survey.
+A wall starts by choosing its technology: LCD, LED or projection. The wizard
+then shows the size, feed and layout questions that apply to that wall type.
+Multiview appears as a layout choice when the selected connection path can
+compose multiple sources.
 
-- The guided path leads with the LED brief because those three are the
-  customer's facts, and a starting point already answers all three.
+- Saved wall briefs are available as starting points after choosing the wall
+  type; they prefill answers that can be adjusted for this room.
 - The picker filters on the facts its rows print, and every filter value comes
   from the walls themselves, so no filter is a dead end. A count is a floor, not
   an exact match: you are never left looking at a single row.
@@ -201,7 +202,7 @@ answers never travel with it. Dependency prompts do not travel either: a new
 template is scope, not a copy of somebody else's open question.
 
 Opening a template gives you a review page rather than an instant proposal:
-confirm the brief, price the scope there, and work through the pre-issue walk.
+confirm the brief, complete the technical scope and work through the pre-issue walk.
 The walk remembers where you left it.
 
 ## 6. Projects and the project record
@@ -246,7 +247,7 @@ five steps:
 2. **Requirements review** — what was captured, the assumptions, and anything
    still unresolved.
 3. **Proposed solution** — the design, the products, the installation scope.
-4. **Commercial and delivery** — pricing and the delivery schedule.
+4. **Scope and delivery** — installation scope, dependencies and the delivery schedule.
 5. **Review and export** — the checks, then the output.
 
 The same document is printed, saved as a PDF, exported to Word, or taken as a
@@ -264,8 +265,8 @@ building.
 - Answering a dependency prompt records the decision on the project and drops
   the prompt from the bill of materials, while the question stays in the
   document's dependency list.
-- An installation rate typed once is saved to a rate card and reused, so the
-  next document starts from your rate rather than from the last proposal.
+- Installation scope is grouped into schedule lines with quantities; rates and
+  totals are not part of the Wingman proposal.
 
 **CRM send** posts the response to the configured endpoint. The send history
 records what left the browser and what came back:

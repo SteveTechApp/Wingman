@@ -4,6 +4,19 @@ The narrative behind the invariants in `AGENTS.md`: each rule in full, why it
 exists, and the probe that proved it. A number quoted here records the run that
 decided the rule; `reports/browser-readings.md` is the current measurement.
 
+- Recommendation handoff's “Build AV proposal draft” action saves the available
+  WyreStorm system roles, refreshes `designProject`, and opens Proposal Builder.
+  The proposal combines `StoredDiscoveryBrief.roomDecision` with the detailed
+  Discovery room model, project design, selected products and BOM. Its printed
+  room facts include dimensions and recorded site conditions; requirements,
+  assumptions, changes-if and on-site checks remain visible in the draft. Open
+  readiness items keep it a draft until the rep confirms them; a generated
+  document is not itself a quote or an issued proposal.
+  The equipment schedule records products, roles, quantities, status and
+  dependencies without unit prices, rates, tax, currency or totals. Proposal
+  readiness is driven by captured requirements and technical evidence; the
+  generated customer response describes the system design and its open checks.
+
 - `buildProposalHtml` in `src/wingman2/lib/proposalExport.ts` is the only
   printed/PDF surface: the PDF export opens it and calls `window.print`, and
   `check:proposal-output-parity` renders the same HTML to PDF. Page setup lives
@@ -181,6 +194,14 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   supplies the dependency: half of these prompts are WyreStorm-side choices, so
   a "supplied by others" line would print a claim the rep may not be able to
   make.
+  Dependency matching reads room and topology requirements separately from
+  selected product capabilities. Capability copy can inform an exact
+  compatibility rule, but it cannot by itself create USB, audio, control, wall
+  or transport scope. Selected NetworkHD endpoints suppress a second generic
+  endpoint-count prompt; missing exact endpoints and independent AV network
+  readiness remain visible. USB marked as not required and audio marked as
+  handled by others do not create those system prompts; the video-side audio
+  handoff remains in Discovery.
   A template is a starting point for a different room, so the question does not
   travel as scope and does not reach a template's export gate. `templateSchedule`
   (`customRoomTemplates.ts`) is the one rule and every path that makes a new
@@ -1183,65 +1204,17 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   cells in place of the warning's "record it in the video wall designer" fix
   line, because it can take the cells itself. That warning's list is a column grid, so
   the block carries `col-span-full` to sit under the whole warning.
-- The survey's per-link install detail is also priced scope. `buildInstallationSchedule`
-  (`installationSchedule.ts`) groups `requirements.linkDetails` by what was
-  written — casing and spacing folded — into one line per item with a quantity
-  of the links needing it, plus the link labels; the same back box on four
-  panels is one line, not four. Lines are ordered enclosure, mount,
-  termination, and the id a rate is filed under is
-  `install-<category>-<slugged detail>`: rename the survey text and the rate is
-  a new line, which is why the id, not the label, keys
-  `ProposalWizardDraft.installationUnitPrices`. Nothing derives a rate; an
-  unpriced line prints TBC and holds the total exactly as an unpriced
-  equipment row does, so `installationTotals(...).complete` feeds the wizard's
-  `commercialPricingComplete` and the readiness list asks for every equipment
-  and installation rate. A summary with no costable link list has no
-  installation scope at all (`buildInstallationSchedule` returns null) rather
-  than an empty table.
-- The Word `Equipment and Pricing` section prints that priced table after the
-  equipment total, beside the same section's `Services and Commercial
-  Allowances`; the HTML/PDF customer copy prints the scope by item but no
-  prices, matching its equipment schedule, which carries none either.
-- The installation table's column names are one list:
-  `INSTALLATION_TABLE_COLUMN_LABELS` in `installationSchedule.ts`, read through
-  `installationTableHeaders([...])`, which is where the unpriced customer copy,
-  the priced customer copy, the Word quote and the rep's pricing panel print
-  their headings from. A heading typed in each builder is how one column came to
-  read "Site survey detail" in one document and "Survey detail" in the other. A
-  table that prints two columns in one cell names them as a group
-  (`["detail", "links"]` reads "Survey detail / Links") rather than inventing a
-  wording, and Word's widths are keyed by the column, not the label, so renaming
-  a heading cannot silently fall back to the default width. The equipment tables
-  keep their own headings — their price column is `Unit price`, not
-  `Unit rate` — because they are a different schedule.
-- A template-driven proposal is priced on the template review page, not in the
-  wizard: `templateProposalPricing.ts` keeps the two rate maps (equipment by SKU,
-  installation by line id) under a storage key per template, and
-  `templatePricingDraft` puts them on the template's wizard defaults before
-  `exportProposalDocx` runs. Both routes therefore hand the document builder one
-  draft shape. The template's quantities stay in the room schedule, so
-  `ProposalBomPricing` renders its quantity column as text when no
-  `onQuantityChange` is passed. The `wm-proposal-bom-*` rules also cover the
-  templates route because that shared panel is mounted there. Before issue the
-  page has to name the commercial holes, not only count them:
-  `templatePricingSummary.unpricedLines` carries one entry per rate key (a SKU
-  or an installation line's own `installationLineLabel`), deduped because two
-  rows sharing a SKU share one price cell, and both the readiness block and the
-  export summary read that list — the readiness block shows four of each kind
-  (installation lines must not be pushed out by a long equipment schedule) plus
-  a count of the rest pointing at Pricing, and `unpricedText` names three per
-  schedule before "and N more" so a long schedule stays one sentence. Unpriced lines never block the export;
-  the document prints TBC and holds the total, which is why the page says so
-  beside the lines instead of disabling the button.
+- The survey's per-link install detail is included in the system scope. `buildInstallationSchedule` (`installationSchedule.ts`) groups `requirements.linkDetails` by normalized item into one row per item with a quantity and the link labels. It keeps enclosure, mount, termination and run-entry detail. A summary with no recorded link list has no installation schedule rather than an invented empty one. Both proposal exports print the same survey quantities.
+- The proposal equipment schedule carries product roles, evidence and quantities. Product quantity edits stay in the proposal draft and carry through the stored BOM and exports; technical readiness depends on design and site checks.
+- Installation schedule headings are shared through `INSTALLATION_TABLE_COLUMN_LABELS` and `installationTableHeaders([...])`, so the HTML and Word schedules use the same terms. The template Proposal tab is a staged review of blockers, assumptions and issue.
 - The template Proposal tab is a staged pre-issue walk, not one long page:
-  `templatePreIssue.ts` owns the four stages (blockers, unpriced lines,
-  assumptions, issue), each stage's status line, the stage the tab opens on
+  `templatePreIssue.ts` owns the three stages (blockers, assumptions, issue),
+  each stage's status line, the stage the tab opens on
   (the first with work, in that order) and the command bar's one sentence.
   `TemplateProposalPanel` renders one stage at a time — the others stay mounted
   with `hidden`, so their inputs are still there for the stage that shows them —
   and the actions sit in the command bar above the walk so the document can
-  leave from any stage. Only a blocker disables them: an unpriced line prints
-  TBC and holds the total, not the button. Survey warnings and their cells are
+  leave from any stage. Only a technical or scope blocker disables them. Survey warnings and their cells are
   the assumptions stage's, so a test that records those cells clicks
   `template-preissue-assumptions` first; change the order, the statuses or the
   bar's wording in the lib, never in the panel's markup.
@@ -1269,110 +1242,6 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   that address from the stage the rail is showing rather than reading the bar,
   because the opening stage is never written into it: opening the walk is not a
   choice, but sending the reading is.
-- Installation rates start from one saved rate card, not from the last
-  proposal. The card lives on the signed-in rep's workspace, not in the browser:
-  `data/installationRateCard.ts` reads and writes `/api/wingman/workspace/rate-card`
-  (served by `server/workspace-rate-card.mjs`, a side-car store keyed
-  `workspaceId:userId` like the site survey sync), so the baseline follows a rep
-  to another machine while two reps in one workspace keep their own. A browser
-  card written before the move is uploaded on the first successful workspace
-  read and the old key dropped; the workspace card wins if it already has rates.
-  Both pricing surfaces (the wizard's Commercial step and the template review
-  page) read the shared store through `useInstallationRateCard` and seed absent
-  lines with `seedInstallationRates`, so only this job's exceptions have to be
-  typed — a card arrives asynchronously, so seeding happens when it lands, keyed
-  on its `updatedAt` so a save from the same page is not re-applied. The
-  template page loads its draft before applying the card (`TemplateReviewPage`
-  declares the load effect first), because a card already cached in the session
-  is ready on the first render and the load would otherwise replace the draft the
-  card had just seeded. Seeding
-  fills only keys the draft does not have — a cleared cell is a deliberate
-  unpriced line and is not refilled — and a save merges on the server so a blank
-  cell cannot erase a baseline another proposal still needs. A read or write
-  that fails keeps the last card and puts the reason in `rateCardError`, which
-  the panel shows in place of the "save these rates once" promise.
-  `installationRateCardNote` says which card and currency the numbers came from;
-  a currency mismatch is stated, never silently converted. A line still holding
-  the card's rate is marked `From rate card` with a one-tap `Clear`:
-  `installationRateIsSeeded` is derived from the card and the cell rather than
-  stored, because the seed copies the card's text — a typed-over rate stops
-  matching and a cleared cell is the deliberate unpriced line, so the mark and
-  the one-tap clear survive a reload without a provenance field on the draft.
-  That survival depends on storage keeping the empty cell: the wizard draft is
-  written as typed, and `priceMap` in `templateProposalPricing.ts` keeps an
-  emptied cell as `""` for the same reason — a normalizer that dropped the key
-  would make the line look untouched, and the next visit's seed would quietly
-  reprice it from the card with no hint to explain why.
-  Clearing is reversible: `installationRateCardHint` returns the card's number
-  for an unpriced line that the card still rates, and the panel shows it beside
-  the empty cell with a one-tap `Use` that writes the card's text back. The hint
-  is not a price — nothing prints or counts as priced until it is used, which is
-  why the readiness list still names the line while the hint is showing. When the
-  card's currency is not the proposal's, `installationRateCardHintText` appends it
-  (`120 GBP`) and the `Use` title says so, because using the hint is what puts the
-  number on the quote; only the number reaches the rate cell. Clearing several
-  lines is one action, not several: `installationRateCardRestorations` returns the
-  cleared card-rated lines as one map and the panel hands it back through
-  `onRestoreRates`, which both pricing surfaces merge into their draft in a single
-  write — restoring line by line would read the same draft each time and keep only
-  the last. A line typed for the proposal is never in that map, and the action
-  disappears once nothing is left to fill. The card is not a
-  draft: overrides stay on the proposal (`installationUnitPrices`), which is why
-  the panel takes the card and the save action rather than writing storage
-  itself. The template review page's "Still to price" block
-  (`TemplateProposalUnpriced`) carries that one tap for the page: a rep told which
-  lines print as TBC fills the ones the card rates without going down to the
-  table, and the pricing table below it is handed no `onRestoreRates`, so the
-  page has one restore action rather than two buttons with one name
-  (`template-readiness-restore-card-rates`). The wizard keeps its own on the
-  Commercial step's table and on the readiness checklist, which are separate
-  steps rendered one at a time, so each screen still offers exactly one.
-  `TemplateReviewPage` and `TemplateProposalPanel`
-  hand the block the same map and the same write, so a tap in either place fills
-  the same cells. The same restore also sits on the wizard's readiness checklist, in
-  `ProposalReadinessList`: `PROPOSAL_PRICING_GAP` is the exported wording of the
-  item that reports unpriced lines, so the fix is attached to the sentence the
-  rep is reading rather than matched by hand in the view, and it computes its map
-  from the card and the draft exactly as the panel does — an unpriced equipment
-  SKU is not the card's to fill, so the item stays put after the tap. The
-  checklist lives in that component so the wizard page entry stays inside its
-  line-count allowance. It also tells two kinds of unpriced line apart: a cell
-  the draft has no entry for is a line nobody reached, while a cell that is
-  present and empty is a decision, and `installationRateCardClearedLines` names
-  those. `installationRateCardExceptionText` says so under the item's own
-  sentence (`data-readiness-exception="deliberately-unpriced"`), because a
-  cleared line read as forgotten work is what gets priced back in by the next
-  person. The count of what one tap would clear sits beside the shortfall for
-  the same reason it is on the button: `installationRateCardRestoreText` writes
-  it under the gap sentence (`data-readiness-restore-count`), because a rep
-  choosing between the card and their own numbers decides before pressing the
-  control, not from its label. The mark is an annotation, not a gate: the
-  restore action stays, since a deliberate exception is still reversible. A present-but-empty cell is what
-  carries that meaning everywhere — `seedInstallationRates` refills only absent
-  keys, and the wizard and template review drafts keep an emptied cell as `""`
-  rather than dropping the key. A seeded or restored rate from a card written in another
-  currency is an export warning, not a blocker:
-  `installationRateCurrencyWarnings` (`proposalExportValidation.ts`) reads
-  `installationRateCardCurrencyMismatches` over the schedule's own line ids, so
-  only a line still holding the card's text is named — a rate typed for this
-  proposal, or a cleared one that prints as TBC, is not. It reaches the gate
-  through `validateProposalExport`'s `pricing` argument, which both pricing
-  surfaces pass, and it names the lines, the card's currency and the proposal's
-  plus the two ways to clear it. The cell itself carries the same fact while
-  the mismatch stands: the seeded rate reads `From rate card`, and the line under
-  it — `installationRateCardCurrencyMismatchText`, rendered in
-  `wm-installation-currency-mismatch` — names both ends ("Currency mismatch: card
-  rate in GBP, proposal in USD"), with a title and the row's
-  `data-currency-mismatch` saying the same. Both currencies are in the visible
-  text, not only the tooltip, because a rep sent to the table by the gate's
-  sentence has to find the cell that sentence is about. The panel's injected
-  headings, note and actions carry their written hooks (`wm-installation-rate-card`,
-  `wm-installation-rate-card-actions`, `wm-installation-seeded`), so the sheet's
-  own rules style them instead of reading as dead CSS.
-- Equipment pricing has one rule, `bomPricingTotals` / `unitPriceValue` in
-  `proposalPricing.ts`, read by the Word equipment table and the template review
-  panel alike. An unanswered cell ("", spaces) is unpriced, not a zero price, so
-  the panel cannot call a line priced that the document still prints as TBC.
 - Printed schedules repeat their `thead` on every page via
   `display: table-header-group`, so a long equipment or cable table stays
   labelled; body rows stay unbreakable.

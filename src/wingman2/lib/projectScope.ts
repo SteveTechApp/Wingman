@@ -85,10 +85,10 @@ export function completeProjectServiceRows(rows: TemplateBomRow[], prefix: strin
     result.push({ id: `${prefix}-service-${key}`, sku, description, role: optional ? "Maintenance service allowance" : "Engineering service allowance", qty: 1,
       type: optional ? "Optional" : "Validate", status: optional ? "excluded" : "validate", owner: "integrator",
       scopeSection: optional ? "maintenance" : "engineering", unit: "allowance",
-      evidence: "Delivery scope allowance; agree provider, effort, rates and acceptance criteria before quotation.",
-      notes: `${notes} Quantity 1 means one scoped allowance, not one engineer or one day. Replace with agreed effort and unit before pricing.` });
+      evidence: "Delivery scope allowance; agree provider, effort and acceptance criteria before design sign-off.",
+      notes: `${notes} Quantity 1 means one scoped allowance, not one engineer or one day. Replace with the agreed scope unit before design sign-off.` });
   };
   if (standard || !original.length) for (const [key, description, notes] of services) add(key, description, notes);
-  add("maintenance", "Optional maintenance and support agreement", "Agree term, planned visits, response hours, remote/on-site support, backups, exclusions, spares and renewal pricing. No service-level commitment is assumed.", true);
+  add("maintenance", "Optional maintenance and support agreement", "Agree term, planned visits, response hours, remote/on-site support, backups, exclusions and spares. No service-level commitment is assumed.", true);
   return result;
 }

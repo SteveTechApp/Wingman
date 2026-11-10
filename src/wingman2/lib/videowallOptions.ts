@@ -2,6 +2,7 @@ import { cleanDetailText, type WallLinkDetail } from "./wallLinkDetail";
 import type { WallSurveyReview } from "./wallSurveyReview";
 
 export type WallApplication = "lcd-direct" | "lcd-grouped" | "lcd-loop" | "led" | "projection";
+export type WallTechnology = "lcd" | "led" | "projection";
 export type WallLayout = "single" | "split" | "quad" | "nine" | "custom" | "independent";
 /** How a custom layout is built: a recalled fixed layout, or free floating windows. */
 export type WallCustomMode = "fixed" | "floating";
@@ -13,7 +14,7 @@ export type WallCustomMode = "fixed" | "floating";
  * belongs to the screen rather than each cable that reaches it.
  *
  * `enclosure` is the display housing — the enclosure the screen sits in — and
- * keeps that stored key because saved walls and priced installation lines are
+ * keeps that stored key because saved walls and installation scope lines are
  * filed under it. `entry` is a cell of its own: where the run enters the room
  * or the position (a wall plate, a floor box, a ceiling void). One cell used to
  * ask both questions, so a surveyor wrote one answer into it and an installer
@@ -101,6 +102,10 @@ export type WallRequirements = {
    */
   mapping?: "fit" | "fill";
   network: "any" | "none" | "1g" | "10g";
+  /** Whether the selected AV network speed is already available or needs new switches. */
+  networkProvision?: "existing" | "new";
+  /** A selected multiview feed path requires a multi-window layout in the next step. */
+  multiviewSelected?: boolean;
   orientation: "landscape" | "portrait";
   /**
    * Measured cable run in metres, keyed by transport link id (`source-2`,
@@ -137,6 +142,18 @@ export const wallApplications: { value: WallApplication; title: string; descript
   { value: "led", title: "LED · processor input", description: "Compose an HDMI feed for a NovaStar-type processor." },
   { value: "projection", title: "Large single projection", description: "Switch full-screen, split-screen and multiview layouts." },
 ];
+
+/** The display technology, separated from the signal architecture used to feed it. */
+export const wallTechnologies: { value: WallTechnology; title: string; description: string }[] = [
+  { value: "lcd", title: "LCD video wall", description: "A wall made from flat-panel displays." },
+  { value: "led", title: "LED video wall", description: "A seamless LED canvas driven by an LED processor." },
+  { value: "projection", title: "Projection wall", description: "One large image, or a blended image from several projectors." },
+];
+
+export function wallTechnologyForApplication(application: WallApplication): WallTechnology {
+  if (application.startsWith("lcd")) return "lcd";
+  return application === "led" ? "led" : "projection";
+}
 /**
  * Requirements from a saved wall summary. Proposals receive either the stored
  * wrapper (`{ summary: { requirements } }`) or the summary itself, so both

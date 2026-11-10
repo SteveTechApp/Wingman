@@ -4,9 +4,8 @@ import type { DocumentDetail } from "./solutionTemplates";
 /**
  * One part of the proposal document.
  *
- * A section is named for what it prints rather than for its heading: the Word
- * quote and the printed customer copy word the same section differently on
- * purpose (Word's `Equipment and Pricing` is the printed `Equipment Schedule`),
+ * A section is named for what it prints rather than for its heading, so the
+ * Word and screen exports can word the same section differently,
  * so the id is the handle both read while each builder writes its own heading.
  * The cover and the document control block are not sections — every document
  * has them, at every level.
@@ -24,8 +23,7 @@ export type DocumentSectionId =
   | "proposed-solution-and-business-value"
   | "scope-of-work"
   | "display-schedule"
-  | "equipment-and-pricing"
-  | "services-and-commercial-allowances"
+  | "equipment-schedule"
   | "complete-system-design"
   | "third-party-system-scope"
   | "timeline-and-phases"
@@ -81,8 +79,7 @@ export const DOCUMENT_SECTIONS: readonly { id: DocumentSectionId; detail: Docume
   { id: "proposed-solution-and-business-value", detail: "Executive" },
   { id: "scope-of-work", detail: "Executive" },
   { id: "display-schedule", detail: "Executive" },
-  { id: "equipment-and-pricing", detail: "Executive" },
-  { id: "services-and-commercial-allowances", detail: "Executive" },
+  { id: "equipment-schedule", detail: "Executive" },
   { id: "complete-system-design", detail: "Executive" },
   { id: "third-party-system-scope", detail: "Executive" },
   { id: "timeline-and-phases", detail: "Executive" },

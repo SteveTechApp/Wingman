@@ -198,6 +198,8 @@ export function wallFeedPathKeyFor(r: WallRequirements): WallFeedPathKey {
     return r.network === "1g" || r.network === "10g" ? "avoip-per-panel" : "matrix-per-panel";
   }
   if (r.sourceCustom) return "nhd500";
+  if (r.multiviewSelected && r.network === "10g") return "nhd600";
+  if (r.multiviewSelected && r.network === "1g") return "nhd150";
   if (r.network === "10g") return "nhd600";
   if (r.network === "1g") return r.windows > 1 ? "nhd150" : "avoip-decoder";
   return "scaling-switch";
@@ -249,4 +251,11 @@ export function wallFeedingAnswer(r: WallRequirements): string {
       if (r.application === "projection") return "One projector, one input";
       return "One canvas, panels tile it";
   }
+}
+
+/** The model and actual path together, so a saved answer names both decisions. */
+export function wallConnectionSummary(r: WallRequirements): string {
+  const pathKey = wallFeedPathKeyFor(r);
+  const path = wallFeedPaths(r).find((item) => item.key === pathKey);
+  return [wallFeedingAnswer(r), path?.label].filter(Boolean).join(" · ");
 }

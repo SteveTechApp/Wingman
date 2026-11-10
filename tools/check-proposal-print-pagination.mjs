@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Checks the printed proposal's priced schedule is split into pages, not cut.
+ * Checks the printed proposal's equipment schedule is split into pages, not cut.
  *
  * A proposal's equipment schedule is one table in the exported document, and a
  * long one does not fit a sheet of A4. The export therefore ships a small script
  * (`proposalPrintPaginationHtml()`, `src/wingman2/lib/proposalPrintPagination.ts`)
- * that runs on `beforeprint`: it clones the priced schedule into page-sized
+ * that runs on `beforeprint`: it clones the equipment schedule into page-sized
  * chunks, repeats the header, prints each page's running total as its footer,
  * and hides the original. Two failures matter to a rep and neither is visible on
  * screen, because the chunks only exist between `beforeprint` and `afterprint`:
@@ -82,7 +82,7 @@ const measured = JSON.parse(fs.readFileSync(measurements, "utf8"));
 if (!(measured.pages >= 3) || measured.rows !== measured.expectedRows) {
   console.error(
     `[proposal-print-pagination] the walk measured ${measured.rows} of ${measured.expectedRows} schedule lines over ` +
-      `${measured.pages} page(s). A priced schedule that fits one page is not a paginated one, so this run asked ` +
+      `${measured.pages} page(s). A schedule that fits one page is not a paginated one, so this run asked ` +
       "nothing; make the walk's schedule long enough to need splitting.",
   );
   process.exit(1);
@@ -100,7 +100,7 @@ if (measured.printedPages !== measured.pages) {
 }
 
 console.log(
-  `[proposal-print-pagination] PASS — a ${measured.rows}-line priced schedule is split over ${measured.pages} printed ` +
+  `[proposal-print-pagination] PASS — a ${measured.rows}-line equipment schedule is split over ${measured.pages} printed ` +
     `pages (${measured.rowsPerPage.join(" / ")} lines), each ${measured.pageWidthPx}px wide and at most ` +
     `${measured.tallestPagePx}px of the ${measured.budgetPx - 2}px printable height, every line printed once, each page ` +
     `carrying the schedule header and a footer that agrees with its own last line, and the printer wrote ` +

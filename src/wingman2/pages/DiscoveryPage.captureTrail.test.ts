@@ -24,7 +24,7 @@ describe("free-text capture suggestions reach the discovery conversation trail",
     // learns the wall behaviour, so the capture passes the name it recorded for
     // the room — from the saved project or the draft — rather than a placeholder.
     expect(source).toContain('(existingDiscoveryProject?.name || discoveryDraft?.projectName || "").trim()');
-    expect(source).toContain("discoveryVideoWallHandoff(answers, discoveryRoomName)");
+    expect(source).toContain("discoveryVideoWallHandoff(answers, discoveryRoomName, notes)");
     expect(source).toContain("writeVideoWallHandoff(videoWallHandoff)");
   });
 

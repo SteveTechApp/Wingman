@@ -27,11 +27,14 @@ import {
   wmDiscoveryIsExclusiveValue,
   wmDiscoveryNormaliseAnswerList,
 } from "./discoveryAnswerUtils";
-import { getQuestionStrategy } from "./discoveryQuestions";
+import { getFullDiscoveryOptions, getQuestionStrategy } from "./discoveryQuestions";
 import { getDiscoveryEnvironment, getDiscoveryMarket } from "./discoveryMarketContext";
 import type { DiscoveryMode } from "./discoveryProgressiveDisclosure";
 import type { DiscoveryAnswers, DiscoveryNotes, DiscoveryQuestion, DiscoverySummaryItem } from "./discoveryTypes";
 import { roomEquipmentSchedule, supportingRoomScope } from "./operationalDiscovery";
+import { roomDimensionsSummary } from "./RoomDimensionsFields";
+import { decisionForCapturedRoom, type RoomDecision } from "../../lib/roomBrief";
+import { TEMPLATE_MARKETS } from "../../lib/templateMarkets";
 
 export type DiscoveryBriefBuilderInput = {
   answers: DiscoveryAnswers;
@@ -58,6 +61,23 @@ export type DiscoveryBriefBuilderInput = {
   confidenceScoresByStep: Record<string, number>;
   decisionIntegrity: { canProceedToRecommendation: boolean; issues: Array<{ followUpQuestion: string }> };
 };
+
+function roomDecisionFromDiscovery(
+  answers: DiscoveryAnswers,
+  marketId: string,
+): RoomDecision | undefined {
+  const marketLabel = getDiscoveryMarket(marketId)?.label ?? "";
+  const market = TEMPLATE_MARKETS.find((item) => marketLabel.toLowerCase().includes(item.toLowerCase())) ?? "";
+  const decision = decisionForCapturedRoom(answers as Record<string, unknown>, market);
+  return decision ?? undefined;
+}
+
+/** Build the same shared room decision that the focused brief shows. */
+export function deriveDiscoveryRoomDecision(
+  answers: DiscoveryAnswers,
+): RoomDecision | undefined {
+  return roomDecisionFromDiscovery(answers, wmDiscoveryAnswerToText(answers.market));
+}
 
 export function compileDiscoveryBrief({
   answers, notes, topology, discoveryQuestions, modeQuestions,
@@ -105,6 +125,7 @@ export function compileDiscoveryBrief({
     const avoipSeriesHint = getAvoipSeriesHint(avoipProfileValue);
     const allNotes = Object.values(notes).map((note) => note.trim()).filter(Boolean);
     const marketId = wmDiscoveryAnswerToText(answers.market);
+    const roomDecision = roomDecisionFromDiscovery(answers, marketId);
     const environmentId = wmDiscoveryAnswerToText(answers.environment);
     const marketLabel = getDiscoveryMarket(marketId)?.label ?? "";
     const environmentLabel = environmentId === "other"
@@ -125,16 +146,26 @@ export function compileDiscoveryBrief({
       ? getAvoipNextQuestion(avoipProfileValue, strategy.askNext)
       : strategy.askNext;
     const displayCount = answerLabel("displays");
+    const primaryDisplayArrangement = answerLabel("primary-display");
+    const repeaterDisplayCount = answerLabel("repeater-displays");
+    const repeaterCountValue = wmDiscoveryNormaliseAnswerList(answers["repeater-displays"])[0] ?? "";
+    const repeaterPurposeValues = repeaterCountValue === "no-repeater-displays" ? []
+      : wmDiscoveryNormaliseAnswerList(answers["display-behaviour"])
+        .filter(value => ["overflow-viewing", "room-wide-visibility"].includes(value));
+    const repeaterDisplayPurpose = repeaterPurposeValues.map(value =>
+      getFullDiscoveryOptions("display-behaviour").find(option => option.value === value)?.label ?? value,
+    );
     const scaleLabel = answerLabel("scale");
-    const displayBehaviour = answerLabel("display-behaviour") || answerLabel("displays");
+    const displayBehaviour = answerLabels("display-behaviour").join(", ") || answerLabel("displays");
     const signalStandard = answerLabel("signal-standard");
     const sourceCount = answerLabel("sources");
     const ucPurpose = answerLabel("uc-purpose");
     const conferencingPlatform = answerLabels("uc-platform");
     const cameraNeeds = answerLabels("uc-camera");
     const cameraRouting = answerLabels("uc-camera-routing");
-    const microphoneNeeds = answerLabels("uc-microphones");
-    const microphoneConnections = answerLabels("uc-microphone-connection");
+    const audioByOthers = wmDiscoveryAnswerIncludes(answers.audio, "audio-by-others");
+    const microphoneNeeds = audioByOthers ? [] : answerLabels("uc-microphones");
+    const microphoneConnections = audioByOthers ? [] : answerLabels("uc-microphone-connection");
     const usb = answerLabel("usb");
     const audio = answerLabel("audio");
     const sourceConnections = answerLabels("source-connection");
@@ -142,8 +173,8 @@ export function compileDiscoveryBrief({
     const wirelessPresentationOperation = answerLabels("wireless-presentation-operation");
     const multiviewDestinations = answerLabels("multiview-destination");
     const multiviewOperation = answerLabels("multiview-operation");
-    const microphoneCount = answerLabel("uc-microphone-count");
-    const audioProcessing = answerLabels("uc-audio-processing");
+    const microphoneCount = audioByOthers ? "" : answerLabel("uc-microphone-count");
+    const audioProcessing = audioByOthers ? [] : answerLabels("uc-audio-processing");
     const usbValues = wmDiscoveryNormaliseAnswerList(answers.usb);
     const usbNeeds = answerLabels("usb");
     const usbOwnership = [
@@ -266,9 +297,14 @@ export function compileDiscoveryBrief({
     }
 
     const siteConditionLabels: Record<string, string> = {
+      "site-overall-construction": "Overall building construction",
+      "site-room-structure": "Room structure and fixing support",
+      "site-floor-type": "Floor type",
+      "site-ceiling-type": "Ceiling type",
       "site-wall-construction": "Wall construction and fixing surfaces",
       "site-ceiling-construction": "Ceiling construction and overhead access",
-      "site-cable-route": "Cable routes and containment",
+      "site-containment-type": "Containment types",
+      "site-cable-route": "Cable routes and route constraints",
       "site-power-rack": "Power and equipment space",
       "site-lighting-acoustics": "Lighting, noise and room acoustics",
       "site-access-constraints": "Access and site restrictions",
@@ -286,8 +322,10 @@ export function compileDiscoveryBrief({
       savedAt: new Date().toISOString(),
       topology: activeTopology,
       roomModel: {
+        decidedRoomType: roomDecision?.roomType,
+        roomDecisionSummary: roomDecision?.summary,
         roomOccupancy: wmDiscoveryAnswerToText(answers["room-occupancy"]),
-        roomDimensions: wmDiscoveryAnswerToText(answers["room-dimensions"]),
+        roomDimensions: roomDimensionsSummary(answers),
         siteConditions,
         equipmentSchedule: roomEquipmentSchedule(activeTopology),
         completionScope: supportingRoomScope(answers, activeTopology),
@@ -309,6 +347,9 @@ export function compileDiscoveryBrief({
         sourceCount,
         displayCount,
         displays: displayCount,
+        primaryDisplayArrangement,
+        repeaterDisplayCount,
+        repeaterDisplayPurpose,
         displayArrangement: displayBehaviour,
         displayBehaviour,
         signalStandard,
@@ -342,9 +383,9 @@ export function compileDiscoveryBrief({
         audioSignalPath: audioDesign?.signalPath,
         audioZoning: audioDesign?.zoning,
         audioScope: audioDesign?.requiredScope.map((scope) => `${scope.description} by others: ${scope.notes}`),
-        audioZones: answerLabel("audio-zones"),
-        audioProgramme: answerLabels("audio-programme"),
-        roomAcoustics: answerLabels("room-acoustics"),
+        audioZones: audioByOthers ? "" : answerLabel("audio-zones"),
+        audioProgramme: audioByOthers ? [] : answerLabels("audio-programme"),
+        roomAcoustics: audioByOthers ? [] : answerLabels("room-acoustics"),
         controlNeeds,
         cableRun: longestRunMetres !== undefined ? `${longestRunMetres} m` : "Unknown",
         longestRun: longestRunMetres !== undefined ? `${longestRunMetres} m` : "Unknown",
@@ -382,6 +423,7 @@ export function compileDiscoveryBrief({
       inference: {
         summary: summaryText,
         architecture: inferredDirection,
+        roomDecision: roomDecision?.roomType,
         nextBestQuestion,
       },
       capturedPercent: completionPercent,
@@ -392,6 +434,7 @@ export function compileDiscoveryBrief({
       ])),
       nextBestQuestion: decisionIntegrity.issues[0]?.followUpQuestion ?? nextBestQuestion,
       reviewPosition,
+      roomDecision,
     };
     // WINGMAN_DISCOVERY_SOURCE_UC_EVIDENCE_ROOM_MODEL
     brief.roomModel = {
@@ -418,6 +461,8 @@ export function compileDiscoveryBrief({
       quoteSafetyStatus: decisionIntegrity.canProceedToRecommendation ? recommendationEvidence.quoteSafetyStatus : "do-not-quote-yet",
       recommendationEvidence,
       discoveryConversation: buildDiscoveryConversation(discoveryQuestions.filter(step => modeQuestions.some(question => question.id === step.id) || wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]?.trim())), answers, notes, selectedApplication, confirmedSteps, confidenceByStep, confidenceScoresByStep),
+      discoveryAnswers: { ...answers },
+      discoveryNotes: { ...notes },
     };
 
 }

@@ -27,7 +27,7 @@ export function roomAudioBom(id: string, audio: RoomAudioDesign, microphoneCount
     role: description, qty, type: sku ? "Required" : "Validate", status: sku ? "included" : "validate", notes,
     evidence: sku
       ? "WyreStorm product selected for this audio role; verify room coverage and final interfaces by survey."
-      : "Scope allowance only. Select and verify a compatible manufacturer and model before quotation; confirm coverage and interfaces by survey.",
+      : "Scope allowance only. Select and verify a compatible manufacturer and model before design sign-off; confirm coverage and interfaces by survey.",
     owner: sku ? "wyrestorm" : "integrator", manufacturer: sku ? "WyreStorm" : "", model: sku ?? "",
   });
   audio.zones.forEach((z, i) => {
@@ -40,9 +40,9 @@ export function roomAudioBom(id: string, audio: RoomAudioDesign, microphoneCount
       `${loading} ${z.amplifierSku ? "AMP-2120-DNT uses its mono bridged 100V mode for this zone only; its low-impedance outputs are not simultaneously available. Supply mains power." : "Select an appropriate third-party amplifier; an existing verified amplifier can fulfil this line."}`, z.amplifierSku);
   });
   audio.specialistSystems?.forEach((system, index) => add(`specialist-${index + 1}`, system.name, system.qty,
-    `${system.reason} ${system.scope} Supplier and final model/module schedule are to be completed by the specialist audio contractor. Quantity counts complete assemblies, not individual drivers; include every constituent item before pricing.`));
+    `${system.reason} ${system.scope} Supplier and final model/module schedule are to be completed by the specialist audio contractor. Quantity counts complete assemblies, not individual drivers; include every constituent item in the technical schedule.`));
   if (audio.acousticTreatment) add("acoustic-treatment", "Acoustic survey and wall/ceiling treatment allowance", 1,
-    `${audio.acousticTreatment.reason} ${audio.acousticTreatment.scope} Quantity one means a measured treatment package, not one panel. The specialist must enter panel type, thickness, absorption performance, area, mounting and labour before pricing. Reuse existing treatment only after verification; acoustic absorption is not sound isolation.`);
+    `${audio.acousticTreatment.reason} ${audio.acousticTreatment.scope} Quantity one means a measured treatment package, not one panel. The specialist must enter panel type, thickness, absorption performance, area and mounting in the technical scope. Reuse existing treatment only after verification; acoustic absorption is not sound isolation.`);
   if (audio.approach === "cinema") {
     add("surround-speakers", "Matched surround loudspeakers with brackets and cabling", 5, "Front left/centre/right and two surrounds, 8-ohm nominal, with matched AVR channel loading and room acoustic treatment.");
     add("subwoofer", "Powered cinema subwoofer", 1, "Include mains and screened LFE cable; locate and align with the five main channels.");

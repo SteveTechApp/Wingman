@@ -18,12 +18,12 @@ import { wallWizardAnswers, wallWizardSteps } from "./videowallWizard";
 const wall = (overrides = {}) => ({ ...defaultWallRequirements, application: "lcd-loop" as const, columns: 2, rows: 2, ...overrides });
 
 describe("wall feeding", () => {
-  it("is asked after the wall's size and before its windows", () => {
+  it("asks wall type first and connection after size, sources and network", () => {
     expect(wallWizardSteps.map((step) => step.key))
-      .toEqual(["job", "picture", "size", "sources", "feeding", "layout", "visual", "detail"]);
-    // The summary a rep reads back carries the same order as the questions.
+      .toEqual(["picture", "size", "sources", "network", "feeding", "layout", "visual", "detail"]);
+    // Wall type leads; connection choices follow the wall and its network needs.
     expect(wallWizardAnswers(wall()).map((answer) => answer.key))
-      .toEqual(["picture", "size", "sources", "feeding", "layout"]);
+      .toEqual(["picture", "size", "sources", "network", "feeding", "layout"]);
   });
 
   it("offers only the models a wall of that kind can be built to", () => {

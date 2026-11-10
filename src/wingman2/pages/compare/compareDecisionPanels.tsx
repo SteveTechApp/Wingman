@@ -453,7 +453,7 @@ export function LiveResearchStatusCard({
         : stored
           ? assessment?.summary || "The approved competitor profile is now being used by Compare."
           : assessment?.outcome === "candidate"
-            ? `${assessment.candidateSku} is a researched direction only. Review the evidence before quotation or approval.`
+            ? `${assessment.candidateSku} is a researched direction only. Review the evidence before adding it to the proposal.`
             : assessment?.summary || "No safe WyreStorm product match was established from the researched evidence.";
 
   return (

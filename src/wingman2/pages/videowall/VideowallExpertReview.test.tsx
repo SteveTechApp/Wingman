@@ -67,6 +67,8 @@ describe("VideowallExpertReview", () => {
 
     expect(screen.getByTestId("videowall-expert-panel-decision")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "The wall" })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Choose the wall type to design" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Start from a saved wall" })).toBeTruthy();
     // The whole point of the passes: neither the drawing nor the cable table
     // is stacked under the answers.
     expect(screen.queryByTestId("videowall-expert-panel-wall")).toBeNull();
@@ -119,12 +121,12 @@ describe("VideowallExpertReview", () => {
     // wall above them.
     const step = screen.getByTestId("videowall-step-1");
     expect(step.hasAttribute("open")).toBe(false);
-    expect(step.textContent).toContain("What is going on the wall?");
-    expect(step.textContent).toContain("LCD · feed per display");
+    expect(step.textContent).toContain("How does the wall receive its picture?");
+    expect(step.textContent).toContain("4 feeds, a panel per feed · A matrix output per panel");
 
     fireEvent.click(step.querySelector("summary")!);
     expect(step.hasAttribute("open")).toBe(true);
-    expect(screen.getByRole("group", { name: "Display application" })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "How the wall is fed" })).toBeTruthy();
   });
 
   it("folds the pre-order checklist to its count", () => {

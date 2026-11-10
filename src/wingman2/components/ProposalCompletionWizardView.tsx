@@ -51,20 +51,9 @@ import { REP_COPY, customerCopyText } from "../lib/proposalCopy";
 import { updateSavedWallRequirements } from "../lib/savedWallUpdates";
 import { wallRequirementsFromSummary } from "../lib/videowallOptions";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../lib/wallSurvey";
-import {
-  buildInstallationSchedule,
-  installationTotals,
-  type InstallationSchedule,
-} from "../lib/installationSchedule";
-import { seedInstallationRates, type InstallationRateCard } from "../lib/installationRateCard";
-import {
-  saveInstallationRateCard,
-  useInstallationRateCard,
-  useInstallationRateCardSeed,
-} from "../data/installationRateCard";
-import { ProposalReadinessList } from "./ProposalReadinessList";
-import { ProposalBomPricing } from "./ProposalBomPricing";
-import { ProposalInstallationPricing } from "./ProposalInstallationPricing";
+import { buildInstallationSchedule, type InstallationSchedule } from "../lib/installationSchedule";
+import { ProposalEquipmentSchedule } from "./ProposalEquipmentSchedule";
+import { ProposalInstallationScope } from "./ProposalInstallationScope";
 import { wallTransportPlan, wallTransportRequirements } from "../lib/videowallTransport";
 import { exportProposalDiscoveryBriefDocx } from "../lib/discoveryBriefDocxExport";
 import {
@@ -108,7 +97,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
     activeStep,
     bomRows,
     customerOutputBlocked,
-    // The per-prompt answer for a dependency that cannot be quoted, when one is
+    // The per-prompt answer for a dependency that has no named product, when one is
     // outstanding. Each keeps its prose fix as well.
     dependencyScopeFixes,
     discovery,
@@ -127,11 +116,9 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
     feedbackRating,
     finalReadinessScore,
     installation,
-    installationPricing,
     profile,
     project,
     proposal,
-    rateCardState,
     readiness,
     recallProposal,
     requirementRows,
@@ -412,48 +399,18 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
                 </Link>
               </div>
 
-              <ProposalBomPricing
+              <ProposalEquipmentSchedule
                 bomRows={bomRows}
-                currency={draft.currency}
-                unitPrices={draft.bomUnitPrices}
                 onQuantityChange={(sku, quantity) =>
                   updateDraft("bomQuantities", {
                     ...draft.bomQuantities,
                     [sku]: quantity,
                   })
                 }
-                onUnitPriceChange={(sku, value) =>
-                  updateDraft("bomUnitPrices", {
-                    ...draft.bomUnitPrices,
-                    [sku]: value,
-                  })
-                }
               />
 
-              {installation && installationPricing ? (
-                <ProposalInstallationPricing
-                  schedule={installation}
-                  pricing={installationPricing}
-                  rates={draft.installationUnitPrices}
-                  currency={draft.currency}
-                  rateCard={rateCardState.card}
-                  rateCardError={rateCardState.error}
-                  onRateChange={(lineId, value) =>
-                    updateDraft("installationUnitPrices", {
-                      ...draft.installationUnitPrices,
-                      [lineId]: value,
-                    })
-                  }
-                  onSaveRateCard={() => {
-                    void saveInstallationRateCard(draft.installationUnitPrices, draft.currency);
-                  }}
-                  onRestoreRates={(rates) =>
-                    updateDraft("installationUnitPrices", {
-                      ...draft.installationUnitPrices,
-                      ...rates,
-                    })
-                  }
-                />
+              {installation ? (
+                <ProposalInstallationScope schedule={installation} />
               ) : null}
 
               {!bomRows.length ? (
@@ -469,8 +426,8 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
                     }
                   />
                   <span>
-                    Continue without a final BOM and label the document as a
-                    design/proposal response rather than an equipment quotation.
+                    Continue without a final equipment schedule and label the
+                    document as a system design proposal.
                   </span>
                 </label>
               ) : null}
@@ -482,7 +439,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
             <>
               <div className="wm-proposal-step-heading">
                 <span>Step 4 of 5</span>
-                <h2>Commercial and delivery</h2>
+                <h2>Scope and delivery</h2>
                 <p>
                   Define scope boundaries, dependencies and responsibilities so
                   the customer understands what is and is not included.
@@ -490,32 +447,6 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
               </div>
 
               <div className="wm-proposal-form-grid">
-                <label className="wm-proposal-field">
-                  <span>Proposal currency</span>
-                  <select
-                    value={draft.currency}
-                    onChange={(event) => {
-                      const currency = event.target.value as ProposalWizardDraft["currency"];
-                      // The installation cells keep what they hold: a rate from
-                      // the card is flagged in Pricing rather than silently
-                      // converted, and a rate typed for this job is this job's.
-                      setDraft((current: ProposalWizardDraft) => ({ ...current, currency, bomUnitPrices: {}, updatedAt: new Date().toISOString() }));
-                      setExportMessage("Currency changed. Equipment rates need confirming; installation rates that came from the card are flagged in Pricing.");
-                    }}
-                  >
-                    <option value="GBP">GBP (£)</option>
-                    <option value="USD">USD ($)</option>
-                    <option value="EUR">EUR (€)</option>
-                  </select>
-                </label>
-                <label className="wm-proposal-confirmation">
-                  <input
-                    type="checkbox"
-                    checked={draft.pricesExcludeTax}
-                    onChange={(event) => updateDraft("pricesExcludeTax", event.target.checked)}
-                  />
-                  <span>Equipment prices exclude VAT / sales tax.</span>
-                </label>
                 <TextAreaField
                   label="Scope inclusions"
                   value={draft.inclusions}
@@ -552,10 +483,10 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
                   }
                 />
                 <TextAreaField
-                  label="Services and commercial allowances (service | owner | commercial status)"
-                  value={draft.servicesAndAllowances}
+                  label="Third party and by-others scope"
+                  value={draft.externalScope ?? ""}
                   rows={6}
-                  onChange={(value) => updateDraft("servicesAndAllowances", value)}
+                  onChange={(value) => updateDraft("externalScope", value)}
                 />
                 <TextAreaField
                   label="Implementation timeline (phase | activity | timing | dependency)"
@@ -645,22 +576,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
 
                 <section>
                   <h3>Remaining items</h3>
-                  {/* The list owns the fixes a page can offer in place, so the
-                      rate card's one-tap restore sits on the item that reports
-                      the unpriced lines instead of a step away. */}
-                  <ProposalReadinessList
-                    missing={readiness.missing}
-                    rateCard={rateCardState.card}
-                    lineIds={installation?.lines.map((line: InstallationSchedule["lines"][number]) => line.id) ?? []}
-                    rates={draft.installationUnitPrices}
-                    currency={draft.currency}
-                    onRestoreRates={(rates) =>
-                      updateDraft("installationUnitPrices", {
-                        ...draft.installationUnitPrices,
-                        ...rates,
-                      })
-                    }
-                  />
+                  <ul className="wm-proposal-readiness-list">{readiness.missing.map((item: string) => <li key={item}>{item}</li>)}</ul>
                 </section>
               </div>
 

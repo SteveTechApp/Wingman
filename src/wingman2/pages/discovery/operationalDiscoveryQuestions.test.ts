@@ -105,9 +105,10 @@ describe("operational discovery branches", () => {
     ]));
     // The audio question asks where sound comes out and nothing else: speaker
     // type, a separate voice mix and the extraction point are follow-up questions,
-    // so this list is five answers rather than twelve.
+    // so this list is six answers rather than twelve, including an explicit
+    // handoff when another contractor owns the room audio.
     expect(roomAudio.options.map((option) => option.value)).toEqual([
-      "room-audio", "display-audio", "dante-network-audio", "no-room-audio", "unknown-audio",
+      "room-audio", "display-audio", "dante-network-audio", "audio-by-others", "no-room-audio", "unknown-audio",
     ]);
   });
 
@@ -126,9 +127,9 @@ describe("operational discovery branches", () => {
     expect(videoWallAudio.options[0].value).toBe("room-audio");
     expect(videoWallAudio.prompt).toContain("the wall's sound");
     expect(videoWallAudio.options.map((option) => option.value)).toContain("no-room-audio");
-    // Every application ranks the same five answers, so nothing can fall back to
+    // Every application ranks the same six answers, so nothing can fall back to
     // the canonical order by accident.
-    expect(hospitalityAudio.options).toHaveLength(5);
+    expect(hospitalityAudio.options).toHaveLength(6);
   });
 
   it("creates distinct source devices and a DSP bridge from operational answers", () => {

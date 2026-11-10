@@ -6,7 +6,6 @@ import { buildProposalDocx } from "./proposalDocxExport";
 import { createProposalWizardDefaults } from "./proposalWizard";
 import { roomTemplates } from "./roomTemplates";
 import { buildTemplateProposal, savedTemplateWall, templateBomRows } from "./templateReviewProposal";
-import { templatePricingDraft, type TemplateProposalPricing } from "./templateProposalPricing";
 import { defaultWallRequirements, wallCanvasPlan, wallResolutionSummary } from "./videowallOptions";
 
 const wall = (savedAt: string, templateId?: string): StoredVideowallSummary => ({
@@ -144,38 +143,18 @@ describe("savedTemplateWall", () => {
     expect(savedTemplateWall(projects, "")).toBeNull();
   });
 
-  it("prints the prices entered on the template instead of TBC", async () => {
+  it("exports an unpriced equipment and quantity schedule for a template proposal", async () => {
     const template = roomTemplates[0];
     const proposal = buildTemplateProposal(template, template.bom);
     const bomRows = templateBomRows(template, template.bom);
-    const defaults = createProposalWizardDefaults({
-      projectId: `template-${template.id}`,
-      projectName: template.name,
-      preparedBy: "",
-      executiveSummary: template.customerNarrative,
-      architectureNarrative: template.architecture,
-    });
-
-    const documentText = async (wizard: typeof defaults) => {
-      const buffer = await Packer.toBuffer(buildProposalDocx(proposal, bomRows, wizard));
-      const xml = await (await JSZip.loadAsync(buffer)).file("word/document.xml")!.async("string");
-      return xml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-    };
-
-    // The template path exports without the wizard, so an unpriced template is
-    // what printed a page of TBC before the review page could price it.
-    expect(await documentText(defaults)).toContain(
-      "COMMERCIAL HOLD: one or more equipment prices are missing",
-    );
-
-    const pricing: TemplateProposalPricing = {
-      currency: "GBP",
-      bomUnitPrices: Object.fromEntries(bomRows.map((row) => [row.sku, "100"])),
-      installationUnitPrices: {},
-    };
-    const priced = await documentText(templatePricingDraft(defaults, pricing));
-
-    expect(priced).toContain("The equipment total is £");
-    expect(priced).not.toContain("COMMERCIAL HOLD: one or more equipment prices are missing");
+    const defaults = createProposalWizardDefaults({ projectId: `template-${template.id}`, projectName: template.name, preparedBy: "", executiveSummary: template.customerNarrative, architectureNarrative: template.architecture });
+    const buffer = await Packer.toBuffer(buildProposalDocx(proposal, bomRows, defaults));
+    const xml = await (await JSZip.loadAsync(buffer)).file("word/document.xml")!.async("string");
+    const text = xml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    expect(text).toContain("Equipment Schedule");
+    expect(text).toContain(String(bomRows[0].qty));
+    expect(text).not.toContain("Unit price");
+    expect(text).not.toContain("COMMERCIAL HOLD");
   });
+
 });

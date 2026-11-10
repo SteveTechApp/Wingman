@@ -746,6 +746,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     ...list(answers.usb),
     ...list(answers["usb-path"]),
   ];
+  const audioByOthers = list(answers.audio).includes("audio-by-others");
   const explicitUsbRequired = usbValues.some(
     (item) => !/no-usb|unknown-usb/.test(item),
   );
@@ -792,6 +793,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   }
 
   if (
+    (!audioByOthers || explicitUsbRequired) &&
     usbRequired &&
     !devices.some((item) => item.id === "device-camera")
   ) {
@@ -810,10 +812,11 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     });
   }
 
-  const microphoneRequired =
+  const microphoneRequired = !audioByOthers && (
     conferencingRequired ||
     recordingRequired ||
-    microphonesOnlyRequired;
+    microphonesOnlyRequired
+  );
   const microphoneCountValue = list(answers["uc-microphone-count"])[0] ?? "";
   const microphoneQuantity = microphoneCountValue === "two-four-microphone-feeds" ? 4
     : microphoneCountValue === "five-eight-microphone-feeds" ? 8

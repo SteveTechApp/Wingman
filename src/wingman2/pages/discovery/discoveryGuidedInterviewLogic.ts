@@ -251,7 +251,12 @@ export function matchSpokenAnswer(
     entry.score > max.score ? entry : max,
   );
 
-  let selected = isMulti
+  const uncertaintyMatch = unknownHints
+    ? capped.find((entry) => isGuidedUncertaintyOption(entry.value))
+    : undefined;
+  let selected = uncertaintyMatch
+    ? [uncertaintyMatch]
+    : isMulti
     ? capped
         .filter((entry) => entry.score > 0)
         .sort((left, right) => right.score - left.score)

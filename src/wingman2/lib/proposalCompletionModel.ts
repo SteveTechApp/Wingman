@@ -66,6 +66,7 @@ function budgetLabelFromLevel(level: string): string {
 export function readDiscovery(project: StoredProject): DiscoveryView {
   const brief = project.discoveryBrief;
   const room = brief?.roomModel ?? {};
+  const roomDecision = brief?.roomDecision;
 
   return {
     projectTitle:
@@ -75,7 +76,9 @@ export function readDiscovery(project: StoredProject): DiscoveryView {
     customerName: asText(room.clientName),
     contactName: asText(room.contactName),
     summary:
-      asText(brief?.inference?.summary) ||
+      [roomDecision ? `${roomDecision.roomType}. ${roomDecision.summary}` : "", asText(brief?.inference?.summary)]
+        .filter(Boolean)
+        .join("\n\n") ||
       asText(room.summary) ||
       asText(room.outcome) ||
       "The Discovery brief has been captured for this project.",
@@ -122,7 +125,9 @@ export function readDiscovery(project: StoredProject): DiscoveryView {
     avoipProfile:
       asText(room.avoipProfile || room.avoipSeriesHint),
     architecture:
-      asText(brief?.inference?.architecture) ||
+      [roomDecision ? `${roomDecision.roomType}. ${roomDecision.summary}` : "", asText(brief?.inference?.architecture)]
+        .filter(Boolean)
+        .join("\n\n") ||
       asText(room.inferredArchitectureDirection) ||
       asText(room.designDirection),
     nextQuestion:
@@ -143,6 +148,11 @@ export function standardAssumptions(project: StoredProject) {
       ...(project.compareRuns?.[0]?.warnings ?? []),
       ...(project.recommendationEvidence?.missingInformation ?? []),
       ...(project.discoveryBrief?.recommendationEvidence?.missingInformation ?? []),
+      ...(project.discoveryBrief?.roomDecision?.assumptions ?? []),
+      ...(project.discoveryBrief?.roomDecision?.verifyOnSite.map((item) => `Confirm on site: ${item}`) ?? []),
+      ...(project.discoveryBrief?.roomDecision?.unresolved.length
+        ? [`Confirm the room type between: ${project.discoveryBrief.roomDecision.unresolved.join(", ")}.`]
+        : []),
     ]),
   ).slice(0, 15);
 }

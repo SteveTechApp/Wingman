@@ -7,6 +7,7 @@ import type { ProjectTopology } from "../../lib/projectTopology";
 import { operationalQuestion, roomEquipmentSchedule, supportingRoomScope, updateOperationalAnswer } from "./operationalDiscovery";
 import { DiscoveryRoomLocations } from "./DiscoveryRoomLocations";
 import { DiscoverySiteConditions } from "./DiscoverySiteConditions";
+import { RoomDimensionsFields, roomDimensionsSummary } from "./RoomDimensionsFields";
 import { DiscoveryCaptureSuggestion } from "./DiscoveryCaptureSuggestion";
 import { getQuestionView } from "./discoveryAnswerUtils";
 import type { DiscoveryAnswers, DiscoveryNotes, DiscoveryQuestion } from "./discoveryTypes";
@@ -68,7 +69,7 @@ export function DiscoveryRoomWizard(props: Props) {
             ...(count > 0 ? { [question.id]: question.id === "sources" ? count === 1 ? "one-source" : count <= 4 ? "two-four-sources" : count <= 8 ? "five-eight-sources" : "nine-plus-sources" : count === 1 ? "one-display" : count === 2 ? "two-displays" : count <= 8 ? "three-eight-displays" : "nine-plus-displays" } : {}) }));
           props.onConfirm(question.id, false);
         }} /></label>}
-        {question.id === "scale" && <><div className="wm-room-wizard-fields"><label>Number of people<input type="number" min="1" value={String(answers["room-occupancy"] || "")} onChange={event => props.onAnswersChange(previous => ({ ...previous, "room-occupancy": event.target.value }))} /></label><label>Room dimensions and seating<textarea value={String(answers["room-dimensions"] || "")} onChange={event => props.onAnswersChange(previous => ({ ...previous, "room-dimensions": event.target.value }))} placeholder="12 × 8 metres, rows facing the lectern" /></label></div><DiscoverySiteConditions answers={answers} onChange={props.onAnswersChange} compact /></>}
+        {question.id === "scale" && <><div className="wm-room-wizard-fields"><label>Number of people<input type="number" min="1" value={String(answers["room-occupancy"] || "")} onChange={event => props.onAnswersChange(previous => ({ ...previous, "room-occupancy": event.target.value }))} /></label><RoomDimensionsFields idPrefix="guided" answers={answers} onChange={props.onAnswersChange} /></div><DiscoverySiteConditions answers={answers} onChange={props.onAnswersChange} compact /></>}
         {question.id === "locations-connections" ? <DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} /> : <div className="wm-room-wizard-options">{question.options.map(option => <button className="wm-room-wizard-option" type="button" key={option.value} aria-pressed={selected.includes(option.value)} onClick={() => choose(option.value)}>{option.label}</button>)}</div>}
         <label>Tell Wingman how people will use this<textarea value={notes[question.id] || ""} onChange={event => { props.onNotesChange(previous => ({ ...previous, [question.id]: event.target.value })); props.onConfirm(question.id, false); }} placeholder={question.capturePlaceholder} /></label>
         <VoiceRequestCapture compact onTranscript={text => {
@@ -92,7 +93,7 @@ export function DiscoveryRoomWizard(props: Props) {
       {props.savedMessage && <p data-testid="discovery-save-status" role="status">{props.savedMessage}</p>}
     </div><aside className="wm-room-wizard-summary" aria-label="Your room so far"><h3>Your room so far</h3>
       {props.designDirection && <p>{props.designDirection}</p>}
-      {answers["room-occupancy"] && <p>{String(answers["room-occupancy"])} people · {String(answers["room-dimensions"] || "Room dimensions to confirm")}</p>}
+      {(answers["room-occupancy"] || roomDimensionsSummary(answers)) && <p>{answers["room-occupancy"] ? `${String(answers["room-occupancy"])} people · ` : ""}{roomDimensionsSummary(answers) || "Room dimensions to confirm"}</p>}
       {questions.filter(row => answers[row.id]).map(row => <p key={row.id}><strong>{operationalQuestion(row).shortLabel}</strong><br />{[answers[row.id]].flat().map(value => operationalQuestion(row).options.find(option => option.value === value)?.label || value).join(", ")}</p>)}
       <h4>Positions</h4>{topology.locations.map(location => <p key={location.id}>{location.name}</p>)}
       <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("equipment")}>Equipment and room positions</button>

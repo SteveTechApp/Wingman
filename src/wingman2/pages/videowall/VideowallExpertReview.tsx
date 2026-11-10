@@ -1,7 +1,8 @@
 import { useState } from "react";
 import {
   validateWallRequirements,
-  wallApplications,
+  wallTechnologies,
+  wallTechnologyForApplication,
   wallAspectWarning,
   wallCanvasPlan,
   wallProjectorCount,
@@ -17,7 +18,7 @@ import {
   type WallStartPreset,
 } from "../../lib/videowallDecision";
 import type { WallStartingPointOrigin } from "../../lib/wallStartingPointOrigin";
-import { videowallLocationChoices, videowallLocationKeyFor } from "../../lib/videowallDraft";
+import { wallConnectionSummary } from "../../lib/wallFeeding";
 import { formatMillimetres, wallPhysicalSize } from "../../lib/wallPhysicalSize";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../../lib/wallSurvey";
 import { wallTransportPlan } from "../../lib/videowallTransport";
@@ -25,13 +26,15 @@ import {
   wallDesignBands,
   wallReviewStageStatuses,
   wallWizardAnswers,
+  wallWizardTechnologyPatch,
+  wallWizardLayoutChoiceIsDisabled,
   type WallDesignBandKey,
   type WallReviewStageKey,
   type WallWizardStepKey,
 } from "../../lib/videowallWizard";
 import { wallSharePassName } from "../../lib/wallShareLink";
 import { SaveWallStartingPoint } from "./WallStartingPointSave";
-import { VideowallFeedFields } from "./VideowallFeedFields";
+import { VideowallConnectionOptions } from "./VideowallConnectionOptions";
 import { VideowallOptionsList } from "./VideowallOptionsList";
 import { VideowallRefineFields } from "./VideowallRefineFields";
 import { VideowallReviewNav, VideowallReviewStages } from "./VideowallReviewStages";
@@ -175,8 +178,22 @@ export function VideowallExpertReview({
             <section className="vw-builder-decide" aria-labelledby="wall-requirements-title">
               <header className="vw-builder-decide-head">
                 <h2 id="wall-requirements-title">The wall</h2>
-                <p>Pick the wall closest to the room. One tap sets every answer; adjust anything the customer differs on.</p>
+                <p>Choose the kind of wall first. Then start from a saved wall if useful, and adjust its answers for this room.</p>
               </header>
+              <div className="vw-builder-applications" role="group" aria-label="Choose the wall type to design">
+                {wallTechnologies.map((technology) => (
+                  <button
+                    key={technology.value}
+                    type="button"
+                    aria-pressed={wallTechnologyForApplication(requirements.application) === technology.value}
+                    onClick={() => onUpdate(wallWizardTechnologyPatch(technology.value, requirements))}
+                  >
+                    <strong>{technology.title}</strong>
+                    <span>{technology.description}</span>
+                  </button>
+                ))}
+              </div>
+              <h3>Start from a saved wall</h3>
               <div className="vw-builder-starts" role="group" aria-label="Wall starting points">
                 <VideowallStartPresets
                   requirements={requirements}
@@ -216,35 +233,11 @@ export function VideowallExpertReview({
               <VideowallStep
                 index={1}
                 question={wallDecisionQuestions.application}
-                answer={answerFor("picture")}
-                hint="This decides whether the panels take separate feeds, groups of feeds, or one composed canvas."
+                answer={wallConnectionSummary(requirements)}
+                hint="Choose the feed model, then the network and equipment that carry the picture. Multiview paths shape the layout below."
               >
-                <div className="vw-builder-applications" role="group" aria-label="Display application">
-                  {wallApplications.map((application) => (
-                    <button
-                      key={application.value}
-                      type="button"
-                      aria-pressed={requirements.application === application.value}
-                      onClick={() => {
-                        // A per-panel feed only exists for individually fed LCDs, and
-                        // custom placement only exists on one composed canvas. Keep the
-                        // rest of the captured answer intact.
-                        const dropIndependent = application.value !== "lcd-direct" && requirements.layout === "independent";
-                        const dropCustom = application.value === "lcd-direct" && requirements.layout === "custom";
-                        onUpdate({
-                          application: application.value,
-                          ...(dropIndependent || dropCustom ? { layout: "single" as const, windows: 1 } : {}),
-                        });
-                      }}
-                    >
-                      <strong>{application.title}</strong>
-                      <span>{application.description}</span>
-                    </button>
-                  ))}
-                </div>
-                {requirements.application === "lcd-grouped" ? (
-                  <VideowallFeedFields requirements={requirements} onChange={onUpdate} />
-                ) : null}
+                <VideowallConnectionOptions key={requirements.application} requirements={requirements}
+                  onChange={onUpdate} includeNetworkProvision />
               </VideowallStep>
 
               <VideowallStep
@@ -270,6 +263,7 @@ export function VideowallExpertReview({
                     <button
                       key={choice.key}
                       type="button"
+                      disabled={wallWizardLayoutChoiceIsDisabled(choice, Boolean(requirements.multiviewSelected))}
                       aria-pressed={
                         requirements.layout === choice.value
                         && (!choice.customMode || requirements.customMode === choice.customMode)
@@ -283,26 +277,6 @@ export function VideowallExpertReview({
                 </div>
               </VideowallStep>
 
-              <VideowallStep
-                index={4}
-                question={wallDecisionQuestions.location}
-                answer={videowallLocationChoices.find((choice) => choice.key === videowallLocationKeyFor(requirements))?.label ?? ""}
-                hint="Distance decides between local HDMI and network transport."
-              >
-                <div className="vw-builder-choices" role="group" aria-label="Source location">
-                  {videowallLocationChoices.map((choice) => (
-                    <button
-                      key={choice.key}
-                      type="button"
-                      aria-pressed={videowallLocationKeyFor(requirements) === choice.key}
-                      onClick={() => onUpdate(choice.patch)}
-                    >
-                      <strong>{choice.label}</strong>
-                      <span>{choice.detail}</span>
-                    </button>
-                  ))}
-                </div>
-              </VideowallStep>
               </ol>
 
               <VideowallRefineFields requirements={requirements} lcd={lcd} errors={errors} onUpdate={onUpdate} />

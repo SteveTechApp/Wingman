@@ -49,16 +49,13 @@
 export const WALL_ENTRY_NAME = "Video wall designer";
 
 /**
- * The one sentence that says how a design begins: the LED brief or a common
- * wall, then the survey.
+ * The one sentence that says how a design begins: choose the wall type, answer
+ * the design questions, then record the survey.
  *
- * The guided start step opens on the LED brief — canvas, pitch and cabinet
- * array — because those three are the customer's and a preset answers them
- * already, so that is the beginning a rep meets first; the common walls sit
- * under it for the LCD and projection jobs, which is why the sentence names
- * both rather than the picker alone.
+ * Both modes start by deciding the wall type. Guided asks one question at a
+ * time; Expert offers saved starting points after the type choice.
  */
-export const WALL_ENTRY_INTRO = "Start from the LED brief or a common wall, then record the survey.";
+export const WALL_ENTRY_INTRO = "Choose the wall type, answer the design questions, then record the survey.";
 
 /**
  * The entry as a sentence names it, where the words around it need an article:

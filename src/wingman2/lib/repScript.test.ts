@@ -82,7 +82,7 @@ describe("repScript (the complete narrative)", () => {
     expect(script.line).toContain("MX-0404-SCL");
     expect(script.purposeLine).toBe("Kramer VS-42H is used to route multiple sources to different display destinations.");
     expect(script.whyBullets).toEqual(["Technology class matches.", "Same endpoint role."]);
-    expect(script.quoteChecks).toEqual(["Confirm current lifecycle, region and required accessories before quotation."]);
+    expect(script.quoteChecks).toEqual(["Confirm current lifecycle, region and required accessories before the proposal is issued."]);
     expect(script.whatToSay).toBe("");
     expect(script.difference).toContain("right WyreStorm matrix direction");
     expect(script.nextSteps).toEqual([

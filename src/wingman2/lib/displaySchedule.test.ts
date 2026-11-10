@@ -678,33 +678,28 @@ describe("display schedule in the proposal outputs", () => {
     expect(htmlDetailRows[2]).toEqual(["Panel 1", "Back box", "Tilt bracket", "HDMI faceplate", "Floor box"]);
     expect(wordRows.slice(wordDetailHeader + 1, wordDetailHeader + 1 + htmlDetailRows.length)).toEqual(htmlDetailRows);
 
-    // The grouped installation scope below the equipment schedule: the customer
-    // copy lists it by item and the Word quote prices it, so Word adds the two
-    // rate columns and changes nothing else about the rows or their labels.
+    // The grouped installation scope below the equipment schedule: both
+    // customer outputs carry the same unpriced scope and quantity columns.
     const htmlScope = html.slice(html.indexOf("<h3>Installation and Services</h3>"));
     const htmlScopeLabels = [...(htmlScope.match(/<thead>([\s\S]*?)<\/thead>/)?.[1] ?? "").matchAll(/<th>([\s\S]*?)<\/th>/g)]
       .map((cell) => plainText(cell[1]));
     const htmlScopeRows = [...html.matchAll(/<tr data-installation-line="[^"]+">([\s\S]*?)<\/tr>/g)]
       .map((row) => [...row[1].matchAll(/<td>([\s\S]*?)<\/td>/g)].map((cell) => plainText(cell[1])));
-    const wordScopeHeader = wordRows.findIndex((cells) => cells[0] === "Service" && cells.includes("Unit rate"));
-    const wordScopeTotal = wordRows.findIndex((cells, index) => index > wordScopeHeader && cells[0] === "Installation and services total");
+    const wordScopeHeader = wordRows.findIndex((cells) => cells[0] === "Service" && cells.includes("Survey detail"));
+    const wordScopeTotal = wordRows.findIndex((cells, index) => index > wordScopeHeader && cells[0] === "Installation schedule totals");
     const wordScopeLabels = wordRows[wordScopeHeader] ?? [];
 
     expect(htmlScopeLabels).toEqual(["Service", "Survey detail", "Qty", "Links"]);
-    expect(wordScopeLabels).toEqual(["Service", "Survey detail", "Qty", "Unit rate", "Line total", "Links"]);
-    // The columns both copies print are spelled with the same words, because
-    // both ask the one list rather than each naming the column itself.
-    expect(htmlScopeLabels.filter((label) => wordScopeLabels.includes(label))).toEqual(htmlScopeLabels);
-    // Every heading either document prints is a label from that list, and the
-    // detail column names the survey rather than a product line.
+    expect(wordScopeLabels).toEqual(htmlScopeLabels);
+    // Every heading either document prints is a label from the shared list,
+    // and the detail column names the survey rather than a product line.
     const sharedLabels: string[] = Object.values(INSTALLATION_TABLE_COLUMN_LABELS);
     expect([...htmlScopeLabels, ...wordScopeLabels].filter((label) => !sharedLabels.includes(label))).toEqual([]);
     expect(htmlScopeLabels[1]).toBe(INSTALLATION_TABLE_COLUMN_LABELS.detail);
     expect(wordScopeLabels[1]).toBe(INSTALLATION_TABLE_COLUMN_LABELS.detail);
-    // One wall, one scope: dropping Word's two rate columns leaves the customer
-    // copy's rows, in the same order, with the same quantities and link names.
-    expect(wordRows.slice(wordScopeHeader + 1, wordScopeTotal).map(([service, detail, qty, , , links]) => [service, detail, qty, links]))
-      .toEqual(htmlScopeRows);
+    // Both outputs list the same scope rows and total quantity.
+    expect(wordRows.slice(wordScopeHeader + 1, wordScopeTotal)).toEqual(htmlScopeRows);
+    expect(wordRows[wordScopeTotal]).toEqual(["Installation schedule totals", "14", "6 line items"]);
   });
 
   it("lists the wall's transport limits in the DOCX export", async () => {

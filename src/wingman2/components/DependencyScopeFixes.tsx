@@ -2,13 +2,13 @@ import { useState } from "react";
 import type { DependencyPrompt } from "../lib/dependencyScope";
 
 /**
- * The one-tap answer for a dependency prompt the quotation cannot carry.
+ * The one-tap answer for a dependency prompt the equipment schedule cannot carry.
  *
  * A `TBC-` dependency is an open question with no catalogue part behind it, so
  * the export holds until someone decides what the document says about it. The
  * gate is where the rep sees that, so the decision is offered here rather than
  * in another workflow: recording a prompt keeps its question in the document's
- * dependency list and takes the unpriced line out of the BOM.
+ * dependency list and removes the non-product placeholder from the BOM.
  *
  * Each prompt is its own button, named after the dependency. These are separate
  * scope decisions — one room can leave the network to the customer's IT and
@@ -24,7 +24,7 @@ import type { DependencyPrompt } from "../lib/dependencyScope";
 export function DependencyScopeFixes({
   dependencies,
   onRecord,
-  explanation = " A dependency prompt has no catalogue part behind it, so it cannot be priced. Recording one keeps the question in the document's dependencies and takes the unpriced line out of the quotation.",
+  explanation = " A dependency prompt has no catalogue product behind it. Recording one keeps the question in the document's dependencies and removes the placeholder from the equipment schedule.",
 }: {
   /** The prompts still carried as BOM placeholders. */
   dependencies: readonly DependencyPrompt[];

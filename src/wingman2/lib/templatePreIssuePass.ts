@@ -10,8 +10,8 @@ import {
  * The Proposal tab unmounts when the rep visits Room design or Drawings, and the
  * page opens it at the first stage that has work, which makes every return start
  * at the top of a reading the rep had already finished. So the stage is kept in
- * the browser, beside the template's pricing draft rather than inside the
- * template: it is where one person was reading, not what the template says.
+ * the browser rather than inside the template: it is where one person was
+ * reading, not what the template says.
  *
  * One key per template. Two templates can hold different work, and inheriting
  * another template's stage would open a rep on a reading they never chose.
