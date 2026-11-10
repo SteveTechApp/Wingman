@@ -284,6 +284,11 @@ states is one they trust by mistake.
   `discovery-<verb>-<object>`; repeated choices append stable model ids, never
   display labels, because the walk drives those ids and a label change would
   silently retarget it. Copy assertions belong in content tests.
+- The selected Discovery market and environment frame the question set. A
+  Lecture theatre can start with a large-room scale and an explicitly estimated
+  100-seat capacity; measured L/W/H stays blank for the site survey. If the rep
+  changes market, unchanged inferred values are cleared while edits remain.
+  [Narrative](docs/DISCOVERY.md)
 - `tsc --noEmit` on the default config only checks the import closure of
   `src/main.tsx`, so it is a false green; the gate is
   `npx tsc --noEmit -p tsconfig.typecheck.json`. The two configs must agree

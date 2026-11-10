@@ -10,6 +10,14 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   display values as unanswered; otherwise an empty label is a defined string
   with no scale rule and gets reported as invalid data.
 
+- The market and selected environment frame the questions that follow. The
+  Education · Lecture theatre path starts with a large-room scale and a
+  clearly labelled estimate of 100 seats, while preserving an occupancy the
+  rep already entered. It never guesses physical dimensions: L/W/H remain open
+  for measurement, and the note asks the rep to confirm capacity and record
+  those measurements. Changing market clears only unchanged inferred values;
+  a capacity or scale the rep edited remains theirs.
+
 - The essential brief, guided room walk and expert workspace capture room size
   through the same three numeric fields: length, width and height in metres.
   Seating and layout stay in their own note, so they cannot be mistaken for a

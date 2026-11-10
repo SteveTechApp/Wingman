@@ -95,8 +95,8 @@ export function DiscoveryExpertBuilder(props: Props) {
             answer={answers[question.id]} note={notes[question.id] ?? ""} confirmed={Boolean(confirmed[question.id])}
             onSelect={value => selectOption(question, value)} onNoteChange={value => props.onNotesChange(previous => ({ ...previous, [question.id]: value }))}
             onConfirm={value => props.onConfirm(question.id, value)} onConfirmCapture={(values, confidence) => props.onConfirmCaptureSuggestion(question.id, values, confidence)} />)}
-          <div className="wm-room-wizard-fields"><label htmlFor="expert-room-occupancy">Expected number of people
-            <input id="expert-room-occupancy" type="number" min="1" value={String(answers["room-occupancy"] || "")} onChange={event => props.onAnswersChange(previous => ({ ...previous, "room-occupancy": event.target.value }))} /></label>
+          <div className="wm-room-wizard-fields"><label htmlFor="expert-room-occupancy">{notes["room-occupancy"]?.startsWith("Starting estimate") ? "Expected number of people (starting estimate)" : "Expected number of people"}
+            <input id="expert-room-occupancy" type="number" min="1" value={String(answers["room-occupancy"] || "")} onChange={event => props.onAnswersChange(previous => ({ ...previous, "room-occupancy": event.target.value }))} />{notes["room-occupancy"] && <small>{notes["room-occupancy"]}</small>}</label>
             <RoomDimensionsFields idPrefix="expert" answers={answers} onChange={props.onAnswersChange} /></div>
         </>}
         {activeSection === "site" && <DiscoverySiteConditions answers={answers} onChange={props.onAnswersChange} />}

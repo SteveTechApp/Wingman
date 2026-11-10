@@ -29,4 +29,19 @@ describe("essential capture", () => {
     fireEvent.click(screen.getByRole("button", { name: "Find WyreStorm products" }));
     expect(onContinue).toHaveBeenCalledOnce();
   });
+
+  it("shows inferred lecture-theatre capacity as an estimate and leaves dimensions open", () => {
+    render(<DiscoveryEssentialCapture
+      questions={baseDiscoveryQuestions.filter(question => ["opportunity", "scale"].includes(question.id))}
+      answers={{ opportunity: "classroom", scale: "single-large-room", "room-occupancy": "100" }}
+      notes={{ "room-occupancy": "Starting estimate from Education · Lecture theatre: the capacity is approximate." }}
+      onAnswersChange={vi.fn()} onNotesChange={vi.fn()} onChanged={vi.fn()} onSave={vi.fn()}
+      onContinue={vi.fn()} onDetails={vi.fn()}
+    />);
+    expect(screen.getByLabelText(/Expected number of people \(starting estimate\)/)).toHaveValue(100);
+    expect(screen.getByText(/capacity is approximate/)).toBeVisible();
+    expect(screen.getByLabelText("Length (m)")).toHaveValue(null);
+    expect(screen.getByLabelText("Width (m)")).toHaveValue(null);
+    expect(screen.getByLabelText("Height (m)")).toHaveValue(null);
+  });
 });

@@ -44,7 +44,7 @@ import { DiscoveryExpertBuilder } from "./discovery/DiscoveryExpertBuilder";
 import { refreshRoomLayout, roomTemplateEquipment, mergeRoomTemplateEquipment } from "./discovery/operationalDiscovery";
 import { DiscoveryMarketEntry } from "./discovery/DiscoveryMarketEntry";
 import { DiscoveryMarketContextSummary } from "./discovery/DiscoveryMarketContextSummary";
-import { changeDiscoveryApplication, DISCOVERY_TEMPLATE_MARKET } from "./discovery/discoveryMarketContext";
+import { applyDiscoveryEnvironmentInference, changeDiscoveryApplication, clearUnchangedDiscoveryEnvironmentInference, DISCOVERY_TEMPLATE_MARKET } from "./discovery/discoveryMarketContext";
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { compileDiscoveryBrief } from "./discovery/discoveryBriefBuilder";
 import {
@@ -993,20 +993,25 @@ return (
           marketId={marketId}
           environmentId={environmentId}
           onMarketChange={(nextMarket) => {
-            setAnswers((current) => {
-              const next: DiscoveryAnswers = { ...current, market: nextMarket };
-              delete next.environment;
-              return next;
-            });
+            const cleared = clearUnchangedDiscoveryEnvironmentInference(answers, notes);
+            const next: DiscoveryAnswers = {
+              ...cleared.answers,
+              market: nextMarket,
+            };
+            delete next.environment;
+            setAnswers(next);
+            setNotes(cleared.notes);
             if (DISCOVERY_TEMPLATE_MARKET[nextMarket]) setTemplateDraftMarket(DISCOVERY_TEMPLATE_MARKET[nextMarket]);
           }}
           onEnvironmentSelect={(nextEnvironment, suggestedApplication, description) => {
-            setAnswers((current) => ({
-              ...current,
+            const inferred = applyDiscoveryEnvironmentInference(answers, notes, marketId, nextEnvironment);
+            setAnswers({
+              ...inferred.answers,
               environment: nextEnvironment,
               "environment-detail": description ?? "",
-              ...(!wmDiscoveryHasAnswer(current.opportunity) && suggestedApplication ? { opportunity: suggestedApplication } : {}),
-            }));
+              ...(!wmDiscoveryHasAnswer(answers.opportunity) && suggestedApplication ? { opportunity: suggestedApplication } : {}),
+            });
+            setNotes(inferred.notes);
             setEditingMarketContext(false);
           }}
         />

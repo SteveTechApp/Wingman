@@ -136,7 +136,7 @@ export function DiscoveryEssentialCapture(props: Props) {
     })}</div>}
 
     {activeSection?.id === "room" && <div className="wm-room-wizard-fields">
-      <label>Number of people<input type="number" min="1" value={String(props.answers["room-occupancy"] || "")} onChange={event => { const value = event.target.value; props.onAnswersChange(previous => ({ ...previous, "room-occupancy": value })); }} /></label>
+      <label>{props.notes["room-occupancy"]?.startsWith("Starting estimate") ? "Expected number of people (starting estimate)" : "Expected number of people"}<input type="number" min="1" value={String(props.answers["room-occupancy"] || "")} onChange={event => { const value = event.target.value; props.onAnswersChange(previous => ({ ...previous, "room-occupancy": value })); }} />{props.notes["room-occupancy"] && <small>{props.notes["room-occupancy"]}</small>}</label>
       <RoomDimensionsFields idPrefix="essential" answers={props.answers} onChange={props.onAnswersChange} />
     </div>}
     {activeSection?.id === "room" && <details className="wm-essential-site-details">
