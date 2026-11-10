@@ -577,7 +577,10 @@ states is one they trust by mistake.
   detail and turns the route into one video-side feed confirmation. The proposal
   records the handoff without proposing the other supplier's audio system, and
   topology must not infer microphones, DSP or speakerphone equipment in that
-  branch.
+  branch. Keep the switcher-feed choices out of the normal extraction and
+  destination question, and choose the by-others prompt only when those choices
+  are the complete option set; a canonical question containing both branches is
+  not evidence that the rep selected one.
   [Narrative](docs/DISCOVERY.md)
 - Guided Discovery decides the room before it offers a design, because "which
   design" is the second question: a library row asks a rep to recognise a

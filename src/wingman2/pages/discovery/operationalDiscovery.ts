@@ -111,7 +111,8 @@ const optionWording: Record<string, string> = {
 };
 export function operationalQuestion(question: DiscoveryQuestion): DiscoveryQuestion {
   const copy = wording[question.id];
-  const byOthersRoute = question.id === "audio-route" && question.options.some((option) => option.value.startsWith("switcher-feed-"));
+  const byOthersRoute = question.id === "audio-route" && question.options.length > 0
+    && question.options.every((option) => option.value.startsWith("switcher-feed-"));
   return { ...question, question: byOthersRoute ? "What audio feed should the video switching provide to the separate audio system?" : copy?.[0] || question.question,
     prompt: byOthersRoute ? "Audio design is by others. Confirm only the feed the video system must hand over; add the receiving location or interface in the optional note if known." : copy?.[1] || question.prompt,
     options: question.options.map(option => ({ ...option, label: optionWording[option.value] || option.label })) };

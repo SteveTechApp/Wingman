@@ -174,6 +174,14 @@ export function getVisibleDiscoveryQuestions(
       };
     }
 
+    // These four handoff choices belong only to the audio-by-others branch.
+    // Mixing them into the normal extraction/destination question makes the
+    // in-scope path look like a separate-system handoff and offers duplicate
+    // ways to answer the same audio route.
+    if (step.id === "audio-route") {
+      options = step.options.filter((option) => !option.value.startsWith("switcher-feed-"));
+    }
+
     if (step.id === "display-behaviour") {
       if (displayCount === "one-display") options = options.filter((option) => option.value !== "independent-routing-per-display");
       if (knownNonWallPrimary) options = options.filter((option) => option.value !== "video-wall-or-processor-feed");

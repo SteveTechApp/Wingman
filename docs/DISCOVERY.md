@@ -88,7 +88,10 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   must not invent microphones, a DSP or a speakerphone for that branch. Keep the
   standard in-scope route and this handoff branch on the same `audio-route`
   answer so the rep does not have to repeat room audio ownership in another
-  form.
+  form. The standard route shows extraction and destination choices only; the
+  four switcher-feed choices appear only in the by-others handoff. Its prompt is
+  selected from that narrowed answer set, never from the mere presence of those
+  values in the canonical question catalogue.
   The design also keeps the answer as values (`extraction`, `destinations`),
   because a surface that has to act on the route cannot parse the sentence: the
   room schematic does (`audioRouteSchematic.ts`), so a recorded route draws the
