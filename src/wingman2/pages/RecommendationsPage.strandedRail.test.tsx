@@ -121,6 +121,6 @@ describe("recommendations stranded-answer rail", () => {
       const snapshot = JSON.parse(window.localStorage.getItem(DISCOVERY_SNAPSHOT_KEY) ?? "{}");
       expect(snapshot.brief?.roomModel?.displayBehaviour).not.toBe("independent routing per display");
     });
-    expect(screen.getByText("Checks still required")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Move the design forward" })).toBeTruthy();
   });
 });

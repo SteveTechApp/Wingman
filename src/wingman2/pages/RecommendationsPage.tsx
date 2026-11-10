@@ -48,6 +48,7 @@ import { collectCompetitorBrandLosses } from "../lib/feedbackInformedGuidance";
 import {
   findStrandedQuickStartDefaults,
   removeDiscoveryAnswerValue,
+  wmDiscoveryHasAnswer,
   type StrandedQuickStartDefault,
 } from "./discovery/discoveryAnswerUtils";
 import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
@@ -59,6 +60,7 @@ import { evaluateDiscoveryDecisionIntegrity } from "../lib/discoveryDecisionInte
 import { readQuickStartSeedRecord } from "./discovery/useQuickStartConflictSignals";
 import { findQuickStartApplicationDrift } from "./discovery/discoveryQuickStart";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
+import { resolveRecommendationCheck } from "../lib/recommendationResolution";
 import {
   DiscoveryStrandedDefaultsNotice,
   type DiscoveryApplicationDrift,
@@ -79,76 +81,6 @@ const recommendationStages: Array<{
   { id: "validate", label: "Validate", description: "Check accessories, dependencies and release gates." },
   { id: "handoff", label: "Handoff", description: "Add the system to the project or continue to response pack." },
 ];
-
-type MissingDetailDefinition = {
-  group: string;
-  fields: string[];
-  prompt: string;
-  placeholder: string;
-  options?: string[];
-};
-
-function missingDetailDefinition(item: string): MissingDetailDefinition {
-  const value = item.toLowerCase();
-  if (value.includes("scale")) return {
-    group: "scale",
-    fields: ["scale", "roomScale"],
-    prompt: "Select the approximate system scale",
-    placeholder: "Choose a scale",
-    options: ["Small room / local system", "Medium room / departmental system", "Large room / multi-zone system", "Enterprise / site-wide system"],
-  };
-  if (value.includes("source profile")) return {
-    group: "source-profile",
-    fields: ["sourceProfile"],
-    prompt: "Select the closest source profile",
-    placeholder: "Choose a source profile",
-    options: ["Fixed sources in one rack", "Local room sources", "Distributed or remote-room sources", "Mixed local and distributed sources"],
-  };
-  if (value.includes("cable length")) return {
-    group: "cable-validation",
-    fields: ["cableRunValidation"],
-    prompt: "Record the cable-route validation status",
-    placeholder: "Choose a validation status",
-    options: ["Measured and confirmed on site", "Confirmed from approved drawings", "Estimated — site survey still required"],
-  };
-  if (value.includes("network ownership")) return {
-    group: "network",
-    fields: ["networkAvailability", "network"],
-    prompt: "Confirm the network position",
-    placeholder: "Choose the network position",
-    options: ["Dedicated AV network approved", "Existing managed LAN approved by IT", "WyreStorm network switch to be supplied", "IT review still required"],
-  };
-  if (value.includes("usb host ownership")) return {
-    group: "usb",
-    fields: ["usbTransport", "usbNeeds"],
-    prompt: "Describe the USB host, peripheral location and required USB version",
-    placeholder: "Example: Room PC in rack to USB 3.0 camera at front wall, bidirectional control required",
-  };
-  if (value.includes("display/output count")) return {
-    group: "display",
-    fields: ["displayCount", "displayBehaviour"],
-    prompt: "Enter the display count and required behaviour",
-    placeholder: "Example: 4 outputs; one canvas with optional independent source routing",
-  };
-  if (value.includes("video wall layout")) return {
-    group: "video-wall-design",
-    fields: ["videoWallDesignValidation", "videoWallRequirement"],
-    prompt: "Confirm the wall layout, source count, presets and control behaviour",
-    placeholder: "Example: 3 × 3 LCD, 6 sources, full-wall plus four presets, app control",
-  };
-  if (value.includes("wall layout")) return {
-    group: "wall-path",
-    fields: ["videoWallRequirement", "processingRequirement"],
-    prompt: "Confirm the canvas, source behaviour and processor path",
-    placeholder: "Example: Direct-view LED, six floating windows, NHD-150-RX feeding the LED processor",
-  };
-  return {
-    group: item.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-    fields: ["recommendationValidationNotes"],
-    prompt: "Add the missing design detail",
-    placeholder: "Enter the confirmed requirement",
-  };
-}
 
 // The saved room model carries derived text per question (displayBehaviour,
 // usbTransport, …) rendered from the answers. When a removed app-applied value
@@ -244,8 +176,6 @@ export function RecommendationsPage() {
   const [slotPool, setSlotPool] = useState<RecommendationDecision[]>([]);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [message, setMessage] = useState("");
-  const [editingCheck, setEditingCheck] = useState("");
-  const [detailAnswers, setDetailAnswers] = useState<Record<string, string>>({});
   const { current: stage, go: setStage } = useWorkflowPage(recommendationStages);
   const [showAlternatives, setShowAlternatives] = useState(false);
 
@@ -533,6 +463,21 @@ export function RecommendationsPage() {
   const brandLosses = useMemo(() => collectCompetitorBrandLosses(), []);
 
   const missingInformation = brief?.missingInformation ?? [];
+  const discoveryAnswers = useMemo(() => {
+    const snapshot = readLatestDiscoverySnapshot();
+    return (snapshot?.state.answers as DiscoveryAnswers | undefined) ?? {};
+  }, [activeProject?.id, brief]);
+  const visibleDiscoveryQuestions = useMemo(() => {
+    const application = text(discoveryAnswers.opportunity, text(brief?.roomModel?.application, "not-sure"));
+    return getVisibleDiscoveryQuestions(application, discoveryAnswers);
+  }, [discoveryAnswers, brief]);
+  const discoveryQuestionsById = new Map(visibleDiscoveryQuestions.map((question) => [question.id, question]));
+  const resolveChecks = missingInformation.map((item) => ({
+    item,
+    resolution: resolveRecommendationCheck(item, new Set(discoveryQuestionsById.keys())),
+  })).sort((a, b) => Number(b.resolution.answerInDiscovery) - Number(a.resolution.answerInDiscovery));
+  const answerableChecks = resolveChecks.filter(({ resolution }) => resolution.answerInDiscovery);
+  const followUpChecks = resolveChecks.filter(({ resolution }) => !resolution.answerInDiscovery);
 
   // Stranded quick-start defaults (a captured answer whose option a later
   // answer hid) and post-seed application drift (untouched quick-start answers
@@ -770,57 +715,15 @@ export function RecommendationsPage() {
     });
   }
 
-  function saveMissingDetail(item: string) {
-    if (!brief) return;
-    const definition = missingDetailDefinition(item);
-    const answer = text(detailAnswers[definition.group]);
-    if (!answer) {
-      setMessage("Enter or select the missing detail before saving it.");
-      return;
-    }
-
-    const remainingMissing = missingInformation.filter(
-      (candidate) => missingDetailDefinition(candidate).group !== definition.group,
-    );
-    const nextRoomModel = { ...(brief.roomModel ?? {}) };
-    definition.fields.forEach((field) => {
-      nextRoomModel[field] = field === "usbNeeds" ? [answer] : answer;
-    });
-
-    const nextBrief: StoredDiscoveryBrief = {
-      ...brief,
-      roomModel: nextRoomModel,
-      missingInformation: remainingMissing,
-      nextBestQuestion: remainingMissing[0] ?? "",
-      quoteSafetyStatus: remainingMissing.length ? "do-not-quote-yet" : "validate-before-quote",
-      inference: {
-        ...(brief.inference ?? {}),
-        missing: remainingMissing,
-        risks: remainingMissing,
-        quoteSafetyStatus: remainingMissing.length ? "do-not-quote-yet" : "validate-before-quote",
-      },
-    };
-    const nextNeed = discoveryBriefToFinderNeed(nextBrief);
-    saveDiscoveryBriefToProject(nextBrief, activeProject?.id);
-    setBrief(nextBrief);
-    setEditingCheck("");
-    setMessage(`Saved: ${definition.prompt}. Recommendations are being recalculated.`);
-
-    if (!nextNeed) return;
-    setNeed(nextNeed);
-    setLoadState("loading");
-    loadRecommendationsDecisionBoundary(nextBrief, nextNeed)
-      .then(({ decisions: nextDecisions, slotPool: nextSlotPool }) => {
-        setDecisions(nextDecisions);
-        setSlotPool(nextSlotPool);
-        setLoadState("ready");
-        setMessage("Detail saved and the system recommendation has been updated.");
-      })
-      .catch((error) => {
-        console.error("[wingman] Recommendations: inline detail recalculation failed", error);
-        setLoadState("error");
-      });
-  }
+  const hasResolveWork = missingInformation.length > 0 || visibleStrandedAnswers.length > 0 || Boolean(applicationDrift?.items.length);
+  const overviewNextStage: RecommendationStage = hasResolveWork ? "resolve" : unfilledSlots.length ? "build" : "validate";
+  const overviewNextAction = hasResolveWork
+    ? answerableChecks.length
+      ? `Answer ${answerableChecks.length} Discovery question${answerableChecks.length === 1 ? "" : "s"}`
+      : "Review open verification checks"
+    : unfilledSlots.length
+      ? "Resolve unfilled product roles"
+      : "Review system validation";
 
   return (
     <main
@@ -977,8 +880,8 @@ export function RecommendationsPage() {
               <strong>{resolvedSystemSlots.length}/{requiredSystemSlots.length}</strong>
               <span>required roles resolved</span>
             </div>
-            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => openStage(unfilledSlots.length ? "resolve" : "build")}>
-              {unfilledSlots.length ? "Resolve open checks" : "Review proposed system"}
+            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => openStage(overviewNextStage)}>
+              {overviewNextAction}
               <ArrowRight size={16} aria-hidden="true" />
             </button>
           </section>
@@ -998,52 +901,48 @@ export function RecommendationsPage() {
           )}
           <div className="wm-rec-checks-card">
             <SectionCard
-              title="Checks still required"
-              subtitle="These points remain visible because an estimated recommendation must not be presented as a confirmed design."
+              title="Move the design forward"
+              subtitle="Answer what you can in Discovery. Leave measurements and compatibility checks open for the site or technical review that can confirm them."
             >
+              <div className="wm-rec-resolution-summary" role="status" data-testid="recommendation-resolution-summary">
+                <strong>{answerableChecks.length} ready for a Discovery answer</strong>
+                <span>{followUpChecks.length} need more context or site / technical evidence</span>
+                <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={reloadRecommendations}>
+                  <RefreshCw size={14} aria-hidden="true" /> Recalculate system
+                </button>
+              </div>
               <ul className="wm-rec-check-list">
-                {missingInformation.map((item) => {
-                  const definition = missingDetailDefinition(item);
-                  const isEditing = editingCheck === definition.group;
+                {resolveChecks.map(({ item, resolution }) => {
+                  const targetQuestion = resolution.questionIds
+                    .map((id) => discoveryQuestionsById.get(id))
+                    .find((question) => Boolean(question && !wmDiscoveryHasAnswer(discoveryAnswers[question.id])))
+                    ?? resolution.questionIds.map((id) => discoveryQuestionsById.get(id)).find((question) => Boolean(question));
                   return (
-                    <li className={isEditing ? "is-editing" : ""} key={item}>
+                    <li className={resolution.answerInDiscovery ? "is-answerable" : "is-follow-up"} key={item}>
                       <div className="wm-rec-check-summary">
-                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                        <span>{item}</span>
-                        <button
-                          type="button"
-                          aria-expanded={isEditing}
-                          onClick={() => setEditingCheck(isEditing ? "" : definition.group)}
-                        >
-                          <PencilLine size={14} aria-hidden="true" />
-                          {isEditing ? "Cancel" : "Complete"}
-                        </button>
-                      </div>
-                      {isEditing ? (
-                        <div className="wm-rec-check-editor">
-                          <label htmlFor={`missing-${definition.group}`}>{definition.prompt}</label>
-                          {definition.options ? (
-                            <select
-                              id={`missing-${definition.group}`}
-                              value={detailAnswers[definition.group] ?? ""}
-                              onChange={(event) => setDetailAnswers((current) => ({ ...current, [definition.group]: event.target.value }))}
-                            >
-                              <option value="">{definition.placeholder}</option>
-                              {definition.options.map((option) => <option key={option} value={option}>{option}</option>)}
-                            </select>
-                          ) : (
-                            <input
-                              id={`missing-${definition.group}`}
-                              value={detailAnswers[definition.group] ?? ""}
-                              onChange={(event) => setDetailAnswers((current) => ({ ...current, [definition.group]: event.target.value }))}
-                              placeholder={definition.placeholder}
-                            />
-                          )}
-                          <button type="button" onClick={() => saveMissingDetail(item)}>
-                            <Check size={15} aria-hidden="true" /> Save detail
-                          </button>
+                        <span className="wm-rec-check-icon"><AlertTriangle size={16} aria-hidden="true" /></span>
+                        <div className="wm-rec-check-copy">
+                          <span className="wm-ui-kicker">{resolution.category}</span>
+                          <strong>{item}</strong>
+                          <p>{resolution.explanation}</p>
                         </div>
-                      ) : null}
+                      </div>
+                      <div className="wm-rec-check-actions">
+                        {targetQuestion ? (
+                          <Link className="wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.discovery.path}?edit=${encodeURIComponent(targetQuestion.id)}`}>
+                            Answer in Discovery: {targetQuestion.shortLabel}
+                            <ArrowRight size={14} aria-hidden="true" />
+                          </Link>
+                        ) : (
+                          <div className="wm-rec-follow-up-note">
+                            <strong>{resolution.category === "Site or technical follow-up" ? "Keep open for verification" : "Choose the applicable room workflow"}</strong>
+                            <span>{resolution.category === "Site or technical follow-up"
+                              ? "This needs a site measurement or technical confirmation. No answer has been assumed."
+                              : "The owning question is not available in this room path yet. Review the room workflow in Discovery first."}</span>
+                            <Link to={routeCatalogByKey.discovery.path}>Review the room brief</Link>
+                          </div>
+                        )}
+                      </div>
                     </li>
                   );
                 })                }
@@ -1052,9 +951,9 @@ export function RecommendationsPage() {
             </div>
           </>
           ) : null}
-          {stage === "resolve" && !missingInformation.length ? (
+          {stage === "resolve" && !missingInformation.length && !visibleStrandedAnswers.length && !applicationDrift?.items.length ? (
             <SectionCard title="Discovery details are complete" subtitle="No unresolved Discovery checks are blocking the current recommendation.">
-              <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => openStage("build")}>Review proposed system <ArrowRight size={16} aria-hidden="true" /></button>
+              <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => openStage(unfilledSlots.length ? "build" : "validate")}>Continue to {unfilledSlots.length ? "system design" : "validation"} <ArrowRight size={16} aria-hidden="true" /></button>
             </SectionCard>
           ) : null}
 

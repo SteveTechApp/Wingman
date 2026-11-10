@@ -117,11 +117,14 @@ export function getVisibleDiscoveryQuestions(
   const wallPurpose = Array.isArray(answers["video-wall-purpose"]) ? answers["video-wall-purpose"][0] : answers["video-wall-purpose"];
   const multiviewRequired = wallPurpose === "multi-source-canvas" || displayBehaviourValues.includes("multiview-on-one-output") || answers["avoip-profile"] === "multiview-avoip";
   const wirelessRelevant = sourceProfileValues.some((value) => ["laptops-wireless-inputs", "mixed-hdmi-usbc", "network-video-sources"].includes(value)) || sourceDeviceValues.includes("wireless-casting-source");
+  const networkPathRelevant = selectedApplication === "av-over-ip"
+    || sourceProfileValues.includes("network-video-sources")
+    || Boolean(answers["avoip-profile"]);
 
   return withApplicationQuestions.filter((step) => {
     if (discoveryAudioQuestions.some((question) => question.id === step.id) && !discoveryHasAudio(answers)) return false;
     if (audioByOthers && ["audio-zones", "audio-programme", "room-acoustics", "uc-microphones", "uc-microphone-connection", "uc-microphone-count", "uc-audio-processing"].includes(step.id)) return false;
-    if (step.id === "network-path" && selectedApplication !== "av-over-ip" && !["multi-room", "building-wide"].includes(String(answers.scale ?? ""))) return false;
+    if (step.id === "network-path" && selectedApplication !== "av-over-ip" && !networkPathRelevant && !["multi-room", "building-wide"].includes(String(answers.scale ?? ""))) return false;
     if (selectedApplication === "video-wall" && [
       "displays", "uc-purpose", "uc-platform", "mtr-av-integration", "uc-camera",
       "uc-camera-count", "uc-multi-camera-path", "uc-camera-routing", "uc-microphones",

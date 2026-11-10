@@ -67,6 +67,12 @@ states is one they trust by mistake.
   Builder. That creates a full draft with the captured room/site facts, selected
   products, BOM, architecture and open checks; it remains a draft until the rep
   resolves readiness items and issues it.
+- Recommendation Resolve is a route back to the governed Discovery question
+  that owns each answer, not a second store of guessed room facts. A generic
+  note cannot clear a blocker; checks that need site measurement or technical
+  evidence stay open and name that follow-up. If a missing requirement has no
+  visible Discovery question for its room path, fix that workflow and map the
+  check to its question before treating it as answerable.
 - The proposal is system design first. Technical, application and blended
   proposal drafts and exports carry technical design, equipment quantities,
   installation scope, assumptions and open dependencies. Pricing, tax, currency,
@@ -127,6 +133,7 @@ states is one they trust by mistake.
 | API envelope, gates, agent routes | [docs/BACKEND_API.md](docs/BACKEND_API.md) |
 | Project record, survey review, anchors, worksheet | [docs/PROJECT_SURVEY.md](docs/PROJECT_SURVEY.md) |
 | Room template applications, product attribution and control/audio alternatives | [docs/ROOM_TEMPLATE_SKUS.md](docs/ROOM_TEMPLATE_SKUS.md) |
+| Recommendation resolution and the Discovery handoff | [docs/RECOMMENDATIONS.md](docs/RECOMMENDATIONS.md) |
 
 ## Project store
 
