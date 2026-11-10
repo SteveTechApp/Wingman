@@ -52,7 +52,7 @@ export function VideowallConnectionOptions({
     setPath(item.key);
     onChange({
       ...item.patch,
-      multiviewSelected: item.key === "nhd150" || item.key === "nhd600",
+      multiviewSelected: item.key === "nhd150" || item.key === "nhd0401" || item.key === "nhd600",
     });
   }
 

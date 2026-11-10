@@ -126,6 +126,7 @@ states is one they trust by mistake.
 | Verdict tone, verdict lead, compare page modules | [docs/COMPARE_FEATURE.md](docs/COMPARE_FEATURE.md) |
 | API envelope, gates, agent routes | [docs/BACKEND_API.md](docs/BACKEND_API.md) |
 | Project record, survey review, anchors, worksheet | [docs/PROJECT_SURVEY.md](docs/PROJECT_SURVEY.md) |
+| Room template applications, product attribution and control/audio alternatives | [docs/ROOM_TEMPLATE_SKUS.md](docs/ROOM_TEMPLATE_SKUS.md) |
 
 ## Project store
 
@@ -623,7 +624,31 @@ states is one they trust by mistake.
   blend on an LCD wall. The order, type-specific options and multiview
   constraint are held by shared connection choices in both builders: changing
   the NHD feed path sets the multiview requirement that constrains layout.
+  New LCD work does not show near-identical stock wall presets: capture the
+  panel array, then choose one NHD decoder per independently fed display or one
+  tiled canvas looped through the displays. Saved, pinned and legacy LCD designs
+  stay readable. Tiled multiview routes are NHD-150-RX for six custom floating
+  or up to nine preset windows (1080p), NHD-0401-MV for local four-source fixed
+  layouts, and NHD-600-TRX for fixed layouts over 10GbE. Match per-display NHD
+  decoder models to source timing, picture-quality/latency expectations and
+  network speed. State API controllability and leave customer integration as a
+  confirmation. Preserve these limits and the chosen architecture in the saved
+  design and proposal.
   [Narrative](docs/VIDEO_WALL.md)
+
+## Room template product attribution
+
+- A template is a room in use with a complete WyreStorm video, distribution,
+  UC, USB, control and applicable audio path. Add products from the authored
+  room schedule and capabilities; do not pad the BOM. Displays, projection
+  screens, loudspeakers and specialist audio remain customer/specialist scope,
+  never WyreStorm SKU attribution. NetworkHD, wireless, UC camera, USB,
+  microphone/DSP and Dante amplifier choices follow their compatibility and
+  quantity constraints, and alternatives such as NetworkHD Touch, Synergy Flow
+  and third-party room control remain mutually exclusive choices. A product
+  with unconfirmed sale availability is not selectable until governance is
+  current.
+  [Narrative](docs/ROOM_TEMPLATE_SKUS.md)
 - Four surfaces name the wall workflow, so the entry's name and the sentence
   saying how a design begins live once, in `lib/wallEntry.ts`. They had drifted.
 - The focused view starts with wall technology — LCD, LED or projection — so

@@ -23,6 +23,9 @@ export function projectScopeSection(row: TemplateBomRow): ProjectScopeSectionId 
   const text = `${row.role} ${row.description}`.toLowerCase();
   if (/^BY-OTHERS-DISPLAY-/.test(sku)) return "displays";
   if (/^BY-OTHERS-SOURCE-/.test(sku)) return "inputs";
+  // A Dante-capable source encoder belongs with the video distribution path;
+  // its audio breakout is still described on the same BOM line.
+  if (row.role.toLowerCase() === "source encoder") return "distribution";
   if (/maintenance|support contract|service visits/.test(text)) return "maintenance";
   if (/^BY-OTHERS-(LABOUR|COMMISSIONING|DESIGN|SERVICE-)/.test(sku) || /first fix|second fix|rack build|installation labour|commissioning|programming|as-built|project management|site survey/.test(text)) return "engineering";
   if (/^BY-OTHERS-(MOUNTS|UC-MOUNT)/.test(sku) || /bracket|structural fixing|mounting assembly/.test(text)) return "mounts";

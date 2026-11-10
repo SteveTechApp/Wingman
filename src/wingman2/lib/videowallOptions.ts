@@ -737,6 +737,7 @@ export function assessVideowallOptions(r: WallRequirements): WallOption[] {
   const composed = !direct;
   const multiview = r.windows > 1 && r.layout !== "independent";
   const custom = r.layout === "custom";
+  const sourceCustom = r.sourceCustom;
   // A screen carried by several projectors is one surface with an image each, so
   // a design that ends in a single picture cannot give a pair their own halves.
   // It is blocked rather than advertised as a wall it cannot split.
@@ -808,13 +809,21 @@ export function assessVideowallOptions(r: WallRequirements): WallOption[] {
     option("nhd500", "NetworkHD 500 · receiver per display", "A 1GbE distribution design for independent panels or a combined wall image.",
       [tx500, product("NHD-500-RX", direct ? panels : 1, "One current v2 receiver per destination; catalogue family SKU"), control],
       ["Source → 500-series encoder", "Managed 1GbE AV network", direct ? `${panels} × 500-series receivers (wall crop or independent routing)` : "500-series receiver"],
-      ["Published wall capacity is 16 × 16 with bezel adjustment and rotation. Provide a managed AV switch, PoE budget and multicast/uplink design.", "The standard 500-series receiver does not natively compose a multiview canvas."],
+      ["Published wall capacity is 16 × 16 with bezel adjustment and rotation. Provide a managed AV switch, PoE budget and multicast/uplink design.", "The standard 500-series receiver does not natively compose a multiview canvas.", "NetworkHD 500 endpoints are API-controllable through a supported controller; confirm the customer's API transport and commands."],
       [...networkBlock("1g"), ...(multiview || custom ? ["Add an external multiview stage; a standard NHD-500 receiver alone cannot compose these windows."] : []), ...sliceBlockers],
       [source("500-series v2", "product/nhd-500-tx-rx-v2/")]),
+    option("nhd120", "NetworkHD 100 · decoder per display", "A 1GbE decoder path for source timing up to 4K30, with one receiver for each LCD panel.",
+      [product("NHD-120-TX", r.sources, "One NetworkHD 100 encoder per source"), product("NHD-120-RX", direct ? panels : 1, direct ? "One API-controllable decoder per LCD panel" : "One decoder at the wall canvas"), control],
+      ["NetworkHD 100 encoders at the sources", "Managed 1GbE AV network", direct ? `${panels} × NHD-120-RX decoders · one at each panel` : "One receiver at the tiled wall"],
+      ["NetworkHD 100 supports source timing up to 4K30. Confirm the display's tile mode and decoder output timing at commissioning.", "NetworkHD endpoints are API-controllable through a supported controller; confirm the customer's API transport and commands."],
+      [...networkBlock("1g"), ...(r.sourceResolution === "4k60" ? ["NHD-120-RX is a 4K30 decoder; it does not meet a 4K60 source requirement."] : []),
+        ...(sourceCustom ? ["This decoder path is for standard supported timings; confirm a custom canvas with the selected model before specifying it."] : []),
+        ...(multiview || custom ? ["A standard NHD-120-RX decodes one source; use a supported multiview compositor for simultaneous windows."] : []), ...sliceBlockers],
+      [source("NHD-120-RX", "global/product/nhd-120-rx/"), source("NHD-120-TX", "global/product/nhd-120-tx/")]),
     option("nhd150", "NHD-150-RX · low-bandwidth multiview", "A composed output for a tiled LCD loop, LED processor or projector using compatible 120-series sources.",
       [product(r.sourceLocation === "local" ? "NHD-124-TX" : "NHD-120-TX", r.sourceLocation === "local" ? Math.ceil(r.sources / 4) : r.sources, r.sourceLocation === "local" ? "Four local source inputs per encoder" : "One encoder per remote source"), product("NHD-150-RX", 1, "Multiview receiver / compositor"), control],
       ["120-series compatible encoders", "Managed 1GbE AV network", "NHD-150-RX · one composed HDMI output"],
-      ["Up to nine 1080p streams or eight higher-resolution streams; the product description specifies 4K30 input streams. Verify the exact output timing and firmware layout support.", "Budget for codec latency: published 1080p modes are approximately 80–250 ms; 4K modes approximately 150–300 ms. Test live-camera use.",
+      ["Use up to six custom floating windows, or up to nine preset windows at 1080p (eight higher-resolution streams); the product description specifies 4K30 input streams. Verify the exact output timing and firmware layout support.", "The NetworkHD 100 controller API can control the multiview receiver; confirm the customer's required commands and integration path.", "Budget for codec latency: published 1080p modes are approximately 80–250 ms; 4K modes approximately 150–300 ms. Test live-camera use.",
         ...(custom && r.customMode === "floating" ? [`Floating windows are moved and sized by drag and drop with ${FLOATING_WINDOW_LIMIT} windows as the working maximum; confirm the saved layout recalls as expected.`] : [])],
       [...networkBlock("1g"), ...(!composed ? ["This one-output design needs display-owned tiling. It does not supply an independent feed to every LCD."] : []),
       ...sliceBlockers,
@@ -825,7 +834,7 @@ export function assessVideowallOptions(r: WallRequirements): WallOption[] {
     option("nhd600", "NetworkHD 600 · SDVoE multiview", "A 10GbE option for source routing and up to 16 windows on one composed output.",
       [product("NHD-600-TRX", r.sources + (direct ? panels : 1), `${r.sources} source units + ${direct ? panels : 1} dedicated receiver units`), control],
       ["600-series source units", "Managed 10GbE AV network", direct ? `${panels} dedicated receive units` : "Dedicated receive unit · composed HDMI"],
-      ["The 16-window claim is a maximum, not sixteen guaranteed native-4K windows. Validate stream scaling, window geometry and processing latency against the exact firmware.", "Use dedicated TX and RX roles for this estimate; do not rely on simultaneous encoding while decoding multiview. Confirm supported wall dimensions, synchronisation and rotation for a per-panel build.",
+      ["The 16-window claim is a maximum, not sixteen guaranteed native-4K windows. Validate stream scaling, window geometry and processing latency against the exact firmware.", "Use dedicated TX and RX roles for this estimate; do not rely on simultaneous encoding while decoding multiview. Confirm supported wall dimensions, synchronisation and rotation for a per-panel build.", "The NetworkHD 600 API can control the transceivers; confirm the customer's API integration and required commands.",
         ...(custom && r.customMode === "fixed" ? ["Window placement is recalled from a fixed layout using X/Y pixel coordinates; confirm the saved-layout workflow on the exact 600-series unit."] : [])],
       [...networkBlock("10g"), ...(direct && (multiview || custom) ? ["A synchronised multiview canvas spanning per-panel receivers needs a validated composition/distribution design."] : []),
       ...sliceBlockers,
@@ -833,7 +842,7 @@ export function assessVideowallOptions(r: WallRequirements): WallOption[] {
       [source("NHD-600-TRX", "product/nhd-600-trx/")]),
     option("hdmi-multiview", "NHD-0401-MV · local HDMI layouts", "Four local HDMI inputs and one composed output; a simple option for switchable presentation layouts.",
       [product("NHD-0401-MV", 1, "Four-input HDMI multiview switcher")], ["Up to four local HDMI sources", "NHD-0401-MV"],
-      ["Six preset layouts; validate the chosen split / picture-in-picture preset. This is an HDMI device, not an AVoIP decoder."],
+      ["Six API-controllable preset layouts; validate the chosen split / picture-in-picture preset. This is an HDMI device, not an AVoIP decoder."],
       [...(!composed ? ["One HDMI output cannot directly drive every panel; use display tiling or a separate wall-distribution stage."] : []),
       ...sliceBlockers,
       ...(r.sources > 4 ? ["More than four local sources require upstream switching."] : []),

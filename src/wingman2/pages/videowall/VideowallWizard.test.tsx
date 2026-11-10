@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { decideVideowall } from "../../lib/videowallDecision";
 import { assessVideowallOptions, defaultWallRequirements, type WallRequirements } from "../../lib/videowallOptions";
 import { wallTransportPlan } from "../../lib/videowallTransport";
+import { wallWizardLayoutChoiceIsDisabled, wallWizardLayoutChoices } from "../../lib/videowallWizard";
 import { VideowallWizard } from "./VideowallWizard";
 
 function requirements(overrides: Partial<WallRequirements> = {}): WallRequirements {
@@ -87,7 +88,28 @@ it("asks how the wall is fed after its size and before its windows", () => {
   expect(screen.getByTestId("videowall-feed-path-matrix-per-panel")).toBeTruthy();
   expect(screen.queryByTestId("videowall-feed-path-nhd600")).toBeNull();
   expect(screen.getAllByTestId("videowall-feeding-check").map((node) => node.textContent).join(" "))
-    .toContain("One decoder per panel");
+    .toContain("One NHD decoder per LCD display");
+});
+
+it("offers the NHD-0401-MV as the local fixed-layout multiview route", () => {
+  const { onChange } = renderWizard(requirements({ network: "none", sourceLocation: "local", sources: 4 }), { atResult: false });
+
+  fireEvent.click(screen.getByRole("button", { name: /^LCD video wall/ }));
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));
+
+  fireEvent.click(screen.getByTestId("videowall-feeding-single-input"));
+  const path = screen.getByTestId("videowall-feed-path-nhd0401");
+  expect(path.textContent).toContain("preset layouts");
+  expect(path.textContent).toContain("API");
+  fireEvent.click(path);
+  expect(path.getAttribute("aria-pressed")).toBe("true");
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ multiviewSelected: true }));
+  const single = wallWizardLayoutChoices("lcd-loop").find((choice) => choice.value === "single")!;
+  const multi = wallWizardLayoutChoices("lcd-loop").find((choice) => choice.value === "quad")!;
+  expect(wallWizardLayoutChoiceIsDisabled(single, true)).toBe(true);
+  expect(wallWizardLayoutChoiceIsDisabled(multi, true)).toBe(false);
 });
 
 it("offers an LED canvas the processor, the multiviewers and a custom canvas", () => {
@@ -101,7 +123,7 @@ it("offers an LED canvas the processor, the multiviewers and a custom canvas", (
   expect(screen.getByTestId("videowall-feeding-single-input").getAttribute("aria-pressed")).toBe("true");
   expect(screen.queryByTestId("videowall-feeding-per-panel")).toBeNull();
   expect(screen.getByTestId("videowall-feed-path-nhd150")).toBeTruthy();
-  expect(screen.getByTestId("videowall-feed-path-nhd600").textContent).toContain("one projector");
+  expect(screen.getByTestId("videowall-feed-path-nhd600").textContent).toContain("projector showing several windows");
   expect(screen.getByTestId("videowall-feed-path-nhd500")).toBeTruthy();
   // The canvas is one processor input, and the processor may compose its own
   // windows — both said on the screen rather than left to the rep to know.

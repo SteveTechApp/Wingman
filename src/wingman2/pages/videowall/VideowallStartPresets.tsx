@@ -81,13 +81,20 @@ export function VideowallStartPresets({ requirements, startedKey, showFilter = t
   const saved = useWallStartingPoints();
   const pinned = usePinnedWallPresets();
   const pinnedKeys = new Set(pinned);
+  const savedKeys = new Set(saved.map((preset) => preset.key));
   // Pins order the guided step's shipped walls only — the expert reading is the
   // catalogue in the catalogue's order, and a pin there would reorder a list
   // that never offers one. A saved wall still leads its family, since it is the
   // rep's own brief rather than a catalogue wall they keep quoting.
   const orderedGroups = shortlist ? wallStartPresetGroupsWithPins(wallStartPresetGroups, pinned) : wallStartPresetGroups;
-  const groups = saved.length ? wallStartPresetGroupsWithSaved(saved, orderedGroups) : orderedGroups;
-  const savedKeys = new Set(saved.map((preset) => preset.key));
+  const sourceGroups = saved.length ? wallStartPresetGroupsWithSaved(saved, orderedGroups) : orderedGroups;
+  // A wall's LCD array is enough to start: the guided questions then decide
+  // whether each panel gets its own NHD decoder or the wall tiles one composed
+  // canvas. Keep a rep's saved/pinned examples, not a second catalogue of stock
+  // LCD combinations that differ only in panel and window counts.
+  const groups = sourceGroups.map((group) => group.family === "lcd"
+    ? { ...group, presets: group.presets.filter((preset) => savedKeys.has(preset.key) || pinnedKeys.has(preset.key) || preset.key === startedKey) }
+    : group).filter((group) => group.presets.length > 0);
   const curatedKeys = new Set(wallStartPresetShortlist.map((preset) => preset.key));
   const [filter, setFilter] = useState<WallPresetFilter>(EMPTY_WALL_PRESET_FILTER);
   const [expanded, setExpanded] = useState(false);

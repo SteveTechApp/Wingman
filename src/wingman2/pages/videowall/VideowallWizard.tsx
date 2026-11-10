@@ -45,7 +45,7 @@ const STEP_HEADINGS: Record<string, { title: string; hint: string }> = {
   size: { title: "How big is the wall?", hint: "The array, the panel pixels and the pitch set the size of the box." },
   sources: { title: "How many sources?", hint: "Choose how many sources the wall needs to show and the highest timing they use." },
   network: { title: "What network will carry the picture?", hint: "Choose the existing network to use, or include new switches in the design." },
-  feeding: { title: "How is the wall fed?", hint: "One canvas the wall scales, or a feed per panel — then the box that produces that canvas." },
+  feeding: { title: "How is the wall fed?", hint: "Choose one NHD decoder per LCD, or tile one canvas across the array. For multiview, match NHD-150-RX, NHD-0401-MV or NHD-600-TRX to the required layout and network." },
   layout: { title: "How should the sources appear?", hint: "Windows composed in one design — the multiview — or a source per screen, which is a different design." },
   visual: { title: "The wall you have described", hint: "Drawn at the size and mounting height the answers set, with the sources mapped onto it." },
   detail: { title: "What must the design handle?", hint: "These answers do not change the recommendation, but each one becomes a check in the saved design." },

@@ -31,6 +31,23 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   drawing states the physical panel array and source window count together above
   the elevation, so a 3 × 3 array carrying four windows cannot read as a 2 × 2
   physical wall.
+- New LCD designs do not start from a catalogue of near-identical arrays. The
+  design captures the panel count, then chooses the connection architecture:
+  one NHD decoder per independently driven panel, or one tiled canvas looped
+  through the displays. Existing saved and pinned LCD designs remain available.
+  For independent panels the recommendation sizes the NHD decoder count to the
+  array and matches the RX model to source timing and the customer's quality,
+  latency and network expectations; a 1GbE or 10GbE answer is retained in the
+  design.
+- A tiled LCD wall can use NHD-150-RX multiview for up to six custom floating
+  windows or nine preset windows at 1080p (eight at higher resolution), or the
+  NHD-0401-MV for local HDMI fixed layouts with up to four sources, or
+  NHD-600-TRX for fixed layouts over 10GbE. These NHD paths are API
+  controllable; the proposal flags customer-specific control integration for
+  confirmation. NHD-0401-MV and NHD-600-TRX require a supported multiview
+  layout, so single-picture and independent-panel layouts cannot be selected
+  after choosing them. The NHD-150-RX permits custom floating or supported
+  preset layouts within its window and resolution limits.
 - The NHD-150-RX and NHD-600-TRX feed paths are multiview choices. Selecting one
   writes `multiviewSelected` to the wall requirements; the later layout choices
   disable the single-picture and source-per-screen layouts and the wizard will

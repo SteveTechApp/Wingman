@@ -29,6 +29,7 @@ export type WallFeedPathKey =
   | "scaling-switch"
   | "avoip-decoder"
   | "nhd150"
+  | "nhd0401"
   | "nhd600"
   | "nhd500"
   | "matrix-per-panel"
@@ -93,16 +94,16 @@ export function wallFeedingChoices(r: WallRequirements): WallFeedingChoice[] {
     },
   ];
   if (r.application.startsWith("lcd")) {
-    choices.push({
+    if (r.application === "lcd-grouped") choices.push({
       key: "group",
-      label: "One feed per group",
+      label: "One feed per group (saved design)",
       detail: "Each looped group of panels tiles its own slice of one feed.",
-      patch: toComposedApplication(r, "lcd-grouped"),
+      patch: undefined,
     });
     choices.push({
       key: "per-panel",
-      label: "One feed per panel",
-      detail: `${panels} feeds: a matrix output or a decoder behind each panel, one source shown whole.`,
+      label: "One NHD decoder per display",
+      detail: `${panels} decoders for ${panels} LCD panels; decoder family follows the required picture quality and network speed.`,
       patch: { application: "lcd-direct", layout: "independent", windows: panels },
     });
   }
@@ -147,16 +148,23 @@ const FEED_PATHS: WallFeedPath[] = [
   {
     key: "nhd150",
     label: "NHD-150-RX multiview",
-    detail: "Windows composed and scaled in the receiver, one canvas out of it.",
+    detail: "API-controllable NetworkHD 100 multiview: up to 6 floating windows or 9 preset 1080p windows, then one tiled canvas.",
     patch: { sourceLocation: "distributed", network: "1g" },
-    check: "NHD-150-RX composes the windows itself, so the wall receives a single canvas and no separate multiviewer is needed. Confirm the window count and the input resolution it accepts.",
+    check: "NHD-150-RX is API-controllable and composes windows itself: up to 6 custom floating windows or 9 preset 1080p windows (8 higher-resolution streams). The wall receives one canvas; confirm the input and output timing.",
+  },
+  {
+    key: "nhd0401",
+    label: "NHD-0401-MV · fixed local multiview",
+    detail: "API-controllable four-input HDMI multiviewer with preset layouts; one composed output feeds the tiled wall.",
+    patch: { sourceLocation: "local", network: "none" },
+    check: "NHD-0401-MV is API-controllable, accepts up to four local HDMI sources and offers preset layouts. Confirm the chosen layout, output timing and how the one output reaches the display loop.",
   },
   {
     key: "nhd600",
     label: "NHD-600-TRX multiview",
-    detail: "The 4K multiviewer, and the same box for one projector carrying several windows.",
-    patch: { sourceLocation: "distributed", network: "10g", sourceResolution: "4k60", sourceCustom: false },
-    check: "NHD-600-TRX carries 4K60 and multi-window in one box: use it where the canvas or the window detail needs 4K, and for a single projector showing several windows.",
+    detail: "API-controllable 10GbE multiview for fixed layouts, a composed 4K60 wall canvas, or a projector showing several windows.",
+    patch: { sourceLocation: "distributed", network: "10g", sourceResolution: "4k60", sourceCustom: false, customMode: "fixed" },
+    check: "NHD-600-TRX is API-controllable and carries 4K60 and multi-window in one box: use it where the canvas or window detail needs 4K, including fixed multiview layouts. Confirm the API integration and output timing.",
   },
   {
     key: "nhd500",
@@ -174,17 +182,20 @@ const FEED_PATHS: WallFeedPath[] = [
   },
   {
     key: "avoip-per-panel",
-    label: "A decoder per panel",
-    detail: "One receiver behind each panel, on the AV network.",
+    label: "NHD decoder per display",
+    detail: "One API-controllable NetworkHD decoder behind each LCD; the decoder series is matched to source timing and network speed.",
     patch: { sourceLocation: "distributed", network: "1g" },
-    check: "One decoder per panel: the head-end grows with the array and each panel shows one source whole. Confirm the network can carry as many streams as the wall has panels.",
+    check: "One NHD decoder per LCD display: quantity equals the panel array. Match NetworkHD series to source resolution, picture quality, latency and available network speed; each panel receives one source whole. Confirm the controller API path and required commands.",
   },
 ];
 
 /** The paths offered for a model: a per-panel wall is fed per panel, nothing else is. */
 export function wallFeedPaths(r: WallRequirements, model = wallFeedingKeyFor(r)): WallFeedPath[] {
   const perPanel = model === "per-panel";
-  return FEED_PATHS.filter((path) => path.key.endsWith("-per-panel") === perPanel);
+  return FEED_PATHS.filter((path) => path.key.endsWith("-per-panel") === perPanel)
+    .map((path) => path.key === "avoip-per-panel"
+      ? { ...path, patch: { ...path.patch, network: r.network === "10g" ? "10g" as const : "1g" as const } }
+      : path);
 }
 
 /**
@@ -197,6 +208,7 @@ export function wallFeedPathKeyFor(r: WallRequirements): WallFeedPathKey {
   if (r.application === "lcd-direct") {
     return r.network === "1g" || r.network === "10g" ? "avoip-per-panel" : "matrix-per-panel";
   }
+  if (r.multiviewSelected && r.sourceLocation === "local" && r.network === "none") return "nhd0401";
   if (r.sourceCustom) return "nhd500";
   if (r.multiviewSelected && r.network === "10g") return "nhd600";
   if (r.multiviewSelected && r.network === "1g") return "nhd150";

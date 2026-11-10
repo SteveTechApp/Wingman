@@ -50,10 +50,27 @@ export function roomAudioBom(id: string, audio: RoomAudioDesign, microphoneCount
   }
   if (audio.approach === "studio") add("monitoring", "Nearfield active monitor pair and audio interface", 1, "Two active desk monitors with isolation pads, balanced cables and headphone/monitor control. Mute loudspeakers during microphone recording; monitor the captured mix on headphones.");
   if (microphoneCount) add("microphones", audio.microphones, microphoneCount, "Quantity counts pickup positions. Include one compatible receiver/preamp input per position, mounting, cables, power/charging and accessories. Validate pickup pattern, RF coordination where applicable, and gain before feedback.");
+  if (microphoneCount > 0 && audio.aec && !["integrated", "silent", "cinema"].includes(audio.approach)) {
+    rows.push({
+      id: `${id}-audio-mic-hub-option`, sku: "COM-MIC-HUB", description: "COM-MIC-HUB · WyreStorm microphone hub option",
+      role: "USB conferencing microphone hub option", qty: 1, type: "Optional", status: "optional",
+      evidence: "Optional WyreStorm audio path; include only when the selected microphone types and room USB workflow match.",
+      notes: "Adds a supported ceiling/wireless microphone path with built-in AEC, AGC and noise reduction, then connects to the active UC host over USB. Confirm the exact mic interfaces/count, AEC reference, host location, DSP channel needs and avoid duplicating another room DSP.", owner: "wyrestorm",
+    });
+  }
+  const lowImpedanceZone = audio.zones.find((zone) => zone.topology === "lowZ" && (zone.speakers === 2 || zone.speakers === 4) && zone.amplifierWatts <= (zone.speakers === 2 ? 60 : 25));
+  if (audio.dante && lowImpedanceZone && !lowImpedanceZone.amplifierSku) {
+    rows.push({
+      id: `${id}-audio-dante-amp-option`, sku: "AMP-260-DNT", description: "AMP-260-DNT · WyreStorm Dante amplifier option",
+      role: "Low-impedance Dante amplifier option", qty: 1, type: "Optional", status: "optional",
+      evidence: "Optional WyreStorm product sized to the authored low-impedance zone; include only after speaker load and coverage design.",
+      notes: `${lowImpedanceZone.name}: verify output-channel count, load, required SPL and final power before selecting. Speakers remain separately specified and are not included as WyreStorm products.`, owner: "wyrestorm",
+    });
+  }
   if (audio.programmeFeeds) add("programme-inputs", "Programme audio feed/interface to the zone processor", audio.programmeFeeds,
     `${audio.routing} Each row quantity is one available stereo programme feed (two DSP input channels), with a compatible source line output or HDMI audio extractor and balanced/Dante interface as needed. Include cables and HDCP/EDID validation; do not duplicate a verified source or matrix audio output. Mono 100V zones need a proper DSP downmix, not passively joined stereo outputs.`);
   if (!["silent", "integrated", "cinema"].includes(audio.approach)) add("processing", audio.aec ? "AEC conferencing DSP and USB audio interface" : "Audio mixing and independently controlled zone processing", 1,
-    `${audio.processing} ${audio.connectivity} ${audio.routing} Allow at least ${audio.programmeFeeds * 2} programme input channels plus ${microphoneCount} pickup channels, any separately scheduled discussion/stage inputs and UC returns. Provide ${audio.zones.reduce((n, z) => n + (z.topology === "100V" ? 1 : z.speakers), 0) + (audio.specialistSystems ?? []).reduce((n, s) => n + s.inputChannels * s.qty, 0)} amplifier/system output channels plus required record/assistive/USB sends. Include balanced interconnects and per-zone source, volume, mute and maximum-level controls in the operator interface.`);
+    `${audio.processing} ${audio.connectivity} ${audio.routing} Allow at least ${audio.programmeFeeds * 2} programme input channels plus ${microphoneCount} pickup channels, any separately scheduled discussion/stage inputs and UC returns. Provide ${audio.zones.reduce((n, z) => n + (z.topology === "100V" ? 1 : z.speakers), 0) + (audio.specialistSystems ?? []).reduce((n, s) => n + s.inputChannels * s.qty, 0)} amplifier/system output channels plus required record/assistive/USB sends. Include balanced interconnects and per-zone source, volume, mute and maximum-level controls in the operator interface. ${audio.dante ? "WyreStorm lists DSP-88-DNT as an 8×8 Dante/AES67 DSP, but it is currently marked Coming Soon; confirm release, regional availability, SKU governance and channel compatibility before proposal inclusion." : "Select a compatible WyreStorm or third-party DSP only when its channel count, AEC, USB and control interfaces match the authored room design."}`);
   if (audio.dante) add("dante-network", "Managed Dante audio network, endpoint interfaces and configuration", 1,
     "One engineered audio network allowance: Dante-capable DSP/console and each scheduled amplifier/interface, channel licences, endpoint ports, PoE budget where needed, clocking, QoS and managed switch configuration. Analogue microphones need preamps/interfaces; HDMI decoders do not become Dante endpoints automatically. Keep a separately engineered audio segment; share AV switches only after multicast/clocking compatibility is proved.");
   return rows;
