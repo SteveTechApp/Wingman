@@ -50,7 +50,7 @@ export function DiscoverySiteConditions({
               onClick={() => update(field.id, unknown ? "" : UNKNOWN)}>
               {unknown ? "Marked for site survey" : "Not known yet"}
             </button>
-            <button type="button" className="wm-site-condition-by-others" aria-pressed={byOthers}
+            <button type="button" aria-pressed={byOthers}
               onClick={() => update(field.id, byOthers ? "" : BY_OTHERS)}>
               By others
             </button>

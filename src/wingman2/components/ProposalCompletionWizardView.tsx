@@ -576,7 +576,7 @@ export function ProposalCompletionWizardView({ view }: { view: ProposalCompletio
 
                 <section>
                   <h3>Remaining items</h3>
-                  <ul className="wm-proposal-readiness-list">{readiness.missing.map((item: string) => <li key={item}>{item}</li>)}</ul>
+                  <ul>{readiness.missing.map((item: string) => <li key={item}>{item}</li>)}</ul>
                 </section>
               </div>
 

@@ -8,7 +8,7 @@ export function ProposalEquipmentSchedule({
   onQuantityChange: (sku: string, quantity: number) => void;
 }) {
   return (
-    <div className="wm-proposal-equipment-schedule">
+    <div>
       <table>
         <thead><tr><th>Item</th><th>SKU</th><th>Description</th><th>Role</th><th>Qty</th><th>Status</th></tr></thead>
         <tbody>{bomRows.map((row) => <tr key={row.sku}>

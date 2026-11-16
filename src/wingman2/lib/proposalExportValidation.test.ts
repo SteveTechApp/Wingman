@@ -390,4 +390,17 @@ describe("validateProposalExport checks that carry their own domain", () => {
     expect(blocker?.domain).toBe("chain");
     expect(blocker?.message).toContain("1 BOM row(s) are still placeholders");
   });
+
+  it("blocks a quoted HDBaseT display receiver when the measured run exceeds its rating", () => {
+    const result = validateProposalExport({
+      products: [],
+      bomRows: [{ item: 1, sku: "RX-700", description: "HDBaseT display receiver", role: "Display receiver", qty: 1, type: "Required", status: "included", evidence: "Concept", notes: "" }],
+      displayRunMetres: 130,
+    });
+    const blocker = result.blockers.find((entry) => entry.id === "display-run-over-limit");
+
+    expect(result.allowed).toBe(false);
+    expect(blocker?.domain).toBe("display-run");
+    expect(blocker?.message).toContain("130 m display run");
+  });
 });

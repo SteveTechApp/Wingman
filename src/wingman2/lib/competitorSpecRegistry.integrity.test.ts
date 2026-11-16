@@ -80,6 +80,12 @@ describe("competitor fingerprint integrity", () => {
     expect(profile.specTier).toBe("verified-profile");
   });
 
+  it("retains Crestron 5K raster and chroma as a coherent resolution profile", () => {
+    const profile = resolveCompetitorSpecProfile("DM-NVX-384", "Crestron");
+    expect(profile.maxResolution).toBe("5K");
+    expect(profile.chroma).toBe("4:4:4");
+  });
+
   it("uses the official AT-OMNI-112 encoder role instead of the retired conflicting override", () => {
     const profile = resolveCompetitorSpecProfile("AT-OMNI-112", "Atlona");
     expect(String(profile.role).toLowerCase()).toBe("encoder");

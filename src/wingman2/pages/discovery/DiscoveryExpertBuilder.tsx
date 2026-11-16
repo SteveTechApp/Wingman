@@ -150,7 +150,7 @@ function ExpertQuestion({ question, application, answer, note, onSelect, onNoteC
       aria-pressed={selected.includes(option.value)} onClick={() => onSelect(option.value)}>
       <strong>{option.label}</strong>{option.help && <small>{option.help}</small>}
     </button>)}</div>
-    <details className="wm-expert-question-details">
+    <details>
       <summary>{note.trim() ? "Review saved detail or add a note" : "Add an exact detail or voice note (optional)"}</summary>
       <label>Design notes and exact details<textarea value={note} placeholder={question.capturePlaceholder} onChange={event => onNoteChange(event.target.value)} /></label>
       {/* Keep the room choices as the default answer; exact wording stays

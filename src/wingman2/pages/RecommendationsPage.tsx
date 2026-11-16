@@ -931,7 +931,7 @@ export function RecommendationsPage() {
                     .find((question) => Boolean(question && !wmDiscoveryHasAnswer(discoveryAnswers[question.id])))
                     ?? resolution.questionIds.map((id) => discoveryQuestionsById.get(id)).find((question) => Boolean(question));
                   return (
-                    <li className={resolution.answerInDiscovery ? "is-answerable" : "is-follow-up"} key={item}>
+                    <li className={resolution.answerInDiscovery ? "is-answerable" : undefined} key={item}>
                       <div className="wm-rec-check-summary">
                         <span className="wm-rec-check-icon"><AlertTriangle size={16} aria-hidden="true" /></span>
                         <div className="wm-rec-check-copy">

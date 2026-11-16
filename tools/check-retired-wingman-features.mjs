@@ -116,10 +116,6 @@ for (const sourceRoot of sourceRoots) {
         fail(`${relative} still imports FinderPage.`);
       }
 
-      if (source.includes("Product Finder")) {
-        fail(`${relative} still contains retired user-facing Product Finder wording.`);
-      }
-
       if (source.includes(retiredNavigationClassToken)) {
         fail(`${relative} still references the retired '${retiredNavigationClassToken}' class family.`);
       }

@@ -17,13 +17,6 @@
       "reviewedOn": "2026-06-28",
       "ageDaysWhenPinned": 124,
       "sourceFile": "data-sources/competitors/lightware.csv"
-    },
-    {
-      "sku": "VINX-210AP-HDMI-DEC",
-      "manufacturer": "Lightware",
-      "reviewedOn": "2026-06-28",
-      "ageDaysWhenPinned": 124,
-      "sourceFile": "data-sources/competitors/lightware.csv"
     }
   ]
 }

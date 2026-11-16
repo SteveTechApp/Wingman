@@ -1,7 +1,7 @@
 import { installationLineLabel, type InstallationSchedule } from "../lib/installationSchedule";
 
 export function ProposalInstallationScope({ schedule }: { schedule: InstallationSchedule }) {
-  return <section className="wm-proposal-installation-scope">
+  return <section>
     <h3>Installation scope</h3>
     <p>{schedule.text}</p>
     <table>

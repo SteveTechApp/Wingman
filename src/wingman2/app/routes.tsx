@@ -93,7 +93,7 @@ export const wingmanRoutes: RouteObject[] = [
       { index: true, element: routeElement(pageRegistry.dashboard) },
       { path: "dashboard", element: <Navigate to="/wingman" replace /> },
       { path: "profile", element: <Navigate to="/wingman/settings" replace /> },
-      { path: "finder", element: <Navigate to="/wingman/product-finder" replace /> },
+      { path: "finder", element: <Navigate to="/wingman/discovery" replace /> },
       { path: "visual-studio", element: <Navigate to="/wingman/proposal-visuals?mode=technical-schematic" replace /> },
       { path: "visual-design", element: <Navigate to="/wingman/proposal-visuals?mode=technical-schematic" replace /> },
       { path: "projects/:projectId", element: routeElement(ProjectDetailRoute) },

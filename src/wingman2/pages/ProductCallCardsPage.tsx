@@ -1249,7 +1249,7 @@ return (
         <>
           <ProductWorkspaceNav />
           <header className="wm-pcc-header wm-ui-card-header">
-            <div className="wm-pcc-header-product">
+            <div>
             <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">
               Focused product discussion
             </p>

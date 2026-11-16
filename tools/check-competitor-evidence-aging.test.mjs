@@ -5,7 +5,7 @@ const AT = new Date("2026-10-30T00:00:00Z");
 const POLICY = { verifiedEvidenceWarnAfterDays: 60, verifiedEvidenceFailAfterDays: 120 };
 
 function row(sku, lastReviewed, extra = {}) {
-  return { sku, manufacturer: "Atlona", lastReviewed, sourceFile: "data-sources/competitors/atlona.csv", ...extra };
+  return { sku, manufacturer: "Atlona", approvalStatus: "approved", lastReviewed, sourceFile: "data-sources/competitors/atlona.csv", ...extra };
 }
 
 function audit(rows, { baseline = null, policy = POLICY } = {}) {
@@ -26,6 +26,16 @@ describe("competitor evidence aging", () => {
     expect(result.failures[0]).toContain("AT-OMNI-111 (Atlona)");
     expect(result.failures[0]).toContain("124 days");
     expect(result.failures[0]).toContain("data-sources/competitors/atlona.csv");
+  });
+
+  it("keeps stale review-only rows visible without blocking approved evidence", () => {
+    const result = audit([row("UNVERIFIED-ROW", "2026-06-28", { approvalStatus: "review", status: "review" })]);
+
+    expect(result.failures).toEqual([]);
+    expect(result.overLimit).toHaveLength(1);
+    expect(result.overLimit[0].approvalStatus).toBe("review");
+    expect(result.totals.overLimitApproved).toBe(0);
+    expect(result.totals.overLimitNotApproved).toBe(1);
   });
 
   it("keeps a pinned row quiet while it is still past the limit", () => {

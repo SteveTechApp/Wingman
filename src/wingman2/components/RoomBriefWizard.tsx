@@ -74,7 +74,7 @@ export function RoomBriefWizard() {
   const stage = !started ? 0 : decided ? 2 : 1;
 
   return (
-    <section className="wm-section-card wm-room-brief" aria-labelledby="room-brief-title" data-testid="room-brief">
+    <section className="wm-section-card" aria-labelledby="room-brief-title" data-testid="room-brief">
       <nav className="wm-template-stages" aria-label="Room brief stages">
         {["The room", "What it is for", "The decision"].map((label, index) => (
           <span key={label} className={index === stage ? "is-active" : index < stage ? "is-complete" : ""}>
@@ -85,7 +85,7 @@ export function RoomBriefWizard() {
       </nav>
 
       {!started || !setupComplete ? (
-        <div className="wm-room-brief-content" data-testid="room-brief-setup">
+        <div data-testid="room-brief-setup">
           <p className="wm-ui-kicker">Start with the room, not the catalogue</p>
           <h1 id="room-brief-title" className="wm-page-title">What has the customer asked for?</h1>
           <p className="wm-ui-copy">
@@ -93,7 +93,7 @@ export function RoomBriefWizard() {
             capture the room and signal paths that change the design.
           </p>
 
-          <label className="wm-room-brief-market">
+          <label>
             <span>Market</span>
             <select
               aria-label="Market"
@@ -110,14 +110,14 @@ export function RoomBriefWizard() {
             </select>
           </label>
 
-          <fieldset className="wm-room-brief-question wm-room-brief-purpose">
+          <fieldset>
             <legend className="wm-section-title">What does the room have to do?</legend>
             {marketApplications.length ? (
               <>
                 <p className="wm-ui-copy">Choose the application that best matches this {answers.market} room.</p>
-                <div className="wm-room-brief-options" aria-label={`${answers.market} applications`}>
+                <div aria-label={`${answers.market} applications`}>
                   {marketApplications.map((application) => (
-                    <label key={application.id} className={`wm-room-brief-option${answers.marketApplication === application.id ? " is-selected" : ""}`}>
+                    <label key={application.id}>
                       <input
                         type="radio"
                         name="room-brief-purpose"
@@ -136,9 +136,9 @@ export function RoomBriefWizard() {
                 <p className="wm-ui-kicker">Or start with a general room function</p>
               </>
             ) : null}
-            <div className="wm-room-brief-options">
+            <div>
               {ROOM_BRIEF_PURPOSES.map((purpose) => (
-                <label key={purpose.value} className={`wm-room-brief-option${!answers.marketApplication && answers.purpose === purpose.value ? " is-selected" : ""}`}>
+                <label key={purpose.value}>
                   <input
                     type="radio"
                     name="room-brief-purpose"
@@ -150,7 +150,7 @@ export function RoomBriefWizard() {
                       marketApplication: "",
                     }))}
                   />
-                  <span className="wm-room-brief-option-copy">
+                  <span>
                     <span>{purpose.label}</span>
                   </span>
                 </label>
@@ -158,11 +158,11 @@ export function RoomBriefWizard() {
             </div>
           </fieldset>
 
-          <fieldset className="wm-room-brief-question wm-room-brief-occupancy">
+          <fieldset>
             <legend className="wm-section-title">How many people are in it?</legend>
-            <div className="wm-room-brief-options">
+            <div>
               {ROOM_BRIEF_OCCUPANCIES.map((band) => (
-                <label key={band.value} className={`wm-room-brief-option${answers.occupancy === band.value ? " is-selected" : ""}`}>
+                <label key={band.value}>
                   <input
                     type="radio"
                     name="room-brief-occupancy"
@@ -197,7 +197,7 @@ export function RoomBriefWizard() {
       ) : null}
 
       {started && setupComplete && !forced && question ? (
-        <div className="wm-room-brief-content" data-testid="room-brief-question">
+        <div data-testid="room-brief-question">
           <p className="wm-ui-kicker">
             Question {questionsAsked(answers) + 1} · {question.question}
           </p>
@@ -229,7 +229,7 @@ export function RoomBriefWizard() {
       ) : null}
 
       {decision ? (
-        <div className="wm-room-brief-content" data-testid="room-brief-decision">
+        <div data-testid="room-brief-decision">
           <p className="wm-ui-kicker">
             Decided in {decision.questionsAsked} question{decision.questionsAsked === 1 ? "" : "s"}
             {decision.market ? ` · ${decision.market}` : ""}
