@@ -1,6 +1,7 @@
 import { routeCatalogByKey } from "../../../app/routeCatalog";
 import { normalizeMultiSkuCompetitorAnalysis } from "../../../lib/documentIngest/multiSkuCompetitorIngest";
 import { normaliseProjectTopology } from "../../../lib/projectTopology";
+import { TEMPLATE_MARKETS } from "../../../lib/templateMarkets";
 import { STRANDED_BRIEF_QUOTE_SAFETY_MESSAGE } from "../../../lib/strandedBriefQuoteSafety";
 import type { StatusVariant } from "../../../types";
 import type {
@@ -231,6 +232,49 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
 
   const topology = normaliseProjectTopology(record.topology);
   const hasTopology = topology.locations.length > 0 || topology.connections.length > 0;
+  const decisionRecord = objectRecord(record.roomDecision);
+  const roomArchetypes = ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] as const;
+  const archetypeValue = stringValue(decisionRecord?.archetype);
+  const marketValue = stringValue(decisionRecord?.market);
+  const roomDecision = decisionRecord && Array.isArray(decisionRecord.requirements)
+    && roomArchetypes.includes(archetypeValue as (typeof roomArchetypes)[number])
+    && (marketValue === "" || (TEMPLATE_MARKETS as readonly string[]).includes(marketValue))
+    ? {
+        archetype: archetypeValue as NonNullable<StoredDiscoveryBrief["roomDecision"]>["archetype"],
+        roomType: stringValue(decisionRecord.roomType),
+        summary: stringValue(decisionRecord.summary),
+        requirements: decisionRecord.requirements.flatMap((item) => {
+          const requirement = objectRecord(item);
+          if (!requirement) return [];
+          const key = stringValue(requirement.key);
+          const label = stringValue(requirement.label);
+          const quantity = stringValue(requirement.quantity);
+          const because = stringValue(requirement.because);
+          return key && label && quantity && because ? [{ key, label, quantity, because }] : [];
+        }),
+        verifyOnSite: stringArray(decisionRecord.verifyOnSite),
+        assumptions: stringArray(decisionRecord.assumptions),
+        changesIf: stringArray(decisionRecord.changesIf),
+        market: marketValue as NonNullable<StoredDiscoveryBrief["roomDecision"]>["market"],
+        questionsAsked: Math.max(0, Math.floor(Number(decisionRecord.questionsAsked) || 0)),
+        unresolved: stringArray(decisionRecord.unresolved).filter((item) => roomArchetypes.includes(item as (typeof roomArchetypes)[number])) as NonNullable<StoredDiscoveryBrief["roomDecision"]>["unresolved"],
+      }
+    : undefined;
+  const normalizedRoomDecision = roomDecision?.roomType && roomDecision.summary && roomDecision.requirements.length
+    ? roomDecision
+    : undefined;
+  const answerRecord = objectRecord(record.discoveryAnswers);
+  const discoveryAnswers: StoredDiscoveryBrief["discoveryAnswers"] = answerRecord ? {} : undefined;
+  if (answerRecord && discoveryAnswers) {
+    for (const [key, answer] of Object.entries(answerRecord)) {
+      if (typeof answer === "string") discoveryAnswers[key] = answer;
+      else if (Array.isArray(answer)) discoveryAnswers[key] = answer.filter((item): item is string => typeof item === "string");
+    }
+  }
+  const noteRecord = objectRecord(record.discoveryNotes);
+  const discoveryNotes = noteRecord
+    ? Object.fromEntries(Object.entries(noteRecord).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
+    : undefined;
 
   return {
     savedAt: stringValue(record.savedAt, undefined),
@@ -265,22 +309,10 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
       canQuote: objectRecord(record.decisionIntegrity)?.canQuote === true,
     } : undefined,
     discoveryConversation: normalizeDiscoveryConversation(record.discoveryConversation),
-    discoveryAnswers: normalizeDiscoveryAnswers(record.discoveryAnswers),
-    discoveryNotes: objectRecord(record.discoveryNotes)
-      ? Object.fromEntries(Object.entries(objectRecord(record.discoveryNotes)!).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
-      : undefined,
+    roomDecision: normalizedRoomDecision,
+    discoveryAnswers,
+    discoveryNotes,
   };
-}
-
-function normalizeDiscoveryAnswers(value: unknown): Record<string, string | string[]> | undefined {
-  const record = objectRecord(value);
-  if (!record) return undefined;
-  const answers: Record<string, string | string[]> = {};
-  for (const [key, answer] of Object.entries(record)) {
-    if (typeof answer === "string") answers[key] = answer;
-    else if (Array.isArray(answer)) answers[key] = answer.filter((item): item is string => typeof item === "string");
-  }
-  return answers;
 }
 
 function normalizeIngestVisualAttachmentKind(value: unknown): StoredIngestVisualAttachment["kind"] {
@@ -365,11 +397,20 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
   if (!record) return undefined;
   const outputPurpose = objectRecord(record.outputPurpose);
   const salesContent = objectRecord(record.salesContent);
-  const pricing = objectRecord(record.pricing);
+  const displayPlan = objectRecord(record.displayPlan);
+  const normalizedDisplayPlan = displayPlan
+    ? {
+        primaryArrangement: stringValue(displayPlan.primaryArrangement, undefined),
+        totalFeedCount: stringValue(displayPlan.totalFeedCount, undefined),
+        repeaterCount: stringValue(displayPlan.repeaterCount, undefined),
+        repeaterPurpose: stringArray(displayPlan.repeaterPurpose),
+        behaviour: stringArray(displayPlan.behaviour),
+      }
+    : undefined;
 
   return {
     title: stringValue(record.title, "Untitled Proposal"),
-    pricing: pricing ? { currency: pricing.currency === "USD" || pricing.currency === "EUR" ? pricing.currency : "GBP", pricesExcludeTax: pricing.pricesExcludeTax !== false, bomUnitPrices: objectRecord(pricing.bomUnitPrices) as Record<string, string> ?? {}, installationUnitPrices: objectRecord(pricing.installationUnitPrices) as Record<string, string> ?? {} } : undefined,
+    displayPlan: normalizedDisplayPlan && Object.values(normalizedDisplayPlan).some((value) => Array.isArray(value) ? value.length > 0 : Boolean(value)) ? normalizedDisplayPlan : undefined,
     salesContent: salesContent ? { objectives: stringValue(salesContent.objectives), solutionOverview: stringValue(salesContent.solutionOverview), architecture: typeof salesContent.architecture === "string" ? salesContent.architecture : undefined, externalScope: stringValue(salesContent.externalScope) } : undefined,
     summary: stringValue(record.summary),
     sections: stringArray(record.sections),

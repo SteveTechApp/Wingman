@@ -6,7 +6,7 @@ import { VideowallTransport } from "./VideowallTransport";
 import { wallTransportPlan, withMeasuredRuns } from "../../lib/videowallTransport";
 import { wallSurveyDisplayCount, wallSurveyGapText, wallSurveyGaps } from "../../lib/wallSurvey";
 import { wallDecisionSummary, type WallDecision, type WallLayoutChoice } from "../../lib/videowallDecision";
-import { wallApplications, type WallOption, type WallRequirements } from "../../lib/videowallOptions";
+import { wallTechnologies, type WallOption, type WallRequirements } from "../../lib/videowallOptions";
 import {
   videowallNetworkChoices,
   videowallNetworkKeyFor,
@@ -28,6 +28,7 @@ import {
   wallWizardLayoutChoiceIsDisabled,
   wallWizardLayoutIsMultiview,
   wallWizardSteps,
+  wallWizardTechnologyPatch,
 } from "../../lib/videowallWizard";
 import { VideowallVerdict } from "./VideowallVerdict";
 import { wallVariantLabel } from "../../lib/wallVariants";
@@ -44,7 +45,7 @@ const STEP_HEADINGS: Record<string, { title: string; hint: string }> = {
   size: { title: "How big is the wall?", hint: "The array, the panel pixels and the pitch set the size of the box." },
   sources: { title: "How many sources?", hint: "Choose how many sources the wall needs to show and the highest timing they use." },
   network: { title: "What network will carry the picture?", hint: "Choose the existing network to use, or include new switches in the design." },
-  feeding: { title: "How is the wall fed?", hint: "One canvas the wall scales, or a feed per panel — then the box that produces that canvas." },
+  feeding: { title: "How is the wall fed?", hint: "Choose one NHD decoder per LCD, or tile one canvas across the array. For multiview, match NHD-150-RX, NHD-0401-MV or NHD-600-TRX to the required layout and network." },
   layout: { title: "How should the sources appear?", hint: "Windows composed in one design — the multiview — or a source per screen, which is a different design." },
   visual: { title: "The wall you have described", hint: "Drawn at the size and mounting height the answers set, with the sources mapped onto it." },
   detail: { title: "What must the design handle?", hint: "These answers do not change the recommendation, but each one becomes a check in the saved design." },
@@ -207,17 +208,17 @@ export function VideowallWizard({
       ) : null}
 
       {step === STEP.picture ? (
-        <section className="vw-wizard-card" data-testid="videowall-wizard-step-picture" aria-label="What is going on the wall?">
-          <div className="vw-wizard-options vw-wizard-wall-types" role="group" aria-label="Display application">
-            {wallApplications.map((application) => (
+        <section className="vw-wizard-card" data-testid="videowall-wizard-step-picture" aria-label="What type of wall?">
+          <div className="vw-wizard-options vw-wizard-wall-types" role="group" aria-label="Wall technology">
+            {wallTechnologies.map((technology) => (
               <button
-                key={application.value}
+                key={technology.value}
                 type="button"
-                aria-pressed={requirements.application === application.value}
-                onClick={() => { onChange(wallWizardApplicationPatch(application.value, requirements)); next(); }}
+                aria-pressed={requirements.application.startsWith(technology.value)}
+                onClick={() => { onChange(wallWizardTechnologyPatch(technology.value, requirements)); next(); }}
               >
-                <strong>{application.title}</strong>
-                <span>{application.description}</span>
+                <strong>{technology.title}</strong>
+                <span>{technology.description}</span>
               </button>
             ))}
           </div>

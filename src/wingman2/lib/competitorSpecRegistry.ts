@@ -292,6 +292,7 @@ function quantityFromLabel(text: string, labels: string[]): number | undefined {
 export function parseResolution(text: string): string | undefined {
   const value = text.toLowerCase();
   if (/8k|4320/.test(value)) return "8K";
+  if (/\b5k\b|5120\s*[x×]/.test(value)) return "5K";
   if (/4k\s*60|4k60|2160p\s*60|60\s*hz.*4k|4k.*60\s*hz/.test(value)) return "4K60";
   if (/4k|uhd|2160/.test(value)) return "4K30"; // conservative: ranks below 4K60, never over-claims
   if (/1080|fhd|1920/.test(value)) return "1080p";

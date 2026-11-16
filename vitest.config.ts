@@ -52,6 +52,14 @@ export default defineConfig({
         ...(existsSync(path.resolve(__dirname, 'node_modules'))
           ? [realpathSync(path.resolve(__dirname, 'node_modules'))]
           : []),
+        // Some local worktrees keep an empty node_modules directory while
+        // Node resolves dependencies from the owning checkout three levels
+        // above. Permit the resolved dependency root for ?url assets such as
+        // pdfjs' worker, which Vite otherwise rejects before the test mock can
+        // run.
+        ...(existsSync(path.resolve(__dirname, '../../../node_modules'))
+          ? [realpathSync(path.resolve(__dirname, '../../../node_modules'))]
+          : []),
       ],
     },
   },

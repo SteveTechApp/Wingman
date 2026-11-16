@@ -29,6 +29,22 @@ describe("canonical design proposal", () => {
     expect(result.blockers).toContain("Complete the displays and destinations design role.");
   });
 
+  it("does not demand a peripheral USB design for a USB-C video input", () => {
+    const input = project();
+    input.requirements = [{ id: "laptop-input", label: "Laptop input", value: "One USB-C connection with HDMI fallback", category: "source", source: "Customer", status: "confirmed", whyItMatters: "Provide a convenient video input.", updatedAt: input.updatedAt }];
+    const result = compileDesignProposal(input);
+    expect(result.roleCoverage.find((item) => item.role === "usb")?.required).toBe(false);
+    expect(result.blockers).not.toContain("Complete the usb and host ownership design role.");
+  });
+
+  it("keeps the USB role required for an actual host and camera path", () => {
+    const input = project();
+    input.requirements = [{ id: "usb-camera", label: "USB host and camera", value: "The room PC owns a USB camera and microphone", category: "usb", source: "Customer", status: "confirmed", whyItMatters: "Define the peripheral path.", updatedAt: input.updatedAt }];
+    const result = compileDesignProposal(input);
+    expect(result.roleCoverage.find((item) => item.role === "usb")?.required).toBe(true);
+    expect(result.blockers).toContain("Complete the usb and host ownership design role.");
+  });
+
   it("creates a deterministic hash independent of volatile revision fields", () => {
     const first = compileDesignProposal(project(), "2026-09-07T11:00:00.000Z");
     const second = compileDesignProposal(project(), "2026-09-08T11:00:00.000Z");

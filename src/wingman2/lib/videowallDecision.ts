@@ -7,7 +7,7 @@ import { assessVideowallOptions, defaultWallRequirements, wallDisplayFeeds, wall
  * the rest dropped? One answer, stated plainly, instead of nine to choose from.
  */
 
-export type WallFamily = "local-switch" | "dedicated-wall" | "avoip-1g" | "avoip-10g" | "hdmi-compose";
+export type WallFamily = "local-switch" | "dedicated-wall" | "avoip-100" | "avoip-1g" | "avoip-10g" | "hdmi-compose";
 
 export type WallFamilyProfile = {
   family: WallFamily;
@@ -46,6 +46,11 @@ export const wallFamilyProfiles: Record<string, WallFamilyProfile> = {
     family: "avoip-1g",
     label: "1GbE AV over IP",
     rationale: "A composed canvas delivered over 1GbE, which suits dense windows and long source runs.",
+  },
+  nhd120: {
+    family: "avoip-100",
+    label: "NetworkHD 100 · low-bandwidth 1GbE",
+    rationale: "A NetworkHD 100 decoder at each display carries independently routed pictures over 1GbE, with source timing up to 4K30.",
   },
   "nhd500-multiview": {
     family: "avoip-1g",
@@ -142,7 +147,7 @@ export function wallPreferenceOrder(r: WallRequirements): string[] {
   const multiview = !independent && windows > 1;
   const local = r.sourceLocation === "local";
   const localCeiling = [`mx-0404-scl`, `mx-0812-scl`];
-  const avoip = r.network === "10g" ? ["nhd600", "nhd500", "nhd150"] : ["nhd500", "nhd150", "nhd600"];
+  const avoip = r.network === "10g" ? ["nhd600", "nhd500", "nhd150", "nhd120"] : ["nhd500", "nhd150", "nhd120", "nhd600"];
   const processors = ["sw-0204-vw", "sw-0206-vw"];
 
   if (direct && independent) {
@@ -229,6 +234,7 @@ export function wallFitReasons(option: WallOption, r: WallRequirements): string[
 
 const ALTERNATIVE_WHEN: Record<string, string> = {
   "local-switch->avoip-1g": "Choose this if sources or screens sit beyond a local rack, or screens will be added later without new HDMI runs.",
+  "local-switch->avoip-100": "Choose this if independent displays are distributed over 1GbE and NetworkHD 100's source timing and compression suit the room.",
   "local-switch->avoip-10g": "Choose this if the customer already runs 10GbE and wants uncompressed 4K60 4:4:4.",
   "local-switch->dedicated-wall": "Choose this if the wall always shows one selected source and a purpose-built wall processor is preferred over a matrix.",
   "local-switch->hdmi-compose": "Choose this if the wall only needs one composed picture from four or fewer sources.",
@@ -241,6 +247,8 @@ const ALTERNATIVE_WHEN: Record<string, string> = {
   "avoip-1g->hdmi-compose": "Choose this if all sources are local and you want to remove the network dependency.",
   "avoip-1g->dedicated-wall": "Choose this if the wall always shows one selected source and long cable runs are not a concern.",
   "avoip-1g->avoip-10g": "Choose this if the customer needs uncompressed 4K60 4:4:4 on a 10GbE network.",
+  "avoip-1g->avoip-100": "Choose this if independently decoded displays suit the room and NetworkHD 100's source timing and compression are acceptable.",
+  "avoip-100->avoip-1g": "Choose this if the room needs a higher-performance 1GbE transport or a composed multiview canvas.",
   "avoip-10g->avoip-1g": "Choose this if 10GbE is not available and compressed 1GbE transport is acceptable.",
   "avoip-10g->local-switch": "Choose this if every source sits in one rack and you would rather avoid an AV network entirely.",
   "avoip-10g->hdmi-compose": "Choose this if all sources are local and you want to remove the network dependency.",
@@ -447,6 +455,7 @@ export function wallPresetTransportOf(family: WallFamily | undefined): WallPrese
   if (!family) return null;
   if (family === "avoip-10g") return "10g";
   if (family === "avoip-1g") return "1g";
+  if (family === "avoip-100") return "1g";
   return "local";
 }
 
@@ -878,9 +887,6 @@ export const wallStartPresetGroups = wallStartPresetFamilies
  * row, and `wallStartPresetShortlistCoverage` reports it in a test.
  */
 export const wallStartPresetShortlistKeys: readonly string[] = [
-  "single-canvas",
-  "quad-canvas",
-  "per-panel",
   "led-canvas",
   "projector-quad",
   "projector-pair",
@@ -932,7 +938,7 @@ export function wallStartPresetFacts(preset: WallStartPreset): string {
 
 /** The question wording used by the builder, kept next to the logic it drives. */
 export const wallDecisionQuestions = {
-  application: "What is going on the wall?",
+  application: "How does the wall receive its picture?",
   scale: "How big is the wall?",
   layout: "How should the sources appear?",
   location: "Where do the sources sit?",

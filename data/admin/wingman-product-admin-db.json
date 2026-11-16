@@ -113,13 +113,13 @@
     },
     "NHD-300-TX": {
       "sku": "NHD-300-TX",
-      "statusOverride": "do-not-use",
-      "doNotUse": true,
-      "visibility": "hidden",
-      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "statusOverride": "active",
+      "doNotUse": false,
+      "visibility": "default",
+      "adminNotes": "User confirms the NHD-300-TX remains available and may be recommended for live streaming when the source, format, platform and network fit.",
       "evidenceUrl": "",
-      "updatedBy": "admin",
-      "updatedAt": "2026-07-10T15:38:50.569Z"
+      "updatedBy": "user-confirmed",
+      "updatedAt": "2026-11-12T00:00:00.000Z"
     },
     "NHD-400-DNT-TX": {
       "sku": "NHD-400-DNT-TX",

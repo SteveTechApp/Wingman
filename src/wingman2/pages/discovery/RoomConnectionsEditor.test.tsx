@@ -19,7 +19,11 @@ describe("room builder connections", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "To device" }), { target: { value: "Display" } });
     fireEvent.click(screen.getByRole("button", { name: "Add connection" }));
     fireEvent.change(screen.getByRole("combobox", { name: "Transport" }), { target: { value: "hdmi" } });
-    expect(JSON.parse(screen.getByTestId("topology").textContent!).connections[0]).toMatchObject({ fromDeviceId: "Laptop", toDeviceId: "Display", transport: "hdmi", services: [], lengthMode: "unknown" });
+    fireEvent.change(screen.getByRole("combobox", { name: /Route length status/ }), { target: { value: "confirmed" } });
+    fireEvent.change(screen.getByRole("spinbutton", { name: /Route length metres/ }), { target: { value: "12.5" } });
+    fireEvent.change(screen.getByRole("textbox", { name: /Route length basis/ }), { target: { value: "Measured during site survey" } });
+    expect(JSON.parse(screen.getByTestId("topology").textContent!).connections[0]).toMatchObject({ fromDeviceId: "Laptop", toDeviceId: "Display", transport: "hdmi", services: [] });
+    expect(JSON.parse(screen.getByTestId("topology").textContent!).connections[0]).toMatchObject({ lengthMode: "confirmed", lengthMetres: 12.5, estimateReason: "Measured during site survey" });
     fireEvent.click(screen.getByRole("button", { name: "Remove Laptop" }));
     const saved = JSON.parse(screen.getByTestId("topology").textContent!);
     expect(saved.devices.map((device: { id: string }) => device.id)).toEqual(["Display"]);

@@ -480,7 +480,7 @@ export function AppShell({ children }: AppShellProps) {
             key={`${location.pathname}-${pageResetVersion}`}
           >
             {children ?? <Outlet />}
-            {activeRoute ? <FeatureJourneyStrip routeKey={activeRoute.key} context={{ projectId: guruActivityContext.project?.id, sku: guruActivityContext.project?.selectedSkus[0] }} /> : null}
+            {activeRoute ? <FeatureJourneyStrip routeKey={activeRoute.key} context={{ projectId: guruActivityContext.project?.id, sku: activeRoute.key === "compare" ? new URLSearchParams(location.search).get("wyrestormSku") || undefined : guruActivityContext.project?.selectedSkus[0] }} /> : null}
           </div>
         </main>
       </div>

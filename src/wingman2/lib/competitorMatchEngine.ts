@@ -875,11 +875,11 @@ export function findMatches(
     recommendation = `${scoredProducts[0].sku} is a strong match for ${competitor.sku}. Confirm the highlighted specs to finalise.`;
     nextSteps = [
       `Review the ${scoredProducts[0].sku} datasheet against ${competitor.sku}'s exact specifications`,
-      "Compare pricing and availability",
+      "Confirm regional availability and the exact supplied model",
       "Verify installation and control requirements match",
     ];
   } else if (scoredProducts[0].matchQuality === "good") {
-    recommendation = `${scoredProducts[0].sku} is a likely alternative to ${competitor.sku} — verify the noted specifics before quoting.`;
+    recommendation = `${scoredProducts[0].sku} is a likely alternative to ${competitor.sku} — verify the noted specifics before adding it to the proposal.`;
     nextSteps = [
       "Confirm the key feature requirements with the customer",
       "Review the capability gaps noted on each match",

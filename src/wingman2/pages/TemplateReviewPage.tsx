@@ -111,7 +111,7 @@ export function TemplateReviewPage() {
   const proposal = useTemplateProposal({
     templateId: templateId ?? "",
     template: editedTemplate,
-    pricingTemplate: selectedTemplate,
+    sourceTemplate: selectedTemplate,
     selectedRows: displayRows,
     navigate,
     onSavedProject: setSavedProjectPath,
@@ -121,8 +121,8 @@ export function TemplateReviewPage() {
   // A template that includes wall processing is a wall design, so the full
   // builder for it is the Video Wall builder rather than room discovery.
   const { wallHandoff, openFullRoomBuilder } = useTemplateHandoff({ template: editedTemplate, selectedRows, navigate });
-  // Read from the rows the gate validates, so a placeholder the pricing table
-  // already dropped is not offered as an open question either.
+  // Read from the rows the gate validates, so a placeholder already removed
+  // from the design is not offered as an open question either.
   const dependencyPrompts = useMemo(() => templateDependencyPrompts(proposal.bomRows), [proposal.bomRows]);
 
   /** What the manufacturer's page said about the open row, on the row and its drawer copy. */
@@ -175,7 +175,7 @@ export function TemplateReviewPage() {
     const service = section === "engineering" || section === "maintenance";
     const row: TemplateBomRow = { id: crypto.randomUUID(), sku: "BY-OTHERS-CUSTOM", description: service ? "New service allowance" : "New room item", role: PROJECT_SCOPE_SECTIONS.find(item => item.id === section)!.title,
       scopeSection: section, unit: service ? "allowance" : "each", qty: 1, type: "Validate", status: "validate", owner: "integrator",
-      evidence: "Added during room design review; confirm suitability and scope.", notes: "Agree the specification, supplier, quantity and delivery responsibility before pricing." };
+      evidence: "Added during room design review; confirm suitability and scope.", notes: "Confirm the specification, supplier, quantity and delivery responsibility." };
     mutateRows(rows => [...rows, row]); setDetailRow(row);
   }
   // The two schedule writes and the reasoning for each live in their own module
@@ -279,23 +279,13 @@ export function TemplateReviewPage() {
             template={template}
             validation={proposal.exportValidation}
             readinessScore={proposal.readinessScore}
-            pricingSummary={proposal.pricingSummary}
             surveyGaps={proposal.surveyGaps}
-            onRecordSurveyDetail={proposal.savedWall?.projectId ? proposal.recordSurveyDetail : null}
+            onRecordSurveyDetail={proposal.savedWallProjectId ? proposal.recordSurveyDetail : null}
             onScheduleDisplayRunSpans={scheduleDisplayRunSpans}
             dependencyPrompts={dependencyPrompts}
             onRecordDependency={recordDependency}
-            pricing={proposal.pricingDraft}
             bomRows={proposal.bomRows}
             installation={proposal.installation}
-            rateCard={proposal.rateCard}
-            rateCardError={proposal.rateCardError}
-            onCurrency={proposal.setCurrency}
-            onUnitPrice={proposal.setUnitPrice}
-            onInstallationRate={proposal.setInstallationRate}
-            onRestoreInstallationRates={proposal.restoreInstallationRates}
-            tableRestore={false}
-            onSaveRateCard={proposal.saveRateCard}
             onCreateProposal={proposal.createProposal}
             onExportProposal={proposal.exportProposal}
             onExportSchedule={proposal.exportSchedule}

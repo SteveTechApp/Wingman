@@ -14,7 +14,7 @@ import type { DiscoveryQuestion } from "./discoveryTypes";
  */
 export const DISCOVERY_SECTIONS = [
   { id: "brief", title: "Room brief", description: "Purpose, people and scale" },
-  { id: "site", title: "Environment", description: "Access, installation, room construction, power and first-fix cabling" },
+  { id: "site", title: "Environment", description: "Building structure, room surfaces, access, power and cabling" },
   { id: "outputs", title: "Displays & cameras", description: "Screens, projectors, camera views, positions and use" },
   { id: "audio", title: "Audio", description: "Microphones, speakers, zones, signal paths and processing" },
   { id: "routing", title: "Switching & signal distribution", description: "Source and output positions, routes, distances, video formats, USB and network transport" },
@@ -31,7 +31,7 @@ export function discoverySectionFor(question: Pick<DiscoveryQuestion, "id">): Di
   const id = question.id;
   if (id === "opportunity" || id === "scale") return "brief";
   if (/^source|wireless-presentation/.test(id)) return "routing";
-  if (/^(display|video-wall|uc-camera|uc-purpose|uc-platform|uc-camera-count|uc-multi-camera-path|uc-camera-routing|mtr-av-integration)/.test(id)) return "outputs";
+  if (id === "primary-display" || id === "repeater-displays" || /^(display|video-wall|uc-camera|uc-purpose|uc-platform|uc-camera-count|uc-multi-camera-path|uc-camera-routing|mtr-av-integration)/.test(id)) return "outputs";
   if (["network-path", "avoip-profile", "signal-standard", "usb", "locations-connections", "source-device-workflows", "multiview-destination", "multiview-operation"].includes(id)) return "routing";
   if (/^(audio|room-acoustics|uc-microphone|uc-audio)/.test(id)) return "audio";
   if (id === "commissioning") return "commissioning";

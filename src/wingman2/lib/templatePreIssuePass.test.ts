@@ -8,7 +8,7 @@ import {
   templatePreIssueStageStorageKey,
 } from "./templatePreIssuePass";
 
-const stages = templatePreIssueStages({ blockers: 1, warnings: 0, unpricedLines: 2, validationItems: 0 });
+const stages = templatePreIssueStages({ blockers: 1, warnings: 0, validationItems: 0 });
 
 describe("templatePreIssueStageFromSearch", () => {
   it("reads the stage the address names", () => {
@@ -47,8 +47,8 @@ describe("template stage memory", () => {
   });
 
   it("stores the stage under the template's own key", () => {
-    rememberTemplatePreIssueStage("boardroom", "pricing");
+    rememberTemplatePreIssueStage("boardroom", "assumptions");
 
-    expect(window.localStorage.getItem(templatePreIssueStageStorageKey("boardroom"))).toBe("pricing");
+    expect(window.localStorage.getItem(templatePreIssueStageStorageKey("boardroom"))).toBe("assumptions");
   });
 });

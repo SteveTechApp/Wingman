@@ -83,7 +83,6 @@
 .vw-builder-decide-head p { color: var(--vw-muted); font-size: .85rem; }
 .vw-builder-starts { display: grid; gap: 8px; }
 .vw-builder-starts > p:first-child { color: var(--vw-muted); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
-.vw-builder-starts-hint { color: var(--vw-muted); font-size: .72rem; }
 
 /* The questions behind the answer: quieter than the wall and the verdict, with a
    heading that says what the block is for. */

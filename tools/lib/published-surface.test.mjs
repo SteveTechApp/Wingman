@@ -69,6 +69,16 @@ describe("the published surface", () => {
     expect(kinds).toEqual(["absolute-windows:assets/app.js", "absolute-posix:index.html"]);
   });
 
+  it("does not mistake a minified regex after a ternary colon for a Windows path", () => {
+    const root = scratchSite({
+      files: {
+        "assets/app.js": 'const kind=t?/hdmi|video/.test(value)?t:/hdmi:g:/network/i.test(value);',
+      },
+    });
+
+    expect(scanPublishedSurface(root).matches).toEqual([]);
+  });
+
   it("leaves a data citation alone, which is content rather than a build artefact", () => {
     // Shipped product data cites where a claim came from: `#N` is a row, not a
     // module. A gate that failed on this would be asking the data to stop saying

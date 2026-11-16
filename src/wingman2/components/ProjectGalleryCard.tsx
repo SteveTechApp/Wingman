@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Copy, LayoutTemplate, Trash2 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { discoveryResumeUrl } from "../lib/discoveryResume";
 import { setActiveProjectId, type StoredProject } from "../data/projectStore";
 import { changedLaneLabels, projectLaneLabel } from "../data/projectSyncConflict";
 import { projectPresentation } from "../lib/projectPresentation";
@@ -162,13 +163,8 @@ export function ProjectGalleryCard({
               Detail
             </Link>
 
-            {/* WINGMAN_DISCOVERY_PROJECT_RESUME_QUERY */}
             <Link
-              to={
-                project.resumeTo === routeCatalogByKey.discovery.path
-                  ? `${project.resumeTo}?resume=project`
-                  : project.resumeTo
-              }
+              to={project.resumeTo === routeCatalogByKey.discovery.path ? discoveryResumeUrl(project.id) : project.resumeTo}
               onClick={() => setActiveProjectId(project.id)}
               className={`wm-project-row-link ${PROJECTS_DARK_BUTTON_XS_CLASS}`}
             >

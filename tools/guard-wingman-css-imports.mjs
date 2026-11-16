@@ -138,7 +138,7 @@ if (videoWallCssImports.length !== 1 || videoWallCssImports[0] !== "../styles/wi
 }
 
 // The route owns its workspace styling and exposes selections to assistive technology.
-for (const marker of ['aria-label="Display application"', 'aria-label="WyreStorm architecture options"', 'aria-pressed={']) {
+for (const marker of ['aria-label="Wall technology"', 'aria-label="WyreStorm architecture options"', 'aria-pressed={']) {
   if (!videoWallRaw.includes(marker)) {
     console.error('Blocked: video-wall selections must retain accessible groups and pressed state.');
     process.exit(1);

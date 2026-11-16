@@ -30,7 +30,7 @@ describe("Expert room design workspace", () => {
     const sections = screen.getByRole("navigation", { name: "Room design sections" });
     fireEvent.click(within(sections).getByRole("button", { name: /Switching & signal distribution/ }));
     expect(screen.getByRole("region", { name: "Expert room design" })).toHaveAttribute("data-expert-section", "routing");
-    expect(screen.getByRole("heading", { name: /Source and output positions/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "How sharp does the picture need to be?" })).toBeInTheDocument();
   });
 
   it("opens the requested technical section from a Proposal edit link, ahead of the market lead-in", async () => {
@@ -40,8 +40,8 @@ describe("Expert room design workspace", () => {
       </MemoryRouter>,
     );
 
-    // The link names one answer, so the room-positioning lead-in does not stand
-    // in front of it — a rep who clicked a row lands on that row.
+    // The edit link selects the routing section that contains signal-standard.
+    // The user can see that section without first completing the room lead-in.
     expect(screen.queryByRole("button", { name: /Describe the environment/i })).not.toBeInTheDocument();
     expect(screen.queryByTestId("escalation-confirm")).not.toBeInTheDocument();
     expect(await screen.findByRole("region", { name: "Expert room design" })).toHaveAttribute("data-expert-section", "routing");

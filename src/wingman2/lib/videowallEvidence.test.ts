@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { decideVideowall } from "./videowallDecision";
 import { wallDesignEvidence } from "./videowallEvidence";
+import { discoveryVideoWallHandoff, wallHandoffSavedOrigin } from "./videowallHandoff";
 import { defaultWallRequirements, type WallRequirements } from "./videowallOptions";
 import { wallTransportPlan } from "./videowallTransport";
 
@@ -16,6 +17,34 @@ const requirements: WallRequirements = {
 };
 
 describe("wallDesignEvidence", () => {
+  it("carries Discovery repeaters and unresolved wall details into the saved proposal context", () => {
+    const handoff = discoveryVideoWallHandoff({
+      "primary-display": "led-video-wall",
+      displays: "nine-plus-displays",
+      "repeater-displays": "three-four-repeater-displays",
+      "display-behaviour": "video-wall-or-processor-feed",
+    }, "Auditorium", {
+      "primary-display": "5 m × 2 m LED wall",
+      "repeater-displays": "Four rear repeater screens for overflow seating",
+    })!;
+    const decision = decideVideowall(requirements);
+    const option = decision.recommended!.option;
+    const origin = wallHandoffSavedOrigin(handoff);
+    const evidence = wallDesignEvidence({
+      requirements,
+      option,
+      decision,
+      transport: wallTransportPlan(requirements),
+      checks: [],
+      origin,
+    });
+
+    expect(evidence.origin).toContain("3–4 repeater screens recorded");
+    expect(evidence.origin).toContain("Four rear repeater screens for overflow seating");
+    expect(evidence.origin).toContain("Panel/cabinet array is not captured");
+    expect(evidence.requirements.columns).toBe(2); // repeater feeds did not become wall panels
+  });
+
   it("records the requirements, recommendation and transport estimate the builder worked from", () => {
     const decision = decideVideowall(requirements);
     const option = decision.recommended?.option;

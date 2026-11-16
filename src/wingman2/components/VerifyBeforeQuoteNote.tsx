@@ -15,9 +15,9 @@ export function VerifyBeforeQuoteNote({ className = "" }: { className?: string }
     >
       <ShieldCheck className="wm-verify-before-quote__icon" aria-hidden="true" />
       <span>
-        Wingman guidance is best-efforts. Verify specifications, compatibility, lifecycle,
-        regional availability and pricing against the current WyreStorm documentation before
-        anything is quoted.{" "}
+        Wingman guidance is best-efforts. Verify specifications, compatibility, lifecycle and
+        regional availability against current WyreStorm documentation before finalising the
+        system design.{" "}
         <Link to={routeCatalogByKey.terms.path} className="wm-verify-before-quote__link">
           Read the terms
         </Link>

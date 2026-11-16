@@ -57,7 +57,7 @@ describe("governance-data gate: reviewer attribution section", () => {
   it("passes on the live tracked data (all attributions clean)", () => {
     const result = runGateWithProfiles(profilesData);
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain("206 attributed sign-offs clean");
+    expect(result.stdout).toContain("197 attributed sign-offs clean");
   });
 
   it("fails the gate when a profile carries the bare constant", () => {

@@ -358,6 +358,32 @@ function selectedCompatibleHdbtReceiver(products: StoredProductSelection[]) {
   });
 }
 
+function selectedNetworkHdEndpoint(products: StoredProductSelection[]) {
+  return products.some((product) => {
+    const sku = normaliseSku(product.sku);
+    const role = String(product.systemRole ?? "").trim().toLowerCase();
+    return /^NHD-(?:12\d|500|510|6\d{2})-.*-(?:TX|RX|TRX|TRXF)(?:-V\d+)?$/.test(sku) ||
+      role.includes("avoip-encoder") ||
+      role.includes("avoip-decoder");
+  });
+}
+
+function selectedNetworkHdSystem(products: StoredProductSelection[]) {
+  return products.some((product) => {
+    const sku = normaliseSku(product.sku);
+    const role = String(product.systemRole ?? "").trim().toLowerCase();
+    return sku.startsWith("NHD-") || role.includes("avoip");
+  });
+}
+
+function audioIsByOthers(input: DependencyGovernanceInput) {
+  const text = [input.discovery.audio, input.discovery.summary, ...(input.ingest?.requirements ?? [])]
+    .join(" ")
+    .toLowerCase();
+  return /^\s*by others\.?\s*$/.test(String(input.discovery.audio ?? "").trim().toLowerCase()) ||
+    /audio.{0,48}by others|by others.{0,48}audio|separate audio system/.test(text);
+}
+
 function selectedSourceSku(rule: ExactDependencyRule, selectedSkus: Set<string>) {
   return rule.sourceSkus?.find((sku) => selectedSkus.has(normaliseSku(sku)));
 }
@@ -641,7 +667,7 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
   const hasExactAvoipEndpointDependency = dependencies.some((item) => item.role.includes("NetworkHD") && item.role.includes("endpoint"));
   const hasExactHdbasetPairing = dependencies.some((item) => item.ruleId?.startsWith("hdbaset-"));
 
-  const requiresAvoip = hasAny(combinedText, [
+  const requiresAvoip = hasAny(requirementText, [
     "networkhd",
     "av over ip",
     "avoip",
@@ -651,10 +677,10 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
     "distributed displays",
     "multiple zones",
     "choose source per zone",
-  ]);
+  ]) || selectedNetworkHdSystem(input.products);
 
   if (requiresAvoip) {
-    if (!hasExactAvoipEndpointDependency) {
+    if (!hasExactAvoipEndpointDependency && !selectedNetworkHdEndpoint(input.products)) {
       dependencies.push(
         dependency({
           id: "networkhd-endpoints",
@@ -700,7 +726,7 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
     (applicableTopologyDistance ?? 0) > 10 ||
     hasAny(JSON.stringify(topology).toLowerCase(), ["hdbaset-2", "hdbaset-3", "usb-extender"])
   );
-  const requiresHdbasetOrExtension = topologyAvailable ? topologyRequiresExtension : hasAny(combinedText, [
+  const requiresHdbasetOrExtension = topologyAvailable ? topologyRequiresExtension : hasAny(requirementText, [
     "hdbaset",
     "extender",
     "transmitter",
@@ -753,7 +779,7 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
     );
   }
 
-  const requiresUsb = hasAny(combinedText, [
+  const requiresUsb = !usbTransportNotRequired(input) && hasAny(requirementText, [
     "usb",
     "byom",
     "byod",
@@ -787,7 +813,7 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
     );
   }
 
-  const requiresWall = hasAny(combinedText, ["video wall", "videowall", "lcd wall", "led wall", "multiview", "tile-mode", "canvas"]);
+  const requiresWall = hasAny(requirementText, ["video wall", "videowall", "lcd wall", "led wall", "multiview", "tile-mode", "canvas"]);
 
   if (requiresWall) {
     dependencies.push(
@@ -809,7 +835,7 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
     );
   }
 
-  const requiresAudio = hasAny(combinedText, ["audio", "dante", "aes67", "speaker", "speakerphone", "microphone", "amplifier", "dsp"]);
+  const requiresAudio = !audioIsByOthers(input) && hasAny(requirementText, ["audio", "dante", "aes67", "speaker", "speakerphone", "microphone", "amplifier", "dsp"]);
 
   if (requiresAudio) {
     dependencies.push(
@@ -831,7 +857,7 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
     );
   }
 
-  const requiresControl = hasAny(combinedText, ["control", "rs-232", "rs232", "relay", "api", "touch panel", "button panel", "web ui"]);
+  const requiresControl = hasAny(requirementText, ["control", "rs-232", "rs232", "relay", "api", "touch panel", "button panel", "web ui"]);
 
   if (requiresControl) {
     dependencies.push(

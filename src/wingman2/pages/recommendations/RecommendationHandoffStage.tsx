@@ -20,18 +20,20 @@ export function RecommendationHandoffPanel({
   unfilledCount,
   onReviewSystem,
   onAddWholeSystem,
+  onBuildProposal,
 }: {
   /** Roles the design still has to fill before it is priced. */
   unfilledCount: number;
   onReviewSystem: () => void;
   onAddWholeSystem: () => void;
+  onBuildProposal: () => void;
 }) {
   return (
     <section className="wm-rec-handoff" aria-labelledby="wm-rec-handoff-title">
       <div>
         <p className="wm-ui-kicker">Ready for the next workflow</p>
         <h2 id="wm-rec-handoff-title">Carry the reviewed design into the active project.</h2>
-        <p>{unfilledCount ? "Some roles still need review, so keep the design in validation before quoting." : "The role structure is ready to become a project selection. Add the system, then continue to the response pack."}</p>
+        <p>{unfilledCount ? "Some roles still need review. You can carry the resolved system into a proposal draft; open items will remain visible before issue." : "Carry the resolved system into the AV proposal draft, including its room requirements, equipment schedule and checks."}</p>
       </div>
       <div className="wm-rec-handoff__actions">
         <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={onReviewSystem}>
@@ -40,12 +42,15 @@ export function RecommendationHandoffPanel({
         <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={onAddWholeSystem}>
           <PackageCheck size={16} aria-hidden="true" /> Add complete system
         </button>
+        <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={onBuildProposal}>
+          <PackageCheck size={16} aria-hidden="true" /> Build AV proposal draft
+        </button>
       </div>
     </section>
   );
 }
 
-/** The way out of the handoff stage: the project it landed in, or the response pack. */
+/** The project the generated proposal draft will be built from. */
 export function RecommendationHandoffLinks({ activeProjectId }: { activeProjectId: string | null }) {
   return (
     <div className="mt-4 flex flex-wrap gap-3">
@@ -58,12 +63,6 @@ export function RecommendationHandoffLinks({ activeProjectId }: { activeProjectI
         }
       >
         Open project
-      </Link>
-      <Link
-        className="wm-ui-button wm-ui-button-primary rounded-xl px-4 py-3 font-black"
-        to={routeCatalogByKey.proposal.path}
-      >
-        Continue to response pack
       </Link>
     </div>
   );

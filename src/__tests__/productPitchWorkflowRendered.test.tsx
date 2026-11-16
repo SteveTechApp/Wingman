@@ -403,7 +403,7 @@ describe("Product Pitch rendered workflow", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Change product/i }));
 
-    expect(await screen.findByRole("heading", { name: /Find the right product workspace/i })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /Find a product for expert review/i })).toBeInTheDocument();
   });
 
   it("opens a supplied SKU directly without rendering the selector first", async () => {

@@ -30,6 +30,7 @@ const MAX_RECORD_LOSS_RATIO = 0.05;
 const MAX_EVIDENCE_LOSS_RATIO = 0.05;
 const MAX_FETCH_SUCCESS_LOSS_RATIO = 0.2;
 const MAX_PROFILE_SHRINK_COUNT = 10;
+const MAX_CAPTURED_LINE_LOSS_RATIO = 0.4;
 
 function products(payload) {
   if (Array.isArray(payload)) return payload;
@@ -116,9 +117,22 @@ async function main() {
   for (const [sku, beforeEntry] of before.bySku) {
     const afterEntry = after.bySku.get(sku);
     if (!afterEntry) continue;
-    const beforeSize = JSON.stringify(beforeEntry.technicalProfile ?? {}).length;
-    const afterSize = JSON.stringify(afterEntry.technicalProfile ?? {}).length;
-    if (beforeSize > 400 && afterSize < beforeSize * 0.6) shrunk.push(`${sku} (${beforeSize} -> ${afterSize})`);
+    const beforeProfile = beforeEntry.technicalProfile ?? {};
+    const afterProfile = afterEntry.technicalProfile ?? {};
+    const beforeLines = Number(beforeProfile.sourceQuality?.capturedTechnicalLineCount ?? 0);
+    const afterLines = Number(afterProfile.sourceQuality?.capturedTechnicalLineCount ?? 0);
+    const afterPageIsLive = String(afterProfile.sourceQuality?.officialPageStatus ?? "") === "200";
+    // Profile byte size mostly measures how much verbose prose and page-wide
+    // tagging was scraped, not how many specification facts were captured.
+    // Compare the product-scoped specification lines instead, and only when
+    // the current official page responded successfully.
+    if (
+      afterPageIsLive &&
+      beforeLines > 10 &&
+      afterLines < beforeLines * (1 - MAX_CAPTURED_LINE_LOSS_RATIO)
+    ) {
+      shrunk.push(`${sku} (${beforeLines} -> ${afterLines} specification lines)`);
+    }
   }
 
   if (shrunk.length > MAX_PROFILE_SHRINK_COUNT) {

@@ -2,7 +2,7 @@
  * How many pages a printed PDF has, read out of the file's own bytes.
  *
  * `check:proposal-print-pagination` asks two questions that sound like one: did
- * the browser's script split the priced schedule into page-sized chunks, and did
+ * the browser's script split the equipment schedule into page-sized chunks, and did
  * the printer honour those chunks as pages. The first is a DOM reading — the
  * `.wm-schedule-print-page` sections only exist between `beforeprint` and
  * `afterprint` — and the second is a PDF, which is not a DOM at all: the page

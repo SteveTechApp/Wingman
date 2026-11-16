@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
 import { readDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
-import { nextRoomBriefQuestion } from "../lib/roomBrief";
+import { ROOM_BRIEF_QUESTIONS, nextRoomBriefQuestion } from "../lib/roomBrief";
 import { RoomBriefWizard } from "./RoomBriefWizard";
 
 function mount() {
@@ -17,6 +17,19 @@ function answerSetup() {
   fireEvent.click(screen.getByRole("radio", { name: "Share a laptop and present to the others in the room" }));
   fireEvent.click(screen.getByRole("radio", { name: "1–4 people" }));
   fireEvent.click(screen.getByRole("button", { name: /Work out the room/ }));
+}
+
+/** Answer the huddle facts requested by the current question ladder. */
+function answerHuddleQuestions() {
+  const answers: Record<string, string> = { "far-end": "sometimes", screens: "same", partition: "no", record: "no", reach: "no" };
+  for (let step = 0; step < 6 && !screen.queryByTestId("room-brief-decision"); step += 1) {
+    const questionText = screen.getByRole("heading", { level: 1 }).textContent;
+    const question = ROOM_BRIEF_QUESTIONS.find((candidate) => candidate.question === questionText);
+    if (!question) throw new Error(`Unexpected room brief question: ${questionText}`);
+    const option = question.options.find((candidate) => candidate.value === answers[question.id]);
+    if (!option) throw new Error(`No huddle answer for room brief question: ${question.id}`);
+    fireEvent.click(screen.getByRole("button", { name: option.label }));
+  }
 }
 
 /** The library address, so a test can read the market the brief sends with it. */
@@ -69,8 +82,7 @@ describe("the ladder", () => {
   it("decides in two answers and names the room", () => {
     mount();
     answerSetup();
-    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
+    answerHuddleQuestions();
     expect(screen.getByRole("heading", { name: "Huddle room, bring your own laptop", level: 1 })).toBeVisible();
     expect(screen.getByText(/Decided in 2 questions/)).toBeVisible();
   });
@@ -88,11 +100,10 @@ describe("the decision", () => {
   it("gives each need a reason, and what to check on site", () => {
     mount();
     answerSetup();
-    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
+    answerHuddleQuestions();
     expect(screen.getByText("What this room needs")).toBeVisible();
     expect(screen.getByText("Check on site")).toBeVisible();
-    // The reason a rep would keep the requirement under price pressure.
+    // The reason the selected requirement belongs in this design.
     expect(screen.getByText(/the whole presentation surface/)).toBeVisible();
   });
 
@@ -100,8 +111,7 @@ describe("the decision", () => {
     mount();
     fireEvent.change(screen.getByLabelText("Market"), { target: { value: "Corporate" } });
     answerSetup();
-    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
+    answerHuddleQuestions();
     fireEvent.click(screen.getByRole("button", { name: /Take this into the discovery brief/ }));
     // The capture steps still ask what only the customer knows; they start from
     // the room rather than from a blank form.

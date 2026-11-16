@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { decideVideowall } from "../../lib/videowallDecision";
 import { assessVideowallOptions, defaultWallRequirements, type WallRequirements } from "../../lib/videowallOptions";
 import { wallTransportPlan } from "../../lib/videowallTransport";
+import { wallWizardLayoutChoiceIsDisabled, wallWizardLayoutChoices } from "../../lib/videowallWizard";
 import { VideowallWizard } from "./VideowallWizard";
 
 function requirements(overrides: Partial<WallRequirements> = {}): WallRequirements {
@@ -59,7 +60,7 @@ describe("VideowallWizard start step", () => {
 
   it("asks for the LED canvas, pitch and cabinet array as the next answer", () => {
     renderWizard(requirements({ application: "led", columns: 4, rows: 1 }), { atResult: false });
-    fireEvent.click(screen.getByRole("button", { name: /^LED · processor input/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^LED video wall/ }));
     expect(screen.getByTestId("videowall-wizard-step-size")).toBeTruthy();
     expect(screen.getByLabelText("Canvas width")).toBeTruthy();
     expect(screen.getByLabelText("Canvas height")).toBeTruthy();
@@ -71,7 +72,7 @@ describe("VideowallWizard start step", () => {
 it("asks how the wall is fed after its size and before its windows", () => {
   renderWizard(requirements({ network: "1g", networkProvision: "existing" }), { atResult: false });
 
-  fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^LCD video wall/ }));
   // The size answer comes first, then the sources it carries, so the connection
   // can talk about a canvas the wall has already been given.
   fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
@@ -87,13 +88,34 @@ it("asks how the wall is fed after its size and before its windows", () => {
   expect(screen.getByTestId("videowall-feed-path-matrix-per-panel")).toBeTruthy();
   expect(screen.queryByTestId("videowall-feed-path-nhd600")).toBeNull();
   expect(screen.getAllByTestId("videowall-feeding-check").map((node) => node.textContent).join(" "))
-    .toContain("One decoder per panel");
+    .toContain("One NHD decoder per LCD display");
+});
+
+it("offers the NHD-0401-MV as the local fixed-layout multiview route", () => {
+  const { onChange } = renderWizard(requirements({ network: "none", sourceLocation: "local", sources: 4 }), { atResult: false });
+
+  fireEvent.click(screen.getByRole("button", { name: /^LCD video wall/ }));
+  fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
+  fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));
+
+  fireEvent.click(screen.getByTestId("videowall-feeding-single-input"));
+  const path = screen.getByTestId("videowall-feed-path-nhd0401");
+  expect(path.textContent).toContain("preset layouts");
+  expect(path.textContent).toContain("API");
+  fireEvent.click(path);
+  expect(path.getAttribute("aria-pressed")).toBe("true");
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ multiviewSelected: true }));
+  const single = wallWizardLayoutChoices("lcd-loop").find((choice) => choice.value === "single")!;
+  const multi = wallWizardLayoutChoices("lcd-loop").find((choice) => choice.value === "quad")!;
+  expect(wallWizardLayoutChoiceIsDisabled(single, true)).toBe(true);
+  expect(wallWizardLayoutChoiceIsDisabled(multi, true)).toBe(false);
 });
 
 it("offers an LED canvas the processor, the multiviewers and a custom canvas", () => {
   renderWizard(requirements({ application: "led", columns: 1, rows: 1, network: "1g", networkProvision: "existing" }), { atResult: false });
 
-  fireEvent.click(screen.getByRole("button", { name: /^LED · processor input/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^LED video wall/ }));
   fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
   fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
   fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));
@@ -101,7 +123,7 @@ it("offers an LED canvas the processor, the multiviewers and a custom canvas", (
   expect(screen.getByTestId("videowall-feeding-single-input").getAttribute("aria-pressed")).toBe("true");
   expect(screen.queryByTestId("videowall-feeding-per-panel")).toBeNull();
   expect(screen.getByTestId("videowall-feed-path-nhd150")).toBeTruthy();
-  expect(screen.getByTestId("videowall-feed-path-nhd600").textContent).toContain("one projector");
+  expect(screen.getByTestId("videowall-feed-path-nhd600").textContent).toContain("projector showing several windows");
   expect(screen.getByTestId("videowall-feed-path-nhd500")).toBeTruthy();
   // The canvas is one processor input, and the processor may compose its own
   // windows — both said on the screen rather than left to the rep to know.
@@ -194,7 +216,7 @@ it("asks source count and network provision on separate screens", () => {
     .toEqual(["Wall type", "Size and pixels", "Sources", "Network", "Connection", "Layout", "The design", "Must-haves"]);
   expect(screen.getByTestId("videowall-wizard-step-picture")).toBeTruthy();
 
-  fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^LCD video wall/ }));
   // The size screen stops at the box: the survey that once made it the longest
   // page in the builder belongs to the result, not to a question.
   expect(screen.getByTestId("videowall-wizard-step-size")).toBeTruthy();
@@ -232,7 +254,7 @@ it("asks source count and network provision on separate screens", () => {
 it("lets the user return to a completed answer from the progress buttons", () => {
   renderWizard(requirements({ network: "1g", networkProvision: "existing" }), { atResult: false });
 
-  fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^LCD video wall/ }));
   fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
   fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
   expect(screen.getByTestId("videowall-wizard-step-network")).toBeTruthy();
@@ -256,7 +278,7 @@ it("records a selected multiview feed path for the layout question", () => {
     networkProvision: "existing",
   }), { atResult: false });
 
-  fireEvent.click(screen.getByRole("button", { name: /^LCD · looped \/ tiled/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^LCD video wall/ }));
   fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
   fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
   fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));
@@ -276,7 +298,7 @@ it("greys out non-multiview layouts while a multiview feed is selected", () => {
     multiviewSelected: true,
   }), { atResult: false });
 
-  fireEvent.click(screen.getByRole("button", { name: /^LCD · feed per display/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^LCD video wall/ }));
   fireEvent.click(screen.getByTestId("videowall-wizard-size-next"));
   fireEvent.click(screen.getByTestId("videowall-wizard-sources-next"));
   fireEvent.click(screen.getByTestId("videowall-wizard-network-next"));

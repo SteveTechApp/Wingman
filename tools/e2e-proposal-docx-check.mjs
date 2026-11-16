@@ -1,24 +1,20 @@
 /**
  * End-to-end proposal DOCX check: boots the REAL API server (file-mode,
  * throwaway data dir) and the Vite dev UI on distinct ports, drives a browser
- * through Discovery → the proposal wizard to 100% completion, exports the
+ * through Discovery → Recommendations → the proposal wizard, exports the
  * formatted DOCX, and verifies the download is a real .docx (PK zip magic
  * bytes) — no manual session needed.
  *
  * Flow:
- *   1. Discovery: walk the six Basic-mode essential questions, marking each
- *      answer "Confirm with customer" so the conversation rows are settled
- *      (an unconfirmed row would cap the product-readiness gate below 100),
- *      then save the project.
- *   2. Proposal: open the wizard, fill the scored narrative/customer fields,
- *      confirm the solution (continue without a final BOM — Discovery alone
- *      selects no products), and complete the final customer-safe review.
- *   3. Export: the wizard blocks DOCX until the score is 100; the snapshot
- *      of the wizard's own "Remaining items" list is printed, and after the
- *      export click the downloaded *.proposal.docx file is read back and its
- *      first bytes must be the ZIP magic 0x50 0x4B ("PK").
+ *   1. Discovery: walk a small meeting-room scenario with no camera/mic need,
+ *      audio by others, separate room dimensions, site conditions and measured
+ *      signal routes; save the project and continue to Recommendations.
+ *   2. Proposal: add the generated system, complete customer/delivery details
+ *      and the post-install survey checks, then report unresolved checks.
+ *   3. Export: require the actual export gate to pass, read the DOCX archive and
+ *      confirm the room facts and equipment schedule survived with no pricing.
  *
- * Run: npm run check:proposal-docx
+ * Run: node tools/e2e-proposal-docx-check.mjs
  * Ports: API 8893 / UI 4183 (distinct from the e2e smoke 8892/4182,
  * contract 8898, agents 8877).
  */
@@ -28,6 +24,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
+import JSZip from "jszip";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,22 +38,22 @@ const UI_BASE = `http://127.0.0.1:${UI_PORT}`;
 // The six Basic-mode essential questions (discoveryQuestions.ts /
 // BASIC_MODE_REQUIRED_IDS) with the option label to click for each.
 const QUESTION_TO_OPTION = {
-  // AV-over-IP route: its SMART_DEFAULTS and system slots produce a
-  // chain-complete BOM (endpoints + controller). The meeting-room route
-  // leaves dependency roles as TBC placeholders, which the export gate
-  // correctly blocks — so this profile is what lets the wizard reach 100.
-  "What type of opportunity is this?": "Distributed video (many rooms or long distances)",
-  "What is the approximate room or system scale?": "Single large room",
+  "What type of opportunity is this?": "Meeting room / boardroom",
+  "What is the approximate room or system scale?": "Single small room",
   "How many source positions are likely?": "2-4 sources",
   "How many displays or outputs are needed?": "1 display / output",
   "How should the displays behave?": "Same content on all displays",
   "What camera, microphone or capture workflows are required?": "No camera or microphone requirements",
-  // Expert questions that the forward-only walk can miss when they sit
-  // behind the current index (source-connection) or after the route planner
-  // (avoip-profile). Pinned here so the by-id completion pass cannot touch
-  // the unknown/TBC options.
   "Which source profile best describes the room?": "Fixed sources plus user presentation",
   "Which of these sounds closest to what the customer needs?": "Standard / most economical",
+  "Where should the room's sound come out?": "Audio system designed by others",
+};
+const ANSWER_BY_QUESTION_ID = {
+  opportunity: "Meeting room / boardroom",
+  scale: "Single small room",
+  "uc-purpose": "No camera or microphone requirements",
+  audio: "Audio system designed by others",
+  "source-connection": "Fixed sources plus user presentation",
 };
 
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wingman-proposal-e2e-"));
@@ -99,327 +96,93 @@ async function waitForHealth(baseUrl, label, timeoutMs = 30_000) {
 }
 
 async function walkDiscovery(page) {
-  // Batch view: discovery renders every question of the current mode inline
-  // (option chips carry the wm-discovery-option class). No ?interview=1 — the
-  // single-question card view is a different surface.
   await page.goto(`${UI_BASE}/wingman/discovery`, { waitUntil: "networkidle", timeout: 60_000 });
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
-  await page.reload({ waitUntil: "networkidle" });
-  await page.waitForTimeout(800);
-
-  const stepCard = page.locator("[data-discovery-step]").first();
-  const firstUnpressed = stepCard.locator("button.wm-discovery-option:not([aria-pressed='true'])").first();
-  const pinnedChip = (label) =>
-    stepCard.locator("button.wm-discovery-option").filter({ hasText: label }).first();
-
-  // Smart defaults auto-fill most answers in Basic mode, so chips may already
-  // be pressed when a step is reached. Clicking a pressed chip DESELECTS it —
-  // so only click unpressed chips and use the advance control to move on.
-  const clickUnansweredChip = async (preferLabel) => {
-    const option = preferLabel ? pinnedChip(preferLabel) : firstUnpressed;
-    if (!(await option.isVisible({ timeout: 1_500 }).catch(() => false))) {
-      // The "Room layout & cabling" step renders the route planner instead
-      // of option chips. Each choice pick commits the evolving topology via
-      // handleTopologyChange; walk the planner steps with first choices and
-      // its own "Next question" until the answer lands.
-      const planner = stepCard.locator('[aria-label="Signal distance check"]');
-      if (await planner.isVisible({ timeout: 800 }).catch(() => false)) {
-        // Unknown/TBC choices make the emitted topology content-less, which
-        // DELETES the locations-connections answer — pick concrete choices only.
-        const concreteChoices = planner.locator(
-          "button.wm-route-choice:not([aria-pressed='true'])",
-        ).filter({ hasText: /^(?!.*(?:Not yet known|unknown|TBC|to be confirmed))/i });
-        // Pin a far distance band first: over-100 m makes the planner mark an
-        // ip-av-vlan network path (topology's "Dedicated or governed AV-over-IP
-        // VLAN indicated" summary), which is what proves the network gate.
-        const farDistance = planner
-          .locator('button.wm-route-choice')
-          .filter({ hasText: "Different floor, building or 100 m+" })
-          .first();
-        const distanceFallback = planner
-          .locator('button.wm-route-choice')
-          .filter({ hasText: "Across a large room" })
-          .first();
-        for (const distanceOption of [farDistance, distanceFallback]) {
-          if (
-            (await distanceOption.isVisible({ timeout: 600 }).catch(() => false)) &&
-            (await distanceOption.getAttribute("aria-pressed")) !== "true"
-          ) {
-            await distanceOption.click();
-            await page.waitForTimeout(250);
-            return true;
-          }
-        }
-        const routeChoice = concreteChoices.first();
-        if (await routeChoice.isVisible({ timeout: 800 }).catch(() => false)) {
-          await routeChoice.click();
-          await page.waitForTimeout(250);
-          return true;
-        }
-        const next = planner.getByRole("button", { name: "Next question", exact: true });
-        if (
-          (await next.isVisible({ timeout: 800 }).catch(() => false)) &&
-          (await next.isEnabled().catch(() => false))
-        ) {
-          await next.click();
-          await page.waitForTimeout(250);
-          return true;
-        }
-      }
-      return false;
-    }
-    if ((await option.getAttribute("aria-pressed")) === "true") {
-      return false;
-    }
-    await option.click();
-    return true;
-  };
-
-  const advanceControls = async () => {
-    const nextQuestion = page.getByRole("button", { name: /Next question/ }).first();
-    if (await nextQuestion.isVisible({ timeout: 800 }).catch(() => false)) {
-      await nextQuestion.click();
-      return true;
-    }
-    // The nav row labels its final-step button "Complete discovery" and the
-    // rest "Continue"; both live inside the step card.
-    const navButton = stepCard.getByRole("button", { name: /^(Continue|Complete discovery)$/ }).first();
-    if (
-      (await navButton.isVisible({ timeout: 800 }).catch(() => false)) &&
-      (await navButton.isEnabled().catch(() => false))
-    ) {
-      await navButton.click();
-      return true;
-    }
-    const cont = page.getByRole("button", { name: "Continue", exact: true });
-    if (
-      (await cont.isVisible({ timeout: 800 }).catch(() => false)) &&
-      (await cont.isEnabled().catch(() => false))
-    ) {
-      await cont.click();
-      return true;
-    }
-    return false;
-  };
-
-  const answeredOnStep = async () => {
-    const chips = await stepCard.locator("button.wm-discovery-option[aria-pressed='true']").count();
-    const routes = await stepCard.locator("button.wm-route-choice[aria-pressed='true']").count();
-    return chips + routes;
-  };
-
-  // Advance ONLY when the current step really has an answer. Early in the
-  // flow a step's chips can lag a frame behind the heading; advancing then
-  // silently skips the question (source-connection and avoip-profile were
-  // skipped exactly this way).
-  const advanceIfAnswered = async (questionText) => {
-    if (((await page.locator("main h2").first().textContent().catch(() => "")) || "").trim() !== questionText) {
-      return true;
-    }
-    if ((await answeredOnStep()) > 0) {
-      await advanceControls();
-    } else {
-      await page.waitForTimeout(450);
-    }
-    return false;
-  };
+  const expertView = page.locator(".wm-topbar-mode-toggle").getByTestId("ui-mode-expert");
+  await expertView.click();
+  const marketEntry = page.getByTestId("discovery-market-entry");
+  await marketEntry.getByTestId("discovery-market-corporate").click();
+  await marketEntry.getByTestId("discovery-environment-meeting").click();
+  await page.getByTestId("discovery-essential-capture").waitFor({ state: "visible", timeout: 15_000 });
+  await page.getByTestId("discovery-room-builder-toggle").click();
+  const wizard = page.getByTestId("discovery-room-wizard");
+  await wizard.waitFor({ state: "visible", timeout: 10_000 });
 
   let answered = 0;
-  for (let i = 0; i < 50; i += 1) {
-    const cta = page.getByRole("button", { name: "Next: find matching products", exact: true });
-    if (await cta.isVisible({ timeout: 800 }).catch(() => false)) {
+  let completed = false;
+  for (let i = 0; i < 80; i += 1) {
+    const stage = await wizard.getAttribute("data-room-wizard-stage");
+    if (stage === "equipment") {
+      if (await wizard.getByTestId("discovery-build-layout").isVisible().catch(() => false)) {
+        await wizard.getByTestId("discovery-build-layout").click();
+      }
+      for (const status of await wizard.locator("[aria-label^='Route length status']").all()) {
+        await status.selectOption("confirmed");
+      }
+      for (const metres of await wizard.locator("[aria-label^='Route length metres']").all()) {
+        await metres.fill("12");
+      }
+      for (const basis of await wizard.locator("[aria-label^='Route length basis']").all()) {
+        await basis.fill("Measured along the agreed cable route during the site survey.");
+      }
+      await wizard.getByTestId("discovery-review-brief").click();
+      continue;
+    }
+    if (stage === "review") {
+      const save = wizard.getByTestId("discovery-save-brief");
+      await save.click();
+      await page.getByTestId("discovery-save-status").waitFor({ state: "visible", timeout: 10_000 });
+      await wizard.getByTestId("discovery-find-products").click();
+      completed = true;
       break;
     }
 
-    const heading = page.locator("main h2").first();
-    if (!(await heading.isVisible({ timeout: 1_500 }).catch(() => false))) {
-      await page.waitForTimeout(1000);
-      continue;
-    }
-    const questionText = ((await heading.textContent()) || "").trim();
-    const pinned = QUESTION_TO_OPTION[questionText];
-    const clicked = await clickUnansweredChip(pinned);
-    if (clicked) {
-      answered += 1;
-      await page.waitForTimeout(300);
-    }
-    await advanceIfAnswered(questionText);
-  }
-  if (answered === 0) {
-    const counts = await page.evaluate(() => ({
-      rows: document.querySelectorAll("[data-question-id]").length,
-      chips: document.querySelectorAll("button.wm-discovery-option").length,
-      disclosure: document.querySelectorAll("[data-wingman-progressive-disclosure]").length,
-      disclosureHtml: (document.querySelector("[data-wingman-progressive-disclosure]")?.innerHTML ?? "").slice(0, 400),
-    }));
-    const bodyNow = (await page.locator("body").innerText().catch(() => "")).slice(0, 300);
-    throw new Error(
-      `[proposal-e2e] Discovery walk answered no questions (rows=${counts.rows}, chips=${counts.chips}, disclosure=${counts.disclosure}); disclosure HTML: ${counts.disclosureHtml} | Body: ${bodyNow}`,
-    );
-  }
-
-  // Save the project (active for the wizard), then escalate Basic → Expert
-  // via the completion panel's unlock CTA so the remaining questions appear
-  // (smart defaults usually pre-fill them; the walk then confirms each row).
-  await page.getByRole("button", { name: /Save to project/ }).click();
-  await page
-    .getByText(/Discovery saved to your project\./)
-    .waitFor({ state: "visible", timeout: 10_000 });
-
-  const unlock = page.locator('[data-testid="unlock-expert-cta"]');
-  if (await unlock.isVisible({ timeout: 3_000 }).catch(() => false)) {
-    await unlock.click();
-    const confirmSwitch = page.getByRole("button", { name: "Switch to Expert", exact: true });
-    if (await confirmSwitch.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      await confirmSwitch.click();
-    }
-    await page.waitForTimeout(600);
-  }
-
-  // Expert remainder: walk any newly visible steps the same way; smart
-  // defaults usually filled them already, so this mostly presses through.
-  let expertAnswered = 0;
-  for (let i = 0; i < 40; i += 1) {
-    const cta = page.getByRole("button", { name: "Next: find matching products", exact: true });
-    if (await cta.isVisible({ timeout: 800 }).catch(() => false)) {
-      break;
-    }
-
-    const heading = page.locator("main h2").first();
-    if (!(await heading.isVisible({ timeout: 1_500 }).catch(() => false))) {
-      await page.waitForTimeout(1200);
-      continue;
-    }
-    const questionText = ((await heading.textContent()) || "").trim();
-    const pinned = QUESTION_TO_OPTION[questionText];
-    const clicked = await clickUnansweredChip(pinned);
-    if (clicked) {
-      expertAnswered += 1;
-      await page.waitForTimeout(300);
-    }
-    await advanceIfAnswered(questionText);
-  }
-
-  // By-id completion pass: the forward-only walk can strand questions that
-  // sit behind the current index (source-connection) or after the route
-  // planner (avoip-profile). The page's documented ?edit=<id> URL repositions
-  // the interview at exactly that question (auto-switching to Expert), which
-  // lets the pinned chip close the gap.
-  const QUESTION_ID_BY_TEXT = {
-    "Which source profile best describes the room?": "source-connection",
-    "Which of these sounds closest to what the customer needs?": "avoip-profile",
-  };
-  for (const [question, id] of Object.entries(QUESTION_ID_BY_TEXT)) {
-    const hasAnswer = await page.evaluate((answerId) => {
-      try {
-        const snap = JSON.parse(localStorage.getItem("wingman-discovery-snapshot-v3") || "null");
-        return Boolean(snap?.state?.answers?.[answerId]);
-      } catch {
-        return true;
+    const heading = wizard.locator("h2[data-discovery-question-id]");
+    await heading.waitFor({ state: "visible", timeout: 8_000 });
+    const id = await heading.getAttribute("data-discovery-question-id");
+    const answer = ANSWER_BY_QUESTION_ID[id] || QUESTION_TO_OPTION[(await heading.innerText()).trim()];
+    const options = wizard.locator("button.wm-room-wizard-option");
+    let option = answer ? options.filter({ hasText: answer }).first() : options.first();
+    if (!(await option.isVisible().catch(() => false))) option = options.first();
+    if (await option.isVisible().catch(() => false)) {
+      const optionText = (await option.innerText()).trim();
+      if (answer && !optionText.includes(answer)) {
+        throw new Error(`[proposal-e2e] Could not locate requested ${id} answer "${answer}"; first rendered option was "${optionText}".`);
       }
-    }, id);
-    if (hasAnswer) continue;
-
-    const dismissWarning = async () => {
-      const cont = page.getByRole("button", { name: "Continue existing Discovery", exact: true });
-      if (await cont.isVisible({ timeout: 2_500 }).catch(() => false)) {
-        await cont.click();
-        await page.waitForTimeout(400);
-      }
-    };
-
-    await page.goto(`${UI_BASE}/wingman/discovery?edit=${id}`, { waitUntil: "networkidle", timeout: 60_000 });
-    await dismissWarning();
-    await page.waitForTimeout(900);
-    const chip = stepCard
-      .locator("button.wm-discovery-option")
-      .filter({ hasText: QUESTION_TO_OPTION[question] })
-      .first();
-    if (await chip.isVisible({ timeout: 6_000 }).catch(() => false)) {
-      if ((await chip.getAttribute("aria-pressed")) !== "true") {
-        await chip.click();
-        expertAnswered += 1;
-        await page.waitForTimeout(400);
+      await option.click();
+      if (id === "uc-purpose" || id === "audio") {
+        console.log(`[proposal-e2e] Selected ${id}: ${optionText.split("\n")[0]}.`);
       }
     }
-    // Return to the walk state (also persists the answer into the snapshot).
-    await page.goto(`${UI_BASE}/wingman/discovery`, { waitUntil: "networkidle", timeout: 60_000 });
-    await dismissWarning();
-    await page.waitForTimeout(700);
-  }
-
-  // Complete via the CTA (idempotent if already done) and report the
-  // page's own captured readout as ground truth.
-  const ctaAfter = page.getByRole("button", { name: "Next: find matching products", exact: true });
-  if (!(await ctaAfter.isVisible({ timeout: 2_000 }).catch(() => false))) {
-    await page.waitForTimeout(1000);
-    const stats = await page.evaluate(() => {
-      const planner = document.querySelector("[data-discovery-step] [aria-label='Signal distance check']");
-      return {
-        pressed: document.querySelectorAll("[data-discovery-step] button.wm-discovery-option[aria-pressed='true']").length,
-        unpressed: document.querySelectorAll("[data-discovery-step] button.wm-discovery-option:not([aria-pressed='true'])").length,
-        step: document.querySelector("[data-discovery-step]")?.getAttribute("data-discovery-step"),
-        completionCard: document.querySelector('[aria-label="Discovery completion"]')?.textContent?.trim(),
-        plannerVisible: Boolean(planner),
-        plannerText: planner ? (planner.textContent ?? "").slice(0, 300) : "",
-        pressedChoices: planner ? planner.querySelectorAll("button.wm-route-choice[aria-pressed='true']").length : -1,
-        unpressedChoices: planner ? planner.querySelectorAll("button.wm-route-choice:not([aria-pressed='true'])").length : -1,
-        answeredIds: (() => {
-          try {
-            const snap = JSON.parse(localStorage.getItem("wingman-discovery-snapshot-v3") || "null");
-            const answers = snap?.state?.answers ?? {};
-            return Object.keys(answers).join(",");
-          } catch {
-            return "unreadable";
-          }
-        })(),
+    if (id === "scale") {
+      for (const [field, value] of [["guided-room-length", "9"], ["guided-room-width", "7"], ["guided-room-height", "3.2"]]) {
+        await wizard.locator(`#${field}`).fill(value);
+      }
+      const siteValues = {
+        "site-overall-construction": "Reinforced concrete frame with masonry infill.",
+        "site-room-structure": "Concrete slab and masonry walls; confirm fixing capacity on site.",
+        "site-floor-type": "Raised access floor with removable tiles.",
+        "site-ceiling-type": "Suspended acoustic tile ceiling below concrete slab.",
+        "site-wall-construction": "Masonry display wall; fixing points to be verified.",
+        "site-ceiling-construction": "Concrete soffit above accessible suspended ceiling.",
+        "site-containment-type": "Existing cable tray and floor boxes; capacity to be checked.",
+        "site-cable-route": "Table to display wall through floor boxes and ceiling void.",
+        "site-power-rack": "Local rack cupboard with mains; outlet count and ventilation to be checked.",
+        "site-lighting-acoustics": "Daylight from side windows; room echo to be checked.",
+        "site-access-constraints": "Normal business hours access; confirm installation window.",
       };
-    });
-    const bodyNow = (await page.locator("body").innerText().catch(() => "")).slice(0, 1400);
-    throw new Error(
-      `[proposal-e2e] Discovery never showed the completion CTA (expertAnswered=${expertAnswered}, stats=${JSON.stringify(stats)}). Body: ${bodyNow}`,
-    );
-  }
-
-  const saveProject = async () => {
-    const saveButton = page.getByRole("button", { name: /Save to project/ });
-    if (await saveButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await saveButton.click();
-      await page
-        .getByText(/Discovery saved to your project\./)
-        .waitFor({ state: "visible", timeout: 10_000 });
+      for (const [field, value] of Object.entries(siteValues)) await wizard.locator(`#${field}`).fill(value);
     }
-  };
-
-  // Persist the full-expert brief, then confirm rows from the completion
-  // panel's review trail; the per-row "Confirm with customer" toggles live
-  // there. The confirmed flags ride the SECOND save below.
-  await saveProject();
-  const reviewButton = page.getByRole("button", { name: /Review answers/ });
-  if (await reviewButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
-    await reviewButton.click();
-    await page.waitForTimeout(600);
+    await wizard.getByTestId("discovery-continue").click();
+    answered += 1;
+    await page.waitForFunction((previousId) => {
+      const node = document.querySelector(".wm-room-wizard");
+      return node?.getAttribute("data-room-wizard-stage") !== "questions"
+        || node.querySelector("h2[data-discovery-question-id]")?.getAttribute("data-discovery-question-id") !== previousId;
+    }, id, { timeout: 8_000 });
   }
-  let confirmed = 0;
-  for (let i = 0; i < 40; i += 1) {
-    const confirmButton = page.getByRole("button", { name: "Confirm with customer", exact: true }).first();
-    if (!(await confirmButton.isVisible({ timeout: 1_200 }).catch(() => false))) {
-      break;
-    }
-    await confirmButton.click();
-    confirmed += 1;
-    await page.waitForTimeout(250);
-  }
-  console.log(`[proposal-e2e] Confirmed ${confirmed} discovery rows from the review trail.`);
-  await saveProject();
-  const completionReadout = (await page
-    .locator('[aria-label="Discovery completion"]')
-    .innerText()
-    .catch(() => "unavailable")).replace(/\n/g, " ");
-  console.log(`[proposal-e2e] Discovery walked (${answered} basic + ${expertAnswered} expert answers, ${confirmed} rows confirmed; captured ${completionReadout}); project saved twice.`);
+  if (!completed) throw new Error(`[proposal-e2e] Discovery did not reach review after ${answered} questions.`);
+  await page.waitForURL("**/wingman/recommendations", { timeout: 20_000 });
+  console.log(`[proposal-e2e] Completed current Discovery workflow (${answered} questions) and opened Recommendations.`);
 }
 
 async function addRecommendedSystem(page) {
@@ -432,8 +195,11 @@ async function addRecommendedSystem(page) {
   // The recommendations page is a five-step review rail; the proposed
   // system (slots, lead products, the "Add complete system" footer) renders
   // under the Build stage.
-  const buildTab = page.getByRole("tab", { name: /Build/ });
-  await buildTab.waitFor({ state: "visible", timeout: 20_000 });
+  const buildTab = page.getByRole("tab").filter({ hasText: "Build" });
+  if (!(await buildTab.isVisible({ timeout: 20_000 }).catch(() => false))) {
+    const visibleText = (await page.locator("body").innerText().catch(() => "")).slice(0, 3000);
+    throw new Error(`[proposal-e2e] Recommendations did not expose its Build stage. ${visibleText}`);
+  }
   await buildTab.click();
 
   const addSystem = page.getByRole("button", { name: "Add complete system to project" });
@@ -455,6 +221,43 @@ async function addRecommendedSystem(page) {
     throw new Error(`[proposal-e2e] No product selections landed in the active project after the add action (count ${selectedCount}).`);
   }
   console.log(`[proposal-e2e] Recommended system added to the project (${selectedCount} selections).`);
+  const designFacts = await page.evaluate(() => {
+    try {
+      const store = JSON.parse(localStorage.getItem("wingman-project-store-v1") || "{}");
+      const active = (store.projects || []).find((item) => item.id === store.activeProjectId);
+      const brief = active?.discoveryBrief;
+      const room = brief?.roomModel ?? {};
+      return {
+        decision: room.decidedRoomType,
+        opportunity: room.application,
+        scale: room.scale,
+        dimensions: room.roomDimensions,
+        siteConditions: room.siteConditions,
+        sourceProfile: room.sourceProfile,
+        ucPurpose: room.unifiedCommsSummary,
+        audioPath: room.audioPath,
+        audioFeed: room.audioSignalPath,
+        primaryDisplay: room.primaryDisplayArrangement,
+        products: (active?.productSelections ?? []).map((item) => item.sku),
+      };
+    } catch { return null; }
+  });
+  console.log(`[proposal-e2e] Saved design facts: ${JSON.stringify(designFacts)}`);
+  if (!designFacts?.dimensions?.includes("Length: 9 m") || !designFacts.dimensions.includes("Width: 7 m") || !designFacts.dimensions.includes("Height: 3.2 m")) {
+    throw new Error(`[proposal-e2e] The saved Discovery record did not preserve separate room dimensions: ${designFacts?.dimensions || "missing"}.`);
+  }
+  if (Object.keys(designFacts.siteConditions || {}).length < 8) {
+    throw new Error(`[proposal-e2e] The saved Discovery record lost the room/site conditions.`);
+  }
+  if (designFacts.audioPath !== "Audio system designed by others") {
+    throw new Error(`[proposal-e2e] Audio-by-others did not survive the Discovery-to-project handoff: ${designFacts.audioPath || "missing"}.`);
+  }
+  if (!designFacts.audioFeed?.toLowerCase().includes("video switching")) {
+    throw new Error(`[proposal-e2e] Audio-by-others handoff did not retain the required switching-feed question: ${designFacts.audioFeed || "missing"}.`);
+  }
+  if (!designFacts.decision?.toLowerCase().includes("huddle") || !designFacts.sourceProfile?.toLowerCase().includes("fixed sources plus user presentation")) {
+    throw new Error(`[proposal-e2e] The saved room decision contradicts the captured small-room, mixed-source scenario: ${JSON.stringify({ decision: designFacts.decision, sourceProfile: designFacts.sourceProfile })}.`);
+  }
 }
 
 function inputByLabel(page, labelText) {
@@ -467,7 +270,7 @@ async function fillProposalTo100(page) {
   await page.goto(`${UI_BASE}/wingman/proposal`, { waitUntil: "networkidle", timeout: 60_000 });
 
   // The wizard renders only for an active project.
-  await page.locator("h1", { hasText: "Complete and export the customer proposal" }).waitFor({ state: "visible", timeout: 15_000 });
+  await page.locator("h1", { hasText: "Make the proposal yours." }).waitFor({ state: "visible", timeout: 15_000 });
   const scoreText = async () => {
     const strong = page.locator(".wm-proposal-readiness strong").first();
     const raw = ((await strong.textContent()) || "").trim();
@@ -479,15 +282,17 @@ async function fillProposalTo100(page) {
       .join(" | ");
   console.log(`[proposal-e2e] Wizard initial readiness: ${await scoreText()}% [${await breakdown()}]`);
 
-  // Step 1 — Customer and project: the two scored fields that start empty.
+  // Customer and project details complete the cover without introducing
+  // commercial fields: Wingman generates the technical response and schedule.
   await page.getByRole("button", { name: "Customer and project" }).click();
   await inputByLabel(page, "Customer / organisation").fill("Acme Holdings Ltd");
+  await inputByLabel(page, "Project name").fill("Boardroom AV system");
   await inputByLabel(page, "Proposal reference").fill("WQR-0912");
   await page.waitForTimeout(400);
 
   // Step 2 — Requirements review: ensure the executive summary is non-empty
   // (defaults pre-fill it from the Discovery summary; make sure it stuck).
-  await page.getByRole("button", { name: "Requirements review" }).click();
+  await page.getByRole("button", { name: /Requirements review/ }).click();
   const execSummary = page.locator("label.wm-proposal-field", { hasText: "Executive summary" }).locator("textarea");
   const execCurrent = (await execSummary.inputValue().catch(() => "")).trim();
   if (!execCurrent) {
@@ -495,32 +300,44 @@ async function fillProposalTo100(page) {
     await page.waitForTimeout(400);
   }
 
-  // Step 3 — Proposed solution: scored narrative field + the solution-review
-  // confirmation. Discovery alone selects no products, so explicitly continue
-  // without a final BOM to satisfy the commercial gate.
-  await page.getByRole("button", { name: "Proposed solution" }).click();
+  // Proposed solution: preserve the architecture and captured display intent.
+  await page.getByRole("button", { name: /Proposed solution/ }).click();
   const proposeBox = page.locator("label.wm-proposal-field", { hasText: "Proposed solution" }).locator("textarea");
-  await proposeBox.fill("Supply and configure a WyreStorm AV-over-IP routing solution with one display, local source inputs and unified control, delivered as a design/specification response pending the final equipment schedule.");
-  const bomRows = page.locator(".wm-proposal-bom-table tbody tr");
-  const bomCount = await bomRows.count();
-  const bomSkus = [];
-  console.log(`[proposal-e2e] Wizard shows ${bomCount} BOM row(s); setting nominal unit prices.`);
-  for (let index = 0; index < bomCount; index += 1) {
-    const row = bomRows.nth(index);
-    const skuCell = ((await row.locator("td").nth(0).innerText()) || "").trim();
-    bomSkus.push(skuCell);
-    const price = row.getByRole("spinbutton", { name: `Unit price for ${skuCell}` });
-    await price.fill("0.01");
+  if (!(await proposeBox.inputValue()).trim()) {
+    await proposeBox.fill("Provide the captured room display system with a governed WyreStorm signal path and a documented equipment schedule.");
   }
-  console.log(`[proposal-e2e] BOM SKUs: ${bomSkus.join(", ")}.`);
-  await page.getByText("I have reviewed the proposed architecture, product direction and equipment schedule for this proposal.").click();
+  const architecture = page.locator("label.wm-proposal-field", { hasText: "Technical architecture" }).locator("textarea");
+  if (!(await architecture.inputValue()).trim()) {
+    await architecture.fill("The design follows the captured sources, display arrangement and room infrastructure. Verify open site conditions before installation.");
+  }
+  const scheduleRows = page.locator(".wm-proposal-equipment-schedule tbody tr");
+  console.log(`[proposal-e2e] Unpriced equipment schedule contains ${await scheduleRows.count()} line item(s).`);
   await page.waitForTimeout(400);
 
-  // Step 5 — Review and export: final review confirmation, then read whatever
-  // the wizard itself says is still missing and keep closing gaps.
-  await page.getByRole("button", { name: "Review and export" }).click();
-  await page.getByText("I have reviewed the proposal wording, scope, assumptions, validation items and customer-facing product statements.").click();
+  // Complete delivery scope and go directly to export. Completion percentage
+  // is a summary; only a technical/export blocker should prevent the design.
+  await page.getByRole("button", { name: "Scope and delivery" }).click();
+  const firstEmptyTextarea = page.locator(".wm-proposal-step-card label.wm-proposal-field textarea").first();
+  if (!(await firstEmptyTextarea.inputValue()).trim()) {
+    await firstEmptyTextarea.fill("Confirm access, containment and final site dimensions before installation.");
+  }
+  await page.getByRole("button", { name: "Go to export" }).click();
   await page.waitForTimeout(500);
+
+  const installChecks = page.getByTestId("survey-install-details").locator("input[type='checkbox']");
+  for (const checkbox of await installChecks.all()) {
+    if (!(await checkbox.isChecked())) await checkbox.check();
+  }
+  const recordDependency = page.getByRole("button", { name: /Record .* as a documented dependency/ });
+  let dependenciesRecorded = 0;
+  while (await recordDependency.first().isVisible({ timeout: 500 }).catch(() => false)) {
+    await recordDependency.first().click();
+    dependenciesRecorded += 1;
+    await page.waitForTimeout(200);
+  }
+  if (dependenciesRecorded) {
+    console.log(`[proposal-e2e] Recorded ${dependenciesRecorded} unresolved system roles as documented dependencies for customer-safe scope.`);
+  }
 
   const remainingItems = async () => {
     const section = page.locator(".wm-proposal-final-grid section", { hasText: "Remaining items" }).first();
@@ -538,21 +355,21 @@ async function fillProposalTo100(page) {
   if (gate.length) console.log(`[proposal-e2e] Technical release gate: ${gate.join(" | ")}`);
 
   const final = await scoreText();
-  console.log(`[proposal-e2e] Wizard readiness after completion inputs: ${final}% [${await breakdown()}]`);
-  if (final < 100) {
-    throw new Error(`[proposal-e2e] Proposal readiness stuck at ${final}%. Items: ${missing.join("; ")} | Gate: ${gate.join("; ")}`);
-  }
+  console.log(`[proposal-e2e] Wizard design readiness: ${final}% [${await breakdown()}]`);
+  if (gate.length) console.log(`[proposal-e2e] Open technical checks retained in the proposal: ${gate.join(" | ")}`);
 }
 
 async function exportAndVerifyDocx(page) {
-  // The export button is disabled until readiness is 100; wait for it to
-  // become enabled, then capture the real download blob.
   const exportButton = page.getByRole("button", { name: "Export formatted DOCX" });
   await exportButton.waitFor({ state: "visible", timeout: 10_000 });
-  await page.waitForFunction(async () => {
-    const button = [...document.querySelectorAll("button")].find((el) => el.textContent.includes("Export formatted DOCX"));
-    return button && !button.disabled;
-  }, { timeout: 10_000 });
+  await page.waitForTimeout(1_000);
+  if (!(await exportButton.isEnabled())) {
+    const validation = (await page.locator(".wm-proposal-validation-gate").innerText().catch(() => "No export validation panel rendered."));
+    const survey = (await page.getByTestId("survey-install-details").innerText().catch(() => "No installation survey rendered."));
+    const details = (await page.locator(".wm-proposal-final-grid").innerText().catch(() => ""));
+    const designReview = (await page.locator(".wm-design-review__issues").innerText().catch(() => "No design review issues rendered."));
+    throw new Error(`[proposal-e2e] DOCX export remains blocked after completing the scenario. Readiness: ${await page.locator(".wm-proposal-readiness strong").first().innerText()}. Validation: ${validation}. Design blockers: ${designReview}. Survey: ${survey}. Final review: ${details}`);
+  }
 
   const [download] = await Promise.all([
     page.waitForEvent("download", { timeout: 60_000 }),
@@ -573,7 +390,20 @@ async function exportAndVerifyDocx(page) {
   if (!isPkZip) {
     throw new Error(`[proposal-e2e] Exported "${fileName}" is not a valid .docx: first bytes ${[...magic].map((b) => b.toString(16).padStart(2, "0")).join(" ")}, length ${buffer.length}.`);
   }
-  console.log(`[proposal-e2e] Exported ${fileName} (${buffer.length} bytes), PK zip magic verified (${[...magic].map((b) => `0x${b.toString(16).toUpperCase().padStart(2, "0")}`).join(" ")}).`);
+  const zip = await JSZip.loadAsync(buffer);
+  const documentXml = await zip.file("word/document.xml")?.async("string");
+  if (!documentXml) throw new Error(`[proposal-e2e] Exported DOCX is missing word/document.xml.`);
+  const documentText = documentXml.replace(/<w:tab\b[^>]*\/>/g, " ").replace(/<\/w:p>/g, "\n").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim();
+  const documentTextLower = documentText.toLowerCase();
+  for (const required of ["Acme Holdings Ltd", "Boardroom AV system", "Equipment schedule", "Length: 9 m", "Raised access floor", "Suspended acoustic tile ceiling", "Existing cable tray", "Audio system designed by others"]) {
+    if (!documentTextLower.includes(required.toLowerCase())) {
+      throw new Error(`[proposal-e2e] DOCX is valid but missing expected proposal content: ${required}.`);
+    }
+  }
+  if (/Unit price|Subtotal|Tax total|Grand total|Currency/i.test(documentText)) {
+    throw new Error("[proposal-e2e] Exported DOCX still contains a pricing field or total.");
+  }
+  console.log(`[proposal-e2e] Exported ${fileName} (${buffer.length} bytes), DOCX archive and proposal content verified; no pricing fields found.`);
 }
 
 async function main() {
@@ -618,7 +448,7 @@ async function main() {
     await browser.close().catch(() => {});
   }
 
-  console.log("[proposal-e2e] 100% proposal wizard completed and the Export formatted DOCX path emitted a valid .docx (PK zip magic) end to end.");
+  console.log("[proposal-e2e] Discovery produced an unpriced system proposal DOCX with captured room/site facts and an equipment schedule.");
 }
 
 main()

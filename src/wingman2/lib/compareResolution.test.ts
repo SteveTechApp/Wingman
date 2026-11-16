@@ -6,6 +6,8 @@ describe("shared resolutionRank", () => {
     expect(resolutionRank("8K60")).toBeGreaterThan(resolutionRank("4K120 4:4:4"));
     expect(resolutionRank("4K120 4:4:4")).toBeGreaterThan(resolutionRank("4K60 4:4:4"));
     expect(resolutionRank("4K60 4:4:4")).toBeGreaterThan(resolutionRank("4K60"));
+    expect(resolutionRank("5K")).toBeGreaterThan(resolutionRank("4K60 4:4:4"));
+    expect(resolutionRank("5K")).toBeLessThan(resolutionRank("4K120 4:4:4"));
     expect(resolutionRank("4K60")).toBeGreaterThan(resolutionRank("4K30"));
     expect(resolutionRank("4K30")).toBeGreaterThan(resolutionRank("1080p60"));
     expect(resolutionRank("1080p60")).toBeGreaterThan(resolutionRank("720p"));
@@ -18,6 +20,9 @@ describe("shared resolutionRank", () => {
     expect(resolutionRank("4096x2160p @60Hz 4:4:4")).toBeGreaterThanOrEqual(4);
     expect(resolutionRank("3840x2160p @60Hz 8bit 4:4:4")).toBeGreaterThanOrEqual(4);
     expect(resolutionRank("7680x4320p @60Hz")).toBe(7);
+    // A manual may publish only the 4Kx2K raster without a refresh-rate
+    // claim; retain the generic 4K tier without implying 4K60 support.
+    expect(resolutionRank("4Kx2K pass-through (timing/chroma rate not specified)")).toBe(3);
   });
 
   it("reads the HIGHEST tier from a multi-resolution list (does not get dragged down by a trailing 1080p)", () => {

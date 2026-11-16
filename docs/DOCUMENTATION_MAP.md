@@ -59,7 +59,7 @@ measurements are in `reports/browser-readings.md` — filed by surface, and date
 | `docs/SHELL_AND_FRAME.md` | Workspace grid, page frame and gutter, the shared hero template, and control sizing in the page host. |
 | `docs/DISCOVERY.md` | Discovery step card language and the programme-audio question. |
 | `docs/VIDEO_WALL.md` | Wall builder: entry copy, starting points and picker, projectors and blend, review passes and addresses, elevation, transport, survey readings. |
-| `docs/PROPOSAL_OUTPUT.md` | The printed document: print surface, section ladder, copy layers, export gates and fixes, pricing, templates, Word export. |
+| `docs/PROPOSAL_OUTPUT.md` | The printed document: print surface, section ladder, copy layers, export gates and fixes, templates, Word export. |
 | `docs/DRAWING_SYMBOLS.md` | The Visio stencil package, symbol geometry, and the pre-write package check. |
 | `docs/COMPARE_FEATURE.md` | Verdict tone and status classes, compare route scoping, and the page's module split. |
 | `docs/BACKEND_API.md` | API envelope and gates, the development session, and the agent routes. |

@@ -641,7 +641,7 @@ function buildProject(namespace, index, { includeVisuals, ownerId = "load-owner"
     proposal: {
       title: `Load Test Proposal ${index} - Meeting Room AV Refresh`,
       summary: "NetworkHD-based AV refresh for meeting rooms with unified control and scheduling.",
-      sections: ["Executive Summary", "Scope of Work", "Equipment and Pricing", "Services and Commercial Allowances"],
+      sections: ["Executive Summary", "Scope of Work", "Equipment Schedule", "Installation and Services"],
       products: Array.from({ length: 6 }, (_, i) => ({
         sku: `NHD-${400 + i}-TX`,
         quantity: 1 + (i % 3),

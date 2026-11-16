@@ -452,6 +452,7 @@ function explicitPortSummary(specs: CompareSpecFacts | undefined, direction: "in
     commercialPortLabel(direction === "input" ? specs.sdiInputs : specs.sdiOutputs, direction === "input" ? "SDI input" : "SDI output", direction === "input" ? "SDI inputs" : "SDI outputs"),
     commercialPortLabel(direction === "input" ? specs.compositeInputs : specs.compositeOutputs, direction === "input" ? "composite input" : "composite output", direction === "input" ? "composite inputs" : "composite outputs"),
     commercialPortLabel(direction === "input" ? specs.componentInputs : specs.componentOutputs, direction === "input" ? "component input" : "component output", direction === "input" ? "component inputs" : "component outputs"),
+    direction === "input" ? commercialPortLabel(specs.usbCInputs, "USB-C input", "USB-C inputs") : "",
   ].filter(Boolean);
 
   return joinCommercialFactParts(connectorParts);
@@ -995,10 +996,11 @@ export function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSumm
       profile.specs?.usbTotalPorts,
   );
   const usbFacts = joinCommercialFactParts([
-    profile.specs?.usbCPorts ? `${profile.specs.usbCPorts}x USB-C` : "",
+    (profile.specs?.usbCPorts ?? 0) > (profile.specs?.usbCInputs ?? 0)
+      ? `${(profile.specs?.usbCPorts ?? 0) - (profile.specs?.usbCInputs ?? 0)}x USB-C`
+      : "",
     profile.specs?.usbHostPorts ? `${profile.specs.usbHostPorts}x USB host` : "",
     profile.specs?.usbDevicePorts ? `${profile.specs.usbDevicePorts}x USB device` : "",
-    profile.specs?.usbTotalPorts ? `${profile.specs.usbTotalPorts}x USB total` : "",
     profile.specs?.usbStandard || "",
     profile.specs?.usbStandard && !hasVerifiedUsbPhysicalCounts
       ? "physical connector count requires verification"

@@ -3,23 +3,21 @@
  *
  * A template exports without opening the wizard, so the Proposal tab is the
  * whole of the review before the document leaves. That review has three kinds
- * of work — blockers that hold the document, lines that would print as TBC, and
- * assumptions the document labels — and the order matters: a rep should meet the
- * thing that stops the export first, then the money, then the caveats. This
+ * of work — blockers that hold the document, assumptions the document labels,
+ * and the final issue step — and the order matters: a rep should meet the
+ * thing that stops the export first, then review its caveats. This
  * model says which stages exist, what each one still holds, where the tab opens
  * and what the command bar says, so the panel renders one reading of the same
  * facts instead of repeating the arithmetic in its markup.
  */
 
-export type TemplatePreIssueStageKey = "blockers" | "pricing" | "assumptions" | "issue";
+export type TemplatePreIssueStageKey = "blockers" | "assumptions" | "issue";
 
 export type TemplatePreIssueInput = {
   /** The export validator's blockers, which hold the document. */
   blockers: number;
   /** Warnings the document prints as labelled assumptions. */
   warnings: number;
-  /** Equipment and installation lines the commercial section would print as TBC. */
-  unpricedLines: number;
   /** Unverified points the template itself carries into the document. */
   validationItems: number;
 };
@@ -43,7 +41,7 @@ function plural(count: number) {
 }
 
 /**
- * The four readings of the review, in the order a rep should take them.
+ * The three readings of the review, in the order a rep should take them.
  *
  * The issue stage is last and says nothing of its own beyond whether the
  * document can leave: the actions themselves stay in the command bar, so a rep
@@ -57,12 +55,6 @@ export function templatePreIssueStages(input: TemplatePreIssueInput): TemplatePr
       label: "Blockers",
       status: input.blockers ? `${input.blockers} to clear` : "None",
       open: input.blockers > 0,
-    },
-    {
-      key: "pricing",
-      label: "Unpriced lines",
-      status: input.unpricedLines ? `${input.unpricedLines} print TBC` : "Every line priced",
-      open: input.unpricedLines > 0,
     },
     {
       key: "assumptions",
@@ -81,13 +73,10 @@ export function templatePreIssueStages(input: TemplatePreIssueInput): TemplatePr
 
 /**
  * Where the tab opens: the first stage with work in it, so the rep starts at the
- * thing that needs them rather than at a cover page. Blockers outrank money —
- * nothing leaves while one stands — and money outranks caveats, because a line
- * that prints TBC changes the document's total.
+ * thing that needs them rather than at a cover page.
  */
 export function templatePreIssueInitialStage(input: TemplatePreIssueInput): TemplatePreIssueStageKey {
   if (input.blockers > 0) return "blockers";
-  if (input.unpricedLines > 0) return "pricing";
   if (templatePreIssueAssumptions(input) > 0) return "assumptions";
   return "issue";
 }
@@ -123,9 +112,7 @@ export function templatePreIssueResumeStage(
 /**
  * The command bar's one line: what the document would say right now.
  *
- * It never claims the export is blocked for an unpriced line — those print TBC
- * and hold the total, they do not hold the button — so only a blocker is
- * phrased as a stop.
+ * Only technical or scope blockers are phrased as a stop.
  */
 export function templatePreIssueSummary(input: TemplatePreIssueInput) {
   if (input.blockers) {
@@ -133,10 +120,6 @@ export function templatePreIssueSummary(input: TemplatePreIssueInput) {
   }
   const assumptions = templatePreIssueAssumptions(input);
   const parts: string[] = [];
-  if (input.unpricedLines) {
-    const verb = input.unpricedLines === 1 ? "prints" : "print";
-    parts.push(`${input.unpricedLines} line${plural(input.unpricedLines)} ${verb} as TBC`);
-  }
   if (assumptions) parts.push(`${assumptions} assumption${plural(assumptions)} labelled`);
   return parts.length ? `Issues with ${parts.join(" and ")}.` : "Every check is clear — ready to issue.";
 }

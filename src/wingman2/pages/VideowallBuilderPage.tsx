@@ -21,7 +21,7 @@ import {
   type WallStartPreset,
 } from "../lib/videowallDecision";
 import { wallStartingPointOrigin, type WallStartingPointOrigin } from "../lib/wallStartingPointOrigin";
-import { clearVideoWallHandoff, readVideoWallHandoff, wallHandoffNote, wallHandoffOrigin } from "../lib/videowallHandoff";
+import { clearVideoWallHandoff, readVideoWallHandoff, wallHandoffNote, wallHandoffSavedOrigin } from "../lib/videowallHandoff";
 import { wallWizardConcernChecks, type WallReviewStageKey } from "../lib/videowallWizard";
 import { useUiMode } from "../data/uiMode";
 import { restoreVideowallDraft, VIDEO_WALL_DRAFT_KEY } from "../lib/videowallDraft";
@@ -185,7 +185,7 @@ export function VideoWallPage() {
       // The schedule already carries the chosen build's part numbers; this says
       // which build they are, so a reordered design still explains itself.
       variantId,
-      origin: handoff ? wallHandoffOrigin(handoff) : null,
+      origin: handoff ? wallHandoffSavedOrigin(handoff) : null,
       // The saved wall records the card it came from, so the project and the
       // proposal can say where the design started after this page is gone.
       startingPoint,

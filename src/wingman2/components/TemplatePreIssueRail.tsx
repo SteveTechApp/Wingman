@@ -6,10 +6,9 @@ import { templatePreIssueStageSearch } from "../lib/templatePreIssuePass";
 import { PageBandRail } from "./PageBands";
 
 /**
- * The pre-issue walk as four named readings: blockers, unpriced lines,
- * assumptions, then issue. The rail is also the way back — a rep who wants to
- * reprice after reading the caveats clicks the stage instead of walking forward
- * again — and each step carries what it still holds, so the shape of the review
+ * The pre-issue walk as three named readings: blockers, assumptions, then issue.
+ * The rail is also the way back, and each step carries what it still holds, so
+ * the shape of the review
  * is visible without opening every one.
  */
 export function TemplatePreIssueRail({ stage, stages, onStage }: {

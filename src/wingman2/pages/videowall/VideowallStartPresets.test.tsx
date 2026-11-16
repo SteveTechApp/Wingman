@@ -17,17 +17,31 @@ describe("VideowallStartPresets", () => {
     resetPinnedWallPresetsCache();
   });
 
-  it("groups the walls by construction and shows what each card sets", () => {
+  it("does not list stock LCD variations beside the wall type and connection questions", () => {
     render(<VideowallStartPresets onPick={vi.fn()} />);
 
-    expect(screen.getByRole("region", { name: "LCD walls" })).toBeTruthy();
+    expect(screen.queryByRole("region", { name: "LCD walls" })).toBeNull();
     expect(screen.getByRole("region", { name: "LED walls" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "Projection" })).toBeTruthy();
+    for (const preset of wallStartPresetGroups.find((group) => group.family === "lcd")!.presets) {
+      expect(screen.queryByTestId(`videowall-preset-${preset.key}`)).toBeNull();
+    }
+  });
 
-    const card = screen.getByTestId("videowall-preset-nine-feeds");
-    expect(card.textContent).toContain("Nine feeds at once");
-    expect(card.textContent).toContain("3 × 3 (9 panels)");
-    expect(card.textContent).toContain("9 windows");
+  it("keeps rep-saved LCD walls available as personal starting points", () => {
+    saveWallStartingPoint({
+      ...defaultWallRequirements,
+      application: "lcd-loop",
+      columns: 3,
+      rows: 2,
+      sources: 4,
+      windows: 4,
+      layout: "quad",
+    });
+    const mine = savedWallStartingPoints()[0];
+    render(<VideowallStartPresets onPick={vi.fn()} />);
+    expect(screen.getByTestId(`videowall-preset-${mine.key}`)).toBeTruthy();
+    expect(screen.getByRole("region", { name: "LCD walls" })).toBeTruthy();
   });
 
   it("offers both LED multiview walls on the card facts", () => {
@@ -92,15 +106,14 @@ describe("VideowallStartPresets", () => {
     fireEvent.click(screen.getByTestId("videowall-preset-filter-windows-4"));
 
     // Four windows is a floor: a nine-window wall can still show four.
-    expect(screen.getByTestId("videowall-preset-quad-canvas")).toBeTruthy();
     expect(screen.getByTestId("videowall-preset-led-floating-windows")).toBeTruthy();
-    expect(screen.getByTestId("videowall-preset-nine-feeds")).toBeTruthy();
+    expect(screen.queryByTestId("videowall-preset-nine-feeds")).toBeNull();
     expect(screen.queryByTestId("videowall-preset-led-ribbon")).toBeNull();
     expect(screen.getByTestId("videowall-preset-filter-summary").textContent).toMatch(/^\d+ of \d+ walls$/);
 
-    fireEvent.click(screen.getByTestId("videowall-preset-filter-windows-9"));
-    expect(screen.getByTestId("videowall-preset-nine-feeds")).toBeTruthy();
-    expect(screen.queryByTestId("videowall-preset-quad-canvas")).toBeNull();
+    fireEvent.click(screen.getByTestId("videowall-preset-filter-windows-16"));
+    expect(screen.getByTestId("videowall-preset-led-fixed-windows")).toBeTruthy();
+    expect(screen.queryByTestId("videowall-preset-nine-feeds")).toBeNull();
   });
 
   it("narrows on the transport the card names, without inventing a bucket", () => {
@@ -109,10 +122,10 @@ describe("VideowallStartPresets", () => {
     fireEvent.click(screen.getByTestId("videowall-preset-filter-transport-10g"));
 
     // 10GbE is the site's connection: every wall that needs no more than that fits.
-    for (const preset of wallStartPresets) expect(screen.getByTestId(`videowall-preset-${preset.key}`)).toBeTruthy();
+    for (const preset of wallStartPresets.filter((item) => item.family !== "lcd")) expect(screen.getByTestId(`videowall-preset-${preset.key}`)).toBeTruthy();
 
     fireEvent.click(screen.getByTestId("videowall-preset-filter-transport-1g"));
-    const tenGig = wallStartPresets.filter((preset) => preset.transport === "10g").map((preset) => `videowall-preset-${preset.key}`);
+    const tenGig = wallStartPresets.filter((preset) => preset.family !== "lcd" && preset.transport === "10g").map((preset) => `videowall-preset-${preset.key}`);
     expect(tenGig.length).toBeGreaterThan(0);
     for (const key of tenGig) expect(screen.queryByTestId(key)).toBeNull();
     expect(screen.getByTestId("videowall-preset-led-canvas")).toBeTruthy();
@@ -148,22 +161,20 @@ describe("VideowallStartPresets", () => {
     for (const preset of wallStartPresetShortlist) {
       expect(screen.getByTestId(`videowall-preset-${preset.key}`)).toBeTruthy();
     }
-    expect(screen.getByTestId("videowall-preset-quad-canvas")).toBeTruthy();
+    expect(screen.queryByRole("region", { name: "LCD walls" })).toBeNull();
     // A wall that is not curated waits behind Show all.
     expect(screen.queryByTestId("videowall-preset-nine-feeds")).toBeNull();
     expect(screen.queryByTestId("videowall-preset-led-ribbon")).toBeNull();
-    // The band still counts the family it stands for, not the rows under it.
-    const lcd = wallStartPresetGroups.find((group) => group.family === "lcd")!;
-    expect(screen.getByRole("region", { name: "LCD walls" }).textContent).toContain(String(lcd.presets.length));
+    expect(screen.queryByRole("region", { name: "LCD walls" })).toBeNull();
     expect(screen.queryByTestId("videowall-preset-filter-summary")).toBeNull();
 
     const more = screen.getByTestId("videowall-preset-show-all");
-    expect(more.textContent).toBe(`Show all ${wallStartPresets.length} walls`);
+    expect(more.textContent).toBe(`Show all ${wallStartPresets.filter((preset) => preset.family !== "lcd").length} walls`);
     expect(more.getAttribute("aria-expanded")).toBe("false");
 
     fireEvent.click(more);
 
-    expect(screen.getByTestId("videowall-preset-nine-feeds")).toBeTruthy();
+    expect(screen.queryByTestId("videowall-preset-nine-feeds")).toBeNull();
     expect(screen.getByTestId("videowall-preset-led-ribbon")).toBeTruthy();
     expect(screen.getByTestId("videowall-preset-show-all").getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByTestId("videowall-preset-show-all").textContent).toBe("Show fewer walls");
@@ -192,24 +203,18 @@ describe("VideowallStartPresets", () => {
   it("leads the guided step with the walls the rep pinned", () => {
     render(<VideowallStartPresets shortlist showFilter={false} onPick={vi.fn()} />);
 
-    const lcd = () => screen.getByRole("region", { name: "LCD walls" });
-    const firstRow = () => lcd().querySelector("button.vw-preset-row")?.getAttribute("data-testid");
-    // The catalogue's order, before the rep has an opinion.
-    expect(firstRow()).toBe("videowall-preset-single-canvas");
-
-    // per-panel is curated but sits last of the LCD walls, so the pin has to
-    // move it rather than agree with the order it already had.
-    fireEvent.click(screen.getByTestId("videowall-preset-pin-per-panel"));
-
-    expect(firstRow()).toBe("videowall-preset-per-panel");
-    const card = screen.getByTestId("videowall-preset-per-panel");
+    // The list starts without stock LCD variations; pinning an LCD example
+    // explicitly brings that one back as the rep's own starting point.
+    expect(screen.queryByRole("region", { name: "LCD walls" })).toBeNull();
+    fireEvent.click(screen.getByTestId("videowall-preset-pin-led-canvas"));
+    const card = screen.getByTestId("videowall-preset-led-canvas");
     expect(card.textContent).toContain("Pinned · ");
-    expect(screen.getByTestId("videowall-preset-pin-per-panel").getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByTestId("videowall-preset-pin-led-canvas").getAttribute("aria-pressed")).toBe("true");
 
-    fireEvent.click(screen.getByTestId("videowall-preset-pin-per-panel"));
+    fireEvent.click(screen.getByTestId("videowall-preset-pin-led-canvas"));
 
-    expect(firstRow()).toBe("videowall-preset-single-canvas");
-    expect(screen.getByTestId("videowall-preset-per-panel").textContent).not.toContain("Pinned");
+    expect(screen.getByRole("region", { name: "LED walls" })).toBeTruthy();
+    expect(screen.getByTestId("videowall-preset-led-canvas").textContent).not.toContain("Pinned");
   });
 
   it("offers the pin only where the shortlist is, not in the catalogue reading", () => {
@@ -220,23 +225,21 @@ describe("VideowallStartPresets", () => {
     // reorder nothing and its control would be a promise the page cannot keep.
     expect(screen.queryByTestId("videowall-preset-pin-per-panel")).toBeNull();
     expect(screen.queryByRole("button", { name: /to my shortlist/ })).toBeNull();
-    const lcd = screen.getByRole("region", { name: "LCD walls" });
-    expect(lcd.querySelector("button.vw-preset-row")?.getAttribute("data-testid")).toBe(
-      `videowall-preset-${wallStartPresetGroups.find((group) => group.family === "lcd")!.presets[0].key}`,
-    );
+    expect(screen.getByRole("region", { name: "LCD walls" }).querySelector("button.vw-preset-row")?.getAttribute("data-testid"))
+      .toBe("videowall-preset-per-panel");
   });
 
   it("marks the preset the current answers already match", () => {
-    const nine = wallStartPresets.find((preset) => preset.key === "nine-feeds")!;
-    render(<VideowallStartPresets requirements={nine.requirements} onPick={vi.fn()} />);
+    const led = wallStartPresets.find((preset) => preset.key === "led-canvas")!;
+    render(<VideowallStartPresets requirements={led.requirements} onPick={vi.fn()} />);
 
-    expect(screen.getByTestId("videowall-preset-nine-feeds").getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByTestId("videowall-preset-quad-canvas").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByTestId("videowall-preset-led-canvas").getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByTestId("videowall-preset-led-ribbon").getAttribute("aria-pressed")).toBe("false");
   });
 
   it("marks the card the answers started on, even after they were adjusted", () => {
-    // The answers no longer match any card, but the design still came from this
-    // one — which is what a rep returning to the start is asking.
+    // A design opened from a legacy LCD preset still shows its starting point,
+    // even though the stock LCD catalogue is no longer offered by default.
     render(
       <VideowallStartPresets
         requirements={{ ...defaultWallRequirements, columns: 4, rows: 2, sources: 6, windows: 5 }}
@@ -251,8 +254,7 @@ describe("VideowallStartPresets", () => {
     // It is not the same fact as "these answers are this card".
     expect(started.getAttribute("aria-pressed")).toBe("false");
     // And no other card claims it.
-    expect(screen.getByTestId("videowall-preset-quad-canvas").getAttribute("data-started")).toBeNull();
-    expect(screen.getByTestId("videowall-preset-quad-canvas").textContent).not.toContain("Started here");
+    expect(screen.queryByTestId("videowall-preset-quad-canvas")).toBeNull();
   });
 
   it("marks a card the rep saved themselves the same way", () => {

@@ -149,4 +149,29 @@ describe("proposalSchematicBrief", () => {
     expect(brief.products).toHaveLength(1);
     expect(brief.sources).toHaveLength(2);
   });
+
+  it("uses the Discovery primary wall and repeater plan in the proposal diagram", () => {
+    const brief = proposalSchematicBrief("Overflow room", [makeProduct({ sku: "NHD-600-E-TX" })], [], {
+      primaryArrangement: "LED video wall",
+      totalFeedCount: "5 outputs",
+      repeaterCount: "3–4 repeater screens",
+      repeaterPurpose: ["Overflow seating"],
+      behaviour: ["Same picture across primary and repeats"],
+    });
+    expect(brief.displays).toEqual([
+      { label: "Primary: LED video wall (one processor feed; total feed endpoints 5 outputs) — Same picture across primary and repeats", quantity: 1 },
+      { label: "Repeaters: 3–4 repeater screens — Overflow seating; total feed endpoints 5 outputs", quantity: 1 },
+    ]);
+  });
+
+  it("keeps an unknown primary or repeater count visible as unconfirmed in the diagram", () => {
+    const brief = proposalSchematicBrief("Room", [], [], {
+      totalFeedCount: "Not yet confirmed",
+      repeaterCount: "Not yet confirmed — repeater count",
+    });
+    expect(brief.displays).toEqual([
+      { label: "Primary display arrangement not confirmed (total feed endpoints Not yet confirmed)", quantity: 1 },
+      { label: "Repeaters: count not confirmed; total feed endpoints Not yet confirmed", quantity: 1 },
+    ]);
+  });
 });

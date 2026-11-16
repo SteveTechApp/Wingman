@@ -20,7 +20,7 @@ export function proposalPrintPaginationHtml() {
     const hide = element => { hidden.set(element, element.style.display); element.style.display = 'none'; };
     const paginate = () => {
       restore();
-      for (const original of document.querySelectorAll('table[data-priced-schedule]')) {
+      for (const original of document.querySelectorAll('table[data-proposal-schedule]')) {
         const sourceRows = [...original.tBodies[0].rows];
         if (!sourceRows.length) continue;
         const lead = [];
@@ -53,8 +53,13 @@ export function proposalPrintPaginationHtml() {
           if (offset === 0) lead.forEach(element => chunk.append(element.cloneNode(true)));
           else { const heading = document.createElement('h3'); heading.textContent = title + ' — continued'; chunk.append(heading); }
           const table = original.cloneNode(true);
-          table.removeAttribute('data-priced-schedule');
+          table.removeAttribute('data-proposal-schedule');
           table.style.cssText = 'width:100%;table-layout:fixed;margin-bottom:0';
+          const footerRow = document.createElement('tr');
+          const footerCell = document.createElement('td');
+          footerCell.colSpan = widths.length;
+          footerRow.append(footerCell);
+          table.tFoot.replaceChildren(footerRow);
           const group = document.createElement('colgroup');
           widths.forEach(width => { const col = document.createElement('col'); col.style.width = width + 'px'; group.append(col); });
           table.prepend(group);
@@ -66,13 +71,13 @@ export function proposalPrintPaginationHtml() {
             const row = sourceRows[offset].cloneNode(true);
             table.tBodies[0].append(row);
             table.tFoot.rows[0].cells[0].textContent = offset === sourceRows.length - 1
-              ? original.tFoot.rows[0].cells[0].textContent : row.dataset.runningFooter;
+              ? original.tFoot.rows[0].cells[0].textContent : 'Items ' + (start + 1) + '–' + (offset + 1) + ' of ' + sourceRows.length;
             if (chunk.getBoundingClientRect().height > available && offset > start) { row.remove(); break; }
             offset += 1;
           }
           const last = table.tBodies[0].rows[table.tBodies[0].rows.length - 1];
           table.tFoot.rows[0].cells[0].textContent = offset === sourceRows.length
-            ? original.tFoot.rows[0].cells[0].textContent : last.dataset.runningFooter;
+            ? original.tFoot.rows[0].cells[0].textContent : 'Items ' + (start + 1) + '–' + offset + ' of ' + sourceRows.length;
           chunk.remove();
           original.parentNode.insertBefore(chunk, anchor);
           pages.push(chunk);

@@ -58,7 +58,7 @@ export type SalesReadinessInput = {
   topology?: unknown;
   /**
    * Dependency prompts the rep has recorded as documented dependencies rather
-   * than quotation lines. They keep their place in `governedDependencies` — the
+   * than equipment schedule rows. They keep their place in `governedDependencies` — the
    * document prints the question — but the BOM stops carrying a placeholder.
    */
   unquotedDependencySkus?: string[];
@@ -253,7 +253,7 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
   if (audioDesign) {
     validationNotes.push(...[audioDesign.direction, audioDesign.route, audioDesign.zoning, audioDesign.signalPath].filter((line): line is string => Boolean(line)));
     governanceWarnings.push(...audioDesign.validation);
-    bomRows.push(...audioDesign.requiredScope.map((scope) => ({ item: 0, sku: `BY-OTHERS-DISCOVERY-AUDIO-${scope.key.toUpperCase()}`, description: scope.description, role: "Audio and room scope by others", qty: 1, type: "Required" as const, status: "included", evidence: `${audioDesign.direction} ${audioDesign.basis}`, notes: `${scope.notes} Quantity 1 is a complete measured package allowance; confirm all constituent quantities and supplier/model before pricing.` })));
+    bomRows.push(...audioDesign.requiredScope.map((scope) => ({ item: 0, sku: `BY-OTHERS-DISCOVERY-AUDIO-${scope.key.toUpperCase()}`, description: scope.description, role: "Audio and room scope by others", qty: 1, type: "Required" as const, status: "included", evidence: `${audioDesign.direction} ${audioDesign.basis}`, notes: `${scope.notes} Quantity 1 is a complete measured package allowance; confirm all constituent quantities and supplier/model in the technical schedule.` })));
   }
 
   input.products.forEach((product, index) => {
@@ -276,7 +276,7 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
 
   // A prompt answered as a documented dependency is not a quote line: the
   // customer document names the open question in its dependency list, so the
-  // BOM does not also carry a placeholder nobody can price. Only prompts are
+  // BOM does not also carry a placeholder nobody can resolve. Only prompts are
   // ever dropped — an exact dependency names a part the design needs, and a
   // stored list that named one must not take equipment out of the room.
   const unquoted = new Set((input.unquotedDependencySkus ?? []).map((sku) => sku.trim().toUpperCase()));

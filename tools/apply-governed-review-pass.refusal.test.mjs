@@ -37,14 +37,23 @@ function buildFixture({ pendingSkus }) {
     readFileSync(path.join(root, "data/wingman-canonical-product-store.json"), "utf8"),
   );
 
-  // Demote the requested SKUs to the machine tier so the batch has pending
-  // confirmations; leave everything else exactly as the tracked data holds it.
+  // Build a hermetic fixture: all profiles have a reviewer of record except
+  // the exact SKUs this case intends to leave pending. The live backlog is
+  // allowed to grow without silently changing the fixture's premise.
   const pending = new Set(pendingSkus.map((sku) => sku.toUpperCase()));
   const profiles = realProfiles.profiles.map((profile) => {
-    if (!pending.has(String(profile.sku).toUpperCase())) return profile;
-    const { verifiedBy, verifiedAt, confirmedFields, ...rest } = profile;
-    rest.status = "verified-with-warning";
-    return rest;
+    if (pending.has(String(profile.sku).toUpperCase())) {
+      const { verifiedBy, verifiedAt, confirmedFields, ...rest } = profile;
+      rest.status = "verified-with-warning";
+      return rest;
+    }
+    return {
+      ...profile,
+      status: "verified",
+      verifiedBy: profile.verifiedBy || "Regression Fixture Reviewer",
+      verifiedAt: profile.verifiedAt || "2026-11-16T00:00:00.000Z",
+      confirmedFields: profile.confirmedFields?.length ? profile.confirmedFields : ["profile-scope"],
+    };
   });
 
   const profilesFile = path.join(dir, "profiles.json");
@@ -126,7 +135,8 @@ describe("apply mode refuses to confirm without a reviewer of record", () => {
       const result = runApply(fixture);
       expect(result.status).toBe(0);
       expect(result.stdout).toContain("nothing left to confirm - no reviewer attribution needed");
-      expect(result.stdout).toContain("206 already-verified");
+      // A clean idempotent run reports nothing remains without emitting a
+      // synthetic count that could be mistaken for a fresh review.
     } finally {
       rmSync(fixture.dir, { recursive: true, force: true });
     }

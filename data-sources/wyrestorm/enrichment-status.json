@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-09-01T05:41:19.100Z",
+  "generatedAt": "2026-11-12T06:44:19.178Z",
   "profileVersion": "wyrestorm-product-manager-v1",
   "offlineMode": false,
-  "sourceProductCount": 310,
+  "sourceProductCount": 344,
   "officialPageFetchSummary": {
-    "200": 554,
-    "404": 66
+    "200": 313,
+    "404": 31
   }
 }

@@ -96,7 +96,7 @@ export function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRo
   // The surveyed run is the fact the display receiver was chosen on, so the
   // saved project records the distance in the shape Discovery writes it. The
   // schematic distance, the completion model and a rebuilt design all read it
-  // from here rather than from the quotation the run produced.
+  // from here rather than from the proposal this run produced.
   const surveyedRun = template.surveyedRunMetres;
   // A run carried in spans keeps the measurement and records the span the quoted
   // receiver serves beside it, so a project rebuilt from this template is not

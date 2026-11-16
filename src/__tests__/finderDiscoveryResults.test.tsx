@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // real WyreStorm catalogue.
 
 import { DISCOVERY_BRIEF_KEY } from "@/wingman2/data/workflowHandoff";
-import { readProjectStore } from "@/wingman2/data/projectStore";
+import { readProjectStore, setActiveProjectId } from "@/wingman2/data/projectStore";
 import { loadProductIntelligenceIndex, loadProductIntelligenceSummary } from "@/wingman2/lib/productIntelligenceIndexCache";
 import { RecommendationsPage } from "@/wingman2/pages/RecommendationsPage";
 import productIntelligenceIndex from "../../public/product-intelligence-summary.json";
@@ -65,6 +65,10 @@ describe("Recommendations Discovery handoff", () => {
   });
 
   it("uses the selected NetworkHD tier when the discovery is a 10G AVoIP design", async () => {
+    // This scenario verifies the recommendation tier and quantities. A saved
+    // brief alone is not a project, so attach it to the seeded workspace
+    // project before asking Recommendations to write product selections.
+    setActiveProjectId("northbridge-meeting-room-refresh");
     window.localStorage.setItem(DISCOVERY_BRIEF_KEY, JSON.stringify({
       savedAt: "2026-06-24T09:00:00.000Z",
       capturedPercent: 100,

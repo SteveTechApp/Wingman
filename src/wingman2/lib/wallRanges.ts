@@ -51,7 +51,7 @@ export const wallProductRanges: WallProductRange[] = [
  * source network, only with a local compositor after it.
  */
 export function wallOptionRangeKey(optionId: string): WallRangeKey {
-  if (optionId === "nhd150") return "100";
+  if (optionId === "nhd150" || optionId === "nhd120") return "100";
   if (optionId === "nhd600") return "600";
   if (optionId === "nhd500" || optionId === "nhd500-multiview") return "500";
   return "local";

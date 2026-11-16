@@ -306,6 +306,31 @@ function countPorts(ports: TechnicalPort[], direction: "input" | "output"): numb
   return total > 0 ? total : undefined;
 }
 
+function isPrimaryUsbCInput(port: TechnicalPort, domain?: string): boolean {
+  if (domain !== "MATRIX" && domain !== "PRESENTATION") return false;
+  if (isLikelyAccessoryOrFalsePort(port)) return false;
+  if (!/usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/.test(portText(port))) return false;
+  if (/\b(device|client|peripheral|downstream|host|upstream)\b/.test(portText(port))) return false;
+  return ["input", "unspecified"].includes(safeText(port.direction).toLowerCase());
+}
+
+function countPrimaryUsbCInputs(ports: TechnicalPort[], domain?: string): number | undefined {
+  const total = ports
+    .filter((port) => isPrimaryUsbCInput(port, domain))
+    .reduce((sum, port) => sum + (Number.isFinite(Number(port.count)) ? Number(port.count) : 0), 0);
+
+  return total > 0 ? total : undefined;
+}
+
+function countUnspecifiedPrimaryUsbCInputs(ports: TechnicalPort[], domain?: string): number {
+  if (domain !== "MATRIX" && domain !== "PRESENTATION") return 0;
+
+  return ports
+    .filter((port) => isPrimaryUsbCInput(port, domain))
+    .filter((port) => safeText(port.direction).toLowerCase() === "unspecified")
+    .reduce((sum, port) => sum + (Number.isFinite(Number(port.count)) ? Number(port.count) : 0), 0);
+}
+
 function videoPortsFromTechnicalLines(product: WyrestormProduct): TechnicalPort[] {
   const lines = technicalProfile(product)?.evidence?.technicalLines ?? [];
   const ports: TechnicalPort[] = [];
@@ -383,7 +408,7 @@ function structuredIo(product: WyrestormProduct, blob: string, domain?: string):
   const allPorts = technicalPorts(product);
   const videoPorts = uniqueTechnicalPorts(allPorts);
   const dropped = videoPorts.filter((port) => isLikelyAccessoryOrFalsePort(port)).length;
-  let inputCount = countPorts(videoPorts, "input");
+  let inputCount = (countPorts(videoPorts, "input") ?? 0) + countUnspecifiedPrimaryUsbCInputs(videoPorts, domain) || undefined;
   const physicalOutputCount = videoPorts
     .filter((port) => isVideoTransportPort(port))
     .filter((port) => safeText(port.direction).toLowerCase() === "output")
@@ -475,6 +500,7 @@ function detectFeatures(blob: string): Record<string, boolean> {
 function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: number, outputCount?: number, domain?: string): CompareSpecFacts {
   const allPorts = uniqueTechnicalPorts(technicalPorts(product));
   const specs: CompareSpecFacts = {};
+  const usbCInputs = countPrimaryUsbCInputs(allPorts, domain);
   const usbStandardMatch = blob.match(/\busb\s*(1\.1|2\.0|3(?:\.0|\.1|\.2)?|4(?:\.0)?)\b/i);
 
   specs.hdmiInputs = countCategoryPorts(
@@ -514,12 +540,13 @@ function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: nu
   );
   specs.usbTotalPorts = countCategoryPorts(
     allPorts,
-    (port) => wmCompareIsExplicitUsbConnector(port),
+    (port) => wmCompareIsExplicitUsbConnector(port) && !isPrimaryUsbCInput(port, domain),
   );
   specs.usbCPorts = countCategoryPorts(
     allPorts,
     (port, value) => wmCompareIsExplicitUsbConnector(port) && /usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/.test(value),
   );
+  specs.usbCInputs = usbCInputs;
   specs.usbStandard = usbStandardMatch ? `USB ${usbStandardMatch[1]}` : undefined;
   specs.audioInputs = countCategoryPorts(allPorts, (port, value) => safeText(port.category).toLowerCase() === "audio" || /audio|line|mic|dante|aes67|toslink|spdif/.test(value), "input");
   specs.audioOutputs = countCategoryPorts(allPorts, (port, value) => safeText(port.category).toLowerCase() === "audio" || /audio|line|speaker|dante|aes67|toslink|spdif/.test(value), "output");

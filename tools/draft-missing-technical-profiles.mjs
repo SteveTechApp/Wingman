@@ -25,7 +25,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const target = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
 const canonicalPath = path.join(root, "data", "wingman-canonical-product-store.json");
 const schemaPath = path.join(root, "data", "schemas", "wyrestorm-technical-profile.schema.json");
-const REVIEWED_ON = "2026-07-30";
+const REVIEWED_ON = new Date().toISOString().slice(0, 10);
 const REVIEWER = "Wingman canonical official-source extraction (NOT human-verified)";
 const officialSourceOverrides = new Map([
   ["EXP-SW-0201-8K", "https://www.wyrestorm.com/product/exp-sw-0x01-8k/"],
@@ -160,7 +160,13 @@ const existing = new Set(payload.profiles.map((profile) => text(profile.sku).toU
 // Discontinued, do-not-spec and accessory/cable products are never drafted.
 const currentProducts = canonical.products.filter(isCurrentCatalogProduct);
 const missingProducts = currentProducts.filter((product) => !existing.has(text(product.sku).toUpperCase()));
-const drafts = missingProducts.map(createDraft);
+const draftableProducts = missingProducts.filter((product) => {
+  const sku = text(product.sku).toUpperCase();
+  const source = product.technicalProfile?.sourceQuality ?? {};
+  return source.livePageUsed === true && Number(source.officialPageStatus) === 200 || officialSourceOverrides.has(sku);
+});
+const sourceUnavailable = missingProducts.filter((product) => !draftableProducts.includes(product));
+const drafts = draftableProducts.map(createDraft);
 const candidate = structuredClone(payload);
 candidate.profiles.push(...drafts);
 candidate.profiles.sort((a, b) => text(a.sku).localeCompare(text(b.sku)));
@@ -185,6 +191,9 @@ if (errors.length) {
 console.log(`[draft-missing-profiles] Candidate schema valid: ${candidate.profiles.length} total profile(s).`);
 console.log(`[draft-missing-profiles] Official captured source validated for ${drafts.length} missing current-catalog SKU(s).`);
 console.log(`[draft-missing-profiles] Drafts: ${drafts.map((draft) => draft.sku).join(", ") || "(none)"}`);
+if (sourceUnavailable.length) {
+  console.log(`[draft-missing-profiles] No draft created for ${sourceUnavailable.length} SKU(s) without a successful product-specific official page: ${sourceUnavailable.map((product) => text(product.sku)).join(", ")}`);
+}
 
 if (check) {
   console.log("[draft-missing-profiles] Check mode complete; no files changed.");

@@ -24,7 +24,6 @@ export const MIGRATION_ALLOWLIST_KEYS = new Set([
   "max-file-lines:src/wingman2/pages/ProductPitchPage.tsx",
   "max-file-lines:src/wingman2/pages/RecommendationsPage.tsx",
   "max-file-lines:src/wingman2/pages/discovery/DiscoveryGuidedInterview.tsx",
-  "max-file-lines:src/wingman2/pages/discovery/discoveryQuestions.ts",
   "page-entry-lines:src/wingman2/pages/CatalogBrowserPage.tsx",
   "page-entry-lines:src/wingman2/pages/ComparePageNew.advanced.tsx",
   "page-entry-lines:src/wingman2/pages/DashboardPage.tsx",

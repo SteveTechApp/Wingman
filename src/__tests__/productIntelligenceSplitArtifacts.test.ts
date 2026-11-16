@@ -14,16 +14,22 @@ describe("product intelligence delivery artifacts", () => {
     )).toBe(true);
   });
 
-  it("retains deferred detail records keyed by normalized SKU", () => {
+  it("retains a distinct deferred detail record for every exact SKU", () => {
+    const summary = JSON.parse(readFileSync(summaryPath, "utf8"));
     const manifest = JSON.parse(readFileSync(detailsPath, "utf8"));
-    const entries = Object.entries(manifest.products) as Array<[string, { path: string; bytes: number }]>;
-    expect(entries.length).toBeGreaterThan(300);
+    const entries = Object.entries(manifest.products) as Array<[string, { path: string; bytes: number; sku?: string }]>;
+    expect(entries.length).toBe(summary.products.length);
     expect(statSync(detailsPath).size).toBeLessThan(100_000);
+    const detailsBySku = new Map(entries.map(([key, entry]) => [entry.sku ?? key, entry]));
+    for (const sku of ["EXP-4KUHD-0.5", "EXP-4KUHD-05", "EXP-8KUHD-0.5", "EXP-8KUHD-05"]) {
+      expect(detailsBySku.has(sku)).toBe(true);
+    }
     for (const [key, entry] of entries) {
-      expect(key).toMatch(/^[A-Z0-9]+$/);
+      expect(key).toMatch(/^[A-Z0-9_]+$/);
       expect(entry.path).toBe(`/product-intelligence-details/${key.toLowerCase()}.json`);
       expect(entry.bytes).toBeLessThan(100_000);
       const record = JSON.parse(readFileSync(`public${entry.path}`, "utf8"));
+      if (entry.sku) expect(record.sku).toBe(entry.sku);
       expect(record._quality.completenessPercent).toBeGreaterThan(0);
       expect(record._quality.presentSections.length + record._quality.missingSections.length).toBe(4);
     }

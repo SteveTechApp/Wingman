@@ -23,8 +23,8 @@ describe("guided video wall wizard", () => {
     // the answers describe rather than a value kept beside them.
     const looping = wallWizardAnswers({ ...defaultWallRequirements, application: "lcd-loop", layout: "nine", windows: 9 });
     expect(looping.map((answer) => answer.key)).toContain("feeding");
-    expect(looping.find((answer) => answer.key === "feeding")?.value).toBe("One canvas, panels tile it");
-    expect(answers.find((answer) => answer.key === "feeding")?.value).toBe("9 feeds, a panel per feed");
+    expect(looping.find((answer) => answer.key === "feeding")?.value).toBe("One canvas, panels tile it · Scaling matrix switch");
+    expect(answers.find((answer) => answer.key === "feeding")?.value).toBe("9 feeds, a panel per feed · A matrix output per panel");
     expect(answers.find((answer) => answer.key === "sources")?.value).toBe("9 sources at 4K60");
     expect(answers.find((answer) => answer.key === "network")?.value).toBe("Choose a network option");
   });

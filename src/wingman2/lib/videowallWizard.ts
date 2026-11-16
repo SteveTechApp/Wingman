@@ -1,13 +1,15 @@
 import { wallLayoutChoices, type WallLayoutChoice } from "./videowallDecision";
 import {
-  wallApplications,
   wallProjectorCount,
+  wallTechnologies,
+  wallTechnologyForApplication,
   type WallApplication,
   type WallRequirements,
+  type WallTechnology,
 } from "./videowallOptions";
 import { videowallNetworkChoices, videowallNetworkKeyFor } from "./videowallDraft";
 import { wallPhysicalSize } from "./wallPhysicalSize";
-import { wallFeedingAnswer } from "./wallFeeding";
+import { wallConnectionSummary } from "./wallFeeding";
 
 /**
  * The focused view asks the questions a rep would ask in the room, one screen
@@ -58,7 +60,7 @@ const sourceTiming = (r: WallRequirements) => (r.sourceCustom ? `${r.sourceWidth
 
 export function wallWizardAnswers(r: WallRequirements): WallWizardAnswer[] {
   const panels = r.columns * r.rows;
-  const picture = wallApplications.find((application) => application.value === r.application)?.title ?? r.application;
+  const picture = wallTechnologies.find((technology) => technology.value === wallTechnologyForApplication(r.application))?.title ?? r.application;
   const layout = wallLayoutChoices.find((choice) => choice.value === r.layout
     && (!choice.customMode || choice.customMode === r.customMode))?.label ?? r.layout;
   const network = videowallNetworkChoices.find((choice) => choice.key === videowallNetworkKeyFor(r))?.label
@@ -80,9 +82,26 @@ export function wallWizardAnswers(r: WallRequirements): WallWizardAnswer[] {
     { key: "size", step: STEP_INDEX.size, label: "Size and pixels", value: `${size} · ${wallPhysicalSize(r).text}` },
     { key: "sources", step: STEP_INDEX.sources, label: "Sources", value: `${count} at ${sourceTiming(r)}` },
     { key: "network", step: STEP_INDEX.network, label: "Network", value: network },
-    { key: "feeding", step: STEP_INDEX.feeding, label: "Connection", value: wallFeedingAnswer(r) },
+    { key: "feeding", step: STEP_INDEX.feeding, label: "Connection", value: wallConnectionSummary(r) },
     { key: "layout", step: STEP_INDEX.layout, label: "Layout", value: layout },
   ];
+}
+
+/** Keep the actual feed architecture separate from the wall technology choice. */
+export function wallWizardTechnologyPatch(
+  technology: WallTechnology,
+  current: WallRequirements,
+): Partial<WallRequirements> {
+  const currentTechnology = wallTechnologyForApplication(current.application);
+  const application: WallApplication = currentTechnology === technology
+    ? current.application
+    : technology === "lcd"
+      ? "lcd-loop"
+      : technology;
+  return {
+    ...wallWizardApplicationPatch(application, current),
+    ...(currentTechnology !== technology ? { multiviewSelected: false } : {}),
+  };
 }
 
 /**

@@ -4,8 +4,10 @@ The narrative behind the invariants in `AGENTS.md`: each rule in full, why it
 exists, and the probe that proved it. A number quoted here records the run that
 decided the rule; `reports/browser-readings.md` is the current measurement.
 
-- Both workflows begin by choosing the wall type, because LCD, LED and
-  projection have different sizing and signal questions. Guided then asks one
+- Both workflows begin by choosing the wall technology — LCD, LED or projection
+  — because each has different sizing and signal questions. This is separate
+  from the connection model: per-display, grouped and tiled are ways to feed an
+  LCD wall, not wall types. Guided then asks one
   question at a time; its size step gathers the LED canvas pixels, pitch and
   cabinet array, then keeps source count and source timing on their own question.
   Network provision is a separate question with five answers: use the existing
@@ -29,13 +31,33 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   drawing states the physical panel array and source window count together above
   the elevation, so a 3 × 3 array carrying four windows cannot read as a 2 × 2
   physical wall.
+- New LCD designs do not start from a catalogue of near-identical arrays. The
+  design captures the panel count, then chooses the connection architecture:
+  one NHD decoder per independently driven panel, or one tiled canvas looped
+  through the displays. Existing saved and pinned LCD designs remain available.
+  For independent panels the recommendation sizes the NHD decoder count to the
+  array and matches the RX model to source timing and the customer's quality,
+  latency and network expectations; a 1GbE or 10GbE answer is retained in the
+  design.
+- A tiled LCD wall can use NHD-150-RX multiview for up to six custom floating
+  windows or nine preset windows at 1080p (eight at higher resolution), or the
+  NHD-0401-MV for local HDMI fixed layouts with up to four sources, or
+  NHD-600-TRX for fixed layouts over 10GbE. These NHD paths are API
+  controllable; the proposal flags customer-specific control integration for
+  confirmation. NHD-0401-MV and NHD-600-TRX require a supported multiview
+  layout, so single-picture and independent-panel layouts cannot be selected
+  after choosing them. The NHD-150-RX permits custom floating or supported
+  preset layouts within its window and resolution limits.
 - The NHD-150-RX and NHD-600-TRX feed paths are multiview choices. Selecting one
   writes `multiviewSelected` to the wall requirements; the later layout choices
   disable the single-picture and source-per-screen layouts and the wizard will
   not continue until a multi-window layout is selected. The feed-path key reads
   that stored choice back when the design is edited, so the visible selection
   and the layout constraint survive a reload. Selecting a non-multiview feed
-  clears the marker.
+  clears the marker. `VideowallConnectionOptions` renders the same filtered
+  feed model, network provision and feed path in Guided and Expert, so the
+  Expert answer editor cannot say “wall type” for a feed architecture or let
+  its source location contradict the selected NHD path.
 - Four surfaces name the wall workflow — both readings of Home, the Templates
   page header and the builder page the entry opens onto — so the entry's name and
   the sentence saying how a design begins live once, in `lib/wallEntry.ts`
@@ -145,9 +167,16 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   capped — and `VideowallTransport.test.tsx` holds the dictation target, that a
   spoken note joins the termination cell under the typed text and leaves the
   other cells alone.
-- The focused view starts from a wall, not a room: `wallStartPresets`
-  (`videowallDecision.ts`) are whole briefs (wall type, array, sources,
-  layout, transport, panel size) named for what the wall does, and
+- The guided view starts by asking which technology the wall uses — LCD, LED or
+  projection. That choice precedes the saved-wall picker and the size, source,
+  network, feed and layout questions. `wallWizardTechnologyPatch` clears answers
+  that no longer apply when the technology changes; `wallWizardAnswers` derives
+  the question sequence, and the feed/layout choices enforce the selected
+  connection model's requirements, including multiview. Saved walls remain
+  available as prefilled starting points after technology is chosen. The expert
+  view keeps the same technology and connection rules in its room sections.
+  `wallStartPresets` (`videowallDecision.ts`) are whole briefs (wall type, array,
+  sources, layout, transport, panel size) named for what the wall does, and
   `wallStartPresetGroups` folds them into LCD/LED/projection for the shared
   `VideowallStartPresets` picker. The picker is a list of rows, not a grid of
   tiles: the wall's own drawing leads (`WallPresetGlyph` in
@@ -410,18 +439,18 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   competing with the wall; opening a row is the controls that step always
   rendered. `VideowallOptionsList` is reference rather than a choice, so it
   opens from a summary naming `decision.considered` and `decision.viableCount`.
-- The guided questions run wall type, size, sources, connection, windows, the
-  design and must-haves, one question a screen. The wall's type is asked first
-  because it decides which of the others exist — a projection screen has
-  projectors and a blend, an LED canvas has a pitch and cabinets, and only an LCD
-  wall can be fed a panel at a time — and the sources come next, since what the
-  wall must carry is the thing the design answers. The connection is asked where
-  a rep settles it in the room: after the wall's size has decided the canvas and
-  before the window layout, because a window count only means something once the
-  wall is known to take one composed picture. The drawing is a reading of those
-  answers rather than a question of its own, so it has a screen instead of
-  stacking under the size controls that produced it, and the transport table
-  belongs to the result's survey pass rather than to a question screen.
+- The guided questions run wall type, size, sources, network provision, feeding,
+  layout, design and must-haves, one question a screen. The wall's type is asked
+  first because it decides which sizing, feed and layout choices exist — a
+  projection screen has projectors and a blend, an LED canvas has a pitch and
+  cabinets, and only an LCD wall can be fed a panel at a time. Network provision
+  comes before the feed path, because selecting an existing network or adding
+  switches determines how the picture can travel. The feed choices then reflect
+  the wall and its network; an NHD multiview path requires a multi-window layout
+  on the next screen. The drawing is a reading of those answers rather than a
+  question of its own, so it has a screen instead of stacking under the size
+  controls that produced it, and the transport table belongs to the result's
+  survey pass rather than to a question screen.
   `wallFeeding.ts` owns that question, and its models are the
   application the decision engine already reads rather than a field beside it:
   one canvas with the panels tiling it is `lcd-loop`, a feed per panel is

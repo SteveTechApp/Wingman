@@ -154,6 +154,9 @@ function combinedRequirementText(input: RecommendationEvidenceInput) {
     roomModel.signalStandard,
     roomModel.displayBehaviour,
     roomModel.displays,
+    roomModel.primaryDisplayArrangement,
+    roomModel.repeaterDisplayCount,
+    roomModel.repeaterDisplayPurpose,
     roomModel.videoWallRequirement,
     roomModel.multiviewRequirement,
     roomModel.avoipProfile,
@@ -196,6 +199,9 @@ function countEvidence(input: RecommendationEvidenceInput) {
     fieldLine("Room type", roomModel.roomType),
     fieldLine("Source count", roomModel.sourceCount),
     fieldLine("Display count", roomModel.displayCount),
+    fieldLine("Primary display arrangement", roomModel.primaryDisplayArrangement),
+    fieldLine("Repeater screen count", roomModel.repeaterDisplayCount),
+    fieldLine("Repeater purpose", roomModel.repeaterDisplayPurpose),
     fieldLine("Resolution", roomModel.resolutionRequirement ?? roomModel.signalStandard),
     fieldLine("Locations/connections", projectTopologySummary(topologyFrom(input)) || (roomModel.distanceInfrastructureNotes ?? roomModel.longestRun ?? roomModel.cableRun)),
     fieldLine("Connection types", projectTopologyConnectionTypes(topologyFrom(input))),
@@ -930,11 +936,17 @@ function nextBestQuestion(input: RecommendationEvidenceInput, missing: string[])
 function salesDiscovery(input: RecommendationEvidenceInput) {
   const roomModel = roomModelFrom(input);
   const inference = inferenceFrom(input);
+  const displayPlan = [
+    roomModel.primaryDisplayArrangement ? `Primary display: ${text(roomModel.primaryDisplayArrangement)}` : "",
+    roomModel.displayCount ? `Total feed endpoints: ${text(roomModel.displayCount)}` : "",
+    roomModel.repeaterDisplayCount ? `Repeaters: ${text(roomModel.repeaterDisplayCount)}` : "",
+    list(roomModel.repeaterDisplayPurpose).length ? `Repeater purpose: ${list(roomModel.repeaterDisplayPurpose).join(", ")}` : "",
+  ].filter(Boolean).join("; ");
   return {
     projectTitle: text(input.project?.name, text(roomModel.roomType, "Product Pitch")),
     summary: text(inference.summary, customerRequirement(input)),
     roomSize: text(roomModel.roomSize, "Unknown"),
-    displays: text(roomModel.displays, text(roomModel.displayBehaviour, "Unknown")),
+    displays: text(displayPlan, text(roomModel.displays, text(roomModel.displayBehaviour, "Unknown"))),
     displayCount: text(roomModel.displayCount, "Unknown"),
     displayBehaviour: text(roomModel.displayBehaviour, "Unknown"),
     sourceCount: text(roomModel.sourceCount, "Unknown"),

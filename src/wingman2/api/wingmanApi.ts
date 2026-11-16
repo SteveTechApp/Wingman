@@ -544,23 +544,3 @@ export type TeamResponse = {
 export function getWorkspaceTeam() {
   return getWingmanJson<TeamResponse>("/api/wingman/workspace/team");
 }
-
-/** The signed-in rep's installation rate card, kept on their workspace. */
-export type WorkspaceRateCard = {
-  updatedAt: string;
-  currency: string;
-  rates: Record<string, string>;
-};
-
-export type WorkspaceRateCardResponse = {
-  ok: boolean;
-  card?: Partial<WorkspaceRateCard>;
-};
-
-export function getWorkspaceInstallationRateCard() {
-  return getWingmanJson<WorkspaceRateCardResponse>("/api/wingman/workspace/rate-card");
-}
-
-export function putWorkspaceInstallationRateCard(input: { rates: Record<string, string>; currency: string }) {
-  return putWingmanJson<WorkspaceRateCardResponse>("/api/wingman/workspace/rate-card", input);
-}

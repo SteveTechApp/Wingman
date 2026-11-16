@@ -74,7 +74,14 @@ if [ $dead_css_gate_status -ne 0 ]; then
   exit 1
 fi
 
-npm run precommit:check
+# Git exports repository-local variables to hooks. The verification suite also
+# creates throwaway repositories, so do not let those child Git commands be
+# redirected into the commit's worktree. Keep the hook's own Git context intact.
+(
+  local_git_vars=$(git rev-parse --local-env-vars)
+  for var in $local_git_vars; do unset "$var"; done
+  npm run precommit:check
+)
 status=$?
 
 if [ $status -ne 0 ]; then

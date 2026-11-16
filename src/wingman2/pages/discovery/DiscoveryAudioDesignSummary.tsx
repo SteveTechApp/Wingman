@@ -13,7 +13,7 @@ export function DiscoveryAudioDesignSummary({ answers, notes }: { answers: Disco
       <p>{design.basis}</p><p>{design.signalPath}</p>
       <h3>Required scope by others</h3>
       <ul>{design.requiredScope.map((scope) => <li key={scope.key}><strong>{scope.description}</strong> — {scope.notes}</li>)}</ul>
-      <h3>Confirm before pricing</h3><ul>{design.validation.map((item) => <li key={item}>{item}</li>)}</ul>
+      <h3>Items to confirm</h3><ul>{design.validation.map((item) => <li key={item}>{item}</li>)}</ul>
     </details>
   </details></section>;
 }

@@ -14,7 +14,6 @@
  */
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
-import { discoverySectionFor, discoverySectionTitle } from "./discoverySections";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -55,18 +54,12 @@ export const BASIC_MODE_REQUIRED_IDS = [
   "scale",               // How big? — drives system complexity
   "network-path",        // Corporate AV VLAN or dedicated physical AV LAN, when distributed
   "sources",             // How many sources? — drives input count
-  "source-connection",   // User laptop, installed equipment, or both
+  "primary-display",     // What are the room's main displays or projection surfaces?
   "displays",            // How many displays? — drives output count
+  "repeater-displays",   // How many extra screens repeat or extend the primary viewing area?
   "display-behaviour",   // How should displays behave? — key architectural decision
   "uc-purpose",          // Camera/mic workflows? — key for BYOM/BYOD
-  "uc-camera",           // Camera type changes video and USB routing
-  "uc-camera-count",     // Multiple views require a bridge or compositor
-  "signal-standard",     // 1080p, 4K UHD, HDR and higher-resolution needs
-  "usb",                 // Host, USB 2.0/3.x capability and extension
-  "locations-connections", // Source/output positions and route distance
-  "control",             // Room and AV system operation
   "audio", "audio-route", "audio-zones", "audio-programme", "room-acoustics",
-  "commissioning",       // Acceptance, training, handover and responsibility
 ] as const;
 
 const BASIC_MODE_REQUIRED_SET = new Set<string>(BASIC_MODE_REQUIRED_IDS);
@@ -80,7 +73,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "single-large-room",
     sources: "two-four-sources",
     "source-connection": "mixed-hdmi-usbc",
+    "primary-display": "single-large-flat-panel",
     displays: "one-display",
+    "repeater-displays": "no-repeater-displays",
     // One display cannot route independently: the interview hides
     // independent-routing-per-display for single-display rooms.
     "display-behaviour": "same-content-all-displays",
@@ -99,7 +94,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "single-large-room",
     sources: "two-four-sources",
     "source-connection": "mixed-hdmi-usbc",
+    "primary-display": "single-projector",
     displays: "one-display",
+    "repeater-displays": "no-repeater-displays",
     // Aligned with quickStartConfigs.classroom: a teaching space mirrors one
     // source to a projector/display, typically fed at standard HD. The prior
     // values (video-wall-or-processor-feed / 4k60-standard) implied a wall
@@ -114,7 +111,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "multi-room",
     sources: "five-eight-sources",
     "source-connection": "fixed-hdmi-sources",
+    "primary-display": "dual-large-flat-panels",
     displays: "three-eight-displays",
+    "repeater-displays": "one-two-repeater-displays",
     "display-behaviour": "independent-routing-per-display",
     "signal-standard": "4k60-standard",
     audio: "room-audio",
@@ -124,7 +123,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "single-large-room",
     sources: "two-four-sources",
     "source-connection": "fixed-hdmi-sources",
+    "primary-display": "unknown-primary-display",
     displays: "video-wall-output",
+    "repeater-displays": "unknown-repeater-displays",
     "display-behaviour": "video-wall-or-processor-feed",
     "signal-standard": "4k60-standard",
     audio: "room-audio",
@@ -134,7 +135,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "building-wide",
     sources: "five-eight-sources",
     "source-connection": "network-video-sources",
+    "primary-display": "unknown-primary-display",
     displays: "three-eight-displays",
+    "repeater-displays": "unknown-repeater-displays",
     "display-behaviour": "independent-routing-per-display",
     "signal-standard": "4k60-standard",
     audio: "room-audio",
@@ -533,7 +536,7 @@ export function DiscoveryProgressiveDisclosure({
                   </span>
                   <span className="wm-discovery-batch-step-banner__text">
                     <span className="wm-discovery-batch-step-banner__section">
-                      {discoverySectionTitle(discoverySectionFor(question))}
+                      {question.section}
                       {question.required ? "" : " · Optional"}
                     </span>
                     <span className="wm-discovery-batch-step-banner__title">

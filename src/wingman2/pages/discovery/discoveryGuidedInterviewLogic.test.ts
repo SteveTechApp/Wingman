@@ -64,7 +64,7 @@ function questionForAny(questionId: string): DiscoveryQuestion {
 
 function guidedUncertaintyQuestions() {
   return canonicalDiscoveryQuestions.filter((question) =>
-    question.options.some((option) => isGuidedUncertaintyOption(option.value)),
+    question.id !== "audio-route" && question.options.some((option) => isGuidedUncertaintyOption(option.value)),
   );
 }
 
@@ -229,7 +229,7 @@ describe("guided interview spoken-answer interpretation", () => {
     const svCameras = matchSpokenAnswer(cameras, "en ptz kamera och en webkamera", "sv").values;
     expect(svCameras).toContain("usb-ptz-camera");
     expect(svCameras).toContain("fixed-usb-camera");
-    expect(matchSpokenAnswer(cameras, "без камер", "ru").values).toEqual([]);
+    expect(matchSpokenAnswer(cameras, "без камер", "ru").values).toContain("no-camera-source");
   });
 
   it("interprets Chinese and Hindi answers with their phrase tables", () => {
@@ -363,6 +363,26 @@ describe("guided interview Q&A trail (buildDiscoveryConversation)", () => {
             problems.push(
               `${lang}/${question.id}: "${phrase}" → [${result.values.join(", ")}] (expected [${uncertainty.value}])`,
             );
+          }
+        }
+      }
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it("resolves the audio-route uncertainty choice for the selected ownership branch", () => {
+    const normalRoute = questionFor("meeting-room", "audio-route", { audio: ["room-audio"] });
+    const byOthersRoute = questionFor("meeting-room", "audio-route", { audio: ["audio-by-others"] });
+    const problems: string[] = [];
+    for (const lang of ALL_LANGUAGES) {
+      for (const [question, expected] of [
+        [normalRoute, "unknown-audio-route"],
+        [byOthersRoute, "switcher-feed-unknown"],
+      ] as const) {
+        for (const phrase of unknownPhrasesFor(lang)) {
+          const result = matchSpokenAnswer(question, phrase, lang);
+          if (result.values.length !== 1 || result.values[0] !== expected) {
+            problems.push(`${lang}/${expected}: "${phrase}" → [${result.values.join(", ")}]`);
           }
         }
       }

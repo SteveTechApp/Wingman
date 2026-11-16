@@ -34,9 +34,8 @@ import type { TemplateBomRow } from "../lib/roomTemplates";
 import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
 import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
-import { decisionForCapturedRoom, roomBriefNote } from "../lib/roomBrief";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
-import { applyApplicationSmartDefaults, BASIC_MODE_REQUIRED_IDS, SMART_DEFAULTS, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
+import { BASIC_MODE_REQUIRED_IDS, type DiscoveryMode as ProgressiveMode } from "./discovery/discoveryProgressiveDisclosure";
 import { DiscoveryGuidedInterview, DiscoveryGuidedInterviewEntry } from "./discovery/DiscoveryGuidedInterview";
 import { DiscoveryCaptureModeSwitch } from "./discovery/DiscoveryCaptureModeSwitch";
 import { DiscoveryRoomWizard } from "./discovery/DiscoveryRoomWizard";
@@ -45,7 +44,7 @@ import { DiscoveryExpertBuilder } from "./discovery/DiscoveryExpertBuilder";
 import { refreshRoomLayout, roomTemplateEquipment, mergeRoomTemplateEquipment } from "./discovery/operationalDiscovery";
 import { DiscoveryMarketEntry } from "./discovery/DiscoveryMarketEntry";
 import { DiscoveryMarketContextSummary } from "./discovery/DiscoveryMarketContextSummary";
-import { changeDiscoveryApplication, DISCOVERY_TEMPLATE_MARKET } from "./discovery/discoveryMarketContext";
+import { applyDiscoveryEnvironmentInference, changeDiscoveryApplication, clearUnchangedDiscoveryEnvironmentInference, DISCOVERY_TEMPLATE_MARKET } from "./discovery/discoveryMarketContext";
 import { readQuickStartSeedRecord, useQuickStartConflictSignals } from "./discovery/useQuickStartConflictSignals";
 import { compileDiscoveryBrief } from "./discovery/discoveryBriefBuilder";
 import {
@@ -75,12 +74,13 @@ const discoveryAuditMarkers = [
   "Current model",
   "applicationSpecificDiscoveryQuestionGuidance",
 ] as const;
-export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBuilder?: boolean; templateHandoff?: DiscoveryHandoff }) {
+export function DiscoveryPage({ roomBuilder = false, focusedStart = false, templateHandoff }: { roomBuilder?: boolean; focusedStart?: boolean; templateHandoff?: DiscoveryHandoff }) {
   const { isGuided } = useUiMode();
   const [searchParams] = useSearchParams();
+  const startFocusedInterview = focusedStart && isGuided;
   const [entryHandoff] = useState(() => templateHandoff ?? readDiscoveryHandoff());
   const isTemplateAuthoring = Boolean(entryHandoff && entryHandoff.mode !== "standard");
-  const [builderActive, setBuilderActive] = useState(() => roomBuilder && !searchParams.has("edit") && searchParams.get("interview") !== "1");
+  const [builderActive, setBuilderActive] = useState(() => roomBuilder && !startFocusedInterview && !searchParams.has("edit") && searchParams.get("interview") !== "1");
   const editQuestionId = searchParams.get("edit")?.trim() ?? "";
   const [discoveryDraft] = useState(() => {
     if (isTemplateAuthoring) return readTemplateBuilderDraft(entryHandoff?.templateId);
@@ -169,10 +169,7 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
   const [, setIsReviewingAnswers] = useState(false);
   const [answers, setAnswers] = useState<DiscoveryAnswers>(() => (draftState.answers as DiscoveryAnswers | undefined) ?? {});
-  const smartDefaultsApplicationRef = useRef("");
-  const [editingMarketContext, setEditingMarketContext] = useState(
-    () => searchParams.get("edit") === "opportunity",
-  );
+  const [editingMarketContext, setEditingMarketContext] = useState(false);
   const [appliedDefaults, setAppliedDefaults] = useState<Partial<DiscoveryAnswers>>(
     () => (draftState.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {},
   );
@@ -217,7 +214,7 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const [siteName, setSiteName] = useState(() => draftField("siteName"));
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
-  const [detailedCapture, setDetailedCapture] = useState(() => (!isGuided && !roomBuilder) || isTemplateAuthoring || Boolean(editQuestionId) || searchParams.get("interview") === "1");
+  const [detailedCapture, setDetailedCapture] = useState(() => (!isGuided && !roomBuilder) || isTemplateAuthoring || startFocusedInterview || Boolean(editQuestionId) || searchParams.get("interview") === "1");
   const essentialCapture = !detailedCapture && !isTemplateAuthoring;
   const progressiveMode: ProgressiveMode = essentialCapture ? "basic" : "expert";
   // Pending escalation: set when a non-basic question is edited in basic mode —
@@ -226,7 +223,7 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   // `?interview=1` (dashboard / project-card resume links) opens straight into
   // the guided interview, which resumes at the first open question.
   const [interviewActive, setInterviewActive] = useState(
-    () => searchParams.get("interview") === "1",
+    () => startFocusedInterview || searchParams.get("interview") === "1",
   );
   const [discoveryPace, setDiscoveryPace] = useState<DiscoveryPace>("live");
   // Which review walk the interview starts with: the whole conversation, or
@@ -291,21 +288,6 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
   const marketId = wmDiscoveryAnswerToText(answers.market);
   const environmentId = wmDiscoveryAnswerToText(answers.environment);
-  useEffect(() => {
-    if (!selectedApplication || smartDefaultsApplicationRef.current === selectedApplication) return;
-    smartDefaultsApplicationRef.current = selectedApplication;
-    const defaults = SMART_DEFAULTS[selectedApplication];
-    if (!defaults) return;
-    if (quickStartSeed?.application === selectedApplication) return;
-
-    const seededAnswers = applyApplicationSmartDefaults(answers, selectedApplication);
-    const seededDefaults = Object.fromEntries(
-      Object.entries(defaults).filter(([questionId]) => !answers[questionId]),
-    ) as Partial<DiscoveryAnswers>;
-    if (Object.keys(seededDefaults).length) setAnswers(seededAnswers);
-    setAppliedDefaults(seededDefaults);
-    setQuickStartSeed({ application: selectedApplication, answers: seededAnswers });
-  }, [answers, quickStartSeed, selectedApplication]);
   const discoveryQuestions = useMemo(
     () =>
       wmDiscoveryFilterUnifiedCommsQuestions(
@@ -314,20 +296,10 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
       ),
     [selectedApplication, answers],
   );
-  const applicationQuestion = discoveryQuestions.find(question => question.id === "opportunity");
-  const selectedApplicationLabel = applicationQuestion
-    ? getOptionLabel(applicationQuestion, answers.opportunity, selectedApplication)
-    : selectedApplication;
 
   // The full question set remains available for technical detail and saved answers.
   const BASIC_IDS = useMemo(() => new Set<string>(BASIC_MODE_REQUIRED_IDS), []);
-  const modeQuestions = useMemo(() => {
-    // The chosen market environment already supplied this application. It is
-    // retained in the answer model to shape these questions, while the top
-    // context control remains the one place to change it.
-    const roomQuestions = discoveryQuestions.filter(question => question.id !== "opportunity");
-    return essentialCapture ? roomQuestions.filter(question => BASIC_IDS.has(question.id)) : roomQuestions;
-  }, [essentialCapture, discoveryQuestions, BASIC_IDS]);
+  const modeQuestions = useMemo(() => essentialCapture ? discoveryQuestions.filter(question => BASIC_IDS.has(question.id)) : discoveryQuestions, [essentialCapture, discoveryQuestions, BASIC_IDS]);
 
   // A link that names a question is the rep's reason for being here, so the
   // market / environment lead-in does not stand in front of it — the lead-in is a
@@ -343,12 +315,6 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     Boolean(editQuestionId) && modeQuestions.some((question) => question.id === editQuestionId);
   const showMarketContext =
     editingMarketContext || (!environmentId && !namedQuestionOnScreen && (Boolean(marketId) || !selectedApplication));
-
-  useEffect(() => {
-    // Requirement links still name the application answer, but its editor is
-    // the market/environment picker now that no capture mode asks it twice.
-    if (editQuestionId === "opportunity") setEditingMarketContext(true);
-  }, [editQuestionId]);
 
   // Quick-start conflict signals (stranded defaults, application drift).
   const {
@@ -413,8 +379,8 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   // soon as the capture says the room includes one, naming the room it was
   // answered for.
   const videoWallHandoff = useMemo(
-    () => discoveryVideoWallHandoff(answers, discoveryRoomName),
-    [answers, discoveryRoomName],
+    () => discoveryVideoWallHandoff(answers, discoveryRoomName, notes),
+    [answers, discoveryRoomName, notes],
   );
 
   const completionPercent = Math.round((answeredCount / modeQuestions.length) * 100);
@@ -510,12 +476,15 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   }, []);
 
   useEffect(() => {
-    if (projectTopologyHasContent(topology) || !wmDiscoveryHasAnswer(answers.opportunity)) return;
-    const generated = generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication, existing: topology });
+    if (!wmDiscoveryHasAnswer(answers.opportunity)) return;
+    const generated = refreshRoomLayout(answers, notes, topology);
     if (!projectTopologyHasContent(generated)) return;
     setTopology(generated);
     if (!isTemplateAuthoring) writeDiscoveryTopology(generated);
-  }, [answers, notes, selectedApplication, topology]);
+  // Rebuild the Discovery-generated layer as answers arrive. The refresh helper
+  // carries user-confirmed or explicitly selected devices forward.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, notes, selectedApplication]);
 
   useEffect(() => {
     const handoff = entryHandoff;
@@ -824,9 +793,9 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     });
   }
 
-  function buildDiscoveryBrief(notesOverride: DiscoveryNotes = notes): StoredDiscoveryBrief {
+  function buildDiscoveryBrief(): StoredDiscoveryBrief {
     return compileDiscoveryBrief({
-      answers, notes: notesOverride, topology, discoveryQuestions, modeQuestions, basicQuestionIds: BASIC_IDS,
+      answers, notes, topology, discoveryQuestions, modeQuestions, basicQuestionIds: BASIC_IDS,
       progressiveMode, selectedApplication, capturedSummary, opportunityDescription,
       sourceTemplateId, sourceTemplateName, clientName, contactName, siteName, budgetLevel,
       timeline, completionPercent, reviewPosition, confirmedSteps, confidenceByStep,
@@ -840,10 +809,10 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     setSavedMessage("Discovery saved to your project. Continue to product selection or a proposal when ready.");
   }
 
-  function saveDiscoveryToOwningProject(notesOverride: DiscoveryNotes = notes) {
+  function saveDiscoveryToOwningProject() {
     const ownership = discoveryOwnershipRef.current;
     const savedProject = saveDiscoveryBriefToProject(
-      buildDiscoveryBrief(notesOverride),
+      buildDiscoveryBrief(),
       ownership ? ownership.projectId ?? null : undefined,
     );
     discoveryOwnershipRef.current = {
@@ -851,22 +820,6 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
       projectName: savedProject.name,
     };
     return savedProject;
-  }
-
-  function notesWithRoomDecision(): DiscoveryNotes {
-    const nextNotes = { ...notes };
-    const decision = decisionForCapturedRoom(answers);
-    delete nextNotes["room-brief"];
-    if (decision) nextNotes["room-brief"] = roomBriefNote(decision);
-    return nextNotes;
-  }
-
-  function saveExpertDiscoveryToProject(): void {
-    if (isTemplateAuthoring) { saveDiscoveryToProject(); return; }
-    const nextNotes = notesWithRoomDecision();
-    setNotes(nextNotes);
-    saveDiscoveryToOwningProject(nextNotes);
-    setSavedMessage("Discovery and decided-room reading saved to your project. Continue to product selection or a proposal when ready.");
   }
 
   const canSaveCustomTemplate = templateDraftName.trim().length > 0 && wmDiscoveryHasAnswer(answers.opportunity);
@@ -913,12 +866,12 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
     navigate(routeCatalogByKey.templates.path);
   }
 
-  function moveForward(target: "recommendations" | "proposal", notesOverride: DiscoveryNotes = notes): void {
+  function moveForward(target: "recommendations" | "proposal"): void {
     if (isTemplateAuthoring) { setIsReviewingAnswers(true); return; }
     if (!decisionIntegrity.canProceedToRecommendation) {
       setSavedMessage(`Continuing with ${decisionIntegrity.issues.length} open design check${decisionIntegrity.issues.length === 1 ? "" : "s"}. They remain listed as items to confirm.`);
     }
-    saveDiscoveryToOwningProject(notesOverride);
+    saveDiscoveryToOwningProject();
     if (target === "recommendations" && videoWallConfigurationPending) {
       navigate(routeCatalogByKey.videowall.path);
       return;
@@ -972,7 +925,7 @@ return (
 
       {roomBuilder && !isTemplateAuthoring && (
         <DiscoveryCaptureModeSwitch
-          active={essentialCapture || interviewActive ? null : builderActive ? "room-builder" : "detailed"}
+          active={essentialCapture || (interviewActive && isGuided) ? null : builderActive ? "room-builder" : "detailed"}
           onSelect={(mode) => { setDetailedCapture(true); setBuilderActive(mode === "room-builder"); setInterviewActive(false); }}
         />
       )}
@@ -1006,11 +959,10 @@ return (
         </section>
       ) : null}
 
-      {!showMarketContext && ((marketId && environmentId) || selectedApplication) && <DiscoveryMarketContextSummary
+      {!showMarketContext && marketId && environmentId && <DiscoveryMarketContextSummary
         marketId={marketId}
         environmentId={environmentId}
         environmentDetail={wmDiscoveryAnswerToText(answers["environment-detail"])}
-        application={selectedApplicationLabel}
         onEdit={() => setEditingMarketContext(true)}
       />}
 
@@ -1045,28 +997,25 @@ return (
           marketId={marketId}
           environmentId={environmentId}
           onMarketChange={(nextMarket) => {
-            setAnswers((current) => {
-              const next: DiscoveryAnswers = { ...current, market: nextMarket };
-              delete next.environment;
-              return next;
-            });
+            const cleared = clearUnchangedDiscoveryEnvironmentInference(answers, notes);
+            const next: DiscoveryAnswers = {
+              ...cleared.answers,
+              market: nextMarket,
+            };
+            delete next.environment;
+            setAnswers(next);
+            setNotes(cleared.notes);
             if (DISCOVERY_TEMPLATE_MARKET[nextMarket]) setTemplateDraftMarket(DISCOVERY_TEMPLATE_MARKET[nextMarket]);
           }}
           onEnvironmentSelect={(nextEnvironment, suggestedApplication, description) => {
-            const application = suggestedApplication || "not-sure";
-            smartDefaultsApplicationRef.current = application;
-            const contextAnswers = {
-              ...changeDiscoveryApplication(answers, application),
+            const inferred = applyDiscoveryEnvironmentInference(answers, notes, marketId, nextEnvironment);
+            setAnswers({
+              ...inferred.answers,
               environment: nextEnvironment,
               "environment-detail": description ?? "",
-            };
-            const nextAnswers = applyApplicationSmartDefaults(contextAnswers, application);
-            const seededDefaults = Object.fromEntries(
-              Object.entries(nextAnswers).filter(([key]) => !(key in contextAnswers)),
-            ) as Partial<DiscoveryAnswers>;
-            setAnswers(nextAnswers);
-            setAppliedDefaults(seededDefaults);
-            setQuickStartSeed({ application, answers: nextAnswers });
+              ...(!wmDiscoveryHasAnswer(answers.opportunity) && suggestedApplication ? { opportunity: suggestedApplication } : {}),
+            });
+            setNotes(inferred.notes);
             setEditingMarketContext(false);
           }}
         />
@@ -1088,7 +1037,7 @@ return (
           onComplete={() => moveForward("recommendations")} savedMessage={savedMessage}
           designDirection={String(buildDiscoveryBrief().roomModel?.designDirection || "")}
         />
-      ) : interviewActive ? (
+      ) : interviewActive && isGuided ? (
         <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} strandedQuickStart={strandedQuickStart} applicationDrift={quickStartDrift} onOpenStrandedStep={openStrandedStep} onRemoveStranded={removeStrandedQuickStart} />
       ) : (
         <DiscoveryExpertBuilder
@@ -1097,9 +1046,9 @@ return (
           onAnswersChange={setAnswers} onNotesChange={setNotes}
            onConfirm={(id, confirmed) => setConfirmedSteps(previous => ({ ...previous, [id]: confirmed }))}
            onConfirmCaptureSuggestion={confirmCaptureSuggestion}
-          onTopologyChange={handleTopologyChange} onSave={saveExpertDiscoveryToProject}
+          onTopologyChange={handleTopologyChange} onSave={saveDiscoveryToProject}
           onExport={() => { void import("../lib/discoveryBriefExport").then(module => module.exportDiscoveryBriefHtml(buildDiscoveryBrief(), { projectName: existingDiscoveryName })); }}
-          onContinue={() => moveForward("recommendations", notesWithRoomDecision())} savedMessage={savedMessage} initialQuestionId={editQuestionId}
+          onContinue={() => moveForward("recommendations")} savedMessage={savedMessage} initialQuestionId={editQuestionId}
         />
       )}
 

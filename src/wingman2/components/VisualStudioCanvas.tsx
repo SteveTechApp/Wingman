@@ -98,6 +98,14 @@ const statusLabel: Record<string, string> = {
   risk: "Design attention",
 };
 
+const signalLegendItems = [
+  { id: "video", label: "Video", pattern: /video|hdmi|hdbaset|displayport/ },
+  { id: "usb", label: "USB", pattern: /usb|peripheral/ },
+  { id: "network", label: "Network", pattern: /network|lan|ethernet|ip/ },
+  { id: "audio", label: "Audio", pattern: /audio|dante|speaker|microphone/ },
+  { id: "control", label: "Control", pattern: /control|rs-232|ir|cec/ },
+];
+
 const WingmanVisualNode = memo(function WingmanVisualNode({ data }: NodeProps) {
   const nodeData = data as WingmanFlowNodeData;
   const className = typeof nodeData.className === "string" ? nodeData.className : "wm-vs-node-normal";
@@ -173,7 +181,7 @@ const WingmanVisualNode = memo(function WingmanVisualNode({ data }: NodeProps) {
       ) : null}
       <div className="wm-vs-node-status">
         <span aria-hidden="true" />
-        {statusLabel[status] ?? "System device"}
+        {nodeData.statusLabel ?? statusLabel[status] ?? "System device"}
       </div>
     </div>
   );
@@ -207,6 +215,8 @@ function VisualStudioCanvasInner({ model, mode, onSaveAsset }: VisualStudioCanva
   }, [expanded]);
   const { fitView } = useReactFlow();
   const drawingNumber = `WM-${safeFileName(model.id).toUpperCase().slice(0, 18)}`;
+  const usedSignalLegend = signalLegendItems.filter((item) => model.edges.some((edge) => item.pattern.test(edge.label ?? "")));
+  const isProductContext = model.id === "single-product-context";
   const issueDate = new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "2-digit",
@@ -215,7 +225,11 @@ function VisualStudioCanvasInner({ model, mode, onSaveAsset }: VisualStudioCanva
 
   const flowModel = useMemo(() => {
     const flow = buildReactFlowModel(model, mode);
-    if (model.id !== "product-port-view") flow.nodes = flow.nodes.map(node => ({ ...node, position: { x: node.position.x * 1.5, y: node.position.y * 2.1 } }));
+    if (model.id !== "product-port-view") flow.nodes = flow.nodes.map(node => ({
+      ...node,
+      position: { x: node.position.x * 1.5, y: node.position.y * 2.1 },
+      className: model.id === "single-product-context" ? "wm-vs-node-no-ports" : node.className,
+    }));
     return flow;
   }, [model, mode]);
 
@@ -331,13 +345,13 @@ const exportPng = async () => {
         data-print-page={printLayout.page}
         style={{ ["--wm-vs-print-scale" as string]: printLayout.scale }}
       >
-        <div className="wm-vs-canvas-stage">
+        <div className={`wm-vs-canvas-stage ${usedSignalLegend.length ? "" : "wm-vs-canvas-stage-no-legend"}`}>
           <div className="wm-vs-sheet-header" aria-hidden="true">
-            <div className="wm-vs-sheet-brand">
+          <div className="wm-vs-sheet-brand">
               <span>W</span>
               <div>
                 <strong>WYRESTORM</strong>
-                <small>WINGMAN SYSTEM SCHEMATIC</small>
+                <small>{isProductContext ? "WINGMAN PRODUCT CONTEXT" : "WINGMAN SYSTEM SCHEMATIC"}</small>
               </div>
             </div>
             <div className="wm-vs-sheet-title">
@@ -350,13 +364,9 @@ const exportPng = async () => {
             </div>
           </div>
 
-          <div className="wm-vs-signal-legend" aria-hidden="true">
-            <span><i data-signal="video" />Video</span>
-            <span><i data-signal="usb" />USB</span>
-            <span><i data-signal="network" />Network</span>
-            <span><i data-signal="audio" />Audio</span>
-            <span><i data-signal="control" />Control</span>
-          </div>
+          {usedSignalLegend.length ? <div className="wm-vs-signal-legend" aria-hidden="true">
+            {usedSignalLegend.map((item) => <span key={item.id}><i data-signal={item.id} />{item.label}</span>)}
+          </div> : null}
 
           <ReactFlow
             key={`${model.id}-${mode}`}
@@ -383,12 +393,12 @@ const exportPng = async () => {
             <strong>WyreStorm Wingman</strong>
           </div>
           <div>
-            <span>Client</span>
+            <span>{isProductContext ? "Application" : "Client"}</span>
             <strong>To be confirmed</strong>
           </div>
           <div>
-            <span>Project</span>
-            <strong>{model.title}</strong>
+            <span>{isProductContext ? "Source product" : "Project"}</span>
+            <strong>{isProductContext ? model.title.replace(/ product context$/i, "") : model.title}</strong>
           </div>
           <div>
             <span>Drawing number</span>
@@ -400,7 +410,7 @@ const exportPng = async () => {
           </div>
           <div>
             <span>Status</span>
-            <strong>{mode === "technical" ? "Technical · Review before quote" : "Customer concept · Draft"}</strong>
+            <strong>{isProductContext ? "Product context · connections unconfirmed" : mode === "technical" ? "Technical · Review before quote" : "Customer concept · Draft"}</strong>
           </div>
         </div>
       </div>

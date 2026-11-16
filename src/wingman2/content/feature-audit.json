@@ -30,6 +30,14 @@
     ]
   },
   {
+    "routeKey": "productFinder",
+    "status": "wired",
+    "summary": "Product Finder asks for the product function, follows with questions specific to that job, and ranks eligible products against recorded capacity and connection evidence.",
+    "needed": [
+      "Expand governed product-specific technical evidence coverage for exact function and transport fit."
+    ]
+  },
+  {
     "routeKey": "compare",
     "status": "partial",
     "summary": "Compare accepts a plain competitor description or an exact manually selected SKU. The live manual results now run through the deterministic comparison classifier and eligibility ranking before a WyreStorm direction is shown.",

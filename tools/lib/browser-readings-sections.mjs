@@ -89,7 +89,7 @@ export const READING_SECTIONS = [
   {
     id: "guided-wall-start-step",
     title: "Guided wall start step",
-    match: [/^The guided wall wizard's start step/],
+    match: [/^The guided wall wizard starts with the wall type choice/],
   },
   {
     id: "template-save-notice",

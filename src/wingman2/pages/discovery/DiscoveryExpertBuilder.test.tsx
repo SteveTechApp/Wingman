@@ -12,21 +12,19 @@ describe("expert room builder", () => {
       onConfirm={vi.fn()} onConfirmCaptureSuggestion={vi.fn()} onTopologyChange={vi.fn()} onSave={vi.fn()} onExport={vi.fn()} onContinue={vi.fn()} savedMessage="" />);
 
     expect(screen.getByRole("region", { name: "Expert room design" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: /Switching & signal distribution/ }));
-    expect(screen.getByRole("heading", { name: /Source and output positions/ })).toBeVisible();
-    expect(screen.getByRole("heading", { name: "How many source positions are likely?" })).toBeVisible();
-    expect(screen.getByRole("button", { name: /2-4 sources/ })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: /Displays & cameras/ }));
+    expect(screen.getByRole("heading", { name: "Screens, projectors, camera views, positions and use" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "What are the room's primary display(s)?" })).toBeVisible();
+    expect(screen.getByRole("button", { name: /One large flat panel display/ })).toBeVisible();
   });
 
-  it("ends on the decided room the capture describes", () => {
+  it("ends on the decided room reading", () => {
     render(<DiscoveryExpertBuilder questions={getVisibleDiscoveryQuestions("meeting-room", {})}
-      answers={{ opportunity: "meeting-room", "display-behaviour": "independent-routing-per-display", "uc-purpose": ["video-conferencing"] }}
+      answers={{ opportunity: "meeting-room", market: "corporate", "room-occupancy": "12", "display-behaviour": "independent-routing-per-display", "uc-purpose": ["video-conferencing"] }}
       notes={{}} confirmed={{}} topology={createBlankProjectTopology()} issues={[]} onAnswersChange={vi.fn()} onNotesChange={vi.fn()}
       onConfirm={vi.fn()} onConfirmCaptureSuggestion={vi.fn()} onTopologyChange={vi.fn()} onSave={vi.fn()} onExport={vi.fn()} onContinue={vi.fn()} savedMessage="" />);
 
     fireEvent.click(screen.getByRole("button", { name: /Review & validation/ }));
-    // The same reading the focused brief ends on: the type, what it needs and
-    // the reason, what to check, and what would change the answer.
     expect(screen.getByRole("heading", { name: "The decided room" })).toBeVisible();
     expect(screen.getByText("What this room needs")).toBeVisible();
     expect(screen.getByText("Check on site")).toBeVisible();

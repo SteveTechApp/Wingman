@@ -23,10 +23,12 @@ export function resolutionRank(label: unknown): number {
   if (/\b4k\s*@?\s*120(?:\s*hz)?\b|(?:3840|4096|5120)\s*[x×]\s*2160[^;\n]{0,32}\b120\s*hz\b|\b2160p?[^;\n]{0,24}\b120\s*hz\b/.test(t)) return 6;
   // 4K60 4:4:4 (full chroma at 60Hz)
   if (/4k\s*60[^;\n]*(4:4:4|444)|(4:4:4|444)[^;\n]*4k\s*60|(?:3840|4096)\s*[x×]\s*2160[^;\n]{0,40}(?:@?\s*)?60[^;\n]{0,20}(4:4:4|444)|2160p?\s*@?\s*60[^;\n]{0,20}(4:4:4|444)/.test(t)) return 5;
+  // 5K is a distinct spatial tier; keep it below 4K120 and above 4K60.
+  if (/\b5k\b|5120\s*[x×]\s*(?:2880|1440)/.test(t)) return 5.5;
   // 4K60 (any chroma / notation, including "4096x2160p @60Hz")
   if (/4k\s*60|2160p?\s*@?\s*60|(?:3840|4096)\s*[x×]\s*2160[^;\n]{0,32}(?:@?\s*)?60/.test(t)) return 4;
   // 4K30 / generic 4K / UHD
-  if (/4k\s*30|2160p?\s*@?\s*30|(?:3840|4096)\s*[x×]\s*2160|\b4k\b|uhd/.test(t)) return 3;
+  if (/4k\s*30|2160p?\s*@?\s*30|(?:3840|4096)\s*[x×]\s*2160|\b4k\s*[x×]\s*2k\b|\b4k\b|uhd/.test(t)) return 3;
   // 1080p120
   if (/1080p?\s*@?\s*120/.test(t)) return 2.5;
   // 1080p / Full HD

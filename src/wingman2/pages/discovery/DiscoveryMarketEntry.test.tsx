@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { DiscoveryMarketEntry } from "./DiscoveryMarketEntry";
+import { applyDiscoveryEnvironmentInference, clearUnchangedDiscoveryEnvironmentInference, inferDiscoveryEnvironment } from "./discoveryMarketContext";
 
 describe("Discovery market entry", () => {
   it("starts with markets and searches their environments", () => {
@@ -36,5 +37,44 @@ describe("Discovery market entry", () => {
     fireEvent.change(screen.getByPlaceholderText("e.g. Mobile incident support vehicle…"), { target: { value: "Mobile incident support vehicle" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue with this environment" }));
     expect(onEnvironmentSelect).toHaveBeenCalledWith("other", undefined, "Mobile incident support vehicle");
+  });
+
+  it("starts a lecture theatre as a large room with a clearly qualified capacity estimate", () => {
+    const inference = inferDiscoveryEnvironment("education", "lecture");
+    expect(inference.answers).toEqual({ scale: "single-large-room", "room-occupancy": "100" });
+    expect(inference.note).toMatch(/Starting estimate.*capacity is approximate/);
+    expect(inference.note).toMatch(/Confirm the actual number of seats and record measured length, width and height/);
+  });
+
+  it("does not invent room dimensions or capacity for other environments", () => {
+    expect(inferDiscoveryEnvironment("education", "classroom")).toEqual({ answers: {} });
+    expect(inferDiscoveryEnvironment("corporate", "meeting")).toEqual({ answers: {} });
+  });
+
+  it("preserves facts already captured while inferring only the missing lecture-theatre facts", () => {
+    const result = applyDiscoveryEnvironmentInference(
+      { "room-occupancy": "220" },
+      {},
+      "education",
+      "lecture",
+    );
+    expect(result.answers).toMatchObject({ "room-occupancy": "220", scale: "single-large-room" });
+    expect(result.notes.scale).toMatch(/Starting room-scale assumption/);
+    expect(result.notes.scale).not.toMatch(/100 seats/);
+  });
+
+  it("clears only unchanged lecture-theatre assumptions when the market changes", () => {
+    const result = clearUnchangedDiscoveryEnvironmentInference(
+      { scale: "single-large-room", "room-occupancy": "100", "room-length": "24" },
+      { "room-occupancy": "Starting estimate from Education · Lecture theatre: approximately 100 seats." },
+    );
+    expect(result.answers).toEqual({ "room-length": "24" });
+    expect(result.notes).toEqual({});
+
+    const edited = clearUnchangedDiscoveryEnvironmentInference(
+      { scale: "single-large-room", "room-occupancy": "220" },
+      { "room-occupancy": "Starting estimate from Education · Lecture theatre: approximately 100 seats." },
+    );
+    expect(edited.answers).toEqual({ "room-occupancy": "220" });
   });
 });

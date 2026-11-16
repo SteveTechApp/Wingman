@@ -16,7 +16,7 @@ Three jobs follow, and they are the whole product:
    made of, where it is and what market it serves — asked in the customer's own
    words, because the rep is often hearing them for the first time too.
 2. **Choose the WyreStorm answer.** The product or design that does what the room
-   has to do, with the reasons a rep can defend when the price is questioned.
+   has to do, with the technical reasons a rep can explain to the customer.
 3. **Produce the proposal.** The document, its drawing, its schedule, and the
    words that explain the choice — the artefact that leaves the building.
 
@@ -26,6 +26,63 @@ A surface that none of the three needs is the drift this file exists to name,
 because it is not free: it is another thing a rep is expected to learn, another
 place a fact can disagree with itself, and another page that has to keep working
 while the sale does not.
+
+Sometimes the rep needs one product before there is a room to design. Product
+Finder starts from the product function, then follows the questions that
+separate eligible product types. It does not require a Discovery brief or a room
+type; if the need grows into a room design, the handoff opens Expert Discovery.
+
+Each function owns its follow-up path because the facts that decide fit differ:
+
+- **Video wall / multiview:** how displays should present content, then display
+  output scale.
+- **Matrix switching:** input/output scale, then independent, mirrored or hybrid
+  routing behaviour.
+- **Signal extension:** whether the path carries video, USB, both or control/audio,
+  then the approximate run distance.
+- **Source duplication:** number of displays, then whether all show the same
+  source or need independent selection.
+- **AV over IP:** endpoint topology, then network bandwidth or latency needs.
+- **Camera systems:** USB, HDMI or IP/NDI interface, then fixed, PTZ or
+  conferencing/auto-tracking operation.
+- **Presentation / BYOD:** wired or wireless connection method, then presenter,
+  multiview and room-USB behaviour.
+- **Audio:** amplification, processing, distribution or HDMI extraction, then
+  analogue, network or embedded transport.
+- **USB / KVM:** USB speed/device class, then host and device topology.
+- **Control:** controlled equipment, then RS-232, IR/relay or IP interface.
+- **Not sure:** the clearest part of the signal path, then any known connection.
+
+Answers remain optional when the rep does not know. A selected answer can improve
+ranking only when the governed product record contains matching evidence; a
+missing match remains an explicit check rather than a claimed specification.
+Explicit processor requirements and output counts are eligibility checks: a
+general video-wall feature does not establish an LED processor, and a matrix's
+output count must meet the selected display range before it can be recommended.
+Connection priorities are a separate step, so an HDMI or USB-C requirement does
+not stand in for the actual job the product must perform. The result explains
+why it surfaced and what the product record still does not confirm.
+
+A USB connector alone does not show that a product extends or switches USB
+devices; that needs product-specific KVM or USB-extension evidence. HDBaseT
+identifies a transport method, not the supported cable distance, so a distance
+range needs its own product evidence or remains a site check.
+
+Catalogue and Call cards share three different filter readings: product area,
+the role the item performs, and the features or connections it supports.
+Product areas can overlap; a role describes what the item is. Where the product
+record carries structured `productClassification` evidence, both views use its
+category and transport facts before searching display text, so a passing mention
+in a summary cannot make a product appear under the wrong role or connection.
+KVM and exact protocol versions use compact, traceable evidence derived from
+governed technical profiles. HDMI and USB cables stay out of general product
+results, including accessory-inclusive browsing, until the rep selects Cable,
+searches for a cable, or enters its exact SKU.
+
+Product Call Cards and Product Positioning are two depths of one product
+workspace. Focused prepares the customer conversation and captures questions;
+Expert opens the deeper product, technical, competitor and next-step views.
+Both retain the same selected SKU when the rep changes depth.
 
 ## Two depths, because two readers arrive
 
@@ -58,7 +115,7 @@ not the page a rep happened to be on when they finished:
 
 - the room type, in words the customer recognises;
 - the requirements, each carrying the answer that asked for it, because a
-  requirement a rep cannot defend is the first one dropped under price pressure;
+  requirement without a reason is hard for a rep to explain or validate;
 - the checks that still need a site visit;
 - the assumptions the decision took for granted;
 - what would move the room to a different type;
@@ -69,33 +126,24 @@ room that is already decided. A designer who starts in the sections and stops
 early is leaving the same room with fewer answers. Neither move is a restart, and
 neither may strand the record in a shape the other cannot read.
 
-## Why both depths write one decision
+## One decision record, then a proposal draft
 
-The room brief ends by writing the decided room into the discovery handoff: the
-room shape and the display count the decision implies, the decision itself as a
-note, and an address that reopens the capture at the first open question. Those
-are the keys the module can guarantee — a rule it keeps rather than a list it
-grows — so the interview starts from a decided room instead of a blank form.
+Both Discovery depths compile their answers through `compileDiscoveryBrief`,
+which resolves the shared `roomBrief.ts` decision and stores it as
+`StoredDiscoveryBrief.roomDecision`. The record includes the room type,
+requirements with reasons, site checks, assumptions and the answers that would
+change the decision. The proposal reads this record together with the detailed
+room model, including dimensions, site conditions, equipment schedule and
+topology; it does not replace those captured facts with the shorter decision.
+Room scale also constrains the archetype, so a large single-screen meeting room
+is not mislabeled as a huddle room or given an unrequested second screen.
 
-The expert workspace used to capture the same room without writing that record,
-so the type, the reasons, the checks and the changes-if existed for one path and
-not the other: one place to end, two outcomes.
-
-They now write one record, because they ask one engine. The sections answer in
-their own vocabulary — application, people, display behaviour, UC scope, network
-path — and those answers are translated into the facts the ladder asks about, so
-the decision is `resolveRoomBrief` and not a second opinion. Only facts the
-sections actually capture are translated: a partition, a dwell or an operator is
-never asked there, so it stays unresolved and the reading tells the rep what to
-ask instead of inventing an answer. The application the rep captured chooses
-among the rooms those facts still fit, because "video wall" is not a question
-the ladder needs to re-ask; the rooms it could still have been remain listed.
-
-Both surfaces then render `RoomDecisionReading` rather than their own version of
-it, and continuing writes the same `room-brief` note the brief path writes. What
-stays different is the road, not the record: the brief decides in two or three
-questions, the sections let a designer capture what they already know, and a rep
-who moves between them is continuing their room.
+From Recommendations, “Build AV proposal draft” saves the resolved WyreStorm
+roles and refreshes the project's design graph before opening Proposal Builder.
+The draft can carry the customer summary, system architecture, selected products
+and BOM, room/site facts, assumptions and unresolved checks into the printable
+proposal. Unknowns remain visible as checks and readiness items, so the draft is
+not represented as a quote-ready or issued proposal until the rep resolves them.
 
 ## The test this file exists to answer
 

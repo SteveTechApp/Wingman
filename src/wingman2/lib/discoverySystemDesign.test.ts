@@ -143,6 +143,88 @@ describe("a room brief produces a multi-product system, not one SKU", () => {
     );
   });
 
+  it("recognizes an LED primary display selected in Discovery without a Videowall record", () => {
+    const design = buildSystemDesign(brief({
+      primaryDisplayArrangement: "LED video wall",
+      sourceCount: "1",
+      displayCount: "1",
+    }));
+
+    expect(design.architecture).toBe("video-wall");
+    expect(design.slots.find((slot) => slot.kind === "wall-processor")).toEqual(
+      expect.objectContaining({ supply: "external", required: true }),
+    );
+  });
+
+  it("recognizes an LCD primary display selected in Discovery without a Videowall record", () => {
+    const design = buildSystemDesign(brief({
+      primaryDisplayArrangement: "LCD video wall",
+      sourceCount: "1",
+      displayCount: "1",
+    }));
+
+    expect(design.architecture).toBe("video-wall");
+    expect(design.slots.find((slot) => slot.kind === "wall-processor")).toEqual(
+      expect.objectContaining({ supply: "wyrestorm", required: true }),
+    );
+  });
+
+  it("leaves the video-side audio feed on the switcher while audio by others removes audio product slots", () => {
+    const design = buildSystemDesign(brief({
+      sourceCount: "2",
+      displayCount: "1",
+      unifiedCommunicationsRequirement: "Yes - Microsoft Teams",
+      microphoneNeeds: "Microphones by others",
+      audioNeeds: "Room audio system by others",
+      audioPath: "Audio handled by others",
+      audioDesign: {
+        direction: "Room audio design and delivery are by others; Wingman records only the video-system audio handoff.",
+        zoning: "Separate audio system and room coverage are by others.",
+        audioFeed: "switcher-feed-balanced-analogue",
+        signalPath: "Video switching must provide a balanced analogue de-embedded audio output to the separate audio system.",
+      },
+    }));
+
+    expect(design.slots.map((slot) => slot.kind)).toContain("camera");
+    expect(design.slots.map((slot) => slot.kind)).not.toContain("microphone");
+    expect(design.slots.map((slot) => slot.kind)).not.toContain("room-audio");
+    expect(design.slots.find((slot) => slot.kind === "presentation-core")?.derivedFrom.join(" "))
+      .toContain("balanced analogue de-embedded audio output");
+    expect(design.openQuestions).not.toContain("Confirm which audio feed video switching must provide to the separate audio system.");
+  });
+
+  it("keeps an unconfirmed audio-by-others feed as an open switching requirement", () => {
+    const design = buildSystemDesign(brief({
+      sourceCount: "2",
+      displayCount: "1",
+      audioPath: "Audio handled by others",
+      audioDesign: {
+        direction: "Room audio design and delivery are by others.",
+        audioFeed: "switcher-feed-unknown",
+        signalPath: "Video switching audio handoff remains to be confirmed.",
+      },
+    }));
+
+    expect(design.openQuestions).toContain("Confirm which audio feed video switching must provide to the separate audio system.");
+    expect(design.slots.map((slot) => slot.kind)).not.toContain("room-audio");
+  });
+
+  it("does not lose a confirmed switcher audio feed when the video architecture is not yet resolved", () => {
+    const design = buildSystemDesign(brief({
+      sourceCount: "1",
+      displayCount: "1",
+      audioPath: "Audio handled by others",
+      audioDesign: {
+        direction: "Room audio design and delivery are by others.",
+        audioFeed: "switcher-feed-digital",
+        signalPath: "Video switching must provide a digital de-embedded audio output to the separate audio system.",
+      },
+    }));
+
+    expect(design.openQuestions).toContain("Carry the confirmed audio feed into the video-switching product selection.");
+    expect(design.slots.map((slot) => slot.kind)).not.toContain("room-audio");
+  });
+
   it("raises open questions instead of inventing counts", () => {
     const design = buildSystemDesign(brief({ application: "Meeting room" }));
 

@@ -33,9 +33,9 @@ function rejectText(relative, text, label) {
 
 // Discovery topology capture.
 requireText(
-  "src/wingman2/pages/discovery/discoveryQuestions.ts",
+  "src/wingman2/pages/discovery/discoveryQuestionCatalog.ts",
   'id: "locations-connections"',
-  "Combined discovery step",
+  "Governed location and connection question",
 );
 
 requireText(

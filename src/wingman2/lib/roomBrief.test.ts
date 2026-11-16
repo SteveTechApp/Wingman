@@ -4,8 +4,8 @@ import {
   decisionForCapturedRoom,
   nextRoomBriefQuestion,
   resolveRoomBrief,
-  roomArchetypes,
   roomBriefAnswersFromDiscovery,
+  roomArchetypes,
   roomBriefDiscoveryAnswers,
   roomBriefNote,
   setupArchetypes,
@@ -49,10 +49,9 @@ describe("setup", () => {
 
 describe("question choice", () => {
   it("asks what divides the remaining rooms most evenly, not what comes first", () => {
-    // Seven genres of room are still possible, and `reach` splits them 2/3
-    // while `far-end` — first in the list — splits them 1/5.
+    // Video direction is always confirmed before the remaining room-type split.
     const next = nextRoomBriefQuestion(answer({ purpose: "show-many" }));
-    expect(next?.id).toBe("reach");
+    expect(next?.id).toBe("far-end");
   });
 
   it("does not re-ask a question it has an answer to", () => {
@@ -62,7 +61,7 @@ describe("question choice", () => {
   });
 
   it("stops asking once one room is left", () => {
-    expect(nextRoomBriefQuestion(answer({ purpose: "campus" }))).toBeNull();
+    expect(nextRoomBriefQuestion(answer({ purpose: "campus", "far-end": "no" }))).toBeNull();
   });
 
   it("stops rather than guessing between rooms no question separates", () => {
@@ -82,10 +81,17 @@ describe("question choice", () => {
 function pathTo(archetypeId: string): Record<string, string> {
   const purposes = ["present", "meet", "teach", "show-many", "address-crowd", "signage", "campus"];
   const answers: Record<string, string> = {
-    occupancy: "medium",
+    occupancy: archetypeId === "huddle-byod" ? "squad" : "medium",
     purpose: purposes.find((purpose) => setupArchetypes({ purpose }).includes(archetypeId as never)) ?? "",
   };
+  // Video direction is a required brief fact on every path. Seed the simplest
+  // supported answer here so reachability tests focus on room classification.
+  const direction = ROOM_BRIEF_QUESTIONS.find((question) => question.id === "far-end");
+  const directionOption = direction?.options.find((option) => option.value === "no" && option.supports.includes(archetypeId as never))
+    ?? direction?.options.find((option) => option.value === "yes" && option.supports.includes(archetypeId as never));
+  if (directionOption) answers["far-end"] = directionOption.value;
   for (const question of ROOM_BRIEF_QUESTIONS) {
+    if (answers[question.id]) continue;
     if (!survivingArchetypes(answers).includes(archetypeId as never)) break;
     const option = question.options.find((candidate) => candidate.supports.includes(archetypeId as never));
     if (option) answers[question.id] = option.value;
@@ -182,35 +188,35 @@ describe("the ladder's length", () => {
       room: "a huddle",
       seed: { purpose: "present", occupancy: "squad" },
       says: { screens: "same", "far-end": "sometimes" },
-      asks: ["screens", "far-end"],
+      asks: ["far-end", "screens"],
       lands: "huddle-byod",
     },
     {
       room: "a divisible boardroom",
       seed: { purpose: "present", occupancy: "medium" },
       says: { screens: "different", "far-end": "yes", partition: "yes" },
-      asks: ["screens", "far-end", "partition"],
+      asks: ["far-end", "screens", "partition"],
       lands: "divisible-boardroom",
     },
     {
       room: "a teaching room",
       seed: { purpose: "teach", occupancy: "medium" },
-      says: { partition: "no", "far-end": "no" },
-      asks: ["partition", "far-end"],
+      says: { partition: "no", "far-end": "yes", record: "no" },
+      asks: ["far-end", "partition", "record"],
       lands: "classroom",
     },
     {
       room: "a control room",
       seed: { purpose: "show-many", occupancy: "medium" },
-      says: { reach: "yes", "far-end": "yes" },
-      asks: ["reach", "far-end"],
+      says: { reach: "yes", "far-end": "yes", partition: "no" },
+      asks: ["far-end", "partition", "reach"],
       lands: "control-room",
     },
     {
       room: "a hospitality venue",
       seed: { purpose: "signage", occupancy: "large" },
-      says: { screens: "different", reach: "yes" },
-      asks: ["screens", "reach"],
+      says: { screens: "different", reach: "yes", "far-end": "no" },
+      asks: ["far-end", "reach"],
       lands: "venue",
     },
   ];
@@ -368,5 +374,50 @@ describe("reachability", () => {
       const answers = pathTo(archetype.id);
       expect(survivingArchetypes(answers)).toContain(archetype.id);
     }
+  });
+});
+
+describe("the captured room", () => {
+  it("reads the capture's answers into the facts the ladder asks about", () => {
+    expect(roomBriefAnswersFromDiscovery({
+      opportunity: "meeting-room", "room-occupancy": "12", "display-behaviour": "independent-routing-per-display",
+      "uc-purpose": ["video-conferencing", "recording-streaming"], "network-path": "corporate-av-vlan",
+    })).toMatchObject({ purpose: "present", occupancy: "medium", screens: "different", "far-end": "yes", record: "yes", reach: "yes" });
+  });
+
+  it("leaves facts the capture never asked unset", () => {
+    expect(roomBriefAnswersFromDiscovery({ opportunity: "meeting-room" })).toEqual({ purpose: "present" });
+  });
+
+  it("decides a dual-screen meeting room from captured display and call needs", () => {
+    const decision = decisionForCapturedRoom({ opportunity: "meeting-room", "display-behaviour": "independent-routing-per-display", "uc-purpose": ["video-conferencing"] });
+    expect(decision?.archetype).toBe("meeting-dual");
+    expect(decision?.requirements.length).toBeGreaterThan(1);
+  });
+
+  it("keeps a small presentation room a huddle room when no conferencing is required", () => {
+    const decision = decisionForCapturedRoom({
+      opportunity: "meeting-room",
+      scale: "single-small-room",
+      "display-behaviour": "same-content-all-displays",
+      "uc-purpose": ["no-uc"],
+    });
+    expect(decision?.archetype).toBe("huddle-byod");
+    expect(decision?.requirements.some((requirement) => requirement.key === "uc")).toBe(false);
+  });
+
+  it("lands on a video-wall decision rather than the first broader room that remains", () => {
+    const decision = decisionForCapturedRoom({ opportunity: "video-wall" });
+    expect(decision?.archetype).toBe("signage-wall");
+  });
+
+  it("uses the exact people count when sizing a captured room", () => {
+    const decision = decisionForCapturedRoom({ opportunity: "meeting-room", "room-occupancy": "8", "uc-purpose": ["video-conferencing"] });
+    expect(decision?.requirements.find((requirement) => requirement.key === "uc")?.because).toContain("five to ten");
+  });
+
+  it("does not decide when Discovery has not named a room application", () => {
+    expect(decisionForCapturedRoom({})).toBeNull();
+    expect(decisionForCapturedRoom({ opportunity: "not-sure" })).toBeNull();
   });
 });

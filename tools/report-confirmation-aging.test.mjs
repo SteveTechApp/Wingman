@@ -95,11 +95,21 @@ describe("confirmation-aging reporter core", () => {
     expect(tierBoundary.unconfirmedCount).toBe(2);
   });
 
-  it("reports the clean live dataset: zero backlog after the A1 confirmation passes", () => {
+  it("reports the live review backlog without aging profiles", () => {
     const result = assessConfirmationAging(profilesData, agingConfig, new Date());
-    expect(result.unconfirmedCount).toBe(0);
-    expect(result.aging.length).toBe(0);
-    expect(result.overdue.length).toBe(0);
+    expect(result.unconfirmedCount).toBe(24);
+    expect(result.aging.map(({ sku }) => sku).sort()).toEqual([
+      "APO-SKY-MIC",
+      "EX-100-KVM-H2",
+      "EX-40-KVM-H2",
+      "EX-80-KVM",
+    ]);
+    expect(result.overdue.map(({ sku }) => sku).sort()).toEqual([
+      "APO-SKY-MIC",
+      "EX-100-KVM-H2",
+      "EX-40-KVM-H2",
+      "EX-80-KVM",
+    ]);
   });
 });
 

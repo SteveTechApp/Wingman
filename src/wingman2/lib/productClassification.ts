@@ -368,6 +368,8 @@ type TechnicalProfileLike = {
       connector?: unknown;
       direction?: unknown;
       category?: unknown;
+      detail?: unknown;
+      evidence?: unknown;
     }>;
   };
   usb?: {
@@ -428,6 +430,7 @@ function governedIoCounts(tp: TechnicalProfileLike | null) {
   const ports = Array.isArray(tp?.io?.ports) ? tp.io.ports : [];
   const connectorSet = new Set<string>();
   if (!ports.length) return { inputs: null, outputs: null, connectors: [] };
+  const profileTransports = Array.isArray(tp?.transports) ? tp.transports.map(clean).join(" ") : "";
 
   let inputs = 0;
   let outputs = 0;
@@ -437,7 +440,17 @@ function governedIoCounts(tp: TechnicalProfileLike | null) {
     if (family) connectorSet.add(family);
 
     const category = clean(port.category).toLowerCase();
-    if (category !== "video") continue;
+    const connector = clean(port.connector).toLowerCase();
+    const evidence = `${clean(port.detail)} ${clean(port.evidence)}`.toLowerCase();
+    // Some manufacturer tables classify USB-C as a USB port even when that
+    // port also carries video (Alt Mode/MST). Count it as a video source only
+    // when the captured port evidence explicitly says so; never count USB
+    // peripheral/device ports as routed video inputs.
+    const videoPort = category === "video" || (
+      category === "usb" && connector.includes("usb-c") &&
+      /video|alt[ -]?mode|mst/.test(`${evidence} ${profileTransports.toLowerCase()}`)
+    );
+    if (!videoPort) continue;
 
     const count = Number(port.count || 0);
     if (!Number.isFinite(count) || count <= 0) continue;
@@ -574,6 +587,7 @@ function inferProductClassBySkuPrefix(sku: string, text: string): WingmanProduct
   }
 
   if (startsAny(sku, ["SYN-", "CTL-"])) return "control-interface";
+  if (startsAny(sku, ["TS-"])) return "control-interface";
 
   if (startsAny(sku, ["RX-"])) return "receiver";
   if (startsAny(sku, ["TX-"])) return "transmitter";

@@ -60,7 +60,7 @@ export const REPO_PATH_PATTERNS = [
     id: "absolute-windows",
     // A drive letter at a word boundary, so `https://` is not read as one: the
     // `p:` there follows a letter, and a URL is not a path into the repository.
-    pattern: /(?<![\w])[A-Za-z]:[\\/][\w@.\\/ -]{2,}/g,
+    pattern: /(?<![\w?:])[A-Za-z]:[\\/][\w@.\\/ -]{2,}/g,
   },
   {
     id: "absolute-posix",

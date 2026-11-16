@@ -94,15 +94,14 @@ describe("template review survey fixes", () => {
       </MemoryRouter>,
     );
     fireEvent.click(screen.getByRole("tab", { name: "Proposal" }));
-    // A short survey is an assumption the document labels, so the walk opens on
-    // the unpriced lines and the cells are one stage along.
-    fireEvent.click(screen.getByTestId("template-preissue-assumptions"));
+    // Survey gaps are technical blockers, so the walk exposes the matching
+    // correction fields in its technical-checks stage.
+    fireEvent.click(screen.getByTestId("template-preissue-blockers"));
 
     // The warning says the survey is short, and the same cells the proposal
     // offers are on the template page, one row per short link.
     expect(screen.getByText(/Survey incomplete/)).not.toBeNull();
     for (const gap of gaps) {
-      expect(screen.getByTestId("template-proposal-pricing")).not.toBeNull();
       for (const field of gap.missing) {
         const label = { enclosure: "Display housing", entry: "Run entry", termination: "Termination" }[field];
         expect(screen.queryByLabelText(`${label} for ${gap.link}`)).not.toBeNull();

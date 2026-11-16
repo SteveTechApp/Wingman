@@ -2,6 +2,8 @@ type Answers = Record<string, string | string[]>;
 export type DiscoveryAudioScope = { key: string; description: string; notes: string };
 export type DiscoveryAudioDesign = {
   direction: string; basis: string; signalPath: string; zoning: string;
+  /** The one video-side audio handoff selected when room audio is by others. */
+  audioFeed?: string;
   /**
    * The programme-audio path the rep recorded: what the sound is taken from
    * and where it must arrive. Optional because designs saved before the route
@@ -36,6 +38,11 @@ export const DISCOVERY_AUDIO_DESTINATION_PHRASES: Record<string, string> = {
   "route-to-dante": "the Dante / AES67 audio network",
   "route-to-display-speakers": "the display's own speakers",
 };
+export const DISCOVERY_AUDIO_SWITCHER_FEED_PHRASES: Record<string, string> = {
+  "switcher-feed-embedded": "embedded audio that follows the selected video",
+  "switcher-feed-balanced-analogue": "a balanced analogue de-embedded audio output",
+  "switcher-feed-digital": "a digital de-embedded audio output",
+};
 function phraseList(values: string[], phrases: Record<string, string>): string {
   const named = values.map((value) => phrases[value]).filter(Boolean);
   return named.length > 1 ? `${named.slice(0, -1).join(", ")} and ${named[named.length - 1]}` : named[0] ?? "";
@@ -49,6 +56,23 @@ export function discoveryHasAudio(answers: Answers): boolean {
 export function deriveDiscoveryAudioDesign(answers: Answers, notes: Record<string, string> = {}): DiscoveryAudioDesign | undefined {
   if (!discoveryHasAudio(answers)) return undefined;
   const has = (key: string, value: string) => values(answers, key).includes(value);
+  if (has("audio", "audio-by-others")) {
+    const selectedFeed = values(answers, "audio-route").find((value) => value.startsWith("switcher-feed-"));
+    const feed = selectedFeed ? DISCOVERY_AUDIO_SWITCHER_FEED_PHRASES[selectedFeed] : undefined;
+    const validation = selectedFeed === "switcher-feed-unknown" || !selectedFeed
+      ? ["Confirm the audio handoff required from video switching with the separate audio-system designer."]
+      : [];
+    const handoff = feed ? `Video switching must provide ${feed} to the separate audio system.` : "Video switching audio handoff remains to be confirmed with the separate audio-system designer.";
+    return {
+      direction: "Room audio design and delivery are by others; Wingman records only the video-system audio handoff.",
+      basis: notes["audio-route"] || "The separate audio system is designed by others.",
+      signalPath: handoff,
+      zoning: "Separate audio system and room coverage are by others.",
+      audioFeed: selectedFeed,
+      requiredScope: [],
+      validation,
+    };
+  }
   const uc = has("uc-purpose", "video-conferencing") || has("uc-purpose", "conferencing-recording");
   const zones = has("audio-zones", "independent-audio-zones") || has("audio-zones", "combinable-audio-zones");
   const combine = has("audio-zones", "combinable-audio-zones");
@@ -87,7 +111,7 @@ export function deriveDiscoveryAudioDesign(answers: Answers, notes: Record<strin
         : full ? "A correctly sized programme loudspeaker system should deliver the requested music/film range."
           : "A modest room loudspeaker pair or verified integrated playback system may meet this local requirement.";
     add("speakers", split ? "Programme speakers plus separate 70/100V speech speakers" : line ? "70/100V ceiling or surface loudspeaker circuits" : "Room programme loudspeakers and mounting", "Confirm coverage positions and quantities by survey; include brackets/backcans, safety fixings, cable circuits and appropriate environmental ratings. Full-range/subwoofer output is required only where the listening brief calls for it.");
-    add("amplification", "Amplifier channels matched to each speaker circuit", "Schedule independent channels for every audio zone. Sum transformer taps per 70/100V channel and allow suitable power/cable-loss margin; verify impedance and power handling for low-Z speakers. AMP-2120-DNT high-Z mono and low-Z stereo are alternative operating modes, so a split system needs separate amplification. Record actual models and loading before pricing.");
+    add("amplification", "Amplifier channels matched to each speaker circuit", "Schedule independent channels for every audio zone. Sum transformer taps per 70/100V channel and allow suitable power/cable-loss margin; verify impedance and power handling for low-Z speakers. AMP-2120-DNT high-Z mono and low-Z stereo are alternative operating modes, so a split system needs separate amplification. Record actual models and loading before finalising the system design.");
   }
   const zoning = combine ? "Each partition needs independent source, volume, mute and microphone routing, with partition-aware combined presets."
     : zones ? "Each named area independently selects its programme feed and controls level/mute; video changes must not alter unrelated audio zones."
@@ -111,7 +135,7 @@ export function deriveDiscoveryAudioDesign(answers: Answers, notes: Record<strin
           : undefined;
   const signalPath = uc ? "Near-end microphones → AEC DSP or verified integrated device → USB transmit to the active meeting host. Far-end USB return → room playback and AEC reference; exclude that return from the transmit mix. Route local voice lift separately with commissioned gain/delay."
     : "Programme feeds and microphones → input interfaces/mixer/DSP → independent zone amplification or powered specialist arrays → loudspeakers. Provide separate recorded/assistive mixes and align audio with the displayed picture where required.";
-  const validation = ["Confirm actual dimensions, construction, ceiling height, seating depth, acoustic targets and source/listening-zone schedules.", "Quantity-one third-party rows are whole-system allowances; resolve supplier/model, speaker/channel counts, cable circuits and measured treatment area before pricing."];
+  const validation = ["Check the shared room dimensions and site conditions; confirm seating coverage, acoustic conditions and source/listening-zone schedules.", "Quantity-one third-party rows are whole-system allowances; resolve supplier/model, speaker/channel counts, cable circuits and measured treatment area before finalising the system design."];
   for (const key of ["audio-zones", "audio-programme", "room-acoustics"]) if (!values(answers, key).length || values(answers, key).some((v) => v.startsWith("unknown-"))) validation.push(`Confirm ${key === "audio-zones" ? "audio zones and independent source controls" : key === "audio-programme" ? "speech, programme and performance expectations" : "acoustic conditions and existing treatment"}.`);
   if (zones && !notes["audio-zones"]?.trim()) validation.push("Record the number and names of audio zones and their independent source feeds.");
   // A half-recorded route is a question, not a default: the design must not
@@ -126,6 +150,6 @@ export function deriveDiscoveryAudioDesign(answers: Answers, notes: Record<strin
 export function readDiscoveryAudioDesign(value: unknown): DiscoveryAudioDesign | undefined {
   if (!value || typeof value !== "object") return undefined;
   const a = value as DiscoveryAudioDesign;
-  if (![a.direction, a.basis, a.signalPath, a.zoning].every((s) => typeof s === "string") || (a.route !== undefined && typeof a.route !== "string") || (a.extraction !== undefined && typeof a.extraction !== "string") || (a.destinations !== undefined && (!Array.isArray(a.destinations) || !a.destinations.every((s) => typeof s === "string"))) || !Array.isArray(a.validation) || !a.validation.every((s) => typeof s === "string") || !Array.isArray(a.requiredScope) || !a.requiredScope.every((s) => s && [s.key, s.description, s.notes].every((v) => typeof v === "string"))) return undefined;
+  if (![a.direction, a.basis, a.signalPath, a.zoning].every((s) => typeof s === "string") || (a.audioFeed !== undefined && typeof a.audioFeed !== "string") || (a.route !== undefined && typeof a.route !== "string") || (a.extraction !== undefined && typeof a.extraction !== "string") || (a.destinations !== undefined && (!Array.isArray(a.destinations) || !a.destinations.every((s) => typeof s === "string"))) || !Array.isArray(a.validation) || !a.validation.every((s) => typeof s === "string") || !Array.isArray(a.requiredScope) || !a.requiredScope.every((s) => s && [s.key, s.description, s.notes].every((v) => typeof v === "string"))) return undefined;
   return a;
 }

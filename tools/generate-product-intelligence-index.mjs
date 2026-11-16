@@ -31,10 +31,10 @@ async function loadClassificationCorrections() {
 
 function applyClassificationCorrection(sku, classification) {
   const correction = classificationCorrections.get(String(sku ?? "").toUpperCase());
-  if (!correction || !classification) return classification;
+  if (!correction) return classification;
 
   return {
-    ...classification,
+    ...(classification && typeof classification === "object" ? classification : {}),
     ...correction.set,
     correctedBy: "data/catalog/product-classification-corrections.json",
     correctionReason: correction.reason ?? "",
@@ -140,6 +140,156 @@ function cleanText(value) {
 
 function normaliseText(value) {
   return cleanText(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function exactProtocolVersions(values, protocol) {
+  const versions = new Set();
+  for (const value of values) {
+    const text = cleanText(value);
+    const expression = protocol === "USB"
+      ? /\bUSB\s*([23])\.([0-9])(?:\s*GEN\s*[12])?\b/gi
+      : protocol === "HDMI"
+        ? /\bHDMI(?:\s*\(\s*v?|\s+v?)([12])\.([0-9])(?:[a-z])?\b/gi
+        : /\bHDBaseT\s*([123])\.0\b/gi;
+    for (const match of text.matchAll(expression)) {
+      if (protocol === "HDMI") {
+        versions.add(`${match[1]}.${match[2]}`);
+      } else if (protocol === "USB") {
+        // The USB 3.x family is backward compatible; its 3.1/3.2 source
+        // evidence satisfies the catalogue's USB 3.0 capability facet while
+        // evidence strings below retain the exact cited protocol version.
+        versions.add(match[1] === "2" ? "2.0" : "3.0");
+      } else {
+        versions.add(`${match[1]}.0`);
+      }
+    }
+  }
+  return [...versions].sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
+}
+
+function profileTechnicalLines(profile) {
+  return asArray(profile?.evidence?.technicalLines);
+}
+
+function profileUsbPorts(profile) {
+  const ports = Array.isArray(profile?.io?.ports) ? profile.io.ports : [];
+  return ports.filter((port) => {
+    const text = [port?.connector, port?.category, port?.detail, port?.evidence].map(asString).join(" ");
+    return /\busb\b/i.test(text)
+      && !/power\s+(?:supply|cable)|charging|power-only/i.test(text)
+      && !/\b(?:category\s*[:=]?\s*)power\b/i.test(text);
+  });
+}
+
+/**
+ * Emit only product capability facts supported by the governed technical
+ * profile. Search tags and marketing summaries are intentionally excluded:
+ * those can contain inferred taxonomy labels such as "KVM / USB extension".
+ */
+export function buildProductCapabilityEvidence(product) {
+  const profile = product?.technicalProfile && typeof product.technicalProfile === "object"
+    ? product.technicalProfile
+    : {};
+  const classification = product?.productClassification && typeof product.productClassification === "object"
+    ? product.productClassification
+    : {};
+  const lines = profileTechnicalLines(profile);
+  const ports = profileUsbPorts(profile);
+  const usbProfile = profile.usb && typeof profile.usb === "object" ? profile.usb : {};
+  const usbRoles = asArray(usbProfile.roles);
+  const usbVersionSources = [
+    ...asArray(usbProfile.versions),
+    ...lines,
+  ];
+  const usbVersions = exactProtocolVersions(usbVersionSources, "USB");
+  const usbVersionEvidence = unique(usbVersionSources
+    .filter((value) => /\bUSB\s*[23]\.\d(?:\s*GEN\s*[12])?\b/i.test(value))
+    .map((value) => `${value} (technical profile)`));
+  const productName = asString(product?.name);
+  const classificationText = [
+    classification.category,
+    classification.subCategory,
+    classification.productType,
+    ...(Array.isArray(classification.subClassifications) ? classification.subClassifications : []),
+  ].map(asString).join(" ");
+  const isCableOrUsbHub = /\bcable\b/i.test(classificationText)
+    || /\b(?:usb[-\s]?hub|hub)\b/i.test(classificationText)
+    || /\bcable\b/i.test(productName)
+    || /\busb\s+(?:3(?:\.\d)?\s+)?hub\b/i.test(productName);
+  const usbEvidence = unique([
+    ...usbVersionEvidence,
+    ...ports.map((port) => asString(port.evidence || port.detail || port.connector)),
+    ...lines.filter((line) => /\bUSB(?=\s|[23]|\b)/i.test(line)
+      && /\b(?:host|device|peripheral|hid|keyboard|mouse|touchscreen|pass.?through|rout(?:e|ing)|switch(?:ing)?)\b/i.test(line)
+      && !/power\s+(?:supply|cable)|charging/i.test(line)),
+    ...usbRoles.filter((role) => /\b(?:host|device|peripheral|hid|kvm)\b/i.test(role)),
+  ]);
+  const profileUsbTransport = asArray(profile.transports).some((transport) =>
+    /\bUSB\s*(?:[23]\.0|3\.1|3\.2)\b|USB routing\s*\/\s*switching|USB-C video input/i.test(transport),
+  );
+  const usbCVideoInput = asArray(profile.transports).filter((transport) => /USB-C video input/i.test(transport));
+  usbEvidence.push(...usbCVideoInput);
+  const usbPresent = usbEvidence.length > 0 || (usbVersions.length > 0 && profileUsbTransport);
+
+  const kvmEvidence = unique(isCableOrUsbHub ? [] : [
+    ...lines.filter((line) => /\bKVM\b/i.test(line)
+      && /\b(?:keyboard|mouse|touchscreen|hid|pass.?through|functionality|applications?|rout(?:e|ing)|switch(?:ing)?)\b/i.test(line)),
+    ...lines.filter((line) => /\bUSB(?=\s|[23]|\b)/i.test(line)
+      && /\b(?:HID|keyboard|mouse|touchscreen)\b/i.test(line)
+      && /\b(?:pass.?through|extension|rout(?:e|ing)|switch(?:ing)?)\b/i.test(line)),
+    ...lines.filter((line) => /\bUSB(?=\s|[23]|\b)/i.test(line)
+      && /\b(?:bidirectional|pass.?through|extension|rout(?:e|ing)|switch(?:ing)?)\b/i.test(line)
+      && /\b(?:webcams?|touchscreens?|microphones?|peripherals?|devices?)\b/i.test(line)),
+    ...usbRoles.filter((role) => /\b(?:KVM|HID)\b/i.test(role))
+      .map((role) => `${role} (technical profile USB role)`),
+  ]);
+  const identity = [product?.sku, product?.name].map(asString).filter(Boolean);
+  const identityKvmEvidence = !isCableOrUsbHub && usbPresent && identity.some((value) => /\bKVM\b/i.test(value))
+    ? identity.filter((value) => /\bKVM\b/i.test(value)).map((value) => `KVM product identity: ${value}`)
+    : [];
+  kvmEvidence.push(...identityKvmEvidence);
+  const kvmSupported = usbPresent && kvmEvidence.length > 0;
+
+  const hdmiSource = [
+    ...asArray(profile.video?.standards),
+    ...lines,
+  ];
+  const hdbasetSource = [
+    ...asArray(profile.transports),
+    ...lines,
+  ];
+  const ethernetSource = [
+    ...asArray(profile.network?.linkSpeeds),
+    ...lines,
+  ];
+  const ethernetSpeeds = unique(ethernetSource.flatMap((value) => {
+    const found = [];
+    if (/\b(?:1\s*GbE|1000\s*Base-T|1\s*Gigabit\s+Ethernet)\b/i.test(value)) found.push("1GbE");
+    if (/\b(?:10\s*GbE|10GBase-T|10\s*Gigabit\s+Ethernet)\b/i.test(value)) found.push("10GbE");
+    return found;
+  }));
+
+  // A structured USB classification is corroboration, not enough by itself:
+  // several imported categories accidentally call non-USB extenders USB/KVM.
+  const classifiedUsb = asArray(classification.transportClass).some((transport) =>
+    /^USB(?:$|[-\s])/i.test(transport),
+  );
+  const corroboratedUsbPresent = usbPresent || (classifiedUsb && (usbVersions.length > 0 || ports.length > 0));
+
+  return {
+    usb: {
+      present: corroboratedUsbPresent,
+      versions: usbVersions,
+      evidence: usbEvidence,
+    },
+    kvm: {
+      supported: corroboratedUsbPresent && kvmSupported,
+      evidence: kvmEvidence,
+    },
+    hdmiVersions: exactProtocolVersions(hdmiSource, "HDMI"),
+    hdbasetVersions: exactProtocolVersions(hdbasetSource, "HDBaseT"),
+    ethernetSpeeds,
+  };
 }
 
 function textIncludesAny(text, terms) {
@@ -695,6 +845,7 @@ function normalizeProduct(item, index, sourceFile) {
     technologyType: asString(item?.technologyType),
     hardwareType: asString(item?.hardwareType),
     productClassification,
+    technicalEvidence: buildProductCapabilityEvidence({ technicalProfile, productClassification }),
     classificationPath,
     subClassifications,
     ...routedIoFields,
@@ -775,6 +926,11 @@ function buildIndex(products, discoveredSources) {
 
 function buildSplitIndexes(index) {
   const details = {};
+  const normalizedSkuCounts = new Map();
+  for (const product of index.products) {
+    const normalized = String(product.sku || product.id).toUpperCase().replace(/[^A-Z0-9]+/g, "");
+    normalizedSkuCounts.set(normalized, (normalizedSkuCounts.get(normalized) ?? 0) + 1);
+  }
   const products = index.products.map((product) => {
     const summary = {};
     const detail = {};
@@ -787,7 +943,12 @@ function buildSplitIndexes(index) {
       presentSections,
       missingSections: [...deferredDetailFields].filter((field) => !presentSections.includes(field)),
     };
-    details[String(product.sku || product.id).toUpperCase().replace(/[^A-Z0-9]+/g, "")] = detail;
+    const sku = String(product.sku || product.id).trim().toUpperCase();
+    const normalized = sku.replace(/[^A-Z0-9]+/g, "");
+    const key = normalizedSkuCounts.get(normalized) > 1
+      ? `${normalized}__${sku.replace(/[^A-Z0-9]+/g, "_")}`
+      : normalized;
+    details[key] = key.includes("__") ? { ...detail, __manifestSku: sku } : detail;
     return summary;
   });
   return { summary: { ...index, products }, details };
@@ -933,8 +1094,13 @@ async function main() {
   for (const [key, detail] of Object.entries(splitIndexes.details)) {
     if (!key || detail._quality.presentSections.length === 0) throw new Error(`Invalid deferred detail record: ${key || "missing key"}`);
     const fileName = `${key.toLowerCase()}.json`;
-    const content = `${JSON.stringify(detail)}\n`;
-    detailManifest[key] = { path: `/product-intelligence-details/${fileName}`, bytes: Buffer.byteLength(content) };
+    const manifestSku = detail.__manifestSku;
+    const { __manifestSku: _manifestSku, ...detailPayload } = detail;
+    if (manifestSku) detailPayload.sku = manifestSku;
+    const content = `${JSON.stringify(detailPayload)}\n`;
+    const entry = { path: `/product-intelligence-details/${fileName}`, bytes: Buffer.byteLength(content) };
+    if (manifestSku) entry.sku = manifestSku;
+    detailManifest[key] = entry;
     await writeFileEnsured(path.join(detailDirectory, fileName), content);
   }
   const expectedFiles = new Set(Object.values(detailManifest).map((entry) => path.basename(entry.path)));
@@ -958,8 +1124,10 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error("[product-intelligence-index] Generation failed.");
-  console.error(error);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  main().catch((error) => {
+    console.error("[product-intelligence-index] Generation failed.");
+    console.error(error);
+    process.exit(1);
+  });
+}

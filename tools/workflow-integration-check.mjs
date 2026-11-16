@@ -78,8 +78,9 @@ async function checkProtectedBackendRoutes() {
 }
 
 assertSourceContains("src/wingman2/lib/documentExtract.ts", [
-  "pdfjs-dist/legacy/build/pdf.mjs",
-  "mammoth/mammoth.browser",
+  "pdfjs-dist/build/pdf.mjs",
+  "extractDocxText",
+  'import("jszip")',
   "extractDocuments",
 ]);
 assertSourceContains("src/wingman2/lib/proposalExport.ts", [
