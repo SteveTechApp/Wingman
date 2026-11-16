@@ -125,13 +125,50 @@ describe("complete deployment concepts", () => {
         const outputs = template.bom.filter((r) => r.role === "Display decoder").reduce((n, r) => n + r.qty, 0);
         expect(sources).toBe(c.sourceCount); expect(outputs).toBe(c.outputCount);
         const switches = template.bom.find((r) => r.sku === "BY-OTHERS-AV-SWITCH")!;
-        expect(switches.qty * 24).toBeGreaterThanOrEqual(Math.ceil((sources + outputs + 3) * 1.2));
+        const usbEndpoints = c.transport === "nhd500" && c.capabilities.includes("uc") ? 2 : 0;
+        expect(switches.qty * 24).toBeGreaterThanOrEqual(Math.ceil((sources + outputs + 3 + usbEndpoints) * 1.2));
         expect(template.bom.some((r) => r.sku === "BY-OTHERS-ROOM-CONTROL")).toBe(true);
       }
     }
     const boardroom = roomTemplates.find((t) => t.id === "corporate-boardroom-networkhd500")!;
     expect(boardroom.concept).toMatchObject({ transport: "matrix4", sourceCount: 4, outputCount: 3 });
     expect(boardroom.bom.find((r) => r.role === "Display extension set")?.qty).toBe(3);
+  });
+  it("attributes compatible WyreStorm options to the room jobs that can use them", () => {
+    const boardroom = roomTemplates.find((template) => template.id === "corporate-boardroom-networkhd500")!;
+    expect(boardroom.bom.find((row) => row.sku === "CAM-210-PTZ")).toMatchObject({ type: "Optional", status: "optional", owner: "wyrestorm" });
+    expect(boardroom.bom.find((row) => row.sku === "SW-640L-TX-W")).toMatchObject({ type: "Optional", owner: "wyrestorm" });
+    const networkHd = roomTemplates.find((template) => template.id === "hospitality-sports-bar-networkhd")!;
+    expect(networkHd.bom.find((row) => row.sku === "BY-OTHERS-ROOM-CONTROL")?.notes)
+      .toContain("free NetworkHD Touch App");
+    expect(networkHd.bom.find((row) => row.sku === "BY-OTHERS-ROOM-CONTROL")?.notes)
+      .toContain("third-party control system");
+    expect(networkHd.bom.find((row) => row.sku === "SYN-TP10-B")?.notes).toContain("SYN-CTL-FL10");
+
+    const worship = roomTemplates.find((template) => template.id === "hospitality-large-sportsbar-nhd500")!;
+    expect(worship.bom.find((row) => row.sku === "NHD-500-DNT-TX")).toMatchObject({ qty: worship.concept!.sourceCount, owner: "wyrestorm" });
+    expect(worship.bom.find((row) => row.sku === "AMP-2120-DNT")).toMatchObject({ qty: 1, owner: "wyrestorm" });
+    expect(worship.bom.some((row) => /speaker/i.test(row.sku) && row.owner === "wyrestorm")).toBe(false);
+
+    const apollo = roomTemplates.find((template) => template.id === "corporate-huddle-apollo")!;
+    expect(apollo.bom.find((row) => row.sku === "APO-DG2")).toMatchObject({ type: "Optional", owner: "wyrestorm" });
+    expect(apollo.bom.find((row) => row.sku === "APO-SKY-MIC")).toMatchObject({ type: "Optional", owner: "wyrestorm" });
+    expect(apollo.bom.some((row) => row.sku === "BY-OTHERS-USB-PATH")).toBe(false);
+  });
+  it("adds the NetworkHD 500 USB pair and microphone hub only to a matching UC room", () => {
+    const design = createDeploymentTemplate({
+      id: "nhd500-uc-audio-test", name: "NHD500 UC audio test", vertical: "Corporate",
+      space: "A 10m × 8m conference room", construction: "Accessible ceiling, rack and containment.", occupancy: "12 people",
+      activity: "Join a call and share room sources.", transport: "nhd500",
+      sources: [["Room conferencing PC HDMI", 1, "rack"], ["Guest laptop HDMI", 1, "table"]],
+      outputs: [["Front display", 1, "front wall"]], speakers: 0, microphones: 2, uc: "room",
+      audio: { approach: "distributed", experience: "Two-way conferencing audio.", zones: [], microphones: "Two compatible ceiling microphones.", processing: "AEC and mixing.", connectivity: "USB to conferencing host; Dante source feed.", dante: true, aec: true, programmeFeeds: 1, routing: "Route the selected source." },
+      rationale: "A distributed UC room needs routed AV and USB peripherals.", alternative: "Use a local matrix for fewer routes.", constraints: ["Confirm host placement."],
+    });
+    expect(design.bom.find((row) => row.sku === "NHD-USB-TRX")).toMatchObject({ qty: 2, owner: "wyrestorm", type: "Optional" });
+    expect(design.bom.find((row) => row.sku === "COM-MIC-HUB")).toMatchObject({ owner: "wyrestorm", type: "Optional" });
+    expect(design.bom.find((row) => row.sku === "CAM-210-PTZ")).toMatchObject({ owner: "wyrestorm", type: "Optional" });
+    expect(design.bom.filter((row) => row.sku === "BY-OTHERS-AV-SWITCH")[0].notes).toContain("USB-over-IP endpoints");
   });
   it("describes an HDBaseT room from its own schedule instead of one generic display", () => {
     const hall = roomTemplates.find((t) => t.id === "education-school-hall-hdbaset-projector")!;

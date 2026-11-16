@@ -214,14 +214,12 @@ export function evaluateDiscoveryDecisionIntegrity(
     }
   }
 
-  // Display count vs display behaviour mirrors the interview's own option
-  // filtering in getVisibleDiscoveryQuestions: for a single display the
-  // interview removes independent routing and wall-processor feeds from the
-  // behaviour options. A captured set that pairs one-display with either of
-  // them is internally impossible (different content per display, or a wall
-  // processor feed, both require more than one display), so it must block
-  // completion instead of flowing silently into topology and brief text.
+  // Display count vs display behaviour mirrors the interview's option
+  // filtering. A one-feed wall processor is valid when the primary display is
+  // an LCD/LED wall; a single flat panel or projector cannot also be a wall.
   const singleDisplay = has(answers, "displays", "one-display") && !values(answers, "displays").some((value) => value !== "one-display");
+  const primaryDisplay = values(answers, "primary-display")[0] ?? "";
+  const knownNonWallPrimary = ["single-large-flat-panel", "dual-large-flat-panels", "three-large-flat-panels", "single-projector", "dual-projectors"].includes(primaryDisplay);
   if (has(answers, "opportunity", "av-over-ip") && has(answers, "network-path", "no-network-distribution")) {
     addContradiction(
       ["opportunity", "network-path"],
@@ -238,12 +236,49 @@ export function evaluateDiscoveryDecisionIntegrity(
       "Is this one display showing a single source, or is it actually a multi-display room?",
     );
   }
-  if (singleDisplay && has(answers, "display-behaviour", "video-wall-or-processor-feed")) {
+  if (knownNonWallPrimary && has(answers, "display-behaviour", "video-wall-or-processor-feed")) {
     addContradiction(
-      ["displays", "display-behaviour"],
+      ["primary-display", "displays", "display-behaviour"],
       "Display count contradicts display behaviour",
-      "One display is selected alongside a video-wall or LED-processor feed, which needs a wall processor and multiple panels.",
-      "Is this a single display, or is a video wall being planned?",
+      "A flat panel or projector is selected as the primary display alongside a video-wall processor feed.",
+      "Is the primary display a flat panel/projector, or should it be changed to an LCD or LED video wall?",
+    );
+  }
+
+  const outputRanges: Record<string, { min: number; max: number }> = {
+    "one-display": { min: 1, max: 1 },
+    "two-displays": { min: 2, max: 2 },
+    "three-eight-displays": { min: 3, max: 8 },
+    "nine-plus-displays": { min: 9, max: Number.POSITIVE_INFINITY },
+    "video-wall-output": { min: 1, max: 1 },
+  };
+  const primaryMinimum: Record<string, number> = {
+    "single-large-flat-panel": 1,
+    "dual-large-flat-panels": 2,
+    "three-large-flat-panels": 3,
+    "single-projector": 1,
+    // Two projectors can blend onto one canvas, so one processor feed remains valid.
+    "dual-projectors": 1,
+    "lcd-video-wall": 1,
+    "led-video-wall": 1,
+    "other-primary-display": 1,
+  };
+  const repeaterMinimum: Record<string, number> = {
+    "no-repeater-displays": 0,
+    "one-two-repeater-displays": 1,
+    "three-four-repeater-displays": 3,
+    "five-eight-repeater-displays": 5,
+    "nine-plus-repeater-displays": 9,
+  };
+  const outputRange = outputRanges[values(answers, "displays")[0] ?? ""];
+  const mainMinimum = primaryMinimum[primaryDisplay];
+  const extraMinimum = repeaterMinimum[values(answers, "repeater-displays")[0] ?? ""];
+  if (outputRange && mainMinimum !== undefined && extraMinimum !== undefined && mainMinimum + extraMinimum > outputRange.max) {
+    addContradiction(
+      ["primary-display", "repeater-displays", "displays"],
+      "Display count is below the selected display needs",
+      `The selected primary display arrangement and repeater quantity require at least ${mainMinimum + extraMinimum} video feed endpoints, but the total endpoint selection allows at most ${outputRange.max}.`,
+      "Update the total video feed endpoint count, or correct the primary display and repeater selections.",
     );
   }
   if (has(answers, "uc-camera-count", "one-camera") && values(answers, "uc-multi-camera-path").some(Boolean)) {

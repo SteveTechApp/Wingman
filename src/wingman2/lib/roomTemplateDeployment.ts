@@ -106,7 +106,7 @@ const HDBT_RECEIVER_RULE = "Any HDBaseT receiver suited to the cable run will do
 
 const descriptions: Record<Exclude<RoomTransport, "hdbt">, string> = {
   apollo: "The laptop connects to the Apollo bar by USB-C; HDMI presentation also needs the documented USB host connection for conferencing. The bar feeds one display over HDMI and supplies the room camera, microphone and loudspeakers. Calls run on the connected computer.",
-  matrix4: "An MX-0404-HDMI routes up to four HDMI sources independently to four output ports. Each scheduled display has a complete EX-70-H2 transmitter/receiver set, dedicated category run and short HDMI tails. Design the installed path at 1080p60 with runs at or below 35m; verify the exact resolution and cable limit before a higher-format quotation. USB, microphone and control paths are separate from the video matrix.",
+  matrix4: "An MX-0404-HDMI routes up to four HDMI sources independently to four output ports. Each scheduled display has a complete EX-70-H2 transmitter/receiver set, dedicated category run and short HDMI tails. Design the installed path at 1080p60 with runs at or below 35m; verify the exact resolution and cable limit before approving a higher-format design. USB, microphone and control paths are separate from the video matrix.",
   matrix8: "An MX-0808-KIT-V2 routes up to eight HDMI sources to eight independent HDBaseT zones. Its eight receivers are included in the kit and are not purchased again. Each used zone gets a dedicated category run and HDMI tail, with a 35m maximum design allowance. Mirrored HDMI sockets are not extra independent routes. Confirm the required colour format; 4K60 4:4:4 is not the baseline for this kit.",
   hybrid: "One MX-1007-HYB serves the local room. Up to four display destinations use HDMI outputs with complete EX-70-H2 extender sets; any fifth and sixth destinations use the two native HDBaseT 3.0 outputs with RX3-100 receivers. Source devices present HDMI locally at the rack. The NetworkHD ports are unused in this base design. Audio and USB conferencing are separately scheduled and commissioned.",
   nhd100: "Each scheduled HDMI feed has one NHD-120-TX; each display has one NHD-120-RX. NHD-CTL-PRO-V2 manages routes on a dedicated, approved 1Gb multicast AV fabric. The content PCs/VMS outputs provide HDMI: raw CCTV or arbitrary IP streams cannot simply join the transport. Single-content outputs are the baseline; add a compatible multiview decoder only for an agreed window layout.",
@@ -141,6 +141,9 @@ function descriptionFor(d: RoomDeploymentDesign): string {
 function row(id: string, sku: string, description: string, role: string, qty: number, notes: string): TemplateBomRow {
   return { id, sku, description, role, qty, type: "Required", status: "included", evidence: "Quantity follows the authored room concept and source/output schedule; confirm by site survey.", notes, owner: "wyrestorm" };
 }
+function optionalProductRow(id: string, sku: string, description: string, role: string, notes: string, qty = 1): TemplateBomRow {
+  return { ...row(id, sku, description, role, qty, notes), type: "Optional", status: "optional", evidence: "Compatible WyreStorm option; include only when confirmed by discovery and the final signal/control design." };
+}
 function core(d: RoomDeploymentDesign): TemplateBomRow[] {
   const inputCount = total(d.sources), outputCount = total(d.outputs);
   const add = (sku: string, label: string, role: string, qty = 1, notes = descriptionFor(d)) => row(`${d.id}-${role.replace(/\W+/g, "-")}`, sku, label, role, qty, notes);
@@ -156,7 +159,9 @@ function core(d: RoomDeploymentDesign): TemplateBomRow[] {
   const controller = add("NHD-CTL-PRO-V2", "NetworkHD route controller", "AV routing controller");
   if (d.transport === "nhd600") return [controller, add("NHD-600-TRX", "600-series transceiver configured as transmitter", "Source encoder", inputCount), add("NHD-600-TRX", "600-series transceiver configured as receiver", "Display decoder", outputCount)];
   const series = d.transport === "nhd100" ? "120" : "500";
-  return [controller, add(`NHD-${series}-TX`, `${series}-series source encoder`, "Source encoder", inputCount), add(`NHD-${series}-RX`, `${series}-series display decoder`, "Display decoder", outputCount)];
+  const encoderSku = d.transport === "nhd500" && d.audio.dante ? "NHD-500-DNT-TX" : `NHD-${series}-TX`;
+  const encoderLabel = encoderSku === "NHD-500-DNT-TX" ? "500-series source encoder with Dante/AES67 audio output" : `${series}-series source encoder`;
+  return [controller, add(encoderSku, encoderLabel, "Source encoder", inputCount), add(`NHD-${series}-RX`, `${series}-series display decoder`, "Display decoder", outputCount)];
 }
 
 function completeScope(d: RoomDeploymentDesign): TemplateBomRow[] {
@@ -165,7 +170,7 @@ function completeScope(d: RoomDeploymentDesign): TemplateBomRow[] {
   const add = (key: string, description: string, qty: number, notes: string, owner = "integrator") => {
     rows.push({
       ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes),
-      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before quotation.",
+      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before design sign-off.",
       owner, manufacturer: "", model: "",
     });
   };
@@ -174,10 +179,38 @@ function completeScope(d: RoomDeploymentDesign): TemplateBomRow[] {
   add("mounts", "Display/projector mounts and structural fixings", outputs, `One mounting assembly per output, including a screen where projection is selected. ${d.construction} Confirm load rating, sightlines, ventilation and safe service access.`);
   rows.push(...roomAudioBom(d.id, d.audio, d.microphones));
   if (d.uc) {
-    if (!integrated && d.transport !== "studio") add("uc-camera", "USB conferencing camera and mounting", 1, "Select field of view and zoom for the stated occupancy; locate at eye line. Camera USB connects to the nominated host via the separately scoped extension path.");
+    if (!integrated && d.transport !== "studio") {
+      const largeRoom = /lecture|theatre|auditorium|courtroom|large|command|operations/i.test(`${d.name} ${d.space} ${d.occupancy}`);
+      const cameraSku = largeRoom ? "CAM-420-PTZ" : "CAM-210-PTZ";
+      rows.push(optionalProductRow(`${d.id}-uc-camera-option`, cameraSku, `${cameraSku} · dedicated UC camera`, "UC camera option",
+        `Select this WyreStorm USB/HDMI PTZ camera where the room needs a separate camera; verify its field of view, mounting, host USB path, format and platform compatibility against the actual room. ${largeRoom ? "The room scale suggests the 4K dual-lens model; confirm coverage on survey." : "Step up to the 4K dual-lens model only if the room coverage or framing requirement calls for it."}`));
+      add("uc-camera", "Camera field-of-view and platform confirmation", 1, `The listed WyreStorm camera is an option, not an assumed fit. Confirm framing, host input, platform support and mounting on survey; choose a compatible alternative if required.`);
+    }
     add("uc-host", d.uc === "room" ? "Room conferencing console, compute integration and platform licence" : "BYOD conferencing host, software and USB access", 1, d.uc === "room" ? "Complete a supported compute/console/licence bundle and verify peripheral compatibility. Where compute is named in the source schedule, fulfil that line rather than buying a second PC. The video bar is a USB peripheral, not a standalone Teams/Zoom Room." : "Use the laptop in the source schedule where present; otherwise supply one approved conferencing laptop. This allowance completes software/licensing and host connectivity without duplicating an existing computer.", "customer");
-    add("usb-path", "USB host switching/extension and compliant USB cables", 1, "One engineered path allowance: name host and device ends, select tested USB bandwidth/distance, include power/hubs and any required HDMI content capture. HDMI matrix routing does not switch USB. Keep a single active conferencing host.");
+    if (!integrated) {
+      if (d.transport === "nhd500") {
+        rows.push(optionalProductRow(`${d.id}-uc-usb`, "NHD-USB-TRX", "NHD-USB-TRX · USB 2.0 over IP extension pair", "USB device management option",
+          "Use one host-side and one room-side transceiver when the conferencing host and room camera/microphone peripherals are separated over the NetworkHD 500 fabric. Confirm USB device count, bandwidth, switching behaviour, network ports and endpoint placement.", 2));
+      }
+      add("usb-path", "USB host switching/extension and compliant USB cables", 1, "One engineered path allowance: name host and device ends, select tested USB bandwidth/distance, include power/hubs and any required HDMI content capture. HDMI matrix routing does not switch USB. Include the NHD-USB-TRX option only where the NetworkHD 500 USB path is appropriate. Keep a single active conferencing host.");
+    }
     if (integrated) add("uc-mount", "Video bar bracket and mounting allowance", 1, "Use the included mounting hardware where suitable; select a compatible additional bracket only if needed. Camera, microphone, DSP and speakers are inside the Apollo bar; no separate room audio package is assumed. Acoustic treatment is separately scheduled.");
+  }
+  const sourceBrief = `${d.activity} ${d.sources.map(([name]) => name).join(" ")}`;
+  if (!integrated && (d.uc || /guest laptop|visiting laptop|wireless|casting/i.test(sourceBrief))) {
+    const wirelessSku = inputs > 2 ? "SW-640L-TX-W" : "SW-220-TX-W";
+    rows.push(optionalProductRow(`${d.id}-wireless-presentation`, wirelessSku, `${wirelessSku} · wireless presentation option`, "Wireless casting option",
+      `Add this WyreStorm wireless presentation switcher when guest or BYOD casting is required. Route its HDMI output into the scheduled matrix/NetworkHD/video-bar input and verify input count, output routing, USB conferencing handoff and the existing system's control method. This is an alternative presentation input, not a second mandatory switcher.`));
+  }
+  if (networked) {
+    rows.push(optionalProductRow(`${d.id}-synergy-flow-panel`, "SYN-TP10-B", "SYN-TP10-B · Synergy Flow dedicated touch panel", "Room control option",
+      "Choose this only for a Synergy Flow design; it is the dedicated panel, not a standalone NetworkHD controller. Confirm the matching SYN-CTL-FL10 processor, current availability, drivers, programming and whether the free NetworkHD Touch App on a customer tablet is sufficient for source routing."));
+  }
+  if (integrated && /meeting|huddle|boardroom|conference|training|collaboration/i.test(`${d.name} ${d.space}`)) {
+    rows.push(optionalProductRow(`${d.id}-apollo-extension-mic`, "APO-SKY-MIC", "APO-SKY-MIC · Apollo companion ceiling microphone", "UC microphone option",
+      "Optional microphone extension for compatible Apollo VX20 rooms when the integrated pickup does not cover the furnished seating plan. Verify the exact VX20 generation, microphone count, extension path and USB host before issue."));
+    rows.push(optionalProductRow(`${d.id}-apollo-casting`, "APO-DG2", "APO-DG2 · Apollo wireless casting/conferencing dongle", "Wireless casting option",
+      "Optional Apollo wireless casting/conferencing accessory. Confirm APO-VX20-UC-V2 compatibility and required wireless conferencing workflow; the bar also supports its own casting options."));
   }
   if (d.transport === "studio" && !d.uc) add("production-host", "Production computer, USB ingest cable and recording software", 1, "Connect bridge USB video and the audio mixer interface to the same host; include headphones, monitoring and sync test. This computer also fulfils the recording-platform allowance; do not purchase a second recording PC.");
   if (d.recording) add("recording", "Capture/streaming appliance or ingest interface, storage and licences", 1, "One complete platform allowance. Provide a supported camera/programme ingest, separate agreed audio feed, network connectivity, recording consent, retention and access controls. A display decoder alone is not a recorder.");
@@ -186,11 +219,12 @@ function completeScope(d: RoomDeploymentDesign): TemplateBomRow[] {
     if (!d.sources.some(([name]) => /camera|vision|programme/i.test(name))) add("capture-camera", "Lecture/training camera with power, mount and capture connection", 1, "One presenter view into the capture platform; provide a second video ingest channel and synchronise it with presentation and audio.");
   }
   if (d.signage) add("cms", "Content management licences, scheduling and monitoring", inputs, "One allowance per scheduled content player/feed; the source devices are counted above. Confirm ownership, network access, recurring subscriptions, permitted content and local playback on WAN loss.", "customer");
-  add("room-control", networked ? "Operator touch interface and room-control integration" : "Room operation, source selection and display/audio control", 1, networked ? "Include touch panel/tablet, power, mounting, control processor/drivers where required and programming. NHD-CTL supplies AV routes; it does not replace the operator interface or all room automation." : "Use supplied front-panel/remote controls and tested CEC where practical. Include a keypad/control processor when the room needs integrated source, display and audio operation; identify its model before issue.");
+  add("room-control", networked ? "Room control choice and integration" : "Room operation, source selection and display/audio control", 1, networked ? "Choose one control route: the free NetworkHD Touch App on a customer/integrator tablet for NetworkHD source routing; WyreStorm Synergy Flow with its dedicated SYN-TP10-B touch panel for room scenes and broader automation (confirm the matching Flow processor and current availability); or a named third-party control system. NHD-CTL-PRO-V2 supplies NetworkHD routes, not full room automation. Confirm the selected controller, drivers, USB/audio/display control, programming and owner before issue." : "Use supplied front-panel/remote controls and tested CEC where practical. Include a WyreStorm Synergy Flow or named third-party controller when the room needs integrated source, display and audio operation; identify its model and programming owner before issue.");
   if (networked) {
-    const ports = inputs + outputs + 3;
+    const usbEndpoints = d.uc && d.transport === "nhd500" ? 2 : 0;
+    const ports = inputs + outputs + 3 + usbEndpoints;
     const switches = Math.ceil(Math.ceil(ports * 1.2) / 24);
-    add("av-switch", `${d.transport === "nhd600" ? "10Gb" : "1Gb"} managed AV switch — 24 usable endpoint ports`, switches, `${inputs} encoder + ${outputs} decoder + 1 controller + 2 management/control connections = ${ports} access ports; ${Math.ceil(ports * 1.2)} ports including 20% expansion. Select supported hardware with separately provisioned non-blocking uplinks, multicast settings and the full endpoint PoE budget. Verify switch placement and expand this quantity if distributed locations require it.`);
+    add("av-switch", `${d.transport === "nhd600" ? "10Gb" : "1Gb"} managed AV switch — 24 usable endpoint ports`, switches, `${inputs} encoder + ${outputs} decoder + 1 controller + 2 management/control connections${usbEndpoints ? ` + ${usbEndpoints} USB-over-IP endpoints` : ""} = ${ports} access ports; ${Math.ceil(ports * 1.2)} ports including 20% expansion. Select supported hardware with separately provisioned non-blocking uplinks, multicast settings and the full endpoint PoE budget. Verify switch placement and expand this quantity if distributed locations require it.`);
     add("network-uplinks", "AV network uplinks, fibre/optics, patching and configuration", 1, "Measured system allowance: engineer inter-switch capacity from concurrent streams, source placement and link oversubscription. Fibre links need matching optics at both ends; do not assume one 1Gb uplink carries every stream.");
   }
   add("power-rack", "Equipment rack/furniture, PDU, ventilation and mains outlets", 1, "One measured system allowance; locate core equipment in the nominated cupboard/rack, allow service access, include local device PSUs and every display/source outlet. Confirm electrical works and earthing ownership.");
@@ -225,7 +259,7 @@ function completionScope(d: RoomDeploymentDesign): { rows: TemplateBomRow[]; not
   const add = (key: string, description: string, qty: number, notes: string) => {
     rows.push({
       ...row(`${d.id}-${key}`, `BY-OTHERS-${key.toUpperCase()}`, description, `${description} by others`, qty, notes),
-      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before quotation.",
+      type: "Validate", status: "validate", evidence: "Scope allowance only. Select and verify a compatible manufacturer and model before design sign-off.",
       owner: "integrator", manufacturer: "", model: "",
     });
   };
@@ -283,7 +317,7 @@ function completionScope(d: RoomDeploymentDesign): { rows: TemplateBomRow[]; not
       notes.push({ label: "Reverberation target", description: `The design target is ${environment.rt60Target}. Acoustic treatment scope in this template exists to reach that measured target; verify after fit-out with the space furnished, because AEC and DSP shape the signal path but cannot shorten room reverberation.` });
     }
     if (environment.illuminationControls) {
-      add("lighting-interface", "Lighting/blind scene integration with the AV control system", 1, "One integration allowance: contact/driver interfaces, scene programming and commissioning with the lighting contractor. Confirm which trade owns dimming drivers before pricing.");
+      add("lighting-interface", "Lighting/blind scene integration with the AV control system", 1, "One integration allowance: contact/driver interfaces, scene programming and commissioning with the lighting contractor. Confirm which trade owns dimming drivers before design sign-off.");
     }
     if (environment.rackThermal && environment.rackThermal !== "passive") {
       notes.push({ label: "Rack thermal design", description: environment.rackThermal === "hvac-cooled"
@@ -295,7 +329,7 @@ function completionScope(d: RoomDeploymentDesign): { rows: TemplateBomRow[]; not
   const assurance = completion.assurance;
   if (assurance) {
     if (assurance.warrantyTier) {
-      notes.push({ label: "Warranty and support tier", description: `State ${warrantyLabels[assurance.warrantyTier]} for the WyreStorm core and the selected third-party lines. Support tier is a design decision that changes price and should be agreed with the client before quotation, not discovered at first fault.` });
+      notes.push({ label: "Warranty and support tier", description: `State ${warrantyLabels[assurance.warrantyTier]} for the WyreStorm core and the selected third-party lines. Agree the support tier with the client before handover so responsibilities are clear when a fault occurs.` });
     }
     if (assurance.monitoringContract && !(control?.monitoring === "24-7-noc")) {
       add("monitoring-noc", "Monitoring and response contract (NOC/SLA)", 1, "One contractual allowance: device health, licence expiry, alert routing, response times and escalation.");
@@ -370,7 +404,7 @@ export function createDeploymentTemplate(d: RoomDeploymentDesign): RoomTemplate 
         { label: "Customer decisions before order", description: story.customerDecisions.join(" ") },
       ] : []),
       { label: "Concept statement", description: statement }, { label: "Source schedule", description: schedule(d.sources) }, { label: "Output schedule", description: schedule(d.outputs) }, { label: "Audio experience and signal path", description: audioDesignNotes(d.audio) }, { label: "Architecture choice", description: d.rationale }, { label: "Alternative approach", description: d.alternative }, ...completion.notes],
-    assumptions: [d.space, d.construction, `Occupancy: ${d.occupancy}.`, `${sourceCount} physical video source positions and ${outputCount} physical outputs; spare product ports are not extra sources or displays.`, ...(outputCount > sourceCount ? [`Shared content is intentional: ${sourceCount} scheduled source feeds repeat across ${outputCount} displays; independent content requires additional sources.`] : []), "Required third-party rows are part of the complete system; supplier/model and measured allowances must be completed before pricing."],
+    assumptions: [d.space, d.construction, `Occupancy: ${d.occupancy}.`, `${sourceCount} physical video source positions and ${outputCount} physical outputs; spare product ports are not extra sources or displays.`, ...(outputCount > sourceCount ? [`Shared content is intentional: ${sourceCount} scheduled source feeds repeat across ${outputCount} displays; independent content requires additional sources.`] : []), "Required third-party rows are part of the complete system; supplier/model and measured scope must be completed before design sign-off."],
     validationItems: [...d.constraints, "Confirm dimensions, cable lengths, structure, sightlines, acoustics and mains provision by site survey.", "Replace third-party placeholders with supplier/model and confirm quantities, interfaces, licences and delivery ownership.", "Test the complete signal format, HDCP/EDID, audio, USB and control path before customer acceptance."],
     upgradePaths: [d.alternative, "Re-engineer endpoint, processing, cabling, power and control quantities when the source/output schedule changes."],
   };

@@ -389,15 +389,20 @@ export function mergeRoomAndStandardProfiles(roomType: QuickStartRoomType): Disc
   };
 
   const merged: DiscoveryAnswers = { opportunity: config.suggestedApplication };
-  for (const [questionId, roomValue] of Object.entries(config.defaults)) {
-    const seeded = roomValue as string | string[];
-    if (questionId === "opportunity" || seeded === undefined || (typeof seeded === "string" && seeded === "")) continue;
+  const questionIds = new Set([...Object.keys(standard), ...Object.keys(config.defaults)]);
+  for (const questionId of questionIds) {
+    if (questionId === "opportunity") continue;
+    const roomValue = config.defaults[questionId as keyof DiscoveryAnswers];
     const standardValue = standard[questionId as keyof DiscoveryAnswers];
-    // Disagreement → standard default; agreement (or standard-silent) → room.
-    merged[questionId] =
-      standardValue !== undefined && normalize(seeded) !== normalize(standardValue as string | string[])
-        ? (standardValue as string | string[])
-        : seeded;
+    // The application profile supplies every field it defines. The room can
+    // refine those answers only when it agrees; room-only extras survive.
+    const value = standardValue !== undefined
+      ? roomValue !== undefined && normalize(roomValue as string | string[]) === normalize(standardValue as string | string[])
+        ? roomValue
+        : standardValue
+      : roomValue;
+    if (value === undefined || (typeof value === "string" && value === "")) continue;
+    merged[questionId] = value as string | string[];
   }
   return merged;
 }

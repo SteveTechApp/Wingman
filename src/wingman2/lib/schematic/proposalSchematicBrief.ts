@@ -34,6 +34,13 @@ export function proposalSchematicBrief(
   title: string,
   products: StoredProductSelection[],
   bomRows?: Array<{ sku: string; description: string; role: string; qty: number }>,
+  displayPlan?: {
+    primaryArrangement?: string;
+    totalFeedCount?: string;
+    repeaterCount?: string;
+    repeaterPurpose?: string[];
+    behaviour?: string[];
+  },
 ): SchematicProjectBrief {
   // Build a lookup from BOM rows for richer labels
   const bomBySku = new Map<string, { description: string; role: string }>();
@@ -47,7 +54,7 @@ export function proposalSchematicBrief(
   // quantities represented in both collections.
   const schematicProducts = mergeProductsWithBomRows(products, bomRows ?? []);
   const sources = inferSourcesFromProducts(schematicProducts);
-  const displays = inferDisplaysFromProducts(schematicProducts, bomBySku);
+  const displays = discoveryDisplays(displayPlan) ?? inferDisplaysFromProducts(schematicProducts, bomBySku);
   const productsBrief = buildProductsBrief(schematicProducts);
 
   return {
@@ -68,6 +75,49 @@ export function proposalSchematicBrief(
       /switch|network|avoi|nhd|nvx/i.test(`${p.sku} ${p.label}`),
     ),
   };
+}
+
+/** Keep the schematic anchored to the surveyed viewing plan, including facts
+ * that have not become WyreStorm product selections yet. */
+function discoveryDisplays(plan?: {
+  primaryArrangement?: string;
+  totalFeedCount?: string;
+  repeaterCount?: string;
+  repeaterPurpose?: string[];
+  behaviour?: string[];
+}): SchematicEndpointBrief[] | null {
+  if (!plan) return null;
+  const primary = plan.primaryArrangement?.trim() ?? "";
+  const repeaterCount = plan.repeaterCount?.trim() ?? "";
+  const repeaterUnknown = /not yet confirmed|unknown/i.test(repeaterCount);
+  const repeaterNone = /no repeater/i.test(repeaterCount);
+  const hasDisplayPlan = Boolean(primary || plan.totalFeedCount || repeaterCount);
+  if (!hasDisplayPlan) return null;
+
+  const behaviour = (plan.behaviour ?? []).filter(Boolean).join("; ");
+  const behaviourSuffix = behaviour ? ` — ${behaviour}` : "";
+  const totalLabel = plan.totalFeedCount ? `total feed endpoints ${plan.totalFeedCount}` : "";
+  const totalSuffix = totalLabel ? `; ${totalLabel}` : "";
+  const endpoints: SchematicEndpointBrief[] = [];
+
+  if (primary) {
+    const lower = primary.toLowerCase();
+    const wall = /lcd|led|video wall|video-wall/.test(lower);
+    const quantity = /three|3\s/.test(lower) ? 3 : /two|dual|2\s/.test(lower) && !wall ? 2 : 1;
+    const feedNote = wall ? "one processor feed" : quantity > 1 ? `${quantity} primary displays` : "primary display";
+    endpoints.push({ label: `Primary: ${primary} (${feedNote}${totalSuffix})${behaviourSuffix}`, quantity: 1 });
+  } else if (plan.totalFeedCount) {
+    endpoints.push({ label: `Primary display arrangement not confirmed (${totalLabel || "total feed endpoints not confirmed"})${behaviourSuffix}`, quantity: 1 });
+  }
+
+  if (!repeaterNone && repeaterCount) {
+    const purpose = (plan.repeaterPurpose ?? []).filter(Boolean).join("; ");
+    const purposeSuffix = purpose ? ` — ${purpose}` : "";
+    const countLabel = repeaterUnknown ? "count not confirmed" : repeaterCount;
+    endpoints.push({ label: `Repeaters: ${countLabel}${purposeSuffix}${totalSuffix}`, quantity: 1 });
+  }
+
+  return endpoints.length ? endpoints : null;
 }
 
 function mergeProductsWithBomRows(

@@ -23,7 +23,7 @@ const REPORT_LINES = [
   "All 5 response-builder step cards keep their content inside the card at 1366px, 560px, 390px and 360px.",
   "The Settings hero kept its action row on one line, inside the header's own box, at every width.",
   "The Sales Helper hero held its icon + copy header inside the page host that clips it at every width.",
-  "The guided wall wizard's start step leads with the LED brief and holds it at 1366px, 390px and 360px.",
+  "The guided wall wizard starts with the wall type choice and holds it at 1366px, 390px and 360px.",
   "The template save notice named the design it saved and wrapped inside its own box.",
   "All 29 routes in the manifest and 6 parameterised and splat addresses the router registers rendered a page inside the shell.",
   "Verified built app pages, Compare workflow, project detail route and every manifest route in a real browser.",

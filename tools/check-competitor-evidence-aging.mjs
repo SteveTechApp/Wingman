@@ -2,11 +2,13 @@
 /**
  * Competitor catalogue rows age on the same clock as a confirmed WyreStorm profile.
  *
- * A competitor row is quoted evidence: a rep lifts its ports, resolution or
- * transport into a comparison against a WyreStorm product, and the proposal can
- * then carry that claim to a customer. `lastReviewed` is when a person last read
- * the manufacturer's page for that model, so the age of that date is the age of
- * the argument. Nothing else in the tree reads it — `check:enrichment-freshness`
+ * An approved competitor row is quoted evidence: a rep lifts its ports,
+ * resolution or transport into a comparison against a WyreStorm product, and
+ * the proposal can then carry that claim to a customer. `lastReviewed` is when a
+ * person last read the manufacturer's page for that model, so the age of that
+ * date is the age of the argument. Rows held in review stay visible in the
+ * report, but cannot enter comparison matching and do not block shipping.
+ * Nothing else in the tree reads it — `check:enrichment-freshness`
  * asks how many rows were enriched in the last week, which is a throughput
  * question and goes quiet on a catalogue nobody is enriching.
  *
@@ -148,6 +150,7 @@ export function auditCompetitorEvidenceAging({ rows, baseline, policy, at }) {
     aged.push({
       sku,
       manufacturer: row?.manufacturer || row?.brand || "",
+      approvalStatus: String(row?.approvalStatus ?? row?.status ?? "").trim().toLowerCase(),
       reviewedOn,
       ageDays: age,
       sourceFile: row?.sourceFile || "",
@@ -159,7 +162,7 @@ export function auditCompetitorEvidenceAging({ rows, baseline, policy, at }) {
   const overWarn = aged.filter((row) => row.ageDays > warnAfterDays);
 
   for (const row of overLimit) {
-    if (row.pinned) continue;
+    if (row.pinned || row.approvalStatus !== "approved") continue;
     failures.push(
       `${row.sku}${row.manufacturer ? ` (${row.manufacturer})` : ""} was last reviewed ${row.reviewedOn} — ` +
         `${row.ageDays} days, past the ${failAfterDays}-day evidence limit. ` +
@@ -202,6 +205,8 @@ export function auditCompetitorEvidenceAging({ rows, baseline, policy, at }) {
       rows: aged.length,
       overWarn: overWarn.length,
       overLimit: overLimit.length,
+      overLimitApproved: overLimit.filter((row) => row.approvalStatus === "approved").length,
+      overLimitNotApproved: overLimit.filter((row) => row.approvalStatus !== "approved").length,
       pinned: pinnedBySku.size,
       insideWarn: fresh,
       oldestAgeDays: oldest[0]?.ageDays ?? null,
@@ -236,9 +241,10 @@ function writeReport(result) {
       failAfterDays: result.failAfterDays,
     },
     totals: result.totals,
-    overLimit: result.overLimit.map(({ sku, manufacturer, reviewedOn, ageDays, sourceFile, pinned }) => ({
+    overLimit: result.overLimit.map(({ sku, manufacturer, approvalStatus, reviewedOn, ageDays, sourceFile, pinned }) => ({
       sku,
       manufacturer,
+      approvalStatus,
       reviewedOn,
       ageDays,
       sourceFile,

@@ -54,7 +54,9 @@ export const BASIC_MODE_REQUIRED_IDS = [
   "scale",               // How big? — drives system complexity
   "network-path",        // Corporate AV VLAN or dedicated physical AV LAN, when distributed
   "sources",             // How many sources? — drives input count
+  "primary-display",     // What are the room's main displays or projection surfaces?
   "displays",            // How many displays? — drives output count
+  "repeater-displays",   // How many extra screens repeat or extend the primary viewing area?
   "display-behaviour",   // How should displays behave? — key architectural decision
   "uc-purpose",          // Camera/mic workflows? — key for BYOM/BYOD
   "audio", "audio-route", "audio-zones", "audio-programme", "room-acoustics",
@@ -71,7 +73,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "single-large-room",
     sources: "two-four-sources",
     "source-connection": "mixed-hdmi-usbc",
+    "primary-display": "single-large-flat-panel",
     displays: "one-display",
+    "repeater-displays": "no-repeater-displays",
     // One display cannot route independently: the interview hides
     // independent-routing-per-display for single-display rooms.
     "display-behaviour": "same-content-all-displays",
@@ -90,7 +94,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "single-large-room",
     sources: "two-four-sources",
     "source-connection": "mixed-hdmi-usbc",
+    "primary-display": "single-projector",
     displays: "one-display",
+    "repeater-displays": "no-repeater-displays",
     // Aligned with quickStartConfigs.classroom: a teaching space mirrors one
     // source to a projector/display, typically fed at standard HD. The prior
     // values (video-wall-or-processor-feed / 4k60-standard) implied a wall
@@ -105,7 +111,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "multi-room",
     sources: "five-eight-sources",
     "source-connection": "fixed-hdmi-sources",
+    "primary-display": "dual-large-flat-panels",
     displays: "three-eight-displays",
+    "repeater-displays": "one-two-repeater-displays",
     "display-behaviour": "independent-routing-per-display",
     "signal-standard": "4k60-standard",
     audio: "room-audio",
@@ -115,7 +123,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "single-large-room",
     sources: "two-four-sources",
     "source-connection": "fixed-hdmi-sources",
+    "primary-display": "unknown-primary-display",
     displays: "video-wall-output",
+    "repeater-displays": "unknown-repeater-displays",
     "display-behaviour": "video-wall-or-processor-feed",
     "signal-standard": "4k60-standard",
     audio: "room-audio",
@@ -125,7 +135,9 @@ export const SMART_DEFAULTS: Record<string, Partial<DiscoveryAnswers>> = {
     scale: "building-wide",
     sources: "five-eight-sources",
     "source-connection": "network-video-sources",
+    "primary-display": "unknown-primary-display",
     displays: "three-eight-displays",
+    "repeater-displays": "unknown-repeater-displays",
     "display-behaviour": "independent-routing-per-display",
     "signal-standard": "4k60-standard",
     audio: "room-audio",

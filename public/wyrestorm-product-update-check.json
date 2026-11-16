@@ -1,35 +1,11 @@
 {
-  "generatedAt": "2026-06-12T19:39:28.892Z",
+  "generatedAt": "2026-11-12T06:45:52.649Z",
   "sourceUrl": "https://www.wyrestorm.com/sitemap_index.xml",
-  "indexedCount": 311,
-  "discoveredCount": 483,
-  "newCandidateCount": 75,
+  "indexedCount": 344,
+  "discoveredCount": 528,
+  "newCandidateCount": 89,
   "enrichedCandidateSampleCount": 30,
   "candidates": [
-    {
-      "sku": "CAB-HAOC-50-P-2",
-      "url": "https://www.wyrestorm.com/product/cab-haoc-50-p-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://www.wyrestorm.com/product/cab-haoc-50-p-2/ returned 404"
-    },
-    {
-      "sku": "CAB-HAOC-50-P-3",
-      "url": "https://www.wyrestorm.com/product/cab-haoc-50-p-3/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://www.wyrestorm.com/product/cab-haoc-50-p-3/ returned 404"
-    },
-    {
-      "sku": "CAB-USBC-15-ENDS",
-      "url": "https://www.wyrestorm.com/product/cab-usbc-15-ends/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://www.wyrestorm.com/product/cab-usbc-15-ends/ returned 404"
-    },
     {
       "sku": "CAM-200",
       "url": "https://www.wyrestorm.com/product/cam-200/",
@@ -143,6 +119,30 @@
       "sourceStatus": "https://www.wyrestorm.com/product/exa-100-kvm/ returned 404"
     },
     {
+      "sku": "EXP-CAB-HAOC-2",
+      "url": "https://www.wyrestorm.com/product/exp-cab-haoc-2/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "DISCONTINUED The WyreStorm HAOC is a next generation HDMI cable designed for the next generation of 4K HDR content. It offers a unique feature set in both delivering uncompressed HDMI content at up to 24Gbps and compatibility with emerging HDMI technologies such as ALLM (Auto Low Latency Mode) & VRR (Variable Refresh Rate) using the latest in optical transmission technology. Now established as the most powerful form of HDMI extension, WyreStorm active optical cables offer the best of both worlds: pixel-perfect long distance transmission of content and native HDMI communication, thanks to their ability to be a passive communication technology compared to normal HDBaseT? extenders that often terminate the HDMI signal prior to transmission.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-CAB-HAOC-4",
+      "url": "https://www.wyrestorm.com/product/exp-cab-haoc-4/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "DISCONTINUED The WyreStorm HAOC is a next generation HDMI cable designed for the next generation of 4K HDR content. It offers a unique feature set in both delivering uncompressed HDMI content at up to 24Gbps and compatibility with emerging HDMI technologies such as ALLM (Auto Low Latency Mode) & VRR (Variable Refresh Rate) using the latest in optical transmission technology. Now established as the most powerful form of HDMI extension, WyreStorm active optical cables offer the best of both worlds: pixel-perfect long distance transmission of content and native HDMI communication, thanks to their ability to be a passive communication technology compared to normal HDBaseT? extenders that often terminate the HDMI signal prior to transmission.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-CAB-HAOC-6",
+      "url": "https://www.wyrestorm.com/product/exp-cab-haoc-6/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "DISCONTINUED The WyreStorm HAOC is a next generation HDMI cable designed for the next generation of 4K HDR content. It offers a unique feature set in both delivering uncompressed HDMI content at up to 24Gbps and compatibility with emerging HDMI technologies such as ALLM (Auto Low Latency Mode) & VRR (Variable Refresh Rate) using the latest in optical transmission technology. Now established as the most powerful form of HDMI extension, WyreStorm active optical cables offer the best of both worlds: pixel-perfect long distance transmission of content and native HDMI communication, thanks to their ability to be a passive communication technology compared to normal HDBaseTTM extenders that often terminate the HDMI signal prior to transmission.",
+      "sourceStatus": "page fetched"
+    },
+    {
       "sku": "EXP-CAB-HAOC-8",
       "url": "https://www.wyrestorm.com/product/exp-cab-haoc-8/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
@@ -183,74 +183,73 @@
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "EXP-MX-0404-HDMI-41",
-      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-41/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-41/ returned 404"
-    },
-    {
-      "sku": "EXP-MX-0404-HDMI-43",
-      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-43/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-43/ returned 404"
-    },
-    {
-      "sku": "EXP-SW-0X01-8K",
-      "url": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+      "sku": "EXP-HDMI-10-0M",
+      "url": "https://www.wyrestorm.com/product/exp-hdmi-10-0m/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "Our plug-and-play 8K HDMI switcher series has the ability to send uncompressed up to 8K@60Hz or 4K@120Hz resolutions to your display. These switchers also support DSC 1.2a pass-through, an approved method of compression in accordance to the HDMI 2.1 specification, allowing up to a 10K@120Hz signal to be transmitted losslessy. Ranging in two models with varying number of inputs to choose from, this powerful switcher series also gives you the tools to de-embed audio from your source if there isn&#039;t an option on the source and supports ARC from your display to send to send high quality 5.1 to your audio distribution system. Other features such as auto switching and CEC passthrough makes this WyreStorm Essentials switcher series a true and powerful plug-and-play solution.",
+      "description": "HDMI cables from WyreStorm are tested to work with high-definition audio and video signals without affecting quality or distorting.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "FOCUS-200-WECAM",
-      "url": "https://www.wyrestorm.com/product/focus-200-wecam/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://www.wyrestorm.com/product/focus-200-wecam/ returned 404"
-    },
-    {
-      "sku": "HALO-60-SPEAKERPHONE",
-      "url": "https://www.wyrestorm.com/product/halo-60-speakerphone/",
+      "sku": "EXP-HDMI-15-0M",
+      "url": "https://www.wyrestorm.com/product/exp-hdmi-15-0m/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "USB Bluetooth Speakerphone offers crystal-clear audio, ideal for virtual meetings and conference calls with easy connectivity and seamless performance.",
+      "description": "The HDMI cables from Belden are the finest option for connecting 4K or HD devices over HDMI from 0.5m/1.6ft to 15m/49ft in high-quality, sturdy, and inexpensive manner.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "HALO-VX10-VIDEO-BAR-PIC-2",
-      "url": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-2/ returned 404"
-    },
-    {
-      "sku": "HALO-VX10-VIDEO-BAR-PIC-3",
-      "url": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-3/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-3/ returned 404"
-    },
-    {
-      "sku": "HALO-VX101V1",
-      "url": "https://www.wyrestorm.com/product/halo-vx101v1/",
+      "sku": "EXP-HDMI-H2-0-5M",
+      "url": "https://www.wyrestorm.com/product/exp-hdmi-h2-0-5m/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "HALO VX10 video bar integrates a 4K wide-angle AI camera, 2x stereo speaker and 4x microphone into one device, ideal for huddle room and home office.",
+      "description": "WyreStorm HDMI cables were created to fulfill the high-bandwidth requirements necessitated by current 4K UHD devices for both business and home applications.",
       "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-MX-0404-HDBT-H2A-KIT-32",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-32/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-32/ returned 404"
+    },
+    {
+      "sku": "EXP-MX-0404-HDBT-H2A-KIT-34",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-34/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-34/ returned 404"
+    },
+    {
+      "sku": "EXP-MX-0404-HDBT-H2A-KIT-36",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-36/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-36/ returned 404"
+    },
+    {
+      "sku": "EXP-MX-0404-HDBT-H2A-KIT-38",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-38/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-38/ returned 404"
+    },
+    {
+      "sku": "EXP-MX-0404-HDBT-H2A-KIT-40",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-40/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdbt-h2a-kit-40/ returned 404"
     }
   ],
   "warnings": [
     "https://www.wyrestorm.com/products/ returned 404",
     "https://wyrestorm.com/products/ returned 404",
-    "https://wyrestorm.com/product-sitemap.xml timed out",
     "https://wyrestorm.com/sitemap_products.xml returned 404"
   ]
 }

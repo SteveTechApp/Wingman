@@ -425,9 +425,9 @@ function SelectionPage({
   return (
     <main data-product-pitch-view="selector" className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
       <ProductWorkspaceHeader
-        eyebrow="Products / Positioning"
-        title="Find the right product workspace"
-        description="Search by SKU, product name, family or application, then open its facts and sales guidance."
+        eyebrow="Products / Expert view"
+        title="Find a product for expert review"
+        description="Search the range, then review technical evidence, design fit, competitors and next steps."
         actions={<CompareBackToListButton />}
       />
       <ProductWorkspaceNav />
@@ -837,6 +837,7 @@ function ProductWorkspace({
 
   return (
     <main data-product-pitch-view="workspace" className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
+      <ProductWorkspaceNav />
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-identity p-5`}>
         <div className="grid items-center gap-5 md:grid-cols-3">
           <div className="grid h-52 place-items-center overflow-hidden rounded-2xl border wm-ui-card" aria-hidden={!imageUrl}>
@@ -844,7 +845,7 @@ function ProductWorkspace({
           </div>
           <div className="grid gap-3 md:col-span-2">
             <div>
-              <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
+              <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Expert product workspace</p>
               <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-cyan-200`}>{product.sku}</h1>
               <GovernedDataBadge tier={product.technicalData?.sourceTier} label={product.technicalData?.statusLabel} />
               {product.technicalData?.reviewerTrail ? (
@@ -983,7 +984,7 @@ function ProductPitchSafetyPanel() {
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         <p className="wm-copy"><strong>Qualify:</strong> Confirm application, signal path, endpoint count, USB, audio, control and distance.</p>
         <p className="wm-copy"><strong>Evidence:</strong> Match the product class, role, dependencies and known gaps to the brief.</p>
-        <p className="wm-copy"><strong>Escalate:</strong> Review AVoIP, USB transport, video walls, substitutions and non-standard designs before quotation.</p>
+        <p className="wm-copy"><strong>Escalate:</strong> Review AVoIP, USB transport, video walls, substitutions and non-standard designs before the proposal is issued.</p>
       </div>
     </details>
   );

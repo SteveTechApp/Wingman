@@ -12,6 +12,11 @@ export function isExplicitAudioOutputEvidence(value) {
   return /\b(?:analogue|analog|audio|line)\s*(?:out|output)\b/i.test(text(value));
 }
 
+export function isOpticalZoomEvidence(value) {
+  const valueText = text(value);
+  return /\boptical\s+zoom\b|\b\d+\s*x\s+optical\s+(?:zoom|and\s+\d+\s*x\s+digital\s+zoom)\b/i.test(valueText);
+}
+
 export function isAnalogueAudioEvidence(value) {
   const valueText = text(value);
   const analogueFunction = /\b(?:analogue|analog|balanced|unbalanced|line\s*(?:in|out|input|output)|audio\s*(?:in|out|input|output))\b/i.test(valueText);

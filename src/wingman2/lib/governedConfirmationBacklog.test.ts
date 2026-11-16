@@ -13,18 +13,18 @@ import {
   type EvidenceFreshnessState,
 } from "./governedConfirmationBacklog";
 
-// The 2026-09-30 confirmation pass verified every profile in the tracked data,
-// so the real payload no longer contains an awaiting backlog. Demote two
-// SKUs (one passive cable, one UC device missing power data) back to the
-// machine-transcribed tier so the backlog classification, aging, and trail
-// scenarios below stay exercisable against a realistic mix.
+// Build a hermetic review batch on top of the current source set. The tracked
+// roster can contain additional review-required profiles; these cases exercise
+// exactly two awaiting records regardless of later source additions.
 vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () => {
   const actual = (await vi.importActual(
     "../../../data/governance/wyrestorm-technical-profiles.json",
   )) as { default: { profiles: Array<Record<string, unknown>> } };
-  const { governedProfilesWithStatus } = await import("./testHelpers/governedProfilesHarness");
+  const { governedProfilesHumanVerifiedExcept, governedProfilesWithStatus } = await import("./testHelpers/governedProfilesHarness");
+  const excluded = ["CAB-HAOC-10", "HALO-30"];
+  const confirmed = governedProfilesHumanVerifiedExcept(actual.default as never, excluded);
   return {
-    default: governedProfilesWithStatus(actual.default as never, ["CAB-HAOC-10", "HALO-30"], "verified-with-warning"),
+    default: governedProfilesWithStatus(confirmed as never, excluded, "verified-with-warning"),
   };
 });
 
@@ -32,12 +32,9 @@ describe("governed confirmation backlog", () => {
   it("reports every profile awaiting human confirmation, separating human-confirmed profiles", () => {
     const backlog = governedConfirmationBacklog();
 
-    // The governed profile set (207 today: the governance audit merged the
-    // NHD-500-TX-V2 / NHD-500-RX v2 / SYN-TOUCH10 v3 variant rows into their
-    // canonical profiles). Every profile is human-verified since the
-    // 2026-09-30 pass, except the two the module mock above demotes.
-    expect(backlog.total).toBe(206);
-    expect(backlog.humanVerified).toBe(204);
+    // The test harness confirms every current record except its two held SKUs.
+    expect(backlog.total).toBe(backlog.verified.length + backlog.awaiting.length);
+    expect(backlog.humanVerified).toBe(backlog.verified.length);
     expect(backlog.awaiting.length).toBe(2);
   });
 
@@ -87,7 +84,7 @@ describe("governed confirmation backlog", () => {
   it("exposes the reviewer trail for every human-confirmed profile", () => {
     const backlog = governedConfirmationBacklog();
 
-    expect(backlog.verified.length).toBe(204);
+    expect(backlog.verified.length).toBe(backlog.total - 2);
     for (const profile of backlog.verified) {
       expect(profile.sku).toBeTruthy();
       expect(profile.verifiedBy).toBeTruthy();

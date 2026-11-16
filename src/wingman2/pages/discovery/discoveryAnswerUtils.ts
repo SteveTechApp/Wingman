@@ -26,11 +26,11 @@ import type { DiscoveryConversationItem } from "../../data/projectStore";
 // `discoveryValueConsumerDrift.test.ts` fails on any value that is not a current
 // option, so a renamed answer cannot silently rank at 99 and stop moving.
 export const AUDIO_PREFERRED_OPTION_ORDER: Record<string, string[]> = {
-  "meeting-room": ["display-audio", "room-audio", "dante-network-audio", "no-room-audio"],
-  classroom: ["room-audio", "display-audio", "dante-network-audio", "no-room-audio"],
-  hospitality: ["room-audio", "dante-network-audio", "display-audio", "no-room-audio"],
-  "video-wall": ["room-audio", "display-audio", "no-room-audio", "dante-network-audio"],
-  "av-over-ip": ["dante-network-audio", "room-audio", "display-audio", "no-room-audio"],
+  "meeting-room": ["display-audio", "room-audio", "audio-by-others", "dante-network-audio", "no-room-audio"],
+  classroom: ["room-audio", "display-audio", "audio-by-others", "dante-network-audio", "no-room-audio"],
+  hospitality: ["room-audio", "audio-by-others", "dante-network-audio", "display-audio", "no-room-audio"],
+  "video-wall": ["room-audio", "display-audio", "audio-by-others", "no-room-audio", "dante-network-audio"],
+  "av-over-ip": ["dante-network-audio", "room-audio", "audio-by-others", "display-audio", "no-room-audio"],
 };
 
 export const SOURCE_DEVICE_WORKFLOWS_PREFERRED_OPTION_ORDER: Record<string, string[]> = {

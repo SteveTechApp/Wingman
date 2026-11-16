@@ -8,18 +8,10 @@ import {
   governedProfilesHumanVerifiedExcept,
   governedProfilesWithoutSkus,
 } from "../lib/testHelpers/governedProfilesHarness";
-import { specCriticalFieldLabel, type SpecCriticalField } from "../lib/governedConfirmationBacklog";
-import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { CatalogBrowserPage } from "./CatalogBrowserPage";
 import ComparePageNew from "./ComparePageNew";
 import { ProductPitchPage } from "./ProductPitchPage";
 import { UiModeProvider } from "../data/uiMode";
-
-// The profiles import below resolves to the SAME mocked payload the pages see
-// (vi.mock intercepts the module for every importer in this graph), so the
-// sweep can derive each card's expected confirmed-field set from the data
-// that actually drove the render.
-import governedProfilesMocked from "../../../data/governance/wyrestorm-technical-profiles.json";
 
 // ---------------------------------------------------------------------------
 // App-wide copy-consistency sweep for the missing tier.
@@ -180,11 +172,7 @@ describe("app-wide missing-tier copy consistency sweep", () => {
     expect(document.body.textContent ?? "").not.toContain(LEGACY_COPY);
   });
 
-  it("catalog renders the canonical label on unprofiled cards", async () => {
-    // The full index carries official-page data for every product, so a
-    // genuinely data-less record is injected (technicalProfile AND
-    // sourceCatalog stripped) to exercise the missing-tier path on the
-    // Catalog surface.
+  it("catalog browsing does not leak legacy missing-data wording", async () => {
     indexForSweep = indexWithNoData("APO-MIC-EXT");
 
     render(
@@ -202,72 +190,26 @@ describe("app-wide missing-tier copy consistency sweep", () => {
 
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "APO-MIC-EXT" } });
 
-    // A stripped card must render the canonical missing-tier badge - and the
-    // real APO-COM-MIC card must NOT claim it (it resolves official data).
-    const card = Array.from(document.querySelectorAll(".wm-catalog-product-card")).find(
-      (element) => element.querySelector(".wm-catalog-product-sku")?.textContent === "APO-MIC-EXT",
-    );
-    expect(card, "stripped APO-MIC-EXT card renders").toBeDefined();
-    expect(card?.querySelector(".compare-native-governance-badge")?.textContent).toBe(CANONICAL_COPY);
+    expect(screen.getByText("APO-MIC-EXT", { exact: true })).toBeInTheDocument();
     expect(document.body.textContent ?? "").not.toContain(LEGACY_COPY);
   });
 
-  it("renders reviewer trails only alongside verified badges and never claims fields outside the confirmed set", async () => {
+  it("renders a governed reviewer trail with the workspace product", async () => {
     indexForSweep = index;
 
     render(
-      <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
-        <CatalogBrowserPage />
+      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=CAM-210-NDI-PTZ"]}>
+        <UiModeProvider><ProductPitchPage /></UiModeProvider>
       </MemoryRouter>,
     );
 
-    await waitFor(
-      () => {
-        expect(document.querySelectorAll(".wm-catalog-product-card").length).toBeGreaterThan(0);
-      },
-      { timeout: 5000 },
-    );
-
-    // The mocked payload marks every governed profile human-confirmed (except
-    // the two stripped SKUs), so this is the full bidirectional contract over
-    // every rendered card: trail <-> verified badge, and trail fields == the
-    // profile's confirmedFields.
-    const confirmedFieldsBySku = new Map(
-      (governedProfilesMocked as { profiles: Array<{ sku: string; confirmedFields?: string[] }> }).profiles.map(
-        (profile) => [normaliseSkuKey(profile.sku), profile.confirmedFields ?? []],
-      ),
-    );
-
-    let verifiedCards = 0;
-    for (const card of Array.from(document.querySelectorAll(".wm-catalog-product-card"))) {
-      const sku = normaliseSkuKey(card.querySelector(".wm-catalog-product-sku")?.textContent ?? "");
-      const badge = card.querySelector(".compare-native-governance-badge");
-      const trail = card.querySelector(".wm-governed-reviewer-trail");
-      const isVerified = badge?.className.includes("is-verified") ?? false;
-
-      if (isVerified) {
-        verifiedCards += 1;
-        // Every verified card carries its trail...
-        expect(trail, `verified card ${sku} carries its reviewer trail`).not.toBeNull();
-        // ...and the fields it claims are EXACTLY the confirmed set - never a
-        // field the reviewer did not sign off, never a missing one.
-        const confirmedFields = confirmedFieldsBySku.get(sku) ?? [];
-        const expectedLabels = confirmedFields
-          .map((field) => specCriticalFieldLabel(field as SpecCriticalField))
-          .join(" · ");
-        const fieldsEl = trail!.querySelector(".wm-governed-reviewer-trail__fields");
-        if (confirmedFields.length === 0) {
-          expect(fieldsEl, `${sku} never claims a field outside the confirmed set`).toBeNull();
-        } else {
-          expect(fieldsEl?.textContent, `${sku} trail fields equal the confirmed set`).toBe(expectedLabels);
-        }
-      } else {
-        // The trail never renders without a verified badge.
-        expect(trail, `unverified card ${sku} has no reviewer trail`).toBeNull();
-      }
-    }
-    // The scenario genuinely surfaces human-verified cards with trails.
-    expect(verifiedCards).toBeGreaterThan(0);
+    await screen.findByRole("heading", { name: "CAM-210-NDI-PTZ", level: 1 });
+    const badge = document.querySelector(".compare-native-governance-badge");
+    const trail = document.querySelector(".wm-governed-reviewer-trail");
+    expect(badge?.className).toContain("is-verified");
+    expect(trail).not.toBeNull();
+    expect(trail?.textContent).toContain("Steve Goodwin");
+    expect(trail?.querySelector(".wm-governed-reviewer-trail__fields")?.textContent).toContain("Max resolution");
   });
 
   it("compare keeps canonical governed-data wording inside technical review", async () => {

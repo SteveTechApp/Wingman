@@ -23,12 +23,7 @@ import {
   type DisplayReceiverRow,
 } from "./hdbtDisplayReceiver";
 import type { WallRequirements } from "./videowallOptions";
-import { buildInstallationSchedule, installationLineLabel, type InstallationUnitPrices } from "./installationSchedule";
-import {
-  installationRateCardCurrencyMismatches,
-  type InstallationRateCard,
-  type InstallationRateCardCurrency,
-} from "./installationRateCard";
+import { buildInstallationSchedule } from "./installationSchedule";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,7 +44,6 @@ export const EXPORT_VALIDATION_DOMAINS = [
   "transport",
   "display-run",
   "survey",
-  "currency",
 ] as const;
 
 export type ExportValidationDomain = (typeof EXPORT_VALIDATION_DOMAINS)[number];
@@ -536,7 +530,7 @@ export function displayRunBlockers({
 }: {
   /** The longest display run the survey measured, when one is recorded. */
   runMetres?: number | null;
-  /** The rows the document prints, where the quoted display receiver is found. */
+  /** The rows the document prints, where the proposed display receiver is found. */
   rows: readonly DisplayReceiverRow[];
 }): ExportValidationBlocker[] {
   if (typeof runMetres !== "number" || !Number.isFinite(runMetres)) return [];
@@ -549,8 +543,8 @@ export function displayRunBlockers({
     domain: "display-run",
     severity: "blocker",
     sku: receiver.sku,
-    message: `The ${run} m display run is beyond the ${HDBT_DISPLAY_RUN_LIMIT_METRES} m rating of the longest HDBaseT receiver in the range, so the quoted ${receiver.sku} cannot carry this link on its own.`,
-    fix: `Carry the link in spans — a mid-span repeater or a fibre extender pair — and record the run the receiver then serves, or shorten the run to ${HDBT_DISPLAY_RUN_LIMIT_METRES} m or less, so the quotation and the survey agree before the document issues.`,
+    message: `The ${run} m display run is beyond the ${HDBT_DISPLAY_RUN_LIMIT_METRES} m rating of the longest HDBaseT receiver in the range, so the proposed ${receiver.sku} cannot carry this link on its own.`,
+    fix: `Carry the link in spans — a mid-span repeater or a fibre extender pair — and record the run the receiver then serves, or shorten the run to ${HDBT_DISPLAY_RUN_LIMIT_METRES} m or less, so the proposal and the survey agree before issue.`,
   }];
 }
 
@@ -584,60 +578,6 @@ export function wallSurveyCompletenessWarnings(
 }
 
 /**
- * Installation lines still carrying a rate card number written in another
- * currency than the proposal's.
- *
- * The card quotes one currency; a quote stated in another that keeps the card's
- * numbers is quoting real numbers as the wrong money, and the printed total
- * cannot say so. A rate typed for this proposal is its own number, so it is not
- * named; a seeded or restored one is. This is a warning, not a blocker: the rep
- * may deliberately hold the card's figure for this job, but the document must
- * not leave without that being visible first.
- */
-export function installationRateCurrencyWarnings({
-  requirements,
-  rateCard,
-  currency,
-  rates,
-}: {
-  /** Saved wall design, whose survey produced the priced lines. */
-  requirements?: WallRequirements | null;
-  /** The rep's workspace card these rates started from. */
-  rateCard?: InstallationRateCard | null;
-  /** The currency the document prints. */
-  currency?: InstallationRateCardCurrency;
-  /** The draft's installation rates, as typed. */
-  rates?: InstallationUnitPrices;
-}): ExportValidationBlocker[] {
-  if (!rateCard || !currency || rateCard.currency === currency) return [];
-  const schedule = buildInstallationSchedule(wallTransportRequirements(requirements));
-  if (!schedule) return [];
-  const mismatched = new Set(
-    installationRateCardCurrencyMismatches(
-      rateCard,
-      schedule.lines.map((line) => line.id),
-      rates,
-      currency,
-    ),
-  );
-  if (mismatched.size === 0) return [];
-  const labels = schedule.lines
-    .filter((line) => mismatched.has(line.id))
-    .map(installationLineLabel);
-  const shown = labels.slice(0, 3);
-  const rest = labels.length - shown.length;
-  const named = rest ? `${shown.join(", ")} and ${rest} more` : shown.join(", ");
-  const count = labels.length;
-  return [{
-    id: "currency-installation-rates",
-    domain: "currency",
-    severity: "warning",
-    message: `${count} installation line${count === 1 ? " still holds" : "s still hold"} your ${rateCard.currency} rate card's ${count === 1 ? "number" : "numbers"} on a ${currency} proposal: ${named}.`,
-    fix: `Type ${count === 1 ? "that rate" : "those rates"} in ${currency}, or save the card in ${currency} before issuing, so the printed total is quoted in the currency it is priced in.`,
-  }];
-}
-
-/**
  * Refuses a document export whose own schedule would print an over-limit wall
  * run. The wrapper calls it before building, so the check cannot be bypassed by
  * a caller that skips the readiness panel.
@@ -665,7 +605,6 @@ export function validateProposalExport({
   discoveryConversation,
   wallRequirements,
   displayRunMetres,
-  pricing,
 }: {
   products: StoredProductSelection[];
   bomRows: SalesBomRow[];
@@ -680,16 +619,6 @@ export function validateProposalExport({
    * the figure the rating is measured against.
    */
   displayRunMetres?: number | null;
-  /**
-   * What the document is priced with, when the caller prices the survey's
-   * installation lines: a rate still holding a card number from another
-   * currency is named before the quote leaves.
-   */
-  pricing?: {
-    currency: InstallationRateCardCurrency;
-    rateCard: InstallationRateCard;
-    installationUnitPrices?: InstallationUnitPrices;
-  } | null;
 }): ExportValidationResult {
   const allBlockers: ExportValidationBlocker[] = [
     ...validateReach(products, topology),
@@ -700,12 +629,6 @@ export function validateProposalExport({
     ...wallTransportBlockers(wallRequirements),
     ...displayRunBlockers({ runMetres: displayRunMetres, rows: bomRows }),
     ...wallSurveyCompletenessWarnings(wallRequirements),
-    ...installationRateCurrencyWarnings({
-      requirements: wallRequirements,
-      rateCard: pricing?.rateCard,
-      currency: pricing?.currency,
-      rates: pricing?.installationUnitPrices,
-    }),
   ];
 
   const blockers = allBlockers.filter((b) => b.severity === "blocker");

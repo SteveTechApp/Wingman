@@ -10,6 +10,78 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   display values as unanswered; otherwise an empty label is a defined string
   with no scale rule and gets reported as invalid data.
 
+- The market and selected environment frame the questions that follow. The
+  Education · Lecture theatre path starts with a large-room scale and a
+  clearly labelled estimate of 100 seats, while preserving an occupancy the
+  rep already entered. It never guesses physical dimensions: L/W/H remain open
+  for measurement, and the note asks the rep to confirm capacity and record
+  those measurements. Changing market clears only unchanged inferred values;
+  a capacity or scale the rep edited remains theirs.
+
+- The essential brief, guided room walk and expert workspace capture room size
+  through the same three numeric fields: length, width and height in metres.
+  Seating and layout stay in their own note, so they cannot be mistaken for a
+  dimension by a later reader. `RoomDimensionsFields.tsx` owns those controls
+  and `roomDimensionsSummary` is the single text boundary into the existing
+  `roomDimensions` brief field; older saved answers under `room-dimensions`
+  remain readable until the rep edits the new fields. The focused brief exposes
+  the site condition fields in a collapsed optional group under Room & site;
+  Expert keeps them together in its Environment section. Site & construction
+  keeps building construction, room structure/support, floor type, ceiling
+  type, wall surfaces, overhead access and containment as separate survey answers.
+  The brief carries each answer into `roomModel.siteConditions` and names each
+  unanswered condition for follow-up rather than treating one general site note
+  as proof of the others.
+
+- The quick room ladder asks video direction on every path, including after
+  purpose and scale already identify one room type. This captures a call, a
+  one-way live stream out, or neither as a design fact rather than assuming a
+  decided room has no capture requirement. Live stream out adds a programme
+  feed and encoder requirement; two follow-ups capture what the feed carries
+  and whether it goes to a public platform, private network audience or both.
+  Site checks cover source, HDMI format, HDCP and wired-network capacity.
+  NHD-300-TX remains available as an encoder option; Discovery still qualifies
+  the actual source, platform and network before it becomes a system selection.
+
+- Focused view starts the same full governed Discovery question set as Expert,
+  but walks the rep through it one question at a time. Each answer updates the
+  shared brief and the generated system topology as the room takes shape. For a
+  multi-camera path, NDI selects CAM-210-NDI-PTZ sources, NHD-128-NDI-TRX as the
+  bridge into virtual NetworkHD sources, and NHD-150-RX as the display decoder;
+  non-NDI selects CAM-420-PTZ sources with CAM-0402-BRG. A live-stream-out answer
+  adds NHD-300-TX with checks for the HDMI feed, format, HDCP, platform and wired
+  upload path. These generated SKU rows are refreshed if the rep changes those
+  answers, while user-selected and confirmed equipment stays in the design.
+
+- Source discovery is a sequence of distinct decisions: fixed room equipment,
+  user-provided devices or network video; then the actual source families and
+  their quantities, ownership, connectors and positions; then who selects
+  content, where they do it, and whether displays or zones route independently.
+  The room position editor includes the central communications rack, local rack,
+  cupboard, lectern, table, display wall, network and remote rooms/buildings.
+  Source type, location and control needs travel into the saved room model and
+  proposal requirements. A control need remains an unresolved functional
+  requirement until the interface and product are selected; an answer alone
+  cannot create a guessed control SKU.
+
+- The room connection editor keeps transport, services, route length status,
+  length in metres and the measurement basis on each connection. A rep can leave
+  a route unknown or estimated, or mark it measured/confirmed with its value;
+  reach checks and the proposal use that same stored route. Without those inputs,
+  a generated planning distance could be mistaken for a measured installation
+  length and a gate could block a design without giving the rep a way to clear it.
+
+- Display discovery distinguishes the primary screen arrangement (flat panels,
+  projector(s), LCD wall or LED wall), the total video feed endpoint count, and
+  repeater screen count and purpose. The existing total count remains because a
+  wall processor or blended projector canvas may use one feed even when it has
+  many physical panels, while repeaters add endpoints. Overflow and room-wide
+  visibility choices are part of the display-behaviour question and appear only
+  when repeaters are selected or their count is still unconfirmed, so rooms
+  without them do not get another question. The room model and proposal facts
+  carry these fields separately; `display-behaviour` still records mirrored,
+  independent, wall-processor and multiview behaviour.
+
 - Every Discovery step body is one card language: the `.wm-room-wizard` panel,
   `.wm-brief-question` with its count on the title line, `.wm-brief-option`
   tick cards, `#root .wm-room-wizard-option` for a pressed button choice, and
@@ -37,6 +109,20 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   and a half-recorded route becomes a `validation` question rather than a
   default. Adding a destination means adding its phrase to
   `DESTINATION_PHRASES` and its scope in that function, not a second question.
+  When the rep chooses `audio-by-others`, that same answer instead exposes a
+  single-choice video-system handoff: embedded audio, balanced analogue,
+  digital, or not confirmed. The room zones, listening experience, acoustics,
+  microphone interfaces and audio processing questions disappear because a
+  separate designer owns them. `deriveDiscoveryAudioDesign` records that
+  boundary and the selected feed, adds no room-audio equipment allowances, and
+  leaves only an unresolved handoff as a validation item. The topology builder
+  must not invent microphones, a DSP or a speakerphone for that branch. Keep the
+  standard in-scope route and this handoff branch on the same `audio-route`
+  answer so the rep does not have to repeat room audio ownership in another
+  form. The standard route shows extraction and destination choices only; the
+  four switcher-feed choices appear only in the by-others handoff. Its prompt is
+  selected from that narrowed answer set, never from the mere presence of those
+  values in the canonical question catalogue.
   The design also keeps the answer as values (`extraction`, `destinations`),
   because a surface that has to act on the route cannot parse the sentence: the
   room schematic does (`audioRouteSchematic.ts`), so a recorded route draws the
@@ -73,6 +159,31 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   that changes no room type — it changes what a rep talks about and which
   designs are worth reading first — which is why it is carried rather than
   branched on.
+- The brief, guided walk and expert workspace all pass through
+  `compileDiscoveryBrief`, so the decision is stored once on
+  `StoredDiscoveryBrief.roomDecision` for the next stage to read. Its room type,
+  reasoned requirements, site checks, assumptions and changes-if are proposal
+  inputs; the room model still carries the detailed L/W/H, construction,
+  structure, floor, ceiling, containment, topology and equipment schedule. If
+  the captured facts do not identify the market, purpose or occupancy needed by
+  the shared resolver, no decision is fabricated and the proposal retains the
+  unresolved Discovery questions.
+- Room scale constrains the decision: a medium or larger room cannot resolve to
+  the small huddle archetype. A single-screen, video-conferencing room has its
+  own meeting-room decision so the proposal does not invent a second display to
+  make the room sound more sophisticated.
+  A small presentation room that does not join remote calls remains eligible for
+  the huddle decision; the no-call answer must not route it to an all-hands room.
+- Choosing a market environment that maps to an application already answers
+  Discovery's opportunity question. `DiscoveryPage.tsx` keeps that value in the
+  room record but removes the duplicate from both Basic and Expert survey lists;
+  the selected application also drives `getVisibleDiscoveryQuestions`, which
+  hides question groups that cannot apply and tailors the prompts that remain.
+  If the rep changes to an environment mapped to another application,
+  `changeDiscoveryApplication` clears the old technical answers before the new
+  question set appears. An environment without a mapping leaves opportunity
+  open for the rep to decide. The market label alone does not rule out technical
+  choices, so it must not narrow signal, network, audio or control answers.
 - The hand-off is `writeDiscoveryHandoff` plus the address `?interview=1`, and the
   page that composes both (`OpportunitiesPage`) reads that parameter on every
   render. It has to: the decision and the brief are the same route, so following

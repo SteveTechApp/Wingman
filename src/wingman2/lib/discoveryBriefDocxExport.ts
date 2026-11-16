@@ -143,7 +143,7 @@ export function buildDiscoveryBriefDocx(
   ]);
 
   addSection(children, "Best-Efforts Disclaimer", [
-    paragraph("This discovery brief has been prepared on a best-efforts basis to support your sales and design process. It is a planning record only and does not constitute a binding quotation, order confirmation, or statement of capability. Product specifications, compatibility, lifecycle status, regional availability, pricing and lead times must be verified against the current WyreStorm documentation, datasheet or order desk before this document is used for any commercial purpose. Design decisions, power budgets, cable schedules and equipment selections derived from this brief must be validated by a qualified AV integrator or pre-sales engineer before installation. Wingman provides no warranty and accepts no liability for any errors, omissions or reliance on the content of this document.", { justified: true, colour: MUTED }),
+    paragraph("This discovery brief has been prepared on a best-efforts basis to support your sales and design process. It is a planning record only. Product specifications, compatibility, lifecycle status, regional availability and lead times must be verified against current WyreStorm documentation, datasheets or the order desk before system selection. Design decisions, power budgets, cable schedules and equipment selections derived from this brief must be validated by a qualified AV integrator or pre-sales engineer before installation. Wingman provides no warranty and accepts no liability for any errors, omissions or reliance on the content of this document.", { justified: true, colour: MUTED }),
   ]);
 
   return new Document({

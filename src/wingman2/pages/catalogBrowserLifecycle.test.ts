@@ -39,6 +39,18 @@ describe("catalogue browser lifecycle filtering", () => {
     expect(has(selectCatalogResults(catalog, state), "CAM-200-PTZ")).toBe(true);
   });
 
+  it("keeps cable eligibility behind the shared explicit-intent filter", () => {
+    const cables = applyCatalogOverrides([
+      { sku: "CAB-TEST-HDMI", name: "HDMI cable", category: "HDMI cable" },
+    ]).map(withBusinessLifecycle);
+    const base = createDefaultCatalogFilterState();
+
+    expect(selectCatalogResults(cables, base)).toHaveLength(0);
+    expect(selectCatalogResults(cables, { ...base, search: "HDMI" })).toHaveLength(0);
+    expect(has(selectCatalogResults(cables, { ...base, search: "HDMI cable" }), "CAB-TEST-HDMI")).toBe(true);
+    expect(has(selectCatalogResults(cables, { ...base, search: "CAB-TEST-HDMI" }), "CAB-TEST-HDMI")).toBe(true);
+  });
+
   it("suppresses a SKU the admin has manually blocked, even one otherwise unsuppressed", () => {
     // SW-740-TX is not in the real catalogue index at all (it's an invalid/stale
     // SKU string, per its admin note) - build a synthetic product carrying an

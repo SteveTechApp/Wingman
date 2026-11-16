@@ -39,6 +39,7 @@ export type CompareSpecFacts = {
   usbDevicePorts?: number;
   usbTotalPorts?: number;
   usbCPorts?: number;
+  usbCInputs?: number;
   usbStandard?: string;
   audioInputs?: number;
   audioOutputs?: number;
@@ -1085,7 +1086,7 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
       !competitorPower || !wyrestormPower ? "unknown" : "meets",
       competitorPower || "Not verified",
       wyrestormPower || "Not verified",
-      "Confirm voltage, PSU inclusion, power budget and PoE/PoH/PoC direction before quotation.",
+      "Confirm voltage, PSU inclusion, power budget and PoE/PoH/PoC direction before the proposal is issued.",
     ),
     requirement(
       "system-topology",

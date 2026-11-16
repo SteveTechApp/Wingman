@@ -66,7 +66,7 @@ export function compareReportedStatusMeta(status: CompareReportedStatus): {
     return {
       label: "Further checks required",
       heading: "Technical checks required",
-      guidance: "The direction is plausible, but evidence or dependencies must be confirmed before quotation.",
+      guidance: "The direction is plausible, but evidence or dependencies must be confirmed before the proposal is issued.",
     };
   }
 

@@ -2,15 +2,17 @@ import type { DiscoveryAnswers, DiscoveryQuestion } from "./discoveryTypes";
 import { generateProjectTopologyFromDiscovery, type ProjectTopology } from "../../lib/projectTopology";
 import type { DiscoveryNotes } from "./discoveryTypes";
 import { getFullDiscoveryOptions, getVisibleDiscoveryQuestions } from "./discoveryQuestions";
-import { wmDiscoveryAnswerToText, wmDiscoveryFilterUnifiedCommsQuestions, wmDiscoveryToggleMultiSelectAnswer } from "./discoveryAnswerUtils";
+import { wmDiscoveryAnswerToText, wmDiscoveryFilterUnifiedCommsQuestions, wmDiscoveryNormaliseAnswerList, wmDiscoveryToggleMultiSelectAnswer } from "./discoveryAnswerUtils";
 
 const wording: Record<string, [string, string]> = {
   opportunity: ["What will people do in this space?", "Choose the closest everyday use. Your market and room type give Wingman the context."],
-  scale: ["How big is the space people will use?", "Describe the number of people, seating and approximate room dimensions in your notes."],
+  scale: ["How big is the space people will use?", "Record length, width and ceiling height separately, then describe the seating and layout."],
   sources: ["How many things will people want to show?", "Count laptops, room computers, television feeds and content players that may be connected."],
-  "source-connection": ["Will people bring their own devices, use room equipment, or both?", "We will check the actual connectors when choosing equipment."],
-  displays: ["How many places need a picture?", "Include the main screen, presenter confidence screens and any overflow areas."],
-  "display-behaviour": ["What should people see on each screen?", "The same picture everywhere is simpler than choosing a different picture for each screen."],
+  "source-connection": ["How will people get video sources into this room?", "First separate installed equipment, devices people bring, and network video. The next questions capture source types, positions and how users choose them."],
+  "primary-display": ["What are the room's main displays or projection surfaces?", "Choose the primary arrangement first. Repeater screens are captured separately."],
+  displays: ["How many video feed endpoints are needed in total?", "Count every primary and repeater feed. A video wall or blended projection surface may use one processor feed."],
+  "repeater-displays": ["How many extra screens should repeat or extend the main viewing area?", "Choose none, a range, or leave the count open for the room survey."],
+  "display-behaviour": ["How should the primary and repeater displays behave?", "Choose mirrored content, independent routes, wall processing or multiview. For repeaters, select overflow or room-wide visibility when either applies."],
   "signal-standard": ["What kind of picture does the room need?", "If the screen models are not known, leave the picture specification for review."],
   "uc-purpose": ["Who needs to join, watch or listen from somewhere else?", "Choose all the ways people will use cameras or microphones."],
   "uc-platform": ["How will people start a video call?", "Will they bring a laptop or use a dedicated room meeting system?"],
@@ -29,10 +31,12 @@ const wording: Record<string, [string, string]> = {
   "audio-zones": ["Do different areas need their own sound and volume?", "Name the areas and explain whether they ever join into one larger room."],
   "audio-programme": ["What listening experience do you want?", "Clear speech, background music, films and live performances need different speaker systems."],
   "room-acoustics": ["What does the room sound like today?", "Is speech clear, is there an echo, or is there distracting background noise?"],
-  control: ["How should someone start and operate the room?", "Imagine a first-time visitor: what should happen when they arrive, connect and finish?"],
+  control: ["How should people choose sources and operate the room?", "Say who operates it and where: at the screen, wall keypad, touch panel, app or central control desk. Explain whether different screens can show different sources, or whether operation is automatic."],
   "network-path": ["Who will look after connections between rooms?", "Ask the IT team whether existing building connections can carry the pictures. It is fine to leave this open."],
+  "locations-connections": ["Where are the sources, displays and connection points?", "Choose every applicable position: central communications rack, room rack, cupboard, lectern, table, display, another room or building, or AV network. Add source-to-display routes and approximate distances; exact measurements can wait for the site survey."],
+  commissioning: ["What should be checked and handed over when the room is ready?", "Choose the tests, training or records the customer expects. If another contractor is responsible, say so."],
   "avoip-profile": ["What matters most when sharing pictures across the site?", "Describe readable detail, responsiveness and how many different pictures people need at once."],
-  "source-device-workflows": ["What will people connect or watch?", "Select the actual devices and activities rather than cable types."],
+  "source-device-workflows": ["What kinds of sources must the room support?", "Select devices and feeds, including existing customer equipment. Add quantity, connector and position details in the note or room layout."],
   "wireless-presentation-operation": ["How should wireless sharing work?", "Who can share, who approves it, and should several people appear at once?"],
   "multiview-destination": ["Who needs to see several pictures together?", "Identify each screen or audience that needs a combined view."],
   "multiview-operation": ["How should someone arrange those pictures?", "Fixed layouts, presets, or an operator changing the layout during use?"],
@@ -40,7 +44,26 @@ const wording: Record<string, [string, string]> = {
   "video-wall-purpose": ["What should the large display show?", "One large picture, several pictures, live monitoring or scheduled information?"],
 };
 const optionWording: Record<string, string> = {
+  "single-large-flat-panel": "One large flat panel display",
+  "dual-large-flat-panels": "Two large flat panel displays",
+  "three-large-flat-panels": "Three large flat panel displays",
+  "single-projector": "One projector",
+  "dual-projectors": "Two projectors",
+  "lcd-video-wall": "LCD video wall",
+  "led-video-wall": "LED video wall",
+  "other-primary-display": "Another primary display arrangement",
+  "unknown-primary-display": "Not yet confirmed — primary display",
+  "no-repeater-displays": "No repeater screens",
+  "one-two-repeater-displays": "1–2 repeater screens",
+  "three-four-repeater-displays": "3–4 repeater screens",
+  "five-eight-repeater-displays": "5–8 repeater screens",
+  "nine-plus-repeater-displays": "9+ repeater screens",
+  "unknown-repeater-displays": "Not yet confirmed — repeater count",
+  "overflow-viewing": "Repeater screens for overflow seating",
+  "room-wide-visibility": "Repeat the primary picture for room-wide visibility",
   "4k60-standard": "Sharp detail on modern screens", "1080p-standard-hdmi": "Everyday presentations and video",
+  "4k-dci-resolution": "Cinema or production-grade 4K detail",
+  "8k-resolution": "Exceptional detail on very large or close-viewed screens",
   "4k60-hdr-hdcp": "Premium film playback and colour", "legacy-edid-risk": "A mix of older and newer screens",
   "byom-user-laptop": "Join using the visitor's laptop", "microsoft-teams-room": "A dedicated Microsoft Teams room",
   "zoom-room": "A dedicated Zoom room", "room-pc-conferencing": "Join using the room computer",
@@ -78,24 +101,49 @@ const optionWording: Record<string, string> = {
   "room-host-usb2": "Everyday call, touch screen, keyboard or mouse connections",
   "usb3-high-bandwidth-path": "High-detail cameras or capture equipment need a faster connection",
   "usb-extension-required": "The camera or other device is far from its computer",
+  "commissioning-functional-test": "Check that every screen, camera, speaker and room control works",
+  "commissioning-acceptance-criteria": "The customer needs to test and sign off the finished room",
+  "commissioning-user-training": "Show everyday users how to use the room",
+  "commissioning-operator-training": "Train the people who support or operate the system",
+  "commissioning-as-built-records": "Hand over drawings, settings and connection records",
+  "commissioning-by-others": "Another contractor will test and hand over the system",
+  "commissioning-unknown": "Not known yet — confirm before handover",
 };
 export function operationalQuestion(question: DiscoveryQuestion): DiscoveryQuestion {
   const copy = wording[question.id];
-  return { ...question, question: copy?.[0] || question.question, prompt: copy?.[1] || question.prompt,
+  const byOthersRoute = question.id === "audio-route" && question.options.length > 0
+    && question.options.every((option) => option.value.startsWith("switcher-feed-"));
+  return { ...question, question: byOthersRoute ? "What audio feed should the video switching provide to the separate audio system?" : copy?.[0] || question.question,
+    prompt: byOthersRoute ? "Audio design is by others. Confirm only the feed the video system must hand over; add the receiving location or interface in the optional note if known." : copy?.[1] || question.prompt,
     options: question.options.map(option => ({ ...option, label: optionWording[option.value] || option.label })) };
 }
 export function updateOperationalAnswer(previous: DiscoveryAnswers, question: DiscoveryQuestion, value: string): DiscoveryAnswers {
   const next: DiscoveryAnswers = { ...previous, [question.id]: question.selectionMode === "multiple"
     ? wmDiscoveryToggleMultiSelectAnswer(question, previous[question.id], value) : value };
+  if (question.id === "audio") {
+    const wasByOthers = [previous.audio].flat().includes("audio-by-others");
+    const isByOthers = [next.audio].flat().includes("audio-by-others");
+    if (wasByOthers !== isByOthers) delete next["audio-route"];
+  }
   if (question.id === "sources") delete next["source-count-exact"];
   if (question.id === "displays") delete next["display-count-exact"];
-  const visible = new Set(wmDiscoveryFilterUnifiedCommsQuestions(getVisibleDiscoveryQuestions(wmDiscoveryAnswerToText(next.opportunity), next), next).map(row => row.id));
+  let visibleQuestions = wmDiscoveryFilterUnifiedCommsQuestions(getVisibleDiscoveryQuestions(wmDiscoveryAnswerToText(next.opportunity), next), next);
+  const visibleDisplayBehaviour = visibleQuestions.find(row => row.id === "display-behaviour");
+  if (visibleDisplayBehaviour) {
+    const selected = wmDiscoveryNormaliseAnswerList(next["display-behaviour"]);
+    const stillAvailable = selected.filter(value => visibleDisplayBehaviour.options.some(option => option.value === value));
+    if (stillAvailable.length !== selected.length) {
+      next["display-behaviour"] = stillAvailable;
+      visibleQuestions = wmDiscoveryFilterUnifiedCommsQuestions(getVisibleDiscoveryQuestions(wmDiscoveryAnswerToText(next.opportunity), next), next);
+    }
+  }
+  const visible = new Set(visibleQuestions.map(row => row.id));
   for (const key of Object.keys(next)) if (getFullDiscoveryOptions(key).length && !visible.has(key)) delete next[key];
   return next;
 }
 export function refreshRoomLayout(answers: DiscoveryAnswers, notes: DiscoveryNotes, existing: ProjectTopology): ProjectTopology {
   const generated = generateProjectTopologyFromDiscovery({ answers, notes, application: wmDiscoveryAnswerToText(answers.opportunity) });
-  const retained = existing.devices.filter(device => device.sku || device.status === "confirmed");
+  const retained = existing.devices.filter(device => !device.generatedByDiscovery && (device.sku || device.status === "confirmed"));
   const retainedIds = new Set(retained.map(device => device.id));
   const locations = generated.locations.map(location => existing.locations.find(row => row.id === location.id) || location);
   for (const location of existing.locations) if (!locations.some(row => row.id === location.id)) locations.push(location);

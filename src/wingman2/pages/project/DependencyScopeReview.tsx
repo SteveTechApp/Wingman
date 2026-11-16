@@ -8,15 +8,15 @@ import {
 import { ProjectPanel } from "./ProjectPanel";
 
 /**
- * The dependency questions this room's response carries instead of quote lines.
+ * The dependency questions this room's response carries with the equipment schedule.
  *
  * A `TBC-` dependency is an open question with no catalogue part behind it, so
- * it cannot be priced and the response holds on it. The gate is one place that
+ * it cannot be represented as selected equipment and the response holds on it. The gate is one place that
  * shows it; this is the other — the record is where a rep reads a saved room
  * before sending it, so sending them into the proposal wizard to answer a
  * question about this room asks them to leave the surface that holds the
  * evidence. Recording one keeps the question in the document's dependency list
- * and takes the unpriced placeholder out of the quotation.
+ * and removes the non-product placeholder from the equipment schedule.
  *
  * The panel reads the saved response rather than rebuilding the package, so it
  * names the placeholders the response actually carries: a project with no saved
@@ -48,7 +48,7 @@ export function DependencyScopeReview({ project }: { project: StoredProject }) {
       projectId={project.id}
       anchorId={DEPENDENCY_SCOPE_ANCHOR}
       title="Dependencies to confirm"
-      subtitle="The open questions this response records as dependencies rather than quote lines, and the placeholders they leave in the quotation."
+      subtitle="The open questions this response records as dependencies, and the placeholders they leave in the equipment schedule."
     >
       <div data-testid="dependency-scope-review">
         <DependencyScopeFixes dependencies={prompts} onRecord={record} />

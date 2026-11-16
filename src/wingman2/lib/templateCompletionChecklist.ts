@@ -114,7 +114,7 @@ export function templateCompletionChecklist(template: RoomTemplate): TemplateCom
         ].filter((line): line is string => line !== null).join(" ") || "Assurance values are recorded; no specific commitments are set."
       : assuranceRow
         ? "Monitoring/spares allowances exist in the equipment schedule, but the support commitments are not stated."
-        : "No acceptance, training, warranty or spares basis is stated. Decide the support tier before quotation — it changes price and is discovered at first fault otherwise.",
+        : "No acceptance, training, warranty or spares basis is stated. Decide the support tier before design sign-off so the handover and first response are clear.",
   });
 
   const compliance = completion?.compliance;
@@ -127,7 +127,7 @@ export function templateCompletionChecklist(template: RoomTemplate): TemplateCom
     status: compliance ? (complianceWaived ? "not-applicable" : "covered") : complianceRow ? "by-others" : "unspecified",
     detail: compliance
       ? [
-          compliance.assistiveListening === "required" ? "Assistive listening is a required system (by-others allowance follows)." : compliance.assistiveListening === "recommended" ? "Assistive listening is recommended — confirm with the venue and price as an option." : compliance.assistiveListening === "not-required" ? "Assistive listening is recorded as not required for this venue." : null,
+          compliance.assistiveListening === "required" ? "Assistive listening is a required system (by-others scope follows)." : compliance.assistiveListening === "recommended" ? "Assistive listening is recommended — confirm with the venue and document it as optional scope." : compliance.assistiveListening === "not-required" ? "Assistive listening is recorded as not required for this venue." : null,
           compliance.lifeSafetyAudioPriority === true ? "Programme audio must yield to life-safety/voice-alarm announcements (engineered interface follows)." : null,
           compliance.recordingConsentPolicy ?? null,
           compliance.cameraPrivacy ?? null,

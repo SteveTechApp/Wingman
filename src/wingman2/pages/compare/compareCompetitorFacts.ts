@@ -342,7 +342,6 @@ export function competitorUsbFacts(profile: CompetitorProfile): string {
     specs.usbCPorts ? `${specs.usbCPorts}x USB-C` : "",
     specs.usbHostPorts ? `${specs.usbHostPorts} host` : "",
     specs.usbDevicePorts ? `${specs.usbDevicePorts} device` : "",
-    specs.usbTotalPorts ? `${specs.usbTotalPorts} total USB` : "",
     specs.usbStandard || "",
   ].filter(Boolean);
 

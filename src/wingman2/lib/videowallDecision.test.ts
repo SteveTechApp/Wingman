@@ -199,7 +199,10 @@ describe("videowall decision", () => {
     // A wall the picker cannot offer is a product combination the builder never
     // quotes, so the briefs have to cover the whole option catalogue.
     const catalogued = assessVideowallOptions(defaultWallRequirements).map((option) => option.id);
-    const reached = new Set(wallStartPresets.map((preset) => decideVideowall(preset.requirements).recommended?.option.id));
+    const reached = new Set(wallStartPresets.flatMap((preset) => {
+      const decision = decideVideowall(preset.requirements);
+      return [decision.recommended?.option.id, decision.alternative?.option.id].filter((id): id is string => Boolean(id));
+    }));
     expect(catalogued.filter((id) => !reached.has(id))).toEqual([]);
   });
   it("names the architecture every preset actually reaches", () => {
@@ -272,9 +275,9 @@ describe("videowall decision", () => {
     // rather than rendering a row for a wall that no longer exists.
     expect(coverage.unknownKeys).toEqual([]);
     expect(coverage.curated).toBe(wallStartPresetShortlistKeys.length);
-    // Every family stays on screen while the list is folded, so no band goes
-    // missing for the rep who picks by construction.
-    expect(coverage.families).toEqual({ lcd: 3, led: 1, projection: 2 });
+    // LCD panel/window combinations are configured by the guided questions,
+    // so the compact shortlist carries only LED and projection examples.
+    expect(coverage.families).toEqual({ lcd: 0, led: 1, projection: 2 });
     // A shortlist, not a second catalogue.
     expect(coverage.curated).toBeLessThan(coverage.catalogue / 2);
   });

@@ -286,8 +286,8 @@ export function buildDiscoveryBriefHtml(
 
     <section class="disclaimer">
       <h2>Important Notice &amp; Best-Efforts Disclaimer</h2>
-      <p>This discovery brief has been prepared on a best-efforts basis using WyreStorm Wingman to support your sales and design process. It is a planning record only and does not constitute a binding quotation, order confirmation, or statement of capability.</p>
-      <p><strong>Product Specifications:</strong> Any product specifications, features, compatibility information, lifecycle status, regional availability, pricing, and lead times referenced from this brief are indicative and must be independently verified against the current official WyreStorm documentation, datasheets, or by contacting the WyreStorm order desk before commercial use.</p>
+      <p>This discovery brief has been prepared on a best-efforts basis using WyreStorm Wingman to support your sales and design process. It is a planning record only and does not constitute a final system specification, order confirmation, or statement of capability.</p>
+      <p><strong>Product Specifications:</strong> Any product specifications, features, compatibility information, lifecycle status, regional availability and lead times referenced from this brief are indicative and must be independently verified against the current official WyreStorm documentation, datasheets or by contacting the WyreStorm order desk before system selection.</p>
       <p><strong>Technical Validation:</strong> Design decisions, power budgets, cable schedules and equipment selections derived from this brief are based on available product data and the assumptions recorded above. Final designs must be validated by a qualified AV integrator or pre-sales engineer before installation.</p>
       <p><strong>Limitation of Liability:</strong> WyreStorm Technologies Ltd provides this document "as is" without warranty of any kind, either expressed or implied. WyreStorm shall not be liable for any errors, omissions, or damages arising from the use of or reliance on the information contained in this document.</p>
     </section>

@@ -1,4 +1,5 @@
 export type CatalogFamily =
+  | "Signal Processing"
   | "Unified Communication"
   | "Presentation Switching"
   | "Synergy"
@@ -30,29 +31,48 @@ export type CatalogRole =
   | "usb-peripheral-host"
   | "uc-endpoint"
   | "accessory"
+  | "cable"
   | "camera"
   | "audio-endpoint"
   | "controller"
   | "distribution-amplifier"
-  | "extender";
+  | "extender"
+  | "network-switch"
+  | "signal-processor"
+  | "splitter";
 
 export type CatalogTechnology =
   | "camera"
   | "speaker"
   | "microphone"
   | "hdmi"
+  | "hdmi-2.0"
   | "usb-c"
   | "usb"
+  | "usb-2.0"
+  | "usb-3.0"
+  | "kvm"
   | "wireless-casting"
   | "hdbaset"
+  | "hdbaset-3.0"
   | "networkhd"
   | "dante"
   | "multiview"
   | "video-wall-processing"
   | "dual-display"
+  | "1gbe"
   | "ndi"
   | "led-processing"
   | "10gb";
+
+const EVIDENCE_TECHNOLOGY_FILTERS = new Set<CatalogTechnology>([
+  "kvm",
+  "1gbe",
+  "usb-2.0",
+  "usb-3.0",
+  "hdmi-2.0",
+  "hdbaset-3.0",
+]);
 
 export type CatalogDeploymentRole =
   | "standalone-core"
@@ -386,6 +406,40 @@ function isCableSku(sku: string, category: string): boolean {
   return /^(?:EXP-)?CAB-/i.test(sku) || containsToken(category.toLowerCase(), "cable") || containsToken(category.toLowerCase(), "cables");
 }
 
+function classificationHas(classificationText: string, token: string): boolean {
+  return containsToken(classificationText, token);
+}
+
+type TechnicalEvidence = {
+  usb?: { present?: boolean; versions?: unknown[]; evidence?: unknown[] };
+  kvm?: { supported?: boolean; evidence?: unknown[] };
+  hdmiVersions?: unknown[];
+  hdbasetVersions?: unknown[];
+  ethernetSpeeds?: unknown[];
+};
+
+type ProductClassification = Record<string, unknown>;
+
+function strings(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function classificationFacetText(classification: ProductClassification): string {
+  return [
+    classification.primaryCategory,
+    classification.category,
+    classification.subCategory,
+    classification.productType,
+    classification.productSubType,
+    classification.systemRole,
+    ...strings(classification.subClassifications),
+  ].filter((value): value is string => typeof value === "string").join(" ").toLowerCase();
+}
+
+function hasVersion(values: unknown[], version: string): boolean {
+  return values.some((value) => typeof value === "string" && new RegExp(`(?:^|\\D)${version.replace(/\./g, "\\.")}(?:\\D|$)`).test(value));
+}
+
 // A passive cable's generic "applications" copy (meeting room, video wall, UC space, ...)
 // describes rooms it might be *used in*, not what the cable *is* - so it should never
 // itself carry a system-role family/role that would surface it under those filter chips.
@@ -432,6 +486,7 @@ function inferFamilies(input: {
   category: string;
   summary: string;
   tags: string[];
+  classificationText: string;
 }): CatalogFamily[] {
   const text = [
     input.sku,
@@ -446,6 +501,15 @@ function inferFamilies(input: {
 
   const families: CatalogFamily[] = [];
   const has = (token: string) => containsToken(text, token);
+  const classified = (token: string) => classificationHas(input.classificationText, token);
+
+  // High-confidence catalog classification separates signal utilities and
+  // camera endpoints from incidental audio/control wording in the summary.
+  if (classified("camera endpoint") || classified("camera / capture")) return ["Unified Communication"];
+  if (classified("accessory / other") || classified("rack accessory") || classified("mounting accessory")) return ["Accessories"];
+  if (classified("splitter") || classified("signal utility") || classified("signal management") || classified("audio extraction") || classified("signal conditioning")) {
+    return ["Signal Processing", ...(classified("audio extraction") || classified("audio conversion") ? ["Audio" as const] : [])];
+  }
 
   // Product identity wins over references to other equipment in its description.
   if (/^(?:EX|TX|RX)-/i.test(input.sku)) {
@@ -455,6 +519,9 @@ function inferFamilies(input: {
   if (/^AMP-/i.test(input.sku)) return ["Audio"];
   if (/^(?:MX|MXV)-/i.test(input.sku)) return ["Matrix Switching", ...(isPresentationSwitcher(input.sku, input.name) ? ["Presentation Switching" as const] : [])];
   if (/^NHD-.*CTL/i.test(input.sku)) return ["AV over IP", "Control"];
+  if (classified("network switch") || classified("avoip infrastructure")) return ["AV over IP"];
+  if (classified("control interface") || classified("control device")) return ["Control", ...(has("synergy") ? ["Synergy" as const] : [])];
+  if (classified("hdbaset extender") || classified("signal extension endpoint")) return ["Extenders", ...(has("usb") ? ["USB Extension" as const] : [])];
 
   if (/^(?:EX|TX|RX)-/i.test(input.sku) || has("extender")) families.push("Extenders");
   if (has("kvm")) families.push("KVM");
@@ -511,14 +578,18 @@ function inferRoles(input: {
   name: string;
   category: string;
   summary: string;
-  tags: string[];
+  features: string[];
+  classificationText: string;
+  accessory: boolean;
 }): CatalogRole[] {
   // Roles describe the item itself; application tags and compatible equipment
   // are searchable context, not evidence that the item performs that function.
   const text = [input.sku, input.name, input.category].join(" ").toLowerCase();
   const roles: CatalogRole[] = [];
   const has = (token: string) => containsToken(text, token);
+  const classified = (token: string) => classificationHas(input.classificationText, token);
 
+  if (input.accessory) return isCableSku(input.sku, input.category) ? ["accessory", "cable"] : ["accessory"];
   if (/^(?:EX|TX|RX)-/i.test(input.sku)) return ["extender"];
   if (/^CAM-/i.test(input.sku)) return ["camera"];
   if (/^AMP-/i.test(input.sku)) return ["audio-endpoint"];
@@ -527,7 +598,15 @@ function inferRoles(input: {
   if (/^NHD-.*-TRX(?:-|$)/i.test(input.sku)) return ["av-over-ip-transceiver"];
   if (/^NHD-.*-TX(?:-|$)/i.test(input.sku)) return ["av-over-ip-encoder"];
   if (/^NHD-.*-RX(?:-|$)/i.test(input.sku)) return ["av-over-ip-decoder"];
-  if (/^(?:SP-|SP\d)/i.test(input.sku)) return ["distribution-amplifier"];
+  if (/^(?:SP-|SP\d)/i.test(input.sku)) return [classified("splitter") || classified("signal distribution") ? "splitter" : "distribution-amplifier"];
+
+  if (classified("network switch")) roles.push("network-switch");
+  if (classified("signal utility") || classified("signal management") || classified("audio extraction") || classified("audio conversion") || classified("edid")) roles.push("signal-processor");
+  if (classified("hdbaset extender") || classified("signal extension endpoint") || classified("usb / kvm extender")) roles.push("extender");
+  if (classified("control interface") || classified("control device") || classified("system-controller") || classified("keypad") || classified("touchscreen") || classified("touch interface")) roles.push("controller");
+  if (classified("camera endpoint") || classified("usb camera") || classified("camera / capture")) roles.push("camera");
+  if (classified("microphone system") || classified("speakerphone") || classified("audio endpoint")) roles.push("audio-endpoint");
+  if (classified("splitter") || classified("one-to-many distribution")) roles.push("splitter");
 
   if (has("video bar")) roles.push("video-bar");
   if (isPresentationSwitcher(input.sku, input.name)) roles.push("presentation-switcher");
@@ -543,12 +622,12 @@ function inferRoles(input: {
   if (has("uc") || has("conference")) roles.push("uc-endpoint");
   if (has("accessory") || has("dongle")) roles.push("accessory");
   if (has("camera") || has("ptz")) roles.push("camera");
-  if (has("speaker") || has("microphone")) roles.push("audio-endpoint");
+  if (has("speakerphone") || has("microphone system")) roles.push("audio-endpoint");
   if (has("extender") || /^(?:EX|TX|RX)-/i.test(input.sku)) roles.push("extender");
   if (roles.includes("presentation-switcher") || roles.includes("matrix-switcher")) roles.push("room-core");
 
   if (isCableSku(input.sku, input.category)) {
-    return uniqueStrings(roles.filter((role) => !SYSTEM_ROLE_ROLES.has(role)).concat("accessory"));
+    return uniqueStrings(roles.filter((role) => !SYSTEM_ROLE_ROLES.has(role)).concat("accessory", "cable"));
   }
 
   return uniqueStrings(roles);
@@ -558,30 +637,69 @@ function inferTechnologies(input: {
   sku: string;
   name: string;
   summary: string;
-  tags: string[];
+  features: string[];
+  transport: string[];
+  classificationText: string;
+  classification: ProductClassification;
+  technicalEvidence: TechnicalEvidence | null;
 }): CatalogTechnology[] {
-  const text = [input.sku, input.name, input.summary].join(" ").toLowerCase();
+  // Identity is useful for direct catalogue discovery. Summaries and flattened
+  // feature/tag blobs are not protocol evidence: generated profiles can carry
+  // boilerplate such as “KVM / USB extension” on unrelated products.
+  const identityText = [input.sku, input.name].join(" ").toLowerCase();
+  const summaryText = input.summary.toLowerCase();
+  const featureText = input.features.join(" ").toLowerCase();
+  const transportText = input.transport.join(" ").toLowerCase();
+  const classificationText = classificationFacetText(input.classification);
+  const evidence = input.technicalEvidence ?? {};
+  const hasTechnicalEvidence = input.technicalEvidence !== null;
   const technologies: CatalogTechnology[] = [];
-  const has = (token: string) => containsToken(text, token);
+  const identityHas = (token: string) => containsToken(identityText, token);
+  const featureHas = (token: string) => input.features.some((feature) => containsToken(feature.toLowerCase(), token));
+  const transportHas = (token: string) => containsToken(transportText, token);
+  const classificationHasToken = (token: string) => classificationHas(classificationText, token);
+  const classificationSubtype = typeof input.classification.productSubType === "string"
+    ? [input.classification.productSubType]
+    : [];
+  const usbPresent = hasTechnicalEvidence
+    ? evidence.usb?.present === true
+    : transportHas("usb") || strings(input.classification.signalDomains).some((value) => containsToken(value.toLowerCase(), "usb"))
+      || identityHas("usb") || featureHas("usb");
+  const explicitUsbVersions = hasTechnicalEvidence ? (evidence.usb?.versions ?? []) : classificationSubtype;
+  const hdmiVersions = hasTechnicalEvidence ? (evidence.hdmiVersions ?? []) : classificationSubtype;
+  const hdbasetVersions = hasTechnicalEvidence ? (evidence.hdbasetVersions ?? []) : classificationSubtype;
+  const ethernetSpeeds = [...(evidence.ethernetSpeeds ?? []), ...input.transport];
+  const directKvm = !hasTechnicalEvidence && (/\bkvm\b/i.test(`${input.sku} ${input.name}`)
+    || /\bkvm\b/i.test(classificationText));
 
-  if (has("camera") || has("ptz")) technologies.push("camera");
-  if (has("speaker")) technologies.push("speaker");
-  if (has("microphone") || has("mic")) technologies.push("microphone");
-  if (has("hdmi")) technologies.push("hdmi");
-  if (has("usb-c")) technologies.push("usb-c");
-  if (has("usb")) technologies.push("usb");
-  if (has("wireless")) technologies.push("wireless-casting");
-  if (has("hdbaset")) technologies.push("hdbaset");
-  if (has("networkhd") || /^NHD-/i.test(input.sku)) technologies.push("networkhd");
-  if (has("dante")) technologies.push("dante");
-  if (has("multiview")) technologies.push("multiview");
-  if (has("video wall") || has("mosaic")) technologies.push("video-wall-processing");
-  if (has("dual display") || has("dual output")) technologies.push("dual-display");
-  if (has("ndi")) technologies.push("ndi");
-  if (has("led wall") || has("led processor") || has("led cabinet") || has("led display") || has("led tile")) {
+  if (identityHas("camera") || identityHas("ptz") || featureHas("camera endpoint") || classificationHasToken("camera endpoint")) technologies.push("camera");
+  if (identityHas("speaker") || featureHas("speakerphone")) technologies.push("speaker");
+  if (identityHas("microphone") || identityHas("mic") || featureHas("microphone")) technologies.push("microphone");
+  if (transportHas("hdmi") || identityHas("hdmi") || featureHas("hdmi") || containsToken(summaryText, "hdmi")) technologies.push("hdmi");
+  if (hasVersion(hdmiVersions, "2.0") || (!hasTechnicalEvidence && /\bhdmi\s*2\.0\b/i.test(identityText))) technologies.push("hdmi-2.0");
+  if (transportHas("usb-c") || identityHas("usb-c") || featureHas("usb-c")) technologies.push("usb-c");
+  if (usbPresent) technologies.push("usb");
+  if (hasVersion(explicitUsbVersions, "2.0") || (!hasTechnicalEvidence && /\busb\s*2\.0\b/i.test(identityText))) technologies.push("usb-2.0");
+  if (hasVersion(explicitUsbVersions, "3.0") || (!hasTechnicalEvidence && /\busb\s*3\.0\b/i.test(identityText))) technologies.push("usb-3.0");
+  if (hasTechnicalEvidence ? evidence.kvm?.supported === true : directKvm) technologies.push("kvm");
+  if (identityHas("wireless") || featureHas("wireless casting") || featureHas("wireless presentation")) technologies.push("wireless-casting");
+  if (transportHas("hdbaset") || identityHas("hdbaset") || featureHas("hdbaset") || containsToken(summaryText, "hdbaset")) technologies.push("hdbaset");
+  if (hasVersion(hdbasetVersions, "3.0") || (!hasTechnicalEvidence && (/\bhdbaset\s*3\.0\b/i.test(identityText) || /\bhdbt3\b/i.test(input.sku)))) technologies.push("hdbaset-3.0");
+  if (/^NHD-/i.test(input.sku) || classificationHasToken("networkhd")) technologies.push("networkhd");
+  if (identityHas("dante") || featureHas("dante")) technologies.push("dante");
+  if (identityHas("multiview") || featureHas("multiview") || classificationHasToken("multiview processor")) technologies.push("multiview");
+  if (identityHas("video wall") || identityHas("mosaic") || featureHas("video wall processing")) technologies.push("video-wall-processing");
+  if (identityHas("dual display") || identityHas("dual output") || featureHas("dual display")) technologies.push("dual-display");
+  if (identityHas("ndi") || featureHas("ndi")) technologies.push("ndi");
+  if (identityHas("led wall") || identityHas("led processor") || identityHas("led cabinet") || identityHas("led display") || identityHas("led tile")) {
     technologies.push("led-processing");
   }
-  if (has("10gb") || has("10gbe")) technologies.push("10gb");
+  if (/(?:^|[^0-9])10(?:\.3125)?\s?g(?:be|bps|b)?(?:[^a-z]|$)/i.test(`${identityText} ${transportText}`)) technologies.push("10gb");
+  if (/(?:^|[^0-9])1\s?(?:gbe|gbps|gbit(?:\/s)?|gigabit(?:\s+ethernet)?)(?:$|[^a-z0-9])/i.test(ethernetSpeeds.join(" "))
+    || /(?:^|[^0-9])1000\s?(?:base-?t|mbps)(?:$|[^a-z0-9])/i.test(ethernetSpeeds.join(" "))
+    || /(?:^|[^0-9])1\s?(?:gbe|gbps|gbit(?:\/s)?|gigabit(?:\s+ethernet)?)(?:$|[^a-z0-9])/i.test(identityText)) {
+    technologies.push("1gbe");
+  }
 
   return uniqueStrings(technologies);
 }
@@ -678,6 +796,28 @@ export function applyCatalogOverrides(input: unknown, overrideSource?: Record<st
       let series = String(record.series ?? "").trim();
       const category = String(record.category ?? record.type ?? record.productType ?? "Product").trim();
       const summary = String(record.summary ?? record.description ?? record.shortDescription ?? "").trim();
+      const classification = record.productClassification && typeof record.productClassification === "object"
+        ? record.productClassification as Record<string, unknown>
+        : {};
+      const classificationText = [
+        classification.primaryCategory,
+        classification.category,
+        classification.subCategory,
+        classification.productType,
+        classification.productSubType,
+        classification.systemRole,
+        ...(Array.isArray(classification.subClassifications) ? classification.subClassifications : []),
+        ...(Array.isArray(classification.classificationPath) ? classification.classificationPath : []),
+      ].filter((value): value is string => typeof value === "string").join(" ");
+      const productFeatures = [
+        ...(Array.isArray(record.features) ? record.features.map(String) : []),
+        ...(Array.isArray(record.featureTags) ? record.featureTags.map(String) : []),
+        ...(Array.isArray(record.technologies) ? record.technologies.map(String) : []),
+        ...(Array.isArray(record.connectors) ? record.connectors.map(String) : []),
+      ];
+      const transport = Array.isArray(classification.transportClass)
+        ? classification.transportClass.map(String)
+        : [];
 
       // A family landing page is not an orderable product. Keep its actual
       // transmitter/receiver and regional SKUs available as separate results.
@@ -725,14 +865,36 @@ export function applyCatalogOverrides(input: unknown, overrideSource?: Record<st
         category: category || "Product",
         summary,
         tags,
+        features: productFeatures,
+        classificationText,
+        classification,
+        technicalEvidence: record.technicalEvidence && typeof record.technicalEvidence === "object"
+          ? record.technicalEvidence as TechnicalEvidence
+          : null,
+        transport,
       };
 
       const override = mergedOverrides[normalizedSku];
       const accessory = record.commercialRole === "accessory" || record.commercialRole === "cable"
+        || classificationHas(classificationText, "accessory")
+        || classificationHas(classificationText, "rack mount")
+        || classificationHas(classificationText, "mounting accessory")
+        || classificationHas(classificationText, "usb cable")
+        || classificationHas(classificationText, "hdmi cable")
+        || classificationHas(classificationText, "displayport cable")
         || /^(?:PSU-|.*-(?:RACK|MNT)(?:-|$))/.test(normalizedSku);
       const families = override?.families ?? (accessory ? ["Accessories"] as CatalogFamily[] : inferFamilies(seed));
-      const roles = override?.roles ?? (accessory ? ["accessory"] as CatalogRole[] : inferRoles(seed));
-      const technologies = override?.technologies ?? inferTechnologies(seed);
+      const inferredRoles = override?.roles ?? inferRoles({ ...seed, accessory });
+      const roles = isCableSku(seed.sku, seed.category)
+        ? uniqueStrings([...inferredRoles, "accessory", "cable"])
+        : inferredRoles;
+      const inferredTechnologies = inferTechnologies(seed);
+      const technologies = override?.technologies
+        ? uniqueStrings([
+            ...override.technologies,
+            ...inferredTechnologies.filter((technology) => EVIDENCE_TECHNOLOGY_FILTERS.has(technology)),
+          ])
+        : inferredTechnologies;
       const deploymentRole = override?.deploymentRole ?? inferDeploymentRole({ sku: seed.sku, summary: seed.summary, families, roles });
       const lifecycle = override?.lifecycle ?? inferLifecycle(seed);
       const dependencies = override?.dependencies ?? inferDependencies({ sku: seed.sku, families, roles, technologies });
@@ -766,7 +928,7 @@ export function buildFacetIndex(products: CatalogProduct[]): CatalogFacetIndex {
     series: uniqueStrings(products.map((product) => product.series)).sort(),
     categories: uniqueStrings(products.map((product) => product.category)).sort(),
     roles: uniqueStrings(products.flatMap((product) => product.roles)).sort(),
-    technologies: uniqueStrings(products.flatMap((product) => product.technologies)).sort(),
+    technologies: uniqueStrings(products.flatMap((product) => product.technologies)).filter((technology) => technology !== "usb").sort(),
     deploymentRoles: uniqueStrings(products.map((product) => product.deploymentRole)).sort(),
   };
 }
@@ -785,7 +947,9 @@ function passesStructuredFilters(product: CatalogProduct, state: CatalogFilterSt
   if (state.technologies.length > 0 && !intersects(product.technologies, state.technologies)) return false;
   if (state.deploymentRoles.length > 0 && !state.deploymentRoles.includes(product.deploymentRole)) return false;
   if (state.standaloneOnly && !product.standalone) return false;
-  if (!state.includeAccessories && (product.deploymentRole === "accessory" || product.deploymentRole === "companion")) return false;
+  const explicitCableIntent = product.roles.includes("cable") && isExplicitCableIntent(product, state);
+  if (product.roles.includes("cable") && !explicitCableIntent) return false;
+  if (!state.includeAccessories && (product.deploymentRole === "accessory" || product.deploymentRole === "companion") && !explicitCableIntent) return false;
   if (state.excludeEolSoon && product.lifecycle.excludeFromNewRecommendations) return false;
 
   if (state.dependencySkus.length > 0) {
@@ -801,6 +965,12 @@ function passesStructuredFilters(product: CatalogProduct, state: CatalogFilterSt
   }
 
   return true;
+}
+
+export function isExplicitCableIntent(product: CatalogProduct, state: CatalogFilterState): boolean {
+  if (state.roles.includes("cable")) return true;
+  if (/\bcables?\b|\bcabling\b/i.test(state.search)) return true;
+  return Boolean(state.search.trim()) && normalizeSku(product.sku) === normalizeSku(state.search);
 }
 
 function strictMatch(product: CatalogProduct, state: CatalogFilterState): boolean {

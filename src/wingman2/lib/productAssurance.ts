@@ -202,6 +202,12 @@ export function buildDesignAssuranceLedger(context: AssuranceContext): DesignAss
 
   const requirementText = context.requirementText ?? "";
   const lower = requirementText.toLowerCase();
+  // Negative and out-of-scope answers are part of the room record too. A
+  // literal scan for "USB" treated "No USB transport required" and USB-C
+  // video inputs as peripheral paths, while "audio by others" was treated as
+  // an unproven WyreStorm audio design. Gate only positive, in-scope needs.
+  const usbNotRequired = /\bno usb (?:transport|path|requirement) (?:is )?required\b|\bno usb devices? required\b|\bno camera or microphone requirements\b|\bwithout (?:a )?usb (?:transport|peripheral) path\b/i.test(requirementText);
+  const audioByOthers = /\baudio\b.{0,80}\bby others\b/i.test(requirementText);
   const selectedSkus = context.products.map((product) => product.sku.toUpperCase());
   const selectedProfiles = selectedSkus
     .map((sku) => technicalBySku.get(normaliseSku(sku)))
@@ -238,7 +244,7 @@ export function buildDesignAssuranceLedger(context: AssuranceContext): DesignAss
       message: "A NetworkHD endpoint is selected without a governed NetworkHD controller in the BOM.",
     });
   }
-  if (/\busb\b|camera|touch|kvm|byom/.test(lower) && !/usb/.test(transportText + " " + dependencyText)) {
+  if (!usbNotRequired && (/\busb (?:camera|microphone|devices?|peripherals?|extension|host)|\btouch(?:screen)?\b|\bkvm\b|\bbyom\b|\bcamera (?:path|transport|to the call|and microphone)\b|\broom pc owns usb\b/i.test(requirementText)) && !/usb/.test(transportText + " " + dependencyText)) {
     items.push({
       id: "usb-path-unproven",
       severity: "blocker",
@@ -246,7 +252,7 @@ export function buildDesignAssuranceLedger(context: AssuranceContext): DesignAss
       message: "The requirement includes USB, but the selected governed profiles do not prove a complete USB path and host/device ownership.",
     });
   }
-  if (/speaker|amplif|room audio|reinforcement|dante|aes67/.test(lower) && !/audio|dante|aes67/.test(transportText)) {
+  if (!audioByOthers && /speaker|amplif|room audio|reinforcement|dante|aes67/.test(lower) && !/audio|dante|aes67/.test(transportText)) {
     items.push({
       id: "audio-path-unproven",
       severity: "blocker",

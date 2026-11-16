@@ -671,6 +671,7 @@ const table: LanguageTable = {
       ]
     },
     "control": {
+      "no-user-control": ["keine benutzersteuerung", "keine bedienung erforderlich", "wird extern gesteuert"],
       "simple-auto": [
         "automatisch",
         "auto",
@@ -694,6 +695,12 @@ const table: LanguageTable = {
         "keypad",
         "touch"
       ],
+      "wall-keypad": ["wandtastenfeld", "tastenfeld an der wand", "wandbedienfeld"],
+      "source-selection-at-display": ["quelle am display auswählen", "quelle am bildschirm wählen", "quelle direkt am fernseher wählen"],
+      "independent-display-routing": ["unterschiedliche quellen je bildschirm", "bildschirme unabhängig schalten", "verschiedene quellen auf den displays"],
+      "central-operator-control": ["zentrale bedienung", "leitstellenbedienung", "operator wählt die quelle"],
+      "presets-schedules": ["gespeicherte layouts", "zeitgesteuerte wechsel", "voreinstellungen abrufen"],
+      "staff-mobile-control": ["bedienung per mitarbeiterhandy", "steuerung per tablet", "steuerung per mobiltelefon"],
       "software-app-control": [
         "app",
         "software",

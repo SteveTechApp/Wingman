@@ -70,6 +70,7 @@ describe("findStrandedQuickStartDefaults", () => {
       ...lectureHallDefaults,
       opportunity: "classroom",
       displays: "one-display",
+      "primary-display": "single-large-flat-panel",
       // The rep changed the behaviour answer themselves before displays hid it.
       "display-behaviour": "video-wall-or-processor-feed",
     };

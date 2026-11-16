@@ -23,8 +23,12 @@ export const discoveryAudioQuestions: DiscoveryQuestion[] = [
       { value: "route-to-recorder", label: "To a recorder, stream or production desk", help: "Programme sound is captured separately from what the room hears." },
       { value: "route-to-dante", label: "Onto the Dante / AES67 audio network", help: "Programme audio joins the building audio network rather than a point-to-point cable." },
       { value: "route-to-display-speakers", label: "To the display's own speakers only", help: "The screen plays the sound and no separate room audio system is used." },
+      { value: "switcher-feed-embedded", label: "Embedded audio follows the video", help: "No separate audio output is required from the video switcher." },
+      { value: "switcher-feed-balanced-analogue", label: "Balanced analogue audio output", help: "The video switcher de-embeds audio to a balanced analogue output for the separate audio system." },
+      { value: "switcher-feed-digital", label: "Digital audio output", help: "The video switcher provides a digital audio output; confirm the receiving format in the note if known." },
+      { value: "switcher-feed-unknown", label: "Feed type not confirmed", help: "Leave the interface for the video and audio system designers to confirm together." },
       { value: "no-programme-audio-route", label: "No programme audio beyond the source", help: "Nothing else in the system carries or plays programme sound." },
-      { value: "unknown-audio-route", label: "Not confirmed — audio route", help: "Record where sound is taken from and where it must arrive before pricing interfaces." },
+      { value: "unknown-audio-route", label: "Not confirmed — audio route", help: "Record where sound is taken from and where it must arrive before finalising the signal path." },
     ],
   },
   {
@@ -59,10 +63,10 @@ export const discoveryAudioQuestions: DiscoveryQuestion[] = [
   {
     id: "room-acoustics", shortLabel: "Room acoustics", section: "About the space", required: true,
     question: "What physical conditions affect sound in this space?",
-    prompt: "Record dimensions, ceiling height, seating depth, construction, existing treatment and noise in the notes.",
+    prompt: "Use the room dimensions and site details already captured. Record audible echo, background noise, existing acoustic treatment and any unusual seating or listening conditions.",
     why: "Coverage and reverberation determine whether ordinary speakers, steerable columns, modular arrays or acoustic treatment are appropriate.",
     selectionMode: "multiple", exclusiveValues: ["unknown-room-acoustics"],
-    capturePlaceholder: "Example: 24 × 18m tiered lecture hall, 6m hard ceiling, masonry and rear glazing; audible echo; two possible column positions and limited ceiling access.",
+    capturePlaceholder: "Example: Noticeable echo, loud ventilation, hard floor and glazing; existing wall panels; listeners are spread across deep tiered seating.",
     options: [
       { value: "treated-room", label: "Absorptive finishes or existing treatment" },
       { value: "reflective-room", label: "Hard surfaces or audible reverberation" },

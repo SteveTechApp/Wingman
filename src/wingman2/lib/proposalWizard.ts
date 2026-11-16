@@ -1,10 +1,8 @@
 import { REP_COPY } from "./proposalCopy";
 export type ProposalDocumentType =
-  | "quote-response"
   | "technical-proposal"
   | "application-proposal"
-  | "blended-proposal"
-  | "tender-response";
+  | "blended-proposal";
 
 export type ProposalDocumentTypeConfig = {
   id: ProposalDocumentType;
@@ -14,7 +12,7 @@ export type ProposalDocumentTypeConfig = {
 };
 
 export type ProposalWizardDraft = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   projectId: string;
   discoveryFingerprint?: string;
   documentType: ProposalDocumentType;
@@ -23,7 +21,6 @@ export type ProposalWizardDraft = {
   contactName: string;
   proposalReference: string;
   proposalDate: string;
-  validityDays: number;
   preparedBy: string;
   executiveSummary: string;
   customerObjectives: string;
@@ -37,16 +34,6 @@ export type ProposalWizardDraft = {
   responsibilities: string;
   leadTime: string;
   warranty: string;
-  currency: "GBP" | "USD" | "EUR";
-  pricesExcludeTax: boolean;
-  bomUnitPrices: Record<string, string>;
-  /**
-   * Rate the rep enters for each installation line the site survey produced,
-   * keyed by the line id. Installation scope comes from the wall design, so it
-   * is priced beside the equipment rather than typed as free text.
-   */
-  installationUnitPrices: Record<string, string>;
-  servicesAndAllowances: string;
   implementationTimeline: string;
   nextSteps: string;
   solutionConfirmed: boolean;
@@ -70,7 +57,6 @@ export type ProposalReadinessInput = {
   continueWithoutBom: boolean;
   reviewConfirmed: boolean;
   technicalBlockerCount?: number;
-  commercialPricingComplete?: boolean;
 };
 
 export type ProposalReadinessResult = {
@@ -83,30 +69,7 @@ export type ProposalReadinessResult = {
   missing: string[];
 };
 
-/**
- * The one sentence the readiness check uses for a line the document would print
- * as TBC. Exported because the checklist, the readiness list and their tests
- * must be talking about the same item — a view that matched this wording by hand
- * would quietly stop offering the rate card's fix when the sentence changed.
- */
-export const PROPOSAL_PRICING_GAP =
-  "Enter a unit price for every included equipment and installation line.";
-
 export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
-  {
-    id: "quote-response",
-    label: "Basic quotation response",
-    description: "A concise customer response covering requirement, selected products, assumptions and next steps.",
-    sections: [
-      "Executive Summary",
-      "Customer Requirement",
-      "Proposed Solution",
-      "Display Schedule",
-      "Equipment Schedule",
-      "Assumptions and Exclusions",
-      "Next Steps",
-    ],
-  },
   {
     id: "technical-proposal",
     label: "Technical proposal",
@@ -142,8 +105,8 @@ export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
   },
   {
     id: "blended-proposal",
-    label: "Blended commercial and technical proposal",
-    description: "The default balanced format for commercial decision-makers and technical reviewers.",
+    label: "Blended system proposal",
+    description: "The default balanced format for customer stakeholders and technical reviewers.",
     sections: [
       "Executive Summary",
       "Understanding of Requirements",
@@ -156,26 +119,6 @@ export const PROPOSAL_DOCUMENT_TYPES: ProposalDocumentTypeConfig[] = [
       "Dependencies and Responsibilities",
       "Assumptions and Exclusions",
       "Validation Items",
-      "Next Steps",
-    ],
-  },
-  {
-    id: "tender-response",
-    label: "Formal tender response",
-    description: "A comprehensive response with scope, compliance, responsibilities, risks and implementation detail.",
-    sections: [
-      "Executive Summary",
-      "Tender Understanding",
-      "Scope of Supply",
-      "Proposed Solution",
-      "Technical Architecture",
-      "Display Schedule",
-      "Equipment Schedule",
-      "Implementation Approach",
-      "Dependencies and Responsibilities",
-      "Assumptions and Exclusions",
-      "Validation and Compliance",
-      "Warranty and Support",
       "Next Steps",
     ],
   },
@@ -208,7 +151,7 @@ function referenceFor(projectId: string) {
 export function getProposalDocumentTypeConfig(type: ProposalDocumentType) {
   return (
     PROPOSAL_DOCUMENT_TYPES.find((candidate) => candidate.id === type) ??
-    PROPOSAL_DOCUMENT_TYPES[3]
+    PROPOSAL_DOCUMENT_TYPES[2]
   );
 }
 
@@ -239,7 +182,7 @@ export function createProposalWizardDefaults(input: {
       : "We propose a WyreStorm solution aligned to the captured room, source, display, USB, audio, control and infrastructure requirements.");
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     projectId: input.projectId,
     discoveryFingerprint: input.discoveryFingerprint,
     documentType: "blended-proposal",
@@ -248,7 +191,6 @@ export function createProposalWizardDefaults(input: {
     contactName: input.contactName?.trim() ?? "",
     proposalReference: referenceFor(input.projectId),
     proposalDate: todayIsoDate(),
-    validityDays: 30,
     preparedBy: input.preparedBy,
     executiveSummary: input.executiveSummary,
     customerObjectives: input.executiveSummary,
@@ -263,7 +205,7 @@ export function createProposalWizardDefaults(input: {
     ].join("\n"),
     exclusions: [
       "Cabling, connectors, patch leads and installation consumables unless expressly listed.",
-      "Installation labour, project management, commissioning and programming unless expressly listed.",
+      "Installation labour, project management, commissioning and programming unless expressly listed as included.",
       "Visio, CAD, schematic and as-built drawing production unless expressly listed.",
       "Displays, projectors, loudspeakers, microphones, network switches and third-party equipment unless listed.",
       "Electrical, structural, containment and builder's work.",
@@ -281,20 +223,6 @@ export function createProposalWizardDefaults(input: {
     ].join("\n"),
     leadTime: "Lead time is subject to stock availability and will be confirmed at order.",
     warranty: "Warranty and support are provided in accordance with the applicable WyreStorm product and regional terms.",
-    currency: "GBP",
-    pricesExcludeTax: true,
-    bomUnitPrices: {},
-    // The rate card lives on the rep's workspace, so the draft starts unpriced
-    // and the page seeds it once the card arrives — keyed on the card's own
-    // revision, so a save from that page is not re-applied over an edit.
-    installationUnitPrices: {},
-    servicesAndAllowances: [
-      "Cabling and consumables | By integrator | Separately quoted",
-      "Installation labour | By integrator | Separately quoted",
-      "Project management | By integrator | Separately quoted",
-      "Configuration and commissioning | By integrator | Separately quoted",
-      "Visio / CAD / as-built drawings | By integrator | Separately quoted",
-    ].join("\n"),
     implementationTimeline: [
       "Phase 1 | Site survey and preparation | Dates to be agreed | Confirm room, cable routes, network, power and access",
       "Phase 2 | Hardware delivery and physical installation | Dates to be agreed | Subject to stock and site readiness",
@@ -306,7 +234,7 @@ export function createProposalWizardDefaults(input: {
       "Confirm the customer and project details.",
       "Approve the proposed architecture and product schedule.",
       "Resolve the listed validation items.",
-      "Issue the final commercial quotation and implementation programme.",
+      "Confirm the proposed architecture, product schedule and implementation programme.",
     ].join("\n"),
     solutionConfirmed: false,
     continueWithoutBom: false,
@@ -327,10 +255,16 @@ export function loadProposalWizardDraft(
     if (!raw) return defaults;
 
     const parsed = JSON.parse(raw) as Partial<ProposalWizardDraft>;
-    const discoveryChanged = parsed.discoveryFingerprint !== defaults.discoveryFingerprint;
+    // Drafts written by the retired commercial wizard can still sit in local
+    // storage. Project only fields this system proposal consumes, so a load and
+    // save cannot keep carrying those obsolete values forward.
+    const safeParsed = Object.fromEntries(
+      Object.entries(parsed).filter(([key]) => key in defaults),
+    ) as Partial<ProposalWizardDraft>;
+    const discoveryChanged = safeParsed.discoveryFingerprint !== defaults.discoveryFingerprint;
     return {
       ...defaults,
-      ...parsed,
+      ...safeParsed,
       // Step 1 is project/profile metadata, not authored proposal narrative.
       // Always refresh it so a cached draft cannot impersonate another project.
       customerName: defaults.customerName,
@@ -350,22 +284,11 @@ export function loadProposalWizardDraft(
             reviewConfirmed: false,
           }
         : {}),
-      schemaVersion: 2,
+      schemaVersion: 3,
       projectId,
       bomQuantities: {
         ...defaults.bomQuantities,
-        ...(discoveryChanged ? {} : parsed.bomQuantities ?? {}),
-      },
-      bomUnitPrices: {
-        ...defaults.bomUnitPrices,
-        ...(discoveryChanged ? {} : parsed.bomUnitPrices ?? {}),
-      },
-      // The saved draft keeps the rates it carries, cleared cells included: the
-      // workspace card seeds what the draft never reached, and a restore is a
-      // choice made on the page rather than something a reload does by itself.
-      installationUnitPrices: {
-        ...((parsed.currency ?? defaults.currency) === defaults.currency ? defaults.installationUnitPrices : {}),
-        ...(discoveryChanged ? {} : parsed.installationUnitPrices ?? {}),
+        ...(discoveryChanged ? {} : safeParsed.bomQuantities ?? {}),
       },
     };
   } catch {
@@ -407,7 +330,6 @@ export function computeProposalReadiness(
 
   const solutionComplete =
     (input.technicalBlockerCount ?? 0) === 0 &&
-    (input.commercialPricingComplete ?? input.continueWithoutBom) &&
     (input.bomRowCount > 0 || input.continueWithoutBom);
 
   const solution = solutionComplete
@@ -436,9 +358,6 @@ export function computeProposalReadiness(
   }
   if (input.bomRowCount <= 0 && !input.continueWithoutBom) {
     missing.push("Add the core WyreStorm products or explicitly continue without a final BOM.");
-  }
-  if (input.bomRowCount > 0 && !input.commercialPricingComplete) {
-    missing.push(PROPOSAL_PRICING_GAP);
   }
   if ((input.technicalBlockerCount ?? 0) > 0) {
     missing.push(`Resolve ${input.technicalBlockerCount} technical assurance blocker(s) before customer export.`);

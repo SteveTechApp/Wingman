@@ -2739,7 +2739,7 @@ const PROPOSAL_STEPS = [
   "Customer and project",
   "Requirements review",
   "Proposed solution",
-  "Commercial and delivery",
+  "Scope and delivery",
   "Review and export",
 ];
 
@@ -2964,19 +2964,17 @@ async function assertProposalStepCards(page) {
 }
 
 /**
- * The guided wall wizard's start step, measured: the card's box, every block it
- * lays out, the brief against the common walls, and the read-out against the two
- * canvas fields.
+ * The guided wall wizard's first step, measured: the card's box and its three
+ * supported wall technology choices.
  *
  * What those boxes mean is `lib/wall-start-step.mjs`; this is the `page.evaluate`
- * that produces them, which only a browser can take. The brief is measured where
- * the step mounts it rather than by a selector of its own internals, so a control
- * that moved inside the brief would answer here as a narrower brief instead of a
- * passing reading.
+ * that produces them, which only a browser can take. The choices are read from
+ * their labelled group so a missing technology cannot pass as an empty but
+ * otherwise well-contained card.
  */
 async function measureWallStartStep(page) {
   return page.evaluate(() => {
-    const card = document.querySelector('[data-testid="videowall-wizard-step-job"]');
+    const card = document.querySelector('[data-testid="videowall-wizard-step-picture"]');
     if (!card) return null;
 
     const cardBox = card.getBoundingClientRect();
@@ -3056,17 +3054,10 @@ async function measureWallStartStep(page) {
     };
     walk(card);
 
-    const brief = document.querySelector('[data-testid="videowall-led-brief"]');
-    const readout = document.querySelector('[data-testid="videowall-led-brief-readout"]');
-    const walls = [...document.querySelectorAll('[data-testid^="videowall-preset-"]')];
-    // The heading over the list, found by its own words: it is the block the
-    // brief has to end above, and a step that lost it is a failure rather than a
-    // comparison against nothing.
-    const commonWalls = [...card.querySelectorAll("h2")]
-      .find((heading) => (heading.textContent ?? "").trim() === "Common walls") ?? null;
-    const questions = [...card.querySelectorAll("button")]
-      .find((button) => /Answer the questions instead/.test(button.textContent ?? "")) ?? null;
-    const canvasInputs = [...(brief?.querySelectorAll('input[type="number"]') ?? [])];
+    const heading = document.querySelector('[data-testid="videowall-wizard"] h1');
+    const technologyGroup = card.querySelector('[role="group"][aria-label="Wall technology"]');
+    const technologies = [...(technologyGroup?.querySelectorAll("button strong") ?? [])]
+      .map((button) => (button.textContent ?? "").trim());
 
     return {
       card: { width: card.clientWidth, scroll: card.scrollWidth },
@@ -3075,32 +3066,15 @@ async function measureWallStartStep(page) {
       tree,
       clipped: clip ? outside(cardBox, clip) : null,
       escaped,
-      brief: rect(brief),
-      commonWalls: rect(commonWalls),
-      questions: rect(questions),
-      firstWall: rect(walls[0] ?? null),
-      rows: walls.length,
-      readout: readout
-        ? { ...rect(readout), scroll: readout.scrollWidth, text: (readout.textContent ?? "").trim() }
-        : null,
-      canvas: {
-        width: Number(canvasInputs[0]?.value ?? 0),
-        height: Number(canvasInputs[1]?.value ?? 0),
-      },
+      heading: (heading?.textContent ?? "").trim(),
+      technologies,
     };
   });
 }
 
 /**
- * The guided wall wizard's start step, at the laptop width and on both phones.
- *
- * The step was reordered so an LED design begins with its own brief — canvas,
- * pitch, cabinet array — instead of a wall someone else answered, and that
- * ordering is what this pass holds: the brief's box ends above the common walls,
- * the way past those walls sits above the first of them, and the read-out states
- * the canvas the fields hold. The card's own containment is read in the same
- * sweep, because the phone widths are where a row of chips is widest against the
- * card.
+ * The guided wall wizard starts by asking for the wall technology. This pass
+ * holds the three supported wall types and card containment on laptop and phones.
  *
  * The step is opened by its address rather than by clicking through the wizard:
  * it is step one, which is where the route lands, so the reading cannot be taken
@@ -3109,7 +3083,7 @@ async function measureWallStartStep(page) {
 async function assertWallWizardStartStep(page) {
   await page.goto(`http://127.0.0.1:${port}/wingman/videowall`, { waitUntil: "networkidle" });
   await expect(
-    page.getByTestId("videowall-wizard-step-job"),
+    page.getByTestId("videowall-wizard-step-picture"),
     "The wall wizard should open on its start step",
   ).toBeVisible({ timeout: 15_000 });
 
@@ -3128,7 +3102,7 @@ async function assertWallWizardStartStep(page) {
 
   await page.setViewportSize({ width: 1366, height: 900 });
   console.log(
-    `[browser-smoke] The guided wall wizard's start step leads with the LED brief and holds it at 1366px, 390px and 360px — ${readings.join("; ")}.`,
+    `[browser-smoke] The guided wall wizard starts with the wall type choice and holds it at 1366px, 390px and 360px — ${readings.join("; ")}.`,
   );
 }
 
@@ -4549,7 +4523,7 @@ try {
   // sees first, and switching the page to the expert reading leaves it unmeasured.
   await assertWallWizardStartStep(page);
 
-  await assertPageText(page, "/wingman/videowall", "Start from the job");
+  await assertPageText(page, "/wingman/videowall", "What kind of wall?");
   await page.getByTestId("videowall-wizard-expert").click();
   await expect(page.getByRole("heading", { name: "One wall. The right signal path.", exact: true }))
     .toBeVisible({ timeout: 15_000 });
@@ -4594,15 +4568,14 @@ try {
     throw new Error("A 3-by-3 direct LCD wall must have nine receivers.");
   }
 
-  // The application is one of the questions, so the walk goes back for it the same
-  // way a rep would: the band reopens, its first question is opened again, and the
-  // array it already set is still there.
-  await openBand("questions");
-  await openStep(1);
-  for (const name of [/^LCD · looped/, /^LED · processor input/, /^Large single projection/]) {
+  // Wall technology can be changed after its downstream answers are captured.
+  // Switch across all supported types and ensure each choice becomes the active
+  // type; the application patch is responsible for dropping incompatible answers.
+  await openBand("start");
+  for (const name of [/^LCD video wall/, /^LED video wall/, /^Projection wall/]) {
     await page.getByRole("button", { name }).click();
     if ((await page.getByRole("button", { name }).getAttribute("aria-pressed")) !== "true") {
-      throw new Error("Video wall application selection did not update.");
+      throw new Error("Video wall technology selection did not update.");
     }
   }
   await page.setViewportSize({ width: 390, height: 844 });

@@ -126,7 +126,7 @@ export function applyProductPageDetailsToBomRow(row: TemplateBomRow, details: Pr
     summary && !genericDescription ? `Product page summary: ${summary}` : "",
     connections ? `Connections recorded from the product page: ${connections}` : "",
     specifications ? `Specifications recorded from the product page: ${specifications.replace(/\n/g, "; ")}` : "",
-    resolvedUrl ? `Source: ${resolvedUrl} (read ${checkedOn}); confirm the exact model, regional variant and compatibility before quotation.` : "",
+    resolvedUrl ? `Source: ${resolvedUrl} (read ${checkedOn}); confirm the exact model, regional variant and compatibility before the proposal is issued.` : "",
   ].filter(Boolean).join("; ");
   return {
     ...row,

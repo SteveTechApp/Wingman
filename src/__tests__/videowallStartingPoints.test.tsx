@@ -69,16 +69,16 @@ describe("saved wall starting points on the builder", () => {
     expect(picked.getAttribute("data-started")).toBe("true");
     expect(picked.textContent).toContain("Started here · ");
     expect(picked.getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByTestId("videowall-preset-nine-feeds").getAttribute("data-started")).toBeNull();
+    expect(screen.getByTestId("videowall-preset-led-canvas").getAttribute("data-started")).toBeNull();
 
     // Another card moves the origin rather than adding a second one.
-    fireEvent.click(screen.getByTestId("videowall-preset-nine-feeds"));
-    expect(screen.getByTestId("videowall-preset-nine-feeds").getAttribute("data-started")).toBe("true");
+    fireEvent.click(screen.getByTestId("videowall-preset-led-canvas"));
+    expect(screen.getByTestId("videowall-preset-led-canvas").getAttribute("data-started")).toBe("true");
     expect(screen.getByTestId("videowall-preset-led-ribbon").getAttribute("data-started")).toBeNull();
 
     // A wall answered from scratch started on nothing.
     fireEvent.click(screen.getByRole("button", { name: "Start again" }));
-    expect(screen.getByTestId("videowall-preset-nine-feeds").getAttribute("data-started")).toBeNull();
+    expect(screen.getByTestId("videowall-preset-led-canvas").getAttribute("data-started")).toBeNull();
   });
 
   it("forgets a saved wall from the picker", () => {

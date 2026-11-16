@@ -7,7 +7,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 export type WingmanUiMode = "guided" | "unguided";
 
 export const UI_MODE_PRESENTATION: Record<WingmanUiMode, { label: string; description: string }> = {
-  guided: { label: "Focused view", description: "Start from a room template and edit it to fit." },
+  guided: { label: "Focused view", description: "Answer one customer-friendly question at a time; Wingman guides the room discovery." },
   unguided: { label: "Expert view", description: "Build a complete room with requirements, equipment and connections." },
 };
 

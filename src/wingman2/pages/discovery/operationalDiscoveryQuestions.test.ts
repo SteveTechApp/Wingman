@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { generateProjectTopologyFromDiscovery } from "../../lib/projectTopology";
 import { getQuestionView } from "./discoveryAnswerUtils";
 import { getVisibleDiscoveryQuestions } from "./discoveryQuestions";
+import { operationalQuestion } from "./operationalDiscovery";
 
 const ids = (answers: Record<string, string | string[]>, application = "meeting-room") =>
   getVisibleDiscoveryQuestions(application, answers).map((question) => question.id);
@@ -105,10 +106,38 @@ describe("operational discovery branches", () => {
     ]));
     // The audio question asks where sound comes out and nothing else: speaker
     // type, a separate voice mix and the extraction point are follow-up questions,
-    // so this list is five answers rather than twelve.
+    // so this list is six answers rather than twelve, including an explicit
+    // handoff when another contractor owns the room audio.
     expect(roomAudio.options.map((option) => option.value)).toEqual([
-      "room-audio", "display-audio", "dante-network-audio", "no-room-audio", "unknown-audio",
+      "room-audio", "display-audio", "dante-network-audio", "audio-by-others", "no-room-audio", "unknown-audio",
     ]);
+  });
+
+  it("keeps normal room audio and by-others handoff questions distinct", () => {
+    const normalRoute = getVisibleDiscoveryQuestions("meeting-room", {
+      audio: ["room-audio"],
+    }).find((step) => step.id === "audio-route")!;
+    expect(operationalQuestion(normalRoute).question).toBe("Where does the sound come from, and where should it go?");
+    expect(normalRoute.options.map((option) => option.value)).not.toEqual(expect.arrayContaining([
+      "switcher-feed-embedded",
+      "switcher-feed-balanced-analogue",
+      "switcher-feed-digital",
+      "switcher-feed-unknown",
+    ]));
+
+    const byOthersRoute = getVisibleDiscoveryQuestions("meeting-room", {
+      audio: ["audio-by-others"],
+    }).find((step) => step.id === "audio-route")!;
+    expect(operationalQuestion(byOthersRoute).question).toBe("What audio feed should the video switching provide to the separate audio system?");
+    expect(byOthersRoute.options.map((option) => option.value)).toEqual([
+      "switcher-feed-embedded",
+      "switcher-feed-balanced-analogue",
+      "switcher-feed-digital",
+      "switcher-feed-unknown",
+    ]);
+    expect(ids({ audio: ["audio-by-others"] })).not.toEqual(expect.arrayContaining([
+      "audio-zones", "audio-programme", "room-acoustics",
+    ]));
   });
 
   it("prioritises audio choices and wording for the selected application", () => {
@@ -126,9 +155,9 @@ describe("operational discovery branches", () => {
     expect(videoWallAudio.options[0].value).toBe("room-audio");
     expect(videoWallAudio.prompt).toContain("the wall's sound");
     expect(videoWallAudio.options.map((option) => option.value)).toContain("no-room-audio");
-    // Every application ranks the same five answers, so nothing can fall back to
+    // Every application ranks the same six answers, so nothing can fall back to
     // the canonical order by accident.
-    expect(hospitalityAudio.options).toHaveLength(5);
+    expect(hospitalityAudio.options).toHaveLength(6);
   });
 
   it("creates distinct source devices and a DSP bridge from operational answers", () => {

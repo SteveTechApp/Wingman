@@ -23,6 +23,9 @@ export function projectScopeSection(row: TemplateBomRow): ProjectScopeSectionId 
   const text = `${row.role} ${row.description}`.toLowerCase();
   if (/^BY-OTHERS-DISPLAY-/.test(sku)) return "displays";
   if (/^BY-OTHERS-SOURCE-/.test(sku)) return "inputs";
+  // A Dante-capable source encoder belongs with the video distribution path;
+  // its audio breakout is still described on the same BOM line.
+  if (row.role.toLowerCase() === "source encoder") return "distribution";
   if (/maintenance|support contract|service visits/.test(text)) return "maintenance";
   if (/^BY-OTHERS-(LABOUR|COMMISSIONING|DESIGN|SERVICE-)/.test(sku) || /first fix|second fix|rack build|installation labour|commissioning|programming|as-built|project management|site survey/.test(text)) return "engineering";
   if (/^BY-OTHERS-(MOUNTS|UC-MOUNT)/.test(sku) || /bracket|structural fixing|mounting assembly/.test(text)) return "mounts";
@@ -85,10 +88,10 @@ export function completeProjectServiceRows(rows: TemplateBomRow[], prefix: strin
     result.push({ id: `${prefix}-service-${key}`, sku, description, role: optional ? "Maintenance service allowance" : "Engineering service allowance", qty: 1,
       type: optional ? "Optional" : "Validate", status: optional ? "excluded" : "validate", owner: "integrator",
       scopeSection: optional ? "maintenance" : "engineering", unit: "allowance",
-      evidence: "Delivery scope allowance; agree provider, effort, rates and acceptance criteria before quotation.",
-      notes: `${notes} Quantity 1 means one scoped allowance, not one engineer or one day. Replace with agreed effort and unit before pricing.` });
+      evidence: "Delivery scope allowance; agree provider, effort and acceptance criteria before design sign-off.",
+      notes: `${notes} Quantity 1 means one scoped allowance, not one engineer or one day. Replace with the agreed scope unit before design sign-off.` });
   };
   if (standard || !original.length) for (const [key, description, notes] of services) add(key, description, notes);
-  add("maintenance", "Optional maintenance and support agreement", "Agree term, planned visits, response hours, remote/on-site support, backups, exclusions, spares and renewal pricing. No service-level commitment is assumed.", true);
+  add("maintenance", "Optional maintenance and support agreement", "Agree term, planned visits, response hours, remote/on-site support, backups, exclusions and spares. No service-level commitment is assumed.", true);
   return result;
 }

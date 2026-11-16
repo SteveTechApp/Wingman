@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-29T09:37:57.490Z",
+  "generatedAt": "2026-11-16T15:33:35.042Z",
   "sources": {
     "competitor": "data/catalog/competitor-products.generated.json",
     "wyrestorm": "public/product-intelligence-summary.json + product-intelligence-details"
   },
   "totals": {
-    "records": 668,
+    "records": 701,
     "competitorRecords": 354,
-    "wyrestormRecords": 314,
-    "normalizedByGovernedRule": 69,
-    "canonicalTransportKnown": 100,
-    "networkClassKnown": 47,
-    "codecKnown": 47
+    "wyrestormRecords": 347,
+    "normalizedByGovernedRule": 73,
+    "canonicalTransportKnown": 103,
+    "networkClassKnown": 51,
+    "codecKnown": 51
   },
   "byManufacturer": [
     {
@@ -114,10 +114,10 @@
     {
       "manufacturer": "Extron",
       "products": 36,
-      "normalized": 23,
-      "canonicalTransportKnown": 23,
-      "networkClassKnown": 8,
-      "codecKnown": 8
+      "normalized": 25,
+      "canonicalTransportKnown": 25,
+      "networkClassKnown": 10,
+      "codecKnown": 10
     },
     {
       "manufacturer": "HDANYWHERE",
@@ -233,11 +233,11 @@
     },
     {
       "manufacturer": "WyreStorm",
-      "products": 314,
-      "normalized": 23,
-      "canonicalTransportKnown": 53,
-      "networkClassKnown": 23,
-      "codecKnown": 23
+      "products": 347,
+      "normalized": 25,
+      "canonicalTransportKnown": 54,
+      "networkClassKnown": 25,
+      "codecKnown": 25
     },
     {
       "manufacturer": "ZeeVee",
@@ -254,14 +254,6 @@
       "sku": "OMNISTREAM AT-OMNI-121"
     },
     {
-      "manufacturer": "Extron",
-      "sku": "NAV-E-121"
-    },
-    {
-      "manufacturer": "Extron",
-      "sku": "NAV-SD-121"
-    },
-    {
       "manufacturer": "Lightware",
       "sku": "VINX-110-HDMI-ENC"
     },
@@ -271,7 +263,7 @@
     },
     {
       "manufacturer": "Lightware",
-      "sku": "VINX-210AP-HDMI-DEC"
+      "sku": "VINX-210AP-HDMI-ENC"
     }
   ]
 }

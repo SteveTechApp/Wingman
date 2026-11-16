@@ -129,7 +129,7 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   is written now, and it is a browser reading rather than a marker search because
   nothing else can answer the question: `proposalPrintPaginationHtml()` ships a
   `<style>` and a `<script>` inside the exported proposal, and the script re-lays
-  the priced schedule into page-sized chunks on `beforeprint`. jsdom reports every
+  the equipment schedule into page-sized chunks on `beforeprint`. jsdom reports every
   box as 0×0, so the chunking loop would put all sixty lines on one page and pass.
   The tool therefore runs `e2e/proposal-print-pagination-check.spec.ts` in Chromium
   with print media emulated, over a schedule the walk writes itself — a fixture on
@@ -186,7 +186,7 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   What the review walk reads instead is what makes the swap possible without
   losing the readings: the pages are the script's chunks, so the walk dispatches
   `beforeprint` and reads `.wm-schedule-print-page` — each page's last line, the
-  header it repeats, the footer that agrees with that line, and every description
+  header it repeats, the item range that agrees with that line, and every description
   whole on one page — and the PDF answers only how many sheets the printer wrote.
   Those counts are `pages.length + leadSheets`, not `pages.length`: the walk's lead
   is content above the schedule and the first chunk carries `break-before: page`,
@@ -200,10 +200,9 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   the lead's 0 sheet plus those chunks … 4 chunk(s) ran onto another sheet", and at
   210mm with the same finding at 14 pages; the ruler was restored byte-identical
   and the export regenerated, and the three leads are green again. The fixture's
-  selector had drifted with the export — the schedule is `table[data-priced-schedule]`
-  (the attribute the shipped script paginates on) and not `table.wm-priced-schedule`,
-  which is what the walk asked for and could no longer find — so the walk reads the
-  attribute the export actually writes.
+  selector had drifted with the export — the schedule is
+  `table[data-proposal-schedule]` (the attribute the shipped script paginates on),
+  so the walk reads the same marker the export actually writes.
   The two counts have to be one number, and together they are what neither alone
   says: a chunk that fits the printable area and starts a new page is a PDF page, so
   N chunks are N printed pages exactly when the printer wrote N. Measured: 4 chunks
@@ -228,10 +227,10 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   whole decision there, since `verify:visual` is the stage the strict lane runs
   without a deeper twin. Probed by breaking the shipped script three ways, each
   reverting byte-identical: raising the script's measuring ruler to 2550mm failed
-  with "a 60-line priced schedule came out as 1 printed page(s), so the pagination
-  never split it"; printing the order total as every page's footer failed with
-  "every page printed the same footer (Schedule total: £600.00 · 60 items · Excl.
-  tax), so a rep cannot tell how far down the schedule a page got"; and dropping
+  with "a 60-line equipment schedule came out as 1 printed page(s), so the pagination
+  never split it"; repeating the same item range on every page failed with
+  "every page printed the same footer, so a rep cannot tell how far down the schedule
+  a page got"; and dropping
   `page.remove()` from `restore()` failed with "the paginated pages are still in
   the document after printing, so the rep is left reading a duplicate schedule".
   The coverage guard itself is probed three ways, each reverting green: renaming
@@ -261,7 +260,9 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   a gate, which is why the declaration lost its queue group rather than gaining a
   better reason.
 - The pre-commit hook runs the dead CSS autofix and gate, then the fast lane
-  plus architecture boundaries. The full verify chain additionally enforces
+  plus architecture boundaries. It clears Git's hook-local environment only
+  for that verification subprocess, because the suite creates throwaway Git
+  repositories that must not inherit this commit's worktree. The full verify chain additionally enforces
   two debt-ratchets:
   size budgets (`tools/wingman-size-budgets.json`) and style-drift
   (`tools/wingman-style-drift-baseline.json`). Raising either requires the
@@ -645,3 +646,12 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   a way past a red run. The reading lands in
   `reports/competitor-evidence-aging.json` on every run, which is ignored like
   the other generated reports.
+- `check:vendor-refresh-sanity` compares the current WyreStorm extraction with
+  its committed predecessor. Record coverage, evidence coverage and successful
+  page fetches guard against a broken source run. The per-profile shrink check
+  compares `capturedTechnicalLineCount`, and only for a page that returned 200:
+  serialized profile size is driven by prose and broad page tags, so it can fall
+  sharply when the extractor becomes more product-specific without losing any
+  specification evidence. A successful page losing more than 40% of its
+  previously captured technical lines remains an item for review. The refresh
+  check runs before canonical and public indices are rebuilt.

@@ -76,7 +76,6 @@ const SELECTOR_POLICY_BLOCKED_SKUS = new Set([
   "SW-540-TX-W",
   "NHD-100",
   "NHD-250-RX",
-  "NHD-300-TX",
   "APO-100-UC",
   "APO-200-UC",
   "APO-DG2-PRO",
@@ -94,7 +93,6 @@ const SELECTOR_POLICY_BLOCKED_SKUS = new Set([
   "NHD-600-TXRX",
   "NHD-CTL-PRO",
   "NHD-CTL-PRO-T",
-  "NHD-TOUCH",
   "NHD-TOUCHPLUS",
   "OFFICE-KIT",
   "SYN-TOUCH10",
@@ -337,6 +335,7 @@ function scoreProduct(product: WingmanProductLike, profile: WingmanProductProfil
   if (profile.productClass === "cable" || profile.productClass === "accessory") score -= 160;
   if (warnings.length) score -= warnings.length * 12;
   if (compactQuery && normaliseSkuKey(sku) === compactQuery) score += 250;
+  if (normaliseSku(sku) === normaliseSku(request.query)) score += 50;
   if (compactQuery && normaliseSkuKey(sku).startsWith(compactQuery)) score += 120;
   if (normalise(productName(product)).includes(normalise(request.query))) score += 30;
 

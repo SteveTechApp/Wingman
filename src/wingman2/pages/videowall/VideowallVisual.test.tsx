@@ -17,6 +17,14 @@ function renderWall(overrides: Partial<WallRequirements>) {
 }
 
 describe("VideowallVisual physical dimensions", () => {
+  it("shows the chosen panel array separately from the source window count", () => {
+    const container = renderWall({ application: "lcd-loop", layout: "quad", columns: 3, rows: 3, windows: 4 });
+
+    expect(container.querySelectorAll(".vw-wall-panel")).toHaveLength(9);
+    expect(container.querySelectorAll(".vw-wall-window")).toHaveLength(4);
+    expect(screen.getByTestId("videowall-visual-selection").textContent).toBe("3 × 3 array (9 panels) · 4 windows");
+  });
+
   it("dimensions the wall and one panel in millimetres", () => {
     const container = renderWall({ application: "lcd-loop", layout: "single", columns: 4, rows: 2, windows: 1 });
 

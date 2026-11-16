@@ -6,15 +6,12 @@ import type { WallRequirements } from "./videowallOptions";
  *
  * A survey records the housing the display sits in, where each run enters and
  * the termination at the display end. A mount belongs to the display, so its
- * rate is counted once per screen even when several links serve it. Those are the
- * installation scope a customer is buying, so they become schedule lines rather
- * than only notes beside a link: the same back box written on four panels is one
- * line with a quantity of four, priced once, instead of four rows the rep has to
- * add up by hand.
+ * installation scope belongs in the system proposal, so it becomes schedule
+ * lines rather than only notes beside a link: the same back box written on four
+ * panels is one line with a quantity of four.
  *
  * Lines are grouped by what was written, not by link, so a letter-for-letter
- * difference in casing or spacing cannot split one job into two priced lines.
- * The rep prices each line; nothing here invents a rate.
+ * difference in casing or spacing cannot split one job into two lines.
  */
 export type InstallationLineCategory = "enclosure" | "mount" | "termination" | "entry";
 
@@ -55,14 +52,11 @@ const CATEGORY_PLURAL: Record<InstallationLineCategory, string> = {
   entry: "run entries",
 };
 
-/** A rate map: what the rep typed against a line id, as a string like the BOM. */
-export type InstallationUnitPrices = Record<string, string>;
-
 function slug(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "item";
 }
 
-/** The id a rate is stored under; stable for the same category and wording. */
+/** A stable id for the same category and wording. */
 export function installationLineId(category: InstallationLineCategory, detail: string) {
   return `install-${category}-${slug(detail)}`;
 }
@@ -80,31 +74,19 @@ export function installationCategoryLabel(category: InstallationLineCategory) {
 /**
  * The installation table's column names, spelled once for every surface.
  *
- * The customer copy and the Word quote are the same schedule read at two
- * widths: Word prices it, so it adds the two rate columns. A heading typed in
- * each builder is how one column came to read "Site survey detail" in the
- * proposal and "Survey detail" in the document, so both ask this list instead
- * and renaming a column is one line. A table that prints two columns as one
- * cell composes that heading from the labels it merges rather than inventing a
- * third wording.
+ * Proposal surfaces share these scope headings so they cannot drift in wording.
  */
 export type InstallationTableColumn =
   | "service"
   | "detail"
   | "links"
-  | "quantity"
-  | "unitRate"
-  | "lineTotal"
-  | "runningTotal";
+  | "quantity";
 
 export const INSTALLATION_TABLE_COLUMN_LABELS: Record<InstallationTableColumn, string> = {
   service: "Service",
   detail: "Survey detail",
   links: "Links",
   quantity: "Qty",
-  unitRate: "Unit rate",
-  lineTotal: "Line total",
-  runningTotal: "Running priced total",
 };
 
 /** A heading group: one column, or several the table prints in a single cell. */
@@ -120,12 +102,11 @@ export function installationTableHeaders(groups: readonly InstallationColumnGrou
 }
 
 /**
- * Group the survey's install detail into priced line items.
+ * Group the survey's install detail into scope lines.
  *
  * A wall whose summary predates the layout answers has no costable links, so it
  * has no installation scope either — the caller must not invent one. A mount is
- * optional on the survey, but once it is written it is scope, so it is priced
- * like the rest.
+ * optional on the survey, but once it is written it is scope, so it is included.
  */
 export function buildInstallationSchedule(
   requirements: WallRequirements | null | undefined,
@@ -159,7 +140,7 @@ export function buildInstallationSchedule(
     }
   }
 
-  // A mount is a display line, not a cable line. Keep one priced quantity per
+  // A mount is a display line, not a cable line. Keep one quantity per
   // display even when the wall has separate source and return links.
   for (const [displayId, rawMount] of Object.entries(usable.displayMounts ?? {})) {
     const value = rawMount.trim().replace(/\s+/g, " ");
@@ -192,42 +173,5 @@ export function buildInstallationSchedule(
     lines,
     linkCount: links,
     text: `Installation scope from the site survey: ${counts.join(", ")} across ${links} wall link${links === 1 ? "" : "s"}.`,
-  };
-}
-
-/** The rate the rep entered for a line, or null when it has not been priced. */
-export function installationRate(line: InstallationLine, unitPrices: InstallationUnitPrices | undefined) {
-  const raw = unitPrices?.[line.id];
-  if (raw === undefined || raw === null || String(raw).trim() === "") return null;
-  const value = Number(raw);
-  return Number.isFinite(value) && value >= 0 ? value : null;
-}
-
-/** Each line with its unit rate and line total, in the order the schedule lists it. */
-export function installationPricedLines(
-  schedule: InstallationSchedule,
-  unitPrices: InstallationUnitPrices | undefined,
-) {
-  return schedule.lines.map((line) => {
-    const unit = installationRate(line, unitPrices);
-    return { ...line, unit, total: unit === null ? null : unit * line.quantity };
-  });
-}
-
-/**
- * The priced schedule and whether every line has a rate. An incomplete set still
- * sums what is priced, so a draft never prints a total that pretends to be final.
- */
-export function installationTotals(
-  schedule: InstallationSchedule,
-  unitPrices: InstallationUnitPrices | undefined,
-) {
-  const lines = installationPricedLines(schedule, unitPrices);
-  const priced = lines.filter((line) => line.unit !== null).length;
-  return {
-    lines,
-    priced,
-    complete: lines.length > 0 && priced === lines.length,
-    total: lines.reduce((sum, line) => sum + (line.total ?? 0), 0),
   };
 }

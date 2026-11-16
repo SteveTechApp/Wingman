@@ -52,6 +52,7 @@ const CLEAN_PACKAGE = {
     "fast-uri": "^3.1.8",
     "js-yaml": "^4.3.2",
     zod: "^4.6.6",
+    "minimatch@^10.2.2": "^11.0.1",
   },
 };
 
@@ -66,6 +67,8 @@ const CLEAN_LOCK = {
     "node_modules/fast-uri": { version: "3.1.8" },
     "node_modules/js-yaml": { version: "4.3.2" },
     "node_modules/zod": { version: "4.6.7" },
+    "node_modules/minimatch": { version: "3.1.5" },
+    "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch": { version: "11.0.1" },
   },
 };
 
@@ -98,6 +101,14 @@ describe("collectOverrideFloorProblems", () => {
       },
     };
     expect(collectOverrideFloorProblems(CLEAN_PACKAGE, lock)).toEqual([]);
+  });
+
+  it("keeps the minimatch advisory floor scoped to the TypeScript ESLint range", () => {
+    const lock = { packages: {
+      ...CLEAN_LOCK.packages,
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch": { version: "10.2.6" },
+    } };
+    expectOneProblemMatching(CLEAN_PACKAGE, lock, /minimatch.*below the 11\.0\.1 advisory floor/);
   });
 
   it("fails when the browserslist override is removed entirely", () => {

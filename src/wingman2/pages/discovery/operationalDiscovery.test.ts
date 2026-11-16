@@ -7,15 +7,29 @@ describe("operational discovery", () => {
   it("keeps canonical routing values while presenting customer language", () => {
     const original = baseDiscoveryQuestions.find(row => row.id === "display-behaviour")!;
     const presented = operationalQuestion(original);
-    expect(presented.question).toBe("What should people see on each screen?");
+    expect(presented.question).toBe("How should the primary and repeater displays behave?");
     expect(presented.options.map(row => row.value)).toEqual(original.options.map(row => row.value));
-    expect(original.question).not.toBe(presented.question);
+    expect(presented.question).toContain("primary and repeater displays");
   });
   it("removes inactive camera details when conferencing is removed without losing room facts", () => {
     const next = updateOperationalAnswer({ opportunity: "meeting-room", "uc-purpose": ["video-conferencing"], "uc-camera": "usb-ptz-camera", "room-occupancy": "20" }, baseDiscoveryQuestions.find(row => row.id === "uc-purpose")!, "no-uc");
     expect(next["uc-purpose"]).toEqual(["no-uc"]);
     expect(next["uc-camera"]).toBeUndefined();
     expect(next["room-occupancy"]).toBe("20");
+  });
+  it("removes display-behaviour answers that become unavailable after the primary or repeater count changes", () => {
+    const initial = {
+      opportunity: "meeting-room",
+      "primary-display": "lcd-video-wall",
+      displays: "two-displays",
+      "repeater-displays": "one-two-repeater-displays",
+      "display-behaviour": ["same-content-all-displays", "video-wall-or-processor-feed", "overflow-viewing", "room-wide-visibility"],
+    };
+    const primaryChanged = updateOperationalAnswer(initial, baseDiscoveryQuestions.find(row => row.id === "primary-display")!, "single-large-flat-panel");
+    expect(primaryChanged["display-behaviour"]).toEqual(["same-content-all-displays", "overflow-viewing", "room-wide-visibility"]);
+
+    const repeatersRemoved = updateOperationalAnswer(primaryChanged, baseDiscoveryQuestions.find(row => row.id === "repeater-displays")!, "no-repeater-displays");
+    expect(repeatersRemoved["display-behaviour"]).toEqual(["same-content-all-displays"]);
   });
   it("includes environment-specific supporting scope without claiming models or quantities", () => {
     const scope = supportingRoomScope({ opportunity: "classroom", audio: "room-speakers", "uc-purpose": ["recording-streaming"], control: ["touch-panel"], "network-path": "corporate-av-vlan" }, createBlankProjectTopology());

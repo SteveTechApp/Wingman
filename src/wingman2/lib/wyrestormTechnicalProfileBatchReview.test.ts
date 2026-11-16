@@ -51,10 +51,15 @@ describe("WyreStorm technical profile batch governed review (2026-08)", () => {
         category: "Completed",
         description: "Completed profile",
       } as never);
-      expect(profile.readiness, `${sku} readiness`).toBe("compare-ready");
-      // These previously-held profiles were all confirmed by the 2026-08-16
-      // review passes, so they render the verified tier.
-      expect(profile.sourceTier, `${sku} tier`).toBe("verified-profile");
+      if (sku === "EXA-100-EARC" || sku === "MXV-0808-H2A-MK2") {
+        // EXA is an audio extractor with no video-resolution claim. The MK2
+        // profile has unresolved exact-SKU identity. Both must remain verify-
+        // only until the missing source evidence is resolved.
+        expect(profile.readiness, `${sku} readiness`).toBe("verify-only");
+      } else {
+        expect(profile.readiness, `${sku} readiness`).toBe("compare-ready");
+        expect(profile.sourceTier, `${sku} tier`).toBe("verified-profile");
+      }
     }
   });
 

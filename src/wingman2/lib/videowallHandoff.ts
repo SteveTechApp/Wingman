@@ -33,9 +33,14 @@ export type VideoWallHandoff = {
    * for, which is what a rep opening the builder needs in front of them.
    */
   projectName?: string;
+  /** Discovery details that belong to the room but are not wall-array inputs. */
+  roomDetails?: string[];
+  /** Decisions that Discovery did not capture; the builder's starting values are provisional. */
+  openQuestions?: string[];
 };
 
 type AnswerMap = Record<string, unknown>;
+type NoteMap = Record<string, string | undefined>;
 
 type TemplateLike = {
   id: string;
@@ -64,22 +69,98 @@ function singleAnswer(answers: AnswerMap, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function answerNumber(answers: AnswerMap, ...keys: string[]): number | undefined {
+  for (const key of keys) {
+    const value = answers[key];
+    const number = typeof value === "number" ? value : typeof value === "string" ? Number(value.trim()) : NaN;
+    if (Number.isInteger(number) && number > 0 && number <= 256) return number;
+  }
+  return undefined;
+}
+
+function answerToken(answers: AnswerMap, key: string): string {
+  const value = answers[key];
+  return Array.isArray(value) ? String(value[0] ?? "").trim() : String(value ?? "").trim();
+}
+
+function relevantNotes(notes: NoteMap | undefined, keys: string[]): string[] {
+  return keys.map((key) => notes?.[key]?.trim() ?? "").filter(Boolean);
+}
+
+function wallArrayFromNotes(notes: string[]): { columns: number; rows: number } | undefined {
+  for (const note of notes) {
+    const match = note.match(/\b(\d{1,2})\s*[x×]\s*(\d{1,2})(?!\s*(?:mm|cm|m|in(?:ch(?:es)?)?|ft|feet)\b)/i);
+    if (!match) continue;
+    const columns = Number(match[1]);
+    const rows = Number(match[2]);
+    if (columns > 0 && rows > 0 && columns * rows <= 256) return { columns, rows };
+  }
+  return undefined;
+}
+
+function wallArrayFromAnswer(answers: AnswerMap): { columns: number; rows: number } | undefined {
+  const value = answerToken(answers, "primary-display-panel-array");
+  const match = value.match(/^\s*(\d{1,2})\s*[x×]\s*(\d{1,2})\s*$/i);
+  if (!match) return undefined;
+  const columns = Number(match[1]);
+  const rows = Number(match[2]);
+  return columns > 0 && rows > 0 && columns * rows <= 256 ? { columns, rows } : undefined;
+}
+
+function endpointDescription(answers: AnswerMap): string | undefined {
+  const labels: Record<string, string> = {
+    "one-display": "1 video feed endpoint recorded",
+    "two-displays": "2 video feed endpoints recorded",
+    "three-eight-displays": "3–8 video feed endpoints recorded",
+    "nine-plus-displays": "9+ video feed endpoints recorded",
+    "video-wall-output": "Video wall / LED processor feed endpoint recorded",
+  };
+  return labels[answerToken(answers, "displays")];
+}
+
+function pixelCanvasFromNotes(notes: string[]): { width: number; height: number } | undefined {
+  for (const note of notes) {
+    const match = note.match(/\b(\d{3,5})\s*[x×]\s*(\d{3,5})\s*(?:px|pixels?)\b/i);
+    if (!match) continue;
+    const width = Number(match[1]);
+    const height = Number(match[2]);
+    if (width >= 320 && height >= 240 && width <= 16384 && height <= 16384) return { width, height };
+  }
+  return undefined;
+}
+
+function repeaterDescription(answers: AnswerMap, notes: NoteMap | undefined): string | undefined {
+  const value = answerToken(answers, "repeater-displays");
+  const labels: Record<string, string> = {
+    "no-repeater-displays": "No repeater screens recorded",
+    "one-two-repeater-displays": "1–2 repeater screens recorded",
+    "three-four-repeater-displays": "3–4 repeater screens recorded",
+    "five-eight-repeater-displays": "5–8 repeater screens recorded",
+    "nine-plus-repeater-displays": "9+ repeater screens recorded",
+    "unknown-repeater-displays": "Repeater screen count not confirmed",
+  };
+  const detail = notes?.["repeater-displays"]?.trim();
+  return [labels[value], detail].filter(Boolean).join(" — ") || undefined;
+}
+
 /** True when the discovery answers describe a wall rather than a set of displays. */
 export function hasDiscoveryVideoWallIntent(answers: AnswerMap): boolean {
   const technology = singleAnswer(answers, "video-wall-technology");
   const purpose = singleAnswer(answers, "video-wall-purpose");
+  const primary = answerToken(answers, "primary-display");
   return (
     answerHas(answers["displays"], "video-wall-output")
     || answerHas(answers["display-behaviour"], "video-wall-or-processor-feed")
+    || primary === "lcd-video-wall"
+    || primary === "led-video-wall"
     || (Boolean(technology) && technology !== "wall-technology-unknown")
     || (Boolean(purpose) && purpose !== "wall-purpose-unknown")
     || answerHas(answers["opportunity"], "video-wall")
   );
 }
 
-function handoffLabel(application: WallApplication, independent: boolean, multiWindow: boolean): string {
+function handoffLabel(application: WallApplication, behaviour: string): string {
   const wall = application === "led" ? "LED wall" : application === "projection" ? "projection canvas" : "LCD wall";
-  const behaviour = independent ? "independent tiles" : multiWindow ? "multi-source canvas" : "single canvas";
   return `Discovery: ${wall}, ${behaviour}`;
 }
 
@@ -90,38 +171,78 @@ function handoffLabel(application: WallApplication, independent: boolean, multiW
  * draft names one: the wall arrives in a builder that also serves every other
  * room, so the arrival has to say which room it was answered for.
  */
-export function discoveryVideoWallHandoff(answers: AnswerMap, projectName?: string | null): VideoWallHandoff | null {
+export function discoveryVideoWallHandoff(answers: AnswerMap, projectName?: string | null, notes?: NoteMap): VideoWallHandoff | null {
   if (!hasDiscoveryVideoWallIntent(answers)) return null;
 
-  const technology = singleAnswer(answers, "video-wall-technology");
-  const purpose = singleAnswer(answers, "video-wall-purpose");
-  const led = technology === "direct-view-led" || answerHas(answers["opportunity"], "led");
+  const technologyAnswer = singleAnswer(answers, "video-wall-technology");
+  const primary = answerToken(answers, "primary-display");
+  const primaryTechnology = primary === "lcd-video-wall" ? "lcd-array"
+    : primary === "led-video-wall" ? "direct-view-led"
+      : primary === "single-projector" || primary === "dual-projectors" ? "projection-canvas" : "";
+  const technology = primaryTechnology || (technologyAnswer === "wall-technology-unknown" ? "" : technologyAnswer);
+  const purposeAnswer = answerToken(answers, "video-wall-purpose");
+  const behaviour = answers["display-behaviour"];
+  const purpose = purposeAnswer && purposeAnswer !== "wall-purpose-unknown" ? purposeAnswer
+    : answerHas(behaviour, "independent-routing-per-display") ? "independent-tiles"
+      : answerHas(behaviour, "multiview-on-one-output") ? "multi-source-canvas" : "";
+  const led = technology === "direct-view-led";
   const projection = technology === "projection-canvas";
   const independent = !led && !projection && purpose === "independent-tiles";
   const multiWindow = !independent && purpose === "multi-source-canvas";
-  const nineOrMore = answerHas(answers["displays"], "nine-plus-displays");
-
+  const dimensionNotes = relevantNotes(notes, ["video-wall-technology", "primary-display"]);
+  const explicitArray = wallArrayFromNotes(dimensionNotes);
+  const answerArray = wallArrayFromAnswer(answers);
+  const columns = answerNumber(answers, "video-wall-columns", "wall-columns") ?? answerArray?.columns ?? explicitArray?.columns;
+  const rows = answerNumber(answers, "video-wall-rows", "wall-rows") ?? answerArray?.rows ?? explicitArray?.rows;
+  const arrayKnown = columns !== undefined && rows !== undefined;
+  const pixelCanvas = pixelCanvasFromNotes(dimensionNotes);
+  const lcdPanelSize = dimensionNotes.join(" ").match(/\b(\d{2,3}(?:\.\d+)?)\s*(?:in(?:ch(?:es)?)?\b|\")/i);
+  const pitch = dimensionNotes.join(" ").match(/\b(\d+(?:\.\d+)?)\s*mm\s*(?:pixel\s*)?pitch\b/i);
   const application: WallApplication = led ? "led" : projection ? "projection" : independent ? "lcd-direct" : "lcd-loop";
+  const behaviourLabel = independent ? "independent tiles"
+    : multiWindow ? "multi-source canvas"
+      : purpose === "single-canvas" ? "single canvas"
+        : purpose === "signage-presets" ? "signage presets" : "content behaviour not confirmed";
   const layout: WallLayout = independent ? "independent" : multiWindow ? "quad" : "single";
-  const columns = nineOrMore ? 3 : 2;
-  const rows = nineOrMore ? 3 : 2;
+  // Display output count and repeater screens describe signal endpoints, not
+  // the LCD panel/cabinet array. Keep the builder's 2×2 starting basis only as
+  // an explicit provisional value when Discovery has no array measurement.
+  const arrayColumns = columns ?? 2;
+  const arrayRows = rows ?? 2;
   const windows = independent ? 1 : multiWindow ? 4 : 1;
-  const sources = independent ? columns * rows : Math.max(4, windows);
+  const sources = independent ? arrayColumns * arrayRows : Math.max(4, windows);
+  const roomDetails = [endpointDescription(answers), repeaterDescription(answers, notes), ...relevantNotes(notes, ["primary-display", "primary-display-panel-array", "video-wall-technology", "video-wall-purpose"])]
+    .filter((detail): detail is string => Boolean(detail));
+  const openQuestions: string[] = [];
+  if (!technology) openQuestions.push("Wall technology is not confirmed; the builder's LCD workflow is only a temporary planning basis.");
+  if (!arrayKnown) openQuestions.push("Panel/cabinet array is not captured; the displayed 2 × 2 array is a temporary planning starting point, not a confirmed design.");
+  if (led && !pixelCanvas) openQuestions.push("LED pixel canvas is not captured; confirm processor canvas dimensions.");
+  if (led && !pitch) openQuestions.push("LED pixel pitch is not captured; confirm it before sizing the physical wall.");
+  if (!led && !projection && !lcdPanelSize) openQuestions.push("LCD panel diagonal is not captured; confirm the panel size before treating physical dimensions as final.");
+  if (technologyAnswer && primaryTechnology && technologyAnswer !== primaryTechnology) {
+    openQuestions.push("Primary display selection and video wall technology answer differ; confirm which technology is correct.");
+  }
+  if (!purpose) openQuestions.push("Wall content behaviour is not confirmed; confirm single canvas, independent tiles or multiview.");
 
   const room = (projectName ?? "").trim();
 
   return {
     source: "discovery",
-    label: handoffLabel(application, independent, multiWindow),
+    label: technology ? handoffLabel(application, behaviourLabel) : `Discovery: wall technology not confirmed, ${behaviourLabel}`,
     ...(room ? { projectName: room } : {}),
+    ...(roomDetails.length ? { roomDetails: [...new Set(roomDetails)] } : {}),
+    ...(openQuestions.length ? { openQuestions } : {}),
     requirements: {
       application,
       layout,
       windows,
-      columns,
-      rows,
+      columns: arrayColumns,
+      rows: arrayRows,
       sources,
       customMode: "fixed",
+      ...(led && pixelCanvas ? { ledCanvasWidth: pixelCanvas.width, ledCanvasHeight: pixelCanvas.height } : {}),
+      ...(lcdPanelSize && !led ? { panelDiagonalInches: Number(lcdPanelSize[1]) } : {}),
+      ...(pitch && led ? { pixelPitchMm: Number(pitch[1]) } : {}),
     },
   };
 }
@@ -188,12 +309,16 @@ export function readVideoWallHandoff(): VideoWallHandoff | null {
     if (!parsed.requirements || typeof parsed.requirements !== "object") return null;
     const templateId = typeof parsed.templateId === "string" ? parsed.templateId.trim() : "";
     const projectName = typeof parsed.projectName === "string" ? parsed.projectName.trim() : "";
+    const roomDetails = Array.isArray(parsed.roomDetails) ? parsed.roomDetails.filter((item): item is string => typeof item === "string" && Boolean(item.trim())).map((item) => item.trim()) : [];
+    const openQuestions = Array.isArray(parsed.openQuestions) ? parsed.openQuestions.filter((item): item is string => typeof item === "string" && Boolean(item.trim())).map((item) => item.trim()) : [];
     return {
       source: parsed.source,
       label: typeof parsed.label === "string" && parsed.label.trim() ? parsed.label.trim() : "Wingman discovery",
       requirements: parsed.requirements,
       ...(templateId ? { templateId } : {}),
       ...(projectName ? { projectName } : {}),
+      ...(roomDetails.length ? { roomDetails } : {}),
+      ...(openQuestions.length ? { openQuestions } : {}),
     };
   } catch {
     return null;
@@ -240,6 +365,13 @@ export function wallHandoffOrigin(handoff: VideoWallHandoff): string {
   return room ? `${handoff.label} (${room})` : handoff.label;
 }
 
+/** Include the captured room context and unresolved design decisions in the saved wall record. */
+export function wallHandoffSavedOrigin(handoff: VideoWallHandoff): string {
+  const context = handoff.roomDetails?.length ? `Captured: ${handoff.roomDetails.join("; ")}.` : "";
+  const open = handoff.openQuestions?.length ? ` To confirm: ${handoff.openQuestions.join(" ")}` : "";
+  return `${wallHandoffOrigin(handoff)}${context ? ` — ${context}` : ""}${open}`;
+}
+
 /**
  * The one sentence a handoff banner prints, in either reading of the builder.
  *
@@ -250,7 +382,9 @@ export function wallHandoffOrigin(handoff: VideoWallHandoff): string {
  * capture step the rep never sees.
  */
 export function wallHandoffNote(handoff: VideoWallHandoff, requirements: WallRequirements) {
-  return `Started from ${wallHandoffOrigin(handoff)} — ${wallHandoffDisplay(requirements)}. The answers below are taken from that work — adjust anything that differs.`;
+  const details = handoff.roomDetails?.length ? ` Room details: ${handoff.roomDetails.join("; ")}.` : "";
+  const open = handoff.openQuestions?.length ? ` Still to confirm: ${handoff.openQuestions.join(" ")}` : "";
+  return `Started from ${wallHandoffOrigin(handoff)} — ${wallHandoffDisplay(requirements)}. The answers below are taken from that work — adjust anything that differs.${details}${open}`;
 }
 
 /** Merge a handoff onto the builder defaults, rejecting anything invalid. */

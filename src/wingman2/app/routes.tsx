@@ -27,6 +27,7 @@ const pageRegistry: Record<Exclude<WingmanRouteKey, "documents" | "salesHelper" 
   projects: lazy(fromNamedExport(() => import("../pages/ProjectsPage"), "ProjectsPage")),
   discovery: lazy(fromNamedExport(() => import("../pages/OpportunitiesPage"), "OpportunitiesPage")),
   recommendations: lazy(fromNamedExport(() => import("../pages/RecommendationsPage"), "RecommendationsPage")),
+  productFinder: lazy(fromNamedExport(() => import("../pages/ProductFinderPage"), "ProductFinderPage")),
   productFamilies: lazy(fromNamedExport(() => import("../pages/ProductFamilyPage"), "ProductFamilyPage")),
   productPitch: lazy(fromNamedExport(() => import("../pages/ProductPitchPage"), "ProductPitchPage")),
   catalogBrowser: lazy(fromNamedExport(() => import("../pages/CatalogBrowserPage"), "CatalogBrowserPage")),

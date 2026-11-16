@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-29T09:37:57.480Z",
+  "generatedAt": "2026-11-16T15:33:35.033Z",
   "records": [
     {
       "vendorType": "competitor",
@@ -45,13 +45,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://airtame.com/cloud-management/",
+            "sourceUrl": "https://help.airtame.com/hc/en-us/articles/5130980369693-What-is-Airtame-Cloud",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://airtame.com/cloud-management/"
+      "sourceUrl": "https://help.airtame.com/hc/en-us/articles/5130980369693-What-is-Airtame-Cloud"
     },
     {
       "vendorType": "competitor",
@@ -222,13 +222,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.amx.com/en-US/products/nmx-dec-n2322",
+            "sourceUrl": "https://www.amx.com/en-US/products/nmx-dec-n2322-decoder",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.amx.com/en-US/products/nmx-dec-n2322"
+      "sourceUrl": "https://www.amx.com/en-US/products/nmx-dec-n2322-decoder"
     },
     {
       "vendorType": "competitor",
@@ -290,13 +290,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.amx.com/en-US/products/nmx-enc-n2312",
+            "sourceUrl": "https://www.amx.com/en-US/products/nmx-enc-n2312-encoder",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.amx.com/en-US/products/nmx-enc-n2312"
+      "sourceUrl": "https://www.amx.com/en-US/products/nmx-enc-n2312-encoder"
     },
     {
       "vendorType": "competitor",
@@ -460,13 +460,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-hdda-2/",
+            "sourceUrl": "https://atlona.com/pdf/manuals/AT-HDDA-2_V2.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-hdda-2/"
+      "sourceUrl": "https://atlona.com/pdf/manuals/AT-HDDA-2_V2.pdf"
     },
     {
       "vendorType": "competitor",
@@ -477,13 +477,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-hdda-4/",
+            "sourceUrl": "https://atlona.com/pdf/manuals/AT-HDDA-4_V2.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-hdda-4/"
+      "sourceUrl": "https://atlona.com/pdf/manuals/AT-HDDA-4_V2.pdf"
     },
     {
       "vendorType": "competitor",
@@ -494,13 +494,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-hdda-8/",
+            "sourceUrl": "https://ts.atlona.com/product/at-hdda-8/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-hdda-8/"
+      "sourceUrl": "https://ts.atlona.com/product/at-hdda-8/"
     },
     {
       "vendorType": "competitor",
@@ -562,13 +562,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-juno-451/",
+            "sourceUrl": "https://atlona.com/pdf/manuals/AT-JUNO-451_G.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-juno-451/"
+      "sourceUrl": "https://atlona.com/pdf/manuals/AT-JUNO-451_G.pdf"
     },
     {
       "vendorType": "competitor",
@@ -579,13 +579,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-ocs-900n/",
+            "sourceUrl": "https://ts.atlona.com/product/at-ocs-900n/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-ocs-900n/"
+      "sourceUrl": "https://ts.atlona.com/product/at-ocs-900n/"
     },
     {
       "vendorType": "competitor",
@@ -630,13 +630,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-ome-ms42/",
+            "sourceUrl": "https://ts.atlona.com/product/ome-ms42/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-ome-ms42/"
+      "sourceUrl": "https://ts.atlona.com/product/ome-ms42/"
     },
     {
       "vendorType": "competitor",
@@ -647,13 +647,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-ome-ms52w/",
+            "sourceUrl": "https://ts.atlona.com/omega-4k-hdbaset-collaboration/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-ome-ms52w/",
+      "sourceUrl": "https://ts.atlona.com/omega-4k-hdbaset-collaboration/",
       "routedInputs": 5,
       "routedOutputs": 2,
       "routedInputCount": 5,
@@ -678,13 +678,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-ome-ps62/",
+            "sourceUrl": "https://ts.atlona.com/product/at-ome-ps62/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-ome-ps62/"
+      "sourceUrl": "https://ts.atlona.com/product/at-ome-ps62/"
     },
     {
       "vendorType": "competitor",
@@ -695,13 +695,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-ome-sw32/",
+            "sourceUrl": "https://ts.atlona.com/product/at-ome-sw32/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-ome-sw32/",
+      "sourceUrl": "https://ts.atlona.com/product/at-ome-sw32/",
       "routedInputs": 3,
       "routedOutputs": 2,
       "routedInputCount": 3,
@@ -722,13 +722,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-ome-tx11-wp/",
+            "sourceUrl": "https://ts.atlona.com/omega-4k-hdbaset-collaboration/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-ome-tx11-wp/"
+      "sourceUrl": "https://ts.atlona.com/omega-4k-hdbaset-collaboration/"
     },
     {
       "vendorType": "competitor",
@@ -757,7 +757,7 @@
         "codecStandard": "SMPTE ST 2042 / VC-2",
         "compressionClass": "visually-lossless"
       },
-      "sourceUrl": "https://atlona.com/product/at-omni-111/"
+      "sourceUrl": "https://ts.atlona.com/omnistream-av-over-ip/"
     },
     {
       "vendorType": "competitor",
@@ -786,7 +786,7 @@
         "codecStandard": "SMPTE ST 2042 / VC-2",
         "compressionClass": "visually-lossless"
       },
-      "sourceUrl": "https://atlona.com/product/at-omni-112/"
+      "sourceUrl": "https://ts.atlona.com/product/at-omni-112/"
     },
     {
       "vendorType": "competitor",
@@ -815,7 +815,7 @@
         "codecStandard": "SMPTE ST 2042 / VC-2",
         "compressionClass": "visually-lossless"
       },
-      "sourceUrl": "https://atlona.com/product/at-omni-121/"
+      "sourceUrl": "https://ts.atlona.com/product/at-omni-121/"
     },
     {
       "vendorType": "competitor",
@@ -855,13 +855,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-omni-311/",
+            "sourceUrl": "https://atlona.com/pdf/AT-OMNI-311_G.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-omni-311/"
+      "sourceUrl": "https://atlona.com/pdf/AT-OMNI-311_G.pdf"
     },
     {
       "vendorType": "competitor",
@@ -872,13 +872,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-omni-324/",
+            "sourceUrl": "https://atlona.com/pdf/data_sheet/AT-OMNI-324_Spec.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-omni-324/"
+      "sourceUrl": "https://atlona.com/pdf/data_sheet/AT-OMNI-324_Spec.pdf"
     },
     {
       "vendorType": "competitor",
@@ -889,13 +889,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-uhd-ex-100ce-kit/",
+            "sourceUrl": "https://support.atlona.com/hc/en-us/articles/236080327-KB01068-Why-am-I-unable-to-pass-certain-4K-signals-over-my-AT-UHD-EX-extenders-but-1080p-works",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-uhd-ex-100ce-kit/"
+      "sourceUrl": "https://support.atlona.com/hc/en-us/articles/236080327-KB01068-Why-am-I-unable-to-pass-certain-4K-signals-over-my-AT-UHD-EX-extenders-but-1080p-works"
     },
     {
       "vendorType": "competitor",
@@ -923,13 +923,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/sw-510w/",
+            "sourceUrl": "https://ts.atlona.com/product/sw-510w/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/sw-510w/"
+      "sourceUrl": "https://ts.atlona.com/product/sw-510w/"
     },
     {
       "vendorType": "competitor",
@@ -940,13 +940,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/vgw-hw/",
+            "sourceUrl": "https://ts.atlona.com/velocity-av-control-systems/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/vgw-hw/"
+      "sourceUrl": "https://ts.atlona.com/velocity-av-control-systems/"
     },
     {
       "vendorType": "competitor",
@@ -957,13 +957,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-vkp-8e/",
+            "sourceUrl": "https://ts.atlona.com/product/at-vkp-8e-eu/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-vkp-8e/"
+      "sourceUrl": "https://ts.atlona.com/product/at-vkp-8e-eu/"
     },
     {
       "vendorType": "competitor",
@@ -974,13 +974,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-vtp-700vl-bl/",
+            "sourceUrl": "https://ts.atlona.com/product/at-vtp-700vl-bl/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-vtp-700vl-bl/"
+      "sourceUrl": "https://ts.atlona.com/product/at-vtp-700vl-bl/"
     },
     {
       "vendorType": "competitor",
@@ -991,13 +991,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/vtpg-1000vl/",
+            "sourceUrl": "https://ts.atlona.com/velocity-av-control-systems/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/vtpg-1000vl/"
+      "sourceUrl": "https://ts.atlona.com/velocity-av-control-systems/"
     },
     {
       "vendorType": "competitor",
@@ -1008,13 +1008,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://atlona.com/product/at-omni-121/",
+            "sourceUrl": "https://ts.atlona.com/product/at-omni-121/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://atlona.com/product/at-omni-121/"
+      "sourceUrl": "https://ts.atlona.com/product/at-omni-121/"
     },
     {
       "vendorType": "competitor",
@@ -1450,13 +1450,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://assets.barco.com/m/518065e8b1d1a737/original/ClickShare-CX-50-2nd-generation-po-Spec-sheet.pdf",
+            "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-50-gen2",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://assets.barco.com/m/518065e8b1d1a737/original/ClickShare-CX-50-2nd-generation-po-Spec-sheet.pdf"
+      "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-50-gen2"
     },
     {
       "vendorType": "competitor",
@@ -1614,53 +1614,53 @@
     {
       "vendorType": "competitor",
       "manufacturer": "BirdDog",
-      "sku": "Air 4K Quad",
+      "sku": "4K HDMI",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.bhphotovideo.com/c/product/1472919-REG/birddog_bd4kquad_4k_quad_4_channel_12g.html",
+            "sourceUrl": "https://birddog.tv/4k-overview/4k-techspecs/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.bhphotovideo.com/c/product/1472919-REG/birddog_bd4kquad_4k_quad_4_channel_12g.html"
+      "sourceUrl": "https://birddog.tv/4k-overview/4k-techspecs/"
     },
     {
       "vendorType": "competitor",
       "manufacturer": "BirdDog",
-      "sku": "Eyes HDMI",
+      "sku": "4K QUAD",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.bhphotovideo.com/c/product/1472917-REG/birddog_bd4khdmi_4k_hdmi_hdmi2_0_4kp60_ndi.html",
+            "sourceUrl": "https://birddog.tv/4k-overview/4k-techspecs/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.bhphotovideo.com/c/product/1472917-REG/birddog_bd4khdmi_4k_hdmi_hdmi2_0_4kp60_ndi.html"
+      "sourceUrl": "https://birddog.tv/4k-overview/4k-techspecs/"
     },
     {
       "vendorType": "competitor",
       "manufacturer": "BirdDog",
-      "sku": "Eyes SDI",
+      "sku": "4K SDI",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.bhphotovideo.com/c/product/1472918-REG/birddog_bd4ksdi_4k_sdi_12g_sdi_4kp60.html",
+            "sourceUrl": "https://birddog.tv/4k-overview/4k-techspecs/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.bhphotovideo.com/c/product/1472918-REG/birddog_bd4ksdi_4k_sdi_12g_sdi_4kp60.html"
+      "sourceUrl": "https://birddog.tv/4k-overview/4k-techspecs/"
     },
     {
       "vendorType": "competitor",
@@ -2317,13 +2317,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Presentation-Systems/AM-3200-WF-I",
+            "sourceUrl": "https://docs.crestron.com/en-us/9020/content/topics/qsg_to_pm/AM-3200-WF%20Specs.htm",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Presentation-Systems/AM-3200-WF-I"
+      "sourceUrl": "https://docs.crestron.com/en-us/9020/content/topics/qsg_to_pm/AM-3200-WF%20Specs.htm"
     },
     {
       "vendorType": "competitor",
@@ -2334,13 +2334,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Wireless-Conferencing/AM-TX3-100",
+            "sourceUrl": "https://docs.crestron.com/en-us/9020/Content/AM-TX3-100%28-I%29%20Specifications.htm",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Wireless-Conferencing/AM-TX3-100"
+      "sourceUrl": "https://docs.crestron.com/en-us/9020/Content/AM-TX3-100%28-I%29%20Specifications.htm"
     },
     {
       "vendorType": "competitor",
@@ -2495,7 +2495,7 @@
         "compressionClass": "visually-lossless",
         "latencyClass": "ultra-low"
       },
-      "sourceUrl": "https://www.crestron.com/getmedia/fd298155-4eb4-4df8-b060-a5e05d4bae72/ss_DM-NVX-360"
+      "sourceUrl": "https://docs.crestron.com/en-us/9496/Content/Topics/Specifications/Specifications-360.htm"
     },
     {
       "vendorType": "competitor",
@@ -2555,7 +2555,7 @@
         "compressionClass": "visually-lossless",
         "latencyClass": "ultra-low"
       },
-      "sourceUrl": "https://www.crestron.com/dmnvx"
+      "sourceUrl": "https://docs.crestron.com/en-us/9496/Content/Topics/Specifications/Specifications-384.htm"
     },
     {
       "vendorType": "competitor",
@@ -2645,7 +2645,7 @@
         "compressionClass": "visually-lossless",
         "latencyClass": "ultra-low"
       },
-      "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30"
+      "sourceUrl": "https://www.crestron.com/Products/Catalog/AV-Over-IP/DM-NVX-AV-Over-IP/Video-Endpoint/DM-NVX-E30"
     },
     {
       "vendorType": "competitor",
@@ -2723,13 +2723,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
+            "sourceUrl": "https://www.crestron.com/Products/Catalog/Audio-Video-and-USB/DM-Essentials-Point-to-Point/HDMI-Switcher/HD-MD4X2-4KZ-E",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E"
+      "sourceUrl": "https://www.crestron.com/Products/Catalog/Audio-Video-and-USB/DM-Essentials-Point-to-Point/HDMI-Switcher/HD-MD4X2-4KZ-E"
     },
     {
       "vendorType": "competitor",
@@ -3339,7 +3339,7 @@
         "interoperability": "third-party-compatible",
         "medium": "shielded CAT twisted pair"
       },
-      "sourceUrl": "https://www.extron.com/product/dtpcrosspoint84"
+      "sourceUrl": "https://www.extron.com/product/dtpcp4k84"
     },
     {
       "vendorType": "competitor",
@@ -3443,7 +3443,7 @@
         "interoperability": "requires-matched-endpoint",
         "medium": "shielded CAT twisted pair"
       },
-      "sourceUrl": "https://www.extron.com/product/dtp3crosspoint42"
+      "sourceUrl": "https://media.extron.com/public/download/files/userman/68-3581-01_A_DTP3_CP_42_UG.pdf"
     },
     {
       "vendorType": "competitor",
@@ -3588,7 +3588,7 @@
         "interoperability": "third-party-compatible",
         "medium": "shielded CAT twisted pair"
       },
-      "sourceUrl": "https://www.extron.com/product/in1608xi"
+      "sourceUrl": "https://media.extron.com/public/download/files/brochure/in1608xi.pdf"
     },
     {
       "vendorType": "competitor",
@@ -3614,7 +3614,7 @@
         "interoperability": "requires-matched-endpoint",
         "medium": "shielded CAT twisted pair"
       },
-      "sourceUrl": "https://www.extron.com/product/in1608"
+      "sourceUrl": "https://www.extron.com/product/in1608xi"
     },
     {
       "vendorType": "competitor",
@@ -3783,36 +3783,6 @@
     {
       "vendorType": "competitor",
       "manufacturer": "Extron",
-      "sku": "NAV D 101",
-      "profile": {
-        "matchedRuleIds": [
-          "extron-nav-1g"
-        ],
-        "notes": [],
-        "evidence": [
-          {
-            "sourceUrl": "https://www.extron.com/NAV-Pro-AV-Over-IP/prodsubtype-874",
-            "sourceType": "manufacturer",
-            "statement": "NAV includes explicit 1G endpoint models and uses Extron PURE3.",
-            "confidence": "verified"
-          }
-        ],
-        "vendorTechnology": "Extron NAV",
-        "canonicalTransport": "AV-over-IP",
-        "transportFamily": "ethernet-ip",
-        "standardRelationship": "proprietary",
-        "interoperability": "vendor-ecosystem",
-        "networkClass": "1GbE",
-        "codecName": "PURE3",
-        "codecStandard": "Extron proprietary",
-        "compressionClass": "visually-lossless",
-        "latencyClass": "ultra-low"
-      },
-      "sourceUrl": "https://www.extron.com/product/navsd101"
-    },
-    {
-      "vendorType": "competitor",
-      "manufacturer": "Extron",
       "sku": "NAV D 121",
       "profile": {
         "matchedRuleIds": [
@@ -3903,6 +3873,36 @@
     {
       "vendorType": "competitor",
       "manufacturer": "Extron",
+      "sku": "NAV E 121",
+      "profile": {
+        "matchedRuleIds": [
+          "extron-nav-1g"
+        ],
+        "notes": [],
+        "evidence": [
+          {
+            "sourceUrl": "https://www.extron.com/NAV-Pro-AV-Over-IP/prodsubtype-874",
+            "sourceType": "manufacturer",
+            "statement": "NAV includes explicit 1G endpoint models and uses Extron PURE3.",
+            "confidence": "verified"
+          }
+        ],
+        "vendorTechnology": "Extron NAV",
+        "canonicalTransport": "AV-over-IP",
+        "transportFamily": "ethernet-ip",
+        "standardRelationship": "proprietary",
+        "interoperability": "vendor-ecosystem",
+        "networkClass": "1GbE",
+        "codecName": "PURE3",
+        "codecStandard": "Extron proprietary",
+        "compressionClass": "visually-lossless",
+        "latencyClass": "ultra-low"
+      },
+      "sourceUrl": "https://www.extron.com/product/nave121"
+    },
+    {
+      "vendorType": "competitor",
+      "manufacturer": "Extron",
       "sku": "NAV E 501",
       "profile": {
         "matchedRuleIds": [
@@ -3933,6 +3933,66 @@
     {
       "vendorType": "competitor",
       "manufacturer": "Extron",
+      "sku": "NAV SD 101",
+      "profile": {
+        "matchedRuleIds": [
+          "extron-nav-1g"
+        ],
+        "notes": [],
+        "evidence": [
+          {
+            "sourceUrl": "https://www.extron.com/NAV-Pro-AV-Over-IP/prodsubtype-874",
+            "sourceType": "manufacturer",
+            "statement": "NAV includes explicit 1G endpoint models and uses Extron PURE3.",
+            "confidence": "verified"
+          }
+        ],
+        "vendorTechnology": "Extron NAV",
+        "canonicalTransport": "AV-over-IP",
+        "transportFamily": "ethernet-ip",
+        "standardRelationship": "proprietary",
+        "interoperability": "vendor-ecosystem",
+        "networkClass": "1GbE",
+        "codecName": "PURE3",
+        "codecStandard": "Extron proprietary",
+        "compressionClass": "visually-lossless",
+        "latencyClass": "ultra-low"
+      },
+      "sourceUrl": "https://www.extron.com/product/navsd101"
+    },
+    {
+      "vendorType": "competitor",
+      "manufacturer": "Extron",
+      "sku": "NAV SD 121",
+      "profile": {
+        "matchedRuleIds": [
+          "extron-nav-1g"
+        ],
+        "notes": [],
+        "evidence": [
+          {
+            "sourceUrl": "https://www.extron.com/NAV-Pro-AV-Over-IP/prodsubtype-874",
+            "sourceType": "manufacturer",
+            "statement": "NAV includes explicit 1G endpoint models and uses Extron PURE3.",
+            "confidence": "verified"
+          }
+        ],
+        "vendorTechnology": "Extron NAV",
+        "canonicalTransport": "AV-over-IP",
+        "transportFamily": "ethernet-ip",
+        "standardRelationship": "proprietary",
+        "interoperability": "vendor-ecosystem",
+        "networkClass": "1GbE",
+        "codecName": "PURE3",
+        "codecStandard": "Extron proprietary",
+        "compressionClass": "visually-lossless",
+        "latencyClass": "ultra-low"
+      },
+      "sourceUrl": "https://www.extron.com/product/navsd121"
+    },
+    {
+      "vendorType": "competitor",
+      "manufacturer": "Extron",
       "sku": "NAV SD 501",
       "profile": {
         "matchedRuleIds": [
@@ -3959,40 +4019,6 @@
         "latencyClass": "ultra-low"
       },
       "sourceUrl": "https://www.extron.com/product/navsd501"
-    },
-    {
-      "vendorType": "competitor",
-      "manufacturer": "Extron",
-      "sku": "NAV-E-121",
-      "profile": {
-        "matchedRuleIds": [],
-        "notes": [],
-        "evidence": [
-          {
-            "sourceUrl": "https://www.extron.com/product/nave121",
-            "sourceType": "manufacturer",
-            "confidence": "requires-review"
-          }
-        ]
-      },
-      "sourceUrl": "https://www.extron.com/product/nave121"
-    },
-    {
-      "vendorType": "competitor",
-      "manufacturer": "Extron",
-      "sku": "NAV-SD-121",
-      "profile": {
-        "matchedRuleIds": [],
-        "notes": [],
-        "evidence": [
-          {
-            "sourceUrl": "https://www.extron.com/product/navsd121",
-            "sourceType": "manufacturer",
-            "confidence": "requires-review"
-          }
-        ]
-      },
-      "sourceUrl": "https://www.extron.com/product/navsd121"
     },
     {
       "vendorType": "competitor",
@@ -4598,13 +4624,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www1.kramerav.com/Product/KDS-100DEC",
+            "sourceUrl": "https://www1.kramerav.com/ca/product/kds-100dec",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www1.kramerav.com/Product/KDS-100DEC"
+      "sourceUrl": "https://www1.kramerav.com/ca/product/kds-100dec"
     },
     {
       "vendorType": "competitor",
@@ -4717,13 +4743,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www1.kramerav.com/product/KDS-USB2",
+            "sourceUrl": "https://www1.kramerav.com/us/product/kds-usb2",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www1.kramerav.com/product/KDS-USB2"
+      "sourceUrl": "https://www1.kramerav.com/us/product/kds-usb2"
     },
     {
       "vendorType": "competitor",
@@ -4751,13 +4777,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www1.kramerav.com/product/tp-580t",
+            "sourceUrl": "https://www1.kramerav.com/us/product/tp-580t",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www1.kramerav.com/product/tp-580t"
+      "sourceUrl": "https://www1.kramerav.com/us/product/tp-580t"
     },
     {
       "vendorType": "competitor",
@@ -4768,13 +4794,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www1.kramerav.com/us/product/via%20go%C2%B2",
+            "sourceUrl": "https://www1.kramerav.com/Product/VIA%20GO%C2%B2",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www1.kramerav.com/us/product/via%20go%C2%B2"
+      "sourceUrl": "https://www1.kramerav.com/Product/VIA%20GO%C2%B2"
     },
     {
       "vendorType": "competitor",
@@ -4785,13 +4811,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www1.kramerav.com/product/vm-4h2",
+            "sourceUrl": "https://www1.kramerav.com/us/product/vm-4h2",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www1.kramerav.com/product/vm-4h2"
+      "sourceUrl": "https://www1.kramerav.com/us/product/vm-4h2"
     },
     {
       "vendorType": "competitor",
@@ -4982,13 +5008,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://lightware.com/da2hdmi-4k-plus",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HDMI-4K_series_UserManual.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://lightware.com/da2hdmi-4k-plus",
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HDMI-4K_series_UserManual.pdf",
       "logicalInputs": 1,
       "logicalOutputs": 2,
       "routedInputs": 0,
@@ -5015,13 +5041,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://lightware.com/da4-hdmi20-c",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Marketing-Literature/Product-Brief/DA4-HDMI20-C_Product_Brief.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://lightware.com/da4-hdmi20-c"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Marketing-Literature/Product-Brief/DA4-HDMI20-C_Product_Brief.pdf"
     },
     {
       "vendorType": "competitor",
@@ -5049,13 +5075,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://lightware.com/mmx2-4x1-h20",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/MMX2_series/UM.html",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://lightware.com/mmx2-4x1-h20"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/MMX2_series/UM.html"
     },
     {
       "vendorType": "competitor",
@@ -5066,13 +5092,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.lightware.com/mmx4x2-hdmi",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/MMX4x2_series/UM.html",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.lightware.com/mmx4x2-hdmi"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/MMX4x2_series/UM.html"
     },
     {
       "vendorType": "competitor",
@@ -5098,7 +5124,7 @@
         "interoperability": "third-party-compatible",
         "medium": "CAT twisted pair"
       },
-      "sourceUrl": "https://lightware.com/mmx6x2-ht200"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/MMX6x2-HT_series/MMX6x2-HT_Series_UserManual.html"
     },
     {
       "vendorType": "competitor",
@@ -5124,7 +5150,7 @@
         "interoperability": "third-party-compatible",
         "medium": "CAT twisted pair"
       },
-      "sourceUrl": "https://lightware.com/mmx6x2-ht210"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/MMX6x2-HT_series/MMX6x2-HT_Series_UserManual.html"
     },
     {
       "vendorType": "competitor",
@@ -5150,7 +5176,7 @@
         "interoperability": "third-party-compatible",
         "medium": "CAT twisted pair"
       },
-      "sourceUrl": "https://lightware.com/mmx8-4-ht400mc"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/MMX8x4-HT_series/UM.html"
     },
     {
       "vendorType": "competitor",
@@ -5176,7 +5202,7 @@
         "interoperability": "third-party-compatible",
         "medium": "CAT twisted pair"
       },
-      "sourceUrl": "https://lightware.com/mmx8x4-ht420m"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/MMX8x4-HT_series/UM.html"
     },
     {
       "vendorType": "competitor",
@@ -5204,13 +5230,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://lightware.com/ucx-2x1-hc30",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Technical-Documents/EOL%20notice%20documents/EOL%20Notice%20-%20UCX-HC30.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://lightware.com/ucx-2x1-hc30"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Technical-Documents/EOL%20notice%20documents/EOL%20Notice%20-%20UCX-HC30.pdf"
     },
     {
       "vendorType": "competitor",
@@ -5238,13 +5264,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.lightware.com/en/products/bundle/tpx-2x1-tx20-3x3-rx20-bundle",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Marketing-Literature/Catalogue/LWR%20AV%20Design%20Guide.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.lightware.com/en/products/bundle/tpx-2x1-tx20-3x3-rx20-bundle"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Marketing-Literature/Catalogue/LWR%20AV%20Design%20Guide.pdf"
     },
     {
       "vendorType": "competitor",
@@ -5255,13 +5281,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.lightware.com/en/products/extenders/hdmi-tpx-tx107",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/TPX_OPTX/UM.html",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.lightware.com/en/products/extenders/hdmi-tpx-tx107"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/TPX_OPTX/UM.html"
     },
     {
       "vendorType": "competitor",
@@ -5306,13 +5332,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://lightware.com/ubex-pro20-hdmi-r100",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/UBEX_Extender/UM.html",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://lightware.com/ubex-pro20-hdmi-r100"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/UBEX_Extender/UM.html"
     },
     {
       "vendorType": "competitor",
@@ -5374,13 +5400,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.lightware.com/en/products/Matrix-Switchers/ucx-4x2-hc40",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/UCX_series_UserManual.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.lightware.com/en/products/Matrix-Switchers/ucx-4x2-hc40"
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/UCX_series_UserManual.pdf"
     },
     {
       "vendorType": "competitor",
@@ -5391,13 +5417,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Technical-Documents/A%26E-Specifications/UCX-4x2-HC60D_A%26E_specification.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Technical-Documents/A%26E-Specifications/UCX-4x2-HC60D_A%26E_specification.pdf",
       "routedInputs": 4,
       "routedOutputs": 2,
       "routedInputCount": 4,
@@ -5452,13 +5478,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.lightware.com/en/products/Matrix-Switchers/ucx-4x3-hcm40",
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Marketing-Literature/Catalogue/LWR%20AV%20Design%20Guide.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.lightware.com/en/products/Matrix-Switchers/ucx-4x3-hcm40",
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Marketing-Literature/Catalogue/LWR%20AV%20Design%20Guide.pdf",
       "routedInputs": 4,
       "routedOutputs": 3,
       "routedInputCount": 4,
@@ -5501,13 +5527,19 @@
     {
       "vendorType": "competitor",
       "manufacturer": "Lightware",
-      "sku": "VINX-210AP-HDMI-DEC",
+      "sku": "VINX-210AP-HDMI-ENC",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
-        "evidence": []
+        "evidence": [
+          {
+            "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/VINX/UM.html",
+            "sourceType": "manufacturer",
+            "confidence": "requires-review"
+          }
+        ]
       },
-      "sourceUrl": ""
+      "sourceUrl": "https://assets.prod.pim.lightware.com/assets/File-Downloads/Guides-and-Manuals/User-Manual/HTML/VINX/UM.html"
     },
     {
       "vendorType": "competitor",
@@ -6368,13 +6400,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://visionary-av.com/wp-content/uploads/2023/08/VISIONARY-ED5200-SpecSheet-230815.pdf",
+            "sourceUrl": "https://visionary-av.com/wp-content/uploads/2024/10/VISIONARY-ED5200-SpecSheet-241016.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://visionary-av.com/wp-content/uploads/2023/08/VISIONARY-ED5200-SpecSheet-230815.pdf"
+      "sourceUrl": "https://visionary-av.com/wp-content/uploads/2024/10/VISIONARY-ED5200-SpecSheet-241016.pdf"
     },
     {
       "vendorType": "competitor",
@@ -6385,13 +6417,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://visionary-av.com/project/e5200-encoder-decoder/",
+            "sourceUrl": "https://visionary-av.com/wp-content/uploads/2024/10/VISIONARY-ED5200-SpecSheet-241016.pdf",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://visionary-av.com/project/e5200-encoder-decoder/"
+      "sourceUrl": "https://visionary-av.com/wp-content/uploads/2024/10/VISIONARY-ED5200-SpecSheet-241016.pdf"
     },
     {
       "vendorType": "competitor",
@@ -6419,13 +6451,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.zeevee.com/wp-content/uploads/2024/08/ZeeVee-ZyPerUHD60-2E-Data-Sheet.pdf",
+            "sourceUrl": "https://www.zeevee.com/product/zyperuhd60-encoder-single-lan-with-hdmi-loopout/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.zeevee.com/wp-content/uploads/2024/08/ZeeVee-ZyPerUHD60-2E-Data-Sheet.pdf"
+      "sourceUrl": "https://www.zeevee.com/product/zyperuhd60-encoder-single-lan-with-hdmi-loopout/"
     },
     {
       "vendorType": "competitor",
@@ -6436,13 +6468,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.zeevee.com/wp-content/uploads/2024/08/ZeeVee-ZyPerUHD60-2E-Data-Sheet.pdf",
+            "sourceUrl": "https://www.zeevee.com/product/zyperuhd60-decoder-dual-1g-lan/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.zeevee.com/wp-content/uploads/2024/08/ZeeVee-ZyPerUHD60-2E-Data-Sheet.pdf"
+      "sourceUrl": "https://www.zeevee.com/product/zyperuhd60-decoder-dual-1g-lan/"
     },
     {
       "vendorType": "competitor",
@@ -6453,13 +6485,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.zeevee.com/product/zuhd60-2emp/",
+            "sourceUrl": "https://www.zeevee.com/product/zyperuhd60-encoder-3x1-switching-input-dual-lan-integrated-management/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.zeevee.com/product/zuhd60-2emp/"
+      "sourceUrl": "https://www.zeevee.com/product/zyperuhd60-encoder-3x1-switching-input-dual-lan-integrated-management/"
     },
     {
       "vendorType": "competitor",
@@ -6470,13 +6502,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+            "sourceUrl": "https://www.zeevee.com/product/zyper4k-hdmi-2-0-copper-decoder/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.zeevee.com/products/zyper4k/"
+      "sourceUrl": "https://www.zeevee.com/product/zyper4k-hdmi-2-0-copper-decoder/"
     },
     {
       "vendorType": "competitor",
@@ -6487,13 +6519,13 @@
         "notes": [],
         "evidence": [
           {
-            "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+            "sourceUrl": "https://www.zeevee.com/product/zyper4k-copper-encoder-usb/",
             "sourceType": "manufacturer",
             "confidence": "requires-review"
           }
         ]
       },
-      "sourceUrl": "https://www.zeevee.com/products/zyper4k/"
+      "sourceUrl": "https://www.zeevee.com/product/zyper4k-copper-encoder-usb/"
     },
     {
       "vendorType": "competitor",
@@ -7125,6 +7157,17 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "CAB-USB-PX1",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "CAB-USBC-15",
       "profile": {
         "matchedRuleIds": [],
@@ -7235,6 +7278,39 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "CON-ANLG-DNT",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "CON-DNT-ANLG",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "CON-DNT-XLR",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "CON-H2-DD-EARC",
       "profile": {
         "matchedRuleIds": [],
@@ -7258,6 +7334,39 @@
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
       "sku": "CON-H2-SCL",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "CON-USBC-DNT",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "CON-XLR-DNT",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "DSP-88-DNT",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
@@ -7510,6 +7619,17 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "EX-70-H2L",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "EX-70-H2X",
       "profile": {
         "matchedRuleIds": [],
@@ -7536,11 +7656,7 @@
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
-        "evidence": [],
-        "canonicalTransport": "HDBaseT",
-        "transportFamily": "twisted-pair",
-        "interoperability": "third-party-compatible",
-        "standardRelationship": "compatible"
+        "evidence": []
       },
       "sourceUrl": ""
     },
@@ -7580,7 +7696,29 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "EXP-4KUHD-0.5",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "EXP-4KUHD-05",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "EXP-4KUHD-1.0",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
@@ -7602,6 +7740,17 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "EXP-4KUHD-2.0",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "EXP-4KUHD-20",
       "profile": {
         "matchedRuleIds": [],
@@ -7613,7 +7762,29 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "EXP-4KUHD-3.0",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "EXP-4KUHD-30",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "EXP-4KUHD-5.0",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
@@ -7646,7 +7817,51 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "EXP-8KUHD-0.5",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "EXP-8KUHD-05",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "EXP-8KUHD-1.0",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "EXP-8KUHD-2.0",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "EXP-8KUHD-3.0",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
@@ -8490,6 +8705,17 @@
       "matrixSizeEvidence": "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote"
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "MX-0402-MST-V2",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
     },
     {
       "vendorType": "wyrestorm",
@@ -9449,7 +9675,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 500",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "compatible",
+        "standardRelationship": "based-on",
         "interoperability": "third-party-compatible",
         "networkClass": "1GbE",
         "codecName": "JPEG2000",
@@ -9479,7 +9705,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 500",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "compatible",
+        "standardRelationship": "based-on",
         "interoperability": "third-party-compatible",
         "networkClass": "1GbE",
         "codecName": "JPEG2000",
@@ -9569,6 +9795,36 @@
         "vendorTechnology": "WyreStorm NetworkHD 500",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
+        "standardRelationship": "based-on",
+        "interoperability": "third-party-compatible",
+        "networkClass": "1GbE",
+        "codecName": "JPEG2000",
+        "codecStandard": "JPEG2000",
+        "compressionClass": "visually-lossless",
+        "latencyClass": "low"
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "NHD-500-RX-V2",
+      "profile": {
+        "matchedRuleIds": [
+          "wyrestorm-networkhd-500"
+        ],
+        "notes": [],
+        "evidence": [
+          {
+            "sourceUrl": "https://www.wyrestorm.com/product/nhd-500/",
+            "sourceType": "manufacturer",
+            "statement": "NetworkHD 500 uses JPEG2000 on 1GbE and supports 4K60 4:4:4.",
+            "confidence": "verified"
+          }
+        ],
+        "vendorTechnology": "WyreStorm NetworkHD 500",
+        "canonicalTransport": "HDBaseT",
+        "transportFamily": "twisted-pair",
         "standardRelationship": "compatible",
         "interoperability": "third-party-compatible",
         "networkClass": "1GbE",
@@ -9630,6 +9886,36 @@
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
         "standardRelationship": "compatible",
+        "interoperability": "third-party-compatible",
+        "networkClass": "1GbE",
+        "codecName": "JPEG2000",
+        "codecStandard": "JPEG2000",
+        "compressionClass": "visually-lossless",
+        "latencyClass": "low"
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "NHD-500-TX-V2",
+      "profile": {
+        "matchedRuleIds": [
+          "wyrestorm-networkhd-500"
+        ],
+        "notes": [],
+        "evidence": [
+          {
+            "sourceUrl": "https://www.wyrestorm.com/product/nhd-500/",
+            "sourceType": "manufacturer",
+            "statement": "NetworkHD 500 uses JPEG2000 on 1GbE and supports 4K60 4:4:4.",
+            "confidence": "verified"
+          }
+        ],
+        "vendorTechnology": "WyreStorm NetworkHD 500",
+        "canonicalTransport": "HDBaseT",
+        "transportFamily": "twisted-pair",
+        "standardRelationship": "based-on",
         "interoperability": "third-party-compatible",
         "networkClass": "1GbE",
         "codecName": "JPEG2000",
@@ -9719,7 +10005,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 600",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "compatible",
+        "standardRelationship": "based-on",
         "interoperability": "third-party-compatible",
         "networkClass": "10GbE",
         "codecName": "SDVoE",
@@ -9959,7 +10245,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 600",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "compatible",
+        "standardRelationship": "based-on",
         "interoperability": "third-party-compatible",
         "networkClass": "10GbE",
         "codecName": "SDVoE",
@@ -10122,7 +10408,7 @@
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
         "interoperability": "third-party-compatible",
-        "standardRelationship": "compatible"
+        "standardRelationship": "based-on"
       },
       "sourceUrl": ""
     },
@@ -10155,7 +10441,62 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "PSU-12V-1A",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "PSU-12V-2A",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "PSU-12V-3A",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "PSU-18V-1A",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "PSU-20V-6A-BOX",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "PSU-20V-6A-WP",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
@@ -10493,6 +10834,17 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "SW-0402N-INK",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "SW-120-TX3",
       "profile": {
         "matchedRuleIds": [],
@@ -10701,6 +11053,17 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "SYN-CTL-FL10",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "SYN-CTL-HUB",
       "profile": {
         "matchedRuleIds": [],
@@ -10712,7 +11075,62 @@
     {
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
+      "sku": "SYN-CTL-HUB-IO-10",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "SYN-CTL-HUB-IR-06",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "SYN-CTL-HUB-RL-04",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "SYN-CTL-HUB-RS-03",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
       "sku": "SYN-KEY10",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "SYN-KEY12-UK-EU",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],
@@ -10779,6 +11197,17 @@
       "vendorType": "wyrestorm",
       "manufacturer": "WyreStorm",
       "sku": "SYN-TOUCH10-V2",
+      "profile": {
+        "matchedRuleIds": [],
+        "notes": [],
+        "evidence": []
+      },
+      "sourceUrl": ""
+    },
+    {
+      "vendorType": "wyrestorm",
+      "manufacturer": "WyreStorm",
+      "sku": "SYN-TOUCH10-V3",
       "profile": {
         "matchedRuleIds": [],
         "notes": [],

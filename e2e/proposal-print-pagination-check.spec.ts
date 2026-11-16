@@ -8,7 +8,7 @@ import { proposalPrintPaginationHtml } from "../src/wingman2/lib/proposalPrintPa
  *
  * The pagination is browser code — `proposalPrintPaginationHtml()` ships a
  * `<style>` and a `<script>` inside the exported proposal, and the script
- * re-lays the priced schedule into page-sized chunks when the document is about
+ * re-lays the equipment schedule into page-sized chunks when the document is about
  * to print. Nothing in this repository can read that without a layout engine:
  * jsdom reports every box as 0×0, so the chunking loop would put all sixty lines
  * on one page and pass. So the walk is a real Chromium page with print media
@@ -35,19 +35,18 @@ import { proposalPrintPaginationHtml } from "../src/wingman2/lib/proposalPrintPa
 const ROW_COUNT = 60;
 const TITLE = "Equipment schedule";
 const CONTINUED = `${TITLE} — continued`;
-const TOTAL = `Schedule total: £${ROW_COUNT * 10}.00 · ${ROW_COUNT} items · Excl. tax`;
-const HEADER_LABELS = ["Item", "Description", "Qty", "Unit price", "Line total"];
+const TOTAL = `${ROW_COUNT} items`;
+const HEADER_LABELS = ["Item", "Description", "Qty", "Status"];
 
-/** One priced line, carrying the running total the export writes on each row. */
+/** One equipment schedule line with no commercial fields. */
 function scheduleRows(count: number) {
   return Array.from({ length: count }, (_, index) => {
     const item = `ROW-${String(index + 1).padStart(3, "0")}`;
-    const total = (index + 1) * 10;
     return (
-      `<tr data-running-footer="Running priced total: £${total}.00 · ${index + 1} items · Excl. tax">`
+      "<tr>"
       + `<td>${item}</td>`
       + `<td>ROWSTART${index} Wall plate, HDMI extension and commissioning detail for the Northstar operations room ROWEND${index}</td>`
-      + `<td>1</td><td>£10.00</td><td>£${total}.00</td>`
+      + "<td>1</td><td>Required</td>"
       + "</tr>"
     );
   }).join("");
@@ -55,7 +54,7 @@ function scheduleRows(count: number) {
 
 /**
  * A document shaped the way the export is: a heading and a lead paragraph, then
- * the priced schedule the pagination script marks with `data-priced-schedule`.
+ * the equipment schedule the pagination script marks with `data-proposal-schedule`.
  * The `@page` rule and the body font are what give the walk the page it measures
  * against — they are not the export's own stylesheet, which is why the
  * assertions are about the chunking rather than about millimetres.
@@ -73,8 +72,8 @@ ${proposalPrintPaginationHtml()}
 </head>
 <body>
 <h2>${TITLE}</h2>
-<p>Priced equipment for the Northstar operations room, per the approved bill of materials.</p>
-<table class="wm-priced-schedule" data-priced-schedule>
+<p>Equipment for the Northstar operations room, per the approved system design.</p>
+<table class="wm-proposal-schedule" data-proposal-schedule>
   <thead><tr>${HEADER_LABELS.map((label) => `<th>${label}</th>`).join("")}</tr></thead>
   <tbody>${rows}</tbody>
   <tfoot><tr><td colspan="${HEADER_LABELS.length}">${TOTAL}</td></tr></tfoot>
@@ -121,7 +120,7 @@ async function holdOriginals(page: Page) {
   await page.evaluate(() => {
     const held = window as unknown as HeldOriginals;
     held.__wmOriginalTitle = document.querySelector("h2");
-    held.__wmOriginalSchedule = document.querySelector("table[data-priced-schedule]");
+    held.__wmOriginalSchedule = document.querySelector("table[data-proposal-schedule]");
   });
 }
 
@@ -188,7 +187,7 @@ async function readPrint(page: Page): Promise<PrintReading> {
 const printedItems = (reading: PrintReading) => reading.pages.flatMap((page) => page.rows.map((row) => row.item));
 const expectedItems = Array.from({ length: ROW_COUNT }, (_, index) => `ROW-${String(index + 1).padStart(3, "0")}`);
 
-test("splits a long priced schedule into pages that each carry the header and a footer that agrees with their last line", async ({ page }) => {
+test("splits a long equipment schedule into pages that each carry the header and a footer that agrees with their last line", async ({ page }) => {
   await page.setContent(buildDocument({ rows: scheduleRows(ROW_COUNT) }), { waitUntil: "load" });
   await holdOriginals(page);
   await print(page);
@@ -198,7 +197,7 @@ test("splits a long priced schedule into pages that each carry the header and a 
   // and every reading below would be about an unpaginated table.
   expect(
     reading.pages.length,
-    `a ${ROW_COUNT}-line priced schedule came out as ${reading.pages.length} printed page(s), so the pagination never split it`,
+    `a ${ROW_COUNT}-line equipment schedule came out as ${reading.pages.length} printed page(s), so the pagination never split it`,
   ).toBeGreaterThanOrEqual(3);
 
   expect(
@@ -243,16 +242,12 @@ test("splits a long priced schedule into pages that each carry the header and a 
     const last = printed.rows[printed.rows.length - 1];
     const lastOrdinal = Number(last.item.slice(4));
     if (index === reading.pages.length - 1) {
-      expect(printed.footer, `${label} is the last page and does not print the schedule total`).toBe(TOTAL);
-      expect(printed.footer).toContain(`· ${ROW_COUNT} items`);
+      expect(printed.footer, `${label} is the last page and does not print the item count`).toBe(TOTAL);
     } else {
       expect(
         printed.footer,
-        `${label} prints a footer that is not the running total of the line it ends on (${last.item})`,
-      ).toBe(last.runningFooter);
-      // Derived from the printed line rather than the fixture, so a stale footer
-      // copied from an earlier page fails even if the fixture's own text moved.
-      expect(printed.footer).toContain(`· ${lastOrdinal} items`);
+        `${label} prints a footer that does not end on the last item it contains (${last.item})`,
+      ).toContain(`–${lastOrdinal} of ${ROW_COUNT}`);
     }
     expect(printed.heading, `${label} does not say which schedule it continues`).toBe(index === 0 ? TITLE : CONTINUED);
   }
@@ -304,19 +299,19 @@ test("puts the document back after printing, so a second print is the same docum
   const second = await readPrint(page);
   expect(second.pages.length, `the second print made ${second.pages.length} pages where the first made ${first.pages.length}`).toBe(first.pages.length);
   expect(printedItems(second), "the second print put a different set of lines on the pages than the first").toEqual(printedItems(first));
-  expect(second.pages.map((printed) => printed.footer), "the second print's running totals differ from the first's").toEqual(first.pages.map((printed) => printed.footer));
+  expect(second.pages.map((printed) => printed.footer), "the second print's item ranges differ from the first's").toEqual(first.pages.map((printed) => printed.footer));
 });
 
 test("leaves a schedule with no lines, and a table it was not asked to paginate, alone", async ({ page }) => {
-  const unmarked = `<table class="wm-priced-schedule" id="unmarked">
+  const unmarked = `<table class="wm-proposal-schedule" id="unmarked">
   <thead><tr>${HEADER_LABELS.map((label) => `<th>${label}</th>`).join("")}</tr></thead>
   <tbody>${scheduleRows(5)}</tbody>
-  <tfoot><tr><td colspan="${HEADER_LABELS.length}">Schedule total: £50.00 · 5 items · Excl. tax</td></tr></tfoot>
+  <tfoot><tr><td colspan="${HEADER_LABELS.length}">5 items</td></tr></tfoot>
 </table>`;
   await page.setContent(buildDocument({ rows: "", extraTables: unmarked }), { waitUntil: "load" });
   await print(page);
   const reading = await page.evaluate(() => {
-    const empty = document.querySelector("table[data-priced-schedule]") as HTMLTableElement;
+    const empty = document.querySelector("table[data-proposal-schedule]") as HTMLTableElement;
     const unmarkedTable = document.querySelector("#unmarked") as HTMLTableElement;
     return {
       pages: document.querySelectorAll(".wm-schedule-print-page").length,
@@ -326,9 +321,9 @@ test("leaves a schedule with no lines, and a table it was not asked to paginate,
       unmarkedRows: unmarkedTable.tBodies[0].rows.length,
     };
   });
-  expect(reading.pages, `a schedule with no priced lines was printed as ${reading.pages} empty page(s)`).toBe(0);
+  expect(reading.pages, `a schedule with no lines was printed as ${reading.pages} empty page(s)`).toBe(0);
   expect(reading.emptyDisplay, "a schedule with no lines was hidden, so the print shows nothing where the empty schedule was").not.toBe("none");
   expect(reading.emptyRows).toBe(0);
-  expect(reading.unmarkedDisplay, "a table the export did not mark as the priced schedule was paginated anyway").not.toBe("none");
+  expect(reading.unmarkedDisplay, "a table the export did not mark as the proposal schedule was paginated anyway").not.toBe("none");
   expect(reading.unmarkedRows, "a table the walk did not mark was rewritten").toBe(5);
 });

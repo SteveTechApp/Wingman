@@ -34,6 +34,7 @@ export type WingmanRouteKey =
   | "projects"
   | "discovery"
   | "recommendations"
+  | "productFinder"
   | "productFamilies"
   | "productPitch"
   | "catalogBrowser"
@@ -80,6 +81,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   projects: FolderKanban,
   discovery: ClipboardList,
   recommendations: Search,
+  productFinder: Search,
   productFamilies: LayoutTemplate,
   productPitch: PackageCheck,
   catalogBrowser: Boxes,
@@ -126,7 +128,7 @@ export const consolidatedPrimaryNavKeys = [
 export function primarySectionForRoute(key: WingmanRouteKey): (typeof consolidatedPrimaryNavKeys)[number] | null {
   if (consolidatedPrimaryNavKeys.some((item) => item === key)) return key as (typeof consolidatedPrimaryNavKeys)[number];
   if (["callCoach", "salesHelper", "callCards", "templates", "videowall"].includes(key)) return "discovery";
-  if (["catalogBrowser", "productFamilies", "productCallCards", "productPitch", "recommendations"].includes(key)) return "products";
+  if (["catalogBrowser", "productFamilies", "productCallCards", "productPitch", "recommendations", "productFinder"].includes(key)) return "products";
   if (key === "battleCards") return "compare";
   if (["documents", "ingest", "proposal", "proposalVisuals"].includes(key)) return "responsePack";
   if (key === "quoteSafetyDashboard") return "projects";

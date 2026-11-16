@@ -18,7 +18,7 @@ export const DEPENDENCY_SCOPE_ANCHOR = "project-dependencies";
 export type DependencyPrompt = {
   /** The placeholder SKU the response carries while the question is open. */
   sku: string;
-  /** What the dependency is for, as the quotation's own row names it. */
+  /** What the dependency is for, as the equipment schedule names it. */
   label: string;
   /** The question the customer document prints, when the save recorded one. */
   question?: string;
@@ -35,9 +35,9 @@ export function isDependencyPromptSku(sku: string): boolean {
  * The prompts a room still carries as BOM placeholders: every governed
  * dependency the rep has not yet recorded as a documented dependency.
  *
- * The package keeps an unquoted dependency in `governedDependencies` — that is
+ * The package keeps a dependency outside the equipment schedule in `governedDependencies` — that is
  * where the customer document prints the question — so the gate's own list of
- * what still holds the quotation comes from here rather than from the rows.
+ * what still holds the proposal comes from here rather than from the rows.
  */
 export function pendingDependencyPrompts(
   dependencies: readonly GovernedDependency[],
@@ -91,7 +91,7 @@ export function projectDependencyPrompts(project: StoredProject): DependencyProm
  * A room template has no saved response to hold a dependency list, so the
  * template page asks its own schedule: a row whose SKU is still a `TBC-`
  * placeholder is a question with no catalogue part behind it. An excluded row
- * is not quoted, so it is not a prompt either.
+ * is not part of the proposed system, so it is not a prompt either.
  *
  * A template built from a project inherits that project's BOM verbatim, so this
  * is the path a placeholder takes to a template's export gate — which is why
@@ -115,7 +115,7 @@ export function templateDependencyPrompts(
  *
  * A template carries no dependency record of its own, so the decision is kept
  * where its document prints it: the row leaves the schedule — the placeholder
- * is not a line anybody can price — and the dependency's name joins the
+ * does not name a real product — and the dependency's name joins the
  * template's unresolved items, which the proposal prints as an unverified
  * assumption. The question therefore survives the click instead of being
  * deleted from the customer's reading.
@@ -146,8 +146,8 @@ export function templateDependencyRecord(
  * The project with one dependency prompt recorded as a documented dependency.
  *
  * A prompt has no catalogue part behind it — “confirm the switch, port budget
- * and VLAN” cannot be priced — so the block it raises can only be cleared by a
- * rep deciding what the quotation says about it. This records that decision: the
+ * and VLAN” is not a product specification — so the block it raises can only be cleared by a
+ * rep deciding what the proposal says about it. This records that decision: the
  * question stays in the document’s dependency list, and the BOM stops carrying
  * a placeholder nobody can quote.
  *
@@ -155,7 +155,7 @@ export function templateDependencyRecord(
  * prompts are WyreStorm-side choices (which receiver, how many endpoints), so
  * writing “supplied by others” over them would put a claim in a customer
  * document that the rep may not be able to make. Naming the responsible party is
- * still the rep’s job; this only takes the unpriced line out.
+ * still the rep’s job; this only takes the placeholder out of the equipment schedule.
  *
  * Null when the SKU is not a prompt: an exact dependency names a real part the
  * design needs, and leaving that unquoted would drop equipment from the room.

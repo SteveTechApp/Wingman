@@ -359,7 +359,7 @@ export function deriveProposal({ brief, architecture, validation }) {
     nextSteps:
       status === "fail"
         ? ["Resolve blocking validation issues.", "Return to architecture.", "Re-run validation."]
-        : ["Confirm open assumptions.", "Save design to project.", "Proceed to pricing and formal proposal wording."],
+        : ["Confirm open assumptions.", "Save design to project.", "Proceed to the technical proposal."],
   };
 }
 

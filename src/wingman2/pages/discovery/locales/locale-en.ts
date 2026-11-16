@@ -307,7 +307,9 @@ const table: LanguageTable = {
         "cable box",
         "blu ray",
         "blu-ray",
-        "fixed sources"
+        "fixed sources",
+        "installed room equipment",
+        "room equipment only"
       ],
       "laptops-wireless-inputs": [
         "laptop",
@@ -364,6 +366,9 @@ const table: LanguageTable = {
         "lecture capture",
         "webcast",
         "live stream",
+        "live stream out",
+        "send a live stream out",
+        "stream the room out",
         "capture"
       ],
       "camera-distribution-only": [
@@ -692,8 +697,13 @@ const table: LanguageTable = {
         "simple",
         "one button",
         "preset",
-        "no control",
         "just works"
+      ],
+      "no-user-control": [
+        "no user control",
+        "no controls needed",
+        "no user interface",
+        "controlled elsewhere"
       ],
       "front-panel-remote": [
         "remote",
@@ -706,8 +716,37 @@ const table: LanguageTable = {
         "touchscreen",
         "touch screen",
         "wall panel",
-        "keypad",
         "touch"
+      ],
+      "wall-keypad": [
+        "wall keypad",
+        "button panel",
+        "wall buttons",
+        "keypad"
+      ],
+      "source-selection-at-display": [
+        "choose source at each display",
+        "select at the screen",
+        "buttons by each tv",
+        "source at each screen"
+      ],
+      "independent-display-routing": [
+        "different sources on each screen",
+        "independent screens",
+        "route different sources",
+        "independent zones"
+      ],
+      "central-operator-control": [
+        "central operator",
+        "control room operator",
+        "operator chooses the source",
+        "operator routes sources"
+      ],
+      "presets-schedules": [
+        "saved layouts",
+        "scheduled changes",
+        "scheduled presets",
+        "recall presets"
       ],
       "software-app-control": [
         "app",
@@ -717,6 +756,12 @@ const table: LanguageTable = {
         "mobile app",
         "phone app",
         "web page"
+      ],
+      "staff-mobile-control": [
+        "staff phone",
+        "staff tablet",
+        "phone control",
+        "tablet control"
       ],
       "third-party-control": [
         "crestron",
@@ -741,6 +786,12 @@ const table: LanguageTable = {
         "laptops",
         "visitor laptop",
         "staff laptop"
+      ],
+      "mobile-tablet-sources": [
+        "phone as a source",
+        "tablet as a source",
+        "mobile phone video",
+        "phone presentation"
       ],
       "room-pc-uc-source": [
         "room pc",
@@ -802,6 +853,17 @@ const table: LanguageTable = {
         "screen share",
         "miracast",
         "chromecast"
+      ],
+      "customer-existing-source": [
+        "existing customer equipment",
+        "customer equipment",
+        "existing source",
+        "existing device"
+      ],
+      "other-source": [
+        "other source",
+        "another source",
+        "source not listed"
       ],
       "unknown-source-devices": [
         "not sure",

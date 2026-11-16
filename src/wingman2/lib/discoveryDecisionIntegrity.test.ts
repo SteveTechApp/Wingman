@@ -62,13 +62,45 @@ describe("evaluateDiscoveryDecisionIntegrity", () => {
     expect(result.canProceedToRecommendation).toBe(false);
   });
 
-  it("flags one display paired with a video-wall processor feed", () => {
+  it("flags a non-wall primary display paired with a video-wall processor feed", () => {
     const result = evaluateDiscoveryDecisionIntegrity([], {
-      displays: "one-display",
+      "primary-display": "single-large-flat-panel",
+      displays: "two-displays",
       "display-behaviour": ["video-wall-or-processor-feed"],
     });
     expect(result.contradictions).toHaveLength(1);
     expect(result.canProceedToRecommendation).toBe(false);
+  });
+
+  it("allows an LCD wall to use one processor feed", () => {
+    const result = evaluateDiscoveryDecisionIntegrity([], {
+      "primary-display": "lcd-video-wall",
+      displays: "one-display",
+      "repeater-displays": "no-repeater-displays",
+      "display-behaviour": ["video-wall-or-processor-feed"],
+    });
+    expect(result.contradictions).toEqual([]);
+    expect(result.canProceedToRecommendation).toBe(true);
+  });
+
+  it("flags repeater quantities that exceed the selected total endpoint range", () => {
+    const result = evaluateDiscoveryDecisionIntegrity([], {
+      "primary-display": "single-large-flat-panel",
+      displays: "one-display",
+      "repeater-displays": "one-two-repeater-displays",
+    });
+    expect(result.contradictions.map((issue) => issue.title)).toContain("Display count is below the selected display needs");
+    expect(result.canProceedToRecommendation).toBe(false);
+  });
+
+  it("allows two projectors on one endpoint when they may blend to one canvas", () => {
+    const result = evaluateDiscoveryDecisionIntegrity([], {
+      "primary-display": "dual-projectors",
+      displays: "one-display",
+      "repeater-displays": "no-repeater-displays",
+    });
+    expect(result.contradictions).toEqual([]);
+    expect(result.canProceedToRecommendation).toBe(true);
   });
 
   it("allows the legitimate single-display behaviours", () => {
@@ -117,6 +149,7 @@ describe("evaluateDiscoveryDecisionIntegrity", () => {
     // must not be described as a leftover quick-start pre-fill.
     const answers: DiscoveryAnswers = {
       opportunity: "classroom",
+      "primary-display": "single-large-flat-panel",
       displays: "one-display",
       "display-behaviour": "video-wall-or-processor-feed",
     };

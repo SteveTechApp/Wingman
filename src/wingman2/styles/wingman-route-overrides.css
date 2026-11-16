@@ -3378,6 +3378,8 @@ html[data-wingman-route="dashboard"] .wingman-page-host {
 
 .wm-catalog-facets {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: 12px;
 }
 
@@ -3454,11 +3456,14 @@ html[data-wingman-route="dashboard"] .wingman-page-host {
 }
 
 .wm-catalog-product-card {
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   min-width: 0;
   padding: 15px;
+  background:
+    linear-gradient(145deg, var(--wm-catalog-wash), transparent 78%),
+    linear-gradient(180deg, color-mix(in srgb, var(--wm-card-soft) 88%, transparent), var(--wm-card));
   text-decoration: none;
   transition:
     border-color 140ms ease,
@@ -3466,9 +3471,24 @@ html[data-wingman-route="dashboard"] .wingman-page-host {
     transform 140ms ease;
 }
 
+.wm-catalog-group-wash-0 { --wm-catalog-wash: rgba(56, 189, 248, 0.17); }
+.wm-catalog-group-wash-1 { --wm-catalog-wash: rgba(45, 212, 191, 0.17); }
+.wm-catalog-group-wash-2 { --wm-catalog-wash: rgba(167, 139, 250, 0.17); }
+.wm-catalog-group-wash-3 { --wm-catalog-wash: rgba(251, 191, 36, 0.15); }
+.wm-catalog-group-wash-4 { --wm-catalog-wash: rgba(251, 113, 133, 0.15); }
+.wm-catalog-group-wash-5 { --wm-catalog-wash: rgba(163, 230, 53, 0.15); }
+.wm-catalog-group-wash-6 { --wm-catalog-wash: rgba(251, 146, 60, 0.16); }
+.wm-catalog-group-wash-7 { --wm-catalog-wash: rgba(244, 114, 182, 0.16); }
+.wm-catalog-group-wash-8 { --wm-catalog-wash: rgba(129, 140, 248, 0.15); }
+.wm-catalog-group-wash-9 { --wm-catalog-wash: rgba(74, 222, 128, 0.15); }
+.wm-catalog-group-wash-10 { --wm-catalog-wash: rgba(250, 204, 21, 0.14); }
+.wm-catalog-group-wash-11 { --wm-catalog-wash: rgba(192, 132, 252, 0.15); }
+
 .wm-catalog-product-link {
   display: grid;
+  flex: 1 0 auto;
   gap: 6px;
+  min-height: 0;
   min-width: 0;
   color: inherit;
   text-decoration: none;
@@ -3478,8 +3498,16 @@ html[data-wingman-route="dashboard"] .wingman-page-host {
 .wm-catalog-product-card:focus-within {
   transform: translateY(-1px);
   background:
+    linear-gradient(145deg, color-mix(in srgb, var(--wm-catalog-wash) 62%, rgba(45, 212, 191, 0.1)), transparent 78%),
     linear-gradient(180deg, rgba(45, 212, 191, 0.08), color-mix(in srgb, var(--wm-card) 94%, transparent));
   border-color: var(--wm-border-strong);
+}
+
+.wm-catalog-product-card .wm-product-why {
+  justify-self: center;
+  width: fit-content;
+  margin-top: auto;
+  padding: 0;
 }
 
 .wm-catalog-edit-record {
@@ -3532,15 +3560,6 @@ html[data-wingman-route="dashboard"] .wingman-page-host {
   flex-wrap: wrap;
   gap: 5px;
   margin-top: 4px;
-}
-
-.wm-catalog-badge {
-  padding: 3px 7px;
-  color: var(--wm-text-soft);
-  background: rgba(15, 23, 42, 0.72);
-  border-radius: 6px;
-  font-size: 0.64rem;
-  font-weight: 650;
 }
 
 .wm-catalog-badge.is-warning {
@@ -3638,6 +3657,12 @@ html[data-wingman-route="dashboard"] .wingman-page-host {
   .wm-catalog-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }}
+
+@media (max-width: 980px) {
+  .wm-catalog-facets {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 720px) {
 
@@ -3965,34 +3990,6 @@ html[data-wingman-route] .wm-vs-node-status span {
           gap: 0.34rem;
         }
 
-        .wm-pcc-chips {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.32rem;
-        }
-
-        .wm-pcc-chip,
-        .wm-pcc-pager-button {
-          border: 1px solid rgba(103, 232, 249, 0.22);
-          border-radius: 999px;
-          background: rgba(3, 18, 31, 0.92);
-          color: var(--wm-palette-paper);
-          font-size: 0.62rem;
-          font-weight: var(--wm-pcc-weight-heading);
-          cursor: pointer;
-        }
-
-        .wm-pcc-chip {
-          height: 1.55rem;
-          padding: 0 0.5rem;
-        }
-
-        .wm-pcc-chip-active {
-          border-color: var(--wm-palette-aqua);
-          background: rgba(13, 116, 139, 0.42);
-          box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.28);
-        }
-
         .wm-pcc-status {
           display: flex;
           align-items: center;
@@ -4001,18 +3998,6 @@ html[data-wingman-route] .wm-vs-node-status span {
           color: rgba(226, 242, 255, 0.68);
           font-size: 0.62rem;
           line-height: 1.15;
-        }
-
-        .wm-pcc-pager {
-          display: flex;
-          align-items: center;
-          gap: 0.35rem;
-          white-space: nowrap;
-        }
-
-        .wm-pcc-pager-button {
-          height: 1.4rem;
-          padding: 0 0.5rem;
         }
 
         .wm-pcc-product-grid {
@@ -6363,44 +6348,76 @@ main.wm-product-pitch-page .wm-product-pitch-result-table .wm-product-pitch-resu
   gap: 0.38rem;
 }
 
-.wm-pcc-select-shell .wm-pcc-product {
+html .wingman-shell .wm-pcc-select-shell button.wm-pcc-product {
   display: grid;
-  grid-template-columns: minmax(6.8rem, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(5.5rem, 0.42fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.15rem 0.55rem;
   min-width: 0;
   min-height: 2.1rem;
   height: auto;
   padding: 0.32rem 0.5rem;
   border-radius: 0.5rem;
+  background:
+    linear-gradient(145deg, var(--wm-catalog-wash, rgba(45, 212, 191, 0.08)), transparent 82%),
+    linear-gradient(180deg, rgba(7, 26, 43, 0.96), rgba(3, 17, 30, 0.96)) !important;
   text-align: left;
   white-space: normal;
 }
 
 .wm-pcc-select-shell .wm-pcc-sku {
+  grid-column: 1;
+  grid-row: 1;
   min-width: 0;
-  font-size: 0.75rem;
+  overflow-wrap: break-word;
+  word-break: normal;
+  font-size: 0.74rem;
   line-height: 1.15;
-  overflow-wrap: anywhere;
+}
+
+.wm-pcc-select-shell .wm-pcc-copy {
+  display: grid;
+  grid-column: 2;
+  grid-row: 1;
+  gap: 0.16rem;
+  align-content: center;
+  min-width: 0;
 }
 
 .wm-pcc-select-shell .wm-pcc-family {
   min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: rgba(226, 242, 255, 0.72);
   font-size: 0.66rem;
   line-height: 1.15;
-  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.wm-pcc-select-shell .wm-pcc-chips {
-  gap: 0.32rem;
+.wm-pcc-select-shell .wm-pcc-hint {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 0.62rem;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.wm-pcc-select-shell .wm-pcc-chip, .wm-pcc-select-shell .wm-pcc-pager-button {
-  min-height: 1.95rem;
-  padding: 0.3rem 0.55rem;
-  border-radius: 0.48rem;
-  font-size: 0.72rem;
-  line-height: 1.1;
+html .wingman-shell .wm-pcc-select-shell button.wm-pcc-product.wm-pcc-product-active {
+  border-color: var(--wm-palette-aqua);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--wm-catalog-wash, rgba(45, 212, 191, 0.08)) 55%, rgba(45, 212, 191, 0.18)), transparent 82%),
+    rgba(13, 87, 110, 0.52) !important;
+}
+
+html .wingman-shell .wm-pcc-select-shell button.wm-pcc-product.wm-pcc-product-compare {
+  border-color: #f59e0b;
+  background:
+    linear-gradient(145deg, var(--wm-catalog-wash, rgba(45, 212, 191, 0.08)), transparent 82%),
+    rgba(245, 158, 11, 0.12) !important;
 }
 
 .wm-pcc-select-shell .wm-pcc-status {
@@ -8680,6 +8697,48 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
   color: var(--wm-muted);
 }
 
+.wm-pcc-shell-product-mode .wm-pcc-header,
+.wm-pcc-shell-product-mode .wm-pcc-header > div {
+  text-align: left;
+}
+
+.wm-pcc-shell-product-mode .wm-pcc-header > div {
+  justify-self: start;
+  width: 100%;
+}
+
+.wm-pcc-shell-product-mode .wm-pcc-header {
+  grid-template-columns: minmax(260px, 0.95fr) minmax(0, 1.5fr) auto;
+}
+
+.wm-pcc-shell-product-mode .wm-pcc-workflow-guide {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: call-card-step;
+}
+
+.wm-pcc-shell-product-mode .wm-pcc-workflow-guide li {
+  counter-increment: call-card-step;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  color: var(--wm-muted);
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.wm-pcc-shell-product-mode .wm-pcc-workflow-guide li::before {
+  flex: 0 0 auto;
+  margin-right: 7px;
+  color: var(--wm-palette-aqua, #5eead4);
+  font-weight: 700;
+  content: counter(call-card-step) ".";
+}
+
 .wm-pcc-return-button {
   flex: 0 0 auto;
   min-height: 38px;
@@ -8714,14 +8773,6 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
   box-shadow: 0 8px 26px rgba(0, 0, 0, 0.14);
 }
 
-.wm-pcc-selection-mode .wm-pcc-chip, .wm-pcc-selection-mode .wm-pcc-pager-button {
-  min-height: 30px;
-  padding: 5px 9px;
-  font-size: 0.72rem;
-  font-weight: 550;
-  line-height: 1.15;
-}
-
 .wm-pcc-selection-mode .wm-pcc-product {
   min-height: 48px;
   padding: 6px 10px;
@@ -8742,8 +8793,7 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
   color: var(--wm-muted);
 }
 
-.wm-pcc-selection-mode .wm-pcc-status,
-.wm-pcc-selection-mode .wm-pcc-pager {
+.wm-pcc-selection-mode .wm-pcc-status {
   font-size: 0.68rem;
   font-weight: 400;
 }
@@ -8814,6 +8864,23 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-section-tab, body .wm-pcc-prod
 
 .wm-pcc-product-mode .wm-pcc-product-summary {
   display: none;
+}
+
+.wm-pcc-product-mode .wm-pcc-product-toolbar {
+  grid-template-columns: minmax(0, 3fr) minmax(180px, 1fr);
+  align-items: stretch;
+}
+
+.wm-pcc-product-mode .wm-pcc-product-toolbar .wm-pcc-section-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.wm-pcc-product-mode .wm-pcc-product-toolbar .wm-pcc-visual-studio-button {
+  width: 100%;
+  min-height: 40px;
+  height: auto;
+  align-self: stretch;
 }
 
 .wm-pcc-product-mode .wm-pcc-gallery-strip {
@@ -8958,8 +9025,28 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-section-tab, body .wm-pcc-prod
 }
 
 @media (max-width: 1050px) {
+  .wm-pcc-shell-product-mode .wm-pcc-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .wm-pcc-shell-product-mode .wm-pcc-workflow-guide {
+    grid-column: 1 / -1;
+  }
+
+  .wm-pcc-product-mode .wm-pcc-product-toolbar {
+    grid-template-columns: 1fr;
+  }
+
   .wm-pcc-product-mode .wm-pcc-gallery-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wm-pcc-product-mode .wm-pcc-product-toolbar .wm-pcc-section-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .wm-pcc-product-mode .wm-pcc-product-toolbar .wm-pcc-visual-studio-button {
+    width: 100%;
   }
 
   .wm-pcc-product-mode .wm-pcc-section-tabs {
@@ -8978,6 +9065,14 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-section-tab, body .wm-pcc-prod
     min-width: 0;
   }
 
+  .wm-pcc-shell-product-mode .wm-pcc-header {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-pcc-shell-product-mode .wm-pcc-workflow-guide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .wm-pcc-product-mode .wm-pcc-gallery-strip,
   .wm-pcc-product-mode .wm-pcc-section-tabs {
     grid-template-columns: 1fr;
@@ -8987,6 +9082,41 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-section-tab, body .wm-pcc-prod
   .wm-pcc-product-mode .wm-pcc-focus-panel {
     padding: 14px;
   }}
+
+body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-product-toolbar {
+  grid-template-columns: minmax(0, 3fr) minmax(180px, 1fr);
+  align-items: stretch;
+  margin: 0 0 8px;
+}
+
+body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-product-toolbar .wm-pcc-section-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-product-toolbar .wm-pcc-visual-studio-button {
+  width: 100%;
+  min-height: 40px;
+  height: auto;
+  align-self: stretch;
+}
+
+body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-section-tab-active,
+body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-section-tab-active strong {
+  color: #eaf7ff;
+}
+
+@media (max-width: 1050px) {
+  body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-product-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-product-toolbar .wm-pcc-section-tabs {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* WINGMAN_PRODUCT_CALL_CARDS_FOCUSED_WORKSPACE_END */
 /* ==========================================================================

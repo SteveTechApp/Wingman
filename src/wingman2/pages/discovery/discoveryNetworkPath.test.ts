@@ -17,4 +17,12 @@ describe("distributed AV network discovery", () => {
       ]);
     }
   });
+
+  it("opens the network path when a single-room workflow uses network video sources", () => {
+    const questions = getVisibleDiscoveryQuestions("meeting-room", {
+      scale: "single-small-room",
+      "source-connection": ["network-video-sources"],
+    });
+    expect(questions.map((step) => step.id)).toContain("network-path");
+  });
 });

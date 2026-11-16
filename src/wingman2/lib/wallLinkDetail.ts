@@ -5,7 +5,7 @@
  * belongs to the screen rather than each cable that reaches it.
  *
  * `enclosure` is the display housing — the enclosure the screen sits in — and
- * keeps that stored key because saved walls and priced installation lines are
+ * keeps that stored key because saved walls and installation scope lines are
  * filed under it. `entry` is a cell of its own: where the run enters the room
  * or the position (a wall plate, a floor box, a ceiling void). One cell used to
  * ask both questions, so a surveyor wrote one answer into it and an installer

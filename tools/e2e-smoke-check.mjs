@@ -224,13 +224,13 @@ async function signInViaSettings(page) {
 }
 
 async function saveDiscoveryProjectAndExportBrief(page) {
-  // Save the discovery project through the focused room brief, then export
-  //    the discovery brief as a real HTML download blob and content-check it.
+  // Save the discovery project through the room builder, then export the
+  // discovery brief as a real HTML download blob and content-check it.
   await page.getByTestId("discovery-save-brief").click();
   await page
     .getByTestId("discovery-save-status")
     .waitFor({ state: "visible", timeout: 10_000 });
-  console.log("[e2e-smoke] Discovery project saved via the focused room brief.");
+  console.log("[e2e-smoke] Discovery project saved via the room builder.");
 
   const exportButton = page.getByTestId("discovery-export-brief");
   await exportButton.waitFor({ state: "visible", timeout: 8_000 });
@@ -287,10 +287,10 @@ async function resetBrowserStoreBeforeBoot(page) {
 
 async function walkDiscovery(page) {
   await resetBrowserStoreBeforeBoot(page);
-  // The guided landing is the room brief now, so that card is the ready
-  // condition: it is what the walk reads next, and the market entry the expert
-  // view adds is asserted below, so nothing here waits on a quiet network.
-  await openPage(page, "/wingman/discovery", page.getByTestId("room-brief"));
+  // This run starts in Expert mode so the live market-entry control is ready.
+  // The route's focused interview and the market entry are different capture
+  // starts, so wait for the control the next action uses.
+  await openPage(page, "/wingman/discovery?expert=1", page.getByTestId("discovery-market-entry"));
 
   const marketEntry = page.getByTestId("discovery-market-entry");
   const viewSwitcher = page.locator(".wm-topbar-mode-toggle");

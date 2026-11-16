@@ -9,7 +9,7 @@ function draft(overrides: Partial<StoredProposalDraft>): StoredProposalDraft {
     id: "draft-1",
     name: "Harbour Retail Signage",
     customer: "Harbour Retail",
-    state: "Awaiting pricing",
+    state: "Awaiting review",
     createdAt: "2026-10-01T09:00:00.000Z",
     updatedAt: "2026-10-01T09:00:00.000Z",
     ...overrides,

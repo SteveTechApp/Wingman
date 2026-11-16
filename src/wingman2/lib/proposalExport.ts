@@ -22,7 +22,6 @@ import { buildWingmanSchematic } from "./schematic/wingmanSchematicEngine";
 import { proposalSchematicBrief } from "./schematic/proposalSchematicBrief";
 import { buildDesignProjectDocument, trackDesignProjectExport } from "../features/design-project";
 import { buildDisplaySchedule } from "./displaySchedule";
-import { pricedEquipmentHtml, pricedInstallationHtml } from "./proposalPricingHtml";
 import { proposalPrintPaginationHtml } from "./proposalPrintPagination";
 import { wallRequirementsFromSummary } from "./videowallOptions";
 import { wallTransportRequirements } from "./videowallTransport";
@@ -45,8 +44,8 @@ export type BomRow = SalesBomRow;
 // ---------------------------------------------------------------------------
 // Proposal narrative structure
 //
-// This export follows the "Level 5 - Blended commercial and technical
-// proposal" structure: plain-language explanation first (requirement,
+// This export follows a blended system proposal structure: plain-language
+// explanation first (requirement,
 // recommended solution, how it will work, benefits), then the technical
 // substantiation (architecture, schematic, equipment schedule), then the
 // governance layer (assumptions, exclusions, risks, next steps). This is the
@@ -105,7 +104,7 @@ function buildSchematicSectionHtml(proposal: StoredProjectProposal, bomRows: Bom
   try {
     const products = proposal.products ?? [];
     const bomRowsForSchematic = (bomRows.length ? bomRows : proposal.bomRows ?? []).map((r) => ({ sku: r.sku, description: r.description, role: r.role, qty: r.qty }));
-    const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic);
+    const brief = proposalSchematicBrief(proposal.title || "System schematic", products, bomRowsForSchematic, proposal.displayPlan);
     const schematicModel = buildWingmanSchematic(brief);
     nativeDiagram = proposalDiagramSvg(schematicModel) + `<p>Concept drawing: confirm physical connections and site interfaces before installation.</p><ul>${schematicModel.assumptions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}${schematicModel.warnings.map((item) => `<li>${escapeHtml(item.title)}: ${escapeHtml(item.message)}</li>`).join("")}</ul>`;
     const nativeCableRows = buildNativeCableSchedule(schematicModel);
@@ -227,7 +226,7 @@ function buildUnresolvedDiscoveryHtml(proposal: StoredProjectProposal): string {
 
   return `
   <h2>Unresolved Discovery Items</h2>
-  <p>The following ${items.length} discovery item${items.length === 1 ? "" : "s"} could not be fully verified during the discovery conversation. Each must be confirmed with the customer before final design sign-off and commercial quotation. Items marked BLOCKER must be resolved before any commitment is made.</p>
+  <p>The following ${items.length} discovery item${items.length === 1 ? "" : "s"} could not be fully verified during the discovery conversation. Confirm each with the customer before final design sign-off. Items marked BLOCKER must be resolved before the design is approved.</p>
   <table>
     <thead><tr><th>Requirement area</th><th>Captured answer</th><th>Status</th><th>Severity</th></tr></thead>
     <tbody>${rows}</tbody>
@@ -251,7 +250,7 @@ function buildExclusionsHtml(bomRows: BomRow[]) {
     "Network switch procurement, VLAN/multicast configuration and IT commissioning access.",
     "Structured cabling installation and certification.",
     "Third-party control programming beyond WyreStorm-native presets.",
-    "Installation, labour and commissioning, unless separately quoted.",
+    "Installation, labour and commissioning unless listed as included.",
   ];
 
   const byOthersRows = bomRows.filter((row) => row.sku?.startsWith("BY-OTHERS"));
@@ -729,7 +728,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
       <h2>Document control</h2>
       <dl>
         <dt>Reference</dt><dd>${escapeHtml(proposalRef)}</dd>
-        <dt>Status</dt><dd>Draft proposal — subject to design and commercial approval</dd>
+        <dt>Status</dt><dd>Draft system proposal — subject to design review and technical validation</dd>
         <dt>Prepared by</dt><dd>${escapeHtml(preparedBy || companyName)}</dd>
         <dt>Issue date</dt><dd>${escapeHtml(currentDate)}</dd>
         <dt>Revision</dt><dd>${escapeHtml(proposal.updatedAt)}</dd>
@@ -847,7 +846,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   </table>` : ""}` : ""}
 
   <h2>Equipment Schedule</h2>
-  ${proposal.pricing ? pricedEquipmentHtml(bomRows, proposal.pricing) : `<table>
+  <table data-proposal-schedule>
     <thead>
       <tr><th>Item</th><th>SKU</th><th>Description</th><th>Role</th><th>Qty</th><th>Type</th><th>Notes</th></tr>
     </thead>
@@ -855,11 +854,11 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
       ${bomRows.length ? bomRows.map((row) => `<tr><td>${row.item}</td><td>${escapeHtml(row.sku)}</td><td>${escapeHtml(row.description)}</td><td>${escapeHtml(row.role)}</td><td>${row.qty}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.notes)}</td></tr>`).join("") : '<tr><td colspan="7">No equipment schedule rows are currently selected.</td></tr>'}
     </tbody>
     <tfoot><tr><th colspan="4" scope="row">Equipment schedule totals</th><td>${bomRows.reduce((sum, row) => sum + row.qty, 0)}</td><td colspan="2">${bomRows.length} line items</td></tr></tfoot>
-  </table>`}
+  </table>
   <p style="margin-top:8px;font-size:12px;color:#475569;"><strong>Evidence basis:</strong> ${bomRows.length ? escapeHtml(bomRows.map((row) => `${row.sku}: ${row.evidence}`).join(" | ")) : "No product evidence captured yet."}</p>
   ${installation ? `<h3>Installation and Services</h3>
   <p>${escapeHtml(installation.text)}</p>
-  ${proposal.pricing ? pricedInstallationHtml(installation, proposal.pricing) : `<table>
+  <table>
     <thead>
       <tr>${installationTableHeaders(["service", "detail", "quantity", "links"]).map((label) => `<th>${label}</th>`).join("")}</tr>
     </thead>
@@ -867,7 +866,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
       ${installation.lines.map((line) => `<tr data-installation-line="${escapeHtml(line.id)}"><td>${escapeHtml(installationCategoryLabel(line.category))}</td><td>${escapeHtml(line.detail)}</td><td>${line.quantity}</td><td>${escapeHtml(line.links.join(", "))}</td></tr>`).join("")}
     </tbody>
     <tfoot><tr><th colspan="2" scope="row">Installation schedule totals</th><td>${installation.lines.reduce((sum, line) => sum + line.quantity, 0)}</td><td>${installation.lines.length} line items</td></tr></tfoot>
-  </table>`}
+  </table>
   <p style="margin-top:8px;font-size:12px;color:#475569;">Quantities are the wall links the site survey recorded for each item.</p>` : ""}
 
   ${
@@ -918,8 +917,8 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   <section class="wm-disclaimer" data-wingman-best-efforts-disclaimer="true">
     <h2>Important Notice & Best-Efforts Disclaimer</h2>
-    <p>This proposal has been prepared on a best-efforts basis using WyreStorm Wingman to support your sales and design process. The information contained herein is provided for planning purposes only and does not constitute a binding quotation, order confirmation, or statement of capability.</p>
-    <p><strong>Product Specifications:</strong> All product specifications, features, compatibility information, lifecycle status, regional availability, pricing, and lead times are indicative and must be independently verified against the current official WyreStorm documentation, datasheets, or by contacting the WyreStorm order desk before this document is used for any commercial purpose.</p>
+    <p>This system proposal has been prepared on a best-efforts basis using WyreStorm Wingman to support your design and planning process. The information contained herein is provided for planning purposes only and does not constitute an order confirmation or statement of capability.</p>
+    <p><strong>Product Specifications:</strong> All product specifications, features, compatibility information, lifecycle status, regional availability, and lead times are indicative and must be independently verified against the current official WyreStorm documentation, datasheets, or by contacting the WyreStorm order desk before this document is used for any project purpose.</p>
     <p><strong>Third-Party Products:</strong> References to competitor or third-party products are approximate and provided solely for comparative context. WyreStorm makes no claims regarding the accuracy of third-party specifications.</p>
     <p><strong>Technical Validation:</strong> System designs, power budgets, cable schedules, and equipment selections shown in this proposal are based on available product data and assumptions stated within. Final designs must be validated by a qualified AV integrator or pre-sales engineer before installation.</p>
     <p><strong>Limitation of Liability:</strong> WyreStorm Technologies Ltd provides this document "as is" without warranty of any kind, either expressed or implied. WyreStorm shall not be liable for any errors, omissions, or damages arising from the use of or reliance on the information contained in this document.</p>

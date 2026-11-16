@@ -4,30 +4,60 @@ The narrative behind the invariants in `AGENTS.md`: each rule in full, why it
 exists, and the probe that proved it. A number quoted here records the run that
 decided the rule; `reports/browser-readings.md` is the current measurement.
 
-- The guided wizard's first step leads with the LED brief, not the wall list:
-  canvas pixels, pixel pitch and the cabinet array in
-  `pages/videowall/VideowallLedBrief.tsx`, with the common walls under them.
-  Those three are the customer's facts and a preset answers all three already,
-  so a rep starting an LED design should not begin from a wall someone else
-  answered. The array is the design's own `columns` × `rows`, which
-  `displaySchedule.ts` already prints as cabinets for an LED wall, so the brief
-  invents no second way to describe the same wall; the read-out under it is what
-  makes the three answers one wall, since canvas × pitch is the millimetres a
-  rep quotes. The draft is local — typing a canvas width does not turn the
-  design on screen into an LED wall — and only `Start the LED brief` writes,
-  as a clean LED design rather than the LCD wall this browser last held. It
-  lands on the connection question, not the size step: the brief already
-  answered the size, so the next question is the one the canvas cannot answer —
-  who scales it. `wallEntry`'s shared intro sentence says the new beginning
-  (`Start from the LED brief or a common wall, then record the survey.`)
-  because the four surfaces that print it describe how a design begins, and the
-  picker is no longer the first thing a rep meets there.
-  `VideowallWizard.test.tsx` holds the brief above the wall list, the patch it
-  writes (with the sources and windows collapsed to one feed) and the step it
-  opens, and holds a canvas with no pixels to a disabled start. The current
-  reading — the card's box against the brief's, the read-out under it, and the
-  wall count it clears — is
-  [the guided wall start step](../reports/browser-readings.md#guided-wall-start-step).
+- Both workflows begin by choosing the wall technology — LCD, LED or projection
+  — because each has different sizing and signal questions. This is separate
+  from the connection model: per-display, grouped and tiled are ways to feed an
+  LCD wall, not wall types. Guided then asks one
+  question at a time; its size step gathers the LED canvas pixels, pitch and
+  cabinet array, then keeps source count and source timing on their own question.
+  Network provision is a separate question with five answers: use the existing
+  1Gb network, use the existing 10Gb network, supply new 1Gb switches, supply
+  new 10Gb switches, or do not use AVoIP. The last choice keeps the design local.
+  The saved answer stores both speed and whether the switches are already
+  present, so the recommendation reads the speed while the design records
+  equipment scope. Older walls that only recorded 1Gb or 10Gb continue to mean
+  an existing network. Expert offers saved starting points after that initial
+  type choice. The guided wizard does not bypass the Q&A through preset cards.
+  `wallEntry`'s shared intro sentence describes that same journey at every
+  entry point. The guided start checks wall type first, then the type-specific
+  size fields; its progress rail and section order are held by
+  `VideowallWizard.test.tsx`. The card keeps the desktop rail on one line and
+  balances the five wall choices into three then two; the current measurement
+  is [the guided wall start step](../reports/browser-readings.md#guided-wall-start-step).
+  In the guided Q&A, completed steps on the progress rail are buttons that return
+  to those answers; the current and future steps stay disabled. Continuing from
+  an earlier answer follows the questions forward again, while the result's
+  separate Change actions still return directly to the design review. The wall
+  drawing states the physical panel array and source window count together above
+  the elevation, so a 3 × 3 array carrying four windows cannot read as a 2 × 2
+  physical wall.
+- New LCD designs do not start from a catalogue of near-identical arrays. The
+  design captures the panel count, then chooses the connection architecture:
+  one NHD decoder per independently driven panel, or one tiled canvas looped
+  through the displays. Existing saved and pinned LCD designs remain available.
+  For independent panels the recommendation sizes the NHD decoder count to the
+  array and matches the RX model to source timing and the customer's quality,
+  latency and network expectations; a 1GbE or 10GbE answer is retained in the
+  design.
+- A tiled LCD wall can use NHD-150-RX multiview for up to six custom floating
+  windows or nine preset windows at 1080p (eight at higher resolution), or the
+  NHD-0401-MV for local HDMI fixed layouts with up to four sources, or
+  NHD-600-TRX for fixed layouts over 10GbE. These NHD paths are API
+  controllable; the proposal flags customer-specific control integration for
+  confirmation. NHD-0401-MV and NHD-600-TRX require a supported multiview
+  layout, so single-picture and independent-panel layouts cannot be selected
+  after choosing them. The NHD-150-RX permits custom floating or supported
+  preset layouts within its window and resolution limits.
+- The NHD-150-RX and NHD-600-TRX feed paths are multiview choices. Selecting one
+  writes `multiviewSelected` to the wall requirements; the later layout choices
+  disable the single-picture and source-per-screen layouts and the wizard will
+  not continue until a multi-window layout is selected. The feed-path key reads
+  that stored choice back when the design is edited, so the visible selection
+  and the layout constraint survive a reload. Selecting a non-multiview feed
+  clears the marker. `VideowallConnectionOptions` renders the same filtered
+  feed model, network provision and feed path in Guided and Expert, so the
+  Expert answer editor cannot say “wall type” for a feed architecture or let
+  its source location contradict the selected NHD path.
 - Four surfaces name the wall workflow — both readings of Home, the Templates
   page header and the builder page the entry opens onto — so the entry's name and
   the sentence saying how a design begins live once, in `lib/wallEntry.ts`
@@ -137,9 +167,16 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   capped — and `VideowallTransport.test.tsx` holds the dictation target, that a
   spoken note joins the termination cell under the typed text and leaves the
   other cells alone.
-- The focused view starts from a wall, not a room: `wallStartPresets`
-  (`videowallDecision.ts`) are whole briefs (wall type, array, sources,
-  layout, transport, panel size) named for what the wall does, and
+- The guided view starts by asking which technology the wall uses — LCD, LED or
+  projection. That choice precedes the saved-wall picker and the size, source,
+  network, feed and layout questions. `wallWizardTechnologyPatch` clears answers
+  that no longer apply when the technology changes; `wallWizardAnswers` derives
+  the question sequence, and the feed/layout choices enforce the selected
+  connection model's requirements, including multiview. Saved walls remain
+  available as prefilled starting points after technology is chosen. The expert
+  view keeps the same technology and connection rules in its room sections.
+  `wallStartPresets` (`videowallDecision.ts`) are whole briefs (wall type, array,
+  sources, layout, transport, panel size) named for what the wall does, and
   `wallStartPresetGroups` folds them into LCD/LED/projection for the shared
   `VideowallStartPresets` picker. The picker is a list of rows, not a grid of
   tiles: the wall's own drawing leads (`WallPresetGlyph` in
@@ -173,12 +210,11 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   reading offers it: the expert reading's order is the catalogue's, so a pin
   there would reorder nothing. A pin still loses to a saved wall's place at the
   head of its family, because that wall is the rep's own brief
-  (`wallStartPresetGroupsWithSaved` takes the already-ordered bands). Twenty rows in front of the
-  first question is a catalogue, so the guided step's heading line carries
-  `Answer the questions instead` (`.vw-wizard-job-head`) and a phone rep
-  reaches the four questions without scrolling the walls; the expert reading
-  keeps the whole list and its filters, and the band keeps counting the family
-  rather than the row under it.
+  (`wallStartPresetGroupsWithSaved` takes the already-ordered bands). The
+  expert reading keeps the whole list and its filters, and the band keeps
+  counting the family rather than the row under it. Guided stays a Q&A flow,
+  so these preset cards remain an Expert starting point rather than a shortcut
+  around the design questions.
   Each preset's `leadsTo` is read from the decision
   engine at import, so a wall cannot advertise an architecture its answers no
   longer reach, and `videowall-preset-<key>` is the walkthrough id. A test fails
@@ -403,18 +439,18 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   competing with the wall; opening a row is the controls that step always
   rendered. `VideowallOptionsList` is reference rather than a choice, so it
   opens from a summary naming `decision.considered` and `decision.viableCount`.
-- The guided questions run wall type, size, sources, connection, windows, the
-  design and must-haves, one question a screen. The wall's type is asked first
-  because it decides which of the others exist — a projection screen has
-  projectors and a blend, an LED canvas has a pitch and cabinets, and only an LCD
-  wall can be fed a panel at a time — and the sources come next, since what the
-  wall must carry is the thing the design answers. The connection is asked where
-  a rep settles it in the room: after the wall's size has decided the canvas and
-  before the window layout, because a window count only means something once the
-  wall is known to take one composed picture. The drawing is a reading of those
-  answers rather than a question of its own, so it has a screen instead of
-  stacking under the size controls that produced it, and the transport table
-  belongs to the result's survey pass rather than to a question screen.
+- The guided questions run wall type, size, sources, network provision, feeding,
+  layout, design and must-haves, one question a screen. The wall's type is asked
+  first because it decides which sizing, feed and layout choices exist — a
+  projection screen has projectors and a blend, an LED canvas has a pitch and
+  cabinets, and only an LCD wall can be fed a panel at a time. Network provision
+  comes before the feed path, because selecting an existing network or adding
+  switches determines how the picture can travel. The feed choices then reflect
+  the wall and its network; an NHD multiview path requires a multi-window layout
+  on the next screen. The drawing is a reading of those answers rather than a
+  question of its own, so it has a screen instead of stacking under the size
+  controls that produced it, and the transport table belongs to the result's
+  survey pass rather than to a question screen.
   `wallFeeding.ts` owns that question, and its models are the
   application the decision engine already reads rather than a field beside it:
   one canvas with the panels tiling it is `lcd-loop`, a feed per panel is

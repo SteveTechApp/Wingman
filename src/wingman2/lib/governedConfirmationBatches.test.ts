@@ -25,10 +25,12 @@ vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () =
     power: ["IEC"],
     evidence: [{ sourceType: "manufacturer", sourceUrl: "https://www.wyrestorm.com/unbatched", reviewedOn: "2026-09-30" }],
   };
+  const { governedProfilesHumanVerifiedExcept } = await import("./testHelpers/governedProfilesHarness");
+  const confirmed = governedProfilesHumanVerifiedExcept(actual.default as never, ["CAB-HAOC-10"]);
   return {
     default: {
-      ...actual.default,
-      profiles: [...actual.default.profiles.filter((p) => p.sku !== "CAB-HAOC-10"), awaitingCable, unbatchedAudio],
+      ...confirmed,
+      profiles: [...confirmed.profiles.filter((p) => p.sku !== "CAB-HAOC-10"), awaitingCable, unbatchedAudio],
     },
   };
 });

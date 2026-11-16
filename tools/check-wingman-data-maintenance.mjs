@@ -21,7 +21,9 @@ function payloadToArray(value) {
 }
 
 function normaliseSkuKey(value) {
-  return String(value ?? "").trim().toUpperCase().replace(/[^A-Z0-9]+/g, "");
+  // Cable length is part of the SKU (05 = 0.5 m; 50 = 5 m). Preserve decimal
+  // points so punctuation stripping does not collapse length-code variants.
+  return String(value ?? "").trim().toUpperCase().replace(/[^A-Z0-9.]+/g, "");
 }
 
 function duplicateSkus(products) {

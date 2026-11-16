@@ -69,7 +69,7 @@ export function TemplateExportValidation({
                   <DependencyScopeFixes
                     dependencies={dependencyPrompts}
                     onRecord={onRecordDependency}
-                    explanation="A dependency prompt has no catalogue part behind it, so it cannot be priced. Recording one takes the placeholder out of the schedule and keeps the dependency with the room's unresolved items, so the document still says what has to be confirmed."
+                    explanation="A dependency prompt has no catalogue product behind it. Recording one removes the placeholder from the schedule and keeps the dependency with the room's unresolved items, so the document still says what has to be confirmed."
                   />
                 ) : null}
               </li>

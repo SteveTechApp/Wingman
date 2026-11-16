@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   buildInstallationSchedule,
   installationLineId,
-  installationRate,
-  installationTotals,
 } from "./installationSchedule";
 import { defaultWallRequirements, type WallRequirements } from "./videowallOptions";
 
@@ -58,26 +56,6 @@ describe("buildInstallationSchedule", () => {
     expect(schedule!.lines[0]).toMatchObject({ id: "install-enclosure-back-box", detail: "Back box", quantity: 3 });
   });
 
-  it("prices a line once per item, not once per link", () => {
-    const schedule = buildInstallationSchedule(wall({ linkDetails: details }))!;
-    const totals = installationTotals(schedule, { "install-enclosure-back-box": "120", "install-enclosure-rack-shelf": "80" });
-
-    expect(totals.lines.find((line) => line.id === "install-enclosure-back-box")).toMatchObject({ unit: 120, total: 240 });
-    expect(totals.lines.find((line) => line.id === "install-mount-tilt-bracket")).toMatchObject({ unit: null, total: null });
-    expect(totals.priced).toBe(2);
-    expect(totals.complete).toBe(false);
-    // An incomplete set sums what is priced; it never pretends to be the total.
-    expect(totals.total).toBe(400);
-  });
-
-  it("counts a zero rate as priced, exactly as an equipment price of zero is", () => {
-    const schedule = buildInstallationSchedule(wall({ linkDetails: details }))!;
-    const priced = Object.fromEntries(schedule.lines.map((line) => [line.id, "0"]));
-
-    expect(installationRate(schedule.lines[0], priced)).toBe(0);
-    expect(installationTotals(schedule, priced)).toMatchObject({ complete: true, total: 0, priced: 6 });
-  });
-
   it("has nothing to schedule without costable links or recorded detail", () => {
     expect(buildInstallationSchedule(null)).toBeNull();
     expect(buildInstallationSchedule(wall())).toBeNull();
@@ -86,10 +64,5 @@ describe("buildInstallationSchedule", () => {
     expect(buildInstallationSchedule(legacy)).toBeNull();
   });
 
-  it("files a rate under an id that survives the details being re-typed", () => {
-    expect(installationLineId("enclosure", "Back box")).toBe("install-enclosure-back-box");
-    expect(installationLineId("termination", "  HDMI/faceplate ")).toBe("install-termination-hdmi-faceplate");
-    // The run-entry cell files under its own category, so its rate is its own line.
-    expect(installationLineId("entry", "Floor box")).toBe("install-entry-floor-box");
-  });
+
 });

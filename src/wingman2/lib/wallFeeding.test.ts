@@ -18,12 +18,12 @@ import { wallWizardAnswers, wallWizardSteps } from "./videowallWizard";
 const wall = (overrides = {}) => ({ ...defaultWallRequirements, application: "lcd-loop" as const, columns: 2, rows: 2, ...overrides });
 
 describe("wall feeding", () => {
-  it("is asked after the wall's size and before its windows", () => {
+  it("asks wall type first and connection after size, sources and network", () => {
     expect(wallWizardSteps.map((step) => step.key))
-      .toEqual(["job", "picture", "size", "sources", "feeding", "layout", "visual", "detail"]);
-    // The summary a rep reads back carries the same order as the questions.
+      .toEqual(["picture", "size", "sources", "network", "feeding", "layout", "visual", "detail"]);
+    // Wall type leads; connection choices follow the wall and its network needs.
     expect(wallWizardAnswers(wall()).map((answer) => answer.key))
-      .toEqual(["picture", "size", "sources", "feeding", "layout"]);
+      .toEqual(["picture", "size", "sources", "network", "feeding", "layout"]);
   });
 
   it("offers only the models a wall of that kind can be built to", () => {
@@ -32,9 +32,12 @@ describe("wall feeding", () => {
     expect(wallFeedingChoices(wall({ application: "led" })).map((choice) => choice.key)).toEqual(["single-input"]);
     expect(wallFeedingPanelNote(wall({ application: "led" }))).toContain("decoder and a sending card per panel");
     expect(wallFeedingPanelNote(wall({ application: "lcd-loop" }))).toBeNull();
-    // Each LCD wall can be one canvas, one feed per group, or a feed per panel.
+    // New LCD walls use one tiled canvas or one NHD decoder per panel. Grouped
+    // feeds remain readable for existing designs but are no longer a new choice.
     expect(wallFeedingChoices(wall({ application: "lcd-loop" })).map((choice) => choice.key))
-      .toEqual(["single-input", "group", "per-panel"]);
+      .toEqual(["single-input", "per-panel"]);
+    expect(wallFeedingChoices(wall({ application: "lcd-grouped" })).map((choice) => choice.key))
+      .toContain("group");
     // A single projector has no blend to choose; a pair does.
     expect(wallFeedingChoices(wall({ application: "projection", projectors: 1 })).map((choice) => choice.key))
       .toEqual(["single-input", "blended"]);
@@ -67,13 +70,15 @@ describe("wall feeding", () => {
     expect(wallFeedPathKeyFor(wall({ network: "any", sourceCustom: true }))).toBe("nhd500");
     expect(wallFeedPathKeyFor(wall({ application: "lcd-direct", network: "1g" }))).toBe("avoip-per-panel");
     expect(wallFeedPathKeyFor(wall({ application: "lcd-direct", network: "any" }))).toBe("matrix-per-panel");
+    expect(wallFeedPathKeyFor(wall({ sourceLocation: "local", network: "none", multiviewSelected: true }))).toBe("nhd0401");
   });
 
   it("offers a per-panel path only to a per-panel wall", () => {
     expect(wallFeedPaths(wall({ application: "lcd-direct" })).map((path) => path.key))
       .toEqual(["matrix-per-panel", "avoip-per-panel"]);
     const tiled = wallFeedPaths(wall({ application: "lcd-loop" })).map((path) => path.key);
-    expect(tiled).toEqual(["scaling-switch", "avoip-decoder", "nhd150", "nhd600", "nhd500"]);
+    expect(tiled).toEqual(["scaling-switch", "avoip-decoder", "nhd150", "nhd0401", "nhd600", "nhd500"]);
+    expect(wallFeedPaths(wall({ application: "lcd-direct", network: "10g" })).find((path) => path.key === "avoip-per-panel")?.patch.network).toBe("10g");
     // The model decides the list, so a stale path is not offered back.
     expect(wallFeedPaths(wall({ application: "lcd-direct" }), "per-panel")).toHaveLength(2);
     expect(wallFeedPaths(wall({ application: "lcd-direct" }), "single-input").some((path) => path.key === "nhd600"))
@@ -97,7 +102,10 @@ describe("wall feeding", () => {
     const perPanel = wallFeedingChecks(wall({ application: "lcd-direct" }), "per-panel", "nhd600");
     expect(perPanel[1]).toContain("One output per panel");
     expect(wallFeedingChecks(wall({ application: "lcd-direct" }), "per-panel", "avoip-per-panel")[1])
-      .toContain("One decoder per panel");
+      .toContain("One NHD decoder per LCD display");
+    expect(wallFeedingChecks(wall(), "single-input", "nhd150")[1]).toContain("6 custom floating windows or 9 preset 1080p windows");
+    expect(wallFeedingChecks(wall(), "single-input", "nhd0401")[1]).toContain("up to four local HDMI sources");
+    expect(wallFeedingChecks(wall(), "single-input", "nhd600")[1]).toContain("API");
     // Two checks every time: the model's constraint and the box's.
     expect(wallFeedingChecks(wall())).toHaveLength(2);
   });

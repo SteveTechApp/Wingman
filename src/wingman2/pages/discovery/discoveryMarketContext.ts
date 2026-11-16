@@ -13,6 +13,77 @@ export type DiscoveryMarket = {
   environments: readonly DiscoveryEnvironment[];
 };
 
+export type DiscoveryEnvironmentInference = {
+  answers: Partial<DiscoveryAnswers>;
+  note?: string;
+};
+
+/**
+ * Starting assumptions for environments whose typical room shape is strong
+ * enough to help the rep begin. Exact dimensions remain unfilled until measured.
+ */
+export function inferDiscoveryEnvironment(marketId: string, environmentId: string): DiscoveryEnvironmentInference {
+  if (marketId === "education" && environmentId === "lecture") {
+    return {
+      answers: { scale: "single-large-room", "room-occupancy": "100" },
+      note: "Starting estimate from Education · Lecture theatre: the capacity is approximate. Confirm the actual number of seats and record measured length, width and height during the site survey.",
+    };
+  }
+  return { answers: {} };
+}
+
+export function applyDiscoveryEnvironmentInference(
+  answers: DiscoveryAnswers,
+  notes: Record<string, string>,
+  marketId: string,
+  environmentId: string,
+): { answers: DiscoveryAnswers; notes: Record<string, string> } {
+  const inference = inferDiscoveryEnvironment(marketId, environmentId);
+  const inferredAnswers: Partial<DiscoveryAnswers> = Object.fromEntries(
+    Object.entries(inference.answers).filter(([key]) => !String(answers[key] ?? "").trim()),
+  );
+  const nextAnswers: DiscoveryAnswers = { ...answers };
+  for (const [key, value] of Object.entries(inferredAnswers)) {
+    if (value !== undefined) nextAnswers[key] = value;
+  }
+  if (!inference.note || !Object.keys(inferredAnswers).length) {
+    return { answers: nextAnswers, notes };
+  }
+
+  const capacityWasInferred = Object.hasOwn(inferredAnswers, "room-occupancy");
+  if (capacityWasInferred && !notes["room-occupancy"]) {
+    return { answers: nextAnswers, notes: { ...notes, "room-occupancy": inference.note } };
+  }
+  if (!capacityWasInferred && !notes.scale) {
+    return {
+      answers: nextAnswers,
+      notes: {
+        ...notes,
+        scale: "Starting room-scale assumption from Education · Lecture theatre: large teaching space. Confirm actual capacity and record measured length, width and height during the site survey.",
+      },
+    };
+  }
+  return { answers: nextAnswers, notes };
+}
+
+export function clearUnchangedDiscoveryEnvironmentInference(
+  answers: DiscoveryAnswers,
+  notes: Record<string, string>,
+): { answers: DiscoveryAnswers; notes: Record<string, string> } {
+  const inferredCapacity = /^(Starting estimate)/.test(notes["room-occupancy"] ?? "");
+  const inferredScale = /^(Starting room-scale assumption)/.test(notes.scale ?? "");
+  if (!inferredCapacity && !inferredScale) {
+    return { answers, notes };
+  }
+  const nextAnswers = { ...answers };
+  if ((inferredScale || inferredCapacity) && nextAnswers.scale === "single-large-room") delete nextAnswers.scale;
+  if (inferredCapacity && nextAnswers["room-occupancy"] === "100") delete nextAnswers["room-occupancy"];
+  const nextNotes = { ...notes };
+  if (inferredScale) delete nextNotes.scale;
+  if (inferredCapacity) delete nextNotes["room-occupancy"];
+  return { answers: nextAnswers, notes: nextNotes };
+}
+
 const space = (id: string, label: string, cue: string, suggestedApplication?: string): DiscoveryEnvironment =>
   ({ id, label, cue, suggestedApplication });
 

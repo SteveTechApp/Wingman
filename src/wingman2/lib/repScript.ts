@@ -309,8 +309,8 @@ export function compactCompareQuoteChecks(
   }
 
   if (checks.length) return checks;
-  if (status === "match") return ["Confirm current lifecycle, region and required accessories before quotation."];
-  return ["Confirm the unresolved technical differences and required dependencies before quotation."];
+  if (status === "match") return ["Confirm current lifecycle, region and required accessories before the proposal is issued."];
+  return ["Confirm the unresolved technical differences and required dependencies before the proposal is issued."];
 }
 
 /** The verdict heading + plain-language line for a given assessment. */

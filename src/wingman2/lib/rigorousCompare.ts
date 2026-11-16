@@ -117,6 +117,9 @@ const FREE_TEXT_PRECISE_CLASSIFICATION: Array<{ test: RegExp; domain: string; ro
   // "speaker", which the coarse AUDIO class pattern would otherwise grab and
   // route the comparison into network-audio instead of the UC room direction.
   { test: /\b(video\s*bar|conference\s*bar|conferencing\s*bar|soundbar|uc\s*room(?:\s*(?:product|endpoint))?|all-in-one[^.]*(?:camera|conferencing)|integrated\s+camera|camera[,\s]+microphone[,\s]+speaker|speakerphone|unified\s*communications?)\b/i, domain: "UC", role: "uc room endpoint", transport: "USB" },
+  // Explicit point-to-point extender/KVM intent must win over incidental
+  // AVoIP or USB terms such as "KVM extender with USB host keyboard and mouse".
+  { test: /\b(kvm\s+extender|(?:hdmi|hdbaset|usb)\s+extender|extender\s+kit|hdbaset\s+extender)\b/i, domain: "HDBASET", role: "transceiver", transport: "HDBaseT" },
   { test: /\b(multiview|multi-view|single output canvas|quad view|picture by picture|\bpip\b|\bpbp\b|windowing processor)\b/i, domain: "MULTIVIEW", role: "multiview processor", transport: "HDMI" },
   { test: /\b(video wall processor|wall processor|lcd video wall|dedicated video wall)\b/i, domain: "VIDEO_WALL", role: "video wall processor", transport: "HDMI" },
   { test: /\b(ndi[\s-]?(camera|cam|ptz)|birddog|ndi source|ndi encoder camera)\b/i, domain: "NDI_CAMERA", role: "ndi camera", transport: "NDI" },
@@ -133,12 +136,20 @@ function backfillFreeTextClassification(
   competitor: ResolvedCompetitorProfile,
   analysis: CompetitorProfile,
   inputText: string,
+  providedBrand?: string,
 ): Partial<ResolvedCompetitorProfile> {
-  if (!isBlank(competitor.domain)) {
+  const precise = FREE_TEXT_PRECISE_CLASSIFICATION.find((entry) => entry.test.test(inputText));
+  const hasExplicitTextBrand = Boolean(
+    providedBrand ||
+    (analysis.brand && inputText.toLowerCase().includes(String(analysis.brand).toLowerCase())),
+  );
+  const canCorrectInferredTypedTextProfile =
+    Boolean(precise) && competitor.source === "typed-text" && !hasExplicitTextBrand;
+
+  if (!isBlank(competitor.domain) && !canCorrectInferredTypedTextProfile) {
     return {};
   }
 
-  const precise = FREE_TEXT_PRECISE_CLASSIFICATION.find((entry) => entry.test.test(inputText));
   const backfill = precise ?? FREE_TEXT_CLASSIFICATION[analysis.technologyClass];
   if (!backfill) {
     return {};
@@ -146,12 +157,16 @@ function backfillFreeTextClassification(
 
   const override: Partial<ResolvedCompetitorProfile> = {
     domain: backfill.domain,
-    transport: isBlank(competitor.transport) ? backfill.transport : competitor.transport,
+    transport: canCorrectInferredTypedTextProfile || isBlank(competitor.transport) ? backfill.transport : competitor.transport,
   };
 
-  if (isBlank(competitor.role)) {
+  if (canCorrectInferredTypedTextProfile || isBlank(competitor.role)) {
     const detectedRole = String(analysis.role ?? "").toLowerCase();
-    override.role = FREE_TEXT_ENDPOINT_ROLES.has(detectedRole) ? detectedRole : backfill.role;
+    override.role = canCorrectInferredTypedTextProfile
+      ? backfill.role
+      : FREE_TEXT_ENDPOINT_ROLES.has(detectedRole)
+        ? detectedRole
+        : backfill.role;
   }
 
   return override;
@@ -173,18 +188,20 @@ export function rigorousCompare(
     rawText: input,
   });
   const semanticBackfill = semanticCompareBackfill(semanticCompetitor);
-  const legacyBackfill = backfillFreeTextClassification(resolvedCompetitor, analysis, input);
+  const legacyBackfill = backfillFreeTextClassification(resolvedCompetitor, analysis, input, providedBrand);
   const competitor: ResolvedCompetitorProfile = {
     ...resolvedCompetitor,
     ...legacyBackfill,
     domain:
-      resolvedCompetitor.domain && resolvedCompetitor.domain !== "UNKNOWN"
+      legacyBackfill.domain ??
+      (resolvedCompetitor.domain && resolvedCompetitor.domain !== "UNKNOWN"
         ? resolvedCompetitor.domain
-        : semanticBackfill.domain ?? legacyBackfill.domain ?? resolvedCompetitor.domain,
+        : semanticBackfill.domain ?? resolvedCompetitor.domain),
     role:
-      resolvedCompetitor.role && resolvedCompetitor.role !== "unknown"
+      legacyBackfill.role ??
+      (resolvedCompetitor.role && resolvedCompetitor.role !== "unknown"
         ? resolvedCompetitor.role
-        : semanticBackfill.role ?? legacyBackfill.role ?? resolvedCompetitor.role,
+        : semanticBackfill.role ?? resolvedCompetitor.role),
     inputCount: resolvedCompetitor.inputCount ?? semanticBackfill.inputCount,
     outputCount: resolvedCompetitor.outputCount ?? semanticBackfill.outputCount,
   };
@@ -291,7 +308,7 @@ export function rigorousCompare(
     );
   } else if (topOutcome === "GOOD MATCH") {
     recommendation = `${top.sku} is a credible like-for-like alternative to ${competitorLabel}. ${top.decision.nextAction}`;
-    nextSteps.push(...dedupe([...top.decision.verify, "Confirm pricing, lifecycle and accessory dependencies"]));
+    nextSteps.push(...dedupe([...top.decision.verify, "Confirm lifecycle, regional availability and accessory dependencies"]));
   } else if (topOutcome === "PARTIAL MATCH") {
     recommendation = `${top.sku} is the closest WyreStorm option to ${competitorLabel}, but it is not a drop-in — make the differences clear before quoting.`;
     nextSteps.push(...dedupe([...top.decision.gaps, ...top.decision.verify]));

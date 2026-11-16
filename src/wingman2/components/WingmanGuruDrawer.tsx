@@ -963,7 +963,7 @@ function answerProductQuestion(question: string, products: ProductEntry[]) {
   return [
     `${product.sku} - ${product.title}`,
     !assurance.customerReady
-      ? `Internal status: ${assurance.warnings[0] ?? "Technical verification is required before recommendation or quotation."}`
+      ? `Internal status: ${assurance.warnings[0] ?? "Technical verification is required before recommendation or proposal."}`
       : "",
     product.family ? `Family: ${product.family}` : "",
     product.category ? `Category: ${product.category}` : "",
@@ -1381,7 +1381,7 @@ export function answerCompareProductManagerQuestion(
     : ["No explicit functional difference is recorded, so exact feature parity must not be assumed."];
   const dependencyLines = dependencies.length
     ? dependencies
-    : ["Confirm lifecycle, accessories and complete signal-path compatibility before quotation."];
+    : ["Confirm lifecycle, accessories and complete signal-path compatibility before the proposal is issued."];
 
   if (dependencyFocus) {
     return [
