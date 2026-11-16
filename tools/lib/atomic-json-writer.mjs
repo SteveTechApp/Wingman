@@ -13,7 +13,8 @@
  *     rename is atomic),
  *   - fsync the temp file so the rename never promotes a partially-flushed
  *     buffer,
- *   - rename over the target (atomic on POSIX and Windows),
+ *   - rename over the target (atomic on POSIX and Windows, with bounded
+ *     retries for transient Windows sharing violations),
  *   - on any failure remove the temp file and rethrow, so a tool never
  *     believes a baseline landed when it did not.
  *
@@ -26,12 +27,32 @@ import fsSync from "node:fs";
 import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 
 function tempPathFor(filePath) {
   return path.join(
     path.dirname(filePath),
-    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.${os.hostname()}.tmp`,
+    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.${randomUUID()}.${os.hostname()}.tmp`,
   );
+}
+
+const WINDOWS_RENAME_RETRY_CODES = new Set(["EPERM", "EBUSY", "EACCES"]);
+
+async function renameWithRetry(temporary, filePath) {
+  const retries = process.platform === "win32" ? 8 : 0;
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await fsp.rename(temporary, filePath);
+      return;
+    } catch (error) {
+      if (attempt >= retries || !WINDOWS_RENAME_RETRY_CODES.has(error?.code)) throw error;
+      // Windows readers, antivirus scanners and concurrent generated-store
+      // builds can briefly hold the old target without allowing replacement.
+      // Never delete it as a fallback: a persistent lock must leave the last
+      // complete file intact rather than turn a transient error into data loss.
+      await new Promise((resolve) => setTimeout(resolve, Math.min(25 * 2 ** attempt, 250)));
+    }
+  }
 }
 
 /** Serialized bytes the tools write: pretty-printed with a trailing newline. */
@@ -79,7 +100,7 @@ export async function atomicWriteJson(filePath, value) {
     } finally {
       await handle.close();
     }
-    await fsp.rename(temporary, filePath);
+    await renameWithRetry(temporary, filePath);
   } catch (error) {
     await fsp.rm(temporary, { force: true }).catch(() => {});
     throw error;
