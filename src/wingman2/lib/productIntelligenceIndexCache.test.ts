@@ -108,16 +108,19 @@ describe("runtime ADMIN product overlays", () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
       const payload = url.includes("summary")
-        ? { products: [{ sku: "EXP-4KUHD-0.5" }, { sku: "EXP-4KUHD-05" }] }
+        ? { products: [{ sku: "EXP-4KUHD-0.5" }, { sku: "EXP-4KUHD-05" }, { sku: "EXP-4KUHD-50" }] }
         : url.endsWith("product-intelligence-details.json")
           ? { products: {
             EXP4KUHD05__EXP_4KUHD_0_5: { sku: "EXP-4KUHD-0.5", path: "/product-intelligence-details/decimal.json" },
             EXP4KUHD05__EXP_4KUHD_05: { sku: "EXP-4KUHD-05", path: "/product-intelligence-details/zero-padded.json" },
+            EXP4KUHD50: { sku: "EXP-4KUHD-50", path: "/product-intelligence-details/five-metre.json" },
           } }
           : url.endsWith("decimal.json")
             ? { sku: "EXP-4KUHD-0.5", technicalProfile: { length: "0.5 m" } }
             : url.endsWith("zero-padded.json")
-              ? { sku: "EXP-4KUHD-05", technicalProfile: { length: "5 m" } }
+              ? { sku: "EXP-4KUHD-05", technicalProfile: { length: "0.5 m" } }
+              : url.endsWith("five-metre.json")
+                ? { sku: "EXP-4KUHD-50", technicalProfile: { length: "5 m" } }
               : { records: [] };
       return { ok: true, json: async () => payload } as Response;
     });
@@ -129,6 +132,10 @@ describe("runtime ADMIN product overlays", () => {
     });
     await expect(loadProductIntelligenceDetail("EXP-4KUHD-05")).resolves.toMatchObject({
       sku: "EXP-4KUHD-05",
+      technicalProfile: { length: "0.5 m" },
+    });
+    await expect(loadProductIntelligenceDetail("EXP-4KUHD-50")).resolves.toMatchObject({
+      sku: "EXP-4KUHD-50",
       technicalProfile: { length: "5 m" },
     });
   });
