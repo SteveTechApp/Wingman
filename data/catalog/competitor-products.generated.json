@@ -2932,11 +2932,11 @@
     "status": "approved",
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
-    "summary": "Four-input presentation switcher with wireless presentation, USB-C connectivity, dual HDMI outputs, and integrated USB hub support for small meeting spaces.",
-    "sourceUrl": "https://atlona.com/product/at-ome-ms42/",
-    "evidenceSource": "https://atlona.com/product/at-ome-ms42/",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Atlona AT-OME-MS42 4x2 presentation matrix switcher with two HDMI, one DisplayPort and one USB-C input, and HDMI plus HDBaseT outputs. HDBaseT output supports up to 4K60 4:2:0; local ports support up to 4K60 4:4:4.",
+    "sourceUrl": "https://ts.atlona.com/product/ome-ms42/",
+    "evidenceSource": "https://ts.atlona.com/product/ome-ms42/",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex official-source review",
     "confidence": "high",
     "role": "presentation switcher",
     "transport": "Local",
@@ -2949,21 +2949,21 @@
         "count": 2
       },
       {
-        "type": "USB-C",
+        "type": "DisplayPort",
         "count": 1
       },
       {
-        "type": "Wireless Presentation",
+        "type": "USB-C",
         "count": 1
       }
     ],
     "outputs": [
       {
         "type": "HDMI",
-        "count": 2
+        "count": 1
       },
       {
-        "type": "USB Device",
+        "type": "HDBaseT",
         "count": 1
       }
     ],
@@ -2983,10 +2983,11 @@
       "usbRouting": true
     },
     "video": {
-      "maxResolution": "4K60",
+      "maxResolution": "4K60 4:4:4 local / 4:2:0 HDBaseT",
       "hdmi": "2.0",
       "bandwidthGbps": 18,
-      "hdr": true
+      "hdr": true,
+      "chroma": "4:4:4 local / 4:2:0 HDBaseT"
     },
     "matrixInputs": 4,
     "routedInputs": 4,
@@ -3007,10 +3008,10 @@
       "atomems52",
       "atomems63"
     ],
-    "knownLimitations": "",
+    "knownLimitations": "Atlona currently marks AT-OME-MS42 discontinued. Confirm current replacement and availability before specifying or quoting.",
     "closestWyrestormArchitecture": "Apollo",
     "closestWyrestormSkuOrFamily": "Apollo presentation switcher direction",
-    "notes": "competitor-compare.seed.json#12 merged into deployed competitor catalog. | Official Atlona Omega presentation-switcher page. | competitor-compare.seed.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs",
+    "notes": "Official Atlona AT-OME-MS42 product page checked 2026-11-16: HDMI x2, DisplayPort x1, USB-C x1 inputs; HDMI x1 and HDBaseT x1 outputs; 4K60 4:4:4 local and 4K60 4:2:0 HDBaseT. Page marks model discontinued. Replaced incorrect Wireless Presentation input and USB Device output records.",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
   },
@@ -3152,10 +3153,10 @@
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
     "summary": "6x2 matrix presentation switcher with USB hub, HDBaseT output, second output for display distribution, and lecture-hall collaboration routing.",
-    "sourceUrl": "https://atlona.com/product/at-ome-ps62/",
-    "evidenceSource": "https://atlona.com/product/at-ome-ps62/",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "sourceUrl": "https://ts.atlona.com/product/at-ome-ps62/",
+    "evidenceSource": "https://ts.atlona.com/product/at-ome-ps62/",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex official-source review",
     "confidence": "high",
     "role": "presentation switcher",
     "transport": "Local",
@@ -3164,8 +3165,16 @@
     "directionality": "bidirectional",
     "inputs": [
       {
-        "type": "AV Input",
-        "count": 6
+        "type": "HDBaseT",
+        "count": 2
+      },
+      {
+        "type": "HDMI",
+        "count": 3
+      },
+      {
+        "type": "USB-C",
+        "count": 1
       }
     ],
     "outputs": [
@@ -3193,10 +3202,11 @@
       "usbC": true
     },
     "video": {
-      "maxResolution": "4K60",
+      "maxResolution": "4K60 4:4:4 local / 4:2:0 HDBaseT",
       "hdmi": "2.0",
       "bandwidthGbps": 18,
-      "hdr": true
+      "hdr": true,
+      "chroma": "4:4:4 local / 4:2:0 HDBaseT"
     },
     "matrixInputs": 6,
     "routedInputs": 6,
@@ -3218,10 +3228,10 @@
     "aliases": [
       "atomeps62"
     ],
-    "knownLimitations": "",
+    "knownLimitations": "Atlona currently marks this product discontinued; verify availability and replacement before specifying. HDBaseT output supports 4K60 4:2:0; local HDMI/USB-C ports support 4K60 4:4:4.",
     "closestWyrestormArchitecture": "6-input presentation switcher with HDBaseT output",
     "closestWyrestormSkuOrFamily": "SW-510-TX (4-input HDBaseT switcher)",
-    "notes": "Official Atlona AV Solutions for Business / Education brochure and product page. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync.",
+    "notes": "Official Atlona product page checked 2026-11-16. Confirmed 2 HDBaseT + 3 HDMI + 1 USB-C inputs; HDMI + HDBaseT outputs; local 4K60 4:4:4 and HDBaseT 4K60 4:2:0; 100m extension. Product page marks discontinued.",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
   },
@@ -3411,10 +3421,10 @@
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
     "summary": "Single-channel networked AV encoder for managed Gigabit distribution with 4K60 4:4:4 VCx compression, multiview, and video-wall workflows.",
-    "sourceUrl": "https://atlona.com/product/at-omni-111/",
-    "evidenceSource": "https://atlona.com/product/at-omni-111/",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "sourceUrl": "https://ts.atlona.com/omnistream-av-over-ip/",
+    "evidenceSource": "https://ts.atlona.com/omnistream-av-over-ip/",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex official-source review",
     "confidence": "high",
     "role": "Encoder",
     "transport": "AVoIP",
@@ -3447,9 +3457,6 @@
       "AVoIP encoder",
       "VCx codec",
       "Gigabit Ethernet",
-      "Multiview",
-      "Video wall",
-      "PoE",
       "Ultra-low latency",
       "Fast switching",
       "Managed AVoIP",
@@ -3475,23 +3482,20 @@
         "bandwidthGbps": 18,
         "hdr": true
       },
-      "distance": {
-        "meters": 100
-      },
       "networkSpeed": "1GbE",
       "avoipChip": null,
       "avoipChipStatus": "not-publicly-confirmed",
-      "avoipCodec": "VC-2 / SMPTE 2042"
+      "avoipCodec": "VCx"
     },
     "aliases": [
       "atomni111",
       "atomni141",
       "atomni232"
     ],
-    "knownLimitations": "",
+    "knownLimitations": "Atlona notes limited availability and an upcoming lifecycle update for this model; confirm availability with Atlona. AV reach depends on the engineered Gigabit network; no 100m endpoint reach is specified.",
     "closestWyrestormArchitecture": "NetworkHD 100 (standard 1GbE AVoIP)",
     "closestWyrestormSkuOrFamily": "NHD-120-TX / NHD-120-RX",
-    "notes": "Official Atlona OmniStream education brochure and product page. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | OmniStream 111 and 112 are networked AV encoders for Atlona's managed AVoIP platform. | Compare OmniStream encoders against AVoIP encoders and distributed AV systems, not against wall processors. | Official competitor family guidance applied during canonical sync.",
+    "notes": "Official Atlona OmniStream page checked 2026-11-16. Confirms HDMI input, 4K60 4:4:4/HDR, VCx codec, Gigabit network and local/PoE powering. Removed unsupported 100m reach, VC-2/SMPTE 2042 codec claim, and multiview/video-wall features (decoder functionality).",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
   },
@@ -3508,10 +3512,10 @@
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
     "summary": "Dual-channel AV over IP encoder for two HDMI sources up to 4K60 4:4:4 and HDR with embedded audio and RS-232 or IR pass-through over Gigabit Ethernet.",
-    "sourceUrl": "https://atlona.com/product/at-omni-112/",
-    "evidenceSource": "https://atlona.com/product/at-omni-112/",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "sourceUrl": "https://ts.atlona.com/product/at-omni-112/",
+    "evidenceSource": "https://ts.atlona.com/product/at-omni-112/",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex official-source review",
     "confidence": "high",
     "role": "Encoder",
     "transport": "AVoIP",
@@ -3526,8 +3530,8 @@
     ],
     "outputs": [
       {
-        "type": "LAN",
-        "count": 1
+        "type": "Gigabit Ethernet RJ45",
+        "count": 2
       }
     ],
     "control": [
@@ -3551,7 +3555,9 @@
       "RS-232 pass-through",
       "Managed AVoIP",
       "RS-232 / IR pass-through",
-      "4K distribution"
+      "4K distribution",
+      "2x Gigabit Ethernet",
+      "IEEE 802.3af PoE"
     ],
     "video": {
       "maxResolution": "4K60",
@@ -3562,9 +3568,9 @@
     "matrixInputs": 2,
     "routedInputs": 2,
     "routedInputCount": 2,
-    "matrixOutputs": 1,
-    "routedOutputs": 1,
-    "routedOutputCount": 1,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
     "specs": {
       "video": {
         "maxResolution": "4K60 4:4:4",
@@ -3572,22 +3578,20 @@
         "bandwidthGbps": 18,
         "hdr": true
       },
-      "distance": {
-        "meters": 100
-      },
-      "networkSpeed": "1GbE",
+      "networkSpeed": "1GbE per port",
+      "poe": true,
       "avoipChip": null,
       "avoipChipStatus": "not-publicly-confirmed",
-      "avoipCodec": "VC-2 / SMPTE 2042"
+      "avoipCodec": "Atlona VCx"
     },
     "aliases": [
       "atomni112",
       "atomni142"
     ],
-    "knownLimitations": "Curated legacy role said decoder; official Atlona product evidence identifies AT-OMNI-112 as a dual-channel encoder.",
+    "knownLimitations": "Atlona currently labels AT-OMNI-112 discontinued / limited availability and links a product discontinuation notice. Confirm replacement and availability before specifying or quoting. The official product page does not state a 100 m product-level AV reach; usable reach depends on the engineered Ethernet network.",
     "closestWyrestormArchitecture": "NetworkHD 100 dual-input AVoIP",
     "closestWyrestormSkuOrFamily": "NHD-124-TX (quad encoder)",
-    "notes": "Official Atlona OmniStream dual-channel encoder page. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | OmniStream 111 and 112 are networked AV encoders for Atlona's managed AVoIP platform. | Compare OmniStream encoders against AVoIP encoders and distributed AV systems, not against wall processors. | Official competitor family guidance applied during canonical sync.",
+    "notes": "Official Atlona AT-OMNI-112 product page checked 2026-11-16: two HDMI inputs, two 10/100/1000 Mbps RJ45 Ethernet connectors, IEEE 802.3af PoE, dual-channel 4K60 4:4:4 encoding, Atlona VCx codec; page includes discontinued/limited-availability status and EOL notice. Corrected prior one-LAN port count and removed unsupported fixed 100 m distance and stale VC-2 label.",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
   },
@@ -3910,10 +3914,10 @@
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
     "summary": "HDBaseT extender kit for HDMI with HDCP 2.2 support, receiver-powered operation, and point-to-point extension over category cable.",
-    "sourceUrl": "https://atlona.com/product/at-uhd-ex-100ce-kit/",
-    "evidenceSource": "https://atlona.com/product/at-uhd-ex-100ce-kit/",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "sourceUrl": "https://support.atlona.com/hc/en-us/articles/236080327-KB01068-Why-am-I-unable-to-pass-certain-4K-signals-over-my-AT-UHD-EX-extenders-but-1080p-works",
+    "evidenceSource": "https://support.atlona.com/hc/en-us/articles/236080327-KB01068-Why-am-I-unable-to-pass-certain-4K-signals-over-my-AT-UHD-EX-extenders-but-1080p-works",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex official-source review",
     "confidence": "high",
     "role": "transmitter",
     "transport": "HDBaseT",
@@ -3948,10 +3952,11 @@
       "receiverKit": true
     },
     "video": {
-      "maxResolution": "4K30",
+      "maxResolution": "4K60 4:2:0",
       "hdmi": "2.0",
       "bandwidthGbps": 18,
-      "hdr": false
+      "hdr": false,
+      "chroma": "4:2:0 at 4K60"
     },
     "specs": {
       "video": {
@@ -3969,10 +3974,10 @@
       "atuhdex70",
       "atuhdex100"
     ],
-    "knownLimitations": "",
+    "knownLimitations": "4K60 is limited to 4:2:0; 4K reach depends on category cable (up to 100m on CAT6a/7, shorter on CAT5e/6). Product page no longer available; confirm current support and availability before specifying.",
     "closestWyrestormArchitecture": "100m HDBaseT extender kit",
     "closestWyrestormSkuOrFamily": "EX-100-G2",
-    "notes": "Official Atlona extender-kit page. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | UHD-EX is Atlona's point-to-point HDBaseT extension family for long-reach HDMI transport. | Compare UHD-EX against extenders and transport kits, not matrices or AVoIP platforms. | Official competitor family guidance applied during canonical sync.",
+    "notes": "Official Atlona support article checked 2026-11-16. Confirms AT-UHD-EX-100CE-KIT supports 4096x2160@60 4:2:0 and distinguishes 4K reach by cable type; official cabling article confirms up to 100m for the 100CE family.",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
   },
@@ -6938,11 +6943,11 @@
     "status": "approved",
     "approvalStatus": "approved",
     "sourceTier": "sku-seed",
-    "summary": "Barco ClickShare CX-50 Gen2 premium wireless conferencing hub with 4K UHD60 HDMI/USB-C output, 4K UHD30 USB-C input, 2.5Gbit Ethernet, and dual USB-A 3.1 ports for high-impact rooms.",
-    "sourceUrl": "https://assets.barco.com/m/518065e8b1d1a737/original/ClickShare-CX-50-2nd-generation-po-Spec-sheet.pdf",
-    "evidenceSource": "https://assets.barco.com/m/518065e8b1d1a737/original/ClickShare-CX-50-2nd-generation-po-Spec-sheet.pdf",
-    "lastReviewed": "2026-08-15",
-    "reviewer": "Claude research pass",
+    "summary": "Barco ClickShare CX-50 Gen2 wireless conferencing hub with HDMI 2.1 and USB-C DisplayPort Alt Mode video outputs (4K60), a front USB-C DP Alt Mode input (4K30), and 2.5GbE.",
+    "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-50-gen2",
+    "evidenceSource": "https://www.barco.com/en/product/clickshare-cx-50-gen2",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex source review (official Barco product page)",
     "confidence": "high",
     "role": "receiver / hub",
     "transport": "Wireless",
@@ -6955,17 +6960,17 @@
         "count": 1
       },
       {
-        "type": "USB-C 3.1 DP ALT (front, input)",
+        "type": "USB-C 3.1 DP Alt (front, video input)",
         "count": 1
       }
     ],
     "outputs": [
       {
-        "type": "HDMI 1.4b",
+        "type": "HDMI 2.1 (video output)",
         "count": 1
       },
       {
-        "type": "USB-C 3.1 DP ALT (rear, output)",
+        "type": "USB-C 3.1 DP Alt (rear, video output)",
         "count": 1
       }
     ],
@@ -6984,23 +6989,22 @@
       "5-year warranty"
     ],
     "video": {
+      "hdmi": "2.1",
       "outputMaxResolution": "3840x2160@60Hz",
       "inputMaxResolution": "3840x2160@30Hz",
-      "hdmi": "1.4b",
-      "chroma": "4:2:0",
-      "chromaEvidence": "inferred",
-      "maxResolution": "4K UHD @60Hz (out) / 4K UHD @30Hz (in) 4:2:0"
+      "maxResolution": "4K UHD @60Hz (out) / 4K UHD @30Hz (in)"
     },
-    "matrixOutputs": 1,
-    "routedOutputs": 1,
-    "routedOutputCount": 1,
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
     "specs": {
       "video": {
         "outputMaxResolution": "3840x2160@60Hz",
         "inputMaxResolution": "3840x2160@30Hz",
-        "hdmi": "1.4b",
-        "chroma": "4:2:0",
-        "chromaEvidence": "inferred"
+        "hdmi": "2.1"
       },
       "wireless": {
         "rangeMeters": 30,
@@ -7021,10 +7025,10 @@
       }
     },
     "aliases": [],
-    "knownLimitations": "4b (10.2Gbps max) cannot carry uncompressed 4K60 4:4:4, delivery must be chroma-subsampled. 4b (10.2Gbps max) cannot carry uncompressed 4K60 4:4:4, delivery must be chroma-subsampled. Chroma 4:2:0 inferred: confirmed HDMI 1.4b (10.2Gbps max) cannot carry uncompressed 4K60 4:4:4, delivery must be chroma-subsampled.",
+    "knownLimitations": "No physical HDMI video input; wired video input is the front USB-C DisplayPort Alt Mode port. Network, wireless and room-device integration require project-specific IT and security review.",
     "closestWyrestormArchitecture": "Premium wireless conferencing hub",
     "closestWyrestormSkuOrFamily": "APO-VX20-UC-V2 + APO-DG2",
-    "notes": "Verified via official Barco ClickShare CX-50 Gen2 spec sheet: 4K60 out/4K30 in via USB-C DP ALT, 2.5Gbit Ethernet, 2x USB-A 3.1 + 1x USB-C 3.1 rear, 5-year warranty. | 2026-08-15 batch review: evidence-complete row promoted to approved. | 2026-08-15 competitor power program: Barco-supplied power adapter ATM090T-A190 (19V output, input 100-240V) per CX-50 Gen2 installation manual; spare kit B5631051K '19VDC 4A74'.",
+    "notes": "Checked against the current Barco ClickShare CX-50 2nd generation product page on 2026-11-16: HDMI 2.1 output 4K60, rear USB-C DP Alt output 4K60, front USB-C DP Alt input 4K30, and 2.5GbE. No chroma subsampling is claimed because the source does not specify a chroma mode.",
     "sourceFile": "data-sources/competitors/barco.csv",
     "comparisonOnly": true
   },
@@ -12469,10 +12473,10 @@
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
     "summary": "Compact 4K60 4:4:4 AV-over-IP endpoint for enterprise distribution, switching, and USB extension workflows over 1GbE.",
-    "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30",
-    "evidenceSource": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "sourceUrl": "https://www.crestron.com/Products/Catalog/AV-Over-IP/DM-NVX-AV-Over-IP/Video-Endpoint/DM-NVX-E30",
+    "evidenceSource": "https://www.crestron.com/Products/Catalog/AV-Over-IP/DM-NVX-AV-Over-IP/Video-Endpoint/DM-NVX-E30",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex official-source review",
     "confidence": "high",
     "role": "Encoder",
     "transport": "AVoIP",
@@ -12511,10 +12515,17 @@
     "audio": [
       "Embedded Audio"
     ],
-    "features": {
-      "usbRouting": true,
-      "tenGig": false
-    },
+    "features": [
+      "AVoIP encoder",
+      "4K60 4:4:4",
+      "HDR10/HDR10+/Dolby Vision",
+      "HDCP 2.3",
+      "AES67 audio embedding/de-embedding",
+      "PoE+",
+      "Gigabit Ethernet",
+      "Pixel Perfect Processing",
+      "RS-232 / IR / CEC control"
+    ],
     "video": {
       "maxResolution": "4K60",
       "hdmi": "2.0",
@@ -12535,10 +12546,8 @@
         "bandwidthGbps": 18,
         "hdr": true
       },
-      "distance": {
-        "meters": 100
-      },
       "networkSpeed": "1GbE",
+      "poe": "PoE+",
       "avoipChip": null,
       "avoipChipStatus": "not-publicly-confirmed",
       "avoipCodec": "Pixel Perfect Processing"
@@ -12547,10 +12556,10 @@
       "dmnvxe30",
       "dmnvxe31"
     ],
-    "knownLimitations": "",
+    "knownLimitations": "AV transmission uses a managed 1000BASE-T network; 100m is not a device-level AV reach specification. Analog audio output is functional only with a 2-channel stereo input.",
     "closestWyrestormArchitecture": "NetworkHD 100 (standard 1GbE AVoIP encoder, USB)",
     "closestWyrestormSkuOrFamily": "NHD-120-TX",
-    "notes": "Official Crestron DM NVX E30 page. | src/competitor/competitors.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | DM NVX E-series products are encoder-side AV-over-IP endpoints for Crestron distributed AV systems. | Compare DM NVX encoders against AVoIP encoders rather than room switchers or extenders. | Official competitor family guidance applied during canonical sync.",
+    "notes": "Current Crestron product page checked 2026-11-16. Confirms 1 HDMI input, 1GbE/1000BASE-T, PoE+, 4K60 4:4:4, HDR, AES67 and Pixel Perfect Processing. Removed unsupported 100m point-to-point AV reach claim.",
     "sourceFile": "data-sources/competitors/crestron.csv",
     "comparisonOnly": true
   },
@@ -12875,10 +12884,10 @@
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
     "summary": "4x2 HDMI matrix switcher for 4K60 4:4:4 and HDR distribution with audio breakaway, EDID management, and XiO Cloud compatibility.",
-    "sourceUrl": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
-    "evidenceSource": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "sourceUrl": "https://www.crestron.com/Products/Catalog/Audio-Video-and-USB/DM-Essentials-Point-to-Point/HDMI-Switcher/HD-MD4X2-4KZ-E",
+    "evidenceSource": "https://www.crestron.com/Products/Catalog/Audio-Video-and-USB/DM-Essentials-Point-to-Point/HDMI-Switcher/HD-MD4X2-4KZ-E",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex official-source review",
     "confidence": "high",
     "role": "Matrix",
     "transport": "Local",
@@ -12943,7 +12952,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "4x2 HDMI matrix switcher",
     "closestWyrestormSkuOrFamily": "MX-0404-HDMI",
-    "notes": "Official Crestron HD-MD4X2-4KZ-E page. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Crestron HD-MD products are local HDMI matrix switchers for fixed I/O routing. | Compare HD-MD products against plain matrices, not collaboration or wireless presentation systems. | Official competitor family guidance applied during canonical sync.",
+    "notes": "Current Crestron product page and spec sheet checked 2026-11-16. Confirmed 4 HDMI inputs, 2 HDMI outputs, 4K60 4:4:4, HDR10/HDR10+/Dolby Vision, and HDCP 2.3.",
     "sourceFile": "data-sources/competitors/crestron.csv",
     "comparisonOnly": true
   },
@@ -16602,10 +16611,10 @@
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
     "summary": "Eight-input presentation switcher with HDMI, analog, and DTP inputs, dual HDMI outputs, DTP output, scaling, and integrated control.",
-    "sourceUrl": "https://www.extron.com/product/in1608",
-    "evidenceSource": "https://www.extron.com/product/in1608",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "sourceUrl": "https://www.extron.com/product/in1608xi",
+    "evidenceSource": "https://www.extron.com/product/in1608xi",
+    "lastReviewed": "2026-11-16",
+    "reviewer": "Codex official-source review",
     "confidence": "high",
     "role": "presentation switcher",
     "transport": "Local",
@@ -16666,9 +16675,9 @@
     "matrixInputs": 8,
     "routedInputs": 8,
     "routedInputCount": 8,
-    "matrixOutputs": 1,
-    "routedOutputs": 1,
-    "routedOutputCount": 1,
+    "matrixOutputs": 3,
+    "routedOutputs": 3,
+    "routedOutputCount": 3,
     "specs": {
       "video": {
         "maxResolution": "4K60 4:4:4",
@@ -16687,7 +16696,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "Presentation switcher",
     "closestWyrestormSkuOrFamily": "SW-510-TX",
-    "notes": "Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Extron IN-series products are presentation switchers with scaling, audio handling, and room workflow features. | Compare IN-series products against presentation systems rather than plain matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | Removed incorrect \"in1804\" alias during SKU-expansion pass: IN1804 is a distinct real Extron product, now tracked as its own row.",
+    "notes": "Official Extron IN1608 xi page/specification checked 2026-11-16. Confirmed up to 8 inputs (4 HDMI, 2 analog, 2 DTP) and 3 outputs (2 HDMI + 1 DTP/HDBaseT); corrected output_count from 1.",
     "sourceFile": "data-sources/competitors/extron.csv",
     "comparisonOnly": true
   },

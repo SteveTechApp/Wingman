@@ -182,6 +182,20 @@ describe("product selector engine", () => {
     expect(decisions.filter((decision) => decision.sku === "MXV-0808-H2A-MK2")).toHaveLength(1);
   });
 
+  it("ranks the exact punctuated SKU above a normalization collision", () => {
+    const cableProducts = [
+      { sku: "EXP-4KUHD-0.5", name: "0.5m 4K UHD HDMI cable", family: "Cables", category: "Cable", description: "HDMI cable" },
+      { sku: "EXP-4KUHD-05", name: "5m 4K UHD HDMI cable", family: "Cables", category: "Cable", description: "HDMI cable" },
+    ];
+    const decisions = selectWingmanProducts(cableProducts, {
+      mode: "catalogue",
+      query: "EXP-4KUHD-0.5",
+      includeCables: true,
+    });
+
+    expect(decisions[0]?.sku).toBe("EXP-4KUHD-0.5");
+  });
+
   it("marks unverified catalogue data as needing verification instead of inventing confidence", () => {
     const decision = selectWingmanProducts(products, {
       mode: "catalogue",

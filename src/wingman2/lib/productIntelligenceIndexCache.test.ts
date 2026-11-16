@@ -103,4 +103,33 @@ describe("runtime ADMIN product overlays", () => {
     expect(fetchMock).toHaveBeenCalledWith("/product-intelligence-details/mx1.json", { cache: "force-cache" });
     vi.unstubAllGlobals();
   });
+
+  it("hydrates exact SKUs independently when punctuation normalization collides", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      const payload = url.includes("summary")
+        ? { products: [{ sku: "EXP-4KUHD-0.5" }, { sku: "EXP-4KUHD-05" }] }
+        : url.endsWith("product-intelligence-details.json")
+          ? { products: {
+            EXP4KUHD05__EXP_4KUHD_0_5: { sku: "EXP-4KUHD-0.5", path: "/product-intelligence-details/decimal.json" },
+            EXP4KUHD05__EXP_4KUHD_05: { sku: "EXP-4KUHD-05", path: "/product-intelligence-details/zero-padded.json" },
+          } }
+          : url.endsWith("decimal.json")
+            ? { sku: "EXP-4KUHD-0.5", technicalProfile: { length: "0.5 m" } }
+            : url.endsWith("zero-padded.json")
+              ? { sku: "EXP-4KUHD-05", technicalProfile: { length: "5 m" } }
+              : { records: [] };
+      return { ok: true, json: async () => payload } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(loadProductIntelligenceDetail("EXP-4KUHD-0.5")).resolves.toMatchObject({
+      sku: "EXP-4KUHD-0.5",
+      technicalProfile: { length: "0.5 m" },
+    });
+    await expect(loadProductIntelligenceDetail("EXP-4KUHD-05")).resolves.toMatchObject({
+      sku: "EXP-4KUHD-05",
+      technicalProfile: { length: "5 m" },
+    });
+  });
 });

@@ -335,6 +335,7 @@ function scoreProduct(product: WingmanProductLike, profile: WingmanProductProfil
   if (profile.productClass === "cable" || profile.productClass === "accessory") score -= 160;
   if (warnings.length) score -= warnings.length * 12;
   if (compactQuery && normaliseSkuKey(sku) === compactQuery) score += 250;
+  if (normaliseSku(sku) === normaliseSku(request.query)) score += 50;
   if (compactQuery && normaliseSkuKey(sku).startsWith(compactQuery)) score += 120;
   if (normalise(productName(product)).includes(normalise(request.query))) score += 30;
 

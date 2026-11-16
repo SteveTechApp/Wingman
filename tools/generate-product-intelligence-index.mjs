@@ -926,6 +926,11 @@ function buildIndex(products, discoveredSources) {
 
 function buildSplitIndexes(index) {
   const details = {};
+  const normalizedSkuCounts = new Map();
+  for (const product of index.products) {
+    const normalized = String(product.sku || product.id).toUpperCase().replace(/[^A-Z0-9]+/g, "");
+    normalizedSkuCounts.set(normalized, (normalizedSkuCounts.get(normalized) ?? 0) + 1);
+  }
   const products = index.products.map((product) => {
     const summary = {};
     const detail = {};
@@ -938,7 +943,12 @@ function buildSplitIndexes(index) {
       presentSections,
       missingSections: [...deferredDetailFields].filter((field) => !presentSections.includes(field)),
     };
-    details[String(product.sku || product.id).toUpperCase().replace(/[^A-Z0-9]+/g, "")] = detail;
+    const sku = String(product.sku || product.id).trim().toUpperCase();
+    const normalized = sku.replace(/[^A-Z0-9]+/g, "");
+    const key = normalizedSkuCounts.get(normalized) > 1
+      ? `${normalized}__${sku.replace(/[^A-Z0-9]+/g, "_")}`
+      : normalized;
+    details[key] = key.includes("__") ? { ...detail, __manifestSku: sku } : detail;
     return summary;
   });
   return { summary: { ...index, products }, details };
@@ -1084,8 +1094,13 @@ async function main() {
   for (const [key, detail] of Object.entries(splitIndexes.details)) {
     if (!key || detail._quality.presentSections.length === 0) throw new Error(`Invalid deferred detail record: ${key || "missing key"}`);
     const fileName = `${key.toLowerCase()}.json`;
-    const content = `${JSON.stringify(detail)}\n`;
-    detailManifest[key] = { path: `/product-intelligence-details/${fileName}`, bytes: Buffer.byteLength(content) };
+    const manifestSku = detail.__manifestSku;
+    const { __manifestSku: _manifestSku, ...detailPayload } = detail;
+    if (manifestSku) detailPayload.sku = manifestSku;
+    const content = `${JSON.stringify(detailPayload)}\n`;
+    const entry = { path: `/product-intelligence-details/${fileName}`, bytes: Buffer.byteLength(content) };
+    if (manifestSku) entry.sku = manifestSku;
+    detailManifest[key] = entry;
     await writeFileEnsured(path.join(detailDirectory, fileName), content);
   }
   const expectedFiles = new Set(Object.values(detailManifest).map((entry) => path.basename(entry.path)));

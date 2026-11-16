@@ -1,5 +1,6 @@
 let productIntelligenceSummaryPromise: Promise<ProductIndexPayload> | null = null;
-let productIntelligenceDetailsPromise: Promise<{ products?: Record<string, { path?: string }> }> | null = null;
+type ProductDetailManifest = { products?: Record<string, { path?: string; sku?: string }> };
+let productIntelligenceDetailsPromise: Promise<ProductDetailManifest> | null = null;
 const productIntelligenceDetailPromises = new Map<string, Promise<Record<string, unknown>>>();
 let productIntelligenceFullRecordsPromise: Promise<ProductIndexPayload> | null = null;
 const DETAIL_CONCURRENCY = 6;
@@ -8,6 +9,10 @@ type ProductIndexPayload = { products?: Array<Record<string, unknown>> } | Array
 
 function skuKey(value: unknown) {
   return String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
+}
+
+function exactSku(value: unknown) {
+  return String(value ?? "").trim().toUpperCase();
 }
 
 function summaryProductList(payload: ProductIndexPayload): Array<Record<string, unknown>> {
@@ -38,12 +43,18 @@ export function applyRuntimeAdminRecords(
   runtimeRecords: Array<Record<string, unknown>>,
 ): ProductIndexPayload {
   const staticProducts = Array.isArray(staticPayload) ? staticPayload : staticPayload.products ?? [];
-  const runtimeBySku = new Map(runtimeRecords.map((record) => [skuKey(record.sku), record]));
+  const runtimeBySku = new Map(runtimeRecords.map((record) => [exactSku(record.sku), record]));
+  const runtimeByNormalizedSku = new Map<string, Record<string, unknown>[]>();
+  for (const record of runtimeRecords) {
+    const key = skuKey(record.sku);
+    if (key) runtimeByNormalizedSku.set(key, [...(runtimeByNormalizedSku.get(key) ?? []), record]);
+  }
   const merged = staticProducts
     .map((product) => {
-      const runtime = runtimeBySku.get(skuKey(product.sku));
+      const normalizedMatches = runtimeByNormalizedSku.get(skuKey(product.sku)) ?? [];
+      const runtime = runtimeBySku.get(exactSku(product.sku)) ?? (normalizedMatches.length === 1 ? normalizedMatches[0] : undefined);
       if (!runtime) return product;
-      runtimeBySku.delete(skuKey(product.sku));
+      runtimeBySku.delete(exactSku(product.sku));
       return {
         ...product,
         name: runtime.name || product.name,
@@ -112,9 +123,9 @@ export function loadProductIntelligenceSummary(): Promise<ProductIndexPayload> {
   return productIntelligenceSummaryPromise;
 }
 
-function loadProductIntelligenceDetails() {
+function loadProductIntelligenceDetails(): Promise<ProductDetailManifest> {
   if (!productIntelligenceDetailsPromise) {
-    productIntelligenceDetailsPromise = fetchJson<{ products?: Record<string, { path?: string }> }>("/product-intelligence-details.json")
+    productIntelligenceDetailsPromise = fetchJson<ProductDetailManifest>("/product-intelligence-details.json")
       .catch((error) => { productIntelligenceDetailsPromise = null; throw error; });
   }
   return productIntelligenceDetailsPromise;
@@ -122,18 +133,24 @@ function loadProductIntelligenceDetails() {
 
 export async function loadProductIntelligenceDetail(sku: string): Promise<Record<string, unknown> | null> {
   const summary = await loadProductIntelligenceSummary();
-  const product = (Array.isArray(summary) ? summary : summary.products ?? []).find((item) => skuKey(item.sku) === skuKey(sku));
+  const summaryProducts = Array.isArray(summary) ? summary : summary.products ?? [];
+  const exact = exactSku(sku);
+  const normalized = skuKey(sku);
+  const exactProduct = summaryProducts.find((item) => exactSku(item.sku) === exact);
+  const normalizedMatches = summaryProducts.filter((item) => skuKey(item.sku) === normalized);
+  const product = exactProduct ?? (normalizedMatches.length === 1 ? normalizedMatches[0] : undefined);
   if (!product) return null;
   try {
-    const key = skuKey(sku);
     const manifest = await loadProductIntelligenceDetails();
-    const path = manifest.products?.[key]?.path;
+    const exactEntry = Object.entries(manifest.products ?? {}).find(([, entry]) => exactSku(entry.sku) === exact);
+    const manifestKey = exactEntry?.[0] ?? normalized;
+    const path = (exactEntry?.[1] ?? manifest.products?.[manifestKey])?.path;
     if (!path) return product;
-    if (!productIntelligenceDetailPromises.has(key)) {
-      productIntelligenceDetailPromises.set(key, fetchJson<Record<string, unknown>>(path)
-        .catch((error) => { productIntelligenceDetailPromises.delete(key); throw error; }));
+    if (!productIntelligenceDetailPromises.has(exact)) {
+      productIntelligenceDetailPromises.set(exact, fetchJson<Record<string, unknown>>(path)
+        .catch((error) => { productIntelligenceDetailPromises.delete(exact); throw error; }));
     }
-    return { ...product, ...(await productIntelligenceDetailPromises.get(key)) };
+    return { ...product, ...(await productIntelligenceDetailPromises.get(exact)) };
   } catch {
     return product;
   }
@@ -152,7 +169,7 @@ export async function loadProductIntelligenceDetail(sku: string): Promise<Record
  */
 export async function loadProductIntelligenceSummaryWithDetail(skus: Array<string>): Promise<ProductIndexPayload> {
   const payload = await loadProductIntelligenceSummary();
-  const wanted = new Set(skus.map((sku) => skuKey(sku)).filter(Boolean));
+  const wanted = new Set(skus.map(exactSku).filter(Boolean));
   if (wanted.size === 0) return payload;
 
   await hydrateDetails([...wanted]);
@@ -164,7 +181,7 @@ export async function loadProductIntelligenceSummaryWithDetail(skus: Array<strin
   }
 
   return payloadWithProducts(payload, summaryProductList(payload).map((product) => {
-    const detail = detailsByKey.get(skuKey(product.sku));
+    const detail = detailsByKey.get(exactSku(product.sku));
     return detail ? { ...product, ...detail } : product;
   }));
 }
@@ -183,15 +200,20 @@ export async function loadProductIntelligenceDetailRecords(): Promise<ProductInd
 async function hydrateFullRecords(): Promise<ProductIndexPayload> {
   const payload = await loadProductIntelligenceSummary();
   const products = summaryProductList(payload);
-  const keys = products.map((product) => skuKey(product.sku)).filter(Boolean);
+  const keys = products.map((product) => exactSku(product.sku)).filter(Boolean);
   await hydrateDetails(keys);
   // A transient detail failure must remain retryable on the next visit.
   const manifest = await loadProductIntelligenceDetails().catch(() => null);
-  if (!manifest || keys.some((key) => manifest.products?.[key]?.path && !productIntelligenceDetailPromises.has(key))) {
+  if (!manifest || products.some((product) => {
+    const exact = exactSku(product.sku);
+    const exactEntry = Object.values(manifest.products ?? {}).find((entry) => exactSku(entry.sku) === exact);
+    const entry = exactEntry ?? manifest.products?.[skuKey(product.sku)];
+    return Boolean(entry?.path && !productIntelligenceDetailPromises.has(exact));
+  })) {
     productIntelligenceFullRecordsPromise = null;
   }
   return payloadWithProducts(payload, await Promise.all(products.map(async (product) => {
-    const detail = await productIntelligenceDetailPromises.get(skuKey(product.sku));
+    const detail = await productIntelligenceDetailPromises.get(exactSku(product.sku));
     return detail ? { ...product, ...detail } : product;
   })));
 }

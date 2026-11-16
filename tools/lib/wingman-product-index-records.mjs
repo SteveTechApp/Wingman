@@ -51,7 +51,11 @@ export function loadFullProductRecords(projectRoot = process.cwd()) {
   const detailFiles = manifest?.products ?? {};
 
   return products.map((product) => {
-    const entry = detailFiles[skuKey(product.sku)];
+    const exactSku = String(product.sku ?? "").trim().toUpperCase();
+    const exactEntry = Object.values(detailFiles).find((candidate) =>
+      String(candidate?.sku ?? "").trim().toUpperCase() === exactSku,
+    );
+    const entry = exactEntry ?? detailFiles[skuKey(product.sku)];
     if (!entry?.path) return product;
     try {
       const detail = JSON.parse(fs.readFileSync(path.join(projectRoot, "public", entry.path), "utf8"));

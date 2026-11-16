@@ -1001,19 +1001,21 @@
     },
     {
       "sku": "APO-SKY-MIC",
-      "status": "verified",
-      "productClass": "UC",
-      "role": "video bar",
-      "productType": "Apollo Video Bar and COM-MIC-HUB Companion Add-on Mic",
+      "status": "review-required",
+      "productClass": "Audio / UC accessory",
+      "role": "Add-on ceiling microphone",
+      "productType": "Companion ceiling microphone for APO-VX20-UC and COM-MIC-HUB",
       "transport": [
-        "HDMI",
-        "USB-C"
+        "Proprietary RJ45 microphone link over CAT6",
+        "USB-C (firmware upgrade only)"
       ],
       "features": {
         "hdr": false
       },
       "checks": [],
-      "warnings": [],
+      "warnings": [
+        "RJ45 ports are proprietary microphone-link connections, not Ethernet/LAN interfaces. USB-C is for firmware upgrade only; do not treat as USB host or video input."
+      ],
       "evidence": [
         {
           "sourceType": "pricelist-q3-2026",
@@ -1037,13 +1039,42 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "video": [],
-      "audio": [],
-      "usb": [],
+      "audio": [
+        "Microphone; 4x circular arrays; omnidirectional; 3m pickup range",
+        "AEC and AGC; full duplex"
+      ],
+      "usb": [
+        "USB-C firmware upgrade only; not a video input"
+      ],
       "network": [],
       "control": [],
-      "power": [],
+      "power": [
+        "Powered by APO-VX20-UC or COM-MIC-HUB; no independent PSU"
+      ],
       "physical": [],
-      "ports": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "8-pin RJ45 female",
+          "direction": "input",
+          "category": "microphone link",
+          "detail": "Mic link from APO-VX20-UC / COM-MIC-HUB or preceding APO-SKY-MIC; CAT6 cascade total length max 26m"
+        },
+        {
+          "count": 1,
+          "connector": "8-pin RJ45 female",
+          "direction": "output",
+          "category": "microphone link",
+          "detail": "Mic link to next APO-SKY-MIC; cascading up to 5 microphones total"
+        },
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "service",
+          "category": "USB",
+          "detail": "Firmware upgrade only"
+        }
+      ],
       "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-09-30T11:10:44.579Z",
       "confirmedFields": [
@@ -3989,29 +4020,40 @@
     },
     {
       "sku": "EX-100-KVM-H2",
-      "status": "verified",
-      "productClass": "HDBASET",
+      "status": "review-required",
+      "productClass": "KVM extender",
       "role": "KVM extender",
-      "productType": "4k60Hz KVM Extender",
+      "productType": "4K60 HDMI and USB 2.0 KVM extender over HDBaseT",
       "transport": [
-        "HDBaseT"
-      ],
-      "maxResolution": "4K60Hz",
-      "video": [
-        "4K60Hz 4:4:4"
-      ],
-      "audio": [
-        "Audio De-embed"
-      ],
-      "usb": [
+        "HDBaseT",
+        "HDMI 2.0",
         "USB 2.0"
       ],
+      "maxResolution": "3840x2160 @60Hz 4:4:4",
+      "video": [
+        "HDMI 2.0",
+        "Up to 3840x2160 @60Hz 4:4:4",
+        "HDCP 2.3",
+        "100m HDBaseT; 150m Long-Reach Mode"
+      ],
+      "audio": [
+        "HDMI audio pass-through",
+        "RX audio pass-through output",
+        "RX balanced analog audio output"
+      ],
+      "usb": [
+        "TX: USB-B host",
+        "RX: 4 USB-A device ports; up to 255Mbps",
+        "USB 2.0 up to 100m; USB 1.1 in 150m Long-Reach Mode"
+      ],
       "control": [
-        "RS-232",
-        "IR"
+        "Bidirectional RS-232",
+        "Bidirectional IR",
+        "CEC pass-through"
       ],
       "power": [
-        "PoH"
+        "1-way PoH (RX powers TX)",
+        "12V DC 3A power supply"
       ],
       "features": {
         "hdr": false,
@@ -4021,25 +4063,19 @@
         "dante": false
       },
       "checks": [],
-      "warnings": [],
+      "warnings": [
+        "Review required: prior manufacturer evidence URL referred to the different EX-100-KVM product. Current official EX-100-KVM-H2 page checked for the listed details; do not treat this profile as signed off."
+      ],
       "evidence": [
         {
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "4k60Hz KVM Extender | HDBaseT | 4K60Hz 4:4:4 | Loop-Out | USB 2.0 | Audio De-Embed | RS232 & 2-way IR Passthrough | 1-way PoH (Rx->Tx) (100m/328ft) /Long-Reach (150m/492ft)",
           "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-h2",
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-h2/",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team",
           "note": "Power facts from the official-page capture; structured for the compare power gate."
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:45.037Z",
-          "reviewedOn": "2026-09-30",
-          "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -4047,17 +4083,104 @@
       "compatibleFamilies": [],
       "network": [],
       "physical": [],
-      "ports": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI 2.0 Type-A",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX HDMI input"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI 2.0 Type-A",
+          "direction": "output",
+          "category": "video",
+          "detail": "TX HDMI loop-out"
+        },
+        {
+          "count": 1,
+          "connector": "HDBaseT RJ-45",
+          "direction": "output",
+          "category": "transport",
+          "detail": "TX HDBaseT output"
+        },
+        {
+          "count": 1,
+          "connector": "HDBaseT RJ-45",
+          "direction": "input",
+          "category": "transport",
+          "detail": "RX HDBaseT input"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI 2.0 Type-A",
+          "direction": "output",
+          "category": "video",
+          "detail": "RX HDMI output"
+        },
+        {
+          "count": 1,
+          "connector": "USB-B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "TX USB host"
+        },
+        {
+          "count": 4,
+          "connector": "USB-A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "RX USB device ports"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio",
+          "direction": "input",
+          "category": "audio",
+          "detail": "TX audio passthrough input"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio",
+          "direction": "output",
+          "category": "audio",
+          "detail": "RX audio passthrough output"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio / Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "RX balanced analog audio output"
+        },
+        {
+          "count": 2,
+          "connector": "IR 3.5mm",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "One IR port at each endpoint"
+        },
+        {
+          "count": 2,
+          "connector": "RS-232 / 3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "One RS-232 port at each endpoint; pass-through"
+        },
+        {
+          "count": 1,
+          "connector": "Micro-USB",
+          "direction": "service",
+          "category": "service",
+          "detail": "Firmware update"
+        }
+      ],
       "specs": {
         "poh": true,
         "powerSupply": "PoH"
       },
-      "verifiedBy": "Steve Goodwin",
-      "verifiedAt": "2026-09-30T11:10:45.037Z",
-      "confirmedFields": [
-        "max-resolution",
-        "power"
-      ]
+      "confirmedFields": []
     },
     {
       "sku": "EX-100-KVM-IP",
@@ -5159,25 +5282,31 @@
     },
     {
       "sku": "EX-40-KVM-H2",
-      "status": "verified",
-      "productClass": "HDBASET",
+      "status": "review-required",
+      "productClass": "KVM extender",
       "role": "KVM extender",
-      "productType": "HDMI 2.0 4K60Hz KVM Extender",
+      "productType": "4K60 HDMI and USB 2.0 KVM extender over UTP",
       "transport": [
-        "HDBaseT"
-      ],
-      "maxResolution": "4K60Hz",
-      "video": [
-        "4K60Hz 4:4:4"
-      ],
-      "audio": [
-        "Audio De-embed"
-      ],
-      "usb": [
+        "UTP / Cat6",
+        "HDMI",
         "USB 2.0"
       ],
+      "maxResolution": "3840x2160 @60Hz 4:4:4",
+      "video": [
+        "HDMI 2.0",
+        "Up to 3840x2160 @60Hz 4:4:4",
+        "HDR10",
+        "40m over Cat6/6a/7"
+      ],
+      "audio": [
+        "RX: PCM 2.0 de-embed via Phoenix"
+      ],
+      "usb": [
+        "TX: USB 2.0 host",
+        "RX: 4 USB device ports, 480Mbps"
+      ],
       "control": [
-        "RS-232"
+        "RS-232 pass-through"
       ],
       "features": {
         "hdr": false,
@@ -5187,38 +5316,94 @@
         "dante": false
       },
       "checks": [],
-      "warnings": [],
+      "warnings": [
+        "Review required: prior manufacturer evidence URL referred to the different EX-100-KVM product. Current official EX-40-KVM-H2 page checked for the listed details; do not treat this profile as signed off."
+      ],
       "evidence": [
         {
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "HDMI 2.0 4K60Hz KVM Extender | UTP | 4K60Hz 4:4:4 | USB 2.0 | RS232 passthrough | Audio De-embed | Bi-Directional PoC (40m/131ft)",
           "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/ex-40-kvm-h2",
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-40-kvm-h2/",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:45.044Z",
-          "reviewedOn": "2026-09-30",
-          "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
       "dependencies": [],
       "compatibleFamilies": [],
       "network": [],
-      "power": [],
+      "power": [
+        "Bidirectional PoC"
+      ],
       "physical": [],
-      "ports": [],
-      "verifiedBy": "Steve Goodwin",
-      "verifiedAt": "2026-09-30T11:10:45.044Z",
-      "confirmedFields": [
-        "max-resolution"
-      ]
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX: HDMI IN"
+        },
+        {
+          "count": 1,
+          "connector": "USB host",
+          "direction": "input",
+          "category": "usb",
+          "detail": "TX: USB 2.0 host"
+        },
+        {
+          "count": 1,
+          "connector": "UTP",
+          "direction": "output",
+          "category": "transport",
+          "detail": "TX: UTP OUT; Cat6/6a/7; 40m"
+        },
+        {
+          "count": 1,
+          "connector": "UTP",
+          "direction": "input",
+          "category": "transport",
+          "detail": "RX: UTP IN; Cat6/6a/7; 40m"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "RX: HDMI OUT"
+        },
+        {
+          "count": 4,
+          "connector": "USB device",
+          "direction": "output",
+          "category": "usb",
+          "detail": "RX: 4 USB device ports; 480Mbps"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio / Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "RX: PCM 2.0 audio de-embed via Phoenix"
+        },
+        {
+          "count": 2,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "One RS-232 pass-through port at each endpoint"
+        },
+        {
+          "count": 1,
+          "connector": "Micro-USB",
+          "direction": "service",
+          "category": "service",
+          "detail": "Firmware update"
+        }
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "EX-60-USB2",
@@ -5932,42 +6117,41 @@
     },
     {
       "sku": "EX-80-KVM",
-      "status": "verified",
-      "productClass": "HDBASET",
+      "status": "review-required",
+      "productClass": "KVM extender",
       "role": "KVM extender",
-      "productType": "1080p60Hz KVM Extender",
+      "productType": "1080p60 HDMI and USB 2.0 KVM extender over UTP",
       "transport": [
-        "HDBaseT"
+        "UTP / Cat5e/Cat6",
+        "HDMI",
+        "USB 2.0"
       ],
-      "maxResolution": "1080p60Hz",
+      "maxResolution": "1920x1080 @60Hz",
       "video": [
-        "1080p60Hz"
+        "1080p @60Hz",
+        "Video extension up to 80m"
       ],
       "usb": [
-        "USB 2.0"
+        "USB 2.0",
+        "480Mbps data to 60m",
+        "HID extension to 80m"
       ],
       "features": {
         "hdr": false
       },
       "checks": [],
-      "warnings": [],
+      "warnings": [
+        "Review required: previous record mixed the active EX-80-KVM with discontinued EXP-EX-80-KVM. Official current page supports 1080p60 video/HID to 80m and USB 2.0 data to 60m; do not merge those distance claims."
+      ],
       "evidence": [
         {
           "sourceType": "pricelist-q3-2026",
           "url": "",
           "excerpt": "1080p60Hz KVM Extender | UTP | USB 2.0 | Bi-directional PoC (1080p:80m/262ft)",
           "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/ex-80-kvm",
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-80-kvm/",
           "reviewedOn": "2026-08-30",
           "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/exp-ex-80-kvm/",
-          "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:45.051Z",
-          "reviewedOn": "2026-09-30",
-          "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -5976,14 +6160,55 @@
       "audio": [],
       "network": [],
       "control": [],
-      "power": [],
+      "power": [
+        "Bidirectional PoC; power from either TX or RX using one 12V 2A adapter"
+      ],
       "physical": [],
-      "ports": [],
-      "verifiedBy": "Steve Goodwin",
-      "verifiedAt": "2026-09-30T11:10:45.051Z",
-      "confirmedFields": [
-        "max-resolution"
-      ]
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "TX HDMI input"
+        },
+        {
+          "count": 1,
+          "connector": "UTP / RJ-45",
+          "direction": "output",
+          "category": "transport",
+          "detail": "TX UTP out; Cat5e/Cat6"
+        },
+        {
+          "count": 1,
+          "connector": "UTP / RJ-45",
+          "direction": "input",
+          "category": "transport",
+          "detail": "RX UTP in; Cat5e/Cat6"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "RX HDMI output"
+        },
+        {
+          "count": 1,
+          "connector": "USB Type B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "TX USB host"
+        },
+        {
+          "count": 2,
+          "connector": "USB Type A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "RX USB device ports"
+        }
+      ],
+      "confirmedFields": []
     },
     {
       "sku": "EX3-100-EARC",
@@ -9660,6 +9885,34 @@
           "direction": "output",
           "category": "audio",
           "detail": "1x Analog Audio Out (5-pin Phoenix Male Connector)"
+        },
+        {
+          "count": 4,
+          "connector": "USB 3.2 device port",
+          "direction": "bidirectional",
+          "category": "usb",
+          "detail": "4x USB 3.2 device ports"
+        },
+        {
+          "count": 2,
+          "connector": "RJ-45 Ethernet",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "Dual RJ-45 ports support Ethernet switching and VLANs"
+        },
+        {
+          "count": 1,
+          "connector": "RS-232",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 control method"
+        },
+        {
+          "count": 1,
+          "connector": "GPIO",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "GPIO port"
         }
       ],
       "video": [
@@ -16239,15 +16492,7 @@
       "transport": [
         "power"
       ],
-      "ports": [
-        {
-          "count": 1,
-          "connector": "RJ45",
-          "direction": "bidirectional",
-          "category": "network",
-          "detail": "1GbE network"
-        }
-      ],
+      "ports": [],
       "features": {
         "hdr": false
       },
@@ -16288,15 +16533,7 @@
       "transport": [
         "power"
       ],
-      "ports": [
-        {
-          "count": 1,
-          "connector": "RJ45",
-          "direction": "bidirectional",
-          "category": "network",
-          "detail": "1GbE network"
-        }
-      ],
+      "ports": [],
       "features": {
         "hdr": false
       },
@@ -16342,17 +16579,17 @@
       "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
-      "productType": "12V 3A Power Supply *Utilized by most of NetworkHD*",
+      "productType": "12V 3A external power supply accessory",
       "transport": [
         "power"
       ],
       "ports": [
         {
           "count": 1,
-          "connector": "RJ45",
-          "direction": "bidirectional",
-          "category": "network",
-          "detail": "1GbE network"
+          "connector": "Screw-lock DC plug",
+          "direction": "output",
+          "category": "power",
+          "detail": "12V DC regulated output, up to 3A / 36W"
         }
       ],
       "features": {
@@ -16362,21 +16599,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "12V 3A Power Supply *Utilized by most of NetworkHD*",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-3a",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
           "sourceUrl": "https://www.wyrestorm.com/product/psu-12v-3a/",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.312Z",
-          "reviewedOn": "2026-09-30",
-          "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-11-16",
+          "checkedAt": "2026-11-16T08:00:00.000Z",
+          "reviewer": "Codex source review",
+          "note": "Verified supply output and screw-lock DC connector on official manufacturer page."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -16387,7 +16615,11 @@
       "usb": [],
       "network": [],
       "control": [],
-      "power": [],
+      "power": [
+        "12V DC regulated, up to 3A / 36W",
+        "Screw-lock DC appliance connector",
+        "Multiple IEC 60320 C7 AC line adapter cables included"
+      ],
       "physical": [],
       "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-09-30T11:10:44.312Z",
@@ -16450,7 +16682,7 @@
       "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
-      "productType": "20V 6A Power Supply Unit for SW-120-TX3 & NHD-510-TX",
+      "productType": "20V 6A / 120W external power supply",
       "transport": [
         "power"
       ],
@@ -16461,21 +16693,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "20V 6A Power Supply Unit for SW-120-TX3 & NHD-510-TX",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-box",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-box",
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-box/",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.324Z",
-          "reviewedOn": "2026-09-30",
-          "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-11-16",
+          "checkedAt": "2026-11-16T08:00:00.000Z",
+          "reviewer": "Codex source review",
+          "note": "Verified supply voltage/current, connector and attached lead against official manufacturer product page/specification."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -16486,9 +16709,21 @@
       "usb": [],
       "network": [],
       "control": [],
-      "power": [],
+      "power": [
+        "Universal 100-240V AC input",
+        "Regulated 20V DC output up to 6A / 120W",
+        "1.8m attached DC lead"
+      ],
       "physical": [],
-      "ports": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "5.5mm x 2.1mm barrel connector",
+          "direction": "output",
+          "category": "power",
+          "detail": "Regulated 20V DC output up to 6A / 120W"
+        }
+      ],
       "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-09-30T11:10:44.324Z",
       "confirmedFields": [
@@ -16500,7 +16735,7 @@
       "status": "verified",
       "productClass": "ACCESSORY",
       "role": "power supply / accessory",
-      "productType": "20V 6A Power Supply Unit for SW-120-TX3-US/UK & NHD-500-IW-TX",
+      "productType": "20V 6A / 120W external power supply",
       "transport": [
         "power"
       ],
@@ -16511,21 +16746,12 @@
       "warnings": [],
       "evidence": [
         {
-          "sourceType": "pricelist-q3-2026",
-          "url": "",
-          "excerpt": "20V 6A Power Supply Unit for SW-120-TX3-US/UK & NHD-500-IW-TX",
-          "checkedAt": "2026-08-29T07:14:40.282Z",
-          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-wp",
-          "reviewedOn": "2026-08-30",
-          "reviewer": "WyreStorm Product Team"
-        },
-        {
-          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-wp",
+          "sourceUrl": "https://www.wyrestorm.com/product/psu-20v-6a-wp/",
           "sourceType": "manufacturer",
-          "checkedAt": "2026-09-30T11:10:44.331Z",
-          "reviewedOn": "2026-09-30",
-          "reviewer": "Steve Goodwin",
-          "note": "Confirmed in the 2026-09-30 structured review pass directed by Steve Goodwin. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page)."
+          "reviewedOn": "2026-11-16",
+          "checkedAt": "2026-11-16T08:00:00.000Z",
+          "reviewer": "Codex source review",
+          "note": "Verified supply voltage/current, connector and attached lead against official manufacturer product page/specification."
         }
       ],
       "createdAt": "2026-08-29T07:14:40.282Z",
@@ -16536,9 +16762,21 @@
       "usb": [],
       "network": [],
       "control": [],
-      "power": [],
+      "power": [
+        "Universal 100-240V AC input",
+        "Regulated 20V DC output up to 6A / 120W",
+        "1.8m attached DC lead"
+      ],
       "physical": [],
-      "ports": [],
+      "ports": [
+        {
+          "count": 1,
+          "connector": "2-pin 3.5mm Phoenix connector",
+          "direction": "output",
+          "category": "power",
+          "detail": "Regulated 20V DC output up to 6A / 120W"
+        }
+      ],
       "verifiedBy": "Steve Goodwin",
       "verifiedAt": "2026-09-30T11:10:44.331Z",
       "confirmedFields": [

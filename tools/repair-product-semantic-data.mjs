@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { isOpticalZoomEvidence } from "./lib/product-port-semantics.mjs";
 
 const ROOT = process.cwd();
 const APPLY = process.argv.includes("--apply");
@@ -166,7 +167,7 @@ function cleanTechnicalIo(product, stats) {
       count !== null &&
       count >= 1000;
     const zoomAsFibre =
-      /\b\d+\s*x\s*optical(?:\s+zoom)?\b|\boptical\s+zoom\b/i.test(combined) &&
+      isOpticalZoomEvidence(combined) &&
       /sfp|fibre|fiber|optical/i.test(connector);
     const accessory =
       /(?:ir|bluetooth)\s+remote\b|remote control|remote handset|quick\s*start|user guide|\bmanual\b|wall mount|rack mount|mounting bracket|rack bracket|battery not included|lens cap/i.test(evidence);
@@ -278,7 +279,13 @@ function cleanTechnicalIo(product, stats) {
   });
   if (!io.accessories.length) delete io.accessories;
 
-  product.connectors = [...new Set(kept.map((port) => clean(port.connector)).filter(Boolean))];
+  // Preserve independently sourced connector metadata when the record has no
+  // structured port inventory yet. An empty inventory does not prove that a
+  // product has no connectors; overwriting it caused valid extender, cable,
+  // matrix and endpoint facts to disappear during a semantic repair pass.
+  if (kept.length > 0) {
+    product.connectors = [...new Set(kept.map((port) => clean(port.connector)).filter(Boolean))];
+  }
 }
 
 function repairWyrestormProductsCsv(stats) {
@@ -460,7 +467,7 @@ function repairGovernedProfiles(stats) {
     profile.ports = (Array.isArray(profile.ports) ? profile.ports : []).flatMap((port) => {
       const evidence = clean(port?.evidence || port?.detail);
       const connector = clean(port?.connector);
-      const zoomAsFibre = /\b\d+\s*x\s*optical(?:\s+zoom)?\b|\boptical\s+zoom\b/i.test(evidence)
+      const zoomAsFibre = isOpticalZoomEvidence(evidence)
         && /sfp|fibre|fiber|optical/i.test(connector);
       if (zoomAsFibre) {
         stats.invalidPortsRemoved += 1;

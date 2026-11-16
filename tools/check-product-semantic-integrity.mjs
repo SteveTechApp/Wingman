@@ -7,6 +7,7 @@ import {
   isAnalogueAudioEvidence,
   isExplicitAudioOutputEvidence,
   isEthernetConnector,
+  isOpticalZoomEvidence,
 } from "./lib/product-port-semantics.mjs";
 import { loadFullProductRecords } from "./lib/wingman-product-index-records.mjs";
 
@@ -117,7 +118,7 @@ for (const [rel, payload] of [
       if (count !== null && count > 64) {
         fail(rel, sku, `Impossible port count ${count}: ${combined}`);
       }
-      if (/\b\d+\s*x\s+optical(?:\s+zoom)?\b|\boptical\s+zoom\b/i.test(combined) &&
+      if (isOpticalZoomEvidence(combined) &&
           /sfp|fibre|fiber|optical/i.test(connector)) {
         fail(rel, sku, `Optical zoom parsed as fibre/SFP: ${combined}`);
       }
@@ -144,10 +145,10 @@ for (const [rel, payload] of [
     if (rel !== "data/governance/wyrestorm-technical-profiles.json" &&
         size && isSplitter(sku, title, `${product.category} ${product.family}`)) {
       const hdmiInput = ports
-        .filter((p) => lower(p.direction) === "input" && /\bhdmi\b/i.test(`${p.connector} ${p.evidence}`))
+        .filter((p) => lower(p.direction) === "input" && lower(p.category) === "video" && /^hdmi(?:\s|$)/i.test(clean(p.connector)))
         .reduce((sum, p) => sum + (num(p.count) ?? 0), 0);
       const hdmiOutput = ports
-        .filter((p) => lower(p.direction) === "output" && /\bhdmi\b/i.test(`${p.connector} ${p.evidence}`))
+        .filter((p) => lower(p.direction) === "output" && lower(p.category) === "video" && /^hdmi(?:\s|$)/i.test(clean(p.connector)))
         .reduce((sum, p) => sum + (num(p.count) ?? 0), 0);
 
       if (hdmiInput !== 1 || hdmiOutput !== size.outputs) {
