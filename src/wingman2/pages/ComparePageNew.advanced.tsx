@@ -178,7 +178,7 @@ export { compareVerdictTier };
 
 function ComparePageNew() {
   const bestMatchRef = useRef<HTMLDivElement | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const inboundBrand = String(searchParams.get("brand") ?? "").trim();
   const inboundSku = String(searchParams.get("sku") ?? "").trim().toUpperCase();
   const inboundContext = String(searchParams.get("context") ?? "").trim();
@@ -863,6 +863,17 @@ function ComparePageNew() {
 
   // WINGMAN_MINIMUM_COMPARE_RENDER_V2
   const activeCandidate = displayedCandidate ?? best;
+
+  useEffect(() => {
+    const selectedSku = hasCompared ? activeCandidate?.product.sku : undefined;
+    if (!selectedSku || searchParams.get("wyrestormSku") === selectedSku) return;
+
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.set("wyrestormSku", selectedSku);
+      return next;
+    }, { replace: true });
+  }, [activeCandidate?.product.sku, hasCompared, searchParams, setSearchParams]);
 
   return (
     <main className="wm-compare-page wm-polish-shell wm-page" data-wingman-page="compare" data-compare-state={compareStage === "results" ? "result" : "input"}>

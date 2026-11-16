@@ -116,7 +116,7 @@ describe("Product Positioning range/query handling", () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText("Find the right product workspace")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /Find a product for expert review/i })).toBeInTheDocument();
     expect(screen.queryByText(/No product workspace found for/i)).not.toBeInTheDocument();
   });
 });

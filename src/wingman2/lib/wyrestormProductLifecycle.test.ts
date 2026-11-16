@@ -103,7 +103,7 @@ describe("WYRESTORM_SUPERSESSIONS active-successor pin", () => {
 
   it("rejects a successor that became discontinued (a promoted remap can never point at a discontinued SKU)", () => {
     const problems = collectWyreStormSupersessionProblems([
-      entry("OLD-SKU", "NHD-TOUCH"),
+      entry("OLD-SKU", "NHD-TOUCHPLUS"),
     ]);
     expect(problems).toHaveLength(1);
     expect(problems[0]).toMatch(/must point at an active, quotable product/);

@@ -32,12 +32,12 @@ states is one they trust by mistake.
   and detail that carry the sale. Every surface is measured against one of those
   three. One that serves none is support at best and a second product at worst,
   because the rep who has to learn it pays in time and attention.
-- Expert depth is in scope, and it is depth rather than a longer road. The
-  focused brief (`roomBrief.ts`: three facts the customer can answer, then only
-  the questions that split what is still possible) and the expert workspace
-  (`DiscoveryExpertBuilder.tsx`: the room in sections) are two ways to fill one
-  record. Neither is a prerequisite for the other, and neither may end somewhere
-  the other cannot reach.
+- Expert depth is in scope, and it is depth rather than a longer road. Focused
+  Discovery (`DiscoveryGuidedInterview.tsx`) asks the full governed question set
+  one customer-friendly question at a time; Expert (`DiscoveryExpertBuilder.tsx`)
+  files those same questions by section. They are two ways to fill one record.
+  Neither is a prerequisite for the other, and neither may end somewhere the
+  other cannot reach.
 - Both depths owe the same outcome: a decided room — its type, what it needs with
   the reason each requirement was asked for, what still needs checking on site,
   what was assumed, and what would change the answer — then the WyreStorm
@@ -48,17 +48,29 @@ states is one they trust by mistake.
   opens when it matters, and any section can be skipped so a run finishes from
   what has been captured. Asking for detail is not a licence to be long-winded,
   and the expert path is not a penance for wanting it.
-- Different methods, one record. The ladder asks `ROOM_BRIEF_QUESTIONS` and the
-  workspace asks the governed question set, deliberately: the ladder decides, the
-  sections capture. What may not differ is what the rep leaves with, so the room
-  decision is the shared part and a surface renders it rather than holding a
-  reading of its own.
+- Different methods, one record. Focused Discovery and the expert workspace ask
+  the governed question set. `ROOM_BRIEF_QUESTIONS` is the separate quick room
+  decision method, not a shorter reading of the full Discovery record. A live
+  stream out is distinct from a remote call: capture its feed and destination;
+  add the encoder and network dependencies when those answers require them.
+  Multiple camera answers add the selected camera hardware and bridge to the
+  generated system design: NDI uses NHD-128-NDI-TRX as the NHD soft-source
+  bridge and NHD-150-RX as the display receiver; non-NDI uses CAM-0402-BRG.
+  NHD-300-TX is available for live streaming when its input and network limits
+  fit. What may not differ is what the rep leaves with, so the room decision is
+  the shared part and a surface renders it rather than holding a reading of its
+  own.
 - Both paths write `StoredDiscoveryBrief.roomDecision` through
   `compileDiscoveryBrief`, which derives the decision from the captured room
   facts and the shared `resolveRoomBrief` engine. The record carries the room
   type, reasoned requirements, site checks, assumptions and changes-if; fields
   the evidence cannot resolve stay open rather than being invented. The proposal
   reads that same record alongside the detailed room model and product design.
+- Focused Q&A rebuilds the Discovery-generated topology as governed answers
+  change. Generated devices carry their exact SKU when evidence resolves it and
+  are refreshed on edits to those answers; user-selected/confirmed equipment
+  stays in place. An unresolved camera transport keeps an open bridge placeholder
+  until the user chooses NDI or non-NDI.
 - Room scale constrains archetypes: a medium or larger space cannot resolve to
   the small huddle type, and a single-screen meeting room must not gain a second
   display requirement merely to fit an existing room label.
@@ -77,6 +89,44 @@ states is one they trust by mistake.
   proposal drafts and exports carry technical design, equipment quantities,
   installation scope, assumptions and open dependencies. Pricing, tax, currency,
   rate cards and quote totals are outside Wingman's workflow for now.
+- Product Finder serves the rep who needs one product without first building a
+  room. It starts with a product function, then asks a question path specific to
+  that job: a wall asks about display layout and output count, a matrix about I/O
+  scale and routing, and an extender about signal type and distance. Presentation,
+  network, camera, audio, USB/KVM, control and uncertain paths each keep their own
+  questions too. Optional connection priorities stay separate. Answers influence
+  ranking only where the governed product record provides matching evidence;
+  explicit processor types and port counts constrain eligibility, so video-wall
+  support alone cannot prove a direct-view LED processor or enough outputs.
+  Unsupported details stay a check, not an invented specification. A generic
+  USB connector does not establish USB/KVM extension or switching, and HDBaseT
+  identifies transport rather than a supported cable distance. Its Expert
+  view handoff opens the room workspace when the sale needs a full design; it
+  does not require or invent a Discovery brief.
+- Discovery source capture separates the broad workflow (installed sources,
+  user devices, network video), the specific source families and positions,
+  and who selects content and how. Include central rack, local rack, lectern,
+  table, display and remote locations; preserve device type, quantity,
+  ownership, connector and source-selection behavior in the room model and
+  proposal requirements. A control answer is a functional requirement, not a
+  control SKU: add a product only when its interface and integration are
+  resolved. [Narrative](docs/DISCOVERY.md)
+- The Catalogue and Call cards share filters that answer three separate questions: the broad product area,
+  the job the item performs, and the features or connections it supports. An
+  area may overlap because a product can serve more than one; a role describes
+  the item itself. When a product record carries `productClassification`, use
+  its structured category and transport evidence before keyword inference, so
+  incidental summary wording does not assign a false role or connection.
+- Technical capability facets such as KVM and exact protocol versions come from
+  `technicalEvidence` generated from governed technical profiles; generated tags
+  and broad application text cannot promote unrelated products.
+- HDMI and USB cables stay out of general catalogue results, even when
+  accessories are included. They appear when the rep selects the Cable role,
+  searches for cable/cabling, or enters an exact cable SKU. Generic USB/HDMI
+  facets and the broad Accessories family do not count as cable intent.
+- Call Cards and Product Positioning are two depths of the same product
+  workspace: Focused supports a customer conversation, Expert exposes detailed
+  product fit and technical evidence. Switching depth carries the selected SKU.
 
 ## Worktree & dev workflow
 
@@ -373,6 +423,11 @@ states is one they trust by mistake.
   job, and a byte hunt should start from a reading rather than from the total.
 - The style-drift baseline counts page-scoped rule blocks, so it is raised
   deliberately, one rule at a time, and never as a target.
+- The vendor refresh sanity gate compares captured specification-line coverage,
+  not serialized profile size: verbose marketing copy and catalogue-wide tag
+  clouds can shrink while product-scoped technical evidence stays complete. A
+  live page that loses more than 40% of its previously captured spec lines is
+  still surfaced for review.
 - The dead-CSS gate fails both ways — an unmatchable selector that is not
   baselined, and a baselined selector that is no longer dead — so the file only
   ratchets down. Detection is shared with the consolidation tool, because two

@@ -1,4 +1,4 @@
-import { ArrowRight, Search, Zap, ArrowLeftRight, Sparkles, ChevronRight, LayoutGrid } from "lucide-react";
+import { ArrowRight, Search, Zap, ArrowLeftRight, Sparkles, ChevronRight, LayoutGrid, PackageSearch } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { useProjectStore } from "../data/projectStore";
@@ -14,7 +14,7 @@ import { projectIsOpen } from "../features/projects";
 import { WALL_ENTRY_INTRO, WALL_ENTRY_NAME } from "../lib/wallEntry";
 
 /* ------------------------------------------------------------------ */
-/*  Journey cards — the three things a new user actually needs          */
+/*  Start cards — five equal paths into the work                       */
 /* ------------------------------------------------------------------ */
 
 type JourneyCard = {
@@ -25,6 +25,8 @@ type JourneyCard = {
   accent: string;
   placeholder: string;
   step: string;
+  ariaLabel?: string;
+  className?: string;
 };
 
 const journeys: JourneyCard[] = [
@@ -58,6 +60,27 @@ const journeys: JourneyCard[] = [
     placeholder: "e.g. Customer email about a 12-room classroom rollout",
     step: "Turn notes into requirements",
   },
+  {
+    title: "Find one product",
+    description:
+      "Describe the application or customer need. Wingman finds suitable WyreStorm products and shows the fit checks to review.",
+    icon: PackageSearch,
+    to: routeCatalogByKey.productFinder.path,
+    accent: "blue",
+    placeholder: "e.g. USB-C presentation switcher for a meeting room",
+    step: "Find a product for one need",
+  },
+  {
+    title: WALL_ENTRY_NAME,
+    description: WALL_ENTRY_INTRO,
+    icon: LayoutGrid,
+    to: routeCatalogByKey.videowall.path,
+    accent: "green",
+    placeholder: "e.g. 3 by 2 display wall with one canvas",
+    step: "Plan a multi-display wall",
+    ariaLabel: WALL_ENTRY_NAME,
+    className: "wm-guided-wall-entry",
+  },
 ];
 
 function JourneyCard({ card, index }: { card: JourneyCard; index: number }) {
@@ -66,7 +89,8 @@ function JourneyCard({ card, index }: { card: JourneyCard; index: number }) {
   return (
     <Link
       to={card.to}
-      className={`wm-guided-journey wm-polish-card wm-polish-${card.accent}`}
+      className={`wm-guided-journey wm-polish-card wm-polish-${card.accent}${card.className ? ` ${card.className}` : ""}`}
+      aria-label={card.ariaLabel}
       style={{ animationDelay: `${index * 80}ms` }}
     >
       <div>
@@ -75,7 +99,6 @@ function JourneyCard({ card, index }: { card: JourneyCard; index: number }) {
         </div>
       </div>
       <div className="wm-guided-journey-copy">
-        <span className="wm-guided-card-number">0{index + 1}</span>
         <div className="wm-guided-journey-step-label">{card.step}</div>
         <h3>{card.title}</h3>
         <p>{card.description}</p>
@@ -226,9 +249,6 @@ export function GuidedDashboard({ greeting, displayName }: { greeting: string; d
           <div className="wm-polish-eyebrow">WyreStorm sales intelligence</div>
           <h1>{greeting}{displayName ? `, ${displayName}` : ""}</h1>
           <p>What would you like to achieve today?</p>
-          <Link className="wm-guided-primary-action" to={routeCatalogByKey.discovery.path}>
-            Work out the room <ArrowRight size={16} />
-          </Link>
         </div>
         <aside className="wm-guided-hero-path" aria-label="What Wingman does next">
           <span className="wm-guided-hero-path-label">From the room to a proposal</span>
@@ -239,25 +259,6 @@ export function GuidedDashboard({ greeting, displayName }: { greeting: string; d
       </header>
 
       <OnboardingTip />
-      {/* A second way to start, not the page's primary action: the hero's CTA
-          answers the common job, so this one names what it builds and stays a
-          card. It used to reuse the primary action's styling, which made an
-          aqua bar as loud as the CTA and twice as wide. */}
-      <Link
-        className="wm-guided-wall-entry"
-        to={routeCatalogByKey.videowall.path}
-        aria-label={WALL_ENTRY_NAME}
-      >
-        <span className="wm-guided-wall-entry__icon">
-          <LayoutGrid size={20} strokeWidth={1.8} aria-hidden="true" />
-        </span>
-        <span className="wm-guided-wall-entry__copy">
-          <strong>{WALL_ENTRY_NAME}</strong>
-          <small>{WALL_ENTRY_INTRO}</small>
-        </span>
-        <ArrowRight size={16} aria-hidden="true" />
-      </Link>
-
       <section className="wm-guided-journeys" aria-label="Quick start">
         <div className="wm-guided-journeys-header">
           <div><span>Choose your input</span><h2>How do you want to begin?</h2></div>

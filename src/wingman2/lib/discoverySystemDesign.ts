@@ -259,7 +259,9 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
         derivedFrom: ["Every NetworkHD system needs a controller"],
         required: true,
         supply: "wyrestorm",
-        match: { tokens: ["networkhd-control", "avoip-infrastructure", "controller"] },
+        // A managed AV switch is network infrastructure, not the NetworkHD
+        // system controller. Keep it out of this mandatory controller slot.
+        match: { tokens: ["networkhd-control", "controller"], excludeTokens: ["avoip-infrastructure", "network-switch"] },
       });
       break;
 
@@ -301,7 +303,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
             derivedFrom: ["Every NetworkHD system needs a controller"],
             required: true,
             supply: "wyrestorm",
-            match: { tokens: ["networkhd-control", "avoip-infrastructure", "controller"] },
+            match: { tokens: ["networkhd-control", "controller"], excludeTokens: ["avoip-infrastructure", "network-switch"] },
           });
         } else if (needsComposition) {
           slots.push({

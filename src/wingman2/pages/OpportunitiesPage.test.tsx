@@ -32,16 +32,18 @@ function seedRoomBrief() {
 
 describe("Focused and Expert room workflows", () => {
   beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
-  it("starts Focused discovery with the room, not a template", () => {
+  it("starts Focused discovery by establishing the customer market and environment", () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "guided");
     mount();
-    // The guided entry decides the room before it offers a design: a template
-    // answers "which design", which is the wrong question to open with.
-    expect(screen.getByRole("heading", { name: "What has the customer asked for?" })).toBeVisible();
-    expect(screen.getByTestId("room-brief-setup")).toBeVisible();
+    expect(screen.getByTestId("discovery-market-entry")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Which market is the customer in?" })).toBeVisible();
     expect(screen.queryByRole("region", { name: "Full room builder" })).toBeNull();
-    fireEvent.click(screen.getByRole("link", { name: "Browse the design library" }));
-    expect(screen.getByTestId("templates-title")).toBeVisible();
+    fireEvent.click(screen.getByTestId("discovery-market-corporate"));
+    expect(screen.getByRole("heading", { name: "Where in Corporate & enterprise will AV be used?" })).toBeVisible();
+    fireEvent.click(screen.getByTestId("discovery-environment-meeting"));
+    expect(screen.queryByTestId("discovery-market-entry")).toBeNull();
+    expect(screen.getByRole("button", { name: /Exit to standard questions/ })).toBeVisible();
+    expect(readLatestDiscoverySnapshot()?.state.answers).toMatchObject({ market: "corporate", environment: "meeting" });
   });
   it("edits a room template's quantities and saves them as a project", () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "guided");
@@ -66,19 +68,14 @@ describe("Focused and Expert room workflows", () => {
     await waitFor(() => expect(readLatestDiscoverySnapshot()?.brief.topology?.devices.find(item => item.id === row.id)?.quantity).toBe(4));
     expect(readLatestDiscoverySnapshot()?.state.sourceTemplateId).toBe(template.id);
   });
-  it("carries a decided room into the interview instead of leaving the rep on the decision", () => {
+  it("carries the selected market and environment into the guided discovery brief", () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "guided");
     mount();
-    fireEvent.click(screen.getByRole("radio", { name: "Share a laptop and present to the others in the room" }));
-    fireEvent.click(screen.getByRole("radio", { name: "1–4 people" }));
-    fireEvent.click(screen.getByRole("button", { name: /Work out the room/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Sometimes, from a visiting laptop" }));
-    fireEvent.click(screen.getByRole("button", { name: "No, the same thing everywhere is fine" }));
-    fireEvent.click(screen.getByRole("button", { name: /Take this into the discovery brief/ }));
-    // The brief is addressed as ?interview=1 on this same page, so what is on
-    // screen has to follow the address rather than the mount it arrived with.
-    expect(screen.queryByTestId("room-brief")).toBeNull();
+    fireEvent.click(screen.getByTestId("discovery-market-corporate"));
+    fireEvent.click(screen.getByTestId("discovery-environment-meeting"));
+    expect(screen.getByRole("button", { name: /Change market or environment/ })).toBeVisible();
     expect(screen.getByRole("button", { name: /Exit to standard questions/ })).toBeVisible();
+    expect(readLatestDiscoverySnapshot()?.state.answers).toMatchObject({ market: "corporate", environment: "meeting" });
   });
   it("opens the full room builder in Expert and saves edited room positions", async () => {
     window.localStorage.setItem("wingman-ui-mode-v1", "unguided");
@@ -103,7 +100,8 @@ describe("Focused and Expert room workflows", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "Location name" }), { target: { value: "Lectern" } });
     fireEvent.click(screen.getByRole("button", { name: "Add location" }));
     fireEvent.click(screen.getByRole("button", { name: /^Focused view:/ }));
-    expect(screen.getByRole("heading", { name: "What has the customer asked for?" })).toBeVisible();
+    expect(screen.getByRole("button", { name: /Continue voice interview/ })).toBeVisible();
+    expect(readLatestDiscoverySnapshot()?.brief.topology?.locations.some(item => item.name === "Lectern")).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: /^Expert view:/ }));
     fireEvent.click(screen.getByRole("button", { name: "Room builder" }));
     fireEvent.click(screen.getByRole("button", { name: "Equipment and room positions" }));

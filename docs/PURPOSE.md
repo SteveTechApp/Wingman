@@ -27,6 +27,63 @@ because it is not free: it is another thing a rep is expected to learn, another
 place a fact can disagree with itself, and another page that has to keep working
 while the sale does not.
 
+Sometimes the rep needs one product before there is a room to design. Product
+Finder starts from the product function, then follows the questions that
+separate eligible product types. It does not require a Discovery brief or a room
+type; if the need grows into a room design, the handoff opens Expert Discovery.
+
+Each function owns its follow-up path because the facts that decide fit differ:
+
+- **Video wall / multiview:** how displays should present content, then display
+  output scale.
+- **Matrix switching:** input/output scale, then independent, mirrored or hybrid
+  routing behaviour.
+- **Signal extension:** whether the path carries video, USB, both or control/audio,
+  then the approximate run distance.
+- **Source duplication:** number of displays, then whether all show the same
+  source or need independent selection.
+- **AV over IP:** endpoint topology, then network bandwidth or latency needs.
+- **Camera systems:** USB, HDMI or IP/NDI interface, then fixed, PTZ or
+  conferencing/auto-tracking operation.
+- **Presentation / BYOD:** wired or wireless connection method, then presenter,
+  multiview and room-USB behaviour.
+- **Audio:** amplification, processing, distribution or HDMI extraction, then
+  analogue, network or embedded transport.
+- **USB / KVM:** USB speed/device class, then host and device topology.
+- **Control:** controlled equipment, then RS-232, IR/relay or IP interface.
+- **Not sure:** the clearest part of the signal path, then any known connection.
+
+Answers remain optional when the rep does not know. A selected answer can improve
+ranking only when the governed product record contains matching evidence; a
+missing match remains an explicit check rather than a claimed specification.
+Explicit processor requirements and output counts are eligibility checks: a
+general video-wall feature does not establish an LED processor, and a matrix's
+output count must meet the selected display range before it can be recommended.
+Connection priorities are a separate step, so an HDMI or USB-C requirement does
+not stand in for the actual job the product must perform. The result explains
+why it surfaced and what the product record still does not confirm.
+
+A USB connector alone does not show that a product extends or switches USB
+devices; that needs product-specific KVM or USB-extension evidence. HDBaseT
+identifies a transport method, not the supported cable distance, so a distance
+range needs its own product evidence or remains a site check.
+
+Catalogue and Call cards share three different filter readings: product area,
+the role the item performs, and the features or connections it supports.
+Product areas can overlap; a role describes what the item is. Where the product
+record carries structured `productClassification` evidence, both views use its
+category and transport facts before searching display text, so a passing mention
+in a summary cannot make a product appear under the wrong role or connection.
+KVM and exact protocol versions use compact, traceable evidence derived from
+governed technical profiles. HDMI and USB cables stay out of general product
+results, including accessory-inclusive browsing, until the rep selects Cable,
+searches for a cable, or enters its exact SKU.
+
+Product Call Cards and Product Positioning are two depths of one product
+workspace. Focused prepares the customer conversation and captures questions;
+Expert opens the deeper product, technical, competitor and next-step views.
+Both retain the same selected SKU when the rep changes depth.
+
 ## Two depths, because two readers arrive
 
 The same rep arrives in two states, and the tool has to meet both without

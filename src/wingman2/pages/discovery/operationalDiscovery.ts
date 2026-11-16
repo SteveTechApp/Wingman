@@ -8,7 +8,7 @@ const wording: Record<string, [string, string]> = {
   opportunity: ["What will people do in this space?", "Choose the closest everyday use. Your market and room type give Wingman the context."],
   scale: ["How big is the space people will use?", "Record length, width and ceiling height separately, then describe the seating and layout."],
   sources: ["How many things will people want to show?", "Count laptops, room computers, television feeds and content players that may be connected."],
-  "source-connection": ["Will people bring their own devices, use room equipment, or both?", "We will check the actual connectors when choosing equipment."],
+  "source-connection": ["How will people get video sources into this room?", "First separate installed equipment, devices people bring, and network video. The next questions capture source types, positions and how users choose them."],
   "primary-display": ["What are the room's main displays or projection surfaces?", "Choose the primary arrangement first. Repeater screens are captured separately."],
   displays: ["How many video feed endpoints are needed in total?", "Count every primary and repeater feed. A video wall or blended projection surface may use one processor feed."],
   "repeater-displays": ["How many extra screens should repeat or extend the main viewing area?", "Choose none, a range, or leave the count open for the room survey."],
@@ -31,12 +31,12 @@ const wording: Record<string, [string, string]> = {
   "audio-zones": ["Do different areas need their own sound and volume?", "Name the areas and explain whether they ever join into one larger room."],
   "audio-programme": ["What listening experience do you want?", "Clear speech, background music, films and live performances need different speaker systems."],
   "room-acoustics": ["What does the room sound like today?", "Is speech clear, is there an echo, or is there distracting background noise?"],
-  control: ["How should someone start and operate the room?", "Imagine a first-time visitor: what should happen when they arrive, connect and finish?"],
+  control: ["How should people choose sources and operate the room?", "Say who operates it and where: at the screen, wall keypad, touch panel, app or central control desk. Explain whether different screens can show different sources, or whether operation is automatic."],
   "network-path": ["Who will look after connections between rooms?", "Ask the IT team whether existing building connections can carry the pictures. It is fine to leave this open."],
-  "locations-connections": ["Where will people connect, watch and join calls?", "Name the laptop, screen and camera positions. Approximate distances help the designer check which connection will work; exact measurements can wait for a site visit."],
+  "locations-connections": ["Where are the sources, displays and connection points?", "Choose every applicable position: central communications rack, room rack, cupboard, lectern, table, display, another room or building, or AV network. Add source-to-display routes and approximate distances; exact measurements can wait for the site survey."],
   commissioning: ["What should be checked and handed over when the room is ready?", "Choose the tests, training or records the customer expects. If another contractor is responsible, say so."],
   "avoip-profile": ["What matters most when sharing pictures across the site?", "Describe readable detail, responsiveness and how many different pictures people need at once."],
-  "source-device-workflows": ["What will people connect or watch?", "Select the actual devices and activities rather than cable types."],
+  "source-device-workflows": ["What kinds of sources must the room support?", "Select devices and feeds, including existing customer equipment. Add quantity, connector and position details in the note or room layout."],
   "wireless-presentation-operation": ["How should wireless sharing work?", "Who can share, who approves it, and should several people appear at once?"],
   "multiview-destination": ["Who needs to see several pictures together?", "Identify each screen or audience that needs a combined view."],
   "multiview-operation": ["How should someone arrange those pictures?", "Fixed layouts, presets, or an operator changing the layout during use?"],
@@ -143,7 +143,7 @@ export function updateOperationalAnswer(previous: DiscoveryAnswers, question: Di
 }
 export function refreshRoomLayout(answers: DiscoveryAnswers, notes: DiscoveryNotes, existing: ProjectTopology): ProjectTopology {
   const generated = generateProjectTopologyFromDiscovery({ answers, notes, application: wmDiscoveryAnswerToText(answers.opportunity) });
-  const retained = existing.devices.filter(device => device.sku || device.status === "confirmed");
+  const retained = existing.devices.filter(device => !device.generatedByDiscovery && (device.sku || device.status === "confirmed"));
   const retainedIds = new Set(retained.map(device => device.id));
   const locations = generated.locations.map(location => existing.locations.find(row => row.id === location.id) || location);
   for (const location of existing.locations) if (!locations.some(row => row.id === location.id)) locations.push(location);

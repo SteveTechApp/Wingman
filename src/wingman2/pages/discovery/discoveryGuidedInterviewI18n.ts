@@ -177,7 +177,13 @@ export function curatedPhrasesFor(
   value: string,
   lang: InterviewLangId,
 ): string[] | undefined {
-  return flattenedFor(lang)[value] ?? FLATTENED_CACHE.en[value];
+  const phrases = flattenedFor(lang);
+  const fallbackValue = value === "live-stream-out"
+    ? "recording-streaming"
+    : value === "no-camera-source"
+      ? "no-uc"
+      : value;
+  return phrases[value] ?? FLATTENED_CACHE.en[value] ?? phrases[fallbackValue] ?? FLATTENED_CACHE.en[fallbackValue];
 }
 
 export function unknownPhrasesFor(lang: InterviewLangId): string[] {

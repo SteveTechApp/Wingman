@@ -74,12 +74,13 @@ const discoveryAuditMarkers = [
   "Current model",
   "applicationSpecificDiscoveryQuestionGuidance",
 ] as const;
-export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBuilder?: boolean; templateHandoff?: DiscoveryHandoff }) {
+export function DiscoveryPage({ roomBuilder = false, focusedStart = false, templateHandoff }: { roomBuilder?: boolean; focusedStart?: boolean; templateHandoff?: DiscoveryHandoff }) {
   const { isGuided } = useUiMode();
   const [searchParams] = useSearchParams();
+  const startFocusedInterview = focusedStart && isGuided;
   const [entryHandoff] = useState(() => templateHandoff ?? readDiscoveryHandoff());
   const isTemplateAuthoring = Boolean(entryHandoff && entryHandoff.mode !== "standard");
-  const [builderActive, setBuilderActive] = useState(() => roomBuilder && !searchParams.has("edit") && searchParams.get("interview") !== "1");
+  const [builderActive, setBuilderActive] = useState(() => roomBuilder && !startFocusedInterview && !searchParams.has("edit") && searchParams.get("interview") !== "1");
   const editQuestionId = searchParams.get("edit")?.trim() ?? "";
   const [discoveryDraft] = useState(() => {
     if (isTemplateAuthoring) return readTemplateBuilderDraft(entryHandoff?.templateId);
@@ -213,7 +214,7 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   const [siteName, setSiteName] = useState(() => draftField("siteName"));
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
-  const [detailedCapture, setDetailedCapture] = useState(() => (!isGuided && !roomBuilder) || isTemplateAuthoring || Boolean(editQuestionId) || searchParams.get("interview") === "1");
+  const [detailedCapture, setDetailedCapture] = useState(() => (!isGuided && !roomBuilder) || isTemplateAuthoring || startFocusedInterview || Boolean(editQuestionId) || searchParams.get("interview") === "1");
   const essentialCapture = !detailedCapture && !isTemplateAuthoring;
   const progressiveMode: ProgressiveMode = essentialCapture ? "basic" : "expert";
   // Pending escalation: set when a non-basic question is edited in basic mode —
@@ -222,7 +223,7 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   // `?interview=1` (dashboard / project-card resume links) opens straight into
   // the guided interview, which resumes at the first open question.
   const [interviewActive, setInterviewActive] = useState(
-    () => searchParams.get("interview") === "1",
+    () => startFocusedInterview || searchParams.get("interview") === "1",
   );
   const [discoveryPace, setDiscoveryPace] = useState<DiscoveryPace>("live");
   // Which review walk the interview starts with: the whole conversation, or
@@ -475,12 +476,15 @@ export function DiscoveryPage({ roomBuilder = false, templateHandoff }: { roomBu
   }, []);
 
   useEffect(() => {
-    if (projectTopologyHasContent(topology) || !wmDiscoveryHasAnswer(answers.opportunity)) return;
-    const generated = generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication, existing: topology });
+    if (!wmDiscoveryHasAnswer(answers.opportunity)) return;
+    const generated = refreshRoomLayout(answers, notes, topology);
     if (!projectTopologyHasContent(generated)) return;
     setTopology(generated);
     if (!isTemplateAuthoring) writeDiscoveryTopology(generated);
-  }, [answers, notes, selectedApplication, topology]);
+  // Rebuild the Discovery-generated layer as answers arrive. The refresh helper
+  // carries user-confirmed or explicitly selected devices forward.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, notes, selectedApplication]);
 
   useEffect(() => {
     const handoff = entryHandoff;
@@ -921,7 +925,7 @@ return (
 
       {roomBuilder && !isTemplateAuthoring && (
         <DiscoveryCaptureModeSwitch
-          active={essentialCapture || interviewActive ? null : builderActive ? "room-builder" : "detailed"}
+          active={essentialCapture || (interviewActive && isGuided) ? null : builderActive ? "room-builder" : "detailed"}
           onSelect={(mode) => { setDetailedCapture(true); setBuilderActive(mode === "room-builder"); setInterviewActive(false); }}
         />
       )}
@@ -1033,7 +1037,7 @@ return (
           onComplete={() => moveForward("recommendations")} savedMessage={savedMessage}
           designDirection={String(buildDiscoveryBrief().roomModel?.designDirection || "")}
         />
-      ) : interviewActive ? (
+      ) : interviewActive && isGuided ? (
         <DiscoveryGuidedInterview questions={modeQuestions} answers={answers} notes={notes} confirmed={confirmedSteps} onConfirmedChange={setConfirmedSteps} onConfidenceChange={(stepId, confidence, score) => { setConfidenceByStep((previous) => ({ ...previous, [stepId]: confidence })); if (typeof score === "number") setConfidenceScoresByStep((previous) => ({ ...previous, [stepId]: score })); }} onAnswersChange={setAnswers} onNotesChange={setNotes} onExit={() => setInterviewActive(false)} onComplete={() => moveForward("recommendations")} reviewPosition={reviewPosition} onReviewPositionChange={setReviewPosition} initialReviewOpen={reviewScope === "open"} strandedQuickStart={strandedQuickStart} applicationDrift={quickStartDrift} onOpenStrandedStep={openStrandedStep} onRemoveStranded={removeStrandedQuickStart} />
       ) : (
         <DiscoveryExpertBuilder

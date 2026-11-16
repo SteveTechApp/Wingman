@@ -19,12 +19,11 @@
  *    people stay or pass through, content that crosses a room boundary — are
  *    asked later, and only when they would change the answer.
  *
- * 2. **Every later question is chosen because it splits what is left.** The
- *    engine keeps the set of room types still possible and asks the unanswered
- *    question that divides that set most evenly, because a question whose
- *    answers all point the same way has already been answered by the room. It
- *    stops as soon as one type is left, so a huddle is decided in two questions
- *    and a divisible boardroom in three — not twelve.
+ * 2. **Room questions split what is left; design questions capture what changes
+ *    the system.** The engine keeps the set of room types still possible and
+ *    asks the unanswered question that divides that set most evenly. It also
+ *    asks video direction once on every path, because a room can be clearly a
+ *    huddle and still need to call, stream out or do neither.
  *
  * What comes out is a decision, and it is deliberately not a bill of materials:
  * the room type, what the room needs to do its job, what a person still has to
@@ -82,6 +81,10 @@ export type RoomDecision = {
   questionsAsked: number;
   /** True when the answers still fit more than one room type. */
   unresolved: RoomArchetypeId[];
+  /** The room needs a one-way live stream to an external platform or audience. */
+  liveStreamOut?: boolean;
+  liveStreamSource?: string;
+  liveStreamDestination?: string;
 };
 
 /** The four facts a customer can answer without being taught anything. */
@@ -397,12 +400,35 @@ export type RoomBriefQuestion = {
 export const ROOM_BRIEF_QUESTIONS: RoomBriefQuestion[] = [
   {
     id: "far-end",
-    question: "Are people joining this room from somewhere else, on video?",
-    why: "A room that only shows things to itself needs no camera, no microphone and no call.",
+    question: "Does video need to travel into or out of this room?",
+    why: "A call needs a camera and room audio; sending a live stream out needs a programme feed, an encoder and a network path.",
     options: [
       { value: "yes", label: "Yes, the room joins calls as a room", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room"] },
       { value: "sometimes", label: "Sometimes, from a visiting laptop", supports: ["huddle-byod", "meeting-single", "meeting-dual", "classroom"] },
+      { value: "stream-out", label: "The room needs to send a live stream out", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
       { value: "no", label: "No, everything stays in the room", supports: ["huddle-byod", "classroom", "all-hands", "venue", "signage-wall", "control-room"] },
+    ],
+  },
+  {
+    id: "stream-source",
+    question: "What needs to go out in the live stream?",
+    why: "The encoder needs a usable HDMI programme feed; a camera view, presentation and a mixed programme are different source paths.",
+    options: [
+      { value: "camera-and-audio", label: "Camera and room audio", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "presentation", label: "The presentation or display feed", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "mixed-programme", label: "A mixed programme feed: camera, content and audio", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "not-confirmed", label: "Not confirmed yet", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
+    ],
+  },
+  {
+    id: "stream-destination",
+    question: "Where should people watch the live stream?",
+    why: "A public platform and a private network audience need different destinations, access and network checks.",
+    options: [
+      { value: "public-platform", label: "A public streaming platform", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "private-network", label: "A private network or internal audience", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "both", label: "Both public and private viewers", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
+      { value: "not-confirmed", label: "Not confirmed yet", supports: ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] },
     ],
   },
   {
@@ -516,10 +542,17 @@ export function survivingArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[
  * order a person would ask them in.
  */
 export function splitScore(question: RoomBriefQuestion, surviving: RoomArchetypeId[]): number {
-  const counts = question.options
-    .filter((option) => option.supports.some((id) => surviving.includes(id)))
-    .map((option) => surviving.filter((id) => option.supports.includes(id)).length);
-  if (counts.length < 2) return 0;
+  // Options that leave the same rooms alive are one branch, even if their
+  // labels differ. Stream source/destination questions intentionally have the
+  // same room support for every answer and must not masquerade as room splits.
+  const groups = new Set<string>();
+  const counts = question.options.flatMap((option) => {
+    const supported = surviving.filter((id) => option.supports.includes(id));
+    if (!supported.length) return [];
+    groups.add(supported.join("|"));
+    return [supported.length];
+  });
+  if (groups.size < 2) return 0;
   return Math.min(...counts);
 }
 
@@ -532,10 +565,23 @@ export function splitScore(question: RoomBriefQuestion, surviving: RoomArchetype
  */
 export function nextRoomBriefQuestion(answers: RoomBriefAnswers): RoomBriefQuestion | null {
   const surviving = survivingArchetypes(answers);
+  // Call direction changes the design even after the room type is clear. Ask it
+  // once on every path so a one-way stream or hybrid call cannot disappear just
+  // because the archetype was obvious from purpose and size.
+  const videoDirection = ROOM_BRIEF_QUESTIONS.find((question) => question.id === "far-end");
+  if (videoDirection && !answers[videoDirection.id]) return videoDirection;
+  if (answers["far-end"] === "stream-out") {
+    const streamDetail = ROOM_BRIEF_QUESTIONS.find((question) =>
+      ["stream-source", "stream-destination"].includes(question.id) && !answers[question.id]);
+    if (streamDetail) return streamDetail;
+  }
   if (surviving.length <= 1) return null;
   const asked = ROOM_BRIEF_QUESTIONS.filter((question) => answers[question.id]);
   let best: { question: RoomBriefQuestion; score: number } | null = null;
   for (const question of ROOM_BRIEF_QUESTIONS) {
+    // A live stream is already a capture requirement; asking whether to record
+    // or stream again would not change the room decision.
+    if (question.id === "record" && answers["far-end"] === "stream-out") continue;
     if (asked.includes(question)) continue;
     const score = splitScore(question, surviving);
     if (score > 0 && (!best || score > best.score)) best = { question, score };
@@ -545,7 +591,7 @@ export function nextRoomBriefQuestion(answers: RoomBriefAnswers): RoomBriefQuest
 
 /** How many questions the ladder actually needed, for the reading on screen. */
 export function questionsAsked(answers: RoomBriefAnswers): number {
-  return ROOM_BRIEF_QUESTIONS.filter((question) => answers[question.id]).length;
+  return ROOM_BRIEF_QUESTIONS.filter((question) => answers[question.id] && !(question.id === "record" && answers["far-end"] === "stream-out")).length;
 }
 
 /**
@@ -562,13 +608,39 @@ export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMark
     archetype: chosen.id,
     roomType: chosen.roomType,
     summary: chosen.summary,
-    requirements: chosen.requirements(answers),
-    verifyOnSite: chosen.verifyOnSite,
+    requirements: [
+      ...chosen.requirements(answers),
+      ...(answers["far-end"] === "stream-out" ? [{
+        key: "live-stream",
+        label: "Live stream output",
+        quantity: `one ${({
+          "camera-and-audio": "camera and room-audio feed",
+          presentation: "presentation feed",
+          "mixed-programme": "mixed camera, content and audio programme feed",
+        } as Record<string, string>)[answers["stream-source"] ?? ""] ?? "programme feed to be confirmed"} to ${({
+          "public-platform": "a public streaming platform",
+          "private-network": "a private network audience",
+          both: "public and private audiences",
+        } as Record<string, string>)[answers["stream-destination"] ?? ""] ?? "a destination to be confirmed"}; NHD-300-TX is an available WyreStorm option`,
+        because: "the customer needs people outside the room to watch the session as it happens, and the source and destination decide what the encoder must receive and where it must send the stream.",
+      }] : []),
+    ],
+    verifyOnSite: [
+      ...chosen.verifyOnSite,
+      ...(answers["far-end"] === "stream-out" ? [
+        ...(answers["stream-source"] === "not-confirmed" || !answers["stream-source"] ? ["Confirm whether the stream needs camera only, presentation, or a mixed programme feed."] : []),
+        ...(answers["stream-destination"] === "not-confirmed" || !answers["stream-destination"] ? ["Identify the public platform, private network audience or both, and confirm the receiving service."] : []),
+        "Confirm the encoder's HDMI source and audio mix, 1080p60 format and HDCP requirements, plus a wired network and sufficient upload capacity.",
+      ] : []),
+    ],
     assumptions: chosen.assumptions,
     changesIf: chosen.changesIf,
     market,
     questionsAsked: questionsAsked(answers),
     unresolved: surviving.slice(1),
+    ...(answers["far-end"] === "stream-out" ? { liveStreamOut: true } : {}),
+    ...(answers["far-end"] === "stream-out" && answers["stream-source"] ? { liveStreamSource: answers["stream-source"] } : {}),
+    ...(answers["far-end"] === "stream-out" && answers["stream-destination"] ? { liveStreamDestination: answers["stream-destination"] } : {}),
   };
 }
 
@@ -597,8 +669,13 @@ export function roomBriefAnswersFromDiscovery(answers: Record<string, unknown>):
   if (displayBehaviour.includes("independent-routing-per-display")) result.screens = "different";
   else if (displayBehaviour.includes("same-content-all-displays")) result.screens = "same";
   if (ucPurpose.includes("video-conferencing") || ucPurpose.includes("conferencing-recording")) result["far-end"] = "yes";
+  else if (ucPurpose.includes("live-stream-out") || answers["room-brief-stream-out"] === "yes") result["far-end"] = "stream-out";
+  if (result["far-end"] === "stream-out") {
+    if (answers["room-brief-stream-source"]) result["stream-source"] = String(answers["room-brief-stream-source"]);
+    if (answers["room-brief-stream-destination"]) result["stream-destination"] = String(answers["room-brief-stream-destination"]);
+  }
   else if (ucPurpose.includes("no-uc")) result["far-end"] = "no";
-  if (ucPurpose.includes("recording-streaming") || ucPurpose.includes("conferencing-recording")) result.record = "yes";
+  if (ucPurpose.includes("recording-streaming") || ucPurpose.includes("live-stream-out") || ucPurpose.includes("conferencing-recording")) result.record = "yes";
   else if (ucPurpose.length && !ucPurpose.includes("unknown-uc")) result.record = "no";
   if (application === "av-over-ip") result.reach = "yes";
   else if (value("network-path") === "no-network-distribution") result.reach = "no";
@@ -650,12 +727,16 @@ export function roomBriefDiscoveryAnswers(decision: RoomDecision): Record<string
     opportunity: opportunity[decision.archetype],
     ...(decision.market ? { market: decision.market.toLowerCase() } : {}),
     ...(count ? { displays: count } : {}),
+    ...(decision.liveStreamOut ? { "uc-purpose": ["live-stream-out"] } : {}),
+    ...(decision.liveStreamOut ? { "room-brief-stream-out": "yes" } : {}),
+    ...(decision.liveStreamSource ? { "room-brief-stream-source": decision.liveStreamSource } : {}),
+    ...(decision.liveStreamDestination ? { "room-brief-stream-destination": decision.liveStreamDestination } : {}),
   };
 }
 
 /** Short decision label used in the Discovery handoff and proposal record. */
 export function roomBriefNote(decision: RoomDecision): string {
-  return `${decision.roomType}: ${decision.summary}`;
+  return `${decision.roomType}: ${decision.summary}${decision.liveStreamOut ? ` Live stream out selected: ${decision.liveStreamSource ?? "source to confirm"} to ${decision.liveStreamDestination ?? "destination to confirm"}. Confirm platform and network capacity; NHD-300-TX is an available encoder option.` : ""}`;
 }
 
 /** Every room type, so a surface can explain what the method can decide. */

@@ -14,6 +14,27 @@ const reportPath = path.join(projectRoot, "reports", "wingman-product-technical-
 const statusPath = path.join(projectRoot, "data-sources", "wyrestorm", "enrichment-status.json");
 
 const PROFILE_VERSION = "wyrestorm-product-manager-v1";
+const OFFICIAL_PRODUCT_URL_OVERRIDES = new Map([
+  ["NHD-500-RX-V2", "https://www.wyrestorm.com/global/product/nhd-500-tx-rx-v2/"],
+  ["NHD-500-TX-V2", "https://www.wyrestorm.com/global/product/nhd-500-tx-rx-v2/"],
+  ["EXP-4KUHD-05", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-10", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-20", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-30", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-50", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-0.5", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-1.0", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-2.0", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-3.0", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-4KUHD-5.0", "https://www.wyrestorm.com/product/exp-4kuhd-x/"],
+  ["EXP-8KUHD-05", "https://www.wyrestorm.com/product/exp-8kuhd-x/"],
+  ["EXP-8KUHD-0.5", "https://www.wyrestorm.com/product/exp-8kuhd-x/"],
+  ["EXP-8KUHD-1.0", "https://www.wyrestorm.com/product/exp-8kuhd-x/"],
+  ["EXP-8KUHD-2.0", "https://www.wyrestorm.com/product/exp-8kuhd-x/"],
+  ["EXP-8KUHD-3.0", "https://www.wyrestorm.com/product/exp-8kuhd-x/"],
+  ["EXP-CAB-USBC-1M", "https://www.wyrestorm.com/product/exp-cab-usbc-xm/"],
+  ["EXP-CAB-USBC-2M", "https://www.wyrestorm.com/product/exp-cab-usbc-xm/"],
+]);
 const FETCH_TIMEOUT_MS = 25000;
 const OFFLINE_MODE = process.argv.includes("--offline");
 
@@ -240,10 +261,11 @@ function htmlToLines(html) {
 }
 
 function getProductUrl(product) {
+  const sku = asString(product.sku || product.id || product.model).toUpperCase();
+  if (OFFICIAL_PRODUCT_URL_OVERRIDES.has(sku)) return OFFICIAL_PRODUCT_URL_OVERRIDES.get(sku);
   const explicitUrl = asString(product.url);
   if (explicitUrl.startsWith("http")) return explicitUrl;
 
-  const sku = asString(product.sku || product.id || product.model);
   if (!sku) return "";
 
   return `https://www.wyrestorm.com/product/${slugifySku(sku)}/`;
@@ -282,7 +304,7 @@ async function fetchOfficialPage(product) {
     }
 
     const html = await response.text();
-    return extractPageFacts(html, response.url || url, response.status);
+    return extractPageFacts(html, response.url || url, response.status, product.sku || product.id || product.model);
   } catch (error) {
     return {
       url,
@@ -321,7 +343,7 @@ function looksLikeFeatureSentence(line) {
   return /(supports?|provides?|allows?|features?|includes?|compatible|designed|integrates?|delivers?|enables?)/i.test(text);
 }
 
-function extractPageFacts(html, url, status) {
+function extractPageFacts(html, url, status, sku = "") {
   const lines = htmlToLines(html).filter((line) => !isNavigationNoise(line));
   const technicalStart = lines.findIndex((line) => /^technical specifications$/i.test(line));
   const technicalLines = [];
@@ -337,16 +359,36 @@ function extractPageFacts(html, url, status) {
     .filter((line) => !/^technical specifications$/i.test(line))
     .slice(0, 180);
 
-  const featureEvidenceLines = unique([
-    ...lines.filter(looksLikeFeatureSentence),
-    ...cleanedTechnicalLines.filter(looksLikeFeatureSentence),
-  ]).slice(0, 60);
+  const variant = /NHD-500-(TX|RX)-V2/i.exec(String(sku))?.[1]?.toUpperCase();
+  const scopedTechnicalLines = variant
+    ? (() => {
+        let activeVariant = "";
+        return cleanedTechnicalLines.filter((line) => {
+          if (/^(?:inputs?|outputs?|usb)$/i.test(line)) {
+            activeVariant = "";
+            return true;
+          }
+          if (/^(TX|RX)\*?:?$/i.test(line)) {
+            activeVariant = line.replace(/[\*:]/g, "").toUpperCase();
+            return false;
+          }
+          return !activeVariant || activeVariant === variant;
+        });
+      })()
+    : cleanedTechnicalLines;
+
+  // The page's broad tag cloud can describe technologies sold across the whole
+  // catalogue. Keep scraped feature evidence inside this SKU's specifications;
+  // the product's own source description is already included in buildTextBlob.
+  const featureEvidenceLines = scopedTechnicalLines
+    .filter(looksLikeFeatureSentence)
+    .slice(0, 60);
 
   return {
     url,
     status,
     lines,
-    technicalLines: cleanedTechnicalLines,
+    technicalLines: scopedTechnicalLines,
     featureEvidenceLines,
   };
 }
@@ -1197,19 +1239,25 @@ function normaliseConnector(raw) {
   if (/usb[\s-]?a/i.test(raw)) return "USB-A";
   if (/usb[\s-]?b/i.test(raw)) return "USB-B";
   if (/usb/i.test(raw)) return "USB";
-  if (/hdbaset|hdbt/i.test(raw)) return "HDBaseT";
-  if (/hdmi/i.test(raw)) return "HDMI";
-  if (/displayport|\bdp\b/i.test(raw)) return "DisplayPort";
-  if (/sdi/i.test(raw)) return "SDI";
-  if (/dante|aes67/i.test(raw)) return "Dante / AES67";
-  if (/rj45|lan|ethernet/i.test(raw)) return "RJ45 / Ethernet";
+  if (/\bhdbaset\b|\bhdbt\b/i.test(raw)) return "HDBaseT";
+  if (/\bhdmi\b/i.test(raw)) return "HDMI";
+  if (/\bdisplayport\b|\bdp\b/i.test(raw)) return "DisplayPort";
+  if (/\bsdi\b/i.test(raw)) return "SDI";
+  if (/\bdante\b|\baes67\b/i.test(raw)) return "Dante / AES67";
+  if (/\brj\s*-?45\b|\blan\b|\bethernet\b/i.test(raw)) return "RJ45 / Ethernet";
   if (/rs-?232/i.test(raw)) return "RS-232";
   if (/\bir\b/i.test(raw)) return "IR";
   if (/relay/i.test(raw)) return "Relay";
-  if (/phoenix|analog audio|audio/i.test(raw)) return "Analog audio";
-  if (/sfp|fiber|fibre|optical/i.test(raw)) return "SFP / fibre";
+  if (/\b\d+(?:\.\d+)?\s*v\s*dc\b|\bdc\s*(?:in|input|out|output)\b|\bpower\b/i.test(raw)) return "DC power";
+  if (/\bphoenix\b|\banalog audio\b|\baudio\b/i.test(raw)) return "Analog audio";
+  if (/\b(?:line|mic(?:rophone)?)\s*(?:in|out|input|output)\b|\b3\.5\s*mm\b|\b(?:trs|ts)\b|\bxlr\b|euroblock/i.test(raw)) return "Analog audio";
+  if (/\bsfp\b|\bfiber\b|\bfibre\b|\boptical\b/i.test(raw)) return "SFP / fibre";
 
   return text || clean(raw);
+}
+
+function isConnectorPhrase(raw) {
+  return /\b(?:hdmi|hdbaset|hdbt|displayport|sdi|vga|usb|rj\s*45|rj45|ethernet|lan|rs\s*-?232|ir|infrared|relay|phoenix|euroblock|analog(?:ue)? audio|line\s*(?:in|out)|mic(?:rophone)?\s*(?:in|out)|speaker|amplifier|xlr|trs|ts|sfp|fibre|fiber|optical|dc|power|gpio|trigger|cec|dante|aes67)\b|\b3\.5\s*mm\b/i.test(raw);
 }
 
 function portCategory(connector, raw) {
@@ -1225,13 +1273,11 @@ function portCategory(connector, raw) {
 function extractPorts(lines) {
   const ports = [];
   let direction = "";
-  let portHeading = "";
   let inBoxContents = false;
 
   for (const line of lines) {
     if (/^in the box$/i.test(line)) {
       inBoxContents = true;
-      portHeading = "";
       continue;
     }
     if (inBoxContents) continue;
@@ -1246,29 +1292,34 @@ function extractPorts(lines) {
     }
 
     if (/^(?:hdmi|network|lan|ethernet|rs-?232|ir|usb|audio)$/i.test(line)) {
-      portHeading = line;
       continue;
     }
 
-    const explicitDirection = /\b(in|input)\b/i.test(line) ? "input" : /\b(out|output)\b/i.test(line) ? "output" : direction;
-    const compactPortMatches = [...line.matchAll(/\b(\d+)\s*x\s*([A-Za-z0-9+ ./_-]+?)(?=$|,|\||;|\()/gi)];
+    const directionMatch = /\b(input|in|output|out|bidirectional)\b/i.exec(line)?.[0]?.toLowerCase();
+    const explicitDirection = directionMatch
+      ? directionMatch.startsWith("out") ? "output" : directionMatch === "bidirectional" ? "bidirectional" : "input"
+      : direction;
+    const compactPortMatches = [...line.matchAll(/\b(\d+)\s*x\s*([A-Za-z0-9+ ./_-]+?)(?=$|,|\||;|:|\()/gi)];
 
     for (const match of compactPortMatches) {
       const count = Number(match[1]);
       const rawConnector = clean(match[2]);
-      if (!rawConnector || rawConnector.length > 80) continue;
+      // Resolution tables contain values such as "800 x 600" and "3840 x 2160";
+      // those are dimensions, not connector counts. Real product I/O lists in
+      // this catalogue have at most 32 ports of one connector type.
+      if (!rawConnector || rawConnector.length > 80 || count > 32) continue;
 
-      // The compact match prefix is always a substring of the line; prepending it
-      // made normaliseConnector see doubled text for non-family connectors (e.g.
-      // "1x EXP-MX-0402-H2 Matrix" became "EXP-MX-0402-H2 Matrix 1x EXP-MX-0402-H2
-      // Matrix"). The line itself already carries the connector phrase.
-      const contextualLine = portHeading ? `${portHeading} ${line}` : line;
-      const connector = normaliseConnector(contextualLine);
+      // Normalize the connector phrase captured after the count. Using the whole
+      // row here can turn an audio connector into HDMI just because the same row
+      // mentions an HDMI input or output.
+      if (!isConnectorPhrase(rawConnector)) continue;
+      const connector = normaliseConnector(rawConnector);
+      if (!connector) continue;
       ports.push({
         count,
         connector,
         direction: explicitDirection || "unspecified",
-        category: portCategory(connector, contextualLine),
+        category: portCategory(connector, rawConnector),
         evidence: line,
       });
     }
@@ -1339,12 +1390,32 @@ function inferAudioProfile(text, lines) {
   };
 }
 
-function inferVideoProfile(text, lines) {
+function inferVideoProfile(text, lines, product, sourceLines = lines) {
+  const resolutionHeading = /^(?:(?:maximum|max)\s+)?video\s+resolutions?(?:\s*\(\s*(?:maximum|max)\s*\))?$/i;
+  const headingIndex = sourceLines.findIndex((line) => resolutionHeading.test(line));
+  const resolutionLines = [];
+  if (headingIndex >= 0) {
+    for (const line of sourceLines.slice(headingIndex + 1)) {
+      // An uppercase model row such as "APO-DG2 — 3840x2160@30Hz" is still
+      // resolution evidence; only a digit-free heading ends this field section.
+      if (isSpecHeading(line) && !/\d/.test(line)) break;
+      resolutionLines.push(line);
+    }
+  }
+  // Prefer the product's labelled maximum-resolution field. Falling back to
+  // the product record's own title/summary avoids promoting global page tags
+  // (for example, 8K tags displayed on a 4K-only product page).
+  const resolutionSource = resolutionLines.length
+    ? resolutionLines.join(" ")
+    : [product.name, product.title, product.description, product.summary].map(clean).filter(Boolean).join(" ");
+  const resolutions = unique(extractMatches(
+    resolutionSource,
+    /\b(?:8K|5K|4K)(?:\s*(?:@|at)?\s*\d{2,3}(?:\s*Hz?)?)?(?:\s*4\s*:\s*[024]\s*:\s*[024])?(?:\s*\d+\s*bit)?|\b(?:7680\s*[x×]\s*4320|5120\s*[x×]\s*(?:1440|2160)|3840\s*[x×]\s*2160|4096\s*[x×]\s*2160|1920\s*[x×]\s*1080)(?:\s*[pP])?(?:\s*(?:@|at)?\s*\d{2,3}(?:\s*Hz?)?)?(?:\s*4\s*:\s*[024]\s*:\s*[024])?(?:\s*\d+\s*bit)?|\b(?:1080p|720p)(?:\s*(?:@|at)?\s*\d{2,3}(?:\s*Hz?)?)?/gi,
+    20,
+  ));
   return {
     present: includesAny(text, ["video", "hdmi", "hdbaset", "displayport", "4k", "8k", "1080p", "ndi", "sdi"]),
-    maxResolutions: unique([
-      ...extractMatches(text, /\b(?:8K|4K|3840x2160p?|4096x2160p?|1920x1080p?|1080p|720p)[^.;\n|]{0,45}(?:Hz|hz|4:4:4|4:2:0|HDR|bit)?/g, 20),
-    ]),
+    maxResolutions: resolutions,
     standards: unique([
       ...extractMatches(text, /\bHDMI\s*(?:1\.4|2\.0|2\.1)?\b/gi, 8),
       ...extractMatches(text, /\bHDCP\s*(?:1\.4|2\.2|2\.3)?\b/gi, 8),
@@ -1982,7 +2053,9 @@ function buildTechnicalProfile(product, classification, pageFacts) {
   ]);
   const text = buildTextBlob(product, pageFacts);
   const features = inferFeatures(text, lines);
-  const ports = extractPorts(lines);
+  const ports = extractPorts(Array.isArray(pageFacts.technicalLines) && pageFacts.technicalLines.length
+    ? pageFacts.technicalLines
+    : []);
   const portGroups = groupedPorts(ports);
   const applications = inferApplications(text, classification);
   const profileSeed = {
@@ -2016,7 +2089,7 @@ function buildTechnicalProfile(product, classification, pageFacts) {
       control: portGroups.control,
       other: portGroups.other,
     },
-    video: inferVideoProfile(text, lines),
+    video: inferVideoProfile(text, lines, product, Array.isArray(pageFacts.lines) ? pageFacts.lines : lines),
     audio: inferAudioProfile(text, lines),
     usb: inferUsbProfile(text, features),
     network: inferNetworkProfile(text, lines),
@@ -2219,12 +2292,7 @@ async function main() {
     return mergeProfileIntoFinderRecord(record, enrichedRecordAsProduct);
   });
 
-  const summary = buildSummary(enrichedSourceProducts, enrichedFinderRecords, [
-    ...sourcePageFacts,
-    ...enrichedFinderRecords.map((record) => ({
-      status: record.technicalProfile?.sourceQuality?.officialPageStatus || "matched-source",
-    })),
-  ]);
+  const summary = buildSummary(enrichedSourceProducts, enrichedFinderRecords, sourcePageFacts);
 
   await fs.writeFile(wyrestormSourcePath, JSON.stringify(enrichedSourceProducts, null, 2) + "\n", "utf8");
   await fs.mkdir(path.dirname(reportPath), { recursive: true });

@@ -81,6 +81,15 @@
     "summary": "Review WyreStorm products matched from completed Discovery requirements."
   },
   {
+    "key": "productFinder",
+    "path": "/wingman/product-finder",
+    "segment": "product-finder",
+    "label": "Product Finder",
+    "navLabel": "Finder",
+    "pageFile": "ProductFinderPage.tsx",
+    "summary": "Find a WyreStorm product by function, tailored requirements and required connections."
+  },
+  {
     "key": "productFamilies",
     "path": "/wingman/product-families",
     "segment": "product-families",

@@ -91,10 +91,23 @@ export function governedProfilesHumanVerifiedExcept(
   const excluded = new Set(excludedSkus.map((sku) => sku.toUpperCase()));
   return {
     ...payload,
-    profiles: payload.profiles.map((profile) =>
-      excluded.has(profile.sku.toUpperCase())
-        ? profile
-        : { ...profile, status: "verified", verifiedBy: "Human review pass" },
-    ),
+    profiles: payload.profiles.map((profile) => {
+      if (excluded.has(profile.sku.toUpperCase())) return profile;
+      const evidence = Array.isArray(profile.evidence) ? profile.evidence as Array<Record<string, unknown>> : [];
+      const source = evidence.find((item) => item.sourceUrl || item.url) ?? {};
+      const reviewedOn = String(source.reviewedOn ?? (String(profile.verifiedAt ?? "").slice(0, 10) || "2026-11-16"));
+      return {
+        ...profile,
+        status: "verified",
+        verifiedBy: profile.verifiedBy || "Human review pass",
+        verifiedAt: String(profile.verifiedAt ?? `${reviewedOn}T00:00:00.000Z`),
+        confirmedFields: Array.isArray(profile.confirmedFields) && profile.confirmedFields.length
+          ? profile.confirmedFields
+          : ["profile-scope"],
+        evidence: evidence.map((item, index) => index === evidence.indexOf(source)
+          ? { ...item, sourceUrl: item.sourceUrl || item.url || `https://example.test/review/${profile.sku}`, reviewedOn, reviewer: item.reviewer || "Human review pass" }
+          : item),
+      };
+    }),
   };
 }

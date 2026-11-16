@@ -7,5 +7,48 @@
       "note": "Nine SKUs (NHD-124-TX, NHD-400-TX, NHD-400-TX-IW, NHD-500-IW-TX, NHD-500-IW-TX-V2, NHD-150-RX, NHD-250-RX, SW-130-TX, RX-500) were corrected here because the enrichment step inferred a product's identity from datasheet prose that names the other end of the link. The rule was fixed to use the SKU suffix and product name, and a live vendor re-scrape now produces the correct classification for all nine directly, so the overrides were removed rather than left to outrank the generated data."
     }
   ],
-  "corrections": []
+  "corrections": [
+    {
+      "sku": "PSU-12V-1A",
+      "reason": "Historical power supply retained as review-only data. The canonical lifecycle source classifies it as a power accessory; it must not be guessed from its free-text title.",
+      "set": {
+        "primaryCategory": "Accessory",
+        "category": "Power accessory",
+        "systemRole": "Power supply accessory",
+        "subClassifications": ["power-supply"],
+        "classificationPath": ["Accessory", "Power accessory", "Power supply"],
+        "signalDomains": ["Power"],
+        "transportClass": ["Power"],
+        "confidence": 1
+      }
+    },
+    {
+      "sku": "PSU-12V-2A",
+      "reason": "Historical power supply retained as review-only data. The canonical lifecycle source classifies it as a power accessory; it must not be guessed from its free-text title.",
+      "set": {
+        "primaryCategory": "Accessory",
+        "category": "Power accessory",
+        "systemRole": "Power supply accessory",
+        "subClassifications": ["power-supply"],
+        "classificationPath": ["Accessory", "Power accessory", "Power supply"],
+        "signalDomains": ["Power"],
+        "transportClass": ["Power"],
+        "confidence": 1
+      }
+    },
+    {
+      "sku": "PSU-18V-1A",
+      "reason": "Historical power supply retained as review-only data. The canonical lifecycle source classifies it as a power accessory; it must not be guessed from its free-text title.",
+      "set": {
+        "primaryCategory": "Accessory",
+        "category": "Power accessory",
+        "systemRole": "Power supply accessory",
+        "subClassifications": ["power-supply"],
+        "classificationPath": ["Accessory", "Power accessory", "Power supply"],
+        "signalDomains": ["Power"],
+        "transportClass": ["Power"],
+        "confidence": 1
+      }
+    }
+  ]
 }

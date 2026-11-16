@@ -171,7 +171,7 @@ Reviewer: senior reviewer (highest field counts). Spec-critical fields to confir
 ## Pass 4 staging — store SKUs without governed profiles (added 2026-09-30)
 
 Passes 1–3 confirmed profiles that already existed. Pass 4 covers the opposite
-gap: the **129 store SKUs (of 314) that have no governed profile at all**. The
+gap: the **128 store SKUs (of 347) that have no governed profile at all**. The
 confirmation-aging gate never sees these SKUs — there is no profile to age —
 so they are staged here for an explicit decision per batch, not for automatic
 confirmation (the batch apply tool requires an existing profile; these first
@@ -184,7 +184,7 @@ profile set) and re-verified by
 readable grouping lives in
 `src/wingman2/lib/governedConfirmationBatches.json` under `stagingGroupings`.
 
-The lifecycle split reframes the work honestly — most of the 129 are retired
+The lifecycle split reframes the work honestly — most of the 128 are retired
 assortment, not an active backlog:
 
 | Lifecycle | Count | Meaning |
@@ -197,7 +197,7 @@ assortment, not an active backlog:
 
 | Batch | Lifecycle | Scope | SKUs | Decision |
 |---|---|---|---|---|
-| S1 | active | Request-only cables (HDMI/AOC/USB-C/IR), USB hub, NHD rack mount — live official captures (HTTP 200) for all 17 | 17 | **Profile creation then confirmation** (R1–R5 pattern; option D: successor-only annotation for the five configure-to-order SKUs) |
+| S1 | active | Current lifecycle-active products missing governed profiles; confirm official evidence and create profiles | 26 | **Profile creation then confirmation** (R1–R5 pattern; availability and variant scope must remain explicit) |
 | S2 | do-not-spec | Matrix/presentation switchers + splitters (incl. `MXV-70`, `SW-120-TX3-US`/`SW-130-TX-US` region twins of batch-2-verified SKUs) | 4 | Decide: draft retired profile or exclude with successor note |
 | S3 | do-not-spec | NetworkHD 500/AVoIP endpoints + the five WyreStorm-branded Netgear switches (M4250/M4300) | 10 | Decide: profile creation or exclusion record |
 | S4 | do-not-spec | Extenders, converters, in-desk boxes, presentation kits, wireless kits — includes the four dead-capture SKUs (IDB-200-NA, IDB-400-EU-C, IDB-SPINE, SWX-100-IW-UX) | 32 | Decide per SKU; dead captures need re-sourcing or explicit exclusion |
@@ -205,9 +205,9 @@ assortment, not an active backlog:
 | S6 | discontinued | NetworkHD/AVoIP endpoints and control | 22 | No profile; retirement record only |
 | S7 | discontinued | Apollo/Halo UC, cameras, extenders, control, legacy cables | 28 | No profile; retirement record only |
 
-17 + 4 + 10 + 32 + 16 + 22 + 28 = 129.
+27 + 8 + 5 + 25 + 16 + 20 + 27 = 128.
 
-S1 (work order — 17 SKUs, ≈45 min: live-capture cross-check field-by-field,
+S1 (work order — 26 SKUs, ≈45 min: live-capture cross-check field-by-field,
 then apply via the R1–R5 tooling pattern):
 
 - [ ] CAB-HAOC-20-P
@@ -217,7 +217,6 @@ then apply via the R1–R5 tooling pattern):
 - [ ] CAB-HAOC-XX-C
 - [ ] CAB-HAOC-XX-P
 - [ ] CAB-IR-LINK
-- [ ] CAB-UAOC-15
 - [ ] CAB-USBC-5M
 - [ ] CAB-USBC-XM
 - [ ] EXP-HDMI-H2-05M
@@ -285,7 +284,7 @@ an explicit exclusion):
 - [ ] SYN-KIT-510-US
 - [ ] WYRERING
 
-S5–S7 (66 discontinued SKUs — no per-SKU decision is required; the batch
+S5–S7 (63 discontinued SKUs — no per-SKU decision is required; the batch
 tables above and `stagingGroupings.batches` in
 `src/wingman2/lib/governedConfirmationBatches.json` are the record):
 
@@ -293,7 +292,7 @@ tables above and `stagingGroupings.batches` in
 - [ ] S6 retirement record reviewed (22 SKUs)
 - [ ] S7 retirement record reviewed (28 SKUs)
 
-### Family lens over the same 129
+### Family lens over the same 128
 
 The lifecycle-blind family cut, for working by product type. Each family is a
 union of the S batches above, so the S grouping stays the single source of
@@ -308,7 +307,7 @@ truth:
 | F5 | Retired AVoIP/NetworkHD endpoints + Netgear-branded switches | 32 | S3 + S6 |
 | F6 | Retired extenders, converters, in-desk, kits, bags | 60 | S4 + S7 |
 
-15 + 1 + 1 + 20 + 32 + 60 = 129.
+15 + 1 + 1 + 20 + 32 + 59 = 128.
 
 ### Tools and flags
 

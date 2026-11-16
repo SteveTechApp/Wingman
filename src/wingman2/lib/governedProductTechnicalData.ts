@@ -464,11 +464,21 @@ function technicalPorts(raw: UnknownRecord): TechnicalPort[] {
 
 function classifyPort(port: TechnicalPort): "video" | "audio" | "usb" | "network" | "control" | "power" | "other" {
   const category = asText(port.category).toLowerCase();
+  const text = [port.connector, port.detail, port.evidence].map(asText).join(" ").toLowerCase();
+  const direction = asText(port.direction).toLowerCase();
+  const usbCPrimaryInput =
+    /usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/.test(text) &&
+    direction === "input" &&
+    !/\b(device|client|peripheral|downstream)\b/.test(text);
+
+  // USB-C can carry the source's video signal. A port documented as an input
+  // belongs in the primary video I/O count even when its source data was filed
+  // under the USB bucket; explicit USB device/peripheral ports stay USB.
+  if (usbCPrimaryInput) return "video";
   if (["video", "audio", "usb", "network", "control", "power"].includes(category)) {
     return category as "video" | "audio" | "usb" | "network" | "control" | "power";
   }
 
-  const text = [port.connector, port.detail, port.evidence].map(asText).join(" ").toLowerCase();
   if (/hdmi|displayport|hdbaset|\bsdi\b|video/.test(text)) return "video";
   if (/audio|line|mic|speaker|dante|aes67|phoenix/.test(text)) return "audio";
   if (/usb|host|device|peripheral/.test(text)) return "usb";
@@ -730,7 +740,9 @@ function deriveSpecs(ports: TechnicalPort[], text: string): CompareSpecFacts {
     usbHostPorts: count("usb", undefined, /\bhost\b|\bupstream\b/),
     usbDevicePorts: count("usb", undefined, /\bdevice\b|\bperipheral\b|\bclient\b|\bdownstream\b/),
     usbTotalPorts: count("usb"),
-    usbCPorts: count("usb", undefined, /usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/),
+    usbCPorts: (count("usb", undefined, /usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/) ?? 0) +
+      (count("video", undefined, /usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/) ?? 0) || undefined,
+    usbCInputs: count("video", "input", /usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/),
     usbStandard: usbStandardMatch ? `USB ${usbStandardMatch[1]}` : undefined,
     audioInputs: count("audio", "input"),
     audioOutputs: count("audio", "output"),
@@ -765,6 +777,15 @@ function deriveSpecs(ports: TechnicalPort[], text: string): CompareSpecFacts {
   return Object.fromEntries(
     Object.entries(specs).filter(([, value]) => value !== undefined),
   ) as CompareSpecFacts;
+}
+
+function derivePrimaryInputCount(ports: TechnicalPort[]): number | undefined {
+  const total = wmDedupeTechnicalPorts(ports)
+    .filter((port) => classifyPort(port) === "video")
+    .filter((port) => asText(port.direction).toLowerCase() === "input")
+    .reduce((sum, port) => sum + (Number(port.count) || 1), 0);
+
+  return total > 0 ? total : undefined;
 }
 
 function deriveFeatures(text: string): Record<string, boolean | undefined> {
@@ -934,7 +955,7 @@ export function resolveProductTechnicalData(
     completeness >= 75;
 
   const compareSpecs = deriveSpecs(ports, text);
-  const inputCount = Number(catalog.inputCount) || undefined;
+  const inputCount = Math.max(Number(catalog.inputCount) || 0, derivePrimaryInputCount(ports) || 0) || undefined;
   const outputCount = Number(catalog.outputCount) || undefined;
 
   return {

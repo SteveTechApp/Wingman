@@ -23,9 +23,11 @@ import {
   discoveryBriefToFinderNeed,
   readLatestDiscoveryBrief,
   readLatestDiscoverySnapshot,
+  resolveDiscoverySnapshotProject,
   writeLatestDiscoverySnapshot,
   type FinderNeedDraft,
 } from "../data/workflowHandoff";
+import { discoveryQuestionUrl, discoveryResumeUrl } from "../lib/discoveryResume";
 import {
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
@@ -66,6 +68,7 @@ import {
   type DiscoveryApplicationDrift,
 } from "./discovery/DiscoveryStrandedDefaultsNotice";
 import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
+import { discoverySnapshotFromProject } from "./discovery/discoverySnapshotFromProject";
 
 type LoadState = "loading" | "ready" | "missing" | "error";
 type RecommendationStage = "overview" | "resolve" | "build" | "validate" | "handoff";
@@ -169,6 +172,16 @@ function quoteStatusLabel(brief: StoredDiscoveryBrief | null) {
 
 export function RecommendationsPage() {
   const { activeProject } = useProjectStore();
+  const readActiveProjectDiscoverySnapshot = () => {
+    const latest = readLatestDiscoverySnapshot();
+    // Recommendations may be used directly from a Discovery session before
+    // the user creates/selects a saved project. Keep that local handoff; once
+    // a project is active, only accept its matching snapshot or its own stored
+    // Discovery state so a different project's answers cannot leak across.
+    if (!activeProject) return latest;
+    if (latest && resolveDiscoverySnapshotProject(latest)?.id === activeProject.id) return latest;
+    return discoverySnapshotFromProject(activeProject);
+  };
   const { profile } = useWingmanProfile();
   const [brief, setBrief] = useState<StoredDiscoveryBrief | null>(null);
   const [need, setNeed] = useState<Partial<FinderNeedDraft>>({});
@@ -464,7 +477,7 @@ export function RecommendationsPage() {
 
   const missingInformation = brief?.missingInformation ?? [];
   const discoveryAnswers = useMemo(() => {
-    const snapshot = readLatestDiscoverySnapshot();
+    const snapshot = readActiveProjectDiscoverySnapshot();
     return (snapshot?.state.answers as DiscoveryAnswers | undefined) ?? {};
   }, [activeProject?.id, brief]);
   const visibleDiscoveryQuestions = useMemo(() => {
@@ -486,12 +499,12 @@ export function RecommendationsPage() {
   // same notice the discovery page uses. Detection mirrors DiscoveryPage:
   // full visible question set, origin-aware through the persisted records.
   const strandedAnswers = useMemo((): StrandedQuickStartDefault[] => {
-    const draft = readLatestDiscoverySnapshot();
+    const draft = readActiveProjectDiscoverySnapshot();
     if (!draft) return [];
     const draftAnswers = (draft.state.answers as DiscoveryAnswers | undefined) ?? {};
     const appliedDefaults = (draft.state.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {};
     return findStrandedQuickStartDefaults(getVisibleDiscoveryQuestions("not-sure", draftAnswers), draftAnswers, appliedDefaults);
-  }, []);
+  }, [activeProject?.id, brief]);
   const [strandedCleared, setStrandedCleared] = useState(false);
   const navigate = useNavigate();
   const visibleStrandedAnswers = strandedCleared ? [] : strandedAnswers;
@@ -499,7 +512,7 @@ export function RecommendationsPage() {
   // removed value that was also a drift item stops flagging.
   const applicationDrift = useMemo((): DiscoveryApplicationDrift | null => {
     if (strandedCleared) return null;
-    const draft = readLatestDiscoverySnapshot();
+    const draft = readActiveProjectDiscoverySnapshot();
     if (!draft) return null;
     const seed = readQuickStartSeedRecord(draft.state.quickStartSeed);
     if (!seed) return null;
@@ -507,7 +520,7 @@ export function RecommendationsPage() {
     const application = text(draftAnswers.opportunity, "not-sure");
     const items = findQuickStartApplicationDrift(seed, draftAnswers, application);
     return items.length ? { previousApplication: seed.application, application, items } : null;
-  }, [strandedCleared]);
+  }, [activeProject?.id, brief, strandedCleared]);
   // Product selection is refused while the brief still carries a stranded
   // default OR an untouched quick-start answer still following a previous
   // application's profile (the discovery integrity gate marked it
@@ -523,7 +536,7 @@ export function RecommendationsPage() {
   // the recommendations. Rep-typed stranded answers stay — they are resolved
   // by re-choosing on the discovery page instead.
   function removeStrandedFromBrief() {
-    const draft = readLatestDiscoverySnapshot();
+    const draft = readActiveProjectDiscoverySnapshot();
     if (!draft) return;
     const draftAnswers = { ...((draft.state.answers as DiscoveryAnswers | undefined) ?? {}) };
     const appliedDefaults = (draft.state.appliedDefaults as Partial<DiscoveryAnswers> | undefined) ?? {};
@@ -601,7 +614,7 @@ export function RecommendationsPage() {
   function removeDriftFromBrief() {
     const drift = applicationDrift;
     if (!drift || drift.items.length === 0) return;
-    const draft = readLatestDiscoverySnapshot();
+    const draft = readActiveProjectDiscoverySnapshot();
     if (!draft) return;
     const seed = readQuickStartSeedRecord(draft.state.quickStartSeed);
     if (!seed) return;
@@ -929,7 +942,7 @@ export function RecommendationsPage() {
                       </div>
                       <div className="wm-rec-check-actions">
                         {targetQuestion ? (
-                          <Link className="wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.discovery.path}?edit=${encodeURIComponent(targetQuestion.id)}`}>
+                          <Link className="wm-ui-button wm-ui-button-secondary" to={discoveryQuestionUrl(targetQuestion.id, activeProject?.id)}>
                             Answer in Discovery: {targetQuestion.shortLabel}
                             <ArrowRight size={14} aria-hidden="true" />
                           </Link>
@@ -939,7 +952,7 @@ export function RecommendationsPage() {
                             <span>{resolution.category === "Site or technical follow-up"
                               ? "This needs a site measurement or technical confirmation. No answer has been assumed."
                               : "The owning question is not available in this room path yet. Review the room workflow in Discovery first."}</span>
-                            <Link to={routeCatalogByKey.discovery.path}>Review the room brief</Link>
+                            <Link to={activeProject ? discoveryResumeUrl(activeProject.id) : routeCatalogByKey.discovery.path}>Review the room brief</Link>
                           </div>
                         )}
                       </div>

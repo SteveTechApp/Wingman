@@ -20,9 +20,10 @@
  *
  * 10G and 1G product families are NEVER mixed in a single recommendation.
  *
- * Banned legacy SKUs must never be specified in a comparison or quote:
- *   NHD-100, NHD-110, NHD-220, NHD-300-TX, NHD-400 (and their TX/RX/version
- *   variants). They are filtered out defensively everywhere candidates are built.
+ * Retired legacy AVoIP families must not be offered as current equivalents:
+ *   NHD-100, NHD-110, NHD-220 and NHD-400 (and their TX/RX/version variants).
+ * NHD-300-TX remains available as a live-stream encoder; it is excluded from
+ * generic AVoIP endpoint matching by role, not by lifecycle status.
  *
  * This module is pure logic. Do not import React, CSS, routing or page code here.
  */
@@ -94,18 +95,17 @@ export const NETWORKHD_CONTROLLER_REMINDER =
   "Specify one NHD-CTL-PRO-V2 controller per system (one per system), unless this is an add-on to an existing NetworkHD system that already has a controller.";
 
 /* ------------------------------------------------------------------------- *
- * Banned legacy SKUs
+ * Retired legacy SKUs
  * ------------------------------------------------------------------------- */
 
-/** Legacy NetworkHD series numbers that must never be specified in Compare. */
-export const BANNED_NETWORKHD_SERIES = ["100", "110", "220", "300", "400"] as const;
+/** Retired NetworkHD series numbers excluded from current AVoIP equivalence. */
+export const BANNED_NETWORKHD_SERIES = ["100", "110", "220", "400"] as const;
 
-/** Canonical banned example SKUs, for messaging. */
+/** Canonical retired example SKUs, for messaging. */
 export const BANNED_NETWORKHD_SKUS = [
   "NHD-100",
   "NHD-110",
   "NHD-220",
-  "NHD-300-TX",
   "NHD-400",
 ] as const;
 
@@ -114,11 +114,10 @@ function skuKey(value: unknown): string {
 }
 
 /**
- * A SKU is banned when its NetworkHD series token is one of the retired
- * platforms. Matching is on the exact 3-digit series group so that current
- * SKUs (NHD-120, NHD-124, NHD-150, NHD-500, NHD-510, NHD-600, NHD-610) are
- * never caught, while every variant of the retired families (NHD-400-TX-V2,
- * NHD-300-TX, NHD-110-RX, ...) is.
+ * A SKU is excluded from generic AVoIP equivalence when its NetworkHD series
+ * token is a retired endpoint family. Matching is on the exact 3-digit series
+ * group, so current SKUs are not caught and active special-purpose products
+ * such as NHD-300-TX remain selectable for their supported roles.
  */
 export function isBannedNetworkHdSku(sku: unknown): boolean {
   const key = skuKey(sku);

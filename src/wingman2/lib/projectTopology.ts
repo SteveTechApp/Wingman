@@ -1,3 +1,4 @@
+import { buildDiscoverySourcePlan } from "./projectTopologySourcePlan";
 export const PROJECT_TOPOLOGY_SCHEMA_VERSION = 1;
 
 export type ProjectLocationType =
@@ -77,6 +78,8 @@ export type ProjectDevice = {
   thirdParty: boolean;
   status: ProjectDeviceStatus;
   notes?: string;
+  /** Rebuilt from Discovery answers; user-added equipment remains unmarked. */
+  generatedByDiscovery?: boolean;
 };
 
 export type ProjectConnection = {
@@ -241,14 +244,6 @@ function uniqueId(prefix: string, existing: Set<string>): string {
   return candidate;
 }
 
-function sourceCountFrom(value: unknown): number {
-  const source = list(value).join(" ");
-  if (source.includes("nine-plus")) return 4;
-  if (source.includes("five-eight")) return 3;
-  if (source.includes("two-four")) return 2;
-  return 1;
-}
-
 function displayCountFrom(value: unknown): number {
   const display = list(value).join(" ");
   if (display.includes("nine-plus")) return 4;
@@ -377,6 +372,7 @@ export function normaliseProjectTopology(value: unknown): ProjectTopology {
       thirdParty: Boolean(row.thirdParty),
       status: DEVICE_STATUSES.has(statusValue) ? statusValue : "assumed",
       notes: cleanText(row.notes) || undefined,
+      generatedByDiscovery: Boolean(row.generatedByDiscovery),
     }];
   });
 
@@ -436,7 +432,11 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   const application = cleanText(seed.application, list(answers.opportunity).join(" "));
   const blob = textBlob(answers, notes, application);
   const scale = list(answers.scale).join(" ");
-  const networked = /av-over-ip|distributed|building-wide|campus|managed-network|av vlan|networkhd|network-video-sources|cameras-ndi-network-streams/.test(blob);
+  const networked = /av-over-ip|distributed|building-wide|campus|managed-network|av vlan|networkhd|network-video-sources|cameras-ndi-network-streams/.test(blob)
+    || ["source-position-network", "source-position-other-room", "source-position-other-building"].some((value) => list(answers["locations-connections"]).includes(value))
+    || list(answers["uc-purpose"]).includes("live-stream-out")
+    || list(answers["uc-camera"]).includes("ndi-network-camera")
+    || list(answers["uc-multi-camera-path"]).includes("multi-camera-ndi");
   const timestamp = nowIso();
   const locationIds = new Set<string>();
   const deviceIds = new Set<string>();
@@ -459,12 +459,18 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   const rack = addLocation("location-room-rack", "Room rack / local equipment", "room-rack");
   const ceiling = /camera|microphone|ceiling|video-conferencing|conferencing|recording|streaming|camera-distribution/.test(blob) ? addLocation("location-ceiling", "Ceiling / camera position", "ceiling") : null;
   const central = /building-wide|campus|multi-room|central/.test(blob) ? addLocation("location-central-rack", "Central communications room", "central-rack") : null;
+  const localCupboard = list(answers["locations-connections"]).includes("source-position-local-cupboard")
+    ? addLocation("location-local-cupboard", "Local equipment cupboard", "local-cupboard") : null;
+  const remoteRoom = list(answers["locations-connections"]).includes("source-position-other-room")
+    ? addLocation("location-other-room", "Another room on this site", "other-room") : null;
+  const remoteBuilding = list(answers["locations-connections"]).includes("source-position-other-building")
+    ? addLocation("location-other-building", "Another building / remote site", "other-building") : null;
   const network = networked ? addLocation("location-av-network", "AV network / VLAN", "network") : null;
 
   const addDevice = (input: Omit<ProjectDevice, "id"> & { id?: string }): ProjectDevice => {
     const id = input.id || uniqueId("device", deviceIds);
     deviceIds.add(id);
-    const device = { ...input, id };
+    const device = { ...input, generatedByDiscovery: input.generatedByDiscovery ?? true, id };
     devices.push(device);
     return device;
   };
@@ -493,224 +499,16 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     });
   }
 
-  // WINGMAN_DISCOVERY_SOURCE_UC_TOPOLOGY_START
-  const sourceTypes = list(answers["source-connection"]);
-  const sourceWorkflowTypes = list(answers["source-device-workflows"]);
-  const explicitSourceCount = Number(answers["source-count-exact"]);
-  const sourceCount = Number.isInteger(explicitSourceCount) && explicitSourceCount > 0 && explicitSourceCount <= 256
-    ? explicitSourceCount : sourceCountFrom(answers.sources);
-  const sourceDevices: ProjectDevice[] = [];
-  const unifiedCommsValues = Array.from(new Set([
-    ...list(answers["uc-purpose"]),
-    ...list(answers["unified-comms"]),
-    ...list(answers["camera-microphone-workflow"]),
-    ...list(answers["camera-microphone-workflows"]),
-    ...list(answers["camera-microphone-requirements"]),
-  ]));
-  const noUnifiedComms =
-    unifiedCommsValues.includes("no-uc");
-  const unifiedCommsUnknown =
-    unifiedCommsValues.includes("unknown-uc");
-  const unifiedCommsInactive =
-    noUnifiedComms || unifiedCommsUnknown;
-  const legacyCombinedWorkflow =
-    unifiedCommsValues.includes("conferencing-recording");
-  const conferencingRequired =
-    !unifiedCommsInactive &&
-    (
-      unifiedCommsValues.includes("video-conferencing") ||
-      legacyCombinedWorkflow
-    );
-  const recordingRequired =
-    !unifiedCommsInactive &&
-    (
-      unifiedCommsValues.includes("recording-streaming") ||
-      legacyCombinedWorkflow
-    );
-  const cameraDistributionRequired =
-    !unifiedCommsInactive &&
-    unifiedCommsValues.includes("camera-distribution-only");
-  const microphonesOnlyRequired =
-    !unifiedCommsInactive &&
-    unifiedCommsValues.includes("microphones-only");
-  const cameraRequiredByUnifiedComms =
-    conferencingRequired ||
-    recordingRequired ||
-    cameraDistributionRequired;
-  const cameraCountValue = list(answers["uc-camera-count"])[0] ?? "";
-  const cameraQuantity = cameraCountValue === "two-cameras"
-    ? 2
-    : cameraCountValue === "three-four-cameras"
-      ? 4
-      : cameraCountValue === "five-plus-cameras"
-        ? 5
-        : 1;
-  const multiCameraRequired = cameraQuantity > 1;
-  const multiCameraPath = list(answers["uc-multi-camera-path"])[0] ?? "";
-  const ndiMultiCamera = multiCameraRequired && multiCameraPath === "multi-camera-ndi";
-  const standardMultiCamera = multiCameraRequired && multiCameraPath === "multi-camera-non-ndi";
-
-  if (
-    sourceTypes.some(
-      (item) =>
-        item === "mixed-hdmi-usbc" ||
-        item === "laptops-wireless-inputs" ||
-        item === "all-source-types",
-    ) ||
-    sourceWorkflowTypes.includes("user-laptops") || /laptop|byod|byom|usb-c/.test(blob)
-  ) {
-    sourceDevices.push(addDevice({
-      id: "device-user-laptop",
-      name: "User laptop / BYOD source",
-      category: "source",
-      locationId: table.id,
-      quantity: 1,
-      thirdParty: true,
-      status: "assumed",
-    }));
-  }
-
-  const fixedSourceNeeded =
-    sourceTypes.length === 0 ||
-    sourceTypes.some(
-      (item) =>
-        item === "fixed-hdmi-sources" ||
-        item === "mixed-hdmi-usbc" ||
-        item === "all-source-types",
-    );
-
-  if (fixedSourceNeeded) {
-    for (let index = 0; index < sourceCount; index += 1) {
-      sourceDevices.push(addDevice({
-        id: `device-fixed-source-${index + 1}`,
-        name:
-          sourceCount > 1
-            ? `Fixed HDMI source ${index + 1}`
-            : "Fixed HDMI source / room PC",
-        category: "source",
-        locationId: rack.id,
-        quantity: 1,
-        thirdParty: true,
-        status: "assumed",
-      }));
-    }
-  }
-
-  if (
-    sourceTypes.some(
-      (item) =>
-        item === "laptops-wireless-inputs" ||
-        item === "all-source-types",
-    ) ||
-    sourceWorkflowTypes.includes("wireless-casting-source") || /wireless presentation|casting/.test(blob)
-  ) {
-    sourceDevices.push(addDevice({
-      id: "device-wireless-receiver",
-      name: "Wireless presentation receiver",
-      category: "source",
-      locationId: rack.id,
-      quantity: 1,
-      thirdParty: false,
-      status: "assumed",
-    }));
-  }
-
-  if (sourceTypes.includes("network-video-sources")) {
-    sourceDevices.push(addDevice({
-      id: "device-local-source-tbc",
-      name: "Local fixed or user presentation source TBC",
-      category: "source",
-      locationId: table.id,
-      quantity: 1,
-      thirdParty: true,
-      status: "unknown",
-      notes:
-        "Confirm whether the local source is fixed HDMI, user HDMI, USB-C or wireless presentation.",
-    }));
-
-    sourceDevices.push(addDevice({
-      id: "device-network-video-source",
-      name: /ndi/.test(blob)
-        ? "NDI / network video source"
-        : "AV-over-IP / network video source",
-      category: "network-video-source",
-      locationId: network?.id ?? central?.id ?? rack.id,
-      quantity: 1,
-      thirdParty: true,
-      status: "assumed",
-      notes:
-        "Confirm the network video format, ownership, encoder/decoder or bridge requirement and routing destination.",
-    }));
-  }
-
-  const workflowSourceDefinitions: Record<string, { name: string; category: string; locationId: string }> = {
-    "room-pc-uc-source": { name: "Room PC / UC appliance", category: "source", locationId: rack.id },
-    "signage-media-players": { name: "Signage / media player", category: "source", locationId: rack.id },
-    "broadcast-tv-feeds": { name: "Broadcast / TV / live-event feed", category: "source", locationId: rack.id },
-    "teaching-visualisers": { name: "Lectern / visualiser / teaching source", category: "source", locationId: table.id },
-    "operational-workstations": { name: "Operational workstation / dashboard", category: "source", locationId: table.id },
-    "cameras-production": { name: "Camera / production feed", category: "camera", locationId: ceiling?.id ?? front.id },
-    "specialist-simulation-medical": { name: "Specialist / simulation / clinical source", category: "source", locationId: table.id },
-    "network-remote-feeds": { name: "Network / remote-room source feed", category: "network-video-source", locationId: network?.id ?? central?.id ?? rack.id },
-  };
-  sourceWorkflowTypes.forEach((value) => {
-    const definition = workflowSourceDefinitions[value];
-    if (!definition || sourceDevices.some((device) => device.name === definition.name)) return;
-    sourceDevices.push(addDevice({
-      id: `device-workflow-${value}`,
-      ...definition,
-      quantity: 1,
-      thirdParty: true,
-      status: "assumed",
-      notes: "Confirm quantity, interfaces, operating role, control and every destination for this application-specific source.",
-    }));
+  const sourcePlan = buildDiscoverySourcePlan({
+    answers, notes, blob, rack, table, front, ceiling, central, localCupboard, remoteRoom, remoteBuilding, network,
+    addLocation, addDevice,
   });
-
-  const legacyCameraSourceSelected = sourceTypes.some(
-    (item) =>
-      item === "cameras-ndi-network-streams" ||
-      item === "all-source-types",
-  );
-
-  if (
-    legacyCameraSourceSelected ||
-    (!unifiedCommsInactive && /ndi|ptz|camera/.test(blob)) ||
-    cameraRequiredByUnifiedComms
-  ) {
-    sourceDevices.push(addDevice({
-      id: "device-camera",
-      name:
-        ndiMultiCamera
-          ? "CAM-210-NDI-PTZ camera"
-          : standardMultiCamera
-            ? "CAM-420-PTZ camera"
-            : legacyCameraSourceSelected || /ndi/.test(blob)
-              ? "NDI / network camera"
-              : "Room camera",
-      category: "camera",
-      locationId: ceiling?.id ?? front.id,
-      quantity: cameraQuantity,
-      thirdParty: !(ndiMultiCamera || standardMultiCamera),
-      status: "assumed",
-      notes:
-        cameraRequiredByUnifiedComms
-          ? "Confirm camera count, framing, USB/HDMI/NDI output and whether a camera bridge is required."
-          : undefined,
-    }));
-  }
-
-  if (!sourceDevices.length) {
-    sourceDevices.push(addDevice({
-      id: "device-source-placeholder",
-      name: "Customer source TBC",
-      category: "source",
-      locationId: table.id,
-      quantity: 1,
-      thirdParty: true,
-      status: "unknown",
-    }));
-  }
-  // WINGMAN_DISCOVERY_SOURCE_UC_TOPOLOGY_END
+  const {
+    sourceDevices, unifiedCommsInactive, conferencingRequired, recordingRequired,
+    liveStreamRequired, cameraDistributionRequired, microphonesOnlyRequired,
+    cameraRequiredByUnifiedComms, cameraCountValue, cameraQuantity,
+    multiCameraRequired, ndiMultiCamera, standardMultiCamera, explicitNoCamera,
+  } = sourcePlan;
 
   const explicitDisplayCount = Number(answers["display-count-exact"]);
   const outputCount = Number.isInteger(explicitDisplayCount) && explicitDisplayCount > 0 && explicitDisplayCount <= 256
@@ -878,7 +676,22 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
       })
     : null;
 
-  const cameraRoutingBridge = cameraDistributionRequired || multiCameraRequired
+  const liveStreamEncoder = liveStreamRequired
+    ? addDevice({
+        id: "device-live-stream-encoder",
+        name: "NHD-300-TX live-stream encoder",
+        category: "encoder",
+        locationId: rack.id,
+        manufacturer: "WyreStorm",
+        sku: "NHD-300-TX",
+        quantity: 1,
+        thirdParty: false,
+        status: "assumed",
+        notes: "Available WyreStorm live-stream encoder. HDMI input is limited to 1080p60 and does not support HDCP-protected content; verify the programme feed, audio mix, platform, wired network and upload capacity.",
+      })
+    : null;
+
+  const cameraRoutingBridge = (cameraDistributionRequired && !explicitNoCamera) || multiCameraRequired
     ? addDevice({
         id: "device-camera-routing-bridge",
         name: ndiMultiCamera
@@ -888,14 +701,16 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
             : "Camera routing / bridge path TBC",
         category: "camera-bridge",
         locationId: rack.id,
+        manufacturer: ndiMultiCamera || standardMultiCamera ? "WyreStorm" : undefined,
+        sku: ndiMultiCamera ? "NHD-128-NDI-TRX" : standardMultiCamera ? "CAM-0402-BRG" : undefined,
         quantity: 1,
         thirdParty: false,
         status: ndiMultiCamera || standardMultiCamera ? "assumed" : "unknown",
         notes:
           ndiMultiCamera
-            ? "Each CAM-210-NDI-PTZ stream can join the NetworkHD source pool through the NHD-128-NDI-TRX. NHD-150-RX can create the camera/data multiview at its HDMI output; validate the separate encode/capture path required if that composite must return to Teams or the NDI/NetworkHD networks."
+            ? "The NHD-128-NDI-TRX converts up to eight NDI HX streams into virtual NetworkHD transmitters (soft sources). Validate the managed network and NDI source compatibility. NHD-150-RX decodes NetworkHD sources and can create a display multiview; validate a separate encode/capture path if that output must return to a stream or conferencing platform."
             : standardMultiCamera
-              ? "CAM-0402-BRG switches or bridges the CAM-420-PTZ USB/HDMI camera feeds into the conferencing host."
+              ? "CAM-0402-BRG bridges up to four HDMI/USB camera sources into the conferencing or production workflow. Confirm host, audio, switching and output requirements; five or more cameras need a wider production design."
               : "Confirm whether the camera path is USB, HDMI, NDI or AV-over-IP and which WyreStorm bridge or routing architecture is required.",
       })
     : null;
@@ -906,6 +721,8 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
         name: "NHD-150-RX main display decoder",
         category: "decoder",
         locationId: front.id,
+        manufacturer: "WyreStorm",
+        sku: "NHD-150-RX",
         quantity: 1,
         thirdParty: false,
         status: "assumed",
@@ -914,15 +731,22 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     : null;
   // WINGMAN_DISCOVERY_UC_DEVICE_DEPENDENCIES_END
 
-  if (hasAnswer(answers, "control", "touch-panel")) {
+  const controlValues = list(answers.control);
+  const controlInterfaceValues = [
+    "front-panel-remote", "wall-keypad", "touch-panel", "software-app-control",
+    "staff-mobile-control", "third-party-control", "central-operator-control",
+    "source-selection-at-display", "independent-display-routing", "presets-schedules",
+  ];
+  if (controlValues.some((value) => controlInterfaceValues.includes(value))) {
     addDevice({
       id: "device-control-panel",
-      name: "Control touch panel",
-      category: "control",
-      locationId: table.id,
+      name: controlValues.includes("central-operator-control") ? "Central operator source-routing control" : "Room source-selection control requirement",
+      category: "control-requirement",
+      locationId: controlValues.includes("central-operator-control") ? central?.id ?? rack.id : table.id,
       quantity: 1,
-      thirdParty: false,
-      status: "assumed",
+      thirdParty: true,
+      status: "unknown",
+      notes: `Functional requirement only; no control product or SKU selected. Confirm operator, interface, independent display/zone routing and integration scope. Captured needs: ${controlValues.filter((value) => controlInterfaceValues.includes(value)).join(", ")}.`,
     });
   }
 
@@ -1036,6 +860,16 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     );
   }
 
+  if (liveStreamEncoder) {
+    addConnection(
+      ndiMainDisplayDecoder ?? cameraRoutingBridge ?? core,
+      liveStreamEncoder,
+      ["video", "embedded-audio"],
+      "hdmi",
+      "NHD-300-TX needs an HDMI programme feed. Confirm whether the source is the NHD-150-RX multiview, a camera bridge output or another programme source.",
+    );
+  }
+
   displayDevices.forEach((display) => {
     addConnection(
       core,
@@ -1128,6 +962,15 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   if (networkDevice) {
     if (!connections.some((item) => item.toDeviceId === networkDevice.id || item.fromDeviceId === networkDevice.id)) {
       addConnection(core, networkDevice, ["ethernet", "av-over-ip"], "ip-av-vlan", "Logical AV network connection; endpoint patch leads remain separate.");
+    }
+    if (liveStreamEncoder) {
+      addConnection(
+        liveStreamEncoder,
+        networkDevice,
+        ["ethernet"],
+        "shared-ip-network",
+        "Confirm the wired uplink reaches the agreed public streaming platform or private audience and has sufficient sustained upload capacity.",
+      );
     }
   }
 

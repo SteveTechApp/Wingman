@@ -95,8 +95,9 @@ export function getVisibleDiscoveryQuestions(
     ? answers["repeater-displays"][0] ?? ""
     : String(answers["repeater-displays"] ?? "");
   const hasCameraWorkflow = ucPurposeValues.some((value) =>
-    ["video-conferencing", "recording-streaming", "camera-distribution-only"].includes(value),
+    ["video-conferencing", "recording-streaming", "live-stream-out", "camera-distribution-only"].includes(value),
   );
+  const noCameraSource = cameraValues.includes("no-camera-source");
   const hasMultipleCameras = ["two-cameras", "three-four-cameras", "five-plus-cameras"].includes(cameraCount);
   const audioByOthers = (Array.isArray(answers.audio) ? answers.audio : [String(answers.audio ?? "")]).includes("audio-by-others");
 
@@ -119,6 +120,8 @@ export function getVisibleDiscoveryQuestions(
   const wirelessRelevant = sourceProfileValues.some((value) => ["laptops-wireless-inputs", "mixed-hdmi-usbc", "network-video-sources"].includes(value)) || sourceDeviceValues.includes("wireless-casting-source");
   const networkPathRelevant = selectedApplication === "av-over-ip"
     || sourceProfileValues.includes("network-video-sources")
+    || ucPurposeValues.includes("live-stream-out")
+    || answers["uc-multi-camera-path"] === "multi-camera-ndi"
     || Boolean(answers["avoip-profile"]);
 
   return withApplicationQuestions.filter((step) => {
@@ -155,9 +158,9 @@ export function getVisibleDiscoveryQuestions(
 
     if (step.id === "mtr-av-integration" && !ucPlatformValues.includes("microsoft-teams-room")) return false;
 
-    if (["uc-camera", "uc-camera-count", "uc-camera-routing"].includes(step.id) && !hasCameraWorkflow) return false;
+    if (["uc-camera", "uc-camera-count", "uc-camera-routing"].includes(step.id) && (!hasCameraWorkflow || noCameraSource)) return false;
 
-    if (step.id === "uc-multi-camera-path" && (!hasCameraWorkflow || !hasMultipleCameras)) return false;
+    if (step.id === "uc-multi-camera-path" && (!hasCameraWorkflow || noCameraSource || !hasMultipleCameras)) return false;
 
     return true;
   }).map((step) => {
@@ -322,12 +325,13 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
     ],
   },
   "source-connection": {
-    likelyDirection: "Source connector type decides whether the next conversation is HDMI-only, USB-C, wireless input, NDI, or a mixed workflow.",
-    askNext: "Are the sources fixed HDMI devices, USB-C laptops, wireless inputs, or cameras and network streams?",
+    likelyDirection: "The source workflow separates installed equipment, devices people bring and feeds arriving over the network; the next answers capture device type, position and how users select content.",
+    askNext: "Which room equipment, customer devices and network feeds must be supported, and where are they located?",
     checkBeforeProduct: [
-      "HDMI, USB-C, wireless or network-video sources",
-      "Fixed devices versus user-driven inputs",
-      "Any NDI, PTZ or camera workflow",
+      "Device family, quantity and customer ownership",
+      "Connector or network-video format",
+      "Central rack, room rack, lectern, table, display or remote source position",
+      "Who chooses sources, where they do so and whether screens route independently",
     ],
   },
   "primary-display": {

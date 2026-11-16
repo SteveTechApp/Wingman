@@ -39,6 +39,7 @@ export type CompareSpecFacts = {
   usbDevicePorts?: number;
   usbTotalPorts?: number;
   usbCPorts?: number;
+  usbCInputs?: number;
   usbStandard?: string;
   audioInputs?: number;
   audioOutputs?: number;

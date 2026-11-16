@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T18:36:39.603Z",
+  "generatedAt": "2026-11-16T07:06:59.219Z",
   "generator": "tools/build-product-data-sources.mjs",
   "sourceFiles": [
     "data-sources/wyrestorm/products.csv",
@@ -36,13 +36,13 @@
     "data-sources/competitors/zeevee.csv"
   ],
   "hashes": {
-    "data-sources/wyrestorm/products.csv": "a25dc239648f7a7edb65aa7b2de5584db55921370350cd20f0637c969101a973",
-    "data-sources/wyrestorm/lifecycle.csv": "a1f5ec21ed49f7a67c785881781f045f6f6fd205369e8c72a99294175d737a5c",
-    "data-sources/wyrestorm/enrichment.json": "9c27f18089929f37c7b960b21d610915cc332c8e4778f54668ba1c4d48eaae6b",
+    "data-sources/wyrestorm/products.csv": "7057081720dade24dbf3723b0632733284792458c82f4d66c20ff9d35f66ce70",
+    "data-sources/wyrestorm/lifecycle.csv": "e0b6008e9bdcbbd609b418ceee62079bf78750d1e21d3bf3aae5eed61e1ef304",
+    "data-sources/wyrestorm/enrichment.json": "b2db65e15e5d9993d3ce1e82f49672361a9b5418ee4ea32b0827507666f6cf37",
     "data-sources/competitors/airtame.csv": "b83683d86b02fa6a09c4cf738b49d0fd2147134bcbc2f5f6f2506edd76f468f0",
     "data-sources/competitors/amx.csv": "ac102506d26e5fa7b8f73c330754c9b3567b41fabfec55fc8967136ab08fbd26",
     "data-sources/competitors/atlona.csv": "5122e4cdeff362c0255eea561412a6cb21ef282e7b795b744739c42d96d3375a",
-    "data-sources/competitors/avpro-edge.csv": "5663170dce7159def991c28f1a9704b362173e8c88762737051d999d3a155697",
+    "data-sources/competitors/avpro-edge.csv": "4e7a079a820c0bef756e69f8c4997678126eb70da3f026b0647f5ce7a9deda7c",
     "data-sources/competitors/barco.csv": "5d16345f0e89242b3caab4344d7ccd121d256e25111f8e066c5f556ee92a33e4",
     "data-sources/competitors/binary.csv": "d1b9d1a4f540db8125c3004d8ac213e4710b0d3062fa7b71c4e4424963eae4fd",
     "data-sources/competitors/birddog.csv": "c90c8a44519997946447d8cfc0df961975953a2bdcc3bad7301611d2d1e3995e",
@@ -69,8 +69,8 @@
     "data-sources/competitors/zeevee.csv": "b0bdae1b3e951d1a2ecacede7a79569ea1012c85043a6b3f9b6bfd30a955766e"
   },
   "counts": {
-    "wyrestorm": 314,
-    "wyrestormBlocked": 135,
+    "wyrestorm": 347,
+    "wyrestormBlocked": 109,
     "competitor": 354,
     "competitorApproved": 299,
     "competitorManufacturers": 28

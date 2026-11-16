@@ -221,6 +221,7 @@ export function compileDiscoveryBrief({
       !wingmanUnifiedCommsUnknown &&
       (
         wingmanUnifiedCommsValues.includes("recording-streaming") ||
+        wingmanUnifiedCommsValues.includes("live-stream-out") ||
         wingmanLegacyCombinedWorkflow
       );
     const wingmanCameraDistributionRequired =
@@ -242,6 +243,10 @@ export function compileDiscoveryBrief({
     const activeTopology = roomTopologyHasDraft(topology)
       ? normaliseProjectTopology(topology)
       : generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication });
+    const sourceLocationNames = Array.from(new Set(activeTopology.devices
+      .filter((device) => ["source", "network-video-source", "camera"].includes(device.category))
+      .map((device) => activeTopology.locations.find((location) => location.id === device.locationId)?.name)
+      .filter((name): name is string => Boolean(name))));
     const topologySummary = projectTopologySummary(activeTopology);
     const longestRunMetres = projectTopologyLongestRun(activeTopology);
     const connectionTypes = projectTopologyConnectionTypes(activeTopology);
@@ -343,6 +348,8 @@ export function compileDiscoveryBrief({
         sourceTypes: [...sourceConnections, ...sourceDeviceWorkflows],
         sourceConnections,
         sourceDeviceWorkflows,
+        sourceLocations: sourceLocationNames,
+        sourceControlNeeds: answerLabels("control"),
         wirelessPresentationOperation,
         sourceCount,
         displayCount,
@@ -443,6 +450,8 @@ export function compileDiscoveryBrief({
       sourceProfileValue: wmDiscoveryAnswerToText(
         answers["source-connection"],
       ),
+      sourceLocations: sourceLocationNames,
+      sourceControlNeeds: answerLabels("control"),
       unifiedCommsWorkflows: wingmanUnifiedCommsWorkflows,
       cameraMicrophoneWorkflows: wingmanUnifiedCommsWorkflows,
       unifiedCommsSummary: wingmanUnifiedCommsSummary,

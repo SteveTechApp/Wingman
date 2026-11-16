@@ -33,6 +33,37 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   unanswered condition for follow-up rather than treating one general site note
   as proof of the others.
 
+- The quick room ladder asks video direction on every path, including after
+  purpose and scale already identify one room type. This captures a call, a
+  one-way live stream out, or neither as a design fact rather than assuming a
+  decided room has no capture requirement. Live stream out adds a programme
+  feed and encoder requirement; two follow-ups capture what the feed carries
+  and whether it goes to a public platform, private network audience or both.
+  Site checks cover source, HDMI format, HDCP and wired-network capacity.
+  NHD-300-TX remains available as an encoder option; Discovery still qualifies
+  the actual source, platform and network before it becomes a system selection.
+
+- Focused view starts the same full governed Discovery question set as Expert,
+  but walks the rep through it one question at a time. Each answer updates the
+  shared brief and the generated system topology as the room takes shape. For a
+  multi-camera path, NDI selects CAM-210-NDI-PTZ sources, NHD-128-NDI-TRX as the
+  bridge into virtual NetworkHD sources, and NHD-150-RX as the display decoder;
+  non-NDI selects CAM-420-PTZ sources with CAM-0402-BRG. A live-stream-out answer
+  adds NHD-300-TX with checks for the HDMI feed, format, HDCP, platform and wired
+  upload path. These generated SKU rows are refreshed if the rep changes those
+  answers, while user-selected and confirmed equipment stays in the design.
+
+- Source discovery is a sequence of distinct decisions: fixed room equipment,
+  user-provided devices or network video; then the actual source families and
+  their quantities, ownership, connectors and positions; then who selects
+  content, where they do it, and whether displays or zones route independently.
+  The room position editor includes the central communications rack, local rack,
+  cupboard, lectern, table, display wall, network and remote rooms/buildings.
+  Source type, location and control needs travel into the saved room model and
+  proposal requirements. A control need remains an unresolved functional
+  requirement until the interface and product are selected; an answer alone
+  cannot create a guessed control SKU.
+
 - The room connection editor keeps transport, services, route length status,
   length in metres and the measurement basis on each connection. A rep can leave
   a route unknown or estimated, or mark it measured/confirmed with its value;

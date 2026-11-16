@@ -17,6 +17,7 @@ export interface WingmanFlowNodeData extends Record<string, unknown> {
   emphasis: VisualNodeEmphasis;
   reference: string;
   connectionLabels: string[];
+  statusLabel?: string;
 }
 
 const statusClass: Record<VisualNodeStatus, string> = {
@@ -316,6 +317,7 @@ export function buildReactFlowModel(
         emphasis,
         reference: `${referencePrefix}-${String(index + 1).padStart(2, "0")}`,
         connectionLabels: connectionLabels(model, node.id),
+        statusLabel: model.id === "single-product-context" && node.id === "selected-product" ? "Selected product" : undefined,
         className: `${statusClass[status]} ${emphasisClass[emphasis]} wm-vs-node-kind-${node.kind} wm-vs-node-mode-${mode}`
       }
     };

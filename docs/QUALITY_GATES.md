@@ -646,3 +646,12 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   a way past a red run. The reading lands in
   `reports/competitor-evidence-aging.json` on every run, which is ignored like
   the other generated reports.
+- `check:vendor-refresh-sanity` compares the current WyreStorm extraction with
+  its committed predecessor. Record coverage, evidence coverage and successful
+  page fetches guard against a broken source run. The per-profile shrink check
+  compares `capturedTechnicalLineCount`, and only for a page that returned 200:
+  serialized profile size is driven by prose and broad page tags, so it can fall
+  sharply when the extractor becomes more product-specific without losing any
+  specification evidence. A successful page losing more than 40% of its
+  previously captured technical lines remains an item for review. The refresh
+  check runs before canonical and public indices are rebuilt.

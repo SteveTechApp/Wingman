@@ -55,8 +55,10 @@ function allTextFiles() {
     ...walk("src", [".ts", ".tsx", ".js", ".jsx"]),
     ...walk("server", [".mjs", ".js"]),
     ...walk("tools", [".mjs", ".js"]),
-    ...walk("data", [".json", ".md", ".txt"]),
-    ...walk("public", [".json", ".md", ".txt"]),
+    // Product identity checks should inspect governed records and source, not
+    // prose documenting an intentionally incorrect SKU or generated snapshots.
+    ...walk("data", [".json"]).filter((file) => !file.startsWith("data/runtime/")),
+    ...walk("public", [".json"]),
   ];
 }
 
@@ -152,9 +154,16 @@ function checkDuplicateLiteralIds() {
 }
 
 function checkProjectStoreFallback() {
-  const text = read("src/wingman2/data/projectStore.ts");
-  add(text.includes("response.status === 401") ? "PASS" : "WARN", "Project Store", "401 handling exists");
-  add(text.includes('credentials: "include"') ? "PASS" : "FAIL", "Project Store", "Project API requests include credentials");
+  const sync = read("src/wingman2/features/projects/persistence/projectSyncService.ts");
+  const requests = read("src/wingman2/data/projectHydrationFetch.ts");
+  add(sync.includes("response.status === 401") ? "PASS" : "WARN", "Project Store", "401 handling exists");
+  add(
+    sync.includes("buildProjectApiRequest") && requests.includes('credentials: "include"')
+      ? "PASS"
+      : "FAIL",
+    "Project Store",
+    "Project API requests include credentials",
+  );
 }
 
 function checkVisualModelDoc() {

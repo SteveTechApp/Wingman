@@ -1,16 +1,9 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import index from "../../../public/product-intelligence-summary.json";
-import governedProfiles from "../../../data/governance/wyrestorm-technical-profiles.json";
-import { specCriticalFieldLabel } from "../lib/governedConfirmationBacklog";
-import { normaliseSkuKey } from "../lib/skuAliasResolver";
-import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
-import { governedBadgeMeta } from "../components/GovernedDataBadge";
 import { CatalogBrowserPage } from "./CatalogBrowserPage";
 
-// The real product-intelligence index drives the same catalogue build and
-// governed-tier resolution the live app uses.
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceSummary: vi.fn().mockResolvedValue(index),
 }));
@@ -24,50 +17,9 @@ vi.mock("../api/wingmanApi", () => ({
   postWingmanJson: vi.fn(),
 }));
 
-const governedProfilesList = (governedProfiles as {
-  profiles: Array<{ sku: string; status: string; verifiedBy?: string }>;
-}).profiles;
-
-const governedSkus = new Set(
-  governedProfilesList
-    .filter((profile) => profile.status.startsWith("verified"))
-    .map((profile) => normaliseSkuKey(profile.sku)),
-);
-
-// "Verified" requires a human: only profiles with status verified AND a
-// recorded verifiedBy render the verified tier (the 2026-08-16 review pass
-// confirmed a subset of the governed profiles).
-const humanVerifiedSkus = new Set(
-  governedProfilesList
-    .filter((profile) => profile.status === "verified" && Boolean(profile.verifiedBy?.trim()))
-    .map((profile) => normaliseSkuKey(profile.sku)),
-);
-
-// The page resolves tiers from the RAW index records (applyCatalogOverrides
-// flattens technicalProfile away), so the expected tier for a non-registry
-// card is whatever the same governed resolver derives from the raw record.
-const rawRecordsBySku = new Map<string, unknown>();
-for (const product of (index as { products?: unknown[] }).products ?? []) {
-  const record = product as { sku?: string };
-  if (record.sku) rawRecordsBySku.set(normaliseSkuKey(record.sku), product);
-}
-
-// The trail's field pill must equal exactly the reviewer's confirmed set, so
-// the expected pill is derived per SKU from the same governed data the page
-// renders with (review passes confirm whatever fields were readable - e.g. a
-// wireless dongle may carry only power).
-const confirmedFieldsBySku = new Map(
-  governedProfilesList
-    .filter((profile) => profile.status === "verified" && Boolean(profile.verifiedBy?.trim()))
-    .map((profile) => [
-      normaliseSkuKey(profile.sku),
-      ((profile as { confirmedFields?: string[] }).confirmedFields ?? []) as string[],
-    ]),
-);
-
-describe("catalog browser governed-coverage render", () => {
-  it("shows the honest governed tier on every card backed by a governed profile", async () => {
-    render(
+describe("catalog browser compact cards", () => {
+  it("keeps product cards focused on the product and the plain-language help link", async () => {
+    const { container } = render(
       <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
         <CatalogBrowserPage />
       </MemoryRouter>,
@@ -75,108 +27,60 @@ describe("catalog browser governed-coverage render", () => {
 
     await waitFor(
       () => {
-        expect(document.querySelectorAll(".wm-catalog-product-card").length).toBeGreaterThan(0);
+        expect(container.querySelectorAll(".wm-catalog-product-card").length).toBeGreaterThan(0);
       },
       { timeout: 5000 },
     );
 
-    const cards: Element[] = [];
-    for (let page = 0; page < index.products.length; page += 1) {
-      cards.push(...document.querySelectorAll(".wm-catalog-product-card"));
-      const next = screen.queryByRole<HTMLButtonElement>("button", { name: "Next results" });
-      if (!next || next.disabled) break;
-      fireEvent.click(next);
-    }
+    const cards = [...container.querySelectorAll(".wm-catalog-product-card")];
     expect(cards.length).toBeGreaterThan(0);
 
-    let governedCards = 0;
-    for (const card of cards) {
-      const sku = normaliseSkuKey(
-        card.querySelector(".wm-catalog-product-sku")?.textContent ?? "",
-      );
-      const badge = card.querySelector(".compare-native-governance-badge");
-      expect(badge, `card ${sku} carries a governance badge`).not.toBeNull();
-
-      if (governedSkus.has(sku)) {
-        // Governed-coverage guarantee: a card backed by a governed profile must
-        // never fall back to the unresolved badge, and must never claim the
-        // verified tier unless a human confirmed it (verifiedBy recorded).
-        if (humanVerifiedSkus.has(sku)) {
-          expect(badge?.textContent, `${sku} badge`).toContain("Verified governed data");
-          expect(badge?.className, `${sku} badge class`).toContain("is-verified");
-        } else {
-          expect(badge?.textContent, `${sku} badge`).toContain("Official data - review required");
-          expect(badge?.className, `${sku} badge class`).toContain("is-warn");
-          expect(badge?.className, `${sku} badge class`).not.toContain("is-verified");
-        }
-        governedCards += 1;
-      } else {
-        // Registry-free cards must still show the exact tier the governed
-        // resolver derives from the raw index record: official-page data
-        // renders official-structured, nothing resolving renders the
-        // canonical missing copy - and neither may claim the verified tier.
-        const expected = governedBadgeMeta(resolveProductTechnicalData(rawRecordsBySku.get(sku) ?? {}).sourceTier).text;
-        expect(badge?.textContent, `${sku} badge`).toContain(expected);
-        expect(badge?.className, `${sku} badge class`).not.toContain("is-verified");
-      }
-    }
-
-    // Sanity: the grid actually surfaces governed leads, so the guarantee is
-    // not vacuous.
-    expect(governedCards).toBeGreaterThan(0);
-  });
-
-  it("shows the reviewer trail only on human-verified cards", async () => {
-    render(
-      <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
-        <CatalogBrowserPage />
-      </MemoryRouter>,
+    const alphabetically = (labels: string[]) => [...labels].sort((left, right) =>
+      left.localeCompare(right, undefined, { sensitivity: "base", numeric: true }),
     );
-
-    await waitFor(
-      () => {
-        expect(document.querySelectorAll(".wm-catalog-product-card").length).toBeGreaterThan(0);
-      },
-      { timeout: 5000 },
-    );
-
-    const cards: Element[] = [];
-    for (let page = 0; page < index.products.length; page += 1) {
-      cards.push(...document.querySelectorAll(".wm-catalog-product-card"));
-      const next = screen.queryByRole<HTMLButtonElement>("button", { name: "Next results" });
-      if (!next || next.disabled) break;
-      fireEvent.click(next);
+    for (const group of container.querySelectorAll(".wm-catalog-facet-group")) {
+      const labels = [...group.querySelectorAll(".wm-catalog-chip")].map((chip) => chip.textContent?.trim() ?? "");
+      expect(labels).toEqual(alphabetically(labels));
     }
-    let verifiedCards = 0;
+    const featureGroup = [...container.querySelectorAll(".wm-catalog-facet-group")]
+      .find((group) => group.querySelector(".wm-catalog-facet-label")?.textContent === "Features & connections");
+    const featureLabels = [...(featureGroup?.querySelectorAll(".wm-catalog-chip") ?? [])]
+      .map((chip) => chip.textContent?.trim() ?? "");
+    expect(featureLabels).toContain("KVM (support)");
+    expect(featureLabels).toContain("1GbE");
+    expect(featureLabels).toContain("USB 2.0");
+    expect(featureLabels).toContain("USB 3.0");
+    expect(featureLabels).toContain("HDMI 2.0");
+    expect(featureLabels).toContain("HDBaseT 3.0");
+    expect(featureLabels).not.toContain("USB");
+
+    const toggleLabels = [...container.querySelectorAll(".wm-catalog-toggle-row .wm-catalog-chip")]
+      .map((chip) => (chip.textContent ?? "").replace(/^\s*✓\s*/, "").trim());
+    expect(toggleLabels).toEqual(alphabetically(toggleLabels));
+
+    const washByGroup = new Map<string, string>();
+    const washClasses = new Set<string>();
     for (const card of cards) {
-      const sku = normaliseSkuKey(card.querySelector(".wm-catalog-product-sku")?.textContent ?? "");
-      const badge = card.querySelector(".compare-native-governance-badge");
-      const trail = card.querySelector(".wm-governed-reviewer-trail");
-      if (badge?.className.includes("is-verified")) {
-        verifiedCards += 1;
-        // The same reviewer trail as the dashboard and Product Pitch: who
-        // confirmed, the exact confirmed field set, and the official source.
-        expect(trail, `verified card ${sku} carries the reviewer trail`).not.toBeNull();
-        expect(trail!.textContent).toContain("Confirmed by");
-        const confirmedFields = confirmedFieldsBySku.get(sku) ?? [];
-        if (confirmedFields.length > 0) {
-          const expectedPill = confirmedFields
-            .map((field) => specCriticalFieldLabel(field as "max-resolution" | "routed-io" | "power"))
-            .join(" · ");
-          expect(trail!.textContent, `verified card ${sku} field pill`).toContain(expectedPill);
-        }
-        const evidenceLink = trail!.querySelector("a");
-        const evidenceHref = evidenceLink?.getAttribute("href") ?? "";
-        // Official WyreStorm evidence pages may carry a locale prefix (e.g.
-        // /global/product/...), so accept any live wyrestorm.com product page.
-        expect(evidenceHref, `verified card ${sku} evidence link`).toContain("wyrestorm.com/");
-        expect(evidenceHref, `verified card ${sku} evidence link`).toContain("/product/");
-      } else {
-        expect(trail, `unverified card ${sku} never claims a reviewer trail`).toBeNull();
-      }
+      const group = card.getAttribute("data-catalog-group");
+      const washClass = [...card.classList].find((className) => className.startsWith("wm-catalog-group-wash-"));
+      expect(group).toBeTruthy();
+      expect(washClass).toBeTruthy();
+      const priorWash = washByGroup.get(group!);
+      if (priorWash) expect(washClass).toBe(priorWash);
+      washByGroup.set(group!, washClass!);
+      washClasses.add(washClass!);
+
+      expect(card.querySelector(".wm-catalog-product-sku")).not.toBeNull();
+      expect(card.querySelector(".wm-catalog-product-name")).not.toBeNull();
+      expect(card.querySelector(".wm-product-why-trigger")).not.toBeNull();
+      expect(card.querySelector(".wm-catalog-product-summary")).toBeNull();
+      expect(card.querySelector('[aria-label$=" governed spec evidence"]')).toBeNull();
+      expect(card.querySelector(".compare-native-governance-badge")).toBeNull();
+      expect(card.querySelector(".wm-catalog-badge-row")).toBeNull();
+      expect(card.querySelector(".wm-catalog-reasons")).toBeNull();
+      expect(card.querySelector(".wm-catalog-suppressed")).toBeNull();
+      expect(card.querySelector(".wm-governed-reviewer-trail")).toBeNull();
     }
-    // The grid actually surfaces human-verified leads, so the guarantee is not
-    // vacuous.
-    expect(verifiedCards).toBeGreaterThan(0);
+    expect(washClasses.size).toBeGreaterThan(1);
   });
 });

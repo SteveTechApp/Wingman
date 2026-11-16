@@ -227,8 +227,10 @@ export function CallCoachPage() {
 export function ProductsPage() {
   const [searchParams] = useSearchParams();
   const view = searchParams.get("view");
-  const activeView = view && ["catalogue", "families", "call-cards", "positioning"].includes(view)
-    ? view
+  const activeView = view === "focused" ? "call-cards"
+    : view === "expert" ? "positioning"
+    : view && ["catalogue", "families", "call-cards", "positioning"].includes(view)
+      ? view
     : searchParams.has("sku") ? "positioning" : "catalogue";
   return <ProductWorkspaceMode view={activeView} />;
 }

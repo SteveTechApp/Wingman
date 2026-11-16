@@ -95,6 +95,14 @@ function classification(decision: ProductSelectorDecision) {
   return readClassificationFacts(decision.product as Record<string, unknown>);
 }
 
+function proposalBomAllowed(decision: ProductSelectorDecision): boolean {
+  const maintenance = (decision.product as Record<string, unknown>).dataMaintenance;
+  if (!maintenance || typeof maintenance !== "object") return true;
+  const approvals = (maintenance as Record<string, unknown>).approvedFor;
+  if (!approvals || typeof approvals !== "object") return true;
+  return (approvals as Record<string, unknown>).proposal !== false;
+}
+
 export function resolveRecommendationSystemSlots(
   brief: StoredDiscoveryBrief | null,
   slotPool: RecommendationDecision[],
@@ -119,6 +127,9 @@ export function resolveRecommendationSystemSlots(
     slot,
     candidates: slot.supply === "external" ? [] : safetyCheckedSlotPool
       .filter((decision) => decision.eligible)
+      // A product kept out of proposal BOMs by its governed readiness gate
+      // cannot become a BOM candidate through Recommendations either.
+      .filter(proposalBomAllowed)
       .filter((decision) => productMatchesSlot(classification(decision), slot))
       .filter((decision) => slotMeetsDiscoveryNeed(slot, decision, need))
       .filter((decision) => !allInOneCannotCoverMicrophone(slot, decision))

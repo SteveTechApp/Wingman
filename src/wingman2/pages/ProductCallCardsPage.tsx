@@ -15,17 +15,23 @@ import {
   useProjectStore,
 } from "../data/projectStore";
 import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
+import { productFamilyWashClass } from "../lib/productFamilyWash";
 import { hydrateProductSpecWithTechnicalData } from "../lib/governedProductTechnicalData";
 import {
+  applyCatalogOverrides,
+  createDefaultCatalogFilterState,
+  filterCatalogProducts,
+  isExplicitCableIntent,
+  type CatalogFilterState,
+  type CatalogProduct,
+} from "../../features/catalog/catalogIntelligence";
+import {
   classifyProductCallCard,
-  PRODUCT_CALL_CARD_HEADINGS,
   productCallCardClassificationText,
-  type ClassifiedProductCallCardHeading,
 } from "../lib/productCallCardClassification";
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
 import { selectWingmanProducts } from "../lib/productSelectorEngine";
-import { useDebouncedValue } from "../lib/useDebouncedValue";
 import { getCompetitorLandscape } from "../lib/competitorLandscape";
 import {
   DEFAULT_SALES_CONVERSATION_TONE_ID,
@@ -37,12 +43,8 @@ import {
   type SalesConversationToneId,
 } from "../lib/salesConversationTone";
 import { useGlossaryHighlightsEnabled } from "../lib/glossaryHighlightPreference";
-import {
-  ProductFilterPanel,
-  ProductSearchField,
-  ProductWorkspaceHeader,
-  ProductWorkspaceNav,
-} from "../components/ProductWorkspaceChrome";
+import { ProductWorkspaceHeader, ProductWorkspaceNav } from "../components/ProductWorkspaceChrome";
+import { ProductCatalogFilters } from "../components/ProductCatalogFilters";
 import { cleanText, unique } from "../lib/productCallCardText";
 import { renderGuruGlossaryLinks } from "../components/guruGlossaryLinks";
 import type { ProductCard } from "../lib/productCallCardTypes";
@@ -83,9 +85,8 @@ function readStoredSalesConversationToneId(): SalesConversationToneId {
   return DEFAULT_SALES_CONVERSATION_TONE_ID;
 }
 
-// The six-stage workflow every call card walks a rep through. Rendered as a
-// guide in the product-mode header; the terms are also contract-checked by
-// tools/check-product-positioning-cards.mjs.
+// The six-stage workflow every call card walks a rep through; the product-
+// positioning gate also contract-checks these labels.
 const productCallCardWorkflowGuide = [
   "Product identifier",
   "Scenario checkpoint",
@@ -168,9 +169,6 @@ const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: strin
   { id: "salesGuide", label: "Sales guide", hint: "What to say" },
   { id: "technical", label: "Technical", hint: "Specs & checks" },
 ];
-
-const PAGE_SIZE = 14;
-const PRODUCT_CALL_CARD_FILTERS_KEY = "wingman.productCallCards.filters.v1";
 
 const PRODUCT_CALL_CARD_ENDPOINT = "/product-call-card-products.json";
 
@@ -759,66 +757,12 @@ async function loadProductSeeds(): Promise<ProductSeed[]> {
   return FALLBACK_PRODUCTS;
 }
 
-function matchesFamily(product: ProductCard, family: string): boolean {
-  if (family === "All") {
-    return true;
-  }
-
-  // Catalogue filters use the first heading; search covers all headings.
-  return product.headings[0] === (family as ClassifiedProductCallCardHeading);
-}
-
-type RecalledProductFilters = { query: string; family: string; quickFinder: string };
-function readRecalledProductFilters(): RecalledProductFilters {
-  const fallback = { query: "", family: "All", quickFinder: "All" };
-  if (typeof window === "undefined") return fallback;
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(PRODUCT_CALL_CARD_FILTERS_KEY) || "null") as Partial<RecalledProductFilters> | null;
-    return {
-      query: typeof parsed?.query === "string" ? parsed.query : "",
-      family: PRODUCT_CALL_CARD_HEADINGS.includes(parsed?.family as never) ? parsed!.family! : "All",
-      quickFinder: typeof parsed?.quickFinder === "string" ? parsed.quickFinder : "All",
-    };
-  } catch {
-    return fallback;
-  }
-}
-function productPresentationMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
-  const firstSkuChar = product.sku.charAt(0).toUpperCase();
-
-  if (quickFinder === "0-9" && !/^[0-9]$/.test(firstSkuChar)) {
-    return false;
-  }
-
-  if (quickFinder !== "All" && quickFinder !== "0-9" && firstSkuChar !== quickFinder) {
-    return false;
-  }
-
-  const haystack = [
-    product.sku,
-    product.name,
-    product.family,
-    product.category,
-    product.description,
-    product.fit,
-    product.openingLine,
-    ...product.questions,
-    ...product.proofPoints,
-    ...product.tags,
-    product.sourceSearchText,
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  if (!matchesFamily(product, family)) {
-    return false;
-  }
-
-  if (!query.trim()) {
-    return true;
-  }
-
-  return haystack.includes(query.trim().toLowerCase());
+function createCallCardCatalogFilterState(): CatalogFilterState {
+  return {
+    ...createDefaultCatalogFilterState(),
+    includeAccessories: true,
+    excludeEolSoon: false,
+  };
 }
 
 function getSkuFromPath(): string {
@@ -838,14 +782,10 @@ export default function ProductCallCardsPage() {
   const pathSku = getSkuFromPath();
 
   const [products, setProducts] = useState<ProductCard[]>([]);
+  const [catalogRecords, setCatalogRecords] = useState<CatalogProduct[]>([]);
   const [isFallback, setIsFallback] = useState(false);
-  const recalledFilters = useMemo(readRecalledProductFilters, []);
-  const [query, setQuery] = useState(recalledFilters.query);
-  const debouncedQuery = useDebouncedValue(query);
-  const [activeFamily, setActiveFamily] = useState(recalledFilters.family);
-  const [activeQuickFinder, setActiveQuickFinder] = useState(recalledFilters.quickFinder);
+  const [catalogFilterState, setCatalogFilterState] = useState<CatalogFilterState>(createCallCardCatalogFilterState);
   const [selectedSku, setSelectedSku] = useState(pathSku);
-  const [pageIndex, setPageIndex] = useState(0);
   const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("overview");
   const [projectTargetOpen, setProjectTargetOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
@@ -875,6 +815,7 @@ export default function ProductCallCardsPage() {
         .filter((product) => product.sku)
         .sort((a, b) => a.sku.localeCompare(b.sku));
 
+      setCatalogRecords(applyCatalogOverrides(seeds));
       setProducts(cards);
       setIsFallback(seeds === FALLBACK_PRODUCTS);
 
@@ -890,75 +831,29 @@ export default function ProductCallCardsPage() {
     };
   }, [pathSku]);
 
-  useEffect(() => {
-    setPageIndex(0);
-  }, [query, activeFamily, activeQuickFinder]);
-
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(PRODUCT_CALL_CARD_FILTERS_KEY, JSON.stringify({ query, family: activeFamily, quickFinder: activeQuickFinder }));
-    } catch {
-      // Filtering remains usable when browser storage is unavailable.
-    }
-  }, [query, activeFamily, activeQuickFinder]);
-
-  const availableQuickFinders = useMemo(() => {
-    const available = new Set<string>();
-    available.add("All");
-
-    const governedProducts = selectWingmanProducts(products, {
-      mode: "call-card",
-      query: debouncedQuery,
-      includeBrowseOnly: true,
-    })
-      .filter((decision) => decision.eligible)
-      .map((decision) => decision.product);
-
-    governedProducts
-      .filter((product) => productPresentationMatches(product, debouncedQuery, activeFamily, "All"))
-      .forEach((product) => {
-        const firstSkuChar = product.sku.charAt(0).toUpperCase();
-
-        if (/^[0-9]$/.test(firstSkuChar)) {
-          available.add("0-9");
-          return;
-        }
-
-        if (/^[A-Z]$/.test(firstSkuChar)) {
-          available.add(firstSkuChar);
-        }
-      });
-
-    return available;
-  }, [products, debouncedQuery, activeFamily]);
-
-  useEffect(() => {
-    if (activeQuickFinder === "All") {
-      return;
-    }
-
-    if (availableQuickFinders.has(activeQuickFinder)) {
-      return;
-    }
-
-    setActiveQuickFinder("All");
-  }, [activeQuickFinder, availableQuickFinders]);
+  const matchingCatalogSkus = useMemo(
+    () => new Set(filterCatalogProducts(catalogRecords, catalogFilterState).map((product) => normaliseSku(product.sku))),
+    [catalogRecords, catalogFilterState],
+  );
 
   const filteredProducts = useMemo(() => {
+    const explicitCableIntent = catalogRecords.some((product) =>
+      product.roles.includes("cable") && isExplicitCableIntent(product, catalogFilterState));
     const governedProducts = selectWingmanProducts(products, {
       mode: "call-card",
-      query: debouncedQuery,
+      query: catalogFilterState.search,
       includeBrowseOnly: true,
+      includeCables: explicitCableIntent,
+      includeAccessories: catalogFilterState.includeAccessories || explicitCableIntent,
+      includeDependencies: catalogFilterState.includeAccessories || explicitCableIntent,
     })
       .filter((decision) => decision.eligible)
       .map((decision) => decision.product);
 
-    return governedProducts.filter((product) => productPresentationMatches(product, debouncedQuery, activeFamily, activeQuickFinder));
-  }, [products, debouncedQuery, activeFamily, activeQuickFinder]);
-
-  const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
-  const safePageIndex = Math.min(pageIndex, pageCount - 1);
-  const pageProducts = filteredProducts.slice(safePageIndex * PAGE_SIZE, safePageIndex * PAGE_SIZE + PAGE_SIZE);
+    return governedProducts
+      .filter((product) => matchingCatalogSkus.has(normaliseSku(product.sku)))
+      .sort((a, b) => a.sku.localeCompare(b.sku, undefined, { sensitivity: "base" }));
+  }, [products, catalogRecords, catalogFilterState, matchingCatalogSkus]);
 
   const selectedProduct = selectedSku ? products.find((product) => product.sku === selectedSku) ?? null : null;
   useFocusedCardDetailHydration<ProductCard>(selectedSku, setProducts);
@@ -1205,10 +1100,6 @@ export default function ProductCallCardsPage() {
     });
   }
 
-  const firstVisible = filteredProducts.length === 0 ? 0 : safePageIndex * PAGE_SIZE + 1;
-  const lastVisible = Math.min(filteredProducts.length, (safePageIndex + 1) * PAGE_SIZE);
-  const curatedCount = products.filter((product) => product.curated).length;
-
   function returnToProductSelection(): void {
     setSelectedSku("");
     setActiveProductPanel("overview");
@@ -1355,47 +1246,48 @@ return (
       ), document.body)}
 
       {selectedProduct ? (
-        <header className="wm-pcc-header wm-ui-card-header">
-          <div>
-          <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">
-            Product discussion
-          </p>
-          <h1 className="wm-pcc-title wm-ui-title">
-            {selectedProduct.sku}
-          </h1>
-          <p className="wm-pcc-subtitle wm-ui-copy">
-            {[selectedProduct.family, selectedProduct.category].filter(Boolean).join(" · ")}
-          </p>
-          <ol className="wm-ui-copy" aria-label="Call card workflow">
-            {productCallCardWorkflowGuide.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-          </div>
-          <button
-            type="button"
-            className="wm-ui-button wm-ui-button-secondary wm-pcc-return-button"
-            onClick={returnToProductSelection}
-          >
-            Return to product selection
-          </button>
-        </header>
+        <>
+          <ProductWorkspaceNav />
+          <header className="wm-pcc-header wm-ui-card-header">
+            <div className="wm-pcc-header-product">
+            <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">
+              Focused product discussion
+            </p>
+            <h1 className="wm-pcc-title wm-ui-title">
+              {selectedProduct.sku}
+            </h1>
+            <p className="wm-pcc-subtitle wm-ui-copy">
+              {[selectedProduct.family, selectedProduct.category].filter(Boolean).join(" · ")}
+            </p>
+            </div>
+            <ol className="wm-pcc-workflow-guide wm-ui-copy" aria-label="Call card workflow">
+              {productCallCardWorkflowGuide.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-secondary wm-pcc-return-button"
+              onClick={returnToProductSelection}
+            >
+              Return to product selection
+            </button>
+          </header>
+        </>
       ) : (
         <>
           <ProductWorkspaceHeader
-            eyebrow="Products / Call cards"
-            title="Find a product call card"
-            description="Search or filter the governed range, then open concise facts and customer-ready sales guidance."
+            eyebrow="Products / Focused view"
+            title="Find a product for the conversation"
+            description="Choose a product, prepare customer-ready wording and capture the next discovery questions."
           />
           <ProductWorkspaceNav />
-          <ProductFilterPanel>
-          <ProductSearchField
-            value={query}
-            onChange={setQuery}
-            label="Search products"
-            placeholder="Search SKU, family, product type or application..."
+          <ProductCatalogFilters
+            catalog={catalogRecords}
+            state={catalogFilterState}
+            onChange={(patch) => setCatalogFilterState((current) => ({ ...current, ...patch }))}
+            searchPlaceholder="Search SKU, product name or application..."
           />
-          </ProductFilterPanel>
         </>
       )}
 
@@ -1472,26 +1364,21 @@ return (
       )}
 
 <section className="wm-pcc-card wm-pcc-left wm-ui-section wm-ui-card">
-          <div className="wm-pcc-chips">
-            {PRODUCT_CALL_CARD_HEADINGS.map((family) => (
-              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-chip ${activeFamily === family ? "wm-pcc-chip-active" : ""}`].filter(Boolean).join(" ")}
-                key={family}
-                type="button"
-                onClick={() => setActiveFamily(family)}
-
-              >
-                {family}
-              </button>
-            ))}
-          </div>
-
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated
+              Showing {filteredProducts.length} matching products
               {compareMode && compareSkus.length > 0 && (
                 <> · <strong>{compareSkus.length}/3</strong> selected for compare</>
               )}
             </span>
+
+            <button
+              type="button"
+              className="wm-ui-button wm-ui-button-secondary"
+              onClick={() => setCatalogFilterState(createCallCardCatalogFilterState())}
+            >
+              Reset filters
+            </button>
 
             <button
               type="button"
@@ -1506,27 +1393,6 @@ return (
               {compareMode ? "Exit compare" : "Compare"}
             </button>
 
-            <div className="wm-pcc-pager">
-              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-pager-button ${safePageIndex <= 0 ? "wm-pcc-disabled" : ""}`].filter(Boolean).join(" ")}
-                type="button"
-                onClick={() => setPageIndex(Math.max(0, safePageIndex - 1))}
-                disabled={safePageIndex <= 0}
-
-              >
-                Previous
-              </button>
-
-              <span>Page {safePageIndex + 1} of {pageCount}</span>
-
-              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-pager-button ${safePageIndex >= pageCount - 1 ? "wm-pcc-disabled" : ""}`].filter(Boolean).join(" ")}
-                type="button"
-                onClick={() => setPageIndex(Math.min(pageCount - 1, safePageIndex + 1))}
-                disabled={safePageIndex >= pageCount - 1}
-
-              >
-                Next
-              </button>
-            </div>
           </div>
 
           {isFallback && (
@@ -1536,8 +1402,8 @@ return (
           )}
 
           <div className="wm-pcc-product-grid">
-            {pageProducts.map((product) => (
-              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-product ${selectedProduct?.sku === product.sku && !compareMode ? "wm-pcc-product-active" : ""} ${compareSkus.includes(product.sku) ? "wm-pcc-product-compare" : ""}`].filter(Boolean).join(" ")}
+            {filteredProducts.map((product) => (
+              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-product ${productFamilyWashClass(product.sku)} ${selectedProduct?.sku === product.sku && !compareMode ? "wm-pcc-product-active" : ""} ${compareSkus.includes(product.sku) ? "wm-pcc-product-compare" : ""}`].filter(Boolean).join(" ")}
                 key={product.sku}
                 type="button"
                 onClick={() => {
@@ -1564,15 +1430,17 @@ return (
                   </span>
                 )}
                 <span className="wm-pcc-sku">{product.sku}</span>
-                <span className="wm-pcc-family">
-                  {product.curated ? "Curated · " : ""}
-                  {product.family}
-                </span>
-                {(product.openingLine || product.description) && (
-                  <span className="wm-pcc-hint">
-                    {product.openingLine || product.description}
+                <span className="wm-pcc-copy">
+                  <span className="wm-pcc-family">
+                    {product.curated ? "Curated · " : ""}
+                    {product.family}
                   </span>
-                )}
+                  {(product.openingLine || product.description) && (
+                    <span className="wm-pcc-hint">
+                      {product.openingLine || product.description}
+                    </span>
+                  )}
+                </span>
 
               </button>
             ))}
@@ -1668,45 +1536,8 @@ return (
             )}
           </div>
 
-          {selectedProduct && (
-            <div className="wm-pcc-gallery-strip" aria-label="Quick actions">
-              <button
-                type="button"
-                className="wm-pcc-visual-studio-button wm-ui-button wm-ui-button-secondary"
-                onClick={() => {
-                  if (!selectedProduct) {
-                    return;
-                  }
-
-                  try {
-                    window.sessionStorage.setItem(
-                      "wingman.visualStudio.productSeed",
-                      JSON.stringify({
-                        source: "product-discussion",
-                        sku: selectedProduct.sku,
-                        family: selectedProduct.family,
-                        category: selectedProduct.category,
-                        description: selectedProduct.description,
-                        questions: selectedProduct.questions,
-                        proofPoints: selectedProduct.proofPoints,
-                      }),
-                    );
-                  } catch {
-                    // Continue with navigation even if storage is unavailable.
-                  }
-
-                  const params = new URLSearchParams();
-                  params.set("seedSku", selectedProduct.sku);
-                  params.set("source", "product-discussion");
-
-                  navigate(`/wingman/proposal-visuals?${params.toString()}`);
-                }}
-              >
-                Visualise in Studio
-              </button>
-            </div>
-          )}
-          <div className="wm-pcc-section-tabs" aria-label="Product discussion sections">
+          <div className="wm-pcc-gallery-strip wm-pcc-product-toolbar" role="group" aria-label="Product discussion tools">
+          <div className="wm-pcc-section-tabs" role="group" aria-label="Product discussion sections">
             {PRODUCT_PANEL_TABS.map((tab) => (
               <button className={["wm-ui-button wm-ui-button-secondary", [
                   "wm-pcc-section-tab",
@@ -1725,6 +1556,39 @@ return (
                 
               </button>
             ))}
+          </div>
+          {selectedProduct && (
+            <button
+              type="button"
+              className="wm-pcc-visual-studio-button wm-ui-button wm-ui-button-secondary"
+              onClick={() => {
+                try {
+                  window.sessionStorage.setItem(
+                    "wingman.visualStudio.productSeed",
+                    JSON.stringify({
+                      source: "product-discussion",
+                      sku: selectedProduct.sku,
+                      family: selectedProduct.family,
+                      category: selectedProduct.category,
+                      description: selectedProduct.description,
+                      questions: selectedProduct.questions,
+                      proofPoints: selectedProduct.proofPoints,
+                    }),
+                  );
+                } catch {
+                  // Continue with navigation even if storage is unavailable.
+                }
+
+                const params = new URLSearchParams();
+                params.set("seedSku", selectedProduct.sku);
+                params.set("source", "product-discussion");
+
+                navigate(`/wingman/proposal-visuals?${params.toString()}`);
+              }}
+            >
+              Visualise in Studio
+            </button>
+          )}
           </div>
 
           {!selectedProduct && (

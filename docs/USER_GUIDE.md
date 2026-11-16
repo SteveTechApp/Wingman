@@ -134,15 +134,19 @@ Projects.
   case, review what a product actually does in a system, and open the guidance
   for it.
 - **Product Families** explains what a family is for and where it fits.
-- **Product Positioning** turns product facts into customer-safe wording.
-- **Product Positioning** turns product facts into customer-safe wording, and
-  each product there carries **Report a problem** for a fact that looks wrong.
+- **Product workspace** has two views for the same selected product. Focused
+  prepares customer-safe wording and carries **Report a problem** for facts
+  that look wrong; Expert adds technical, competitor and design-fit detail.
 - **Catalogue Browser** filters the range by family, role, technology and
   lifecycle status. A product marked as do-not-spec, or outside the current
   lifecycle, is not offered as a recommendation — that is the gate working, not
-  a search miss.
-- **Product Call Cards** carry SKU-specific facts, use cases and customer
-  wording, and stay available on a phone in the room.
+  a search miss. HDMI and USB cables are hidden from general results; select the
+  Cable role or search for a cable to find them. Including accessories alone does
+  not add cables.
+- **Product Call Cards** are the Focused view of the product workspace. They
+  carry SKU-specific facts, use cases and customer wording, and stay available
+  on a phone in the room. Switch to **Expert view** to keep that product while
+  opening its technical, competitor and design-fit detail.
 - **Recommendations** shows the products matched from a completed Discovery
   brief, with the evidence behind each match.
 

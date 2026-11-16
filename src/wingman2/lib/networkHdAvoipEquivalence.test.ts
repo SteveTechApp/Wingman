@@ -13,13 +13,13 @@ import { isWyreStormSkuCompareLeadAllowed } from "./wyrestormSkuBusinessStatus";
 
 describe("isBannedNetworkHdSku", () => {
   it("bans the retired legacy families and their variants", () => {
-    for (const sku of ["NHD-100", "NHD-110", "NHD-110-TX", "NHD-110-RX", "NHD-220", "NHD-220-RX", "NHD-300-TX", "NHD-400", "NHD-400-TX-V2", "NHD-400-RX-V3"]) {
+    for (const sku of ["NHD-100", "NHD-110", "NHD-110-TX", "NHD-110-RX", "NHD-220", "NHD-220-RX", "NHD-400", "NHD-400-TX-V2", "NHD-400-RX-V3"]) {
       expect(isBannedNetworkHdSku(sku)).toBe(true);
     }
   });
 
   it("never bans the current AVoIP families", () => {
-    for (const sku of ["NHD-120-TX", "NHD-124-TX", "NHD-150-RX", "NHD-500-TX", "NHD-500-E-RX", "NHD-510-TX", "NHD-600-TRX", "NHD-610-TX"]) {
+    for (const sku of ["NHD-120-TX", "NHD-124-TX", "NHD-150-RX", "NHD-300-TX", "NHD-500-TX", "NHD-500-E-RX", "NHD-510-TX", "NHD-600-TRX", "NHD-610-TX"]) {
       expect(isBannedNetworkHdSku(sku)).toBe(false);
     }
   });
@@ -198,7 +198,8 @@ describe("recommendNetworkHdAvoip", () => {
 describe("ban list export", () => {
   it("documents the canonical banned SKUs", () => {
     expect(BANNED_NETWORKHD_SKUS).toContain("NHD-100");
-    expect(BANNED_NETWORKHD_SKUS).toContain("NHD-300-TX");
+    expect(BANNED_NETWORKHD_SKUS).not.toContain("NHD-300-TX");
+    expect(isBannedNetworkHdSku("NHD-300-TX")).toBe(false);
     expect(BANNED_NETWORKHD_SKUS.every(isBannedNetworkHdSku)).toBe(true);
   });
 });

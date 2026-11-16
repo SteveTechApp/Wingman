@@ -89,8 +89,8 @@ export function RoomBriefWizard() {
           <p className="wm-ui-kicker">Start with the room, not the catalogue</p>
           <h1 id="room-brief-title" className="wm-page-title">What has the customer asked for?</h1>
           <p className="wm-ui-copy">
-            Three facts the customer can answer without knowing anything about AV. Everything after
-            this is asked because it separates one kind of room from another.
+            Three facts the customer can answer without knowing anything about AV. Follow-up questions
+            capture the room and signal paths that change the design.
           </p>
 
           <label className="wm-room-brief-market">

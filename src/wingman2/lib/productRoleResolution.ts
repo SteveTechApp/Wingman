@@ -72,6 +72,7 @@ export type ProductRoleResolution = {
 // something else, and treating them as a role is the exact bug this replaces.
 // Only devices whose primary purpose is audio appear under "audio".
 const ROLE_TOKEN_PRIORITY: Array<{ role: ProductRole; tokens: string[] }> = [
+  { role: "general", tokens: ["power-supply"] },
   { role: "videoWall", tokens: ["video-wall", "videowall", "video-wall-processor"] },
   { role: "multiview", tokens: ["multiview", "multiview-processor"] },
   // "video-bar" is deliberately NOT a camera signal. Add-on microphones

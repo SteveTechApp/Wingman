@@ -2029,7 +2029,7 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
   box-shadow: 0 0 0 3px rgba(54, 219, 224, 0.12);
 }
 
-.wm-catalog-toggle-row, .wm-pcc-chips {
+.wm-catalog-toggle-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2044,6 +2044,7 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
 .wm-catalog-page .wm-catalog-facets {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: 12px;
   margin: 0;
   padding: 0;
@@ -2052,12 +2053,18 @@ html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-ca
 }
 
 .wm-catalog-page .wm-catalog-facet-group {
+  align-content: start;
   min-width: 0;
   margin: 0;
   padding: 12px;
   border: 1px solid rgba(93, 180, 214, 0.15);
   border-radius: 10px;
   background: rgba(8, 29, 47, 0.56);
+}
+
+.wm-catalog-page .wm-catalog-features-facet {
+  grid-column: 3;
+  grid-row: 1;
 }
 
 .wm-catalog-results-head {
@@ -2138,6 +2145,11 @@ body .wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode aside.wm-pc
 
   .wm-catalog-page .wm-catalog-facets {
     grid-template-columns: 1fr;
+  }
+
+  .wm-catalog-page .wm-catalog-features-facet {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .wm-pcc-shell-selection-mode .wm-pcc-product-grid {

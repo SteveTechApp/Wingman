@@ -229,7 +229,7 @@ describe("guided interview spoken-answer interpretation", () => {
     const svCameras = matchSpokenAnswer(cameras, "en ptz kamera och en webkamera", "sv").values;
     expect(svCameras).toContain("usb-ptz-camera");
     expect(svCameras).toContain("fixed-usb-camera");
-    expect(matchSpokenAnswer(cameras, "без камер", "ru").values).toEqual([]);
+    expect(matchSpokenAnswer(cameras, "без камер", "ru").values).toContain("no-camera-source");
   });
 
   it("interprets Chinese and Hindi answers with their phrase tables", () => {

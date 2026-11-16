@@ -200,7 +200,10 @@ describe("competitor compare runtime behaviour", () => {
     const leadSkus = skus(result.matches).slice(0, 6);
 
     expect(result.competitor.domain).toBe("HDBASET");
-    expect(leadSkus[0]).toBe("EX3-100-EARC");
+    // EX-40-KVM-5K carries explicit HDBaseT 3.0 evidence and the stronger
+    // 5K/KVM capability match for this 18Gbps comparator; EX-70-H2 has no
+    // generation evidence and must remain behind the generation-matched lead.
+    expect(leadSkus[0]).toBe("EX-40-KVM-5K");
     expect(leadSkus.indexOf("EX-70-H2")).toBeGreaterThan(0);
   });
 

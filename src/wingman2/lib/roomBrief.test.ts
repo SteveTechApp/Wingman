@@ -34,10 +34,9 @@ describe("setup", () => {
 
 describe("question choice", () => {
   it("asks what divides the remaining rooms most evenly, not what comes first", () => {
-    // Seven genres of room are still possible, and `reach` splits them 2/3
-    // while `far-end` — first in the list — splits them 1/5.
+    // Video direction is always confirmed before the remaining room-type split.
     const next = nextRoomBriefQuestion(answer({ purpose: "show-many" }));
-    expect(next?.id).toBe("reach");
+    expect(next?.id).toBe("far-end");
   });
 
   it("does not re-ask a question it has an answer to", () => {
@@ -47,7 +46,7 @@ describe("question choice", () => {
   });
 
   it("stops asking once one room is left", () => {
-    expect(nextRoomBriefQuestion(answer({ purpose: "campus" }))).toBeNull();
+    expect(nextRoomBriefQuestion(answer({ purpose: "campus", "far-end": "no" }))).toBeNull();
   });
 
   it("stops rather than guessing between rooms no question separates", () => {
@@ -70,7 +69,14 @@ function pathTo(archetypeId: string): Record<string, string> {
     occupancy: archetypeId === "huddle-byod" ? "squad" : "medium",
     purpose: purposes.find((purpose) => setupArchetypes({ purpose }).includes(archetypeId as never)) ?? "",
   };
+  // Video direction is a required brief fact on every path. Seed the simplest
+  // supported answer here so reachability tests focus on room classification.
+  const direction = ROOM_BRIEF_QUESTIONS.find((question) => question.id === "far-end");
+  const directionOption = direction?.options.find((option) => option.value === "no" && option.supports.includes(archetypeId as never))
+    ?? direction?.options.find((option) => option.value === "yes" && option.supports.includes(archetypeId as never));
+  if (directionOption) answers["far-end"] = directionOption.value;
   for (const question of ROOM_BRIEF_QUESTIONS) {
+    if (answers[question.id]) continue;
     if (!survivingArchetypes(answers).includes(archetypeId as never)) break;
     const option = question.options.find((candidate) => candidate.supports.includes(archetypeId as never));
     if (option) answers[question.id] = option.value;
@@ -174,28 +180,28 @@ describe("the ladder's length", () => {
       room: "a divisible boardroom",
       seed: { purpose: "present", occupancy: "medium" },
       says: { screens: "different", "far-end": "yes", partition: "yes" },
-      asks: ["screens", "far-end", "partition"],
+      asks: ["far-end", "screens", "partition"],
       lands: "divisible-boardroom",
     },
     {
       room: "a teaching room",
       seed: { purpose: "teach", occupancy: "medium" },
-      says: { partition: "no", "far-end": "no" },
-      asks: ["partition", "far-end"],
+      says: { partition: "no", "far-end": "yes", record: "no" },
+      asks: ["far-end", "partition", "record"],
       lands: "classroom",
     },
     {
       room: "a control room",
       seed: { purpose: "show-many", occupancy: "medium" },
-      says: { reach: "yes", "far-end": "yes" },
-      asks: ["reach", "far-end"],
+      says: { reach: "yes", "far-end": "yes", partition: "no" },
+      asks: ["far-end", "partition", "reach"],
       lands: "control-room",
     },
     {
       room: "a hospitality venue",
       seed: { purpose: "signage", occupancy: "large" },
-      says: { screens: "different", reach: "yes" },
-      asks: ["screens", "reach"],
+      says: { screens: "different", reach: "yes", "far-end": "no" },
+      asks: ["far-end", "reach"],
       lands: "venue",
     },
   ];

@@ -327,6 +327,19 @@ export function evaluateProductEligibility(args: {
       candidateExtenderFit,
     );
 
+    // Generation is a design constraint, not a vague feature match. An
+    // HDBaseT 3.0 competitor must not be led by a generic extender whose
+    // generation is absent from the official SKU/profile evidence.
+    const needsHdBaseT3 = /\bhdbaset\s*3(?:\.0)?\b|\bhdbt\s*3(?:\.0)?\b/i.test(args.competitorText);
+    const candidateHasHdBaseT3 = /^EX3-/i.test(sku) || /\bhdbaset\s*3(?:\.0)?\b|\bhdbt\s*3(?:\.0)?\b/i.test(combined);
+    if (needsHdBaseT3 && !candidateHasHdBaseT3) {
+      return related(
+        args.intent,
+        ["HDBaseT 3.0 is required, but this candidate has no explicit generation evidence.", ...structuralFit.reasons],
+        Math.max(90, structuralFit.fitPenalty),
+      );
+    }
+
     if (/^NHDUSBTRX$/.test(key) && /\busb\b/i.test(args.competitorText)) {
       if (!structuralFit.directCapable) {
         return related(

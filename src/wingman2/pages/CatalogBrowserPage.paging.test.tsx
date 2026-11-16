@@ -18,10 +18,9 @@ vi.mock("../api/wingmanApi", () => ({
   postWingmanJson: vi.fn(),
 }));
 
-import { expectResultsWindow, resultsWindow, turnResultsPage } from "../lib/testHelpers/resultsPager";
 import { CatalogBrowserPage } from "./CatalogBrowserPage";
 
-describe("CatalogBrowserPage paging reset", () => {
+describe("CatalogBrowserPage result list", () => {
   beforeEach(() => {
     getWingmanSession.mockReset();
     getWingmanJson.mockReset();
@@ -34,31 +33,32 @@ describe("CatalogBrowserPage paging reset", () => {
 
   // The catalogue summary is large, so this loads in a few seconds; give it a
   // proportionate budget rather than the default timeout.
-  it("returns to the first page on a filter change, and leaves the page alone while a record is edited", async () => {
-    render(
+  it("renders all matching products together without a results pager", async () => {
+    const { container } = render(
       <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
         <CatalogBrowserPage />
       </MemoryRouter>,
     );
 
     await screen.findAllByRole("button", { name: "Edit record" });
-    // Four cards fit a page, so the pager is on screen and the arrow leads to a
-    // second page the filter change has to undo.
-    const { total } = resultsWindow();
-    expect(total).toBeGreaterThan(8);
+    const cardCount = () => container.querySelectorAll(".wm-catalog-product-card").length;
+    const resultCount = () => Number(screen.getByText(/^\d+ products?$/).textContent?.match(/\d+/)?.[0] ?? 0);
+    const expectAllMatchesRendered = () => expect(cardCount()).toBe(resultCount());
 
-    turnResultsPage(5, 8, total);
+    expect(resultCount()).toBeGreaterThan(8);
+    expectAllMatchesRendered();
+    expect(screen.queryByRole("navigation", { name: "Results pages" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Next results" })).not.toBeInTheDocument();
 
-    // Editing a record opens the JSON editor over the list, and the page behind
-    // it is still the page the record came from: no filter moved.
+    // Opening an editor does not remove the rest of the scrollable result list.
     fireEvent.click(screen.getAllByRole("button", { name: "Edit record" })[0]);
     const editor = await screen.findByRole("dialog");
-    expectResultsWindow(5, 8, total);
+    expectAllMatchesRendered();
     fireEvent.click(within(editor).getByRole("button", { name: "Close" }));
-    expectResultsWindow(5, 8, total);
+    expectAllMatchesRendered();
 
-    // A search is a filter, so it returns the list to its first page.
-    fireEvent.change(screen.getByLabelText("Search products"), { target: { value: "NHD" } });
-    expect(resultsWindow().from).toBe(1);
+    fireEvent.change(screen.getByLabelText("Search products"), { target: { value: "NHD-CTL-PRO-V2" } });
+    expect(resultCount()).toBeLessThan(8);
+    expectAllMatchesRendered();
   }, 60000);
 });

@@ -95,9 +95,9 @@ describe("confirmation-aging reporter core", () => {
     expect(tierBoundary.unconfirmedCount).toBe(2);
   });
 
-  it("reports the clean live dataset: zero backlog after the A1 confirmation passes", () => {
+  it("reports the live review backlog without aging profiles", () => {
     const result = assessConfirmationAging(profilesData, agingConfig, new Date());
-    expect(result.unconfirmedCount).toBe(0);
+    expect(result.unconfirmedCount).toBe(20);
     expect(result.aging.length).toBe(0);
     expect(result.overdue.length).toBe(0);
   });
