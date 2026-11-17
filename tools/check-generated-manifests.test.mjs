@@ -29,6 +29,13 @@ describe("dataManifestDriftErrors (product-data-manifest.generated.json)", () =>
     expect(dataManifestDriftErrors(manifest, reader, expected)).toEqual([]);
   });
 
+  it("treats CRLF and LF checkouts as the same source content", () => {
+    const { manifest, expected } = cleanManifest();
+    const crlfReader = (file) => (file === SOURCE_A ? "product-row-a\r\n" : "lifecycle-row-b\r\n");
+    expect(dataManifestDriftErrors(manifest, crlfReader, expected)).toEqual([]);
+    expect(sha256("product-row-a\r\n")).toBe(sha256("product-row-a\n"));
+  });
+
   it("fails when a source file changed without the manifest being rebuilt", () => {
     const { manifest, expected } = cleanManifest();
     // lifecycle.csv edited; the committed hash is stale -> hash-only drift.
