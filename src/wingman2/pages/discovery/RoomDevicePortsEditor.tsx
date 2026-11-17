@@ -54,7 +54,7 @@ export function RoomDevicePortsEditor({ device, topology, onChange }: {
     });
   };
 
-  return <details className="wm-room-device-ports">
+  return <details className="wm-essential-site-details">
     <summary>Inputs and outputs · {ports.length || "none declared"}</summary>
     <p>Record verified interfaces when known. If the make, connector or service is uncertain, mark it assumed or to confirm so the design review keeps that check open.</p>
     <div className="wm-room-wizard-actions">
