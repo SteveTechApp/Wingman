@@ -21,6 +21,9 @@ export type ProjectLocationType =
 export type ProjectDeviceStatus = "confirmed" | "assumed" | "unknown";
 export type ProjectLengthMode = "estimated" | "confirmed" | "unknown";
 export type ProjectConnectionScope = "local-patch" | "endpoint-route" | "infrastructure";
+export type ProjectDeviceSignalRole = "source" | "processor" | "destination" | "infrastructure" | "other";
+export type ProjectPortDirection = "input" | "output";
+export type ProjectDeviceOwnership = "wyrestorm" | "third-party" | "unassigned";
 
 export type ProjectConnectionService =
   | "video"
@@ -66,18 +69,30 @@ export type ProjectLocation = {
   notes?: string;
 };
 
+export type ProjectDevicePort = {
+  id: string;
+  direction: ProjectPortDirection;
+  name: string;
+  connector?: string;
+  services: ProjectConnectionService[];
+  status: ProjectDeviceStatus;
+};
+
 export type ProjectDevice = {
   id: string;
   name: string;
   category: string;
+  signalRole?: ProjectDeviceSignalRole;
   locationId: string;
   manufacturer?: string;
   sku?: string;
+  ownership?: ProjectDeviceOwnership;
   productRelationship?: "competitor" | "complementary";
   quantity: number;
   thirdParty: boolean;
   status: ProjectDeviceStatus;
   notes?: string;
+  ports?: ProjectDevicePort[];
   /** Rebuilt from Discovery answers; user-added equipment remains unmarked. */
   generatedByDiscovery?: boolean;
 };
@@ -85,7 +100,11 @@ export type ProjectDevice = {
 export type ProjectConnection = {
   id: string;
   fromDeviceId: string;
+  /** One-based physical unit index. Missing values in legacy records mean unit 1. */
+  fromUnit?: number;
   toDeviceId: string;
+  /** One-based physical unit index. Missing values in legacy records mean unit 1. */
+  toUnit?: number;
   fromPort?: string;
   toPort?: string;
   services: ProjectConnectionService[];
@@ -100,12 +119,24 @@ export type ProjectConnection = {
   notes?: string;
 };
 
+export type ProjectSignalRequirement = {
+  id: string;
+  fromDeviceId: string;
+  fromUnit: number;
+  toDeviceId: string;
+  toUnit: number;
+  services: ProjectConnectionService[];
+  notes?: string;
+};
+
 export type ProjectTopology = {
   schemaVersion: number;
   mode: "simple" | "advanced";
   locations: ProjectLocation[];
   devices: ProjectDevice[];
   connections: ProjectConnection[];
+  /** Explicit source-to-destination service paths the design is expected to provide. */
+  signalRequirements?: ProjectSignalRequirement[];
   generatedFromDiscovery: boolean;
   createdAt: string;
   updatedAt: string;
@@ -177,6 +208,9 @@ const LOCATION_TYPES = new Set<ProjectLocationType>(PROJECT_LOCATION_OPTIONS.map
 const SERVICE_TYPES = new Set<ProjectConnectionService>(PROJECT_CONNECTION_SERVICE_OPTIONS.map((item) => item.value));
 const TRANSPORT_TYPES = new Set<ProjectTransport>(PROJECT_TRANSPORT_OPTIONS.map((item) => item.value));
 const DEVICE_STATUSES = new Set<ProjectDeviceStatus>(["confirmed", "assumed", "unknown"]);
+const SIGNAL_ROLES = new Set<ProjectDeviceSignalRole>(["source", "processor", "destination", "infrastructure", "other"]);
+const PORT_DIRECTIONS = new Set<ProjectPortDirection>(["input", "output"]);
+const DEVICE_OWNERSHIP = new Set<ProjectDeviceOwnership>(["wyrestorm", "third-party", "unassigned"]);
 const LENGTH_MODES = new Set<ProjectLengthMode>(["estimated", "confirmed", "unknown"]);
 const CONNECTION_SCOPES = new Set<ProjectConnectionScope>(["local-patch", "endpoint-route", "infrastructure"]);
 
@@ -325,6 +359,7 @@ export function createBlankProjectTopology(): ProjectTopology {
     locations: [],
     devices: [],
     connections: [],
+    signalRequirements: [],
     generatedFromDiscovery: false,
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -338,6 +373,7 @@ export function normaliseProjectTopology(value: unknown): ProjectTopology {
   const locationsRaw = Array.isArray(record.locations) ? record.locations : [];
   const devicesRaw = Array.isArray(record.devices) ? record.devices : [];
   const connectionsRaw = Array.isArray(record.connections) ? record.connections : [];
+  const signalRequirementsRaw = Array.isArray(record.signalRequirements) ? record.signalRequirements : [];
 
   const locations: ProjectLocation[] = locationsRaw.flatMap((item, index) => {
     if (!item || typeof item !== "object" || Array.isArray(item)) return [];
@@ -364,19 +400,49 @@ export function normaliseProjectTopology(value: unknown): ProjectTopology {
       id: cleanText(row.id, `device-${index + 1}`),
       name: cleanText(row.name, `Device ${index + 1}`),
       category: cleanText(row.category, "other"),
+      signalRole: SIGNAL_ROLES.has(cleanText(row.signalRole) as ProjectDeviceSignalRole)
+        ? cleanText(row.signalRole) as ProjectDeviceSignalRole
+        : undefined,
       locationId: locationIds.has(locationId) ? locationId : fallbackLocation,
       manufacturer: cleanText(row.manufacturer) || undefined,
       sku: cleanText(row.sku) || undefined,
+      ownership: DEVICE_OWNERSHIP.has(cleanText(row.ownership) as ProjectDeviceOwnership)
+        ? cleanText(row.ownership) as ProjectDeviceOwnership
+        : undefined,
       productRelationship: row.productRelationship === "competitor" ? "competitor" : row.productRelationship === "complementary" ? "complementary" : undefined,
       quantity: Math.max(1, Math.round(cleanNumber(row.quantity, 1) ?? 1)),
       thirdParty: Boolean(row.thirdParty),
       status: DEVICE_STATUSES.has(statusValue) ? statusValue : "assumed",
       notes: cleanText(row.notes) || undefined,
+      ports: Array.isArray(row.ports) ? row.ports.flatMap((port, portIndex) => {
+        if (!port || typeof port !== "object" || Array.isArray(port)) return [];
+        const portRow = port as Record<string, unknown>;
+        const direction = cleanText(portRow.direction) as ProjectPortDirection;
+        const portStatus = cleanText(portRow.status) as ProjectDeviceStatus;
+        const services = list(portRow.services)
+          .map((item) => item as ProjectConnectionService)
+          .filter((item) => SERVICE_TYPES.has(item));
+        const name = cleanText(portRow.name);
+        if (!PORT_DIRECTIONS.has(direction) || !name) return [];
+        return [{
+          id: cleanText(portRow.id, `device-${index + 1}-port-${portIndex + 1}`),
+          direction,
+          name,
+          connector: cleanText(portRow.connector) || undefined,
+          services,
+          status: DEVICE_STATUSES.has(portStatus) ? portStatus : "unknown",
+        }];
+      }) : undefined,
       generatedByDiscovery: Boolean(row.generatedByDiscovery),
     }];
   });
 
   const deviceIds = new Set(devices.map((item) => item.id));
+  const normaliseUnit = (value: unknown) => {
+    if (value === undefined || value === null || (typeof value === "string" && !value.trim())) return 1;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
   const connections: ProjectConnection[] = connectionsRaw.flatMap((item, index) => {
     if (!item || typeof item !== "object" || Array.isArray(item)) return [];
     const row = item as Record<string, unknown>;
@@ -392,10 +458,12 @@ export function normaliseProjectTopology(value: unknown): ProjectTopology {
     const connection = {
       id: cleanText(row.id, `connection-${index + 1}`),
       fromDeviceId,
+      fromUnit: normaliseUnit(row.fromUnit),
       toDeviceId,
+      toUnit: normaliseUnit(row.toUnit),
       fromPort: cleanText(row.fromPort) || undefined,
       toPort: cleanText(row.toPort) || undefined,
-      services: services.length ? services : ["video"],
+      services,
       transport: TRANSPORT_TYPES.has(transportValue) ? transportValue : "unknown",
       scope: CONNECTION_SCOPES.has(cleanText(row.scope) as ProjectConnectionScope)
         ? cleanText(row.scope) as ProjectConnectionScope
@@ -411,12 +479,33 @@ export function normaliseProjectTopology(value: unknown): ProjectTopology {
     return [connection];
   });
 
+  const signalRequirements: ProjectSignalRequirement[] = signalRequirementsRaw.flatMap((item, index) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return [];
+    const row = item as Record<string, unknown>;
+    const fromDeviceId = cleanText(row.fromDeviceId);
+    const toDeviceId = cleanText(row.toDeviceId);
+    if (!fromDeviceId || !toDeviceId) return [];
+    const services = list(row.services)
+      .map((service) => service as ProjectConnectionService)
+      .filter((service) => SERVICE_TYPES.has(service));
+    return [{
+      id: cleanText(row.id, `signal-requirement-${index + 1}`),
+      fromDeviceId,
+      fromUnit: normaliseUnit(row.fromUnit),
+      toDeviceId,
+      toUnit: normaliseUnit(row.toUnit),
+      services,
+      notes: cleanText(row.notes) || undefined,
+    }];
+  });
+
   return {
     schemaVersion: PROJECT_TOPOLOGY_SCHEMA_VERSION,
     mode: record.mode === "advanced" ? "advanced" : "simple",
     locations,
     devices,
     connections,
+    signalRequirements,
     generatedFromDiscovery: Boolean(record.generatedFromDiscovery),
     createdAt: cleanText(record.createdAt, blank.createdAt),
     updatedAt: cleanText(record.updatedAt, blank.updatedAt),
@@ -998,315 +1087,4 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
 export function projectTopologyHasContent(value: unknown): boolean {
   const topology = normaliseProjectTopology(value);
   return topology.devices.length >= 2 && topology.connections.length >= 1;
-}
-
-export function projectTopologyLongestRun(value: unknown): number | undefined {
-  const topology = normaliseProjectTopology(value);
-  const values = topology.connections
-    .map((item) => item.lengthMetres)
-    .filter((item): item is number => typeof item === "number" && Number.isFinite(item));
-  return values.length ? Math.max(...values) : undefined;
-}
-
-export type ProjectTopologyDistanceSummary = {
-  localPatchMaxMetres?: number;
-  endpointRouteMaxMetres?: number;
-  infrastructureMaxMetres?: number;
-};
-
-export function projectTopologyDistanceSummary(value: unknown): ProjectTopologyDistanceSummary {
-  const topology = normaliseProjectTopology(value);
-  const maximum = (scope: ProjectConnectionScope) => {
-    const lengths = topology.connections
-      .filter((connection) => connection.scope === scope && connection.lengthMode !== "unknown")
-      .map((connection) => connection.lengthMetres)
-      .filter((length): length is number => typeof length === "number" && Number.isFinite(length));
-    return lengths.length ? Math.max(...lengths) : undefined;
-  };
-  return {
-    localPatchMaxMetres: maximum("local-patch"),
-    endpointRouteMaxMetres: maximum("endpoint-route"),
-    infrastructureMaxMetres: maximum("infrastructure"),
-  };
-}
-
-export function projectTopologyConnectionTypes(value: unknown): string[] {
-  const topology = normaliseProjectTopology(value);
-  const labelByValue = new Map(PROJECT_TRANSPORT_OPTIONS.map((item) => [item.value, item.label]));
-  return Array.from(new Set(topology.connections.map((item) => labelByValue.get(item.transport) ?? item.transport)));
-}
-
-export function projectTopologyNetworkSummary(value: unknown): string {
-  const topology = normaliseProjectTopology(value);
-  const networkConnections = topology.connections.filter((item) =>
-    ["ip-av-vlan", "shared-ip-network", "point-to-point-network", "dante-aes67"].includes(item.transport),
-  );
-  if (!networkConnections.length) return "No network transport currently indicated";
-  return networkConnections.some((item) => item.transport === "ip-av-vlan")
-    ? "Dedicated or governed AV-over-IP VLAN indicated"
-    : "Customer/shared network transport indicated";
-}
-
-export function projectTopologySummary(value: unknown): string {
-  const topology = normaliseProjectTopology(value);
-  if (!topology.devices.length) return "Locations and connections not captured";
-  const longest = projectTopologyLongestRun(topology);
-  const estimated = topology.connections.filter((item) => item.lengthMode === "estimated").length;
-  const unknown = topology.connections.filter((item) => item.lengthMode === "unknown").length;
-  return [
-    `${topology.devices.length} devices across ${topology.locations.length} locations`,
-    `${topology.connections.length} defined connections`,
-    longest !== undefined ? `longest recorded run ${longest} m` : "lengths not yet confirmed",
-    estimated ? `${estimated} estimated` : "",
-    unknown ? `${unknown} unknown` : "",
-  ].filter(Boolean).join("; ");
-}
-
-export function projectTopologyMissingInformation(value: unknown): string[] {
-  const topology = normaliseProjectTopology(value);
-  const missing: string[] = [];
-  if (!topology.devices.length) missing.push("Add the primary source, WyreStorm path and destination devices.");
-  if (!topology.connections.length) missing.push("Define at least one connection between known project devices.");
-  if (topology.devices.some((item) => !item.locationId || item.status === "unknown")) {
-    missing.push("Confirm the location and identity of devices still marked unknown.");
-  }
-  if (topology.connections.some((item) => item.transport === "unknown")) {
-    missing.push("Confirm the transport type for connections still marked unknown.");
-  }
-  if (topology.connections.some((item) => item.lengthMode === "unknown")) {
-    missing.push("Confirm cable-route lengths currently marked unknown.");
-  }
-  if (topology.connections.some((item) => item.lengthMode === "estimated")) {
-    missing.push("Validate estimated cable lengths against the installed route before final quoting.");
-  }
-  if (topology.connections.some((item) => item.services.includes("usb-3") && (item.lengthMetres ?? 0) > 3 && item.transport === "usb-data")) {
-    missing.push("Validate the high-bandwidth USB 3.x extension method; the current direct USB path exceeds the planning allowance.");
-  }
-  if (topology.connections.some((item) => item.transport === "ip-av-vlan" || item.transport === "shared-ip-network")) {
-    missing.push("Confirm network ownership, switch suitability, multicast/IGMP, bandwidth and VLAN policy with IT.");
-  }
-  // WINGMAN_DISCOVERY_UC_MISSING_INFORMATION_START
-  if (
-    topology.devices.some(
-      (item) => item.id === "device-uc-host-tbc",
-    )
-  ) {
-    missing.push(
-      "Confirm whether conferencing is hosted by a user laptop, room PC or UC appliance.",
-    );
-  }
-
-  if (
-    topology.devices.some(
-      (item) => item.id === "device-room-microphone",
-    )
-  ) {
-    missing.push(
-      "Confirm microphone type, quantity, connection method, DSP and echo-cancellation requirements.",
-    );
-  }
-
-  if (
-    topology.devices.some(
-      (item) => item.id === "device-recording-capture",
-    )
-  ) {
-    missing.push(
-      "Confirm the recording or streaming platform, capture inputs, audio mix, resolution and destination.",
-    );
-  }
-
-  if (
-    topology.devices.some(
-      (item) => item.id === "device-camera-routing-bridge",
-    )
-  ) {
-    missing.push(
-      "Confirm whether camera distribution uses USB, HDMI, NDI or AV-over-IP and select the required bridge or routing path.",
-    );
-  }
-
-  if (
-    topology.devices.some(
-      (item) => item.id === "device-network-video-source",
-    )
-  ) {
-    missing.push(
-      "Confirm the network video format, network ownership, routing destination and encoder/decoder or bridge dependency.",
-    );
-  }
-  // WINGMAN_DISCOVERY_UC_MISSING_INFORMATION_END
-
-  return Array.from(new Set(missing));
-}
-
-export function projectTopologyEvidenceLines(value: unknown): string[] {
-  const topology = normaliseProjectTopology(value);
-  const locationById = new Map(topology.locations.map((item) => [item.id, item.name]));
-  const deviceById = new Map(topology.devices.map((item) => [item.id, item]));
-  const transportLabel = new Map(PROJECT_TRANSPORT_OPTIONS.map((item) => [item.value, item.label]));
-  return topology.connections.map((connection) => {
-    const from = deviceById.get(connection.fromDeviceId);
-    const to = deviceById.get(connection.toDeviceId);
-    const length = connection.lengthMode === "unknown"
-      ? "length unknown"
-      : `${connection.lengthMetres ?? 0} m ${connection.lengthMode}`;
-    return [
-      `${from?.name ?? connection.fromDeviceId} (${locationById.get(from?.locationId ?? "") ?? "unknown location"})`,
-      "to",
-      `${to?.name ?? connection.toDeviceId} (${locationById.get(to?.locationId ?? "") ?? "unknown location"})`,
-      transportLabel.get(connection.transport) ?? connection.transport,
-      connection.services.join(" + "),
-      length,
-    ].join(" | ");
-  });
-}
-
-function mermaidId(value: string): string {
-  const clean = value.replace(/[^a-zA-Z0-9_]/g, "_");
-  return /^[A-Za-z_]/.test(clean) ? clean : `node_${clean}`;
-}
-
-function mermaidLabel(value: string): string {
-  return value.replace(/["[\]{}|]/g, " ").replace(/\s+/g, " ").trim();
-}
-
-export function projectTopologyToMermaid(value: unknown): string {
-  const topology = normaliseProjectTopology(value);
-  const transportLabel = new Map(PROJECT_TRANSPORT_OPTIONS.map((item) => [item.value, item.label]));
-  const lines = ["flowchart LR"];
-  topology.locations.forEach((location) => {
-    lines.push(`  subgraph ${mermaidId(`location_${location.id}`)}["${mermaidLabel(location.name)}"]`);
-    topology.devices.filter((device) => device.locationId === location.id).forEach((device) => {
-      lines.push(`    ${mermaidId(device.id)}["${mermaidLabel(device.name)}"]`);
-    });
-    lines.push("  end");
-  });
-  topology.connections.forEach((connection) => {
-    const length = connection.lengthMode === "unknown" ? "length TBC" : `${connection.lengthMetres ?? 0}m ${connection.lengthMode}`;
-    const label = `${transportLabel.get(connection.transport) ?? connection.transport}; ${connection.services.join(" + ")}; ${length}`;
-    lines.push(`  ${mermaidId(connection.fromDeviceId)} -->|"${mermaidLabel(label)}"| ${mermaidId(connection.toDeviceId)}`);
-  });
-  return lines.join("\n");
-}
-
-export const ROUTE_PLANNING_MARKER = "wingman-route-planner:";
-
-/**
- * Reads the guided route-planner marker from any location's notes. The marker
- * records the full planning state including the exact metre figures typed by
- * the rep (videoDistanceMetres / usbDistanceMetres / exceptionDistanceMetres)
- * — the only place where exact-vs-band is distinguishable, since connections
- * carry lengthMode "estimated" for both exact and band-derived lengths.
- */
-export function readRoutePlanningMarker(value: unknown): Record<string, unknown> | null {
-  const topology = normaliseProjectTopology(value);
-  for (const location of topology.locations) {
-    const markerLine = String(location.notes ?? "")
-      .split(/\r?\n/)
-      .find((line) => line.startsWith(ROUTE_PLANNING_MARKER));
-
-    if (!markerLine) continue;
-
-    try {
-      const parsed = JSON.parse(markerLine.slice(ROUTE_PLANNING_MARKER.length)) as unknown;
-      return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : null;
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
-function isUsbServiceConnection(connection: ProjectConnection): boolean {
-  return connection.services.some((service) => ["usb-2", "usb-3", "usb-kvm"].includes(service));
-}
-
-export type RoutePlanningSurvey = {
-  needsSurvey: boolean;
-  reasons: string[];
-};
-
-/**
- * Determines whether any cable route is still band-estimated (or has no
- * recorded length) rather than an exact figure. Exact figures are only
- * recorded in the route-planning marker; confirmed (measured) connections
- * never need a survey flag. Returns the reasons so the UI can explain the flag.
- */
-export function projectTopologySurveyState(value: unknown): RoutePlanningSurvey {
-  const topology = normaliseProjectTopology(value);
-  if (topology.connections.length === 0) {
-    return { needsSurvey: false, reasons: [] };
-  }
-
-  const marker = readRoutePlanningMarker(topology);
-  const exactMetres = (field: string): boolean => {
-    const raw = marker?.[field];
-    return raw !== undefined && Number(raw) > 0;
-  };
-
-  const videoExact = exactMetres("videoDistanceMetres");
-  const usbExact = exactMetres("usbDistanceMetres");
-  const exceptionExact = exactMetres("exceptionDistanceMetres");
-
-  // A connection needs a survey unless it is confirmed (measured). Exact
-  // figures still carry lengthMode "estimated", so the marker decides whether
-  // that estimate is a real figure or a band guess.
-  const needsVideo = topology.connections.some(
-    (connection) => !isUsbServiceConnection(connection) &&
-      connection.id !== "planning-exception-path" &&
-      connection.lengthMode !== "confirmed",
-  );
-  const needsUsb = topology.connections.some(
-    (connection) => isUsbServiceConnection(connection) && connection.lengthMode !== "confirmed",
-  );
-  const needsException = topology.connections.some(
-    (connection) => connection.id === "planning-exception-path" && connection.lengthMode !== "confirmed",
-  );
-
-  const reasons: string[] = [];
-  if (needsVideo && !videoExact) {
-    reasons.push("The video cable route is band-estimated, not an exact figure.");
-  }
-  if (needsUsb && !usbExact) {
-    reasons.push("The USB host-to-device path is band-estimated, not an exact figure.");
-  }
-  if (needsException && !exceptionExact) {
-    reasons.push("The distance-exception route is band-estimated, not an exact figure.");
-  }
-  if (topology.connections.some((connection) => connection.lengthMode === "unknown")) {
-    reasons.push("One or more cable routes have no recorded length yet.");
-  }
-
-  return { needsSurvey: reasons.length > 0, reasons };
-}
-
-export const DISCOVERY_TOPOLOGY_STORAGE_KEY = "wingman:discovery-topology-v1";
-
-function topologyStorageAvailable(): boolean {
-  return typeof window !== "undefined" && Boolean(window.sessionStorage);
-}
-
-export function readDiscoveryTopology(): ProjectTopology {
-  if (!topologyStorageAvailable()) return createBlankProjectTopology();
-  try {
-    const raw = window.sessionStorage.getItem(DISCOVERY_TOPOLOGY_STORAGE_KEY);
-    return raw ? normaliseProjectTopology(JSON.parse(raw)) : createBlankProjectTopology();
-  } catch {
-    return createBlankProjectTopology();
-  }
-}
-
-export function writeDiscoveryTopology(value: unknown): ProjectTopology {
-  const topology = normaliseProjectTopology(value);
-  if (topologyStorageAvailable()) {
-    window.sessionStorage.setItem(DISCOVERY_TOPOLOGY_STORAGE_KEY, JSON.stringify(topology));
-  }
-  return topology;
-}
-
-export function clearDiscoveryTopology(): void {
-  if (topologyStorageAvailable()) {
-    window.sessionStorage.removeItem(DISCOVERY_TOPOLOGY_STORAGE_KEY);
-  }
 }

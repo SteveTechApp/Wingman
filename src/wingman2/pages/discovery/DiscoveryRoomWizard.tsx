@@ -4,8 +4,10 @@ import { EquipmentLibraryPanel } from "../../components/EquipmentLibraryPanel";
 import { appendTranscriptNote, VoiceRequestCapture } from "../../components/VoiceRequestCapture";
 import { addEquipmentToRoom } from "../../lib/equipmentLibrary";
 import type { ProjectTopology } from "../../lib/projectTopology";
+import { projectTopologyEvidenceLines, projectTopologyMissingInformation, projectTopologySignalRequirementLines } from "../../lib/projectTopologyReview";
 import { operationalQuestion, roomEquipmentSchedule, supportingRoomScope, updateOperationalAnswer } from "./operationalDiscovery";
 import { DiscoveryRoomLocations } from "./DiscoveryRoomLocations";
+import { RoomEndpointEditor } from "./RoomEndpointEditor";
 import { DiscoverySiteConditions } from "./DiscoverySiteConditions";
 import { RoomDimensionsFields, roomDimensionsSummary } from "./RoomDimensionsFields";
 import { DiscoveryCaptureSuggestion } from "./DiscoveryCaptureSuggestion";
@@ -46,6 +48,10 @@ export function DiscoveryRoomWizard(props: Props) {
   if (!question) return <p>Select a room activity to begin.</p>;
   const selected = [answers[question.id]].flat();
   const scope = supportingRoomScope(answers, topology);
+  const topologyGaps = projectTopologyMissingInformation(topology);
+  const openDesignItems = Array.from(new Set([...scope, ...topologyGaps]));
+  const signalPaths = projectTopologyEvidenceLines(topology);
+  const requiredSignalPaths = projectTopologySignalRequirementLines(topology);
   const journeySteps = journey.map(step => ({ ...step, firstIndex: questions.findIndex(row => step.matches(row.id)) })).filter(step => step.firstIndex >= 0);
   const activeJourney = journeySteps.findIndex(step => step.matches(question.id));
   const choose = (value: string) => {
@@ -53,9 +59,9 @@ export function DiscoveryRoomWizard(props: Props) {
     props.onConfirm(question.id, false);
   };
   return <section className="wm-room-wizard" aria-label="Full room builder" data-testid="discovery-room-wizard" data-room-wizard-stage={stage}>
-    <div className="wm-room-wizard-heading"><div><p className="wm-room-wizard-eyebrow">Build your room · {stage === "questions" ? question.section : stage === "equipment" ? "Complete the equipment" : "Your room brief"}</p>
-      <h2 ref={heading} tabIndex={-1} data-discovery-question-id={stage === "questions" ? question.id : undefined}>{stage === "questions" ? question.question : stage === "equipment" ? "What equipment do you already use?" : "Here is the room we are building"}</h2></div>
-      <span>{stage === "questions" ? `${activeIndex + 1} of ${questions.length}` : stage === "equipment" ? "Equipment" : "Review"}</span></div>
+    <div className="wm-room-wizard-heading"><div><p className="wm-room-wizard-eyebrow">Build your room · {stage === "questions" ? question.section : stage === "equipment" ? "Map spaces and routes" : "Design review"}</p>
+      <h2 ref={heading} tabIndex={-1} data-discovery-question-id={stage === "questions" ? question.id : undefined}>{stage === "questions" ? question.question : stage === "equipment" ? "What equipment do you already use?" : "Review the custom room design"}</h2></div>
+      <span>{stage === "questions" ? `${activeIndex + 1} of ${questions.length}` : stage === "equipment" ? "Design" : "Review"}</span></div>
     {stage === "questions" && <nav className="wm-room-journey-nav" aria-label="Room building steps">{journeySteps.map((step, index) => <button type="button" key={step.id}
       aria-current={index === activeJourney ? "step" : undefined} className={index === activeJourney ? "is-active" : ""}
       onClick={() => onActiveIndexChange(step.firstIndex)}>{step.label}</button>)}</nav>}
@@ -82,13 +88,22 @@ export function DiscoveryRoomWizard(props: Props) {
         <div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" disabled={activeIndex === 0} onClick={() => onActiveIndexChange(activeIndex - 1)}>Back</button>
           <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => { const unknown = canonical.options.find(option => /unknown|not-sure|not-confirmed/.test(option.value)); props.onAnswersChange(previous => { const next = { ...previous }; if (unknown) next[question.id] = unknown.value; else delete next[question.id]; return next; }); props.onConfirm(question.id, false); props.onNotesChange(previous => ({ ...previous, [question.id]: [previous[question.id], "To confirm with customer or installer."].filter(Boolean).join("\n") })); if (activeIndex < questions.length - 1) onActiveIndexChange(activeIndex + 1); else setStage("equipment"); }}>I'm not sure—keep this open</button>
           <button type="button" className="wm-ui-button wm-ui-button-primary" data-testid="discovery-continue" onClick={() => { if (activeIndex < questions.length - 1) onActiveIndexChange(activeIndex + 1); else setStage("equipment"); }}>Continue</button></div>
-      </> : stage === "equipment" ? <>{props.onBuildLayout && <><p>Build or refresh the room positions from your latest answers. Saved equipment selections are retained; connections still need review.</p><button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-build-layout" onClick={props.onBuildLayout}>Build room layout from answers</button></>}<DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} /><RoomConnectionsEditor topology={topology} onChange={props.onTopologyChange} /><EquipmentLibraryPanel locations={topology.locations} onSelect={(item, location, quantity) => props.onTopologyChange(addEquipmentToRoom(topology, item, location, quantity))} /><div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("questions")}>Back to questions</button><button type="button" className="wm-ui-button wm-ui-button-primary" data-testid="discovery-review-brief" onClick={() => setStage("review")}>Review room brief</button></div></> : <>
-        <p>{props.designDirection || "Wingman will use your answers to identify a suitable routing direction. Equipment selection follows the room brief."}</p>
-      <h3>Equipment and locations</h3><ul>{roomEquipmentSchedule(topology).map((row, index) => <li key={index}>{row}</li>)}</ul>
+      </> : stage === "equipment" ? <>
+        {props.onBuildLayout && <><p>Use your answers to add room positions. Check the generated positions and keep or remove each one; they are suggestions until confirmed.</p><button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-build-layout" onClick={props.onBuildLayout}>Refresh positions from answers</button></>}
+        <DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} />
+        <RoomEndpointEditor topology={topology} onChange={props.onTopologyChange} />
+        <RoomConnectionsEditor topology={topology} onChange={props.onTopologyChange} />
+        <details><summary>Add a researched product from your equipment library</summary><EquipmentLibraryPanel locations={topology.locations} onSelect={(item, location, quantity) => props.onTopologyChange(addEquipmentToRoom(topology, item, location, quantity))} /></details>
+        <div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("questions")}>Back to requirements</button><button type="button" className="wm-ui-button wm-ui-button-primary" data-testid="discovery-review-brief" onClick={() => setStage("review")}>Review room brief</button></div>
+      </> : <>
+        <p>{props.designDirection || "This review is based on the room and routes you specify. No market template or product path is required."}</p>
+        <h3>Sources, processing and destinations</h3><ul>{roomEquipmentSchedule(topology).map((row, index) => <li key={index}>{row}</li>)}</ul>
+        <h3>Required source-to-destination paths</h3>{requiredSignalPaths.length ? <ul>{requiredSignalPaths.map((row, index) => <li key={index}>{row}</li>)}</ul> : <p>The required source-to-destination pairings and services have not been recorded yet.</p>}
+        <h3>Mapped signal route segments</h3>{signalPaths.length ? <ul>{signalPaths.map((row, index) => <li key={index}>{row}</li>)}</ul> : <p>No signal route segments are mapped yet. Add each route segment, including any processing between a source and destination.</p>}
         <h3>Room and site conditions</h3><ul>{Object.entries(answers).filter(([id, value]) => id.startsWith("site-") && Boolean(value)).map(([id, value]) => <li key={id}><strong>{id.replace("site-", "").replaceAll("-", " ")}</strong>: {String(value)}</li>)}</ul>
-        <h3>Open design details</h3><ul>{scope.map(row => <li key={row}>{row}</li>)}</ul>
-        <p>Saved products are proposed selections. Check specifications, quantities, cable paths and compatibility before issue.</p>
-        <div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("equipment")}>Edit equipment</button><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => { onActiveIndexChange(0); setStage("questions"); }}>Review answers</button><button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-save-brief" onClick={props.onSave}>{props.templateAuthoring ? "Save Custom Template" : "Save room brief"}</button><button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-export-brief" onClick={props.onExport}>Export completion brief</button>{!props.templateAuthoring && <button type="button" className="wm-ui-button wm-ui-button-primary" data-testid="discovery-find-products" onClick={props.onComplete}>Find WyreStorm products</button>}</div>
+        <h3>Open design checks</h3>{openDesignItems.length ? <ul>{openDesignItems.map((row) => <li key={row}>{row}</li>)}</ul> : <p>No topology gaps are currently recorded. Confirm site measurements, product compatibility, specialist calculations and acceptance criteria before issuing the design.</p>}
+        <p>Equipment names and routes describe the design intent. Confirm exact specifications, quantities, compatibility and installation conditions before issue.</p>
+        <div className="wm-room-wizard-actions"><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("equipment")}>Edit room design</button><button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => { onActiveIndexChange(0); setStage("questions"); }}>Review requirements</button><button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-save-brief" onClick={props.onSave}>{props.templateAuthoring ? "Save Custom Template" : "Save room brief"}</button><button type="button" className="wm-ui-button wm-ui-button-secondary" data-testid="discovery-export-brief" onClick={props.onExport}>Export completion brief</button>{!props.templateAuthoring && <button type="button" className="wm-ui-button wm-ui-button-primary" data-testid="discovery-find-products" onClick={props.onComplete}>Find products for this design</button>}</div>
       </>}
       {props.savedMessage && <p data-testid="discovery-save-status" role="status">{props.savedMessage}</p>}
     </div><aside className="wm-room-wizard-summary" aria-label="Your room so far"><h3>Your room so far</h3>
@@ -96,6 +111,7 @@ export function DiscoveryRoomWizard(props: Props) {
       {(answers["room-occupancy"] || roomDimensionsSummary(answers)) && <p>{answers["room-occupancy"] ? `${String(answers["room-occupancy"])} people${notes["room-occupancy"]?.startsWith("Starting estimate") ? " (starting estimate)" : ""} · ` : ""}{roomDimensionsSummary(answers) || "Room dimensions to confirm"}</p>}
       {questions.filter(row => answers[row.id]).map(row => <p key={row.id}><strong>{operationalQuestion(row).shortLabel}</strong><br />{[answers[row.id]].flat().map(value => operationalQuestion(row).options.find(option => option.value === value)?.label || value).join(", ")}</p>)}
       <h4>Positions</h4>{topology.locations.map(location => <p key={location.id}>{location.name}</p>)}
+      <h4>Design gaps</h4><p>{topologyGaps.length ? `${topologyGaps.length} topology item${topologyGaps.length === 1 ? "" : "s"} to resolve` : "No topology gaps recorded"}</p>
       <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setStage("equipment")}>Equipment and room positions</button>
     </aside></div>
   </section>;

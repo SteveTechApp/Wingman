@@ -39,14 +39,22 @@ export function DiscoveryMarketEntry({ allowTemplates = true, marketId, environm
     <section className="wm-discovery-market-entry wm-ui-card" aria-label="Opportunity context" data-testid="discovery-market-entry">
       <div className="wm-discovery-market-entry__heading">
         <span className="wm-discovery-market-entry__eyebrow">Start with the customer's world</span>
-        <h2>{market ? (allowTemplates && !designingCustom && market.id !== "other" ? `How would you like to start in ${market.label}?` : `Where in ${market.label} will AV be used?`) : "Which market is the customer in?"}</h2>
+        <h2>{market ? (allowTemplates && !designingCustom && market.id !== "other" ? `How would you like to start in ${market.label}?` : `Where in ${market.label} will AV be used?`) : "Start with the room, or choose a market for context"}</h2>
         <p>{market
           ? (allowTemplates && !designingCustom && market.id !== "other" ? "Start with a pre-built template for a familiar setup, or describe the customer's environment for a custom design." : "Choose the closest environment. Wingman will use it to frame the next questions, not assume a product or network design.")
-          : "Choose their industry first. You’ll then see spaces and situations they are likely to recognise."}</p>
+          : "You can describe the actual room without selecting a market. Market examples and templates are optional and never set the design requirements."}</p>
       </div>
 
       {!market ? (
         <>
+          <div className="wm-discovery-market-entry__paths">
+            <h3>Which market is the customer in?</h3>
+            <p>Skip this if you want Wingman to build the design entirely from the spaces and requirements you specify.</p>
+            <button type="button" className="wm-discovery-market-entry__custom" data-testid="discovery-start-blank-design"
+              onClick={() => onEnvironmentSelect("custom-room", undefined, "Custom room design — no market or template assumptions.")}>
+              Start with a blank AV design <ArrowRight size={17} aria-hidden="true" />
+            </button>
+          </div>
           <label className="wm-discovery-market-entry__search">
             <Search size={18} aria-hidden="true" />
             <input aria-label="Search markets and environments" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search markets or spaces…" autoComplete="off" />

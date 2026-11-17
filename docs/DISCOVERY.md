@@ -10,8 +10,29 @@ decided the rule; `reports/browser-readings.md` is the current measurement.
   display values as unanswered; otherwise an empty label is a defined string
   with no scale rule and gets reported as invalid data.
 
-- The market and selected environment frame the questions that follow. The
-  Education · Lecture theatre path starts with a large-room scale and a
+- A rep can begin with a blank custom AV design before choosing a market. That
+  path stores a custom room context but writes no market or suggested
+  application, so no market template or application inference pre-fills the
+  design. Market and environment context are optional references; the user's
+  room facts and requirements remain authoritative. The market-selected
+  template path remains available as an optional starting pattern.
+- When the rep maps a custom room, the shared topology records named sources,
+  processing devices, destinations and infrastructure at actual positions.
+  Devices can declare input/output interfaces with connector, carried service
+  and confirmation state. Each route segment can select a declared source
+  output and receiving input and records services, transport, route length,
+  basis, status and notes. Missing interfaces, unconnected endpoints, unknown
+  services, unknown transport and unconfirmed distances remain visible review
+  items. The rep records each intended physical source-to-destination pairing
+  and required service; each declared source and destination unit must appear
+  in at least one pairing, while no all-to-all routing is assumed. Every
+  required service must traverse a directed sequence of route segments using
+  the selected physical units. Older saved topology records without unit
+  indices remain readable as unit 1, and incomplete rooms with devices but no
+  routes remain saved. The review does not claim compatibility solely because
+  two devices are connected.
+- When selected, the market and environment frame the questions that follow.
+  The Education · Lecture theatre path starts with a large-room scale and a
   clearly labelled estimate of 100 seats, while preserving an occupancy the
   rep already entered. It never guesses physical dimensions: L/W/H remain open
   for measurement, and the note asks the rep to confirm capacity and record

@@ -1,16 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
-  ROUTE_PLANNING_MARKER,
   createBlankProjectTopology,
   generateProjectTopologyFromDiscovery,
+  normaliseProjectTopology,
+  type ProjectTopology,
+} from "./projectTopology";
+import { ROUTE_PLANNING_MARKER, projectTopologySurveyState } from "./projectTopologyPlanning";
+import {
   projectTopologyConnectionTypes,
   projectTopologyLongestRun,
   projectTopologyMissingInformation,
   projectTopologyDistanceSummary,
-  projectTopologySurveyState,
+  projectTopologySignalRequirementLines,
   projectTopologyToMermaid,
-  type ProjectTopology,
-} from "./projectTopology";
+} from "./projectTopologyReview";
 
 function topologyWithPlanningMarker(
   marker: Record<string, unknown>,
@@ -148,6 +151,114 @@ describe("project topology discovery model", () => {
     expect(mermaid).toContain("flowchart LR");
     expect(mermaid).toContain("-->");
     expect(mermaid).toMatch(/HDMI|HDBaseT|USB-C/);
+  });
+});
+
+describe("explicit custom signal requirements", () => {
+  const base = createBlankProjectTopology();
+  const devices = [
+    { id: "source", name: "Camera", category: "source", signalRole: "source", ownership: "third-party", locationId: "room", quantity: 2, thirdParty: true, status: "confirmed" },
+    { id: "display", name: "Display", category: "display", signalRole: "destination", ownership: "wyrestorm", locationId: "room", quantity: 2, thirdParty: false, status: "confirmed" },
+  ];
+
+  it("assigns legacy routes to unit one and leaves new requirements empty", () => {
+    const topology = normaliseProjectTopology({
+      ...base,
+      locations: [{ id: "room", name: "Room", type: "custom" }],
+      devices,
+      connections: [{ id: "legacy", fromDeviceId: "source", toDeviceId: "display", services: ["video"], transport: "hdmi", lengthMode: "unknown", status: "confirmed" }],
+    });
+
+    expect(topology.connections[0]).toMatchObject({ fromUnit: 1, toUnit: 1 });
+    expect(topology.signalRequirements).toEqual([]);
+  });
+
+  it("requires every declared source, destination, unit and service to have a matching route", () => {
+    const topology = {
+      ...base,
+      locations: [{ id: "room", name: "Room", type: "custom" }],
+      devices,
+      connections: [
+        { id: "camera-1", fromDeviceId: "source", fromUnit: 1, toDeviceId: "display", toUnit: 1, services: ["video"], transport: "hdmi", lengthMode: "unknown", status: "confirmed" },
+        { id: "camera-2-wrong-service", fromDeviceId: "source", fromUnit: 2, toDeviceId: "display", toUnit: 2, services: ["embedded-audio"], transport: "hdmi", lengthMode: "unknown", status: "confirmed" },
+      ],
+      signalRequirements: [
+        { id: "req-1", fromDeviceId: "source", fromUnit: 1, toDeviceId: "display", toUnit: 1, services: ["video"] },
+        { id: "req-2", fromDeviceId: "source", fromUnit: 2, toDeviceId: "display", toUnit: 2, services: ["video"] },
+      ],
+    };
+
+    const missing = projectTopologyMissingInformation(topology);
+    expect(missing.some((item) => /video.*Camera.*unit 2.*Display.*unit 2/i.test(item))).toBe(true);
+
+    const complete = projectTopologyMissingInformation({
+      ...topology,
+      connections: [...topology.connections, { id: "camera-2-video", fromDeviceId: "source", fromUnit: 2, toDeviceId: "display", toUnit: 2, services: ["video"], transport: "hdmi", lengthMode: "unknown", status: "confirmed" }],
+    });
+    expect(complete.some((item) => /video.*Camera.*unit 2.*Display.*unit 2/i.test(item))).toBe(false);
+  });
+
+  it("flags unrecorded required pairings and references outside device quantities", () => {
+    const missingPair = projectTopologyMissingInformation({
+      ...base,
+      locations: [{ id: "room", name: "Room", type: "custom" }],
+      devices,
+      connections: [],
+      signalRequirements: [],
+    });
+    expect(missingPair.some((item) => /define which sources.*destinations/i.test(item))).toBe(true);
+
+    const invalidUnit = projectTopologyMissingInformation({
+      ...base,
+      locations: [{ id: "room", name: "Room", type: "custom" }],
+      devices,
+      connections: [],
+      signalRequirements: [{ id: "bad-unit", fromDeviceId: "source", fromUnit: 3, toDeviceId: "display", toUnit: 1.5, services: ["video"] }],
+    });
+    expect(invalidUnit.some((item) => /outside.*quantity|unit 3/i.test(item))).toBe(true);
+    expect(invalidUnit.some((item) => /unit 1\.5/i.test(item))).toBe(true);
+
+    const partialCoverage = projectTopologyMissingInformation({
+      ...base,
+      locations: [{ id: "room", name: "Room", type: "custom" }],
+      devices,
+      connections: [],
+      signalRequirements: [{ id: "only-unit-one", fromDeviceId: "source", fromUnit: 1, toDeviceId: "display", toUnit: 1, services: ["video"] }],
+    });
+    expect(partialCoverage.some((item) => /Camera unit 2.*source unit not yet mapped/i.test(item))).toBe(true);
+    expect(partialCoverage.some((item) => /Display unit 2.*destination unit not yet mapped/i.test(item))).toBe(true);
+  });
+
+  it("accepts a required service routed through a processing device", () => {
+    const topology = {
+      ...base,
+      locations: [{ id: "room", name: "Room", type: "custom" }],
+      devices: [
+        { id: "source", name: "Laptop", category: "source", signalRole: "source", ownership: "third-party", locationId: "room", quantity: 1, thirdParty: true, status: "confirmed" },
+        { id: "processor", name: "Scaler", category: "processor", signalRole: "processor", ownership: "wyrestorm", locationId: "room", quantity: 1, thirdParty: false, status: "confirmed" },
+        { id: "display", name: "Display", category: "display", signalRole: "destination", ownership: "wyrestorm", locationId: "room", quantity: 1, thirdParty: false, status: "confirmed" },
+      ],
+      connections: [
+        { id: "in", fromDeviceId: "source", toDeviceId: "processor", services: ["video"], transport: "hdmi", lengthMode: "unknown", status: "confirmed" },
+        { id: "out", fromDeviceId: "processor", toDeviceId: "display", services: ["video"], transport: "hdmi", lengthMode: "unknown", status: "confirmed" },
+      ],
+      signalRequirements: [{ id: "program-video", fromDeviceId: "source", fromUnit: 1, toDeviceId: "display", toUnit: 1, services: ["video"] }],
+    };
+
+    expect(projectTopologyMissingInformation(topology).some((item) => /No recorded route carries video/i.test(item))).toBe(false);
+  });
+
+  it("keeps unit identity visible in requirement and diagram output", () => {
+    const topology = {
+      ...base,
+      locations: [{ id: "room", name: "Room", type: "custom" }],
+      devices,
+      connections: [{ id: "camera-2-display-2", fromDeviceId: "source", fromUnit: 2, toDeviceId: "display", toUnit: 2, services: ["video"], transport: "hdmi", lengthMode: "unknown", status: "confirmed" }],
+      signalRequirements: [{ id: "req-2", fromDeviceId: "source", fromUnit: 2, toDeviceId: "display", toUnit: 2, services: ["video"] }],
+    };
+
+    expect(projectTopologySignalRequirementLines(topology)).toEqual(["Camera · unit 2 → Display · unit 2 | video"]);
+    expect(projectTopologyToMermaid(topology)).toContain("unit 2 output TBC → unit 2 input TBC");
   });
 });
 

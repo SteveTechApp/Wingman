@@ -167,18 +167,25 @@ export function supportingRoomScope(answers: DiscoveryAnswers, topology: Project
   return scopes;
 }
 export function roomEquipmentSchedule(topology: ProjectTopology): string[] {
-  return topology.devices.map(device => `${device.quantity} × ${device.manufacturer || "Manufacturer to select"} ${device.sku || device.name} — ${device.category}, ${topology.locations.find(location => location.id === device.locationId)?.name || "Location to confirm"}; ${device.status === "confirmed" ? "recorded as confirmed" : "suitability to confirm"}${device.notes ? `. ${device.notes.replaceAll("\n", "; ")}` : ""}`);
+  return topology.devices.map(device => {
+    const identity = [device.manufacturer, device.sku].filter(Boolean).join(" ") || device.name;
+    const ports = device.ports?.length
+      ? device.ports.map(port => `${port.direction}: ${port.name}${port.connector ? ` (${port.connector})` : " (connector / protocol to confirm)"}${port.services.length ? ` [${port.services.join(" + ")}]` : " [services to confirm]"}${port.status === "unknown" ? " — to confirm" : port.status === "assumed" ? " — assumed, validate" : ""}`).join("; ")
+      : "interfaces not captured";
+    const owner = device.ownership === "unassigned" ? "owner to assign" : device.ownership === "third-party" ? "customer / third-party" : device.ownership === "wyrestorm" ? "WyreStorm" : device.thirdParty ? "customer / third-party" : "owner not recorded";
+    return `${device.quantity} × ${identity} — ${device.signalRole || device.category}, ${topology.locations.find(location => location.id === device.locationId)?.name || "Location to confirm"}; ${owner}; ${device.status === "confirmed" ? "recorded as confirmed" : "suitability to confirm"}; interfaces: ${ports}${device.notes ? `. ${device.notes.replaceAll("\n", "; ")}` : ""}`;
+  });
 }
 
 export function roomTemplateEquipment(topology: ProjectTopology): import('../../lib/customRoomTemplates').CreateCustomRoomTemplateInput['bom'] {
   return topology.devices.map(device => ({
-    id: device.id, sku: device.thirdParty ? `BY-OTHERS-${device.id}` : device.sku || 'CUSTOM',
+    id: device.id, sku: device.ownership === "unassigned" ? "TBC" : device.thirdParty ? `BY-OTHERS-${device.id}` : device.sku || 'CUSTOM',
     description: device.name, role: device.category, qty: device.quantity, type: 'Validate',
     status: 'validate', manufacturer: device.manufacturer, model: device.sku,
     productRelationship: device.productRelationship,
     evidence: device.notes || 'Selected during Discovery; specifications require review.',
     notes: `Location: ${topology.locations.find(location => location.id === device.locationId)?.name || 'To confirm'}. ${device.notes || ''}`,
-    owner: device.thirdParty ? 'integrator' : 'wyrestorm',
+    owner: device.ownership === "unassigned" ? "to-confirm" : device.ownership === "third-party" || device.thirdParty ? 'integrator' : 'wyrestorm',
   }));
 }
 
