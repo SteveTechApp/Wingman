@@ -46,7 +46,7 @@ const WYRESTORM_INPUTS = [
 const COMPETITOR_DIR = "data-sources/competitors";
 
 export function sha256(text) {
-  return createHash("sha256").update(text).digest("hex");
+  return createHash("sha256").update(text.replace(/\r\n?/g, "\n"), "utf8").digest("hex");
 }
 
 function readText(rootDir, relative) {

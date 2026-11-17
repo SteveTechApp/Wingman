@@ -657,8 +657,10 @@ async function compileCompetitors() {
 }
 
 async function hashFile(relativePath) {
-  const content = await fs.readFile(path.join(root, relativePath));
-  return crypto.createHash("sha256").update(content).digest("hex");
+  const content = await fs.readFile(path.join(root, relativePath), "utf8");
+  // Manifest identity is about source content, not the checkout's platform
+  // newline convention. Keep hashes stable across CRLF and LF worktrees.
+  return crypto.createHash("sha256").update(content.replace(/\r\n?/g, "\n"), "utf8").digest("hex");
 }
 
 async function buildManifest(products, competitors, competitorFiles) {
