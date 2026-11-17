@@ -106,6 +106,11 @@ const OCCUPANCY = [
 const PURPOSES = [
   { value: "present", label: "Share a laptop and present to the others in the room" },
   { value: "meet", label: "Meet people elsewhere on video, as a room" },
+  {
+    value: "present-and-meet",
+    label: "Present locally and join video calls",
+    description: "Share content in the room while its camera and microphones serve people joining remotely.",
+  },
   { value: "teach", label: "Teach or train a group, with the teacher at the front" },
   { value: "show-many", label: "Show several sources at once" },
   { value: "address-crowd", label: "Address a large group or an audience" },
@@ -512,6 +517,13 @@ export function setupArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
   return (capacityFit.length ? capacityFit : matching.length ? matching : ARCHETYPES).map((archetype) => archetype.id);
 }
 
+/** A combined presentation and conferencing purpose already answers this. */
+function withImpliedAnswers(answers: RoomBriefAnswers): RoomBriefAnswers {
+  return answers.purpose === "present-and-meet" && !answers["far-end"]
+    ? { ...answers, "far-end": "yes" }
+    : answers;
+}
+
 /**
  * The room types still possible: setup first, then every answered question.
  *
@@ -521,9 +533,10 @@ export function setupArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
  * and then "one presenter" has a divided teaching space and not an error.
  */
 export function survivingArchetypes(answers: RoomBriefAnswers): RoomArchetypeId[] {
-  let surviving = setupArchetypes(answers);
+  const effectiveAnswers = withImpliedAnswers(answers);
+  let surviving = setupArchetypes(effectiveAnswers);
   for (const question of ROOM_BRIEF_QUESTIONS) {
-    const value = String(answers[question.id] ?? "");
+    const value = String(effectiveAnswers[question.id] ?? "");
     if (!value) continue;
     const option = question.options.find((candidate) => candidate.value === value);
     if (!option) continue;
@@ -564,24 +577,25 @@ export function splitScore(question: RoomBriefQuestion, surviving: RoomArchetype
  * between, because the rep can see which two and ask one question of their own.
  */
 export function nextRoomBriefQuestion(answers: RoomBriefAnswers): RoomBriefQuestion | null {
-  const surviving = survivingArchetypes(answers);
+  const effectiveAnswers = withImpliedAnswers(answers);
+  const surviving = survivingArchetypes(effectiveAnswers);
   // Call direction changes the design even after the room type is clear. Ask it
   // once on every path so a one-way stream or hybrid call cannot disappear just
   // because the archetype was obvious from purpose and size.
   const videoDirection = ROOM_BRIEF_QUESTIONS.find((question) => question.id === "far-end");
-  if (videoDirection && !answers[videoDirection.id]) return videoDirection;
-  if (answers["far-end"] === "stream-out") {
+  if (videoDirection && !effectiveAnswers[videoDirection.id]) return videoDirection;
+  if (effectiveAnswers["far-end"] === "stream-out") {
     const streamDetail = ROOM_BRIEF_QUESTIONS.find((question) =>
-      ["stream-source", "stream-destination"].includes(question.id) && !answers[question.id]);
+      ["stream-source", "stream-destination"].includes(question.id) && !effectiveAnswers[question.id]);
     if (streamDetail) return streamDetail;
   }
   if (surviving.length <= 1) return null;
-  const asked = ROOM_BRIEF_QUESTIONS.filter((question) => answers[question.id]);
+  const asked = ROOM_BRIEF_QUESTIONS.filter((question) => effectiveAnswers[question.id]);
   let best: { question: RoomBriefQuestion; score: number } | null = null;
   for (const question of ROOM_BRIEF_QUESTIONS) {
     // A live stream is already a capture requirement; asking whether to record
     // or stream again would not change the room decision.
-    if (question.id === "record" && answers["far-end"] === "stream-out") continue;
+    if (question.id === "record" && effectiveAnswers["far-end"] === "stream-out") continue;
     if (asked.includes(question)) continue;
     const score = splitScore(question, surviving);
     if (score > 0 && (!best || score > best.score)) best = { question, score };
@@ -601,15 +615,21 @@ export function questionsAsked(answers: RoomBriefAnswers): number {
  * narrower room, and the unresolved list on the result names what a person would
  * have to ask to tell them apart.
  */
-export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMarket | "" = ""): RoomDecision {
-  const surviving = survivingArchetypes(answers);
-  const chosen = ARCHETYPES.find((archetype) => archetype.id === surviving[0]) ?? ARCHETYPES[0];
+export function resolveRoomBrief(
+  answers: RoomBriefAnswers,
+  market: TemplateMarket | "" = "",
+  preferred?: RoomArchetypeId,
+): RoomDecision {
+  const effectiveAnswers = withImpliedAnswers(answers);
+  const surviving = survivingArchetypes(effectiveAnswers);
+  const selected = preferred && surviving.includes(preferred) ? preferred : surviving[0];
+  const chosen = ARCHETYPES.find((archetype) => archetype.id === selected) ?? ARCHETYPES[0];
   return {
     archetype: chosen.id,
     roomType: chosen.roomType,
     summary: chosen.summary,
     requirements: [
-      ...chosen.requirements(answers),
+      ...chosen.requirements(effectiveAnswers),
       ...(answers["far-end"] === "stream-out" ? [{
         key: "live-stream",
         label: "Live stream output",
@@ -637,7 +657,7 @@ export function resolveRoomBrief(answers: RoomBriefAnswers, market: TemplateMark
     changesIf: chosen.changesIf,
     market,
     questionsAsked: questionsAsked(answers),
-    unresolved: surviving.slice(1),
+    unresolved: surviving.filter((id) => id !== chosen.id),
     ...(answers["far-end"] === "stream-out" ? { liveStreamOut: true } : {}),
     ...(answers["far-end"] === "stream-out" && answers["stream-source"] ? { liveStreamSource: answers["stream-source"] } : {}),
     ...(answers["far-end"] === "stream-out" && answers["stream-destination"] ? { liveStreamDestination: answers["stream-destination"] } : {}),
@@ -680,7 +700,6 @@ export function roomBriefAnswersFromDiscovery(answers: Record<string, unknown>):
   if (application === "av-over-ip") result.reach = "yes";
   else if (value("network-path") === "no-network-distribution") result.reach = "no";
   else if (value("network-path")) result.reach = "yes";
-  if (application === "video-wall" && !displayBehaviour.includes("video-wall-or-processor-feed")) result.dwell = "pass";
   const control = value("control").toLowerCase();
   if (control.includes("operator") || control.includes("staff")) result.operated = "staffed";
   else if (control.includes("presenter") || application === "classroom") result.operated = "presenter";
@@ -691,10 +710,17 @@ export function roomBriefAnswersFromDiscovery(answers: Record<string, unknown>):
 /** Resolve a captured room when Discovery has named a supported application. */
 export function decisionForCapturedRoom(answers: Record<string, unknown>, market: TemplateMarket | "" = ""): RoomDecision | null {
   const brief = roomBriefAnswersFromDiscovery(answers);
+  const application = String(answers.opportunity ?? "");
   const ucAnswer = answers["uc-purpose"];
   const ucPurpose = Array.isArray(ucAnswer) ? ucAnswer.map(String) : [String(ucAnswer ?? "")];
   if (brief.purpose === "present" && (ucPurpose.includes("video-conferencing") || ucPurpose.includes("conferencing-recording"))) brief.purpose = "present-and-meet";
-  return brief.purpose ? resolveRoomBrief(brief, market) : null;
+  const preferredByApplication: Partial<Record<string, RoomArchetypeId>> = {
+    "video-wall": "signage-wall",
+    "av-over-ip": "campus-distribution",
+    classroom: "classroom",
+    hospitality: "venue",
+  };
+  return brief.purpose ? resolveRoomBrief(brief, market, preferredByApplication[application]) : null;
 }
 
 /**
