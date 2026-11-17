@@ -105,6 +105,7 @@ export function DiscoveryExpertBuilder(props: Props) {
             confirmed={Boolean(confirmed[question.id])} onSelect={value => selectOption(question, value)}
             onNoteChange={value => props.onNotesChange(previous => ({ ...previous, [question.id]: value }))}
             onConfirm={value => props.onConfirm(question.id, value)} onConfirmCapture={(values, confidence) => props.onConfirmCaptureSuggestion(question.id, values, confidence)} />)}
+        {activeSection === "routing" && <DiscoveryRoomLocations topology={topology} onChange={props.onTopologyChange} />}
         {activeSection === "equipment" && <>
           <p>Keep an item as a role placeholder until the manufacturer and model are confirmed. WyreStorm equipment, competitor alternatives, and complementary products retain separate identities.</p>
           <details className="wm-expert-equipment-library"><summary>Add from saved equipment</summary><EquipmentLibraryPanel locations={topology.locations} onSelect={(item, location, quantity) => props.onTopologyChange(addEquipmentToRoom(topology, item, location, quantity))} /></details>

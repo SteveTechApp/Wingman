@@ -93,7 +93,7 @@ export function RoomBriefWizard() {
             capture the room and signal paths that change the design.
           </p>
 
-          <label>
+          <label className="wm-room-brief-market">
             <span>Market</span>
             <select
               aria-label="Market"
@@ -110,7 +110,7 @@ export function RoomBriefWizard() {
             </select>
           </label>
 
-          <fieldset>
+          <fieldset className="wm-room-brief-question wm-room-brief-purpose">
             <legend className="wm-section-title">What does the room have to do?</legend>
             {marketApplications.length ? (
               <>
@@ -136,9 +136,9 @@ export function RoomBriefWizard() {
                 <p className="wm-ui-kicker">Or start with a general room function</p>
               </>
             ) : null}
-            <div>
+            <div className="wm-room-brief-options">
               {ROOM_BRIEF_PURPOSES.map((purpose) => (
-                <label key={purpose.value}>
+                <label key={purpose.value} className={`wm-room-brief-option${answers.purpose === purpose.value ? " is-selected" : ""}`}>
                   <input
                     type="radio"
                     name="room-brief-purpose"
@@ -150,17 +150,18 @@ export function RoomBriefWizard() {
                       marketApplication: "",
                     }))}
                   />
-                  <span>
+                  <span className="wm-room-brief-option-copy">
                     <span>{purpose.label}</span>
+                    {"description" in purpose && purpose.description ? <small>{purpose.description}</small> : null}
                   </span>
                 </label>
               ))}
             </div>
           </fieldset>
 
-          <fieldset>
+          <fieldset className="wm-room-brief-question wm-room-brief-occupancy">
             <legend className="wm-section-title">How many people are in it?</legend>
-            <div>
+            <div className="wm-room-brief-options">
               {ROOM_BRIEF_OCCUPANCIES.map((band) => (
                 <label key={band.value}>
                   <input
