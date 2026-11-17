@@ -108,9 +108,20 @@ states is one they trust by mistake.
   and who selects content and how. Include central rack, local rack, lectern,
   table, display and remote locations; preserve device type, quantity,
   ownership, connector and source-selection behavior in the room model and
-  proposal requirements. A control answer is a functional requirement, not a
-  control SKU: add a product only when its interface and integration are
-  resolved. [Narrative](docs/DISCOVERY.md)
+  proposal requirements. Discovery can start directly from a custom room with
+  no market or template assumptions; market is optional context and never a
+  substitute for the user's room facts. The custom topology records sources,
+  processing devices, destinations and infrastructure, their declared input / output
+  interfaces, and route segments between them. The rep names each required
+  physical source-to-destination pairing and its services; every declared
+  source and destination unit belongs to at least one pairing, but Wingman does
+  not infer all-to-all routing. Each required service must traverse directed,
+  unit-specific route segments. Legacy routes without unit numbers remain
+  assigned to unit 1, and a room with devices but no routes remains saveable.
+  Missing ports, pairings, services, transport, route length or endpoint paths
+  stay visible as design checks. A
+  control answer is a functional requirement, not a control SKU: add a product
+  only when its interface and integration are resolved. [Narrative](docs/DISCOVERY.md)
 - The Catalogue and Call cards share filters that answer three separate questions: the broad product area,
   the job the item performs, and the features or connections it supports. An
   area may overlap because a product can serve more than one; a role describes
@@ -342,7 +353,8 @@ states is one they trust by mistake.
   `discovery-<verb>-<object>`; repeated choices append stable model ids, never
   display labels, because the walk drives those ids and a label change would
   silently retarget it. Copy assertions belong in content tests.
-- The selected Discovery market and environment frame the question set. A
+- If selected, the Discovery market and environment frame the question set; a
+  custom room-first design can leave both unset. A
   Lecture theatre can start with a large-room scale and an explicitly estimated
   100-seat capacity; measured L/W/H stays blank for the site survey. If the rep
   changes market, unchanged inferred values are cleared while edits remain.
@@ -656,9 +668,9 @@ states is one they trust by mistake.
   requirement carries the answer that asked for it, because a line without a
   reason is hard for a rep to explain or validate. The library stays one
   link away for the rep who already knows what they want, and it opens on the
-  market the room was described in (`?market=`), because the vertical is a fact
-  the brief has already read and a rep should not have to say it twice.
-- A market environment that maps to an application has already answered
+  optional market the room was described in (`?market=`), when one was
+  captured, so the rep does not have to select it twice.
+- A selected market environment that maps to an application has already answered
   Discovery's `opportunity` question. Basic and Expert keep that answer in the
   shared record and omit the repeat; `getVisibleDiscoveryQuestions` then removes
   application-inapplicable question groups and uses the selected application to

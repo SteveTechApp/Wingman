@@ -13,9 +13,9 @@ import { baseDiscoveryQuestions, getVisibleDiscoveryQuestions } from "../pages/d
 import type { DiscoveryAnswers, DiscoveryNotes } from "../pages/discovery/discoveryTypes";
 import {
   normaliseProjectTopology,
-  projectTopologyDistanceSummary,
   projectTopologyHasContent,
 } from "../lib/projectTopology";
+import { projectTopologyDistanceSummary } from "../lib/projectTopologyReview";
 
 export const DISCOVERY_BRIEF_KEY = "wingman-discovery-brief";
 export const DISCOVERY_SNAPSHOT_KEY = "wingman-discovery-snapshot-v3";

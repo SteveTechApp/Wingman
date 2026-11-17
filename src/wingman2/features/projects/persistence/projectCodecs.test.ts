@@ -21,6 +21,44 @@ describe("project persistence codecs", () => {
     expect(decoded).not.toHaveProperty("omittedProductSkus");
   });
 
+  it("round-trips a room topology with required unit routes and keeps incomplete legacy rooms", () => {
+    const topology = {
+      schemaVersion: 1,
+      mode: "advanced",
+      locations: [{ id: "room", name: "Main room", type: "custom" }],
+      devices: [
+        { id: "camera", name: "Camera", category: "camera", signalRole: "source", ownership: "third-party", locationId: "room", quantity: 2, thirdParty: true, status: "confirmed", ports: [{ id: "camera-out", direction: "output", name: "HDMI out", connector: "HDMI", services: ["video"], status: "confirmed" }] },
+        { id: "display", name: "Display", category: "display", signalRole: "destination", ownership: "wyrestorm", locationId: "room", quantity: 2, thirdParty: false, status: "confirmed", ports: [{ id: "display-in", direction: "input", name: "HDMI in", connector: "HDMI", services: ["video"], status: "confirmed" }] },
+      ],
+      connections: [{ id: "camera-2-display-2", fromDeviceId: "camera", fromUnit: 2, fromPort: "camera-out", toDeviceId: "display", toUnit: 2, toPort: "display-in", services: ["video"], transport: "hdmi", lengthMode: "unknown", status: "confirmed" }],
+      signalRequirements: [{ id: "camera-2-display-2-video", fromDeviceId: "camera", fromUnit: 2, toDeviceId: "display", toUnit: 2, services: ["video"] }],
+      generatedFromDiscovery: false,
+      createdAt: BASE_PROJECT.createdAt,
+      updatedAt: BASE_PROJECT.updatedAt,
+    };
+    const decoded = decodeStoredProject({
+      ...BASE_PROJECT,
+      discoveryBrief: { savedAt: BASE_PROJECT.updatedAt, topology },
+    });
+
+    expect(decoded?.discoveryBrief?.topology?.devices).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "camera", quantity: 2, signalRole: "source", ownership: "third-party" }),
+      expect.objectContaining({ id: "display", quantity: 2, signalRole: "destination", ownership: "wyrestorm" }),
+    ]));
+    expect(decoded?.discoveryBrief?.topology?.connections).toMatchObject([{ id: "camera-2-display-2", fromUnit: 2, toUnit: 2 }]);
+    expect(decoded?.discoveryBrief?.topology?.signalRequirements).toMatchObject([{ id: "camera-2-display-2-video", fromUnit: 2, toUnit: 2, services: ["video"] }]);
+
+    const incomplete = decodeStoredProject({
+      ...BASE_PROJECT,
+      discoveryBrief: {
+        savedAt: BASE_PROJECT.updatedAt,
+        topology: { ...topology, connections: [], signalRequirements: [] },
+      },
+    });
+    expect(incomplete?.discoveryBrief?.topology?.devices).toHaveLength(2);
+    expect(incomplete?.discoveryBrief?.topology?.signalRequirements).toEqual([]);
+  });
+
   it("keeps dependency prompts answered as documented dependencies across a reload", () => {
     const decoded = decodeStoredProject({
       ...BASE_PROJECT,

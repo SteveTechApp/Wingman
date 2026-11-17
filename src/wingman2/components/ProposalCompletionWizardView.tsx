@@ -36,8 +36,8 @@ import {
 } from "../features/projects";
 import {
   normaliseProjectTopology,
-  projectTopologySurveyState,
 } from "../lib/projectTopology";
+import { projectTopologySurveyState } from "../lib/projectTopologyPlanning";
 import { buildSiteSurveyChecklist } from "../lib/siteSurveyChecklist";
 import { getInstallChecked } from "../lib/siteSurveyStorage";
 import { useWingmanProfile, type WingmanProfile } from "../data/wingmanProfile";

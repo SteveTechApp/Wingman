@@ -5,6 +5,19 @@ import { DiscoveryMarketEntry } from "./DiscoveryMarketEntry";
 import { applyDiscoveryEnvironmentInference, clearUnchangedDiscoveryEnvironmentInference, inferDiscoveryEnvironment } from "./discoveryMarketContext";
 
 describe("Discovery market entry", () => {
+  it("offers a blank design without selecting a market or inferred application", () => {
+    const onEnvironmentSelect = vi.fn();
+    render(<DiscoveryMarketEntry marketId="" environmentId="" onMarketChange={vi.fn()} onEnvironmentSelect={onEnvironmentSelect} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Start with a blank AV design/ }));
+
+    expect(onEnvironmentSelect).toHaveBeenCalledWith(
+      "custom-room",
+      undefined,
+      expect.stringContaining("no market or template assumptions"),
+    );
+  });
+
   it("starts with markets and searches their environments", () => {
     const onMarketChange = vi.fn();
     render(<DiscoveryMarketEntry marketId="" environmentId="" onMarketChange={onMarketChange} onEnvironmentSelect={vi.fn()} />);

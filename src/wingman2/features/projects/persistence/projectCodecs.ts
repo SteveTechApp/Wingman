@@ -231,7 +231,10 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
   if (!record) return undefined;
 
   const topology = normaliseProjectTopology(record.topology);
-  const hasTopology = topology.locations.length > 0 || topology.connections.length > 0;
+  const hasTopology = topology.locations.length > 0
+    || topology.devices.length > 0
+    || topology.connections.length > 0
+    || Boolean(topology.signalRequirements?.length);
   const decisionRecord = objectRecord(record.roomDecision);
   const roomArchetypes = ["huddle-byod", "meeting-single", "meeting-dual", "divisible-boardroom", "classroom", "lecture-capture", "all-hands", "control-room", "venue", "signage-wall", "campus-distribution"] as const;
   const archetypeValue = stringValue(decisionRecord?.archetype);

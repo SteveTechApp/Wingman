@@ -6,13 +6,15 @@ import { deriveDiscoveryAudioDesign } from "../../lib/discoveryAudioDesign";
 import {
   generateProjectTopologyFromDiscovery,
   normaliseProjectTopology,
+  type ProjectTopology,
+} from "../../lib/projectTopology";
+import {
   projectTopologyConnectionTypes,
   projectTopologyLongestRun,
   projectTopologyMissingInformation,
   projectTopologyNetworkSummary,
   projectTopologySummary,
-  type ProjectTopology,
-} from "../../lib/projectTopology";
+} from "../../lib/projectTopologyReview";
 import {
   buildDiscoveryConversation,
   getAvoipDirection,

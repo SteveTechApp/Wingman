@@ -20,16 +20,14 @@ import { WALL_ENTRY_NAME, WALL_ENTRY_SENTENCE_NAME } from "../lib/wallEntry";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
-  clearDiscoveryTopology,
   createBlankProjectTopology,
   generateProjectTopologyFromDiscovery,
   normaliseProjectTopology,
   projectTopologyHasContent,
-  projectTopologySummary,
-  readDiscoveryTopology,
-  writeDiscoveryTopology,
   type ProjectTopology,
 } from "../lib/projectTopology";
+import { projectTopologySummary } from "../lib/projectTopologyReview";
+import { clearDiscoveryTopology, readDiscoveryTopology, writeDiscoveryTopology } from "../lib/projectTopologyPlanning";
 import type { TemplateBomRow } from "../lib/roomTemplates";
 import type { DiscoveryAnswers, DiscoveryNotes } from "./discovery/discoveryTypes";
 import { getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
@@ -1008,7 +1006,10 @@ return (
             if (DISCOVERY_TEMPLATE_MARKET[nextMarket]) setTemplateDraftMarket(DISCOVERY_TEMPLATE_MARKET[nextMarket]);
           }}
           onEnvironmentSelect={(nextEnvironment, suggestedApplication, description) => {
-            const inferred = applyDiscoveryEnvironmentInference(answers, notes, marketId, nextEnvironment);
+            const roomFirstStart = !marketId && nextEnvironment === "custom-room";
+            const inferred = roomFirstStart
+              ? { answers, notes }
+              : applyDiscoveryEnvironmentInference(answers, notes, marketId, nextEnvironment);
             setAnswers({
               ...inferred.answers,
               environment: nextEnvironment,

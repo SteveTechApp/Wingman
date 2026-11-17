@@ -9,7 +9,6 @@
     "max-file-lines:src/wingman2/lib/compareSpecEngine.ts": { "maxLines": 1651 },
     "max-file-lines:src/wingman2/lib/productStoryEngine.ts": { "maxLines": 1302 },
     "max-file-lines:src/wingman2/lib/productTopology.ts": { "maxLines": 1217 },
-    "max-file-lines:src/wingman2/lib/projectTopology.ts": { "maxLines": 1465 },
     "max-file-lines:src/wingman2/pages/ProductCallCardsPage.tsx": { "maxLines": 2012 },
     "max-file-lines:src/wingman2/pages/RecommendationsPage.tsx": { "maxLines": 1588 },
     "max-file-lines:src/wingman2/pages/discovery/DiscoveryGuidedInterview.tsx": { "maxLines": 1510 },

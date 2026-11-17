@@ -14,10 +14,8 @@ import { readDiscoveryAudioDesign } from "./discoveryAudioDesign";
 import { buildAvDecisionEvidence } from "./avDecisionEvidence";
 import {
   normaliseProjectTopology,
-  projectTopologyConnectionTypes,
-  projectTopologyEvidenceLines,
-  projectTopologySummary,
 } from "./projectTopology";
+import { projectTopologyConnectionTypes, projectTopologyEvidenceLines, projectTopologySummary } from "./projectTopologyReview";
 
 export type RecommendationEvidenceProduct = {
   sku: string;
